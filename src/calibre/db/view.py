@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, operator, numbers
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
@@ -376,7 +376,7 @@ class View:
             self.marked_ids = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = {k: unicode_type(v) for k, v in iteritems(id_dict)}
+            self.marked_ids = {k: str(v) for k, v in iteritems(id_dict)}
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)

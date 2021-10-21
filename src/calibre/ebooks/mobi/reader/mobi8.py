@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import unicode_type, as_unicode
+from polyglot.builtins import as_unicode
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
@@ -225,7 +225,7 @@ class Mobi8Reader:
             self.parts.append(skeleton)
             if divcnt < 1:
                 # Empty file
-                aidtext = unicode_type(uuid4())
+                aidtext = str(uuid4())
                 filename = aidtext + '.html'
             self.partinfo.append(Part(skelnum, 'text', filename, skelpos,
                 baseptr, aidtext))

@@ -31,7 +31,7 @@ from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues
 from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
@@ -470,7 +470,7 @@ class CoverDelegate(QStyledItemDelegate):
                 if fm and fm['datatype'] == 'rating':
                     ans = rating_to_stars(val, fm['display'].get('allow_half_stars', False))
                     is_stars = True
-            return ('' if ans is None else unicode_type(ans)), is_stars
+            return ('' if ans is None else str(ans)), is_stars
         except Exception:
             if DEBUG:
                 import traceback

@@ -10,7 +10,7 @@ from calibre.ebooks.metadata.book.base import field_from_string
 from calibre.ebooks.metadata.book.serialize import read_cover
 from calibre.ebooks.metadata.opf import get_metadata
 from calibre.srv.changes import metadata
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -181,5 +181,5 @@ def main(opts, args, dbctx):
         if not final_mi:
             raise SystemExit(_('No book with id: %s in the database') % book_id)
 
-    prints(unicode_type(final_mi))
+    prints(str(final_mi))
     return 0

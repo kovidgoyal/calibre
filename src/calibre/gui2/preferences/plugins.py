@@ -24,7 +24,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 class AdaptSQP(SearchQueryParser):
@@ -204,7 +204,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             plugin = self.index_to_plugin(index)
             disabled = is_disabled(plugin)
             if role == Qt.ItemDataRole.DisplayRole:
-                ver = '.'.join(map(unicode_type, plugin.version))
+                ver = '.'.join(map(str, plugin.version))
                 desc = '\n'.join(textwrap.wrap(plugin.description, 100))
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
@@ -281,7 +281,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx,
-                unicode_type(self.search.currentText()))
+                str(self.search.currentText()))
         self.highlight_index(idx)
 
     def find_previous(self, *args):
@@ -289,7 +289,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx,
-            unicode_type(self.search.currentText()), backwards=True)
+            str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
     def toggle_plugin(self, *args):
@@ -327,7 +327,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 plugin = add_plugin(path)
             except NameConflict as e:
                 return error_dialog(self, _('Already exists'),
-                        unicode_type(e), show=True)
+                        str(e), show=True)
             self._plugin_model.beginResetModel()
             self._plugin_model.populate()
             self._plugin_model.endResetModel()
@@ -349,7 +349,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         index = self.plugin_view.currentIndex()
         if index.isValid():
             if not index.parent().isValid():
-                name = unicode_type(index.data() or '')
+                name = str(index.data() or '')
                 return error_dialog(self, _('Error'), '<p>'+
                         _('Select an actual plugin under <b>%s</b> to customize')%name,
                         show=True, show_copy_button=False)

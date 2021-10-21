@@ -11,7 +11,6 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import unicode_type
 
 
 class HTMLZOutput(OutputFormatPlugin):
@@ -80,9 +79,9 @@ class HTMLZOutput(OutputFormatPlugin):
             fname = u'index'
             if opts.htmlz_title_filename:
                 from calibre.utils.filenames import shorten_components_to
-                fname = shorten_components_to(100, (ascii_filename(unicode_type(oeb_book.metadata.title[0])),))[0]
+                fname = shorten_components_to(100, (ascii_filename(str(oeb_book.metadata.title[0])),))[0]
             with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
-                if isinstance(html, unicode_type):
+                if isinstance(html, str):
                     html = html.encode('utf-8')
                 tf.write(html)
 

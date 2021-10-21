@@ -7,7 +7,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, codecs, sys
-from polyglot.builtins import unicode_type
 
 _encoding_pats = (
     # XML declaration
@@ -140,7 +139,7 @@ def force_encoding(raw, verbose, assume_utf8=False):
 
 
 def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
-    if not raw or isinstance(raw, unicode_type):
+    if not raw or isinstance(raw, str):
         return raw, None
     for x in ('utf8', 'utf-16-le', 'utf-16-be'):
         bom = getattr(codecs, 'BOM_'+x.upper().replace('-16', '16').replace(
@@ -184,7 +183,7 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         return '', None
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,
             assume_utf8=assume_utf8)
-    if not isinstance(raw, unicode_type):
+    if not isinstance(raw, str):
         raw = raw.decode(encoding, 'replace')
 
     if strip_encoding_pats:

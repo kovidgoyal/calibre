@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 _available_translations = None
 
@@ -430,7 +430,7 @@ def calibre_langcode_to_name(lc, localize=True):
 def canonicalize_lang(raw):
     if not raw:
         return None
-    if not isinstance(raw, unicode_type):
+    if not isinstance(raw, str):
         raw = raw.decode('utf-8', 'ignore')
     raw = raw.lower().strip()
     if not raw:

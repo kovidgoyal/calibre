@@ -14,7 +14,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr
 from polyglot.urllib import parse_qs, quote_plus
 
 URL = \
@@ -30,7 +30,7 @@ def get_series(title, authors, timeout=60):
     title = re.sub(r'^(A|The|An)\s+', '', title).strip()
     if not title:
         return mi
-    if isinstance(title, unicode_type):
+    if isinstance(title, str):
         title = title.encode('utf-8')
 
     title = quote_plus(title)
@@ -75,7 +75,7 @@ def get_series(title, authors, timeout=60):
         mi.series = series
     ns = ss.nextSibling
     if ns.contents:
-        raw = unicode_type(ns.contents[0])
+        raw = str(ns.contents[0])
         raw = raw.partition('.')[0].strip()
         try:
             mi.series_index = int(raw)

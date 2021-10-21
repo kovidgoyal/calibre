@@ -18,7 +18,7 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
-from polyglot.builtins import iteritems, string_or_bytes, as_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes, as_bytes
 from polyglot.urllib import urlencode
 
 # /mobile {{{
@@ -62,10 +62,10 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 
     num_select = E.select(name='num')
     for option in (5, 10, 25, 100):
-        kwargs = {'value':unicode_type(option)}
+        kwargs = {'value':str(option)}
         if option == num:
             kwargs['SELECTED'] = 'SELECTED'
-        num_select.append(E.option(unicode_type(option), **kwargs))
+        num_select.append(E.option(str(option), **kwargs))
     num_select.tail = ' books matching '
     form.append(num_select)
 

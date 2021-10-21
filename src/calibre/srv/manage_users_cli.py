@@ -8,7 +8,7 @@ from functools import partial
 from calibre import prints
 from calibre.constants import preferred_encoding, iswindows
 from calibre.utils.config import OptionParser
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def create_subcommand_parser(name, usage):
@@ -123,7 +123,7 @@ def manage_users_cli(path=None, args=()):
                     len(choices), _('default'), default + 1)
             reply = get_input(prompt)
             if not reply and default is not None:
-                reply = unicode_type(default + 1)
+                reply = str(default + 1)
             if not reply:
                 prints(_('No choice selected, exiting...'))
                 raise SystemExit(0)

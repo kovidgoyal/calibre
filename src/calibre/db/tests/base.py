@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
-from polyglot.builtins import unicode_type
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -82,7 +81,7 @@ class BaseTest(unittest.TestCase):
             atexit.register(rmtree, self.clone_dir)
             self.clone_count = 0
         self.clone_count += 1
-        dest = os.path.join(self.clone_dir, unicode_type(self.clone_count))
+        dest = os.path.join(self.clone_dir, str(self.clone_count))
         shutil.copytree(library_path, dest)
         return dest
 

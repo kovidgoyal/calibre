@@ -29,7 +29,7 @@ from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre_extensions import msdes
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, native_string_type
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, native_string_type
 from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']
@@ -283,7 +283,7 @@ class ReBinary:
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
             data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
-            if isinstance(anchor, unicode_type):
+            if isinstance(anchor, str):
                 anchor = anchor.encode('utf-8')
             data.write(anchor)
             data.write(pack('<I', offset))
@@ -314,7 +314,7 @@ class LitWriter:
         oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
         if oeb.metadata.cover:
-            id = unicode_type(oeb.metadata.cover[0])
+            id = str(oeb.metadata.cover[0])
             cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
@@ -486,7 +486,7 @@ class LitWriter:
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
-            elif isinstance(data, unicode_type):
+            elif isinstance(data, str):
                 data = data.encode('utf-8')
             elif hasattr(data, 'cssText'):
                 data = item.bytes_representation
@@ -521,9 +521,9 @@ class LitWriter:
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [codepoint_to_chr(len(id)), unicode_type(id),
-                         codepoint_to_chr(len(href)), unicode_type(href),
-                         codepoint_to_chr(len(media_type)), unicode_type(media_type)]
+                entry = [codepoint_to_chr(len(id)), str(id),
+                         codepoint_to_chr(len(href)), str(href),
+                         codepoint_to_chr(len(media_type)), str(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
                 data.write(b'\0')

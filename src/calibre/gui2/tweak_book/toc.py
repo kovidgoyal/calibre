@@ -17,7 +17,6 @@ from calibre.gui2 import error_dialog, make_view_use_window_background
 from calibre.gui2.toc.main import ItemEdit, TOCView
 from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import unicode_type
 
 
 class TOCEditor(QDialog):
@@ -199,8 +198,8 @@ class TOCViewer(QWidget):
     def emit_navigate(self, *args):
         item = self.view.currentItem()
         if item is not None:
-            dest = unicode_type(item.data(0, DEST_ROLE) or '')
-            frag = unicode_type(item.data(0, FRAG_ROLE) or '')
+            dest = str(item.data(0, DEST_ROLE) or '')
+            frag = str(item.data(0, FRAG_ROLE) or '')
             if not frag:
                 frag = TOP
             self.navigate_requested.emit(dest, frag)

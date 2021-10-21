@@ -29,7 +29,7 @@ from calibre.gui2 import error_dialog, gprefs, info_dialog, open_url, question_d
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
@@ -258,7 +258,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def set_filter_text(self, filter_text_value):
-        self.filter_text = icu_lower(unicode_type(filter_text_value))
+        self.filter_text = icu_lower(str(filter_text_value))
         self.invalidateFilter()
 
 
@@ -267,7 +267,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
-        self.headers = list(map(unicode_type, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
+        self.headers = list(map(str, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
                                       _('Available'), _('Released'), _('calibre'), _('Author')]))
 
     def rowCount(self, *args):
@@ -348,7 +348,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def _get_display_version(self, version):
         if version is None:
             return ''
-        return '.'.join([unicode_type(v) for v in list(version)])
+        return '.'.join([str(v) for v in list(version)])
 
     def _get_status(self, display_plugin):
         if not display_plugin.is_valid_platform():
@@ -713,7 +713,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 plugin = add_plugin(zip_path)
             except NameConflict as e:
                 return error_dialog(self.gui, _('Already exists'),
-                        unicode_type(e), show=True)
+                        str(e), show=True)
             # Check for any toolbars to add to.
             widget = ConfigWidget(self.gui)
             widget.gui = self.gui

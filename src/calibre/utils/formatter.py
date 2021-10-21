@@ -18,7 +18,7 @@ from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import strcmp
-from polyglot.builtins import unicode_type, error_message
+from polyglot.builtins import error_message
 
 
 class Node:
@@ -906,9 +906,9 @@ class _Interpreter:
                     else:
                         res = fm['is_multiple']['list_to_ui'].join(res)
                 else:
-                    res = unicode_type(res)
+                    res = str(res)
             else:
-                res = unicode_type(res)  # Should be the string "None"
+                res = str(res)  # Should be the string "None"
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
@@ -1044,7 +1044,7 @@ class _Interpreter:
         try:
             answer = self.ARITHMETIC_BINARY_OPS[prog.operator](float(self.expr(prog.left)),
                                                                float(self.expr(prog.right)))
-            res = unicode_type(answer if modf(answer)[0] != 0 else int(answer))
+            res = str(answer if modf(answer)[0] != 0 else int(answer))
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
@@ -1062,7 +1062,7 @@ class _Interpreter:
     def do_node_unary_arithop(self, prog):
         try:
             expr = self.ARITHMETIC_UNARY_OPS[prog.operator](float(self.expr(prog.expr)))
-            res = unicode_type(expr if modf(expr)[0] != 0 else int(expr))
+            res = str(expr if modf(expr)[0] != 0 else int(expr))
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
@@ -1187,7 +1187,7 @@ class TemplateFormatter(string.Formatter):
             except:
                 raise ValueError(
                     _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        return unicode_type(('{0:'+fmt+'}').format(val))
+        return str(('{0:'+fmt+'}').format(val))
 
     def _explode_format_string(self, fmt):
         try:
@@ -1261,7 +1261,7 @@ class TemplateFormatter(string.Formatter):
         # ensure we are dealing with a string.
         if isinstance(val, numbers.Number):
             if val:
-                val = unicode_type(val)
+                val = str(val)
             else:
                 val = ''
         # Handle conditional text

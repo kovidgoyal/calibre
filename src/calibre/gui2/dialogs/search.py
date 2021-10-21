@@ -20,7 +20,6 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
@@ -39,7 +38,7 @@ def init_dateop(cb):
 
 
 def current_dateop(cb):
-    return unicode_type(cb.itemData(cb.currentIndex()) or '')
+    return str(cb.itemData(cb.currentIndex()) or '')
 
 
 def create_msg_label(self):
@@ -332,11 +331,11 @@ class SearchDialog(QDialog):
                 gprefs.set('advanced_search_simple_tab_focused_field', fw.objectName())
         elif self.tab_widget.currentIndex() == 3:
             gprefs.set('advanced_search_template_tab_program_field',
-                       unicode_type(self.template_program_box.text()))
+                       str(self.template_program_box.text()))
             gprefs.set('advanced_search_template_tab_value_field',
-                       unicode_type(self.template_value_box.text()))
+                       str(self.template_value_box.text()))
             gprefs.set('advanced_search_template_tab_test_field',
-                       unicode_type(self.template_test_type_box.currentIndex()))
+                       str(self.template_test_type_box.currentIndex()))
 
     def accept(self):
         self.save_state()
@@ -374,17 +373,17 @@ class SearchDialog(QDialog):
                 self.date_search_string, self.template_search_string)[i]()
 
     def template_search_string(self):
-        template = unicode_type(self.template_program_box.text())
-        value = unicode_type(self.template_value_box.text()).replace('"', '\\"')
+        template = str(self.template_program_box.text())
+        value = str(self.template_value_box.text()).replace('"', '\\"')
         if template and value:
             cb = self.template_test_type_box
-            op =  unicode_type(cb.itemData(cb.currentIndex()))
+            op =  str(cb.itemData(cb.currentIndex()))
             l = '{0}#@#:{1}:{2}'.format(template, op, value)
             return 'template:"' + l + '"'
         return ''
 
     def date_search_string(self):
-        field = unicode_type(self.date_field.itemData(self.date_field.currentIndex()) or '')
+        field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
         prefix = '%s:%s' % (field, op)
         if self.sel_date.isChecked():
@@ -400,7 +399,7 @@ class SearchDialog(QDialog):
             val = self.date_daysago.value()
             val *= {0:1, 1:7, 2:30, 3:365}[self.date_ago_type.currentIndex()]
             return '%s%sdaysago' % (prefix, val)
-        return '%s%s' % (prefix, unicode_type(self.date_human.itemData(self.date_human.currentIndex()) or ''))
+        return '%s%s' % (prefix, str(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
     def adv_search_string(self):
         mk = self.matchkind.currentIndex()
@@ -410,7 +409,7 @@ class SearchDialog(QDialog):
             self.mc = '='
         else:
             self.mc = '~'
-        all, any, phrase, none = map(lambda x: unicode_type(x.text()),
+        all, any, phrase, none = map(lambda x: str(x.text()),
                 (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))
         phrase = phrase.strip()
@@ -432,11 +431,11 @@ class SearchDialog(QDialog):
         return ans
 
     def token(self):
-        txt = unicode_type(self.text.text()).strip()
+        txt = str(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
                 txt = '!'+txt
-            tok = self.FIELDS[unicode_type(self.field.currentText())]+txt
+            tok = self.FIELDS[str(self.field.currentText())]+txt
             if re.search(r'\s', tok):
                 tok = '"%s"'%tok
             return tok
@@ -452,35 +451,35 @@ class SearchDialog(QDialog):
 
         ans = []
         self.box_last_values = {}
-        title = unicode_type(self.title_box.text()).strip()
+        title = str(self.title_box.text()).strip()
         self.box_last_values['title_box'] = title
         if title:
             ans.append('title:"' + self.mc + title + '"')
-        author = unicode_type(self.authors_box.text()).strip()
+        author = str(self.authors_box.text()).strip()
         self.box_last_values['authors_box'] = author
         if author:
             ans.append('author:"' + self.mc + author + '"')
-        series = unicode_type(self.series_box.text()).strip()
+        series = str(self.series_box.text()).strip()
         self.box_last_values['series_box'] = series
         if series:
             ans.append('series:"' + self.mc + series + '"')
 
-        tags = unicode_type(self.tags_box.text())
+        tags = str(self.tags_box.text())
         self.box_last_values['tags_box'] = tags
         tags = [t.strip() for t in tags.split(',') if t.strip()]
         if tags:
             tags = ['tags:"' + self.mc + t + '"' for t in tags]
             ans.append('(' + ' or '.join(tags) + ')')
-        general = unicode_type(self.general_box.text())
+        general = str(self.general_box.text())
         self.box_last_values['general_box'] = general
-        general_index = unicode_type(self.general_combo.currentText())
+        general_index = str(self.general_combo.currentText())
         self.box_last_values['general_index'] = general_index
         global box_values
         global last_matchkind
         box_values = copy.deepcopy(self.box_last_values)
         last_matchkind = mk
         if general:
-            ans.append(unicode_type(self.general_combo.currentText()) + ':"' +
+            ans.append(str(self.general_combo.currentText()) + ':"' +
                     self.mc + general + '"')
         if ans:
             return ' and '.join(ans)

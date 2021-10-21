@@ -16,7 +16,7 @@ from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
 from calibre.utils.icu import ord_string
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 _patterns = None
 
@@ -82,7 +82,7 @@ def filter_words(word):
 
 def get_words(text, lang):
     try:
-        ans = split_into_words(unicode_type(text), lang)
+        ans = split_into_words(str(text), lang)
     except (TypeError, ValueError):
         return ()
     return list(filter(filter_words, ans))
@@ -318,7 +318,7 @@ def merge_locations(locs1, locs2):
 
 def replace(text, original_word, new_word, lang):
     indices = []
-    original_word, new_word, text = unicode_type(original_word), unicode_type(new_word), unicode_type(text)
+    original_word, new_word, text = str(original_word), str(new_word), str(text)
     q = text
     offset = 0
     while True:

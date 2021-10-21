@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -149,7 +149,7 @@ class DateSearch:  # {{{
 
         if query == 'false':
             for v, book_ids in field_iter():
-                if isinstance(v, (bytes, unicode_type)):
+                if isinstance(v, (bytes, str)):
                     if isinstance(v, bytes):
                         v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
@@ -159,7 +159,7 @@ class DateSearch:  # {{{
 
         if query == 'true':
             for v, book_ids in field_iter():
-                if isinstance(v, (bytes, unicode_type)):
+                if isinstance(v, (bytes, str)):
                     if isinstance(v, bytes):
                         v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
@@ -413,7 +413,7 @@ class SavedSearchQueries:  # {{{
         return self._db()
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode_type):
+        if not isinstance(x, str):
             x = x.decode(preferred_encoding, 'replace')
         return x
 

@@ -10,7 +10,6 @@ import os, time, re
 from functools import partial
 
 from calibre.devices.errors import DeviceError, WrongDestinationError, FreeSpaceError
-from polyglot.builtins import unicode_type
 
 
 def sanity_check(on_card, files, card_prefixes, free_space):
@@ -97,9 +96,9 @@ def create_upload_path(mdata, fname, template, sanitize,
     ext = path_type.splitext(fname)[1]
 
     opts = config().parse()
-    if not isinstance(template, unicode_type):
+    if not isinstance(template, str):
         template = template.decode('utf-8')
-    app_id = unicode_type(getattr(mdata, 'application_id', ''))
+    app_id = str(getattr(mdata, 'application_id', ''))
     id_ = mdata.get('id', fname)
     extra_components = get_components(template, mdata, id_,
             timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,

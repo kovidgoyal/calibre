@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 from functools import partial
-from polyglot.builtins import iteritems, unicode_type, native_string_type
+from polyglot.builtins import iteritems, native_string_type
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.config_base import tweaks
@@ -101,8 +101,8 @@ def clean_user_categories(dbcache):
         if len(comps) == 0:
             i = 1
             while True:
-                if unicode_type(i) not in user_cats:
-                    new_cats[unicode_type(i)] = user_cats[k]
+                if str(i) not in user_cats:
+                    new_cats[str(i)] = user_cats[k]
                     break
                 i += 1
         else:

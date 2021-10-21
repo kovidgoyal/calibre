@@ -13,7 +13,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
-from polyglot.builtins import unicode_type, itervalues
+from polyglot.builtins import itervalues
 
 
 class LRFDocument(LRFMetaFile):
@@ -118,7 +118,7 @@ class LRFDocument(LRFMetaFile):
                 pages += '<PageTree objid="%d">\n'%(page_tree.id,)
                 close = '</PageTree>\n'
             for page in page_tree:
-                pages += unicode_type(page)
+                pages += str(page)
             pages += close
         traversed_objects = [int(i) for i in re.findall(r'objid="(\w+)"', pages)] + [pt_id]
 
@@ -131,9 +131,9 @@ class LRFDocument(LRFMetaFile):
             if isinstance(obj, (Font, Text, TOCObject)):
                 continue
             if isinstance(obj, StyleObject):
-                styles += unicode_type(obj)
+                styles += str(obj)
             else:
-                objects += unicode_type(obj)
+                objects += str(obj)
         styles += '</Style>\n'
         objects += '</Objects>\n'
         if write_files:

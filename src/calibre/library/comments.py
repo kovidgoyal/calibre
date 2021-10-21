@@ -12,7 +12,6 @@ from calibre.ebooks.BeautifulSoup import (
     ProcessingInstruction
 )
 from calibre.utils.html2text import html2text
-from polyglot.builtins import unicode_type
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
@@ -49,7 +48,7 @@ def comments_to_html(comments):
     '''
     if not comments:
         return u'<p></p>'
-    if not isinstance(comments, unicode_type):
+    if not isinstance(comments, str):
         comments = comments.decode(preferred_encoding, 'replace')
 
     if comments.lstrip().startswith('<'):

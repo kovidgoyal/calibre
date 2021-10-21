@@ -12,7 +12,6 @@ from collections import namedtuple
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS
 from calibre.customize.conversion import DummyReporter
-from polyglot.builtins import unicode_type
 
 
 class CSV_XML(CatalogPlugin):
@@ -155,14 +154,14 @@ class CSV_XML(CatalogPlugin):
                         item = '%.2g' % (item / 2)
 
                     # Convert HTML to markdown text
-                    if isinstance(item, unicode_type):
+                    if isinstance(item, str):
                         opening_tag = re.search(r'<(\w+)( |>)', item)
                         if opening_tag:
                             closing_tag = re.search(r'<\/%s>$' % opening_tag.group(1), item)
                             if closing_tag:
                                 item = html2text(item)
 
-                    outstr.append('"%s"' % unicode_type(item).replace('"', '""'))
+                    outstr.append('"%s"' % str(item).replace('"', '""'))
 
                 outfile.write(','.join(outstr) + '\n')
             outfile.close()
@@ -181,8 +180,8 @@ class CSV_XML(CatalogPlugin):
                 for field in fields:
                     if field.startswith('#'):
                         val = db.get_field(r['id'], field, index_is_id=True)
-                        if not isinstance(val, unicode_type):
-                            val = unicode_type(val)
+                        if not isinstance(val, str):
+                            val = str(val)
                         item = getattr(E, field.replace('#', '_'))(val)
                         record.append(item)
 
@@ -192,11 +191,11 @@ class CSV_XML(CatalogPlugin):
                         val = r[field]
                         if not val:
                             continue
-                        if not isinstance(val, (bytes, unicode_type)):
+                        if not isinstance(val, (bytes, str)):
                             if (fm.get(field, {}).get('datatype', None) ==
                                     'rating' and val):
                                 val = '%.2g' % (val / 2)
-                            val = unicode_type(val)
+                            val = str(val)
                         item = getattr(E, field)(val)
                         record.append(item)
 
@@ -225,7 +224,7 @@ class CSV_XML(CatalogPlugin):
 
                 if 'series' in fields and r['series']:
                     record.append(E.series(r['series'],
-                        index=unicode_type(r['series_index'])))
+                        index=str(r['series_index'])))
 
                 if 'languages' in fields and r['languages']:
                     record.append(E.languages(r['languages']))

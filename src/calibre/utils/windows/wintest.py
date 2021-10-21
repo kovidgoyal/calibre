@@ -5,7 +5,6 @@
 
 import os
 import unittest
-from polyglot.builtins import unicode_type
 
 
 class TestWinutil(unittest.TestCase):
@@ -18,7 +17,7 @@ class TestWinutil(unittest.TestCase):
         del self.winutil
 
     def test_add_to_recent_docs(self):
-        path = unicode_type(os.path.abspath(__file__))
+        path = str(os.path.abspath(__file__))
         self.winutil.add_to_recent_docs(path, None)
         self.winutil.add_to_recent_docs(path, 'some-app-uid')
 

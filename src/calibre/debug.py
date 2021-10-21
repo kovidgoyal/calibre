@@ -12,7 +12,7 @@ from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
 from calibre.startup import get_debug_executable
-from polyglot.builtins import exec_path, unicode_type
+from polyglot.builtins import exec_path
 
 
 def run_calibre_debug(*args, **kw):
@@ -204,7 +204,7 @@ def print_basic_debug_info(out=None):
             out('Linux:', platform.linux_distribution())
     except:
         pass
-    out('Interface language:', unicode_type(set_translators.lang))
+    out('Interface language:', str(set_translators.lang))
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
         from calibre.customize import PluginInstallationType

@@ -18,7 +18,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
 from calibre import prints, fsync
 from calibre.constants import DEBUG
-from polyglot.builtins import as_unicode, as_bytes, unicode_type
+from polyglot.builtins import as_unicode, as_bytes
 
 
 class APNXBuilder:
@@ -33,7 +33,7 @@ class APNXBuilder:
         using either the fast or accurate algorithm.
         '''
         import uuid
-        apnx_meta = {'guid': unicode_type(uuid.uuid4()).replace('-', '')[:8], 'asin':
+        apnx_meta = {'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
                 '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': ''}
 
         with lopen(mobi_file_path, 'rb') as mf:
@@ -53,11 +53,11 @@ class APNXBuilder:
             if mh.exth is None or not mh.exth.cdetype:
                 apnx_meta['cdetype'] = 'EBOK'
             else:
-                apnx_meta['cdetype'] = unicode_type(mh.exth.cdetype)
+                apnx_meta['cdetype'] = str(mh.exth.cdetype)
             if mh.exth is None or not mh.exth.uuid:
                 apnx_meta['asin'] = ''
             else:
-                apnx_meta['asin'] = unicode_type(mh.exth.uuid)
+                apnx_meta['asin'] = str(mh.exth.uuid)
 
         # Get the pages depending on the chosen parser
         pages = []

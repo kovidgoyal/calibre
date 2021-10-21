@@ -20,7 +20,7 @@ from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, as_unicode
+from polyglot.builtins import iteritems, as_unicode
 from calibre.gui2.search_box import SearchBox2
 from polyglot.builtins import as_bytes
 
@@ -125,14 +125,14 @@ def py3_repr(x):
     ans = repr(x)
     if isinstance(x, bytes) and not ans.startswith('b'):
         ans = 'b' + ans
-    if isinstance(x, unicode_type) and ans.startswith('u'):
+    if isinstance(x, str) and ans.startswith('u'):
         ans = ans[1:]
     return ans
 
 
 def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
     classname = 'BasicUserRecipe%d' % int(time.time())
-    title = unicode_type(title).strip() or classname
+    title = str(title).strip() or classname
     indent = ' ' * 8
     if feeds:
         if len(feeds[0]) == 1:

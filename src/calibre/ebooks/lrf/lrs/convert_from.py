@@ -22,7 +22,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextStyle
 )
 from calibre.utils.config import OptionParser
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 
 class LrsParser:
@@ -55,7 +55,7 @@ class LrsParser:
         for key, val in tag.attrs:
             if key in exclude:
                 continue
-            result[unicode_type(key)] = val
+            result[str(key)] = val
         return result
 
     def text_tag_to_element(self, tag):

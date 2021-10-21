@@ -11,7 +11,6 @@ from qt.core import (
 
 from calibre.gui2 import elided_text
 from calibre.gui2.progress_indicator import ProgressIndicator
-from polyglot.builtins import unicode_type
 
 
 class ProgressDialog(QDialog):
@@ -102,7 +101,7 @@ class ProgressDialog(QDialog):
 
     @title.setter
     def title(self, val):
-        self.title_label.setText(unicode_type(val or ''))
+        self.title_label.setText(str(val or ''))
 
     @property
     def msg(self):
@@ -110,7 +109,7 @@ class ProgressDialog(QDialog):
 
     @msg.setter
     def msg(self, val):
-        val = unicode_type(val or '')
+        val = str(val or '')
         self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
 
     def _canceled(self, *args):

@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -18,7 +18,7 @@ from calibre.utils.localization import canonicalize_lang
 
 
 def force_to_bool(val):
-    if isinstance(val, (bytes, unicode_type)):
+    if isinstance(val, (bytes, str)):
         if isinstance(val, bytes):
             val = val.decode(preferred_encoding, 'replace')
         try:
@@ -227,7 +227,7 @@ class ThumbnailCache:
     def _write_order(self):
         if hasattr(self, 'items'):
             try:
-                data = '\n'.join(group_id + ' ' + unicode_type(book_id) for (group_id, book_id) in self.items)
+                data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in self.items)
                 with lopen(os.path.join(self.location, 'order'), 'wb') as f:
                     f.write(data.encode('utf-8'))
             except EnvironmentError as err:

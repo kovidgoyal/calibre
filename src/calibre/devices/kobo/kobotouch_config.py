@@ -16,7 +16,6 @@ from calibre.devices.usbms.driver import debug_print
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from polyglot.builtins import unicode_type
 
 
 def wrap_msg(msg):
@@ -128,7 +127,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
-        p['driver_version'] = '.'.join([unicode_type(i) for i in self.device.version])
+        p['driver_version'] = '.'.join([str(i) for i in self.device.version])
 
         return p
 
@@ -480,7 +479,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                               'to perform full read-write functionality - Here be Dragons!! '
                               'Enable only if you are comfortable with restoring your kobo '
                               'to factory defaults and testing software. '
-                              'This driver supports firmware V2.x.x and DBVersion up to ') + unicode_type(
+                              'This driver supports firmware V2.x.x and DBVersion up to ') + str(
                                   device.supported_dbversion), device.get_pref('support_newer_firmware')
                              )
 
@@ -638,7 +637,7 @@ class TemplateConfig(QWidget):  # {{{
 
     @property
     def template(self):
-        return unicode_type(self.t.text()).strip()
+        return str(self.t.text()).strip()
 
     @template.setter
     def template(self, template):
@@ -660,7 +659,7 @@ class TemplateConfig(QWidget):  # {{{
         except Exception as err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template "%s" is invalid:')%tmpl +
-                    '<br>'+unicode_type(err), show=True)
+                    '<br>'+str(err), show=True)
 
             return False
 # }}}

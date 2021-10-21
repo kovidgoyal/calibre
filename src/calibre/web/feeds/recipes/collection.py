@@ -19,7 +19,7 @@ from calibre.constants import numeric_version
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -54,7 +54,7 @@ def serialize_recipe(urn, recipe_class):
     if ns is True:
         ns = 'yes'
     return E.recipe({
-        'id'                 : unicode_type(urn),
+        'id'                 : str(urn),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
         'language'           : attr('language', 'und'),
@@ -81,7 +81,7 @@ def serialize_collection(mapping_of_recipe_classes):
             traceback.print_exc()
             continue
         collection.append(recipe)
-    collection.set('count', unicode_type(len(collection)))
+    collection.set('count', str(len(collection)))
     return etree.tostring(collection, encoding='utf-8', xml_declaration=True,
             pretty_print=True)
 
@@ -139,14 +139,14 @@ def update_custom_recipes(script_ids):
     bdir = os.path.dirname(custom_recipes.file_path)
     for id_, title, script in script_ids:
 
-        id_ = unicode_type(int(id_))
+        id_ = str(int(id_))
         existing = custom_recipes.get(id_, None)
 
         if existing is None:
             fname = custom_recipe_filename(id_, title)
         else:
             fname = existing[1]
-        if isinstance(script, unicode_type):
+        if isinstance(script, str):
             script = script.encode('utf-8')
 
         custom_recipes[id_] = (title, fname)
@@ -172,10 +172,10 @@ def add_custom_recipes(script_map):
     bdir = os.path.dirname(custom_recipes.file_path)
     with custom_recipes:
         for title, script in iteritems(script_map):
-            fid = unicode_type(id_)
+            fid = str(id_)
 
             fname = custom_recipe_filename(fid, title)
-            if isinstance(script, unicode_type):
+            if isinstance(script, str):
                 script = script.encode('utf-8')
 
             custom_recipes[fid] = (title, fname)
@@ -190,7 +190,7 @@ def add_custom_recipes(script_map):
 
 def remove_custom_recipe(id_):
     from calibre.web.feeds.recipes import custom_recipes
-    id_ = unicode_type(int(id_))
+    id_ = str(int(id_))
     existing = custom_recipes.get(id_, None)
     if existing is not None:
         bdir = os.path.dirname(custom_recipes.file_path)
@@ -204,7 +204,7 @@ def remove_custom_recipe(id_):
 
 def get_custom_recipe(id_):
     from calibre.web.feeds.recipes import custom_recipes
-    id_ = unicode_type(int(id_))
+    id_ = str(int(id_))
     existing = custom_recipes.get(id_, None)
     if existing is not None:
         bdir = os.path.dirname(custom_recipes.file_path)
@@ -403,7 +403,7 @@ class SchedulerConfig:
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
-            dw = ','.join(map(unicode_type, map(int, schedule[0])))
+            dw = ','.join(map(str, map(int, schedule[0])))
             text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
         else:
             raise ValueError('Unknown schedule type: %r'%typ)
@@ -552,8 +552,8 @@ class SchedulerConfig:
                         username, password = c[k]
                     except:
                         username = password = ''
-                    self.set_account_info(urn, unicode_type(username),
-                            unicode_type(password))
+                    self.set_account_info(urn, str(username),
+                            str(password))
                 except:
                     continue
         del c

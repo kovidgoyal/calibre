@@ -22,7 +22,7 @@ from functools import wraps
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
@@ -52,8 +52,8 @@ class field:
     def __repr__(self):
         typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
         return "An " + typ + " stored in " + \
-        unicode_type(struct.calcsize(self._fmt)) + \
-        " bytes starting at byte " + unicode_type(self._start)
+        str(struct.calcsize(self._fmt)) + \
+        " bytes starting at byte " + str(self._start)
 
 
 class versioned_field(field):
@@ -94,22 +94,22 @@ class fixed_stringfield:
         self._start = start
 
     def __get__(self, obj, typ=None):
-        length = unicode_type(self._length)
+        length = str(self._length)
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
 
     def __set__(self, obj, val):
         if not isinstance(val, string_or_bytes):
-            val = unicode_type(val)
-        if isinstance(val, unicode_type):
+            val = str(val)
+        if isinstance(val, str):
             val = val.encode('utf-8')
         if len(val) != self._length:
             raise LRFException("Trying to set fixed_stringfield with a " +
                                "string of  incorrect length")
-        obj.pack(val, start=self._start, fmt="<"+unicode_type(len(val))+"s")
+        obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
 
     def __repr__(self):
-        return "A string of length " + unicode_type(self._length) + \
-                " starting at byte " + unicode_type(self._start)
+        return "A string of length " + str(self._length) + \
+                " starting at byte " + str(self._start)
 
 
 class xml_attr_field:
@@ -196,7 +196,7 @@ class xml_field:
 
         if not val:
             val = ''
-        if not isinstance(val, unicode_type):
+        if not isinstance(val, str):
             val = val.decode('utf-8')
 
         elems = document.getElementsByTagName(self.tag_name)
@@ -726,8 +726,8 @@ def main(args=sys.argv):
     fields = LRFMetaFile.__dict__.items()
     fields.sort()
     for f in fields:
-        if "XML" in unicode_type(f):
-            print(unicode_type(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
+        if "XML" in str(f):
+            print(str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
     if options.get_thumbnail:
         print("Thumbnail:", td)
     if options.get_cover:

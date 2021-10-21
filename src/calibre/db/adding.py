@@ -16,7 +16,7 @@ from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues
 
 
 def splitext(path):
@@ -71,7 +71,7 @@ def metadata_extensions():
     # but not actually added)
     global _metadata_extensions
     if _metadata_extensions is None:
-        _metadata_extensions =  frozenset(map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
+        _metadata_extensions =  frozenset(BOOK_EXTENSIONS) | {'opf'}
     return _metadata_extensions
 
 
@@ -146,7 +146,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
         for path in listdir_impl(dirpath, sort_by_mtime=True):
             key, ext = splitext(path)
             if allow_path(path, ext, compiled_rules):
-                books[icu_lower(key) if isinstance(key, unicode_type) else key.lower()][ext] = path
+                books[icu_lower(key) if isinstance(key, str) else key.lower()][ext] = path
 
         for formats in itervalues(books):
             if formats_ok(formats):

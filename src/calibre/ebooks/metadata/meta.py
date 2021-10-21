@@ -11,7 +11,6 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import unicode_type
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values
@@ -242,7 +241,7 @@ def forked_read_metadata(original_path, tdir):
         f.seek(0, 2)
         sz = f.tell()
         with lopen(os.path.join(tdir, 'size.txt'), 'wb') as s:
-            s.write(unicode_type(sz).encode('ascii'))
+            s.write(str(sz).encode('ascii'))
         f.seek(0)
         mi = get_metadata(f, fmt)
     if mi.cover_data and mi.cover_data[1]:

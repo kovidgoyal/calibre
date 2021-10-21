@@ -21,7 +21,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
 
 
 def input_order_drop_event(self, ev):
@@ -95,7 +94,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         input_map = prefs['input_format_order']
-        input_cols = [unicode_type(self.opt_input_order.item(i).data(Qt.ItemDataRole.UserRole) or '') for
+        input_cols = [str(self.opt_input_order.item(i).data(Qt.ItemDataRole.UserRole) or '') for
                 i in range(self.opt_input_order.count())]
         if input_map != input_cols:
             prefs['input_format_order'] = input_cols
@@ -143,7 +142,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer = self.opt_internally_viewed_formats
         for i in range(viewer.count()):
             if viewer.item(i).checkState() == Qt.CheckState.Checked:
-                fmts.append(unicode_type(viewer.item(i).text()))
+                fmts.append(str(viewer.item(i).text()))
         return fmts
     # }}}
 

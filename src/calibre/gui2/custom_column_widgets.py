@@ -24,7 +24,6 @@ from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
 from calibre.gui2.widgets2 import RatingEditor, DateTimeEdit as DateTimeEditBase
-from polyglot.builtins import unicode_type
 
 
 class EditWithComplete(EWC):
@@ -144,7 +143,7 @@ class SimpleText(Base):
         self.editor.setClearButtonEnabled(True)
 
     def setter(self, val):
-        self.editor.setText(unicode_type(val or ''))
+        self.editor.setText(str(val or ''))
 
     def getter(self):
         return self.editor.text().strip()
@@ -167,7 +166,7 @@ class LongText(Base):
         self.widgets = [self._box]
 
     def setter(self, val):
-        self._tb.setPlainText(unicode_type(val or ''))
+        self._tb.setPlainText(str(val or ''))
 
     def getter(self):
         return self._tb.toPlainText()
@@ -417,7 +416,7 @@ class Comments(Base):
         self._tb.wyswyg_dirtied()
 
     def getter(self):
-        val = unicode_type(self._tb.html).strip()
+        val = str(self._tb.html).strip()
         if not val:
             val = None
         return val
@@ -545,12 +544,12 @@ class Text(Base):
 
     def getter(self):
         if self.col_metadata['is_multiple']:
-            val = unicode_type(self.editor.text()).strip()
+            val = str(self.editor.text()).strip()
             ans = [x.strip() for x in val.split(self.sep['ui_to_list']) if x.strip()]
             if not ans:
                 ans = None
             return ans
-        val = unicode_type(self.editor.currentText()).strip()
+        val = str(self.editor.currentText()).strip()
         if not val:
             val = None
         return val
@@ -634,7 +633,7 @@ class Series(Base):
         self.initial_val, self.initial_index = self.current_val
 
     def getter(self):
-        n = unicode_type(self.name_widget.currentText()).strip()
+        n = str(self.name_widget.currentText()).strip()
         i = self.idx_widget.value()
         return n, i
 
@@ -705,7 +704,7 @@ class Enumeration(Base):
         self.editor.setCurrentIndex(self.editor.findText(val))
 
     def getter(self):
-        return unicode_type(self.editor.currentText())
+        return str(self.editor.currentText())
 
     def normalize_db_val(self, val):
         if val is None:
@@ -860,7 +859,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                     wij.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
                     l.setColumnMinimumWidth(0, label_width)
                 wij.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
-                t = unicode_type(wij.text())
+                t = str(wij.text())
                 if t:
                     if do_elision:
                         wij.setText(elided_text(t, font=font_metrics,
@@ -1269,7 +1268,7 @@ class BulkSeries(BulkBase):
         self.a_c_checkbox.setChecked(False)
 
     def getter(self):
-        n = unicode_type(self.main_widget.currentText()).strip()
+        n = str(self.main_widget.currentText()).strip()
         autonumber = self.idx_widget.checkState()
         force = self.force_number.checkState()
         start = self.series_start_number.value()
@@ -1343,7 +1342,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         self.main_widget.setCurrentIndex(0)
 
     def getter(self):
-        return unicode_type(self.main_widget.currentText())
+        return str(self.main_widget.currentText())
 
     def setter(self, val):
         if val is None:
@@ -1471,10 +1470,10 @@ class BulkText(BulkBase):
         if self.col_metadata['is_multiple']:
             if not self.col_metadata['display'].get('is_names', False):
                 return self.removing_widget.checkbox.isChecked(), \
-                        unicode_type(self.adding_widget.text()), \
-                        unicode_type(self.removing_widget.tags_box.text())
-            return unicode_type(self.adding_widget.text())
-        val = unicode_type(self.main_widget.currentText()).strip()
+                        str(self.adding_widget.text()), \
+                        str(self.removing_widget.tags_box.text())
+            return str(self.adding_widget.text())
+        val = str(self.main_widget.currentText()).strip()
         if not val:
             val = None
         return val

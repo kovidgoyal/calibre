@@ -14,7 +14,6 @@ from qt.core import (
 
 from calibre.gui2.tweak_book.editor.text import LineNumbers
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
-from polyglot.builtins import unicode_type
 
 
 class LineNumberArea(LineNumbers):
@@ -63,7 +62,7 @@ class CodeEditor(QPlainTextEdit):
     def line_number_area_width(self):
         # get largest width of digits
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
+        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
         digits = 1
         limit = max(1, self.blockCount())
         while limit >= 10:
@@ -131,7 +130,7 @@ class CodeEditor(QPlainTextEdit):
                 else:
                     painter.setFont(self.font())
                 painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignmentFlag.AlignRight, unicode_type(num + 1))
+                              Qt.AlignmentFlag.AlignRight, str(num + 1))
                 painter.restore()
             block = block.next()
             top = bottom

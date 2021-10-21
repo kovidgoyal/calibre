@@ -17,7 +17,6 @@ from qt.core import (
 from calibre.gui2 import error_dialog
 from calibre.utils.config import XMLConfig
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
 
 DEFAULTS = Qt.ItemDataRole.UserRole
 DESCRIPTION = Qt.ItemDataRole.UserRole + 1
@@ -119,7 +118,7 @@ class Customize(QFrame):
         dup_desc = self.dup_check(sequence, self.key)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode_type(sequence.toString(QKeySequence.SequenceFormat.NativeText)) + ' ' +
+                    str(sequence.toString(QKeySequence.SequenceFormat.NativeText)) + ' ' +
                     _('already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
@@ -170,12 +169,12 @@ class Delegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         defs = index.data(DEFAULTS)
-        defs = _(' or ').join([unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in defs])
-        editor.key = unicode_type(index.data(KEY))
+        defs = _(' or ').join([str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in defs])
+        editor.key = str(index.data(KEY))
         editor.default_shortcuts.setText(_('&Default') + ': %s' % defs)
         editor.default_shortcuts.setChecked(True)
         editor.header.setText('<b>%s: %s</b>'%(_('Customize shortcuts for'),
-            unicode_type(index.data(DESCRIPTION))))
+            str(index.data(DESCRIPTION))))
         custom = index.data(CUSTOM)
         if custom:
             editor.custom.setChecked(True)
@@ -251,7 +250,7 @@ class Shortcuts(QAbstractListModel):
             return self.descriptions[key]
 
     def get_shortcuts(self, key):
-        return [unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in
+        return [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in
                 self.get_sequences(key)]
 
     def data(self, index, role):
@@ -280,7 +279,7 @@ class Shortcuts(QAbstractListModel):
     def set_data(self, index, custom):
         key = self.order[index.row()]
         if custom:
-            self.custom[key] = [unicode_type(x.toString(QKeySequence.SequenceFormat.PortableText)) for x in custom]
+            self.custom[key] = [str(x.toString(QKeySequence.SequenceFormat.PortableText)) for x in custom]
         elif key in self.custom:
             del self.custom[key]
 

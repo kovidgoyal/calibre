@@ -9,7 +9,6 @@ from qt.core import QWidget, QIcon, QDialog, QComboBox, QLineEdit
 
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
-from polyglot.builtins import unicode_type
 
 
 class StoreChooserWidget(QWidget, Ui_Form):
@@ -31,7 +30,7 @@ class StoreChooserWidget(QWidget, Ui_Form):
         self.results_view.activated.connect(self.results_view.model().toggle_plugin)
 
     def do_search(self):
-        self.results_view.model().search(unicode_type(self.query.text()))
+        self.results_view.model().search(str(self.query.text()))
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)

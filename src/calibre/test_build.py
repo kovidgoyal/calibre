@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time, shutil
 
 from calibre.constants import iswindows, islinux, ismacos, plugins_loc
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
@@ -147,7 +147,7 @@ class BuildTest(unittest.TestCase):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
-        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), unicode_type)
+        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), str)
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 
@@ -168,7 +168,7 @@ class BuildTest(unittest.TestCase):
 
         def au(x, name):
             self.assertTrue(
-                isinstance(x, unicode_type),
+                isinstance(x, str),
                 '%s() did not return a unicode string, instead returning: %r' % (name, x))
         for x in 'username temp_path locale_name'.split():
             au(getattr(winutil, x)(), x)

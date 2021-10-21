@@ -17,7 +17,6 @@ from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ebooks.conversion.config import OPTIONS
-from polyglot.builtins import unicode_type
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
@@ -193,7 +192,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         edit_search = self.sr_search.regex
 
         if edit_search:
-            edit_replace = unicode_type(self.sr_replace.text())
+            edit_replace = str(self.sr_replace.text())
             found = False
             for search, replace in definitions:
                 if search == edit_search and replace == edit_replace:
@@ -234,7 +233,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for row in range(0, self.search_replace.rowCount()):
             colItems = []
             for col in range(0, self.search_replace.columnCount()):
-                colItems.append(unicode_type(self.search_replace.item(row, col).text()))
+                colItems.append(str(self.search_replace.item(row, col).text()))
             ans.append(colItems)
         return ans
 

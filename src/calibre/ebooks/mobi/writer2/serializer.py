@@ -17,14 +17,14 @@ from calibre.ebooks.mobi.utils import is_guide_ref_start
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace, prefixname, urlnormalize
 )
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 from polyglot.urllib import urldefrag
 
 
 class Buf(BytesIO):
 
     def write(self, x):
-        if isinstance(x, unicode_type):
+        if isinstance(x, str):
             x = x.encode('utf-8')
         BytesIO.write(self, x)
 
@@ -230,7 +230,7 @@ class Serializer:
                 buf.write(b'<div> <div height="1em"></div>')
             else:
                 t = tocref.title
-                if isinstance(t, unicode_type):
+                if isinstance(t, str):
                     t = t.encode('utf-8')
                 buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
                           b'</b></font></h2> <div height="1em"></div>')
@@ -250,7 +250,7 @@ class Serializer:
                 buf.write(b'0000000000')
                 buf.write(b' ><font size="+1"><b><u>')
                 t = tocitem.title
-                if isinstance(t, unicode_type):
+                if isinstance(t, str):
                     t = t.encode('utf-8')
                 buf.write(t)
                 buf.write(b'</u></b></font></a></li>')
@@ -368,7 +368,7 @@ class Serializer:
         text = text.replace(u'\u00AD', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        if isinstance(text, unicode_type):
+        if isinstance(text, str):
             text = unicodedata.normalize('NFC', text)
         self.buf.write(text.encode('utf-8'))
 

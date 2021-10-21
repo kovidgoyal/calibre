@@ -27,7 +27,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import unicode_type
 
 
 class ChooseName(Dialog):  # {{{
@@ -59,13 +58,13 @@ class ChooseName(Dialog):  # {{{
         return False
 
     def verify(self):
-        return name_is_ok(unicode_type(self.name_edit.text()), self.show_error)
+        return name_is_ok(str(self.name_edit.text()), self.show_error)
 
     def accept(self):
         if not self.verify():
             return error_dialog(self, _('No name specified'), _(
                 'You must specify a file name for the new file, with an extension.'), show=True)
-        n = unicode_type(self.name_edit.text()).replace('\\', '/')
+        n = str(self.name_edit.text()).replace('\\', '/')
         name, ext = n.rpartition('.')[0::2]
         self.filename = name + '.' + ext.lower()
         super(ChooseName, self).accept()
@@ -111,7 +110,7 @@ class ImageDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
-        name = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
+        name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         cover = self.cover_cache.get(name, None)
         if cover is None:
             cover = self.cover_cache[name] = QPixmap()
@@ -338,16 +337,16 @@ class InsertImage(Dialog):
 
     def activated(self, index):
         if self.for_browsing:
-            return self.image_activated.emit(unicode_type(index.data() or ''))
+            return self.image_activated.emit(str(index.data() or ''))
         self.chosen_image_is_external = False
         self.accept()
 
     def accept(self):
-        self.chosen_image = unicode_type(self.view.currentIndex().data() or '')
+        self.chosen_image = str(self.view.currentIndex().data() or '')
         super(InsertImage, self).accept()
 
     def filter_changed(self, *args):
-        f = unicode_type(self.filter.text())
+        f = str(self.filter.text())
         self.fm.setFilterFixedString(f)
 # }}}
 
@@ -416,8 +415,8 @@ class ChooseFolder(Dialog):  # {{{
 
     def create_folder(self, item):
         text, ok = QInputDialog.getText(self, _('Folder name'), _('Enter a name for the new folder'))
-        if ok and unicode_type(text):
-            c = QTreeWidgetItem(item, (unicode_type(text),))
+        if ok and str(text):
+            c = QTreeWidgetItem(item, (str(text),))
             c.setIcon(0, QIcon(I('mimetypes/dir.png')))
             for item in self.folders.selectedItems():
                 item.setSelected(False)
@@ -427,7 +426,7 @@ class ChooseFolder(Dialog):  # {{{
     def folder_path(self, item):
         ans = []
         while item is not self.root:
-            ans.append(unicode_type(item.text(0)))
+            ans.append(str(item.text(0)))
             item = item.parent()
         return tuple(reversed(ans))
 
@@ -476,15 +475,15 @@ class NewBook(Dialog):  # {{{
 
     def accept(self):
         with tprefs:
-            tprefs.set('previous_new_book_authors', unicode_type(self.authors.text()))
+            tprefs.set('previous_new_book_authors', str(self.authors.text()))
             tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])
             self.languages.update_recently_used()
         super(NewBook, self).accept()
 
     @property
     def mi(self):
-        mi = Metadata(unicode_type(self.title.text()).strip() or _('Unknown'))
-        mi.authors = string_to_authors(unicode_type(self.authors.text()).strip()) or [_('Unknown')]
+        mi = Metadata(str(self.title.text()).strip() or _('Unknown'))
+        mi.authors = string_to_authors(str(self.authors.text()).strip()) or [_('Unknown')]
         mi.languages = self.languages.lang_codes or [get_lang()]
         return mi
 

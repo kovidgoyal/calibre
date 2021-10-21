@@ -13,7 +13,7 @@ import os
 import re
 
 from lxml import etree
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 def ProcessFileName(fileName):
@@ -130,7 +130,7 @@ class SNBMLizer:
                     else:
                         prefix = ''
                     etree.SubElement(bodyTree, "text").text = \
-                        etree.CDATA(unicode_type(prefix + line))
+                        etree.CDATA(str(prefix + line))
                 if self.opts and self.opts.snb_insert_empty_line:
                     etree.SubElement(bodyTree, "text").text = \
                         etree.CDATA('')

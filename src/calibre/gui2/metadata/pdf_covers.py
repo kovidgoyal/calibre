@@ -20,7 +20,6 @@ from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.progress_indicator import WaitLayout
-from polyglot.builtins import unicode_type
 
 
 class CoverDelegate(QStyledItemDelegate):
@@ -84,9 +83,9 @@ class PDFCovers(QDialog):
     @property
     def cover_path(self):
         for item in self.covers.selectedItems():
-            return unicode_type(item.data(Qt.ItemDataRole.UserRole) or '')
+            return str(item.data(Qt.ItemDataRole.UserRole) or '')
         if self.covers.count() > 0:
-            return unicode_type(self.covers.item(0).data(Qt.ItemDataRole.UserRole) or '')
+            return str(self.covers.item(0).data(Qt.ItemDataRole.UserRole) or '')
 
     def cleanup(self):
         try:
@@ -95,7 +94,7 @@ class PDFCovers(QDialog):
             pass
 
     def render(self):
-        self.current_tdir = os.path.join(self.tdir, unicode_type(self.first))
+        self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:
             os.mkdir(self.current_tdir)

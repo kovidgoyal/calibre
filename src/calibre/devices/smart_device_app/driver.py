@@ -47,7 +47,7 @@ from calibre.utils.mdns import (
 )
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot import queue
-from polyglot.builtins import as_bytes, iteritems, itervalues, unicode_type
+from polyglot.builtins import as_bytes, iteritems, itervalues
 
 
 def synchronous(tlockname):
@@ -125,13 +125,13 @@ class ConnectionListener(Thread):
                             content_server_port = ''
                             try:
                                 from calibre.srv.opts import server_config
-                                content_server_port = unicode_type(server_config().port)
+                                content_server_port = str(server_config().port)
                             except Exception:
                                 pass
                             message = (self.driver.ZEROCONF_CLIENT_STRING + ' (on ' +
-                                            unicode_type(socket.gethostname().partition('.')[0]) +
+                                            str(socket.gethostname().partition('.')[0]) +
                                             ');' + content_server_port +
-                                            ',' + unicode_type(self.driver.port)).encode('utf-8')
+                                            ',' + str(self.driver.port)).encode('utf-8')
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
                         except:
@@ -414,7 +414,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if isinstance(a, dict):
                         printable = {}
                         for k,v in iteritems(a):
-                            if isinstance(v, (bytes, unicode_type)) and len(v) > 50:
+                            if isinstance(v, (bytes, str)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
                                 printable[k] = v
@@ -436,14 +436,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
+            dinfo['device_store_uuid'] = str(uuid.uuid4())
         if dinfo.get('device_name') is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([str(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['prefix'] = self.PREFIX
         return dinfo
@@ -495,9 +495,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         from calibre.library.save_to_disk import config, get_components
         opts = config().parse()
-        if not isinstance(template, unicode_type):
+        if not isinstance(template, str):
             template = template.decode('utf-8')
-        app_id = unicode_type(getattr(mdata, 'application_id', ''))
+        app_id = str(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
                 timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
@@ -747,7 +747,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.utils.date import now, parse_date
         try:
             key = self._make_metadata_cache_key(uuid, ext_or_lpath)
-            if isinstance(lastmod, unicode_type):
+            if isinstance(lastmod, str):
                 if lastmod == 'None':
                     return None
                 lastmod = parse_date(lastmod)
@@ -1909,7 +1909,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
                 self._debug(message)
                 self.set_option('thumbnail_compression_quality',
-                                unicode_type(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
+                                str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
 
             try:
                 self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

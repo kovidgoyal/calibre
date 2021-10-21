@@ -13,7 +13,7 @@ from calibre.constants import islinux, isbsd
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 entry_points = {
@@ -276,7 +276,7 @@ class ZshCompleter:  # {{{
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
                 ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
-            h = h.replace('%default', unicode_type(opt.default))
+            h = h.replace('%default', str(opt.default))
             arg = ''
             if opt.takes_value():
                 arg = ':"%s":'%h
@@ -434,7 +434,7 @@ class ZshCompleter:  # {{{
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
                 ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
-            h = h.replace('%default', unicode_type(opt.default))
+            h = h.replace('%default', str(opt.default))
             help_txt = '"[%s]"'%h
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
@@ -831,7 +831,7 @@ class PostInstall:
                 self.info('Installing bash completion to:', bash_comp_dest+os.sep)
             write_completion(self, bash_comp_dest, zsh)
         except TypeError as err:
-            if 'resolve_entities' in unicode_type(err):
+            if 'resolve_entities' in str(err):
                 print('You need python-lxml >= 2.0.5 for calibre')
                 sys.exit(1)
             raise
@@ -879,11 +879,11 @@ class PostInstall:
         def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
             filename = '%s-%s.png' % (basename, size)
             render_img(iconsrc, filename, width=int(size), height=int(size))
-            cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
+            cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', str(size), filename, basename]
             if is_last_icon:
                 del cmd[2]
             cc(cmd)
-            self.icon_resources.append((context, basename, unicode_type(size)))
+            self.icon_resources.append((context, basename, str(size)))
 
         def install_icons(iconsrc, basename, context, is_last_icon=False):
             sizes = (16, 32, 48, 64, 128, 256)
@@ -1252,7 +1252,7 @@ def write_appdata(key, entry, base, translators):
     fpath = os.path.join(base, '%s.metainfo.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
-        s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
+        s = E.screenshot(E.image(url, width=str(w), height=str(h)))
         screenshots.append(s)
     screenshots[0].set('type', 'default')
     description = E.description()

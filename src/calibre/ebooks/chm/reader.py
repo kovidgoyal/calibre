@@ -13,7 +13,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.toc import TOC
 from chm.chm import CHMFile, chmlib
-from polyglot.builtins import as_unicode, unicode_type
+from polyglot.builtins import as_unicode
 
 
 def match_string(s1, s2_already_lowered):
@@ -43,7 +43,7 @@ class CHMReader(CHMFile):
 
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
-        if isinstance(input, unicode_type):
+        if isinstance(input, str):
             enc = 'mbcs' if iswindows else filesystem_encoding
             try:
                 input = input.encode(enc)
@@ -192,7 +192,7 @@ class CHMReader(CHMFile):
             with lopen(lpath, 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
-                if isinstance(data, unicode_type):
+                if isinstance(data, str):
                     data = data.encode('utf-8')
                 f.seek(0)
                 f.truncate()

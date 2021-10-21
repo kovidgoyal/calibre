@@ -50,8 +50,7 @@ from calibre.utils.formatter_functions import (
 from calibre.utils.icu import sort_key
 from calibre.utils.img import save_cover_data_to
 from polyglot.builtins import (
-    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,
-    unicode_type
+    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
 )
 
 # }}}
@@ -108,7 +107,7 @@ class DBPrefs(dict):  # {{{
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
-        if not isinstance(raw, unicode_type):
+        if not isinstance(raw, str):
             raw = raw.decode(preferred_encoding)
         return json.loads(raw, object_hook=from_json)
 
@@ -352,7 +351,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: unicode_type(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -646,10 +645,10 @@ class DB:
                 prints('found user category case overlap', catmap[uc])
                 cat = catmap[uc][0]
                 suffix = 1
-                while icu_lower((cat + unicode_type(suffix))) in catmap:
+                while icu_lower((cat + str(suffix))) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+unicode_type(suffix)))
-                user_cats[cat + unicode_type(suffix)] = user_cats[cat]
+                prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
+                user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
         if cats_changed:
@@ -755,25 +754,25 @@ class DB:
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, (str, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode_type) else y for y in x]
+                    str) else y for y in x]
                 return [u' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode_type) else \
+                return x if x is None or isinstance(x, str) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 x = x.lower()
@@ -796,7 +795,7 @@ class DB:
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 if x.lower() == 'none':
@@ -888,7 +887,7 @@ class DB:
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[unicode_type(data['num'])+'_index'] = base = base+1
+                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(label_+'_index', base,
                             prefer_custom=True)
 
@@ -1311,7 +1310,7 @@ class DB:
         if getattr(self, '_library_id_', None) is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
             if ans is None:
-                ans = unicode_type(uuid.uuid4())
+                ans = str(uuid.uuid4())
                 self.library_id = ans
             else:
                 self._library_id_ = ans
@@ -1319,7 +1318,7 @@ class DB:
 
     @library_id.setter
     def library_id(self, val):
-        self._library_id_ = unicode_type(val)
+        self._library_id_ = str(val)
         self.execute('''
                 DELETE FROM library_id;
                 INSERT INTO library_id (uuid) VALUES (?);
@@ -2026,7 +2025,7 @@ class DB:
         def map_data(x):
             if not isinstance(x, string_or_bytes):
                 x = native_string_type(x)
-            x = x.encode('utf-8') if isinstance(x, unicode_type) else x
+            x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)
             return x
         options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
@@ -2067,7 +2066,7 @@ class DB:
                 copyfile_using_links(src, dest, dest_is_dir=False)
                 old_files.add(src)
             x = path_map[x]
-            if not isinstance(x, unicode_type):
+            if not isinstance(x, str):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x, i+1, total)
 

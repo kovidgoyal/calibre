@@ -44,7 +44,7 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -645,7 +645,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
         for (var i=1; i <= NUM_PAGES; i++) ans[i] = map_num(i);
         JSON.stringify(ans);
         '''.replace('MAP_EXPRESSION', json.dumps(opts.pdf_page_number_map), 1).replace(
-                'NUM_PAGES', unicode_type(num_pages), 1)
+                'NUM_PAGES', str(num_pages), 1)
         result = render_manager.evaljs(js)
         try:
             result = json.loads(result)
@@ -933,10 +933,10 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         return ans
 
     def format_template(template, page_num, height):
-        template = template.replace('_TOP_LEVEL_SECTION_PAGES_', unicode_type(toplevel_pagenum_map[page_num - 1]))
-        template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', unicode_type(toplevel_pages_map[page_num - 1]))
-        template = template.replace('_TOTAL_PAGES_', unicode_type(pages_in_doc))
-        template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
+        template = template.replace('_TOP_LEVEL_SECTION_PAGES_', str(toplevel_pagenum_map[page_num - 1]))
+        template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', str(toplevel_pages_map[page_num - 1]))
+        template = template.replace('_TOTAL_PAGES_', str(pages_in_doc))
+        template = template.replace('_PAGENUM_', str(page_number_display_map[page_num]))
         template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
         template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
         template = template.replace('_TOP_LEVEL_SECTION_', prepare_string_for_xml(toplevel_toc_map[page_num - 1]))

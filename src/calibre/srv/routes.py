@@ -11,7 +11,7 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot import http_client
 from polyglot.urllib import quote as urlquote
 
@@ -142,7 +142,7 @@ class Route:
                     default = self.defaults[name] = eval(default)
                     if isinstance(default, numbers.Number):
                         self.type_checkers[name] = type(default)
-                    if is_sponge and not isinstance(default, unicode_type):
+                    if is_sponge and not isinstance(default, str):
                         raise route_error('Soak up path component must have a default value of string type')
                 else:
                     if found_optional_part is not False:
@@ -201,9 +201,9 @@ class Route:
             raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
 
         def quoted(x):
-            if not isinstance(x, (unicode_type, bytes)):
-                x = unicode_type(x)
-            if isinstance(x, unicode_type):
+            if not isinstance(x, (str, bytes)):
+                x = str(x)
+            if isinstance(x, str):
                 x = x.encode('utf-8')
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}

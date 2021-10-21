@@ -20,7 +20,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import unicode_type, string_or_bytes, as_bytes
+from polyglot.builtins import string_or_bytes, as_bytes
 
 
 class Extract(ODF2XHTML):
@@ -174,7 +174,7 @@ class Extract(ODF2XHTML):
             css = style.text
             if css:
                 css, sel_map = self.do_filter_css(css)
-                if not isinstance(css, unicode_type):
+                if not isinstance(css, str):
                     css = css.decode('utf-8', 'ignore')
                 style.text = css
                 for x in root.xpath('//*[@class]'):

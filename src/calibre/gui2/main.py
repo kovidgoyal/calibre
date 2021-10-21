@@ -27,7 +27,7 @@ from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import as_bytes, environ_item, unicode_type
+from polyglot.builtins import as_bytes, environ_item
 
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
 if iswindows:
@@ -141,7 +141,7 @@ def get_default_library_path():
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
-    if isinstance(fname, unicode_type):
+    if isinstance(fname, str):
         try:
             fname.encode(filesystem_encoding)
         except Exception:
@@ -170,7 +170,7 @@ def get_library_path(gui_runner):
         base = os.path.expanduser('~')
         if not base or not os.path.exists(base):
             from qt.core import QDir
-            base = unicode_type(QDir.homePath()).replace('/', os.sep)
+            base = str(QDir.homePath()).replace('/', os.sep)
         candidate = gui_runner.choose_dir(base)
         if not candidate:
             candidate = os.path.join(base, 'Calibre Library')
@@ -562,6 +562,6 @@ if __name__ == '__main__':
                 log = f.read().decode('utf-8', 'ignore')
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(unicode_type(err),
-                    unicode_type(tb).replace('\n', '<br>'),
+                '%s<b>Log:</b><br>%s')%(str(err),
+                    str(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))

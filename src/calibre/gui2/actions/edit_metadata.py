@@ -30,7 +30,7 @@ from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class EditMetadataAction(InterfaceAction):
@@ -173,7 +173,7 @@ class EditMetadataAction(InterfaceAction):
         book_id = db.id(rows[0].row())
         mi = db.new_api.get_metadata(book_id)
         md = QMimeData()
-        md.setText(unicode_type(mi))
+        md.setText(str(mi))
         md.setData('application/calibre-book-metadata', bytearray(metadata_to_opf(mi, default_lang='und')))
         img = db.new_api.cover(book_id, as_image=True)
         if img:
@@ -702,7 +702,7 @@ class EditMetadataAction(InterfaceAction):
                 if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
                 else:
-                    dest_mi.comments = unicode_type(dest_mi.comments) + '\n\n' + unicode_type(src_mi.comments)
+                    dest_mi.comments = str(dest_mi.comments) + '\n\n' + str(src_mi.comments)
             if src_mi.title and (not dest_mi.title or dest_mi.title == _('Unknown')):
                 dest_mi.title = src_mi.title
             if (src_mi.authors and src_mi.authors[0] != _('Unknown')) and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
@@ -755,7 +755,7 @@ class EditMetadataAction(InterfaceAction):
                     if not dest_value:
                         db.set_custom(dest_id, src_value, num=colnum)
                     else:
-                        dest_value = unicode_type(dest_value) + '\n\n' + unicode_type(src_value)
+                        dest_value = str(dest_value) + '\n\n' + str(src_value)
                         db.set_custom(dest_id, dest_value, num=colnum)
                 if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
                     db.set_custom(dest_id, src_value, num=colnum)
@@ -781,7 +781,7 @@ class EditMetadataAction(InterfaceAction):
             to_rename = d.to_rename  # dict of new text to old ids
             to_delete = d.to_delete  # list of ids
             for old_id, new_name in iteritems(to_rename):
-                model.rename_collection(old_id, new_name=unicode_type(new_name))
+                model.rename_collection(old_id, new_name=str(new_name))
             for item in to_delete:
                 model.delete_collection_using_id(item)
             self.gui.upload_collections(model.db, view=view, oncard=oncard)

@@ -11,7 +11,7 @@ from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, error_message, unicode_type
+from polyglot.builtins import iteritems, error_message
 from polyglot.binary import as_hex_unicode
 
 
@@ -25,7 +25,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
             break
         m.update(raw)
         to_obj.write(raw)
-    return unicode_type(m.hexdigest())
+    return str(m.hexdigest())
 
 
 class FileDest:
@@ -55,7 +55,7 @@ class FileDest:
     def close(self):
         if not self._discard:
             size = self.exporter.f.tell() - self.start_pos
-            digest = unicode_type(self.hasher.hexdigest())
+            digest = str(self.hasher.hexdigest())
             self.exporter.file_metadata[self.key] = (len(self.exporter.parts), self.start_pos, size, digest, self.mtime)
         del self.exporter, self.hasher
 
@@ -306,7 +306,7 @@ class Importer:
         except Exception:
             lpath = None
         c = create_global_prefs(StringConfig(raw, 'calibre wide preferences'))
-        c.set('installation_uuid', unicode_type(uuid.uuid4()))
+        c.set('installation_uuid', str(uuid.uuid4()))
         c.set('library_path', lpath)
         raw = c.src
         if not isinstance(raw, bytes):

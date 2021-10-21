@@ -12,7 +12,6 @@ from calibre.gui2.convert.debug_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog, choose_dir
 from calibre.ebooks.conversion.config import OPTIONS
-from polyglot.builtins import unicode_type
 
 
 class DebugWidget(Widget, Ui_Form):
@@ -35,7 +34,7 @@ class DebugWidget(Widget, Ui_Form):
 
     def pre_commit_check(self):
         try:
-            x = unicode_type(self.opt_debug_pipeline.text()).strip()
+            x = str(self.opt_debug_pipeline.text()).strip()
             if not x:
                 return True
             x = os.path.abspath(x)
@@ -49,7 +48,7 @@ class DebugWidget(Widget, Ui_Form):
             import traceback
             det_msg = traceback.format_exc()
             error_dialog(self, _('Invalid debug folder'),
-                    _('Failed to create debug folder')+': '+ unicode_type(self.opt_debug_pipeline.text()),
+                    _('Failed to create debug folder')+': '+ str(self.opt_debug_pipeline.text()),
                         det_msg=det_msg, show=True)
             return False
         return True

@@ -38,7 +38,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
 from polyglot import queue
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 try:
     NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
@@ -422,7 +422,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     from calibre.gui2.dialogs.message_box import MessageBox
     prefs = gui_prefs()
 
-    if not isinstance(skip_dialog_name, unicode_type):
+    if not isinstance(skip_dialog_name, str):
         skip_dialog_name = None
     try:
         auto_skip = set(prefs.get('questions_to_auto_skip', ()))
@@ -642,7 +642,7 @@ class FileIconProvider(QFileIconProvider):
         if fileinfo.isDir():
             key = 'dir'
         else:
-            ext = unicode_type(fileinfo.completeSuffix()).lower()
+            ext = str(fileinfo.completeSuffix()).lower()
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 
@@ -768,7 +768,7 @@ class Translator(QTranslator):
 
     def translate(self, *args, **kwargs):
         try:
-            src = unicode_type(args[1])
+            src = str(args[1])
         except:
             return ''
         t = _
@@ -799,7 +799,7 @@ def load_builtin_fonts():
                 fid = QFontDatabase.addApplicationFontFromData(s.read())
                 if fid > -1:
                     fam = QFontDatabase.applicationFontFamilies(fid)
-                    fam = set(map(unicode_type, fam))
+                    fam = set(map(str, fam))
                     if 'calibre Symbols' in fam:
                         _rating_font = 'calibre Symbols'
 
@@ -879,7 +879,7 @@ class Application(QApplication):
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
-                windows_app_uid = unicode_type(windows_app_uid)
+                windows_app_uid = str(windows_app_uid)
                 if set_app_uid(windows_app_uid):
                     self.windows_app_uid = windows_app_uid
         self.file_event_hook = None
@@ -892,7 +892,7 @@ class Application(QApplication):
                 args = sys.argv[:1]
             args.extend(['-platformpluginpath', plugins_loc, '-platform', 'headless'])
         self.headless = headless
-        qargs = [i.encode('utf-8') if isinstance(i, unicode_type) else i for i in args]
+        qargs = [i.encode('utf-8') if isinstance(i, str) else i for i in args]
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
         if not ismacos and not headless:
@@ -950,7 +950,7 @@ class Application(QApplication):
         self.line_height = max(12, QFontMetrics(self.font()).lineSpacing())
 
         dl = QLocale(get_lang())
-        if unicode_type(dl.bcp47Name()) != 'C':
+        if str(dl.bcp47Name()) != 'C':
             QLocale.setDefault(dl)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
@@ -1175,7 +1175,7 @@ class Application(QApplication):
                     self._file_open_paths.append(url)
                 QTimer.singleShot(1000, self._send_file_open_events)
                 return True
-            path = unicode_type(e.file())
+            path = str(e.file())
             if os.access(path, os.R_OK):
                 with self._file_open_lock:
                     self._file_open_paths.append(path)
@@ -1415,7 +1415,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     chomp = {'middle':remove_middle, 'left':lambda x:(ellipsis + x[delta:]), 'right':lambda x:(x[:-delta] + ellipsis)}[pos]
     while len(text) > delta and fm.width(text) > width:
         text = chomp(text)
-    return unicode_type(text)
+    return str(text)
 
 
 def find_forms(srcdir):
@@ -1506,7 +1506,7 @@ def set_app_uid(val):
     AppUserModelID.argtypes = [wintypes.LPCWSTR]
     AppUserModelID.restype = HRESULT
     try:
-        AppUserModelID(unicode_type(val))
+        AppUserModelID(str(val))
     except Exception as err:
         prints('Failed to set app uid with error:', as_unicode(err))
         return False
@@ -1516,7 +1516,7 @@ def set_app_uid(val):
 def add_to_recent_docs(path):
     from calibre_extensions import winutil
     app = QApplication.instance()
-    winutil.add_to_recent_docs(unicode_type(path), app.windows_app_uid)
+    winutil.add_to_recent_docs(str(path), app.windows_app_uid)
 
 
 def windows_is_system_dark_mode_enabled():

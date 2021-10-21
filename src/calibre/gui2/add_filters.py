@@ -4,7 +4,6 @@
 
 
 from collections import OrderedDict
-from polyglot.builtins import unicode_type
 
 from calibre.db.adding import compile_glob, filter_filename, compile_rule
 from calibre.gui2 import elided_text, Application, error_dialog
@@ -64,12 +63,12 @@ class RuleEdit(RuleEditBase):
     def rule(self, rule):
         def sc(name):
             c = getattr(self, name)
-            idx = c.findData(unicode_type(rule.get(name, '')))
+            idx = c.findData(str(rule.get(name, '')))
             if idx < 0:
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.query.setText(unicode_type(rule.get('query', '')).strip())
+        self.query.setText(str(rule.get('query', '')).strip())
 
     def validate(self):
         ans = super(RuleEdit, self).validate()

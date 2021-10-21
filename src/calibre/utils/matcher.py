@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -95,7 +95,7 @@ class Matcher:
                 w = [Worker(requests, results) for i in range(max(1, cpu_count()))]
                 [x.start() for x in w]
                 workers.extend(w)
-        items = map(lambda x: normalize('NFC', unicode_type(x)), filter(None, items))
+        items = map(lambda x: normalize('NFC', str(x)), filter(None, items))
         self.items = items = tuple(items)
         tasks = split(items, len(workers))
         self.task_maps = [{j: i for j, (i, _) in enumerate(task)} for task in tasks]
@@ -106,7 +106,7 @@ class Matcher:
         self.sort_keys = None
 
     def __call__(self, query, limit=None):
-        query = normalize('NFC', unicode_type(query))
+        query = normalize('NFC', str(query))
         with wlock:
             for i, scorer in enumerate(self.scorers):
                 workers[0].requests.put((i, scorer, query))
@@ -259,7 +259,7 @@ class CScorer:
         self.m = Matcher(
             items,
             primary_collator().capsule,
-            unicode_type(level1), unicode_type(level2), unicode_type(level3)
+            str(level1), str(level2), str(level3)
         )
 
     def __call__(self, query):
@@ -292,12 +292,12 @@ def test(return_tests=False):
 
             start = memory()
             for i in range(10):
-                doit(unicode_type(i))
+                doit(str(i))
             gc.collect()
             used10 = memory() - start
             start = memory()
             for i in range(100):
-                doit(unicode_type(i))
+                doit(str(i))
             gc.collect()
             used100 = memory() - start
             if used100 > 0 and used10 > 0:

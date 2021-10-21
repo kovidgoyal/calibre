@@ -17,7 +17,7 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, itervalues
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
 from calibre_extensions import lzx, msdes
 
@@ -121,7 +121,7 @@ def consume_sized_utf8_string(bytes, zpad=False):
 
 
 def encode(string):
-    return unicode_type(string).encode('ascii', 'xmlcharrefreplace')
+    return str(string).encode('ascii', 'xmlcharrefreplace')
 
 
 class UnBinary:
@@ -325,7 +325,7 @@ class UnBinary:
                             c = '&quot;'
                         elif c == '<':
                             c = '&lt;'
-                        if isinstance(c, unicode_type):
+                        if isinstance(c, str):
                             c = c.encode('ascii', 'xmlcharrefreplace')
                         buf.write(c)
                     count -= 1

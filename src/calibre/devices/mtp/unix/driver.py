@@ -15,7 +15,6 @@ from calibre.constants import islinux, ismacos
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
-from polyglot.builtins import unicode_type
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -222,7 +221,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
         except self.libmtp.MTPError as e:
-            if "The device has no storage information." in unicode_type(e):
+            if "The device has no storage information." in str(e):
                 # This happens on newer Android devices while waiting for
                 # the user to allow access. Apparently what happens is
                 # that when the user clicks allow, the device disconnects
@@ -317,7 +316,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     storage.append({'id':sid, 'size':capacity,
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
-                    self._currently_getting_sid = unicode_type(sid)
+                    self._currently_getting_sid = str(sid)
                     items, errs = self.dev.get_filesystem(sid,
                             partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)

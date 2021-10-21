@@ -21,7 +21,6 @@ from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client
 from polyglot.binary import as_base64_unicode
-from polyglot.builtins import unicode_type
 from polyglot.queue import Empty, Queue
 
 HANDSHAKE_STR = (
@@ -178,7 +177,7 @@ class ReadFrame:  # {{{
 
 
 def create_frame(fin, opcode, payload, mask=None, rsv=0):
-    if isinstance(payload, unicode_type):
+    if isinstance(payload, str):
         payload = payload.encode('utf-8')
     l = len(payload)
     header_len = 2 + (0 if l < 126 else 2 if 126 <= l <= 65535 else 8) + (0 if mask is None else 4)
@@ -207,7 +206,7 @@ class MessageWriter:
 
     def __init__(self, buf, mask=None, chunk_size=None):
         self.buf, self.data_type, self.mask = buf, BINARY, mask
-        if isinstance(buf, unicode_type):
+        if isinstance(buf, str):
             self.buf, self.data_type = ReadOnlyFileBuffer(buf.encode('utf-8')), TEXT
         elif isinstance(buf, bytes):
             self.buf = ReadOnlyFileBuffer(buf)
@@ -422,7 +421,7 @@ class WebSocketConnection(HTTPConnection):
         self.set_ws_state()
 
     def websocket_close(self, code=NORMAL_CLOSE, reason=b''):
-        if isinstance(reason, unicode_type):
+        if isinstance(reason, str):
             reason = reason.encode('utf-8')
         self.stop_reading = True
         reason = reason[:123]
@@ -487,7 +486,7 @@ class WebSocketConnection(HTTPConnection):
         ''' Useful for streaming handlers that want to break up messages into
         frames themselves. Note that these frames will be interleaved with
         control frames, so they should not be too large. '''
-        opcode = (TEXT if isinstance(data, unicode_type) else BINARY) if is_first else CONTINUATION
+        opcode = (TEXT if isinstance(data, str) else BINARY) if is_first else CONTINUATION
         fin = 1 if is_last else 0
         frame = create_frame(fin, opcode, data)
         with self.cf_lock:
@@ -496,7 +495,7 @@ class WebSocketConnection(HTTPConnection):
     def send_websocket_ping(self, data=b''):
         ''' Send a PING to the remote client, it should reply with a PONG which
         will be sent to the handle_websocket_pong callback in your handler. '''
-        if isinstance(data, unicode_type):
+        if isinstance(data, str):
             data = data.encode('utf-8')
         frame = create_frame(True, PING, data)
         with self.cf_lock:

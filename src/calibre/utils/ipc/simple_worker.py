@@ -17,7 +17,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import environ_item, string_or_bytes, unicode_type
+from polyglot.builtins import environ_item, string_or_bytes
 
 if iswindows:
     from multiprocessing.connection import PipeConnection as Connection
@@ -268,7 +268,7 @@ def offload_worker(env={}, priority='normal', cwd=None):
 def compile_code(src):
     import io
     import re
-    if not isinstance(src, unicode_type):
+    if not isinstance(src, str):
         match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)

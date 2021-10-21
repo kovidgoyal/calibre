@@ -26,7 +26,6 @@ from calibre.ebooks.rtf2xml import headings_to_sections, \
     body_styles, preamble_rest, group_styles, \
     inline
 from calibre.ebooks.rtf2xml.old_rtf import OldRtf
-from polyglot.builtins import unicode_type
 
 from . import open_for_read, open_for_write
 
@@ -250,7 +249,7 @@ class ParseRtf:
             enc = encode_obj.get_codepage()
             # TODO: to check if cp is a good idea or if I should use a dict to convert
             enc = 'cp' + enc
-            msg = '%s\nException in token processing' % unicode_type(msg)
+            msg = '%s\nException in token processing' % str(msg)
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, bytes) \
                                     else self.__file.encode('utf-8')

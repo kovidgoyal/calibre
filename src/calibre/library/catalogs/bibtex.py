@@ -14,7 +14,7 @@ from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.ebooks.metadata import format_isbn
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 
 class BIBTEX(CatalogPlugin):
@@ -248,7 +248,7 @@ class BIBTEX(CatalogPlugin):
                     elif tpl_field in ['tags', 'authors'] :
                         tpl_field =entry[tpl_field][0]
                     elif tpl_field in ['id', 'series_index'] :
-                        tpl_field = unicode_type(entry[tpl_field])
+                        tpl_field = str(entry[tpl_field])
                     else :
                         tpl_field = entry[tpl_field]
                     return ascii_text(tpl_field)
@@ -267,7 +267,7 @@ class BIBTEX(CatalogPlugin):
                 template_citation = '%s' % re.sub(r'[\D]','', entry["isbn"])
 
             else :
-                template_citation = '%s' % unicode_type(entry["id"])
+                template_citation = '%s' % str(entry["id"])
 
             return bibtexclass.ValidateCitationKey(template_citation)
 

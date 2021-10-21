@@ -15,7 +15,7 @@ from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
-from polyglot.builtins import as_unicode, unicode_type
+from polyglot.builtins import as_unicode
 
 
 class HeaderRecord:
@@ -98,7 +98,7 @@ class Reader202(FormatReader):
             pml += self.get_text_page(i)
 
         title = self.mi.title
-        if not isinstance(title, unicode_type):
+        if not isinstance(title, str):
             title = title.decode('utf-8', 'replace')
 
         html = '<html><head><title>%s</title></head><body>%s</body></html>' % \

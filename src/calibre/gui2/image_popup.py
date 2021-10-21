@@ -16,7 +16,6 @@ from calibre import fit_image
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
 )
-from polyglot.builtins import unicode_type
 
 
 def render_svg(widget, path):
@@ -248,7 +247,7 @@ class ImageView(QDialog):
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, geom)
         try:
-            self.current_image_name = unicode_type(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
+            self.current_image_name = str(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
         except AttributeError:
             self.current_image_name = self.current_url
         reso = ''

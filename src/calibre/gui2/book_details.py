@@ -36,7 +36,6 @@ from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl, langnames_to_langcodes
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
-from polyglot.builtins import unicode_type
 
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
@@ -59,7 +58,7 @@ def css(reset=False):
         del css.ans
     if not hasattr(css, 'ans'):
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        css.ans = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
+        css.ans = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
     return css.ans
 
 
@@ -180,7 +179,7 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, p
         if col.isValid():
             col = col.toRgb()
             if col.isValid():
-                ans = unicode_type(col.name())
+                ans = str(col.name())
         return ans
 
     templ = '''\
@@ -789,9 +788,9 @@ class BookInfo(HTMLDisplay):
             self.manage_category.emit(*self.manage_action.current_fmt)
 
     def link_activated(self, link):
-        if unicode_type(link.scheme()) in ('http', 'https'):
+        if str(link.scheme()) in ('http', 'https'):
             return safe_open_url(link)
-        link = unicode_type(link.toString(NO_URL_FORMATTING))
+        link = str(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
     def show_data(self, mi):

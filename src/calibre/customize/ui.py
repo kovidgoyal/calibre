@@ -22,7 +22,7 @@ from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.constants import DEBUG, numeric_version, system_plugins_loc
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
@@ -781,7 +781,7 @@ def build_plugin(path):
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZipFile, ZIP_STORED
-    path = unicode_type(path)
+    path = str(path)
     names = frozenset(os.listdir(path))
     if '__init__.py' not in names:
         prints(path, ' is not a valid plugin')

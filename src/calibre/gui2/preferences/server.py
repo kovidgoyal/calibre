@@ -35,7 +35,7 @@ from calibre.srv.users import (
 )
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, unicode_type
+from polyglot.builtins import as_bytes
 
 
 if iswindows and not isportable:
@@ -169,7 +169,7 @@ class Text(QLineEdit):
         return self.text().strip() or None
 
     def set(self, val):
-        self.setText(unicode_type(val or ''))
+        self.setText(str(val or ''))
 
 
 class Path(QWidget):
@@ -199,7 +199,7 @@ class Path(QWidget):
         return self.text.text().strip() or None
 
     def set(self, val):
-        self.text.setText(unicode_type(val or ''))
+        self.text.setText(str(val or ''))
 
     def choose(self):
         ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)

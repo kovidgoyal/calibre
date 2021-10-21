@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -251,7 +251,7 @@ class CSSFlattener:
 
             cfont = {
                     'font-family': '"%s"'%font['font-family'],
-                    'panose-1': ' '.join(map(unicode_type, font['panose'])),
+                    'panose-1': ' '.join(map(str, font['panose'])),
                     'src': 'url(%s)'%item.href,
             }
 
@@ -477,7 +477,7 @@ class CSSFlattener:
             minlh = self.context.minimum_line_height / 100.
             slh = style['line-height']
             if not is_drop_cap and isinstance(slh, numbers.Number) and slh < minlh * fsize:
-                cssdict['line-height'] = unicode_type(minlh)
+                cssdict['line-height'] = str(minlh)
         except Exception:
             self.oeb.logger.exception('Failed to set minimum line-height')
 
@@ -539,7 +539,7 @@ class CSSFlattener:
                 if css in styles:
                     match = styles[css]
                 else:
-                    match = klass + unicode_type(names[klass] or '')
+                    match = klass + str(names[klass] or '')
                     styles[css] = match
                     names[klass] += 1
                 node.attrib['class'] = match
@@ -559,7 +559,7 @@ class CSSFlattener:
                     # then the class attribute for a.x tags will contain both
                     # that class and the class for a.x:hover, which is wrong.
                     klass = 'pcalibre'
-                    match = klass + unicode_type(names[klass] or '')
+                    match = klass + str(names[klass] or '')
                     pstyles[css] = match
                     names[klass] += 1
                 keep_classes.add(match)

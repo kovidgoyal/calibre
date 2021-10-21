@@ -10,7 +10,7 @@ import struct
 from io import BytesIO
 from collections import defaultdict
 
-from polyglot.builtins import iteritems, itervalues, unicode_type, as_bytes
+from polyglot.builtins import iteritems, itervalues, as_bytes
 
 
 class UnsupportedFont(ValueError):
@@ -397,7 +397,7 @@ def get_bmp_glyph_ids(table, bmp, codes):
 
 
 def get_glyph_ids(raw, text, raw_is_table=False):
-    if not isinstance(text, unicode_type):
+    if not isinstance(text, str):
         raise TypeError('%r is not a unicode object'%text)
     if raw_is_table:
         table = raw
@@ -423,7 +423,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
 
 
 def supports_text(raw, text, has_only_printable_chars=False):
-    if not isinstance(text, unicode_type):
+    if not isinstance(text, str):
         raise TypeError('%r is not a unicode object'%text)
     if not has_only_printable_chars:
         text = get_printable_characters(text)

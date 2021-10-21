@@ -7,12 +7,12 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 from polyglot.binary import as_base64_unicode
 
 
 def ensure_unicode(obj, enc=preferred_encoding):
-    if isinstance(obj, unicode_type):
+    if isinstance(obj, str):
         return obj
     if isinstance(obj, bytes):
         return obj.decode(enc, 'replace')

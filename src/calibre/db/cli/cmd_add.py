@@ -21,7 +21,6 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added, formats_added
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import unicode_type
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -296,9 +295,9 @@ def do_add(
                     prints('   ', path)
 
         if added_ids:
-            prints(_('Added book ids: %s') % (', '.join(map(unicode_type, added_ids))))
+            prints(_('Added book ids: %s') % (', '.join(map(str, added_ids))))
         if merged_ids:
-            prints(_('Merged book ids: %s') % (', '.join(map(unicode_type, merged_ids))))
+            prints(_('Merged book ids: %s') % (', '.join(map(str, merged_ids))))
 
 
 def option_parser(get_parser, args):

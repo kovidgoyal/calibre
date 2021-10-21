@@ -12,7 +12,7 @@ from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 class Article:
@@ -35,9 +35,9 @@ class Article:
         self.author = author
         self.toc_thumbnail = None
         self.internal_toc_entries = ()
-        if author and not isinstance(author, unicode_type):
+        if author and not isinstance(author, str):
             author = author.decode('utf-8', 'replace')
-        if summary and not isinstance(summary, unicode_type):
+        if summary and not isinstance(summary, str):
             summary = summary.decode('utf-8', 'replace')
         summary = clean_xml_chars(summary) if summary else summary
         self.summary = summary
@@ -68,13 +68,13 @@ class Article:
 
     @formatted_date.setter
     def formatted_date(self, val):
-        if isinstance(val, unicode_type):
+        if isinstance(val, str):
             self._formatted_date = val
 
     @property
     def title(self):
         t = self._title
-        if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
+        if not isinstance(t, str) and hasattr(t, 'decode'):
             t = t.decode('utf-8', 'replace')
         return t
 
@@ -142,7 +142,7 @@ class Feed:
 
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
                            max_articles_per_feed=100):
-        self.title      = unicode_type(title if title else _('Unknown feed'))
+        self.title      = str(title if title else _('Unknown feed'))
         self.description = ''
         self.image_url  = None
         self.articles   = []
@@ -209,7 +209,7 @@ class Feed:
         author = item.get('author', None)
 
         content = [i.value for i in item.get('content', []) if i.value]
-        content = [i if isinstance(i, unicode_type) else i.decode('utf-8', 'replace')
+        content = [i if isinstance(i, str) else i.decode('utf-8', 'replace')
                 for i in content]
         content = '\n'.join(content)
         if not content.strip():
@@ -225,7 +225,7 @@ class Feed:
                 self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
                                   (title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
             except UnicodeDecodeError:
-                if not isinstance(title, unicode_type):
+                if not isinstance(title, str):
                     title = title.decode('utf-8', 'replace')
                 self.logger.debug('Skipping article %s as it is too old'%title)
 

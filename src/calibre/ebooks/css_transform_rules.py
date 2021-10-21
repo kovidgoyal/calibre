@@ -12,7 +12,7 @@ from css_parser.css import Property, CSSRule
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def compile_pat(pat):
@@ -161,7 +161,7 @@ def transform_number(val, op, raw):
     v = op(v, val)
     if int(v) == v:
         v = int(v)
-    return unicode_type(v) + u
+    return str(v) + u
 
 
 class Rule:
@@ -379,7 +379,7 @@ def test(return_tests=False):  # {{{
         r = Rule(**rule)
         decl = StyleDeclaration(safe_parser().parseStyle(style))
         r.process_declaration(decl)
-        return unicode_type(decl)
+        return str(decl)
 
     class TestTransforms(unittest.TestCase):
         longMessage = True

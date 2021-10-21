@@ -14,7 +14,7 @@ from contextlib import suppress
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, iteritems, as_unicode
+from polyglot.builtins import codepoint_to_chr, iteritems, as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -207,7 +207,7 @@ coding = list(zip(
 
 def roman(num):
     if num <= 0 or num >= 4000 or int(num) != num:
-        return unicode_type(num)
+        return str(num)
     result = []
     for d, r in coding:
         while num >= d:
@@ -222,7 +222,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
     try:
         i = float(i)
     except Exception:
-        return unicode_type(i)
+        return str(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
     return fmt%i
@@ -266,7 +266,7 @@ class Resource:
                 self._href = href_or_path
             else:
                 pc = url[2]
-                if isinstance(pc, unicode_type):
+                if isinstance(pc, str):
                     pc = pc.encode('utf-8')
                 pc = unquote(pc).decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
@@ -287,7 +287,7 @@ class Resource:
                 basedir = os.getcwd()
         if self.path is None:
             return self._href
-        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, str) else self.fragment
         frag = '#'+as_unicode(quote(f)) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
@@ -295,7 +295,7 @@ class Resource:
             rpath = relpath(self.path, basedir)
         except OSError:  # On windows path and basedir could be on different drives
             rpath = self.path
-        if isinstance(rpath, unicode_type):
+        if isinstance(rpath, str):
             rpath = rpath.encode('utf-8')
         return as_unicode(quote(rpath.replace(os.sep, '/')))+frag
 
@@ -332,7 +332,7 @@ class ResourceCollection:
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
-        return unicode_type(self)
+        return str(self)
 
     def append(self, resource):
         if not isinstance(resource, Resource):

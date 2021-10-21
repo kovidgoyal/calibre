@@ -12,7 +12,6 @@ import time
 from calibre.constants import __appname__, __version__
 from calibre import strftime, prepare_string_for_xml as xml
 from calibre.utils.date import parse_date
-from polyglot.builtins import unicode_type
 
 SONY_METADATA = '''\
 <?xml version="1.0" encoding="utf-8"?>
@@ -83,21 +82,21 @@ SONY_ATOM_ENTRY = '''\
 
 def sony_metadata(oeb):
     m = oeb.metadata
-    title = short_title = unicode_type(m.title[0])
+    title = short_title = str(m.title[0])
     publisher = __appname__ + ' ' + __version__
     try:
-        pt = unicode_type(oeb.metadata.publication_type[0])
+        pt = str(oeb.metadata.publication_type[0])
         short_title = ':'.join(pt.split(':')[2:])
     except:
         pass
 
     try:
-        date = parse_date(unicode_type(m.date[0]),
+        date = parse_date(str(m.date[0]),
                 as_utc=False).strftime('%Y-%m-%d')
     except:
         date = strftime('%Y-%m-%d')
     try:
-        language = unicode_type(m.language[0]).replace('_', '-')
+        language = str(m.language[0]).replace('_', '-')
     except:
         language = 'en'
     short_title = xml(short_title, True)
@@ -115,9 +114,9 @@ def sony_metadata(oeb):
                 return True
 
     try:
-        base_id = unicode_type(list(filter(cal_id, m.identifier))[0])
+        base_id = str(list(filter(cal_id, m.identifier))[0])
     except:
-        base_id = unicode_type(uuid4())
+        base_id = str(uuid4())
 
     toc = oeb.toc
 
@@ -130,7 +129,7 @@ def sony_metadata(oeb):
         for x in toc:
             section.nodes.append(x)
         toc = TOC(klass='periodical', href=oeb.spine[2].href,
-                    title=unicode_type(oeb.metadata.title[0]))
+                    title=str(oeb.metadata.title[0]))
         toc.nodes.append(section)
 
     entries = []
@@ -145,7 +144,7 @@ def sony_metadata(oeb):
         d = 1
         bsectitle = sectitle
         while sectitle in seen_titles:
-            sectitle = bsectitle + ' ' + unicode_type(d)
+            sectitle = bsectitle + ' ' + str(d)
             d += 1
         seen_titles.add(sectitle)
         sectitle = xml(sectitle, True)
@@ -164,7 +163,7 @@ def sony_metadata(oeb):
             btitle = atitle
             d = 1
             while atitle in seen_titles:
-                atitle = btitle + ' ' + unicode_type(d)
+                atitle = btitle + ' ' + str(d)
                 d += 1
 
             auth = article.author if article.author else ''
@@ -181,7 +180,7 @@ def sony_metadata(oeb):
                 short_title=short_title,
                 section_title=sectitle,
                 href=article.href,
-                word_count=unicode_type(1),
+                word_count=str(1),
                 id=xml(base_id)+'/'+secid+'/'+aid
             ))
 

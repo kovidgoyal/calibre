@@ -6,7 +6,7 @@
 from struct import unpack, error
 import os
 from calibre.utils.speedups import ReadOnlyFileBuffer
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 """ Recognize image file formats and sizes based on their first few bytes."""
 
@@ -42,7 +42,7 @@ def identify(src):
     recognized. '''
     needs_close = False
 
-    if isinstance(src, unicode_type):
+    if isinstance(src, str):
         stream = lopen(src, 'rb')
         needs_close = True
     elif isinstance(src, bytes):

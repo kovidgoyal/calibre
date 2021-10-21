@@ -17,7 +17,7 @@ from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
 
@@ -90,7 +90,7 @@ class Resources:
             self.image_indices.add(0)
         elif self.is_periodical:
             # Generate a default masthead
-            data = generate_masthead(unicode_type(self.oeb.metadata['title'][0]))
+            data = generate_masthead(str(self.oeb.metadata['title'][0]))
             self.records.append(data)
             self.used_image_indices.add(0)
             self.image_indices.add(0)
@@ -98,8 +98,8 @@ class Resources:
 
         cover_href = self.cover_offset = self.thumbnail_offset = None
         if (oeb.metadata.cover and
-                unicode_type(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            cover_id = unicode_type(oeb.metadata.cover[0])
+                str(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = str(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
             cover_href = item.href
 

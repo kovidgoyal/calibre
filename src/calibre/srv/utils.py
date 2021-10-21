@@ -19,7 +19,7 @@ from calibre.utils.shared_file import share_open
 from polyglot.builtins import iteritems
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
-from polyglot.builtins import unicode_type, as_unicode
+from polyglot.builtins import as_unicode
 from polyglot.urllib import parse_qs, quote as urlquote
 from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
@@ -30,7 +30,7 @@ encode_name, decode_name
 
 
 def http_date(timeval=None):
-    return unicode_type(formatdate(timeval=timeval, usegmt=True))
+    return str(formatdate(timeval=timeval, usegmt=True))
 
 
 class MultiDict(dict):  # {{{

@@ -23,7 +23,6 @@ import os.path as op
 from datetime import datetime
 import shutil
 
-from polyglot.builtins import unicode_type
 from polyglot.urllib import quote
 
 FILES_DIR = 'files'
@@ -40,9 +39,9 @@ TOPDIR_FALLBACK = '.Trash-%s'%uid
 
 
 def uniquote(raw):
-    if isinstance(raw, unicode_type):
+    if isinstance(raw, str):
         raw = raw.encode('utf-8')
-    return unicode_type(quote(raw))
+    return str(quote(raw))
 
 
 def is_parent(parent, path):
@@ -120,7 +119,7 @@ def find_ext_volume_global_trash(volume_root):
     if not op.isdir(trash_dir) or op.islink(trash_dir) or not (mode & stat.S_ISVTX):
         return None
 
-    trash_dir = op.join(trash_dir, unicode_type(uid))
+    trash_dir = op.join(trash_dir, str(uid))
     try:
         check_create(trash_dir)
     except OSError:

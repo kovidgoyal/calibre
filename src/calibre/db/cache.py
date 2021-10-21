@@ -47,7 +47,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, now as nowf, utcnow
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes, unicode_type
+from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
 
 
 def api(f):
@@ -579,14 +579,14 @@ class Cache:
     @read_api
     def get_item_id(self, field, item_name):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
-        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode_type) else item_name, None)
+        rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
+        return rmap.get(icu_lower(item_name) if isinstance(item_name, str) else item_name, None)
 
     @read_api
     def get_item_ids(self, field, item_names):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
-        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode_type) else name, None) for name in item_names}
+        rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
+        return {name:rmap.get(icu_lower(name) if isinstance(name, str) else name, None) for name in item_names}
 
     @read_api
     def author_data(self, author_ids=None):

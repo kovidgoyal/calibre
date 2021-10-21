@@ -16,7 +16,7 @@ from calibre.constants import (
     filesystem_encoding, iswindows, preferred_encoding, ismacos
 )
 from calibre.utils.localization import get_udc
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 def ascii_text(orig):
@@ -24,7 +24,7 @@ def ascii_text(orig):
     try:
         ascii = udc.decode(orig)
     except Exception:
-        if isinstance(orig, unicode_type):
+        if isinstance(orig, str):
             orig = orig.encode('ascii', 'replace')
         ascii = orig.decode(preferred_encoding, 'replace')
     if isinstance(ascii, bytes):

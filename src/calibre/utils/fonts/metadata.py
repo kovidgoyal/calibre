@@ -11,7 +11,6 @@ from struct import calcsize, unpack, unpack_from
 from collections import namedtuple
 
 from calibre.utils.fonts.utils import get_font_names2, get_font_characteristics
-from polyglot.builtins import unicode_type
 
 
 class UnsupportedFont(ValueError):
@@ -48,7 +47,7 @@ class FontMetadata:
         elif wt == 700:
             wt = 'bold'
         else:
-            wt = unicode_type(wt)
+            wt = str(wt)
         self.font_weight = wt
 
         self.font_stretch = ('ultra-condensed', 'extra-condensed',

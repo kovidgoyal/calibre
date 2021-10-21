@@ -16,7 +16,7 @@ from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.widgets import HistoryLineEdit
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 class AbortCommit(Exception):
@@ -128,15 +128,15 @@ class Setting:
             raise ValueError('Unknown data type %s' % self.gui_obj.__class__)
 
         if isinstance(self.config_obj, ConfigProxy) and \
-                not unicode_type(self.gui_obj.toolTip()):
+                not str(self.gui_obj.toolTip()):
             h = self.config_obj.help(self.name)
             if h:
                 self.gui_obj.setToolTip(h)
-        tt = unicode_type(self.gui_obj.toolTip())
+        tt = str(self.gui_obj.toolTip())
         if tt:
-            if not unicode_type(self.gui_obj.whatsThis()):
+            if not str(self.gui_obj.whatsThis()):
                 self.gui_obj.setWhatsThis(tt)
-            if not unicode_type(self.gui_obj.statusTip()):
+            if not str(self.gui_obj.statusTip()):
                 self.gui_obj.setStatusTip(tt)
             tt = '\n'.join(textwrap.wrap(tt, 70))
             self.gui_obj.setToolTip(tt)
@@ -204,17 +204,17 @@ class Setting:
         elif self.datatype == 'number':
             val = self.gui_obj.value()
         elif self.datatype == 'string':
-            val = unicode_type(self.gui_obj.text()).strip()
+            val = str(self.gui_obj.text()).strip()
             if self.empty_string_is_None and not val:
                 val = None
         elif self.datatype == 'choice':
             if isinstance(self.gui_obj, EditWithComplete):
-                val = unicode_type(self.gui_obj.text())
+                val = str(self.gui_obj.text())
             else:
                 idx = self.gui_obj.currentIndex()
                 if idx < 0:
                     idx = 0
-                val = unicode_type(self.gui_obj.itemData(idx) or '')
+                val = str(self.gui_obj.itemData(idx) or '')
         return val
 
 
@@ -227,7 +227,7 @@ class CommaSeparatedList(Setting):
         self.gui_obj.setText(x)
 
     def get_gui_val(self):
-        val = unicode_type(self.gui_obj.text()).strip()
+        val = str(self.gui_obj.text()).strip()
         ans = []
         if val:
             ans = [x.strip() for x in val.split(',')]

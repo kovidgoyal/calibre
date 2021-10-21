@@ -20,7 +20,6 @@ from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
 from calibre.ebooks.metadata.sources.update import patch_plugins
-from polyglot.builtins import unicode_type
 
 
 def option_parser():
@@ -104,7 +103,7 @@ def main(args=sys.argv):
         getattr(sys.stdout, 'buffer', sys.stdout).write(metadata_to_opf(result))
         print()
     else:
-        prints(unicode_type(result))
+        prints(str(result))
     if not opts.opf and opts.cover:
         prints('Cover               :', cf)
 

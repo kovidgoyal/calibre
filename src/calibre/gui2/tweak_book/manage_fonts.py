@@ -21,7 +21,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def rule_for_font(font_file, added_name):
@@ -84,11 +84,11 @@ class EmbeddingData(Dialog):
             text.append('<li style="margin-bottom:2em">' + '<b>' + face['path'] + '</b>')
             name = face.get('full_name') or face.get('family_name') or face.get('subfamily_name')
             if name:
-                text.append('<br>' + _('Name:') + '\xa0<b>' + unicode_type(name) + '</b>')
+                text.append('<br>' + _('Name:') + '\xa0<b>' + str(name) + '</b>')
             if 'font-weight' in face:
-                text.append('<br>' + 'font-weight:\xa0' + unicode_type(face['font-weight']))
+                text.append('<br>' + 'font-weight:\xa0' + str(face['font-weight']))
             if 'font-style' in face:
-                text.append('<br>' + 'font-style:\xa0' + unicode_type(face['font-style']))
+                text.append('<br>' + 'font-style:\xa0' + str(face['font-style']))
         self.text.setHtml('\n'.join(text))
 
 
@@ -197,7 +197,7 @@ class ChangeFontFamily(Dialog):
 
     @property
     def family(self):
-        return unicode_type(self._family.text())
+        return str(self._family.text())
 
     @property
     def normalized_family(self):

@@ -11,7 +11,6 @@ from contextlib import closing
 
 from calibre.customize import FileTypePlugin
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import unicode_type
 
 
 def is_comic(list_of_names):
@@ -170,7 +169,7 @@ def get_comic_book_info(d, mi, series_index='volume'):
         from datetime import date
         try:
             dt = date(puby, 6 if pubm is None else pubm, 15)
-            dt = parse_only_date(unicode_type(dt))
+            dt = parse_only_date(str(dt))
             mi.pubdate = dt
         except Exception:
             pass

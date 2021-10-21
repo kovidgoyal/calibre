@@ -14,7 +14,7 @@ from qt.core import QEventLoop
 from calibre import force_unicode
 from calibre.constants import DEBUG, filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
-from polyglot.builtins import reraise, string_or_bytes, unicode_type
+from polyglot.builtins import reraise, string_or_bytes
 
 
 def dialog_name(name, title):
@@ -82,7 +82,7 @@ def save_initial_dir(name, title, ans, no_save_dir, is_file=False):
 
 
 def encode_arg(title):
-    if isinstance(title, unicode_type):
+    if isinstance(title, str):
         try:
             title = title.encode(preferred_encoding)
         except UnicodeEncodeError:
@@ -136,7 +136,7 @@ def kde_cmd(window, title, *rest):
         ans += ['--desktopfile', 'calibre-gui']
     winid = get_winid(window)
     if winid is not None:
-        ans += ['--attach', unicode_type(int(winid))]
+        ans += ['--attach', str(int(winid))]
     return ans + list(rest)
 
 

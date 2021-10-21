@@ -33,7 +33,7 @@ from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
-from polyglot.builtins import iteritems, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes
 from polyglot.queue import Empty
 
 
@@ -180,7 +180,7 @@ class Adder(QObject):
                             self.file_groups[len(self.file_groups)] = files
         else:
             def find_files(root):
-                if isinstance(root, unicode_type):
+                if isinstance(root, str):
                     root = root.encode(filesystem_encoding)
                 for dirpath, dirnames, filenames in os.walk(root):
                     try:
@@ -314,7 +314,7 @@ class Adder(QObject):
             except Failure as err:
                 error_dialog(self.pd, _('Cannot add books'), _(
                 'Failed to add some books, click "Show details" for more information.'),
-                det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
+                det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
                 self.pd.canceled = True
             else:
                 # All tasks completed

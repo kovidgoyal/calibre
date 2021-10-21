@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
 from calibre.db.backend import FTSQueryError
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 class WritingTest(BaseTest):
@@ -664,11 +664,11 @@ class WritingTest(BaseTest):
     def test_set_author_data(self):  # {{{
         cache = self.init_cache()
         adata = cache.author_data()
-        ldata = {aid:unicode_type(aid) for aid in adata}
+        ldata = {aid:str(aid) for aid in adata}
         self.assertEqual({1,2,3}, cache.set_link_for_authors(ldata))
         for c in (cache, self.init_cache()):
             self.assertEqual(ldata, {aid:d['link'] for aid, d in iteritems(c.author_data())})
-        self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else unicode_type(aid) for aid in adata}),
+        self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
                          'Setting the author link to the same value as before, incorrectly marked some books as dirty')
         sdata = {aid:'%s, changed' % aid for aid in adata}
         self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))

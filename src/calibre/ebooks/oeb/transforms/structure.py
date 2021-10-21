@@ -13,7 +13,7 @@ from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues
 from polyglot.urllib import urlparse
 
 
@@ -124,7 +124,7 @@ class DetectStructure:
                 elem = matches[0]
                 eid = elem.get('id', None)
                 if not eid:
-                    eid = 'start_reading_at_'+unicode_type(uuid.uuid4()).replace('-', '')
+                    eid = 'start_reading_at_'+str(uuid.uuid4()).replace('-', '')
                     elem.set('id', eid)
                 if 'text' in self.oeb.guide:
                     self.oeb.guide.remove('text')

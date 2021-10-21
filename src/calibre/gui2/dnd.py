@@ -22,7 +22,6 @@ from calibre.gui2 import error_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import unquote, urlparse
 
@@ -198,7 +197,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False, allow_remote=F
     if DEBUG:
         prints('\nDebugging DND event')
         for f in md.formats():
-            f = unicode_type(f)
+            f = str(f)
             raw = data_as_string(f, md)
             prints(f, len(raw), repr(raw[:300]), '\n')
         print()
@@ -221,7 +220,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False, allow_remote=F
 def dnd_get_local_image_and_pixmap(md, image_exts=None):
     if md.hasImage():
         for x in md.formats():
-            x = unicode_type(x)
+            x = str(x)
             if x.startswith('image/'):
                 cdata = bytes(md.data(x))
                 pmap = QPixmap()
@@ -347,7 +346,7 @@ def _get_firefox_pair(md, exts, url, fname):
 
 
 def get_firefox_rurl(md, exts):
-    formats = frozenset([unicode_type(x) for x in md.formats()])
+    formats = frozenset([str(x) for x in md.formats()])
     url = fname = None
     if 'application/x-moz-file-promise-url' in formats and \
             'application/x-moz-file-promise-dest-filename' in formats:

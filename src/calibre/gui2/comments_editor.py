@@ -31,7 +31,7 @@ from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 # Cleanup Qt markup {{{
 
@@ -602,7 +602,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             return
         url = self.parse_link(link)
         if url.isValid():
-            url = unicode_type(url.toString(NO_URL_FORMATTING))
+            url = str(url.toString(NO_URL_FORMATTING))
             self.focus_self()
             with self.editing_cursor() as c:
                 if is_image:
@@ -692,7 +692,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.resize(d.sizeHint())
         link, name, is_image = None, None, False
         if d.exec_() == QDialog.DialogCode.Accepted:
-            link, name = unicode_type(d.url.text()).strip(), unicode_type(d.name.text()).strip()
+            link, name = str(d.url.text()).strip(), str(d.name.text()).strip()
             is_image = d.treat_as_image.isChecked()
         return link, name, is_image
 

@@ -15,7 +15,7 @@ from calibre.constants import DEBUG, filesystem_encoding
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
-from polyglot.builtins import unicode_type, as_bytes, as_unicode
+from polyglot.builtins import as_bytes, as_unicode
 
 '''
 Notes on collections:
@@ -610,7 +610,7 @@ class KINDLE2(KINDLE):
                 cust_col_name = opts.extra_customization[self.OPT_APNX_METHOD_COL]
                 if cust_col_name:
                     try:
-                        temp = unicode_type(metadata.get(cust_col_name)).lower()
+                        temp = str(metadata.get(cust_col_name)).lower()
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:

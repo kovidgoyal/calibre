@@ -17,7 +17,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 from calibre.utils.localization import get_lang
-from polyglot.builtins import as_unicode, unicode_type
+from polyglot.builtins import as_unicode
 
 
 def sanitize_file_name(x):
@@ -144,7 +144,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-        bookid = unicode_type(uuid.uuid4())
+        bookid = str(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
@@ -233,7 +233,7 @@ class HTMLInput(InputFormatPlugin):
 
     def link_to_local_path(self, link_, base=None):
         from calibre.ebooks.html.input import Link
-        if not isinstance(link_, unicode_type):
+        if not isinstance(link_, str):
             try:
                 link_ = link_.decode('utf-8', 'error')
             except:
@@ -298,7 +298,7 @@ class HTMLInput(InputFormatPlugin):
             # bhref refers to an already existing file. The read() method of
             # DirContainer will call unquote on it before trying to read the
             # file, therefore we quote it here.
-            if isinstance(bhref, unicode_type):
+            if isinstance(bhref, str):
                 bhref = bhref.encode('utf-8')
             item.html_input_href = as_unicode(quote(bhref))
             if is_stylesheet:

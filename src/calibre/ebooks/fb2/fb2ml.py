@@ -20,7 +20,7 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 from polyglot.binary import as_base64_unicode
 from polyglot.urllib import urlparse
 
@@ -154,7 +154,7 @@ class FB2MLizer:
             metadata['author'] = '<author><first-name></first-name><last-name></last-name></author>'
 
         metadata['keywords'] = ''
-        tags = list(map(unicode_type, self.oeb_book.metadata.subject))
+        tags = list(map(str, self.oeb_book.metadata.subject))
         if tags:
             tags = ', '.join(prepare_string_for_xml(x) for x in tags)
             metadata['keywords'] = '<keywords>%s</keywords>'%tags
@@ -169,12 +169,12 @@ class FB2MLizer:
         year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
-                metadata['id'] = unicode_type(x).split(':')[-1]
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or str(x).startswith('urn:uuid:'):
+                metadata['id'] = str(x).split(':')[-1]
                 break
         if metadata['id'] is None:
             self.log.warn('No UUID identifier found')
-            metadata['id'] = unicode_type(uuid.uuid4())
+            metadata['id'] = str(uuid.uuid4())
 
         try:
             date = self.oeb_book.metadata['date'][0]
@@ -236,7 +236,7 @@ class FB2MLizer:
             </description>''') % metadata
 
         # Remove empty lines.
-        return '\n'.join(filter(unicode_type.strip, header.splitlines()))
+        return '\n'.join(filter(str.strip, header.splitlines()))
 
     def fb2_footer(self):
         return '</FictionBook>'
@@ -247,8 +247,8 @@ class FB2MLizer:
         cover_href = None
 
         # Get the raster cover if it's available.
-        if self.oeb_book.metadata.cover and unicode_type(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
-            id = unicode_type(self.oeb_book.metadata.cover[0])
+        if self.oeb_book.metadata.cover and str(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+            id = str(self.oeb_book.metadata.cover[0])
             cover_item = self.oeb_book.manifest.ids[id]
             if cover_item.media_type in OEB_RASTER_IMAGES:
                 cover_href = cover_item.href

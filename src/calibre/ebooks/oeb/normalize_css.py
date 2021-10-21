@@ -12,7 +12,7 @@ from css_parser.css import PropertyValue
 from css_parser import profile as cssprofiles, CSSParser
 from tinycss.fonts3 import parse_font, serialize_font_family
 from calibre.ebooks.oeb.base import css_text
-from polyglot.builtins import iteritems, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -393,7 +393,7 @@ def test_normalization(return_tests=False):  # {{{
                 tuple('0 0 0 0'.split()) : '0',
             }):
                 for prefix in ('margin', 'padding'):
-                    css = {'%s-%s' % (prefix, x) : unicode_type(y)+'pt' if isinstance(y, numbers.Number) else y
+                    css = {'%s-%s' % (prefix, x) : str(y)+'pt' if isinstance(y, numbers.Number) else y
                             for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
                     css = '; '.join(('%s:%s' % (k, v) for k, v in iteritems(css)))
                     style = parseStyle(css)

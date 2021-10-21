@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, sys, json
 from collections import deque
 from operator import attrgetter
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
@@ -73,7 +73,7 @@ class FileOrFolder:
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
         try:
-            path = unicode_type(self.full_path)
+            path = str(self.full_path)
         except:
             path = ''
         datum = 'size=%s'%(self.size)

@@ -19,7 +19,6 @@ from calibre.ebooks.conversion.config import (
 from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
 from calibre.gui2.font_family_chooser import FontFamilyChooser
-from polyglot.builtins import unicode_type
 
 
 def config_widget_for_input_plugin(plugin):
@@ -101,7 +100,7 @@ class Widget(QWidget):
                     buddy = g.buddy()
                     if buddy is not None and hasattr(buddy, '_help'):
                         g._help = buddy._help
-                        htext = unicode_type(buddy.toolTip()).strip()
+                        htext = str(buddy.toolTip()).strip()
                         g.setToolTip(htext)
                         g.setWhatsThis(htext)
                         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
@@ -152,18 +151,18 @@ class Widget(QWidget):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode_type(func)
+            ans = str(func)
             if self.STRIP_TEXT_FIELDS:
                 ans = ans.strip()
             if not ans:
                 ans = None
             return ans
         elif isinstance(g, QFontComboBox):
-            return unicode_type(QFontInfo(g.currentFont()).family())
+            return str(QFontInfo(g.currentFont()).family())
         elif isinstance(g, FontFamilyChooser):
             return g.font_family
         elif isinstance(g, EncodingComboBox):
-            ans = unicode_type(g.currentText()).strip()
+            ans = str(g.currentText()).strip()
             try:
                 codecs.lookup(ans)
             except:
@@ -172,7 +171,7 @@ class Widget(QWidget):
                 ans = None
             return ans
         elif isinstance(g, QComboBox):
-            return unicode_type(g.currentText())
+            return str(g.currentText())
         elif isinstance(g, QCheckBox):
             return bool(g.isChecked())
         elif isinstance(g, XPathEdit):
@@ -251,7 +250,7 @@ class Widget(QWidget):
             g.edit.setText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
-                unicode_type(g.objectName())))
+                str(g.objectName())))
         self.post_set_value(g, val)
 
     def set_help(self, msg):

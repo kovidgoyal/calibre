@@ -11,7 +11,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp, primary_contains
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class Item:
@@ -230,7 +230,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def add_category(self):
         self.save_category()
-        cat_name = unicode_type(self.input_box.text()).strip()
+        cat_name = str(self.input_box.text()).strip()
         if cat_name == '':
             return False
         comps = [c.strip() for c in cat_name.split('.') if c.strip()]
@@ -259,7 +259,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def rename_category(self):
         self.save_category()
-        cat_name = unicode_type(self.input_box.text()).strip()
+        cat_name = str(self.input_box.text()).strip()
         if cat_name == '':
             return False
         if not self.current_cat_name:
@@ -300,7 +300,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.save_category()
         s = self.category_box.itemText(idx)
         if s:
-            self.current_cat_name = unicode_type(s)
+            self.current_cat_name = str(s)
         else:
             self.current_cat_name  = None
         self.fill_applied_items()

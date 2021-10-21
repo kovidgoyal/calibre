@@ -22,7 +22,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.ipc.pool import Pool, Failure
 from calibre.library.save_to_disk import sanitize_args, get_path_components, find_plugboard, plugboard_save_to_disk_value
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Empty
 
 BookId = namedtuple('BookId', 'title authors')
@@ -267,7 +267,7 @@ class Saver(QObject):
                 except Failure as err:
                     error_dialog(self.pd, _('Critical failure'), _(
                         'Could not save books to disk, click "Show details" for more information'),
-                        det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
+                        det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
                     self.pd.canceled = True
             else:
                 self.pd.value += 1
@@ -301,7 +301,7 @@ class Saver(QObject):
         except Failure as err:
             error_dialog(self.pd, _('Critical failure'), _(
                 'Could not save books to disk, click "Show details" for more information'),
-                det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
+                det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
             self.pd.canceled = True
         except RuntimeError:
             pass  # tasks not completed

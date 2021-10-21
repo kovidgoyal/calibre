@@ -13,7 +13,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring
 from calibre.constants import iswindows
-from polyglot.builtins import unicode_type, as_unicode, native_string_type
+from polyglot.builtins import as_unicode, native_string_type
 
 
 def decode_fqdn(fqdn):
@@ -112,7 +112,7 @@ def get_mx(host, verbose=0):
         print('Find mail exchanger for', host)
     answers = list(dns.resolver.query(host, 'MX'))
     answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxsize)))
-    return [unicode_type(x.exchange) for x in answers if hasattr(x, 'exchange')]
+    return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,

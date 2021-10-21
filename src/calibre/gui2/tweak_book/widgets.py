@@ -26,7 +26,7 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox, to_plai
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher, DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -69,7 +69,7 @@ class InsertTag(Dialog):  # {{{
 
     @property
     def tag(self):
-        return unicode_type(self.tag_input.text()).strip()
+        return str(self.tag_input.text()).strip()
 
     @classmethod
     def test(cls):
@@ -130,7 +130,7 @@ class RationalizeFolders(Dialog):  # {{{
     def folder_map(self):
         ans = {}
         for typ, x in self.TYPE_MAP:
-            val = unicode_type(getattr(self, '%s_folder' % typ).text()).strip().strip('/')
+            val = str(getattr(self, '%s_folder' % typ).text()).strip().strip('/')
             ans[typ] = val
         return ans
 
@@ -242,15 +242,15 @@ class ImportForeign(Dialog):  # {{{
             self.dest.setText(path)
 
     def accept(self):
-        if not unicode_type(self.src.text()):
+        if not str(self.src.text()):
             return error_dialog(self, _('Need document'), _(
                 'You must specify the source file that will be imported.'), show=True)
         Dialog.accept(self)
 
     @property
     def data(self):
-        src = unicode_type(self.src.text()).strip()
-        dest = unicode_type(self.dest.text()).strip()
+        src = str(self.src.text()).strip()
+        dest = str(self.dest.text()).strip()
         if not dest:
             dest = src.rpartition('.')[0] + '.epub'
         return src, dest
@@ -457,7 +457,7 @@ class QuickOpen(Dialog):
         l.addWidget(self.bb, alignment=Qt.AlignmentFlag.AlignBottom)
 
     def update_matches(self, text):
-        text = unicode_type(text).strip()
+        text = str(text).strip()
         self.help_label.setVisible(False)
         self.results.setVisible(True)
         matches = self.matcher(text, limit=100)
@@ -552,7 +552,7 @@ class NamesModel(QAbstractListModel):
             return '\xa0' * 20
 
     def filter(self, query):
-        query = unicode_type(query or '')
+        query = str(query or '')
         self.beginResetModel()
         if not query:
             self.items = tuple((text, None) for text in self.names)
@@ -617,7 +617,7 @@ class AnchorsModel(QAbstractListModel):
         self.filter('')
 
     def filter(self, query):
-        query = unicode_type(query or '')
+        query = str(query or '')
         self.beginResetModel()
         self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
         self.endResetModel()
@@ -745,11 +745,11 @@ class InsertLink(Dialog):
 
     @property
     def href(self):
-        return unicode_type(self.target.text()).strip()
+        return str(self.target.text()).strip()
 
     @property
     def text(self):
-        return unicode_type(self.text_edit.text()).strip()
+        return str(self.text_edit.text()).strip()
 
     @property
     def template(self):
@@ -889,7 +889,7 @@ class InsertSemantics(Dialog):
         d.exec_()
 
     def semantic_type_changed(self):
-        item_type = unicode_type(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
+        item_type = str(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         name, frag = self.final_type_map.get(item_type, (None, None))
         self.show_type(name, frag)
 
@@ -914,8 +914,8 @@ class InsertSemantics(Dialog):
         self.target.blockSignals(False)
 
     def target_text_changed(self):
-        name, frag = unicode_type(self.target.text()).partition('#')[::2]
-        item_type = unicode_type(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
+        name, frag = str(self.target.text()).partition('#')[::2]
+        item_type = str(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         self.final_type_map[item_type] = (name, frag or None)
 
     def selected_file_changed(self, *args):
@@ -1033,7 +1033,7 @@ class FilterCSS(Dialog):  # {{{
             a('float'), a('clear')
         if self.opt_colors.isChecked():
             a('color'), a('background-color')
-        for x in unicode_type(self.others.text()).split(','):
+        for x in str(self.others.text()).split(','):
             x = x.strip()
             if x:
                 a(x)
@@ -1209,7 +1209,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         return to_plain_text(self)
 
     def selected_text_from_cursor(self, cursor):
-        return unicodedata.normalize('NFC', unicode_type(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+        return unicodedata.normalize('NFC', str(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
     @property
     def selected_text(self):

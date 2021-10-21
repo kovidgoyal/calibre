@@ -17,7 +17,6 @@ from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.auto_add import AUTO_ADDED
 from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
-from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -134,7 +133,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
             if viewer.item(i).checkState() == Qt.CheckState.Checked:
-                fmts.append(unicode_type(viewer.item(i).text()))
+                fmts.append(str(viewer.item(i).text()))
         return fmts
     # }}}
 
@@ -147,7 +146,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.add_filter_rules = []
 
     def commit(self):
-        path = unicode_type(self.opt_auto_add_path.text()).strip()
+        path = str(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:
                 path = os.path.abspath(path)

@@ -22,7 +22,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
-from polyglot.builtins import unicode_type, iteritems
+from polyglot.builtins import iteritems
 
 
 class TagBrowserMixin:  # {{{
@@ -125,7 +125,7 @@ class TagBrowserMixin:  # {{{
             if new_cat not in user_cats:
                 break
             i += 1
-            n = new_name + unicode_type(i)
+            n = new_name + str(i)
         # Add the new category
         user_cats[new_cat] = []
         db.new_api.set_pref('user_categories', user_cats)
@@ -282,7 +282,7 @@ class TagBrowserMixin:  # {{{
                     m.delete_item_from_all_user_categories(orig_name[item], category)
                 for old_id in to_rename:
                     m.rename_item_in_all_user_categories(orig_name[old_id],
-                                            category, unicode_type(to_rename[old_id]))
+                                            category, str(to_rename[old_id]))
 
                 db.new_api.remove_items(category, to_delete)
                 db.new_api.rename_items(category, to_rename, change_index=False)
@@ -791,7 +791,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
     @property
     def find_text(self):
-        return unicode_type(self.item_search.currentText()).strip()
+        return str(self.item_search.currentText()).strip()
 
     def reset_find(self):
         model = self.tags_view.model()

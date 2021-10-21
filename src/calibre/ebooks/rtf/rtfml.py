@@ -19,7 +19,7 @@ from lxml import etree
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 TAGS = {
     'b': '\\b',
@@ -78,7 +78,7 @@ def txt2rtf(text):
     text = text.replace('}', r'\'7d')
     text = text.replace('\\', r'\'5c')
 
-    if not isinstance(text, unicode_type):
+    if not isinstance(text, str):
         return text
 
     buf = io.StringIO()

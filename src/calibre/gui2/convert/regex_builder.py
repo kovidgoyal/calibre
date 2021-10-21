@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import native_string_type, unicode_type
+from polyglot.builtins import native_string_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -60,7 +60,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         gprefs['regex_builder_geometry'] = geom
 
     def regex_valid(self):
-        regex = unicode_type(self.regex.text())
+        regex = str(self.regex.text())
         if regex:
             try:
                 compile_regular_expression(regex)
@@ -88,8 +88,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             qt: int = 0
 
         if self.regex_valid():
-            text = unicode_type(self.preview.toPlainText())
-            regex = unicode_type(self.regex.text())
+            text = str(self.preview.toPlainText())
+            regex = str(self.regex.text())
             cursor = QTextCursor(self.preview.document())
             extsel = QTextEdit.ExtraSelection()
             extsel.cursor = cursor
@@ -110,7 +110,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.match_locs:
             self.next.setEnabled(True)
             self.previous.setEnabled(True)
-        self.occurrences.setText(unicode_type(len(self.match_locs)))
+        self.occurrences.setText(str(len(self.match_locs)))
 
     def goto_previous(self):
         pos = self.preview.textCursor().position()
@@ -209,12 +209,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.open_book(files[0])
 
     def doc(self):
-        return unicode_type(self.preview.toPlainText())
+        return str(self.preview.toPlainText())
 
 
 class RegexEdit(QWidget, Ui_Edit):
 
-    doc_update = pyqtSignal(unicode_type)
+    doc_update = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -246,7 +246,7 @@ class RegexEdit(QWidget, Ui_Edit):
     def setObjectName(self, *args):
         QWidget.setObjectName(self, *args)
         if hasattr(self, 'edit'):
-            self.edit.initialize('regex_edit_'+unicode_type(self.objectName()))
+            self.edit.initialize('regex_edit_'+str(self.objectName()))
 
     def set_msg(self, msg):
         self.msg.setText(msg)
@@ -268,7 +268,7 @@ class RegexEdit(QWidget, Ui_Edit):
 
     @property
     def text(self):
-        return unicode_type(self.edit.text())
+        return str(self.edit.text())
 
     @property
     def regex(self):

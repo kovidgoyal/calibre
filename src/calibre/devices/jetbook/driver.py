@@ -15,7 +15,6 @@ import re
 from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
-from polyglot.builtins import unicode_type
 
 
 class JETBOOK(USBMS):
@@ -65,7 +64,7 @@ class JETBOOK(USBMS):
     def metadata_from_path(cls, path):
 
         def check_unicode(txt):
-            if not isinstance(txt, unicode_type):
+            if not isinstance(txt, str):
                 txt = txt.decode(filesystem_encoding, 'replace')
             txt = txt.replace('_', ' ')
             return txt

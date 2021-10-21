@@ -27,7 +27,7 @@ from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
@@ -52,7 +52,7 @@ class LineEdit(EditWithComplete):
 
     @property
     def value(self):
-        val = unicode_type(self.text()).strip()
+        val = str(self.text()).strip()
         ism = self.metadata['is_multiple']
         if ism:
             if not val:
@@ -87,7 +87,7 @@ class LineEdit(EditWithComplete):
 
     @property
     def current_val(self):
-        return unicode_type(self.text())
+        return str(self.text())
 
     @current_val.setter
     def current_val(self, val):
@@ -221,7 +221,7 @@ class SeriesEdit(LineEdit):
         self.setCursorPosition(0)
 
     def to_mi(self, mi):
-        val = unicode_type(self.text()).strip()
+        val = str(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
         except:

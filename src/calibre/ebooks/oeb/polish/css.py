@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot.functools import lru_cache
 
 
@@ -456,10 +456,10 @@ def sort_sheet(container, sheet_or_text):
     ''' Sort the rules in a stylesheet. Note that in the general case this can
     change the effective styles, but for most common sheets, it should be safe.
     '''
-    sheet = container.parse_css(sheet_or_text) if isinstance(sheet_or_text, unicode_type) else sheet_or_text
+    sheet = container.parse_css(sheet_or_text) if isinstance(sheet_or_text, str) else sheet_or_text
 
     def text_sort_key(x):
-        return numeric_sort_key(unicode_type(x or ''))
+        return numeric_sort_key(str(x or ''))
 
     def selector_sort_key(x):
         return (x.specificity, text_sort_key(x.selectorText))

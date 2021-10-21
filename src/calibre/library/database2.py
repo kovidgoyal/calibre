@@ -49,7 +49,7 @@ from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.db.categories import Tag, CATEGORY_SORTS
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
@@ -93,7 +93,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self._library_id_ is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
             if ans is None:
-                ans = unicode_type(uuid.uuid4())
+                ans = str(uuid.uuid4())
                 self.library_id = ans
             else:
                 self._library_id_ = ans
@@ -101,7 +101,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @library_id.setter
     def library_id(self, val):
-        self._library_id_ = unicode_type(val)
+        self._library_id_ = str(val)
         self.conn.executescript('''
                 DELETE FROM library_id;
                 INSERT INTO library_id (uuid) VALUES ("%s");
@@ -258,11 +258,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
             for i in range(1, 6):
-                col = self.prefs.get('column_color_name_'+unicode_type(i), None)
-                templ = self.prefs.get('column_color_template_'+unicode_type(i), None)
+                col = self.prefs.get('column_color_name_'+str(i), None)
+                templ = self.prefs.get('column_color_template_'+str(i), None)
                 if col and templ:
                     try:
-                        del self.prefs['column_color_name_'+unicode_type(i)]
+                        del self.prefs['column_color_name_'+str(i)]
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
@@ -328,10 +328,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 prints('found user category case overlap', catmap[uc])
                 cat = catmap[uc][0]
                 suffix = 1
-                while icu_lower((cat + unicode_type(suffix))) in catmap:
+                while icu_lower((cat + str(suffix))) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+unicode_type(suffix)))
-                user_cats[cat + unicode_type(suffix)] = user_cats[cat]
+                prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
+                user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
         if cats_changed:
@@ -452,7 +452,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[unicode_type(col)+'_index'] = base = base+1
+                self.FIELD_MAP[str(col)+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(
                             self.custom_column_num_map[col]['label']+'_index',
                             base,
@@ -1086,7 +1086,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def has_book(self, mi):
         title = mi.title
         if title:
-            if not isinstance(title, unicode_type):
+            if not isinstance(title, str):
                 title = title.decode(preferred_encoding, 'replace')
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
@@ -1762,8 +1762,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if len(comps) == 0:
                 i = 1
                 while True:
-                    if unicode_type(i) not in user_cats:
-                        new_cats[unicode_type(i)] = user_cats[k]
+                    if str(i) not in user_cats:
+                        new_cats[str(i)] = user_cats[k]
                         break
                     i += 1
             else:
@@ -1989,7 +1989,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 formatter = calibre_langcode_to_name
                 items = [v for v in tcategories[category].values() if v.c > 0]
             else:
-                formatter = (lambda x:unicode_type(x))
+                formatter = (lambda x:str(x))
                 items = [v for v in tcategories[category].values() if v.c > 0]
 
             # sort the list
@@ -2460,7 +2460,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if not a:
                 continue
             a = a.strip().replace(',', '|')
-            if not isinstance(a, unicode_type):
+            if not isinstance(a, str):
                 a = a.decode(preferred_encoding, 'replace')
             aus = self.conn.get('SELECT id, name, sort FROM authors WHERE name=?', (a,))
             if aus:
@@ -2619,7 +2619,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_timestamp(self, id, dt, notify=True, commit=True):
         if dt:
-            if isinstance(dt, (unicode_type, bytes)):
+            if isinstance(dt, (str, bytes)):
                 dt = parse_date(dt, as_utc=True, assume_utc=False)
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['timestamp'], dt, row_is_id=True)
@@ -2648,7 +2648,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         books_to_refresh = {id}
         if publisher:
             case_change = False
-            if not isinstance(publisher, unicode_type):
+            if not isinstance(publisher, str):
                 publisher = publisher.decode(preferred_encoding, 'replace')
             pubx = self.conn.get('''SELECT id,name from publishers
                                     WHERE name=?''', (publisher,))
@@ -3093,7 +3093,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tag = tag.strip()
             if not tag:
                 continue
-            if not isinstance(tag, unicode_type):
+            if not isinstance(tag, str):
                 tag = tag.decode(preferred_encoding, 'replace')
             existing_tags = self.all_tags()
             lt = [t.lower() for t in existing_tags]
@@ -3174,7 +3174,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         books_to_refresh = {id}
         if series:
             case_change = False
-            if not isinstance(series, unicode_type):
+            if not isinstance(series, str):
                 series = series.decode(preferred_encoding, 'replace')
             series = series.strip()
             series = ' '.join(series.split())
@@ -3545,7 +3545,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
-        title = mi.title if isinstance(mi.title, unicode_type) else \
+        title = mi.title if isinstance(mi.title, str) else \
                 mi.title.decode(preferred_encoding, 'replace')
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                           (title, series_index, aus))
@@ -3615,7 +3615,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     os.remove(dest)
                 shutil.copyfile(src, dest)
             x = path_map[x]
-            if not isinstance(x, unicode_type):
+            if not isinstance(x, str):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x)
 

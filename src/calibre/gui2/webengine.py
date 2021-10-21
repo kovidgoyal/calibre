@@ -11,7 +11,7 @@ from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView, QWebE
 from calibre import prints
 from calibre.utils.monotonic import monotonic
 from calibre.utils.rapydscript import special_title
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):
@@ -60,7 +60,7 @@ def create_script(
 from_js = pyqtSignal
 
 
-class to_js(unicode_type):
+class to_js(str):
 
     def __call__(self, *a):
         prints('WARNING: Calling {}() before the javascript bridge is ready'.format(self.name))

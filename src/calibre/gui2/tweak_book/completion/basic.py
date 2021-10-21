@@ -20,7 +20,7 @@ from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -66,10 +66,10 @@ def get_data(data_conn, data_type, data=None):
     return result
 
 
-class Name(unicode_type):
+class Name(str):
 
     def __new__(self, name, mime_type, spine_names):
-        ans = unicode_type.__new__(self, name)
+        ans = str.__new__(self, name)
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
         return ans
@@ -112,7 +112,7 @@ def create_anchor_map(root):
 def complete_anchor(name, data_conn):
     if name not in file_cache:
         data = raw = get_data(data_conn, 'file_data', name)
-        if isinstance(raw, unicode_type):
+        if isinstance(raw, str):
             try:
                 root = parse(raw, decoder=lambda x:x.decode('utf-8'))
             except Exception:

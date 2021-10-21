@@ -33,7 +33,7 @@ from calibre import prints, fsync
 from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
-from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
@@ -47,7 +47,7 @@ def qhash(inputstr):
     instr = b""
     if isinstance(inputstr, bytes):
         instr = inputstr
-    elif isinstance(inputstr, unicode_type):
+    elif isinstance(inputstr, str):
         instr = inputstr.encode("utf8")
     else:
         return -1
@@ -377,7 +377,7 @@ class KOBO(USBMS):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = unicode_type(e)
+                err = str(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded')):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -483,13 +483,13 @@ class KOBO(USBMS):
                     cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 '
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
-                    if 'no such column' not in unicode_type(e):
+                    if 'no such column' not in str(e):
                         raise
                     try:
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 '
                             'where BookID is Null and ContentID =?',t)
                     except Exception as e:
-                        if 'no such column' not in unicode_type(e):
+                        if 'no such column' not in str(e):
                             raise
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' '
                             'where BookID is Null and ContentID =?',t)
@@ -833,7 +833,7 @@ class KOBO(USBMS):
             cursor.execute(query)
         except Exception as e:
             debug_print('    Database Exception:  Unable to reset Shortlist list')
-            if 'no such column' not in unicode_type(e):
+            if 'no such column' not in str(e):
                 raise
         finally:
             cursor.close()
@@ -847,7 +847,7 @@ class KOBO(USBMS):
             cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
         except Exception as e:
             debug_print('    Database Exception:  Unable set book as Shortlist')
-            if 'no such column' not in unicode_type(e):
+            if 'no such column' not in str(e):
                 raise
         finally:
             cursor.close()
@@ -1808,7 +1808,7 @@ class KOBOTOUCH(KOBO):
                                 debug_print('KoboTouch:update_booklist - book file does not exist. ContentID="%s"'%ContentID)
 
                     except Exception as e:
-                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%unicode_type(e))
+                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%str(e))
                         debug_print("        prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors,
                                     "MimeType: ", MimeType, "DateCreated: ", DateCreated, "ContentType: ", ContentType, "ImageID: ", ImageID)
                         raise
@@ -1870,7 +1870,7 @@ class KOBOTOUCH(KOBO):
                 bookshelves.append(row['ShelfName'])
 
             cursor.close()
-#            debug_print("KoboTouch:get_bookshelvesforbook - count bookshelves=" + unicode_type(count_bookshelves))
+#            debug_print("KoboTouch:get_bookshelvesforbook - count bookshelves=" + str(count_bookshelves))
             return bookshelves
 
         self.debug_index = 0
@@ -1963,7 +1963,7 @@ class KOBOTOUCH(KOBO):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = unicode_type(e)
+                err = str(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded', 'Series', 'ExternalId')):
                     raise
                 query= ('SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -2174,7 +2174,7 @@ class KOBOTOUCH(KOBO):
 
                     cursor.close()
             except Exception as e:
-                debug_print('KoboTouch:upload_books - Exception:  %s'%unicode_type(e))
+                debug_print('KoboTouch:upload_books - Exception:  %s'%str(e))
 
         return result
 
@@ -2318,7 +2318,7 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:delete_via_sql: finished SQL')
                 debug_print('KoboTouch:delete_via_sql: After SQL, no exception')
             except Exception as e:
-                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%unicode_type(e))
+                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%str(e))
 
         debug_print('KoboTouch:delete_via_sql: imageId="%s"'%imageId)
         if imageId is None:
@@ -2451,7 +2451,7 @@ class KOBOTOUCH(KOBO):
 
             if self.manage_collections:
                 if collections:
-                    # debug_print("KoboTouch:update_device_database_collections - length collections=" + unicode_type(len(collections)))
+                    # debug_print("KoboTouch:update_device_database_collections - length collections=" + str(len(collections)))
 
                     # Need to reset the collections outside the particular loops
                     # otherwise the last item will not be removed
@@ -2621,7 +2621,7 @@ class KOBOTOUCH(KOBO):
                 self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers,
                 letterbox_color=self.letterbox_fs_covers_color)
         except Exception as e:
-            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, unicode_type(e)))
+            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
 
     def imageid_from_contentid(self, ContentID):
         ImageID = ContentID.replace('/', '_')
@@ -2831,7 +2831,7 @@ class KOBOTOUCH(KOBO):
                                 f.write(data)
                                 fsync(f)
         except Exception as e:
-            err = unicode_type(e)
+            err = str(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
             raise
 
@@ -2978,7 +2978,7 @@ class KOBOTOUCH(KOBO):
 #            count_bookshelves = i + 1
 
         cursor.close()
-#        debug_print("KoboTouch:get_bookshelflist - count bookshelves=" + unicode_type(count_bookshelves))
+#        debug_print("KoboTouch:get_bookshelflist - count bookshelves=" + str(count_bookshelves))
 
         return bookshelves
 
@@ -3062,7 +3062,7 @@ class KOBOTOUCH(KOBO):
             cursor.execute(addquery, add_values)
         elif result['_IsDeleted'] == 'true':
             debug_print("KoboTouch:check_for_bookshelf - Shelf '%s' is deleted - undeleting. result['_IsDeleted']='%s'" % (
-                bookshelf_name, unicode_type(result['_IsDeleted'])))
+                bookshelf_name, str(result['_IsDeleted'])))
             cursor.execute(updatequery, test_values)
 
         cursor.close()

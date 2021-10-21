@@ -32,7 +32,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     RuledLine, Span, Sub, Sup, TextBlock
 )
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import itervalues, string_or_bytes, unicode_type
+from polyglot.builtins import itervalues, string_or_bytes
 from polyglot.urllib import unquote, urlparse
 
 """
@@ -278,7 +278,7 @@ class HTMLConverter:
                 update_css(npcss, self.override_pcss)
 
         paths = [os.path.abspath(path) for path in paths]
-        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode_type) else path for path in paths]
+        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, str) else path for path in paths]
 
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
@@ -358,7 +358,7 @@ class HTMLConverter:
                 os.makedirs(tdir)
             try:
                 with open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb') as f:
-                    f.write(unicode_type(soup).encode('utf-8'))
+                    f.write(str(soup).encode('utf-8'))
                     self.log.info(_('Written preprocessed HTML to ')+f.name)
             except:
                 pass
@@ -391,7 +391,7 @@ class HTMLConverter:
         self.log.info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
-        if not isinstance(path, unicode_type):
+        if not isinstance(path, str):
             path = path.decode(sys.getfilesystemencoding())
         self.target_prefix = path
         self.previous_text = '\n'
@@ -401,7 +401,7 @@ class HTMLConverter:
     def parse_css(self, style):
         """
         Parse the contents of a <style> tag or .css file.
-        @param style: C{unicode_type(style)} should be the CSS to parse.
+        @param style: C{str(style)} should be the CSS to parse.
         @return: A dictionary with one entry per selector where the key is the
         selector name and the value is a dictionary of properties
         """
@@ -589,7 +589,7 @@ class HTMLConverter:
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue
             if isinstance(c, NavigableString):
-                text += unicode_type(c)
+                text += str(c)
             elif isinstance(c, Tag):
                 if c.name.lower() == 'img' and c.has_attr('alt'):
                     alt_text += c['alt']
@@ -644,7 +644,7 @@ class HTMLConverter:
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
             ascii_text = text
 
-            if not isinstance(path, unicode_type):
+            if not isinstance(path, str):
                 path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
@@ -1087,7 +1087,7 @@ class HTMLConverter:
 
         s1, s2 = get('margin'), get('padding')
 
-        bl = unicode_type(self.current_block.blockStyle.attrs['blockwidth'])+'px'
+        bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
 
         def set(default, one, two):
             fval = None
@@ -1216,7 +1216,7 @@ class HTMLConverter:
                     ans = 120
             if ans is not None:
                 ans += int(self.font_delta * 20)
-                ans = unicode_type(ans)
+                ans = str(ans)
             return ans
 
         family, weight, style, variant = 'serif', 'normal', 'normal', None
@@ -1322,10 +1322,10 @@ class HTMLConverter:
     def text_properties(self, tag_css):
         indent = self.book.defaultTextStyle.attrs['parindent']
         if 'text-indent' in tag_css:
-            bl = unicode_type(self.current_block.blockStyle.attrs['blockwidth'])+'px'
+            bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
             if 'em' in tag_css['text-indent']:
                 bl = '10pt'
-            indent = self.unit_convert(unicode_type(tag_css['text-indent']), pts=True, base_length=bl)
+            indent = self.unit_convert(str(tag_css['text-indent']), pts=True, base_length=bl)
             if not indent:
                 indent = 0
             if indent > 0 and indent < 10 * self.minimum_indent:
@@ -1519,11 +1519,11 @@ class HTMLConverter:
                     elif not urlparse(tag['src'])[0]:
                         self.log.warn('Could not find image: '+tag['src'])
                 else:
-                    self.log.debug("Failed to process: %s"%unicode_type(tag))
+                    self.log.debug("Failed to process: %s"%str(tag))
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
-                    text = ''.join([unicode_type(i) for i in tag.findAll(text=True)])
+                    text = ''.join([str(i) for i in tag.findAll(text=True)])
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
@@ -1555,7 +1555,7 @@ class HTMLConverter:
                 if tag.contents:
                     c = tag.contents[0]
                     if isinstance(c, NavigableString):
-                        c = unicode_type(c).replace('\r\n', '\n').replace('\r', '\n')
+                        c = str(c).replace('\r\n', '\n').replace('\r', '\n')
                         if c.startswith('\n'):
                             c = c[1:]
                             tag.contents[0] = NavigableString(c)
@@ -1613,7 +1613,7 @@ class HTMLConverter:
                             in_ol = parent.name.lower() == 'ol'
                             break
                         parent = parent.parent
-                    prepend = unicode_type(self.list_counter)+'. ' if in_ol else '\u2022' + ' '
+                    prepend = str(self.list_counter)+'. ' if in_ol else '\u2022' + ' '
                     self.current_para.append(Span(prepend))
                     self.process_children(tag, tag_css, tag_pseudo_css)
                     if in_ol:
@@ -1656,7 +1656,7 @@ class HTMLConverter:
 
                 if (self.anchor_ids and tag.has_attr('id')) or (self.book_designer and tag.get('class') in ('title', ['title'])):
                     if not tag.has_attr('id'):
-                        tag['id'] = __appname__+'_id_'+unicode_type(self.id_counter)
+                        tag['id'] = __appname__+'_id_'+str(self.id_counter)
                         self.id_counter += 1
 
                     tkey = self.target_prefix+tag['id']
@@ -1729,7 +1729,7 @@ class HTMLConverter:
                 except Exception as err:
                     self.log.warning(_('An error occurred while processing a table: %s. Ignoring table markup.')%repr(err))
                     self.log.exception('')
-                    self.log.debug(_('Bad table:\n%s')%unicode_type(tag)[:300])
+                    self.log.debug(_('Bad table:\n%s')%str(tag)[:300])
                     self.in_table = False
                     self.process_children(tag, tag_css, tag_pseudo_css)
                 finally:
@@ -1825,9 +1825,9 @@ def process_file(path, options, logger):
 
     for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
         val = getattr(options, prop, None)
-        if val and not isinstance(val, unicode_type):
+        if val and not isinstance(val, str):
             soup = BeautifulSoup(val)
-            setattr(options, prop, unicode_type(soup))
+            setattr(options, prop, str(soup))
 
     title = (options.title, options.title_sort)
     author = (options.author, options.author_sort)
@@ -1871,7 +1871,7 @@ def process_file(path, options, logger):
     options.force_page_break = fpb
     options.link_exclude = le
     options.page_break = pb
-    if not isinstance(options.chapter_regex, unicode_type):
+    if not isinstance(options.chapter_regex, str):
         options.chapter_regex = options.chapter_regex.decode(preferred_encoding)
     options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
     fpba = options.force_page_break_attr.split(',')

@@ -12,7 +12,6 @@ from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.config import OPTIONS
-from polyglot.builtins import unicode_type
 
 
 class HeuristicsWidget(Widget, Ui_Form):
@@ -75,7 +74,7 @@ class HeuristicsWidget(Widget, Ui_Form):
             return True
 
     def load_histories(self):
-        val = unicode_type(self.opt_replace_scene_breaks.currentText())
+        val = str(self.opt_replace_scene_breaks.currentText())
 
         self.opt_replace_scene_breaks.clear()
         self.opt_replace_scene_breaks.lineEdit().setText('')
@@ -92,7 +91,7 @@ class HeuristicsWidget(Widget, Ui_Form):
 
     def save_histories(self):
         rssb_history = []
-        history_pats = [unicode_type(self.opt_replace_scene_breaks.lineEdit().text())] + [unicode_type(self.opt_replace_scene_breaks.itemText(i))
+        history_pats = [str(self.opt_replace_scene_breaks.lineEdit().text())] + [str(self.opt_replace_scene_breaks.itemText(i))
                                 for i in range(self.opt_replace_scene_breaks.count())]
         for p in history_pats[:10]:
             # Ensure we don't have duplicate items.

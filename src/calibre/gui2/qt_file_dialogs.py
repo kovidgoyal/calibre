@@ -8,7 +8,7 @@ import os
 from qt.core import QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 from polyglot.urllib import unquote
 
 
@@ -117,7 +117,7 @@ class FileDialog(QObject):
                             ftext, "", opts)
                 if fs and fs[0]:
                     for f in fs[0]:
-                        f = unicode_type(f)
+                        f = str(f)
                         if not f:
                             continue
                         if not os.path.exists(f):
@@ -130,11 +130,11 @@ class FileDialog(QObject):
                 if mode == QFileDialog.FileMode.Directory:
                     opts |= QFileDialog.Option.ShowDirsOnly
                 with adapt_menubar:
-                    f = unicode_type(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                    f = str(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
                     self.selected_files.append(f)
         if self.selected_files:
-            self.selected_files = [unicode_type(q) for q in self.selected_files]
+            self.selected_files = [str(q) for q in self.selected_files]
             saved_loc = self.selected_files[0]
             if os.path.isfile(saved_loc):
                 saved_loc = os.path.dirname(saved_loc)
@@ -144,7 +144,7 @@ class FileDialog(QObject):
 
     def get_files(self):
         if self.selected_files is None:
-            return tuple(os.path.abspath(unicode_type(i)) for i in self.fd.selectedFiles())
+            return tuple(os.path.abspath(str(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)
 
 

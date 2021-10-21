@@ -23,7 +23,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
 from calibre_extensions import imageops
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 
 # Utilities {{{
@@ -133,7 +133,7 @@ def image_from_path(path):
 
 def image_from_x(x):
     ' Create an image from a bytestring or a path or a file like object. '
-    if isinstance(x, unicode_type):
+    if isinstance(x, str):
         return image_from_path(x)
     if hasattr(x, 'read'):
         return image_from_data(x.read())
@@ -606,7 +606,7 @@ def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
-    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [unicode_type(quality)]
+    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]
     img = QImage()
     if not img.load(file_path):
         raise ValueError('%s is not a valid image file' % file_path)

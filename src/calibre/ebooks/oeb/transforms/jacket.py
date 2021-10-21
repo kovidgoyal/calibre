@@ -25,7 +25,6 @@ from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.config import tweaks
 from calibre.utils.date import as_local_time, format_date, is_date_undefined
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -108,22 +107,22 @@ class Jacket(Base):
         self.log('Inserting metadata into book...')
 
         try:
-            tags = list(map(unicode_type, self.oeb.metadata.subject))
+            tags = list(map(str, self.oeb.metadata.subject))
         except Exception:
             tags = []
 
         try:
-            comments = unicode_type(self.oeb.metadata.description[0])
+            comments = str(self.oeb.metadata.description[0])
         except:
             comments = ''
 
         try:
-            title = unicode_type(self.oeb.metadata.title[0])
+            title = str(self.oeb.metadata.title[0])
         except:
             title = _('Unknown')
 
         try:
-            authors = list(map(unicode_type, self.oeb.metadata.creator))
+            authors = list(map(str, self.oeb.metadata.creator))
         except:
             authors = [_('Unknown')]
 
@@ -180,7 +179,7 @@ def get_rating(rating, rchar, e_rchar):
     return ans
 
 
-class Series(unicode_type):
+class Series(str):
 
     def __new__(self, series, series_index):
         if series and series_index is not None:
@@ -190,7 +189,7 @@ class Series(unicode_type):
                 escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
             combined = roman = escape(series or u'')
-        s = unicode_type.__new__(self, combined)
+        s = str.__new__(self, combined)
         s.roman = roman
         s.name = escape(series or '')
         s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
@@ -219,11 +218,11 @@ class Timestamp:
         return ''
 
 
-class Tags(unicode_type):
+class Tags(str):
 
     def __new__(self, tags, output_profile):
         tags = [escape(x) for x in tags or ()]
-        t = unicode_type.__new__(self, ', '.join(tags))
+        t = str.__new__(self, ', '.join(tags))
         t.alphabetical = ', '.join(sorted(tags, key=sort_key))
         t.tags_list = tags
         return t

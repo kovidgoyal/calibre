@@ -11,7 +11,6 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import unicode_type
 
 
 def get_podofo():
@@ -22,7 +21,7 @@ def get_podofo():
 def prep(val):
     if not val:
         return ''
-    if not isinstance(val, unicode_type):
+    if not isinstance(val, str):
         val = val.decode(preferred_encoding, 'replace')
     return val.strip()
 
