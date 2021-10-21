@@ -164,7 +164,7 @@ class ReBinary:
                 try:
                     value = codepoint_to_chr(value)
                 except OverflowError:
-                    self.logger.warn('unicode_type overflow for integer:', value)
+                    self.logger.warn('Unicode overflow for integer:', value)
                     value = u'?'
             self.buf.write(value.encode('utf-8'))
 
