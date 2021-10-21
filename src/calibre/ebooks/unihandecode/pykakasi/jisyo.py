@@ -7,7 +7,6 @@
 from zlib import decompress
 
 
-
 class jisyo :
     kanwadict = None
     itaijidict = None

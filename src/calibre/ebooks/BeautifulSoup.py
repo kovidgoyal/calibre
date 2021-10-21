@@ -10,7 +10,6 @@ from bs4 import (  # noqa
 )
 
 
-
 def parse_html(markup):
     from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode, substitute_entites
     from calibre.utils.cleantext import clean_xml_chars

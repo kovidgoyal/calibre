@@ -6,7 +6,6 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-
 def r(*a):
     return list(range(*a))
 

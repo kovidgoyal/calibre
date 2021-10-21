@@ -1,6 +1,3 @@
-import io
-
-
 def open_for_read(path):
     return open(path, encoding='utf-8', errors='replace')
 

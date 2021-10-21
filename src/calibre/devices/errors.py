@@ -7,7 +7,6 @@ G{classtree ProtocolError}
 """
 
 
-
 class ProtocolError(Exception):
     """ The base class for all exceptions in this package """
 

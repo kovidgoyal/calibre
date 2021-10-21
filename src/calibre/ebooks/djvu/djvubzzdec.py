@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
 

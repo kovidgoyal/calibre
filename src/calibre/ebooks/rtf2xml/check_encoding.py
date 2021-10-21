@@ -4,7 +4,6 @@
 import sys
 
 
-
 class CheckEncoding:
 
     def __init__(self, bug_handler):
