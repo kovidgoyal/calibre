@@ -13,17 +13,17 @@ from functools import partial
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QApplication, QCheckBox, QComboBox,
     QDialog, QDialogButtonBox, QDoubleValidator, QFrame, QGridLayout, QIcon,
-    QIntValidator, QItemSelectionModel, QLabel, QLineEdit, QListView, QMenu,
+    QIntValidator, QItemSelectionModel, QLabel, QLineEdit, QListView,
     QPalette, QPushButton, QScrollArea, QSize, QSizePolicy, QSpacerItem,
     QStandardItem, QStandardItemModel, Qt, QToolButton, QVBoxLayout, QWidget,
-    QItemSelection, pyqtSignal
+    QItemSelection, QListWidget, QListWidgetItem, pyqtSignal
 )
 
 from calibre import as_unicode, prepare_string_for_xml, sanitize_file_name
 from calibre.constants import config_dir
 from calibre.gui2 import (
     choose_files, choose_save_file, error_dialog, gprefs, open_local_file,
-    pixmap_to_data
+    pixmap_to_data, question_dialog
 )
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
@@ -317,6 +317,54 @@ class ConditionEditor(QWidget):  # {{{
 # }}}
 
 
+class RemoveIconFileDialog(QDialog):  # {{{
+    def __init__(self, parent, icon_file_names, icon_folder):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Remove icons'))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        l = QVBoxLayout(self)
+        t = QLabel('<p>' + _('Check the icons you wish to remove. The icon files will be '
+                             'removed when you press OK. There is no undo.') + '</p>')
+        t.setWordWrap(True)
+        t.setTextFormat(Qt.TextFormat.RichText)
+        l.addWidget(t)
+        self.listbox = lw = QListWidget(parent)
+        for fn in icon_file_names:
+            item = QListWidgetItem(fn)
+            item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            item.setCheckState(Qt.CheckState.Unchecked)
+            item.setIcon(QIcon(os.path.join(icon_folder, fn)))
+            lw.addItem(item)
+        l.addWidget(lw)
+        self.bb = bb = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+
+    def accept(self):
+        self.files_to_remove = []
+        for dex in range(self.listbox.count()):
+            item = self.listbox.item(dex)
+            if item.checkState() == Qt.CheckState.Checked:
+                self.files_to_remove.append(item.text())
+        if (len(self.files_to_remove) == 0 or
+            question_dialog(self,
+                _('Remove icons'),
+                _('{count} {icon_word} will be removed. Are you '
+                  'sure?').format(count=len(self.files_to_remove),
+                              icon_word=_('icon') if len(self.files_to_remove) == 1 else _('icons')),
+                yes_text=_('Yes'),
+                no_text=_('No'),
+                det_msg= '\n'.join(self.files_to_remove),
+                skip_dialog_name='remove_icon_confirmation_dialog')):
+            QDialog.accept(self)
+
+    def reject(self):
+        QDialog.reject(self)
+# }}}
+
+
 class RuleEditor(QDialog):  # {{{
 
     @property
@@ -448,9 +496,9 @@ class RuleEditor(QDialog):  # {{{
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icon'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('minus.png')))
-            b.setMenu(QMenu(b))
-            b.setToolTip('<p>' + _('Remove a previously added icon. Note that doing so will cause rules that use it to stop working.'))
-            self.update_remove_button()
+            b.clicked.connect(self.remove_icon_file_dialog)
+            b.setToolTip('<p>' + _('Remove previously added icons. Note that removing an '
+                                   'icon will cause rules that use it to stop working.') + '</p>')
 
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
@@ -565,7 +613,6 @@ class RuleEditor(QDialog):  # {{{
                         import traceback
                         traceback.print_exc()
                     self.update_filename_box()
-                    self.update_remove_button()
                 if self.doing_multiple:
                     if icon_name not in self.rule_icon_files:
                         self.rule_icon_files.append(icon_name)
@@ -607,23 +654,18 @@ class RuleEditor(QDialog):  # {{{
                         item = model.item(idx)
                         item.setCheckState(Qt.CheckState.Checked)
 
-    def update_remove_button(self):
-        m = self.remove_button.menu()
-        m.clear()
-        for name in self.icon_file_names:
-            ac = m.addAction(QIcon(os.path.join(self.icon_folder, name)), name)
-            connect_lambda(ac.triggered, self, lambda self: self.remove_image(self.sender().text()))
-
-    def remove_image(self, name):
-        try:
-            os.remove(os.path.join(self.icon_folder, name))
-        except OSError:
-            pass
-        else:
-            self.populate_icon_filenames()
-            self.update_remove_button()
-            self.update_filename_box()
-            self.update_icon_filenames_in_box()
+    def remove_icon_file_dialog(self):
+        d = RemoveIconFileDialog(self, self.icon_file_names, self.icon_folder)
+        if d.exec_() == QDialog.DialogCode.Accepted:
+            if len(d.files_to_remove) > 0:
+                for name in d.files_to_remove:
+                    try:
+                        os.remove(os.path.join(self.icon_folder, name))
+                    except OSError:
+                        pass
+                self.populate_icon_filenames()
+                self.update_filename_box()
+                self.update_icon_filenames_in_box()
 
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
