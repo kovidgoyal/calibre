@@ -23,6 +23,37 @@
 # - title by author
 # }}}
 
+{{{ 5.30.0 2021-10-22
+
+:: new features
+
+- Add support for the new Kobo Sage and Libra 2 e-book reader devices
+
+- [1946439] E-book viewer: Read aloud: Allow right clicking to play/pause reading
+
+- Sending books by e-mail: Preserve non-English characters in attached filenames
+
+- [1946560] Tab browser: Allow searching for sub-categories by right clicking on them
+
+:: bug fixes
+
+- E-book viewer: Fix cover and full screen images not centered in paged mode when more than one page is displayed per screen
+
+- ToC Editor: Ignore in succession clicks on the OK and Cancel buttons to avoid accidentally closing the window when finishing creating a new entry
+
+- [1905479] Comments editor: Fix the formatting buttons not showing the current state correctly and fix some keyboard shortcuts not working when more than one comments editor is present in a single window
+
+- [1946417] Tag browser: Fix renaming of User categories in Virtual libraries
+
+- [1947948] Make removing large numbers of custom column icons easier
+
+:: improved recipes
+- Private Eye
+- Foreign Policy
+- Le Monde Diplomatique - cono sur
+
+}}}
+
 {{{ 5.29.0 2021-10-08
 
 :: new features
