@@ -319,20 +319,20 @@ class ConditionEditor(QWidget):  # {{{
 
 class RemoveIconFileDialog(QDialog):  # {{{
     def __init__(self, parent, icon_file_names, icon_folder):
+        self.files_to_remove = []
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Remove icons'))
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         l = QVBoxLayout(self)
-        t = QLabel('<p>' + _('Check the icons you wish to remove. The icon files will be '
+        t = QLabel('<p>' + _('Select the icons you wish to remove. The icon files will be '
                              'removed when you press OK. There is no undo.') + '</p>')
         t.setWordWrap(True)
         t.setTextFormat(Qt.TextFormat.RichText)
         l.addWidget(t)
         self.listbox = lw = QListWidget(parent)
+        lw.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         for fn in icon_file_names:
             item = QListWidgetItem(fn)
-            item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
-            item.setCheckState(Qt.CheckState.Unchecked)
             item.setIcon(QIcon(os.path.join(icon_folder, fn)))
             lw.addItem(item)
         l.addWidget(lw)
@@ -342,26 +342,24 @@ class RemoveIconFileDialog(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
 
-    def accept(self):
-        self.files_to_remove = []
-        for dex in range(self.listbox.count()):
-            item = self.listbox.item(dex)
-            if item.checkState() == Qt.CheckState.Checked:
-                self.files_to_remove.append(item.text())
-        if (len(self.files_to_remove) == 0 or
-            question_dialog(self,
-                _('Remove icons'),
-                _('{count} {icon_word} will be removed. Are you '
-                  'sure?').format(count=len(self.files_to_remove),
-                              icon_word=_('icon') if len(self.files_to_remove) == 1 else _('icons')),
-                yes_text=_('Yes'),
-                no_text=_('No'),
-                det_msg= '\n'.join(self.files_to_remove),
-                skip_dialog_name='remove_icon_confirmation_dialog')):
-            QDialog.accept(self)
+    def sizeHint(self):
+        return QSize(700, 600)
 
-    def reject(self):
-        QDialog.reject(self)
+    def accept(self):
+        self.files_to_remove = [item.text() for item in self.listbox.selectedItems()]
+        if not self.files_to_remove:
+            return error_dialog(self, _('No icons selected'), _(
+                'You must select at least one icon to remove'), show=True)
+        if question_dialog(self,
+            _('Remove icons'),
+            ngettext('One icon will be removed.', '{} icons will be removed.', len(self.files_to_remove)
+                        ).format(len(self.files_to_remove)) + ' ' + _('This will prevent any rules that use this icon from working. Are you sure?'),
+            yes_text=_('Yes'),
+            no_text=_('No'),
+            det_msg='\n'.join(self.files_to_remove),
+            skip_dialog_name='remove_icon_confirmation_dialog'
+        ):
+            QDialog.accept(self)
 # }}}
 
 
@@ -494,7 +492,7 @@ class RuleEditor(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 9, 0, 1, 8)
         if self.rule_kind != 'color':
-            self.remove_button = b = bb.addButton(_('&Remove icon'), QDialogButtonBox.ButtonRole.ActionRole)
+            self.remove_button = b = bb.addButton(_('&Remove icons'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('minus.png')))
             b.clicked.connect(self.remove_icon_file_dialog)
             b.setToolTip('<p>' + _('Remove previously added icons. Note that removing an '
