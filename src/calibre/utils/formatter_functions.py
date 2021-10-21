@@ -25,7 +25,7 @@ from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 class FormatterFunctions:
@@ -135,12 +135,12 @@ class FormatterFunction:
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
         ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-        if isinstance(ret, (bytes, unicode_type)):
+        if isinstance(ret, (bytes, str)):
             return ret
         if isinstance(ret, list):
             return ','.join(ret)
         if isinstance(ret, (numbers.Number, bool)):
-            return unicode_type(ret)
+            return str(ret)
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -258,7 +258,7 @@ class BuiltinAdd(BuiltinFormatterFunction):
         for v in args:
             v = float(v if v and v != 'None' else 0)
             res += v
-        return unicode_type(res)
+        return str(res)
 
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -272,7 +272,7 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode_type(x - y)
+        return str(x - y)
 
 
 class BuiltinMultiply(BuiltinFormatterFunction):
@@ -288,7 +288,7 @@ class BuiltinMultiply(BuiltinFormatterFunction):
         for v in args:
             v = float(v if v and v != 'None' else 0)
             res *= v
-        return unicode_type(res)
+        return str(res)
 
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -302,7 +302,7 @@ class BuiltinDivide(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode_type(x / y)
+        return str(x / y)
 
 
 class BuiltinCeiling(BuiltinFormatterFunction):
@@ -315,7 +315,7 @@ class BuiltinCeiling(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, x):
         x = float(x if x and x != 'None' else 0)
-        return unicode_type(int(ceil(x)))
+        return str(int(ceil(x)))
 
 
 class BuiltinFloor(BuiltinFormatterFunction):
@@ -328,7 +328,7 @@ class BuiltinFloor(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, x):
         x = float(x if x and x != 'None' else 0)
-        return unicode_type(int(floor(x)))
+        return str(int(floor(x)))
 
 
 class BuiltinRound(BuiltinFormatterFunction):
@@ -340,7 +340,7 @@ class BuiltinRound(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, x):
         x = float(x if x and x != 'None' else 0)
-        return unicode_type(int(round(x)))
+        return str(int(round(x)))
 
 
 class BuiltinMod(BuiltinFormatterFunction):
@@ -353,7 +353,7 @@ class BuiltinMod(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode_type(int(x % y))
+        return str(int(x % y))
 
 
 class BuiltinFractionalPart(BuiltinFormatterFunction):
@@ -366,7 +366,7 @@ class BuiltinFractionalPart(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, x):
         x = float(x if x and x != 'None' else 0)
-        return unicode_type(modf(x)[0])
+        return str(modf(x)[0])
 
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -438,7 +438,7 @@ class BuiltinListSplit(BuiltinFormatterFunction):
         l = [v.strip() for v in list_val.split(sep)]
         res = ''
         for i,v in enumerate(l):
-            res = locals[id_prefix+'_'+unicode_type(i)] = v
+            res = locals[id_prefix+'_'+str(i)] = v
         return res
 
 
@@ -483,7 +483,7 @@ class BuiltinRawField(BuiltinFormatterFunction):
             if fm is None:
                 return ', '.join(res)
             return fm['is_multiple']['list_to_ui'].join(res)
-        return unicode_type(res)
+        return str(res)
 
 
 class BuiltinRawList(BuiltinFormatterFunction):
@@ -838,7 +838,7 @@ class BuiltinCount(BuiltinFormatterFunction):
             'Aliases: count(), list_count()')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
-        return unicode_type(len([v for v in val.split(sep) if v]))
+        return str(len([v for v in val.split(sep) if v]))
 
 
 class BuiltinListCountMatching(BuiltinFormatterFunction):
@@ -857,7 +857,7 @@ class BuiltinListCountMatching(BuiltinFormatterFunction):
         for v in [x.strip() for x in list_.split(sep) if x.strip()]:
             if re.search(pattern, v, flags=re.I):
                 res += 1
-        return unicode_type(res)
+        return str(res)
 
 
 class BuiltinListitem(BuiltinFormatterFunction):
@@ -970,7 +970,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+unicode_type(v['size']) for k,v in iteritems(fmt_data))
+            return ','.join(k.upper()+':'+str(v['size']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -989,7 +989,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+unicode_type(v['path']) for k,v in iteritems(fmt_data))
+            return ','.join(k.upper()+':'+str(v['path']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -1231,7 +1231,7 @@ class BuiltinBooksize(BuiltinFormatterFunction):
             try:
                 v = mi._proxy_metadata.book_size
                 if v is not None:
-                    return unicode_type(mi._proxy_metadata.book_size)
+                    return str(mi._proxy_metadata.book_size)
                 return ''
             except:
                 pass
@@ -1270,7 +1270,7 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
         with suppress(Exception):
             from calibre.gui2.ui import get_gui
             c = get_gui().current_db.new_api.annotation_count_for_book(mi.id)
-            return '' if c == 0 else unicode_type(c)
+            return '' if c == 0 else str(c)
         return _('This function can be used only in the GUI')
 
 
@@ -1776,7 +1776,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals_):
         if hasattr(mi, '_proxy_metadata'):
-            cats = set(k for k, v in iteritems(mi._proxy_metadata.user_categories) if v)
+            cats = {k for k, v in iteritems(mi._proxy_metadata.user_categories) if v}
             cats = sorted(cats, key=sort_key)
             return ', '.join(cats)
         return _('This function can be used only in the GUI')
@@ -1790,7 +1790,7 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
                       'formed by approximating the sound of the words in the '
                       'source string. For example, if the source is "{0}"'
                       ' the function returns "{1}".').format(
-                          u"Фёдор Миха́йлович Достоевский", 'Fiodor Mikhailovich Dostoievskii')
+                          "Фёдор Миха́йлович Достоевский", 'Fiodor Mikhailovich Dostoievskii')
 
     def evaluate(self, formatter, kwargs, mi, locals, source):
         from calibre.utils.filenames import ascii_text
@@ -1866,7 +1866,7 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
             try:
                 if storage_location not in {'main', 'carda', 'cardb'}:
                     raise ValueError(
-                         _('connected_device_name: invalid storage location "{0}"'
+                         _('connected_device_name: invalid storage location "{}"'
                                     .format(storage_location)))
                 info = info['info'][4]
                 if storage_location not in info:
@@ -1900,7 +1900,7 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
             try:
                 if storage_location not in {'main', 'carda', 'cardb'}:
                     raise ValueError(
-                         _('connected_device_name: invalid storage location "{0}"'
+                         _('connected_device_name: invalid storage location "{}"'
                                     .format(storage_location)))
                 info = info['info'][4]
                 if storage_location not in info:

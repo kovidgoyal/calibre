@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
@@ -29,7 +28,7 @@ class Book(Book_):
         if show_debug:
             debug_print("Book::__init__ - title=", title, 'authors=', authors)
             debug_print("Book::__init__ - other=", other)
-        super(Book, self).__init__(prefix, lpath, size, other)
+        super().__init__(prefix, lpath, size, other)
 
         if title is not None and len(title) > 0:
             self.title = title
@@ -117,7 +116,7 @@ class Book(Book_):
 
         ans = '\n'.join(ans)
 
-        return super(Book,self).__str__() + "\n" + ans
+        return super().__str__() + "\n" + ans
 
 
 class ImageWrapper:
@@ -129,7 +128,7 @@ class ImageWrapper:
 class KTCollectionsBookList(CollectionsBookList):
 
     def __init__(self, oncard, prefix, settings):
-        super(KTCollectionsBookList, self).__init__(oncard, prefix, settings)
+        super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
     def get_collections(self, collection_attributes):

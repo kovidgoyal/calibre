@@ -37,7 +37,7 @@ from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, getcwd
+from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Queue, Empty
 # }}}
 
@@ -144,7 +144,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
 
     def data_as_text(self, book, col):
         if col == 0:
-            return unicode_type(book.gui_rank+1)
+            return str(book.gui_rank+1)
         if col == 1:
             t = book.title if book.title else _('Unknown')
             a = authors_to_string(book.authors) if book.authors else ''
@@ -241,7 +241,7 @@ class ResultsView(QTableView):  # {{{
         self.resizeColumnsToContents()
 
     def resizeEvent(self, ev):
-        ret = super(ResultsView, self).resizeEvent(ev)
+        ret = super().resizeEvent(ev)
         self.resize_delegate()
         return ret
 
@@ -341,7 +341,7 @@ class Comments(HTMLDisplay):  # {{{
             if col.isValid():
                 col = col.toRgb()
                 if col.isValid():
-                    ans = unicode_type(col.name())
+                    ans = str(col.name())
             return ans
 
         c = color_to_string(QApplication.palette().color(QPalette.ColorGroup.Normal,
@@ -408,7 +408,7 @@ class IdentifyWorker(Thread):  # {{{
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
                 self.results, covers, caches, log_dump = res['result']
-                self.results = [OPF(BytesIO(r), basedir=getcwd(),
+                self.results = [OPF(BytesIO(r), basedir=os.getcwd(),
                     populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
                     r.has_cached_cover_url = cov
@@ -492,7 +492,7 @@ class IdentifyWidget(QWidget):  # {{{
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: %s' % identifiers['isbn']
         self.query.setText(simple_desc)
-        self.log(unicode_type(self.query.text()))
+        self.log(str(self.query.text()))
 
         self.worker = IdentifyWorker(self.log, self.abort, title,
                 authors, identifiers, self.caches)
@@ -831,7 +831,7 @@ class CoversView(QListView):  # {{{
             pmap = self.model().cc
         if pmap is not None:
             from calibre.gui2.image_popup import ImageView
-            d = ImageView(self, pmap, unicode_type(idx.data(Qt.ItemDataRole.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
+            d = ImageView(self, pmap, str(idx.data(Qt.ItemDataRole.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
 
     def copy_cover(self):

@@ -29,8 +29,7 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client, reprlib
 from polyglot.builtins import (
-    error_message, iteritems, itervalues, map, reraise, string_or_bytes,
-    unicode_type
+    error_message, iteritems, itervalues, reraise, string_or_bytes
 )
 
 Range = namedtuple('Range', 'start stop size')
@@ -131,7 +130,7 @@ def get_ranges(headervalue, content_length):  # {{{
         return None
 
     for brange in byteranges.split(","):
-        start, stop = [x.strip() for x in brange.split("-", 1)]
+        start, stop = (x.strip() for x in brange.split("-", 1))
         if start:
             if not stop:
                 stop = content_length - 1
@@ -255,7 +254,7 @@ class RequestData:  # {{{
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):
         etag = hashlib.sha1()
-        tuple(map(lambda x:etag.update(unicode_type(x).encode('utf-8')), etag_parts))
+        tuple(map(lambda x:etag.update(str(x).encode('utf-8')), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
     def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):
@@ -321,8 +320,8 @@ def filesystem_file_output(output, outheaders, stat_result):
     if etag is None:
         oname = output.name or ''
         if not isinstance(oname, string_or_bytes):
-            oname = unicode_type(oname)
-        etag = hashlib.sha1((unicode_type(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
+            oname = str(oname)
+        etag = hashlib.sha1((str(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
         output = output.output
     etag = '"%s"' % etag
@@ -366,7 +365,7 @@ class GeneratedOutput:
 class StaticOutput:
 
     def __init__(self, data):
-        if isinstance(data, unicode_type):
+        if isinstance(data, str):
             data = data.encode('utf-8')
         self.data = data
         self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
@@ -403,7 +402,7 @@ class HTTPConnection(HTTPRequest):
                 # Something bad happened, was the file modified on disk by
                 # another process?
                 self.use_sendfile = self.ready = False
-                raise IOError('sendfile() failed to write any bytes to the socket')
+                raise OSError('sendfile() failed to write any bytes to the socket')
         else:
             data = buf.read(min(limit, self.send_bufsize))
             sent = self.send(data)
@@ -659,7 +658,7 @@ class HTTPConnection(HTTPRequest):
             if 'Content-Type' not in outheaders:
                 output_name = output.name
                 if not isinstance(output_name, string_or_bytes):
-                    output_name = unicode_type(output_name)
+                    output_name = str(output_name)
                 mt = guess_type(output_name)[0]
                 if mt:
                     if mt in {'text/plain', 'text/html', 'application/javascript', 'text/css'}:

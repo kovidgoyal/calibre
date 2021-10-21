@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -11,7 +9,6 @@ from various formats.
 import os, re, numbers, sys
 from calibre import prints
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import unicode_type
 
 
 class ConversionError(Exception):
@@ -82,7 +79,7 @@ def extract_calibre_cover(raw, base, log):
     if matches is None:
         body = soup.find('body')
         if body is not None:
-            text = u''.join(map(unicode_type, body.findAll(text=True)))
+            text = ''.join(map(str, body.findAll(text=True)))
             if text.strip():
                 # Body has text, abort
                 return
@@ -152,7 +149,7 @@ def check_ebook_format(stream, current_guess):
 
 
 def normalize(x):
-    if isinstance(x, unicode_type):
+    if isinstance(x, str):
         import unicodedata
         x = unicodedata.normalize('NFC', x)
     return x

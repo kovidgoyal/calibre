@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -15,7 +14,6 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import unicode_type
 
 from . import open_for_read, open_for_write
 
@@ -78,7 +76,7 @@ class Pict:
             try:
                 os.mkdir(self.__dir_name)
             except OSError as msg:
-                msg = "%sCouldn't make directory '%s':\n" % (unicode_type(msg), self.__dir_name)
+                msg = "%sCouldn't make directory '%s':\n" % (str(msg), self.__dir_name)
                 raise self.__bug_handler
         else:
             if self.__run_level > 1:

@@ -11,7 +11,7 @@ import sys
 
 from calibre.utils.config_base import tweaks
 from calibre_extensions import icu as _icu
-from polyglot.builtins import cmp, filter, unicode_type
+from polyglot.builtins import cmp
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
 cmp
@@ -224,7 +224,7 @@ ord_string = _icu.ord_string
 
 def character_name(string):
     try:
-        return _icu.character_name(unicode_type(string)) or None
+        return _icu.character_name(str(string)) or None
     except (TypeError, ValueError, KeyError):
         pass
 
@@ -241,7 +241,7 @@ def normalize(text, mode='NFC'):
     # that unless you have very good reasons not too. Also, it's speed
     # decreases on wide python builds, where conversion to/from ICU's string
     # representation is slower.
-    return _icu.normalize(_nmodes[mode], unicode_type(text))
+    return _icu.normalize(_nmodes[mode], str(text))
 
 
 def contractions(col=None):

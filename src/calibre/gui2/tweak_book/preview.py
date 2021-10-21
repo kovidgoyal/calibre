@@ -39,7 +39,7 @@ from calibre.gui2.webengine import (
 )
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
 
@@ -195,7 +195,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 QTimer.singleShot(0, self.check_for_parse)
             else:
                 data = get_data(name)
-                if isinstance(data, unicode_type):
+                if isinstance(data, str):
                     data = data.encode('utf-8')
                 mime_type = {
                     # Prevent warning in console about mimetype of fonts
@@ -461,7 +461,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         menu = QMenu(self)
         data = self._page.contextMenuData()
         url = data.linkUrl()
-        url = unicode_type(url.toString(NO_URL_FORMATTING)).strip()
+        url = str(url.toString(NO_URL_FORMATTING)).strip()
         text = data.selectedText()
         if text:
             ca = self.pageAction(QWebEnginePage.WebAction.Copy)
@@ -590,7 +590,7 @@ class Preview(QWidget):
         self.view._page.findText('')
 
     def find(self, direction):
-        text = unicode_type(self.search.text())
+        text = str(self.search.text())
         self.view._page.findText(text, (
             QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
 

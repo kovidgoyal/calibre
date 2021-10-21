@@ -15,7 +15,6 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
-from polyglot.builtins import unicode_type, range, map
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -142,7 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             else:
                 coltype = self.column_desc[dt]
         coltype_info = (coltype if oldkey is None else
-                          ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
+                          ' ' + _('(lookup name was {}) {}'.format(oldkey, coltype)))
 
         item = QTableWidgetItem(coltype_info)
         item.setFlags(flags)
@@ -194,7 +193,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = unicode_type(self.opt_columns.item(idx, 0).data(Qt.ItemDataRole.UserRole) or '')
+        col = str(self.opt_columns.item(idx, 0).data(Qt.ItemDataRole.UserRole) or '')
         if col not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
@@ -223,7 +222,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
-            key = unicode_type(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
+            key = str(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
         except:
             key = ''
         CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
@@ -236,12 +235,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode_type(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
+        config_cols = [str(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = {unicode_type(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
+        hidden_cols = {str(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())
                  if self.opt_columns.item(i, 0).checkState()==Qt.CheckState.Unchecked}
         hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols
@@ -252,7 +251,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         def col_pos(x):
             return config_cols.index(x) if x in config_cols else sys.maxsize
         positions = {}
-        for i, col in enumerate((sorted(model.column_map, key=col_pos))):
+        for i, col in enumerate(sorted(model.column_map, key=col_pos)):
             positions[col] = i
         state = {'hidden_columns': hidden_cols, 'column_positions':positions}
         self.gui.library_view.apply_state(state)

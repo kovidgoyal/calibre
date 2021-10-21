@@ -10,7 +10,6 @@ import os, io
 from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import unicode_type
 
 
 class PMLOutput(OutputFormatPlugin):
@@ -42,7 +41,7 @@ class PMLOutput(OutputFormatPlugin):
 
         with TemporaryDirectory('_pmlz_output') as tdir:
             pmlmlizer = PMLMLizer(log)
-            pml = unicode_type(pmlmlizer.extract_content(oeb_book, opts))
+            pml = str(pmlmlizer.extract_content(oeb_book, opts))
             with lopen(os.path.join(tdir, 'index.pml'), 'wb') as out:
                 out.write(pml.encode(opts.pml_output_encoding, 'replace'))
 

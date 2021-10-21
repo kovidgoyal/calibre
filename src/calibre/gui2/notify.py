@@ -12,7 +12,6 @@ from contextlib import suppress
 from functools import lru_cache
 
 from calibre.constants import DEBUG, __appname__, get_osx_version, islinux, ismacos
-from polyglot.builtins import unicode_type
 
 
 class Notifier:
@@ -164,7 +163,7 @@ class QtNotifier(Notifier):
             try:
                 hide = False
                 try:
-                    if not isinstance(body, unicode_type):
+                    if not isinstance(body, str):
                         body = body.decode('utf-8')
                     if ismacos and not self.systray.isVisible():
                         self.systray.show()

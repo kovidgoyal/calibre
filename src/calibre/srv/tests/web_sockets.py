@@ -14,7 +14,6 @@ from calibre.srv.web_socket import (
     PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA, CONTROL_CODES)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import range, unicode_type
 from polyglot.binary import as_base64_unicode
 
 HANDSHAKE_STR = '''\
@@ -77,7 +76,7 @@ class WSClient:
             return data[:max_amt + 1]
         try:
             return self.socket.recv(max_amt)
-        except socket.error as err:
+        except OSError as err:
             if err.errno != errno.ECONNRESET:
                 raise
             return b''
@@ -132,7 +131,7 @@ class WSClient:
     def write_message(self, msg, chunk_size=None):
         if isinstance(msg, tuple):
             opcode, msg = msg
-            if isinstance(msg, unicode_type):
+            if isinstance(msg, str):
                 msg = msg.encode('utf-8')
             return self.write_frame(1, opcode, msg)
         w = MessageWriter(msg, self.mask, chunk_size)
@@ -147,7 +146,7 @@ class WSClient:
         self.socket.sendall(frame)
 
     def write_close(self, code, reason=b''):
-        if isinstance(reason, unicode_type):
+        if isinstance(reason, str):
             reason = reason.encode('utf-8')
         self.write_frame(1, CLOSE, struct.pack(b'!H', code) + reason)
 
@@ -183,7 +182,7 @@ class WebSocketTest(BaseTest):
 
         expected_messages, expected_controls = [], []
         for ex in expected:
-            if isinstance(ex, unicode_type):
+            if isinstance(ex, str):
                 ex = TEXT, ex
             elif isinstance(ex, bytes):
                 ex = BINARY, ex
@@ -292,7 +291,7 @@ class WebSocketTest(BaseTest):
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
 
-            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
+            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', "Hello-µ@ßöäüàá-UTF-8!!".encode()):
                 frags = []
                 for i in range(len(q)):
                     b = q[i:i+1]

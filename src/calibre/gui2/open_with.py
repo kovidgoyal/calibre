@@ -26,7 +26,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
-from polyglot.builtins import iteritems, range, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes
 
 ENTRY_ROLE = Qt.ItemDataRole.UserRole
 
@@ -362,7 +362,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
-        entry['uuid'] = unicode_type(uuid.uuid4())
+        entry['uuid'] = str(uuid.uuid4())
         entries = oprefs['entries']
         if oft not in entries:
             entries[oft] = []

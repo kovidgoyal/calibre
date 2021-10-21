@@ -15,7 +15,6 @@ from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import range, unicode_type
 
 
 class Page(QWebEnginePage):  # {{{
@@ -26,7 +25,7 @@ class Page(QWebEnginePage):  # {{{
     def __init__(self, prefs):
         self.log = default_log
         self.current_frag = None
-        self.com_id = unicode_type(uuid4())
+        self.com_id = str(uuid4())
         QWebEnginePage.__init__(self)
         secure_webengine(self.settings(), for_viewer=True)
         self.titleChanged.connect(self.title_changed)
@@ -57,10 +56,10 @@ class Page(QWebEnginePage):  # {{{
         self.scripts().insert(s)
 
     def javaScriptConsoleMessage(self, level, msg, lineno, msgid):
-        self.log('JS:', unicode_type(msg))
+        self.log('JS:', str(msg))
 
     def javaScriptAlert(self, origin, msg):
-        self.log(unicode_type(msg))
+        self.log(str(msg))
 
     def title_changed(self, title):
         parts = title.split('-', 1)
@@ -81,7 +80,7 @@ class Page(QWebEnginePage):  # {{{
         if ok and self.current_frag:
             self.runJavaScript('''
                 document.location = '#non-existent-anchor';
-                document.location = '#' + {0};
+                document.location = '#' + {};
             '''.format(json.dumps(self.current_frag)))
             self.current_frag = None
             self.runJavaScript('window.pageYOffset/document.body.scrollHeight', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.frag_shown.emit)
@@ -207,10 +206,10 @@ class ItemEdit(QWidget):
             # Prevent pressing enter in the search box from triggering the dialog's accept() method
             ev.accept()
             return
-        return super(ItemEdit, self).keyPressEvent(ev)
+        return super().keyPressEvent(ev)
 
     def find(self, forwards=True):
-        text = unicode_type(self.search_text.text()).strip()
+        text = str(self.search_text.text()).strip()
         flags = QWebEnginePage.FindFlags(0) if forwards else QWebEnginePage.FindFlag.FindBackward
         self.find_data = text, flags, forwards
         self.view.findText(text, flags, self.find_callback)
@@ -224,9 +223,9 @@ class ItemEdit(QWidget):
                     _('No match found for: %s')%text, show=True)
 
             delta = 1 if forwards else -1
-            current = unicode_type(d.currentItem().data(Qt.ItemDataRole.DisplayRole) or '')
+            current = str(d.currentItem().data(Qt.ItemDataRole.DisplayRole) or '')
             next_index = (d.currentRow() + delta)%d.count()
-            next = unicode_type(d.item(next_index).data(Qt.ItemDataRole.DisplayRole) or '')
+            next = str(d.item(next_index).data(Qt.ItemDataRole.DisplayRole) or '')
             msg = '<p>'+_('No matches for %(text)s found in the current file [%(current)s].'
                           ' Do you want to search in the %(which)s file [%(next)s]?')
             msg = msg%dict(text=text, current=current, next=next,
@@ -249,7 +248,7 @@ class ItemEdit(QWidget):
         self.dest_list.addItems(spine_names)
 
     def current_changed(self, item):
-        name = self.current_name = unicode_type(item.data(Qt.ItemDataRole.DisplayRole) or '')
+        name = self.current_name = str(item.data(Qt.ItemDataRole.DisplayRole) or '')
         path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
         root = self.container.parsed(name)
@@ -281,7 +280,7 @@ class ItemEdit(QWidget):
             if toc.dest:
                 for i in range(self.dest_list.count()):
                     litem = self.dest_list.item(i)
-                    if unicode_type(litem.data(Qt.ItemDataRole.DisplayRole) or '') == toc.dest:
+                    if str(litem.data(Qt.ItemDataRole.DisplayRole) or '') == toc.dest:
                         dest_index = i
                         frag = toc.frag
                         break

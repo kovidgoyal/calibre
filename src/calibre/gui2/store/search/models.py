@@ -18,7 +18,6 @@ from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from polyglot.builtins import unicode_type
 
 
 def comparable_price(text):
@@ -30,7 +29,7 @@ def comparable_price(text):
         # remove all separators accept fraction,
         # leave only 2 digits in fraction
         m = re.sub(r'\.(?!\d*$)', r'', m)
-        text = '{0:0>8.0f}'.format(float(m) * 100.)
+        text = '{:0>8.0f}'.format(float(m) * 100.)
     return text
 
 
@@ -291,7 +290,7 @@ class Matches(QAbstractItemModel):
             return
         descending = order == Qt.SortOrder.DescendingOrder
         self.all_matches.sort(
-            key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
+            key=lambda x: sort_key(str(self.data_as_text(x, col))),
             reverse=descending)
         self.reorder_matches()
         if reset:

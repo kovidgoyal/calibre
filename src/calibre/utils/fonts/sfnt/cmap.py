@@ -15,7 +15,6 @@ from collections import OrderedDict
 from calibre.utils.fonts.utils import read_bmp_prefix
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import range
 
 
 def split_range(start_code, end_code, cmap):  # {{{
@@ -171,7 +170,7 @@ class BMPTable:
 class CmapTable(UnknownTable):
 
     def __init__(self, *args, **kwargs):
-        super(CmapTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.version, self.num_tables = unpack_from(b'>HH', self.raw)
 

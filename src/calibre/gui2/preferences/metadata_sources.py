@@ -140,11 +140,11 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.enabled_overrides = dict([(p, (Qt.CheckState.Unchecked if p.name in
-            default_disabled_plugins else Qt.CheckState.Checked)) for p in self.plugins])
-        self.cover_overrides = dict([(p,
-            msprefs.defaults['cover_priorities'].get(p.name, 1))
-                for p in self.plugins])
+        self.enabled_overrides = {p: (Qt.CheckState.Unchecked if p.name in
+            default_disabled_plugins else Qt.CheckState.Checked) for p in self.plugins}
+        self.cover_overrides = {p:
+            msprefs.defaults['cover_priorities'].get(p.name, 1)
+                for p in self.plugins}
         self.endResetModel()
 
 # }}}
@@ -209,17 +209,17 @@ class FieldsModel(QAbstractListModel):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.overrides = dict([(f, self.state(f, Qt.CheckState.Checked)) for f in self.fields])
+        self.overrides = {f: self.state(f, Qt.CheckState.Checked) for f in self.fields}
         self.endResetModel()
 
     def select_all(self):
         self.beginResetModel()
-        self.overrides = dict([(f, Qt.CheckState.Checked) for f in self.fields])
+        self.overrides = {f: Qt.CheckState.Checked for f in self.fields}
         self.endResetModel()
 
     def clear_all(self):
         self.beginResetModel()
-        self.overrides = dict([(f, Qt.CheckState.Unchecked) for f in self.fields])
+        self.overrides = {f: Qt.CheckState.Unchecked for f in self.fields}
         self.endResetModel()
 
     def setData(self, index, val, role):
@@ -248,7 +248,7 @@ class FieldsModel(QAbstractListModel):  # {{{
 
     def select_user_defaults(self):
         self.beginResetModel()
-        self.overrides = dict([(f, self.user_default_state(f)) for f in self.fields])
+        self.overrides = {f: self.user_default_state(f) for f in self.fields}
         self.endResetModel()
 
     def commit_user_defaults(self):

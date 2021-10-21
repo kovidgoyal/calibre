@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time, shutil
 
 from calibre.constants import iswindows, islinux, ismacos, plugins_loc
-from polyglot.builtins import iteritems, map, unicode_type, getenv
+from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
@@ -71,7 +71,7 @@ class BuildTest(unittest.TestCase):
 
     def test_chardet(self):
         from cchardet import detect
-        raw = 'mūsi Füße'.encode('utf-8')
+        raw = 'mūsi Füße'.encode()
         data = detect(raw)
         self.assertEqual(data['encoding'].lower(), 'utf-8')
         self.assertGreater(data['confidence'], 0.5)
@@ -147,7 +147,7 @@ class BuildTest(unittest.TestCase):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
-        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), unicode_type)
+        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), str)
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 
@@ -168,7 +168,7 @@ class BuildTest(unittest.TestCase):
 
         def au(x, name):
             self.assertTrue(
-                isinstance(x, unicode_type),
+                isinstance(x, str),
                 '%s() did not return a unicode string, instead returning: %r' % (name, x))
         for x in 'username temp_path locale_name'.split():
             au(getattr(winutil, x)(), x)
@@ -178,11 +178,11 @@ class BuildTest(unittest.TestCase):
         for k, v in iteritems(d):
             au(v, k)
         os.environ['XXXTEST'] = 'YYY'
-        self.assertEqual(getenv('XXXTEST'), 'YYY')
+        self.assertEqual(os.getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
-        self.assertIsNone(getenv('XXXTEST'))
+        self.assertIsNone(os.getenv('XXXTEST'))
         for k in os.environ:
-            v = getenv(k)
+            v = os.getenv(k)
             if v is not None:
                 au(v, 'getenv-' + k)
         t = time.localtime()

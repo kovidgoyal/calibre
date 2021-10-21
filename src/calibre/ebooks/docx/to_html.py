@@ -28,7 +28,7 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues, filter, getcwd, map, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 NBSP = '\xa0'
@@ -69,7 +69,7 @@ class Convert:
         self.notes_text = notes_text or _('Notes')
         self.notes_nopb = notes_nopb
         self.nosupsub = nosupsub
-        self.dest_dir = dest_dir or getcwd()
+        self.dest_dir = dest_dir or os.getcwd()
         self.mi = self.docx.metadata
         self.body = BODY()
         self.theme = Theme(self.namespace)
@@ -311,7 +311,7 @@ class Convert:
                 seraw = self.docx.read(sename)
             except KeyError:
                 self.log.warn('Settings %s do not exist' % sename)
-            except EnvironmentError as e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
                 self.log.warn('Settings %s file missing' % sename)
@@ -480,7 +480,7 @@ class Convert:
                 current_hyperlink = x
             elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
                 old_anchor = current_anchor
-                anchor = unicode_type(uuid.uuid4())
+                anchor = str(uuid.uuid4())
                 self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(itervalues(self.anchor_map)))
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
@@ -507,7 +507,7 @@ class Convert:
         if m is not None:
             n = min(6, max(1, int(m.group(1))))
             dest.tag = 'h%d' % n
-            dest.set('data-heading-level', unicode_type(n))
+            dest.set('data-heading-level', str(n))
 
         if style.bidi is True:
             dest.set('dir', 'rtl')
@@ -842,7 +842,7 @@ if __name__ == '__main__':
     import shutil
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
-    dest_dir = os.path.join(getcwd(), 'docx_input')
+    dest_dir = os.path.join(os.getcwd(), 'docx_input')
     if os.path.exists(dest_dir):
         shutil.rmtree(dest_dir)
     os.mkdir(dest_dir)

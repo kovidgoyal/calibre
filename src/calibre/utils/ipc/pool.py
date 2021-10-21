@@ -60,11 +60,11 @@ def get_stdout(process):
             if raw:
                 try:
                     sys.stdout.buffer.write(raw)
-                except EnvironmentError:
+                except OSError:
                     pass
             else:
                 time.sleep(0.1)
-        except (EOFError, EnvironmentError):
+        except (EOFError, OSError):
             break
 
 
@@ -294,7 +294,7 @@ class Pool(Thread):
             if worker.process.poll() is None:
                 try:
                     worker.process.terminate()
-                except EnvironmentError:
+                except OSError:
                     pass  # If the process has already been killed
         workers = [w.process for w in self.available_workers + list(self.busy_workers)]
         aw = list(self.available_workers)
@@ -323,14 +323,14 @@ class Pool(Thread):
             if w.poll() is None:
                 try:
                     w.kill()
-                except EnvironmentError:
+                except OSError:
                     pass
         del self.available_workers[:]
         self.busy_workers.clear()
         if hasattr(self, 'cd_file'):
             try:
                 os.remove(self.cd_file.name)
-            except EnvironmentError:
+            except OSError:
                 pass
 
 

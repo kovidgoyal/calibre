@@ -41,9 +41,7 @@ from calibre.utils.date import (
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import (
-    iteritems, itervalues, map, range, string_or_bytes, unicode_type
-)
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -78,7 +76,7 @@ class ColumnColor:  # {{{
         self.formatter = formatter
 
     def __call__(self, id_, key, fmt, db, color_cache, template_cache):
-        key += unicode_type(hash(fmt))
+        key += str(hash(fmt))
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
             color = color_cache[id_][key]
@@ -119,7 +117,7 @@ class ColumnIcon:  # {{{
             icons = []
             for dex, (kind, fmt) in enumerate(fmts):
                 rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi,
-                                    column_name=cache_index+unicode_type(dex),
+                                    column_name=cache_index+str(dex),
                                     template_cache=template_cache)
                 if not rule_icons:
                     continue
@@ -892,7 +890,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         def stars_tooltip(func, allow_half=True):
             def f(idx):
                 ans = val = int(func(idx))
-                ans = unicode_type(val // 2)
+                ans = str(val // 2)
                 if allow_half and val % 2:
                     ans += '.5'
                 return _('%s stars') % ans
@@ -957,7 +955,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
                 values = cc.get('enum_values', [])
-                txt = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
+                txt = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
                 if len(colors) > 0 and txt in values:
                     try:
                         color = QColor(colors[values.index(txt)])
@@ -1077,10 +1075,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
         if typ in ('text', 'comments'):
-            val = unicode_type(value or '').strip()
+            val = str(value or '').strip()
             val = val if val else None
         elif typ == 'enumeration':
-            val = unicode_type(value or '').strip()
+            val = str(value or '').strip()
             if not val:
                 val = None
         elif typ == 'bool':
@@ -1091,7 +1089,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if value == 0:
                 val = '0'
             else:
-                val = unicode_type(value or '').strip()
+                val = str(value or '').strip()
             if not val:
                 val = None
         elif typ == 'datetime':
@@ -1103,7 +1101,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val = unicode_type(value or '').strip()
+            val = str(value or '').strip()
             if val:
                 pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
@@ -1117,7 +1115,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
-            tmpl = unicode_type(value or '').strip()
+            tmpl = str(value or '').strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display=disp,
@@ -1141,7 +1139,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             from calibre.gui2.ui import get_gui
             try:
                 return self._set_data(index, value)
-            except (IOError, OSError) as err:
+            except OSError as err:
                 import traceback
                 if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     fname = getattr(err, 'filename', None)
@@ -1173,7 +1171,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(r'\s', ' ', unicode_type(value or '').strip()))
+                    else re.sub(r'\s', ' ', str(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = {id}
             if column == 'rating':
@@ -1741,7 +1739,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             cname = self.column_map[col]
             if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
-            val = unicode_type(value or '').strip()
+            val = str(value or '').strip()
             idx = self.map[row]
             if cname == 'collections':
                 tags = [i.strip() for i in val.split(',')]

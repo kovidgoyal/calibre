@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.customize import Plugin as _Plugin
-from polyglot.builtins import zip
 
 FONT_SIZES = [('xx-small', 1),
               ('x-small',  None),
@@ -32,8 +31,8 @@ class Plugin(_Plugin):
         self.fsizes = []
         for (name, num), size in zip(FONT_SIZES, fsizes):
             self.fsizes.append((name, num, float(size)))
-        self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
-        self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
+        self.fnames = {name: sz for name, _, sz in self.fsizes if name}
+        self.fnums = {num: sz for _, num, sz in self.fsizes if num}
         self.width_pts = self.width * 72./self.dpi
         self.height_pts = self.height * 72./self.dpi
 
@@ -487,7 +486,7 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
-    unsupported_unicode_chars = [u'\u201f', u'\u201b']
+    unsupported_unicode_chars = ['\u201f', '\u201b']
 
     epub_periodical_format = 'sony'
     # periodical_date_in_title = False

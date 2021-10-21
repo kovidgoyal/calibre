@@ -33,7 +33,7 @@ from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jpeg
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import iteritems, map, range, reraise, filter, as_bytes, unicode_type
+from polyglot.builtins import iteritems, reraise, as_bytes
 from polyglot import http_client
 from polyglot.queue import Queue, Empty
 
@@ -104,7 +104,7 @@ def read_theme_from_folder(path):
     try:
         with open(os.path.join(path, THEME_METADATA), 'rb') as f:
             metadata = json.load(f)
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
         metadata = {}
@@ -124,7 +124,7 @@ def read_theme_from_folder(path):
     try:
         with open(os.path.join(path, THEME_COVER), 'rb') as f:
             theme.cover = f.read()
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
         theme.cover = create_cover(ans)
@@ -450,7 +450,7 @@ def get_cover(metadata):
     cdir = os.path.join(cache_dir(), 'icon-theme-covers')
     try:
         os.makedirs(cdir)
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.EEXIST:
             raise
 
@@ -462,7 +462,7 @@ def get_cover(metadata):
         try:
             with open(path, 'rb') as f:
                 return f.read()
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
         return b''
@@ -619,7 +619,7 @@ class ChooseTheme(Dialog):
         w.l = l = QGridLayout(w)
 
         def add_row(x, y=None):
-            if isinstance(x, unicode_type):
+            if isinstance(x, str):
                 x = QLabel(x)
             row = l.rowCount()
             if y is None:
@@ -808,14 +808,14 @@ def remove_icon_theme():
     try:
         with open(metadata_file, 'rb') as f:
             metadata = json.load(f)
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
         return
     for name in metadata['files']:
         try:
             os.remove(os.path.join(icdir, *name.split('/')))
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
     os.remove(metadata_file)

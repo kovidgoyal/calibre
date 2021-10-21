@@ -17,7 +17,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 from calibre.utils.localization import get_lang
-from polyglot.builtins import as_unicode, getcwd, unicode_type, zip
+from polyglot.builtins import as_unicode
 
 
 def sanitize_file_name(x):
@@ -70,7 +70,7 @@ class HTMLInput(InputFormatPlugin):
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
-        basedir = getcwd()
+        basedir = os.getcwd()
         self.opts = opts
 
         fname = None
@@ -144,7 +144,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-        bookid = unicode_type(uuid.uuid4())
+        bookid = str(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
@@ -228,19 +228,19 @@ class HTMLInput(InputFormatPlugin):
                 continue
             toc.add(title, item.href)
 
-        oeb.container = DirContainer(getcwd(), oeb.log, ignore_opf=True)
+        oeb.container = DirContainer(os.getcwd(), oeb.log, ignore_opf=True)
         return oeb
 
     def link_to_local_path(self, link_, base=None):
         from calibre.ebooks.html.input import Link
-        if not isinstance(link_, unicode_type):
+        if not isinstance(link_, str):
             try:
                 link_ = link_.decode('utf-8', 'error')
             except:
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
                 return None, None
         try:
-            l = Link(link_, base if base else getcwd())
+            l = Link(link_, base if base else os.getcwd())
         except:
             self.log.exception('Failed to process link: %r'%link_)
             return None, None
@@ -284,7 +284,7 @@ class HTMLInput(InputFormatPlugin):
                 # Check for the common case, images
                 try:
                     img = what(link)
-                except EnvironmentError:
+                except OSError:
                     pass
                 else:
                     if img:
@@ -298,7 +298,7 @@ class HTMLInput(InputFormatPlugin):
             # bhref refers to an already existing file. The read() method of
             # DirContainer will call unquote on it before trying to read the
             # file, therefore we quote it here.
-            if isinstance(bhref, unicode_type):
+            if isinstance(bhref, str):
                 bhref = bhref.encode('utf-8')
             item.html_input_href = as_unicode(quote(bhref))
             if is_stylesheet:

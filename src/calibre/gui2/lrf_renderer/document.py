@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -12,7 +10,6 @@ from qt.core import (
 from calibre.gui2.lrf_renderer.text import TextBlock, FontLoader, COLOR, PixmapItem
 from calibre.ebooks.lrf.objects import RuledLine as _RuledLine
 from calibre.ebooks.lrf.objects import Canvas as __Canvas
-from polyglot.builtins import unicode_type
 
 
 class Color(QColor):
@@ -418,7 +415,7 @@ class Document(QGraphicsScene):
             fdata = QByteArray(lrf.font_map[font].data)
             id = QFontDatabase.addApplicationFontFromData(fdata)
             if id != -1:
-                font_map[font] = [unicode_type(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
+                font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
 
         if load_substitutions:
             base = P('fonts/liberation/*.ttf')

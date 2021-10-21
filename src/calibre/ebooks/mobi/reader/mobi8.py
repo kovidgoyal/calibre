@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import range, zip, unicode_type, getcwd, as_unicode
+from polyglot.builtins import as_unicode
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
@@ -225,7 +225,7 @@ class Mobi8Reader:
             self.parts.append(skeleton)
             if divcnt < 1:
                 # Empty file
-                aidtext = unicode_type(uuid4())
+                aidtext = str(uuid4())
                 filename = aidtext + '.html'
             self.partinfo.append(Part(skelnum, 'text', filename, skelpos,
                 baseptr, aidtext))
@@ -357,7 +357,7 @@ class Mobi8Reader:
                 if isinstance(idtext, bytes):
                     idtext = idtext.decode(self.header.codec)
                 linktgt += '#' + idtext
-            g = Guide.Reference(linktgt, getcwd())
+            g = Guide.Reference(linktgt, os.getcwd())
             g.title, g.type = ref_title, ref_type
             if g.title == 'start' or g.type == 'text':
                 has_start = True
@@ -371,7 +371,7 @@ class Mobi8Reader:
                 linktgt = fi.filename
                 if idtext:
                     linktgt += '#' + idtext
-                g = Guide.Reference('%s/%s'%(fi.type, linktgt), getcwd())
+                g = Guide.Reference('%s/%s'%(fi.type, linktgt), os.getcwd())
                 g.title, g.type = 'start', 'text'
                 guide.append(g)
 
@@ -485,7 +485,7 @@ class Mobi8Reader:
                         except:
                             self.log.exception('Failed to read inline ToC')
 
-        opf = OPFCreator(getcwd(), mi)
+        opf = OPFCreator(os.getcwd(), mi)
         opf.guide = guide
 
         def exclude(path):
@@ -505,7 +505,7 @@ class Mobi8Reader:
             except:
                 pass
 
-        opf.create_manifest_from_files_in([getcwd()], exclude=exclude)
+        opf.create_manifest_from_files_in([os.getcwd()], exclude=exclude)
         for entry in opf.manifest:
             if entry.mime_type == 'text/html':
                 entry.mime_type = 'application/xhtml+xml'
@@ -567,7 +567,7 @@ class Mobi8Reader:
             elif elem is start:
                 reached = True
 
-        depths = sorted(set(x[-1] for x in links))
+        depths = sorted({x[-1] for x in links})
         depth_map = {x:i for i, x in enumerate(depths)}
         for text, href, frag, depth in links:
             depth = depth_map[depth]

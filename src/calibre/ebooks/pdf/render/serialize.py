@@ -7,7 +7,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import hashlib, numbers
-from polyglot.builtins import map, iteritems
+from polyglot.builtins import iteritems
 
 from qt.core import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
@@ -83,7 +83,7 @@ class IndirectObjects:
 class Page(Stream):
 
     def __init__(self, parentref, *args, **kwargs):
-        super(Page, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.page_dict = Dictionary({
             'Type': Name('Page'),
             'Parent': parentref,
@@ -173,14 +173,14 @@ class Path:
 class Catalog(Dictionary):
 
     def __init__(self, pagetree):
-        super(Catalog, self).__init__({'Type':Name('Catalog'),
+        super().__init__({'Type':Name('Catalog'),
             'Pages': pagetree})
 
 
 class PageTree(Dictionary):
 
     def __init__(self, page_size):
-        super(PageTree, self).__init__({'Type':Name('Pages'),
+        super().__init__({'Type':Name('Pages'),
             'MediaBox':Array([0, 0, page_size[0], page_size[1]]),
             'Kids':Array(), 'Count':0,
         })
@@ -278,7 +278,7 @@ class PDFStream:
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
-        self.write_line(u'%íì¦"'.encode('utf-8'))
+        self.write_line('%íì¦"'.encode())
         creator = ('%s %s [https://calibre-ebook.com]'%(__appname__,
                                     __version__))
         self.write_line('%% Created by %s'%creator)

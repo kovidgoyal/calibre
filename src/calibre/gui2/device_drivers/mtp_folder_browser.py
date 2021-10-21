@@ -12,7 +12,6 @@ from qt.core import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
-from polyglot.builtins import unicode_type, range
 
 
 def browser_item(f, parent):
@@ -167,8 +166,7 @@ class IgnoredFolders(QDialog):
         for i in range(node.childCount()):
             child = node.child(i)
             yield child
-            for gc in self.iterchildren(child):
-                yield gc
+            yield from self.iterchildren(child)
 
     def create_item(self, f, parent):
         name = f.name
@@ -200,11 +198,11 @@ class IgnoredFolders(QDialog):
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.CheckState.Checked:
                     continue
-                path = unicode_type(node.data(0, Qt.ItemDataRole.UserRole) or '')
+                path = str(node.data(0, Qt.ItemDataRole.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))
-            ans[unicode_type(w.storage.storage_id)] = list(folders)
+            ans[str(w.storage.storage_id)] = list(folders)
         return ans
 
 

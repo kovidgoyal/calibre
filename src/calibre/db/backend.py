@@ -50,8 +50,7 @@ from calibre.utils.formatter_functions import (
 from calibre.utils.icu import sort_key
 from calibre.utils.img import save_cover_data_to
 from polyglot.builtins import (
-    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,
-    unicode_type
+    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
 )
 
 # }}}
@@ -108,7 +107,7 @@ class DBPrefs(dict):  # {{{
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
-        if not isinstance(raw, unicode_type):
+        if not isinstance(raw, str):
             raw = raw.decode(preferred_encoding)
         return json.loads(raw, object_hook=from_json)
 
@@ -152,18 +151,18 @@ class DBPrefs(dict):  # {{{
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
-        key = u'namespaced:%s:%s'%(namespace, key)
+        key = 'namespaced:%s:%s'%(namespace, key)
         try:
             return dict.__getitem__(self, key)
         except KeyError:
             return default
 
     def set_namespaced(self, namespace, key, val):
-        if u':' in key:
+        if ':' in key:
             raise KeyError('Colons are not allowed in keys')
-        if u':' in namespace:
+        if ':' in namespace:
             raise KeyError('Colons are not allowed in the namespace')
-        key = u'namespaced:%s:%s'%(namespace, key)
+        key = 'namespaced:%s:%s'%(namespace, key)
         self[key] = val
 
     def write_serialized(self, library_path):
@@ -262,7 +261,7 @@ def IdentifiersConcat():
     '''String concatenation aggregator for the identifiers map'''
 
     def step(ctxt, key, val):
-        ctxt.append(u'%s:%s'%(key, val))
+        ctxt.append('%s:%s'%(key, val))
 
     def finalize(ctxt):
         try:
@@ -352,7 +351,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: unicode_type(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -403,7 +402,7 @@ def set_global_state(backend):
 def rmtree_with_retry(path, sleep_time=1):
     try:
         shutil.rmtree(path)
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
         time.sleep(sleep_time)  # In case something has temporarily locked a file
@@ -646,10 +645,10 @@ class DB:
                 prints('found user category case overlap', catmap[uc])
                 cat = catmap[uc][0]
                 suffix = 1
-                while icu_lower((cat + unicode_type(suffix))) in catmap:
+                while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+unicode_type(suffix)))
-                user_cats[cat + unicode_type(suffix)] = user_cats[cat]
+                prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
+                user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
         if cats_changed:
@@ -755,25 +754,25 @@ class DB:
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, (str, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode_type) else y for y in x]
-                return [u' '.join(y.split()) for y in x]
+                    str) else y for y in x]
+                return [' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode_type) else \
+                return x if x is None or isinstance(x, str) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 x = x.lower()
@@ -796,7 +795,7 @@ class DB:
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = x.decode(preferred_encoding, 'replace')
                 if x.lower() == 'none':
@@ -825,7 +824,7 @@ class DB:
             else:
                 is_category = False
             is_m = v['multiple_seps']
-            tn = 'custom_column_{0}'.format(v['num'])
+            tn = 'custom_column_{}'.format(v['num'])
             self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
                     colnum=v['num'], name=v['name'], display=v['display'],
@@ -888,7 +887,7 @@ class DB:
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[unicode_type(data['num'])+'_index'] = base = base+1
+                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(label_+'_index', base,
                             prefer_custom=True)
 
@@ -1311,7 +1310,7 @@ class DB:
         if getattr(self, '_library_id_', None) is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
             if ans is None:
-                ans = unicode_type(uuid.uuid4())
+                ans = str(uuid.uuid4())
                 self.library_id = ans
             else:
                 self._library_id_ = ans
@@ -1319,7 +1318,7 @@ class DB:
 
     @library_id.setter
     def library_id(self, val):
-        self._library_id_ = unicode_type(val)
+        self._library_id_ = str(val)
         self.execute('''
                 DELETE FROM library_id;
                 INSERT INTO library_id (uuid) VALUES (?);
@@ -1429,7 +1428,7 @@ class DB:
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         try:
             return utcfromtimestamp(os.stat(path).st_mtime)
-        except EnvironmentError:
+        except OSError:
             pass  # Cover doesn't exist
 
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
@@ -1445,11 +1444,11 @@ class DB:
             if os.access(path, os.R_OK):
                 try:
                     f = lopen(path, 'rb')
-                except (IOError, OSError):
+                except OSError:
                     time.sleep(0.2)
                     try:
                         f = lopen(path, 'rb')
-                    except (IOError, OSError) as e:
+                    except OSError as e:
                         # Ensure the path that caused this error is reported
                         raise Exception('Failed to open %r with error: %s' % (path, e))
 
@@ -1479,13 +1478,13 @@ class DB:
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         try:
             stat = os.stat(path)
-        except EnvironmentError:
+        except OSError:
             return False, None, None
         if abs(timestamp - stat.st_mtime) < 0.1:
             return True, None, None
         try:
             f = lopen(path, 'rb')
-        except (IOError, OSError):
+        except OSError:
             time.sleep(0.2)
         f = lopen(path, 'rb')
         with f:
@@ -1520,7 +1519,7 @@ class DB:
             if os.path.exists(path):
                 try:
                     os.remove(path)
-                except (IOError, OSError):
+                except OSError:
                     time.sleep(0.2)
                     os.remove(path)
         else:
@@ -1530,7 +1529,7 @@ class DB:
             else:
                 try:
                     save_cover_data_to(data, path)
-                except (IOError, OSError):
+                except OSError:
                     time.sleep(0.2)
                     save_cover_data_to(data, path)
 
@@ -1616,7 +1615,7 @@ class DB:
                     # wrong in the rest of this function, at least the file is
                     # not deleted
                     os.rename(old_path, dest)
-                except EnvironmentError as e:
+                except OSError as e:
                     if getattr(e, 'errno', None) != errno.ENOENT:
                         # Failing to rename the old format will at worst leave a
                         # harmless orphan, so log and ignore the error
@@ -1728,11 +1727,11 @@ class DB:
         try:
             with lopen(path, 'wb') as f:
                 f.write(raw)
-        except EnvironmentError:
+        except OSError:
             exc_info = sys.exc_info()
             try:
                 os.makedirs(os.path.dirname(path))
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno == errno.EEXIST:
                     # Parent directory already exists, re-raise original exception
                     reraise(*exc_info)
@@ -1811,8 +1810,7 @@ class DB:
         return frozenset(r[0] for r in self.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
 
     def annotations_for_book(self, book_id, fmt, user_type, user):
-        for x in annotations_for_book(self.conn, book_id, fmt, user_type, user):
-            yield x
+        yield from annotations_for_book(self.conn, book_id, fmt, user_type, user)
 
     def search_annotations(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
@@ -2026,7 +2024,7 @@ class DB:
         def map_data(x):
             if not isinstance(x, string_or_bytes):
                 x = native_string_type(x)
-            x = x.encode('utf-8') if isinstance(x, unicode_type) else x
+            x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)
             return x
         options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
@@ -2067,7 +2065,7 @@ class DB:
                 copyfile_using_links(src, dest, dest_is_dir=False)
                 old_files.add(src)
             x = path_map[x]
-            if not isinstance(x, unicode_type):
+            if not isinstance(x, str):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x, i+1, total)
 
@@ -2081,18 +2079,18 @@ class DB:
         for loc in old_dirs:
             try:
                 rmtree_with_retry(loc)
-            except EnvironmentError as e:
+            except OSError as e:
                 if os.path.exists(loc):
                     prints('Failed to delete:', loc, 'with error:', as_unicode(e))
         for loc in old_files:
             try:
                 os.remove(loc)
-            except EnvironmentError as e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     prints('Failed to delete:', loc, 'with error:', as_unicode(e))
         try:
             os.rmdir(odir)
-        except EnvironmentError:
+        except OSError:
             pass
         self.conn  # Connect to the moved metadata.db
         progress(_('Completed'), total, total)

@@ -9,7 +9,6 @@ import time, random
 from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
-from polyglot.builtins import range
 
 
 def wait_for(period):

@@ -11,7 +11,7 @@ from operator import itemgetter
 from itertools import repeat
 
 from calibre.utils.fonts.sfnt import UnknownTable
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 def four_byte_type_code():

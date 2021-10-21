@@ -26,7 +26,6 @@ from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
                           rating_font, empty_index, question_dialog)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import unicode_type, range, zip
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -81,7 +80,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
         if not is_search and (hover or gprefs['tag_browser_show_counts']):
-            count = unicode_type(index.data(COUNT_ROLE))
+            count = str(index.data(COUNT_ROLE))
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
             r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
@@ -244,7 +243,7 @@ class TagsView(QTreeView):  # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-        '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
+        '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb))
 
     def set_look_and_feel(self, first=False):
@@ -526,7 +525,7 @@ class TagsView(QTreeView):  # {{{
                         with open(os.path.join(d, 'icon_' + sanitize_file_name(key)+'.png'), 'wb') as f:
                             f.write(pixmap_to_data(p, format='PNG'))
                             path = os.path.basename(f.name)
-                        self._model.set_custom_category_icon(key, unicode_type(path))
+                        self._model.set_custom_category_icon(key, str(path))
                         self.recount()
                 except:
                     traceback.print_exc()
@@ -726,7 +725,7 @@ class TagsView(QTreeView):  # {{{
                 if not item.category_key.startswith('@'):
                     while item.parent != self._model.root_item:
                         item = item.parent
-                category = unicode_type(item.name or '')
+                category = str(item.name or '')
                 key = item.category_key
                 # Verify that we are working with a field that we know something about
                 if key not in self.db.field_metadata:

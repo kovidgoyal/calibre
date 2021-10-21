@@ -21,7 +21,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.filenames import rmtree
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import as_unicode, itervalues, map
+from polyglot.builtins import as_unicode, itervalues
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -46,7 +46,7 @@ def books_cache_dir():
     for d in 'sf':
         try:
             os.makedirs(os.path.join(base, d))
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
     _books_cache_dir = base
@@ -66,7 +66,7 @@ def safe_remove(x, is_file=None):
         is_file = os.path.isfile(x)
     try:
         os.remove(x) if is_file else rmtree(x, ignore_errors=True)
-    except EnvironmentError:
+    except OSError:
         pass
 
 
@@ -101,7 +101,7 @@ def clean_final(interval=24 * 60 * 60):
     for x in os.listdir(fdir):
         try:
             tm = os.path.getmtime(os.path.join(fdir, x,  'calibre-book-manifest.json'))
-        except EnvironmentError:
+        except OSError:
             continue
         if now - tm >= interval:
             # This book has not been accessed for a long time, delete it
@@ -154,7 +154,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                 ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user) if user else []
                 ans['annotations_map'] = db.annotations_map_for_book(book_id, fmt, user_type='web', user=user or '*')
                 return ans
-            except EnvironmentError as e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
             x = failed_jobs.pop(bhash, None)
@@ -179,7 +179,7 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
         raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
     try:
         return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), bhash, name)
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
         raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))

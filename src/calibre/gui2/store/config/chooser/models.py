@@ -16,7 +16,6 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from polyglot.builtins import range, unicode_type
 
 
 class Delegate(QStyledItemDelegate):
@@ -209,7 +208,7 @@ class Matches(QAbstractItemModel):
         if not self.matches:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.matches.sort(key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))), reverse=descending)
+        self.matches.sort(key=lambda x: sort_key(str(self.data_as_text(x, col))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 

@@ -15,7 +15,7 @@ from calibre.constants import (config_dir, iswindows, ismacos, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
-from polyglot.builtins import itervalues, unicode_type, filter
+from polyglot.builtins import itervalues
 
 
 class NoFonts(ValueError):
@@ -270,8 +270,8 @@ class FontScanner(Thread):
         '''
         from calibre.utils.fonts.utils import (supports_text,
                 panose_to_css_generic_family, get_printable_characters)
-        if not isinstance(text, unicode_type):
-            raise TypeError(u'%r is not unicode'%text)
+        if not isinstance(text, str):
+            raise TypeError('%r is not unicode'%text)
         text = get_printable_characters(text)
         found = {}
 
@@ -329,7 +329,7 @@ class FontScanner(Thread):
                 continue
             try:
                 files = tuple(walk(folder))
-            except EnvironmentError as e:
+            except OSError as e:
                 if DEBUG:
                     prints('Failed to walk font folder:', folder,
                             as_unicode(e))
@@ -340,9 +340,9 @@ class FontScanner(Thread):
                 candidate = os.path.normcase(os.path.abspath(candidate))
                 try:
                     s = os.stat(candidate)
-                except EnvironmentError:
+                except OSError:
                     continue
-                fileid = '{0}||{1}:{2}'.format(candidate, s.st_size, s.st_mtime)
+                fileid = '{}||{}:{}'.format(candidate, s.st_size, s.st_mtime)
                 if fileid in cached_fonts:
                     # Use previously cached metadata, since the file size and
                     # last modified timestamp have not changed.

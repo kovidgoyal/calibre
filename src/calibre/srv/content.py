@@ -9,7 +9,6 @@ import os, errno
 from io import BytesIO
 from threading import Lock
 from contextlib import suppress
-from polyglot.builtins import map, unicode_type
 from functools import partial
 
 from calibre import fit_image, sanitize_file_name
@@ -48,10 +47,10 @@ def reset_caches():
 def open_for_write(fname):
     try:
         return share_open(fname, 'w+b')
-    except EnvironmentError:
+    except OSError:
         try:
             os.makedirs(os.path.dirname(fname))
-        except EnvironmentError:
+        except OSError:
             pass
     return share_open(fname, 'w+b')
 
@@ -103,7 +102,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             try:
                 ans = share_open(fname, 'rb')
                 used_cache = 'yes'
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
                 ans = open_for_write(fname)
@@ -165,7 +164,7 @@ def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
         fname = sanitize_file_name(fname).encode('utf-8')
-        fname = unicode_type(quote(fname))
+        fname = str(quote(fname))
     else:
         fname = ascii_filename(fname).replace('"', '_')
     if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
@@ -227,7 +226,7 @@ def static(ctx, rd, what):
     path = P('content-server/' + path)
     try:
         return share_open(path, 'rb')
-    except EnvironmentError:
+    except OSError:
         raise HTTPNotFound()
 
 
@@ -266,17 +265,17 @@ def icon(ctx, rd, which):
     if sz == 'full':
         try:
             return share_open(path, 'rb')
-        except EnvironmentError:
+        except OSError:
             raise HTTPNotFound()
     with lock:
         cached = os.path.join(rd.tdir, 'icons', '%d-%s.png' % (sz, which))
         try:
             return share_open(cached, 'rb')
-        except EnvironmentError:
+        except OSError:
             pass
         try:
             src = share_open(path, 'rb')
-        except EnvironmentError:
+        except OSError:
             raise HTTPNotFound()
         with src:
             idata = src.read()

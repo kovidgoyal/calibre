@@ -30,7 +30,7 @@ if islinux:
         addr = SOCKADDR_NL(0, 0, 0, 0)
         sz = ctypes.c_int(ctypes.sizeof(addr))
         if ctypes.CDLL(None, use_errno=True).getsockname(fd, ctypes.pointer(addr), ctypes.pointer(sz)) != 0:
-            raise EnvironmentError(errno.errcode[ctypes.get_errno()])
+            raise OSError(errno.errcode[ctypes.get_errno()])
         return addr.nl_family
 
     try:
@@ -45,15 +45,15 @@ if islinux:
         def pre_activated_socket():  # noqa
             num = systemd.sd_listen_fds(1)  # Remove systemd env vars so that child processes do not inherit them
             if num > 1:
-                raise EnvironmentError('Too many file descriptors received from systemd')
+                raise OSError('Too many file descriptors received from systemd')
             if num != 1:
                 return None
             fd = 3  # systemd starts activated sockets at 3
             ret = systemd.sd_is_socket(fd, socket.AF_UNSPEC, socket.SOCK_STREAM, -1)
             if ret == 0:
-                raise EnvironmentError('The systemd socket file descriptor is not valid')
+                raise OSError('The systemd socket file descriptor is not valid')
             if ret < 0:
-                raise EnvironmentError('Failed to check the systemd socket file descriptor for validity')
+                raise OSError('Failed to check the systemd socket file descriptor for validity')
             family = getsockfamily(fd)
             return socket.fromfd(fd, family, socket.SOCK_STREAM)
 

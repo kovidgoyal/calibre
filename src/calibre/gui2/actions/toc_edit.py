@@ -15,7 +15,7 @@ from qt.core import (
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 SUPPORTED = {'EPUB', 'AZW3'}
 
@@ -56,7 +56,7 @@ class ChooseFormat(QDialog):  # {{{
     def formats(self):
         for b in self.buttons:
             if b.isChecked():
-                yield unicode_type(b.text())[1:]
+                yield str(b.text())[1:]
 
     @formats.setter
     def formats(self, formats):

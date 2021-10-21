@@ -17,7 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
-from polyglot.builtins import iteritems, unicode_type, range, map
+from polyglot.builtins import iteritems
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -346,7 +346,7 @@ class CreateNewTheme(Dialog):
 
     @property
     def theme_name(self):
-        return unicode_type(self._name.text()).strip()
+        return str(self._name.text()).strip()
 
     def accept(self):
         if not self.theme_name:
@@ -475,7 +475,7 @@ class Property(QWidget):
         l.addStretch(1)
 
     def us_changed(self):
-        self.data['underline'] = unicode_type(self.underline.currentText()) or None
+        self.data['underline'] = str(self.underline.currentText()) or None
         self.changed.emit()
 
 # Help text {{{
@@ -590,11 +590,11 @@ class ThemeEditor(Dialog):
         from calibre.gui2.tweak_book.editor.text import TextEdit
         self.preview = p = TextEdit(self, expected_geometry=(73, 50))
         p.load_text(HELP_TEXT.format(
-                *['<b>%s</b>' % x for x in (
+                *('<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
                     'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
                     'Error', 'SpellError', 'Comment'
-                )]
+                ))
             ))
         p.setMaximumWidth(p.size_hint.width() + 5)
         s.setMinimumWidth(600)
@@ -619,7 +619,7 @@ class ThemeEditor(Dialog):
             data[k] = dict(THEMES[default_theme()][k]._asdict())
             for nk, nv in iteritems(data[k]):
                 if isinstance(nv, QBrush):
-                    data[k][nk] = unicode_type(nv.color().name())
+                    data[k][nk] = str(nv.color().name())
         if extra or missing:
             tprefs['custom_themes'][name] = data
         return data
@@ -633,7 +633,7 @@ class ThemeEditor(Dialog):
             c.setParent(None)
             c.deleteLater()
         self.properties = []
-        name = unicode_type(self.theme.currentText())
+        name = str(self.theme.currentText())
         if not name:
             return
         data = self.update_theme(name)
@@ -650,7 +650,7 @@ class ThemeEditor(Dialog):
 
     @property
     def theme_name(self):
-        return unicode_type(self.theme.currentText())
+        return str(self.theme.currentText())
 
     def changed(self):
         name = self.theme_name
@@ -661,7 +661,7 @@ class ThemeEditor(Dialog):
         d = CreateNewTheme(self)
         if d.exec_() == QDialog.DialogCode.Accepted:
             name = '*' + d.theme_name
-            base = unicode_type(d.base.currentText())
+            base = str(d.base.currentText())
             theme = {}
             for key, val in iteritems(THEMES[base]):
                 theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in iteritems(val._asdict())}

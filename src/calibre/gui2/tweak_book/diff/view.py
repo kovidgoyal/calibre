@@ -28,7 +28,7 @@ from calibre.gui2.tweak_book.editor.text import (
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.utils.icu import utf16_length
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import as_bytes, iteritems, map, range, unicode_type, zip
+from polyglot.builtins import as_bytes, iteritems
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -81,7 +81,7 @@ class LineNumberMap(dict):  # {{{
         return self
 
     def __setitem__(self, k, v):
-        v = unicode_type(v)
+        v = str(v)
         dict.__setitem__(self, k, v)
         self.max_width = max(self.max_width, len(v))
 
@@ -162,13 +162,13 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
+        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction
-        i = unicode_type(self.textCursor().selectedText()).rstrip('\0')
+        i = str(self.textCursor().selectedText()).rstrip('\0')
         if i:
             a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.StandardKey.Copy)
 
@@ -217,7 +217,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         headers = dict(self.headers)
         if lnum in headers:
             cpos = self.search_header_pos
-        lines = unicode_type(self.toPlainText()).splitlines()
+        lines = str(self.toPlainText()).splitlines()
         for hn, text in self.headers:
             lines[hn] = text
         prefix, postfix = lines[lnum][:cpos], lines[lnum][cpos:]
@@ -308,7 +308,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         while block.isValid() and top <= ev.rect().bottom():
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
-                text = unicode_type(self.line_number_map.get(num, ''))
+                text = str(self.line_number_map.get(num, ''))
                 is_start = text != '-' and num in change_starts
                 if is_start:
                     painter.save()
@@ -531,7 +531,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False):
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
-        is_text = isinstance(left_text, unicode_type) and isinstance(right_text, unicode_type)
+        is_text = isinstance(left_text, str) and isinstance(right_text, str)
         left_name = left_name or '[%s]'%_('This file was added')
         right_name = right_name or '[%s]'%_('This file was removed')
         self.left.headers.append((self.left.blockCount() - 1, left_name))

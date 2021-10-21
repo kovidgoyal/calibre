@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -15,7 +14,6 @@ import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import unicode_type
 
 from . import open_for_read, open_for_write
 
@@ -58,7 +56,7 @@ class Footnote:
         if self.__first_line:
             self.__first_line_func(line)
         if self.__token_info == 'cw<ci<footnot-mk':
-            num = unicode_type(self.__footnote_count)
+            num = str(self.__footnote_count)
             self.__write_to_foot_obj.write(line)
             self.__write_to_foot_obj.write(
                 'tx<nu<__________<%s\n' % num
@@ -95,7 +93,7 @@ class Footnote:
             self.__found_footnote(line)
         self.__write_obj.write(line)
         if self.__token_info == 'cw<ci<footnot-mk':
-            num = unicode_type(self.__footnote_count + 1)
+            num = str(self.__footnote_count + 1)
             self.__write_obj.write(
                 'tx<nu<__________<%s\n' % num
             )

@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -11,7 +9,7 @@ from qt.core import (
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
 from calibre.ebooks.hyphenate import hyphenate_word
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 WEIGHT_MAP = lambda wt : int((wt/10)-1)
 NULL       = lambda a, b: a
@@ -156,7 +154,7 @@ class ParSkip:
         self.height = parskip
 
     def __str__(self):
-        return 'Parskip: '+unicode_type(self.height)
+        return 'Parskip: '+str(self.height)
 
 
 class TextBlock:
@@ -291,7 +289,7 @@ class TextBlock:
                                                       self.current_style.linespace,
                                                       self.opts.visual_debug)
             if self.height > self.max_y+10:
-                raise TextBlock.HeightExceeded(unicode_type(self.current_line))
+                raise TextBlock.HeightExceeded(str(self.current_line))
             self.lines.append(self.current_line)
             self.current_line = None
 
@@ -321,13 +319,12 @@ class TextBlock:
                 break
 
     def __iter__(self):
-        for line in self.lines:
-            yield line
+        yield from self.lines
 
     def __str__(self):
         s = ''
         for line in self:
-            s += unicode_type(line) + '\n'
+            s += str(line) + '\n'
         return s
 
 
@@ -542,12 +539,12 @@ class Line(QGraphicsItem):
             while True:
                 word = next(words)
                 word.highlight = False
-                if tokens[0] in unicode_type(word.string).lower():
+                if tokens[0] in str(word.string).lower():
                     matches.append(word)
                     for c in range(1, len(tokens)):
                         word = next(words)
                         print(tokens[c], word.string)
-                        if tokens[c] not in unicode_type(word.string):
+                        if tokens[c] not in str(word.string):
                             return None
                         matches.append(word)
                     for w in matches:
@@ -570,11 +567,11 @@ class Line(QGraphicsItem):
             if isinstance(tok, numbers.Number):
                 s += ' '
             elif isinstance(tok, Word):
-                s += unicode_type(tok.string)
+                s += str(tok.string)
         return s
 
     def __str__(self):
-        return unicode_type(self).encode('utf-8')
+        return str(self).encode('utf-8')
 
 
 class Word:

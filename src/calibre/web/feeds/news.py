@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -38,7 +37,7 @@ from calibre.web.fetch.simple import (
     AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser
 )
 from calibre.web.fetch.utils import prepare_masthead_image
-from polyglot.builtins import getcwd, string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 
 def classes(classes):
@@ -712,7 +711,7 @@ class BasicNewsRecipe(Recipe):
             _raw = url_or_raw
         if raw:
             return _raw
-        if not isinstance(_raw, unicode_type) and self.encoding:
+        if not isinstance(_raw, str) and self.encoding:
             if callable(self.encoding):
                 _raw = self.encoding(_raw)
             else:
@@ -721,7 +720,7 @@ class BasicNewsRecipe(Recipe):
             strip_encoding_declarations, xml_to_unicode
         )
         from calibre.utils.cleantext import clean_xml_chars
-        if isinstance(_raw, unicode_type):
+        if isinstance(_raw, str):
             _raw = strip_encoding_declarations(_raw)
         else:
             _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
@@ -898,11 +897,11 @@ class BasicNewsRecipe(Recipe):
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         self.log = ThreadSafeWrapper(log)
-        if not isinstance(self.title, unicode_type):
-            self.title = unicode_type(self.title, 'utf-8', 'replace')
+        if not isinstance(self.title, str):
+            self.title = str(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(getcwd())
+        self.output_dir = os.path.abspath(os.getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -934,9 +933,9 @@ class BasicNewsRecipe(Recipe):
         self.css_map = {}
 
         web2disk_cmdline = ['web2disk',
-            '--timeout', unicode_type(self.timeout),
-            '--max-recursions', unicode_type(self.recursions),
-            '--delay', unicode_type(self.delay),
+            '--timeout', str(self.timeout),
+            '--max-recursions', str(self.recursions),
+            '--delay', str(self.delay),
             ]
 
         if self.verbose:
@@ -1429,7 +1428,7 @@ class BasicNewsRecipe(Recipe):
         '''
         try:
             from calibre.ebooks.covers import create_cover
-            title = self.title if isinstance(self.title, unicode_type) else \
+            title = self.title if isinstance(self.title, str) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt).replace('[', '').replace(']', '')
             img_data = create_cover(title, [date])
@@ -1478,7 +1477,7 @@ class BasicNewsRecipe(Recipe):
                     article_titles.append(force_unicode(a.title, 'utf-8'))
 
         desc = self.description
-        if not isinstance(desc, unicode_type):
+        if not isinstance(desc, str):
             desc = desc.decode('utf-8', 'replace')
         mi.comments = (_('Articles in this issue:'
             ) + '\n\n' + '\n\n'.join(article_titles)) + '\n\n' + desc
@@ -1495,7 +1494,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -1589,7 +1588,7 @@ class BasicNewsRecipe(Recipe):
                             elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode_type(soup).encode('utf-8'))
+                                fi.write(str(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 

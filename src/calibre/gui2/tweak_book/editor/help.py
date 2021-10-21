@@ -26,7 +26,7 @@ class URLMap:
         except KeyError:
             try:
                 self.cache[key] = ans = json.loads(P('editor-help/%s.json' % key, data=True))
-            except EnvironmentError:
+            except OSError:
                 raise KeyError('The mapping %s is not available' % key)
             return ans
 

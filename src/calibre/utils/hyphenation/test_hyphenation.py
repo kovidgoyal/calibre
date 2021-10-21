@@ -40,7 +40,7 @@ class TestHyphenation(unittest.TestCase):
         is_cache_up_to_date.updated = False
         try:
             shutil.rmtree(path_to_dictionary.cache_dir)
-        except EnvironmentError:
+        except OSError:
             pass
         path_to_dictionary.cache_dir = None
 

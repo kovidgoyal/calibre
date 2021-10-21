@@ -14,7 +14,6 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.cleantext import clean_xml_chars
-from polyglot.builtins import unicode_type, getcwd
 from polyglot.urllib import unquote, urlparse
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
@@ -47,7 +46,7 @@ def parse_html_toc(data):
 class TOC(list):
 
     def __init__(self, href=None, fragment=None, text=None, parent=None,
-            play_order=0, base_path=getcwd(), type='unknown', author=None,
+            play_order=0, base_path=os.getcwd(), type='unknown', author=None,
             description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment
@@ -65,7 +64,7 @@ class TOC(list):
     def __str__(self):
         lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
         for child in self:
-            c = unicode_type(child).splitlines()
+            c = str(child).splitlines()
             for l in c:
                 lines.append('\t'+l)
         return '\n'.join(lines)
@@ -115,8 +114,7 @@ class TOC(list):
         'Depth first iteration over the tree rooted at self'
         yield self
         for obj in self:
-            for i in obj.flat():
-                yield i
+            yield from obj.flat()
 
     @property
     def abspath(self):
@@ -243,8 +241,8 @@ class TOC(list):
     def render(self, stream, uid):
         root = E.ncx(
                 E.head(
-                    E.meta(name='dtb:uid', content=unicode_type(uid)),
-                    E.meta(name='dtb:depth', content=unicode_type(self.depth())),
+                    E.meta(name='dtb:uid', content=str(uid)),
+                    E.meta(name='dtb:depth', content=str(self.depth())),
                     E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
                         __version__)),
                     E.meta(name='dtb:totalPageCount', content='0'),
@@ -266,10 +264,10 @@ class TOC(list):
             text = clean_xml_chars(text)
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
-                    E.content(src=unicode_type(np.href)+(('#' + unicode_type(np.fragment))
+                    E.content(src=str(np.href)+(('#' + str(np.fragment))
                         if np.fragment else '')),
                     id=item_id,
-                    playOrder=unicode_type(np.play_order)
+                    playOrder=str(np.play_order)
             )
             au = getattr(np, 'author', None)
             if au:

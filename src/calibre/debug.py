@@ -12,7 +12,7 @@ from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
 from calibre.startup import get_debug_executable
-from polyglot.builtins import exec_path, raw_input, unicode_type, getcwd
+from polyglot.builtins import exec_path
 
 
 def run_calibre_debug(*args, **kw):
@@ -156,7 +156,7 @@ def debug_device_driver():
     from calibre.devices import debug
     debug(ioreg_to_tmp=True, buf=sys.stdout)
     if iswindows:  # no2to3
-        raw_input('Press Enter to continue...')  # no2to3
+        input('Press Enter to continue...')  # no2to3
 
 
 def add_simple_plugin(path_to_plugin):
@@ -164,7 +164,7 @@ def add_simple_plugin(path_to_plugin):
     tdir = tempfile.mkdtemp()
     open(os.path.join(tdir, 'custom_plugin.py'),
             'wb').write(open(path_to_plugin, 'rb').read())
-    odir = getcwd()
+    odir = os.getcwd()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')
     zf.write('custom_plugin.py')
@@ -204,11 +204,11 @@ def print_basic_debug_info(out=None):
             out('Linux:', platform.linux_distribution())
     except:
         pass
-    out('Interface language:', unicode_type(set_translators.lang))
+    out('Interface language:', str(set_translators.lang))
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
         from calibre.customize import PluginInstallationType
-        names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins()
+        names = ('{} {}'.format(p.name, p.version) for p in initialized_plugins()
                  if getattr(p, 'installation_type', None) is not PluginInstallationType.BUILTIN)
         out('Successfully initialized third party plugins:', ' && '.join(names))
 

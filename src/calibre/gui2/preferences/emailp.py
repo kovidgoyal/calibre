@@ -14,7 +14,7 @@ from calibre.gui2.preferences.email_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.smtp import config as smtp_prefs
-from polyglot.builtins import unicode_type, map, as_unicode
+from polyglot.builtins import as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
@@ -177,7 +177,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         c = 0
         while y in self.accounts:
             c += 1
-            y = x + unicode_type(c)
+            y = x + str(c)
         auto_send = len(self.accounts) < 1
         self.beginResetModel()
         self.accounts[y] = ['MOBI, EPUB', auto_send,

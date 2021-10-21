@@ -87,7 +87,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
 <?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
    <rootfiles>
-      <rootfile full-path="{0}" media-type="application/oebps-package+xml"/>
+      <rootfile full-path="{}" media-type="application/oebps-package+xml"/>
    </rootfiles>
 </container>
     '''.format(prepare_string_for_xml(opf_name, True)).encode('utf-8')

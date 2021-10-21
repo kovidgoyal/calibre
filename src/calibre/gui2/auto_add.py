@@ -17,7 +17,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import map
 
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
@@ -107,7 +106,7 @@ class Worker(Thread):
         def safe_mtime(x):
             try:
                 return os.path.getmtime(os.path.join(self.path, x))
-            except EnvironmentError:
+            except OSError:
                 return time.time()
 
         for fname in sorted(files, key=safe_mtime):

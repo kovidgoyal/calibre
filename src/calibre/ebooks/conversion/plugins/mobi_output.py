@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
-from polyglot.builtins import unicode_type
 
 
 def remove_html_cover(oeb, log):
@@ -122,7 +121,7 @@ class MOBIOutput(OutputFormatPlugin):
         if not found:
             from calibre.ebooks import generate_masthead
             self.oeb.log.debug('No masthead found in manifest, generating default mastheadImage...')
-            raw = generate_masthead(unicode_type(self.oeb.metadata['title'][0]))
+            raw = generate_masthead(str(self.oeb.metadata['title'][0]))
             id, href = self.oeb.manifest.generate('masthead', 'masthead')
             self.oeb.manifest.add(id, href, 'image/gif', data=raw)
             self.oeb.guide.add('masthead', 'Masthead Image', href)
@@ -166,7 +165,7 @@ class MOBIOutput(OutputFormatPlugin):
                     sec.nodes.remove(a)
 
             root = TOC(klass='periodical', href=self.oeb.spine[0].href,
-                    title=unicode_type(self.oeb.metadata.title[0]))
+                    title=str(self.oeb.metadata.title[0]))
 
             for s in sections:
                 if articles[id(s)]:

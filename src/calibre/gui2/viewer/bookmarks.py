@@ -17,7 +17,6 @@ from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import range, unicode_type
 
 
 class BookmarksList(QListWidget):
@@ -241,7 +240,7 @@ class BookmarkManager(QWidget):
 
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
-        title = unicode_type(item.data(Qt.ItemDataRole.DisplayRole)) or _('Unknown')
+        title = str(item.data(Qt.ItemDataRole.DisplayRole)) or _('Unknown')
         title = self.uniqify_bookmark_title(title)
         item.setData(Qt.ItemDataRole.DisplayRole, title)
         item.setData(Qt.ItemDataRole.ToolTipRole, title)
@@ -352,7 +351,7 @@ class BookmarkManager(QWidget):
 
         title, ok = QInputDialog.getText(self, _('Add bookmark'),
                 _('Enter title for bookmark:'), text=pos_data.get('selected_text') or default_title)
-        title = unicode_type(title).strip()
+        title = str(title).strip()
         if not ok or not title:
             return
         title = self.uniqify_bookmark_title(title)

@@ -52,7 +52,7 @@ from email.base64mime import body_encode as encode_base64
 from sys import stderr
 from functools import partial
 
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 __all__ = ["SMTPException", "SMTPServerDisconnected", "SMTPResponseException",
            "SMTPSenderRefused", "SMTPRecipientsRefused", "SMTPDataError",
@@ -329,7 +329,7 @@ class SMTP:
                 try:
                     port = int(port)
                 except ValueError:
-                    raise socket.error("nonnumeric port")
+                    raise OSError("nonnumeric port")
         if not port:
             port = self.default_port
         if self.debuglevel > 0:
@@ -349,7 +349,7 @@ class SMTP:
         if hasattr(self, 'sock') and self.sock:
             try:
                 self.sock.sendall(str)
-            except socket.error:
+            except OSError:
                 self.close()
                 raise SMTPServerDisconnected('Server not connected')
         else:
@@ -382,7 +382,7 @@ class SMTP:
         while True:
             try:
                 line = self.file.readline(_MAXLINE + 1)
-            except socket.error as e:
+            except OSError as e:
                 self.close()
                 raise SMTPServerDisconnected("Connection unexpectedly closed: " + str(e))
             if line == '':
@@ -590,7 +590,7 @@ class SMTP:
 
         def encode_cram_md5(challenge, user, password):
             challenge = base64.decodestring(challenge)
-            if isinstance(password, unicode_type):  # Added by Kovid, see http://bugs.python.org/issue5285
+            if isinstance(password, str):  # Added by Kovid, see http://bugs.python.org/issue5285
                 password = password.encode('utf-8')
             response = user + " " + hmac.HMAC(password, challenge).hexdigest()
             return encode_base64(response, eol="")
@@ -868,7 +868,7 @@ class LMTP(SMTP):
         try:
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.sock.connect(host)
-        except socket.error:
+        except OSError:
             if self.debuglevel > 0:
                 self.debug('connect fail:', host)
             if self.sock:

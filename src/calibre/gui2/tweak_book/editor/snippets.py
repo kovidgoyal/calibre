@@ -25,11 +25,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import (
-    codepoint_to_chr, iteritems, itervalues, range, unicode_type
-)
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
 
-string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+string_length = lambda x: strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key.Key_J
 MODIFIER = Qt.Modifier.META if ismacos else Qt.Modifier.CTRL
 
@@ -107,7 +105,7 @@ def escape_funcs():
     return escape, unescape
 
 
-class TabStop(unicode_type):
+class TabStop(str):
 
     def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):
         if raw.endswith('}'):
@@ -118,7 +116,7 @@ class TabStop(unicode_type):
             for c in child_stops:
                 c.parent = self
             tab_stops.extend(child_stops)
-            self = unicode_type.__new__(self, uraw)
+            self = str.__new__(self, uraw)
             if num.endswith('*'):
                 self.takes_selection = True
                 num = num[:-1]
@@ -126,7 +124,7 @@ class TabStop(unicode_type):
                 self.takes_selection = False
             self.num = int(num)
         else:
-            self = unicode_type.__new__(self, '')
+            self = str.__new__(self, '')
             self.num = int(raw[1:])
             self.takes_selection = False
         self.start = start_offset
@@ -138,7 +136,7 @@ class TabStop(unicode_type):
 
     def __repr__(self):
         return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
-            unicode_type.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
+            str.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
 
 
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
@@ -177,7 +175,7 @@ def snippets(refresh=False):
     if _snippets is None or refresh:
         _snippets = copy.deepcopy(builtin_snippets)
         for snip in user_snippets.get('snippets', []):
-            if snip['trigger'] and isinstance(snip['trigger'], unicode_type):
+            if snip['trigger'] and isinstance(snip['trigger'], str):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
         _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)

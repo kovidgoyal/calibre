@@ -28,7 +28,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
-from polyglot.builtins import as_bytes, filter, iteritems, unicode_type
+from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import unquote_plus, urlencode
 
 
@@ -37,7 +37,7 @@ def atom(ctx, rd, endpoint, output):
     rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
-    elif isinstance(output, unicode_type):
+    elif isinstance(output, str):
         ans = output.encode('utf-8')
     else:
         ans = etree.tostring(output, encoding='utf-8', xml_declaration=True, pretty_print=True)
@@ -144,7 +144,7 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
     id_ = 'calibre:category:'+item.name
     iid = 'N' + item.name
     if item.id is not None:
-        iid = 'I' + unicode_type(item.id)
+        iid = 'I' + str(item.id)
         iid += ':'+item_kind
     href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
     link = NAVLINK(href=href)
@@ -203,9 +203,9 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                                     fm['is_multiple']['ui_to_list'],
                                     joinval=fm['is_multiple']['list_to_ui']))))
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
-                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode_type(val))))
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(str(val))))
             else:
-                extra.append('%s: %s<br />'%(xml(name), xml(unicode_type(val))))
+                extra.append('%s: %s<br />'%(xml(name), xml(str(val))))
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
@@ -228,7 +228,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                 link = E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition")
                 ffm = fm.get(fmt.upper())
                 if ffm:
-                    link.set('length', unicode_type(ffm['size']))
+                    link.set('length', str(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
@@ -571,7 +571,7 @@ def opds_category(ctx, rd, category, which):
     ids = rc.db.get_books_for_category(q, which) & rc.allowed_book_ids()
     sort_by = 'series' if category == 'series' else 'title'
 
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+unicode_type(which), sort_by=sort_by)
+    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+str(which), sort_by=sort_by)
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)

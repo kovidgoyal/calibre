@@ -13,7 +13,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.utils import panose_to_css_generic_family, is_truetype_font
 from calibre.utils.icu import ord_string
-from polyglot.builtins import codepoint_to_chr, iteritems, range
+from polyglot.builtins import codepoint_to_chr, iteritems
 
 Embed = namedtuple('Embed', 'name key subsetted')
 

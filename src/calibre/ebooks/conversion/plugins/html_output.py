@@ -1,5 +1,3 @@
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
@@ -10,7 +8,6 @@ from os.path import dirname, abspath, relpath as _relpath, exists, basename
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
-from polyglot.builtins import unicode_type
 
 
 def relpath(*args):
@@ -140,7 +137,7 @@ class HTMLOutput(OutputFormatPlugin):
                     toc=html_toc, meta=meta, nextLink=nextLink,
                     tocUrl=tocUrl, cssLink=cssLink,
                     firstContentPageLink=nextLink)
-            if isinstance(t, unicode_type):
+            if isinstance(t, str):
                 t = t.encode('utf-8')
             f.write(t)
 

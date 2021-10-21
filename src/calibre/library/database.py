@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -15,7 +13,6 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
-from polyglot.builtins import unicode_type, filter, map
 
 
 class Concatenate:
@@ -55,7 +52,7 @@ class Connection(sqlite.Connection):
 
 
 def _connect(path):
-    if isinstance(path, unicode_type):
+    if isinstance(path, str):
         path = path.encode('utf-8')
     conn =  sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
@@ -1384,8 +1381,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def get_feeds(self):
         feeds = self.conn.get('SELECT title, script FROM feeds')
-        for title, script in feeds:
-            yield title, script
+        yield from feeds
 
     def get_feed(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=%d'%id,

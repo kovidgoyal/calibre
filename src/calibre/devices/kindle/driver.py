@@ -15,7 +15,7 @@ from calibre.constants import DEBUG, filesystem_encoding
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
-from polyglot.builtins import unicode_type, as_bytes, as_unicode
+from polyglot.builtins import as_bytes, as_unicode
 
 '''
 Notes on collections:
@@ -232,7 +232,7 @@ class KINDLE(USBMS):
                     pr=percent_read)
         else:
             markup = _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
-                    time=strftime(u'%x', timestamp.timetuple()),
+                    time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
         spanTag = BeautifulSoup('<span style="font-weight:bold">' + markup + '</span>').find('span')
@@ -313,7 +313,7 @@ class KINDLE(USBMS):
                                             bm.value.path, index_is_id=True)
         elif bm.type == 'kindle_clippings':
             # Find 'My Clippings' author=Kindle in database, or add
-            last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
+            last_update = 'Last modified %s' % strftime('%x %X',bm.value['timestamp'].timetuple())
             mc_id = list(db.data.search_getting_ids('title:"My Clippings"', '', sort_results=False))
             if mc_id:
                 db.add_format_with_hooks(mc_id[0], 'TXT', bm.value['path'],
@@ -524,7 +524,7 @@ class KINDLE2(KINDLE):
             cache_dir = self.amazon_cover_bug_cache_dir()
             try:
                 os.mkdir(cache_dir)
-            except EnvironmentError:
+            except OSError:
                 pass
             with lopen(os.path.join(cache_dir, os.path.basename(tp)), 'wb') as f:
                 f.write(coverdata[2])
@@ -545,7 +545,7 @@ class KINDLE2(KINDLE):
             dest_path = os.path.join(dest_dir, name)
             try:
                 dest_stat_result = os.lstat(dest_path)
-            except EnvironmentError:
+            except OSError:
                 needs_sync = True
             else:
                 needs_sync = src_stat_result.st_size != dest_stat_result.st_size
@@ -567,7 +567,7 @@ class KINDLE2(KINDLE):
                 for tp in (tp1, tp2):
                     try:
                         os.remove(tp)
-                    except EnvironmentError as err:
+                    except OSError as err:
                         if err.errno != errno.ENOENT:
                             prints('Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
         except Exception:
@@ -610,7 +610,7 @@ class KINDLE2(KINDLE):
                 cust_col_name = opts.extra_customization[self.OPT_APNX_METHOD_COL]
                 if cust_col_name:
                     try:
-                        temp = unicode_type(metadata.get(cust_col_name)).lower()
+                        temp = str(metadata.get(cust_col_name)).lower()
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:

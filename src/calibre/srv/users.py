@@ -78,7 +78,7 @@ def connect(path, exc_class=ValueError):
             raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
         try:
             os.makedirs(pdir)
-        except EnvironmentError as e:
+        except OSError as e:
             raise exc_class('Failed to make directory for userdb database at {} with error: {}'.format(pdir, as_unicode(e)))
         try:
             return apsw.Connection(path)

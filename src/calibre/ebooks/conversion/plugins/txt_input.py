@@ -9,7 +9,6 @@ import os
 
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import getcwd
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
@@ -143,7 +142,7 @@ class TXTInput(InputFormatPlugin):
         txt = b''
         log.debug('Reading text from file...')
         length = 0
-        base_dir = self.output_dir = getcwd()
+        base_dir = self.output_dir = os.getcwd()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':

@@ -1,11 +1,10 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems, filter, getcwd, as_bytes
+from polyglot.builtins import iteritems, as_bytes
 
 border_style_map = {
         'single' : 'solid',
@@ -54,12 +53,12 @@ class RTFInput(InputFormatPlugin):
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-        ofile = u'dataxml.xml'
+        ofile = 'dataxml.xml'
         run_lev, debug_dir, indent_out = 1, None, 0
         if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
-                os.mkdir(u'rtfdebug')
-                debug_dir = u'rtfdebug'
+                os.mkdir('rtfdebug')
+                debug_dir = 'rtfdebug'
                 run_lev = 4
                 indent_out = 1
                 self.log('Running RTFParser in debug mode')
@@ -137,7 +136,7 @@ class RTFInput(InputFormatPlugin):
             if fmt is None:
                 fmt = 'wmf'
             count += 1
-            name = u'%04d.%s' % (count, fmt)
+            name = '%04d.%s' % (count, fmt)
             with open(name, 'wb') as f:
                 f.write(data)
             imap[count] = name
@@ -215,7 +214,7 @@ class RTFInput(InputFormatPlugin):
         for cls, val in iteritems(border_styles):
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
-        with open(u'styles.css', 'ab') as f:
+        with open('styles.css', 'ab') as f:
             f.write(css.encode('utf-8'))
 
     def convert_borders(self, doc):
@@ -286,7 +285,7 @@ class RTFInput(InputFormatPlugin):
         extensions = {('calibre', 'inline-class') : inline_class}
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
-        html = u'index.xhtml'
+        html = 'index.xhtml'
         with open(html, 'wb') as f:
             res = as_bytes(transform.tostring(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
@@ -304,11 +303,11 @@ class RTFInput(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(getcwd(), mi)
-        opf.create_manifest([(u'index.xhtml', None)])
-        opf.create_spine([u'index.xhtml'])
-        opf.render(open(u'metadata.opf', 'wb'))
-        return os.path.abspath(u'metadata.opf')
+        opf = OPFCreator(os.getcwd(), mi)
+        opf.create_manifest([('index.xhtml', None)])
+        opf.create_spine(['index.xhtml'])
+        opf.render(open('metadata.opf', 'wb'))
+        return os.path.abspath('metadata.opf')
 
     def postprocess_book(self, oeb, opts, log):
         for item in oeb.spine:

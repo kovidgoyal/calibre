@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, sys, json
 from collections import deque
 from operator import attrgetter
-from polyglot.builtins import itervalues, map, unicode_type
+from polyglot.builtins import itervalues
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
@@ -73,7 +73,7 @@ class FileOrFolder:
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
         try:
-            path = unicode_type(self.full_path)
+            path = str(self.full_path)
         except:
             path = ''
         datum = 'size=%s'%(self.size)
@@ -108,10 +108,8 @@ class FileOrFolder:
         return tuple(parts)
 
     def __iter__(self):
-        for e in self.folders:
-            yield e
-        for e in self.files:
-            yield e
+        yield from self.folders
+        yield from self.files
 
     def add_child(self, entry):
         ans = FileOrFolder(entry, self.fs_cache())

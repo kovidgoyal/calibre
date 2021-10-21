@@ -9,7 +9,7 @@ import os
 import posixpath
 from collections import namedtuple
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, map, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 from lxml import etree
 
@@ -34,7 +34,7 @@ def get_image_margins(style):
     ans = {}
     for edge in 'Left Right Top Bottom'.split():
         val = as_num(getattr(style, 'padding' + edge)) + as_num(getattr(style, 'margin' + edge))
-        ans['dist' + edge[0]] = unicode_type(pt_to_emu(val))
+        ans['dist' + edge[0]] = str(pt_to_emu(val))
     return ans
 
 
@@ -131,7 +131,7 @@ class ImagesManager:
             makeelement(parent, 'wp:simplePos', x='0', y='0')
             makeelement(makeelement(parent, 'wp:positionH', relativeFrom='margin'), 'wp:align').text = floating
             makeelement(makeelement(parent, 'wp:positionV', relativeFrom='line'), 'wp:align').text = 'top'
-        makeelement(parent, 'wp:extent', cx=unicode_type(width), cy=unicode_type(height))
+        makeelement(parent, 'wp:extent', cx=str(width), cy=str(height))
         if fake_margins:
             # DOCX does not support setting margins for inline images, so we
             # fake it by using effect extents to simulate margins
@@ -149,7 +149,7 @@ class ImagesManager:
 
     def create_docx_image_markup(self, parent, name, alt, img_rid, width, height):
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
-        makeelement(parent, 'wp:docPr', id=unicode_type(self.count), name=name, descr=alt)
+        makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=alt)
         makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
         g = makeelement(parent, 'a:graphic')
         gd = makeelement(g, 'a:graphicData', uri=namespaces['pic'])
@@ -162,7 +162,7 @@ class ImagesManager:
         makeelement(makeelement(bf, 'a:stretch'), 'a:fillRect')
         spPr = makeelement(pic, 'pic:spPr')
         xfrm = makeelement(spPr, 'a:xfrm')
-        makeelement(xfrm, 'a:off', x='0', y='0'), makeelement(xfrm, 'a:ext', cx=unicode_type(width), cy=unicode_type(height))
+        makeelement(xfrm, 'a:off', x='0', y='0'), makeelement(xfrm, 'a:ext', cx=str(width), cy=str(height))
         makeelement(makeelement(spPr, 'a:prstGeom', prst='rect'), 'a:avLst')
 
     def create_filename(self, href, fmt):
@@ -173,7 +173,7 @@ class ImagesManager:
         base = fname
         while fname.lower() in self.seen_filenames:
             num += 1
-            fname = base + unicode_type(num)
+            fname = base + str(num)
         self.seen_filenames.add(fname.lower())
         fname += os.extsep + fmt.lower()
         return fname
@@ -208,7 +208,7 @@ class ImagesManager:
         makeelement(makeelement(parent, 'wp:positionH', relativeFrom='page'), 'wp:align').text = 'center'
         makeelement(makeelement(parent, 'wp:positionV', relativeFrom='page'), 'wp:align').text = 'center'
         width, height = map(pt_to_emu, (width, height))
-        makeelement(parent, 'wp:extent', cx=unicode_type(width), cy=unicode_type(height))
+        makeelement(parent, 'wp:extent', cx=str(width), cy=str(height))
         makeelement(parent, 'wp:effectExtent', l='0', r='0', t='0', b='0')
         makeelement(parent, 'wp:wrapTopAndBottom')
         self.create_docx_image_markup(parent, 'cover.jpg', _('Cover'), img.rid, width, height)

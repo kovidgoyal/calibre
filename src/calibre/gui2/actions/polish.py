@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, weakref, shutil, textwrap
 from collections import OrderedDict
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, map, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 from qt.core import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
@@ -159,7 +159,7 @@ class Polish(QDialog):  # {{{
         name, ok = QInputDialog.getText(self, _('Choose name'),
                 _('Choose a name for these settings'))
         if ok:
-            name = unicode_type(name).strip()
+            name = str(name).strip()
             if name:
                 settings = {ac:getattr(self, 'opt_'+ac).isChecked() for ac in
                             self.all_actions}
@@ -198,7 +198,7 @@ class Polish(QDialog):  # {{{
             self.help_label.setText(self.help_text[name])
 
     def help_link_activated(self, link):
-        link = unicode_type(link)[1:]
+        link = str(link)[1:]
         self.help_label.setText(self.help_text[link])
 
     @property
@@ -238,7 +238,7 @@ class Polish(QDialog):  # {{{
                                 show=True)
         gprefs['polishing_settings'] = saved_prefs
         self.queue_files()
-        return super(Polish, self).accept()
+        return super().accept()
 
     def queue_files(self):
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
@@ -272,7 +272,7 @@ class Polish(QDialog):  # {{{
             QTimer.singleShot(0, self.do_one)
 
     def do_book(self, num, book_id, formats):
-        base = os.path.join(self.tdir, unicode_type(book_id))
+        base = os.path.join(self.tdir, str(book_id))
         os.mkdir(base)
         db = self.db()
         opf = os.path.join(base, 'metadata.opf')
@@ -390,7 +390,7 @@ class Report(QDialog):  # {{{
         if self.reports:
             self.show_next()
             return
-        super(Report, self).accept()
+        super().accept()
 
     def reject(self):
         if self.ign.isChecked():
@@ -398,7 +398,7 @@ class Report(QDialog):  # {{{
         if self.reports:
             self.show_next()
             return
-        super(Report, self).reject()
+        super().reject()
 # }}}
 
 

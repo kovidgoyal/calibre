@@ -11,7 +11,7 @@ from textwrap import TextWrapper
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
-from polyglot.builtins import as_bytes, iteritems, map, unicode_type
+from polyglot.builtins import as_bytes, iteritems
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -123,10 +123,10 @@ def prepare_output_table(fields, book_ids, data, metadata):
         ans.append(row)
         for field in fields:
             if field == 'id':
-                row.append(unicode_type(book_id))
+                row.append(str(book_id))
                 continue
             val = data.get(field.replace('*', '#'), {}).get(book_id)
-            row.append(unicode_type(val).replace('\n', ' '))
+            row.append(str(val).replace('\n', ' '))
     return ans
 
 
@@ -308,7 +308,7 @@ List the books available in the calibre database.
 def main(opts, args, dbctx):
     afields = set(FIELDS) | {'id'}
     if opts.fields.strip():
-        fields = [unicode_type(f.strip().lower()) for f in opts.fields.split(',')]
+        fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     else:
         fields = []
 

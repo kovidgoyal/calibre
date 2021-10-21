@@ -10,7 +10,6 @@ from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
 
 
 class FontKeyChooser(QDialog, Ui_Dialog):
@@ -67,7 +66,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
     @property
     def fsizes(self):
-        key = unicode_type(self.font_size_key.text()).strip()
+        key = str(self.font_size_key.text()).strip()
         return [float(x.strip()) for x in key.split(',' if ',' in key else ' ') if x.strip()]
 
     @property

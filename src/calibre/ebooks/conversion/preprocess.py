@@ -10,7 +10,6 @@ import functools, re, json
 from math import ceil
 
 from calibre import entity_to_unicode, as_unicode
-from polyglot.builtins import unicode_type, range
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -75,8 +74,8 @@ def smarten_punctuation(html, log=None):
     from calibre.ebooks.conversion.utils import HeuristicProcessor
     preprocessor = HeuristicProcessor(log=log)
     from uuid import uuid4
-    start = 'calibre-smartypants-'+unicode_type(uuid4())
-    stop = 'calibre-smartypants-'+unicode_type(uuid4())
+    start = 'calibre-smartypants-'+str(uuid4())
+    stop = 'calibre-smartypants-'+str(uuid4())
     html = html.replace('<!--', start)
     html = html.replace('-->', stop)
     html = preprocessor.fix_nbsp_indents(html)
@@ -152,20 +151,20 @@ class DocAnalysis:
         maxLineLength=1900  # Discard larger than this to stay in range
         buckets=20  # Each line is divided into a bucket based on length
 
-        # print("there are "+unicode_type(len(lines))+" lines")
+        # print("there are "+str(len(lines))+" lines")
         # max = 0
         # for line in self.lines:
         #    l = len(line)
         #    if l > max:
         #        max = l
-        # print("max line found is "+unicode_type(max))
+        # print("max line found is "+str(max))
         # Build the line length histogram
         hRaw = [0 for i in range(0,buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
                 l = int(l // 100)
-                # print("adding "+unicode_type(l))
+                # print("adding "+str(l))
                 hRaw[l]+=1
 
         # Normalize the histogram into percents
@@ -174,8 +173,8 @@ class DocAnalysis:
             h = [float(count)/totalLines for count in hRaw]
         else:
             h = []
-        # print("\nhRaw histogram lengths are: "+unicode_type(hRaw))
-        # print("              percents are: "+unicode_type(h)+"\n")
+        # print("\nhRaw histogram lengths are: "+str(hRaw))
+        # print("              percents are: "+str(h)+"\n")
 
         # Find the biggest bucket
         maxValue = 0
@@ -187,7 +186,7 @@ class DocAnalysis:
             # print("Line lengths are too variable. Not unwrapping.")
             return False
         else:
-            # print(unicode_type(maxValue)+" of the lines were in one bucket")
+            # print(str(maxValue)+" of the lines were in one bucket")
             return True
 
 
@@ -223,8 +222,8 @@ class Dehyphenator:
             wraptags = match.group('wraptags')
         except:
             wraptags = ''
-        hyphenated = unicode_type(firsthalf) + "-" + unicode_type(secondhalf)
-        dehyphenated = unicode_type(firsthalf) + unicode_type(secondhalf)
+        hyphenated = str(firsthalf) + "-" + str(secondhalf)
+        dehyphenated = str(firsthalf) + str(secondhalf)
         if self.suffixes.match(secondhalf) is None:
             lookupword = self.removesuffixes.sub('', dehyphenated)
         else:
@@ -330,7 +329,7 @@ class CSSPreProcessor:
         # are commented lines before the first @import or @charset rule. Since
         # the conversion will remove all stylesheets anyway, we don't lose
         # anything
-        data = re.sub(unicode_type(r'/\*.*?\*/'), '', data, flags=re.DOTALL)
+        data = re.sub(r'/\*.*?\*/', '', data, flags=re.DOTALL)
 
         ans, namespaced = [], False
         for line in data.splitlines():
@@ -538,7 +537,7 @@ class HTMLPreProcessor:
             docanalysis = DocAnalysis('pdf', html)
             length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
-                # print("The pdf line length returned is " + unicode_type(length))
+                # print("The pdf line length returned is " + str(length))
                 # unwrap em/en dashes
                 end_rules.append((re.compile(
                     r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))

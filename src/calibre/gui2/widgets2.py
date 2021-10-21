@@ -19,7 +19,6 @@ from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
 
@@ -50,7 +49,7 @@ class HistoryMixin:
         return history.get(self.store_name, [])
 
     def save_history(self):
-        ct = unicode_type(self.text())
+        ct = str(self.text())
         if len(ct) >= self.min_history_entry_length:
             try:
                 self.history.remove(ct)
@@ -104,7 +103,7 @@ class ColorButton(QPushButton):
 
     @color.setter
     def color(self, val):
-        val = unicode_type(val or '')
+        val = str(val or '')
         col = QColor(val)
         orig = self._color
         if col.isValid():
@@ -123,7 +122,7 @@ class ColorButton(QPushButton):
     def choose_color(self):
         col = QColorDialog.getColor(QColor(self._color or Qt.GlobalColor.white), self, _('Choose a color'))
         if col.isValid():
-            self.color = unicode_type(col.name())
+            self.color = str(col.name())
 
 
 def access_key(k):
@@ -540,7 +539,7 @@ class HTMLDisplay(QTextBrowser):
             try:
                 with lopen(path, 'rb') as f:
                     data = f.read()
-            except EnvironmentError:
+            except OSError:
                 if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
                     return QByteArray(bytearray.fromhex(
                         '89504e470d0a1a0a0000000d49484452'

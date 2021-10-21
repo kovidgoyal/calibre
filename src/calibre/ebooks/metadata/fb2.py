@@ -21,7 +21,6 @@ from calibre.utils.imghdr import identify
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import unicode_type
 from polyglot.binary import as_base64_unicode
 
 
@@ -117,7 +116,7 @@ def get_metadata(stream):
 
     # fallback for book_title
     if book_title:
-        book_title = unicode_type(book_title)
+        book_title = str(book_title)
     else:
         book_title = force_unicode(os.path.splitext(
             os.path.basename(getattr(stream, 'name',
@@ -254,7 +253,7 @@ def _parse_tags(root, mi, ctx):
         # -- i18n Translations-- ?
         tags = ctx.XPath('//fb:%s/fb:genre/text()' % genre_sec)(root)
         if tags:
-            mi.tags = list(map(unicode_type, tags))
+            mi.tags = list(map(str, tags))
             break
 
 
@@ -306,7 +305,7 @@ def _parse_pubdate(root, mi, ctx):
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
-        mi.pubdate = parse_only_date(unicode_type(int(year)))
+        mi.pubdate = parse_only_date(str(int(year)))
 
 
 def _parse_language(root, mi, ctx):

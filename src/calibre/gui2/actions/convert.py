@@ -91,7 +91,7 @@ class ConvertAction(InterfaceAction):
         of = prefs['output_format'].lower()
         for book_id in book_ids:
             fmts = db.formats(book_id, index_is_id=True)
-            fmts = set(x.lower() for x in fmts.split(',')) if fmts else set()
+            fmts = {x.lower() for x in fmts.split(',')} if fmts else set()
             if gprefs['auto_convert_same_fmt'] or of not in fmts:
                 needed.add(book_id)
         if needed:

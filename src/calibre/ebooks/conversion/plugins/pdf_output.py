@@ -14,7 +14,7 @@ import glob, os
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 UNITS = ('millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
         'cicero', 'devicepixel')
@@ -193,8 +193,8 @@ class PDFOutput(OutputFormatPlugin):
 
     def get_cover_data(self):
         oeb = self.oeb
-        if (oeb.metadata.cover and unicode_type(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            cover_id = unicode_type(oeb.metadata.cover[0])
+        if (oeb.metadata.cover and str(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = str(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
             if isinstance(item.data, bytes):
                 self.cover_data = item.data

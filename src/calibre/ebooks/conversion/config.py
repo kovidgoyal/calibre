@@ -13,7 +13,6 @@ from calibre.utils.lock import ExclusiveFile
 from calibre import sanitize_file_name
 from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import available_output_formats
-from polyglot.builtins import unicode_type
 
 
 config_dir = os.path.join(config_dir, 'conversion')
@@ -71,7 +70,7 @@ class GuiRecommendations(dict):
 
     def __new__(cls, *args):
         dict.__new__(cls)
-        obj = super(GuiRecommendations, cls).__new__(cls, *args)
+        obj = super().__new__(cls, *args)
         obj.disabled_options = set()
         return obj
 
@@ -90,7 +89,7 @@ class GuiRecommendations(dict):
 
     def serialize(self):
         ans = json.dumps(self, indent=2, ensure_ascii=False)
-        if isinstance(ans, unicode_type):
+        if isinstance(ans, str):
             ans = ans.encode('utf-8')
         return b'json:' + ans
 

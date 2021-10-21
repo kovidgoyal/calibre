@@ -27,7 +27,7 @@ from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import iteritems, itervalues, map, range, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
@@ -52,7 +52,7 @@ class LineEdit(EditWithComplete):
 
     @property
     def value(self):
-        val = unicode_type(self.text()).strip()
+        val = str(self.text()).strip()
         ism = self.metadata['is_multiple']
         if ism:
             if not val:
@@ -87,7 +87,7 @@ class LineEdit(EditWithComplete):
 
     @property
     def current_val(self):
-        return unicode_type(self.text())
+        return str(self.text())
 
     @current_val.setter
     def current_val(self, val):
@@ -221,7 +221,7 @@ class SeriesEdit(LineEdit):
         self.setCursorPosition(0)
 
     def to_mi(self, mi):
-        val = unicode_type(self.text()).strip()
+        val = str(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
         except:
@@ -392,7 +392,7 @@ class CoverView(QWidget):
             f = p.font()
             f.setBold(True)
             p.setFont(f)
-            sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
+            sz = '\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
             flags = int(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine)
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
@@ -705,7 +705,7 @@ class CompareMany(QDialog):
     def accept(self):
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
         self.compare_widget.save_comments_controls_state()
-        super(CompareMany, self).accept()
+        super().accept()
 
     def reject(self):
         if self.stack.currentIndex() == 1:
@@ -717,7 +717,7 @@ class CompareMany(QDialog):
             return
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
         self.compare_widget.save_comments_controls_state()
-        super(CompareMany, self).reject()
+        super().reject()
 
     @property
     def current_mi(self):

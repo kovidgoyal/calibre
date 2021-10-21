@@ -20,7 +20,7 @@ from calibre.web.feeds.recipes.collection import (
     get_custom_recipe_collection, remove_custom_recipe, update_custom_recipe,
     update_custom_recipes
 )
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class NewsTreeItem:
@@ -163,8 +163,8 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         try:
             with zipfile.ZipFile(P('builtin_recipes.zip',
                     allow_user_override=False), 'r') as zf:
-                self.favicons = dict([(x.filename, x) for x in zf.infolist() if
-                    x.filename.endswith('.png')])
+                self.favicons = {x.filename: x for x in zf.infolist() if
+                    x.filename.endswith('.png')}
         except:
             self.favicons = {}
         self.do_refresh()
@@ -309,7 +309,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def search(self, query):
         results = []
         try:
-            query = unicode_type(query).strip()
+            query = str(query).strip()
             if query:
                 results = self.parse(query)
                 if not results:

@@ -69,9 +69,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import (
-    as_bytes, iteritems, itervalues, map, string_or_bytes, unicode_type
-)
+from polyglot.builtins import as_bytes, iteritems, itervalues, string_or_bytes
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -390,7 +388,7 @@ class Boss(QObject):
                     import traceback
                     traceback.print_exc()
             if ef:
-                if isinstance(ef, unicode_type):
+                if isinstance(ef, str):
                     ef = [ef]
                 tuple(map(self.gui.file_list.request_edit, ef))
             else:
@@ -1445,7 +1443,7 @@ class Boss(QObject):
             if '/' in name or os.sep in name:
                 try:
                     os.makedirs(os.path.dirname(dest))
-                except EnvironmentError as err:
+                except OSError as err:
                     if err.errno != errno.EEXIST:
                         raise
             self.export_file(name, dest)

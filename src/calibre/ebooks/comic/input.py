@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -16,7 +14,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from polyglot.builtins import unicode_type, map
 from polyglot.queue import Empty
 
 # If the specified screen has either dimension larger than this value, no image
@@ -29,7 +26,7 @@ def extract_comic(path_to_comic_file):
     Un-archive the comic file.
     '''
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
-    if not isinstance(tdir, unicode_type):
+    if not isinstance(tdir, str):
         # Needed in case the zip file has wrongly encoded unicode file/dir
         # names
         tdir = tdir.decode(filesystem_encoding)

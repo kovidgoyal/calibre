@@ -77,8 +77,7 @@ class FormatCollection:  # {{{
         return len(self) == 0
 
     def __iter__(self):
-        for x in self.path_map:
-            yield x
+        yield from self.path_map
 
     def __len__(self):
         return len(self.path_map)

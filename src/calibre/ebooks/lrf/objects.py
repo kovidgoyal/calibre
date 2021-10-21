@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, io, collections, re
@@ -7,7 +5,6 @@ import struct, array, zlib, io, collections, re
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre import entity_to_unicode, prepare_string_for_xml
 from calibre.ebooks.lrf.tags import Tag
-from polyglot.builtins import unicode_type
 
 ruby_tags = {
         0xF575: ['rubyAlignAndAdjust', 'W'],
@@ -83,11 +80,10 @@ class LRFObject:
             if h[1] != '' and h[0] != '':
                 setattr(self, h[0], val)
         else:
-            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, unicode_type(tag)))
+            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
 
     def __iter__(self):
-        for i in range(0):
-            yield i
+        yield from range(0)
 
     def __str__(self):
         return self.__class__.__name__
@@ -121,17 +117,16 @@ class LRFContentObject(LRFObject):
     def handle_tag(self, tag):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
-            if isinstance(action, unicode_type):
+            if isinstance(action, str):
                 func, args = action, ()
             else:
                 func, args = action[0], (action[1],)
             getattr(self, func)(tag, *args)
         else:
-            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, unicode_type(tag)))
+            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
 
 class LRFStream(LRFObject):
@@ -266,11 +261,10 @@ class Color:
 class EmptyPageElement:
 
     def __iter__(self):
-        for i in range(0):
-            yield i
+        yield from range(0)
 
     def __str__(self):
-        return unicode_type(self)
+        return str(self)
 
 
 class PageDiv(EmptyPageElement):
@@ -419,13 +413,12 @@ class Page(LRFStream):
         self.content = Page.Content(self.stream, self._document.objects)
 
     def __iter__(self):
-        for i in self.content:
-            yield i
+        yield from self.content
 
     def __str__(self):
         s = '\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
         for i in self:
-            s += unicode_type(i)
+            s += str(i)
         s += '\n</Page>\n'
         return s
 
@@ -470,7 +463,7 @@ class BlockAttr(StyleObject, LRFObject):
             return ans
 
         if hasattr(obj, 'sidemargin'):
-            margin = unicode_type(obj.sidemargin) + 'px'
+            margin = str(obj.sidemargin) + 'px'
             ans += item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
         if hasattr(obj, 'topskip'):
             ans += item('margin-top: %dpx;'%obj.topskip)
@@ -612,7 +605,7 @@ class Block(LRFStream, TextCSS):
             s += '%s="%s" '%(attr, self.attrs[attr])
         if self.name != 'ImageBlock':
             s = s.rstrip()+'>\n'
-            s += unicode_type(self.content)
+            s += str(self.content)
             s += '</%s>\n'%(self.name,)
             return s
         return s.rstrip() + ' />\n'
@@ -710,7 +703,7 @@ class Text(LRFStream):
     lineposition_map = {1:'before', 2:'after'}
 
     def add_text(self, text):
-        s = unicode_type(text, "utf-16-le")
+        s = str(text, "utf-16-le")
         if s:
             s = s.translate(self.text_map)
             self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
@@ -850,7 +843,7 @@ class Text(LRFStream):
                 self.add_text(stream.read(tag.word))
             elif tag.id in self.__class__.text_tags:  # A Text tag
                 action = self.__class__.text_tags[tag.id]
-                if isinstance(action, unicode_type):
+                if isinstance(action, str):
                     getattr(self, action)(tag, stream)
                 else:
                     getattr(self, action[0])(tag, action[1])
@@ -874,14 +867,14 @@ class Text(LRFStream):
         s = ''
         open_containers = collections.deque()
         for c in self.content:
-            if isinstance(c, unicode_type):
+            if isinstance(c, str):
                 s += prepare_string_for_xml(c).replace('\0', '')
             elif c is None:
                 if open_containers:
                     p = open_containers.pop()
                     s += '</%s>'%(p.name,)
             else:
-                s += unicode_type(c)
+                s += str(c)
                 if not c.self_closing:
                     open_containers.append(c)
 
@@ -897,7 +890,7 @@ class Text(LRFStream):
         open_containers = collections.deque()
         in_p = False
         for c in self.content:
-            if isinstance(c, unicode_type):
+            if isinstance(c, str):
                 s += c
             elif c is None:
                 p = open_containers.pop()
@@ -992,13 +985,12 @@ class Canvas(LRFStream):
             s += '%s="%s" '%(attr, self.attrs[attr])
         s = s.rstrip() + '>\n'
         for po in self:
-            s += unicode_type(po) + '\n'
+            s += str(po) + '\n'
         s += '</%s>\n'%(self.__class__.__name__,)
         return s
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
 
 class Header(Canvas):
@@ -1025,7 +1017,7 @@ class ImageStream(LRFStream):
 
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
-        self.file = unicode_type(self.id) + '.' + self.encoding.lower()
+        self.file = str(self.id) + '.' + self.encoding.lower()
         if self._document is not None:
             self._document.image_map[self.id] = self
 
@@ -1189,7 +1181,7 @@ class BookAttr(StyleObject, LRFObject):
         s += '<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
         (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth)
         for font in self._document.font_map.values():
-            s += unicode_type(font)
+            s += str(font)
         s += '</BookStyle>\n'
         return s
 
@@ -1224,13 +1216,12 @@ class TOCObject(LRFStream):
             c -= 1
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
     def __str__(self):
         s = '<TOC>\n'
         for i in self:
-            s += unicode_type(i)
+            s += str(i)
         return s + '</TOC>\n'
 
 

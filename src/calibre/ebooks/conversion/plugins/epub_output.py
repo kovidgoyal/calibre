@@ -12,7 +12,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import unicode_type, filter, map, zip, range, as_bytes
+from polyglot.builtins import as_bytes
 
 block_level_tags = (
       'address',
@@ -225,15 +225,15 @@ class EPUBOutput(OutputFormatPlugin):
         identifiers = oeb.metadata['identifier']
         uuid = None
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
-                uuid = unicode_type(x).split(':')[-1]
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or str(x).startswith('urn:uuid:'):
+                uuid = str(x).split(':')[-1]
                 break
         encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
 
         if uuid is None:
             self.log.warn('No UUID identifier found')
             from uuid import uuid4
-            uuid = unicode_type(uuid4())
+            uuid = str(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
 
         if encrypted_fonts and not uuid.startswith('urn:uuid:'):
@@ -241,7 +241,7 @@ class EPUBOutput(OutputFormatPlugin):
             # for some absurd reason, or it will throw a hissy fit and refuse
             # to use the obfuscated fonts.
             for x in identifiers:
-                if unicode_type(x) == uuid:
+                if str(x) == uuid:
                     x.content = 'urn:uuid:'+uuid
 
         with TemporaryDirectory('_epub_output') as tdir:
@@ -291,7 +291,7 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
         try:
             os.mkdir(os.path.join(tdir, 'META-INF'))
-        except EnvironmentError:
+        except OSError:
             pass
         with open(os.path.join(tdir, 'META-INF', 'container.xml'), 'wb') as f:
             f.write(simple_container_xml(os.path.basename(opf)).encode('utf-8'))
@@ -307,7 +307,7 @@ class EPUBOutput(OutputFormatPlugin):
         os.remove(f.name)
         try:
             os.rmdir(os.path.join(tdir, 'META-INF'))
-        except EnvironmentError:
+        except OSError:
             pass
 
     def encrypt_fonts(self, uris, tdir, uuid):  # {{{
@@ -336,7 +336,7 @@ class EPUBOutput(OutputFormatPlugin):
                         f.write(bytes(bytearray(data[i] ^ key[i%16] for i in range(1024))))
                     else:
                         self.log.warn('Font', path, 'is invalid, ignoring')
-                if not isinstance(uri, unicode_type):
+                if not isinstance(uri, str):
                     uri = uri.decode('utf-8')
                 fonts.append('''
                 <enc:EncryptedData>

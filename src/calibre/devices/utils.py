@@ -10,7 +10,6 @@ import os, time, re
 from functools import partial
 
 from calibre.devices.errors import DeviceError, WrongDestinationError, FreeSpaceError
-from polyglot.builtins import unicode_type
 
 
 def sanity_check(on_card, files, card_prefixes, free_space):
@@ -60,8 +59,8 @@ def build_template_regexp(template):
         template = template.rpartition('/')[2]
         return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
     except:
-        prints(u'Failed to parse template: %r'%template)
-        template = u'{title} - {authors}'
+        prints('Failed to parse template: %r'%template)
+        template = '{title} - {authors}'
         return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
 
 
@@ -91,15 +90,15 @@ def create_upload_path(mdata, fname, template, sanitize,
         except:
             today = time.localtime()
             date = (today[0], today[1], today[2])
-        template = u"{title}_%d-%d-%d" % date
+        template = "{title}_%d-%d-%d" % date
 
     fname = sanitize(fname)
     ext = path_type.splitext(fname)[1]
 
     opts = config().parse()
-    if not isinstance(template, unicode_type):
+    if not isinstance(template, str):
         template = template.decode('utf-8')
-    app_id = unicode_type(getattr(mdata, 'application_id', ''))
+    app_id = str(getattr(mdata, 'application_id', ''))
     id_ = mdata.get('id', fname)
     extra_components = get_components(template, mdata, id_,
             timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,

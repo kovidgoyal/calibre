@@ -15,7 +15,6 @@ from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 from calibre import sanitize_file_name
-from polyglot.builtins import range, map
 
 
 class GenerateCatalogAction(InterfaceAction):
@@ -100,7 +99,7 @@ class GenerateCatalogAction(InterfaceAction):
                     sanitize_file_name(job.catalog_title), job.fmt.lower()))
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
-                except EnvironmentError as err:
+                except OSError as err:
                     if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                         import traceback
                         error_dialog(self.gui, _('Permission denied'),

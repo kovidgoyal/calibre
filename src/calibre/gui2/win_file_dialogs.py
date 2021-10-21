@@ -12,7 +12,7 @@ from uuid import uuid4
 from contextlib import suppress
 
 
-from polyglot.builtins import filter, string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -61,7 +61,7 @@ def serialize_binary(key, val):
 
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
-    val = unicode_type(val).encode('utf-8')
+    val = str(val).encode('utf-8')
     if len(val) > 2**16 - 1:
         raise ValueError('%s is too long' % key)
     return struct.pack('=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
@@ -205,7 +205,7 @@ def run_file_dialog(
     from calibre import prints
     from calibre.constants import DEBUG
     if DEBUG:
-        prints('stdout+stderr from file dialog helper:', unicode_type([h.stdoutdata, h.stderrdata]))
+        prints('stdout+stderr from file dialog helper:', str([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
         raise Exception('File dialog failed (return code %s): %s' % (h.rc, get_errors()))
@@ -218,7 +218,7 @@ def run_file_dialog(
         return ()
     parts = list(filter(None, server.data.split(b'\0')))
     if DEBUG:
-        prints('piped data from file dialog helper:', unicode_type(parts))
+        prints('piped data from file dialog helper:', str(parts))
     if len(parts) < 2:
         return ()
     if parts[0] != secret:
@@ -262,7 +262,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 
 
 def choose_files(window, name, title,
-                 filters=(), all_files=True, select_only_single_file=False, default_dir=u'~'):
+                 filters=(), all_files=True, select_only_single_file=False, default_dir='~'):
     name, initial_folder = get_initial_folder(name, title, default_dir)
     file_types = list(filters)
     if all_files:

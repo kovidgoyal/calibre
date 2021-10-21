@@ -23,7 +23,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.constants import islinux
-from polyglot.builtins import unicode_type, long_type
+from polyglot.builtins import long_type
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -170,7 +170,7 @@ class PRST1(USBMS):
 
         with closing(sqlite.connect(dbpath)) as connection:
             # Replace undecodable characters in the db instead of erroring out
-            connection.text_factory = lambda x: x if isinstance(x, unicode_type) else x.decode('utf-8', 'replace')
+            connection.text_factory = lambda x: x if isinstance(x, str) else x.decode('utf-8', 'replace')
 
             cursor = connection.cursor()
             # Query collections
@@ -199,7 +199,7 @@ class PRST1(USBMS):
                 for i, row in enumerate(cursor):
                     try:
                         comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000)
-                    except (OSError, IOError, TypeError):
+                    except (OSError, TypeError):
                         # In case the db has incorrect path info
                         continue
                     device_date = int(row[1])

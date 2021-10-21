@@ -9,7 +9,7 @@ from qt.core import (QDialog, QLineEdit, Qt)
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
-from polyglot.builtins import itervalues, unicode_type, map
+from polyglot.builtins import itervalues
 
 
 def ipaddr_sort_key(ipaddr):
@@ -107,7 +107,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
                 Qt.CheckState.Unchecked else QLineEdit.EchoMode.Normal)
 
     def accept(self):
-        port = unicode_type(self.fixed_port.text())
+        port = str(self.fixed_port.text())
         if not port:
             error_dialog(self, _('Invalid port number'),
                 _('You must provide a port number.'), show=True)
@@ -125,13 +125,13 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             return
 
         self.device_manager.set_option('smartdevice', 'password',
-                                       unicode_type(self.password_box.text()))
+                                       str(self.password_box.text()))
         self.device_manager.set_option('smartdevice', 'autostart',
                                        self.autostart_box.isChecked())
         self.device_manager.set_option('smartdevice', 'use_fixed_port',
                                        self.use_fixed_port.isChecked())
         self.device_manager.set_option('smartdevice', 'port_number',
-                                       unicode_type(self.fixed_port.text()))
+                                       str(self.fixed_port.text()))
 
         message = self.device_manager.start_plugin('smartdevice')
 

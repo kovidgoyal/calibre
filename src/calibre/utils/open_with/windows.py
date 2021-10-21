@@ -12,7 +12,6 @@ from qt.core import QBuffer, QByteArray, QPixmap, Qt, QtWin, QIODevice
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
 from calibre_extensions import winutil
-from polyglot.builtins import filter
 
 ICON_SIZE = 256
 

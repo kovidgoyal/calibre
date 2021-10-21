@@ -16,7 +16,6 @@ from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
-from polyglot.builtins import unicode_type
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -398,7 +397,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             log.info(" Begin catalog source generation (%s)" %
-                     unicode_type(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
@@ -407,7 +406,7 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.build_sources()
             if opts.verbose:
                 log.info(" Completed catalog source generation (%s)\n"  %
-                         unicode_type(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+                         str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
         except (AuthorSortMismatchException, EmptyCatalogException) as e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
@@ -500,7 +499,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if opts.verbose:
                 log.info(" Catalog creation complete (%s)\n" %
-                     unicode_type(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

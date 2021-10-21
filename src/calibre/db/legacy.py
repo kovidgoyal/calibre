@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback, weakref
-from polyglot.builtins import iteritems, zip
+from polyglot.builtins import iteritems
 from collections.abc import MutableMapping
 
 from calibre import force_unicode, isbytestring
@@ -29,7 +29,7 @@ def cleanup_tags(tags):
     tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
     tags = [x.decode(preferred_encoding, 'replace')
                 if isbytestring(x) else x for x in tags]
-    tags = [u' '.join(x.split()) for x in tags]
+    tags = [' '.join(x.split()) for x in tags]
     ans, seen = [], set()
     for tag in tags:
         if tag.lower() not in seen:
@@ -684,8 +684,7 @@ class LibraryDatabase:
         self.new_api.refresh_ondevice()
 
     def tags_older_than(self, tag, delta, must_have_tag=None, must_have_authors=None):
-        for book_id in sorted(self.new_api.tags_older_than(tag, delta=delta, must_have_tag=must_have_tag, must_have_authors=must_have_authors)):
-            yield book_id
+        yield from sorted(self.new_api.tags_older_than(tag, delta=delta, must_have_tag=must_have_tag, must_have_authors=must_have_authors))
 
     def sizeof_format(self, index, fmt, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
@@ -848,8 +847,7 @@ class LibraryDatabase:
 
     # Private interface {{{
     def __iter__(self):
-        for row in self.data.iterall():
-            yield row
+        yield from self.data.iterall()
 
     def _get_next_series_num_for_list(self, series_indices):
         return _get_next_series_num_for_list(series_indices)

@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -7,7 +5,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 import os
-from polyglot.builtins import range
 
 
 def db(path=None, read_only=False):

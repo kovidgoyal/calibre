@@ -188,7 +188,7 @@ def main(args=sys.argv):
         finally:
             try:
                 os.remove(internal_book_data_path)
-            except EnvironmentError:
+            except OSError:
                 pass
     args = processed_args
     app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)

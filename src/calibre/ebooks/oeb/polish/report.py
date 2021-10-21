@@ -271,8 +271,7 @@ def css_data(container, book_locale, result_data, *args):
             else:  # @import rule
                 isheet = importable_sheets.get(rule)
                 if isheet is not None:
-                    for irule in rules_in_sheet(isheet):
-                        yield irule
+                    yield from rules_in_sheet(isheet)
 
     def sheets_for_html(name, root):
         for href in link_path(root):

@@ -28,7 +28,6 @@ from calibre.gui2.widgets import LayoutButton, Splitter
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_website_link
-from polyglot.builtins import unicode_type
 
 _keep_refs = []
 
@@ -338,7 +337,7 @@ class GridViewButton(LayoutButton):  # {{{
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
-        gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode_type(self.action_toggle.text()),
+        gui.keyboard.register_shortcut('grid view toggle' + self.label, str(self.action_toggle.text()),
                                     default_keys=(sc,), action=self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
@@ -368,7 +367,7 @@ class SearchBarButton(LayoutButton):  # {{{
         self.set_state_to_hide()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
-        gui.keyboard.register_shortcut('search bar toggle' + self.label, unicode_type(self.action_toggle.text()),
+        gui.keyboard.register_shortcut('search bar toggle' + self.label, str(self.action_toggle.text()),
                                     default_keys=(sc,), action=self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
@@ -453,14 +452,14 @@ class VLTabs(QTabBar):  # {{{
     def tab_changed(self, idx):
         if self.ignore_tab_changed:
             return
-        vl = unicode_type(self.tabData(idx) or '').strip() or None
+        vl = str(self.tabData(idx) or '').strip() or None
         self.gui.apply_virtual_library(vl, update_tabs=False)
 
     def tab_moved(self, from_, to):
-        self.current_db.new_api.set_pref('virt_libs_order', [unicode_type(self.tabData(i) or '') for i in range(self.count())])
+        self.current_db.new_api.set_pref('virt_libs_order', [str(self.tabData(i) or '') for i in range(self.count())])
 
     def tab_close(self, index):
-        vl = unicode_type(self.tabData(index) or '')
+        vl = str(self.tabData(index) or '')
         if vl:  # Dont allow closing the All Books tab
             self.current_db.new_api.set_pref('virt_libs_hidden', list(
                 self.current_db.new_api.pref('virt_libs_hidden', ())) + [vl])
@@ -536,7 +535,7 @@ class VLTabs(QTabBar):  # {{{
             m.addAction(_('Unlock Virtual library tabs'), self.unlock_tab)
         i = self.tabAt(ev.pos())
         if i > -1:
-            vl = unicode_type(self.tabData(i) or '')
+            vl = str(self.tabData(i) or '')
             if vl:
                 m.addSeparator()
                 m.addAction(_('Edit "%s"') % vl, partial(self.gui.do_create_edit, name=vl))
@@ -600,7 +599,7 @@ class LayoutMixin:  # {{{
             self.qv = self.qv.actual_plugin_
 
         self.status_bar = StatusBar(self)
-        stylename = unicode_type(self.style().objectName())
+        stylename = str(self.style().objectName())
         self.grid_view_button = GridViewButton(self)
         self.search_bar_button = SearchBarButton(self)
         self.grid_view_button.toggled.connect(self.toggle_grid_view)

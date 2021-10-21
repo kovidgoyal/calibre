@@ -11,7 +11,7 @@ import json, os
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
 from calibre import prints
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class DBPrefs(dict):
@@ -30,7 +30,7 @@ class DBPrefs(dict):
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
-        if not isinstance(raw, unicode_type):
+        if not isinstance(raw, str):
             raw = raw.decode(preferred_encoding)
         return json.loads(raw, object_hook=from_json)
 

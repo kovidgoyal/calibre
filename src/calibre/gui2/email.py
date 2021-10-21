@@ -26,7 +26,7 @@ from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.icu import primary_sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot.binary import from_hex_unicode
 
 
@@ -210,7 +210,7 @@ class SelectRecipients(QDialog):  # {{{
         for i, name in enumerate(('address', 'alias', 'formats', 'subject')):
             c = i % 2
             row = l.rowCount() - c
-            self.labels[i].setText(unicode_type(self.labels[i].text()) + ':')
+            self.labels[i].setText(str(self.labels[i].text()) + ':')
             l.addWidget(self.labels[i], row, (2*c))
             le = QLineEdit(self)
             le.setToolTip(tooltips[i])
@@ -232,11 +232,11 @@ class SelectRecipients(QDialog):  # {{{
         self.init_list()
 
     def add_recipient(self):
-        to = unicode_type(self.address.text()).strip()
+        to = str(self.address.text()).strip()
         if not to:
             return error_dialog(
                 self, _('Need address'), _('You must specify an address'), show=True)
-        formats = ','.join([x.strip().upper() for x in unicode_type(self.formats.text()).strip().split(',') if x.strip()])
+        formats = ','.join([x.strip().upper() for x in str(self.formats.text()).strip().split(',') if x.strip()])
         if not formats:
             return error_dialog(
                 self, _('Need formats'), _('You must specify at least one format to send'), show=True)
@@ -248,11 +248,11 @@ class SelectRecipients(QDialog):  # {{{
         acc[to] = [formats, False, False]
         c = email_config()
         c.set('accounts', acc)
-        alias = unicode_type(self.alias.text()).strip()
+        alias = str(self.alias.text()).strip()
         if alias:
             opts.aliases[to] = alias
             c.set('aliases', opts.aliases)
-        subject = unicode_type(self.subject.text()).strip()
+        subject = str(self.subject.text()).strip()
         if subject:
             opts.subjects[to] = subject
             c.set('subjects', opts.subjects)
@@ -287,7 +287,7 @@ class SelectRecipients(QDialog):  # {{{
         ans = []
         for i in self.items:
             if i.checkState() == Qt.CheckState.Checked:
-                to = unicode_type(i.data(Qt.ItemDataRole.UserRole) or '')
+                to = str(i.data(Qt.ItemDataRole.UserRole) or '')
                 fmts = tuple(x.strip().upper() for x in (opts.accounts[to][0] or '').split(','))
                 subject = opts.subjects.get(to, '')
                 ans.append((to, fmts, subject))
@@ -308,7 +308,7 @@ class EmailMixin:  # {{{
         pass
 
     def send_multiple_by_mail(self, recipients, delete_from_library):
-        ids = set(self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows())
+        ids = {self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()}
         if not ids:
             return
         db = self.current_db
@@ -408,7 +408,7 @@ class EmailMixin:  # {{{
                     from calibre.utils.html2text import html2text
                     texts[-1] += '\n\n' + _('About this book:') + '\n\n' + textwrap.fill(html2text(mi.comments))
                 prefix = f'{t} - {a}'
-                if not isinstance(prefix, unicode_type):
+                if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 attachment_names.append(prefix + os.path.splitext(f)[1])
         remove = remove_ids if delete_from_library else []

@@ -13,7 +13,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.toc import TOC
 from chm.chm import CHMFile, chmlib
-from polyglot.builtins import as_unicode, getcwd, unicode_type
+from polyglot.builtins import as_unicode
 
 
 def match_string(s1, s2_already_lowered):
@@ -43,7 +43,7 @@ class CHMReader(CHMFile):
 
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
-        if isinstance(input, unicode_type):
+        if isinstance(input, str):
             enc = 'mbcs' if iswindows else filesystem_encoding
             try:
                 input = input.encode(enc)
@@ -113,7 +113,7 @@ class CHMReader(CHMFile):
     def get_encoding(self):
         return self.encoding_from_system_file or self.encoding_from_lcid or 'cp1252'
 
-    def _parse_toc(self, ul, basedir=getcwd()):
+    def _parse_toc(self, ul, basedir=os.getcwd()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
         self._playorder += 1
         for li in ul('li', recursive=False):
@@ -157,7 +157,7 @@ class CHMReader(CHMFile):
     def get_home(self):
         return self.GetFile(self.home)
 
-    def ExtractFiles(self, output_dir=getcwd(), debug_dump=False):
+    def ExtractFiles(self, output_dir=os.getcwd(), debug_dump=False):
         html_files = set()
         for path in self.Contents():
             fpath = path
@@ -192,7 +192,7 @@ class CHMReader(CHMFile):
             with lopen(lpath, 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
-                if isinstance(data, unicode_type):
+                if isinstance(data, str):
                     data = data.encode('utf-8')
                 f.seek(0)
                 f.truncate()
@@ -336,5 +336,5 @@ class CHMReader(CHMFile):
         if not os.path.isdir(dir):
             os.makedirs(dir)
 
-    def extract_content(self, output_dir=getcwd(), debug_dump=False):
+    def extract_content(self, output_dir=os.getcwd(), debug_dump=False):
         self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)

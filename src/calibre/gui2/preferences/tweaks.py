@@ -26,7 +26,7 @@ from calibre.utils.config_base import (
 )
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -263,7 +263,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
                ' edit it unless you know what you are doing.', '',
             ]
         for tweak in self.tweaks:
-            ans.extend(['', unicode_type(tweak), ''])
+            ans.extend(['', str(tweak), ''])
 
         if self.plugin_tweaks:
             ans.extend(['', '',
@@ -495,7 +495,7 @@ class ConfigWidget(ConfigWidgetBase):
         if d.exec_() == QDialog.DialogCode.Accepted:
             g, l = {}, {}
             try:
-                exec(unicode_type(d.edit.toPlainText()), g, l)
+                exec(str(d.edit.toPlainText()), g, l)
             except:
                 import traceback
                 return error_dialog(self, _('Failed'),
@@ -536,7 +536,7 @@ class ConfigWidget(ConfigWidgetBase):
         if idx.isValid():
             l, g = {}, {}
             try:
-                exec(unicode_type(self.edit_tweak.toPlainText()), g, l)
+                exec(str(self.edit_tweak.toPlainText()), g, l)
             except:
                 import traceback
                 error_dialog(self.gui, _('Failed'),
@@ -593,7 +593,7 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx,
-                unicode_type(self.search.currentText()))
+                str(self.search.currentText()))
         self.highlight_index(idx)
 
     def find_previous(self, *args):
@@ -601,7 +601,7 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx,
-            unicode_type(self.search.currentText()), backwards=True)
+            str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
 

@@ -12,7 +12,6 @@ from itertools import count
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ebooks.oeb.base import OEBBook
 from lxml.etree import XPath
-from polyglot.builtins import unicode_type
 
 NSMAP = {'h': XHTML_NS, 'html': XHTML_NS, 'xhtml': XHTML_NS}
 PAGE_RE = re.compile(r'page', re.IGNORECASE)
@@ -32,7 +31,7 @@ def filter_name(name):
 def build_name_for(expr):
     if not expr:
         counter = count(1)
-        return lambda elem: unicode_type(next(counter))
+        return lambda elem: str(next(counter))
     selector = XPath(expr, namespaces=NSMAP)
 
     def name_for(elem):

@@ -20,7 +20,7 @@ from polyglot.urllib import quote, urlencode
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):
     if username and password:
-        headers[b'Authorization'] = b'Basic ' + as_base64_bytes((username + ':' + password))
+        headers[b'Authorization'] = b'Basic ' + as_base64_bytes(username + ':' + password)
     conn.request(method, prefix + url, headers=headers, body=data)
     r = conn.getresponse()
     data = r.read()

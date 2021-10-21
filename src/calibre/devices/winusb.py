@@ -13,7 +13,7 @@ from ctypes import (
 )
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
-from polyglot.builtins import iteritems, itervalues, map, filter
+from polyglot.builtins import iteritems, itervalues
 
 from calibre import prints, as_unicode
 
@@ -507,8 +507,7 @@ def iterchildren(parent_devinst):
 def iterdescendants(parent_devinst):
     for child in iterchildren(parent_devinst):
         yield child
-        for gc in iterdescendants(child):
-            yield gc
+        yield from iterdescendants(child)
 
 
 def iterancestors(devinst):

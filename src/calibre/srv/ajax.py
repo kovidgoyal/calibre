@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, map
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from itertools import cycle
 
 from calibre import force_unicode
@@ -82,7 +82,7 @@ def book_to_json(ctx, rd, db, book_id,
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata)
+        fmts = {x.lower() for x in mi.format_metadata}
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:
@@ -115,7 +115,7 @@ def book_to_json(ctx, rd, db, book_id,
                                 dbtags[category] = ctx.url_for(
                                     books_in,
                                     encoded_category=encode_name(tag.category if tag.category else key),
-                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode_type(tag.id)),
+                                    encoded_item=encode_name(tag.original_name if tag.id is None else str(tag.id)),
                                     library_id=db.server_library_id
                                 )
                                 break
@@ -134,7 +134,7 @@ def book_to_json(ctx, rd, db, book_id,
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:
                     template = device_class.save_template()
-                    data['_filename_'] = create_upload_path(mi, unicode_type(book_id),
+                    data['_filename_'] = create_upload_path(mi, str(book_id),
                             template, sanitize, path_type=posixpath)
                     break
 
@@ -402,7 +402,7 @@ def category(ctx, rd, encoded_name, library_id):
                     '.' in x.original_name]
 
             if subcategory is None:
-                children = set(x[0] for x in category_names)
+                children = {x[0] for x in category_names}
                 category_name = [meta['name']]
                 items = [x for x in categories[toplevel] if '.' not in x.original_name]
             else:
@@ -410,16 +410,16 @@ def category(ctx, rd, encoded_name, library_id):
                 category_name = [meta['name']] + subcategory_parts
 
                 lsp = len(subcategory_parts)
-                children = set('.'.join(x) for x in category_names if len(x) ==
-                        lsp+1 and x[:lsp] == subcategory_parts)
+                children = {'.'.join(x) for x in category_names if len(x) ==
+                        lsp+1 and x[:lsp] == subcategory_parts}
                 items = [x for x in categories[toplevel] if x.original_name in
                         children]
                 item_names = {x:x.original_name.rpartition('.')[-1] for x in
                         items}
                 # Only mark the subcategories that have children themselves as
                 # subcategories
-                children = set('.'.join(x[:lsp+1]) for x in category_names if len(x) >
-                        lsp+1 and x[:lsp] == subcategory_parts)
+                children = {'.'.join(x[:lsp+1]) for x in category_names if len(x) >
+                        lsp+1 and x[:lsp] == subcategory_parts}
             subcategories = [{'name':x.rpartition('.')[-1],
                 'url':toplevel+'.'+x,
                 'icon':category_icon(toplevel, meta)} for x in children]
@@ -445,7 +445,7 @@ def category(ctx, rd, encoded_name, library_id):
             'average_rating': x.avg_rating,
             'count': x.count,
             'url': ctx.url_for(books_in, encoded_category=encode_name(x.category if x.category else toplevel),
-                               encoded_item=encode_name(x.original_name if x.id is None else unicode_type(x.id)),
+                               encoded_item=encode_name(x.original_name if x.id is None else str(x.id)),
                                library_id=db.server_library_id
                                ),
             'has_children': x.original_name in children,
@@ -551,7 +551,7 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
         'vl': vl,
     }
     if parse_error is not None:
-        ans['bad_restriction'] = unicode_type(parse_error)
+        ans['bad_restriction'] = str(parse_error)
     return ans
 
 

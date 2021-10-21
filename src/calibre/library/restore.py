@@ -17,7 +17,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -40,7 +40,7 @@ class RestoreDatabase(LibraryDatabase2):
 class Restore(Thread):
 
     def __init__(self, library_path, progress_callback=None):
-        super(Restore, self).__init__()
+        super().__init__()
         if isbytestring(library_path):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
@@ -114,7 +114,7 @@ class Restore(Thread):
                     self.create_cc_metadata()
                 self.restore_books()
                 if self.successes == 0 and len(self.dirs) > 0:
-                    raise Exception(('Something bad happened'))
+                    raise Exception('Something bad happened')
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()

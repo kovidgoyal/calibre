@@ -52,7 +52,7 @@ from calibre.utils.localization import (
     localize_user_manual_link, localize_website_link
 )
 from calibre.utils.unicode_names import character_name_from_code
-from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 def open_donate():
@@ -203,7 +203,7 @@ class Central(QStackedWidget):  # {{{
         self.search_panel.pre_fill(text)
 
     def eventFilter(self, obj, event):
-        base = super(Central, self)
+        base = super()
         if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
                 Qt.MouseButton.RightButton, Qt.MouseButton.MidButton):
             return base.eventFilter(obj, event)
@@ -369,7 +369,7 @@ class Main(MainWindow):
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
         self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
-        la.base_template = unicode_type(la.text())
+        la.base_template = str(la.text())
         self.status_bar.addWidget(la)
 
         self.boss(self)
@@ -414,10 +414,10 @@ class Main(MainWindow):
                 toolbar_actions[sid] = ac
             if target is not None:
                 ac.triggered.connect(target)
-            if isinstance(keys, unicode_type):
+            if isinstance(keys, str):
                 keys = (keys,)
             self.keyboard.register_shortcut(
-                sid, unicode_type(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
+                sid, str(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
 
@@ -718,7 +718,7 @@ class Main(MainWindow):
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
-            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode_type(x.text()))):
+            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(str(x.text()))):
                 e.addAction(ac)
 
         e = b.addMenu(_('&Help'))
@@ -770,7 +770,7 @@ class Main(MainWindow):
                     bar.addAction(actions[ac])
                 except KeyError:
                     if DEBUG:
-                        prints('Unknown action for toolbar %r: %r' % (unicode_type(bar.objectName()), ac))
+                        prints('Unknown action for toolbar %r: %r' % (str(bar.objectName()), ac))
 
         for x in tprefs['global_book_toolbar']:
             add(self.global_bar, x)
@@ -870,7 +870,7 @@ class Main(MainWindow):
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
-        return super(Main, self).resizeEvent(ev)
+        return super().resizeEvent(ev)
 
     def update_window_title(self):
         cc = current_container()

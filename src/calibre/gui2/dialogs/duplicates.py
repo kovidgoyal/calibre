@@ -15,7 +15,6 @@ from qt.core import (
 from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import unicode_type, range
 
 
 class DuplicatesQuestion(QDialog):
@@ -126,7 +125,7 @@ class DuplicatesQuestion(QDialog):
                     index_is_id=True) or '').split(',')])
 
             def key(x):
-                return primary_sort_key(unicode_type(author_text[x]))
+                return primary_sort_key(str(author_text[x]))
 
             for book_id in sorted(matching_books, key=key):
                 add_child(ta%dict(
@@ -151,10 +150,10 @@ class DuplicatesQuestion(QDialog):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             check = '✓' if x.checkState(0) == Qt.CheckState.Checked else '✗'
-            title = '%s %s' % (check, unicode_type(x.text(0)))
+            title = '%s %s' % (check, str(x.text(0)))
             dups = []
             for child in (x.child(j) for j in range(x.childCount())):
-                dups.append('\t' + unicode_type(child.text(0)))
+                dups.append('\t' + str(child.text(0)))
             entries.append(title + '\n' + '\n'.join(dups))
         return '\n\n'.join(entries)
 

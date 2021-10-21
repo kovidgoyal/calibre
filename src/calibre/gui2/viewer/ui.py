@@ -106,7 +106,7 @@ class EbookViewer(MainWindow):
         self.addToolBar(Qt.ToolBarArea.LeftToolBarArea, at)
         try:
             os.makedirs(annotations_dir)
-        except EnvironmentError:
+        except OSError:
             pass
         self.current_book_data = {}
         get_current_book_data(self.current_book_data)

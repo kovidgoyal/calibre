@@ -16,7 +16,7 @@ class SafeLocalTimeZone(tzlocal):
         # older versions of dateutil)
         # In such cases, just assume that dt is not DST.
         try:
-            return super(SafeLocalTimeZone, self)._isdst(dt)
+            return super()._isdst(dt)
         except Exception:
             pass
         return False
@@ -26,7 +26,7 @@ class SafeLocalTimeZone(tzlocal):
         # newer versions of dateutil)
         # In such cases, just assume that dt is not DST.
         try:
-            return super(SafeLocalTimeZone, self)._naive_is_dst(dt)
+            return super()._naive_is_dst(dt)
         except Exception:
             pass
         return False

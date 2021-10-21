@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-from polyglot.builtins import map
-
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
-from polyglot.builtins import unicode_type, zip, range
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
@@ -145,7 +142,7 @@ class Index:  # {{{
         for i, (index_num, tags) in enumerate(self.entries):
             control_bytes = self.control_bytes[i]
             buf.seek(0), buf.truncate(0)
-            index_num = (index_num.encode('utf-8') if isinstance(index_num, unicode_type) else index_num)
+            index_num = (index_num.encode('utf-8') if isinstance(index_num, str) else index_num)
             raw = bytearray(index_num)
             raw.insert(0, len(index_num))
             buf.write(bytes(raw))
@@ -341,7 +338,7 @@ class NCXIndex(Index):
             largest = max(x['index'] for x in toc_table)
         except ValueError:
             largest = 0
-        fmt = '%0{0}X'.format(max(2, len('%X' % largest)))
+        fmt = '%0{}X'.format(max(2, len('%X' % largest)))
 
         def to_entry(x):
             ans = {}

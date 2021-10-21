@@ -17,11 +17,11 @@ from calibre.ebooks.oeb.transforms.subset import get_font_properties, find_font_
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.ebooks.oeb.polish.embed import font_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def font_families_from_style(style):
-    return [unicode_type(f) for f in style.get('font-family', []) if unicode_type(f).lower() not in {
+    return [str(f) for f in style.get('font-family', []) if str(f).lower() not in {
         'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
 
 
@@ -39,7 +39,7 @@ def used_font(style, embedded_fonts):
     ff = font_families_from_style(style)
     if not ff:
         return False, None
-    lnames = {unicode_type(x).lower() for x in ff}
+    lnames = {str(x).lower() for x in ff}
 
     matching_set = []
 
@@ -230,7 +230,7 @@ class EmbedFonts:
             name = f['full_name']
             ext = 'otf' if f['is_otf'] else 'ttf'
             name = ascii_filename(name).replace(' ', '-').replace('(', '').replace(')', '')
-            fid, href = self.oeb.manifest.generate(id=u'font', href=u'fonts/%s.%s'%(name, ext))
+            fid, href = self.oeb.manifest.generate(id='font', href='fonts/%s.%s'%(name, ext))
             item = self.oeb.manifest.add(fid, href, guess_type('dummy.'+ext)[0], data=data)
             item.unload_data_from_memory()
             page_sheet = self.get_page_sheet()

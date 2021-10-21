@@ -14,7 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 class CustomColumns:
@@ -131,23 +131,23 @@ class CustomColumns:
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, (str, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode_type) else y for y in x]
+                    str) else y for y in x]
                 return [' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode_type) else \
+                return x if x is None or isinstance(x, str) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = force_unicode(x)
                 x = x.lower()
@@ -170,7 +170,7 @@ class CustomColumns:
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (unicode_type, bytes)):
+            if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = force_unicode(x)
                 if x.lower() == 'none':
@@ -199,7 +199,7 @@ class CustomColumns:
             else:
                 is_category = False
             is_m = v['multiple_seps']
-            tn = 'custom_column_{0}'.format(v['num'])
+            tn = 'custom_column_{}'.format(v['num'])
             self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
                     colnum=v['num'], name=v['name'], display=v['display'],

@@ -9,7 +9,7 @@ from collections import namedtuple
 
 from calibre.ebooks.docx.writer.utils import convert_color
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems
 
 
 class Dummy:
@@ -115,7 +115,7 @@ class Cell:
     def serialize(self, parent, makeelement):
         tc = makeelement(parent, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
-        makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=unicode_type(self.width[1]))
+        makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=str(self.width[1]))
         # For some reason, Word 2007 refuses to honor <w:shd> at the table or row
         # level, despite what the specs say, so we inherit and apply at the
         # cell level
@@ -126,7 +126,7 @@ class Cell:
         b = makeelement(tcPr, 'w:tcBorders', append=False)
         for edge, border in iteritems(self.borders):
             if border is not None and border.width > 0 and border.style != 'none':
-                makeelement(b, 'w:' + edge, w_val=border.style, w_sz=unicode_type(border.width), w_color=border.color)
+                makeelement(b, 'w:' + edge, w_val=border.style, w_sz=str(border.width), w_color=border.color)
         if len(b) > 0:
             tcPr.append(b)
 
@@ -136,7 +136,7 @@ class Cell:
             if edge in {'top', 'bottom'} or (edge == 'left' and self is self.row.first_cell) or (edge == 'right' and self is self.row.last_cell):
                 padding += getattr(self.row, 'padding_' + edge)
             if padding > 0:
-                makeelement(m, 'w:' + edge, w_type='dxa', w_w=unicode_type(int(padding * 20)))
+                makeelement(m, 'w:' + edge, w_type='dxa', w_w=str(int(padding * 20)))
         if len(m) > 0:
             tcPr.append(m)
 
@@ -356,14 +356,14 @@ class Table:
             return
         tbl = makeelement(parent, 'w:tbl')
         tblPr = makeelement(tbl, 'w:tblPr')
-        makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=unicode_type(self.width[1]))
+        makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=str(self.width[1]))
         if self.float in {'left', 'right'}:
             kw = {'w_vertAnchor':'text', 'w_horzAnchor':'text', 'w_tblpXSpec':self.float}
             for edge in border_edges:
                 val = getattr(self, 'margin_' + edge) or 0
                 if {self.float, edge} == {'left', 'right'}:
                     val = max(val, 2)
-                kw['w_' + edge + 'FromText'] = unicode_type(max(0, int(val *20)))
+                kw['w_' + edge + 'FromText'] = str(max(0, int(val *20)))
             makeelement(tblPr, 'w:tblpPr', **kw)
         if self.jc is not None:
             makeelement(tblPr, 'w:jc', w_val=self.jc)

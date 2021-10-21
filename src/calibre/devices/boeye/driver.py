@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2011,  Ken <ken at szboeye.com>'
 __docformat__ = 'restructuredtext en'

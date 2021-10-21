@@ -110,7 +110,7 @@ class PALADIN(USBMS):
                 for i, row in enumerate(cursor):
                     try:
                         comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000)
-                    except (OSError, IOError, TypeError):
+                    except (OSError, TypeError):
                         # In case the db has incorrect path info
                         continue
                     device_date = int(row[1])

@@ -7,7 +7,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from functools import wraps
-from polyglot.builtins import iteritems, map, filter
+from polyglot.builtins import iteritems
 
 from lxml import etree
 
@@ -1007,7 +1007,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
         ans.series, ans.series_index = s, si
     ans.author_link_map = read_author_link_map(root, prefixes, refines) or ans.author_link_map
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
-    for name, fm in iteritems((read_user_metadata(root, prefixes, refines) or {})):
+    for name, fm in iteritems(read_user_metadata(root, prefixes, refines) or {}):
         ans.set_user_metadata(name, fm)
     if return_extra_data:
         ans = ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)

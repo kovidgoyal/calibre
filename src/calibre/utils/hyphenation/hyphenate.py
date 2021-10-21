@@ -10,7 +10,6 @@ import regex
 from calibre.utils.hyphenation.dictionaries import (
     dictionary_name_for_locale, path_to_dictionary
 )
-from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE
@@ -27,7 +26,7 @@ def dictionary_for_locale(locale):
 
 
 def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
-    word = unicode_type(word)
+    word = str(word)
     if len(word) > 99 or '=' in word:
         return word
     q = word

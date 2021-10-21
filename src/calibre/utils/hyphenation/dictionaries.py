@@ -79,7 +79,7 @@ def extract_dicts(cache_path):
         with TemporaryDirectory(dir=cache_path) as trash:
             try:
                 os.rename(dest, os.path.join(trash, 'f'))
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
             os.rename(tdir, dest)
@@ -95,7 +95,7 @@ def is_cache_up_to_date(cache_path):
         if actual_hash == expected_hash():
             is_cache_up_to_date.updated = True
             return True
-    except EnvironmentError:
+    except OSError:
         pass
     return False
 
@@ -105,7 +105,7 @@ def get_cache_path(cd):
     cache_path = os.path.join(cd, 'hyphenation')
     try:
         os.makedirs(cache_path)
-    except EnvironmentError as err:
+    except OSError as err:
         if err.errno != errno.EEXIST:
             raise
     return cache_path

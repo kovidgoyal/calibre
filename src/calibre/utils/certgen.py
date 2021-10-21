@@ -6,7 +6,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import socket
-from polyglot.builtins import unicode_type
 from calibre_extensions import certgen
 
 
@@ -20,7 +19,7 @@ def create_cert_request(
     organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None
 ):
     def enc(x):
-        if isinstance(x, unicode_type):
+        if isinstance(x, str):
             x = x.encode('ascii')
         return x or None
 
@@ -83,7 +82,7 @@ def create_server_cert(
     def export(dest, obj, func, *args):
         if dest is not None:
             data = func(obj, *args)
-            if isinstance(data, unicode_type):
+            if isinstance(data, str):
                 data = data.encode('utf-8')
             if hasattr(dest, 'write'):
                 dest.write(data)

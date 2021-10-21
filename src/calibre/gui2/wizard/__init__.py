@@ -26,7 +26,7 @@ from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems
 
 # Devices {{{
 
@@ -358,7 +358,7 @@ class Android(Device):
     @classmethod
     def commit(cls):
         from calibre.customize.ui import device_plugins
-        super(Android, cls).commit()
+        super().commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_generic_epub_app'):
                 plugin.configure_for_generic_epub_app()
@@ -537,14 +537,14 @@ class KindlePage(QWizardPage, KindleUI):
             self.to_address.setText(accs[0][0])
 
         def x():
-            t = unicode_type(self.to_address.text())
+            t = str(self.to_address.text())
             if t.strip():
                 return t.strip()
 
         self.send_email_widget.initialize(x)
 
     def commit(self):
-        x = unicode_type(self.to_address.text()).strip()
+        x = str(self.to_address.text()).strip()
         parts = x.split('@')
 
         if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
@@ -605,8 +605,8 @@ class StanzaPage(QWizardPage, StanzaUI):
             for p in range(8080, 8100):
                 try:
                     s.bind(('0.0.0.0', p))
-                    t = unicode_type(self.instructions.text())
-                    t = re.sub(r':\d+', ':'+unicode_type(p), t)
+                    t = str(self.instructions.text())
+                    t = re.sub(r':\d+', ':'+str(p), t)
                     self.instructions.setText(t)
                     return p
                 except:
@@ -733,10 +733,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         for item in items:
             self.language.addItem(item[1], (item[0]))
         self.language.blockSignals(False)
-        prefs['language'] = unicode_type(self.language.itemData(self.language.currentIndex()) or '')
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
 
     def change_language(self, idx):
-        prefs['language'] = unicode_type(self.language.itemData(self.language.currentIndex()) or '')
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
         from polyglot.builtins import builtins
         builtins.__dict__['_'] = lambda x: x
         from calibre.ebooks.metadata.book.base import reset_field_metadata
@@ -774,7 +774,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             return False
 
     def validatePage(self):
-        newloc = unicode_type(self.location.text())
+        newloc = str(self.location.text())
         if not self.is_library_dir_suitable(newloc):
             self.show_library_dir_error(newloc)
             return False
@@ -804,11 +804,11 @@ class LibraryPage(QWizardPage, LibraryUI):
                 self.show_library_dir_error(x)
 
     def show_library_dir_error(self, x):
-        if not isinstance(x, unicode_type):
+        if not isinstance(x, str):
             try:
                 x = x.decode(filesystem_encoding)
             except:
-                x = unicode_type(repr(x))
+                x = str(repr(x))
         error_dialog(self, _('Bad location'),
             _('You must choose an empty folder for '
                 'the calibre library. %s is not empty.')%x, show=True)
@@ -846,7 +846,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def isComplete(self):
         try:
-            lp = unicode_type(self.location.text())
+            lp = str(self.location.text())
             ans = bool(lp) and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp,
                     os.W_OK)
         except:
@@ -854,7 +854,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         return ans
 
     def commit(self):
-        newloc = unicode_type(self.location.text())
+        newloc = str(self.location.text())
         try:
             dln = self.default_library_name
             if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc != dln):
@@ -949,8 +949,8 @@ class Wizard(QWizard):
         QWizard.accept(self)
 
     def set_finish_text(self, *args):
-        bt = unicode_type("<em>" + self.buttonText(QWizard.WizardButton.FinishButton) + "</em>").replace('&', '')
-        t = unicode_type(self.finish_page.finish_text.text())
+        bt = str("<em>" + self.buttonText(QWizard.WizardButton.FinishButton) + "</em>").replace('&', '')
+        t = str(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t%bt)
 

@@ -11,7 +11,6 @@ from math import ceil
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
-from polyglot.builtins import unicode_type
 
 
 class HeuristicProcessor:
@@ -54,8 +53,8 @@ class HeuristicProcessor:
         title = match.group('title')
         if not title:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log.debug("marked " + unicode_type(self.html_preprocess_sections) +
-                    " chapters. - " + unicode_type(chap))
+            self.log.debug("marked " + str(self.html_preprocess_sections) +
+                    " chapters. - " + str(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
             delete_whitespace = re.compile('^\\s*(?P<c>.*?)\\s*$')
@@ -63,16 +62,16 @@ class HeuristicProcessor:
             txt_chap = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(chap)))
             txt_title = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log.debug("marked " + unicode_type(self.html_preprocess_sections) +
-                    " chapters & titles. - " + unicode_type(chap) + ", " + unicode_type(title))
+            self.log.debug("marked " + str(self.html_preprocess_sections) +
+                    " chapters & titles. - " + str(chap) + ", " + str(title))
             return '<h2 title="'+txt_chap+', '+txt_title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
 
     def chapter_break(self, match):
         chap = match.group('section')
         styles = match.group('styles')
         self.html_preprocess_sections = self.html_preprocess_sections + 1
-        self.log.debug("marked " + unicode_type(self.html_preprocess_sections) +
-                " section markers based on punctuation. - " + unicode_type(chap))
+        self.log.debug("marked " + str(self.html_preprocess_sections) +
+                " section markers based on punctuation. - " + str(chap))
         return '<'+styles+' style="page-break-before:always">'+chap
 
     def analyze_title_matches(self, match):
@@ -115,8 +114,8 @@ class HeuristicProcessor:
         line_end = line_end_ere.findall(raw)
         tot_htm_ends = len(htm_end)
         tot_ln_fds = len(line_end)
-        # self.log.debug("There are " + unicode_type(tot_ln_fds) + " total Line feeds, and " +
-        #        unicode_type(tot_htm_ends) + " marked up endings")
+        # self.log.debug("There are " + str(tot_ln_fds) + " total Line feeds, and " +
+        #        str(tot_htm_ends) + " marked up endings")
 
         if percent > 1:
             percent = 1
@@ -124,7 +123,7 @@ class HeuristicProcessor:
             percent = 0
 
         min_lns = tot_ln_fds * percent
-        # self.log.debug("There must be fewer than " + unicode_type(min_lns) + " unmarked lines to add markup")
+        # self.log.debug("There must be fewer than " + str(min_lns) + " unmarked lines to add markup")
         return min_lns > tot_htm_ends
 
     def dump(self, raw, where):
@@ -161,17 +160,17 @@ class HeuristicProcessor:
         ]
 
         ITALICIZE_STYLE_PATS = [
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/'),
-            unicode_type(r'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_'),
+            r'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_',
+            r'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
+            r'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_',
+            r'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_',
+            r'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*',
+            r'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/',
+            r'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|',
+            r'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
+            r'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
+            r'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
+            r'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
         ]
 
         for word in ITALICIZE_WORDS:
@@ -181,10 +180,10 @@ class HeuristicProcessor:
         search_text = re.sub(r'<[^>]*>', '', search_text)
         for pat in ITALICIZE_STYLE_PATS:
             for match in re.finditer(pat, search_text):
-                ital_string = unicode_type(match.group('words'))
-                # self.log.debug("italicising "+unicode_type(match.group(0))+"    with <i>"+ital_string+"</i>")
+                ital_string = str(match.group('words'))
+                # self.log.debug("italicising "+str(match.group(0))+"    with <i>"+ital_string+"</i>")
                 try:
-                    html = re.sub(re.escape(unicode_type(match.group(0))), '<i>%s</i>' % ital_string, html)
+                    html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
                 except OverflowError:
                     # match.group(0) was too large to be compiled into a regex
                     continue
@@ -209,10 +208,10 @@ class HeuristicProcessor:
             if wordcount > 200000:
                 typical_chapters = 15000.
             self.min_chapters = int(ceil(wordcount / typical_chapters))
-        self.log.debug("minimum chapters required are: "+unicode_type(self.min_chapters))
+        self.log.debug("minimum chapters required are: "+str(self.min_chapters))
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
-        self.log.debug("found " + unicode_type(self.html_preprocess_sections) + " pre-existing headings")
+        self.log.debug("found " + str(self.html_preprocess_sections) + " pre-existing headings")
 
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
@@ -302,7 +301,7 @@ class HeuristicProcessor:
                 if n_lookahead_req:
                     n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
                 if not analyze:
-                    self.log.debug("Marked " + unicode_type(self.html_preprocess_sections) + " headings, " + log_message)
+                    self.log.debug("Marked " + str(self.html_preprocess_sections) + " headings, " + log_message)
 
                 chapter_marker = arg_ignorecase+init_lookahead+full_chapter_line+blank_lines+lp_n_lookahead_open+n_lookahead+lp_n_lookahead_close+ \
                     lp_opt_title_open+title_line_open+title_header_open+lp_title+title_header_close+title_line_close+lp_opt_title_close
@@ -316,10 +315,10 @@ class HeuristicProcessor:
                             title_req = True
                             strict_title = False
                         self.log.debug(
-                                unicode_type(type_name)+" had "+unicode_type(hits)+
-                                " hits - "+unicode_type(self.chapters_no_title)+" chapters with no title, "+
-                                unicode_type(self.chapters_with_title)+" chapters with titles, "+
-                                unicode_type(float(self.chapters_with_title) / float(hits))+" percent. ")
+                                str(type_name)+" had "+str(hits)+
+                                " hits - "+str(self.chapters_no_title)+" chapters with no title, "+
+                                str(self.chapters_with_title)+" chapters with titles, "+
+                                str(float(self.chapters_with_title) / float(hits))+" percent. ")
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                         elif self.min_chapters <= hits < max_chapters or self.min_chapters < 3 > hits:
@@ -336,8 +335,8 @@ class HeuristicProcessor:
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount // self.html_preprocess_sections
-        self.log.debug("Total wordcount is: "+ unicode_type(wordcount)+", Average words per section is: "+
-                       unicode_type(words_per_chptr)+", Marked up "+unicode_type(self.html_preprocess_sections)+" chapters")
+        self.log.debug("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+
+                       str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
         return html
 
     def punctuation_unwrap(self, length, content, format):
@@ -367,8 +366,8 @@ class HeuristicProcessor:
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
-        lookahead = "(?<=.{"+unicode_type(length)+r"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]|(?<!\&\w{4});))"
-        em_en_lookahead = "(?<=.{"+unicode_type(length)+"}[\u2013\u2014])"
+        lookahead = "(?<=.{"+str(length)+r"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]|(?<!\&\w{4});))"
+        em_en_lookahead = "(?<=.{"+str(length)+"}[\u2013\u2014])"
         soft_hyphen = "\xad"
         line_ending = "\\s*(?P<style_close></(span|[iub])>)?\\s*(</(p|div)>)?"
         blanklines = "\\s*(?P<up2threeblanks><(p|span|div)[^>]*>\\s*(<(p|span|div)[^>]*>\\s*</(span|p|div)>\\s*)</(span|p|div)>\\s*){0,3}\\s*"
@@ -428,18 +427,18 @@ class HeuristicProcessor:
         return html
 
     def fix_nbsp_indents(self, html):
-        txtindent = re.compile(unicode_type(r'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}'), re.IGNORECASE)
+        txtindent = re.compile(r'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
-            self.log.debug("replaced "+unicode_type(self.found_indents)+ " nbsp indents with inline styles")
+            self.log.debug("replaced "+str(self.found_indents)+ " nbsp indents with inline styles")
         return html
 
     def cleanup_markup(self, html):
         # remove remaining non-breaking spaces
-        html = re.sub(unicode_type(r'\u00a0'), ' ', html)
+        html = re.sub(r'\u00a0', ' ', html)
         # Get rid of various common microsoft specific tags which can cause issues later
         # Get rid of empty <o:p> tags to simplify other processing
-        html = re.sub(unicode_type(r'\s*<o:p>\s*</o:p>'), ' ', html)
+        html = re.sub(r'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\\w+>', '', html)
         # Re-open self closing paragraph tags
@@ -479,8 +478,8 @@ class HeuristicProcessor:
         blanklines = self.blankreg.findall(html)
         lines = self.linereg.findall(html)
         if len(lines) > 1:
-            self.log.debug("There are " + unicode_type(len(blanklines)) + " blank lines. " +
-                    unicode_type(float(len(blanklines)) / float(len(lines))) + " percent blank")
+            self.log.debug("There are " + str(len(blanklines)) + " blank lines. " +
+                    str(float(len(blanklines)) / float(len(lines))) + " percent blank")
 
             if float(len(blanklines)) / float(len(lines)) > 0.40:
                 return True
@@ -502,11 +501,11 @@ class HeuristicProcessor:
             lines = float(len(self.single_blank.findall(to_merge))) - 1.
             em = base_em + (em_per_line * lines)
             if to_merge.find('whitespace'):
-                newline = self.any_multi_blank.sub('\n<p class="whitespace'+unicode_type(int(em * 10))+
-                                                   '" style="text-align:center; margin-top:'+unicode_type(em)+'em"> </p>', match.group(0))
+                newline = self.any_multi_blank.sub('\n<p class="whitespace'+str(int(em * 10))+
+                                                   '" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
             else:
-                newline = self.any_multi_blank.sub('\n<p class="softbreak'+unicode_type(int(em * 10))+
-                                                   '" style="text-align:center; margin-top:'+unicode_type(em)+'em"> </p>', match.group(0))
+                newline = self.any_multi_blank.sub('\n<p class="softbreak'+str(int(em * 10))+
+                                                   '" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
             return newline
 
         html = self.any_multi_blank.sub(merge_matches, html)
@@ -530,9 +529,9 @@ class HeuristicProcessor:
             top_margin = ''
             bottom_margin = ''
             if initblanks is not None:
-                top_margin = 'margin-top:'+unicode_type(len(self.single_blank.findall(initblanks)))+'em;'
+                top_margin = 'margin-top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
             if endblanks is not None:
-                bottom_margin = 'margin-bottom:'+unicode_type(len(self.single_blank.findall(endblanks)))+'em;'
+                bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(endblanks)))+'em;'
 
             if initblanks is None and endblanks is None:
                 return content
@@ -609,7 +608,7 @@ class HeuristicProcessor:
                     else:
                         replacement_break = re.sub('(?i)(width=\\d+\\%?|width:\\s*\\d+(\\%|px|pt|em)?;?)', '', replacement_break)
                         divpercent = (100 - width) // 2
-                        hr_open = re.sub('45', unicode_type(divpercent), hr_open)
+                        hr_open = re.sub('45', str(divpercent), hr_open)
                         scene_break = hr_open+replacement_break+'</div>'
                 else:
                     scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
@@ -669,12 +668,12 @@ class HeuristicProcessor:
             else:
                 styles = match.group('styles').split(';')
                 is_paragraph = self.check_paragraph(content)
-                # print "styles for this line are: "+unicode_type(styles)
+                # print "styles for this line are: "+str(styles)
                 split_styles = []
                 for style in styles:
-                    # print "style is: "+unicode_type(style)
+                    # print "style is: "+str(style)
                     newstyle = style.split(':')
-                    # print "newstyle is: "+unicode_type(newstyle)
+                    # print "newstyle is: "+str(newstyle)
                     split_styles.append(newstyle)
                 styles = split_styles
                 for style, setting in styles:
@@ -685,7 +684,7 @@ class HeuristicProcessor:
                         if 9 < setting < 14:
                             text_indent = indented_text
                         else:
-                            text_indent = style+':'+unicode_type(setting)+'pt;'
+                            text_indent = style+':'+str(setting)+'pt;'
                     if style == 'padding':
                         setting = re.sub('pt', '', setting).split(' ')
                         if int(setting[1]) < 16 and int(setting[3]) < 16:
@@ -706,23 +705,23 @@ class HeuristicProcessor:
                             blockquote_open_loop = blockquote_open
                         if debugabby:
                             self.log.debug('\n\n******\n')
-                            self.log.debug('padding top is: '+unicode_type(setting[0]))
-                            self.log.debug('padding right is:' +unicode_type(setting[1]))
-                            self.log.debug('padding bottom is: ' + unicode_type(setting[2]))
-                            self.log.debug('padding left is: ' +unicode_type(setting[3]))
+                            self.log.debug('padding top is: '+str(setting[0]))
+                            self.log.debug('padding right is:' +str(setting[1]))
+                            self.log.debug('padding bottom is: ' + str(setting[2]))
+                            self.log.debug('padding left is: ' +str(setting[3]))
 
-                # print "text-align is: "+unicode_type(text_align)
-                # print "\n***\nline is:\n     "+unicode_type(match.group(0))+'\n'
+                # print "text-align is: "+str(text_align)
+                # print "\n***\nline is:\n     "+str(match.group(0))+'\n'
                 if debugabby:
-                    # print "this line is a paragraph = "+unicode_type(is_paragraph)+", previous line was "+unicode_type(self.previous_was_paragraph)
+                    # print "this line is a paragraph = "+str(is_paragraph)+", previous line was "+str(self.previous_was_paragraph)
                     self.log.debug("styles for this line were:", styles)
                     self.log.debug('newline is:')
                     self.log.debug(blockquote_open_loop+blockquote_close_loop+
                             paragraph_before+'<p style="'+text_indent+text_align+
                             '">'+content+'</p>'+paragraph_after+'\n\n\n\n\n')
-                # print "is_paragraph is "+unicode_type(is_paragraph)+", previous_was_paragraph is "+unicode_type(self.previous_was_paragraph)
+                # print "is_paragraph is "+str(is_paragraph)+", previous_was_paragraph is "+str(self.previous_was_paragraph)
                 self.previous_was_paragraph = is_paragraph
-                # print "previous_was_paragraph is now set to "+unicode_type(self.previous_was_paragraph)+"\n\n\n"
+                # print "previous_was_paragraph is now set to "+str(self.previous_was_paragraph)+"\n\n\n"
                 return blockquote_open_loop+blockquote_close_loop+paragraph_before+'<p style="'+text_indent+text_align+'">'+content+'</p>'+paragraph_after
 
         html = abbyy_line.sub(convert_styles, html)
@@ -805,12 +804,12 @@ class HeuristicProcessor:
         # more of the lines break in the same region of the document then unwrapping is required
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
-        self.log.debug("Hard line breaks check returned "+unicode_type(hardbreaks))
+        self.log.debug("Hard line breaks check returned "+str(hardbreaks))
 
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = docanalysis.line_length(unwrap_factor)
-        self.log.debug("Median line length is " + unicode_type(length) + ", calculated with " + format + " format")
+        self.log.debug("Median line length is " + str(length) + ", calculated with " + format + " format")
 
         # ##### Unwrap lines ######
         if getattr(self.extra_opts, 'unwrap_lines', False):
@@ -832,7 +831,7 @@ class HeuristicProcessor:
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):
             self.log.debug("Looking for more split points based on punctuation,"
-                    " currently have " + unicode_type(self.html_preprocess_sections))
+                    " currently have " + str(self.html_preprocess_sections))
             chapdetect3 = re.compile(
                 r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([\W]+\s*)+)'
                 r'(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*'

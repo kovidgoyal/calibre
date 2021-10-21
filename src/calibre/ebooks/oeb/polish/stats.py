@@ -15,7 +15,7 @@ import regex
 from calibre.ebooks.oeb.base import XHTML, css_text
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdeclaration
 from calibre.utils.icu import ord_string, safe_chr
-from polyglot.builtins import iteritems, itervalues, range, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from tinycss.fonts3 import parse_font_family
 
 
@@ -23,7 +23,7 @@ def normalize_font_properties(font):
     w = font.get('font-weight', None)
     if not w and w != 0:
         w = 'normal'
-    w = unicode_type(w)
+    w = str(w)
     w = {'normal':'400', 'bold':'700'}.get(w, w)
     if w not in {'100', '200', '300', '400', '500', '600', '700',
             '800', '900'}:
@@ -161,7 +161,7 @@ def get_font_dict(elem, resolve_property, pseudo=None):
     for p in 'weight', 'style', 'stretch':
         p = 'font-' + p
         rp = resolve_property(elem, p) if pseudo is None else resolve_property(elem, pseudo, p)
-        ans[p] = unicode_type(rp[0].value)
+        ans[p] = str(rp[0].value)
     normalize_font_properties(ans)
     return ans
 

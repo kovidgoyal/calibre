@@ -14,7 +14,6 @@ from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 from calibre.utils.formatter import validation_formatter
 from calibre.ebooks import BOOK_EXTENSIONS
-from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
@@ -138,7 +137,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def format_map(self):
         formats = [
-                unicode_type(self.columns.item(i).data(Qt.ItemDataRole.UserRole) or '')
+                str(self.columns.item(i).data(Qt.ItemDataRole.UserRole) or '')
                 for i in range(self.columns.count())
                 if self.columns.item(i).checkState()==Qt.CheckState.Checked
         ]
@@ -157,7 +156,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         formats = set(self.format_map())
         extra = formats - set(self.calibre_known_formats)
         if extra:
-            fmts = sorted((x.upper() for x in extra))
+            fmts = sorted(x.upper() for x in extra)
             if not question_dialog(self, _('Unknown formats'),
                     _('You have enabled the <b>{0}</b> formats for'
                         ' your {1}. The {1} may not support them.'
@@ -166,13 +165,13 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                             (', '.join(fmts)), self.device_name)):
                 return False
 
-        tmpl = unicode_type(self.opt_save_template.text())
+        tmpl = str(self.opt_save_template.text())
         try:
             validation_formatter.validate(tmpl)
             return True
         except Exception as err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl +
-                    '<br>'+unicode_type(err), show=True)
+                    '<br>'+str(err), show=True)
 
             return False

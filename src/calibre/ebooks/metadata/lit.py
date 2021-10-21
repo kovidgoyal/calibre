@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -7,9 +5,9 @@ Support for reading the metadata from a LIT file.
 '''
 
 import io
+import os
 
 from calibre.ebooks.metadata.opf2 import OPF
-from polyglot.builtins import getcwd
 
 
 def get_metadata(stream):
@@ -18,7 +16,7 @@ def get_metadata(stream):
     litfile = LitContainer(stream, Log())
     src = litfile.get_metadata().encode('utf-8')
     litfile = litfile._litfile
-    opf = OPF(io.BytesIO(src), getcwd())
+    opf = OPF(io.BytesIO(src), os.getcwd())
     mi = opf.to_book_metadata()
     covers = []
     for item in opf.iterguide():

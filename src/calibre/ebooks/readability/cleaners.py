@@ -1,5 +1,3 @@
-
-
 # strip out a set of nuisance html attributes that can mess up rendering in RSS feeds
 import re
 from lxml.html.clean import Cleaner

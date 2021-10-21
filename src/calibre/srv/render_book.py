@@ -47,7 +47,7 @@ from polyglot.binary import (
     as_base64_unicode as encode_component, from_base64_bytes,
     from_base64_unicode as decode_component
 )
-from polyglot.builtins import as_bytes, iteritems, map, unicode_type
+from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -108,7 +108,7 @@ def create_link_replacer(container, link_uid, changed):
                 frag = urlunquote(frag)
                 url = resource_template.format(encode_url(name, frag))
             else:
-                if isinstance(name, unicode_type):
+                if isinstance(name, str):
                     name = name.encode('utf-8')
                 url = 'missing:' + force_unicode(quote(name), 'utf-8')
             changed.add(base)
@@ -443,11 +443,11 @@ class RenderManager:
         del self.workers
         try:
             rmtree(self.tdir)
-        except EnvironmentError:
+        except OSError:
             time.sleep(0.1)
             try:
                 rmtree(self.tdir)
-            except EnvironmentError:
+            except OSError:
                 pass
         del self.tdir
 
@@ -764,13 +764,12 @@ def get_stored_annotations(container, bookmark_data):
         return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
         raw = raw[len(EPUB_FILE_TYPE_MAGIC):].replace(b'\n', b'')
-        for annot in json_loads(from_base64_bytes(raw)):
-            yield annot
+        yield from json_loads(from_base64_bytes(raw))
         return
 
     from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
     for bm in parse_bookmarks(raw):
-        if bm['type'] == 'cfi' and isinstance(bm['pos'], unicode_type):
+        if bm['type'] == 'cfi' and isinstance(bm['pos'], str):
             spine_index = (1 + bm['spine']) * 2
             epubcfi = 'epubcfi(/{}/{})'.format(spine_index, bm['pos'].lstrip('/'))
             title = bm.get('title')

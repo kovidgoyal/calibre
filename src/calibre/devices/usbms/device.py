@@ -27,7 +27,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import iteritems, map, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 if ismacos:
     osx_sanitize_name_pat = re.compile(r'[.-]')
@@ -296,7 +296,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 return subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE).communicate()[0]
-            except IOError:  # Probably an interrupted system call
+            except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
             time.sleep(2)
@@ -310,7 +310,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 return subprocess.Popen('mount',
                                     stdout=subprocess.PIPE).communicate()[0]
-            except IOError:  # Probably an interrupted system call
+            except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
             time.sleep(2)
@@ -440,8 +440,7 @@ class Device(DeviceConfig, DevicePlugin):
                 isfile = os.path.isfile(p)
                 yield p, isfile
                 if not isfile:
-                    for y, q in walk(p):
-                        yield y, q
+                    yield from walk(p)
 
         def raw2num(raw):
             raw = raw.lower()

@@ -22,7 +22,7 @@ from calibre import as_unicode
 from calibre.customize import (
     InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
 )
-from polyglot.builtins import itervalues, map, reload, string_or_bytes, unicode_type
+from polyglot.builtins import itervalues, reload, string_or_bytes
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths
@@ -307,7 +307,7 @@ class CalibrePluginFinder:
             if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
                     'The plugin at %s needs a version of calibre >= %s' %
-                    (as_unicode(path_to_zip_file), '.'.join(map(unicode_type,
+                    (as_unicode(path_to_zip_file), '.'.join(map(str,
                         ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
@@ -340,9 +340,9 @@ class CalibrePluginFinder:
                     break
         else:
             if self._identifier_pat.match(plugin_name) is None:
-                raise InvalidPlugin((
+                raise InvalidPlugin(
                     'The plugin at %r uses an invalid import name: %r' %
-                    (path_to_zip_file, plugin_name)))
+                    (path_to_zip_file, plugin_name))
 
         pynames = [x for x in names if x.endswith('.py')]
 

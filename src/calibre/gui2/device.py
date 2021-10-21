@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -35,7 +33,7 @@ from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
-from polyglot.builtins import unicode_type, string_or_unicode
+from polyglot.builtins import string_or_unicode
 from polyglot import queue
 # }}}
 
@@ -107,7 +105,7 @@ class DeviceJob(BaseJob):  # {{{
             call_job_done = True
         self._aborted = True
         self.failed = True
-        self._details = unicode_type(err)
+        self._details = str(err)
         self.exception = err
         if call_job_done:
             self.job_done()
@@ -209,7 +207,7 @@ class DeviceManager(Thread):  # {{{
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
                     self.reported_errors.add(tb)
-                    prints('Unable to open device', unicode_type(dev))
+                    prints('Unable to open device', str(dev))
                     prints(tb)
                 continue
             self.after_device_connect(dev, device_kind)
@@ -566,7 +564,7 @@ class DeviceManager(Thread):  # {{{
             self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
-                if isinstance(f, unicode_type):
+                if isinstance(f, str):
                     ext = f.rpartition('.')[-1].lower()
                     cpb = find_plugboard(
                             device_name_for_plugboards(self.connected_device),
@@ -935,7 +933,7 @@ class DeviceMixin:  # {{{
         d.show()
 
     def auto_convert_question(self, msg, autos):
-        autos = '\n'.join(map(unicode_type, map(force_unicode, autos)))
+        autos = '\n'.join(map(str, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
@@ -1033,7 +1031,7 @@ class DeviceMixin:  # {{{
 
         try:
             if 'Could not read 32 bytes on the control bus.' in \
-                    unicode_type(job.details):
+                    str(job.details):
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
@@ -1361,7 +1359,7 @@ class DeviceMixin:  # {{{
             names = []
             for book_id, mi in zip(ids, metadata):
                 prefix = ascii_filename(mi.title)
-                if not isinstance(prefix, unicode_type):
+                if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, book_id,
@@ -1439,7 +1437,7 @@ class DeviceMixin:  # {{{
             names = []
             for book_id, mi in zip(ids, metadata):
                 prefix = ascii_filename(mi.title)
-                if not isinstance(prefix, unicode_type):
+                if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, book_id,
@@ -1453,7 +1451,7 @@ class DeviceMixin:  # {{{
                     self.location_manager.free[2] : 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 try:
-                    total_size = sum([os.stat(f).st_size for f in files])
+                    total_size = sum(os.stat(f).st_size for f in files)
                 except:
                     try:
                         import traceback
@@ -1518,7 +1516,7 @@ class DeviceMixin:  # {{{
                 if not a:
                     a = _('Unknown')
                 prefix = ascii_filename(t+' - '+a)
-                if not isinstance(prefix, unicode_type):
+                if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
@@ -1639,7 +1637,7 @@ class DeviceMixin:  # {{{
 
         if job.exception is not None:
             if isinstance(job.exception, FreeSpaceError):
-                where = 'in main memory.' if 'memory' in unicode_type(job.exception) \
+                where = 'in main memory.' if 'memory' in str(job.exception) \
                         else 'on the storage card.'
                 titles = '\n'.join(['<li>'+mi.title+'</li>'
                                     for mi in metadata])
@@ -1650,7 +1648,7 @@ class DeviceMixin:  # {{{
                 d.exec_()
             elif isinstance(job.exception, WrongDestinationError):
                 error_dialog(self, _('Incorrect destination'),
-                        unicode_type(job.exception), show=True)
+                        str(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return

@@ -20,13 +20,13 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import native_string_type, unicode_type, string_or_bytes, map, range
+from polyglot.builtins import native_string_type, string_or_bytes
 
 
-class AsYouType(unicode_type):
+class AsYouType(str):
 
     def __new__(cls, text):
-        self = unicode_type.__new__(cls, text)
+        self = str.__new__(cls, text)
         self.as_you_type = True
         return self
 
@@ -196,7 +196,7 @@ class SearchBox2(QComboBox):  # {{{
         if isinstance(ok, string_or_bytes):
             self.setToolTip(ok)
             ok = False
-        if not unicode_type(self.currentText()).strip():
+        if not str(self.currentText()).strip():
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
@@ -219,7 +219,7 @@ class SearchBox2(QComboBox):  # {{{
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self.do_search()
             self.focus_to_library.emit()
-        elif self.as_you_type and unicode_type(event.text()):
+        elif self.as_you_type and str(event.text()):
             self.timer.start(1500)
 
     # Comes from the combobox itself
@@ -251,7 +251,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def _do_search(self, store_in_history=True, as_you_type=False):
         self.hide_completer_popup()
-        text = unicode_type(self.currentText()).strip()
+        text = str(self.currentText()).strip()
         if not text:
             return self.clear()
         if as_you_type:
@@ -269,7 +269,7 @@ class SearchBox2(QComboBox):  # {{{
                 self.insertItem(0, t)
             self.setCurrentIndex(0)
             self.block_signals(False)
-            history = [unicode_type(self.itemText(i)) for i in
+            history = [str(self.itemText(i)) for i in
                     range(self.count())]
             config[self.opt_name] = history
 
@@ -312,7 +312,7 @@ class SearchBox2(QComboBox):  # {{{
 
     @property
     def current_text(self):
-        return unicode_type(self.lineEdit().text())
+        return str(self.lineEdit().text())
 
     # }}}
 
@@ -376,7 +376,7 @@ class SavedSearchBox(QComboBox):  # {{{
     def saved_search_selected(self, qname):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
-        qname = unicode_type(qname)
+        qname = str(qname)
         if qname is None or not qname.strip():
             self.search_box.clear()
             return
@@ -384,7 +384,7 @@ class SavedSearchBox(QComboBox):  # {{{
             self.search_box.clear()
             self.setEditText(qname)
             return
-        self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
+        self.search_box.set_search_string('search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
         self.setToolTip(db.saved_search_lookup(qname))
 
@@ -403,9 +403,9 @@ class SavedSearchBox(QComboBox):  # {{{
     def save_search_button_clicked(self):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
-        name = unicode_type(self.currentText())
+        name = str(self.currentText())
         if not name.strip():
-            name = unicode_type(self.search_box.text()).replace('"', '')
+            name = str(self.search_box.text()).replace('"', '')
         name = name.replace('\\', '')
         if not name:
             error_dialog(self, _('Create saved search'),
@@ -417,7 +417,7 @@ class SavedSearchBox(QComboBox):  # {{{
                          _('There is no search to save'), show=True)
             return
         db.saved_search_delete(name)
-        db.saved_search_add(name, unicode_type(self.search_box.text()))
+        db.saved_search_add(name, str(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
         # references the new search instead of the text in the search.
@@ -438,10 +438,10 @@ class SavedSearchBox(QComboBox):  # {{{
                        '<b>permanently deleted</b>. Are you sure?') +
                        '</p>', 'saved_search_delete', self):
             return
-        ss = db.saved_search_lookup(unicode_type(self.currentText()))
+        ss = db.saved_search_lookup(str(self.currentText()))
         if ss is None:
             return
-        db.saved_search_delete(unicode_type(self.currentText()))
+        db.saved_search_delete(str(self.currentText()))
         self.clear()
         self.search_box.clear()
         self.changed.emit()
@@ -453,7 +453,7 @@ class SavedSearchBox(QComboBox):  # {{{
         idx = self.currentIndex()
         if idx < 0:
             return
-        self.search_box.set_search_string(db.saved_search_lookup(unicode_type(self.currentText())))
+        self.search_box.set_search_string(db.saved_search_lookup(str(self.currentText())))
 
     # }}}
 
@@ -477,7 +477,7 @@ class SearchBoxMixin:  # {{{
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
         shortcuts = list(
-                map(lambda x:unicode_type(x.toString(QKeySequence.SequenceFormat.PortableText)),
+                map(lambda x:str(x.toString(QKeySequence.SequenceFormat.PortableText)),
                 QKeySequence.keyBindings(QKeySequence.StandardKey.Find)))
         shortcuts += ['/', 'Alt+S']
         self.keyboard.register_shortcut('start search', _('Start search'),
@@ -485,7 +485,7 @@ class SearchBoxMixin:  # {{{
         self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',
-            unicode_type(self.search.toolTip())))
+            str(self.search.toolTip())))
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'

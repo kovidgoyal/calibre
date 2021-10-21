@@ -10,7 +10,7 @@ from struct import unpack_from, calcsize
 from collections import OrderedDict, namedtuple
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import range, iteritems
+from polyglot.builtins import iteritems
 
 
 class Unpackable:

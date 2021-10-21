@@ -38,7 +38,7 @@ def parse_desktop_file(path):
     try:
         with open(path, 'rb') as f:
             raw = f.read().decode('utf-8')
-    except (EnvironmentError, UnicodeDecodeError):
+    except (OSError, UnicodeDecodeError):
         return
     group = None
     ans = {}
@@ -131,14 +131,14 @@ def find_icons():
     for loc in base_dirs:
         try:
             subdirs = os.listdir(loc)
-        except EnvironmentError:
+        except OSError:
             continue
         for dname in subdirs:
             d = os.path.join(loc, dname)
             if os.path.isdir(d):
                 try:
                     mtime = os.stat(d).st_mtime
-                except EnvironmentError:
+                except OSError:
                     continue
                 seen_dirs.add(d)
                 if mtime != mtimes[d]:

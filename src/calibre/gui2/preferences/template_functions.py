@@ -16,7 +16,7 @@ from calibre.utils.formatter_functions import (
     compile_user_function, compile_user_template_functions, formatter_functions,
     function_pref_is_python, function_pref_name, load_user_template_functions
 )
-from polyglot.builtins import iteritems, native_string_type, unicode_type
+from polyglot.builtins import iteritems, native_string_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -145,8 +145,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = dict((k,v) for k,v in formatter_functions().get_functions().items()
-                                if v.is_python)
+        self.funcs = {k:v for k,v in formatter_functions().get_functions().items()
+                                if v.is_python}
 
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
@@ -245,7 +245,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     self.delete_button.setEnabled(True)
 
     def delete_button_clicked(self):
-        name = unicode_type(self.function_name.currentText())
+        name = str(self.function_name.currentText())
         if name in self.builtins:
             error_dialog(self.gui, _('Template functions'),
                          _('You cannot delete a built-in function'), show=True)
@@ -262,7 +262,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
-        name = use_name if use_name else unicode_type(self.function_name.currentText())
+        name = use_name if use_name else str(self.function_name.currentText())
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
                          _('Name %s already used')%(name,), show=True)
@@ -284,8 +284,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if not box.exec_():
                 return
         try:
-            prog = unicode_type(self.program.toPlainText())
-            cls = compile_user_function(name, unicode_type(self.documentation.toPlainText()),
+            prog = str(self.program.toPlainText())
+            cls = compile_user_function(name, str(self.documentation.toPlainText()),
                                         self.argument_count.value(), prog)
             self.funcs[name] = cls
             self.build_function_names_box(scroll_to=name)
@@ -302,7 +302,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.program.setReadOnly(False)
 
     def function_index_changed(self, txt):
-        txt = unicode_type(txt)
+        txt = str(txt)
         self.create_button.setEnabled(False)
         if not txt:
             self.argument_count.clear()
@@ -331,7 +331,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
 
     def replace_button_clicked(self):
-        name = unicode_type(self.function_name.currentText())
+        name = str(self.function_name.currentText())
         self.delete_button_clicked()
         self.create_button_clicked(use_name=name)
 
@@ -379,7 +379,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.te_name.setCurrentIndex(idx)
 
     def st_delete_button_clicked(self):
-        name = unicode_type(self.te_name.currentText())
+        name = str(self.te_name.currentText())
         if name in self.st_funcs:
             del self.st_funcs[name]
             self.changed_signal.emit()
@@ -394,18 +394,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def st_create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
-        name = use_name if use_name else unicode_type(self.te_name.currentText())
+        name = use_name if use_name else str(self.te_name.currentText())
         for k,v in formatter_functions().get_functions().items():
             if k == name and v.is_python:
                 error_dialog(self.gui, _('Stored templates'),
                          _('The name {} is already used for template function').format(name), show=True)
         try:
-            prog = unicode_type(self.te_textbox.toPlainText())
+            prog = str(self.te_textbox.toPlainText())
             if not prog.startswith('program:'):
                 error_dialog(self.gui, _('Stored templates'),
                          _('The stored template must begin with "program:"'), show=True)
 
-            cls = compile_user_function(name, unicode_type(self.template_editor.new_doc.toPlainText()),
+            cls = compile_user_function(name, str(self.template_editor.new_doc.toPlainText()),
                                         0, prog)
             self.st_funcs[name] = cls
             self.st_build_function_names_box(scroll_to=name)
@@ -423,7 +423,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_textbox.setReadOnly(False)
 
     def st_function_index_changed(self, txt):
-        txt = unicode_type(txt)
+        txt = str(txt)
         if self.st_current_program_name:
             if self.st_current_program_text != self.te_textbox.toPlainText():
                 box = warning_dialog(self.gui, _('Template functions'),
@@ -451,7 +451,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_template_name_edited(txt)
 
     def st_replace_button_clicked(self):
-        name = unicode_type(self.te_name.currentText())
+        name = str(self.te_name.currentText())
         self.st_current_program_text = self.te_textbox.toPlainText()
         self.st_delete_button_clicked()
         self.st_create_button_clicked(use_name=name)

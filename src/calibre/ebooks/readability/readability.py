@@ -5,7 +5,7 @@
 import re, sys
 from collections import defaultdict
 
-from polyglot.builtins import reraise, unicode_type
+from polyglot.builtins import reraise
 
 from lxml.html import (fragment_fromstring, document_fromstring,
         tostring as htostring)
@@ -15,7 +15,7 @@ from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
 
 
 def tounicode(tree_or_node, **kwargs):
-    kwargs['encoding'] = unicode_type
+    kwargs['encoding'] = str
     return htostring(tree_or_node, **kwargs)
 
 
@@ -156,7 +156,7 @@ class Document:
                     return cleaned_article
         except Exception as e:
             self.log.exception('error getting summary: ')
-            reraise(Unparsable, Unparsable(unicode_type(e)), sys.exc_info()[2])
+            reraise(Unparsable, Unparsable(str(e)), sys.exc_info()[2])
 
     def get_article(self, candidates, best_candidate):
         # Now that we have the top candidate, look through its siblings for content that might also be related.
@@ -216,7 +216,7 @@ class Document:
     def score_paragraphs(self, ):
         MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
         candidates = {}
-        # self.debug(unicode_type([describe(node) for node in self.tags(self.html, "div")]))
+        # self.debug(str([describe(node) for node in self.tags(self.html, "div")]))
 
         ordered = []
         for elem in self.tags(self.html, "p", "pre", "td"):
@@ -313,7 +313,7 @@ class Document:
     def transform_misused_divs_into_paragraphs(self):
         for elem in self.tags(self.html, 'div'):
             # transform <div>s that do not contain other block elements into <p>s
-            if not REGEXES['divToPElementsRe'].search(unicode_type(''.join(map(tounicode, list(elem))))):
+            if not REGEXES['divToPElementsRe'].search(str(''.join(map(tounicode, list(elem))))):
                 # self.debug("Altering %s to p" % (describe(elem)))
                 elem.tag = "p"
                 # print("Fixed element "+describe(elem))
@@ -339,13 +339,11 @@ class Document:
 
     def tags(self, node, *tag_names):
         for tag_name in tag_names:
-            for e in node.findall('.//%s' % tag_name):
-                yield e
+            yield from node.findall('.//%s' % tag_name)
 
     def reverse_tags(self, node, *tag_names):
         for tag_name in tag_names:
-            for e in reversed(node.findall('.//%s' % tag_name)):
-                yield e
+            yield from reversed(node.findall('.//%s' % tag_name))
 
     def sanitize(self, node, candidates):
         MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
@@ -457,7 +455,7 @@ class Document:
                             siblings.append(sib_content_length)
                             if j == x:
                                 break
-                    # self.debug(unicode_type(siblings))
+                    # self.debug(str(siblings))
                     if siblings and sum(siblings) > 1000 :
                         to_remove = False
                         self.debug("Allowing %s" % describe(el))

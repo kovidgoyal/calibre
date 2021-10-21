@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 import json, os, traceback
-from polyglot.builtins import unicode_type
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
@@ -51,7 +50,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 'separator', 'break', 'continue', 'return', 'in', 'inlist']
 
     def __init__(self, parent=None, builtin_functions=None):
-        super(TemplateHighlighter, self).__init__(parent)
+        super().__init__(parent)
 
         self.initializeFormats()
 
@@ -142,7 +141,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
         if not text:
             pass
-        elif text[0] == u"#":
+        elif text[0] == "#":
             self.setFormat(0, textLength, self.Formats["comment"])
             return
 
@@ -159,7 +158,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 i = regex.indexIn(text, i + length)
 
         if self.generate_paren_positions:
-            t = unicode_type(text)
+            t = str(text)
             i = 0
             foundQuote = False
             while i < len(t):
@@ -507,7 +506,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     (_('Template file'), ['txt'])
                     ], select_only_single_file=True)
         if filename:
-            with open(filename[0], 'r') as f:
+            with open(filename[0]) as f:
                 self.textbox.setPlainText(f.read())
 
     def save_template(self):
@@ -518,7 +517,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     ])
         if filename:
             with open(filename, 'w') as f:
-                f.write(unicode_type(self.textbox.toPlainText()))
+                f.write(str(self.textbox.toPlainText()))
 
     def get_current_font(self):
         font_name = gprefs.get('gpm_template_editor_font', None)
@@ -547,14 +546,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.font_box.setWritingSystem(QFontDatabase.Latin)
         self.font_box.setCurrentFont(font)
         self.font_box.setEditable(False)
-        gprefs['gpm_template_editor_font'] = unicode_type(font.family())
+        gprefs['gpm_template_editor_font'] = str(font.family())
         self.font_size_box.setValue(font.pointSize())
         self.font_box.currentFontChanged.connect(self.font_changed)
         self.font_size_box.valueChanged.connect(self.font_size_changed)
 
     def font_changed(self, font):
         fi = QFontInfo(font)
-        gprefs['gpm_template_editor_font'] = unicode_type(fi.family())
+        gprefs['gpm_template_editor_font'] = str(fi.family())
         self.set_editor_font()
 
     def font_size_changed(self, toWhat):
@@ -570,10 +569,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.breakpoint_line_box.setEnabled(new_state != 0)
         self.breakpoint_line_box_label.setEnabled(new_state != 0)
         if new_state == 0:
-            self.display_values(unicode_type(self.textbox.toPlainText()))
+            self.display_values(str(self.textbox.toPlainText()))
 
     def go_button_pressed(self):
-        self.display_values(unicode_type(self.textbox.toPlainText()))
+        self.display_values(str(self.textbox.toPlainText()))
 
     def remove_all_button_pressed(self):
         self.textbox.set_clicked_line_numbers(set())
@@ -646,15 +645,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def color_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
-        c.setText(unicode_type(self.color_name.color))
+        c.setText(str(self.color_name.color))
 
     def icon_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
-        c.setText(unicode_type(self.icon_files.currentText()))
+        c.setText(str(self.icon_files.currentText()))
 
     def textbox_changed(self):
-        cur_text = unicode_type(self.textbox.toPlainText())
+        cur_text = str(self.textbox.toPlainText())
         if self.last_text != cur_text:
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
@@ -681,7 +680,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()
         position = cursor.position()
-        t = unicode_type(self.textbox.toPlainText())
+        t = str(self.textbox.toPlainText())
         if position > 0 and position <= len(t):
             block_number = cursor.blockNumber()
             pos_in_block = cursor.positionInBlock() - 1
@@ -699,7 +698,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             return (_('Stored user defined template') if longform else _('Stored template'))
 
     def function_changed(self, toWhat):
-        name = unicode_type(self.function.itemData(toWhat))
+        name = str(self.function.itemData(toWhat))
         self.source_code.clear()
         self.documentation.clear()
         self.func_type.clear()
@@ -721,7 +720,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         gprefs['template_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
     def accept(self):
-        txt = unicode_type(self.textbox.toPlainText()).rstrip()
+        txt = str(self.textbox.toPlainText()).rstrip()
         if (self.coloring or self.iconing or self.embleming) and not txt:
             error_dialog(self, _('No template provided'),
                 _('The template box cannot be empty'), show=True)
@@ -731,16 +730,16 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 error_dialog(self, _('No column chosen'),
                     _('You must specify a column to be colored'), show=True)
                 return
-            self.rule = (unicode_type(self.colored_field.itemData(
+            self.rule = (str(self.colored_field.itemData(
                                 self.colored_field.currentIndex()) or ''), txt)
         elif self.iconing:
             if self.icon_field.currentIndex() == -1:
                 error_dialog(self, _('No column chosen'),
                     _('You must specify the column where the icons are applied'), show=True)
                 return
-            rt = unicode_type(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
+            rt = str(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
             self.rule = (rt,
-                         unicode_type(self.icon_field.itemData(
+                         str(self.icon_field.itemData(
                                 self.icon_field.currentIndex()) or ''),
                          txt)
         elif self.embleming:

@@ -34,7 +34,7 @@ from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.config import tweaks
 from calibre.utils.date import local_tz
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import filter, iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 BASE_TITLE = _('Edit metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
@@ -78,7 +78,7 @@ class MetadataSingleDialogBase(QDialog):
             QKeySequence.SequenceFormat.PortableText))
         p = self.parent()
         if hasattr(p, 'keyboard'):
-            kname = u'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
+            kname = 'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
             sc = p.keyboard.keys_map.get(kname, None)
             if sc:
                 self.download_shortcut.setKey(sc[0])
@@ -317,7 +317,7 @@ class MetadataSingleDialogBase(QDialog):
     def edit_prefix_list(self):
         prefixes, ok = QInputDialog.getMultiLineText(
             self, _('Edit prefixes'), _('Enter prefixes, one on a line. The first prefix becomes the default.'),
-            '\n'.join(list(map(unicode_type, gprefs['paste_isbn_prefixes']))))
+            '\n'.join(list(map(str, gprefs['paste_isbn_prefixes']))))
         if ok:
             gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
             self.update_paste_identifiers_menu()
@@ -409,7 +409,7 @@ class MetadataSingleDialogBase(QDialog):
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
-            title = title[:50] + u'\u2026'
+            title = title[:50] + '\u2026'
         self.setWindowTitle(BASE_TITLE + ' - ' +
                 title + ' - ' +
                 _(' [%(num)d of %(tot)d]')%dict(num=self.current_row+1,
@@ -452,7 +452,7 @@ class MetadataSingleDialogBase(QDialog):
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
                     self.book_id)
-        except (IOError, OSError) as err:
+        except OSError as err:
             if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
@@ -618,7 +618,7 @@ class MetadataSingleDialogBase(QDialog):
                         return False
                 widget.commit(self.db, self.book_id)
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
-            except (IOError, OSError) as err:
+            except OSError as err:
                 if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     show_locked_file_error(self, err)
                     return False

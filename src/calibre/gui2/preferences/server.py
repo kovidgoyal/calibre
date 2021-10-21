@@ -35,7 +35,7 @@ from calibre.srv.users import (
 )
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, unicode_type
+from polyglot.builtins import as_bytes
 
 
 if iswindows and not isportable:
@@ -169,7 +169,7 @@ class Text(QLineEdit):
         return self.text().strip() or None
 
     def set(self, val):
-        self.setText(unicode_type(val or ''))
+        self.setText(str(val or ''))
 
 
 class Path(QWidget):
@@ -199,7 +199,7 @@ class Path(QWidget):
         return self.text.text().strip() or None
 
     def set(self, val):
-        self.text.setText(unicode_type(val or ''))
+        self.text.setText(str(val or ''))
 
     def choose(self):
         ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)
@@ -1001,7 +1001,7 @@ class CustomList(QWidget):  # {{{
         if template == self.default_template:
             try:
                 os.remove(custom_list_template.path)
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
         else:
@@ -1173,7 +1173,7 @@ class SearchTheInternet(QWidget):
         else:
             try:
                 os.remove(search_the_net_urls.path)
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
         return True
@@ -1324,7 +1324,7 @@ class ConfigWidget(ConfigWidgetBase):
             el.setPlainText(
                 share_open(log_error_file, 'rb').read().decode('utf8', 'replace')
             )
-        except EnvironmentError:
+        except OSError:
             el.setPlainText(_('No error log found'))
         layout.addWidget(QLabel(_('Access log:')))
         al = QPlainTextEdit(d)
@@ -1333,7 +1333,7 @@ class ConfigWidget(ConfigWidgetBase):
             al.setPlainText(
                 share_open(log_access_file, 'rb').read().decode('utf8', 'replace')
             )
-        except EnvironmentError:
+        except OSError:
             al.setPlainText(_('No access log found'))
         loc = QLabel(_('The server log files are in: {}').format(os.path.dirname(log_error_file)))
         loc.setWordWrap(True)
@@ -1354,7 +1354,7 @@ class ConfigWidget(ConfigWidgetBase):
                 for x in (log_error_file, log_access_file):
                     try:
                         os.remove(x)
-                    except EnvironmentError as err:
+                    except OSError as err:
                         if err.errno != errno.ENOENT:
                             raise
             el.setPlainText(''), al.setPlainText('')

@@ -14,7 +14,6 @@ and igorsk.
 import struct
 
 from calibre.ebooks.mobi import MobiError
-from polyglot.builtins import map
 
 
 class Reader:

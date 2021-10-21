@@ -21,7 +21,7 @@ from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues
 
 ROOT = QModelIndex()
 
@@ -66,7 +66,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         keys = []
         for x in candidates:
             ks = QKeySequence(x, QKeySequence.SequenceFormat.PortableText)
-            x = unicode_type(ks.toString(QKeySequence.SequenceFormat.PortableText))
+            x = str(ks.toString(QKeySequence.SequenceFormat.PortableText))
             if x in seen:
                 if DEBUG:
                     prints('Key %r for shortcut %s is already used by'
@@ -185,8 +185,7 @@ class Node:
         return self.children[row]
 
     def __iter__(self):
-        for child in self.children:
-            yield child
+        yield from self.children
 
 
 class ConfigModel(SearchQueryParser, QAbstractItemModel):
@@ -214,8 +213,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
     @property
     def all_shortcuts(self):
         for group in self.data:
-            for sc in group:
-                yield sc
+            yield from group
 
     def rowCount(self, parent=ROOT):
         ip = parent.internalPointer()
@@ -299,7 +297,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                 if sc['persist_shortcut']:
                     options_map[un] = options_map.get(un, {})
                     options_map[un]['persist_shortcut'] = sc['persist_shortcut']
-                keys = [unicode_type(k.toString(QKeySequence.SequenceFormat.PortableText)) for k in sc['keys']]
+                keys = [str(k.toString(QKeySequence.SequenceFormat.PortableText)) for k in sc['keys']]
                 kmap[un] = keys
         with self.keyboard.config:
             self.keyboard.config['map'] = kmap
@@ -447,11 +445,11 @@ class Editor(QFrame):  # {{{
         self.default_keys = [QKeySequence(k, QKeySequence.SequenceFormat.PortableText) for k
                 in shortcut['default_keys']]
         self.current_keys = list(shortcut['keys'])
-        default = ', '.join([unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
+        default = ', '.join([str(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
                     self.default_keys])
         if not default:
             default = _('None')
-        current = ', '.join([unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
+        current = ', '.join([str(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
                     self.current_keys])
         if not current:
             current = _('None')
@@ -509,7 +507,7 @@ class Editor(QFrame):  # {{{
         dup_desc = self.dup_check(sequence)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode_type(sequence.toString(QKeySequence.SequenceFormat.NativeText)) + ' ' + _(
+                    str(sequence.toString(QKeySequence.SequenceFormat.NativeText)) + ' ' + _(
                         'already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
@@ -528,7 +526,7 @@ class Editor(QFrame):  # {{{
         ans = []
         for which in (1, 2):
             button = getattr(self, 'button%d'%which)
-            t = unicode_type(button.text())
+            t = str(button.text())
             if t == _('None'):
                 continue
             ks = QKeySequence(t, QKeySequence.SequenceFormat.NativeText)
@@ -555,7 +553,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         elif data.is_shortcut:
             shortcut = data.data
             # Shortcut
-            keys = [unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in shortcut['keys']]
+            keys = [str(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in shortcut['keys']]
             if not keys:
                 keys = _('None')
             else:
@@ -733,7 +731,7 @@ class ShortcutConfig(QWidget):  # {{{
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx,
-                unicode_type(self.search.currentText()))
+                str(self.search.currentText()))
         self.highlight_index(idx)
 
     def find_previous(self, *args):
@@ -741,7 +739,7 @@ class ShortcutConfig(QWidget):  # {{{
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx,
-            unicode_type(self.search.currentText()), backwards=True)
+            str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
     def highlight_group(self, group_name):

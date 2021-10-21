@@ -12,7 +12,6 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import range
 
 
 class Reader(FormatReader):

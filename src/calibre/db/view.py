@@ -8,8 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, operator, numbers
 from functools import partial
-from polyglot.builtins import (iteritems, itervalues, map,
-        unicode_type, range)
+from polyglot.builtins import iteritems, itervalues
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
@@ -175,8 +174,7 @@ class View:
             yield TableRow(book_id, self)
 
     def iterallids(self):
-        for book_id in sorted(self._map):
-            yield book_id
+        yield from sorted(self._map)
 
     def tablerow_for_id(self, book_id):
         return TableRow(book_id, self)
@@ -281,7 +279,7 @@ class View:
     def _build_restriction_string(self, restriction):
         if self.base_restriction:
             if restriction:
-                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+                return '(%s) and (%s)' % (self.base_restriction, restriction)
             else:
                 return self.base_restriction
         else:
@@ -297,7 +295,7 @@ class View:
         else:
             q = query
             if search_restriction:
-                q = u'(%s) and (%s)' % (search_restriction, query)
+                q = '(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
@@ -374,10 +372,10 @@ class View:
         old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids = dict.fromkeys(id_dict, u'true')
+            self.marked_ids = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = {k: unicode_type(v) for k, v in iteritems(id_dict)}
+            self.marked_ids = {k: str(v) for k, v in iteritems(id_dict)}
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)

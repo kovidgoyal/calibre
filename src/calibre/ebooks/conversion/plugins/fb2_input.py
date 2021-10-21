@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
@@ -9,7 +7,7 @@ import os, re
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import guess_type
-from polyglot.builtins import iteritems, getcwd
+from polyglot.builtins import iteritems
 
 FB2NS  = 'http://www.gribuser.ru/xml/fictionbook/2.0'
 FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
@@ -145,15 +143,15 @@ class FB2Input(InputFormatPlugin):
                     cpath = os.path.abspath(href)
                     break
 
-        opf = OPFCreator(getcwd(), mi)
-        entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir(u'.')]
+        opf = OPFCreator(os.getcwd(), mi)
+        entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir('.')]
         opf.create_manifest(entries)
         opf.create_spine(['index.xhtml'])
         if cpath:
             opf.guide.set_cover(cpath)
         with open('metadata.opf', 'wb') as f:
             opf.render(f)
-        return os.path.join(getcwd(), 'metadata.opf')
+        return os.path.join(os.getcwd(), 'metadata.opf')
 
     def extract_embedded_content(self, doc):
         from calibre.ebooks.fb2 import base64_decode

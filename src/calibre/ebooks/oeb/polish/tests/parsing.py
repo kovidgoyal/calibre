@@ -14,7 +14,7 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
 from calibre.ebooks.oeb.parse_utils import html5_parse
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 def nonvoid_cdata_elements(test, parse_function):

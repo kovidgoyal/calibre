@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -15,7 +14,6 @@ import sys, os, re
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import unicode_type
 
 from . import open_for_read, open_for_write
 
@@ -290,7 +288,7 @@ class MakeLists:
             'mi<mk<list_start\n'
                 )
         # bogus levels are sometimes written for empty paragraphs
-        if unicode_type(self.__level) not in self.__allow_levels:
+        if str(self.__level) not in self.__allow_levels:
             lev_num = '0'
         else:
             lev_num = self.__level

@@ -16,7 +16,7 @@ from functools import partial
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 class MarkdownMLizer(OEB2HTML):
@@ -138,7 +138,7 @@ class MarkdownMLizer(OEB2HTML):
         if 'margin-top' in style.cssdict() and style['margin-top'] != 'auto':
             ems = int(round(float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
-                text.append(u'\n\n' * ems)
+                text.append('\n\n' * ems)
 
         bq = '> ' * self.blockquotes
         # Block level elements
@@ -227,7 +227,7 @@ class MarkdownMLizer(OEB2HTML):
                 text.append('+ ')
             elif li['name'] == 'ol':
                 li['num'] += 1
-                text.append(unicode_type(li['num']) + '. ')
+                text.append(str(li['num']) + '. ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
@@ -270,7 +270,7 @@ class MarkdownMLizer(OEB2HTML):
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
             ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
             if ems >= 1:
-                text.append(u'\n\n' * ems)
+                text.append('\n\n' * ems)
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:

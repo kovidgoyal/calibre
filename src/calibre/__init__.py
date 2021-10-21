@@ -1,11 +1,10 @@
-
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, hasenv, native_string_type
+from polyglot.builtins import codepoint_to_chr, hasenv, native_string_type
 from math import floor
 from functools import partial
 
@@ -13,7 +12,7 @@ if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwd()
-except EnvironmentError:
+except OSError:
     os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, ismacos, islinux, isfrozen,
@@ -71,7 +70,7 @@ def get_types_map():
 
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
-    if isinstance(raw, unicode_type):
+    if isinstance(raw, str):
         return raw
     return raw.decode(encoding, errors)
 
@@ -259,7 +258,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     traceback.print_exc()
             else:
                 if debug:
-                    prints('Using http proxy', unicode_type(ans))
+                    prints('Using http proxy', str(ans))
                 return ans
 
 
@@ -372,7 +371,7 @@ class CurrentDir:
     def __exit__(self, *args):
         try:
             os.chdir(self.cwd)
-        except EnvironmentError:
+        except OSError:
             # The previous CWD no longer exists
             pass
 
@@ -419,7 +418,7 @@ def strftime(fmt, t=None):
         fmt = fmt.decode('mbcs' if iswindows else 'utf-8', 'replace')
     ans = time.strftime(fmt, t)
     if early_year:
-        ans = ans.replace('_early year hack##', unicode_type(orig_year))
+        ans = ans.replace('_early year hack##', str(orig_year))
     return ans
 
 
@@ -531,7 +530,7 @@ def force_unicode(obj, enc=preferred_encoding):
 def as_unicode(obj, enc=preferred_encoding):
     if not isbytestring(obj):
         try:
-            obj = unicode_type(obj)
+            obj = str(obj)
         except Exception:
             try:
                 obj = native_string_type(obj)
@@ -554,7 +553,7 @@ def human_readable(size, sep=' '):
         if size < (1 << ((i + 1) * 10)):
             divisor, suffix = (1 << (i * 10)), candidate
             break
-    size = unicode_type(float(size)/divisor)
+    size = str(float(size)/divisor)
     if size.find(".") > -1:
         size = size[:size.find(".")+2]
     if size.endswith('.0'):

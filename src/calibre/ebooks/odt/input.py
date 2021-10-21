@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -20,7 +19,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd, as_bytes
+from polyglot.builtins import string_or_bytes, as_bytes
 
 
 class Extract(ODF2XHTML):
@@ -70,7 +69,7 @@ class Extract(ODF2XHTML):
             etree.SubElement(head, ns+'link', {'type':'text/css',
                 'rel':'stylesheet', 'href':'odfpy.css'})
 
-        css = u'\n\n'.join(ans)
+        css = '\n\n'.join(ans)
         parser = CSSParser(loglevel=logging.WARNING,
                             log=_css_logger)
         self.css = parser.parseString(css, validate=False)
@@ -92,7 +91,7 @@ class Extract(ODF2XHTML):
         # Fix empty title tags
         for t in XPath('//h:title')(root):
             if not t.text:
-                t.text = u' '
+                t.text = ' '
         # Fix <p><div> constructs as the asinine epubchecker complains
         # about them
         pdiv = XPath('//h:p/h:div')
@@ -134,24 +133,24 @@ class Extract(ODF2XHTML):
                 cls.split()]))
             has_align = False
             for r in first_rules:
-                if r.style.getProperty(u'text-align') is not None:
+                if r.style.getProperty('text-align') is not None:
                     has_align = True
             ml = mr = None
             if not has_align:
                 aval = None
-                cls = div2.get(u'class', u'')
+                cls = div2.get('class', '')
                 rules = list(filter(None, [self.get_css_for_class(x) for x in
                     cls.split()]))
                 for r in rules:
-                    ml = r.style.getPropertyCSSValue(u'margin-left') or ml
-                    mr = r.style.getPropertyCSSValue(u'margin-right') or mr
+                    ml = r.style.getPropertyCSSValue('margin-left') or ml
+                    mr = r.style.getPropertyCSSValue('margin-right') or mr
                     ml = getattr(ml, 'value', None)
                     mr = getattr(mr, 'value', None)
-                if ml == mr == u'auto':
-                    aval = u'center'
-                elif ml == u'auto' and mr != u'auto':
+                if ml == mr == 'auto':
+                    aval = 'center'
+                elif ml == 'auto' and mr != 'auto':
                     aval = 'right'
-                elif ml != u'auto' and mr == u'auto':
+                elif ml != 'auto' and mr == 'auto':
                     aval = 'left'
                 if aval is not None:
                     style = div1.attrib.get('style', '').strip()
@@ -174,7 +173,7 @@ class Extract(ODF2XHTML):
             css = style.text
             if css:
                 css, sel_map = self.do_filter_css(css)
-                if not isinstance(css, unicode_type):
+                if not isinstance(css, str):
                     css = css.decode('utf-8', 'ignore')
                 style.text = css
                 for x in root.xpath('//*[@class]'):
@@ -213,7 +212,7 @@ class Extract(ODF2XHTML):
     def search_page_img(self, mi, log):
         for frm in self.document.topnode.getElementsByType(odFrame):
             try:
-                if frm.getAttrNS(odTEXTNS,u'anchor-type') == 'page':
+                if frm.getAttrNS(odTEXTNS,'anchor-type') == 'page':
                     log.warn('Document has Pictures anchored to Page, will all end up before first page!')
                     break
             except ValueError:
@@ -296,9 +295,9 @@ class Extract(ODF2XHTML):
                 f.write(as_bytes(html))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
-            opf = OPFCreator(os.path.abspath(getcwd()), mi)
+            opf = OPFCreator(os.path.abspath(os.getcwd()), mi)
             opf.create_manifest([(os.path.abspath(f2), None) for f2 in
-                walk(getcwd())])
+                walk(os.getcwd())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)

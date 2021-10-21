@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -12,8 +11,6 @@
 #                                                                       #
 #########################################################################
 import sys
-
-from polyglot.builtins import unicode_type
 
 from . import open_for_read
 
@@ -139,7 +136,7 @@ class OldRtf:
                     if self.__run_level > 3:
                         sys.stderr.write(
                             'Old rtf construction %s (bracket %s, line %s)\n' % (
-                                self.__inline_info, unicode_type(self.__ob_group), line_num)
+                                self.__inline_info, str(self.__ob_group), line_num)
                         )
                     return True
                 self.__previous_token = line[6:16]

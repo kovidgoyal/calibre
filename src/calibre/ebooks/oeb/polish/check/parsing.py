@@ -17,13 +17,13 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE, XHTML
-from polyglot.builtins import iteritems, unicode_type, error_message
+from polyglot.builtins import iteritems, error_message
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
-replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
+replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted(HTML_ENTITTIES - XML_ENTITIES)))
 mismatch_pat = re.compile(r'tag mismatch:.+?line (\d+).+?line \d+')
 
 
@@ -203,7 +203,7 @@ class NonUTF8(BaseError):
 
     def __call__(self, container):
         raw = container.raw_data(self.name)
-        if isinstance(raw, unicode_type):
+        if isinstance(raw, str):
             raw, changed = replace_encoding_declarations(raw)
             if changed:
                 container.open(self.name, 'wb').write(raw.encode('utf-8'))
@@ -443,7 +443,7 @@ class ErrorHandler:
     info = debug = setLevel = getEffectiveLevel = addHandler = removeHandler = __noop
 
     def __handle(self, level, *args):
-        msg = ' '.join(map(unicode_type, args))
+        msg = ' '.join(map(str, args))
         line = col = None
         for pat in pos_pats:
             m = pat.search(msg)

@@ -9,7 +9,7 @@ from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.normalize_css import normalize_font
 from tinycss.fonts3 import parse_font_family, parse_font, serialize_font_family, serialize_font
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems
 
 
 def unquote(x):

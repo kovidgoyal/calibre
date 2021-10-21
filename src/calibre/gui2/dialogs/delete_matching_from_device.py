@@ -13,7 +13,6 @@ from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string, \
 from calibre.gui2.dialogs.delete_matching_from_device_ui import \
                                             Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import unicode_type
 
 
 class tableItem(QTableWidgetItem):
@@ -119,6 +118,6 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             if self.table.item(row, 0).checkState() == Qt.CheckState.Unchecked:
                 continue
             (model, id, path) = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
-            path = unicode_type(path)
+            path = str(path)
             self.result.append((model, id, path))
         return

@@ -27,7 +27,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, range, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 
 def get_filters():

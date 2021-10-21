@@ -13,7 +13,6 @@ from qt.core import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
 
 
 class TableItem(QTableWidgetItem):
@@ -126,7 +125,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             QDialog.keyPressEvent(self, e)
 
     def do_search(self):
-        query = unicode_type(self.search_text.text())
+        query = str(self.search_text.text())
         if not query:
             d = error_dialog(self.gui, _('Match books'),
                      _('You must enter a search expression into the search field'))

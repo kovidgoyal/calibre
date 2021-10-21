@@ -124,8 +124,7 @@ class Styles:
         self.default_paragraph_style = self.default_character_style = None
 
     def __iter__(self):
-        for s in itervalues(self.id_map):
-            yield s
+        yield from itervalues(self.id_map)
 
     def __getitem__(self, key):
         return self.id_map[key]

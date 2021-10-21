@@ -14,7 +14,7 @@ from qt.core import (
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
-from polyglot.builtins import itervalues, unicode_type, map, range
+from polyglot.builtins import itervalues
 
 
 class RevealBar(QWidget):  # {{{
@@ -300,7 +300,7 @@ class ToolBar(QToolBar):  # {{{
 
         mime = 'application/calibre+from_device'
         if md.hasFormat(mime):
-            paths = [unicode_type(u.toLocalFile()) for u in md.urls()]
+            paths = [str(u.toLocalFile()) for u in md.urls()]
             if paths:
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
@@ -644,8 +644,7 @@ class BarsManager(QObject):
 
     @property
     def bars(self):
-        for x in self.main_bars + self.child_bars:
-            yield x
+        yield from self.main_bars + self.child_bars
 
     @property
     def showing_donate(self):

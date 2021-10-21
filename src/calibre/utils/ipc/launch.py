@@ -11,7 +11,7 @@ from calibre.constants import iswindows, ismacos, isfrozen
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import string_or_bytes, environ_item, native_string_type, getcwd
+from polyglot.builtins import string_or_bytes, environ_item, native_string_type
 from polyglot.binary import as_hex_unicode
 
 if iswindows:
@@ -152,8 +152,8 @@ class Worker:
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            origwd = cwd or os.path.abspath(getcwd())
-        except EnvironmentError:
+            origwd = cwd or os.path.abspath(os.getcwd())
+        except OSError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser('~')
         env[native_string_type('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))

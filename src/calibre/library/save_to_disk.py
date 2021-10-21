@@ -19,7 +19,6 @@ from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import as_local_time
 from calibre import strftime, prints, sanitize_file_name
 from calibre.db.lazy import FormatsList
-from polyglot.builtins import unicode_type
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -132,7 +131,7 @@ def preprocess_template(template):
     template = template.replace('//', '/')
     template = template.replace('{author}', '{authors}')
     template = template.replace('{tag}', '{tags}')
-    if not isinstance(template, unicode_type):
+    if not isinstance(template, str):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
@@ -215,7 +214,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
-    format_args['id'] = unicode_type(id)
+    format_args['id'] = str(id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
@@ -234,7 +233,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                         divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
-                    format_args[key] = unicode_type(format_args[key])
+                    format_args[key] = str(format_args[key])
                 else:
                     format_args[key] = ''
     if safe_format:
@@ -245,7 +244,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
-        components = [unicode_type(id)]
+        components = [str(id)]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
@@ -334,7 +333,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         dirpath = os.path.dirname(base_path)
         try:
             os.makedirs(dirpath)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.EEXIST:
                 raise
 
@@ -358,7 +357,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         return not formats_written, book_id, mi.title
 
     for fmt in formats:
-        fmt_path = base_path+'.'+unicode_type(fmt)
+        fmt_path = base_path+'.'+str(fmt)
         try:
             db.copy_format_to(book_id, fmt, fmt_path)
             formats_written = True

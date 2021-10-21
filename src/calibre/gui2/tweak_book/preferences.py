@@ -9,8 +9,7 @@ import numbers
 from operator import attrgetter, methodcaller
 from functools import partial
 from collections import namedtuple
-from polyglot.builtins import (
-        iteritems, itervalues, map, unicode_type, range)
+from polyglot.builtins import iteritems, itervalues
 from itertools import product
 from copy import copy, deepcopy
 
@@ -78,7 +77,7 @@ class BasicSettings(QWidget):  # {{{
             widget.addItem(human or key, key)
 
         def getter(w):
-            ans = unicode_type(w.itemData(w.currentIndex()) or '')
+            ans = str(w.itemData(w.currentIndex()) or '')
             return {none_val:None}.get(ans, ans)
 
         def setter(w, val):
@@ -105,7 +104,7 @@ class BasicSettings(QWidget):  # {{{
         widget.defaults = prefs.defaults[name]
 
         def getter(w):
-            return list(map(unicode_type, (w.item(i).text() for i in range(w.count()))))
+            return list(map(str, (w.item(i).text() for i in range(w.count()))))
 
         def setter(w, val):
             order_map = {x:i for i, x in enumerate(val)}
@@ -354,7 +353,7 @@ class PreviewSettings(BasicSettings):  # {{{
             return s.fontFamily(which)
 
         def family_getter(which, w):
-            ans = unicode_type(w.currentFont().family())
+            ans = str(w.currentFont().family())
             if ans == default_font(which):
                 ans = None
             return ans
@@ -520,13 +519,13 @@ class ToolbarSettings(QWidget):
         prefs = prefs or tprefs
         val = self.original_settings = {}
         for i in range(1, self.bars.count()):
-            name = unicode_type(self.bars.itemData(i) or '')
+            name = str(self.bars.itemData(i) or '')
             val[name] = copy(prefs[name])
         self.current_settings = deepcopy(val)
 
     @property
     def current_name(self):
-        return unicode_type(self.bars.itemData(self.bars.currentIndex()) or '')
+        return str(self.bars.itemData(self.bars.currentIndex()) or '')
 
     def build_lists(self):
         from calibre.gui2.tweak_book.plugin import plugin_toolbar_actions
@@ -550,12 +549,12 @@ class ToolbarSettings(QWidget):
             ic = ac.icon()
             if not ic or ic.isNull():
                 ic = blank
-            ans = QListWidgetItem(ic, unicode_type(ac.text()).replace('&', ''), parent)
+            ans = QListWidgetItem(ic, str(ac.text()).replace('&', ''), parent)
             ans.setData(Qt.ItemDataRole.UserRole, key)
             ans.setToolTip(ac.toolTip())
             return ans
 
-        for key, ac in sorted(iteritems(all_items), key=lambda k_ac: unicode_type(k_ac[1].text())):
+        for key, ac in sorted(iteritems(all_items), key=lambda k_ac: str(k_ac[1].text())):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:
@@ -612,7 +611,7 @@ class ToolbarSettings(QWidget):
             s = self.current_settings[self.current_name]
         except KeyError:
             return
-        names = [unicode_type(i.data(Qt.ItemDataRole.UserRole) or '') for i in items]
+        names = [str(i.data(Qt.ItemDataRole.UserRole) or '') for i in items]
         if not names:
             return
         for n in names:
@@ -683,8 +682,8 @@ class TemplatesDialog(Dialog):  # {{{
         self.helpl = la = QLabel(_(
             'The variables {0} and {1} will be replaced with the title and author of the book. {2}'
             ' is where the cursor will be positioned. If you want to include braces in your template,'
-            ' for example for CSS rules, you have to escape them, like this: {3}').format(*['<code>%s</code>'%x for x in
-                ['{TITLE}', '{AUTHOR}', '%CURSOR%', 'body {{ color: red }}']]))
+            ' for example for CSS rules, you have to escape them, like this: {3}').format(*('<code>%s</code>'%x for x in
+                ['{TITLE}', '{AUTHOR}', '%CURSOR%', 'body {{ color: red }}'])))
         la.setWordWrap(True)
         l.addWidget(la)
 
@@ -706,7 +705,7 @@ class TemplatesDialog(Dialog):  # {{{
 
     @property
     def current_syntax(self):
-        return unicode_type(self.syntaxes.currentText())
+        return str(self.syntaxes.currentText())
 
     def show_template(self):
         from calibre.gui2.tweak_book.templates import raw_template_for
@@ -724,7 +723,7 @@ class TemplatesDialog(Dialog):  # {{{
 
     def _save_syntax(self):
         custom = tprefs['templates']
-        custom[self.current_syntax] = unicode_type(self.editor.toPlainText())
+        custom[self.current_syntax] = str(self.editor.toPlainText())
         tprefs['templates'] = custom
 
     def restore_defaults(self):

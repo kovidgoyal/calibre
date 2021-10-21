@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
@@ -13,7 +11,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def get_tools():
@@ -90,8 +88,8 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
         args['creationflags'] = subprocess.HIGH_PRIORITY_CLASS | subprocess.CREATE_NO_WINDOW
     try:
         subprocess.check_call([
-            pdftoppm, '-cropbox', '-' + image_format, '-f', unicode_type(first),
-            '-l', unicode_type(last), pdfpath, os.path.join(outputdir, prefix)
+            pdftoppm, '-cropbox', '-' + image_format, '-f', str(first),
+            '-l', str(last), pdfpath, os.path.join(outputdir, prefix)
         ], **args)
     except subprocess.CalledProcessError as e:
         raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)

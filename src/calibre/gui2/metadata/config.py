@@ -15,7 +15,7 @@ from qt.core import (
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class FieldsModel(FM):  # {{{
@@ -43,7 +43,7 @@ class FieldsModel(FM):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
+        self.overrides = {f: self.state(f, True) for f in self.fields}
         self.endResetModel()
 
     def commit(self):
@@ -112,7 +112,7 @@ class ConfigWidget(QWidget):
             items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))
-            idx = widget.findData((val))
+            idx = widget.findData(val)
             widget.setCurrentIndex(idx)
         widget.opt = opt
         widget.setToolTip(textwrap.fill(opt.desc))
@@ -134,10 +134,10 @@ class ConfigWidget(QWidget):
             if isinstance(w, (QSpinBox, QDoubleSpinBox)):
                 val = w.value()
             elif isinstance(w, QLineEdit):
-                val = unicode_type(w.text())
+                val = str(w.text())
             elif isinstance(w, QCheckBox):
                 val = w.isChecked()
             elif isinstance(w, QComboBox):
                 idx = w.currentIndex()
-                val = unicode_type(w.itemData(idx) or '')
+                val = str(w.itemData(idx) or '')
             self.plugin.prefs[w.opt.name] = val

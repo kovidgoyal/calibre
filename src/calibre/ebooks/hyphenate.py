@@ -1,5 +1,3 @@
-
-
 """ Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes

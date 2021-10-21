@@ -6,7 +6,6 @@
 import sys
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
-from polyglot.builtins import raw_input
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -39,7 +38,7 @@ columns with the custom_columns command.
 
 
 def input_unicode(prompt):
-    ans = raw_input(prompt)
+    ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans

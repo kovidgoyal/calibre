@@ -1,4 +1,3 @@
-
 import os, sys
 from . import open_for_read
 

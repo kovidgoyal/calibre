@@ -8,7 +8,7 @@ from functools import partial
 from threading import Thread, Event
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 from polyglot.queue import Queue, Empty
 
 

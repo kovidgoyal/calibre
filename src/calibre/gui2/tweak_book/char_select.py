@@ -22,7 +22,6 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.icu import safe_chr as codepoint_to_chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import map, range, unicode_type
 
 ROOT = QModelIndex()
 
@@ -519,7 +518,7 @@ class CharModel(QAbstractListModel):
         return ['application/calibre_charcode_indices']
 
     def mimeData(self, indexes):
-        data = ','.join(unicode_type(i.row()) for i in indexes)
+        data = ','.join(str(i.row()) for i in indexes)
         md = QMimeData()
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md
@@ -763,7 +762,7 @@ class CharSelect(Dialog):
         self.char_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def do_search(self):
-        text = unicode_type(self.search.text()).strip()
+        text = str(self.search.text()).strip()
         if not text:
             return self.clear_search()
         with BusyCursor():

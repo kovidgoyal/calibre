@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -10,7 +9,7 @@ Perform various initialization tasks.
 import locale, sys, os
 
 # Default translation is NOOP
-from polyglot.builtins import builtins, unicode_type
+from polyglot.builtins import builtins
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
@@ -52,7 +51,7 @@ def initialize_calibre():
     from calibre.ptempfile import base_dir
     try:
         base_dir()
-    except EnvironmentError:
+    except OSError:
         pass  # Ignore this error during startup, so we can show a better error message to the user later.
 
     #
@@ -162,7 +161,7 @@ def initialize_calibre():
                     if name == 'Thread':
                         name = self.name
                 if name:
-                    if isinstance(name, unicode_type):
+                    if isinstance(name, str):
                         name = name.encode('ascii', 'replace').decode('ascii')
                     speedup.set_thread_name(name[:15])
             except Exception:

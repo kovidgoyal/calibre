@@ -29,7 +29,6 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
-from polyglot.builtins import unicode_type
 from polyglot.http_client import responses
 from polyglot.urllib import (
     URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
@@ -108,7 +107,7 @@ def save_soup(soup, target):
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = unicode_path(relpath(path, selfdir).replace(os.sep, '/'))
 
-    html = unicode_type(soup)
+    html = str(soup)
     with open(target, 'wb') as f:
         f.write(html.encode('utf-8'))
 
@@ -116,7 +115,7 @@ def save_soup(soup, target):
 class response(bytes):
 
     def __new__(cls, *args):
-        obj = super(response, cls).__new__(cls, *args)
+        obj = super().__new__(cls, *args)
         obj.newurl = None
         return obj
 
@@ -138,7 +137,7 @@ class RecursiveFetcher:
 
     def __init__(self, options, log, image_map={}, css_map={}, job_info=None):
         bd = options.dir
-        if not isinstance(bd, unicode_type):
+        if not isinstance(bd, str):
             bd = bd.decode(filesystem_encoding)
 
         self.base_dir = os.path.abspath(os.path.expanduser(bd))
@@ -356,7 +355,7 @@ class RecursiveFetcher:
                 except Exception:
                     self.log.exception('Could not fetch stylesheet ', iurl)
                     continue
-                stylepath = os.path.join(diskpath, 'style'+unicode_type(c)+'.css')
+                stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
                 with open(stylepath, 'wb') as x:
@@ -364,7 +363,7 @@ class RecursiveFetcher:
                 tag['href'] = stylepath
             else:
                 for ns in tag.findAll(text=True):
-                    src = unicode_type(ns)
+                    src = str(ns)
                     m = self.__class__.CSS_IMPORT_PATTERN.search(src)
                     if m:
                         iurl = m.group(1)
@@ -383,7 +382,7 @@ class RecursiveFetcher:
                             self.log.exception('Could not fetch stylesheet ', iurl)
                             continue
                         c += 1
-                        stylepath = os.path.join(diskpath, 'style'+unicode_type(c)+'.css')
+                        stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                         with self.stylemap_lock:
                             self.stylemap[iurl] = stylepath
                         with open(stylepath, 'wb') as x:
@@ -427,7 +426,7 @@ class RecursiveFetcher:
                     self.log.exception('Could not fetch image ', iurl)
                     continue
             c += 1
-            fname = ascii_filename('img'+unicode_type(c))
+            fname = ascii_filename('img'+str(c))
             data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
             if data is None:
                 continue
@@ -523,7 +522,7 @@ class RecursiveFetcher:
                     continue
                 if self.files > self.max_files:
                     return res
-                linkdir = 'link'+unicode_type(c) if into_dir else ''
+                linkdir = 'link'+str(c) if into_dir else ''
                 linkdiskpath = os.path.join(diskpath, linkdir)
                 if not os.path.exists(linkdiskpath):
                     os.mkdir(linkdiskpath)
@@ -554,7 +553,7 @@ class RecursiveFetcher:
                         self.process_stylesheets(soup, newbaseurl)
 
                     _fname = basename(iurl)
-                    if not isinstance(_fname, unicode_type):
+                    if not isinstance(_fname, str):
                         _fname.decode('latin1', 'replace')
                     _fname = _fname.replace('%', '').replace(os.sep, '')
                     _fname = ascii_filename(_fname)

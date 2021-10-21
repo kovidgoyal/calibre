@@ -30,7 +30,7 @@ from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.mdns import get_external_ip
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
@@ -192,7 +192,7 @@ class Connection:  # {{{
         if self.send_bufsize < DESIRED_SEND_BUFFER_SIZE:
             try:
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, DESIRED_SEND_BUFFER_SIZE)
-            except socket.error:
+            except OSError:
                 pass
             else:
                 self.send_bufsize = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)
@@ -228,7 +228,7 @@ class Connection:  # {{{
             return ret
         except ssl.SSLWantWriteError:
             return 0
-        except socket.error as e:
+        except OSError as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return 0
             elif e.errno in socket_errors_socket_closed:
@@ -255,7 +255,7 @@ class Connection:  # {{{
             return data
         except ssl.SSLWantReadError:
             return b''
-        except socket.error as e:
+        except OSError as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return b''
             if e.errno in socket_errors_socket_closed:
@@ -280,7 +280,7 @@ class Connection:  # {{{
             return bytes_read
         except ssl.SSLWantReadError:
             return 0
-        except socket.error as e:
+        except OSError as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return 0
             if e.errno in socket_errors_socket_closed:
@@ -298,7 +298,7 @@ class Connection:  # {{{
                 self.ready = False
         except ssl.SSLWantReadError:
             return
-        except socket.error as e:
+        except OSError as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return
             if e.errno in socket_errors_socket_closed:
@@ -315,7 +315,7 @@ class Connection:  # {{{
             self.log.error('Error while reading SSL data from client: %s' % as_unicode(e))
             self.ready = False
             return
-        except socket.error as e:
+        except OSError as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return
             if e.errno in socket_errors_socket_closed:
@@ -329,7 +329,7 @@ class Connection:  # {{{
         try:
             self.socket.shutdown(socket.SHUT_WR)
             self.socket.close()
-        except socket.error:
+        except OSError:
             pass
 
     def queue_job(self, func, *args):
@@ -469,7 +469,7 @@ class ServerLoop:
             af, socktype, proto, canonname, sa = res
             try:
                 self.bind(af, socktype, proto)
-            except socket.error as serr:
+            except OSError as serr:
                 msg = "%s -- (%s: %s)" % (msg, sa, as_unicode(serr))
                 if self.socket:
                     self.socket.close()
@@ -477,13 +477,13 @@ class ServerLoop:
                 continue
             break
         if not self.socket:
-            raise socket.error(msg)
+            raise OSError(msg)
 
     def initialize_socket(self):
         if self.pre_activated_socket is None:
             try:
                 self.do_bind()
-            except socket.error as err:
+            except OSError as err:
                 if not self.opts.fallback_to_detected_interface:
                     raise
                 ip = get_external_ip()
@@ -503,7 +503,7 @@ class ServerLoop:
         self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            ba = ':'.join(map(unicode_type, ba))
+            ba = ':'.join(map(str, ba))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
@@ -539,7 +539,7 @@ class ServerLoop:
                 self.bind_address[0] in ('::', '::0', '::0.0.0.0')):
             try:
                 self.socket.setsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
-            except (AttributeError, socket.error):
+            except (AttributeError, OSError):
                 # Apparently, the socket option is not available in
                 # this machine's TCP stack
                 pass
@@ -597,7 +597,7 @@ class ServerLoop:
                 self.ready = False
                 self.log.error('Listening socket was unexpectedly terminated')
                 return
-            except (select.error, socket.error) as e:
+            except OSError as e:
                 # select.error has no errno attribute. errno is instead
                 # e.args[0]
                 if getattr(e, 'errno', e.args[0]) in socket_errors_eintr:
@@ -605,7 +605,7 @@ class ServerLoop:
                 for s, conn in tuple(iteritems(self.connection_map)):
                     try:
                         select.select([s], [], [], 0)
-                    except (select.error, socket.error) as e:
+                    except OSError as e:
                         if getattr(e, 'errno', e.args[0]) not in socket_errors_eintr:
                             self.close(s, conn)  # Bad socket, discard
                 return
@@ -695,7 +695,7 @@ class ServerLoop:
                 f = self.control_out.recv if iswindows else self.control_out.read
                 try:
                     c = f(1)
-                except (socket.error, OSError) as e:
+                except OSError as e:
                     if not self.ready:
                         return
                     self.log.error('Control connection raised an error:', e)
@@ -724,7 +724,7 @@ class ServerLoop:
             sock, addr = self.socket.accept()
             set_socket_inherit(sock, False), sock.setblocking(False)
             return sock, addr
-        except socket.error:
+        except OSError:
             return None, None
 
     def stop(self):

@@ -16,7 +16,6 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import range, unicode_type, map
 from polyglot import http_client
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -218,7 +217,7 @@ class LoopTest(BaseTest):
         s.bind(('localhost', 0))
         port = s.getsockname()[1]
         self.ae(s.fileno(), 3)
-        os.environ['LISTEN_PID'] = unicode_type(os.getpid())
+        os.environ['LISTEN_PID'] = str(os.getpid())
         os.environ['LISTEN_FDS'] = '1'
         with TestServer(lambda data:(data.path[0].encode('utf-8') + data.read()), allow_socket_preallocation=True) as server:
             conn = server.connect()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -44,14 +43,14 @@ def all_links(html):
     return ans
 
 
-class SpineItem(unicode_type):
+class SpineItem(str):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
             run_char_count=True, from_epub=False, read_links=True):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
-        obj = super(SpineItem, cls).__new__(cls, path)
+        obj = super().__new__(cls, path)
         with lopen(path, 'rb') as f:
             raw = f.read()
         if from_epub:

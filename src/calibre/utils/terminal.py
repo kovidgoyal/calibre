@@ -9,7 +9,7 @@ import os, sys, re
 
 from calibre.prints import is_binary
 from calibre.constants import iswindows
-from polyglot.builtins import iteritems, range, zip
+from polyglot.builtins import iteritems
 
 if iswindows:
     import ctypes.wintypes
@@ -156,7 +156,7 @@ class ANSIStream(Detect):
     ANSI_RE = r'\033\[((?:\d|;)*)([a-zA-Z])'
 
     def __init__(self, stream=None):
-        super(ANSIStream, self).__init__(stream)
+        super().__init__(stream)
         self.encoding = getattr(self.stream, 'encoding', None) or 'utf-8'
         self._ansi_re_bin = self._ansi_re_unicode = None
 

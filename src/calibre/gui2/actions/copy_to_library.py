@@ -27,7 +27,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key, numeric_sort_key
 from calibre.db.copy_to_library import copy_one_book
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
@@ -134,7 +134,7 @@ class Worker(Thread):  # {{{
         except Exception as err:
             import traceback
             try:
-                err = unicode_type(err)
+                err = str(err)
             except:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
@@ -263,7 +263,7 @@ class ChooseLibrary(Dialog):  # {{{
 
     @property
     def args(self):
-        return (unicode_type(self.le.text()), self.delete_after_copy)
+        return (str(self.le.text()), self.delete_after_copy)
 # }}}
 
 
@@ -301,7 +301,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.resize(600, 400)
 
     def copy_to_clipboard(self):
-        items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + unicode_type(item.text())
+        items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text())
                  for item in self.items]
         QApplication.clipboard().setText('\n'.join(items))
 

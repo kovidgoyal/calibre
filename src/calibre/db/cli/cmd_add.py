@@ -21,7 +21,6 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added, formats_added
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import unicode_type
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -264,7 +263,7 @@ def do_add(
                                 try:
                                     with lopen(mi.cover, 'rb') as f:
                                         cover_data = f.read()
-                                except EnvironmentError:
+                                except OSError:
                                     pass
 
                 book_title, ids, mids, dups = dbctx.run(
@@ -296,9 +295,9 @@ def do_add(
                     prints('   ', path)
 
         if added_ids:
-            prints(_('Added book ids: %s') % (', '.join(map(unicode_type, added_ids))))
+            prints(_('Added book ids: %s') % (', '.join(map(str, added_ids))))
         if merged_ids:
-            prints(_('Merged book ids: %s') % (', '.join(map(unicode_type, merged_ids))))
+            prints(_('Merged book ids: %s') % (', '.join(map(str, merged_ids))))
 
 
 def option_parser(get_parser, args):
@@ -463,8 +462,8 @@ def main(opts, args, dbctx):
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]
     lcodes = [x for x in lcodes if x]
     identifiers = (x.partition(':')[::2] for x in opts.identifier)
-    identifiers = dict((k.strip(), v.strip()) for k, v in identifiers
-                       if k.strip() and v.strip())
+    identifiers = {k.strip(): v.strip() for k, v in identifiers
+                       if k.strip() and v.strip()}
     if opts.empty:
         do_add_empty(
             dbctx, opts.title, aut, opts.isbn, tags, opts.series, opts.series_index,

@@ -18,7 +18,7 @@ from struct import calcsize, unpack, pack
 from collections import namedtuple, OrderedDict
 from calibre.ptempfile import SpooledTemporaryFile
 
-from polyglot.builtins import itervalues, getcwd
+from polyglot.builtins import itervalues
 
 HEADER_SIG = 0x04034b50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
@@ -223,7 +223,7 @@ def _extractall(f, path=None, file_info=None):
             dest = os.path.join(path, *parts)
             try:
                 df = open(dest, 'wb')
-            except EnvironmentError:
+            except OSError:
                 if is_reserved_filename(os.path.basename(dest)):
                     raise ValueError('This ZIP file contains a file with a reserved filename'
                             ' that cannot be processed on Windows: {}'.format(os.path.basename(dest)))
@@ -247,7 +247,7 @@ def extractall(path_or_stream, path=None):
         f = open(f, 'rb')
         close_at_end = True
     if path is None:
-        path = getcwd()
+        path = os.getcwd()
     pos = f.tell()
     try:
         _extractall(f, path)
@@ -294,7 +294,7 @@ class LocalZipFile:
 
     def extractall(self, path=None):
         self.stream.seek(0)
-        _extractall(self.stream, path=(path or getcwd()))
+        _extractall(self.stream, path=(path or os.getcwd()))
 
     def close(self):
         pass

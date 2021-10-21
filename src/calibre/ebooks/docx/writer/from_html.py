@@ -18,7 +18,7 @@ from calibre.ebooks.docx.writer.lists import ListsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 from calibre.utils.localization import lang_as_iso639_1
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 def lang_for_tag(tag):
@@ -108,7 +108,7 @@ class TextRun:
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
                 bid = links_manager.bookmark_id
-                makeelement(r, 'w:bookmarkStart', w_id=unicode_type(bid), w_name=bookmark)
+                makeelement(r, 'w:bookmarkStart', w_id=str(bid), w_name=bookmark)
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
@@ -123,7 +123,7 @@ class TextRun:
                 else:
                     add_text('', preserve_whitespace)
             if bookmark is not None:
-                makeelement(r, 'w:bookmarkEnd', w_id=unicode_type(bid))
+                makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
 
     def __repr__(self):
         return repr(self.texts)
@@ -139,7 +139,7 @@ class TextRun:
     def style_weight(self):
         ans = 0
         for text, preserve_whitespace, bookmark in self.texts:
-            if isinstance(text, unicode_type):
+            if isinstance(text, str):
                 ans += len(text)
         return ans
 
@@ -219,7 +219,7 @@ class Block:
         p = makeelement(body, 'w:p')
         end_bookmarks = []
         for bmark in self.bookmarks:
-            end_bookmarks.append(unicode_type(self.links_manager.bookmark_id))
+            end_bookmarks.append(str(self.links_manager.bookmark_id))
             makeelement(p, 'w:bookmarkStart', w_id=end_bookmarks[-1], w_name=bmark)
         if self.block_lang:
             rpr = makeelement(p, 'w:rPr')
@@ -232,8 +232,8 @@ class Block:
             self.float_spec.serialize(self, ppr)
         if self.numbering_id is not None:
             numpr = makeelement(ppr, 'w:numPr')
-            makeelement(numpr, 'w:ilvl', w_val=unicode_type(self.numbering_id[1]))
-            makeelement(numpr, 'w:numId', w_val=unicode_type(self.numbering_id[0]))
+            makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
+            makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
         if self.linked_style is not None:
             makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
         elif self.style.id:
@@ -453,8 +453,8 @@ class Convert:
         if self.add_toc:
             self.links_manager.process_toc_links(self.oeb)
 
-        if self.add_cover and self.oeb.metadata.cover and unicode_type(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
-            cover_id = unicode_type(self.oeb.metadata.cover[0])
+        if self.add_cover and self.oeb.metadata.cover and str(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
+            cover_id = str(self.oeb.metadata.cover[0])
             item = self.oeb.manifest.ids[cover_id]
             self.cover_img = self.images_manager.read_image(item.href)
 

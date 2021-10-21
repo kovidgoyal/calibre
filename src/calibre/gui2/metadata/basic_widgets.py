@@ -50,7 +50,7 @@ from calibre.utils.date import (
 )
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import sort_key, strcmp
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems
 
 
 def show_locked_file_error(parent, err):
@@ -241,7 +241,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
 
     @property
     def current_val(self):
-        title = clean_text(unicode_type(self.text()))
+        title = clean_text(str(self.text()))
         if not title:
             title = self.get_default()
         return title.strip()
@@ -434,7 +434,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
     @property
     def current_val(self):
 
-        au = clean_text(unicode_type(self.text()))
+        au = clean_text(str(self.text()))
         if not au:
             au = self.get_default()
         return string_to_authors(au)
@@ -501,7 +501,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
     @property
     def current_val(self):
 
-        return clean_text(unicode_type(self.text()))
+        return clean_text(str(self.text()))
 
     @current_val.setter
     def current_val(self, val):
@@ -522,7 +522,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         return self.db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
 
     def update_state(self, *args):
-        au = unicode_type(self.authors_edit.text())
+        au = str(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.author_sort_from_authors(string_to_authors(au))
 
@@ -548,13 +548,13 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
             self.authors_edit.set_value(ans)
 
     def auto_generate(self, *args):
-        au = unicode_type(self.authors_edit.text())
+        au = str(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.set_value(self.author_sort_from_authors(authors))
 
     def author_to_sort(self, *args):
-        au = unicode_type(self.authors_edit.text())
+        au = str(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         if au:
             self.set_value(au)
@@ -627,7 +627,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     @property
     def current_val(self):
 
-        return clean_text(unicode_type(self.currentText()))
+        return clean_text(str(self.currentText()))
 
     @current_val.setter
     def current_val(self, val):
@@ -659,7 +659,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent, series_edit):
-        super(SeriesIndexEdit, self).__init__(parent)
+        super().__init__(parent)
         self.valueChanged.connect(self.data_changed)
         self.dialog = parent
         self.db = self.original_series_name = None
@@ -1195,10 +1195,10 @@ class Cover(ImageView):  # {{{
             try:
                 with open(_file, "rb") as f:
                     cover = f.read()
-            except IOError as e:
+            except OSError as e:
                 d = error_dialog(
                         self, _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+unicode_type(e))
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 orig = self.current_val
@@ -1356,7 +1356,7 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     data_changed = pyqtSignal()
 
     def __init__(self, parent):
-        super(RatingEdit, self).__init__(parent)
+        super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.currentTextChanged.connect(self.data_changed)
@@ -1406,7 +1406,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     @property
     def current_val(self):
-        return [clean_text(x) for x in unicode_type(self.text()).split(',')]
+        return [clean_text(x) for x in str(self.text()).split(',')]
 
     @current_val.setter
     def current_val(self, val):
@@ -1594,7 +1594,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
 
     @property
     def current_val(self):
-        raw = unicode_type(self.text()).strip()
+        raw = str(self.text()).strip()
         parts = [clean_text(x) for x in raw.split(',')]
         ans = {}
         for x in parts:
@@ -1658,7 +1658,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         identifier_found = self.parse_clipboard_for_identifier()
         if identifier_found:
             return
-        text = unicode_type(QApplication.clipboard().text()).strip()
+        text = str(QApplication.clipboard().text()).strip()
         if text.startswith('http://') or text.startswith('https://'):
             return self.paste_prefix('url')
         try:
@@ -1671,14 +1671,14 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         if prefix == 'isbn':
             self.paste_isbn()
         else:
-            text = unicode_type(QApplication.clipboard().text()).strip()
+            text = str(QApplication.clipboard().text()).strip()
             if text:
                 vals = self.current_val
                 vals[prefix] = text
                 self.current_val = vals
 
     def paste_isbn(self):
-        text = unicode_type(QApplication.clipboard().text()).strip()
+        text = str(QApplication.clipboard().text()).strip()
         if not text or not check_isbn(text):
             d = ISBNDialog(self, text)
             if not d.exec_():
@@ -1698,7 +1698,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     def parse_clipboard_for_identifier(self):
         from calibre.ebooks.metadata.sources.prefs import msprefs
         from calibre.utils.formatter import EvalFormatter
-        text = unicode_type(QApplication.clipboard().text()).strip()
+        text = str(QApplication.clipboard().text()).strip()
         if not text:
             return False
 
@@ -1768,7 +1768,7 @@ class ISBNDialog(QDialog):  # {{{
         self.resize(sz)
 
     def accept(self):
-        isbn = unicode_type(self.line_edit.text())
+        isbn = str(self.line_edit.text())
         if not check_isbn(isbn):
             return error_dialog(self, _('Invalid ISBN'),
                     _('The ISBN you entered is not valid. Try again.'),
@@ -1776,7 +1776,7 @@ class ISBNDialog(QDialog):  # {{{
         QDialog.accept(self)
 
     def checkText(self, txt):
-        isbn = unicode_type(txt)
+        isbn = str(txt)
         if not isbn:
             sheet = ''
             extra = ''
@@ -1790,7 +1790,7 @@ class ISBNDialog(QDialog):  # {{{
         self.line_edit.setStyleSheet(sheet)
 
     def text(self):
-        return check_isbn(unicode_type(self.line_edit.text()))
+        return check_isbn(str(self.line_edit.text()))
 
 # }}}
 
@@ -1816,7 +1816,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     @property
     def current_val(self):
 
-        return clean_text(unicode_type(self.currentText()))
+        return clean_text(str(self.currentText()))
 
     @current_val.setter
     def current_val(self, val):
@@ -1850,7 +1850,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent, create_clear_button=True):
-        super(DateEdit, self).__init__(parent)
+        super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.dateTimeChanged.connect(self.data_changed)
@@ -1902,7 +1902,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
         elif ev.key() == Qt.Key.Key_Tab and is_date_undefined(self.current_val):
             ev.ignore()
         else:
-            return super(DateEdit, self).keyPressEvent(ev)
+            return super().keyPressEvent(ev)
 
 
 class PubdateEdit(DateEdit):

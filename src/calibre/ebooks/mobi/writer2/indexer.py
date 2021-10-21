@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
-from polyglot.builtins import filter, iteritems, itervalues, map, range
+from polyglot.builtins import iteritems, itervalues
 
 
 class CNCX(CNCX_):  # {{{
@@ -144,8 +144,7 @@ class IndexEntry:
 
     @property
     def tag_nums(self):
-        for i in range(1, 5):
-            yield i
+        yield from range(1, 5)
         for attr in ('class_offset', 'parent_index', 'first_child_index',
                 'last_child_index'):
             if getattr(self, attr) is not None:

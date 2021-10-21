@@ -33,7 +33,7 @@ def unix_open(path):
         try:
             fd = os.open(path, flags | speedup.O_CLOEXEC, excl_file_mode)
             has_cloexec = True
-        except EnvironmentError as err:
+        except OSError as err:
             # Kernel may not support O_CLOEXEC
             if err.errno != errno.EINVAL:
                 raise
@@ -76,7 +76,7 @@ def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
     while True:
         try:
             return func(*args)
-        except EnvironmentError as err:
+        except OSError as err:
             if not error_retry(err) or monotonic() > limit:
                 raise
         time.sleep(sleep_time)
@@ -115,11 +115,11 @@ class ExclusiveFile:
 def _clean_lock_file(file_obj):
     try:
         os.remove(file_obj.name)
-    except EnvironmentError:
+    except OSError:
         pass
     try:
         file_obj.close()
-    except EnvironmentError:
+    except OSError:
         pass
 
 
@@ -147,7 +147,7 @@ elif islinux:
         sock = socket.socket(family=socket.AF_UNIX)
         try:
             eintr_retry_call(sock.bind, address)
-        except socket.error as err:
+        except OSError as err:
             sock.close()
             if getattr(err, 'errno', None) == errno.EADDRINUSE:
                 return
@@ -170,7 +170,7 @@ else:
         for loc in locs:
             if os.access(loc, os.W_OK | os.R_OK | os.X_OK):
                 return os.path.join(loc, ('.' if loc is home else '') + name)
-        raise EnvironmentError(
+        raise OSError(
             'Failed to find a suitable filesystem location for the lock file'
         )
 
@@ -181,7 +181,7 @@ else:
         try:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             return partial(_clean_lock_file, f)
-        except EnvironmentError as err:
+        except OSError as err:
             f.close()
             if err.errno not in (errno.EAGAIN, errno.EACCES):
                 raise

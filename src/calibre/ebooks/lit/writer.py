@@ -1,4 +1,3 @@
-
 '''
 Basic support for writing LIT files.
 '''
@@ -29,7 +28,7 @@ from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre_extensions import msdes
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, zip, native_string_type
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, native_string_type
 from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']
@@ -48,9 +47,9 @@ ALL_MS_COVER_TYPES = [
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
-    tags = dict((tags[i], i) for i in range(len(tags)))
-    dattrs = dict((v, k) for k, v in dattrs.items())
-    tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
+    tags = {tags[i]: i for i in range(len(tags))}
+    dattrs = {v: k for k, v in dattrs.items()}
+    tattrs = [{v: k for k, v in (map or {}).items()} for map in tattrs]
     for map in tattrs:
         if map:
             map.update(dattrs)
@@ -164,8 +163,8 @@ class ReBinary:
                 try:
                     value = codepoint_to_chr(value)
                 except OverflowError:
-                    self.logger.warn('unicode_type overflow for integer:', value)
-                    value = u'?'
+                    self.logger.warn('Unicode overflow for integer:', value)
+                    value = '?'
             self.buf.write(value.encode('utf-8'))
 
     def is_block(self, style):
@@ -283,7 +282,7 @@ class ReBinary:
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
             data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
-            if isinstance(anchor, unicode_type):
+            if isinstance(anchor, str):
                 anchor = anchor.encode('utf-8')
             data.write(anchor)
             data.write(pack('<I', offset))
@@ -314,7 +313,7 @@ class LitWriter:
         oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
         if oeb.metadata.cover:
-            id = unicode_type(oeb.metadata.cover[0])
+            id = str(oeb.metadata.cover[0])
             cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
@@ -486,7 +485,7 @@ class LitWriter:
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
-            elif isinstance(data, unicode_type):
+            elif isinstance(data, str):
                 data = data.encode('utf-8')
             elif hasattr(data, 'cssText'):
                 data = item.bytes_representation
@@ -495,7 +494,7 @@ class LitWriter:
 
     def _build_manifest(self):
         states = ['linear', 'nonlinear', 'css', 'images']
-        manifest = dict((state, []) for state in states)
+        manifest = {state: [] for state in states}
         for item in self._oeb.manifest.values():
             if item.spine_position is not None:
                 key = 'linear' if item.linear else 'nonlinear'
@@ -521,9 +520,9 @@ class LitWriter:
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [codepoint_to_chr(len(id)), unicode_type(id),
-                         codepoint_to_chr(len(href)), unicode_type(href),
-                         codepoint_to_chr(len(media_type)), unicode_type(media_type)]
+                entry = [codepoint_to_chr(len(id)), str(id),
+                         codepoint_to_chr(len(href)), str(href),
+                         codepoint_to_chr(len(media_type)), str(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
                 data.write(b'\0')
@@ -577,7 +576,7 @@ class LitWriter:
         self._add_file('/meta', meta)
 
     def _build_drm_storage(self):
-        drmsource = u'Free as in freedom\0'.encode('utf-16-le')
+        drmsource = 'Free as in freedom\0'.encode('utf-16-le')
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
         msdes.deskey(tempkey, msdes.EN0)

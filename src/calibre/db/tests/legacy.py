@@ -12,7 +12,7 @@ from operator import itemgetter
 
 from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, range, unicode_type, zip
+from polyglot.builtins import iteritems
 from polyglot import reprlib
 
 # Utils {{{
@@ -62,7 +62,7 @@ def run_funcs(self, db, ndb, funcs):
             if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
-                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None,
+                           '$':lambda x:{tuple(y) for y in x}, '-':lambda x:None,
                            '%':lambda x: set((x or '').split(','))}[meth[0]]
                 else:
                     fmt = args[-1]
@@ -116,7 +116,7 @@ class LegacyTest(BaseTest):
             for label, loc in iteritems(db.FIELD_MAP):
                 if isinstance(label, numbers.Integral):
                     label = '#'+db.custom_column_num_map[label]['label']
-                label = unicode_type(label)
+                label = str(label)
                 ans[label] = tuple(db.get_property(i, index_is_id=True, loc=loc)
                                    for i in db.all_ids())
                 if label in ('id', 'title', '#tags'):
@@ -282,7 +282,7 @@ class LegacyTest(BaseTest):
         old = db.get_data_as_dict(prefix='test-prefix')
         new = ndb.get_data_as_dict(prefix='test-prefix')
         for o, n in zip(old, new):
-            o = {unicode_type(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
+            o = {str(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
             n = {k:set(v) if isinstance(v, list) else v for k, v in iteritems(n)}
             self.assertEqual(o, n)
 
@@ -516,7 +516,7 @@ class LegacyTest(BaseTest):
             T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
             T((name, object()))
             T = partial(ET, 'delete_all_custom_book_data', old=old, legacy=legacy)
-            T((name))
+            T(name)
             T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
             T((name, object()))
 

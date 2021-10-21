@@ -37,9 +37,7 @@ from calibre.gui2.tweak_book.function_replace import (
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
-from polyglot.builtins import (
-    error_message, filter, iteritems, map, range, unicode_type
-)
+from polyglot.builtins import error_message, iteritems
 
 # The search panel {{{
 
@@ -370,7 +368,7 @@ class SearchWidget(QWidget):
 
     @property
     def find(self):
-        return unicode_type(self.find_text.text())
+        return str(self.find_text.text())
 
     @find.setter
     def find(self, val):
@@ -380,7 +378,7 @@ class SearchWidget(QWidget):
     def replace(self):
         if self.mode == 'function':
             return self.functions.text()
-        return unicode_type(self.replace_text.text())
+        return str(self.replace_text.text())
 
     @replace.setter
     def replace(self, val):
@@ -621,7 +619,7 @@ class SearchesModel(QAbstractListModel):
         return None
 
     def do_filter(self, text):
-        text = unicode_type(text)
+        text = str(text)
         self.beginResetModel()
         self.filtered_searches = []
         for i, search in enumerate(self.searches):
@@ -806,7 +804,7 @@ class EditSearch(QFrame):  # {{{
     @property
     def current_search(self):
         search = self.search.copy()
-        f = unicode_type(self.find.toPlainText())
+        f = str(self.find.toPlainText())
         search['find'] = f
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
@@ -814,7 +812,7 @@ class EditSearch(QFrame):  # {{{
         if search['mode'] == 'function':
             r = self.function.text()
         else:
-            r = unicode_type(self.replace.toPlainText())
+            r = str(self.replace.toPlainText())
         search['replace'] = r
         return search
 
@@ -833,7 +831,7 @@ class EditSearch(QFrame):  # {{{
         search = self.search
         search['name'] = n
 
-        f = unicode_type(self.find.toPlainText())
+        f = str(self.find.toPlainText())
         if not f:
             error_dialog(self, _('Must specify find'), _(
                 'You must specify a find expression'), show=True)
@@ -848,7 +846,7 @@ class EditSearch(QFrame):  # {{{
                     'You must specify a function name in Function-Regex mode'), show=True)
                 return False
         else:
-            r = unicode_type(self.replace.toPlainText())
+            r = str(self.replace.toPlainText())
         search['replace'] = r
 
         search['dot_all'] = bool(self.dot_all.isChecked())

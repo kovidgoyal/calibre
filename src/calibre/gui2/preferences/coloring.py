@@ -34,7 +34,7 @@ from calibre.library.coloring import (
 )
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 all_columns_string = _('All columns')
 
@@ -172,12 +172,12 @@ class ConditionEditor(QWidget):  # {{{
     @property
     def current_col(self):
         idx = self.column_box.currentIndex()
-        return unicode_type(self.column_box.itemData(idx) or '')
+        return str(self.column_box.itemData(idx) or '')
 
     @current_col.setter
     def current_col(self, val):
         for idx in range(self.column_box.count()):
-            c = unicode_type(self.column_box.itemData(idx) or '')
+            c = str(self.column_box.itemData(idx) or '')
             if c == val:
                 self.column_box.setCurrentIndex(idx)
                 return
@@ -186,12 +186,12 @@ class ConditionEditor(QWidget):  # {{{
     @property
     def current_action(self):
         idx = self.action_box.currentIndex()
-        return unicode_type(self.action_box.itemData(idx) or '')
+        return str(self.action_box.itemData(idx) or '')
 
     @current_action.setter
     def current_action(self, val):
         for idx in range(self.action_box.count()):
-            c = unicode_type(self.action_box.itemData(idx) or '')
+            c = str(self.action_box.itemData(idx) or '')
             if c == val:
                 self.action_box.setCurrentIndex(idx)
                 return
@@ -199,7 +199,7 @@ class ConditionEditor(QWidget):  # {{{
 
     @property
     def current_val(self):
-        ans = unicode_type(self.value_box.text()).strip()
+        ans = str(self.value_box.text()).strip()
         if self.current_col == 'languages':
             rmap = {lower(v):k for k, v in iteritems(lang_map())}
             ans = rmap.get(lower(ans), ans)
@@ -528,8 +528,8 @@ class RuleEditor(QDialog):  # {{{
 
     def update_color_label(self):
         pal = QApplication.palette()
-        bg1 = unicode_type(pal.color(QPalette.ColorRole.Base).name())
-        bg2 = unicode_type(pal.color(QPalette.ColorRole.AlternateBase).name())
+        bg1 = str(pal.color(QPalette.ColorRole.Base).name())
+        bg2 = str(pal.color(QPalette.ColorRole.AlternateBase).name())
         c = self.color_box.color
         self.color_label.setText('''
             <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
@@ -585,10 +585,10 @@ class RuleEditor(QDialog):  # {{{
             for i in range(1, model.rowCount()):
                 item = model.item(i, 0)
                 if item.checkState() == Qt.CheckState.Checked:
-                    fnames.append(lower(unicode_type(item.text())))
+                    fnames.append(lower(str(item.text())))
             fname = ' : '.join(fnames)
         else:
-            fname = lower(unicode_type(self.filename_box.currentText()))
+            fname = lower(str(self.filename_box.currentText()))
         return fname
 
     def update_icon_filenames_in_box(self):
@@ -617,7 +617,7 @@ class RuleEditor(QDialog):  # {{{
     def remove_image(self, name):
         try:
             os.remove(os.path.join(self.icon_folder, name))
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             self.populate_icon_filenames()
@@ -647,7 +647,7 @@ class RuleEditor(QDialog):  # {{{
             self.update_icon_filenames_in_box()
 
         for i in range(self.column_box.count()):
-            c = unicode_type(self.column_box.itemData(i) or '')
+            c = str(self.column_box.itemData(i) or '')
             if col == c:
                 self.column_box.setCurrentIndex(i)
                 break
@@ -701,13 +701,13 @@ class RuleEditor(QDialog):  # {{{
         else:
             r.color = self.color_box.color
         idx = self.column_box.currentIndex()
-        col = unicode_type(self.column_box.itemData(idx) or '')
+        col = str(self.column_box.itemData(idx) or '')
         for c in self.conditions:
             condition = c.condition
             if condition is not None:
                 r.add_condition(*condition)
         if self.rule_kind == 'icon':
-            kind = unicode_type(self.kind_box.itemData(
+            kind = str(self.kind_box.itemData(
                                     self.kind_box.currentIndex()) or '')
         else:
             kind = self.rule_kind

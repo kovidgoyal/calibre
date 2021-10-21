@@ -39,7 +39,7 @@ class Header(OrderedDict):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-            name, val = [x.strip() for x in line.partition('=')[0::2]]
+            name, val = (x.strip() for x in line.partition('=')[0::2])
             if val:
                 val = eval(val, {'zeroes':zeroes, 'NULL':NULL, 'DYN':None,
                     'nulls':nulls, 'short':short, 'random':random})

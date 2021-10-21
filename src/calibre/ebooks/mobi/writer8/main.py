@@ -30,7 +30,7 @@ from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -333,7 +333,7 @@ class KF8Writer:
         self.flows[0] = chunker.text
 
     def create_text_records(self):
-        self.flows = [x.encode('utf-8') if isinstance(x, unicode_type) else x for x
+        self.flows = [x.encode('utf-8') if isinstance(x, str) else x for x
                 in self.flows]
         text = b''.join(self.flows)
         self.text_length = len(text)

@@ -232,7 +232,7 @@ class Editor(QMainWindow):
         self.modification_state_changed.emit(True)
         self.fmt_label.setText(' ' + (self.canvas.original_image_format or '').upper())
         im = self.canvas.current_image
-        self.size_label.setText('{0} x {1}{2}'.format(im.width(), im.height(), ' px'))
+        self.size_label.setText('{} x {}{}'.format(im.width(), im.height(), ' px'))
 
     def break_cycles(self):
         self.canvas.break_cycles()

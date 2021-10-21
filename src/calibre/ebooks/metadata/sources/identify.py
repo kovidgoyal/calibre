@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,7 +22,7 @@ from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower, primary_sort_key
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import quote, urlparse
 
@@ -400,7 +399,7 @@ def identify(log, abort,  # {{{
     results = {}
     for p in plugins:
         results[p] = []
-    logs = dict([(w.plugin, w.buf) for w in workers])
+    logs = {w.plugin: w.buf for w in workers}
 
     def get_results():
         found = False
@@ -470,7 +469,7 @@ def identify(log, abort,  # {{{
         for r in presults:
             log('\n\n---')
             try:
-                log(unicode_type(r))
+                log(str(r))
             except TypeError:
                 log(repr(r))
         if plog:
@@ -554,7 +553,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
         for k, val in iteritems(identifiers):
             val = val.replace('|', ',')
             vals = {
-                'id':unicode_type(quote(val if isinstance(val, bytes) else val.encode('utf-8'))),
+                'id':str(quote(val if isinstance(val, bytes) else val.encode('utf-8'))),
                 'id_unquoted': str(val),
             }
             items = rules.get(k) or ()

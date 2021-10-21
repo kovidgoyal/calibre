@@ -13,7 +13,6 @@ from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
 from calibre.gui2 import gprefs
-from polyglot.builtins import unicode_type
 
 
 class AddEmptyBookDialog(QDialog):
@@ -164,11 +163,11 @@ class AddEmptyBookDialog(QDialog):
 
     @property
     def selected_authors(self):
-        return string_to_authors(unicode_type(self.authors_combo.text()))
+        return string_to_authors(str(self.authors_combo.text()))
 
     @property
     def selected_series(self):
-        return unicode_type(self.series_combo.text())
+        return str(self.series_combo.text())
 
     @property
     def selected_title(self):

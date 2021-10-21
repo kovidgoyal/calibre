@@ -14,7 +14,7 @@ from qt.core import QEventLoop
 from calibre import force_unicode
 from calibre.constants import DEBUG, filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
-from polyglot.builtins import getenv, reraise, string_or_bytes, unicode_type
+from polyglot.builtins import reraise, string_or_bytes
 
 
 def dialog_name(name, title):
@@ -27,20 +27,20 @@ def get_winid(widget=None):
 
 
 def detect_desktop_environment():
-    de = getenv('XDG_CURRENT_DESKTOP')
+    de = os.getenv('XDG_CURRENT_DESKTOP')
     if de:
         return de.upper().split(':', 1)[0]
-    if getenv('KDE_FULL_SESSION') == 'true':
+    if os.getenv('KDE_FULL_SESSION') == 'true':
         return 'KDE'
-    if getenv('GNOME_DESKTOP_SESSION_ID'):
+    if os.getenv('GNOME_DESKTOP_SESSION_ID'):
         return 'GNOME'
-    ds = getenv('DESKTOP_SESSION')
+    ds = os.getenv('DESKTOP_SESSION')
     if ds and ds.upper() in {'GNOME', 'XFCE'}:
         return ds.upper()
 
 
 def is_executable_present(name):
-    PATH = getenv('PATH') or ''
+    PATH = os.getenv('PATH') or ''
     for path in PATH.split(os.pathsep):
         if os.access(os.path.join(path, name), os.X_OK):
             return True
@@ -82,7 +82,7 @@ def save_initial_dir(name, title, ans, no_save_dir, is_file=False):
 
 
 def encode_arg(title):
-    if isinstance(title, unicode_type):
+    if isinstance(title, str):
         try:
             title = title.encode(preferred_encoding)
         except UnicodeEncodeError:
@@ -124,7 +124,7 @@ def kdialog_supports_desktopfile():
     if ans is None:
         try:
             raw = subprocess.check_output(['kdialog', '--help'])
-        except EnvironmentError:
+        except OSError:
             raw = b'--desktopfile'
         ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans
@@ -136,7 +136,7 @@ def kde_cmd(window, title, *rest):
         ans += ['--desktopfile', 'calibre-gui']
     winid = get_winid(window)
     if winid is not None:
-        ans += ['--attach', unicode_type(int(winid))]
+        ans += ['--attach', str(int(winid))]
     return ans + list(rest)
 
 

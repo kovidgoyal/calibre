@@ -13,7 +13,7 @@ import os
 import re
 
 from lxml import etree
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 def ProcessFileName(fileName):
@@ -85,7 +85,7 @@ class SNBMLizer:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
-        output = [u'']
+        output = ['']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
 #        content = self.remove_newlines(content)
@@ -130,7 +130,7 @@ class SNBMLizer:
                     else:
                         prefix = ''
                     etree.SubElement(bodyTree, "text").text = \
-                        etree.CDATA(unicode_type(prefix + line))
+                        etree.CDATA(str(prefix + line))
                 if self.opts and self.opts.snb_insert_empty_line:
                     etree.SubElement(bodyTree, "text").text = \
                         etree.CDATA('')

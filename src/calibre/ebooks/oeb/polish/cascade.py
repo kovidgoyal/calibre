@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import normalizers, DEFAULTS
 from calibre.ebooks.oeb.stylizer import media_ok, INHERITED
 from tinycss.fonts3 import serialize_font_family, parse_font_family
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 _html_css_stylesheet = None
 
@@ -70,12 +70,10 @@ def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, ru
                     else:
                         csheet = container.parsed(name)
                         if isinstance(csheet, CSSStyleSheet):
-                            for cr in riter(name, rules=csheet):
-                                yield cr
+                            yield from riter(name, rules=csheet)
         elif rule.type == CSSRule.MEDIA_RULE:
             if media_rule_ok(rule.media):
-                for cr in riter(sheet_name, rules=rule.cssRules):
-                    yield cr
+                yield from riter(sheet_name, rules=rule.cssRules)
 
         elif rule_type is None or rule.type == rule_type:
             num = next(rule_index_counter)
@@ -233,7 +231,7 @@ _defvals = None
 def defvals():
     global _defvals
     if _defvals is None:
-        _defvals = {k:Values(Property(k, unicode_type(val)).propertyValue) for k, val in iteritems(DEFAULTS)}
+        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in iteritems(DEFAULTS)}
     return _defvals
 
 

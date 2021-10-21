@@ -19,7 +19,7 @@ from PIL import Image
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pml.pmlml import PMLMLizer
-from polyglot.builtins import unicode_type, as_bytes
+from polyglot.builtins import as_bytes
 
 IDENTITY = 'PNRdPPrs'
 
@@ -36,7 +36,7 @@ class Writer(FormatWriter):
 
     def write_content(self, oeb_book, out_stream, metadata=None):
         pmlmlizer = PMLMLizer(self.log)
-        pml = unicode_type(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
+        pml = str(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
         chapter_index = self._index_item(br'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)

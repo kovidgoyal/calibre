@@ -10,7 +10,7 @@ import re
 from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from polyglot.builtins import iteritems, map, zip, unicode_type, codepoint_to_chr
+from polyglot.builtins import iteritems, codepoint_to_chr
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
@@ -122,7 +122,7 @@ class Font:
     def __init__(self, metrics, num, objects, compress):
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
-        self.subset_tag = unicode_type(
+        self.subset_tag = str(
             re.sub('.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
         )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)

@@ -7,7 +7,6 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from struct import pack, unpack_from
-from polyglot.builtins import range, unicode_type
 
 t1_operand_encoding = [None] * 256
 t1_operand_encoding[0:32] = (32) * ["do_operator"]
@@ -71,7 +70,7 @@ class ByteCode(dict):
         return float(number), index
 
     def write_float(self, f, encoding='ignored'):
-        s = unicode_type(f).upper()
+        s = str(f).upper()
         if s[:2] == "0.":
             s = s[1:]
         elif s[:3] == "-0.":

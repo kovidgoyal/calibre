@@ -8,7 +8,6 @@ from qt.core import (QDialog, QColor, QDialogButtonBox, QHeaderView,
                       QAbstractItemView, QComboBox)
 
 from calibre.gui2 import error_dialog, gprefs
-from polyglot.builtins import unicode_type
 
 
 class EnumValuesEdit(QDialog):
@@ -44,7 +43,7 @@ class EnumValuesEdit(QDialog):
 
         self.del_button.clicked.connect(self.del_line)
 
-        self.all_colors = {unicode_type(s) for s in list(QColor.colorNames())}
+        self.all_colors = {str(s) for s in list(QColor.colorNames())}
 
         tl = QVBoxLayout()
         l.addItem(tl, 0, 1)
@@ -153,13 +152,13 @@ class EnumValuesEdit(QDialog):
         values = []
         colors = []
         for i in range(0, self.table.rowCount()):
-            v = unicode_type(self.table.item(i, 0).text())
+            v = str(self.table.item(i, 0).text())
             if not v:
                 error_dialog(self, _('Empty value'),
                                    _('Empty values are not allowed'), show=True)
                 return
             values.append(v)
-            c = unicode_type(self.table.cellWidget(i, 1).currentText())
+            c = str(self.table.cellWidget(i, 1).currentText())
             if c:
                 colors.append(c)
 

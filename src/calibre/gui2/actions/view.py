@@ -21,7 +21,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import as_bytes, unicode_type
+from polyglot.builtins import as_bytes
 
 
 def preferred_format(formats):
@@ -180,7 +180,7 @@ class ViewAction(InterfaceAction):
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
-                            prog = winutil.file_association(unicode_type('.' + ext))
+                            prog = winutil.file_association(str('.' + ext))
                         except Exception:
                             prog = None
                         if prog and prog.lower().endswith('calibre.exe'):

@@ -13,7 +13,7 @@ from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 class WinFonts:
@@ -58,7 +58,7 @@ class WinFonts:
         return ft
 
     def fonts_for_family(self, family, normalize=True):
-        family = unicode_type(family)
+        family = str(family)
         ans = {}
         for weight, is_italic in product((self.w.FW_NORMAL, self.w.FW_BOLD), (False, True)):
             if family in self.app_font_families:

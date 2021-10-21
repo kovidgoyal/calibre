@@ -15,7 +15,6 @@ from qt.core import (
 from calibre.constants import iswindows
 from calibre.ebooks.metadata import check_isbn
 from calibre.gui2 import error_dialog, gprefs, question_dialog
-from polyglot.builtins import filter, unicode_type
 
 
 class AddFromISBN(QDialog):
@@ -26,7 +25,7 @@ class AddFromISBN(QDialog):
 
         path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else \
                 '/Users/kovid/e-books/some_book.epub'
-        self.label.setText(unicode_type(self.label.text())%path)
+        self.label.setText(str(self.label.text())%path)
 
         self.isbns = []
         self.books = []
@@ -75,9 +74,9 @@ class AddFromISBN(QDialog):
     def paste(self, *args):
         app = QApplication.instance()
         c = app.clipboard()
-        txt = unicode_type(c.text()).strip()
+        txt = str(c.text()).strip()
         if txt:
-            old = unicode_type(self.isbn_box.toPlainText()).strip()
+            old = str(self.isbn_box.toPlainText()).strip()
             new = old + '\n' + txt
             self.isbn_box.setPlainText(new)
 
@@ -86,13 +85,13 @@ class AddFromISBN(QDialog):
         return self._check_for_existing.isChecked()
 
     def accept(self, *args):
-        tags = unicode_type(self.add_tags.text()).strip().split(',')
+        tags = str(self.add_tags.text()).strip().split(',')
         tags = list(filter(None, [x.strip() for x in tags]))
         gprefs['add from ISBN tags'] = tags
         gprefs['add from ISBN dup check'] = self.check_for_existing
         self.set_tags = tags
         bad = set()
-        for line in unicode_type(self.isbn_box.toPlainText()).strip().splitlines():
+        for line in str(self.isbn_box.toPlainText()).strip().splitlines():
             line = line.strip()
             if not line:
                 continue

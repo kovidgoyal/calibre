@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,8 +10,6 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-
-from polyglot.builtins import unicode_type
 
 
 class ListTable:
@@ -235,7 +232,7 @@ class ListTable:
             """
             num = line[18:]
             num = int(num, 16)
-            level = unicode_type(round((num - 1)/2, 0))
+            level = str(round((num - 1)/2, 0))
             level = level[:-2]
             level = 'level%s-show-level' % level
             self.__all_lists[-1][-1][0][level] = 'true'
@@ -292,11 +289,11 @@ class ListTable:
         num = line[18:]
         the_num = int(num, 16)
         if not self.__found_level_text_length:
-            self.__all_lists[-1][-1][0]['list-text-length'] = unicode_type(the_num)
+            self.__all_lists[-1][-1][0]['list-text-length'] = str(the_num)
             self.__found_level_text_length = 1
         else:
             the_num += 1
-            the_string = unicode_type(the_num)
+            the_string = str(the_num)
             level_marker = 'level%s-suffix' % the_string
             show_marker = 'show-level%s' % the_string
             self.__level_text_position = level_marker
@@ -384,7 +381,7 @@ class ListTable:
         for list in self.__all_lists:
             id += 1
             self.__list_table_final += 'mi<tg<open-att__<list-in-table'
-            # self.__list_table_final += '<list-id>%s' % (unicode_type(id))
+            # self.__list_table_final += '<list-id>%s' % (str(id))
             the_dict = list[0]
             the_keys = the_dict.keys()
             for the_key in the_keys:
@@ -399,7 +396,7 @@ class ListTable:
             for level in levels:
                 level_num += 1
                 self.__list_table_final += 'mi<tg<empty-att_<level-in-table'
-                self.__list_table_final += '<level>%s' % (unicode_type(level_num))
+                self.__list_table_final += '<level>%s' % (str(level_num))
                 the_dict2 = level[0]
                 the_keys2 = the_dict2.keys()
                 is_bullet = 0

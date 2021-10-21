@@ -14,7 +14,7 @@ from calibre.constants import iswindows, ismacos
 from calibre.ebooks.mobi.utils import (utf8_text, to_base)
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.ebooks.metadata import authors_to_sort_string
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 EXTH_CODES = {
     'creator': 100,
@@ -63,14 +63,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         items = metadata[term]
         if term == 'creator':
             if prefer_author_sort:
-                creators = [authors_to_sort_string([unicode_type(c)]) for c in
+                creators = [authors_to_sort_string([str(c)]) for c in
                             items]
             else:
-                creators = [unicode_type(c) for c in items]
+                creators = [str(c) for c in items]
             items = creators
         elif term == 'rights':
             try:
-                rights = utf8_text(unicode_type(metadata.rights[0]))
+                rights = utf8_text(str(metadata.rights[0]))
             except:
                 rights = b'Unknown'
             exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
@@ -79,7 +79,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             continue
 
         for item in items:
-            data = unicode_type(item)
+            data = str(item)
             if term != 'description':
                 data = COLLAPSE_RE.sub(' ', data)
             if term == 'identifier':
@@ -103,14 +103,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     from calibre.ebooks.oeb.base import OPF
     for x in metadata['identifier']:
         if (x.get(OPF('scheme'), None).lower() == 'uuid' or
-                unicode_type(x).startswith('urn:uuid:')):
-            uuid = unicode_type(x).split(':')[-1]
+                str(x).startswith('urn:uuid:')):
+            uuid = str(x).split(':')[-1]
             break
     if uuid is None:
         from uuid import uuid4
-        uuid = unicode_type(uuid4())
+        uuid = str(uuid4())
 
-    if isinstance(uuid, unicode_type):
+    if isinstance(uuid, str):
         uuid = uuid.encode('utf-8')
     if not share_not_sync:
         exth.write(pack(b'>II', 113, len(uuid) + 8))
@@ -138,9 +138,9 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
 
     # Add a publication date entry
     if metadata['date']:
-        datestr = unicode_type(metadata['date'][0])
+        datestr = str(metadata['date'][0])
     elif metadata['timestamp']:
-        datestr = unicode_type(metadata['timestamp'][0])
+        datestr = str(metadata['timestamp'][0])
 
     if datestr is None:
         raise ValueError("missing date or timestamp")

@@ -1,4 +1,3 @@
-
 '''
 SVG rasterization transform.
 '''
@@ -17,7 +16,6 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
 from polyglot.urllib import urldefrag
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
@@ -77,7 +75,7 @@ class SVGRasterizer:
                     logger.info('Found SVG image height in %, trying to convert...')
                     try:
                         h = float(image.get('height').replace('%', ''))/100.
-                        image.set('height', unicode_type(h*sizes[1]))
+                        image.set('height', str(h*sizes[1]))
                     except:
                         logger.exception('Failed to convert percentage height:',
                                 image.get('height'))
@@ -223,11 +221,11 @@ class SVGRasterizer:
         covers = self.oeb.metadata.cover
         if not covers:
             return
-        if unicode_type(covers[0]) not in self.oeb.manifest.ids:
+        if str(covers[0]) not in self.oeb.manifest.ids:
             self.oeb.logger.warn('Cover not in manifest, skipping.')
             self.oeb.metadata.clear('cover')
             return
-        cover = self.oeb.manifest.ids[unicode_type(covers[0])]
+        cover = self.oeb.manifest.ids[str(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
         width = (self.profile.width / 72) * self.profile.dpi

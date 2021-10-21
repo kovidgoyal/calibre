@@ -13,7 +13,7 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems
 from polyglot import http_client
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -40,7 +40,7 @@ class TestHTTP(BaseTest):
              b'\r\n', a='one', b='two 2 3', c='three')
 
         test('Non-ascii headers parsing',
-             'a:mūs\r'.encode('utf-8'), b'\r\n', a='mūs')
+             'a:mūs\r'.encode(), b'\r\n', a='mūs')
 
         test('Comma-separated parsing',
              b'Accept-Encoding: one',
@@ -186,7 +186,7 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, http_client.NOT_FOUND)
             self.assertIsNotNone(r.getheader('Date', None))
-            self.ae(r.getheader('Content-Length'), unicode_type(len(body)))
+            self.ae(r.getheader('Content-Length'), str(len(body)))
             self.ae(r.getheader('Content-Type'), 'text/plain; charset=UTF-8')
             self.ae(len(r.getheaders()), 3)
             self.ae(r.read(), b'')
@@ -331,7 +331,7 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
-            self.ae(unicode_type(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
+            self.ae(str(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
             self.ae(r.status, http_client.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
 
             # Test dynamic etagged content
@@ -361,25 +361,25 @@ class TestHTTP(BaseTest):
                 conn = server.connect()
                 conn.request('GET', '/test')
                 r = conn.getresponse()
-                etag = unicode_type(r.getheader('ETag'))
+                etag = str(r.getheader('ETag'))
                 self.assertTrue(etag)
                 self.ae(r.getheader('Content-Type'), guess_type(f.name)[0])
-                self.ae(unicode_type(r.getheader('Accept-Ranges')), 'bytes')
+                self.ae(str(r.getheader('Accept-Ranges')), 'bytes')
                 self.ae(int(r.getheader('Content-Length')), len(fdata))
                 self.ae(r.status, http_client.OK), self.ae(r.read(), fdata)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=2-25'})
                 r = conn.getresponse()
                 self.ae(r.status, http_client.PARTIAL_CONTENT)
-                self.ae(unicode_type(r.getheader('Accept-Ranges')), 'bytes')
-                self.ae(unicode_type(r.getheader('Content-Range')), 'bytes 2-25/%d' % len(fdata))
+                self.ae(str(r.getheader('Accept-Ranges')), 'bytes')
+                self.ae(str(r.getheader('Content-Range')), 'bytes 2-25/%d' % len(fdata))
                 self.ae(int(r.getheader('Content-Length')), 24)
                 self.ae(r.read(), fdata[2:26])
 
                 conn.request('GET', '/test', headers={'Range':'bytes=100000-'})
                 r = conn.getresponse()
                 self.ae(r.status, http_client.REQUESTED_RANGE_NOT_SATISFIABLE)
-                self.ae(unicode_type(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
+                self.ae(str(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
                 r = conn.getresponse()

@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -22,7 +21,7 @@ from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.constants import DEBUG, numeric_version, system_plugins_loc
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
@@ -769,8 +768,7 @@ initialize_plugins()
 
 
 def initialized_plugins():
-    for plugin in _initialized_plugins:
-        yield plugin
+    yield from _initialized_plugins
 
 # }}}
 
@@ -781,12 +779,12 @@ def build_plugin(path):
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZipFile, ZIP_STORED
-    path = unicode_type(path)
+    path = str(path)
     names = frozenset(os.listdir(path))
     if '__init__.py' not in names:
         prints(path, ' is not a valid plugin')
         raise SystemExit(1)
-    t = PersistentTemporaryFile(u'.zip')
+    t = PersistentTemporaryFile('.zip')
     with ZipFile(t, 'w', ZIP_STORED) as zf:
         zf.add_dir(path, simple_filter=lambda x:x in {'.git', '.bzr', '.svn', '.hg'})
     t.close()
@@ -852,7 +850,7 @@ def main(args=sys.argv):
         for plugin in initialized_plugins():
             type_len, name_len = max(type_len, len(plugin.type)), max(name_len, len(plugin.name))
         fmt = '%-{}s%-{}s%-15s%-15s%s'.format(type_len+1, name_len+1)
-        print(fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|'))))
+        print(fmt%tuple('Type|Name|Version|Disabled|Site Customization'.split('|')))
         print()
         for plugin in initialized_plugins():
             print(fmt%(

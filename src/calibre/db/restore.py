@@ -17,7 +17,7 @@ from calibre.db.cache import Cache
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring, force_unicode
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset((
     'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -42,7 +42,7 @@ class Restorer(Cache):
 class Restore(Thread):
 
     def __init__(self, library_path, progress_callback=None):
-        super(Restore, self).__init__()
+        super().__init__()
         if isbytestring(library_path):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
@@ -107,7 +107,7 @@ class Restore(Thread):
             try:
                 tdir = TemporaryDirectory('_rlib', dir=basedir)
                 tdir.__enter__()
-            except EnvironmentError:
+            except OSError:
                 # In case we dont have permissions to create directories in the
                 # parent folder of the src library
                 tdir = TemporaryDirectory('_rlib')
@@ -279,7 +279,7 @@ class Restore(Thread):
         if os.path.exists(dbpath):
             try:
                 os.rename(dbpath, save_path)
-            except EnvironmentError:
+            except OSError:
                 time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
                 shutil.copyfile(dbpath, save_path)
                 os.remove(dbpath)

@@ -1,5 +1,3 @@
-
-
 '''
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 '''
@@ -17,7 +15,7 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.ebooks.mobi.utils import convert_color_for_font_tag
 from calibre.utils.imghdr import identify
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 
@@ -134,7 +132,7 @@ class MobiMLizer:
         self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
-        self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
+        self.fnums = fnums = {v: k for k, v in profile.fnums.items()}
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
         self.mobimlize_spine()
 
@@ -163,7 +161,7 @@ class MobiMLizer:
         return "%dem" % int(round(ptsize / embase))
 
     def preize_text(self, text, pre_wrap=False):
-        text = unicode_type(text)
+        text = str(text)
         if pre_wrap:
             # Replace n consecutive spaces with n-1 NBSP + space
             text = re.sub(r' {2,}', lambda m:('\xa0'*(len(m.group())-1) + ' '), text)
@@ -211,7 +209,7 @@ class MobiMLizer:
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
-                    para.attrib['value'] = unicode_type(istates[-2].list_num)
+                    para.attrib['value'] = str(istates[-2].list_num)
             elif tag in NESTABLE_TAGS and istate.rendered:
                 para = wrapper = bstate.nested[-1]
             elif not self.opts.mobi_ignore_margins and left > 0 and indent >= 0:
@@ -240,7 +238,7 @@ class MobiMLizer:
                 while vspace > 0:
                     wrapper.addprevious(etree.Element(XHTML('br')))
                     vspace -= 1
-            if istate.halign != 'auto' and isinstance(istate.halign, (bytes, unicode_type)):
+            if istate.halign != 'auto' and isinstance(istate.halign, (bytes, str)):
                 if isinstance(istate.halign, bytes):
                     istate.halign = istate.halign.decode('utf-8')
                 para.attrib['align'] = istate.halign
@@ -297,7 +295,7 @@ class MobiMLizer:
 
             if fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
-                                          size=unicode_type(fsize))
+                                          size=str(fsize))
             if istate.family == 'monospace':
                 inline = etree.SubElement(inline, XHTML('tt'))
             if istate.italic:
@@ -462,7 +460,7 @@ class MobiMLizer:
                                 (72/self.profile.dpi)))
                         except:
                             continue
-                        result = unicode_type(pixs)
+                        result = str(pixs)
                     istate.attrib[prop] = result
             if 'width' not in istate.attrib or 'height' not in istate.attrib:
                 href = self.current_spine_item.abshref(elem.attrib['src'])
@@ -479,8 +477,8 @@ class MobiMLizer:
                     else:
                         if 'width' not in istate.attrib and 'height' not in \
                                     istate.attrib:
-                            istate.attrib['width'] = unicode_type(width)
-                            istate.attrib['height'] = unicode_type(height)
+                            istate.attrib['width'] = str(width)
+                            istate.attrib['height'] = str(height)
                         else:
                             ar = width / height
                             if 'width' not in istate.attrib:
@@ -488,13 +486,13 @@ class MobiMLizer:
                                     width = int(istate.attrib['height'])*ar
                                 except:
                                     pass
-                                istate.attrib['width'] = unicode_type(int(width))
+                                istate.attrib['width'] = str(int(width))
                             else:
                                 try:
                                     height = int(istate.attrib['width'])/ar
                                 except:
                                     pass
-                                istate.attrib['height'] = unicode_type(int(height))
+                                istate.attrib['height'] = str(int(height))
                         item.unload_data_from_memory()
         elif tag == 'hr' and asfloat(style['width']) > 0 and style._get('width') not in {'100%', 'auto'}:
             raww = style._get('width')

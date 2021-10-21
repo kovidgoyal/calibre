@@ -1,5 +1,3 @@
-
-
 '''
 LZX compression/decompression wrapper.
 '''

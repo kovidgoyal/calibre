@@ -8,7 +8,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import io
 from struct import pack
 
-from polyglot.builtins import range
 from calibre_extensions import cPalmdoc
 
 

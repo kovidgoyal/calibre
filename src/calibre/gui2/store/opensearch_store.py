@@ -101,5 +101,4 @@ class OpenSearchOPDSStore(StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         if not getattr(self, 'open_search_url', None):
             return
-        for result in open_search(self.open_search_url, query, max_results=max_results, timeout=timeout):
-            yield result
+        yield from open_search(self.open_search_url, query, max_results=max_results, timeout=timeout)

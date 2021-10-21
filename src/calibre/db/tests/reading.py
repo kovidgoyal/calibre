@@ -13,7 +13,7 @@ from time import time
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, itervalues, range
+from polyglot.builtins import iteritems, itervalues
 
 
 def p(x):

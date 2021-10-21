@@ -1,5 +1,3 @@
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'

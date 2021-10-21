@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -25,7 +23,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndica
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     image_extensions, dnd_has_extension, dnd_get_local_image_and_pixmap, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import native_string_type, unicode_type, range
+from polyglot.builtins import native_string_type
 
 history = XMLConfig('history')
 
@@ -86,7 +84,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         # Get all items in the combobox. If we are resetting
         # to defaults we don't want to lose what the user
         # has added.
-        val_hist = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
+        val_hist = [str(self.re.lineEdit().text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
         self.re.clear()
 
         if defaults:
@@ -109,7 +107,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
     def do_test(self):
         from calibre.ebooks.metadata import authors_to_string
         from calibre.ebooks.metadata.meta import metadata_from_filename
-        fname = unicode_type(self.filename.text())
+        fname = str(self.filename.text())
         ext = os.path.splitext(fname)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             return warning_dialog(self, _('Test file name invalid'),
@@ -139,7 +137,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             self.series.setText(_('No match'))
 
         if mi.series_index is not None:
-            self.series_index.setText(unicode_type(mi.series_index))
+            self.series_index.setText(str(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
 
@@ -153,11 +151,11 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         else:
             self.pubdate.setText(_('No match'))
 
-        self.isbn.setText(_('No match') if mi.isbn is None else unicode_type(mi.isbn))
+        self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
         self.comments.setText(mi.comments if mi.comments else _('No match'))
 
     def pattern(self):
-        pat = unicode_type(self.re.lineEdit().text())
+        pat = str(self.re.lineEdit().text())
         return re.compile(pat)
 
     def commit(self):
@@ -165,7 +163,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         prefs['filename_pattern'] = pat
 
         history = []
-        history_pats = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
+        history_pats = [str(self.re.lineEdit().text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
         for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
@@ -496,23 +494,23 @@ class LineEditECM:  # {{{
 
     def upper_case(self):
         from calibre.utils.icu import upper
-        self.setText(upper(unicode_type(self.text())))
+        self.setText(upper(str(self.text())))
 
     def lower_case(self):
         from calibre.utils.icu import lower
-        self.setText(lower(unicode_type(self.text())))
+        self.setText(lower(str(self.text())))
 
     def swap_case(self):
         from calibre.utils.icu import swapcase
-        self.setText(swapcase(unicode_type(self.text())))
+        self.setText(swapcase(str(self.text())))
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
-        self.setText(titlecase(unicode_type(self.text())))
+        self.setText(titlecase(str(self.text())))
 
     def capitalize(self):
         from calibre.utils.icu import capitalize
-        self.setText(capitalize(unicode_type(self.text())))
+        self.setText(capitalize(str(self.text())))
 
 # }}}
 
@@ -595,13 +593,13 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.space_before_sep = space_before
 
     def text_changed(self, text):
-        all_text = unicode_type(text)
+        all_text = str(text)
         text = all_text[:self.cursorPosition()]
         prefix = text.split(self.separator)[-1].strip()
 
         text_items = []
         for t in all_text.split(self.separator):
-            t1 = unicode_type(t).strip()
+            t1 = str(t).strip()
             if t1:
                 text_items.append(t)
         text_items = list(set(text_items))
@@ -609,8 +607,8 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
-        before_text = unicode_type(self.text())[:cursor_pos]
-        after_text = unicode_type(self.text())[cursor_pos:]
+        before_text = str(self.text())[:cursor_pos]
+        after_text = str(self.text())[cursor_pos:]
         prefix_len = len(before_text.split(self.separator)[-1].lstrip())
         if self.space_before_sep:
             complete_text_pat = '%s%s %s %s'
@@ -639,7 +637,7 @@ class EnComboBox(QComboBox):  # {{{
         self.setMinimumContentsLength(20)
 
     def text(self):
-        return unicode_type(self.currentText())
+        return str(self.currentText())
 
     def setText(self, text):
         idx = self.findText(text, Qt.MatchFlag.MatchFixedString|Qt.MatchFlag.MatchCaseSensitive)
@@ -696,11 +694,11 @@ class HistoryLineEdit(QComboBox):  # {{{
 
     def save_history(self):
         items = []
-        ct = unicode_type(self.currentText())
+        ct = str(self.currentText())
         if ct:
             items.append(ct)
         for i in range(self.count()):
-            item = unicode_type(self.itemText(i))
+            item = str(self.itemText(i))
             if item not in items:
                 items.append(item)
         self.blockSignals(True)
@@ -835,7 +833,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
     CONSTANTS = ["False", "True", "None", "NotImplemented", "Ellipsis"]
 
     def __init__(self, parent=None):
-        super(PythonHighlighter, self).__init__(parent)
+        super().__init__(parent)
 
         self.initializeFormats()
 
@@ -1098,7 +1096,7 @@ class Splitter(QSplitter):
                 parent.addAction(self.action_toggle)
                 if hasattr(parent, 'keyboard'):
                     parent.keyboard.register_shortcut('splitter %s %s'%(name,
-                        label), unicode_type(self.action_toggle.text()),
+                        label), str(self.action_toggle.text()),
                         default_keys=(shortcut,), action=self.action_toggle)
                 else:
                     self.action_toggle.setShortcut(shortcut)

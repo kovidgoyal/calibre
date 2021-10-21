@@ -11,7 +11,6 @@ from qt.core import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidg
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
-from polyglot.builtins import unicode_type, range
 
 
 def get_saved_field_data(name, all_fields):
@@ -87,16 +86,16 @@ class PluginWidget(QWidget):
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            item.setCheckState(Qt.CheckState.Checked if unicode_type(item.data(Qt.ItemDataRole.UserRole)) in fields else Qt.CheckState.Unchecked)
+            item.setCheckState(Qt.CheckState.Checked if str(item.data(Qt.ItemDataRole.UserRole)) in fields else Qt.CheckState.Unchecked)
 
     def options(self):
         # Save the currently activated fields
         fields, all_fields = [], []
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            all_fields.append(unicode_type(item.data(Qt.ItemDataRole.UserRole)))
+            all_fields.append(str(item.data(Qt.ItemDataRole.UserRole)))
             if item.checkState() == Qt.CheckState.Checked:
-                fields.append(unicode_type(item.data(Qt.ItemDataRole.UserRole)))
+                fields.append(str(item.data(Qt.ItemDataRole.UserRole)))
         set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget

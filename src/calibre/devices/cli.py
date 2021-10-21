@@ -17,7 +17,6 @@ from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
-from polyglot.builtins import unicode_type
 from polyglot.io import PolyglotStringIO
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
@@ -125,7 +124,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
         maxlen = 0
         if ll:  # Calculate column width for size column
             for file in files:
-                size = len(unicode_type(file.size))
+                size = len(str(file.size))
                 if human_readable_size:
                     file = FileFormatter(file)
                     size = len(file.human_readable_size)
@@ -137,10 +136,10 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             lsoutput.append(name)
             lscoloutput.append(name)
             if ll:
-                size = unicode_type(file.size)
+                size = str(file.size)
                 if human_readable_size:
                     size = file.human_readable_size
-                prints(file.mode_string, ("%"+unicode_type(maxlen)+"s")%size, file.modification_time, name, file=output)
+                prints(file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name, file=output)
         if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
@@ -244,7 +243,7 @@ def main():
             print("Filesystem\tSize \tUsed \tAvail \tUse%")
             for i in range(3):
                 print("%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
-                                                                            unicode_type(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
+                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
         elif command == 'eject':
             dev.eject()
         elif command == "books":
@@ -302,7 +301,7 @@ def main():
                     outfile = os.path.join(outfile, path[path.rfind("/")+1:])
                 try:
                     outfile = lopen(outfile, "wb")
-                except IOError as e:
+                except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
                     return 1
@@ -312,7 +311,7 @@ def main():
             elif args[1].startswith("dev:"):
                 try:
                     infile = lopen(args[0], "rb")
-                except IOError as e:
+                except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
                     return 1

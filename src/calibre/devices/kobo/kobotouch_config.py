@@ -16,7 +16,6 @@ from calibre.devices.usbms.driver import debug_print
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from polyglot.builtins import unicode_type
 
 
 def wrap_msg(msg):
@@ -40,7 +39,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
                     must_read_metadata, supports_use_author_sort,
                     extra_customization_message, device, extra_customization_choices=None, parent=None):
 
-        super(KOBOTOUCHConfig, self).__init__(device_settings, all_formats, supports_subdirs,
+        super().__init__(device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
                     extra_customization_message, device, extra_customization_choices, parent)
 
@@ -66,7 +65,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         return self._device()
 
     def validate(self):
-        validated = super(KOBOTOUCHConfig, self).validate()
+        validated = super().validate()
         validated &= self.tab2.validate()
         return validated
 
@@ -96,7 +95,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
     def commit(self):
         debug_print("KOBOTOUCHConfig::commit: start")
-        p = super(KOBOTOUCHConfig, self).commit()
+        p = super().commit()
 
         p['manage_collections'] = self.manage_collections
         p['create_collections'] = self.create_collections
@@ -128,7 +127,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
-        p['driver_version'] = '.'.join([unicode_type(i) for i in self.device.version])
+        p['driver_version'] = '.'.join([str(i) for i in self.device.version])
 
         return p
 
@@ -136,7 +135,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 class Tab1Config(DeviceConfigTab):  # {{{
 
     def __init__(self, parent, device):
-        super(Tab1Config, self).__init__(parent)
+        super().__init__(parent)
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
@@ -160,7 +159,7 @@ class Tab1Config(DeviceConfigTab):  # {{{
 class Tab2Config(DeviceConfigTab):  # {{{
 
     def __init__(self, parent, device):
-        super(Tab2Config, self).__init__(parent)
+        super().__init__(parent)
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
@@ -188,7 +187,7 @@ class Tab2Config(DeviceConfigTab):  # {{{
 class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(BookUploadsGroupBox, self).__init__(parent, device)
+        super().__init__(parent, device)
         self.setTitle(_("Uploading of books"))
 
         self.options_layout = QGridLayout()
@@ -230,7 +229,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 class CollectionsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(CollectionsGroupBox, self).__init__(parent, device)
+        super().__init__(parent, device)
         self.setTitle(_("Collections"))
 
         self.options_layout = QGridLayout()
@@ -297,7 +296,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 class CoversGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(CoversGroupBox, self).__init__(parent, device)
+        super().__init__(parent, device)
         self.setTitle(_("Upload covers"))
 
         self.options_layout = QGridLayout()
@@ -416,7 +415,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 class DeviceListGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(DeviceListGroupBox, self).__init__(parent, device)
+        super().__init__(parent, device)
         self.setTitle(_("Show as on device"))
 
         self.options_layout = QGridLayout()
@@ -466,7 +465,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 class AdvancedGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(AdvancedGroupBox, self).__init__(parent, device, _("Advanced options"))
+        super().__init__(parent, device, _("Advanced options"))
 #         self.setTitle(_("Advanced Options"))
 
         self.options_layout = QGridLayout()
@@ -480,7 +479,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                               'to perform full read-write functionality - Here be Dragons!! '
                               'Enable only if you are comfortable with restoring your kobo '
                               'to factory defaults and testing software. '
-                              'This driver supports firmware V2.x.x and DBVersion up to ') + unicode_type(
+                              'This driver supports firmware V2.x.x and DBVersion up to ') + str(
                                   device.supported_dbversion), device.get_pref('support_newer_firmware')
                              )
 
@@ -515,7 +514,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
 class MetadataGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(MetadataGroupBox, self).__init__(parent, device)
+        super().__init__(parent, device)
         self.setTitle(_("Update metadata on the device"))
 
         self.options_layout = QGridLayout()
@@ -638,7 +637,7 @@ class TemplateConfig(QWidget):  # {{{
 
     @property
     def template(self):
-        return unicode_type(self.t.text()).strip()
+        return str(self.t.text()).strip()
 
     @template.setter
     def template(self, template):
@@ -660,7 +659,7 @@ class TemplateConfig(QWidget):  # {{{
         except Exception as err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template "%s" is invalid:')%tmpl +
-                    '<br>'+unicode_type(err), show=True)
+                    '<br>'+str(err), show=True)
 
             return False
 # }}}

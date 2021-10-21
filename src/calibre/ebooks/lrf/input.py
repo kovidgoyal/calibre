@@ -12,7 +12,7 @@ from copy import deepcopy, copy
 from lxml import etree
 
 from calibre import guess_type
-from polyglot.builtins import as_bytes, map, unicode_type
+from polyglot.builtins import as_bytes
 
 
 class Canvas(etree.XSLTExtension):
@@ -70,9 +70,9 @@ class Canvas(etree.XSLTExtension):
         height = self.styles.to_num(block.get("ysize", None))
         img = div.makeelement('img')
         if width is not None:
-            img.set('width', unicode_type(int(width)))
+            img.set('width', str(int(width)))
         if height is not None:
-            img.set('height', unicode_type(int(height)))
+            img.set('height', str(int(height)))
         ref = block.get('refstream', None)
         if ref is not None:
             imstr = self.doc.xpath('//ImageStream[@objid="%s"]'%ref)
@@ -267,9 +267,9 @@ class TextBlock(etree.XSLTExtension):
             ysize = self.styles.to_num(child.get('ysize', None), 166/720)
             img = self.root.makeelement('img')
             if xsize is not None:
-                img.set('width', unicode_type(int(xsize)))
+                img.set('width', str(int(xsize)))
             if ysize is not None:
-                img.set('height', unicode_type(int(ysize)))
+                img.set('height', str(int(ysize)))
             ro = child.get('refobj', None)
             if ro in self.plot_map:
                 img.set('src', self.plot_map[ro])

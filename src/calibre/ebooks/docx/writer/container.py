@@ -18,7 +18,7 @@ from calibre.ebooks.pdf.render.common import PAPER_SIZES
 from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems, map, unicode_type, native_string_type
+from polyglot.builtins import iteritems, native_string_type
 
 
 def xml2str(root, pretty_print=False, with_tail=False):
@@ -65,9 +65,9 @@ def create_skeleton(opts, namespaces=None):
 
     def margin(which):
         val = page_margin(opts, which)
-        return w(which), unicode_type(int(val * 20))
+        return w(which), str(int(val * 20))
     body.append(E.sectPr(
-        E.pgSz(**{w('w'):unicode_type(width), w('h'):unicode_type(height)}),
+        E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
         E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
         E.cols(**{w('space'):'720'}),
         E.docGrid(**{w('linePitch'):"360"}),

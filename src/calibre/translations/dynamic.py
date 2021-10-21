@@ -1,4 +1,3 @@
-
 '''
 Dynamic language lookup of translations for user-visible strings.
 '''

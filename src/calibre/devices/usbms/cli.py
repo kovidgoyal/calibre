@@ -54,7 +54,7 @@ class CLI:
         with dest:
             try:
                 shutil.copyfileobj(infile, dest)
-            except IOError:
+            except OSError:
                 print('WARNING: First attempt to send file to device failed')
                 time.sleep(0.2)
                 infile.seek(0)

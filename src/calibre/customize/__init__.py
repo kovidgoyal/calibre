@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -6,7 +5,6 @@ import os, sys, zipfile, importlib, enum
 
 from calibre.constants import numeric_version, iswindows, ismacos
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import unicode_type
 
 if iswindows:
     platform = 'windows'
@@ -207,7 +205,7 @@ class Plugin:  # {{{
             config_dialog.exec_()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
-                sc = unicode_type(sc.text()).strip()
+                sc = str(sc.text()).strip()
                 customize_plugin(self, sc)
 
         geom = bytearray(config_dialog.saveGeometry())

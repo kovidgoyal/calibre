@@ -224,7 +224,7 @@ class QtPattern(TilingPattern):
     )  # }}}
 
     def __init__(self, pattern_num, matrix):
-        super(QtPattern, self).__init__(pattern_num, matrix)
+        super().__init__(pattern_num, matrix)
         self.write(self.qt_patterns[pattern_num-2])
 
 
@@ -237,14 +237,14 @@ class TexturePattern(TilingPattern):
             imgref = pdf.add_image(image, cache_key)
             paint_type = (2 if image.format() in {QImage.Format.Format_MonoLSB,
                                                 QImage.Format.Format_Mono} else 1)
-            super(TexturePattern, self).__init__(
+            super().__init__(
                 cache_key, matrix, w=image.width(), h=image.height(),
                 paint_type=paint_type)
             m = (self.w, 0, 0, -self.h, 0, self.h)
             self.resources['XObject'] = Dictionary({'Texture':imgref})
             self.write_line('%s cm /Texture Do'%(' '.join(map(fmtnum, m))))
         else:
-            super(TexturePattern, self).__init__(
+            super().__init__(
                 clone.cache_key[1], matrix, w=clone.w, h=clone.h,
                 paint_type=clone.paint_type)
             self.resources['XObject'] = Dictionary(clone.resources['XObject'])

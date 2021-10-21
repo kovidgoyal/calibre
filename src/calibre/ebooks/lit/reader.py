@@ -1,4 +1,3 @@
-
 '''
 Support for reading LIT files.
 '''
@@ -17,7 +16,7 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, itervalues
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
 from calibre_extensions import lzx, msdes
 
@@ -117,11 +116,11 @@ def consume_sized_utf8_string(bytes, zpad=False):
         result.append(char)
     if zpad and bytes[pos:pos+1] == b'\0':
         pos += 1
-    return u''.join(result), bytes[pos:]
+    return ''.join(result), bytes[pos:]
 
 
 def encode(string):
-    return unicode_type(string).encode('ascii', 'xmlcharrefreplace')
+    return str(string).encode('ascii', 'xmlcharrefreplace')
 
 
 class UnBinary:
@@ -197,7 +196,7 @@ class UnBinary:
         if state == 'close tag':
             if not tag_name:
                 raise LitError('Tag ends before it begins.')
-            buf.write(encode(u''.join(('</', tag_name, '>'))))
+            buf.write(encode(''.join(('</', tag_name, '>'))))
             dynamic_tag = 0
             tag_name = None
             state = 'text'
@@ -325,7 +324,7 @@ class UnBinary:
                             c = '&quot;'
                         elif c == '<':
                             c = '&lt;'
-                        if isinstance(c, unicode_type):
+                        if isinstance(c, str):
                             c = c.encode('ascii', 'xmlcharrefreplace')
                         buf.write(c)
                     count -= 1
@@ -380,7 +379,7 @@ class UnBinary:
                     if frag:
                         path = '#'.join((path, frag))
                     path = urlnormalize(path)
-                    buf.write(encode(u'"%s"' % path))
+                    buf.write(encode('"%s"' % path))
                     state = 'get attr'
 
 
@@ -955,4 +954,4 @@ class LitReader(OEBReader):
                 hasattr(item.data, 'xpath') and item.data.xpath('/html')):
                 item.media_type = 'application/xhtml+xml'
                 item.data = item._parse_xhtml(etree.tostring(item.data))
-        super(LitReader, self)._spine_from_opf(opf)
+        super()._spine_from_opf(opf)

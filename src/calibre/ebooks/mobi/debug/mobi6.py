@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type, range, iteritems, as_bytes, print_to_binary_file
+from polyglot.builtins import iteritems, as_bytes, print_to_binary_file
 
 
 class TagX:  # {{{
@@ -368,7 +368,7 @@ class IndexEntry:  # {{{
             self.index, len(self.tags))]
         for tag in self.tags:
             if tag.value is not None:
-                ans.append('\t'+unicode_type(tag))
+                ans.append('\t'+str(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
@@ -421,7 +421,7 @@ class IndexRecord:  # {{{
                 len(w), not bool(w.replace(b'\0', b''))))
         for entry in self.indices:
             offset = entry.offset
-            a(unicode_type(entry))
+            a(str(entry))
             t = self.alltext
             if offset is not None and self.alltext is not None:
                 a('\tHTML before offset: %r'%t[offset-50:offset])
@@ -564,7 +564,7 @@ class TBSIndexing:  # {{{
 
     def get_index(self, idx):
         for i in self.indices:
-            if i.index in {idx, unicode_type(idx)}:
+            if i.index in {idx, str(idx)}:
                 return i
         raise IndexError('Index %d not found'%idx)
 
@@ -608,7 +608,7 @@ class TBSIndexing:  # {{{
             return as_bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
-            return unicode_type({bin4(k):v for k, v in iteritems(extra)})
+            return str({bin4(k):v for k, v in iteritems(extra)})
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
@@ -789,14 +789,14 @@ class MOBIFile:  # {{{
 
     def print_header(self, f=sys.stdout):
         p = print_to_binary_file(f)
-        p(unicode_type(self.palmdb))
+        p(str(self.palmdb))
         p()
         p('Record headers:')
         for i, r in enumerate(self.records):
             p('%6d. %s'%(i, r.header))
 
         p()
-        p(unicode_type(self.mobi_header))
+        p(str(self.mobi_header))
 # }}}
 
 
@@ -822,20 +822,20 @@ def inspect_mobi(mobi_file, ddir):
         f.index_record.alltext = alltext
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print = print_to_binary_file(out)
-            print(unicode_type(f.index_header), file=out)
+            print(str(f.index_header), file=out)
             print('\n\n', file=out)
             if f.secondary_index_header is not None:
-                print(unicode_type(f.secondary_index_header), file=out)
+                print(str(f.secondary_index_header), file=out)
                 print('\n\n', file=out)
             if f.secondary_index_record is not None:
-                print(unicode_type(f.secondary_index_record), file=out)
+                print(str(f.secondary_index_record), file=out)
                 print('\n\n', file=out)
-            print(unicode_type(f.cncx), file=out)
+            print(str(f.cncx), file=out)
             print('\n\n', file=out)
-            print(unicode_type(f.index_record), file=out)
+            print(str(f.index_record), file=out)
         with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
             print = print_to_binary_file(out)
-            print(unicode_type(f.tbs_indexing), file=out)
+            print(str(f.tbs_indexing), file=out)
         f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),

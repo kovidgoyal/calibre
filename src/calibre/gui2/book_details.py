@@ -36,7 +36,6 @@ from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl, langnames_to_langcodes
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
-from polyglot.builtins import unicode_type
 
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
@@ -59,7 +58,7 @@ def css(reset=False):
         del css.ans
     if not hasattr(css, 'ans'):
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        css.ans = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
+        css.ans = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
     return css.ans
 
 
@@ -73,10 +72,10 @@ def copy_all(text_browser):
 
 
 def create_search_internet_menu(callback, author=None):
-    m = QMenu((
+    m = QMenu(
         _('Search the internet for the author {}').format(author)
         if author is not None else
-        _('Search the internet for this book'))
+        _('Search the internet for this book')
     )
     m.menuAction().setIcon(QIcon(I('search.png')))
     items = all_book_searches() if author is None else all_author_searches()
@@ -180,7 +179,7 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, p
         if col.isValid():
             col = col.toRgb()
             if col.isValid():
-                ans = unicode_type(col.name())
+                ans = str(col.name())
         return ans
 
     templ = '''\
@@ -395,7 +394,7 @@ def create_copy_links(menu, data=None):
             field = 'authors'
         if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
             name = data['name' if data['type'] == 'author' else 'value']
-            eq = f'{field}:"={name}"'.encode('utf-8').hex()
+            eq = f'{field}:"={name}"'.encode().hex()
             link(_('Link to show books matching {} in calibre').format(name),
                  f'calibre://search/{library_id}?eq={eq}')
 
@@ -789,9 +788,9 @@ class BookInfo(HTMLDisplay):
             self.manage_category.emit(*self.manage_action.current_fmt)
 
     def link_activated(self, link):
-        if unicode_type(link.scheme()) in ('http', 'https'):
+        if str(link.scheme()) in ('http', 'https'):
             return safe_open_url(link)
-        link = unicode_type(link.toString(NO_URL_FORMATTING))
+        link = str(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
     def show_data(self, mi):

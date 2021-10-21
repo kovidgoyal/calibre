@@ -12,7 +12,7 @@ import codecs
 import os
 
 from .pylrfopt import tagListOptimizer
-from polyglot.builtins import iteritems, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes
 
 PYLRF_VERSION = "1.0"
 
@@ -85,7 +85,7 @@ def writeWord(f, word):
     if int(word) > 65535:
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
     if int(word) < 0:
-        raise LrfError('Cannot encode a number < 0 in a word: '+unicode_type(word))
+        raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
     f.write(struct.pack("<H", int(word)))
 
 
@@ -511,7 +511,7 @@ class LrfObject:
             raise LrfError("object name %s not recognized" % name)
 
     def __str__(self):
-        return 'LRFObject: ' + self.name + ", " + unicode_type(self.objId)
+        return 'LRFObject: ' + self.name + ", " + str(self.objId)
 
     def appendLrfTag(self, tag):
         self.tags.append(tag)

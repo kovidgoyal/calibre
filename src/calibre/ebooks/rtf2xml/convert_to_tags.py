@@ -1,4 +1,3 @@
-
 import os, sys
 
 from calibre.ebooks.rtf2xml import copy, check_encoding

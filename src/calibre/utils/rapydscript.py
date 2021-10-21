@@ -17,7 +17,7 @@ from calibre.constants import (
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import as_bytes, as_unicode, exec_path, unicode_type, zip
+from polyglot.builtins import as_bytes, as_unicode, exec_path
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 special_title = '__webengine_messages_pending__'
@@ -196,7 +196,7 @@ def module_cache_dir():
         _cache_dir = os.path.join(base, '.build-cache', 'pyj')
         try:
             os.makedirs(_cache_dir)
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
     return _cache_dir
@@ -475,7 +475,7 @@ def compile_srv():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with lopen(rb, 'rb') as f:
-        rv = unicode_type(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
+        rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
     mathjax_version = json.loads(P('mathjax/manifest.json', data=True, allow_user_override=False))['etag']
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')

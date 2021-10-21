@@ -1,4 +1,3 @@
-
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -16,7 +15,6 @@ import sys, os, io
 from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import unicode_type
 
 from . import open_for_read, open_for_write
 
@@ -483,7 +481,7 @@ class Hex2Utf8:
             the_string = ''
             for letter in text:
                 hex_num = hex(ord(letter))
-                hex_num = unicode_type(hex_num)
+                hex_num = str(hex_num)
                 hex_num = hex_num.upper()
                 hex_num = hex_num[2:]
                 hex_num = '\'%s' % hex_num

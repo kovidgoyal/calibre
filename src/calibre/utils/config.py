@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -227,7 +225,7 @@ class DynamicConfig(dict):
         try:
             with share_open(path, 'rb') as f:
                 raw = f.read()
-        except EnvironmentError:
+        except OSError:
             raw = b''
         try:
             d = pickle_loads(raw).copy()
@@ -324,13 +322,13 @@ class XMLConfig(dict):
     def mtime(self):
         try:
             return os.path.getmtime(self.file_path)
-        except EnvironmentError:
+        except OSError:
             return 0
 
     def touch(self):
         try:
             os.utime(self.file_path, None)
-        except EnvironmentError:
+        except OSError:
             pass
 
     def raw_to_object(self, raw):

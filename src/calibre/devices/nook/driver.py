@@ -111,7 +111,7 @@ class NOOK_COLOR(NOOK):
             self.EBOOK_DIR_MAIN = 'NOOK/My Files'
             try:
                 os.makedirs(os.path.join(self._main_prefix, *self.EBOOK_DIR_MAIN.split('/')))
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.EEXIST:
                     self.EBOOK_DIR_MAIN = 'NOOK'
 

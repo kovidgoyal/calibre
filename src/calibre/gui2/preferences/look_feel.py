@@ -38,7 +38,7 @@ from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.utils.resources import set_data
-from polyglot.builtins import iteritems, unicode_type, map
+from polyglot.builtins import iteritems
 
 
 class BusyCursor:
@@ -555,7 +555,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.setCurrentIndex(0)
         keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
-        keys = [unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
+        keys = [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
         self.fs_help_msg.setText(self.fs_help_msg.text()%(
             QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
@@ -751,7 +751,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def update_font_display(self):
         font = self.build_font_obj()
         fi = QFontInfo(font)
-        name = unicode_type(fi.family())
+        name = str(fi.family())
 
         self.font_display.setFont(font)
         self.font_display.setText(name + ' [%dpt]'%fi.pointSize())
@@ -761,7 +761,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if fd.exec_() == QDialog.DialogCode.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
-            self.current_font = [unicode_type(fi.family()), fi.pointSize(),
+            self.current_font = [str(fi.family()), fi.pointSize(),
                     fi.weight(), fi.italic(), font.stretch()]
             self.update_font_display()
             self.changed_signal.emit()

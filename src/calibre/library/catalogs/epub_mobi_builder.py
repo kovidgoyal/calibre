@@ -43,7 +43,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems, map, unicode_type, zip
+from polyglot.builtins import iteritems
 
 NBSP = '\u00a0'
 
@@ -52,7 +52,7 @@ def makeelement(tag_name, parent, **attrs):
     ans = parent.makeelement(tag_name)
     for k, v in attrs.items():
         k = k.replace('_', '-').rstrip('-')
-        ans.set(k, unicode_type(v))
+        ans.set(k, str(v))
     parent.append(ans)
     ans.tail = '\n'
     return ans
@@ -252,7 +252,7 @@ class CatalogBuilder:
             index = book['series_index']
             integer = int(index)
             fraction = index - integer
-            series_index = '%04d%s' % (integer, unicode_type('%0.4f' % fraction).lstrip('0'))
+            series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
             key = '%s ~%s %s' % (self._kf_author_to_author_sort(book['author']),
                                     self.generate_sort_title(book['series']),
                                     series_index)
@@ -278,7 +278,7 @@ class CatalogBuilder:
             index = book['series_index']
             integer = int(index)
             fraction = index - integer
-            series_index = '%04d%s' % (integer, unicode_type('%0.4f' % fraction).lstrip('0'))
+            series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
             fs = '{:<%d}~{!s}{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             self.generate_sort_title(book['series']),
@@ -289,7 +289,7 @@ class CatalogBuilder:
         index = book['series_index']
         integer = int(index)
         fraction = index - integer
-        series_index = '%04d%s' % (integer, unicode_type('%0.4f' % fraction).lstrip('0'))
+        series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
         key = '%s %s' % (self.generate_sort_title(book['series']),
                          series_index)
         return key
@@ -613,7 +613,7 @@ class CatalogBuilder:
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags' or rule['field'] == _('Tags'):
-                if rule['pattern'].lower() in tuple(map(unicode_type.lower, record['tags'])):
+                if rule['pattern'].lower() in tuple(map(str.lower, record['tags'])):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
                                (rule['prefix'], record['title'],
@@ -643,7 +643,7 @@ class CatalogBuilder:
                         # locale version
                         field_contents = _(repr(field_contents))
                     try:
-                        if re.search(rule['pattern'], unicode_type(field_contents),
+                        if re.search(rule['pattern'], str(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.DEBUG:
                                 _log_prefix_rule_match_info(rule, record, field_contents)
@@ -715,14 +715,14 @@ class CatalogBuilder:
                     if icu_upper(c[0]) != last_c:
                         last_c = icu_upper(c[0])
                         if last_c in exceptions.keys():
-                            last_c = exceptions[unicode_type(last_c)]
+                            last_c = exceptions[str(last_c)]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
                 else:
                     if last_ordnum != ordnum:
                         last_c = icu_upper(c[0:ordlen])
                         if last_c in exceptions.keys():
-                            last_c = exceptions[unicode_type(last_c)]
+                            last_c = exceptions[str(last_c)]
                         last_ordnum = ordnum
                     else:
                         last_c = cl_list[idx-1]
@@ -732,7 +732,7 @@ class CatalogBuilder:
                 if last_ordnum != ordnum:
                     last_c = icu_upper(c[0:ordlen])
                     if last_c in exceptions.keys():
-                        last_c = exceptions[unicode_type(last_c)]
+                        last_c = exceptions[str(last_c)]
                     last_ordnum = ordnum
                 else:
                     last_c = cl_list[idx-1]
@@ -849,7 +849,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             self.opts.log.info("\nfetch_books_by_author(): %d unique authors" % len(unique_authors))
             for author in unique_authors:
-                self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                self.opts.log.info((" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
                     author[2])).encode('utf-8'))
             self.opts.log.info("\nfetch_books_by_author(): %d individual authors" % len(individual_authors))
             for author in sorted(individual_authors):
@@ -881,7 +881,7 @@ class CatalogBuilder:
                 self.opts.log.info("fetch_books_by_title(): %d books" % len(self.books_by_title))
                 self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
                 for title in self.books_by_title:
-                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
+                    self.opts.log.info((" %-40s %-40s" % (title['title'][0:40],
                                                             title['title_sort'][0:40])).encode('utf-8'))
         else:
             error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in the E-book options.\n")
@@ -1070,7 +1070,7 @@ class CatalogBuilder:
 
         if self.DEBUG:
             if self.prefix_rules:
-                self.opts.log.info(" Added prefixes (bools_are_tristate: {0}):".format(self.db.new_api.pref('bools_are_tristate')))
+                self.opts.log.info(" Added prefixes (bools_are_tristate: {}):".format(self.db.new_api.pref('bools_are_tristate')))
             else:
                 self.opts.log.info(" No added prefixes")
 
@@ -1355,7 +1355,7 @@ class CatalogBuilder:
         """
         # Kindle TOC descriptions won't render certain characters
         # Fix up
-        massaged = xml_replace_entities(unicode_type(description))
+        massaged = xml_replace_entities(str(description))
 
         # Replace '&' with '&#38;'
         # massaged = re.sub("&", "&#38;", massaged)
@@ -1422,7 +1422,7 @@ class CatalogBuilder:
         Return:
          (dict): formatted args for templating
         """
-        series_index = unicode_type(book['series_index'])
+        series_index = str(book['series_index'])
         if series_index.endswith('.0'):
             series_index = series_index[:-2]
         args = dict(
@@ -2701,7 +2701,7 @@ class CatalogBuilder:
         series_index = ''
         if book['series']:
             series = book['series']
-            series_index = unicode_type(book['series_index'])
+            series_index = str(book['series_index'])
             if series_index.endswith('.0'):
                 series_index = series_index[:-2]
 
@@ -3078,7 +3078,7 @@ class CatalogBuilder:
         for book in self.books_by_description:
             sec_id = "book%dID" % int(book['id'])
             if book['series']:
-                series_index = unicode_type(book['series_index'])
+                series_index = str(book['series_index'])
                 if series_index.endswith('.0'):
                     series_index = series_index[:-2]
                 if self.generate_for_kindle_mobi:
@@ -3279,9 +3279,9 @@ class CatalogBuilder:
         for (i, books) in enumerate(books_by_letter):
             sec_id = "%sTitles-ID" % (title_letters[i].upper())
             if len(title_letters[i]) > 1:
-                fmt_string = _(u"Titles beginning with %s")
+                fmt_string = _("Titles beginning with %s")
             else:
-                fmt_string = _(u"Titles beginning with '%s'")
+                fmt_string = _("Titles beginning with '%s'")
             sec_text = fmt_string % (title_letters[i] if len(title_letters[i]) > 1 else title_letters[i])
             if title_letters[i] == self.SYMBOLS:
                 content_src = "content/%s.html#%s_titles" % (output, self.SYMBOLS)
@@ -3356,9 +3356,9 @@ class CatalogBuilder:
         for authors_by_letter in master_author_list:
             sec_id = "%sauthors-ID" % (authors_by_letter[1])
             if authors_by_letter[1] == self.SYMBOLS:
-                fmt_string = _(u"Authors beginning with %s")
+                fmt_string = _("Authors beginning with %s")
             else:
-                fmt_string = _(u"Authors beginning with '%s'")
+                fmt_string = _("Authors beginning with '%s'")
             sec_text = fmt_string % authors_by_letter[1]
             if authors_by_letter[1] == self.SYMBOLS:
                 content_src = "%s#%s_authors" % (HTML_file, authors_by_letter[1])
@@ -4029,7 +4029,7 @@ class CatalogBuilder:
         Return:
          (str): legal XHTML anchor string of unicode character name
         """
-        fullname = ''.join(unicodedata.name(unicode_type(cc)) for cc in c)
+        fullname = ''.join(unicodedata.name(str(cc)) for cc in c)
         terms = fullname.split()
         return "_".join(terms)
 
@@ -4061,7 +4061,7 @@ class CatalogBuilder:
                 matched = list(set(record['tags']) & set(excluded_tags))
                 if matched:
                     for rule in self.opts.exclusion_rules:
-                        if rule[1] == _('Tags') and rule[2] == unicode_type(matched[0]):
+                        if rule[1] == _('Tags') and rule[2] == str(matched[0]):
                             self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
                                 (record['title'], record['authors'][0], rule[0]))
 
@@ -4261,7 +4261,7 @@ class CatalogBuilder:
                             # locale version
                             field_contents = _(repr(field_contents))
 
-                        matched = re.search(pat, unicode_type(field_contents),
+                        matched = re.search(pat, str(field_contents),
                                 re.IGNORECASE)
                         if matched is not None:
                             if self.opts.verbose:
@@ -4350,10 +4350,10 @@ class CatalogBuilder:
         if self.opts.cli_environment:
             log_msg = "%3.0f%% %s" % (self.progress_int * 100, self.progress_string)
             if self.opts.verbose:
-                log_msg += " (%s)" % unicode_type(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))
+                log_msg += " (%s)" % str(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))
         else:
             log_msg = ("%s (%s)" % (self.progress_string,
-                unicode_type(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))))
+                str(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))))
         self.opts.log(log_msg)
 
     def update_progress_micro_step(self, description, micro_step_pct):

@@ -20,8 +20,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
-from polyglot.builtins import (iteritems, itervalues, map,
-        unicode_type, string_or_bytes, zip, cmp)
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, cmp
 
 
 class MetadataBackup(Thread):  # {{{
@@ -138,7 +137,7 @@ del y, c, n, u
 
 
 def force_to_bool(val):
-    if isinstance(val, (bytes, unicode_type)):
+    if isinstance(val, (bytes, str)):
         if isinstance(val, bytes):
             val = force_unicode(val)
         try:
@@ -360,7 +359,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 if item is None:
                     continue
                 v = item[loc]
-                if isinstance(v, (bytes, unicode_type)):
+                if isinstance(v, (bytes, str)):
                     v = parse_date(v)
                 if v is None or v <= UNDEFINED_DATE:
                     matches.add(item[0])
@@ -371,7 +370,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 if item is None:
                     continue
                 v = item[loc]
-                if isinstance(v, (bytes, unicode_type)):
+                if isinstance(v, (bytes, str)):
                     v = parse_date(v)
                 if v is not None and v > UNDEFINED_DATE:
                     matches.add(item[0])
@@ -415,7 +414,7 @@ class ResultCache(SearchQueryParser):  # {{{
             if item is None or item[loc] is None:
                 continue
             v = item[loc]
-            if isinstance(v, (bytes, unicode_type)):
+            if isinstance(v, (bytes, str)):
                 v = parse_date(v)
             if relop(v, qd, field_count):
                 matches.add(item[0])
@@ -742,7 +741,7 @@ class ResultCache(SearchQueryParser):  # {{{
             # everything else, or 'all' matches
             matchkind, query = self._matchkind(query)
 
-            if not isinstance(query, unicode_type):
+            if not isinstance(query, str):
                 query = query.decode('utf-8')
 
             db_col = {}
@@ -906,7 +905,7 @@ class ResultCache(SearchQueryParser):  # {{{
         self.search_restriction_name = s
 
     def search_restriction_applied(self):
-        return bool(self.search_restriction) or bool((self.base_restriction))
+        return bool(self.search_restriction) or bool(self.base_restriction)
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
@@ -927,7 +926,7 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(zip(iter(id_dict), map(unicode_type,
+            self.marked_ids_dict = dict(zip(iter(id_dict), map(str,
                 itervalues(id_dict))))
 
         # Set the values in the cache
