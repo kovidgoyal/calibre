@@ -46,6 +46,7 @@ class ReadAloud:
         ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
+        container.addEventListener('contextmenu', self.toggle, {'passive': False})
 
     @property
     def container(self):
