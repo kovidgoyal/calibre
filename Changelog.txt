@@ -33,7 +33,7 @@
 
 - Sending books by e-mail: Preserve non-English characters in attached filenames
 
-- [1946560] Tab browser: Allow searching for sub-categories by right clicking on them
+- [1946560] Tag browser: Allow searching for sub-categories by right clicking on them
 
 :: bug fixes
 
