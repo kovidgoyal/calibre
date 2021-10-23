@@ -6,13 +6,28 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
+from qt.core import QIcon, QMenu, QTimer, QToolButton, pyqtSignal, QUrl
 
-from calibre.gui2 import info_dialog, question_dialog
+from calibre.gui2 import info_dialog, question_dialog, open_url
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
+
+
+def local_url_for_content_server():
+    from calibre.srv.opts import server_config
+    opts = server_config()
+    interface = opts.listen_on or '0.0.0.0'
+    interface = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(interface)
+    protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
+    prefix = opts.url_prefix or ''
+    port = opts.port
+    return f'{protocol}://{interface}:{port}{prefix}'
+
+
+def open_in_browser():
+    open_url(QUrl(local_url_for_content_server()))
 
 
 class ShareConnMenu(QMenu):  # {{{
@@ -41,6 +56,10 @@ class ShareConnMenu(QMenu):  # {{{
             self.addAction(QIcon(I('network-server.png')),
             _('Start Content server'))
         connect_lambda(self.toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
+        self.open_server_in_browser_action = self.addAction(
+            QIcon(I('forward.png')), _("Visit Content server in browser"))
+        connect_lambda(self.open_server_in_browser_action.triggered, self, lambda self: open_in_browser())
+        self.open_server_in_browser_action.setVisible(False)
         self.control_smartdevice_action = \
             self.addAction(QIcon(I('dot_red.png')),
             self.DEVICE_MSGS[0])
@@ -79,6 +98,7 @@ class ShareConnMenu(QMenu):  # {{{
         else:
             self.ip_text = ''
         self.toggle_server_action.setText(text)
+        self.open_server_in_browser_action.setVisible(running)
 
     def hide_smartdevice_menus(self):
         self.control_smartdevice_action.setVisible(False)
