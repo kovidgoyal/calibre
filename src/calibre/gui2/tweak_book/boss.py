@@ -994,7 +994,7 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Not supported'), _(
                 'Semantics are not supported for the AZW3 format.'), show=True)
         d = InsertSemantics(c, parent=self.gui)
-        if d.exec_() == QDialog.DialogCode.Accepted and d.changed_type_map:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.changes:
             self.add_savepoint(_('Before: Set Semantics'))
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
