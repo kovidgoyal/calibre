@@ -78,6 +78,7 @@ class ShareConnMenu(QMenu):  # {{{
                         group=gr)
             r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
+            r(prefix + ' open server in browser', self.open_server_in_browser_action.text(), action=self.open_server_in_browser_action, group=gr)
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ipV4_address
