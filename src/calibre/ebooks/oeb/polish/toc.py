@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.utils import guess_type, extract
 from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
-from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
+from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
 from polyglot.builtins import iteritems
@@ -699,8 +699,40 @@ def ensure_container_has_nav(container, lang=None, previous_nav=None):
     return tocname, root
 
 
+def collapse_li(parent):
+    for li in parent.iterdescendants(XHTML('li')):
+        if len(li) == 1:
+            li.text = None
+            li[0].tail = None
+
+
+def create_nav_li(container, ol, entry, tocname):
+    li = ol.makeelement(XHTML('li'))
+    ol.append(li)
+    a = li.makeelement(XHTML('a'))
+    li.append(a)
+    href = container.name_to_href(entry['dest'], tocname)
+    if entry['frag']:
+        href += '#' + entry['frag']
+    a.set('href', href)
+    return a
+
+
+def set_landmarks(container, root, tocname, landmarks):
+    nav = ensure_single_nav_of_type(root, 'landmarks')
+    nav.set('hidden', '')
+    ol = nav.makeelement(XHTML('ol'))
+    nav.append(ol)
+    for entry in landmarks:
+        if entry['type'] and container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
+            a = create_nav_li(container, ol, entry, tocname)
+            a.set('{%s}type' % EPUB_NS, entry['type'])
+            a.text = entry['title'] or None
+    pretty_xml_tree(nav)
+    collapse_li(nav)
+
+
 def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
-    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
     tocname, root = ensure_container_has_nav(container, lang=lang, previous_nav=previous_nav)
     nav = ensure_single_nav_of_type(root, 'toc')
     if toc.toc_title:
@@ -733,37 +765,8 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     process_node(rnode, toc)
     pretty_xml_tree(nav)
 
-    def collapse_li(parent):
-        for li in parent.iterdescendants(XHTML('li')):
-            if len(li) == 1:
-                li.text = None
-                li[0].tail = None
     collapse_li(nav)
     nav.tail = '\n'
-
-    def create_li(ol, entry):
-        li = ol.makeelement(XHTML('li'))
-        ol.append(li)
-        a = li.makeelement(XHTML('a'))
-        li.append(a)
-        href = container.name_to_href(entry['dest'], tocname)
-        if entry['frag']:
-            href += '#' + entry['frag']
-        a.set('href', href)
-        return a
-
-    if landmarks is not None:
-        nav = ensure_single_nav_of_type(root, 'landmarks')
-        nav.set('hidden', '')
-        ol = nav.makeelement(XHTML('ol'))
-        nav.append(ol)
-        for entry in landmarks:
-            if entry['type'] and container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
-                a = create_li(ol, entry)
-                a.set('{%s}type' % EPUB_NS, entry['type'])
-                a.text = entry['title'] or None
-        pretty_xml_tree(nav)
-        collapse_li(nav)
 
     if toc.page_list:
         nav = ensure_single_nav_of_type(root, 'page-list')
@@ -772,7 +775,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
         nav.append(ol)
         for entry in toc.page_list:
             if container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
-                a = create_li(ol, entry)
+                a = create_nav_li(container, ol, entry, tocname)
                 a.text = str(entry['pagenum'])
         pretty_xml_tree(nav)
         collapse_li(nav)
