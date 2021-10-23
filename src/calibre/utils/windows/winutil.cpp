@@ -985,6 +985,14 @@ wait_named_pipe(PyObject *self, PyObject *args) {
     Py_RETURN_TRUE;
 }
 
+static PyObject*
+set_thread_execution_state(PyObject *self, PyObject *args) {
+    unsigned long new_state;
+    if (!PyArg_ParseTuple(args, "k", new_state)) return NULL;
+    if (SetThreadExecutionState(new_state) == NULL) return PyErr_SetFromWindowsErr(0);
+    Py_RETURN_NONE;
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -1137,6 +1145,7 @@ static PyMethodDef winutil_methods[] = {
 	M(parse_cmdline, METH_VARARGS),
 	M(write_file, METH_VARARGS),
 	M(wait_named_pipe, METH_VARARGS),
+	M(set_thread_execution_state, METH_VARARGS),
 	M(known_folder_path, METH_VARARGS),
     M(get_computer_name, METH_VARARGS),
 
@@ -1465,6 +1474,12 @@ exec_module(PyObject *m) {
     A(ComputerNamePhysicalDnsFullyQualified);
     A(ComputerNamePhysicalDnsHostname);
     A(ComputerNamePhysicalNetBIOS);
+
+    A(ES_AWAYMODE_REQUIRED);
+    A(ES_CONTINUOUS);
+    A(ES_DISPLAY_REQUIRED);
+    A(ES_SYSTEM_REQUIRED);
+    A(ES_USER_PRESENT);
 #undef A
     return 0;
 }
