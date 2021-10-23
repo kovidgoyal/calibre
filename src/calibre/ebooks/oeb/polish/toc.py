@@ -674,8 +674,7 @@ def ensure_single_nav_of_type(root, ntype='toc'):
     return nav
 
 
-def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
-    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
+def ensure_container_has_nav(container, lang=None, previous_nav=None):
     tocname = find_existing_nav_toc(container)
     if previous_nav is not None:
         nav_name = container.href_to_name(previous_nav[0])
@@ -697,6 +696,12 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
         lang = lang_as_iso639_1(lang) or lang
         root.set('lang', lang)
         root.set('{%s}lang' % XML_NS, lang)
+    return tocname, root
+
+
+def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
+    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
+    tocname, root = ensure_container_has_nav(container, lang=lang, previous_nav=previous_nav)
     nav = ensure_single_nav_of_type(root, 'toc')
     if toc.toc_title:
         nav.append(nav.makeelement(XHTML('h1')))
