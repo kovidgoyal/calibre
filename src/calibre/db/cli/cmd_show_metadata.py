@@ -46,7 +46,7 @@ def main(opts, args, dbctx):
     book_id = int(args[0])
     mi = dbctx.run('show_metadata', book_id)
     if mi is None:
-        raise SystemExit('Id #%d is not present in database.' % id)
+        raise SystemExit(f'Id #{book_id} is not present in database.')
     if opts.as_opf:
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         mi = OPFCreator(os.getcwd(), mi)
