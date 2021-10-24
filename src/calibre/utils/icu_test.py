@@ -116,7 +116,6 @@ class TestICU(unittest.TestCase):
 
     def test_collation_order(self):
         'Testing collation ordering'
-        from calibre.utils.icu import collation_order
         for group in [
             (self.ae,  ('Šaa', 'Smith', 'Solženicyn', 'Štepánek')),
             (self.ae,  ('11', '011')),

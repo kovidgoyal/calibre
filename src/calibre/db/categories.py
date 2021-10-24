@@ -116,8 +116,9 @@ def clean_user_categories(dbcache):
 
 
 numeric_collation = tweaks['numeric_collation']
+
+
 def first_digit(x):
-    global numeric_collation
     c = icu_upper(x.sort or x.name or ' ')[0]
     # The idea is that '9999999999' is larger than any digit so all digits
     # will sort in front. Non-digits will sort according to their ICU first letter
