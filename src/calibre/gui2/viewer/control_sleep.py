@@ -6,7 +6,7 @@
 from calibre.constants import ismacos, iswindows
 
 if iswindows:
-    from winutil import (
+    from calibre_extensions.winutil import (
         ES_CONTINUOUS, ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED,
         set_thread_execution_state
     )
@@ -18,7 +18,7 @@ if iswindows:
     def allow_sleep(cookie):
         set_thread_execution_state(ES_CONTINUOUS)
 elif ismacos:
-    from cocoa import (
+    from calibre_extensions.cocoa import (
         create_io_pm_assertion, kIOPMAssertionTypeNoDisplaySleep,
         release_io_pm_assertion
     )
