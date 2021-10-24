@@ -859,6 +859,7 @@ class InsertSemantics(Dialog):
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
+        t.setClearButtonEnabled(True)
         t.setPlaceholderText(_('The destination (href) for the link'))
         tl.addRow(_('&Target:'), t)
         l.addLayout(tl)
