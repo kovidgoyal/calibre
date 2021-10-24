@@ -528,12 +528,19 @@ def user_manual_stats():
     return stats
 
 
-def localize_user_manual_link(url):
+def lang_code_for_user_manual():
     lc = lang_as_iso639_1(get_lang())
     if lc == 'en':
-        return url
+        return ''
     stats = user_manual_stats()
     if stats.get(lc, 0) < 0.3:
+        return ''
+    return lc
+
+
+def localize_user_manual_link(url):
+    lc = lang_code_for_user_manual()
+    if not lc:
         return url
     from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)

@@ -241,6 +241,7 @@ default_interface_data = {
     'icon_path': '',
     'custom_list_template': None,
     'num_per_page': 50,
+    'lang_code_for_user_manual': '',
 }
 
 def get_interface_data():

@@ -18,6 +18,7 @@ from read_book.db import get_db
 from read_book.globals import ui_operations
 from read_book.tts import Client
 from read_book.view import View
+from session import get_interface_data
 from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
 
@@ -92,6 +93,16 @@ class ReadUI:
         ui_operations.find_next = self.view.search_overlay.find_next
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
+        ui_operations.show_help = def(which):
+            if which is 'viewer':
+                path = '/viewer.html'
+            else:
+                return
+            if get_interface_data().lang_code_for_user_manual:
+                path = f'/{get_interface_data().lang_code_for_user_manual}{path}'
+            url = 'https://manual.calibre-ebook.com' + path
+            window.open(url, '_blank')
+
         ui_operations.copy_selection = def(text, html):
             # try using document.execCommand which on chrome allows the
             # copy on non-secure origin if this is close to a user

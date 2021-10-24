@@ -431,9 +431,17 @@ class MainOverlay:  # {{{
                   style='position: fixed; width: 100%; bottom: 0; display: flex; justify-content: space-between; align-items: center;'
                         'user-select: none; background-color: {}'.format(get_color('window-background')),
                 E.div(
-                    style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
-                    title=_('Close the viewer controls'),
-                    svgicon('close', icon_size, icon_size), '\xa0', _('Close')
+                    style='display: flex; justify-content: space-between; align-items: center;',
+                    E.div(
+                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
+                        title=_('Close the viewer controls'),
+                        svgicon('close', icon_size, icon_size), '\xa0', _('Close')
+                    ),
+                    E.div(
+                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
+                        svgicon('help', icon_size, icon_size), '\xa0', _('Help'), onclick=def(ev):
+                            ui_operations.show_help('viewer')
+                    )
                 ),
                 E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
             ),

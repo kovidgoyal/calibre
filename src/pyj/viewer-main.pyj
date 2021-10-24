@@ -429,6 +429,8 @@ if window is window.top:
         to_python.edit_book(spine_name, frac, selected_text or '')
     ui_operations.show_book_folder = def():
         to_python.show_book_folder()
+    ui_operations.show_help = def(which):
+        to_python.show_help(which)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
