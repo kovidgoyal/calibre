@@ -988,7 +988,7 @@ wait_named_pipe(PyObject *self, PyObject *args) {
 static PyObject*
 set_thread_execution_state(PyObject *self, PyObject *args) {
     unsigned long new_state;
-    if (!PyArg_ParseTuple(args, "k", new_state)) return NULL;
+    if (!PyArg_ParseTuple(args, "k", &new_state)) return NULL;
     if (SetThreadExecutionState(new_state) == NULL) return PyErr_SetFromWindowsErr(0);
     Py_RETURN_NONE;
 }
