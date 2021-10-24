@@ -116,6 +116,7 @@ class ActionsToolBar(ToolBar):
     def __init__(self, parent=None):
         ToolBar.__init__(self, parent)
         self.setObjectName('actions_toolbar')
+        self.prevent_sleep_cookie = None
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     def update_action_state(self, book_open):
@@ -235,15 +236,35 @@ class ActionsToolBar(ToolBar):
             a.setChecked(True)
             a.setToolTip(_('Switch to paged mode -- where the text is broken into pages'))
 
+    def change_sleep_permission(self, disallow_sleep=True):
+        from .control_sleep import prevent_sleep, allow_sleep
+        if disallow_sleep:
+            if self.prevent_sleep_cookie is None:
+                try:
+                    self.prevent_sleep_cookie = prevent_sleep()
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+        else:
+            if self.prevent_sleep_cookie is not None:
+                try:
+                    allow_sleep(self.prevent_sleep_cookie)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                self.prevent_sleep_cookie = None
+
     def update_autoscroll_action(self, active):
         self.autoscroll_action.setChecked(active)
         self.autoscroll_action.setToolTip(
             _('Turn off auto-scrolling') if active else _('Turn on auto-scrolling'))
+        self.change_sleep_permission(active)
 
     def update_read_aloud_action(self, active):
         self.toggle_read_aloud_action.setChecked(active)
         self.toggle_read_aloud_action.setToolTip(
             _('Stop reading') if active else _('Read the text of the book aloud'))
+        self.change_sleep_permission(active)
 
     def update_reference_mode_action(self, enabled):
         self.reference_action.setChecked(enabled)

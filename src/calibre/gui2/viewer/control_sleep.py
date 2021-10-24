@@ -13,12 +13,10 @@ if iswindows:
 
     def prevent_sleep(reason=''):
         set_thread_execution_state(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED)
-        print(11111111111)
         return 1
 
     def allow_sleep(cookie):
         set_thread_execution_state(ES_CONTINUOUS)
-        print(2222222222)
 elif ismacos:
     from cocoa import (
         create_io_pm_assertion, kIOPMAssertionTypeNoDisplaySleep,
