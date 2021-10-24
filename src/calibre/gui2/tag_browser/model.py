@@ -24,8 +24,8 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import (
-    collation_order, contains, lower, primary_contains, primary_strcmp, sort_key,
-    strcmp
+    contains, lower, primary_contains, primary_strcmp, sort_key,
+    strcmp, collation_order_for_partitioning
 )
 from calibre.utils.serialize import json_dumps, json_loads
 from polyglot.builtins import iteritems, itervalues
@@ -556,7 +556,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     # Deal with items that don't have sorts, such as formats
                     t = tag.sort if tag.sort else tag.name
                     c = icu_upper(t) if t else ' '
-                    ordnum, ordlen = collation_order(c)
+                    ordnum, ordlen = collation_order_for_partitioning(c)
                     if last_ordnum != ordnum:
                         if fl_collapse and idx > 0:
                             intervals.append(FL_Interval(last_c, last_c, idx-last_idx))
