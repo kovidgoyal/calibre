@@ -97,7 +97,7 @@ def non_numeric_sort_collator():
     if _non_numeric_sort_collator is None:
         _non_numeric_sort_collator = collator().clone()
         _non_numeric_sort_collator.strength = _icu.UCOL_SECONDARY
-        _sort_collator.numeric = False
+        _non_numeric_sort_collator.numeric = False
     return _sort_collator
 
 
