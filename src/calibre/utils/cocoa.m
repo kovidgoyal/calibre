@@ -8,6 +8,7 @@
 #import <AppKit/AppKit.h>
 #import <AppKit/NSWindow.h>
 #import <Availability.h>
+#import <IOKit/pwr_mgt/IOPMLib.h>
 
 #include <string.h>
 #include <Python.h>
@@ -198,6 +199,31 @@ locale_names(PyObject *self, PyObject *args) {
 	return ans;
 }
 
+static PyObject*
+create_io_pm_assertion(PyObject *self, PyObject *args) {
+	char *type, *reason;
+	int on = 1;
+	if (!PyArg_ParseTuple(args, "ss|p", &type, &reason, &on)) return NULL;
+	IOPMAssertionID assertionID;
+	IOReturn rc = IOPMAssertionCreateWithName(@(type), on ? kIOPMAssertionLevelOn : kIOPMAssertionLevelOff, @(reason), &assertionID);
+	if (rc == kIOReturnSuccess) {
+		unsigned long long aid = assertionID;
+		return PyLong_FromUnsignedLongLong(aid);
+	}
+	PyErr_SetString(PyExc_OSError, mach_error_string(rc));
+	return NULL;
+}
+
+static PyObject*
+release_io_pm_assertion(PyObject *self, PyObject *args) {
+	unsigned long long aid;
+	if (!PyArg_ParseTuple(args, "K", &aid)) return NULL;
+	IOReturn rc = IOPMAssertionRelease(aid);
+	if (rc == kIOReturnSuccess) { Py_RETURN_NONE; }
+	PyErr_SetString(PyExc_OSError, mach_error_string(rc));
+	return NULL;
+}
+
 static PyMethodDef module_methods[] = {
     {"transient_scroller", (PyCFunction)transient_scroller, METH_NOARGS, ""},
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
@@ -207,12 +233,21 @@ static PyMethodDef module_methods[] = {
     {"disable_cocoa_ui_elements", (PyCFunction)disable_cocoa_ui_elements, METH_VARARGS, ""},
     {"send2trash", (PyCFunction)send2trash, METH_VARARGS, ""},
     {"locale_names", (PyCFunction)locale_names, METH_VARARGS, ""},
+    {"create_io_pm_assertion", (PyCFunction)create_io_pm_assertion, METH_VARARGS, ""},
+    {"release_io_pm_assertion", (PyCFunction)release_io_pm_assertion, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
 static int
 exec_module(PyObject *module) {
 	if (nsss_init_module(module) == -1) return -1;
+#define A(which) if (PyModule_AddStringConstant(module, #which, [(__bridge NSString *)which UTF8String]) == -1) return -1;
+	A(kIOPMAssertionTypePreventUserIdleSystemSleep);
+	A(kIOPMAssertionTypePreventUserIdleDisplaySleep);
+	A(kIOPMAssertionTypePreventSystemSleep);
+	A(kIOPMAssertionTypeNoIdleSleep);
+	A(kIOPMAssertionTypeNoDisplaySleep);
+#undef A
 	return 0;
 }
 
