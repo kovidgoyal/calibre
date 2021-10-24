@@ -25,6 +25,7 @@ def make_collation_func(name, locale, numeric=True, maker=icu.make_sort_key_func
 class TestICU(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
+    ane= unittest.TestCase.assertNotEqual
 
     def setUp(self):
         icu.change_locale('en')
@@ -115,15 +116,38 @@ class TestICU(unittest.TestCase):
 
     def test_collation_order(self):
         'Testing collation ordering'
+        from calibre.utils.icu import collation_order
         for group in [
-            ('Šaa', 'Smith', 'Solženicyn', 'Štepánek'),
-            ('01', '1'),
+            (self.ae,  ('Šaa', 'Smith', 'Solženicyn', 'Štepánek')),
+            (self.ae,  ('11', '011')),
+            (self.ane, ('2', '1')),
+            (self.ae,  ('100 Smith', '0100 Smith')),
         ]:
             last = None
-            for x in group:
-                order, length = icu.numeric_collator().collation_order(x)
+            assert_func = group[0]
+            for x in group[1]:
+                order, _ = icu.numeric_collator().collation_order(x)
                 if last is not None:
-                    self.ae(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
+                    assert_func(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
+                last = order
+
+        self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),
+                {' ':[''], 'A':['A1', 'a1'], '\U0001f431':['\U0001f431', '\U0001f431x']})
+
+    def test_collation_order_for_partitioning(self):
+        'Testing collation ordering for partitioning'
+        for group in [
+            (self.ae, ('Smith', 'Šaa', 'Solženicyn', 'Štepánek')),
+            (self.ane, ('11', '011')),
+            (self.ae, ('102 Smith', '100 Smith')),
+            (self.ane, ('100 Smith', '0100 Smith')),
+        ]:
+            last = None
+            assert_func = group[0]
+            for x in group[1]:
+                order, _ = icu.non_numeric_sort_collator().collation_order(x)
+                if last is not None:
+                    assert_func(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
                 last = order
 
         self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),
