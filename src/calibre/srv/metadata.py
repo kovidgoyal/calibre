@@ -17,7 +17,7 @@ from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.file_type_icons import EXT_MAP
-from calibre.utils.icu import collation_order
+from calibre.utils.icu import collation_order_for_partitioning
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
@@ -291,7 +291,7 @@ def build_first_letter_list(category_items):
             c = ' '
         else:
             c = icu_upper(tag.sort)
-        ordnum, ordlen = collation_order(c)
+        ordnum, ordlen = collation_order_for_partitioning(c)
         if last_ordnum != ordnum:
             last_c = c[0:ordlen]
             last_ordnum = ordnum

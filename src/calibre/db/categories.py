@@ -115,13 +115,22 @@ def clean_user_categories(dbcache):
     return new_cats
 
 
+numeric_collation = tweaks['numeric_collation']
+def first_digit(x):
+    global numeric_collation
+    c = icu_upper(x.sort or x.name or ' ')[0]
+    # The idea is that '9999999999' is larger than any digit so all digits
+    # will sort in front. Non-digits will sort according to their ICU first letter
+    return c if numeric_collation and c.isdigit() else '9999999999'
+
+
 category_sort_keys = {True:{}, False: {}}
 category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = \
     lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
 category_sort_keys[True]['rating'] = category_sort_keys[False]['rating'] = \
     lambda x:(-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
 category_sort_keys[True]['name'] = \
-    lambda x:(collation_order(icu_upper(x.sort or x.name or ' ')), sort_key(x.sort or x.name))
+    lambda x:(first_digit(x), collation_order(icu_upper(x.sort or x.name or ' ')), sort_key(x.sort or x.name))
 category_sort_keys[False]['name'] = \
     lambda x:sort_key(x.sort or x.name)
 
