@@ -13,7 +13,7 @@ from calibre.utils.config_base import tweaks
 from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
-_locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+_locale = _collator = _primary_collator = _sort_collator = _non_numeric_sort_collator = _numeric_collator = _case_sensitive_collator = None
 cmp
 
 _none = ''
@@ -67,8 +67,8 @@ def collator():
 
 
 def change_locale(locale=None):
-    global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator
-    _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+    global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator, _non_numeric_sort_collator
+    _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = _non_numeric_sort_collator = None
     _locale = locale
 
 
@@ -88,6 +88,16 @@ def sort_collator():
         _sort_collator = collator().clone()
         _sort_collator.strength = _icu.UCOL_SECONDARY
         _sort_collator.numeric = tweaks['numeric_collation']
+    return _sort_collator
+
+
+def non_numeric_sort_collator():
+    'Ignores case differences only'
+    global _non_numeric_sort_collator
+    if _non_numeric_sort_collator is None:
+        _non_numeric_sort_collator = collator().clone()
+        _non_numeric_sort_collator.strength = _icu.UCOL_SECONDARY
+        _sort_collator.numeric = False
     return _sort_collator
 
 
@@ -191,6 +201,7 @@ numeric_sort_key = make_sort_key_func(numeric_collator)
 primary_sort_key = make_sort_key_func(primary_collator)
 case_sensitive_sort_key = make_sort_key_func(case_sensitive_collator)
 collation_order = make_sort_key_func(sort_collator, 'collation_order')
+collation_order_for_partitioning = make_sort_key_func(non_numeric_sort_collator, 'collation_order')
 
 strcmp = make_two_arg_func(sort_collator)
 case_sensitive_strcmp = make_two_arg_func(case_sensitive_collator)
