@@ -542,6 +542,12 @@ def create_global_prefs(conf_obj=None):
                    'on case-sensitive searching'))
     c.add_opt('case_sensitive', default=False, help=_(
         'Make searches case-sensitive'))
+    c.add_opt('numeric_collation', default=False,
+            help=_('Recognize numbers inside text when sorting. Setting this '
+                   'means that when sorting on text fields like title the text "Book 2"'
+                   'will sort before the text "Book 100". Note that setting this '
+                   'can cause problems with text that starts with numbers and is '
+                   'a little slower.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
@@ -648,6 +654,18 @@ def read_tweaks():
 
 
 tweaks = read_tweaks()
+
+
+def migrate_tweaks_to_prefs():
+    # This must happen after the tweaks are loaded
+    # Migrate the numeric_collation tweak
+    if 'numeric_collation' in tweaks:
+        prefs['numeric_collation'] = tweaks.get('numeric_collation', False)
+        tweaks.pop('numeric_collation')
+        write_custom_tweaks(tweaks)
+
+
+migrate_tweaks_to_prefs()
 
 
 def reset_tweaks_to_default():

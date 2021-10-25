@@ -208,6 +208,20 @@ If not checked, the values can be Yes or No.</string>
       </widget>
      </item>
      <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_numeric_collation">
+       <property name="text">
+        <string>Recognize numbers inside text when sorting (needs restart)</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;p&gt;Setting this means that when sorting on text fields
+like title the text "Book 2" will sort before the text "Book 100".
+Note that setting this can cause problems with text that starts
+with numbers and is a little slower. This setting is per user, not
+per library.&lt;/p&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
       <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
        <property name="text">
         <string>&amp;Delete news from library when it is automatically sent to reader</string>

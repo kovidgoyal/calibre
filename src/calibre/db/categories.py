@@ -11,7 +11,7 @@ from functools import partial
 from polyglot.builtins import iteritems, native_string_type
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.utils.config_base import tweaks
+from calibre.utils.config_base import tweaks, prefs
 from calibre.utils.icu import sort_key, collation_order
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
@@ -115,7 +115,7 @@ def clean_user_categories(dbcache):
     return new_cats
 
 
-numeric_collation = tweaks['numeric_collation']
+numeric_collation = prefs['numeric_collation']
 
 
 def first_digit(x):
