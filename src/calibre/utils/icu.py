@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import codecs
 import sys
 
-from calibre.utils.config_base import tweaks
+from calibre.utils.config_base import tweaks, prefs
 from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
@@ -87,7 +87,7 @@ def sort_collator():
     if _sort_collator is None:
         _sort_collator = collator().clone()
         _sort_collator.strength = _icu.UCOL_SECONDARY
-        _sort_collator.numeric = tweaks['numeric_collation']
+        _sort_collator.numeric = prefs['numeric_collation']
     return _sort_collator
 
 

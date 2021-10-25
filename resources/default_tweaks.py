@@ -541,13 +541,6 @@ preselect_first_completion = False
 # Asimov and Quasimodo, whereas the default behavior would match only Asimov.
 completion_mode = 'prefix'
 
-#: Recognize numbers inside text when sorting
-# This means that when sorting on text fields like title the text "Book 2"
-# will sort before the text "Book 100". If you want this behavior, set
-# numeric_collation = True note that doing so will cause problems with text
-# that starts with numbers and is a little slower.
-numeric_collation = False
-
 #: Sort the list of libraries alphabetically
 # The list of libraries in the Copy to library and Quick switch menus are
 # normally sorted by most used. However, if there are more than a certain
