@@ -120,7 +120,7 @@ def html_to_lxml(raw):
     root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
     root = next(root.iterdescendants('div'))
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
-    raw = etree.tostring(root, encoding=None)
+    raw = etree.tostring(root, encoding='unicode')
     try:
         return safe_xml_fromstring(raw, recover=False)
     except:
@@ -131,7 +131,7 @@ def html_to_lxml(raw):
                     remove.append(attr)
             for a in remove:
                 del x.attrib[a]
-        raw = etree.tostring(root, encoding=None)
+        raw = etree.tostring(root, encoding='unicode')
         try:
             return safe_xml_fromstring(raw, recover=False)
         except:
