@@ -127,6 +127,7 @@ def sort_key_for_name_and_first_letter(x):
     return (c if numeric_collation and c.isdigit() else '9999999999',
             collation_order(v2), sort_key(v1))
 
+
 category_sort_keys = {True:{}, False: {}}
 category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = \
     lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
