@@ -162,11 +162,22 @@ class ChooseMultiSort(Dialog):
         for name in sorted(specs, key=primary_sort_key):
             ac = m.addAction(name, self.load_spec)
             ac.setObjectName(name)
+        m.addSeparator()
+        m = m.addMenu(_('Remove saved sort'))
+        for name in sorted(specs, key=primary_sort_key):
+            ac = m.addAction(name, self.remove_spec)
+            ac.setObjectName(name)
 
     def load_spec(self):
         name = self.sender().objectName()
         spec = self.saved_specs[name]
         self.apply_spec(spec)
+
+    def remove_spec(self):
+        name = self.sender().objectName()
+        q = self.saved_specs
+        if q.pop(name, None):
+            self.saved_specs = q
 
     def iteritems(self):
         cl = self.column_list
