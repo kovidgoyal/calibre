@@ -744,7 +744,7 @@ class KindleOasisOutput(KindlePaperWhite3Output):
 
     name = 'Kindle Oasis'
     short_name = 'kindle_oasis'
-    description = _('This profile is intended for the Amazon Kindle Oasis 2017 and above')
+    description = _('This profile is intended for the Amazon Kindle Oasis 2017, PaperWhite 2021 and above')
     # Screen size is currently just the spec size, actual renderable area will
     # depend on someone with the device doing tests.
     screen_size               = (1264, 1680)
