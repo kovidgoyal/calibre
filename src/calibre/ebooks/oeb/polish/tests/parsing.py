@@ -167,6 +167,13 @@ basic_checks = (nonvoid_cdata_elements, namespaces, space_characters,
 
 class ParsingTests(BaseTest):
 
+    def test_lxml_tostring(self):
+        ' Test for bug in some versions of lxml that causes incorrect serialization of sub-trees'
+        from html5_parser import parse
+        root = parse('<p>a<p>b<p>c')
+        p = root.xpath('//p')[0]
+        self.assertEqual(etree.tostring(p, encoding=str), '<p>a</p>')
+
     def test_conversion_parser(self):
         ' Test parsing with the HTML5 parser used for conversion '
         for test in basic_checks:
