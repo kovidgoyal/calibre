@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.31.0 2021-10-29
+{{{ 5.31.1 2021-10-29
 
 :: new features
 
@@ -44,6 +44,9 @@
 - [1947879] Content server: Fix some OPDS feeds failing with non-ASCII content
 
 - [1948560] Tag browser: Fix incorrect first letter partitioning when enabling numeric collation of items that start with a number
+
+- [1949167] 5.31.1 fixes a bug in an HTML serialization library calibre uses that broke a few things, such as the comments editor
+  tool in the metadata dialog
 
 }}}
 
