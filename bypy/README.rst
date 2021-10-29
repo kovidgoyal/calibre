@@ -18,6 +18,12 @@ First create some empty top level directory and run the following commands::
     git clone https://github.com/kovidgoyal/bypy.git
     git clone https://github.com/kovidgoyal/calibre.git
     cd calibre
+
+Now we need to bootstrap calibre, for which all its Linux build dependencies
+must have already been installed (see the `Dependencies
+<https://calibre-ebook.com/download_linux>`_ section of the Linux installation
+page for details). Once the dependencies are installed, run::
+
     ./setup.py bootstrap
 
 To make the Windows and macOS builds it uses QEMU VMs. Instructions on
