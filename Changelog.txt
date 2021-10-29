@@ -23,6 +23,30 @@
 # - title by author
 # }}}
 
+{{{ 5.31.0 2021-10-29
+
+:: new features
+
+- [1948883] Kindle driver: Support the new Kindle PaperWhite 2021
+
+- Add an option under Preferences->Behavior to have calibre recognize numbers when sorting (this was previously under Preferences->Tweaks)
+
+- E-book viewer: Add a button to directly open the viewer help section in the calibre user manual to the viewer controls
+
+- E-book viewer: Prevent the display from sleeping when using auto-scroll or read aloud modes (Implemented only on Windows and macOS)
+
+- Edit book: Set semantics tool: Add support for EPUB 3 landmarks
+
+- [1948493] Add an entry to the Connect/share menu to open the content server in a local browser when it is running
+
+:: bug fixes
+
+- [1947879] Content server: Fix some OPDS feeds failing with non-ASCII content
+
+- [1948560] Tag browser: Fix incorrect first letter partitioning when enabling numeric collation of items that start with a number
+
+}}}
+
 {{{ 5.30.0 2021-10-22
 
 :: new features
