@@ -60,6 +60,7 @@ class LeMondeNumerique(BasicNewsRecipe):
     remove_tags = [
         classes('article__status meta__date meta__reading-time meta__social multimedia-embed'),
         dict(name=['footer', 'link']),
+        dict(name='img', attrs={'class': ['article__author-picture']}),
         dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher',
                                               'portfolio', 'services-inread']})
     ]
@@ -90,9 +91,9 @@ class LeMondeNumerique(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('https://secure.lemonde.fr/sfuser/connexion')
-        br.select_form(name='connection')
-        br['connection[mail]'] = self.username
-        br['connection[password]'] = self.password
+        br.select_form(nr=0)
+        br['email'] = self.username
+        br['password'] = self.password
         br.submit()
         return br
 
