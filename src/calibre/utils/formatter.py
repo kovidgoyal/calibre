@@ -1041,8 +1041,9 @@ class _Interpreter:
 
     def do_node_binary_arithop(self, prog):
         try:
-            answer = self.ARITHMETIC_BINARY_OPS[prog.operator](float(self.expr(prog.left)),
-                                                               float(self.expr(prog.right)))
+            answer = self.ARITHMETIC_BINARY_OPS[prog.operator](
+                            self.float_deal_with_none(self.expr(prog.left)),
+                            self.float_deal_with_none(self.expr(prog.right)))
             res = str(answer if modf(answer)[0] != 0 else int(answer))
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
