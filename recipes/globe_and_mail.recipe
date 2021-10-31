@@ -28,11 +28,11 @@ class GlobeMail(BasicNewsRecipe):
     remove_attributes = ['style']
 
     keep_only_tags = [
-            dict(name='h1'),
-            dict(name='main', attrs={'class': lambda x: x and 'article-primary-content-chain' in x.split()}),
+        classes('article-title c-article-meta l-article l-article-title')
     ]
     remove_tags = [
-            classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions pb-f-article-meta'),
+        classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions pb-f-article-meta article-toolbar'),
+        dict(name='source'),
     ]
 
     def parse_index(self):
