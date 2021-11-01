@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+
 '''
 liberation.fr
 '''
@@ -10,61 +13,70 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Liberation(BasicNewsRecipe):
-
-    title = u'Liberation'
+    title = 'Libération'
     __author__ = 'calibre'
     description = 'Actualités'
-    category = 'Actualités, France, Monde'
+    publication_type = 'newspaper'
     language = 'fr'
 
-    use_embedded_content = False
-    timefmt = ' [%d %b %Y]'
-    max_articles_per_feed = 15
+    oldest_article = 2
+    max_articles_per_feed = 30
     no_stylesheets = True
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
     needs_subscription = 'optional'
 
-    keep_only_tags = [dict(name='article')]
-    remove_tags = [dict(attrs={'class': ['tool-bar']})]
+    masthead_url = 'https://www.liberation.fr/pf/resources/images/liberation.png?d=47'
 
     feeds = [
-
-    (u'La une', u'http://rss.liberation.fr/rss/9/'),
-    (u'Monde', u'http://www.liberation.fr/rss/10/'),
-    (u'Économie', u'http://www.liberation.fr/rss/13/'),
-    (u'Politiques', u'http://www.liberation.fr/rss/11/'),
-    (u'Société', u'http://www.liberation.fr/rss/12/'),
-    (u'Cinéma', u'http://www.liberation.fr/rss/58/'),
-    (u'Écran', u'http://www.liberation.fr/rss/53/'),
-    (u'Sports', u'http://www.liberation.fr/rss/12/')
+        ('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
+        ('Accueil', 'https://www.liberation.fr/arc/outboundfeeds/collection/accueil-une/?outputType=xml')
     ]
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'left-article-section'})
+    ]
+
+    remove_tags = [
+        dict(name=['button', 'source']),
+        dict(attrs={'class': ['ts-share-bar']}),
+        dict(name='div', attrs={'class': [
+            'article-dossier', 'color_background_green', 'display_block', 'tag-container'
+        ]})
+    ]
+
+    remove_attributes = [
+        'height', 'width'
+    ]
+
+    extra_css = '''
+        h2, h3, h4, h5, h6 { font-size: 1em; }
+        .image-metadata { font-size: 0.6em; margin-top: 0em; margin-bottom: 1.6em; }
+    '''
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://token.liberation.fr/accounts/login/')
-            br.select_form(nr=0)
-            br['email'] = self.username
-            br['password'] = self.password
-            br.submit()
+            try:
+                br.open('http://token.liberation.fr/accounts/login/')
+                br.select_form(nr=0)
+                br['email'] = self.username
+                br['password'] = self.password
+                br.submit()
+            except Exception as e:
+                self.log('Login failed with error: ' + str(e))
         return br
 
-    def get_masthead_url(self):
-        masthead = 'http://s0.libe.com/libe/img/common/logo-liberation-150.png'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(masthead)
-        except:
-            self.log("\nCover unavailable")
-            masthead = None
-        return masthead
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://journal.liberation.fr/')
+        cover = soup.find(name='img', attrs={'class': 'ui image'})
+        if cover is not None and cover['src'] is not None:
+            self.cover_url = 'https:' + cover['src']
+        return self.cover_url
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        url = url.split('/')[-2]
-        encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
-                    '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://', '0S':
-                    'www.', '0I': '_'}
-        for k, v in encoding.items():
-            url = url.replace(k, v)
-        return url.partition('?')[0]
+    def postprocess_html(self, soup, first_fetch):
+        # remove local hyperlinks
+        for a in soup.find_all('a', {'href': True}):
+            if '.liberation.fr/' in a['href']:
+                a.replace_with(self.tag_to_string(a))
+        return soup
