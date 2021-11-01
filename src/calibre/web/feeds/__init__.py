@@ -192,6 +192,14 @@ class Feed:
             if published is not None:
                 break
         if not published:
+            from dateutil.parser import parse
+            for date_field in ('date', 'published', 'updated'):
+                try:
+                    published = parse(item[date_field]).timetuple()
+                except Exception:
+                    continue
+                break
+        if not published:
             published = time.gmtime()
         self.added_articles.append(id)
 
