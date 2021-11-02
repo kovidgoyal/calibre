@@ -12,9 +12,9 @@ from collections import OrderedDict
 from functools import partial
 from qt.core import (
     QApplication, QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon,
-    QLabel, QPainter, QPointF, QScrollArea, QSize, QSizePolicy, QStackedWidget,
-    QStatusTipEvent, Qt, QTabWidget, QTextLayout, QToolBar, QVBoxLayout, QWidget,
-    pyqtSignal
+    QLabel, QPainter, QPointF, QPushButton, QScrollArea, QSize, QSizePolicy,
+    QStackedWidget, QStatusTipEvent, Qt, QTabWidget, QTextLayout, QToolBar,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import __appname__, __version__, islinux
@@ -246,8 +246,7 @@ class Preferences(QDialog):
         self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
         self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(self.restore_defaults)
-        self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.wizard_button.setIcon(QIcon(I('wizard.png')))
+        self.wizard_button = QPushButton(QIcon(I('wizard.png')), _('Run Welcome &wizard'))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
         self.bb.rejected.connect(self.reject)
@@ -264,7 +263,10 @@ class Preferences(QDialog):
                 (QDialogButtonBox.StandardButton.Cancel, _('Cancel and return to overview'))]:
             self.bb.button(ac).setToolTip(tt)
 
-        l.addWidget(self.title_bar), l.addWidget(self.stack), l.addWidget(self.bb)
+        l.addWidget(self.title_bar), l.addWidget(self.stack)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(self.wizard_button), h.addStretch(10), h.addWidget(self.bb)
 
         if initial_plugin is not None:
             category, name = initial_plugin[:2]
