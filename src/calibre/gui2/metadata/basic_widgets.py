@@ -1126,7 +1126,7 @@ class Cover(ImageView):  # {{{
                 self.setText(text)
                 if icon is not None:
                     self.setIcon(QIcon(I(icon)))
-                self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+                self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Maximum)
                 self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
                 if action is not None:
                     self.clicked.connect(action)
