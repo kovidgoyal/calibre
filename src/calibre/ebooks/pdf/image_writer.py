@@ -140,7 +140,8 @@ def convert(images, output_path, opts, metadata, report_progress):
         writer.set_metadata(pdf_metadata.title, pdf_metadata.author, pdf_metadata.tags, pdf_metadata.mi)
         for i, path in enumerate(images):
             img = Image(as_unicode(path, filesystem_encoding))
-            draw_image_page(writer, img)
+            preserve_aspect_ratio = opts.preserve_cover_aspect_ratio if i == 0 else True
+            draw_image_page(writer, img, preserve_aspect_ratio=preserve_aspect_ratio)
             writer.end_page()
             report_progress((i + 1) / len(images), _('Rendered {0} of {1} pages').format(i + 1, len(images)))
         writer.end()
