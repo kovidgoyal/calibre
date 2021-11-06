@@ -92,6 +92,13 @@ def is_category(field):
     return field in {x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])}
 
 
+def is_boolean(field):
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    fm = gui.current_db.field_metadata
+    return fm.get(field, {}).get('datatype') == 'bool'
+
+
 def escape_for_menu(x):
     return x.replace('&', '&&')
 
@@ -365,10 +372,18 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
                 init_find_in_tag_browser(search_menu, find_action, field, value)
                 init_find_in_grouped_search(search_menu, field, value, book_info)
+            else:
+                v = data.get('original_value') or data.get('value')
+                copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(v),
+                                        lambda: QApplication.instance().clipboard().setText(v))
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(value))
             menu.addAction(ac)
+        else:
+            v = data.get('original_value') or data.get('value')
+            copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(v),
+                                    lambda: QApplication.instance().clipboard().setText(v))
     return search_internet_added
 
 
@@ -1034,8 +1049,9 @@ class BookDetails(QWidget):  # {{{
             if mods & Qt.KeyboardModifier.ControlModifier:
                 append = 'AND' if mods & Qt.KeyboardModifier.ShiftModifier else 'OR'
 
+            fmt = '{}:{}' if is_boolean(field) else '{}:"={}"'
             self.search_requested.emit(
-                '{}:"={}"'.format(field, val.replace('"', '\\"')),
+                fmt.format(field, val.replace('"', '\\"')),
                 append
             )
 

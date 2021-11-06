@@ -60,9 +60,9 @@ def search_action(search_term, value, **k):
     return action('search', term=search_term, value=value, **k)
 
 
-def search_action_with_data(search_term, value, book_id, field=None):
+def search_action_with_data(search_term, value, book_id, field=None, **k):
     field = field or search_term
-    return search_action(search_term, value, field=field, book_id=book_id)
+    return search_action(search_term, value, field=field, book_id=book_id, **k)
 
 
 DEFAULT_AUTHOR_LINK = 'search-{}'.format(DEFAULT_AUTHOR_SOURCE)
@@ -281,6 +281,10 @@ def mi_to_html(
                 aval = getattr(mi, field)
                 if is_date_undefined(aval):
                     continue
+                val = '<a href="%s" title="%s">%s</a>' % (
+                    search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                        _('Click to see books with {0}: {1} (derived from {2})').format(
+                                metadata['name'] or field, aval, val)), val)
             elif metadata['datatype'] == 'text' and metadata['is_multiple']:
                 try:
                     st = metadata['search_terms'][0]
@@ -303,6 +307,27 @@ def mi_to_html(
                 val = '<a href="%s" title="%s">%s</a>' % (
                     search_action_with_data(st, val, book_id, field), a(
                         _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), p(val))
+            elif metadata['datatype'] == 'bool':
+                val = '<a href="%s" title="%s">%s</a>' % (
+                    search_action_with_data(field, val, book_id, None), a(
+                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+            else:
+                try:
+                    aval = str(getattr(mi, field))
+                    if not aval:
+                        continue
+                    if val == aval:
+                        val = '<a href="%s" title="%s">%s</a>' % (
+                            search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                                _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+                    else:
+                        val = '<a href="%s" title="%s">%s</a>' % (
+                            search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                                _('Click to see books with {0}: {1} (derived from {2})').format(
+                                    metadata['name'] or field, aval, val)), val)
+                except:
+                    import traceback
+                    traceback.print_exc()
 
             ans.append((field, row % (name, val)))
 
