@@ -5,19 +5,20 @@
 Customizing calibre
 ==================================
 
-calibre has a highly modular design. Various parts of it can be customized. You can learn how to create
-*recipes* to add new sources of online content to calibre in the Section :ref:`news`. Here, you will learn:
+calibre has a highly modular design. Various parts of it can be customized.  Here, you will learn:
 
     * how to use environment variables and *tweaks* to customize calibre's behavior,
     * how to specify your own static resources like icons and templates to override the defaults
     * how to use *plugins* to add functionality to calibre.
+    * how to share icon themes and plugins with other calibre users.
+    * to see how to create *recipes* to add new sources of online content to calibre visit the Section :ref:`news`.
 
-Along the way, you will also learn how to share your icon themes and plugins
-with other calibre users. Note that although these are indexed and downloadable
-via calibre's builtin updater, they are not part of calibre, and their
-canonical locations for support and source code are on the `Mobileread forums
-<https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ in their support
-threads.
+.. note::
+    Note that although icon themes and plugins are indexed and downloadable
+    via calibre's builtin updater, they are not part of calibre, and their
+    canonical locations for support and source code are on the `Mobileread forums
+    <https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ in their support
+    threads.
 
 .. contents::
     :depth: 2
