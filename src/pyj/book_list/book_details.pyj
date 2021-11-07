@@ -382,8 +382,10 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                     join = fm.is_multiple.list_to_ui if fm.is_multiple else None
                     add_row(name, val, join=join, is_searchable=field)
             elif datatype is 'bool':
-                # We are missing checking if the pref bools_are_tristate is False
-                v =  _('Yes') if val else ('' if val is undefined or val is None else _('No'))
+                if library_data.bools_are_tristate:
+                    v =  _('Yes') if val else ('' if val is undefined or val is None else _('No'))
+                else:
+                    v = _('Yes') if val else _('No')
                 if v:
                     add_row(name, v, is_searchable=field, use_quotes=False)
             elif datatype is 'int' or datatype is 'float':

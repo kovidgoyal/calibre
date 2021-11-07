@@ -11,7 +11,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True}
 
 
 def current_library_id():
@@ -83,7 +83,7 @@ def update_library_data(data):
     if library_data.for_library is not current_library_id():
         library_data.field_names = {}
     library_data.for_library = current_library_id()
-    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'.split(' '):
+    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields bools_are_tristate'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
     if sr:

@@ -207,6 +207,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
+        ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
         mdata = ans['metadata'] = {}
         try:
