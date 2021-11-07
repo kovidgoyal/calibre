@@ -5,37 +5,45 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, bz2, shutil, sys
-from itertools import count
+import bz2
+import errno
+import importlib
+import json
+import math
+import os
+import shutil
+import sys
 from io import BytesIO
-from threading import Thread, Event
+from itertools import count
 from multiprocessing.pool import ThreadPool
-
 from qt.core import (
-    QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
-    QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
-    pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap, QDialog,
-    QGridLayout, QStyledItemDelegate, QApplication, QStaticText, sip,
-    QStyle, QPen, QProgressDialog, QAbstractItemView, QDialogButtonBox
+    QAbstractItemView, QApplication, QComboBox, QDialog, QDialogButtonBox,
+    QFormLayout, QGridLayout, QGroupBox, QIcon, QImage, QImageReader, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QPen, QPixmap, QProgressDialog, QSize,
+    QSpinBox, QSplitter, QStackedLayout, QStaticText, QStyle, QStyledItemDelegate,
+    Qt, QTextEdit, QVBoxLayout, QWidget, pyqtSignal, sip
 )
+from threading import Event, Thread
 
-from calibre import walk, fit_image, human_readable, detect_ncpus as cpu_count
+from calibre import detect_ncpus as cpu_count, fit_image, human_readable, walk
 from calibre.constants import cache_dir, config_dir
 from calibre.customize.ui import interface_actions
-from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file, question_dialog, empty_index
+from calibre.gui2 import (
+    choose_dir, choose_save_file, empty_index, error_dialog, gprefs, must_use_qt,
+    question_dialog, safe_open_url
+)
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import utcnow
-from calibre.utils.filenames import ascii_filename
-from calibre.utils.https import get_https_resource_securely, HTTPError
+from calibre.utils.filenames import ascii_filename, atomic_rename
+from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.icu import numeric_sort_key as sort_key
-from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jpeg
-from calibre.utils.zipfile import ZipFile, ZIP_STORED
-from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import iteritems, reraise, as_bytes
+from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_png
+from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
-from polyglot.queue import Queue, Empty
+from polyglot.builtins import as_bytes, iteritems, reraise
+from polyglot.queue import Empty, Queue
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
@@ -537,6 +545,7 @@ class Delegate(QStyledItemDelegate):
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage}</p>
+            <p><i>Right click to visit theme homepage</i></p>
             '''.format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
                        number=theme.get('number', 0), description=theme.get('description', ''),
                        size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
@@ -645,11 +654,21 @@ class ChooseTheme(Dialog):
         self.delegate = Delegate(tl)
         tl.setItemDelegate(self.delegate)
         tl.itemDoubleClicked.connect(self.accept)
+        tl.itemPressed.connect(self.item_clicked)
         add_row(tl)
 
         t = Thread(name='GetIconThemes', target=self.get_themes)
         t.daemon = True
         t.start()
+
+    def item_clicked(self, item):
+        if QApplication.mouseButtons() & Qt.MouseButton.RightButton:
+            theme = item.data(Qt.ItemDataRole.UserRole) or {}
+            url = theme.get('url')
+            if url:
+                safe_open_url(url)
+            else:
+                error_dialog(self, _('No homepage'), _('The {} theme has no homepage').format(theme.get('name', _('Unknown'))), show=True)
 
     def start_spinner(self, msg=None):
         self.pi.startAnimation()
