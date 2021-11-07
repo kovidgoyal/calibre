@@ -76,8 +76,8 @@ def field_sorter(field_metadata):
         return lvl + (fm.name or 'zzzzz')
 
 
-def href_for_search(name, val):
-    query = '{}:"={}"'.format(name, str.replace(val, '"', r'\"'))
+def href_for_search(name, val, use_quotes=True):
+    query = ('{}:"={}"' if use_quotes else '{}:{}').format(name, str.replace(val, '"', r'\"'))
     q = search_query_for(query)
     return query_as_href(q)
 
@@ -183,7 +183,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         fields = filter(allowed_fields, fields)
     comments = v'[]'
 
-    def add_row(name, val, is_searchable=False, is_html=False, join=None, search_text=None):
+    def add_row(name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
             return
         def add_val(v):
@@ -194,7 +194,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 table.lastChild.lastChild.appendChild(E.a(
                     v,
                     title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
-                    href=href_for_search(is_searchable, text_rep)
+                    href=href_for_search(is_searchable, text_rep, use_quotes=use_quotes)
                 ))
             else:
                 if v.appendChild:
@@ -302,9 +302,9 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     def process_datetime(field, fm, name, val):
         if val:
             fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
-            val = format_date(val, fmt)
-            if val:
-                add_row(name, val)
+            formatted_val = format_date(val, fmt)
+            if formatted_val:
+                add_row(name, formatted_val, is_searchable=field, search_text=val)
 
     def process_series(field, fm, name, val):
         if val:
@@ -382,15 +382,21 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                     join = fm.is_multiple.list_to_ui if fm.is_multiple else None
                     add_row(name, val, join=join, is_searchable=field)
             elif datatype is 'bool':
-                add_row(name, _('Yes') if val else _('No'))
+                # We are missing checking if the pref bools_are_tristate is False
+                v =  _('Yes') if val else ('' if val is undefined or val is None else _('No'))
+                if v:
+                    add_row(name, v, is_searchable=field, use_quotes=False)
             elif datatype is 'int' or datatype is 'float':
                 if val is not undefined and val is not None:
                     fmt = (fm.display or {}).number_format
                     if fmt:
-                        val = fmt.format(val)
+                        formatted_val = fmt.format(val)
+                        if formatted_val:
+                            val += ''
+                            add_row(name, formatted_val, is_searchable=field, search_text=val)
                     else:
                         val += ''
-                    add_row(name, val)
+                        add_row(name, val, is_searchable=field, search_text=val)
 
     for field in fields:
         fm = field_metadata[field]
