@@ -6,10 +6,18 @@ Customizing calibre
 ==================================
 
 calibre has a highly modular design. Various parts of it can be customized. You can learn how to create
-*recipes* to add new sources of online content to calibre in the Section :ref:`news`. Here, you will learn,
-first, how to use environment variables and *tweaks* to customize calibre's behavior,  and then how to
-specify your own static resources like icons and templates to override the defaults and finally how to
-use *plugins* to add functionality to calibre.
+*recipes* to add new sources of online content to calibre in the Section :ref:`news`. Here, you will learn:
+
+    * how to use environment variables and *tweaks* to customize calibre's behavior,
+    * how to specify your own static resources like icons and templates to override the defaults
+    * how to use *plugins* to add functionality to calibre.
+
+Along the way, you will also learn how to share your icon themes and plugins
+with other calibre users. Note that although these are indexed and downloadable
+via calibre's builtin updater, they are not part of calibre, and their
+canonical locations for support and source code are on the `Mobileread forums
+<https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ in their support
+threads.
 
 .. contents::
     :depth: 2
@@ -115,6 +123,18 @@ make your theme available via calibre's builtin icon theme system.
 Customizing calibre with plugins
 --------------------------------
 
-calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Advanced->Plugins`.
+calibre has a very modular design. Almost all functionality in calibre comes in
+the form of plugins. Plugins are used for conversion, for downloading news
+(though these are called recipes), for various components of the user
+interface, to connect to different devices, to process files when adding them
+to calibre and so on. You can get a complete list of all the built-in plugins
+in calibre by going to :guilabel:`Preferences->Advanced->Plugins`.
 
-You can write your own plugins to customize and extend the behavior of calibre. The plugin architecture in calibre is very simple, see the tutorial :ref:`pluginstutorial`.
+You can write your own plugins to customize and extend the behavior of calibre.
+The plugin architecture in calibre is very simple, see the tutorial
+:ref:`pluginstutorial`.
+
+Once you have written a plugin, you can upload that to the calibre plugins
+forum at `Mobileread
+<https://www.mobileread.com/forums/forumdisplay.php?f=237>`_ and it will be
+made available via calibre's builtin plugin updater.
