@@ -21,6 +21,10 @@ class PickRandomAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.pick_random)
         self.recently_picked = {}
+        try:
+            self.randint = random.SystemRandom().randint
+        except Exception:
+            self.randint = random.randint
 
     def location_selected(self, loc):
         enabled = loc == 'library'
@@ -38,7 +42,7 @@ class PickRandomAction(InterfaceAction):
             n = next(iter(rp))
             del rp[n]
         while True:
-            pick = random.randint(0, count)
+            pick = self.randint(0, count)
             if pick in rp:
                 continue
             rp[pick] = True
