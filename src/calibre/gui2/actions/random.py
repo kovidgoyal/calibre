@@ -41,7 +41,6 @@ class PickRandomAction(InterfaceAction):
             pick = random.randint(0, count)
             if pick in rp:
                 continue
-            rp.pop(pick, None)
             rp[pick] = True
             break
         lv.set_current_row(pick)
