@@ -20,15 +20,29 @@ class PickRandomAction(InterfaceAction):
 
     def genesis(self):
         self.qaction.triggered.connect(self.pick_random)
+        self.recently_picked = {}
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
+    def library_changed(self, db):
+        self.recently_picked = {}
+
     def pick_random(self):
-        pick = random.randint(0, self.gui.library_view.model().rowCount(None))
-        self.gui.library_view.set_current_row(pick)
-        self.gui.library_view.scroll_to_row(pick)
-
-
+        lv = self.gui.library_view
+        count = lv.model().rowCount(None)
+        rp = self.recently_picked
+        while len(rp) > count // 2:
+            n = next(iter(rp))
+            del rp[n]
+        while True:
+            pick = random.randint(0, count)
+            if pick in rp:
+                continue
+            rp.pop(pick, None)
+            rp[pick] = True
+            break
+        lv.set_current_row(pick)
+        lv.scroll_to_row(pick)
