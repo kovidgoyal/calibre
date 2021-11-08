@@ -6,28 +6,33 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, time, textwrap
-from functools import partial
-from threading import Thread
-from itertools import repeat
+import os
+import socket
+import textwrap
+import time
 from collections import defaultdict
-
+from functools import partial
+from itertools import repeat
 from qt.core import (
-    Qt, QDialog, QGridLayout, QIcon, QListWidget, QDialogButtonBox,
-    QListWidgetItem, QLabel, QLineEdit, QPushButton)
+    QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QPushButton, Qt
+)
+from threading import Thread
 
-from calibre.utils.smtp import (compose_mail, sendmail, extract_email_address,
-        config as email_config)
+from calibre.constants import preferred_encoding
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
-from calibre.constants import preferred_encoding
-from calibre.gui2 import config, Dispatcher, warning_dialog, error_dialog, gprefs
-from calibre.library.save_to_disk import get_components
-from calibre.utils.config import tweaks, prefs
-from calibre.utils.icu import primary_sort_key
+from calibre.gui2 import Dispatcher, config, error_dialog, gprefs, warning_dialog
 from calibre.gui2.threaded_jobs import ThreadedJob
-from polyglot.builtins import iteritems, itervalues
+from calibre.library.save_to_disk import get_components
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.filenames import ascii_filename
+from calibre.utils.icu import primary_sort_key
+from calibre.utils.smtp import (
+    compose_mail, config as email_config, extract_email_address, sendmail
+)
 from polyglot.binary import from_hex_unicode
+from polyglot.builtins import iteritems, itervalues
 
 
 class Worker(Thread):
@@ -144,6 +149,9 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
+        if isinstance(to, str) and '@pbsync.com' in to:
+            # The pbsync service chokes on non-ascii filenames
+            aname = ascii_filename(aname)
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
@@ -476,6 +484,7 @@ class EmailMixin:  # {{{
                                                             next_id=next_id)
             except:
                 import traceback
+
                 # Probably the user deleted the files, in any case, failing
                 # to delete the book is not catastrophic
                 traceback.print_exc()
