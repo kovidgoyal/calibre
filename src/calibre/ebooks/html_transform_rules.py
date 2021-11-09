@@ -78,14 +78,12 @@ def transform_container(container, serialized_rules, names=()):
 
 
 def rule_to_text(rule):
-    def get(prop):
-        return rule.get(prop) or ''
     text = _('If the tag {match_type} {query}').format(
-        match_type=MATCH_TYPE_MAP[rule['match_type']].short_text, query=get('query'))
+        match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=rule.get('query') or '')
     for action in rule['actions']:
         text += '\n'
         text += _('{action_type} {action_data}').format(
-            action_type=ACTION_MAP[action['type']].short_text, action_data=action['data'])
+            action_type=ACTION_MAP[action['type']].short_text, action_data=action.get('data') or '')
     return text
 
 

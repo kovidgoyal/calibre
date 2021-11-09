@@ -269,6 +269,7 @@ class Rules(QWidget):
     RuleEditDialogClass = RuleEditDialog
     changed = pyqtSignal()
 
+    ACTION_KEY = 'action'
     MSG = _('You can specify rules to filter/transform tags here. Click the "Add rule" button'
             ' below to get started. The rules will be processed in order for every tag until either a'
             ' "remove" or a "keep" rule matches.')
@@ -380,7 +381,7 @@ class Rules(QWidget):
     def rules(self, rules):
         self.rule_list.clear()
         for rule in rules:
-            if 'action' in rule and 'match_type' in rule and 'query' in rule:
+            if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
                 self.RuleItemClass(rule, self.rule_list)
 
 

@@ -9,6 +9,7 @@ from qt.core import (
     QVBoxLayout, QWidget, pyqtSignal
 )
 
+from calibre import prepare_string_for_xml
 from calibre.ebooks.html_transform_rules import (
     ACTION_MAP, MATCH_TYPE_MAP, compile_rules, export_rules, import_rules,
     validate_rule
@@ -249,13 +250,13 @@ class RuleItem(RuleItemBase):  # {{{
     def text_from_rule(rule, parent):
         try:
             query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
-            text = _(
-                'If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
-                    property=rule['property'], action=ACTION_MAP[rule['action']],
-                    match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=query)
-            if rule['action_data']:
-                ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
-                text += ' <code>%s</code>' % ad
+            text = _('If the tag <b>{match_type}</b> <b>{query}</b>').format(
+                match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=prepare_string_for_xml(query))
+            for action in rule['actions']:
+                text += '<br>' + ACTION_MAP[action['type']].short_text
+                if action.get('data'):
+                    ad = elided_text(action['data'], font=parent.font(), width=200, pos='right')
+                    text += f'<code>{prepare_string_for_xml(ad)}</code>'
         except Exception:
             import traceback
             traceback.print_exc()
@@ -268,7 +269,7 @@ class Rules(RulesBase):  # {{{
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
-
+    ACTION_KEY = 'actions'
     MSG = _('You can specify rules to transform styles here. Click the "Add rule" button'
             ' below to get started.')
 # }}}
@@ -416,15 +417,11 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    v = RuleEdit()
-    v.setWindowFlag(Qt.WindowType.Dialog)
-    v.show()
-    app.exec_()
-    # d = RulesDialog()
-    # d.rules = [
-    #     {'match_type':'*', 'query':'', 'action':'change', 'action_data':'green'},
-    # ]
-    # d.exec_()
-    # from pprint import pprint
-    # pprint(d.rules)
-    # del d, app
+    d = RulesDialog()
+    d.rules = [
+        {'match_type':'*', 'query':'', 'actions':[{'type': 'remove'}]},
+    ]
+    d.exec_()
+    from pprint import pprint
+    pprint(d.rules)
+    del d, app
