@@ -37,7 +37,11 @@ class NewYorkPost(BasicNewsRecipe):
 
     remove_tags	=	[
         dict(itemprop=['sharebar-trigger-desktop', ]),
-        classes('floating-share sharedaddy sd-sharing-enabled tag-list module-wrapper'),
+        classes(
+            'floating-share floating-share-wrap sharedaddy sd-sharing-enabled tag-list module-wrapper'
+            ' inline-module--author inline-module--columnist inline-module--primary-tag'
+            ' author-flyout modal__email-author button gowatchit-inline'
+        ),
         dict(name=['link', 'meta']),
     ]
 
