@@ -122,9 +122,11 @@ def run(cmd):
 def kdialog_supports_desktopfile():
     ans = getattr(kdialog_supports_desktopfile, 'ans', None)
     if ans is None:
+        from calibre.gui2 import sanitize_env_vars
         try:
-            raw = subprocess.check_output(['kdialog', '--help'])
-        except OSError:
+            with sanitize_env_vars():
+                raw = subprocess.check_output(['kdialog', '--help'])
+        except (subprocess.CalledProcessError, FileNotFoundError, OSError):
             raw = b'--desktopfile'
         ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans
