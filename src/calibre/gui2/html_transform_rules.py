@@ -272,7 +272,7 @@ class RuleEdit(QWidget):  # {{{
 
 class RuleEditDialog(RuleEditDialogBase):  # {{{
 
-    PREFS_NAME = 'edit-css-transform-rule'
+    PREFS_NAME = 'edit-html-transform-rule'
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
 # }}}
@@ -325,7 +325,7 @@ class Tester(Dialog):  # {{{
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
-        self.css = t = TextEdit(self)
+        self.html = t = TextEdit(self)
         t.load_text('<!-- %s -->\n' % _('Enter the HTML below and click the "Test" button'), 'html')
         la.setBuddy(t)
         c = t.textCursor()
@@ -344,7 +344,7 @@ class Tester(Dialog):  # {{{
 
     @property
     def value(self):
-        return self.css.toPlainText()
+        return self.html.toPlainText()
 
     def do_test(self):
         raise NotImplementedError('TODO: Implement this')
