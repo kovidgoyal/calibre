@@ -153,11 +153,14 @@ def rule_to_text(rule):
 
 
 def export_rules(serialized_rules):
-    return json_dumps(serialized_rules, indent=2, sort_keys=True)
+    return json_dumps({'version': 1, 'type': 'html_transform_rules', 'rules': serialized_rules}, indent=2, sort_keys=True)
 
 
 def import_rules(raw_data):
-    return json_loads(raw_data)
+    d = json_loads(raw_data)
+    if d.get('version') == 1 and d.get('type') == 'html_transform_rules':
+        return d['rules']
+    return []
 
 
 def test(return_tests=False):  # {{{
@@ -189,7 +192,7 @@ def test(return_tests=False):  # {{{
 
         def test_export_import(self):
             rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
-            self.ae(rule, next(import_rules(export_rules([rule]))))
+            self.ae(rule, next(iter(import_rules(export_rules([rule])))))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
