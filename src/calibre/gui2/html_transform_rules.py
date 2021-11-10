@@ -304,7 +304,7 @@ class Rules(RulesBase):  # {{{
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
     ACTION_KEY = 'actions'
-    MSG = _('You can specify rules to transform styles here. Click the "Add rule" button'
+    MSG = _('You can specify rules to transform HTML here. Click the "Add rule" button'
             ' below to get started.')
 # }}}
 
@@ -356,15 +356,15 @@ class Tester(Dialog):  # {{{
 
 class RulesDialog(RulesDialogBase):  # {{{
 
-    DIALOG_TITLE = _('Edit style transform rules')
-    PREFS_NAME = 'edit-style-transform-rules'
+    DIALOG_TITLE = _('Edit HTML transform rules')
+    PREFS_NAME = 'edit-html-transform-rules'
     RulesClass = Rules
     TesterClass = Tester
 
     def __init__(self, *args, **kw):
         # This has to be loaded on instantiation as it can be shared by
         # multiple processes
-        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        self.PREFS_OBJECT = JSONConfig('html-transform-rules')
         RulesDialogBase.__init__(self, *args, **kw)
 # }}}
 
@@ -376,7 +376,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
     def __init__(self, parent=None):
         self.loaded_ruleset = None
         QWidget.__init__(self, parent)
-        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        self.PREFS_OBJECT = JSONConfig('html-transform-rules')
         l = QVBoxLayout(self)
         self.rules_widget = w = Rules(self)
         w.changed.connect(self.changed.emit)
@@ -412,14 +412,14 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         if not rules:
             return error_dialog(self, _('No rules'), _(
                 'There are no rules to export'), show=True)
-        path = choose_save_file(self, 'export-style-transform-rules', _('Choose file for exported rules'), initial_filename='rules.txt')
+        path = choose_save_file(self, 'export-html-transform-rules', _('Choose file for exported rules'), initial_filename='html-rules.json')
         if path:
             raw = export_rules(rules)
             with open(path, 'wb') as f:
                 f.write(raw)
 
     def import_rules(self):
-        paths = choose_files(self, 'export-style-transform-rules', _('Choose file to import rules from'), select_only_single_file=True)
+        paths = choose_files(self, 'export-html-transform-rules', _('Choose file to import rules from'), select_only_single_file=True)
         if paths:
             with open(paths[0], 'rb') as f:
                 rules = import_rules(f.read())
