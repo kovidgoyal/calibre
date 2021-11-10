@@ -94,11 +94,10 @@ class XPathEdit(QWidget, Ui_Edit):
         return self.text
 
     def check(self):
-        from calibre.ebooks.oeb.base import XPNSMAP
-        from lxml.etree import XPath
+        from calibre.ebooks.oeb.base import XPath
         try:
             if self.text.strip():
-                XPath(self.text, namespaces=XPNSMAP)
+                XPath(self.text)
         except:
             import traceback
             traceback.print_exc()
