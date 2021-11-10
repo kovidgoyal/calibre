@@ -1762,6 +1762,22 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
         return _('This function can be used only in the GUI')
 
 
+class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
+    name = 'current_virtual_library_name'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('current_virtual_library_name() -- '
+            'return the name of the current virtual library if there is one, '
+            'otherwise the empty string. Library name case is preserved. '
+            'Example: "program: current_virtual_library_name()".')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        with suppress(Exception):
+            from calibre.gui2.ui import get_gui
+            return get_gui().current_db.data.get_base_restriction_name()
+        return _('This function can be used only in the GUI')
+
+
 class BuiltinUserCategories(BuiltinFormatterFunction):
     name = 'user_categories'
     arg_count = 0
@@ -2086,7 +2102,7 @@ _formatter_builtins = [
     BuiltinCapitalize(), BuiltinCharacter(), BuiltinCheckYesNo(), BuiltinCeiling(),
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
-    BuiltinDateArithmetic(),
+    BuiltinCurrentVirtualLibraryName(), BuiltinDateArithmetic(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
