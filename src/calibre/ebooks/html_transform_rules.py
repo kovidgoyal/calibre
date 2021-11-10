@@ -5,9 +5,9 @@
 
 from functools import partial
 
+from calibre.ebooks.oeb.base import OEB_DOCS, XPath
 from calibre.utils.serialize import json_dumps, json_loads
-from calibre.ebooks.oeb.base import XPath
-from css_selectors.select import get_parsed_selector
+from css_selectors.select import Select, get_parsed_selector
 
 
 def non_empty_validator(label, val):
@@ -132,14 +132,80 @@ def validate_rule(rule):
     return None, None
 
 
-def compile_rules(serialized_rules):
-    raise NotImplementedError('TODO: Implement this')
+class Action:
+
+    def __init__(self, serialized_action):
+        pass
+
+
+class Rule:
+
+    def __init__(self, serialized_rule):
+        self.sel_type = 'xpath'
+        mt = serialized_rule['match_type']
+        q = serialized_rule['query']
+        if mt == 'xpath':
+            self.xpath_selector = XPath(q)
+            self.selector = self.xpath
+        elif mt in ('is', 'css'):
+            self.css_selector = q
+            self.selector = self.css
+        elif mt == '*':
+            self.xpath_selector = XPath('//*')
+            self.selector = self.xpath
+        elif mt == 'has_class':
+            self.css_selector = '.' + q
+            self.selector = self.css
+        elif mt == 'not_has_class':
+            self.css_selector = f":not(.{q})"
+            self.selector = self.css
+        else:
+            raise KeyError(f'Unknown match_type: {mt}')
+        self.actions = tuple(map(Action, serialized_rule['actions']))
+
+    def xpath(self, root):
+        return self.xpath_selector(root)
+
+    def css(self, root):
+        return tuple(Select(root)(self.css_selector))
+
+    def __call__(self, root):
+        changed = False
+        for tag in self.selector(root):
+            for action in self.actions:
+                if action(tag):
+                    changed = True
+        return changed
+
+
+def transform_doc(root, rules):
+    changed = False
+    for rule in rules:
+        if rule(root):
+            changed = True
+    return changed
 
 
 def transform_container(container, serialized_rules, names=()):
-    rules = compile_rules(serialized_rules)
-    rules
-    raise NotImplementedError('TODO: Implement this')
+    if not names:
+        types = OEB_DOCS
+        names = []
+        for name, mt in container.mime_map.items():
+            if mt in types:
+                names.append(name)
+
+    doc_changed = False
+    rules = tuple(Rule(r) for r in serialized_rules)
+
+    for name in names:
+        mt = container.mime_map.get(name)
+        if mt in OEB_DOCS:
+            root = container.parsed(name)
+            if transform_doc(root, rules):
+                container.dirty(name)
+                doc_changed = True
+
+    return doc_changed
 
 
 def rule_to_text(rule):
@@ -172,7 +238,35 @@ def test(return_tests=False):  # {{{
         ae = unittest.TestCase.assertEqual
 
         def test_matching(self):
-            pass
+            from html5_parser import parse
+            root = parse(namespace_elements=True, html='''
+<html id='root'>
+<head id='head'></head>
+<body id='body'>
+<p class="one red" id='p1'>
+<p class="two green" id='p2'>
+''')
+            all_ids = root.xpath('//*/@id')
+
+            def q(mt, query=''):
+                r = Rule({'match_type': mt, 'query': query, 'actions':[]})
+                ans = []
+                for tag in r.selector(root):
+                    ans.append(tag.get('id'))
+                return ans
+
+            def t(mt, query='', expected=[]):
+                self.ae(expected, q(mt, query))
+
+            t('*', expected=all_ids)
+            t('is', 'body', ['body'])
+            t('is', 'p', ['p1', 'p2'])
+            t('has_class', 'one', ['p1'])
+            ei = list(all_ids)
+            ei.remove('p1')
+            t('not_has_class', 'one', ei)
+            t('css', '#body > p.red', ['p1'])
+            t('xpath', '//h:body', ['body'])
 
         def test_validate_rule(self):
             def av(match_type='*', query='', atype='remove', adata=''):

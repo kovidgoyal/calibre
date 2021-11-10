@@ -11,7 +11,7 @@ from qt.core import (
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.html_transform_rules import (
-    ACTION_MAP, MATCH_TYPE_MAP, compile_rules, export_rules, import_rules,
+    ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules,
     validate_rule
 )
 from calibre.gui2 import choose_files, choose_save_file, elided_text, error_dialog
@@ -311,12 +311,12 @@ class Rules(RulesBase):  # {{{
 
 class Tester(Dialog):  # {{{
 
-    DIALOG_TITLE = _('Test style transform rules')
-    PREFS_NAME = 'test-style-transform-rules'
-    LABEL = _('Enter a CSS stylesheet below to test')
+    DIALOG_TITLE = _('Test HTML transform rules')
+    PREFS_NAME = 'test-html-transform-rules'
+    LABEL = _('Enter an HTML document below to test')
 
     def __init__(self, rules, parent=None):
-        self.rules = compile_rules(rules)
+        self.rules = rules
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
     def setup_ui(self):
@@ -326,7 +326,7 @@ class Tester(Dialog):  # {{{
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.css = t = TextEdit(self)
-        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the "Test" button'), 'css')
+        t.load_text('<!-- %s -->\n' % _('Enter the HTML below and click the "Test" button'), 'html')
         la.setBuddy(t)
         c = t.textCursor()
         c.movePosition(QTextCursor.MoveOperation.End)
