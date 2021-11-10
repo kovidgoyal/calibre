@@ -5,6 +5,7 @@
 
 from functools import partial
 from html5_parser import parse
+from lxml import etree
 
 from calibre.ebooks.oeb.parse_utils import XHTML
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath
@@ -259,6 +260,47 @@ def wrap(data, tag):
     return True
 
 
+def parse_html_snippet(text):
+    return parse(f'<div>{text}</div>', namespace_elements=True, fragment_context='div')[0]
+
+
+def clone(src_element, target_tree):
+    if src_element.tag is etree.Comment:
+        ans = etree.Comment('')
+    else:
+        ans = target_tree.makeelement(src_element.tag)
+        for k, v in src_element.items():
+            ans.set(k, v)
+        ans.extend(src_element)
+    ans.text = src_element.text
+    ans.tail = src_element.tail
+    return ans
+
+
+def insert_snippet(container, before_children, tag):
+    if before_children:
+        orig_text = tag.text
+        tag.text = container.text
+        if len(container):
+            for i, child in enumerate(reversed(container)):
+                c = clone(child, tag)
+                tag.insert(0, c)
+                if i == 0 and orig_text:
+                    c.tail = (c.tail or '') + orig_text
+        else:
+            tag.text = (tag.text or '') + orig_text
+    else:
+        if container.text:
+            if len(tag) > 0:
+                tag[-1].tail = (tag[-1].tail or '') + container.text
+            else:
+                tag.text = (tag.text or '') + container.text
+        for child in container:
+            c = clone(child, tag)
+            tag.append(c)
+    return True
+
+
 action_map = {
     'rename': lambda data: partial(rename_tag, qualify_tag_name(data)),
     'remove': lambda data: remove_tag,
@@ -269,6 +311,8 @@ action_map = {
     'remove_attrs': lambda data: partial(remove_attrs, str.split(data)),
     'add_attrs': lambda data: partial(add_attrs, parse_attrs(data)),
     'wrap': lambda data: partial(wrap, parse_start_tag(data)),
+    'insert': lambda data: partial(insert_snippet, parse_html_snippet(data), True),
+    'insert_end': lambda data: partial(insert_snippet, parse_html_snippet(data), False),
 }
 
 
@@ -426,7 +470,6 @@ def test(return_tests=False):  # {{{
             self.ae(rule, next(iter(import_rules(export_rules([rule])))))
 
         def test_html_transform_actions(self):
-            from lxml import etree
 
             def r(html='<p>hello'):
                 return parse(namespace_elements=True, html=html)[1]
@@ -501,6 +544,20 @@ def test(return_tests=False):  # {{{
             p = r('<p>t<span>s</p>tail')[0]
             self.assertTrue(t('wrap', '<div a=b c=d>')(p))
             ax(p.getparent(), '<div a="b" c="d"><p>t<span>s</span></p></div>tail')
+
+            p = r('<p>hello<span>s')[0]
+            self.assertTrue(t('insert', 'text<div a=b c=d><!-- comm -->tail')(p))
+            ax(p, '<p>text<div a="b" c="d"><!-- comm -->tail</div>hello<span>s</span></p>')
+            p = r('<p>hello<span>s')[0]
+            self.assertTrue(t('insert', 'text')(p))
+            ax(p, '<p>texthello<span>s</span></p>')
+
+            p = r('<p>hello<span>s')[0]
+            self.assertTrue(t('insert_end', 'text<div><!-- comm -->tail')(p))
+            ax(p, '<p>hello<span>s</span>text<div><!-- comm -->tail</div></p>')
+            p = r('<p>hello<span>s</span>tail')[0]
+            self.assertTrue(t('insert_end', 'text')(p))
+            ax(p, '<p>hello<span>s</span>tailtext</p>')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
