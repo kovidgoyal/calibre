@@ -676,6 +676,10 @@ class Worker(Thread):  # Get details {{{
             desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
             if desc:
                 ans = self._render_comments(desc[0])
+            else:
+                ns = tuple(self.selector('#bookDescription_feature_div .a-expander-content'))
+                if ns:
+                    ans = self._render_comments(ns[0])
 
         desc = root.xpath(
             '//div[@id="productDescription"]/*[@class="content"]')
@@ -971,7 +975,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 19)
+    version = (1, 2, 20)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
