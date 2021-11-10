@@ -3,7 +3,11 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from functools import partial
+
 from calibre.utils.serialize import json_dumps, json_loads
+from calibre.ebooks.oeb.base import XPath
+from css_selectors.select import get_parsed_selector
 
 
 class Action:
@@ -43,20 +47,46 @@ ACTION_MAP = {a.name: a for a in (
 )}
 
 
+def non_empty_validator(label, val):
+    if not val:
+        return _('{} must not be empty').format(label)
+
+
+def always_valid(*a):
+    pass
+
+
+def validate_css_selector(val):
+    try:
+        get_parsed_selector(val)
+    except Exception:
+        return _('{} is not a valid CSS selector').format(val)
+
+
+def validate_xpath_selector(val):
+    try:
+        XPath(val)
+    except Exception:
+        return _('{} is not a valid XPath selector').format(val)
+
+
 class Match:
 
-    def __init__(self, name, text, placeholder=''):
+    def __init__(self, name, text, placeholder='', validator=None):
         self.name = name
         self.text = text
         self.placeholder = placeholder
+        if validator is None and placeholder:
+            validator = partial(non_empty_validator, self.placeholder)
+        self.validator = validator or always_valid
 
 
 MATCH_TYPE_MAP = {m.name: m for m in (
     Match('is', _('is'), _('Tag name')),
     Match('has_class', _('has class'), _('Class name')),
     Match('not_has_class', _('does not have class'), _('Class name')),
-    Match('css', _('matches CSS selector'), _('CSS selector')),
-    Match('xpath', _('matches XPath selector'), _('XPath selector')),
+    Match('css', _('matches CSS selector'), _('CSS selector'), validate_css_selector),
+    Match('xpath', _('matches XPath selector'), _('XPath selector'), validate_xpath_selector),
     Match('*', _('is any tag')),
 )}
 

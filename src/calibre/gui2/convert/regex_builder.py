@@ -6,14 +6,14 @@ import os
 from contextlib import suppress
 from qt.core import (
     QApplication, QBrush, QByteArray, QDialog, QDialogButtonBox, Qt, QTextCursor,
-    QTextEdit, QWidget, pyqtSignal
+    QTextEdit, pyqtSignal
 )
 
 from calibre.constants import iswindows
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.gui2 import choose_files, error_dialog, gprefs
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
-from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
+from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
@@ -212,20 +212,19 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         return str(self.preview.toPlainText())
 
 
-class RegexEdit(QWidget, Ui_Edit):
+class RegexEdit(XPathEdit):
 
     doc_update = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        self.setupUi(self)
+        super().__init__(parent)
         self.edit.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
-
         self.book_id = None
         self.db = None
         self.doc_cache = None
 
-        self.button.clicked.connect(self.builder)
+    def wizard(self):
+        return self.builder()
 
     def builder(self):
         if self.db is None:
@@ -244,7 +243,7 @@ class RegexEdit(QWidget, Ui_Edit):
         return self.doc_cache
 
     def setObjectName(self, *args):
-        QWidget.setObjectName(self, *args)
+        super().setObjectName(*args)
         if hasattr(self, 'edit'):
             self.edit.initialize('regex_edit_'+str(self.objectName()))
 

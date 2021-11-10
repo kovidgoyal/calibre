@@ -6,10 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
+from qt.core import (
+    QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, Qt,
+    QToolButton, QVBoxLayout, QWidget
+)
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
-from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
+from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.localization import localize_user_manual_link
 
 
@@ -65,12 +68,37 @@ class Wizard(QDialog):
         return self.widget.xpath
 
 
-class XPathEdit(QWidget, Ui_Edit):
+class XPathEdit(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, object_name='', show_msg=True):
         QWidget.__init__(self, parent)
-        self.setupUi(self)
-        self.button.clicked.connect(self.wizard)
+        self.h = h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        self.l = l = QVBoxLayout()
+        h.addLayout(l)
+        self.button = b = QToolButton(self)
+        b.setIcon(QIcon(I('wizard.png')))
+        b.setToolTip(_('Use a wizard to generate the XPath expression'))
+        b.clicked.connect(self.wizard)
+        h.addWidget(b)
+        self.edit = e = HistoryLineEdit(self)
+        e.setMinimumWidth(350)
+        e.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        e.setMinimumContentsLength(30)
+        self.msg = QLabel('')
+        l.addWidget(self.msg)
+        l.addWidget(self.edit)
+        if object_name:
+            self.setObjectName(object_name)
+        if show_msg:
+            b.setIconSize(QSize(40, 40))
+            self.msg.setBuddy(self.edit)
+        else:
+            self.msg.setVisible(False)
+            l.setContentsMargins(0, 0, 0, 0)
+
+    def setPlaceholderText(self, val):
+        self.edit.setPlaceholderText(val)
 
     def wizard(self):
         wiz = Wizard(self)
@@ -88,6 +116,11 @@ class XPathEdit(QWidget, Ui_Edit):
     @property
     def text(self):
         return str(self.edit.text())
+
+    @text.setter
+    def text(self, val):
+        self.edit.setText(str(val))
+    value = text
 
     @property
     def xpath(self):

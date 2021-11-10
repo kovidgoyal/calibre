@@ -102,7 +102,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="attribute"/>
+    <widget class="QLineEdit" name="attribute">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_3">

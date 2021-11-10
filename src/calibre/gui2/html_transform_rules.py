@@ -15,13 +15,13 @@ from calibre.ebooks.html_transform_rules import (
     validate_rule
 )
 from calibre.gui2 import choose_files, choose_save_file, elided_text, error_dialog
+from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.tag_mapper import (
     RuleEditDialog as RuleEditDialogBase, RuleItem as RuleItemBase,
     Rules as RulesBase, RulesDialog as RulesDialogBase, SaveLoadMixin
 )
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import localize_user_manual_link
 
 
 class TagAction(QWidget):
@@ -138,6 +138,44 @@ class ActionsContainer(QScrollArea):
             self.new_action().as_dict = entry
 
 
+class GenericEdit(QLineEdit):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setClearButtonEnabled(True)
+
+    @property
+    def value(self):
+        return self.text()
+
+    @value.setter
+    def value(self, val):
+        self.setText(str(val))
+
+
+class CSSEdit(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.edit = le = GenericEdit(self)
+        l.addWidget(le)
+        l.addSpacing(5)
+        self.la = la = QLabel(_('<a href="{}">CSS selector help</a>').format('https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors'))
+        la.setOpenExternalLinks(True)
+        l.addWidget(la)
+        self.setPlaceholderText = self.edit.setPlaceholderText
+
+    @property
+    def value(self):
+        return self.edit.value
+
+    @value.setter
+    def value(self, val):
+        self.edit.value = val
+
+
 class RuleEdit(QWidget):  # {{{
 
     MSG = _('Create the rule to transform HTML tags below')
@@ -152,7 +190,7 @@ class RuleEdit(QWidget):  # {{{
         l.addWidget(la)
         l.addLayout(h)
         english_sentence = '{preamble} {match_type}'
-        sentence = _('{preamble} {match_type} {query}')
+        sentence = _('{preamble} {match_type}')
         if set(sentence.split()) != set(english_sentence.split()):
             sentence = english_sentence
         parts = sentence.split()
@@ -168,15 +206,10 @@ class RuleEdit(QWidget):  # {{{
             if clause is not parts[-1]:
                 h.addWidget(QLabel('\xa0'))
         h.addStretch(1)
-        self.hl = h = QHBoxLayout()
-        l.addLayout(h)
-        self.query = q = QLineEdit(self)
-        q.setClearButtonEnabled(True)
-        h.addWidget(q)
-        h.addSpacing(20)
-        self.query_help_label = la = QLabel(self)
-        la.setOpenExternalLinks(True)
-        h.addWidget(la)
+        self.generic_query = gq = GenericEdit(self)
+        self.css_query = cq = CSSEdit(self)
+        self.xpath_query = xq = XPathEdit(self, object_name='html_transform_rules_xpath', show_msg=False)
+        l.addWidget(gq), l.addWidget(cq), l.addWidget(xq)
 
         self.thenl = QLabel(_('Then:'))
         l.addWidget(self.thenl)
@@ -193,28 +226,29 @@ class RuleEdit(QWidget):  # {{{
         a.setWidth(a.width() + 125)
         return a
 
+    @property
+    def current_query_widget(self):
+        return {'css': self.css_query, 'xpath': self.xpath_query}.get(self.match_type.currentData(), self.generic_query)
+
     def update_state(self):
         r = self.rule
         mt = r['match_type']
-        self.query.setVisible(mt != '*')
-        self.query.setPlaceholderText(MATCH_TYPE_MAP[mt].placeholder)
-        self.query_help_label.setVisible(mt in ('css', 'xpath'))
-        if self.query_help_label.isVisible():
-            if mt == 'css':
-                url = 'https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors'
-                text = _('CSS selector help')
-            else:
-                url = localize_user_manual_link('https://manual.calibre-ebook.com/xpath.html')
-                text = _('XPath selector help')
-            self.query_help_label.setText(f'<a href="{url}">{text}</a>')
+        self.generic_query.setVisible(False), self.css_query.setVisible(False), self.xpath_query.setVisible(False)
+        self.current_query_widget.setVisible(True)
+        self.current_query_widget.setPlaceholderText(MATCH_TYPE_MAP[mt].placeholder)
 
     @property
     def rule(self):
-        return {
-            'match_type': self.match_type.currentData(),
-            'query': self.query.text().strip(),
-            'actions': self.actions.as_list,
-        }
+        try:
+            return {
+                'match_type': self.match_type.currentData(),
+                'query': self.current_query_widget.value,
+                'actions': self.actions.as_list,
+            }
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     @rule.setter
     def rule(self, rule):
@@ -222,7 +256,7 @@ class RuleEdit(QWidget):  # {{{
             c = getattr(self, name)
             c.setCurrentIndex(max(0, c.findData(str(rule.get(name, '')))))
         sc('match_type')
-        self.query.setText(str(rule.get('query', '')).strip())
+        self.current_query_widget.value = str(rule.get('query', '')).strip()
         self.actions.as_list = rule.get('actions') or []
         self.update_state()
 
@@ -419,7 +453,7 @@ if __name__ == '__main__':
     app = Application([])
     d = RulesDialog()
     d.rules = [
-        {'match_type':'*', 'query':'', 'actions':[{'type': 'remove'}]},
+        {'match_type':'xpath', 'query':'//h:h2', 'actions':[{'type': 'remove'}]},
     ]
     d.exec_()
     from pprint import pprint
