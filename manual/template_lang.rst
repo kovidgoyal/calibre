@@ -389,6 +389,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``connected_device_uuid(storage_location_key)`` -- if a device is connected then return the device uuid (unique id), otherwise return the empty string. Each storage location on a device has a different uuid. The ``storage_location_key`` location names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 * ``current_library_name()`` -- return the last name on the path to the current calibre library.
 * ``current_library_path()`` -- return the full path to the current calibre library.
+* ``current_virtual_library_name()`` -- return the name of the current virtual library if there is one, otherwise the empty string. Library name case is preserved. Example: ``program: current_virtual_library_name()``. This function works only in the GUI.
 * ``date_arithmetic(date, calc_spec, fmt)`` -- Calculate a new date from ``date`` using ``calc_spec``. Return the new date formatted according to optional ``fmt``: if not supplied then the result will be in ISO format. The calc_spec is a string formed by concatenating pairs of ``vW`` (``valueWhat``) where ``v`` is a possibly-negative number and W is one of the following letters:
 
     * ``s``: add ``v`` seconds to ``date``
