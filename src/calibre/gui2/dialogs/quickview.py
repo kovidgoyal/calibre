@@ -322,9 +322,9 @@ class Quickview(QDialog, Ui_Quickview):
     def show_item_context_menu(self, point):
         item = self.items.currentItem()
         self.context_menu = QMenu(self)
-        self.context_menu.addAction(self.search_icon, _('Search for item in the Tag browser'),
+        self.context_menu.addAction(self.search_icon, _('Find item in the Tag browser'),
                                 partial(self.item_doubleclicked, item))
-        self.context_menu.addAction(self.search_icon, _('Search for item in the library'),
+        self.context_menu.addAction(self.search_icon, _('Find item in the library'),
                                 partial(self.do_search, follow_library_view=False))
         self.context_menu.popup(self.items.mapToGlobal(point))
         self.context_menu = QMenu(self)
@@ -342,7 +342,7 @@ class Quickview(QDialog, Ui_Quickview):
         a = m.addAction(self.select_book_icon, _('Select this book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
-        m.addAction(self.search_icon, _('Search for item in the library'),
+        m.addAction(self.search_icon, _('Find item in the library'),
                         partial(self.do_search, follow_library_view=False))
         a = m.addAction(self.edit_metadata_icon, _('Edit metadata'),
                         partial(self.edit_metadata, book_id, follow_library_view=False))

@@ -23,7 +23,7 @@ ACTION_MAP = {a.name: a for a in (
     Action('remove_classes', _('Remove classes'), _('Remove the specified classes, for e.g:') + ' bold green', _('Space separated class names')),
     Action('wrap', _('Wrap the tag'), _(
         'Wrap the tag in the specified tag, for example: {0} will wrap the tag in a DIV tag with class {1}').format(
-            '&lt;div class="box"&gt;', 'box'), _('A HTML opening tag')),
+            '&lt;div class="box"&gt;', 'box'), _('An HTML opening tag')),
     Action('remove_attrs', _('Remove attributes'), _(
         'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces'), _('Space separated attribute names')),
     Action('add_attrs', _('Add attributes'), _('Add the specified attributes, for e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
