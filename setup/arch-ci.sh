@@ -13,8 +13,5 @@ file_to_patch=$(pacman -Ql python-pycryptodome | grep _raw_api.py$ | cut -d" " -
 echo "Patching $file_to_patch"
 sed -i 's/RTLD_DEEPBIND/RTLD_DEEPBIND_DISABLED_BY_KOVID/g' "$file_to_patch"
 
-# Needed till html5-parser 0.4.10 is available
-pip install -U html5-parser
-
 useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
