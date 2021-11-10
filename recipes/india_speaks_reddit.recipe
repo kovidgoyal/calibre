@@ -13,7 +13,7 @@ class IndiaSpeaksReddit(BasicNewsRecipe):
     title          = 'IndiaSpeaksReddit'
     __author__     = 'Vishvas Vasuki'
     language       = 'en_IN'
-    oldest_article = 7
+    oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup   = True
 
