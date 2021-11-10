@@ -4,7 +4,9 @@
 
 
 from functools import partial
+from html5_parser import parse
 
+from calibre.ebooks.oeb.parse_utils import XHTML
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath
 from calibre.utils.serialize import json_dumps, json_loads
 from css_selectors.select import Select, get_parsed_selector
@@ -132,10 +134,61 @@ def validate_rule(rule):
     return None, None
 
 
-class Action:
+def rename_tag(new_name, tag):
+    if new_name != tag.tag:
+        tag.tag = new_name
+        return True
+    return False
 
-    def __init__(self, serialized_action):
-        pass
+
+def qualify_tag_name(name):
+    return XHTML(name)
+
+
+def remove_tag(tag):
+    p = tag.getparent()
+    idx = p.index(tag)
+    sibling = p[idx-1] if idx else None
+    p.remove(tag)
+    if tag.tail:
+        if sibling is None:
+            p.text = (p.text or '') + tag.tail
+        else:
+            sibling.tail = (sibling.tail or '') + tag.tail
+    return True
+
+
+def unwrap_tag(tag):
+    p = tag.getparent()
+    idx = p.index(tag)
+    sibling = p[idx-1] if idx else None
+    if tag.text:
+        if sibling is None:
+            p.text = (p.text or '') + tag.text
+        else:
+            sibling.tail = (sibling.tail or '') + tag.text
+    for i, child in enumerate(reversed(tag)):
+        p.insert(idx, child)
+        if i == 0:
+            sibling = child
+    p.remove(tag)
+    if tag.tail:
+        if sibling is None:
+            p.text = (p.text or '') + tag.tail
+        else:
+            sibling.tail = (sibling.tail or '') + tag.tail
+    return True
+
+
+action_map = {
+    'rename': lambda data: partial(rename_tag, qualify_tag_name(data)),
+    'remove': lambda data: remove_tag,
+    'unwrap': lambda data: unwrap_tag,
+}
+
+
+def create_action(serialized_action):
+    return action_map[serialized_action['type']](serialized_action.get('data', ''))
 
 
 class Rule:
@@ -161,7 +214,7 @@ class Rule:
             self.selector = self.css
         else:
             raise KeyError(f'Unknown match_type: {mt}')
-        self.actions = tuple(map(Action, serialized_rule['actions']))
+        self.actions = tuple(map(create_action, serialized_rule['actions']))
 
     def xpath(self, root):
         return self.xpath_selector(root)
@@ -238,7 +291,6 @@ def test(return_tests=False):  # {{{
         ae = unittest.TestCase.assertEqual
 
         def test_matching(self):
-            from html5_parser import parse
             root = parse(namespace_elements=True, html='''
 <html id='root'>
 <head id='head'></head>
@@ -287,6 +339,41 @@ def test(return_tests=False):  # {{{
         def test_export_import(self):
             rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
             self.ae(rule, next(iter(import_rules(export_rules([rule])))))
+
+        def test_html_transform_actions(self):
+            from lxml import etree
+
+            def r(html='<p>hello'):
+                return parse(namespace_elements=True, html=html)[1]
+
+            def tostring(x, with_tail=True):
+                return etree.tostring(x, encoding='unicode', with_tail=with_tail)
+
+            def ax(x, expected):
+                v = tostring(x)
+                self.ae(expected, v.replace(' xmlns="http://www.w3.org/1999/xhtml"', ''))
+
+            def t(name, data=''):
+                return action_map[name](data)
+
+            p = r()[0]
+            self.assertFalse(t('rename', 'p')(p))
+            self.assertTrue(t('rename', 'div')(p))
+            self.ae(p.tag, XHTML('div'))
+
+            div = r('<div><div><span>remove</span></div>keep</div>')[0]
+            self.assertTrue(t('remove')(div[0]))
+            ax(div, '<div>keep</div>')
+            div = r('<div><div></div><div><span>remove</span></div>keep</div>')[0]
+            self.assertTrue(t('remove')(div[1]))
+            ax(div, '<div><div/>keep</div>')
+
+            div = r('<div><div>text<span>unwrap</span></div>tail</div>')[0]
+            self.assertTrue(t('unwrap')(div[0]))
+            ax(div, '<div>text<span>unwrap</span>tail</div>')
+            div = r('<div><div></div><div>text<span>unwrap</span></div>tail</div>')[0]
+            self.assertTrue(t('unwrap')(div[1]))
+            ax(div, '<div><div/>text<span>unwrap</span>tail</div>')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
