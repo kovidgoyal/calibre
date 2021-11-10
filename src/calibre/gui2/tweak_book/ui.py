@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from functools import partial
+from gettext import pgettext
 from itertools import product
 from qt.core import (
     QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QImage,
@@ -579,7 +580,7 @@ class Main(MainWindow):
             self.boss.next_spell_error, 'spell-next', ('F8'), _('Go to next spelling mistake'))
 
         # Miscellaneous actions
-        group = _('Miscellaneous')
+        group = pgettext('edit book actions', 'Miscellaneous')
         self.action_create_checkpoint = treg(
             'marked.png', _('&Create checkpoint'), self.boss.create_checkpoint, 'create-checkpoint', (), _(
                 'Create a checkpoint with the current state of the book'))

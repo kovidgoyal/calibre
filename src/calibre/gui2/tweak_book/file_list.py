@@ -8,6 +8,7 @@ import posixpath
 import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
+from gettext import pgettext
 from functools import partial
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QItemSelectionModel,
@@ -56,7 +57,7 @@ CATEGORIES = (
     ('styles', _('Styles'), _('Style-')),
     ('images', _('Images'), _('Image-')),
     ('fonts', _('Fonts'), _('Font-')),
-    ('misc', _('Miscellaneous'), _('Misc-')),
+    ('misc', pgettext('edit book file type', 'Miscellaneous'), _('Misc-')),
 )
 
 
