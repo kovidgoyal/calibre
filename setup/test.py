@@ -93,6 +93,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(test_normalization(return_tests=True))
         from calibre.ebooks.css_transform_rules import test
         a(test(return_tests=True))
+        from calibre.ebooks.html_transform_rules import test
+        a(test(return_tests=True))
         from css_selectors.tests import find_tests
         a(find_tests())
     if ok('docx'):

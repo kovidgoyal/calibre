@@ -10,13 +10,25 @@ from calibre.ebooks.oeb.base import XPath
 from css_selectors.select import get_parsed_selector
 
 
+def non_empty_validator(label, val):
+    if not val:
+        return _('{} must not be empty').format(label)
+
+
+def always_valid(*a):
+    pass
+
+
 class Action:
 
-    def __init__(self, name, short_text, long_text, placeholder=''):
+    def __init__(self, name, short_text, long_text, placeholder='', validator=None):
         self.name = name
         self.short_text = short_text
         self.long_text = long_text
         self.placeholder = placeholder
+        if validator is None and placeholder:
+            validator = partial(non_empty_validator, self.placeholder)
+        self.validator = validator or always_valid
 
 
 ACTION_MAP = {a.name: a for a in (
@@ -47,13 +59,11 @@ ACTION_MAP = {a.name: a for a in (
 )}
 
 
-def non_empty_validator(label, val):
-    if not val:
-        return _('{} must not be empty').format(label)
-
-
-def always_valid(*a):
-    pass
+def validate_action(action):
+    if set(action) != {'type', 'data'}:
+        return _('Action must have both:') + ' type and data'
+    a = ACTION_MAP[action['type']]
+    return a.validator(action['data'])
 
 
 def validate_css_selector(val):
@@ -89,11 +99,36 @@ MATCH_TYPE_MAP = {m.name: m for m in (
     Match('xpath', _('matches XPath selector'), _('XPath selector'), validate_xpath_selector),
     Match('*', _('is any tag')),
 )}
-
-allowed_keys = frozenset('property match_type query action action_data'.split())
+allowed_keys = frozenset('match_type query actions'.split())
 
 
 def validate_rule(rule):
+    keys = frozenset(rule)
+    extra = keys - allowed_keys
+    if extra:
+        return _('Unknown keys'), _(
+            'The rule has unknown keys: %s') % ', '.join(extra)
+    missing = allowed_keys - keys
+    if missing:
+        return _('Missing keys'), _(
+            'The rule has missing keys: %s') % ', '.join(missing)
+    mt = rule['match_type']
+    if mt not in MATCH_TYPE_MAP:
+        return _('Unknown match type'), _(
+            'The match type %s is not known') % mt
+    if mt != '*' and not rule['query']:
+        _('Query required'), _(
+            'You must specify a value for the tag to match')
+    m = MATCH_TYPE_MAP[rule['match_type']]
+    err = m.validator(rule.get('query') or '')
+    if err:
+        return _('Invalid {}').format(m.placeholder), err
+    if not rule['actions']:
+        return _('No actions'), _('The rules has no actions')
+    for action in rule['actions']:
+        err = validate_action(action)
+        if err:
+            return _('Invalid action'), err
     return None, None
 
 
@@ -135,6 +170,22 @@ def test(return_tests=False):  # {{{
 
         def test_matching(self):
             pass
+
+        def test_validate_rule(self):
+            def av(match_type='*', query='', atype='remove', adata=''):
+                rule = {'match_type': match_type, 'query': query, 'actions': [{'type': atype, 'data': adata}]}
+                self.ae(validate_rule(rule), (None, None))
+
+            def ai(match_type='*', query='', atype='remove', adata=''):
+                rule = {'match_type': match_type, 'query': query, 'actions': [{'type': atype, 'data': adata}]}
+                self.assertNotEqual(validate_rule(rule), (None, None))
+
+            av()
+            av('css', 'p')
+            ai('css', 'p..c')
+            av('xpath', '//h:p')
+            ai('xpath', '//h:p[')
+            ai(atype='wrap')
 
         def test_export_import(self):
             rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
