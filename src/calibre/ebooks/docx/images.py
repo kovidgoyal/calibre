@@ -6,13 +6,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+import re
+from lxml.html.builder import HR, IMG
 
-from lxml.html.builder import IMG, HR
-
+from calibre import sanitize_file_name
 from calibre.constants import iswindows
 from calibre.ebooks.docx.names import barename
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.img import resize_to_fit, image_to_data
+from calibre.utils.img import image_to_data, resize_to_fit
 from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, itervalues
 
@@ -25,7 +26,7 @@ class LinkedImageNotFound(ValueError):
 
 
 def image_filename(x):
-    return ascii_filename(x).replace(' ', '_').replace('#', '_')
+    return sanitize_file_name(re.sub(r'[^0-9a-zA-Z.-]', '_', ascii_filename(x)).lstrip('_').lstrip('.'))
 
 
 def emu_to_pt(x):
