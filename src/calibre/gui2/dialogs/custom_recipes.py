@@ -453,6 +453,7 @@ class AdvancedRecipe(QWidget):  # {{{
         self.la = la = QLabel(_(
             'For help with writing advanced news recipes, see the <a href="%s">User Manual</a>'
         ) % localize_user_manual_link('https://manual.calibre-ebook.com/news.html'))
+        la.setOpenExternalLinks(True)
         l.addWidget(la)
 
         self.editor = TextEdit(self)
