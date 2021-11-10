@@ -32,7 +32,10 @@ class NewYorkPost(BasicNewsRecipe):
     keep_only_tags = [
         dict(itemprop=['headline', 'articleBody']),
         dict(name='h1'),
-        classes('byline byline-date source article-info entry-content entry-content-read-more featured-image'),
+        classes(
+            'byline byline-date source article-info entry-content entry-content-read-more featured-image'
+            ' headline--single date meta meta--byline Date published'
+        ),
     ]
 
     remove_tags	=	[
@@ -40,7 +43,7 @@ class NewYorkPost(BasicNewsRecipe):
         classes(
             'floating-share floating-share-wrap sharedaddy sd-sharing-enabled tag-list module-wrapper'
             ' inline-module--author inline-module--columnist inline-module--primary-tag'
-            ' author-flyout modal__email-author button gowatchit-inline'
+            ' author-flyout modal__email-author button gowatchit-inline updated select-share__title'
         ),
         dict(name=['link', 'meta']),
     ]

@@ -9,14 +9,15 @@ def classes(classes):
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class HinduHumanRights(BasicNewsRecipe):
-    title          = 'Hindu Human Rights'
+class IndiaSpeaksReddit(BasicNewsRecipe):
+    title          = 'IndiaSpeaksReddit'
     __author__     = 'Vishvas Vasuki'
     language       = 'en_IN'
-    oldest_article = 30
+    oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup   = True
 
     feeds          = [
-        ('HHR main', 'https://www.hindusforhumanrights.org/en/home?format=rss'),
+        ('India Speaks Reddit main feed', 'https://www.reddit.com/r/IndiaSpeaks.rss'),
     ]
+
