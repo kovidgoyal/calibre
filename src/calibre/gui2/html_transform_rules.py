@@ -202,7 +202,7 @@ class RuleEdit(QWidget):  # {{{
         if self.query_help_label.isVisible():
             if mt == 'css':
                 url = 'https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors'
-                text = _('CSS Selector help')
+                text = _('CSS selector help')
             else:
                 url = localize_user_manual_link('https://manual.calibre-ebook.com/xpath.html')
                 text = _('XPath selector help')

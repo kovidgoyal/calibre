@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import OrderedDict
 from functools import partial
+from gettext import pgettext
 
 from qt.core import (QObject, QKeySequence, QAbstractItemModel, QModelIndex, QItemSelectionModel,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame, QAbstractItemView, QMenu,
@@ -133,7 +134,7 @@ class Manager(QObject):  # {{{
                 'default_keys':tuple(default_keys),
                 'persist_shortcut':persist_shortcut}
         self.shortcuts[unique_name] = shortcut
-        group = group if group else _('Miscellaneous')
+        group = group if group else pgettext('keyboard shortcuts', _('Miscellaneous'))
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
     def unregister_shortcut(self, unique_name):
