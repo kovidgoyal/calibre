@@ -18,5 +18,5 @@ class HinduHumanRights(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        ('HHR main', 'https://www.hindusforhumanrights.org/en/home-6?format=rss'),
+        ('HHR main', 'https://www.hindusforhumanrights.org/en/home?format=rss'),
     ]
