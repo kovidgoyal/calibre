@@ -41,7 +41,8 @@ ACTION_MAP = {a.name: a for a in (
     Action('add_classes', _('Add classes'), _('Add the specified classes, for e.g.:') + ' bold green', _('Space separated class names')),
     Action('remove_classes', _('Remove classes'), _('Remove the specified classes, for e.g:') + ' bold green', _('Space separated class names')),
     Action('remove_attrs', _('Remove attributes'), _(
-        'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces'), _('Space separated attribute names')),
+        'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces.'
+        ' The special value * removes all attributes.'), _('Space separated attribute names')),
     Action('add_attrs', _('Add attributes'), _('Add the specified attributes, for e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
     Action('empty', _('Empty the tag'), _('Remove all contents from the tag')),
     Action('wrap', _('Wrap the tag'), _(
@@ -209,19 +210,65 @@ def remove_classes(classes, tag):
 
 def remove_attrs(attrs, tag):
     changed = False
+    if not tag.attrib:
+        return False
     for a in attrs:
-        if tag.attrib.pop(a, None) is not None:
+        if a == '*':
             changed = True
+            tag.attrib.clear()
+        else:
+            if tag.attrib.pop(a, None) is not None:
+                changed = True
     return changed
+
+
+def parse_attrs(text):
+    div = parse(f'<div {text} ></div>', fragment_context='div')[0]
+    return div.items()
+
+
+def add_attrs(attrib, tag):
+    orig = tag.items()
+    for k, v in attrib:
+        tag.set(k, v)
+    return orig != tag.items()
+
+
+def empty(tag):
+    changed = len(tag) > 0 or bool(tag.text)
+    tag.text = None
+    del tag[:]
+    return changed
+
+
+def parse_start_tag(text):
+    tag = parse(text, namespace_elements=True, fragment_context='div')[0]
+    return {'tag': tag.tag, 'attrib': tag.items()}
+
+
+def wrap(data, tag):
+    elem = tag.makeelement(data['tag'])
+    for k, v in data['attrib']:
+        elem.set(k, v)
+    elem.tail = tag.tail
+    tag.tail = None
+    p = tag.getparent()
+    idx = p.index(tag)
+    p.insert(idx, elem)
+    elem.append(tag)
+    return True
 
 
 action_map = {
     'rename': lambda data: partial(rename_tag, qualify_tag_name(data)),
     'remove': lambda data: remove_tag,
     'unwrap': lambda data: unwrap_tag,
+    'empty': lambda data: empty,
     'add_classes': lambda data: partial(add_classes, str.split(data)),
     'remove_classes': lambda data: partial(remove_classes, str.split(data)),
     'remove_attrs': lambda data: partial(remove_attrs, str.split(data)),
+    'add_attrs': lambda data: partial(add_attrs, parse_attrs(data)),
+    'wrap': lambda data: partial(wrap, parse_start_tag(data)),
 }
 
 
@@ -436,6 +483,24 @@ def test(return_tests=False):  # {{{
             p = r('<p class="c" x="y" id="p">')[0]
             self.assertTrue(t('remove_attrs', 'class id')(p))
             self.ae(list(p.attrib), ['x'])
+            p = r('<p class="c" x="y" id="p">')[0]
+            self.assertTrue(t('remove_attrs', '*')(p))
+            self.ae(list(p.attrib), [])
+
+            p = r()[0]
+            self.assertTrue(t('add_attrs', "class='c' data-m=n")(p))
+            self.ae(p.items(), [('class', 'c'), ('data-m', 'n')])
+            p = r('<p a=1>')[0]
+            self.assertTrue(t('add_attrs', "a=2")(p))
+            self.ae(p.items(), [('a', '2')])
+
+            p = r('<p>t<span>s')[0]
+            self.assertTrue(t('empty')(p))
+            ax(p, '<p/>')
+
+            p = r('<p>t<span>s</p>tail')[0]
+            self.assertTrue(t('wrap', '<div a=b c=d>')(p))
+            ax(p.getparent(), '<div a="b" c="d"><p>t<span>s</span></p></div>tail')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
