@@ -301,6 +301,23 @@ def insert_snippet(container, before_children, tag):
     return True
 
 
+def append_snippet(container, before_tag, tag):
+    p = tag.getparent()
+    idx = p.index(tag)
+    if not before_tag:
+        idx += 1
+    if container.text:
+        if idx:
+            c = p[idx-1]
+            c.tail = (c.tail or '') + container.text
+        else:
+            p.text = (p.text or '') + container.text
+    for child in reversed(container):
+        c = clone(child, tag)
+        p.insert(idx, c)
+    return True
+
+
 action_map = {
     'rename': lambda data: partial(rename_tag, qualify_tag_name(data)),
     'remove': lambda data: remove_tag,
@@ -313,6 +330,8 @@ action_map = {
     'wrap': lambda data: partial(wrap, parse_start_tag(data)),
     'insert': lambda data: partial(insert_snippet, parse_html_snippet(data), True),
     'insert_end': lambda data: partial(insert_snippet, parse_html_snippet(data), False),
+    'prepend': lambda data: partial(append_snippet, parse_html_snippet(data), True),
+    'append': lambda data: partial(append_snippet, parse_html_snippet(data), False),
 }
 
 
@@ -567,6 +586,13 @@ def test(return_tests=False):  # {{{
             p = r('<p>hello<span>s</span>tail')[0]
             self.assertTrue(t('insert_end', 'text')(p))
             ax(p, '<p>hello<span>s</span>tailtext</p>')
+
+            p = r('<p>hello')[0]
+            self.assertTrue(t('prepend', 'text<div>x</div>tail')(p))
+            ax(p.getparent(), '<body>text<div>x</div>tail<p>hello</p></body>')
+            p = r('<p>hello')[0]
+            self.assertTrue(t('append', 'text')(p))
+            ax(p.getparent(), '<body><p>hello</p>text</body>')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
