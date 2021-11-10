@@ -8,6 +8,7 @@ from html5_parser import parse
 
 from calibre.ebooks.oeb.parse_utils import XHTML
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath
+from calibre.ebooks.metadata.tag_mapper import uniq
 from calibre.utils.serialize import json_dumps, json_loads
 from css_selectors.select import Select, get_parsed_selector
 
@@ -39,13 +40,13 @@ ACTION_MAP = {a.name: a for a in (
     Action('unwrap', _('Remove tag only'), _('Remove the tag but keep its contents')),
     Action('add_classes', _('Add classes'), _('Add the specified classes, for e.g.:') + ' bold green', _('Space separated class names')),
     Action('remove_classes', _('Remove classes'), _('Remove the specified classes, for e.g:') + ' bold green', _('Space separated class names')),
-    Action('wrap', _('Wrap the tag'), _(
-        'Wrap the tag in the specified tag, for example: {0} will wrap the tag in a DIV tag with class {1}').format(
-            '&lt;div class="box"&gt;', 'box'), _('An HTML opening tag')),
     Action('remove_attrs', _('Remove attributes'), _(
         'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces'), _('Space separated attribute names')),
     Action('add_attrs', _('Add attributes'), _('Add the specified attributes, for e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
     Action('empty', _('Empty the tag'), _('Remove all contents from the tag')),
+    Action('wrap', _('Wrap the tag'), _(
+        'Wrap the tag in the specified tag, for example: {0} will wrap the tag in a DIV tag with class {1}').format(
+            '&lt;div class="box"&gt;', 'box'), _('An HTML opening tag')),
     Action('insert', _('Insert HTML at start'), _(
         'The specified HTML snippet is inserted after the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),
            _('HTML snippet')),
@@ -180,10 +181,47 @@ def unwrap_tag(tag):
     return True
 
 
+def add_classes(classes, tag):
+    orig_cls = tag.get('class', '')
+    orig = list(filter(None, str.split(orig_cls)))
+    new_cls = ' '.join(uniq(orig + classes))
+    if new_cls != orig_cls:
+        tag.set('class', new_cls)
+        return True
+    return False
+
+
+def remove_classes(classes, tag):
+    orig_cls = tag.get('class', '')
+    orig = list(filter(None, str.split(orig_cls)))
+    for x in classes:
+        while True:
+            try:
+                orig.remove(x)
+            except ValueError:
+                break
+    new_cls = ' '.join(orig)
+    if new_cls != orig_cls:
+        tag.set('class', new_cls)
+        return True
+    return False
+
+
+def remove_attrs(attrs, tag):
+    changed = False
+    for a in attrs:
+        if tag.attrib.pop(a, None) is not None:
+            changed = True
+    return changed
+
+
 action_map = {
     'rename': lambda data: partial(rename_tag, qualify_tag_name(data)),
     'remove': lambda data: remove_tag,
     'unwrap': lambda data: unwrap_tag,
+    'add_classes': lambda data: partial(add_classes, str.split(data)),
+    'remove_classes': lambda data: partial(remove_classes, str.split(data)),
+    'remove_attrs': lambda data: partial(remove_attrs, str.split(data)),
 }
 
 
@@ -374,6 +412,30 @@ def test(return_tests=False):  # {{{
             div = r('<div><div></div><div>text<span>unwrap</span></div>tail</div>')[0]
             self.assertTrue(t('unwrap')(div[1]))
             ax(div, '<div><div/>text<span>unwrap</span>tail</div>')
+
+            p = r()[0]
+            self.assertTrue(t('add_classes', 'a b')(p))
+            self.ae(p.get('class'), 'a b')
+            p = r('<p class="c a d">')[0]
+            self.assertTrue(t('add_classes', 'a b')(p))
+            self.ae(p.get('class'), 'c a d b')
+            p = r('<p class="c a d">')[0]
+            self.assertFalse(t('add_classes', 'a')(p))
+            self.ae(p.get('class'), 'c a d')
+
+            p = r()[0]
+            self.assertFalse(t('remove_classes', 'a b')(p))
+            self.ae(p.get('class'), None)
+            p = r('<p class="c a a d">')[0]
+            self.assertTrue(t('remove_classes', 'a')(p))
+            self.ae(p.get('class'), 'c d')
+
+            p = r()[0]
+            self.assertFalse(t('remove_attrs', 'a b')(p))
+            self.assertFalse(p.attrib)
+            p = r('<p class="c" x="y" id="p">')[0]
+            self.assertTrue(t('remove_attrs', 'class id')(p))
+            self.ae(list(p.attrib), ['x'])
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     if return_tests:
