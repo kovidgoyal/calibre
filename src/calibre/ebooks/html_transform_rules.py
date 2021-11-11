@@ -10,7 +10,6 @@ from lxml import etree
 from calibre.ebooks.oeb.parse_utils import XHTML
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath
 from calibre.ebooks.metadata.tag_mapper import uniq
-from calibre.utils.serialize import json_dumps, json_loads
 from css_selectors.select import Select, get_parsed_selector
 
 
@@ -427,14 +426,41 @@ def rule_to_text(rule):
 
 
 def export_rules(serialized_rules):
-    return json_dumps({'version': 1, 'type': 'html_transform_rules', 'rules': serialized_rules}, indent=2, sort_keys=True)
+    lines = []
+    for rule in serialized_rules:
+        lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
+        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in rule.items() if k in allowed_keys and k != 'actions')
+        for action in rule.get('actions', ()):
+            lines.append(f"action: {action['type']}: {action.get('data', '')}")
+        lines.append('')
+    return '\n'.join(lines).encode('utf-8')
 
 
 def import_rules(raw_data):
-    d = json_loads(raw_data)
-    if d.get('version') == 1 and d.get('type') == 'html_transform_rules':
-        return d['rules']
-    return []
+    current_rule = {}
+
+    def sanitize(r):
+        return {k:(r.get(k) or '') for k in allowed_keys}
+
+    for line in raw_data.decode('utf-8').splitlines():
+        if not line.strip():
+            if current_rule:
+                yield sanitize(current_rule)
+            current_rule = {}
+            continue
+        if line.lstrip().startswith('#'):
+            continue
+        parts = line.split(':', 1)
+        if len(parts) == 2:
+            k, v = parts[0].lower().strip(), parts[1].strip()
+            if k == 'action':
+                actions = current_rule.setdefault('actions', [])
+                parts = v.split(':', 1)
+                actions.append({'type': parts[0].strip(), 'data': parts[1].strip() if len(parts) == 2 else ''})
+            elif k in allowed_keys:
+                current_rule[k] = v
+    if current_rule:
+        yield sanitize(current_rule)
 
 
 def test(return_tests=False):  # {{{
@@ -492,8 +518,11 @@ def test(return_tests=False):  # {{{
             ai(atype='wrap')
 
         def test_export_import(self):
-            rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
+            rule = {'match_type': 'is', 'query': 'p', 'actions': [{'type': 'rename', 'data': 'div'}, {'type': 'remove', 'data': ''}]}
             self.ae(rule, next(iter(import_rules(export_rules([rule])))))
+            rule = {'match_type': '*', 'actions': [{'type': 'remove'}]}
+            erule = {'match_type': '*', 'query': '', 'actions': [{'type': 'remove', 'data': ''}]}
+            self.ae(erule, next(iter(import_rules(export_rules([rule])))))
 
         def test_html_transform_actions(self):
             try:
