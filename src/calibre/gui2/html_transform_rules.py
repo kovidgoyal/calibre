@@ -11,7 +11,7 @@ from qt.core import (
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.html_transform_rules import (
-    ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules,
+    ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules, transform_html,
     validate_rule
 )
 from calibre.gui2 import choose_files, choose_save_file, elided_text, error_dialog
@@ -350,7 +350,8 @@ class Tester(Dialog):  # {{{
         return self.html.toPlainText()
 
     def do_test(self):
-        pass  # TODO: Implement this
+        changed, html = transform_html('\n' + self.value + '\n', self.rules)
+        self.result.load_text('<!-- %s -->\n\n%s' % (_('Resulting HTML'), html), 'html')
 
     def sizeHint(self):
         return QSize(800, 600)

@@ -387,6 +387,13 @@ def transform_doc(root, rules):
     return changed
 
 
+def transform_html(html, serialized_rules):
+    root = parse(html, namespace_elements=True)
+    rules = tuple(Rule(r) for r in serialized_rules)
+    changed = transform_doc(root, rules)
+    return changed, etree.tostring(root, encoding='unicode')
+
+
 def transform_container(container, serialized_rules, names=()):
     if not names:
         types = OEB_DOCS
