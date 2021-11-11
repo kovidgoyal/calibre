@@ -1340,15 +1340,17 @@ class Boss(QObject):
             try:
                 mt = current_container().mime_map[name]
             except KeyError:
-                return error_dialog(self.gui, _('Does not exist'), _(
+                error_dialog(self.gui, _('Does not exist'), _(
                     'The file %s does not exist. If you were trying to click an item in'
                     ' the Table of Contents, you may'
                     ' need to refresh it by right-clicking and choosing "Refresh".') % name, show=True)
+                return None
             syntax = syntax_from_mime(name, mt)
             if not syntax:
-                return error_dialog(
+                error_dialog(
                     self.gui, _('Unsupported file format'),
                     _('Editing files of type %s is not supported') % mt, show=True)
+                return None
             editor = self.edit_file(name, syntax)
         return editor
 
@@ -1356,7 +1358,7 @@ class Boss(QObject):
         if not name:
             return
         editor = self.open_editor_for_name(name)
-        if anchor and editor is not None:
+        if anchor and hasattr(editor, 'go_to_anchor') :
             if editor.go_to_anchor(anchor):
                 self.gui.preview.pending_go_to_anchor = anchor
             elif show_anchor_not_found:
