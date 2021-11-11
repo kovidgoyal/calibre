@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import re
 from functools import partial
 from html5_parser import parse
 from lxml import etree
@@ -102,6 +103,7 @@ MATCH_TYPE_MAP = {m.name: m for m in (
     Match('css', _('matches CSS selector'), _('CSS selector'), validate_css_selector),
     Match('xpath', _('matches XPath selector'), _('XPath selector'), validate_xpath_selector),
     Match('*', _('is any tag')),
+    Match('contains_text', _('contains text'), _('Text')),
 )}
 allowed_keys = frozenset('match_type query actions'.split())
 
@@ -338,6 +340,24 @@ def create_action(serialized_action):
     return action_map[serialized_action['type']](serialized_action.get('data', ''))
 
 
+def text_as_xpath_literal(text):
+    if '"' in text:
+        if "'" not in text:
+            return f"'{text}'"
+        parts = []
+        for x in re.split(r'(")', text):
+            if not x:
+                continue
+            if x == '"':
+                x = "'\"'"
+            else:
+                x = f'"{x}"'
+            parts.append(x)
+        return f'concat({",".join(parts)})'
+
+    return f'"{text}"'
+
+
 class Rule:
 
     def __init__(self, serialized_rule):
@@ -359,6 +379,9 @@ class Rule:
         elif mt == 'not_has_class':
             self.css_selector = f":not(.{q})"
             self.selector = self.css
+        elif mt == 'contains_text':
+            self.xpath_selector = XPath(f'//*[contains(text(), {text_as_xpath_literal(q)})]')
+            self.selector = self.xpath
         else:
             raise KeyError(f'Unknown match_type: {mt}')
         self.actions = tuple(map(create_action, serialized_rule['actions']))
@@ -476,8 +499,8 @@ def test(return_tests=False):  # {{{
 <html id='root'>
 <head id='head'></head>
 <body id='body'>
-<p class="one red" id='p1'>
-<p class="two green" id='p2'>
+<p class="one red" id='p1'>simple
+<p class="two green" id='p2'>a'b"c
 ''')
             all_ids = root.xpath('//*/@id')
 
@@ -500,6 +523,8 @@ def test(return_tests=False):  # {{{
             t('not_has_class', 'one', ei)
             t('css', '#body > p.red', ['p1'])
             t('xpath', '//h:body', ['body'])
+            t('contains_text', 'imple', ['p1'])
+            t('contains_text', 'a\'b"c', ['p2'])
 
         def test_validate_rule(self):
             def av(match_type='*', query='', atype='remove', adata=''):
