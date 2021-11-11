@@ -18,7 +18,7 @@ from qt.core import (
 )
 
 from calibre.constants import islinux
-from calibre.ebooks.metadata import rating_to_stars
+from calibre.ebooks.metadata import rating_to_stars, authors_to_string
 from calibre.gui2 import (
     available_height, available_width, config, gprefs, rating_font
 )
@@ -150,6 +150,16 @@ class DatabaseImages(pictureflow.FlowImages):
                     if val:
                         return rating_to_stars(val, allow_half_stars=db.field_metadata[field]['display'].get('allow_half_stars'))
                 else:
+                    if field == 'authors':
+                        book_id = self.model.id(index)
+                        val = db.field_for(field, book_id, default_value=0)
+                        if val == (_('Unknown'),):
+                            val = ''
+                        elif val:
+                            val = authors_to_string(val).replace('&', '&&')
+                        else:
+                            val = ''
+                        return val
                     return self.render_template('{%s}' % field, index, db).replace('&', '&&')
         except Exception:
             if not self.subtitle_error_reported:
