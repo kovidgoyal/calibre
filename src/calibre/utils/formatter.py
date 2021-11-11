@@ -46,6 +46,7 @@ class Node:
     NODE_CONTINUE = 23
     NODE_RETURN = 24
     NODE_CHARACTER = 25
+    NODE_STRCAT = 26
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -253,6 +254,13 @@ class CharacterNode(Node):
         Node.__init__(self, line_number, 'character()')
         self.node_type = self.NODE_CHARACTER
         self.expression = expression
+
+
+class StrcatNode(Node):
+    def __init__(self, line_number, expression_list):
+        Node.__init__(self, line_number, 'strcat()')
+        self.node_type = self.NODE_STRCAT
+        self.expression_list = expression_list
 
 
 class _Parser:
@@ -535,9 +543,9 @@ class _Parser:
                              lambda ln, args: FieldNode(ln, args[0])),
         'raw_field':        (lambda args: len(args) == 1,
                              lambda ln, args: RawFieldNode(ln, *args)),
-        'test':             (lambda args: len(args) == 1,
+        'test':             (lambda args: len(args) == 3,
                              lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
-        'first_non_empty':  (lambda args: len(args) == 1,
+        'first_non_empty':  (lambda args: len(args) >= 1,
                              lambda ln, args: FirstNonEmptyNode(ln, args)),
         'assign':           (lambda args: len(args) == 2 and len(args[0]) == 1 and args[0][0].node_type == Node.NODE_RVALUE,
                              lambda ln, args: AssignNode(ln, args[0][0].name, args[1])),
@@ -547,6 +555,8 @@ class _Parser:
                              lambda ln, args: CharacterNode(ln, args[0])),
         'print':            (lambda _: True,
                              lambda ln, args: PrintNode(ln, args)),
+        'strcat':           (lambda _: True,
+                             lambda ln, args: StrcatNode(ln, args))
     }
 
     def expr(self):
@@ -935,6 +945,12 @@ class _Interpreter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
+    def do_node_strcat(self, prog):
+        res = ''.join([self.expr(expr) for expr in prog.expression_list])
+        if self.break_reporter:
+            self.break_reporter(prog.node_name, res, prog.line_number)
+        return res
+
     def do_node_for(self, prog):
         line_number = prog.line_number
         try:
@@ -1125,6 +1141,7 @@ class _Interpreter:
         Node.NODE_CONTINUE:       do_node_continue,
         Node.NODE_RETURN:         do_node_return,
         Node.NODE_CHARACTER:      do_node_character,
+        Node.NODE_STRCAT:         do_node_strcat,
         }
 
     def expr(self, prog):
