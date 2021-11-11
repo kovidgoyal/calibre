@@ -195,11 +195,16 @@ class Tester(Dialog):  # {{{
 
     DIALOG_TITLE = _('Test style transform rules')
     PREFS_NAME = 'test-style-transform-rules'
-    LABEL = _('Enter a CSS stylesheet below to test')
+    LABEL = _('Enter a CSS stylesheet below and click the "Test" button')
+    SYNTAX = 'css'
+    RESULTS = '/* %s */\n\n' % _('Resulting stylesheet')
 
     def __init__(self, rules, parent=None):
-        self.rules = compile_rules(rules)
+        self.rules = self.compile_rules(rules)
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
+
+    def compile_rules(self, rules):
+        return compile_rules(rules)
 
     def setup_ui(self):
         from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -208,7 +213,7 @@ class Tester(Dialog):  # {{{
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.css = t = TextEdit(self)
-        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the "Test" button'), 'css')
+        t.load_text('', self.SYNTAX)
         la.setBuddy(t)
         c = t.textCursor()
         c.movePosition(QTextCursor.MoveOperation.End)
@@ -234,7 +239,10 @@ class Tester(Dialog):  # {{{
         css = decl.cssText
         if isinstance(css, bytes):
             css = css.decode('utf-8')
-        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), css), 'css')
+        self.set_result(css)
+
+    def set_result(self, css):
+        self.result.load_text(self.RESULTS + css, self.SYNTAX)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -259,13 +267,20 @@ class RulesDialog(RulesDialogBase):  # {{{
 class RulesWidget(QWidget, SaveLoadMixin):  # {{{
 
     changed = pyqtSignal()
+    PREFS_NAME = 'style-transform-rules'
+    INITIAL_FILE_NAME = 'css-rules.txt'
+    DIR_SAVE_NAME = 'export-style-transform-rules'
+    export_func = export_rules
+    import_func = import_rules
+    TesterClass = Tester
+    RulesClass = Rules
 
     def __init__(self, parent=None):
         self.loaded_ruleset = None
         QWidget.__init__(self, parent)
-        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        self.PREFS_OBJECT = JSONConfig(self.PREFS_NAME)
         l = QVBoxLayout(self)
-        self.rules_widget = w = Rules(self)
+        self.rules_widget = w = self.RulesClass(self)
         w.changed.connect(self.changed.emit)
         l.addWidget(w)
         self.h = h = QHBoxLayout()
@@ -286,7 +301,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         b.setToolTip(_('Save this ruleset for later re-use'))
         b.clicked.connect(self.save_ruleset)
         h.addWidget(b)
-        self.export_button = b = QPushButton(_('&Load'), self)
+        self.load_button = b = QPushButton(_('&Load'), self)
         self.load_menu = QMenu(self)
         b.setMenu(self.load_menu)
         b.setToolTip(_('Load a previously saved ruleset'))
@@ -299,17 +314,17 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         if not rules:
             return error_dialog(self, _('No rules'), _(
                 'There are no rules to export'), show=True)
-        path = choose_save_file(self, 'export-style-transform-rules', _('Choose file for exported rules'), initial_filename='rules.txt')
+        path = choose_save_file(self, self.DIR_SAVE_NAME, _('Choose file for exported rules'), initial_filename=self.INITIAL_FILE_NAME)
         if path:
-            raw = export_rules(rules)
+            raw = self.export_func(rules)
             with open(path, 'wb') as f:
                 f.write(raw)
 
     def import_rules(self):
-        paths = choose_files(self, 'export-style-transform-rules', _('Choose file to import rules from'), select_only_single_file=True)
+        paths = choose_files(self, self.DIR_SAVE_NAME, _('Choose file to import rules from'), select_only_single_file=True)
         if paths:
             with open(paths[0], 'rb') as f:
-                rules = import_rules(f.read())
+                rules = self.import_func(f.read())
             self.rules_widget.rules = list(rules) + list(self.rules_widget.rules)
             self.changed.emit()
 
@@ -318,7 +333,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         self.changed.emit()
 
     def test_rules(self):
-        Tester(self.rules_widget.rules, self).exec_()
+        self.TesterClass(self.rules_widget.rules, self).exec_()
 
     @property
     def rules(self):
