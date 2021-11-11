@@ -643,24 +643,24 @@ class Boss(QObject):
         if ret != QDialog.DialogCode.Accepted:
             return
 
-        cc = current_container()
+        mime_map = current_container().mime_map
         names = ()
         if scope == 'current':
-            if not self.currently_editing or cc.mime_map.get(self.currently_editing) not in OEB_DOCS:
+            if not self.currently_editing or mime_map.get(self.currently_editing) not in OEB_DOCS:
                 return error_dialog(self.gui, _('No HTML file'), _('Not currently editing an HTML file'), show=True)
             names = (self.currently_editing,)
         elif scope == 'open':
-            names = tuple(name for name in editors if cc.mime_map.get(name) in OEB_DOCS)
+            names = tuple(name for name in editors if mime_map.get(name) in OEB_DOCS)
             if not names:
                 return error_dialog(self.gui, _('No HTML files'), _('Not currently editing any HTML files'), show=True)
         elif scope == 'selected':
-            names = tuple(name for name in self.gui.file_list.file_list.selected_names if cc.mime_map.get(name) in OEB_DOCS)
+            names = tuple(name for name in self.gui.file_list.file_list.selected_names if mime_map.get(name) in OEB_DOCS)
             if not names:
                 return error_dialog(self.gui, _('No HTML files'), _('No HTML files are currently selected in the File browser'), show=True)
         with BusyCursor():
             self.add_savepoint(_('Before HTML transformation'))
             try:
-                changed = transform_container(cc, last_used_html_transform_rules, names)
+                changed = transform_container(current_container(), last_used_html_transform_rules, names)
             except:
                 self.rewind_savepoint()
                 raise
@@ -668,9 +668,7 @@ class Boss(QObject):
                 self.apply_container_update_to_gui()
         if not changed:
             self.rewind_savepoint()
-            info_dialog(self.gui, _('No changes'), _(
-                'No HTML was changed.'), show=True)
-            return
+            return info_dialog(self.gui, _('No changes'), _('No HTML was changed.'), show=True)
         self.show_current_diff()
 
     def transform_styles(self):
