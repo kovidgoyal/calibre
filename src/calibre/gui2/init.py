@@ -537,9 +537,10 @@ class VLTabs(QTabBar):  # {{{
         if i > -1:
             vl = str(self.tabData(i) or '')
             if vl:
+                vln = vl.replace('&', '&&')
                 m.addSeparator()
-                m.addAction(_('Edit "%s"') % vl, partial(self.gui.do_create_edit, name=vl))
-                m.addAction(_('Delete "%s"') % vl, partial(self.gui.remove_vl_triggered, name=vl))
+                m.addAction(_('Edit "%s"') % vln, partial(self.gui.do_create_edit, name=vl))
+                m.addAction(_('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
         m.exec_(ev.globalPos())
 
     def sort_alphabetically(self):
