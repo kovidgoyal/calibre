@@ -24,6 +24,8 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 
 
+# Classes for rule edit widget {{{
+
 class TagAction(QWidget):
 
     remove_action = pyqtSignal(object)
@@ -174,6 +176,7 @@ class CSSEdit(QWidget):
     @value.setter
     def value(self, val):
         self.edit.value = val
+# }}}
 
 
 class RuleEdit(QWidget):  # {{{
@@ -347,7 +350,7 @@ class Tester(Dialog):  # {{{
         return self.html.toPlainText()
 
     def do_test(self):
-        raise NotImplementedError('TODO: Implement this')
+        pass  # TODO: Implement this
 
     def sizeHint(self):
         return QSize(800, 600)

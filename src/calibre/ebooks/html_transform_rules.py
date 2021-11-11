@@ -129,7 +129,7 @@ def validate_rule(rule):
     if err:
         return _('Invalid {}').format(m.placeholder), err
     if not rule['actions']:
-        return _('No actions'), _('The rules has no actions')
+        return _('No actions'), _('The rule has no actions')
     for action in rule['actions']:
         err = validate_action(action)
         if err:
