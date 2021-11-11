@@ -635,10 +635,11 @@ class Boss(QObject):
         from calibre.ebooks.html_transform_rules import transform_container
         d = RulesDialog(self.gui)
         d.rules = last_used_html_transform_rules
-        d.transform_scope = scope = tprefs['html_transform_scope']
+        d.transform_scope = tprefs['html_transform_scope']
         ret = d.exec_()
         last_used_html_transform_rules = d.rules
-        tprefs.set('html_transform_scope', d.transform_scope)
+        scope = d.transform_scope
+        tprefs.set('html_transform_scope', scope)
         if ret != QDialog.DialogCode.Accepted:
             return
 
