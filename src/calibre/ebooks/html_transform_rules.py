@@ -40,7 +40,7 @@ ACTION_MAP = {a.name: a for a in (
     Action('remove', _('Remove tag and children'), _('Remove the tag and all its contents')),
     Action('unwrap', _('Remove tag only'), _('Remove the tag but keep its contents')),
     Action('add_classes', _('Add classes'), _('Add the specified classes, e.g.:') + ' bold green', _('Space separated class names')),
-    Action('remove_classes', _('Remove classes'), _('Remove the specified classes, e.g:') + ' bold green', _('Space separated class names')),
+    Action('remove_classes', _('Remove classes'), _('Remove the specified classes, e.g.:') + ' bold green', _('Space separated class names')),
     Action('remove_attrs', _('Remove attributes'), _(
         'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces.'
         ' The special value * removes all attributes.'), _('Space separated attribute names')),
