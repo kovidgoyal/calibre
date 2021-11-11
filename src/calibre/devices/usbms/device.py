@@ -206,7 +206,7 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         Called to disambiguate main memory and storage card for devices that
         do not distinguish between them on the basis of `WINDOWS_CARD_NAME`.
-        For e.g.: The EB600
+        For example: The EB600
         '''
         return drives
 

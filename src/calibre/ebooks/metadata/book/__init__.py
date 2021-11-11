@@ -53,7 +53,7 @@ PUBLICATION_METADATA_FIELDS = frozenset((
     'publisher',        # Simple string, no special semantics
     # Absolute path to image file encoded in filesystem_encoding
     'cover',
-    # Of the form (format, data) where format is, for e.g. 'jpeg', 'png', 'gif'...
+    # Of the form (format, data) where format is, e.g. 'jpeg', 'png', 'gif'...
     'cover_data',
     # Either thumbnail data, or an object with the attribute
     # image_path which is the path to an image file, encoded

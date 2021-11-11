@@ -358,7 +358,7 @@ the folder related options below.
         '--identifier',
         default=[],
         action='append',
-        help=_('Set the identifiers for this book, for e.g. -I asin:XXX -I isbn:YYY')
+        help=_('Set the identifiers for this book, e.g. -I asin:XXX -I isbn:YYY')
     )
     parser.add_option(
         '-T', '--tags', default=None, help=_('Set the tags of the added book(s)')
@@ -441,7 +441,7 @@ the folder related options below.
         '--ignore', 'ignore',
         _(
             'A filename (glob) pattern, files matching this pattern will be ignored when scanning folders for files.'
-            ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all PDF files'
+            ' Can be specified multiple times for multiple patterns. For example: *.pdf will ignore all PDF files'
         )
     )
     fadd(

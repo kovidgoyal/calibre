@@ -128,7 +128,7 @@ def run_tests(find_tests, verbosity=4):
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('name', nargs='?', default=None,
-                        help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
+                        help='The name of the test to run, for example: writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
     args = parser.parse_args()
     tests = find_tests()
     if args.name:

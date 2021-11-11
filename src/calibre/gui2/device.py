@@ -280,7 +280,7 @@ class DeviceManager(Thread):  # {{{
                 if not connected:
                     if DEBUG:
                         # Allow the device subsystem to output debugging info about
-                        # why it thinks the device is not connected. Used, for e.g.
+                        # why it thinks the device is not connected. Used, e.g.
                         # in the can_handle() method of the T1 driver
                         self.scanner.is_device_connected(self.connected_device,
                                 only_presence=True, debug=True)

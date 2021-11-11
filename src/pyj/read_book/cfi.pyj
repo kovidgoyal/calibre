@@ -507,7 +507,7 @@ def at(x, y, doc):  # {{{
         if not target or target is cdoc.documentElement or target is cdoc.body:
             # We ignore both html and body even though body could
             # have text nodes under it as performance is very poor if body
-            # has large margins/padding (for e.g. in fullscreen mode)
+            # has large margins/padding (e.g. in fullscreen mode)
             # A possible solution for this is to wrap all text node
             # children of body in <span> but that is seriously ugly and
             # might have side effects. Lets do this only if there are lots of

@@ -465,7 +465,7 @@ def read_css_block_borders(self, css, store_css_style=False):
             try:
                 setattr(self, 'margin_' + edge, max(0, int(css['margin-' + edge] * 20)))
             except ValueError:
-                setattr(self, 'margin_' + edge, 0)  # for e.g.: margin: auto
+                setattr(self, 'margin_' + edge, 0)  # e.g.: margin: auto
             setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
             val = css['border-%s-width' % edge]
             if not isinstance(val, numbers.Number):

@@ -189,7 +189,7 @@ class Win(BuildInstallers):
 class BuildDep(Command):
 
     description = (
-        'Build a calibre dependency. For e.g. build_dep windows expat.'
+        'Build a calibre dependency. For example, build_dep windows expat.'
         ' Without arguments builds all deps for specified platform. Use windows 32 for 32bit.'
         ' Use build_dep all somedep to build a dep for all platforms.'
     )

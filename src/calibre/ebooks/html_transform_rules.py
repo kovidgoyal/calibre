@@ -39,15 +39,15 @@ ACTION_MAP = {a.name: a for a in (
     Action('rename', _('Change tag name'), _('Rename tag to the specified name'), _('New tag name')),
     Action('remove', _('Remove tag and children'), _('Remove the tag and all its contents')),
     Action('unwrap', _('Remove tag only'), _('Remove the tag but keep its contents')),
-    Action('add_classes', _('Add classes'), _('Add the specified classes, for e.g.:') + ' bold green', _('Space separated class names')),
-    Action('remove_classes', _('Remove classes'), _('Remove the specified classes, for e.g:') + ' bold green', _('Space separated class names')),
+    Action('add_classes', _('Add classes'), _('Add the specified classes, e.g.:') + ' bold green', _('Space separated class names')),
+    Action('remove_classes', _('Remove classes'), _('Remove the specified classes, e.g:') + ' bold green', _('Space separated class names')),
     Action('remove_attrs', _('Remove attributes'), _(
         'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces.'
         ' The special value * removes all attributes.'), _('Space separated attribute names')),
-    Action('add_attrs', _('Add attributes'), _('Add the specified attributes, for e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
+    Action('add_attrs', _('Add attributes'), _('Add the specified attributes, e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
     Action('empty', _('Empty the tag'), _('Remove all contents from the tag')),
     Action('wrap', _('Wrap the tag'), _(
-        'Wrap the tag in the specified tag, for example: {0} will wrap the tag in a DIV tag with class {1}').format(
+        'Wrap the tag in the specified tag, e.g.: {0} will wrap the tag in a DIV tag with class {1}').format(
             '&lt;div class="box"&gt;', 'box'), _('An HTML opening tag')),
     Action('insert', _('Insert HTML at start'), _(
         'The specified HTML snippet is inserted after the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),

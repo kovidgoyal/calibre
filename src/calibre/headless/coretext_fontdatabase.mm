@@ -548,7 +548,7 @@ QStringList QCoreTextFontDatabase::fallbacksForFamily(const QString &family, QFo
     }
 
     // Some fallback fonts will have have an order in the list returned
-    // by Core Text that would indicate they should be preferred for e.g.
+    // by Core Text that would indicate they should be preferred e.g.
     // Arabic, or Emoji, while in reality only supporting a tiny subset
     // of the required glyphs, or representing them by question marks.
     // Move these to the end, so that the proper fonts are preferred.
