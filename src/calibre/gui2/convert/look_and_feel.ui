@@ -10,7 +10,7 @@
     <height>619</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -503,6 +503,16 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Transform &amp;HTML</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="HtmlRulesWidget" name="opt_transform_html_rules" native="true"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -522,6 +532,12 @@
    <class>RulesWidget</class>
    <extends>QWidget</extends>
    <header>calibre/gui2/css_transform_rules.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HtmlRulesWidget</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/html_transform_rules.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

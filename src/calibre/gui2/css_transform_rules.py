@@ -317,15 +317,17 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
                 'There are no rules to export'), show=True)
         path = choose_save_file(self, self.DIR_SAVE_NAME, _('Choose file for exported rules'), initial_filename=self.INITIAL_FILE_NAME)
         if path:
-            raw = self.export_func(rules)
+            f = self.__class__.export_func
+            raw = f(rules)
             with open(path, 'wb') as f:
                 f.write(raw)
 
     def import_rules(self):
         paths = choose_files(self, self.DIR_SAVE_NAME, _('Choose file to import rules from'), select_only_single_file=True)
         if paths:
+            func = self.__class__.import_func
             with open(paths[0], 'rb') as f:
-                rules = self.import_func(f.read())
+                rules = func(f.read())
             self.rules_widget.rules = list(rules) + list(self.rules_widget.rules)
             self.changed.emit()
 

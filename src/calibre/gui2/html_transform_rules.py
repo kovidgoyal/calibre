@@ -357,7 +357,7 @@ class RulesDialog(RulesDialogBase):  # {{{
 # }}}
 
 
-class RulesWidget(RulesWidgetBase):  # {{{
+class HtmlRulesWidget(RulesWidgetBase):  # {{{
     PREFS_NAME = 'html-transform-rules'
     INITIAL_FILE_NAME = 'html-rules.txt'
     DIR_SAVE_NAME = 'export-html-transform-rules'

@@ -70,7 +70,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             val = str(g.text()).strip()
             val = [x.strip() for x in val.split(',' if ',' in val else ' ') if x.strip()]
             return ', '.join(val) or None
-        if g is self.opt_transform_css_rules:
+        if g is self.opt_transform_css_rules or g is self.opt_transform_html_rules:
             return json.dumps(g.rules)
         return Widget.get_value_handler(self, g)
 
@@ -95,7 +95,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     w.setChecked(False)
             self.filter_css_others.setText(', '.join(items))
             return True
-        if g is self.opt_transform_css_rules:
+        if g is self.opt_transform_css_rules or g is self.opt_transform_html_rules:
             g.rules = json.loads(val) if val else []
             return True
 
@@ -106,7 +106,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 w.stateChanged.connect(slot)
             self.filter_css_others.textChanged.connect(slot)
             return
-        if gui_obj is self.opt_transform_css_rules:
+        if gui_obj is self.opt_transform_css_rules or gui_obj is self.opt_transform_html_rules:
             gui_obj.changed.connect(slot)
             return
         raise NotImplementedError()

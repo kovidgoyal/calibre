@@ -369,6 +369,12 @@ OptionRecommendation(name='transform_css_rules',
                    ' rules are applied after all other CSS processing is done.')
         ),
 
+OptionRecommendation(name='transform_html_rules',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Rules for transforming the HTML in this book. These'
+                   ' rules are applied after the HTML is parsed, but before any other transformations.')
+        ),
+
 OptionRecommendation(name='filter_css',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('A comma separated list of CSS properties that '
@@ -881,7 +887,7 @@ OptionRecommendation(name='search_replace',
             if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css', 'comments'}:
                 if not a and not b:
                     return True
-            if name in {'transform_css_rules', 'search_replace'}:
+            if name in {'transform_css_rules', 'transform_html_rules', 'search_replace'}:
                 if b == '[]':
                     b = None
             return a == b
@@ -1132,6 +1138,13 @@ OptionRecommendation(name='search_replace',
         pr(0., _('Running transforms on e-book...'))
 
         self.oeb.plumber_output_format = self.output_fmt or ''
+
+        if self.opts.transform_html_rules:
+            transform_html_rules = self.opts.transform_html_rules
+            if isinstance(transform_html_rules, string_or_bytes):
+                transform_html_rules = json.loads(transform_html_rules)
+            from calibre.ebooks.html_transform_rules import transform_conversion_book
+            transform_conversion_book(self.oeb, self.opts, transform_html_rules)
 
         from calibre.ebooks.oeb.transforms.data_url import DataURL
         DataURL()(self.oeb, self.opts)

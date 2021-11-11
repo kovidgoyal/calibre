@@ -246,7 +246,7 @@ OPTIONS = {
             'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size',
             'insert_blank_line_size', 'input_encoding', 'filter_css',
             'expand_css', 'asciiize', 'keep_ligatures', 'linearize_tables',
-            'transform_css_rules'),
+            'transform_css_rules', 'transform_html_rules'),
 
         'metadata': ('prefer_metadata_cover',),
 

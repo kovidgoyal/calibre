@@ -101,12 +101,21 @@ def option_recommendation_to_cli_option(add_option, rec):
         attrs.pop('type', '')
     if opt.name == 'read_metadata_from_opf':
         switches.append('--from-opf')
-    if opt.name == 'transform_css_rules':
+    elif opt.name == 'transform_css_rules':
         attrs['help'] = _(
             'Path to a file containing rules to transform the CSS styles'
             ' in this book. The easiest way to create such a file is to'
             ' use the wizard for creating rules in the calibre GUI. Access'
             ' it in the "Look & feel->Transform styles" section of the conversion'
+            ' dialog. Once you create the rules, you can use the "Export" button'
+            ' to save them to a file.'
+        )
+    elif opt.name == 'transform_html_rules':
+        attrs['help'] = _(
+            'Path to a file containing rules to transform the HTML'
+            ' in this book. The easiest way to create such a file is to'
+            ' use the wizard for creating rules in the calibre GUI. Access'
+            ' it in the "Look & feel->Transform HTML" section of the conversion'
             ' dialog. Once you create the rules, you can use the "Export" button'
             ' to save them to a file.'
         )
@@ -192,7 +201,7 @@ def add_pipeline_options(parser, plumber):
                       'font_size_mapping', 'embed_font_family',
                       'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
-                      'linearize_tables',
+                      'linearize_tables', 'transform_html_rules',
                       'extra_css', 'filter_css', 'transform_css_rules', 'expand_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
@@ -385,6 +394,17 @@ def main(args=sys.argv):
                 title, msg = validate_rule(rule)
                 if title and msg:
                     log.error('Failed to parse CSS transform rules')
+                    log.error(title)
+                    log.error(msg)
+                    return 1
+    if opts.transform_html_rules:
+        from calibre.ebooks.html_transform_rules import import_rules, validate_rule
+        with open(opts.transform_html_rules, 'rb') as tcr:
+            opts.transform_html_rules = rules = list(import_rules(tcr.read()))
+            for rule in rules:
+                title, msg = validate_rule(rule)
+                if title and msg:
+                    log.error('Failed to parse HTML transform rules')
                     log.error(title)
                     log.error(msg)
                     return 1

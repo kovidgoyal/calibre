@@ -438,6 +438,15 @@ def transform_container(container, serialized_rules, names=()):
     return doc_changed
 
 
+def transform_conversion_book(oeb, opts, serialized_rules):
+    rules = tuple(Rule(r) for r in serialized_rules)
+    for item in oeb.spine:
+        root = item.data
+        if not hasattr(root, 'xpath'):
+            continue
+        transform_doc(root, rules)
+
+
 def rule_to_text(rule):
     text = _('If the tag {match_type} {query}').format(
         match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=rule.get('query') or '')
