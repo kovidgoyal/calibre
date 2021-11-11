@@ -74,6 +74,7 @@ from polyglot.urllib import urlparse
 
 _diff_dialogs = []
 last_used_transform_rules = []
+last_used_html_transform_rules = []
 
 
 def get_container(*args, **kwargs):
@@ -625,6 +626,51 @@ class Boss(QObject):
         if not changed:
             self.rewind_savepoint()
         show_report(changed, self.current_metadata.title, report, parent or self.gui, self.show_current_diff)
+
+    def transform_html(self):
+        global last_used_html_transform_rules
+        if not self.ensure_book(_('You must first open a book in order to transform styles.')):
+            return
+        from calibre.gui2.html_transform_rules import RulesDialog
+        from calibre.ebooks.html_transform_rules import transform_container
+        d = RulesDialog(self.gui)
+        d.rules = last_used_html_transform_rules
+        d.transform_scope = scope = tprefs['html_transform_scope']
+        ret = d.exec_()
+        last_used_html_transform_rules = d.rules
+        tprefs.set('html_transform_scope', d.transform_scope)
+        if ret != QDialog.DialogCode.Accepted:
+            return
+
+        cc = current_container()
+        names = ()
+        if scope == 'current':
+            if not self.currently_editing or cc.mime_map.get(self.currently_editing) not in OEB_DOCS:
+                return error_dialog(self.gui, _('No HTML file'), _('Not currently editing an HTML file'), show=True)
+            names = (self.currently_editing,)
+        elif scope == 'open':
+            names = tuple(name for name in editors if cc.mime_map.get(name) in OEB_DOCS)
+            if not names:
+                return error_dialog(self.gui, _('No HTML files'), _('Not currently editing any HTML files'), show=True)
+        elif scope == 'selected':
+            names = tuple(name for name in self.gui.file_list.file_list.selected_names if cc.mime_map.get(name) in OEB_DOCS)
+            if not names:
+                return error_dialog(self.gui, _('No HTML files'), _('No HTML files are currently selected in the File browser'), show=True)
+        with BusyCursor():
+            self.add_savepoint(_('Before HTML transformation'))
+            try:
+                changed = transform_container(cc, last_used_html_transform_rules, names)
+            except:
+                self.rewind_savepoint()
+                raise
+            if changed:
+                self.apply_container_update_to_gui()
+        if not changed:
+            self.rewind_savepoint()
+            info_dialog(self.gui, _('No changes'), _(
+                'No HTML was changed.'), show=True)
+            return
+        self.show_current_diff()
 
     def transform_styles(self):
         global last_used_transform_rules

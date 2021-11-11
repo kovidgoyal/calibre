@@ -293,7 +293,7 @@ class RuleItem(RuleItemBase):  # {{{
                 text += '<br>' + ACTION_MAP[action['type']].short_text
                 if action.get('data'):
                     ad = elided_text(action['data'], font=parent.font(), width=200, pos='right')
-                    text += f'<code>{prepare_string_for_xml(ad)}</code>'
+                    text += f' <code>{prepare_string_for_xml(ad)}</code>'
         except Exception:
             import traceback
             traceback.print_exc()
@@ -336,6 +336,24 @@ class RulesDialog(RulesDialogBase):  # {{{
     PREFS_OBJECT_NAME = 'html-transform-rules'
     RulesClass = Rules
     TesterClass = Tester
+
+    def extra_bottom_widget(self):
+        self.scope_cb = cb = QComboBox()
+        cb.addItem(_('Current HTML file'), 'current')
+        cb.addItem(_('All HTML files'), 'all')
+        cb.addItem(_('Open HTML files'), 'open')
+        cb.addItem(_('Selected HTML files'), 'selected')
+        return cb
+
+    @property
+    def transform_scope(self):
+        return self.scope_cb.currentData()
+
+    @transform_scope.setter
+    def transform_scope(self, val):
+        idx = self.scope_cb.findData(val)
+        self.scope_cb.setCurrentIndex(max(0, idx))
+
 # }}}
 
 

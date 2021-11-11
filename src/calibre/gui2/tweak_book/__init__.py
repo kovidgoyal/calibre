@@ -85,6 +85,7 @@ d['file_list_shows_full_pathname'] = False
 d['auto_link_stylesheets'] = True
 d['check_external_link_anchors'] = True
 d['remove_ncx'] = True
+d['html_transform_scope'] = 'current'
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
