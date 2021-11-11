@@ -253,13 +253,14 @@ class RulesDialog(RulesDialogBase):  # {{{
 
     DIALOG_TITLE = _('Edit style transform rules')
     PREFS_NAME = 'edit-style-transform-rules'
+    PREFS_OBJECT_NAME = 'style-transform-rules'
     RulesClass = Rules
     TesterClass = Tester
 
     def __init__(self, *args, **kw):
         # This has to be loaded on instantiation as it can be shared by
         # multiple processes
-        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        self.PREFS_OBJECT = JSONConfig(self.PREFS_OBJECT_NAME)
         RulesDialogBase.__init__(self, *args, **kw)
 # }}}
 

@@ -22,7 +22,6 @@ from calibre.gui2.tag_mapper import (
     RuleEditDialog as RuleEditDialogBase, RuleItem as RuleItemBase,
     Rules as RulesBase, RulesDialog as RulesDialogBase
 )
-from calibre.utils.config import JSONConfig
 
 # Classes for rule edit widget {{{
 
@@ -334,14 +333,9 @@ class RulesDialog(RulesDialogBase):  # {{{
 
     DIALOG_TITLE = _('Edit HTML transform rules')
     PREFS_NAME = 'edit-html-transform-rules'
+    PREFS_OBJECT_NAME = 'html-transform-rules'
     RulesClass = Rules
     TesterClass = Tester
-
-    def __init__(self, *args, **kw):
-        # This has to be loaded on instantiation as it can be shared by
-        # multiple processes
-        self.PREFS_OBJECT = JSONConfig('html-transform-rules')
-        RulesDialogBase.__init__(self, *args, **kw)
 # }}}
 
 
