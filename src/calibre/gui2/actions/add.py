@@ -301,7 +301,7 @@ class AddAction(InterfaceAction):
 
     def add_recursive_question(self):
         single =  question_dialog(self.gui, _('Multi-file books?'), _(
-            'Assume all e-book files in a single folder are the same book in different formats?'))
+            'Assume all e-book files in a single folder are multiple formats of the same book?'))
         self.add_recursive(single)
 
     def add_empty(self, *args):
