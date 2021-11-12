@@ -1176,24 +1176,28 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         # First the cover & buttons
         cover_group_box = QGroupBox(_('Cover'), tab0)
         cover_layout = QVBoxLayout()
+        cover_layout.setContentsMargins(0, 0, 0, 0)
         cover_group_box.setLayout(cover_layout)
         cover_layout.addWidget(self.cover)
         sto(self.manage_authors_button, self.cover.buttons[0])
         # First row of cover buttons
         hl = QHBoxLayout()
+        hl.setContentsMargins(0, 0, 0, 0)
         for i, b in enumerate(self.cover.buttons[:3]):
             hl.addWidget(b)
             sto(b, self.cover.buttons[i+1])
         cover_layout.addLayout(hl)
         # Second row of cover buttons
         hl = QHBoxLayout()
+        hl.setContentsMargins(0, 0, 0, 0)
         for b in self.cover.buttons[3:]:
             hl.addWidget(b)
         cover_layout.addLayout(hl)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
         # Layout for both cover & formats boxes
         cover_and_formats = QVBoxLayout()
-        cover_and_formats.addWidget(cover_group_box, stretch = 10)
+        cover_and_formats.setContentsMargins(0, 0, 0, 0)
+        cover_and_formats.addWidget(cover_group_box, stretch=100)
         cover_and_formats.addWidget(self.formats_manager)
         l.addLayout(cover_and_formats, 0, 2, 2, 1)
         sto(self.cover.buttons[-1], self.formats_manager)

@@ -811,6 +811,10 @@ class FormatList(_FormatList):
         _FormatList.__init__(self, parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
 
+    def sizeHint(self):
+        sz = self.iconSize()
+        return QSize(sz.width() * 7, sz.height() * 3)
+
     def contextMenuEvent(self, event):
         item = self.itemFromIndex(self.currentIndex())
         originals = [self.item(x).ext.upper() for x in range(self.count())]
@@ -850,6 +854,7 @@ class FormatList(_FormatList):
 class FormatsManager(QWidget):
 
     data_changed = pyqtSignal()
+    ICON_SIZE = 32
 
     @property
     def changed(self):
@@ -868,29 +873,30 @@ class FormatsManager(QWidget):
         self._changed = False
 
         self.l = l = QGridLayout()
+        l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         self.cover_from_format_button = QToolButton(self)
         self.cover_from_format_button.setToolTip(
                 _('Set the cover for the book from the selected format'))
         self.cover_from_format_button.setIcon(QIcon(I('default_cover.png')))
-        self.cover_from_format_button.setIconSize(QSize(32, 32))
+        self.cover_from_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
 
         self.metadata_from_format_button = QToolButton(self)
         self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
-        self.metadata_from_format_button.setIconSize(QSize(32, 32))
+        self.metadata_from_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.metadata_from_format_button.setToolTip(
                 _('Set metadata for the book from the selected format'))
 
         self.add_format_button = QToolButton(self)
         self.add_format_button.setIcon(QIcon(I('add_book.png')))
-        self.add_format_button.setIconSize(QSize(32, 32))
+        self.add_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.add_format_button.clicked.connect(self.add_format)
         self.add_format_button.setToolTip(
                 _('Add a format to this book'))
 
         self.remove_format_button = QToolButton(self)
         self.remove_format_button.setIcon(QIcon(I('trash.png')))
-        self.remove_format_button.setIconSize(QSize(32, 32))
+        self.remove_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.remove_format_button.clicked.connect(self.remove_format)
         self.remove_format_button.setToolTip(
                 _('Remove the selected format from this book'))
@@ -904,8 +910,7 @@ class FormatsManager(QWidget):
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
         self.formats.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
-        self.formats.setIconSize(QSize(32, 32))
-        self.formats.setMaximumWidth(200)
+        self.formats.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
 
         l.addWidget(self.cover_from_format_button, 0, 0, 1, 1)
         l.addWidget(self.metadata_from_format_button, 2, 0, 1, 1)
