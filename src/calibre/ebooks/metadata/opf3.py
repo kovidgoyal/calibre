@@ -425,7 +425,7 @@ def set_languages(root, prefixes, refines, languages):
 # Creator/Contributor {{{
 
 
-Author = namedtuple('Author', 'name sort seq')
+Author = namedtuple('Author', 'name sort seq', defaults=(0,))
 
 
 def is_relators_role(props, q):
