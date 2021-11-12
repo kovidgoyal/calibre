@@ -6,9 +6,9 @@
 import json
 import re
 from collections import defaultdict, namedtuple
+from contextlib import suppress
+from operator import attrgetter
 from functools import wraps
-from polyglot.builtins import iteritems
-
 from lxml import etree
 
 from calibre import prints
@@ -29,6 +29,7 @@ from calibre.utils.date import (
 )
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import iteritems
 
 # Utils {{{
 _xpath_cache = {}
@@ -424,7 +425,7 @@ def set_languages(root, prefixes, refines, languages):
 # Creator/Contributor {{{
 
 
-Author = namedtuple('Author', 'name sort')
+Author = namedtuple('Author', 'name sort seq')
 
 
 def is_relators_role(props, q):
@@ -438,6 +439,7 @@ def is_relators_role(props, q):
 
 def read_authors(root, prefixes, refines):
     roled_authors, unroled_authors = [], []
+    editors_map = {}
 
     def author(item, props, val):
         aus = None
@@ -446,7 +448,11 @@ def read_authors(root, prefixes, refines):
             aus = file_as[0][-1]
         else:
             aus = item.get(OPF('file-as')) or None
-        return Author(normalize_whitespace(val), normalize_whitespace(aus))
+        seq = 0
+        ds = props.get('display-seq')
+        with suppress(Exception):
+            seq = int(ds[0][-1])
+        return Author(normalize_whitespace(val), normalize_whitespace(aus), seq)
 
     for item in XPath('./opf:metadata/dc:creator')(root):
         val = (item.text or '').strip()
@@ -457,13 +463,22 @@ def read_authors(root, prefixes, refines):
             if role:
                 if is_relators_role(props, 'aut'):
                     roled_authors.append(author(item, props, val))
+                if is_relators_role(props, 'edt'):
+                    # See https://bugs.launchpad.net/calibre/+bug/1950579
+                    a = author(item, props, val)
+                    editors_map[a.name] = a
             elif opf_role:
                 if opf_role.lower() == 'aut':
                     roled_authors.append(author(item, props, val))
             else:
                 unroled_authors.append(author(item, props, val))
 
-    return uniq(roled_authors or unroled_authors)
+    if roled_authors or unroled_authors:
+        ans = uniq(roled_authors or unroled_authors)
+    else:
+        ans = uniq(editors_map.values())
+    ans.sort(key=attrgetter('seq'))
+    return ans
 
 
 def set_authors(root, prefixes, refines, authors):
