@@ -28,9 +28,10 @@
 :: new features
 
 - [major] Edit book: Add a tool to transform HTML tags based on rules (Tools->Transform HTML)
-Allows for making transformations such as changing one html tag to another, deleting tags, wrapping
-them in another tag, etc. Also available during conversions via the Look & feel->Transform HTML
-section of the conversion dialog.
+
+  Allows for making transformations such as changing one html tag to another, deleting tags, wrapping
+  them in another tag, etc. Also available during conversions via the Look & feel->Transform HTML
+  section of the conversion dialog.
 
 - [1949908] Driver for the new Tolino Vision 6
 
