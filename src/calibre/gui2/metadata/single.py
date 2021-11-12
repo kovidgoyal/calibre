@@ -1173,21 +1173,29 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         l.addWidget(w, 1, 0, 1, 2)
 
         # Cover & formats in col 3
-        gb = QGroupBox(_('Cover'), tab0)
-        lb = QGridLayout()
-        gb.setLayout(lb)
-        lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignmentFlag.AlignCenter)
+        # First the cover & buttons
+        cover_group_box = QGroupBox(_('Cover'), tab0)
+        cover_layout = QVBoxLayout()
+        cover_group_box.setLayout(cover_layout)
+        cover_layout.addWidget(self.cover)
         sto(self.manage_authors_button, self.cover.buttons[0])
+        # First row of cover buttons
+        hl = QHBoxLayout()
         for i, b in enumerate(self.cover.buttons[:3]):
-            lb.addWidget(b, 1, i, 1, 1)
+            hl.addWidget(b)
             sto(b, self.cover.buttons[i+1])
+        cover_layout.addLayout(hl)
+        # Second row of cover buttons
         hl = QHBoxLayout()
         for b in self.cover.buttons[3:]:
             hl.addWidget(b)
+        cover_layout.addLayout(hl)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
-        lb.addLayout(hl, 2, 0, 1, 3)
-        l.addWidget(gb, 0, 2, 1, 1)
-        l.addWidget(self.formats_manager, 1, 2, 1, 1)
+        # Layout for both cover & formats boxes
+        cover_and_formats = QVBoxLayout()
+        cover_and_formats.addWidget(cover_group_box, stretch = 10)
+        cover_and_formats.addWidget(self.formats_manager)
+        l.addLayout(cover_and_formats, 0, 2, 2, 1)
         sto(self.cover.buttons[-1], self.formats_manager)
 
         self.formats_manager.formats.setMaximumWidth(10000)
