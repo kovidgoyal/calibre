@@ -192,7 +192,7 @@ epub_uid         = u'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
 epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')
-suppress_wrnings = ['epub.duplicated_toc_entry']
+suppress_warnings = ['epub.duplicated_toc_entry']
 
 # Custom sidebar templates, maps document names to template names.
 # html_sidebars = {}
