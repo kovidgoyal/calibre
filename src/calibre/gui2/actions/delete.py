@@ -316,6 +316,13 @@ class DeleteAction(InterfaceAction):
         ids = self._get_selected_ids()
         if not ids:
             return
+        if not confirm('<p>'+ngettext(
+                'The cover from the selected book will be <b>permanently deleted</b>. Are you sure?',
+                'The covers from the {} selected books will be <b>permanently deleted</b>. '
+                'Are you sure?', len(ids)).format(len(ids)),
+                'library_delete_covers', self.gui):
+            return
+
         for id in ids:
             self.gui.library_view.model().db.remove_cover(id)
         self.gui.library_view.model().refresh_ids(ids)
