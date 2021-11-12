@@ -17,7 +17,7 @@ calibre has a highly modular design. Various parts of it can be customized.  Her
     Note that although icon themes and plugins are indexed and downloadable
     via calibre's builtin updater, they are not part of calibre, and their
     canonical locations for support and source code are on the `Mobileread forums
-    <https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ in their support
+    <https://www.mobileread.com/forums/forumdisplay.php?f=166>`__ in their support
     threads.
 
 .. contents::
@@ -117,7 +117,7 @@ where you have put your icons (usually the :file:`resources/images` folder in
 the calibre config folder, as described above). Then fill up the theme
 metadata and click OK.  This will result in a ZIP file containing the theme
 icons. You can upload that to the calibre forum at `Mobileread
-<https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ and then I will
+<https://www.mobileread.com/forums/forumdisplay.php?f=166>`__ and then I will
 make your theme available via calibre's builtin icon theme system.
 
 
@@ -137,5 +137,5 @@ The plugin architecture in calibre is very simple, see the tutorial
 
 Once you have written a plugin, you can upload that to the calibre plugins
 forum at `Mobileread
-<https://www.mobileread.com/forums/forumdisplay.php?f=237>`_ and it will be
+<https://www.mobileread.com/forums/forumdisplay.php?f=237>`__ and it will be
 made available via calibre's builtin plugin updater.
