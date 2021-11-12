@@ -16,7 +16,7 @@ from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.date import is_date_undefined
+from calibre.utils.date import is_date_undefined, format_date
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.serialize import json_dumps
 from polyglot.binary import as_hex_unicode
@@ -281,9 +281,15 @@ def mi_to_html(
                 aval = getattr(mi, field)
                 if is_date_undefined(aval):
                     continue
-                val = '<a href="%s" title="%s">%s</a>' % (
-                    search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
-                        _('Click to see books with {0}: {1} (derived from {2})').format(
+                aval = format_date(aval, 'yyyy-MM-dd')
+                if val == aval:
+                    val = '<a href="%s" title="%s">%s</a>' % (
+                        search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                            _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+                else:
+                    val = '<a href="%s" title="%s">%s</a>' % (
+                        search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                            _('Click to see books with {0}: {1} (derived from {2})').format(
                                 metadata['name'] or field, aval, val)), val)
             elif metadata['datatype'] == 'text' and metadata['is_multiple']:
                 try:
