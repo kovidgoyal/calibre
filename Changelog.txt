@@ -23,6 +23,55 @@
 # - title by author
 # }}}
 
+{{{ 5.32.0 2021-11-12
+
+:: new features
+
+- [major] Edit book: Add a tool to transform HTML tags based on rules (Tools->Transform HTML)
+Allows for making transformations such as changing one html tag to another, deleting tags, wrapping
+them in another tag, etc. Also available during conversions via the Look & feel->Transform HTML
+section of the conversion dialog.
+
+- [1949908] Driver for the new Tolino Vision 6
+
+- Kobo driver: Add support for the latest firmware released last week
+
+- [1948889] When picking a random book ensure recently chosen books are not re-selected
+
+- Icon theme chooser dialog: Allow right clicking on a theme to visit its homepage
+
+:: bug fixes
+
+- Amazon metadata download: Add support for more markup variations in amazon's sites that could prevent the fetching of
+  ratings, comments and series metadata for some books
+
+- Google search: Add support for new beta search results page markup that was preventing using cached Google pages
+  to search for Amazon metadata
+
+- PDF Output: Fix the option to preserve cover aspect ratio being ignored when converting comics
+
+- [1950412] DOCX Input: Sanitize image filenames more strictly to workaround broken EPUB software
+
+- [1950206] Linux binary: Fix file dialogs not working on Fedora 35 under KDE
+
+- [1949604] When sending email to the Kindle and PocketBook sync services use ASCII filenames as there have been some
+  reports of issues with non-ASCII filenames with these services.
+
+- [1950033] Book Details: Fix missing copy options on composite columns
+
+- Ask for confirmation when deleting covers from books
+
+:: improved recipes
+- New York Post
+- Liberation
+- Boston Globe
+- The Globe and Mail
+- LeMonde
+
+:: new recipes
+- India speaks reddit feed by Vishwas Vasuki
+}}}
+
 {{{ 5.31.1 2021-10-29
 
 :: new features
