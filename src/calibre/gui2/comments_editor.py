@@ -1112,6 +1112,7 @@ class Editor(QWidget):  # {{{
 
         self.toolbar.add_separator()
         self.toolbar.add_action(self.editor.action_background)
+        self.toolbar.add_action(self.editor.action_color)
         self.toolbar.add_separator()
 
         for x in ('', 'un'):
@@ -1138,7 +1139,6 @@ class Editor(QWidget):  # {{{
             ac = getattr(self.editor, 'action_align_'+x)
             self.toolbar.add_action(ac)
         self.toolbar.add_separator()
-        self.toolbar.add_action(self.editor.action_color)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.data_changed.connect(self.wyswyg_dirtied)
