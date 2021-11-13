@@ -55,6 +55,9 @@ class Button(QToolButton):
         if self.isVisible() != old:
             self.layout_needed.emit()
 
+    def __repr__(self):
+        return f'Button({self.toolTip()})'
+
 
 class SingleLineToolBar(QToolBar):
 
@@ -137,26 +140,25 @@ class FlowToolBar(QWidget):
 
         lines, current_line = [], []
         gmap = {}
-        for i, wid in enumerate(self.items):
-            prev_wid = self.items[i - 1] if i else None
-            if isinstance(wid, Button) and not wid.isVisible():
+        if apply_geometry:
+            for item in self.items:
+                if isinstance(item, Separator):
+                    item.setGeometry(0, 0, 0, 0)
+        for wid in self.items:
+            if not wid.isVisible() or (not current_line and isinstance(wid, Separator)):
                 continue
             isz = wid.sizeHint()
             hs, vs = layout_spacing(wid), layout_spacing(wid, False)
 
             next_x = x + isz.width() + hs
-            wid.setVisible(True)
-            if isinstance(wid, Separator) and isinstance(prev_wid, Separator):
-                wid.setVisible(False)
             if next_x - hs > rect.right() and line_height > 0:
-                if isinstance(prev_wid, Separator):
-                    prev_wid.setVisible(False)
                 if isinstance(wid, Separator):
-                    wid.setVisible(False)
                     continue
                 x = rect.x()
                 y = y + line_height + vs
                 next_x = x + isz.width() + hs
+                while current_line and isinstance(current_line[-1], Separator):
+                    current_line.pop()
                 lines.append((line_height, current_line))
                 current_line = []
                 line_height = 0
@@ -164,18 +166,19 @@ class FlowToolBar(QWidget):
                 gmap[wid] = x, y, isz
             x = next_x
             line_height = max(line_height, isz.height())
-            current_line.append((wid, isz.height()))
+            current_line.append(wid)
 
         lines.append((line_height, current_line))
 
         if apply_geometry:
             self.applied_geometry = rect
             for line_height, items in lines:
-                for wid, item_height in items:
+                for wid in items:
                     x, wy, isz = gmap[wid]
-                    if item_height < line_height:
-                        wy += (line_height - item_height) // 2
-                    wid.setGeometry(QRect(QPoint(x, wy), isz))
+                    if isz.height() < line_height:
+                        wy += (line_height - isz.height()) // 2
+                    if wid.isVisible():
+                        wid.setGeometry(QRect(QPoint(x, wy), isz))
 
         return y + line_height - rect.y()
 
