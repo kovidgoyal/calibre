@@ -12,12 +12,11 @@ from html5_parser import parse
 from lxml import html
 from qt.core import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
-    QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,
-    QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget,
-    QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextFormat,
-    QTextListFormat, QToolBar, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal,
-    pyqtSlot
+    QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QIcon,
+    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
+    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
+    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QToolButton, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 
 from calibre import xml_replace_entities
@@ -26,8 +25,9 @@ from calibre.gui2 import (
     NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme
 )
 from calibre.gui2.book_details import css
+from calibre.gui2.flow_toolbar import create_flow_toolbar
 from calibre.gui2.widgets import LineEditECM
-from calibre.gui2.widgets2 import to_plain_text, FlowLayout
+from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -1069,12 +1069,7 @@ class Editor(QWidget):  # {{{
     def __init__(self, parent=None, one_line_toolbar=False, toolbar_prefs_name=None):
         QWidget.__init__(self, parent)
         self.toolbar_prefs_name = toolbar_prefs_name or self.toolbar_prefs_name
-        self.toolbar1 = QToolBar(self)
-        self.toolbar2 = QToolBar(self)
-        self.toolbar3 = QToolBar(self)
-        for i in range(1, 4):
-            t = getattr(self, 'toolbar%d'%i)
-            t.setIconSize(QSize(18, 18))
+        self.toolbar = create_flow_toolbar(self, restrict_to_single_line=one_line_toolbar, icon_size=18)
         self.editor = EditorWidget(self)
         self.editor.data_changed.connect(self.data_changed)
         self.set_base_url = self.editor.set_base_url
@@ -1090,15 +1085,8 @@ class Editor(QWidget):  # {{{
         self.wyswyg.layout = l = QVBoxLayout(self.wyswyg)
         self.setLayout(self._layout)
         l.setContentsMargins(0, 0, 0, 0)
-        if one_line_toolbar:
-            tb = QHBoxLayout()
-        else:
-            tb = FlowLayout()
-        tb.setContentsMargins(0, 0, 0, 0)
-        l.addLayout(tb)
-        tb.addWidget(self.toolbar1)
-        tb.addWidget(self.toolbar2)
-        tb.addWidget(self.toolbar3)
+
+        l.addWidget(self.toolbar)
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('&Normal view'))
@@ -1111,53 +1099,46 @@ class Editor(QWidget):  # {{{
             if hidden:
                 self.hide_toolbars()
 
-        # toolbar1 {{{
-        self.toolbar1.addAction(self.editor.action_undo)
-        self.toolbar1.addAction(self.editor.action_redo)
-        self.toolbar1.addAction(self.editor.action_select_all)
-        self.toolbar1.addAction(self.editor.action_remove_format)
-        self.toolbar1.addAction(self.editor.action_clear)
-        self.toolbar1.addSeparator()
+        self.toolbar.add_action(self.editor.action_undo)
+        self.toolbar.add_action(self.editor.action_redo)
+        self.toolbar.add_action(self.editor.action_select_all)
+        self.toolbar.add_action(self.editor.action_remove_format)
+        self.toolbar.add_action(self.editor.action_clear)
+        self.toolbar.add_separator()
 
         for x in ('copy', 'cut', 'paste'):
             ac = getattr(self.editor, 'action_'+x)
-            self.toolbar1.addAction(ac)
+            self.toolbar.add_action(ac)
 
-        self.toolbar1.addSeparator()
-        self.toolbar1.addAction(self.editor.action_background)
-        # }}}
+        self.toolbar.add_separator()
+        self.toolbar.add_action(self.editor.action_background)
+        self.toolbar.add_separator()
 
-        # toolbar2 {{{
         for x in ('', 'un'):
             ac = getattr(self.editor, 'action_%sordered_list'%x)
-            self.toolbar2.addAction(ac)
-        self.toolbar2.addSeparator()
+            self.toolbar.add_action(ac)
+        self.toolbar.add_separator()
         for x in ('superscript', 'subscript', 'indent', 'outdent'):
-            self.toolbar2.addAction(getattr(self.editor, 'action_' + x))
+            self.toolbar.add_action(getattr(self.editor, 'action_' + x))
             if x in ('subscript', 'outdent'):
-                self.toolbar2.addSeparator()
+                self.toolbar.add_separator()
 
-        self.toolbar2.addAction(self.editor.action_block_style)
-        w = self.toolbar2.widgetForAction(self.editor.action_block_style)
-        if hasattr(w, 'setPopupMode'):
-            w.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        self.toolbar2.addAction(self.editor.action_insert_link)
-        self.toolbar2.addAction(self.editor.action_insert_hr)
-        # }}}
+        self.toolbar.add_action(self.editor.action_block_style, popup_mode=QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.toolbar.add_action(self.editor.action_insert_link)
+        self.toolbar.add_action(self.editor.action_insert_hr)
+        self.toolbar.add_separator()
 
-        # toolbar3 {{{
         for x in ('bold', 'italic', 'underline', 'strikethrough'):
             ac = getattr(self.editor, 'action_'+x)
-            self.toolbar3.addAction(ac)
+            self.toolbar.add_action(ac)
             self.addAction(ac)
-        self.toolbar3.addSeparator()
+        self.toolbar.add_separator()
 
         for x in ('left', 'center', 'right', 'justified'):
             ac = getattr(self.editor, 'action_align_'+x)
-            self.toolbar3.addAction(ac)
-        self.toolbar3.addSeparator()
-        self.toolbar3.addAction(self.editor.action_color)
-        # }}}
+            self.toolbar.add_action(ac)
+        self.toolbar.add_separator()
+        self.toolbar.add_action(self.editor.action_color)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.data_changed.connect(self.wyswyg_dirtied)
@@ -1201,14 +1182,10 @@ class Editor(QWidget):  # {{{
         self.source_dirty = True
 
     def hide_toolbars(self):
-        self.toolbar1.setVisible(False)
-        self.toolbar2.setVisible(False)
-        self.toolbar3.setVisible(False)
+        self.toolbar.setVisible(False)
 
     def show_toolbars(self):
-        self.toolbar1.setVisible(True)
-        self.toolbar2.setVisible(True)
-        self.toolbar3.setVisible(True)
+        self.toolbar.setVisible(True)
 
     def toggle_toolbars(self):
         visible = self.toolbars_visible
@@ -1218,7 +1195,7 @@ class Editor(QWidget):  # {{{
 
     @property
     def toolbars_visible(self):
-        return self.toolbar1.isVisible() or self.toolbar2.isVisible() or self.toolbar3.isVisible()
+        return self.toolbar.isVisible()
 
     @toolbars_visible.setter
     def toolbars_visible(self, val):
@@ -1243,8 +1220,9 @@ class Editor(QWidget):  # {{{
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    w = Editor()
+    w = Editor(one_line_toolbar=False)
     w.resize(800, 600)
+    w.setWindowFlag(Qt.WindowType.Dialog)
     w.show()
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
