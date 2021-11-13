@@ -27,7 +27,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.book_details import css
 from calibre.gui2.widgets import LineEditECM
-from calibre.gui2.widgets2 import to_plain_text
+from calibre.gui2.widgets2 import to_plain_text, FlowLayout
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -1092,9 +1092,10 @@ class Editor(QWidget):  # {{{
         l.setContentsMargins(0, 0, 0, 0)
         if one_line_toolbar:
             tb = QHBoxLayout()
-            l.addLayout(tb)
         else:
-            tb = l
+            tb = FlowLayout()
+        tb.setContentsMargins(0, 0, 0, 0)
+        l.addLayout(tb)
         tb.addWidget(self.toolbar1)
         tb.addWidget(self.toolbar2)
         tb.addWidget(self.toolbar3)
