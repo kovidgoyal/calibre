@@ -144,6 +144,13 @@ class FlowToolBar(QWidget):
             for item in self.items:
                 if isinstance(item, Separator):
                     item.setGeometry(0, 0, 0, 0)
+
+        def commit_line():
+            while current_line and isinstance(current_line[-1], Separator):
+                current_line.pop()
+            if current_line:
+                lines.append((line_height, current_line))
+
         for wid in self.items:
             if not wid.isVisible() or (not current_line and isinstance(wid, Separator)):
                 continue
@@ -157,9 +164,7 @@ class FlowToolBar(QWidget):
                 x = rect.x()
                 y = y + line_height + vs
                 next_x = x + isz.width() + hs
-                while current_line and isinstance(current_line[-1], Separator):
-                    current_line.pop()
-                lines.append((line_height, current_line))
+                commit_line()
                 current_line = []
                 line_height = 0
             if apply_geometry:
@@ -168,7 +173,7 @@ class FlowToolBar(QWidget):
             line_height = max(line_height, isz.height())
             current_line.append(wid)
 
-        lines.append((line_height, current_line))
+        commit_line()
 
         if apply_geometry:
             self.applied_geometry = rect
