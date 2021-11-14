@@ -1365,7 +1365,7 @@ class Cache:
 
     @write_api
     def set_cover(self, book_id_data_map):
-        ''' Set the cover for this book.  data can be either a QImage,
+        ''' Set the cover for this book. The data can be either a QImage,
         QPixmap, file object or bytestring. It can also be None, in which
         case any existing cover is removed. '''
 

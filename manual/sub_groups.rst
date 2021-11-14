@@ -21,7 +21,7 @@ The commonly-provided requirements for subgroups such as genres are:
     * A book can be in multiple subgroups (genres). This distinguishes subgroups from physical file folders.
     * Subgroups (genres) must form a hierarchy; subgroups can contain subgroups.
 
-Tags give you the first two. If you tag a book with the genre then you can use the Tag browser (or search) for find the books with that genre, giving you the first. Many books can have the same tag(s), giving you the second. The problem is that tags don't satisfy the third requirement. They don't provide a hierarchy.
+Tags give you the first two. If you tag a book with the genre then you can use the Tag browser (or search) to find the books with that genre, giving you the first. Many books can have the same tag(s), giving you the second. The problem is that tags don't satisfy the third requirement. They don't provide a hierarchy.
 
 |sgtree| The calibre hierarchy feature gives you the third -- the ability to see the genres in a 'tree' and the ability to easily search for books in genre or sub-genre. For example, assume that your genre structure is similar to the following::
 
