@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class EpochTimes(BasicNewsRecipe):
+    title = 'The Epoch Times'
+    __author__ = 'Kovid Goyal'
+    description = 'US general news'
+    lang = 'en_US'
+    encoding = 'utf-8'
+    oldest_article = 2
+    max_articles_per_feed = 15
+
+    keep_only_tags = [
+        classes('post_title featured_image pricat_name author date post_content'),
+    ]
+    remove_tags = [
+        classes('author_wrapper'),
+    ]
+
+    feeds = [
+        ('US', 'https://www.theepochtimes.com/c-us/feed/'),
+        ('World', 'https://www.theepochtimes.com/c-world/feed/'),
+        ('General', 'https://www.theepochtimes.com/feed/'),
+        ('Opinion', 'https://www.theepochtimes.com/c-opinion/feed/'),
+        ('Business and Economy', 'https://www.theepochtimes.com/c-business/feed/'),
+        ('Science', 'https://www.theepochtimes.com/c-science/feed/'),
+        ('Tech', 'https://www.theepochtimes.com/c-tech/feed/'),
+        ('Health', 'https://www.theepochtimes.com/c-wellness/feed/'),
+        ('Entertainment', 'https://www.theepochtimes.com/c-entertainment/feed/'),
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        title = soup.find(attrs={'class': 'post_title'})
+        fi = soup.find(attrs={'class': 'featured_image'})
+        if title is not None and fi is not None:
+            title.extract()
+            fi.insert_before(title)
+        return soup
