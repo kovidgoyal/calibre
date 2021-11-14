@@ -1472,6 +1472,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         if master in editors:
             self.show_editor(master)
+        self.gui.message_popup(_('{} files merged').format(len(names)))
 
     @in_thread_job
     def link_stylesheets_requested(self, names, sheets, remove):
