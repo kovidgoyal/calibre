@@ -8,14 +8,14 @@ import posixpath
 import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
-from gettext import pgettext
 from functools import partial
+from gettext import pgettext
 from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QItemSelectionModel,
-    QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget, QAbstractItemView,
-    QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
-    QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal, sip
+    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont,
+    QFormLayout, QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton,
+    QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeView,
+    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, sip
 )
 
 from calibre import human_readable, sanitize_file_name
@@ -42,7 +42,6 @@ from calibre.utils.icu import numeric_sort_key
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import iteritems
-
 
 FILE_COPY_MIME = 'application/calibre-edit-book-files'
 TOP_ICON_SIZE = 24
@@ -293,6 +292,63 @@ class FileList(QTreeWidget, OpenWithHandler):
         ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join(filter(None, names)).encode('utf-8'))
         return ans
 
+    def dropMimeData(self, parent, index, data, action):
+        if not parent or not data.hasFormat(CONTAINER_DND_MIMETYPE):
+            return False
+        names = bytes(data.data(CONTAINER_DND_MIMETYPE)).decode('utf-8').splitlines()
+        if not names:
+            return False
+        category = parent.data(0, CATEGORY_ROLE)
+        if category is None:
+            self.handle_reorder_drop(parent, index, names)
+        elif category == 'text':
+            self.handle_merge_drop(parent, names)
+        return False  # we have to return false to prevent Qt's internal machinery from re-ordering nodes
+
+    def handle_merge_drop(self, target_node, names):
+        category_node = target_node.parent()
+        current_order = {category_node.child(i).data(0, NAME_ROLE):i for i in range(category_node.childCount())}
+        names = sorted(names, key=lambda x: current_order.get(x, -1))
+        target_name = target_node.data(0, NAME_ROLE)
+        if len(names) == 1:
+            msg = _('Merge the file {0} into the file {1}?').format(elided_text(names[0]), elided_text(target_name))
+        else:
+            msg = _('Merge the {0} selected files into the file {1}?').format(len(names), elided_text(target_name))
+        if question_dialog(self, _('Merge files'), msg, skip_dialog_name='edit-book-merge-on-drop'):
+            names.append(target_name)
+            names = sorted(names, key=lambda x: current_order.get(x, -1))
+            self.merge_requested.emit(target_node.data(0, CATEGORY_ROLE), names, target_name)
+
+    def handle_reorder_drop(self, category_node, idx, names):
+        current_order = tuple(category_node.child(i).data(0, NAME_ROLE) for i in range(category_node.childCount()))
+        linear_map = {category_node.child(i).data(0, NAME_ROLE):category_node.child(i).data(0, LINEAR_ROLE) for i in range(category_node.childCount())}
+        order_map = {name: i for i, name in enumerate(current_order)}
+        try:
+            insert_before = current_order[idx]
+        except IndexError:
+            insert_before = None
+        names = sorted(names, key=lambda x: order_map.get(x, -1))
+        moved_names = frozenset(names)
+        new_names = [n for n in current_order if n not in moved_names]
+        try:
+            insertion_point = len(new_names) if insert_before is None else new_names.index(insert_before)
+        except ValueError:
+            return
+        new_names = new_names[:insertion_point] + names + new_names[insertion_point:]
+        order = [[name, linear_map[name]] for name in new_names]
+        # Ensure that all non-linear items are at the end, by making any non-linear
+        # items not at the end, linear
+        for i, (name, linear) in tuple(enumerate(order)):
+            if not linear and i < len(order) - 1 and order[i+1][1]:
+                order[i][1] = True
+        self.reorder_spine.emit(order)
+
+    def dropEvent(self, event):
+        # the dropEvent() implementation of QTreeWidget handles InternalMoves
+        # internally and is not suitable for us. QTreeView::dropEvent calls
+        # dropMimeData() where we handle the drop
+        QTreeView.dropEvent(self, event)
+
     @property
     def current_name(self):
         ci = self.currentItem()
@@ -470,7 +526,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             item = QTreeWidgetItem(self.categories['text' if linear is not None else category], 1)
             flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
             if category == 'text':
-                flags |= Qt.ItemFlag.ItemIsDragEnabled
+                flags |= Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled
             if name not in cannot_be_renamed:
                 flags |= Qt.ItemFlag.ItemIsEditable
             item.setFlags(flags)
@@ -479,6 +535,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             item.setData(0, CATEGORY_ROLE, category)
             item.setData(0, LINEAR_ROLE, bool(linear))
             item.setData(0, MIME_ROLE, imt)
+
             set_display_name(name, item)
             tooltips = []
             emblems = []
@@ -814,25 +871,6 @@ class FileList(QTreeWidget, OpenWithHandler):
         if self.ordered_selected_indexes:
             ans = list(sorted(ans, key=lambda idx:idx.row()))
         return ans
-
-    def dropEvent(self, event):
-        with self:
-            text = self.categories['text']
-            pre_drop_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
-            super().dropEvent(event)
-            current_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
-            if current_order != pre_drop_order:
-                order = []
-                for child in (text.child(i) for i in range(text.childCount())):
-                    name = str(child.data(0, NAME_ROLE) or '')
-                    linear = bool(child.data(0, LINEAR_ROLE))
-                    order.append([name, linear])
-                # Ensure that all non-linear items are at the end, any non-linear
-                # items not at the end will be made linear
-                for i, (name, linear) in tuple(enumerate(order)):
-                    if not linear and i < len(order) - 1 and order[i+1][1]:
-                        order[i][1] = True
-                self.reorder_spine.emit(order)
 
     def item_double_clicked(self, item, column):
         category = str(item.data(0, CATEGORY_ROLE) or '')
