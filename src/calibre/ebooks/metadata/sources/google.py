@@ -176,11 +176,11 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 2)
+    version = (1, 0, 3)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
-    capabilities = frozenset({'identify', 'cover'})
+    capabilities = frozenset({'identify'})
     touched_fields = frozenset({
         'title', 'authors', 'tags', 'pubdate', 'comments', 'publisher',
         'identifier:isbn', 'identifier:google', 'languages'
@@ -201,7 +201,7 @@ class GoogleBooks(Source):
 
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
+    def create_query(self, title=None, authors=None, identifiers={}, capitalize_isbn=False):  # {{{
         try:
             from urllib.parse import urlencode
         except ImportError:
@@ -210,7 +210,7 @@ class GoogleBooks(Source):
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
         if isbn is not None:
-            q += 'isbn:' + isbn
+            q += ('ISBN:' if capitalize_isbn else 'isbn:') + isbn
         elif title or authors:
 
             def build_term(prefix, parts):
@@ -360,28 +360,39 @@ class GoogleBooks(Source):
         entry = XPath('//atom:entry')
 
         query = self.create_query(
-            log, title=title, authors=authors, identifiers=identifiers
+            title=title, authors=authors, identifiers=identifiers
         )
         if not query:
             log.error('Insufficient metadata to construct query')
             return
+        alternate_query = self.create_query(title=title, authors=authors, identifiers=identifiers, capitalize_isbn=True)
         br = self.browser
-        log('Making query:', query)
-        try:
-            raw = br.open_novisit(query, timeout=timeout).read()
-        except Exception as e:
-            log.exception('Failed to make identify query: %r' % query)
-            return as_unicode(e)
 
-        try:
-            feed = etree.fromstring(
-                xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
-                parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
-            )
-            entries = entry(feed)
-        except Exception as e:
-            log.exception('Failed to parse identify results')
-            return as_unicode(e)
+        def make_query(query):
+            log('Making query:', query)
+            try:
+                raw = br.open_novisit(query, timeout=timeout).read()
+            except Exception as e:
+                log.exception('Failed to make identify query: %r' % query)
+                return False, as_unicode(e)
+
+            try:
+                feed = etree.fromstring(
+                    xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
+                    parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
+                )
+                return True, entry(feed)
+            except Exception as e:
+                log.exception('Failed to parse identify results')
+                return False, as_unicode(e)
+        ok, entries = make_query(query)
+        if not ok:
+            return entries
+        if not entries and alternate_query != query and not abort.is_set():
+            log('No results found, retrying with capitalized ISBN')
+            ok, entries = make_query(alternate_query)
+            if not ok:
+                return entries
 
         if not entries and title and not abort.is_set():
             if identifiers:
@@ -419,7 +430,19 @@ if __name__ == '__main__':  # tests {{{
     from calibre.ebooks.metadata.sources.test import (
         test_identify_plugin, title_test, authors_test
     )
-    tests = [({
+    tests = [
+    ({
+        'identifiers': {
+            'isbn': '978-0-7869-5437-7'  # needs capitalized ISBN to find results
+        },
+        'title': 'Dragons of Autumn Twilight',
+        'authors': ['Margaret Weis', 'Tracy Hickman']
+    }, [
+        title_test('The great gatsby', exact=True),
+        authors_test(['F. Scott Fitzgerald'])
+    ]),
+
+    ({
         'identifiers': {
             'isbn': '0743273567'
         },
@@ -428,14 +451,18 @@ if __name__ == '__main__':  # tests {{{
     }, [
         title_test('The great gatsby', exact=True),
         authors_test(['F. Scott Fitzgerald'])
-    ]), ({
+    ]),
+        ({
         'title': 'Flatland',
         'authors': ['Abbott']
-    }, [title_test('Flatland', exact=False)]), ({
+    }, [title_test('Flatland', exact=False)]),
+    ({
         'title':
         'The Blood Red Indian Summer: A Berger and Mitry Mystery',
         'authors': ['David Handler'],
-    }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')])]
+    }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')
+    ])
+    ]
     test_identify_plugin(GoogleBooks.name, tests[:])
 
 # }}}
