@@ -483,11 +483,17 @@ def read_authors(root, prefixes, refines):
 
 def set_authors(root, prefixes, refines, authors):
     ensure_prefix(root, prefixes, 'marc')
-    for item in XPath('./opf:metadata/dc:creator')(root):
-        props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
-        opf_role = item.get(OPF('role'))
-        if (opf_role and opf_role.lower() != 'aut') or (props.get('role') and not is_relators_role(props, 'aut')):
-            continue
+    removals = []
+    for role in ('aut', 'edt'):
+        for item in XPath('./opf:metadata/dc:creator')(root):
+            props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+            opf_role = item.get(OPF('role'))
+            if (opf_role and opf_role.lower() != role) or (props.get('role') and not is_relators_role(props, role)):
+                continue
+            removals.append(item)
+        if removals:
+            break
+    for item in removals:
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]
     for author in authors:
