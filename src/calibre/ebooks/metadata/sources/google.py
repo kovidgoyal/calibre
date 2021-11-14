@@ -207,10 +207,12 @@ class GoogleBooks(Source):
         except ImportError:
             from urllib import urlencode
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
-        isbn = check_isbn(identifiers.get('isbn', None))
+        # Fallback for API bug where some books needs "ISBN" in uppercase
+        isbn_key = "ISBN" if "ISBN" in identifiers else "isbn"
+        isbn = check_isbn(identifiers.get(isbn_key, None))
         q = ''
         if isbn is not None:
-            q += 'isbn:' + isbn
+            q += isbn_key + ':' + isbn
         elif title or authors:
 
             def build_term(prefix, parts):
@@ -385,6 +387,19 @@ class GoogleBooks(Source):
 
         if not entries and title and not abort.is_set():
             if identifiers:
+                if "isbn" in identifiers:
+                    alternate_identifiers = {"ISBN": identifiers["isbn"]}
+                    # Fallback for API bug where some books needs "ISBN" in uppercase
+                    log('No results found, retrying with alternate identifiers')
+                    return self.identify(
+                        log,
+                        result_queue,
+                        abort,
+                        title=title,
+                        authors=authors,
+                        identifiers=alternate_identifiers,
+                        timeout=timeout
+                    )
                 log('No results found, retrying without identifiers')
                 return self.identify(
                     log,
