@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from calibre.constants import trash_name
 from calibre.db.cli import integers_from_string
 from calibre.db.delete_service import delete_service
 from calibre.srv.changes import books_deleted
@@ -35,7 +36,7 @@ list of id numbers (you can get id numbers by using the search command). For exa
         '--permanent',
         default=False,
         action='store_true',
-        help=_('Do not use the recycle bin')
+        help=_('Do not use the {}').format(trash_name())
     )
     return p
 

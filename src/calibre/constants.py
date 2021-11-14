@@ -442,3 +442,7 @@ def get_windows_number_formats():
         thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
         ans = get_windows_number_formats.ans = thousands_sep, decimal_point
     return ans
+
+
+def trash_name():
+    return _('Trash') if ismacos else _('Recycle Bin')

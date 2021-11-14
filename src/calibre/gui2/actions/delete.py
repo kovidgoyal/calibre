@@ -12,7 +12,7 @@ from collections import Counter
 from functools import partial
 from qt.core import QDialog, QModelIndex, QObject, QTimer
 
-from calibre.constants import ismacos
+from calibre.constants import ismacos, trash_name
 from calibre.gui2 import Aborted, error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -35,11 +35,11 @@ class MultiDeleter(QObject):  # {{{
         self.permanent = False
         if can_recycle and len(ids) > 100:
             if question_dialog(gui, _('Are you sure?'), '<p>'+
-                _('You are trying to delete %d books. '
-                    'Sending so many files to the Recycle'
-                    ' Bin <b>can be slow</b>. Should calibre skip the'
-                    ' recycle bin? If you click Yes the files'
-                    ' will be <b>permanently deleted</b>.')%len(ids),
+                _('You are trying to delete {0} books. '
+                    'Sending so many files to the {1}'
+                    ' <b>can be slow</b>. Should calibre skip the'
+                    ' {1}? If you click Yes the files'
+                    ' will be <b>permanently deleted</b>.').format(len(ids), trash_name()),
                 add_abort_button=True
             ):
                 self.permanent = True
