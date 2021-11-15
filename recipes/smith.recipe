@@ -1,6 +1,15 @@
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from collections import OrderedDict
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+CATEGORIES = {
+    'smart-news': 'Smart News',
+    'history': 'History',
+    'science': 'Science',
+    'innovation': 'Innovation',
+    'arts-culture': 'Arts & Culture',
+    'travel': 'Travel',
+    'smithsonian-institution': 'At the Smithsonian'
+}
 
 
 class Smithsonian(BasicNewsRecipe):
@@ -12,59 +21,47 @@ class Smithsonian(BasicNewsRecipe):
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
-    keep_only_tags = [dict(name='main', attrs={'class': 'main'})]
-    remove_tags = [
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'hidden-phone', 'hidden-tablet', 'hidden-desktop'})}),
-        dict(attrs={'class': ['slideshow-nav', 'associated-container']}),
+    keep_only_tags = [
+        classes('article-header articleLeft')
     ]
-    remove_tags_after = dict(
-        name='div', attrs={'class': lambda x: x and 'article-body' in x.split()})
+    remove_tags = [
+        classes(
+            'hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container'
+            ' widget-article-pixel tag-list recommended-videos comments'
+        )
+    ]
     no_javascript = True
     no_stylesheets = True
 
+    def parse_section(self, url):
+        soup = self.index_to_soup(url)
+        seen = set()
+        for al in soup.findAll(attrs={'class': 'article-list'}):
+            for article in al.findAll(attrs={'class': 'article-list-item'}):
+                div = article.find(attrs={'class': 'article-list-text'})
+                a = div.find('a')
+                title = self.tag_to_string(a)
+                if title in seen:
+                    continue
+                seen.add(title)
+                url = 'https://www.smithsonianmag.com/' + a['href'].lstrip('/')
+                if '/tag/' in url:
+                    continue
+                desc = ''
+                p = div.find(attrs={'class': 'article-list-text'})
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                self.log('\t' + title)
+                yield {'title': title, 'url': url, 'description': desc}
+
     def parse_index(self):
-        # Go to the issue
-        soup = self.index_to_soup(
-            'http://www.smithsonianmag.com/issue/archive/?no-ist')
-        li = soup.find('li', attrs={'class': 'issue'})
-        url_prefix = 'http://www.smithsonianmag.com'
-        current_issue_url = url_prefix + \
-            li.find('a', href=True)['href'] + '?no-ist'
-        self.log('Downloading issue:', current_issue_url)
-        soup = self.index_to_soup(current_issue_url)
-
-        # Go to the main body
-        div = soup.find('div', id='Page-Content')
-
-        # Find date
-        date = re.sub(
-            r'.*\:\W*', "", self.tag_to_string(div.find('h1')).strip())
-        self.timefmt = u' [%s]' % date
-
-        # Find cover
-        self.cover_url = div.find(
-            'img', alt=lambda x: x and 'Cover' in x, src=True)['src']
-
-        feeds = OrderedDict()
-        section_title = ''
-        articles = []
-        for div in soup.findAll('div', attrs={'class': 'article-list'}):
-            section_title = self.tag_to_string(
-                div.find('h2', attrs={'class': 'headline'})).capitalize()
-            self.log('\n\nFound section:', section_title)
-            articles = feeds[section_title] = []
-            for sec in div.findAll('section', attrs={'class': lambda x: x and 'article-teaser' in x.split()}):
-                head = sec.find(attrs={'class': 'headline'})
-                url = head.find('a', href=True)['href'] + '?all&no-ist'
-                if url.startswith('/'):
-                    url = url_prefix + url
-                title = self.tag_to_string(head)
-                desc = sec.find(attrs={'class': 'sub-title'})
-                desc = '' if desc is None else self.tag_to_string(desc)
-                self.log('Found article:', title)
-                self.log('\t', url)
-                articles.append(
-                    {'title': title, 'url': url, 'description': desc})
-        ans = [(key, val) for key, val in feeds.items()]
+        ans = []
+        for slug, title in CATEGORIES.items():
+            url = 'https://www.smithsonianmag.com/category/' + slug + '/'
+            self.log('Parsing section:', title)
+            articles = list(self.parse_section(url))
+            if articles:
+                ans.append((title, articles))
+            if self.test and len(ans) >= self.test[0]:
+                break
         return ans
