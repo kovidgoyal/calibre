@@ -39,7 +39,7 @@ In addition to the standard column based fields, you also can use:
   * ``{formats}`` - A list of formats available in the calibre library for a book
   * ``{identifiers:select(isbn)}`` - The ISBN of the book
 
-If the metadata for field for a given a book is not defined then the field in the template is replaced by the empty string (``''``). For example, consider the following template::
+If the metadata for the field for a given book is not defined then the field in the template is replaced by the empty string (``''``). For example, consider the following template::
 
     {author_sort}/{series}/{title} {series_index}
 
@@ -70,7 +70,7 @@ However, if a book has no series the template will produce `- - the title`, whic
 
   ``{field:|prefix_text|suffix_text}``
 
-This ``template expression`` says that if ``field`` has the the value `XXXX` then the result will be `prefix_textXXXXXsuffix_text`. If ``field`` is empty (has no value) then the result will be the empty string (nothing) because the prefix and suffix are ignored. The prefix and suffix can contain blanks.
+This ``template expression`` says that if ``field`` has the value `XXXX` then the result will be `prefix_textXXXXXsuffix_text`. If ``field`` is empty (has no value) then the result will be the empty string (nothing) because the prefix and suffix are ignored. The prefix and suffix can contain blanks.
 
 **Do not use subtemplates (`{ ... }`) or functions (see below) in the prefix or the suffix.**
 
@@ -154,7 +154,7 @@ The functions intended for use in Single Function Mode are:
 * ``human_readable()`` -- expects the value to be a number and returns a string representing that number in KB, MB, GB, etc.
 * ``ifempty(text if empty)`` -- if the value is not empty then return the value of the field, otherwise return `text if empty`.
 * ``in_list(separator, [ pattern, found_val, ]* not_found_val)`` -- interpret the value as a list of items separated by ``separator``, checking the ``pattern`` against each item in the list. If the ``pattern`` matches an item then return ``found_val``, otherwise return ``not_found_val``. The pair ``pattern`` and ``found_value`` can be repeated as many times as desired, permitting returning different values depending on the item's value. The patterns are checked in order, and the first match is returned.
-* ``language_strings(localize)`` -- return the `language names <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ for the `language codes <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ passed in as the value. Example: ``{languages:language_strings()}``.  If `localize` is zero, return the strings in English. If ``localize`` is not zero, return the strings in the language of the current locale. ``Lang_codes`` is a comma-separated list.
+* ``language_strings(localize)`` -- return the `language names <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ for the `language codes <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ passed in as the value. Example: ``{languages:language_strings()}``.  If ``localize`` is zero, return the strings in English. If ``localize`` is not zero, return the strings in the language of the current locale. ``Lang_codes`` is a comma-separated list.
 * ``list_item(index, separator)`` -- interpret the value as a list of items separated by ``separator``, returning the 'index'th item. The first item is number zero. The last item has the index ``-1`` as in ``list_item(-1,separator)``. If the item is not in the list, then the empty string is returned.
 * ``lookup([ pattern, key, ]* else_key)`` -- The patterns will be checked against the value in order. If a pattern matches then the value of the field named by ``key`` is returned. If no pattern matches then the value of the field named by ``else_key`` is returned. See``switch`` (below).
 * ``lowercase()`` -- returns the value of the field in lower case.
