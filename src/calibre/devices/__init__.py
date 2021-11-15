@@ -112,7 +112,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             drives = pprint.pformat(Device.osx_get_usb_drives())
             ioreg = 'Output from mount:\n'+mount+'\n\n'
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
-            ioreg += Device.run_ioreg().decode('utf-8')
+            ioreg += Device.run_ioreg().decode('utf-8', 'replace')
         connected_devices = []
         if disabled_plugins:
             out('\nDisabled plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
