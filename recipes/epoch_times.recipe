@@ -10,13 +10,17 @@ class EpochTimes(BasicNewsRecipe):
     lang = 'en_US'
     encoding = 'utf-8'
     oldest_article = 2
-    max_articles_per_feed = 15
-
+    max_articles_per_feed = 10
+    extra_css = """
+        body{font-family: Arial,sans-serif }
+        .featured_caption{font-size: small}
+        .author,.date{font-size: small}
+    """
     keep_only_tags = [
         classes('post_title featured_image pricat_name author date post_content'),
     ]
     remove_tags = [
-        classes('author_wrapper'),
+        classes('author_wrapper bottom_row'),
     ]
 
     feeds = [
