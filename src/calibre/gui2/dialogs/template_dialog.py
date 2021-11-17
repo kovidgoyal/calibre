@@ -21,6 +21,7 @@ from calibre.gui2 import gprefs, error_dialog, choose_files, choose_save_file, p
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.utils.config_base import tweaks
+from calibre.utils.date import DEFAULT_DATE
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.formatter import StopException
 from calibre.utils.icu import sort_key
@@ -439,10 +440,19 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 # the columns will all be empty, which in some very unusual
                 # cases might cause formatter errors. We can live with that.
                 from calibre.gui2.ui import get_gui
-                mi.set_all_user_metadata(
-                      get_gui().current_db.new_api.field_metadata.custom_field_metadata())
+                fm = get_gui().current_db.new_api.field_metadata
+                mi.set_all_user_metadata(fm.custom_field_metadata())
             for col in mi.get_all_user_metadata(False):
-                mi.set(col, (col,), 0)
+                if fm[col]['datatype'] == 'datetime':
+                    mi.set(col, DEFAULT_DATE)
+                elif fm[col]['datatype'] in ('int', 'float', 'rating'):
+                    mi.set(col, 2)
+                elif fm[col]['datatype'] == 'bool':
+                    mi.set(col, False)
+                elif fm[col]['is_multiple']:
+                    mi.set(col, (col,))
+                else:
+                    mi.set(col, col, 1)
             mi = (mi, )
         self.mi = mi
         tv = self.template_value
