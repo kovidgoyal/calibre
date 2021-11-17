@@ -504,7 +504,29 @@ class KoboReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    
+    
+class KoboClaraHDReaderOutput(OutputProfile):
 
+    name = 'Kobo Clara HD'
+    short_name = 'koboclarahd'
+
+    description = _('This profile is intended for the Kobo Clara HD Reader.')
+
+    screen_size               = (1072, 1448)
+    comic_screen_size         = (1072, 1448)
+
+    
+class KoboAuraH20v2ReaderOutput(OutputProfile):
+
+    name = 'Kobo Aura H20 v2'
+    short_name = 'koboaurah20v2'
+
+    description = _('This profile is intended for the Kobo Aura H20 v2 Reader.')
+
+    screen_size               = (1430, 1080)
+    comic_screen_size         = (1430, 1080)
+    
 
 class SonyReader300Output(SonyReaderOutput):
 
@@ -896,9 +918,9 @@ output_profiles = [
     OutputProfile, SonyReaderOutput, SonyReader300Output, SonyReader900Output,
     SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
     HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput, iPadOutput,
-    iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
-    SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
-    IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
+    iPad3Output, KoboReaderOutput, KoboClaraHDReaderOutput, KoboAuraH20v2ReaderOutput,
+    TabletOutput, SamsungGalaxy, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
+    NookHD, IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
     NookColorOutput, PocketBook900Output,
     PocketBookPro912Output, PocketBookLuxOutput, PocketBookHDOutput,
     PocketBookInkpad3Output, GenericEink, GenericEinkLarge, GenericEinkHD,
