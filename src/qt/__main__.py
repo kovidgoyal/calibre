@@ -6,7 +6,7 @@ import importlib
 import os
 from pprint import pprint
 
-QT_WRAPPER = 'PyQt5'
+QT_WRAPPER = 'PyQt6'
 
 base = os.path.dirname(os.path.abspath(__file__))
 module_lists = {
@@ -19,7 +19,6 @@ module_lists = {
         'QtPrintSupport',
     ),
     'webengine': (
-        'QtWebEngine',
         'QtWebEngineCore',
         'QtWebEngineWidgets',
     ),
