@@ -1149,8 +1149,8 @@ class Application(QApplication):
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
             transient_scroller = transient_scroller()
-        icon_map[QStyle.StandardPixmap.SP_CustomBase + 1] = I('close-for-light-theme.png')
-        icon_map[QStyle.StandardPixmap.SP_CustomBase + 2] = I('close-for-dark-theme.png')
+        icon_map[(QStyle.StandardPixmap.SP_CustomBase & 0xf0000000) + 1] = I('close-for-light-theme.png')
+        icon_map[(QStyle.StandardPixmap.SP_CustomBase & 0xf0000000) + 2] = I('close-for-dark-theme.png')
         self.pi.load_style(icon_map, transient_scroller)
 
     def _send_file_open_events(self):

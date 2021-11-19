@@ -122,13 +122,13 @@ dpiScaled(qreal value) {
 
 class CalibreStyle: public QProxyStyle {
     private:
-        QHash<int, QString> icon_map;
+        const QHash<unsigned long, QString> icon_map;
         QByteArray desktop_environment;
         QDialogButtonBox::ButtonLayout button_layout;
         int transient_scroller;
 
     public:
-        CalibreStyle(QStyle *base, QHash<int, QString> icmap, int transient_scroller) : QProxyStyle(base), icon_map(icmap), transient_scroller(transient_scroller) {
+        CalibreStyle(QStyle *base, const QHash<unsigned long, QString> &icmap, int transient_scroller) : QProxyStyle(base), icon_map(icmap), transient_scroller(transient_scroller) {
             setObjectName(QString("calibre"));
             desktop_environment = detectDesktopEnvironment();
             button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
@@ -373,7 +373,7 @@ class CalibreStyle: public QProxyStyle {
 		}
 };
 
-int load_style(QHash<int,QString> icon_map, int transient_scroller) {
+int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scroller) {
     QStyle *base_style = QStyleFactory::create(QString("Fusion"));
     QApplication::setStyle(new CalibreStyle(base_style, icon_map, transient_scroller));
     return 0;

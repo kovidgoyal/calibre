@@ -137,6 +137,6 @@ private:
 	SpinAnimator m_animator;
 };
 
-int load_style(QHash<int,QString> icon_map, int transient_scroller=0);
+int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scroller=0);
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
