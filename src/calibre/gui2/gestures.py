@@ -3,28 +3,32 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import sys, os
+import os
 
+from functools import lru_cache
 from qt.core import (
-    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
+    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QInputDevice,
     pyqtSignal
 )
 
-from calibre.constants import iswindows
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import itervalues
-
-touch_supported = False
-if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
-    touch_supported = True
-if 'CALIBRE_NO_TOUCH' in os.environ:
-    touch_supported = False
 
 HOLD_THRESHOLD = 1.0  # seconds
 TAP_THRESHOLD  = 50   # manhattan pixels
 
 Tap, TapAndHold, Flick = 'Tap', 'TapAndHold', 'Flick'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
+
+
+@lru_cache(maxsize=2)
+def touch_supported():
+    if 'CALIBRE_NO_TOUCH' in os.environ:
+        return False
+    for dev in QInputDevice.devices():
+        if dev.type() == QInputDevice.DeviceType.TouchScreen:
+            return True
+    return False
 
 
 class TouchPoint:
@@ -151,7 +155,7 @@ class GestureManager(QObject):
 
     def __init__(self, view):
         QObject.__init__(self, view)
-        if touch_supported:
+        if touch_supported():
             view.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents)
         self.state = State()
         self.state.tapped.connect(
@@ -163,11 +167,11 @@ class GestureManager(QObject):
         connect_lambda(self.state.tap_hold_finished, self, lambda self, tp: self.handle_tap_hold('end', tp))
         self.evmap = {QEvent.Type.TouchBegin: 'start', QEvent.Type.TouchUpdate: 'update', QEvent.Type.TouchEnd: 'end'}
         self.last_tap_at = 0
-        if touch_supported:
+        if touch_supported():
             self.scroller = QScroller.scroller(view.viewport())
 
     def handle_event(self, ev):
-        if not touch_supported:
+        if not touch_supported():
             return
         etype = ev.type()
         if etype in (QEvent.Type.MouseButtonPress, QEvent.Type.MouseMove, QEvent.Type.MouseButtonRelease, QEvent.Type.MouseButtonDblClick):
@@ -181,7 +185,7 @@ class GestureManager(QObject):
             ev.ignore()
             return False
         boundary = self.evmap.get(etype, None)
-        if boundary is None or ev.device().type() != QTouchDevice.DeviceType.TouchScreen:
+        if boundary is None or ev.deviceType() != QInputDevice.DeviceType.TouchScreen:
             return
         self.state.update(ev, boundary=boundary)
         ev.accept()
