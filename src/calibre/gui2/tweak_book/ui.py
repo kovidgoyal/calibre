@@ -374,7 +374,7 @@ class Main(MainWindow):
         self.status_bar.addWidget(la)
 
         self.boss(self)
-        g = QApplication.instance().desktop().availableGeometry(self)
+        g = self.screen().availableSize()
         self.resize(g.width()-50, g.height()-50)
 
         self.apply_settings()

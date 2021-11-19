@@ -688,7 +688,7 @@ class ThemeEditor(Dialog):
             self.show_theme()
 
     def sizeHint(self):
-        g = QApplication.instance().desktop().availableGeometry(self.parent() or self)
+        g = self.screen().availableSize()
         return QSize(min(1500, g.width() - 25), 650)
 # }}}
 

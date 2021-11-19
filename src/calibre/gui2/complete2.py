@@ -143,7 +143,7 @@ class Completer(QListView):  # {{{
         widget = self.parent()
         if widget is None:
             return
-        screen = QApplication.desktop().availableGeometry(widget)
+        screen = widget.screen().availableGeometry()
         h = (p.sizeHintForRow(0) * min(self.max_visible_items, m.rowCount()) + 3) + 3
         hsb = p.horizontalScrollBar()
         if hsb and hsb.isVisible():

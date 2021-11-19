@@ -403,7 +403,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
     def __init__(self, parent=None):
         RestartingWebEngineView.__init__(self, parent)
         self.inspector = Inspector(self)
-        w = QApplication.instance().desktop().availableGeometry(self).width()
+        w = self.screen().availableSize().width()
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.setPage(self._page)

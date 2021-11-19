@@ -222,7 +222,7 @@ class Diff(Dialog):
         self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
-        geom = QApplication.instance().desktop().availableGeometry(self)
+        geom = self.screen().availableSize()
         return QSize(int(0.9 * geom.width()), int(0.8 * geom.height()))
 
     def setup_ui(self):

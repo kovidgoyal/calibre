@@ -8,7 +8,7 @@ import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from qt.core import (
-    QApplication, QComboBox, QCompleter, QCoreApplication, QDateTime, QDialog,
+    QApplication, QComboBox, QCompleter, QDateTime, QDialog,
     QDialogButtonBox, QFont, QGridLayout, QInputDialog, QLabel, QLineEdit,
     QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
 )
@@ -579,8 +579,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.exec()
 
     def sizeHint(self):
-        desktop = QCoreApplication.instance().desktop()
-        geom = desktop.availableGeometry(self)
+        geom = self.screen().availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 

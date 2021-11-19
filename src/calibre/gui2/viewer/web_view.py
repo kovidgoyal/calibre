@@ -494,7 +494,7 @@ class WebView(RestartingWebEngineView):
         self.tts.event_received.connect(self.tts_event_received)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
-        w = QApplication.instance().desktop().availableGeometry(self).width()
+        w = self.screen().availableSize().width()
         QApplication.instance().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))

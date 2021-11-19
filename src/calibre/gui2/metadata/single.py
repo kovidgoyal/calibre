@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 from functools import partial
 from qt.core import (
-    QApplication, QCoreApplication, QDialog, QDialogButtonBox, QFont, QFrame,
+    QApplication, QDialog, QDialogButtonBox, QFont, QFrame,
     QGridLayout, QGroupBox, QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu,
     QPushButton, QScrollArea, QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter,
     Qt, QTabWidget, QToolButton, QVBoxLayout, QWidget, pyqtSignal
@@ -131,8 +131,7 @@ class MetadataSingleDialogBase(QDialog):
     # }}}
 
     def sizeHint(self):
-        desktop = QCoreApplication.instance().desktop()
-        geom = desktop.availableGeometry(self)
+        geom = self.screen().availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 

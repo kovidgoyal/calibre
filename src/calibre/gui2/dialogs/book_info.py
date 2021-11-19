@@ -4,7 +4,7 @@
 
 import textwrap
 from qt.core import (
-    QAction, QApplication, QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout,
+    QAction, QApplication, QBrush, QCheckBox, QDialog, QGridLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
     QPixmap, QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton,
     QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
@@ -198,7 +198,7 @@ class BookInfo(QDialog):
         self.previous_button.setToolTip(_('Previous [%s]')%
                 str(self.ps.key().toString(QKeySequence.SequenceFormat.NativeText)))
 
-        geom = QCoreApplication.instance().desktop().availableGeometry(self)
+        geom = self.screen().availableSize()
         screen_height = geom.height() - 100
         screen_width = geom.width() - 100
         self.resize(max(int(screen_width/2), 700), screen_height)

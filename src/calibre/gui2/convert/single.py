@@ -6,7 +6,7 @@
 import shutil
 
 from qt.core import (
-    QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
+    QAbstractListModel, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
     QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,
     Qt, QTextEdit, QWidget, QApplication
@@ -179,8 +179,7 @@ class Config(QDialog):
         self.buttonBox.rejected.connect(self.reject)
 
     def sizeHint(self):
-        desktop = QCoreApplication.instance().desktop()
-        geom = desktop.availableGeometry(self)
+        geom = self.screen().availableSize()
         nh, nw = max(300, geom.height()-100), max(400, geom.width()-70)
         return QSize(nw, nh)
 

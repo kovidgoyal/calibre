@@ -169,8 +169,7 @@ class Main(MainWindow, Ui_MainWindow):
             scrollbar_adjust = min(s.width(), s.height())
             self.graphics_view.resize_for(width+scrollbar_adjust, height+scrollbar_adjust)
 
-            desktop = QCoreApplication.instance().desktop()
-            screen_height = desktop.availableGeometry(self).height() - 25
+            screen_height = self.screen().availableSize().height() - 25
             height = min(screen_height, height+hdelta+scrollbar_adjust)
             self.resize(width+scrollbar_adjust, height)
             self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)

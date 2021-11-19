@@ -601,8 +601,7 @@ class ChooseTheme(Dialog):
         self.dialog_closed = True
 
     def sizeHint(self):
-        desktop  = QApplication.instance().desktop()
-        h = desktop.availableGeometry(self).height()
+        h = self.screen().availableSize().height()
         return QSize(900, h - 75)
 
     def setup_ui(self):

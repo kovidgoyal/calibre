@@ -1034,7 +1034,7 @@ class TOCEditor(QDialog):  # {{{
         self.explode_done.connect(self.read_toc, type=Qt.ConnectionType.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.ConnectionType.QueuedConnection)
 
-        r = QApplication.desktop().availableGeometry(self)
+        r = self.screen().availableSize()
         self.resize(r.width() - 100, r.height() - 100)
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:

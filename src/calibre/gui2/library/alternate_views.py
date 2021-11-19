@@ -41,7 +41,7 @@ CACHE_FORMAT = 'PPM'
 def auto_height(widget):
     # On some broken systems, availableGeometry() returns tiny values, we need
     # a value of at least 1000 for 200 DPI systems.
-    return max(1000, QApplication.instance().desktop().availableGeometry(widget).height()) / 5.0
+    return max(1000, widget.screen().availableSize().height()) / 5.0
 
 
 class EncodeError(ValueError):

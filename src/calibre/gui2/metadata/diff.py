@@ -680,8 +680,7 @@ class CompareMany(QDialog):
 
         self.next_item(True)
 
-        desktop = QApplication.instance().desktop()
-        geom = desktop.availableGeometry(parent or self)
+        geom = (parent or self).screen().availableSize()
         width = max(700, min(950, geom.width()-50))
         height = max(650, min(1000, geom.height()-100))
         self.resize(QSize(width, height))

@@ -19,9 +19,7 @@ from qt.core import (
 
 from calibre.constants import islinux
 from calibre.ebooks.metadata import rating_to_stars, authors_to_string
-from calibre.gui2 import (
-    available_height, available_width, config, gprefs, rating_font
-)
+from calibre.gui2 import config, gprefs, rating_font
 from calibre_extensions import pictureflow
 
 
@@ -261,7 +259,8 @@ class CBDialog(QDialog):
 
         geom = gprefs.get('cover_browser_dialog_geometry', None)
         if not geom or not QApplication.instance().safe_restore_geometry(self, geom):
-            h, w = available_height()-60, int(available_width()/1.5)
+            sz = self.screen().availableSize()
+            h, w = sz.height()-60, int(sz.width()/1.5)
             self.resize(w, h)
         self.action_fs_toggle = a = QAction(self)
         self.addAction(a)
@@ -497,7 +496,6 @@ def test():
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(int(available_width()/1.5), available_height()-60)
     w.resize(cf.size()+QSize(30, 20))
     model = DummyImageList()
     cf.setImages(model)
@@ -518,7 +516,6 @@ if __name__ == '__main__':
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(int(available_width()/1.5), available_height()-60)
     w.resize(cf.size()+QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])

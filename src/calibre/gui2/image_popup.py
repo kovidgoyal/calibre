@@ -101,8 +101,7 @@ class ImageView(QDialog):
         self.maximized_at_last_fullscreen = False
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint)
-        dw = QApplication.instance().desktop()
-        self.avail_geom = dw.availableGeometry(parent if parent is not None else self)
+        self.avail_geom = self.screen().availableGeometry()
         self.current_img = current_img
         self.current_url = current_url
         self.factor = 1.0
