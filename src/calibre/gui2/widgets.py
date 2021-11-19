@@ -8,7 +8,7 @@ import re, os
 from qt.core import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
-        Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
+        Qt, pyqtSignal, QSize, QSplitter, QPainter, QPageSize, QPrinter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel, QKeySequence,
         QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice, QPalette, QClipboard)
 
@@ -810,7 +810,7 @@ class EncodingComboBox(QComboBox):  # {{{
 
 class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
-    Rules = []
+    Rules = ()
     Formats = {}
 
     KEYWORDS = ["and", "as", "assert", "break", "class", "continue", "def",
@@ -834,34 +834,41 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        if not self.Rules:
+            self.initialize_class_members()
 
-        self.initializeFormats()
+    @classmethod
+    def initialize_class_members(cls):
+        cls.initializeFormats()
+        r = []
 
-        PythonHighlighter.Rules.append((QRegExp(
-                "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS])),
-                "keyword"))
-        PythonHighlighter.Rules.append((QRegExp(
-                "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS])),
-                "builtin"))
-        PythonHighlighter.Rules.append((QRegExp(
+        def a(a, b):
+            r.append((a, b))
+
+        a(re.compile(
+                "|".join([r"\b%s\b" % keyword for keyword in cls.KEYWORDS])),
+                "keyword")
+        a(re.compile(
+                "|".join([r"\b%s\b" % builtin for builtin in cls.BUILTINS])),
+                "builtin")
+        a(re.compile(
                 "|".join([r"\b%s\b" % constant
-                for constant in self.CONSTANTS])), "constant"))
-        PythonHighlighter.Rules.append((QRegExp(
+                for constant in cls.CONSTANTS])), "constant")
+        a(re.compile(
                 r"\b[+-]?[0-9]+[lL]?\b"
                 r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
                 r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
-                "number"))
-        PythonHighlighter.Rules.append((QRegExp(
-                r"\bPyQt5\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt"))
-        PythonHighlighter.Rules.append((QRegExp(r"\b@\w+\b"), "decorator"))
-        stringRe = QRegExp(r"""(?:'[^']*'|"[^"]*")""")
-        stringRe.setMinimal(True)
-        PythonHighlighter.Rules.append((stringRe, "string"))
-        self.stringRe = QRegExp(r"""(:?"["]".*"["]"|'''.*''')""")
-        self.stringRe.setMinimal(True)
-        PythonHighlighter.Rules.append((self.stringRe, "string"))
-        self.tripleSingleRe = QRegExp(r"""'''(?!")""")
-        self.tripleDoubleRe = QRegExp(r'''"""(?!')''')
+                "number")
+        a(re.compile(
+                r"\bPyQt5\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt")
+        a(re.compile(r"\b@\w+\b"), "decorator")
+        stringRe = re.compile(r"""(?:'[^']*?'|"[^"]*?")""")
+        a(stringRe, "string")
+        cls.stringRe = re.compile(r"""(:?"["]".*?"["]"|'''.*?''')""")
+        a(cls.stringRe, "string")
+        cls.tripleSingleRe = re.compile(r"""'''(?!")""")
+        cls.tripleDoubleRe = re.compile(r'''"""(?!')''')
+        cls.Rules = tuple(r)
 
     @classmethod
     def initializeFormats(cls):
@@ -896,36 +903,31 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         prevState = self.previousBlockState()
 
         self.setFormat(0, textLength,
-                       PythonHighlighter.Formats["normal"])
+                       self.Formats["normal"])
 
         if text.startswith("Traceback") or text.startswith("Error: "):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
-                           PythonHighlighter.Formats["error"])
+                           self.Formats["error"])
             return
         if prevState == ERROR and \
            not (text.startswith('>>>') or text.startswith("#")):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
-                           PythonHighlighter.Formats["error"])
+                           self.Formats["error"])
             return
 
-        for regex, format in PythonHighlighter.Rules:
-            i = regex.indexIn(text)
-            while i >= 0:
-                length = regex.matchedLength()
-                self.setFormat(i, length,
-                               PythonHighlighter.Formats[format])
-                i = regex.indexIn(text, i + length)
+        for regex, fmt in PythonHighlighter.Rules:
+            for m in regex.finditer(text):
+                self.setFormat(m.start(), m.end() - m.start(), self.Formats[fmt])
 
         # Slow but good quality highlighting for comments. For more
         # speed, comment this out and add the following to __init__:
-        # PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
+        # PythonHighlighter.Rules.append((re.compile(r"#.*"), "comment"))
         if not text:
             pass
         elif text[0] == "#":
-            self.setFormat(0, len(text),
-                           PythonHighlighter.Formats["comment"])
+            self.setFormat(0, len(text), self.Formats["comment"])
         else:
             stack = []
             for i, c in enumerate(text):
@@ -935,33 +937,33 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                     else:
                         stack.append(c)
                 elif c == "#" and len(stack) == 0:
-                    self.setFormat(i, len(text),
-                                   PythonHighlighter.Formats["comment"])
+                    self.setFormat(i, len(text), self.Formats["comment"])
                     break
 
         self.setCurrentBlockState(NORMAL)
 
-        if self.stringRe.indexIn(text) != -1:
+        if self.stringRe.search(text) is not None:
             return
         # This is fooled by triple quotes inside single quoted strings
-        for i, state in ((self.tripleSingleRe.indexIn(text),
-                          TRIPLESINGLE),
-                         (self.tripleDoubleRe.indexIn(text),
-                          TRIPLEDOUBLE)):
+        for m, state in (
+            (self.tripleSingleRe.search(text), TRIPLESINGLE),
+            (self.tripleDoubleRe.search(text), TRIPLEDOUBLE)
+        ):
+            i = -1 if m is None else m.start()
             if self.previousBlockState() == state:
                 if i == -1:
                     i = len(text)
                     self.setCurrentBlockState(state)
                 self.setFormat(0, i + 3,
-                               PythonHighlighter.Formats["string"])
+                               self.Formats["string"])
             elif i > -1:
                 self.setCurrentBlockState(state)
                 self.setFormat(i, len(text),
-                               PythonHighlighter.Formats["string"])
+                               self.Formats["string"])
 
     def rehighlight(self):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-        QSyntaxHighlighter.rehighlight(self)
+        super().rehighlight()
         QApplication.restoreOverrideCursor()
 
 # }}}

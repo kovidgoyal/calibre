@@ -5,10 +5,10 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-import json, os, traceback
+import json, os, traceback, re
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
-                      QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
+                      QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
                       QComboBox, QAbstractItemView, QTextOption, QFontMetrics)
@@ -42,9 +42,6 @@ class ParenPosition:
 
 class TemplateHighlighter(QSyntaxHighlighter):
 
-    Config = {}
-    Rules = []
-    Formats = {}
     BN_FACTOR = 1000
 
     KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
@@ -52,43 +49,43 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
-
         self.initializeFormats()
-
-        TemplateHighlighter.Rules.append((QRegExp(
-                r"\b[a-zA-Z]\w*\b(?!\(|\s+\()"
-                r"|\$+#?[a-zA-Z]\w*"),
-                "identifier"))
-
-        TemplateHighlighter.Rules.append((QRegExp(
-                "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS])),
-                "keyword"))
-
-        TemplateHighlighter.Rules.append((QRegExp(
-                "|".join([r"\b%s\b" % builtin for builtin in
-                          (builtin_functions if builtin_functions else
-                                                formatter_functions().get_builtins())])),
-                "builtin"))
-
-        TemplateHighlighter.Rules.append((QRegExp(
-                r"\b[+-]?[0-9]+[lL]?\b"
-                r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
-                r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
-                "number"))
-
-        stringRe = QRegExp(r"""(?:[^:]'[^']*'|"[^"]*")""")
-        stringRe.setMinimal(True)
-        TemplateHighlighter.Rules.append((stringRe, "string"))
-
-        lparenRe = QRegExp(r'\(')
-        lparenRe.setMinimal(True)
-        TemplateHighlighter.Rules.append((lparenRe, "lparen"))
-        rparenRe = QRegExp(r'\)')
-        rparenRe.setMinimal(True)
-        TemplateHighlighter.Rules.append((rparenRe, "rparen"))
-
+        self.initialize_rules(builtin_functions)
         self.regenerate_paren_positions()
         self.highlighted_paren = False
+
+    def initialize_rules(self, builtin_functions):
+        r = []
+
+        def a(a, b):
+            r.append((re.compile(a), b))
+
+        a(
+            r"\b[a-zA-Z]\w*\b(?!\(|\s+\()"
+            r"|\$+#?[a-zA-Z]\w*",
+            "identifier")
+
+        a(
+            "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS]),
+            "keyword")
+
+        a(
+            "|".join([r"\b%s\b" % builtin for builtin in
+                        (builtin_functions if builtin_functions else
+                                            formatter_functions().get_builtins())]),
+            "builtin")
+
+        a(
+            r"\b[+-]?[0-9]+[lL]?\b"
+            r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
+            r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b",
+            "number")
+
+        a(r"""(?:[^:]'[^']*'|"[^"]*")""", "string")
+
+        a(r'\(', "lparen")
+        a(r'\)', "rparen")
+        self.Rules = tuple(r)
 
     def initializeFormats(self):
         font_name = gprefs.get('gpm_template_editor_font', None)
@@ -98,7 +95,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             font.setFixedPitch(True)
             font.setPointSize(size)
             font_name = font.family()
-        Config = self.Config
+        Config = self.Config = {}
         Config["fontfamily"] = font_name
         pal = QApplication.instance().palette()
         for name, color, bold, italic in (
@@ -118,6 +115,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         baseFormat.setFontFamily(Config["fontfamily"])
         Config["fontsize"] = size
         baseFormat.setFontPointSize(Config["fontsize"])
+        self.Formats = {}
 
         for name in ("normal", "keyword", "builtin", "comment", "identifier",
                      "string", "number", "lparen", "rparen"):
@@ -146,17 +144,15 @@ class TemplateHighlighter(QSyntaxHighlighter):
             self.setFormat(0, textLength, self.Formats["comment"])
             return
 
-        for regex, format_ in TemplateHighlighter.Rules:
-            i = regex.indexIn(text)
-            while i >= 0:
-                length = regex.matchedLength()
+        for regex, format_ in self.Rules:
+            for m in regex.finditer(text):
+                i, length = m.start(), m.end() - m.start()
                 if format_ in ['lparen', 'rparen']:
                     pp = self.find_paren(bn, i)
                     if pp and pp.highlight:
                         self.setFormat(i, length, self.Formats[format_])
                 else:
                     self.setFormat(i, length, self.Formats[format_])
-                i = regex.indexIn(text, i + length)
 
         if self.generate_paren_positions:
             t = str(text)
@@ -178,7 +174,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                         i = len(t)
                     else:
                         i = i + j
-                elif c in ['(', ')']:
+                elif c in ('(', ')'):
                     pp = ParenPosition(bn, i, c)
                     self.paren_positions.append(pp)
                     self.paren_pos_map[bn*self.BN_FACTOR+i] = pp
@@ -186,7 +182,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     def rehighlight(self):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-        QSyntaxHighlighter.rehighlight(self)
+        super().rehighlight()
         QApplication.restoreOverrideCursor()
 
     def check_cursor_pos(self, chr_, block, pos_in_block):
@@ -196,7 +192,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             if pp.block == block and pp.pos == pos_in_block:
                 found_pp = i
 
-        if chr_ not in ['(', ')']:
+        if chr_ not in ('(', ')'):
             if self.highlighted_paren:
                 self.rehighlight()
                 self.highlighted_paren = False
@@ -887,7 +883,8 @@ class EmbeddedTemplateDialog(TemplateDialog):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     from calibre.ebooks.metadata.book.base import field_metadata
     d = TemplateDialog(None, '{title}', fm=field_metadata)
     d.exec_()
