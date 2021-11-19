@@ -138,7 +138,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        if adv.exec_() == QDialog.DialogCode.Accepted:
+        if adv.exec() == QDialog.DialogCode.Accepted:
             self.search_edit.setText(adv.search_string())
 
     def resize_columns(self):
@@ -340,7 +340,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_index = min(tab_index, tab_widget.count() - 1)
         tab_widget.setCurrentIndex(tab_index)
 
-        d.exec_()
+        d.exec()
 
         # Save dialog state.
         self.config['config_dialog_geometry'] = bytearray(d.saveGeometry())
@@ -393,7 +393,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def download_book(self, result):
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), list(result.downloads.keys()))
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             ext = d.format()
             fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
@@ -434,10 +434,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cache_pool.abort()
         self.save_state()
 
-    def exec_(self):
+    def exec(self):
         if str(self.search_edit.text()).strip() or str(self.search_title.text()).strip() or str(self.search_author.text()).strip():
             self.do_search()
-        return QDialog.exec_(self)
+        return QDialog.exec(self)
+    exec_ = exec
 
 
 if __name__ == '__main__':
@@ -449,4 +450,4 @@ if __name__ == '__main__':
     gui = init_gui()
 
     s = SearchDialog(gui, query=' '.join(sys.argv[1:]))
-    s.exec_()
+    s.exec()

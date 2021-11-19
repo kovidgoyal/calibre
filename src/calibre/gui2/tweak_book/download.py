@@ -266,6 +266,6 @@ if __name__ == '__main__':
     from calibre.gui2.tweak_book.boss import get_container
     set_current_container(get_container(sys.argv[-1]))
     d = DownloadResources()
-    d.exec_()
+    d.exec()
     print(d.show_diff)
     del d, app

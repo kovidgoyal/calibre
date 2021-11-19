@@ -111,7 +111,7 @@ class Main(MainWindow, Ui_MainWindow):
     def configure(self, triggered):
         opts = self.opts
         d = Config(self, opts)
-        d.exec_()
+        d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
             gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
             gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
@@ -156,7 +156,7 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             self.document.search(search)
         except StopIteration:
-            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(search,)).exec_()
+            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(search,)).exec()
         self.search.search_done(True)
 
     def parsed(self):
@@ -204,7 +204,7 @@ class Main(MainWindow, Ui_MainWindow):
             msg += '<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'
             d = ConversionErrorDialog(self, 'Error while rendering file', msg)
-            d.exec_()
+            d.exec()
 
     def chapter_rendered(self, num):
         if num > 0:
@@ -317,7 +317,7 @@ def main(args=sys.argv, logger=None):
         main.render()
         main.activateWindow()
         main.raise_()
-        return app.exec_()
+        return app.exec()
     return 0
 
 

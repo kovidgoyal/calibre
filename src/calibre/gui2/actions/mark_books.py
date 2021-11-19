@@ -107,7 +107,7 @@ class MarkBooksAction(InterfaceAction):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot mark'), _('No books selected'))
-            d.exec_()
+            d.exec()
             return set()
         return set(map(self.gui.library_view.model().id, rows))
 

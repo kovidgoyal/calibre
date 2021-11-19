@@ -141,7 +141,7 @@ def test():
     s.message_received.connect(show_message)
 
     l.show()
-    app.exec_()
+    app.exec()
     del app
 
 

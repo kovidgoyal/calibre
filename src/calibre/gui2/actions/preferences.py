@@ -48,7 +48,7 @@ class PreferencesAction(InterfaceAction):
                 FILTER_NOT_INSTALLED)
         d = PluginUpdaterDialog(self.gui,
                 initial_filter=FILTER_NOT_INSTALLED)
-        d.exec_()
+        d.exec()
         if d.do_restart:
             self.gui.quit(restart=True)
 
@@ -57,7 +57,7 @@ class PreferencesAction(InterfaceAction):
         if self.gui.job_manager.has_jobs():
             d = error_dialog(self.gui, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
-            d.exec_()
+            d.exec()
             return
         if self.gui.must_restart_before_config:
             do_restart = show_restart_warning(_('Cannot configure before calibre is restarted.'))
@@ -68,7 +68,7 @@ class PreferencesAction(InterfaceAction):
                 close_after_initial=close_after_initial)
         d.run_wizard_requested.connect(self.gui.run_wizard,
                 type=Qt.ConnectionType.QueuedConnection)
-        d.exec_()
+        d.exec()
         if d.do_restart:
             self.gui.quit(restart=True)
 

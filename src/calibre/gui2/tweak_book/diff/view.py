@@ -182,7 +182,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                 a(QIcon(I('tweak.png')), _('Open file in the editor'), partial(self.generate_sync_request, b.blockNumber()))
 
         if len(m.actions()) > 0:
-            m.exec_(self.mapToGlobal(pos))
+            m.exec(self.mapToGlobal(pos))
 
     def mouseDoubleClickEvent(self, ev):
         if ev.button() == 1:

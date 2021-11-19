@@ -72,7 +72,7 @@ def customize_remove_unused_css(name, parent, ans):
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
-    ret = d.exec_()
+    ret = d.exec()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
     ans['merge_rules_with_identical_properties'] = tprefs['merge_rules_with_identical_properties'] = p.isChecked()
@@ -139,7 +139,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
     d.resize(600, 400)
-    d.exec_()
+    d.exec()
     b.clicked.disconnect()
     if d.show_changes:
         show_current_diff(allow_revert=True)
@@ -310,7 +310,7 @@ if __name__ == '__main__':
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)
     d = CompressImages()
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         pass
     sip.delete(app)
     del app

@@ -153,7 +153,7 @@ class UserWordList(QListWidget):
         m = QMenu(self)
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
         m.addAction(_('Select all words'), self.select_all)
-        m.exec_(ev.globalPos())
+        m.exec(ev.globalPos())
 
     def select_all(self):
         for item in (self.item(i) for i in range(self.count())):
@@ -331,7 +331,7 @@ class ManageUserDictionaries(Dialog):
         d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addRow(bb)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         d.loc.update_recently_used()
         word = str(w.text())
@@ -369,7 +369,7 @@ class ManageUserDictionaries(Dialog):
         l.addRow(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
 
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         lc = le.lang_codes
         if not lc:
@@ -403,7 +403,7 @@ class ManageUserDictionaries(Dialog):
     @classmethod
     def test(cls):
         d = cls()
-        d.exec_()
+        d.exec()
 
 
 # }}}
@@ -468,7 +468,7 @@ class ManageDictionaries(Dialog):  # {{{
 
     def manage_user_dictionaries(self):
         d = ManageUserDictionaries(self)
-        d.exec_()
+        d.exec()
         if d.dictionaries_changed:
             self.dictionaries_changed = True
 
@@ -518,7 +518,7 @@ class ManageDictionaries(Dialog):  # {{{
 
     def add_dictionary(self):
         d = AddDictionary(self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.build_dictionaries(reread=True)
 
     def remove_dictionary(self):
@@ -600,7 +600,7 @@ class ManageDictionaries(Dialog):  # {{{
     @classmethod
     def test(cls):
         d = cls()
-        d.exec_()
+        d.exec()
 # }}}
 
 # Spell Check Dialog {{{
@@ -894,7 +894,7 @@ class WordsView(QTableView):
         m.addSeparator()
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
 
-        m.exec_(ev.globalPos())
+        m.exec(ev.globalPos())
 
     def copy_to_clipboard(self):
         rows = {i.row() for i in self.selectedIndexes()}
@@ -1336,7 +1336,7 @@ class SpellCheck(Dialog):
         set_book_locale(current_container().mi.language)
         d = cls()
         QTimer.singleShot(0, d.refresh)
-        d.exec_()
+        d.exec()
 # }}}
 
 # Find next occurrence  {{{

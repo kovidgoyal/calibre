@@ -586,7 +586,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     def edit_template(self):
         t = TemplateDialog(self, self.template)
         t.setWindowTitle(_('Edit template'))
-        if t.exec_():
+        if t.exec():
             self.t.setText(t.rule[1])
 
     def validate(self):
@@ -646,7 +646,7 @@ class TemplateConfig(QWidget):  # {{{
     def edit_template(self):
         t = TemplateDialog(self, self.template)
         t.setWindowTitle(_('Edit template'))
-        if t.exec_():
+        if t.exec():
             self.t.setText(t.rule[1])
 
     def validate(self):
@@ -686,6 +686,6 @@ if __name__ == '__main__':
     d.l.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         cw.commit()
     dev.shutdown()

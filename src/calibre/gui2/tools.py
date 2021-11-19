@@ -47,7 +47,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                 d.accept()
                 result = QDialog.DialogCode.Accepted
             else:
-                result = d.exec_()
+                result = d.exec()
 
             if result == QDialog.DialogCode.Accepted:
                 # if not convert_existing(parent, db, [book_id], d.output_format):
@@ -126,7 +126,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                     if len(res) == 1 else
                     _('Could not convert {num} of {tot} books, because no supported source formats were found.')
                 ).format(num=len(res), tot=total),
-                msg).exec_()
+                msg).exec()
 
     return jobs, changed, bad
 # }}}
@@ -143,7 +143,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
 
     d = BulkConfig(parent, db, out_format,
             has_saved_settings=has_saved_settings, book_ids=book_ids)
-    if d.exec_() != QDialog.DialogCode.Accepted:
+    if d.exec() != QDialog.DialogCode.Accepted:
         return None
 
     output_format = d.output_format
@@ -168,7 +168,7 @@ class QueueBulk(QProgressDialog):
         self.use_saved_single_settings = use_saved_single_settings
         self.i, self.bad, self.jobs, self.changed = 0, [], [], False
         QTimer.singleShot(0, self.do_book)
-        self.exec_()
+        self.exec()
 
     def do_book(self):
         if self.i >= len(self.book_ids):
@@ -262,7 +262,7 @@ class QueueBulk(QProgressDialog):
             warning_dialog(self.parent, _('Could not convert some books'),
                 _('Could not convert %(num)d of %(tot)d books, because no suitable '
                 'source format was found.') % dict(num=len(res), tot=len(self.book_ids)),
-                msg).exec_()
+                msg).exec()
         self.parent = None
         self.jobs.reverse()
         self.queue(self.jobs, self.changed, self.bad, *self.args)
@@ -327,7 +327,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     # Build the Catalog dialog in gui2.dialogs.catalog
     d = Catalog(parent, dbspec, ids, db)
 
-    if d.exec_() != QDialog.DialogCode.Accepted:
+    if d.exec() != QDialog.DialogCode.Accepted:
         return None
 
     # Create the output file

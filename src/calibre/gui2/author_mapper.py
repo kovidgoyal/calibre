@@ -131,7 +131,7 @@ if __name__ == '__main__':
     d.rules = [
             {'action':'replace', 'query':'alice B & alice bob', 'match_type':'one_of', 'replace':'Alice Bob'},
     ]
-    d.exec_()
+    d.exec()
     from pprint import pprint
     pprint(d.rules)
     del d, app

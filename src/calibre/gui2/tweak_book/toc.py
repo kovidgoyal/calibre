@@ -184,7 +184,7 @@ class TOCViewer(QWidget):
         menu.addAction(_('&Expand all'), self.view.expandAll)
         menu.addAction(_('&Collapse all'), self.view.collapseAll)
         menu.addAction(self.refresh_action)
-        menu.exec_(self.view.mapToGlobal(pos))
+        menu.exec(self.view.mapToGlobal(pos))
 
     def iter_items(self, parent=None):
         if parent is None:

@@ -172,4 +172,4 @@ if __name__ == '__main__':
     d = ProgressDialog('A title', 'A message', icon='lt.png')
     d.show(), d.canceled_signal.connect(app.quit)
     QTimer.singleShot(1000, lambda : (setattr(d, 'value', 10), setattr(d, 'msg', ('A message ' * 100))))
-    app.exec_()
+    app.exec()

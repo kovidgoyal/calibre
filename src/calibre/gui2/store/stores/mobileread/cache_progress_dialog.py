@@ -24,10 +24,11 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         self.progress.setMinimum(0)
         self.progress.setMaximum(total if total else 0)
 
-    def exec_(self):
+    def exec(self):
         self.completed = 0
         self.canceled = False
-        QDialog.exec_(self)
+        QDialog.exec(self)
+    exec_ = exec
 
     def open(self):
         self.completed = 0

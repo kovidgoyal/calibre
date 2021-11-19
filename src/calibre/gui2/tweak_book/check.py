@@ -95,7 +95,7 @@ class Check(QSplitter):
         if self.items.count() > 0:
             m.addAction(QIcon(I('edit-copy.png')), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
         if list(m.actions()):
-            m.exec_(self.mapToGlobal(pos))
+            m.exec(self.mapToGlobal(pos))
 
     def copy_to_clipboard(self):
         items = []
@@ -260,7 +260,7 @@ def main():
     d = Check()
     d.run_checks(container)
     d.show()
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

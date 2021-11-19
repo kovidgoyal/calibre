@@ -1451,7 +1451,7 @@ class DeviceBooksView(BooksView):  # {{{
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),
-        _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
+        _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec()
 
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)

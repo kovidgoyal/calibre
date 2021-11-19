@@ -171,7 +171,7 @@ class UpdateNotification(QDialog):
             FILTER_UPDATE_AVAILABLE)
         d = PluginUpdaterDialog(self.parent(),
                 initial_filter=FILTER_UPDATE_AVAILABLE)
-        d.exec_()
+        d.exec()
         if d.do_restart:
             QDialog.accept(self)
             from calibre.gui2.ui import get_gui
@@ -240,7 +240,7 @@ class UpdateMixin:
                     FILTER_UPDATE_AVAILABLE)
                 d = PluginUpdaterDialog(self,
                         initial_filter=FILTER_UPDATE_AVAILABLE)
-                d.exec_()
+                d.exec()
                 if d.do_restart:
                     self.quit(restart=True)
 
@@ -270,5 +270,5 @@ class UpdateMixin:
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    UpdateNotification('x.y.z', False).exec_()
+    UpdateNotification('x.y.z', False).exec()
     del app

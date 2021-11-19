@@ -150,7 +150,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
 
             t = Thread(name='MoveLibrary', target=do_move)
             QTimer.singleShot(0, t.start)
-            pd.exec_()
+            pd.exec()
             if abort_move.is_set():
                 self.callback(self.db.library_path)
                 return

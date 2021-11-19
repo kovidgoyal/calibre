@@ -130,7 +130,7 @@ class ToCEditAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit ToC'),
                     _('No books selected'))
-            d.exec_()
+            d.exec()
             return None
         db = self.gui.current_db
         ans = (db.id(r) for r in rows)
@@ -140,7 +140,7 @@ class ToCEditAction(InterfaceAction):
         for book_id, fmts in iteritems(book_id_map):
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
-                if d.exec_() != QDialog.DialogCode.Accepted:
+                if d.exec() != QDialog.DialogCode.Accepted:
                     return
                 fmts = d.formats
             for fmt in fmts:

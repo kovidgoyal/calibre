@@ -179,4 +179,4 @@ if __name__ == '__main__':
     db = db()
     app = QApplication([])
     d = AddEmptyBookDialog(None, db, 'Test Author')
-    d.exec_()
+    d.exec()

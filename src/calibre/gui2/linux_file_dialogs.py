@@ -314,7 +314,7 @@ def linux_native_dialog(name):
             t = Thread(name='FileDialogHelper', target=r)
             t.daemon = True
             t.start()
-            loop.exec_(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            loop.exec(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             if ret[1] is not None:
                 reraise(*ret[1])
             return ret[0]

@@ -148,7 +148,7 @@ class TagBrowserMixin:  # {{{
         db = self.library_view.model().db
         d = TagCategories(self, db, on_category,
                           book_ids=self.tags_view.model().get_book_ids_to_use())
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             # Order is important. The categories must be removed before setting
             # the preference because setting the pref recomputes the dynamic categories
             db.field_metadata.remove_user_categories()
@@ -269,7 +269,7 @@ class TagBrowserMixin:  # {{{
                           get_book_ids=partial(self.get_book_ids, db=db, category=category),
                           sorter=key, ttm_is_first_letter=is_first_letter,
                           fm=db.field_metadata[category])
-        d.exec_()
+        d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
             to_delete = d.to_delete  # list of ids
@@ -415,7 +415,7 @@ class TagBrowserMixin:  # {{{
     def edit_enum_values(self, parent, db, key):
         from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
         d = EnumValuesEdit(parent, db, key)
-        d.exec_()
+        d.exec()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
@@ -446,7 +446,7 @@ class TagBrowserMixin:  # {{{
                     break
         editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
                                    get_authors_func, is_first_letter)
-        if editor.exec_() == QDialog.DialogCode.Accepted:
+        if editor.exec() == QDialog.DialogCode.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
             # to restore the position. Restoring the state has the side effect

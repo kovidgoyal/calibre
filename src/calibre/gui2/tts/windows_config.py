@@ -193,7 +193,7 @@ def develop():
     c = Client()
     w = Widget(c, {})
     w.show()
-    app.exec_()
+    app.exec()
     print(w.backend_settings)
 
 

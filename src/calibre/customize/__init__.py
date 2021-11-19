@@ -177,7 +177,7 @@ class Plugin:  # {{{
             v.addWidget(config_widget)
             v.addWidget(button_box)
             size_dialog()
-            config_dialog.exec_()
+            config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
                 if hasattr(config_widget, 'validate'):
@@ -202,7 +202,7 @@ class Plugin:  # {{{
             v.addWidget(sc)
             v.addWidget(button_box)
             size_dialog()
-            config_dialog.exec_()
+            config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
                 sc = str(sc.text()).strip()

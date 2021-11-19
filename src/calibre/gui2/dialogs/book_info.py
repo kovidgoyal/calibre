@@ -223,7 +223,7 @@ class BookInfo(QDialog):
 
     def configure(self):
         d = Configure(get_gui().current_db, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             if self.current_row is not None:
                 mi = self.view.model().get_book_display_info(self.current_row)
                 if mi is not None:
@@ -364,6 +364,6 @@ if __name__ == '__main__':
     app.current_db = db()
     get_gui.ans = app
     d = Configure(app.current_db)
-    d.exec_()
+    d.exec()
     del d
     del app

@@ -665,7 +665,7 @@ class CharView(QListView):
                             partial(self.remove_from_favorites, char_code))
                 if self.showing_favorites:
                     m.addAction(_('Restore favorites to defaults'), self.restore_defaults)
-                m.exec_(self.mapToGlobal(pos))
+                m.exec(self.mapToGlobal(pos))
 
     def restore_defaults(self):
         del tprefs['charmap_favorites']
@@ -829,4 +829,4 @@ if __name__ == '__main__':
     w = CharSelect()
     w.initialize()
     w.show()
-    app.exec_()
+    app.exec()

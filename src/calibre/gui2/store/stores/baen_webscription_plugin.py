@@ -85,7 +85,7 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_item or url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         for result in search(query, max_results, timeout):

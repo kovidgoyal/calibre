@@ -695,4 +695,4 @@ if __name__ == '__main__':
     app.load_builtin_fonts()
     w = RatingEditor.test()
     w.show()
-    app.exec_()
+    app.exec()

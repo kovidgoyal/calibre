@@ -242,7 +242,7 @@ def main(args):
     app = Application(args, override_program_name=override)
     m = Main(data)
     m.show(), m.raise_()
-    app.exec_()
+    app.exec()
     del m
     del app
 

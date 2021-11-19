@@ -658,7 +658,7 @@ class CustomRecipes(Dialog):
 
     def customize_recipe(self):
         d = ChooseBuiltinRecipe(self.recipe_model, self)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
 
         id_ = d.selected_recipe
@@ -690,7 +690,7 @@ class CustomRecipes(Dialog):
     def import_opml(self):
         from calibre.gui2.dialogs.opml import ImportOPML
         d = ImportOPML(parent=self)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         oldest_article, max_articles_per_feed, replace_existing = d.oldest_article, d.articles_per_feed, d.replace_existing
         failed_recipes, replace_recipes, add_recipes = {}, {}, {}
@@ -737,5 +737,5 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.web.feeds.recipes.model import RecipeModel
     app = Application([])
-    CustomRecipes(RecipeModel()).exec_()
+    CustomRecipes(RecipeModel()).exec()
     del app

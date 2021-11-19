@@ -54,7 +54,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'https://www.empik.com/ebooki/ebooki,3501,s?sort=scoreDesc&resultsPP={}&q={}'.format(max_results, quote(query))

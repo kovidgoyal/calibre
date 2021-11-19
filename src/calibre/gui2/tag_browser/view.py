@@ -460,9 +460,9 @@ class TagsView(QTreeView):  # {{{
             categories stops working. Don't know why. To avoid the problem
             we fix the action in dragMoveEvent.
             '''
-            drag.exec_(Qt.DropAction.CopyAction|Qt.DropAction.MoveAction, Qt.DropAction.CopyAction)
+            drag.exec(Qt.DropAction.CopyAction|Qt.DropAction.MoveAction, Qt.DropAction.CopyAction)
         else:
-            drag.exec_(Qt.DropAction.CopyAction)
+            drag.exec(Qt.DropAction.CopyAction)
 
     def mouseDoubleClickEvent(self, event):
         # swallow these to avoid toggling and editing at the same time

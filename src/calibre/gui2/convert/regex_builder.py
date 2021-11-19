@@ -151,7 +151,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             format = formats[0]
         elif len(formats) > 1:
             d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
-            d.exec_()
+            d.exec()
             if d.result() == QDialog.DialogCode.Accepted:
                 format = d.format()
             else:
@@ -236,7 +236,7 @@ class RegexEdit(XPathEdit):
         if not self.doc_cache:
             self.doc_cache = bld.doc()
             self.doc_update.emit(self.doc_cache)
-        if bld.exec_() == QDialog.DialogCode.Accepted:
+        if bld.exec() == QDialog.DialogCode.Accepted:
             self.edit.setText(bld.regex.text())
 
     def doc(self):
@@ -285,6 +285,6 @@ if __name__ == '__main__':
     app = Application([])
     d = RegexBuilder(None, None, 'a', doc='😉123abc XYZabc')
     d.do_test()
-    d.exec_()
+    d.exec()
     del d
     del app

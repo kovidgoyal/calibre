@@ -144,7 +144,7 @@ def develop():
     w = Widget()
     l.addWidget(w)
     w.a.start()
-    d.exec_()
+    d.exec()
     del d
     del app
 
@@ -158,6 +158,6 @@ if __name__ == '__main__':
     l = QVBoxLayout(d)
     l.addWidget(w)
     w.start()
-    d.exec_()
+    d.exec()
     del d
     del app

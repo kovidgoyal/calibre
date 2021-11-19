@@ -104,7 +104,7 @@ def main(path_to_html, tdir, image_format='jpeg'):
     os.chdir(tdir)
     renderer = Render()
     renderer.start_load(path_to_html)
-    ret = QApplication.instance().exec_()
+    ret = QApplication.instance().exec()
     if ret == 0:
         page_images('rendered.pdf', image_format=image_format)
         ext = {'jpeg': 'jpg'}.get(image_format, image_format)

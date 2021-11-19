@@ -162,7 +162,7 @@ class DeleteAction(InterfaceAction):
                     c[x] += 1
         d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
                 single=single)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return None
         return d.selected_formats
 
@@ -170,7 +170,7 @@ class DeleteAction(InterfaceAction):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, err_title, _('No book selected'))
-            d.exec_()
+            d.exec()
             return set()
         return set(map(self.gui.library_view.model().id, rows))
 
@@ -269,7 +269,7 @@ class DeleteAction(InterfaceAction):
         if not self.gui.device_manager.is_device_present:
             d = error_dialog(self.gui, _('Cannot delete books'),
                              _('No device is connected'))
-            d.exec_()
+            d.exec()
             return
         ids = self._get_selected_ids()
         if not ids:
@@ -287,10 +287,10 @@ class DeleteAction(InterfaceAction):
         if not some_to_delete:
             d = error_dialog(self.gui, _('No books to delete'),
                              _('None of the selected books are on the device'))
-            d.exec_()
+            d.exec()
             return
         d = DeleteMatchingFromDeviceDialog(self.gui, to_delete)
-        if d.exec_():
+        if d.exec():
             paths = {}
             ids = {}
             for (model, id, path) in d.result:

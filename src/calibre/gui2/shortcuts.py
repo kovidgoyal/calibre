@@ -318,4 +318,4 @@ if __name__ == '__main__':
     conf = ShortcutConfig(model)
     conf.resize(400, 500)
     conf.show()
-    app.exec_()
+    app.exec()

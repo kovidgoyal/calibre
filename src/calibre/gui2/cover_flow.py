@@ -506,7 +506,7 @@ def test():
 
     w.show()
     cf.setFocus(Qt.FocusReason.OtherFocusReason)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 def main(args=sys.argv):
@@ -528,4 +528,4 @@ if __name__ == '__main__':
 
     w.show()
     cf.setFocus(Qt.FocusReason.OtherFocusReason)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

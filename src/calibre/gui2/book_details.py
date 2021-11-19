@@ -466,7 +466,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
     if len(menu.actions()) > 0:
-        menu.exec_(ev.globalPos())
+        menu.exec(ev.globalPos())
 # }}}
 
 
@@ -613,7 +613,7 @@ class CoverView(QWidget):  # {{{
         create_open_cover_with_menu(self, cm)
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
-        cm.exec_(ev.globalPos())
+        cm.exec(ev.globalPos())
 
     def open_with(self, entry):
         id_ = self.data.get('id', None)

@@ -18,4 +18,4 @@ def main(url):
     w.setUrl(QUrl(url))
     w.show()
     w.raise_()
-    app.exec_()
+    app.exec()

@@ -416,7 +416,7 @@ class NotesDisplay(Details):
     def edit_notes(self):
         current_text = self.current_notes
         d = NotesEditDialog(current_text, self)
-        if d.exec_() == QDialog.DialogCode.Accepted and d.notes != current_text:
+        if d.exec() == QDialog.DialogCode.Accepted and d.notes != current_text:
             self.notes_edited.emit(d.notes)
 
 
@@ -539,7 +539,7 @@ class HighlightsPanel(QWidget):
         hl = list(self.highlights.all_highlights)
         if not hl:
             return error_dialog(self, _('No highlights'), _('This book has no highlights to export'), show=True)
-        Export(hl, self).exec_()
+        Export(hl, self).exec()
 
     def selected_text_changed(self, text, annot_id):
         if annot_id:

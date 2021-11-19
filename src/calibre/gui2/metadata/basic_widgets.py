@@ -68,7 +68,7 @@ def save_dialog(parent, title, msg, det_msg=''):
     d.setWindowTitle(title)
     d.setText(msg)
     d.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
-    return d.exec_()
+    return d.exec()
 
 
 def clean_text(x):
@@ -372,7 +372,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         current_authors = self.current_val
         from calibre.gui2.dialogs.authors_edit import AuthorsEdit
         d = AuthorsEdit(all_authors, current_authors, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.set_value(d.authors)
 
     def manage_authors(self):
@@ -1053,7 +1053,7 @@ class FormatsManager(QWidget):
                 fmt = self.formats.item(0)
             if fmt is None:
                 error_dialog(self, _('No format selected'),
-                    _('No format selected')).exec_()
+                    _('No format selected')).exec()
                 return None
         return fmt.ext.lower()
 
@@ -1078,7 +1078,7 @@ class FormatsManager(QWidget):
                     fmt = self.formats.item(0)
                 if fmt is None:
                     error_dialog(self, _('No format selected'),
-                        _('No format selected')).exec_()
+                        _('No format selected')).exec()
                     return None, None
             ext = fmt.ext.lower()
             if fmt.path is None:
@@ -1194,7 +1194,7 @@ class Cover(ImageView):  # {{{
             if not os.access(_file, os.R_OK):
                 d = error_dialog(self, _('Cannot read'),
                         _('You do not have permission to read the file: ') + _file)
-                d.exec_()
+                d.exec()
                 return
             cover = None
             try:
@@ -1204,7 +1204,7 @@ class Cover(ImageView):  # {{{
                 d = error_dialog(
                         self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
-                d.exec_()
+                d.exec()
             if cover:
                 orig = self.current_val
                 self.current_val = cover
@@ -1234,7 +1234,7 @@ class Cover(ImageView):  # {{{
         cdata = self.current_val
         from calibre.gui2.dialogs.trim_image import TrimImage
         d = TrimImage(cdata, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted and d.image_data is not None:
+        if d.exec() == QDialog.DialogCode.Accepted and d.image_data is not None:
             self.current_val = d.image_data
             self.cdata_before_trim = cdata
 
@@ -1249,7 +1249,7 @@ class Cover(ImageView):  # {{{
         from calibre.gui2.covers import CoverSettingsDialog
         mi = self.dialog.to_book_metadata()
         d = CoverSettingsDialog(mi=mi, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.current_val = generate_cover(mi, prefs=d.prefs_for_rendering)
 
     def set_pixmap_from_data(self, data):
@@ -1456,7 +1456,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
             self.initialize(self.db, id_)
         else:
             d = TagEditor(self, db, id_)
-            if d.exec_() == QDialog.DialogCode.Accepted:
+            if d.exec() == QDialog.DialogCode.Accepted:
                 self.current_val = d.tags
                 self.update_items_cache(db.new_api.all_field_names('tags'))
 
@@ -1590,11 +1590,11 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         ac = m.addAction(_('Edit identifiers in a dedicated window'), self.edit_identifiers)
         m.insertAction(first, ac)
         m.insertSeparator(first)
-        m.exec_(ev.globalPos())
+        m.exec(ev.globalPos())
 
     def edit_identifiers(self):
         d = Identifiers(self.current_val, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.current_val = d.get_identifiers()
 
     @property
@@ -1686,7 +1686,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         text = str(QApplication.clipboard().text()).strip()
         if not text or not check_isbn(text):
             d = ISBNDialog(self, text)
-            if not d.exec_():
+            if not d.exec():
                 return
             text = d.text()
             if not text:

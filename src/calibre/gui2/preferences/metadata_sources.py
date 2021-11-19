@@ -364,7 +364,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = RulesDialog(self)
         if msprefs.get('tag_map_rules'):
             d.rules = msprefs['tag_map_rules']
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.tag_map_rules = d.rules
             self.changed_signal.emit()
 
@@ -373,7 +373,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = RulesDialog(self)
         if msprefs.get('author_map_rules'):
             d.rules = msprefs['author_map_rules']
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.author_map_rules = d.rules
             self.changed_signal.emit()
 

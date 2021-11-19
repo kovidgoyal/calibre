@@ -237,7 +237,7 @@ class EbookViewer(MainWindow):
         m.addSeparator()
         a(_('Hide this scrollbar'), 'toggle_scrollbar')
 
-        q = m.exec_(QCursor.pos())
+        q = m.exec(QCursor.pos())
         if not q:
             return
         q = amap[q.text()]
@@ -514,7 +514,7 @@ class EbookViewer(MainWindow):
             tb = re.split(r'^calibre\.gui2\.viewer\.convert_book\.ConversionFailure:\s*', tb, maxsplit=1, flags=re.M)[-1]
             last_line = tuple(tb.strip().splitlines())[-1]
             if last_line.startswith('calibre.ebooks.DRMError'):
-                DRMErrorMessage(self).exec_()
+                DRMErrorMessage(self).exec()
             else:
                 error_dialog(self, _('Loading book failed'), _(
                     'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),

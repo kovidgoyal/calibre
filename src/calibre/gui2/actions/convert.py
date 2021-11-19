@@ -150,7 +150,7 @@ class ConvertAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot convert'),
                     _('No books selected'))
-            d.exec_()
+            d.exec()
             return None
         return [self.gui.library_view.model().db.id(r) for r in rows]
 

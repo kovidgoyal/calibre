@@ -309,7 +309,7 @@ class Editor(QMainWindow):
     def resize_image(self):
         im = self.canvas.current_image
         d = ResizeDialog(im.width(), im.height(), self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.canvas.resize_image(d.width, d.height)
 
     def sharpen_image(self):
@@ -341,7 +341,7 @@ def launch_editor(path_to_edit, path_is_raw=False):
     t = Editor('raster_image')
     t.data = raw
     t.show()
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

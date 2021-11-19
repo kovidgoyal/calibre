@@ -184,7 +184,7 @@ if __name__ == '__main__':
     view.setHtml('''
 <p>hello</p>
     ''')
-    app.exec_()
+    app.exec()
     del t
     del page
     del app

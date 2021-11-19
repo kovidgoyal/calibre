@@ -110,7 +110,7 @@ class EmbedAction(InterfaceAction):
                 tc.setVisible(True), tc.setText(_('Show the &failed books in the main book list'))
                 tc.setChecked(gprefs.get('show-embed-failed-books', False))
                 d.resize_needed.emit()
-                d.exec_()
+                d.exec()
                 gprefs['show-embed-failed-books'] = tc.isChecked()
                 if tc.isChecked():
                     failed_ids = {mi.book_id for mi, fmt, tb in errors}

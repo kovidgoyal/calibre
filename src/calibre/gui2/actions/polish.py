@@ -251,7 +251,7 @@ class Polish(QDialog):  # {{{
             self.pd = ProgressDialog(_('Queueing books for polishing'),
                                      max=len(self.queue), parent=self)
             QTimer.singleShot(0, self.do_one)
-            self.pd.exec_()
+            self.pd.exec()
 
     def do_one(self):
         if not self.queue:
@@ -458,7 +458,7 @@ class PolishAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot polish'),
                     _('No books selected'))
-            d.exec_()
+            d.exec()
             return None
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
@@ -506,7 +506,7 @@ class PolishAction(InterfaceAction):
 
     def do_polish(self, book_id_map):
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
-        if d.exec_() == QDialog.DialogCode.Accepted and d.jobs:
+        if d.exec() == QDialog.DialogCode.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
             for desc, data, book_id, base, is_orig in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(
@@ -562,4 +562,4 @@ if __name__ == '__main__':
     app
     from calibre.library import db
     d = Polish(db(), {1:{'EPUB'}, 2:{'AZW3'}})
-    d.exec_()
+    d.exec()

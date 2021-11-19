@@ -257,7 +257,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         menu = QMenu(self)
         menu.addAction(_('Expand all'), self.plugin_view.expandAll)
         menu.addAction(_('Collapse all'), self.plugin_view.collapseAll)
-        menu.exec_(self.plugin_view.mapToGlobal(pos))
+        menu.exec(self.plugin_view.mapToGlobal(pos))
 
     def show_user_installed_plugins(self, state):
         self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
@@ -343,7 +343,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.highlight_index(idx)
         else:
             error_dialog(self, _('No valid plugin path'),
-                         _('%s is not a valid plugin path')%path).exec_()
+                         _('%s is not a valid plugin path')%path).exec()
 
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
@@ -369,7 +369,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if op == 'customize':
                 if not plugin.is_customizable():
                     info_dialog(self, _('Plugin not customizable'),
-                        _('Plugin: %s does not need customization')%plugin.name).exec_()
+                        _('Plugin: %s does not need customization')%plugin.name).exec()
                     return
                 self.changed_signal.emit()
                 from calibre.customize import InterfaceActionBase
@@ -399,7 +399,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 else:
                     error_dialog(self, _('Cannot remove builtin plugin'),
                          plugin.name + _(' cannot be removed. It is a '
-                         'builtin plugin. Try disabling it instead.')).exec_()
+                         'builtin plugin. Try disabling it instead.')).exec()
 
     def get_plugins(self):
         self.update_plugins(not_installed=True)
@@ -409,7 +409,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 FILTER_UPDATE_AVAILABLE, FILTER_NOT_INSTALLED)
         mode = FILTER_NOT_INSTALLED if not_installed else FILTER_UPDATE_AVAILABLE
         d = PluginUpdaterDialog(self.gui, initial_filter=mode)
-        d.exec_()
+        d.exec()
         self._plugin_model.beginResetModel()
         self._plugin_model.populate()
         self._plugin_model.endResetModel()
@@ -459,7 +459,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         from calibre.gui2.dialogs.choose_plugin_toolbars import ChoosePluginToolbarsDialog
         d = ChoosePluginToolbarsDialog(self, plugin_action, allowed_locations)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             for key, text in d.selected_locations():
                 installed_actions = list(gprefs.get('action-layout-'+key, []))
                 installed_actions.append(plugin_action.name)

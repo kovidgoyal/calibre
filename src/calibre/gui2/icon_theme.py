@@ -416,11 +416,11 @@ def create_theme(folder=None, parent=None):
             return
     report = read_theme_from_folder(folder)
     d = ThemeCreateDialog(parent, report)
-    if d.exec_() != QDialog.DialogCode.Accepted:
+    if d.exec() != QDialog.DialogCode.Accepted:
         return
     d.save_metadata()
     d = Compress(d.report, parent=parent)
-    d.exec_()
+    d.exec()
     if d.wasCanceled() or d.raw is None:
         return
     raw, prefix = d.raw, d.prefix
@@ -798,7 +798,7 @@ class ChooseTheme(Dialog):
         t = Thread(name='DownloadIconTheme', target=download)
         t.daemon = True
         t.start()
-        ret = d.exec_()
+        ret = d.exec()
 
         if self.downloaded_theme and not isinstance(self.downloaded_theme, BytesIO):
             return error_dialog(self, _('Download failed'), _(
@@ -880,6 +880,6 @@ if __name__ == '__main__':
     app = Application([])
     # create_theme('.')
     d = ChooseTheme()
-    if d.exec_() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
+    if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
         d.commit_changes()
     del app

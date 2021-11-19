@@ -37,7 +37,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.decode('utf-8').replace(' ', '-'), quote_plus(query))

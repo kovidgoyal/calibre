@@ -492,7 +492,7 @@ class ConfigWidget(ConfigWidgetBase):
     def plugin_tweaks(self):
         raw = self.tweaks.plugin_tweaks_string
         d = PluginTweaks(raw, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             g, l = {}, {}
             try:
                 exec(str(d.edit.toPlainText()), g, l)

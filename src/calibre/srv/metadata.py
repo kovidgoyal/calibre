@@ -610,6 +610,6 @@ def test_tag_browser(library_path=None):
     from calibre.gui2.tweak_book.diff.main import Diff
     d = Diff(show_as_window=True)
     d.string_diff(m_data, srv_data, left_name='GUI', right_name='server')
-    d.exec_()
+    d.exec()
     del app
 # }}}

@@ -190,7 +190,7 @@ def run_file_dialog(
             [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
                data, loop.dialog_closed.emit)
     h.start()
-    loop.exec_(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+    loop.exec(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
     def decode(x):
         x = x or b''

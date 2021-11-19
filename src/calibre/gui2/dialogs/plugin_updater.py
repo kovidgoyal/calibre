@@ -732,7 +732,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 d.do_restart = True
             b.clicked.connect(rf)
             d.set_details('')
-            d.exec_()
+            d.exec()
             b.clicked.disconnect()
             do_restart = d.do_restart
 

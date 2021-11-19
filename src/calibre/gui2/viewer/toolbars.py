@@ -131,7 +131,7 @@ class ActionsToolBar(ToolBar):
         a.triggered.connect(self.customize)
         a = m.addAction(_('Hide this toolbar'))
         a.triggered.connect(self.hide_toolbar)
-        m.exec_(self.mapToGlobal(pos))
+        m.exec(self.mapToGlobal(pos))
 
     def hide_toolbar(self):
         self.web_view.trigger_shortcut('toggle_toolbar')
@@ -347,7 +347,7 @@ class ActionsToolBar(ToolBar):
 
     def customize(self):
         d = ConfigureToolBar(parent=self.parent())
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.add_actions()
 
 
@@ -493,4 +493,4 @@ class ConfigureToolBar(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    ConfigureToolBar().exec_()
+    ConfigureToolBar().exec()

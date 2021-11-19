@@ -128,7 +128,7 @@ def split_jobs(ids, batch_size=100):
 
 def start_download(gui, ids, callback, ensure_fields=None):
     d = ConfirmDialog(ids, gui)
-    ret = d.exec_()
+    ret = d.exec()
     d.b.clicked.disconnect()
     if ret != QDialog.DialogCode.Accepted:
         return

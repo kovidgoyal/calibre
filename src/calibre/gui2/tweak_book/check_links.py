@@ -175,5 +175,5 @@ if __name__ == '__main__':
     set_current_container(get_container(sys.argv[-1]))
     d = CheckExternalLinks()
     d.refresh()
-    d.exec_()
+    d.exec()
     del app

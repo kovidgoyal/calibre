@@ -85,7 +85,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
     def finish_editing(self, item):
         if not item.text():
             error_dialog(self, _('Item is blank'),
-                            _('An item cannot be set to nothing. Delete it instead.')).exec_()
+                            _('An item cannot be set to nothing. Delete it instead.')).exec()
             item.setText(item.previous_text())
             return
         if item.text() != item.initial_text():
@@ -99,7 +99,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
     def _rename_tag(self, item):
         if item is None:
             error_dialog(self, _('No item selected'),
-                         _('You must select one item from the list of available items.')).exec_()
+                         _('You must select one item from the list of available items.')).exec()
             return
         self.available_tags.editItem(item)
 
@@ -107,7 +107,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         deletes = self.available_tags.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'),
-                         _('You must select at least one item from the list.')).exec_()
+                         _('You must select at least one item from the list.')).exec()
             return
         ct = ', '.join([str(item.text()) for item in deletes])
         if not question_dialog(self, _('Are you sure?'),

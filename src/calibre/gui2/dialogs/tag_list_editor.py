@@ -323,7 +323,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             action_title_case.triggered.connect(partial(self.do_case, titlecase))
             action_capitalize.triggered.connect(partial(self.do_case, capitalize))
             m.addMenu(case_menu)
-        m.exec_(self.table.mapToGlobal(point))
+        m.exec(self.table.mapToGlobal(point))
 
     def search_for_books(self, item):
         from calibre.gui2.ui import get_gui
@@ -564,7 +564,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         indexes = self.table.selectionModel().selectedRows()
         if not indexes:
             error_dialog(self, _('No item selected'),
-                         _('You must select one item from the list of available items.')).exec_()
+                         _('You must select one item from the list of available items.')).exec()
             return
 
         if not confirm(
@@ -589,7 +589,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def _rename_tag(self, item):
         if item is None:
             error_dialog(self, _('No item selected'),
-                         _('You must select one item from the list of available items.')).exec_()
+                         _('You must select one item from the list of available items.')).exec()
             return
         for col_zero_item in self.table.selectedItems():
             if col_zero_item.is_deleted:
@@ -616,7 +616,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         deletes = self.table.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'),
-                         _('You must select at least one item from the list.')).exec_()
+                         _('You must select at least one item from the list.')).exec()
             return
 
         to_del = []

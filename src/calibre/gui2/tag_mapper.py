@@ -35,7 +35,7 @@ class QueryEdit(QLineEdit):
     def contextMenuEvent(self, ev):
         menu = self.createStandardContextMenu()
         self.parent().specialise_context_menu(menu)
-        menu.exec_(ev.globalPos())
+        menu.exec(ev.globalPos())
 
 
 class RuleEdit(QWidget):
@@ -154,7 +154,7 @@ class RuleEdit(QWidget):
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
         d = TagEditor(self, get_gui().current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.query.setText(', '.join(d.tags))
 
     @property
@@ -321,7 +321,7 @@ class Rules(QWidget):
 
     def add_rule(self):
         d = self.RuleEditDialogClass(self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             i = self.RuleItemClass(d.edit_widget.rule, self.rule_list)
             self.rule_list.scrollToItem(i)
             self.changed.emit()
@@ -331,7 +331,7 @@ class Rules(QWidget):
         if i is not None:
             d = self.RuleEditDialogClass(self)
             d.edit_widget.rule = i.data(Qt.ItemDataRole.UserRole)
-            if d.exec_() == QDialog.DialogCode.Accepted:
+            if d.exec() == QDialog.DialogCode.Accepted:
                 rule = d.edit_widget.rule
                 i.setData(DATA_ROLE, rule)
                 i.setData(RENDER_ROLE, self.RuleItemClass.text_from_rule(rule, self.rule_list))
@@ -525,7 +525,7 @@ class RulesDialog(Dialog, SaveLoadMixin):
         self.edit_widget.rules = rules
 
     def test_rules(self):
-        self.TesterClass(self.rules, self).exec_()
+        self.TesterClass(self.rules, self).exec()
 
     def sizeHint(self):
         ans = super().sizeHint()
@@ -541,7 +541,7 @@ if __name__ == '__main__':
         {'action':'replace', 'query':'moose,sfdg,sfdg,dfsg,dfgsh,sd,er,erg,egrer,ger,s,fgfsgfsga', 'match_type':'one_of', 'replace':'xxxx'},
         {'action':'split', 'query':'/', 'match_type':'has', 'replace':'/'},
     ]
-    d.exec_()
+    d.exec()
     from pprint import pprint
     pprint(d.rules)
     del d, app

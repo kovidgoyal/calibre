@@ -58,7 +58,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + quote_plus(query) + '&scid=1015'

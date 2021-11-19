@@ -114,7 +114,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         confirms, deletes = [], []
         items = self.available_tags.selectedItems() if item is None else [item]
         if not items:
-            error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
+            error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec()
             return
         if not confirm(
             _('Deleting tags is done immediately and there is no undo.'),
@@ -258,5 +258,5 @@ if __name__ == '__main__':
     db = db()
     app = Application([])
     d = TagEditor(None, db, current_tags='a b c'.split())
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         print(d.tags)

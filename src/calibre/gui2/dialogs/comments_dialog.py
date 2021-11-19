@@ -81,6 +81,6 @@ class PlainTextDialog(Dialog):
 if __name__ == '__main__':
     app = Application([])
     d = CommentsDialog(None, 'testing', 'Comments')
-    d.exec_()
+    d.exec()
     del d
     del app

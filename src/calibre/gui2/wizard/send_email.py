@@ -188,7 +188,7 @@ class SendEmail(QWidget, Ui_Form):
             if not opts.relay_password or question_dialog(self, _('OK to proceed?'),
                     _('This will display your email password on the screen'
                     '. Is it OK to proceed?'), show_copy_button=False):
-                TestEmail(pa, self).exec_()
+                TestEmail(pa, self).exec()
 
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
@@ -256,7 +256,7 @@ class SendEmail(QWidget, Ui_Form):
                 }
         }[service]
         d = RelaySetup(service, self)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         self.relay_username.setText(d.username.text())
         self.relay_password.setText(d.password.text())
@@ -269,7 +269,7 @@ class SendEmail(QWidget, Ui_Form):
         from_ = str(self.email_from.text()).strip()
         if to_set and not from_:
             error_dialog(self, _('Bad configuration'),
-                         _('You must set the From email address')).exec_()
+                         _('You must set the From email address')).exec()
             return False
         username = str(self.relay_username.text()).strip()
         password = str(self.relay_password.text()).strip()
@@ -281,7 +281,7 @@ class SendEmail(QWidget, Ui_Form):
             if ((username and not password) or (not username and password)):
                 error_dialog(self, _('Bad configuration'),
                             _('You must either set both the username <b>and</b> password for '
-                            'the mail server or no username and no password at all.')).exec_()
+                            'the mail server or no username and no password at all.')).exec()
                 return False
             if not (username and password) and not question_dialog(
                     self, _('Are you sure?'),

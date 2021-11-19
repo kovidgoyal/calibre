@@ -281,7 +281,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          show=False, show_copy_button=False)
             box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.StandardButton.Cancel)
             box.det_msg_toggle.setVisible(False)
-            if not box.exec_():
+            if not box.exec():
                 return
         try:
             prog = str(self.program.toPlainText())
@@ -350,7 +350,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                    mi=self.mi, fm=self.fm, text_is_placeholder=self.st_first_time,
                    all_functions=all_funcs)
             t.setWindowTitle(_('Template tester'))
-            if t.exec_() == QDialog.DialogCode.Accepted:
+            if t.exec() == QDialog.DialogCode.Accepted:
                 self.st_previous_text = t.rule[1]
                 self.st_first_time = False
         else:
@@ -432,7 +432,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 box.bb.setStandardButtons(box.bb.standardButtons() |
                                           QDialogButtonBox.StandardButton.Cancel)
                 box.det_msg_toggle.setVisible(False)
-                if not box.exec_():
+                if not box.exec():
                     self.te_name.blockSignals(True)
                     dex = self.te_name.findText(self.st_current_program_name)
                     self.te_name.setCurrentIndex(dex)

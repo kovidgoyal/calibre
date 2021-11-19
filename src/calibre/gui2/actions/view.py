@@ -209,7 +209,7 @@ class ViewAction(InterfaceAction):
         rows = list(self.gui.library_view.selectionModel().selectedRows())
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot view'), _('No book selected'))
-            d.exec_()
+            d.exec()
             return
 
         db = self.gui.library_view.model().db
@@ -228,7 +228,7 @@ class ViewAction(InterfaceAction):
         d = ChooseFormatDialog(self.gui, _('Choose the format to view'),
                 list(sorted(all_fmts)), show_open_with=True)
         self.gui.book_converted.connect(d.book_converted)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
             fmt = d.format()
             orig_num = len(rows)
@@ -266,7 +266,7 @@ class ViewAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot open folder'),
                     _('No book selected'))
-            d.exec_()
+            d.exec()
             return
         if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return

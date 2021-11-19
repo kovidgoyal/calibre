@@ -243,7 +243,7 @@ class ConnectShareAction(InterfaceAction):
                     _('Stopping server, this could take up to a minute, please wait...'),
                     show_copy_button=False)
             QTimer.singleShot(1000, self.check_exited)
-            self.stopping_msg.exec_()
+            self.stopping_msg.exec()
 
     def check_exited(self):
         if getattr(self.gui.content_server, 'is_running', False):
@@ -264,7 +264,7 @@ class ConnectShareAction(InterfaceAction):
                     dm.set_option('smartdevice', 'autostart', False)
         else:
             sd_dialog = SmartdeviceDialog(self.gui)
-            sd_dialog.exec_()
+            sd_dialog.exec()
         self.set_smartdevice_action_state()
 
     def check_smartdevice_menus(self):

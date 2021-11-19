@@ -353,7 +353,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             if check_key_modifier(Qt.KeyboardModifier.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
                 d = TagEditor(parent, self.db, m.id(index.row()), key=key)
-                if d.exec_() == QDialog.DialogCode.Accepted:
+                if d.exec() == QDialog.DialogCode.Accepted:
                     m.setData(index, self.sep.join(d.tags), Qt.ItemDataRole.EditRole)
                 return None
             editor = EditWithComplete(parent)
@@ -523,7 +523,7 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
         d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
         return None
 
@@ -671,7 +671,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
         editor = CommentsDialog(parent, text, column_name=m.custom_columns[col]['name'])
-        d = editor.exec_()
+        d = editor.exec()
         if d:
             m.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
         return None
@@ -758,7 +758,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopWidth(20)
-        d = editor.exec_()
+        d = editor.exec()
         if d:
             m.setData(index, (editor.rule[1]), Qt.ItemDataRole.EditRole)
         return None

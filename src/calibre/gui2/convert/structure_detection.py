@@ -40,6 +40,6 @@ class StructureDetectionWidget(Widget, Ui_Form):
             x = getattr(self, 'opt_'+x)
             if not x.check():
                 error_dialog(self, _('Invalid XPath'),
-                _('The XPath expression %s is invalid.')%x.text).exec_()
+                _('The XPath expression %s is invalid.')%x.text).exec()
                 return False
         return True

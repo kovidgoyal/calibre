@@ -142,4 +142,4 @@ if __name__ == '__main__':
     app = Application([])
     w = LayoutMenu()
     w.show()
-    w.exec_()
+    w.exec()

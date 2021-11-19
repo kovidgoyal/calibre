@@ -91,7 +91,7 @@ def confirm_merge(msg, name, parent, mi):
     if not config_set.get(confirm_config_name(name), True):
         return True
     d = ConfirmMerge(msg, name, parent, mi)
-    return d.exec_() == QDialog.DialogCode.Accepted
+    return d.exec() == QDialog.DialogCode.Accepted
 
 
 class ChooseMerge(Dialog):
@@ -189,6 +189,6 @@ class ChooseMerge(Dialog):
 
 def merge_drop(dest_id, src_ids, gui):
     d = ChooseMerge(dest_id, src_ids, gui)
-    if d.exec_() != QDialog.DialogCode.Accepted:
+    if d.exec() != QDialog.DialogCode.Accepted:
         return None, None, None
     return d.merge_type

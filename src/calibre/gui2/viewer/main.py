@@ -162,7 +162,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     if opts.full_screen:
         main.set_full_screen(True)
 
-    app.exec_()
+    app.exec()
 
 
 def main(args=sys.argv):

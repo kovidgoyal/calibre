@@ -71,4 +71,4 @@ if __name__ == '__main__':
     app = Application([])
     w = LoadingOverlay()
     w.show()
-    app.exec_()
+    app.exec()

@@ -123,7 +123,7 @@ class TTS(QObject):
     def configure(self, data):
         ui_settings = get_pref_group('tts').copy()
         d = Config(self.tts_client, ui_settings, self.backend_settings, parent=self.parent())
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             s = d.backend_settings
             self.backend_settings = s
             self.tts_client.apply_settings(s)

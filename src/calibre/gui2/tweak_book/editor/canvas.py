@@ -692,4 +692,4 @@ if __name__ == '__main__':
     c = Canvas()
     c.load_image(data)
     c.show()
-    app.exec_()
+    app.exec()

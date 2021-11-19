@@ -119,7 +119,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             pat = self.pattern()
         except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
-                         _('Invalid regular expression: %s')%err).exec_()
+                         _('Invalid regular expression: %s')%err).exec()
             return
         mi = metadata_from_filename(fname, pat)
         if mi.title:
@@ -284,7 +284,7 @@ class ImageDropMixin:  # {{{
         return cm
 
     def contextMenuEvent(self, ev):
-        self.build_context_menu().exec_(ev.globalPos())
+        self.build_context_menu().exec(ev.globalPos())
 
     def copy_to_clipboard(self):
         QApplication.instance().clipboard().setPixmap(self.get_pixmap())
@@ -490,7 +490,7 @@ class LineEditECM:  # {{{
         menu = self.createStandardContextMenu()
         menu.addSeparator()
         self.create_change_case_menu(menu)
-        menu.exec_(event.globalPos())
+        menu.exec(event.globalPos())
 
     def upper_case(self):
         from calibre.utils.icu import upper
@@ -1300,4 +1300,4 @@ if __name__ == '__main__':
     # w.setSyntaxHighlighter(s)
     w.setText(open(__file__, 'rb').read().decode('utf-8'))
     w.show()
-    app.exec_()
+    app.exec()

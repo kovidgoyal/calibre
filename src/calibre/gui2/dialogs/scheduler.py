@@ -628,7 +628,7 @@ class Scheduler(QObject):
         try:
             d = SchedulerDialog(self.recipe_model)
             d.download.connect(self.download_clicked)
-            d.exec_()
+            d.exec()
             gconf['oldest_news'] = self.oldest = d.old_news.value()
             d.break_cycles()
         finally:
@@ -638,7 +638,7 @@ class Scheduler(QObject):
         from calibre.gui2.dialogs.custom_recipes import CustomRecipes
         d = CustomRecipes(self.recipe_model, self._parent)
         try:
-            d.exec_()
+            d.exec()
         finally:
             d.deleteLater()
 
@@ -729,5 +729,5 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = SchedulerDialog(RecipeModel())
-    d.exec_()
+    d.exec()
     del app

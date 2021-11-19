@@ -301,7 +301,7 @@ class ManageFonts(Dialog):
                 'The font <b>%s</b> was not found on your computer. If you have the font files,'
                 ' you can install it using the "Install fonts" button in the lower left corner.'
             ) % family, show=True)
-        EmbeddingData(family, faces, self).exec_()
+        EmbeddingData(family, faces, self).exec()
 
     def install_fonts(self):
         from calibre.gui2.font_family_chooser import add_fonts
@@ -333,7 +333,7 @@ class ManageFonts(Dialog):
         if not fonts:
             return
         d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         changed = False
         new_family = d.normalized_family
@@ -370,5 +370,5 @@ if __name__ == '__main__':
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)
     d = ManageFonts()
-    d.exec_()
+    d.exec()
     del app

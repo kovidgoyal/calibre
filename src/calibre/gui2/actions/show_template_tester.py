@@ -33,7 +33,7 @@ class ShowTemplateTesterAction(InterfaceAction):
         if view is not self.gui.library_view:
             return error_dialog(self.gui, _('No template tester available'),
                 _('Template tester is not available for books '
-                  'on the device.')).exec_()
+                  'on the device.')).exec()
 
         rows = view.selectionModel().selectedRows()
         if not rows:
@@ -48,6 +48,6 @@ class ShowTemplateTesterAction(InterfaceAction):
             t = TemplateDialog(self.gui, self.previous_text,
                    mi, text_is_placeholder=self.first_time)
             t.setWindowTitle(_('Template tester'))
-            if t.exec_() == QDialog.DialogCode.Accepted:
+            if t.exec() == QDialog.DialogCode.Accepted:
                 self.previous_text = t.rule[1]
                 self.first_time = False

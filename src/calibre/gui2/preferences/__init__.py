@@ -391,7 +391,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     w.initialize()
     if geom is not None:
         QApplication.instance().safe_restore_geometry(d, geom)
-    d.exec_()
+    d.exec()
     geom = bytearray(d.saveGeometry())
     gprefs[conf_name] = geom
     rr = getattr(d, 'restart_required', False)

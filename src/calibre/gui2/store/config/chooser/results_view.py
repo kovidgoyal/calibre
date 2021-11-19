@@ -49,7 +49,7 @@ class ResultsView(QTreeView):
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
         if not plugin.is_customizable():
             ca.setEnabled(False)
-        menu.exec_(event.globalPos())
+        menu.exec(event.globalPos())
 
     def configure_plugin(self, plugin):
         plugin.do_user_config(self)

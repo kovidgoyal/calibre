@@ -755,7 +755,7 @@ def test(scale=0.25):
     m.setCentralWidget(sa)
     w.resize(w.sizeHint())
     m.show()
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

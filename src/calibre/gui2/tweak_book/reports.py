@@ -200,7 +200,7 @@ class FilesView(QTableView):
             m.addAction(_('Delete selected files'), self.delete_selected)
         self.customize_context_menu(m, locations, self.current_location)
         if len(m.actions()) > 0:
-            m.exec_(pos)
+            m.exec(pos)
 
     def to_csv(self):
         buf = StringIO(newline='')
@@ -1486,5 +1486,5 @@ if __name__ == '__main__':
     set_current_container(get_container(sys.argv[-1]))
     d = Reports()
     d.refresh()
-    d.exec_()
+    d.exec()
     del d, app

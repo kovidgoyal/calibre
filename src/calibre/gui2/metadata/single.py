@@ -436,7 +436,7 @@ class MetadataSingleDialogBase(QDialog):
                                                        'pdf')
         from calibre.gui2.metadata.pdf_covers import PDFCovers
         d = PDFCovers(pdfpath, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             cpath = d.cover_path
             if cpath:
                 with open(cpath, 'rb') as f:
@@ -472,7 +472,7 @@ class MetadataSingleDialogBase(QDialog):
             cdata = mi.cover_data[1]
         if cdata is None:
             error_dialog(self, _('Could not read cover'),
-                         _('Could not read cover from %s format')%ext.upper()).exec_()
+                         _('Could not read cover from %s format')%ext.upper()).exec()
             return
         self.update_cover(cdata, ext)
 
@@ -680,7 +680,7 @@ class MetadataSingleDialogBase(QDialog):
             self.edit_format.connect(edit_slot)
         self.set_current_callback = set_current_callback
         self.do_one(apply_changes=False)
-        ret = self.exec_()
+        ret = self.exec()
         self.break_cycles()
         return ret
 

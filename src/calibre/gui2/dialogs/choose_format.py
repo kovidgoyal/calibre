@@ -104,6 +104,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = ChooseFormatDialog(None, 'Testing choose format', ['epub', 'mobi', 'docx'], show_open_with=True)
-    d.exec_()
+    d.exec()
     print(d._format)
     del app

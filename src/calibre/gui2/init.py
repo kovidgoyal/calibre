@@ -541,7 +541,7 @@ class VLTabs(QTabBar):  # {{{
                 m.addSeparator()
                 m.addAction(_('Edit "%s"') % vln, partial(self.gui.do_create_edit, name=vl))
                 m.addAction(_('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
-        m.exec_(ev.globalPos())
+        m.exec(ev.globalPos())
 
     def sort_alphabetically(self):
         self.current_db.new_api.set_pref('virt_libs_order', ())
@@ -705,7 +705,7 @@ class LayoutMixin:  # {{{
         identifiers = db.field_for('identifiers', book_id, default_value={})
         from calibre.gui2.metadata.basic_widgets import Identifiers
         d = Identifiers(identifiers, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             identifiers = d.get_identifiers()
             db.set_field('identifiers', {book_id: identifiers})
             self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})

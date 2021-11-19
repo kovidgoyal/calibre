@@ -127,7 +127,7 @@ class TOCView(QTreeView):
             m.addAction(_('Collapse all items at the level of {}').format(index.data()), partial(self.collapse_at_level, index))
         m.addSeparator()
         m.addAction(_('Copy Table of Contents to clipboard'), self.copy_to_clipboard)
-        m.exec_(self.mapToGlobal(pos))
+        m.exec(self.mapToGlobal(pos))
 
     def copy_to_clipboard(self):
         m = self.model()

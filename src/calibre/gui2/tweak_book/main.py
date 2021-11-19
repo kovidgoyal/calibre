@@ -86,7 +86,7 @@ def _run(args, notify=None):
             main.boss.open_book(path)
             break
         app.file_event_hook = main.boss.open_book
-    app.exec_()
+    app.exec()
     # Ensure that the parse worker has quit so that temp files can be deleted
     # on windows
     st = time.time()

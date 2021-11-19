@@ -41,7 +41,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'https://wolnelektury.pl/szukaj?q=' + quote_plus(query)

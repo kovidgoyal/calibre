@@ -130,7 +130,7 @@ class ShowQuickviewAction(InterfaceAction):
         if self.gui.current_view() is not self.gui.library_view:
             error_dialog(self.gui, _('No quickview available'),
                 _('Quickview is not available for books '
-                  'on the device.')).exec_()
+                  'on the device.')).exec()
             return
         self.qv_button.set_state_to_hide()
         index = self.gui.library_view.currentIndex()

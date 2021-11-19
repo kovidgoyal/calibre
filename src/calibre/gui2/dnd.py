@@ -94,7 +94,7 @@ class DownloadDialog(QDialog):  # {{{
     def start_download(self):
         self.worker.start()
         QTimer.singleShot(50, self.update)
-        self.exec_()
+        self.exec()
         if self.worker.err is not None:
             error_dialog(self.parent(), _('Download failed'),
                 _('Failed to download from %(url)r with error: %(err)s')%dict(

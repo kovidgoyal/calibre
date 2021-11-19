@@ -382,7 +382,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
         )+ ' ' + title, msg, det_msg, parent=parent,
         show_copy_button=show_copy_button)
     if show:
-        return d.exec_()
+        return d.exec()
     return d
 
 
@@ -393,7 +393,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         ) + ' ' + title, msg, det_msg, parent=parent,
         show_copy_button=show_copy_button)
     if show:
-        return d.exec_()
+        return d.exec()
     return d
 
 
@@ -441,7 +441,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         tc.setChecked(bool(skip_dialog_skip_precheck))
         d.resize_needed.emit()
 
-    ret = d.exec_() == QDialog.DialogCode.Accepted
+    ret = d.exec() == QDialog.DialogCode.Accepted
     if add_abort_button and d.aborted:
         raise Aborted()
 
@@ -459,7 +459,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
                     show_copy_button=show_copy_button, only_copy_details=only_copy_details)
 
     if show:
-        return d.exec_()
+        return d.exec()
     return d
 
 
@@ -474,7 +474,7 @@ def show_restart_warning(msg, parent=None):
         d.do_restart = True
     b.clicked.connect(rf)
     d.set_details('')
-    d.exec_()
+    d.exec()
     b.clicked.disconnect()
     return d.do_restart
 

@@ -123,7 +123,7 @@ def main():
     spl = SplashScreen(develop=True)
     spl.show()
     spl.show_message('Testing the splash screen message...')
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

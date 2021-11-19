@@ -256,7 +256,7 @@ class ImageView(QDialog):
         title = _('Image: {name} {resolution}').format(name=self.current_image_name, resolution=reso)
         self.setWindowTitle(title)
         if use_exec:
-            self.exec_()
+            self.exec()
         else:
             self.show()
 
@@ -314,4 +314,4 @@ if __name__ == '__main__':
     u = QUrl.fromLocalFile(sys.argv[-1])
     d = ImageView(None, p, u)
     d()
-    app.exec_()
+    app.exec()

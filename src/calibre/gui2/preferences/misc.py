@@ -58,12 +58,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice
         d = DebugDevice(self.gui, self)
-        d.exec_()
+        d.exec()
 
     def user_defined_device(self, *args):
         from calibre.gui2.preferences.device_user_defined import UserDefinedDevice
         d = UserDefinedDevice(self)
-        d.exec_()
+        d.exec()
 
     def open_config_dir(self, *args):
         from calibre.utils.config import config_dir

@@ -306,7 +306,7 @@ class SelectRecipients(QDialog):  # {{{
 
 def select_recipients(parent=None):
     d = SelectRecipients(parent)
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         return d.ans
     return ()
 # }}}
@@ -469,7 +469,7 @@ class EmailMixin:  # {{{
             d = warning_dialog(self, _('No suitable formats'),
                 _('Could not email the following books '
                 'as no suitable formats were found:'), bad)
-            d.exec_()
+            d.exec()
 
     def email_sent(self, job, remove=[]):
         if job.failed:

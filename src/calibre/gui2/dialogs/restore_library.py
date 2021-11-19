@@ -111,7 +111,7 @@ def restore_database(db, parent=None):
         return False
     db.close()
     d = DBRestore(parent, db.library_path)
-    d.exec_()
+    d.exec()
     r = d.restorer
     d.restorer = None
     if d.rejected:
@@ -127,7 +127,7 @@ def restore_database(db, parent=None):
 
 def repair_library_at(library_path, parent=None, wait_time=2):
     d = DBRestore(parent, library_path, wait_time=wait_time)
-    d.exec_()
+    d.exec()
     if d.rejected:
         return False
     r = d.restorer

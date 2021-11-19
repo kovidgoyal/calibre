@@ -98,5 +98,5 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
-    d.exec_()
+    d.exec()
     print(d.selected_formats)

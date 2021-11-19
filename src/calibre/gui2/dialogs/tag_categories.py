@@ -236,14 +236,14 @@ class TagCategories(QDialog, Ui_TagCategories):
             error_dialog(self, _('Invalid name'),
                     _('That name contains leading or trailing periods, '
                       'multiple periods in a row or spaces before '
-                      'or after periods.')).exec_()
+                      'or after periods.')).exec()
             return False
         for c in sorted(self.categories.keys(), key=sort_key):
             if strcmp(c, cat_name) == 0 or \
                     (icu_lower(cat_name).startswith(icu_lower(c) + '.') and
                      not cat_name.startswith(c + '.')):
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec_()
+                        _('That name is already used, perhaps with different case.')).exec()
                 return False
         if cat_name not in self.categories:
             self.category_box.clear()
@@ -267,13 +267,13 @@ class TagCategories(QDialog, Ui_TagCategories):
             error_dialog(self, _('Invalid name'),
                     _('That name contains leading or trailing periods, '
                       'multiple periods in a row or spaces before '
-                      'or after periods.')).exec_()
+                      'or after periods.')).exec()
             return False
 
         for c in self.categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec_()
+                        _('That name is already used, perhaps with different case.')).exec()
                 return False
         # The order below is important because of signals
         self.categories[cat_name] = self.categories[self.current_cat_name]

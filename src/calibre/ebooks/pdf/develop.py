@@ -35,7 +35,7 @@ def main():
     renderer = Renderer()
     renderer.setUrl(QUrl.fromLocalFile(sys.argv[-1]))
     renderer.loadFinished.connect(renderer.do_print)
-    QApplication.instance().exec_()
+    QApplication.instance().exec()
     print('Output written to:', OUTPUT)
 
 

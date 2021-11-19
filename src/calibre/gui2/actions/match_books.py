@@ -33,11 +33,11 @@ class MatchBookAction(InterfaceAction):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:
             d = error_dialog(self.gui, _('Match books'), _('You must select one book'))
-            d.exec_()
+            d.exec()
             return
 
         id_ = view.model().indices(rows)[0]
-        MatchBooks(self.gui, view, id_, rows[0]).exec_()
+        MatchBooks(self.gui, view, id_, rows[0]).exec()
 
 
 class ShowMatchedBookAction(InterfaceAction):
@@ -62,7 +62,7 @@ class ShowMatchedBookAction(InterfaceAction):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:
             d = error_dialog(self.gui, _('Match books'), _('You must select one book'))
-            d.exec_()
+            d.exec()
             return
 
         device_book_index = view.model().indices(rows)[0]
@@ -74,7 +74,7 @@ class ShowMatchedBookAction(InterfaceAction):
             if question_dialog(self.gui, _('No matching books'), _(
                 'No matching books found in the calibre library. Do you want to specify the'
                 ' matching book manually?')):
-                MatchBooks(self.gui, view, device_book_index, rows[0]).exec_()
+                MatchBooks(self.gui, view, device_book_index, rows[0]).exec()
             return
         ids = tuple(sorted(matching_book_ids, reverse=True))
         self.gui.library_view.select_rows(ids)

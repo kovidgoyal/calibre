@@ -199,5 +199,5 @@ class AuthorsEdit(QDialog):
 if __name__ == '__main__':
     app = QApplication([])
     d = AuthorsEdit(['kovid goyal', 'divok layog', 'other author'], ['kovid goyal', 'other author'])
-    d.exec_()
+    d.exec()
     print(d.authors)

@@ -439,5 +439,5 @@ if __name__ == '__main__':
     gui = init_gui()
 
     p = Preferences(gui)
-    p.exec_()
+    p.exec()
     gui.shutdown()

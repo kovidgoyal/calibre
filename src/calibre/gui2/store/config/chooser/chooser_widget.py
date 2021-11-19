@@ -34,5 +34,5 @@ class StoreChooserWidget(QWidget, Ui_Form):
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        if adv.exec_() == QDialog.DialogCode.Accepted:
+        if adv.exec() == QDialog.DialogCode.Accepted:
             self.query.setText(adv.search_string())

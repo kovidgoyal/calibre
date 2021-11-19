@@ -186,7 +186,7 @@ class EditorSettings(BasicSettings):  # {{{
 
         self.tb = b = QPushButton(_('Change &templates'))
         l.addRow(_('Templates for new files:'), b)
-        connect_lambda(b.clicked, self, lambda self: TemplatesDialog(self).exec_())
+        connect_lambda(b.clicked, self, lambda self: TemplatesDialog(self).exec())
 
         lw = self('editor_line_wrap')
         lw.setText(_('&Wrap long lines in the editor'))
@@ -243,13 +243,13 @@ class EditorSettings(BasicSettings):  # {{{
 
     def manage_dictionaries(self):
         d = ManageDictionaries(self)
-        d.exec_()
+        d.exec()
         self.dictionaries_changed = True
 
     def manage_snippets(self):
         from calibre.gui2.tweak_book.editor.snippets import UserSnippets
         d = UserSnippets(self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.snippets_changed = True
 
     def theme_choices(self):
@@ -259,7 +259,7 @@ class EditorSettings(BasicSettings):  # {{{
 
     def custom_theme(self):
         d = ThemeEditor(parent=self)
-        d.exec_()
+        d.exec()
         choices = self.theme_choices()
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
@@ -870,4 +870,4 @@ if __name__ == '__main__':
     opts = option_parser().parse_args(['dev'])
     main = Main(opts)
     d = Preferences(main)
-    d.exec_()
+    d.exec()

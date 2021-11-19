@@ -343,5 +343,5 @@ class UnpackBookAction(InterfaceAction):
                         '\n\nFirst convert the book to one of these formats.'),
                     show=True)
         dlg = UnpackBook(self.gui, book_id, tweakable_fmts, db)
-        dlg.exec_()
+        dlg.exec()
         dlg.cleanup()

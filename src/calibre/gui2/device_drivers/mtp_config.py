@@ -102,7 +102,7 @@ class TemplateConfig(QWidget):  # {{{
     def edit_template(self):
         t = TemplateDialog(self, self.template)
         t.setWindowTitle(_('Edit template'))
-        if t.exec_():
+        if t.exec():
             self.t.setText(t.rule[1])
 
     def validate(self):
@@ -149,7 +149,7 @@ class SendToConfig(QWidget):  # {{{
     def browse(self):
         b = Browser(self.device.filesystem_cache, show_files=False,
                 parent=self)
-        if b.exec_() == QDialog.DialogCode.Accepted and b.current_item is not None:
+        if b.exec() == QDialog.DialogCode.Accepted and b.current_item is not None:
             sid, path = b.current_item
             self.t.setText('/'.join(path[1:]))
 
@@ -255,7 +255,7 @@ class Rule(QWidget):
     def browse(self):
         b = Browser(self.device.filesystem_cache, show_files=False,
                 parent=self)
-        if b.exec_() == QDialog.DialogCode.Accepted and b.current_item is not None:
+        if b.exec() == QDialog.DialogCode.Accepted and b.current_item is not None:
             sid, path = b.current_item
             self.folder.setText('/'.join(path[1:]))
 
@@ -428,12 +428,12 @@ class MTPConfig(QTabWidget):
         bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         bb.clicked.connect(lambda :
                 QApplication.clipboard().setText(v.toPlainText()))
-        d.exec_()
+        d.exec()
 
     def change_ignored_folders(self):
         d = IgnoredFolders(self.device,
                      self.current_ignored_folders, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.current_ignored_folders = d.ignored_folders
 
     def ignore_device(self):
@@ -547,6 +547,6 @@ if __name__ == '__main__':
     d.l.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         cw.commit()
     dev.shutdown()

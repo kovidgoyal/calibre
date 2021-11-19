@@ -95,7 +95,7 @@ class GutenbergStore(StorePlugin):
             return
         d = WebStoreDialog(self.gui, url, parent, detail_item)
         d.setWindowTitle(self.name)
-        d.exec_()
+        d.exec()
 
 
 if __name__ == '__main__':

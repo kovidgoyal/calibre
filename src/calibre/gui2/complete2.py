@@ -535,4 +535,4 @@ if __name__ == '__main__':
         'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar']
     le.update_items_cache(items)
     le.show_initial_value('')
-    d.exec_()
+    d.exec()

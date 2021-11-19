@@ -155,7 +155,7 @@ class SavedSearchEditor(Dialog):
 
     def add_search(self):
         d = AddSavedSearch(parent=self, commit_changes=False, validate=self.validate_add)
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
         self.searches[name] = expression
@@ -184,7 +184,7 @@ class SavedSearchEditor(Dialog):
         d.setWindowTitle(_('Edit saved search'))
         d.sname.setText(n)
         d.search.setPlainText(self.searches[n])
-        if d.exec_() != QDialog.DialogCode.Accepted:
+        if d.exec() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
         self.slist.currentItem().setText(name)

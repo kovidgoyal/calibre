@@ -104,5 +104,5 @@ if __name__ == '__main__':
     from qt.core import QApplication
     app = QApplication([])
     d = FontKeyChooser()
-    d.exec_()
+    d.exec()
     del app

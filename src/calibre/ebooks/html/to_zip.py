@@ -110,7 +110,7 @@ every time you add an HTML file to the library.\
         v.addWidget(bf)
         v.addWidget(button_box)
         size_dialog()
-        config_dialog.exec_()
+        config_dialog.exec()
 
         if config_dialog.result() == QDialog.DialogCode.Accepted:
             sc = str(sc.text()).strip()

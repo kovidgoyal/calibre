@@ -309,7 +309,7 @@ class RenderManager(QObject):
     def run_loop(self):
         self.block_signal_handlers()
         try:
-            return QApplication.exec_()
+            return QApplication.exec()
         finally:
             self.restore_signal_handlers()
 
@@ -336,7 +336,7 @@ class RenderManager(QObject):
         w = self.workers[0]
         self.evaljs_result = None
         w.runJavaScript(js, self.evaljs_callback)
-        QApplication.exec_()
+        QApplication.exec()
         return self.evaljs_result
 
     def evaljs_callback(self, result):

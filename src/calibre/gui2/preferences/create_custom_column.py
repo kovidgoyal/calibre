@@ -118,7 +118,7 @@ class CreateCustomColumn(QDialog):
 
         if not self.editing_col:
             self.datatype_changed()
-            self.exec_()
+            self.exec()
             return
 
         self.setWindowTitle(_('Edit custom column'))
@@ -202,7 +202,7 @@ class CreateCustomColumn(QDialog):
 
         all_colors = [str(s) for s in list(QColor.colorNames())]
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
-        self.exec_()
+        self.exec()
 
     def shortcut_activated(self, url):  # {{{
         which = str(url).split(':')[-1]

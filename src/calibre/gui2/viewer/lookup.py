@@ -157,7 +157,7 @@ class SourcesEditor(Dialog):
 
     def add_source(self):
         d = SourceEditor(self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.add_entry(d.entry, prepend=True)
 
     def remove_source(self):
@@ -167,7 +167,7 @@ class SourcesEditor(Dialog):
 
     def edit_source(self, source_item):
         d = SourceEditor(self, source_item.data(Qt.ItemDataRole.UserRole))
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             source_item.setData(Qt.ItemDataRole.UserRole, d.entry)
             source_item.setData(Qt.ItemDataRole.DisplayRole, d.name)
 
@@ -233,7 +233,7 @@ class View(QWebEngineView):
         menu.addAction(_('Zoom out'), self.page().zoom_out)
         menu.addAction(_('Default zoom'), self.page().default_zoom)
         menu.addAction(_('Inspect'), self.do_inspect_element)
-        menu.exec_(ev.globalPos())
+        menu.exec(ev.globalPos())
 
     def do_inspect_element(self):
         self.inspect_element.emit()
@@ -307,7 +307,7 @@ class Lookup(QWidget):
         self._page.triggerAction(QWebEnginePage.WebAction.InspectElement)
 
     def add_sources(self):
-        if SourcesEditor(self).exec_() == QDialog.DialogCode.Accepted:
+        if SourcesEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.populate_sources()
             self.source_box.setCurrentIndex(0)
             self.update_query()

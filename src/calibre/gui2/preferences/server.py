@@ -740,7 +740,7 @@ class User(QWidget):
 
     def change_password(self):
         d = NewUser(self.user_data, self, self.username)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['pw'] = d.password
             self.changed_signal.emit()
 
@@ -797,7 +797,7 @@ class User(QWidget):
             self.user_data[self.username]['restriction'].copy(),
             parent=self
         )
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['restriction'] = d.restriction
             self.update_restriction()
             self.changed_signal.emit()
@@ -861,7 +861,7 @@ class Users(QWidget):
 
     def add_user(self):
         d = NewUser(self.user_data, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             un, pw = d.username, d.password
             self.user_data[un] = create_user_data(pw)
             self.user_list.insertItem(0, un)
@@ -1273,7 +1273,7 @@ class ConfigWidget(ConfigWidgetBase):
                     self,
                     _('Failed to start Content server'),
                     as_unicode(self.gui.content_server.exception)
-                ).exec_()
+                ).exec()
                 self.gui.content_server = None
                 return
             self.main_tab.update_button_state()
@@ -1289,7 +1289,7 @@ class ConfigWidget(ConfigWidgetBase):
             show_copy_button=False
         )
         QTimer.singleShot(500, self.check_exited)
-        self.stopping_msg.exec_()
+        self.stopping_msg.exec()
 
     def check_exited(self):
         if getattr(self.server, 'is_running', False):

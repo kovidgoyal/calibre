@@ -45,7 +45,7 @@ def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
     d.resize(d.sizeHint())
-    ret = d.exec_()
+    ret = d.exec()
     d.break_cycles()
     if ret == QDialog.DialogCode.Accepted:
         return d.choice()

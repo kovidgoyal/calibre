@@ -225,12 +225,12 @@ class Printing(QProgressDialog):
 def print_book(path_to_book, parent=None, book_title=None):
     book_title = book_title or os.path.splitext(os.path.basename(path_to_book))[0]
     d = PrintDialog(book_title, parent)
-    if d.exec_() == QDialog.DialogCode.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         data = d.data
         data['input'] = path_to_book
         t = DoPrint(data)
         t.start()
-        Printing(t, data['show_file'], parent).exec_()
+        Printing(t, data['show_file'], parent).exec()
 
 
 if __name__ == '__main__':

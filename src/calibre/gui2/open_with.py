@@ -358,7 +358,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     oft = file_type = file_type.lower()
     file_type = {'cover_image':'jpeg'}.get(oft, oft)
     d = ChooseProgram(file_type, parent, prefs)
-    d.exec_()
+    d.exec()
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
@@ -471,7 +471,7 @@ class EditPrograms(Dialog):  # {{{
 
 def edit_programs(file_type, parent):
     d = EditPrograms(file_type, parent)
-    d.exec_()
+    d.exec()
 # }}}
 
 

@@ -822,7 +822,7 @@ class CoversView(QListView):  # {{{
             m = QMenu(self)
             m.addAction(QIcon(I('view.png')), _('View this cover at full size'), self.show_cover)
             m.addAction(QIcon(I('edit-copy.png')), _('Copy this cover to clipboard'), self.copy_cover)
-            m.exec_(QCursor.pos())
+            m.exec(QCursor.pos())
 
     def show_cover(self):
         idx = self.currentIndex()
@@ -1126,7 +1126,7 @@ class FullFetch(QDialog):  # {{{
         self.title, self.authors = title, authors
         self.identify_widget.start(title=title, authors=authors,
                 identifiers=identifiers)
-        return self.exec_()
+        return self.exec()
 # }}}
 
 
@@ -1182,7 +1182,7 @@ class CoverFetch(QDialog):  # {{{
         book.identifiers = identifiers
         self.covers_widget.start(book, self.current_cover,
                 title, authors, {})
-        return self.exec_()
+        return self.exec()
 
     def view_log(self):
         self._lv = LogViewer(self.log, self)

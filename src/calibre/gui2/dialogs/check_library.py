@@ -46,7 +46,7 @@ class DBCheck(QDialog):  # {{{
         t.daemon = True
         t.start()
         QTimer.singleShot(100, self.check)
-        self.exec_()
+        self.exec()
 
     def vacuum(self):
         try:
@@ -233,7 +233,7 @@ class CheckLibraryDialog(QDialog):
             probs += self.problem_count[c]
         if probs == 0:
             return False
-        self.exec_()
+        self.exec()
         return True
 
     def accept(self):
@@ -467,4 +467,4 @@ if __name__ == '__main__':
     app = QApplication([])
     from calibre.library import db
     d = CheckLibraryDialog(None, db())
-    d.exec_()
+    d.exec()

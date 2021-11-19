@@ -400,7 +400,7 @@ class CoverSettingsWidget(QWidget):
     def create_color_scheme(self):
         scheme = self.colors_map[self.current_colors].data(Qt.ItemDataRole.UserRole)
         d = CreateColorScheme('#' + _('My Color Scheme'), scheme, set(self.colors_map), parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             name, scheme = d.data
             li = QListWidgetItem(name)
             li.setData(Qt.ItemDataRole.UserRole, scheme), li.setFlags(li.flags() | Qt.ItemFlag.ItemIsUserCheckable), li.setCheckState(Qt.CheckState.Checked)
@@ -416,7 +416,7 @@ class CoverSettingsWidget(QWidget):
                 ' color scheme instead.'), show=True)
         li = self.colors_map[cs]
         d = CreateColorScheme(cs, li.data(Qt.ItemDataRole.UserRole), set(self.colors_map), edit_scheme=True, parent=self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             name, scheme = d.data
             li.setText(name)
             li.setData(Qt.ItemDataRole.UserRole, scheme)
@@ -454,7 +454,7 @@ class CoverSettingsWidget(QWidget):
         attr = which + '_template'
         templ = getattr(self, attr).text()
         d = TemplateDialog(self, templ, mi=self.mi, fm=field_metadata)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             templ = d.rule[1]
             getattr(self, attr).setText(templ)
             self.emit_changed()
@@ -613,6 +613,6 @@ if __name__ == '__main__':
     app = Application([])
     d = CoverSettingsDialog()
     d.show()
-    app.exec_()
+    app.exec()
     del d
     del app

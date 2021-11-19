@@ -369,7 +369,7 @@ class EditMetadataAction(InterfaceAction):
                 action_button=(_('&View book'), I('view.png'), self.gui.iactions['View'].view_historical),
                 db=db
             )
-            if d.exec_() == QDialog.DialogCode.Accepted:
+            if d.exec() == QDialog.DialogCode.Accepted:
                 if d.mark_rejected:
                     failed_ids |= d.rejected_ids
                     restrict_to_failed = True
@@ -416,7 +416,7 @@ class EditMetadataAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit metadata'),
                              _('No books selected'))
-            d.exec_()
+            d.exec()
             return
         row_list = [r.row() for r in rows]
         m = self.gui.library_view.model()
@@ -508,7 +508,7 @@ class EditMetadataAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit metadata'),
                     _('No books selected'))
-            d.exec_()
+            d.exec()
             return
         self.do_edit_bulk_metadata(rows, ids)
 
@@ -776,7 +776,7 @@ class EditMetadataAction(InterfaceAction):
         model = view.model()
         result = model.get_collections_with_ids()
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
-        d.exec_()
+        d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
             to_rename = d.to_rename  # dict of new text to old ids
             to_delete = d.to_delete  # list of ids
@@ -965,7 +965,7 @@ class EditMetadataAction(InterfaceAction):
                     'Cannot read cover as the %s file is missing from this book') % 'PDF', show=True)
             from calibre.gui2.metadata.pdf_covers import PDFCovers
             d = PDFCovers(pdfpath, parent=self.gui)
-            ret = d.exec_()
+            ret = d.exec()
             if ret == QDialog.DialogCode.Accepted:
                 cpath = d.cover_path
                 if cpath:

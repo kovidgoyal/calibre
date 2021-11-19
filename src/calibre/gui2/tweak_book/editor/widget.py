@@ -615,7 +615,7 @@ class Editor(QMainWindow):
             m.addMenu(cm)
         if self.syntax == 'html':
             m.addAction(actions['multisplit'])
-        m.exec_(self.editor.viewport().mapToGlobal(pos))
+        m.exec(self.editor.viewport().mapToGlobal(pos))
 
     def goto_sourceline(self, *args, **kwargs):
         return self.editor.goto_sourceline(*args, **kwargs)
@@ -661,4 +661,4 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None)
     if callback is not None:
         callback(t)
     t.show()
-    app.exec_()
+    app.exec()

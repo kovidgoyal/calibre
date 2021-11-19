@@ -359,7 +359,7 @@ class Box(QWidget):
             all_lines += w.lines_for_copy
         all_text = '\n'.join(all_lines).replace('\xa0', ' ')
         m.addAction(QIcon(I('edit-copy.png')), _('Copy everything'), lambda : QApplication.instance().clipboard().setText(all_text))
-        m.exec_(ev.globalPos())
+        m.exec(ev.globalPos())
 
 
 class Property:

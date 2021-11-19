@@ -42,7 +42,7 @@ class WHSmithUKStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         url = ('https://www.whsmith.co.uk/search?keywordCategoryId=wc_dept_ebooks&results=60'

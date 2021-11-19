@@ -365,7 +365,7 @@ class FontFamilyChooser(QWidget):
 
     def show_chooser(self):
         d = FontFamilyDialog(self.font_family, self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.font_family = d.font_family
 
 
@@ -376,7 +376,7 @@ def test():
     d.setLayout(QVBoxLayout())
     d.layout().addWidget(FontFamilyChooser(d))
     d.layout().addWidget(QFontComboBox(d))
-    d.exec_()
+    d.exec()
 
 
 if __name__ == '__main__':

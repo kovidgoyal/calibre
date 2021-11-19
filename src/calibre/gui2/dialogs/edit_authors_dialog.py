@@ -330,7 +330,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             ca.triggered.connect(self.copy_aus_to_au)
         m.addSeparator()
         m.addMenu(case_menu)
-        m.exec_(self.table.mapToGlobal(point))
+        m.exec(self.table.mapToGlobal(point))
 
     def undo_cell(self, old_value):
         self.context_item.setText(old_value)
@@ -481,7 +481,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             aut_list = string_to_authors(aut)
             if len(aut_list) != 1:
                 error_dialog(self.parent(), _('Invalid author name'),
-                        _('You cannot change an author to multiple authors.')).exec_()
+                        _('You cannot change an author to multiple authors.')).exec()
                 aut = ' % '.join(aut_list)
                 self.table.item(row, 0).setText(aut)
             item.set_sort_key()

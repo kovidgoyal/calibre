@@ -21,4 +21,4 @@ class ShowTemplateFunctionsAction(InterfaceAction):
     def show_template_editor(self, *args):
         d = Preferences(self.gui, initial_plugin=('Advanced', 'TemplateFunctions'),
                 close_after_initial=True)
-        d.exec_()
+        d.exec()

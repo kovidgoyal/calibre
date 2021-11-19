@@ -55,7 +55,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+            d.exec()
 
     def search(self, query, max_results=12, timeout=60):
         url = 'http://virtualo.pl/?q=' + quote(query)

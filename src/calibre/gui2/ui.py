@@ -606,7 +606,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.content_server is not None and \
                 self.content_server.exception is not None:
             error_dialog(self, _('Failed to start Content server'),
-                         str(self.content_server.exception)).exec_()
+                         str(self.content_server.exception)).exec()
 
     @property
     def current_db(self):
@@ -1209,7 +1209,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 info_dialog(self, 'calibre', 'calibre '+
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '
-                        'system tray.'), show_copy_button=False).exec_()
+                        'system tray.'), show_copy_button=False).exec()
                 dynamic['systray_msg'] = True
             self.hide_windows()
             e.ignore()

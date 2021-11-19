@@ -119,7 +119,7 @@ if __name__ == '__main__':
     with open(fname, 'rb') as f:
         data = f.read()
     d = TrimImage(data)
-    if d.exec_() == QDialog.DialogCode.Accepted and d.image_data is not None:
+    if d.exec() == QDialog.DialogCode.Accepted and d.image_data is not None:
         b, ext = os.path.splitext(fname)
         fname = b + '-trimmed' + ext
         with open(fname, 'wb') as f:

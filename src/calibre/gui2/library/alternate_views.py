@@ -208,7 +208,7 @@ def mouseMoveEvent(self, event):
     if not index.isValid():
         return
     drag = self.drag_data()
-    drag.exec_(Qt.DropAction.CopyAction)
+    drag.exec(Qt.DropAction.CopyAction)
     self.drag_start_pos = None
 
 

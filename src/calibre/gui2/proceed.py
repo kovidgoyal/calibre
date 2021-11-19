@@ -422,7 +422,7 @@ def main():
             det_msg='details shown first, with a long line to test wrapping of text and width layout',
             show_det=True, show_ok=True)
     QTimer.singleShot(10, doit)
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

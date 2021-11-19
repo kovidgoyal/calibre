@@ -148,6 +148,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = PDFCovers(sys.argv[-1])
-    d.exec_()
+    d.exec()
     print(d.cover_path)
     del app

@@ -78,7 +78,7 @@ def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
         return True
     d = Dialog(msg, name, parent, config_set=config_set, icon=pixmap, extra_button=extra_button,
                title=title, confirm_msg=confirm_msg, show_cancel_button=show_cancel_button)
-    ret = d.exec_() == QDialog.DialogCode.Accepted
+    ret = d.exec() == QDialog.DialogCode.Accepted
     if extra_button:
         ret = ret, d.extra_button_clicked
     return ret

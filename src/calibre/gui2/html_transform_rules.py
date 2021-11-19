@@ -375,7 +375,7 @@ if __name__ == '__main__':
     d.rules = [
         {'match_type':'xpath', 'query':'//h:h2', 'actions':[{'type': 'remove'}]},
     ]
-    d.exec_()
+    d.exec()
     from pprint import pprint
     pprint(d.rules)
     del d, app

@@ -989,7 +989,7 @@ class DeviceMixin:  # {{{
             if cw.validate():
                 QDialog.accept(config_dialog)
         config_dialog.accept = validate
-        if config_dialog.exec_() == QDialog.DialogCode.Accepted:
+        if config_dialog.exec() == QDialog.DialogCode.Accepted:
             dev.save_settings(cw)
 
             do_restart = show_restart_warning(_('Restart calibre for the changes to %s'
@@ -1042,7 +1042,7 @@ class DeviceMixin:  # {{{
         if getattr(job, 'exception', None).__class__.__name__ == 'MTPInvalidSendPathError':
             try:
                 from calibre.gui2.device_drivers.mtp_config import SendError
-                return SendError(self, job.exception).exec_()
+                return SendError(self, job.exception).exec()
             except:
                 traceback.print_exc()
         try:
@@ -1234,7 +1234,7 @@ class DeviceMixin:  # {{{
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             error_dialog(self, _('No books'), _('No books')+' '+
-                    _('selected to send')).exec_()
+                    _('selected to send')).exec()
             return
 
         fmt = None
@@ -1264,7 +1264,7 @@ class DeviceMixin:  # {{{
                 elif f in aval_out_formats:
                     formats.append((f, _('0 of %i books') % len(rows), True))
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
-            if d.exec_() != QDialog.DialogCode.Accepted:
+            if d.exec() != QDialog.DialogCode.Accepted:
                 return
             if d.format():
                 fmt = d.format().lower()
@@ -1272,15 +1272,15 @@ class DeviceMixin:  # {{{
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
                 error_dialog(self, _('No device'),
-                        _('Cannot send: No device is connected')).exec_()
+                        _('Cannot send: No device is connected')).exec()
                 return
             if dest == 'carda' and not self.device_manager.has_card():
                 error_dialog(self, _('No card'),
-                        _('Cannot send: Device has no storage card')).exec_()
+                        _('Cannot send: Device has no storage card')).exec()
                 return
             if dest == 'cardb' and not self.device_manager.has_card():
                 error_dialog(self, _('No card'),
-                        _('Cannot send: Device has no storage card')).exec_()
+                        _('Cannot send: Device has no storage card')).exec()
                 return
             if dest == 'main':
                 on_card = None
@@ -1567,7 +1567,7 @@ class DeviceMixin:  # {{{
                 'as no suitable formats were found. Convert the book(s) to a '
                 'format supported by your device first.'
                 ), bad)
-            d.exec_()
+            d.exec()
 
     def upload_dirtied_booklists(self):
         '''
@@ -1645,7 +1645,7 @@ class DeviceMixin:  # {{{
                                  _('<p>Cannot upload books to device there '
                                  'is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
-                d.exec_()
+                d.exec()
             elif isinstance(job.exception, WrongDestinationError):
                 error_dialog(self, _('Incorrect destination'),
                         str(job.exception), show=True)

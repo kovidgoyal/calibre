@@ -129,7 +129,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         if not query:
             d = error_dialog(self.gui, _('Match books'),
                      _('You must enter a search expression into the search field'))
-            d.exec_()
+            d.exec()
             return
         try:
             self.search_button.setEnabled(False)
@@ -200,7 +200,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         if not self.current_library_book_id:
             d = error_dialog(self.gui, _('Match books'),
                      _('You must select a matching book'))
-            d.exec_()
+            d.exec()
             return
         mi = self.library_db.get_metadata(self.current_library_book_id,
                               index_is_id=True, get_user_categories=False,

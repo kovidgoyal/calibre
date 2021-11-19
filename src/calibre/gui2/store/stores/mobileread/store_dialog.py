@@ -52,7 +52,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        if adv.exec_() == QDialog.DialogCode.Accepted:
+        if adv.exec() == QDialog.DialogCode.Accepted:
             self.search_query.setText(adv.search_string())
 
     def restore_state(self):

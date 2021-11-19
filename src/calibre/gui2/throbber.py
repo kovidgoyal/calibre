@@ -88,4 +88,4 @@ if __name__ == '__main__':
     b.set_normal_icon_size(64, 64)
     b.start_animation()
 
-    app.exec_()
+    app.exec()

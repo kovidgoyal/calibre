@@ -343,7 +343,7 @@ class BuildTest(unittest.TestCase):
             p.runJavaScript('1 + 1', callback)
             p.printToPdf(print_callback)
             QTimer.singleShot(5000, lambda: QApplication.instance().quit())
-            QApplication.instance().exec_()
+            QApplication.instance().exec()
             test_flaky = ismacos and not is_ci
             if not test_flaky:
                 self.assertTrue(hasattr(callback, 'result'), 'Qt WebEngine failed to run in 5 seconds')

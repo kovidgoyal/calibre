@@ -490,6 +490,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = SearchDialog(None, db)
-    d.exec_()
+    d.exec()
 
     print(d.search_string())

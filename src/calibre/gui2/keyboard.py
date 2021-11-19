@@ -683,7 +683,7 @@ class ShortcutConfig(QWidget):  # {{{
         menu = QMenu(self)
         menu.addAction(_('Expand all'), self.view.expandAll)
         menu.addAction(_('Collapse all'), self.view.collapseAll)
-        menu.exec_(self.view.mapToGlobal(pos))
+        menu.exec(self.view.mapToGlobal(pos))
 
     def restore_defaults(self):
         self._model.restore_defaults()

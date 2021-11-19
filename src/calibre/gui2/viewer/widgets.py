@@ -136,5 +136,5 @@ class SearchBox(HistoryComboBox):  # {{{
         menu = self.lineEdit().createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Clear search history'), self.clear_history)
-        menu.exec_(event.globalPos())
+        menu.exec(event.globalPos())
 # }}}

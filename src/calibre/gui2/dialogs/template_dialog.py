@@ -494,7 +494,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         ca.triggered.connect(self.load_template_from_file)
         ca = m.addAction(_('Save template to file'))
         ca.triggered.connect(self.save_template)
-        m.exec_(self.textbox.mapToGlobal(point))
+        m.exec(self.textbox.mapToGlobal(point))
 
     def load_last_template_text(self):
         from calibre.customize.ui import find_plugin
@@ -606,7 +606,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 return
             self.break_reporter_dialog = BreakReporter(self, mi_to_use,
                                                        txt, val, locals_, line_number)
-            if not self.break_reporter_dialog.exec_():
+            if not self.break_reporter_dialog.exec():
                 raise StopException()
 
     def filename_button_clicked(self):
@@ -887,5 +887,5 @@ if __name__ == '__main__':
     app = Application([])
     from calibre.ebooks.metadata.book.base import field_metadata
     d = TemplateDialog(None, '{title}', fm=field_metadata)
-    d.exec_()
+    d.exec()
     del app

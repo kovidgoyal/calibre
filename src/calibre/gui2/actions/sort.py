@@ -128,7 +128,7 @@ class SortByAction(InterfaceAction):
     def choose_multisort(self):
         from calibre.gui2.dialogs.multisort import ChooseMultiSort
         d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.gui.library_view.multisort(d.current_sort_spec)
 
     def sort_requested(self, key, ascending):

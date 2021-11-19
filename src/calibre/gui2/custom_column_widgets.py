@@ -489,7 +489,7 @@ def _save_dialog(parent, title, msg, det_msg=''):
     d.setWindowTitle(title)
     d.setText(msg)
     d.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
-    return d.exec_()
+    return d.exec()
 
 
 class Text(Base):
@@ -576,7 +576,7 @@ class Text(Base):
             self.initialize(self.book_id)
         else:
             d = TagEditor(self.parent, self.db, self.book_id, self.key)
-            if d.exec_() == QDialog.DialogCode.Accepted:
+            if d.exec() == QDialog.DialogCode.Accepted:
                 self.setter(d.tags)
 
     def connect_data_changed(self, slot):
@@ -1494,7 +1494,7 @@ class BulkText(BulkBase):
                 return
             widget.setText('')
         d = TagEditor(self.parent, self.db, key=('#'+self.col_metadata['label']))
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             val = d.tags
             if not val:
                 val = []

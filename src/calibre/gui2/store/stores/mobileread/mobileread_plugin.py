@@ -49,12 +49,12 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 d = WebStoreDialog(self.gui, url, parent, detail_item)
                 d.setWindowTitle(self.name)
                 d.set_tags(self.config.get('tags', ''))
-                d.exec_()
+                d.exec()
             else:
                 self.update_cache(parent, 30)
                 d = MobileReadStoreDialog(self, parent)
                 d.setWindowTitle(self.name)
-                d.exec_()
+                d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list()
