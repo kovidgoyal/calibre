@@ -74,7 +74,8 @@ class PDFOutput(OutputFormatPlugin):
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
         OptionRecommendation(name='pdf_hyphenate', recommended_value=False,
-            help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.')),
+            help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.'
+                   ' Note that depending on the fonts used this option can break the copying of text from the PDF file.')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
         OptionRecommendation(name='pdf_page_numbers', recommended_value=False,
