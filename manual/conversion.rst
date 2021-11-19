@@ -250,6 +250,14 @@ rules that change styles based on various conditions. For example you can use
 it to change all green colors to blue, or remove all bold styling from the text
 or color all headings a certain color, etc.
 
+Transform HTML
+~~~~~~~~~~~~~~~~~~~
+
+Similar to transform styles, but allows you to make changes to the HTML content
+of the book. You can replace one tag with another, add classes or other
+attributes to tags based on their content, etc.
+
+
 
 .. _page-setup:
 
