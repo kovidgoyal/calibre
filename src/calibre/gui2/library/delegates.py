@@ -24,7 +24,6 @@ from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined, in
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
 
@@ -748,6 +747,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
+        from calibre.gui2.dialogs.template_dialog import TemplateDialog
         m = index.model()
         mi = m.db.get_metadata(index.row(), index_is_id=False)
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
