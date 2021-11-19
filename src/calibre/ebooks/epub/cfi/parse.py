@@ -17,7 +17,7 @@ class Parser:
 
     def __init__(self):
         # All allowed unicode characters + escaped special characters
-        special_char = r'[\[\](),;=^]'
+        special_char = r'[\[\](),;=^-]'
         unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
         escaped_char = r'\^' + special_char
         chars = r'(?:%s|(?:%s))+' % (unescaped_char, escaped_char)

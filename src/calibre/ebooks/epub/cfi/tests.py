@@ -86,6 +86,7 @@ class Tests(unittest.TestCase):
 
             # Test parsing of text assertions
             ('/1:3[aa^,b]', a('aa,b'), ''),
+            ('/1:3[aa^-b]', a('aa-b'), ''),
             ('/1:3[aa^,b,c1]', a('aa,b', 'c1'), ''),
             ('/1:3[,aa^,b]', a(after='aa,b'), ''),
             ('/1:3[;s=a]', a(s='a'), ''),
