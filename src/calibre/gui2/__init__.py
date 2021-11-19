@@ -1193,17 +1193,14 @@ class Application(QApplication):
                 # if not os.path.exists(p): raise ValueError(p)
                 pcache[v] = p
             v = pcache[v]
-            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k)] = v
+            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = v
         transient_scroller = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
             transient_scroller = transient_scroller()
-        icon_map[(QStyle.StandardPixmap.SP_CustomBase & 0xf0000000) + 1] = I('close-for-light-theme.png')
-        icon_map[(QStyle.StandardPixmap.SP_CustomBase & 0xf0000000) + 2] = I('close-for-dark-theme.png')
-        try:
-            self.pi.load_style(icon_map, transient_scroller)
-        except OverflowError:  # running from source without updated runtime
-            self.pi.load_style({}, transient_scroller)
+        icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 1] = I('close-for-light-theme.png')
+        icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 2] = I('close-for-dark-theme.png')
+        self.pi.load_style(icon_map, transient_scroller)
 
     def _send_file_open_events(self):
         with self._file_open_lock:
