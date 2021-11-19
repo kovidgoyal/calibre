@@ -188,7 +188,6 @@ def create_defs():
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True
     defs['row_numbers_in_book_list'] = True
-    defs['hidpi'] = 'auto'
     defs['tag_browser_item_padding'] = 0.5
     defs['paste_isbn_prefixes'] = ['isbn', 'url', 'amazon', 'google']
     defs['qv_respects_vls'] = True
@@ -889,29 +888,6 @@ def show_temp_dir_error(err):
         'Could not create temporary folder, calibre cannot start.') + ' ' + extra, det_msg=traceback.format_exc(), show=True)
 
 
-def setup_hidpi():
-    # This requires Qt >= 5.6
-    has_env_setting = False
-    env_vars = ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO')
-    for v in env_vars:
-        if os.environ.get(v):
-            has_env_setting = True
-            break
-    hidpi = gprefs['hidpi']
-    if hidpi == 'on' or (hidpi == 'auto' and not has_env_setting):
-        if DEBUG:
-            prints('Turning on automatic hidpi scaling')
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-    elif hidpi == 'off':
-        if DEBUG:
-            prints('Turning off automatic hidpi scaling')
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, False)
-        for p in env_vars:
-            os.environ.pop(p, None)
-    elif DEBUG:
-        prints('Not controlling automatic hidpi scaling')
-
-
 def setup_unix_signals(self):
     if hasattr(os, 'pipe2'):
         read_fd, write_fd = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
@@ -969,9 +945,6 @@ class Application(QApplication):
         qargs = [i.encode('utf-8') if isinstance(i, str) else i for i in args]
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
-        if not ismacos and not headless:
-            # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
-            setup_hidpi()
         QApplication.setOrganizationName('calibre-ebook.com')
         QApplication.setOrganizationDomain(QApplication.organizationName())
         QApplication.setApplicationVersion(__version__)
@@ -986,7 +959,6 @@ class Application(QApplication):
         if ismacos:
             from calibre_extensions.cocoa import disable_cocoa_ui_elements
             disable_cocoa_ui_elements()
-        self.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
         self.setAttribute(Qt.ApplicationAttribute.AA_SynthesizeTouchForUnhandledMouseEvents, False)
         try:
             base_dir()
