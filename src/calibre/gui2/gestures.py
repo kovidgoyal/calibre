@@ -5,7 +5,7 @@
 import os
 from functools import lru_cache
 from qt.core import (
-    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
+    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QInputDevice,
     pyqtSignal
 )
 
@@ -13,21 +13,21 @@ from calibre.utils.monotonic import monotonic
 from polyglot.builtins import itervalues
 
 
-@lru_cache(maxsize=2)
-def touch_supported():
-    if 'CALIBRE_NO_TOUCH' in os.environ:
-        return False
-    for dev in QTouchDevice.devices():
-        if dev.type() == QTouchDevice.DeviceType.TouchScreen:
-            return True
-    return False
-
-
 HOLD_THRESHOLD = 1.0  # seconds
 TAP_THRESHOLD  = 50   # manhattan pixels
 
 Tap, TapAndHold, Flick = 'Tap', 'TapAndHold', 'Flick'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
+
+
+@lru_cache(maxsize=2)
+def touch_supported():
+    if 'CALIBRE_NO_TOUCH' in os.environ:
+        return False
+    for dev in QInputDevice.devices():
+        if dev.type() == QInputDevice.DeviceType.TouchScreen:
+            return True
+    return False
 
 
 class TouchPoint:
@@ -184,7 +184,7 @@ class GestureManager(QObject):
             ev.ignore()
             return False
         boundary = self.evmap.get(etype, None)
-        if boundary is None or ev.device().type() != QTouchDevice.DeviceType.TouchScreen:
+        if boundary is None or ev.deviceType() != QInputDevice.DeviceType.TouchScreen:
             return
         self.state.update(ev, boundary=boundary)
         ev.accept()
