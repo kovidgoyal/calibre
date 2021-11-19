@@ -17,9 +17,11 @@ class Parser:
 
     def __init__(self):
         # All allowed unicode characters + escaped special characters
-        special_char = r'[\[\](),;=^-]'
-        unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
-        escaped_char = r'\^' + special_char
+        special_char = r'[\[\](),;=^]'
+        unescaped_char = f'[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--{special_char}]'
+        # calibre used to escape hyphens as well, so recognize them even though
+        # not strictly spec compliant
+        escaped_char = r'\^' + special_char[:-1] + '-]'
         chars = r'(?:%s|(?:%s))+' % (unescaped_char, escaped_char)
         chars_no_space = chars.replace('0020', '0021')
         # No leading zeros allowed for integers

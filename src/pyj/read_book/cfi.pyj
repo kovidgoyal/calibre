@@ -24,7 +24,7 @@ from __python__ import hash_literals
 from read_book.viewport import scroll_viewport, rem_size
 
 # CFI escaping {{{
-escape_pat = /[\[\],^();~@!-]/g
+escape_pat = /[\[\],^();~@!]/g
 unescape_pat = /[\^](.)/g
 
 def escape_for_cfi(raw):
