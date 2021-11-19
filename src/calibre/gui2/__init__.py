@@ -1144,7 +1144,7 @@ class Application(QApplication):
                 # if not os.path.exists(p): raise ValueError(p)
                 pcache[v] = p
             v = pcache[v]
-            icon_map[getattr(QStyle, 'SP_'+k)] = v
+            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k)] = v
         transient_scroller = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
