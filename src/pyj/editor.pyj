@@ -207,12 +207,13 @@ def load_mathjax():
     document.head.appendChild(script)
 
 
-document.body.addEventListener('click', onclick, True)
-document.documentElement.appendChild(E.style(
-    type='text/css',
-    '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-))
+if document.body:
+    document.body.addEventListener('click', onclick, True)
+    document.documentElement.appendChild(E.style(
+        type='text/css',
+        '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+    ))
 
-fix_fullscreen_svg_images()
-if check_for_maths():
-    load_mathjax()
+    fix_fullscreen_svg_images()
+    if check_for_maths():
+        load_mathjax()
