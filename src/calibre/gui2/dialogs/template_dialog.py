@@ -49,7 +49,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
-        self.initializeFormats()
+        self.initialize_formats()
         self.initialize_rules(builtin_functions)
         self.regenerate_paren_positions()
         self.highlighted_paren = False
@@ -87,7 +87,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         a(r'\)', "rparen")
         self.Rules = tuple(r)
 
-    def initializeFormats(self):
+    def initialize_formats(self):
         font_name = gprefs.get('gpm_template_editor_font', None)
         size = gprefs['gpm_template_editor_font_size']
         if font_name is None:
@@ -95,37 +95,37 @@ class TemplateHighlighter(QSyntaxHighlighter):
             font.setFixedPitch(True)
             font.setPointSize(size)
             font_name = font.family()
-        Config = self.Config = {}
-        Config["fontfamily"] = font_name
-        pal = QApplication.instance().palette()
+        config = self.Config = {}
+        config["fontfamily"] = font_name
+        app_palette = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
-                ("keyword", pal.color(QPalette.ColorRole.Link).name(), True, False),
-                ("builtin", pal.color(QPalette.ColorRole.Link).name(), False, False),
+                ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
+                ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
                 ("identifier", None, False, True),
                 ("comment", "#007F00", False, True),
                 ("string", "#808000", False, False),
                 ("number", "#924900", False, False),
                 ("lparen", None, True, True),
                 ("rparen", None, True, True)):
-            Config["%sfontcolor" % name] = color
-            Config["%sfontbold" % name] = bold
-            Config["%sfontitalic" % name] = italic
-        baseFormat = QTextCharFormat()
-        baseFormat.setFontFamily(Config["fontfamily"])
-        Config["fontsize"] = size
-        baseFormat.setFontPointSize(Config["fontsize"])
-        self.Formats = {}
+            config["%sfontcolor" % name] = color
+            config["%sfontbold" % name] = bold
+            config["%sfontitalic" % name] = italic
+        base_format = QTextCharFormat()
+        base_format.setFontFamily(config["fontfamily"])
+        config["fontsize"] = size
+        base_format.setFontPointSize(config["fontsize"])
 
+        self.Formats = {}
         for name in ("normal", "keyword", "builtin", "comment", "identifier",
                      "string", "number", "lparen", "rparen"):
-            format_ = QTextCharFormat(baseFormat)
-            col = Config["%sfontcolor" % name]
-            if col:
-                format_.setForeground(QColor(col))
-            if Config["%sfontbold" % name]:
+            format_ = QTextCharFormat(base_format)
+            color = config["%sfontcolor" % name]
+            if color:
+                format_.setForeground(QColor(color))
+            if config["%sfontbold" % name]:
                 format_.setFontWeight(QFont.Weight.Bold)
-            format_.setFontItalic(Config["%sfontitalic" % name])
+            format_.setFontItalic(config["%sfontitalic" % name])
             self.Formats[name] = format_
 
     def find_paren(self, bn, pos):
@@ -157,17 +157,17 @@ class TemplateHighlighter(QSyntaxHighlighter):
         if self.generate_paren_positions:
             t = str(text)
             i = 0
-            foundQuote = False
+            found_quote = False
             while i < len(t):
                 c = t[i]
                 if c == ':':
                     # Deal with the funky syntax of template program mode.
                     # This won't work if there are more than one template
                     # expression in the document.
-                    if not foundQuote and i+1 < len(t) and t[i+1] == "'":
+                    if not found_quote and i+1 < len(t) and t[i+1] == "'":
                         i += 2
                 elif c in ["'", '"']:
-                    foundQuote = True
+                    found_quote = True
                     i += 1
                     j = t[i:].find(c)
                     if j < 0:
@@ -186,11 +186,11 @@ class TemplateHighlighter(QSyntaxHighlighter):
         QApplication.restoreOverrideCursor()
 
     def check_cursor_pos(self, chr_, block, pos_in_block):
-        found_pp = -1
+        paren_pos = -1
         for i, pp in enumerate(self.paren_positions):
             pp.set_highlight(False)
             if pp.block == block and pp.pos == pos_in_block:
-                found_pp = i
+                paren_pos = i
 
         if chr_ not in ('(', ')'):
             if self.highlighted_paren:
@@ -198,12 +198,12 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 self.highlighted_paren = False
             return
 
-        if found_pp >= 0:
+        if paren_pos >= 0:
             stack = 0
             if chr_ == '(':
-                list_ = self.paren_positions[found_pp+1:]
+                list_ = self.paren_positions[paren_pos+1:]
             else:
-                list_ = reversed(self.paren_positions[0:found_pp])
+                list_ = reversed(self.paren_positions[0:paren_pos])
             for pp in list_:
                 if pp.paren == chr_:
                     stack += 1
@@ -211,7 +211,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     stack -= 1
                 else:
                     pp.set_highlight(True)
-                    self.paren_positions[found_pp].set_highlight(True)
+                    self.paren_positions[paren_pos].set_highlight(True)
                     break
         self.highlighted_paren = True
         self.rehighlight()
@@ -544,7 +544,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.setTabStopDistance(w)
         self.source_code.setTabStopDistance(w)
         self.textbox.setFont(font)
-        self.highlighter.initializeFormats()
+        self.highlighter.initialize_formats()
         self.highlighter.rehighlight()
 
     def set_up_font_boxes(self):
