@@ -73,10 +73,12 @@ QImage oil_paint(const QImage &image, const float radius=-1, const bool high_qua
 			sipRes = new QImage(oil_paint(*a0, a1, a2));
         IMAGEOPS_SUFFIX
 %End
-QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QVector<QRgb> &palette);
+QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, SIP_PYTUPLE);
 %MethodCode
+		QVector<QRgb> palette(PyTuple_GET_SIZE(a3));
+		for (int i = 0; i < PyTuple_GET_SIZE(a3); i++) palette[i] = PyLong_AsUnsignedLong(PyTuple_GET_ITEM(a3, i));
         IMAGEOPS_PREFIX
-			sipRes = new QImage(quantize(*a0, a1, a2, *a3));
+			sipRes = new QImage(quantize(*a0, a1, a2, palette));
         IMAGEOPS_SUFFIX
 %End
 
