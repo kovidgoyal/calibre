@@ -32,17 +32,17 @@ class NameConflict(ValueError):
 
 
 def keysequence_from_event(ev):  # {{{
-    k, mods = ev.key(), int(ev.modifiers())
+    k, mods = ev.key(), ev.modifiers()
     if k in (
             0, Qt.Key.Key_unknown, Qt.Key.Key_Shift, Qt.Key.Key_Control, Qt.Key.Key_Alt,
             Qt.Key.Key_Meta, Qt.Key.Key_AltGr, Qt.Key.Key_CapsLock, Qt.Key.Key_NumLock,
             Qt.Key.Key_ScrollLock):
         return
     letter = QKeySequence(k).toString(QKeySequence.SequenceFormat.PortableText)
-    if mods & Qt.Modifier.SHIFT and letter.lower() == letter.upper():
+    if mods & Qt.KeyboardModifier.ShiftModifier and letter.lower() == letter.upper():
         # Something like Shift+* or Shift+> we have to remove the shift,
         # since it is included in keycode.
-        mods = mods & ~Qt.Modifier.SHIFT
+        mods = mods & ~Qt.KeyboardModifier.ShiftModifier
     return QKeySequence(k | mods)
 # }}}
 

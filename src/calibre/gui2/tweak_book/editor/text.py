@@ -811,7 +811,7 @@ class TextEdit(PlainTextEdit):
             # For some reason using eventFilter for this does not work, so we
             # implement it here
             self.completion_popup.abort()
-        if ev.modifiers() & Qt.Modifier.CTRL:
+        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             url = self.link_for_position(ev.pos())
             if url is not None:
                 ev.accept()

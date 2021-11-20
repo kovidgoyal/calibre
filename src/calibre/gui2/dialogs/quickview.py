@@ -785,8 +785,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.book_not_in_view_error()
             return
         key = self.column_order[column]
-        modifiers = int(QApplication.keyboardModifiers())
-        if modifiers in (Qt.Modifier.CTRL, Qt.Modifier.SHIFT):
+        if QApplication.keyboardModifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier):
             self.edit_metadata(book_id)
         else:
             self.view.select_cell(self.db.data.id_to_index(book_id),

@@ -806,7 +806,7 @@ class CharSelect(Dialog):
         self.raise_()
 
     def char_selected(self, c):
-        if QApplication.keyboardModifiers() & Qt.Modifier.CTRL:
+        if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
             self.hide()
         if self.parent() is None or self.parent().focusWidget() is None:
             QApplication.clipboard().setText(c)

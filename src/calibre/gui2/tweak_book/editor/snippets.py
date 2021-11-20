@@ -29,7 +29,7 @@ from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
 
 string_length = lambda x: strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key.Key_J
-MODIFIER = Qt.Modifier.META if ismacos else Qt.Modifier.CTRL
+MODIFIER = Qt.KeyboardModifier.MetaModifier if ismacos else Qt.KeyboardModifier.ControlModifier
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 

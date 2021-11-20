@@ -641,16 +641,16 @@ class TreeWidget(QTreeWidget):  # {{{
                 item.setData(0, Qt.ItemDataRole.DisplayRole, fmt % (num + i))
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Left and ev.modifiers() & Qt.Modifier.CTRL:
+        if ev.key() == Qt.Key.Key_Left and ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.move_left()
             ev.accept()
-        elif ev.key() == Qt.Key.Key_Right and ev.modifiers() & Qt.Modifier.CTRL:
+        elif ev.key() == Qt.Key.Key_Right and ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.move_right()
             ev.accept()
-        elif ev.key() == Qt.Key.Key_Up and (ev.modifiers() & Qt.Modifier.CTRL or ev.modifiers() & Qt.Modifier.ALT):
+        elif ev.key() == Qt.Key.Key_Up and (ev.modifiers() & Qt.KeyboardModifier.ControlModifier or ev.modifiers() & Qt.KeyboardModifier.AltModifier):
             self.move_up()
             ev.accept()
-        elif ev.key() == Qt.Key.Key_Down and (ev.modifiers() & Qt.Modifier.CTRL or ev.modifiers() & Qt.Modifier.ALT):
+        elif ev.key() == Qt.Key.Key_Down and (ev.modifiers() & Qt.KeyboardModifier.ControlModifier or ev.modifiers() & Qt.KeyboardModifier.AltModifier):
             self.move_down()
             ev.accept()
         elif ev.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
@@ -663,7 +663,7 @@ class TreeWidget(QTreeWidget):  # {{{
         item = self.currentItem()
 
         def key(k):
-            sc = str(QKeySequence(k | Qt.Modifier.CTRL).toString(QKeySequence.SequenceFormat.NativeText))
+            sc = str(QKeySequence(k | Qt.KeyboardModifier.ControlModifier).toString(QKeySequence.SequenceFormat.NativeText))
             return ' [%s]'%sc
 
         if item is not None:

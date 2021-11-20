@@ -180,11 +180,11 @@ class ChoosePopupWidget(QWidget):
         if key == Qt.Key.Key_Escape:
             self.abort(), ev.accept()
             return True
-        if key == Qt.Key.Key_Tab and not ev.modifiers() & Qt.Modifier.CTRL:
+        if key == Qt.Key.Key_Tab and not ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.choose_next_result(previous=ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
             ev.accept()
             return True
-        if key == Qt.Key.Key_Backtab and not ev.modifiers() & Qt.Modifier.CTRL:
+        if key == Qt.Key.Key_Backtab and not ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.choose_next_result(previous=ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
             return True
         if key in (Qt.Key.Key_Up, Qt.Key.Key_Down):
