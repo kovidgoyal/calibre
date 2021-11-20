@@ -594,7 +594,7 @@ class Preview(QWidget):
     def find(self, direction):
         text = str(self.search.text())
         self.view._page.findText(text, (
-            QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
+            QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlag(0)))
 
     def find_next(self):
         self.find('next')
