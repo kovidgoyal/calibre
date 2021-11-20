@@ -15,9 +15,9 @@ NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
 
 @lru_cache(maxsize=2)
 def pyqt_sip_abi_version():
-    import PyQt5
-    if getattr(PyQt5, '__file__', None):
-        bindings_path = os.path.join(os.path.dirname(PyQt5.__file__), 'bindings', 'QtCore', 'QtCore.toml')
+    import PyQt6
+    if getattr(PyQt6, '__file__', None):
+        bindings_path = os.path.join(os.path.dirname(PyQt6.__file__), 'bindings', 'QtCore', 'QtCore.toml')
         if os.path.exists(bindings_path):
             with open(bindings_path) as f:
                 raw = f.read()
@@ -52,7 +52,7 @@ if iswindows:
             os.environ[key] = env[key]
 
 QMAKE = 'qmake'
-for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
+for x in ('qmake6', 'qmake-qt6', 'qt6-qmake', 'qmake'):
     q = shutil.which(x)
     if q:
         QMAKE = q

@@ -867,7 +867,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
                 "number")
         a(re.compile(
-                r"\bPyQt5\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt")
+                r"\bPyQt6\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt")
         a(re.compile(r"\b@\w+\b"), "decorator")
         stringRe = re.compile(r"""(?:'[^']*?'|"[^"]*?")""")
         a(stringRe, "string")

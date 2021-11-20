@@ -28,7 +28,7 @@ def parse_old_style(src):
     try:
         if not isinstance(src, str):
             src = src.decode('utf-8')
-        src = src.replace('PyQt%d.QtCore' % 4, 'PyQt5.QtCore')
+        src = re.sub(r'PyQt(?:4|5).QtCore', r'PyQt6.QtCore', src)
         src = re.sub(r'cPickle\.loads\(([\'"])', r'cPickle.loads(b\1', src)
         exec(src, options)
     except Exception as err:

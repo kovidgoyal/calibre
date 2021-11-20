@@ -530,7 +530,7 @@ build-backend = "sipbuild.api"
 
 [tool.sip.metadata]
 name = "{ext.name}"
-requires-dist = "PyQt5 (>=5.15)"
+requires-dist = "PyQt6 (>=6.2.1)"
 
 [tool.sip]
 project-factory = "pyqtbuild:PyQtProject"

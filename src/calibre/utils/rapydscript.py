@@ -205,7 +205,7 @@ def ok_to_import_webengine():
     from qt.core import QApplication
     if QApplication.instance() is None:
         return True
-    if 'PyQt5.QtWebEngineWidgets' in sys.modules:
+    if 'PyQt6.QtWebEngineWidgets' in sys.modules:
         return True
     return False
 
