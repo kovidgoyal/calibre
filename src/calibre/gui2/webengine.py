@@ -34,7 +34,7 @@ def secure_webengine(view_or_page_or_settings, for_viewer=False):
 def insert_scripts(profile, *scripts):
     sc = profile.scripts()
     for script in scripts:
-        for existing in sc.findScripts(script.name()):
+        for existing in sc.find(script.name()):
             sc.remove(existing)
     for script in scripts:
         sc.insert(script)
