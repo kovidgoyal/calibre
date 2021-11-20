@@ -253,7 +253,7 @@ class Mediapart(BasicNewsRecipe):
         '''
         Create a generic cover for recipes that don't have a cover
         '''
-        from PyQt5.Qt import QImage, QPainter, QPen, Qt, QFont, QRect
+        from qt.core import QImage, QPainter, QPen, Qt, QFont, QRect
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
 
         def init_environment():

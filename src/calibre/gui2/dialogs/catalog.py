@@ -25,7 +25,7 @@ class Catalog(QDialog, Ui_Dialog):
 
     def __init__(self, parent, dbspec, ids, db):
         import re
-        from PyQt5.uic import compileUi
+        from PyQt6.uic import compileUi
 
         from calibre import prints as info
 
