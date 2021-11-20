@@ -11,7 +11,7 @@ from functools import partial
 
 from qt.core import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle, QAbstractItemView,
-    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
+    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex, QPointF,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
 )
 
@@ -96,7 +96,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         lr.setRight(lr.right() * 2)
         br = painter.boundingRect(lr, flags, text)
         if br.width() > tr.width():
-            g = QLinearGradient(tr.topLeft(), tr.topRight())
+            g = QLinearGradient(QPointF(tr.topLeft()), QPointF(tr.topRight()))
             c = option.palette.color(QPalette.ColorRole.WindowText)
             g.setColorAt(0, c), g.setColorAt(0.8, c)
             c = QColor(c)
