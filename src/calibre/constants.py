@@ -203,6 +203,9 @@ class DeVendor:
             return find_spec('feedparser')
         if fullname.startswith('calibre.ebooks.markdown'):
             return ModuleSpec(fullname, DeVendorLoader(fullname[len('calibre.ebooks.'):]))
+        if fullname.startswith('PyQt5.'):
+            # this is present for third party plugin compat
+            return ModuleSpec(fullname, DeVendorLoader('qt.webengine' if 'QWebEngine' in fullname else 'qt.core'))
 
 
 class ExtensionsPackageLoader:
