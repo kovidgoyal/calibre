@@ -1466,7 +1466,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
         return x[:max(0, mid - (delta//2))] + ellipsis + x[mid + (delta//2):]
 
     chomp = {'middle':remove_middle, 'left':lambda x:(ellipsis + x[delta:]), 'right':lambda x:(x[:-delta] + ellipsis)}[pos]
-    while len(text) > delta and fm.width(text) > width:
+    while len(text) > delta and fm.horizontalAdvance(text) > width:
         text = chomp(text)
     return str(text)
 
