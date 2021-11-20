@@ -399,7 +399,7 @@ class Line(QGraphicsItem):
         if self.valign is not None:
             font.setPixelSize(font.pixelSize()/1.5)
         fm = QFontMetrics(font)
-        single_space_width = fm.width(' ')
+        single_space_width = fm.horizontalAdvance(' ')
         height, descent = fm.height(), fm.descent()
         for match in matches:
             processed = True
@@ -408,7 +408,7 @@ class Line(QGraphicsItem):
                 right = left
             space_width = single_space_width * (right-left)
             word = phrase[phrase_pos:left]
-            width = fm.width(word)
+            width = fm.horizontalAdvance(word)
             if self.current_width + width < self.line_length:
                 self.commit(word, width, height, descent, ts, font)
                 if space_width > 0 and self.current_width + space_width < self.line_length:
@@ -421,14 +421,14 @@ class Line(QGraphicsItem):
                 tokens = hyphenate_word(word)
                 for i in range(len(tokens)-2, -1, -1):
                     word = ''.join(tokens[0:i+1])+'-'
-                    width = fm.width(word)
+                    width = fm.horizontalAdvance(word)
                     if self.current_width + width < self.line_length:
                         self.commit(word, width, height, descent, ts, font)
                         return phrase_pos + len(word)-1, True
             if self.current_width < 5:  # Force hyphenation as word is longer than line
                 for i in range(len(word)-5, 0, -5):
                     part = word[:i] + '-'
-                    width = fm.width(part)
+                    width = fm.horizontalAdvance(part)
                     if self.current_width + width < self.line_length:
                         self.commit(part, width, height, descent, ts, font)
                         return phrase_pos + len(part)-1, True
