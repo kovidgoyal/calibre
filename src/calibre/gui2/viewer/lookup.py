@@ -226,7 +226,7 @@ class View(QWebEngineView):
     inspect_element = pyqtSignal()
 
     def contextMenuEvent(self, ev):
-        menu = self.page().createStandardContextMenu()
+        menu = self.createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Zoom in'), self.page().zoom_in)
         menu.addAction(_('Zoom out'), self.page().zoom_out)
