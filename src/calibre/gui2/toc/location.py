@@ -209,7 +209,7 @@ class ItemEdit(QWidget):
 
     def find(self, forwards=True):
         text = str(self.search_text.text()).strip()
-        flags = QWebEnginePage.FindFlags(0) if forwards else QWebEnginePage.FindFlag.FindBackward
+        flags = QWebEnginePage.FindFlag(0) if forwards else QWebEnginePage.FindFlag.FindBackward
         self.find_data = text, flags, forwards
         self.view.findText(text, flags, self.find_callback)
 
