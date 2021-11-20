@@ -503,7 +503,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
         img = blend_image(img)
     if palette and isinstance(palette, string_or_bytes):
         palette = palette.split()
-    return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
+    return imageops.quantize(img, int(max_colors), dither, tuple(QColor(x).rgb() for x in palette))
 
 
 def eink_dither_image(img):
