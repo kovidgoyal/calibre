@@ -886,38 +886,23 @@ as that of the first selected book.</string>
          </layout>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="xlabel_21">
+         <widget class="QLabel" name="xlabel_24">
           <property name="text">
-           <string>Search &amp;field:</string>
+           <string>Search &amp;mode:</string>
           </property>
           <property name="buddy">
-           <cstring>search_field</cstring>
+           <cstring>search_mode</cstring>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QComboBox" name="search_field">
-          <property name="toolTip">
-           <string>The name of the field that you want to search</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
          <layout class="QHBoxLayout" name="HLayout_4">
-          <item>
-           <widget class="QLabel" name="xlabel_24">
-            <property name="text">
-             <string>Search &amp;mode:</string>
-            </property>
-            <property name="buddy">
-             <cstring>search_mode</cstring>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QComboBox" name="search_mode">
             <property name="toolTip">
-             <string>Choose whether to use basic text matching or advanced regular expression matching</string>
+             <string>&lt;p&gt;Choose whether to use basic text matching or advanced
+                regular expression matching. Changing the mode clears all the fields
+                in this dialog.&lt;/p&gt;</string>
             </property>
            </widget>
           </item>
@@ -937,6 +922,23 @@ as that of the first selected book.</string>
          </layout>
         </item>
         <item row="5" column="0">
+         <widget class="QLabel" name="xlabel_21">
+          <property name="text">
+           <string>Search &amp;field:</string>
+          </property>
+          <property name="buddy">
+           <cstring>search_field</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="search_field">
+          <property name="toolTip">
+           <string>The name of the field that you want to search</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
          <widget class="QLabel" name="s_r_src_ident_label">
           <property name="text">
            <string>&amp;Identifier type:</string>
@@ -946,7 +948,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QComboBox" name="s_r_src_ident">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -959,7 +961,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="template_label">
           <property name="text">
            <string>&amp;Template:</string>
@@ -969,7 +971,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="HistoryLineEdit" name="s_r_template">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -982,7 +984,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="xlabel_2">
           <property name="text">
            <string>&amp;Search for:</string>
@@ -992,7 +994,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="HistoryLineEdit" name="search_for">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1005,7 +1007,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="7" column="2">
          <widget class="QCheckBox" name="case_sensitive">
           <property name="toolTip">
            <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
@@ -1018,7 +1020,7 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="xlabel_4">
           <property name="text">
            <string>&amp;Replace with:</string>
@@ -1028,14 +1030,14 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="HistoryLineEdit" name="replace_with">
           <property name="toolTip">
            <string>The replacement text. The matched search text will be replaced with this string</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
+        <item row="8" column="2">
          <layout class="QHBoxLayout" name="verticalLayout">
           <item>
            <widget class="QLabel" name="label_41">
@@ -1070,7 +1072,7 @@ field is processed. In regular expression mode, only the matched text is process
           </item>
          </layout>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="destination_field_label">
           <property name="text">
            <string>&amp;Destination field:</string>
@@ -1080,7 +1082,7 @@ field is processed. In regular expression mode, only the matched text is process
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QComboBox" name="destination_field">
           <property name="toolTip">
            <string>The field that the text will be put into after all replacements.
@@ -1088,7 +1090,7 @@ If blank, the source field is used if the field is modifiable</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
+        <item row="9" column="2">
          <layout class="QHBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="replace_mode_label">
@@ -1137,7 +1139,7 @@ not multiple and the destination field is multiple</string>
           </item>
          </layout>
         </item>
-        <item row="9" column="0">
+        <item row="10" column="0">
          <widget class="QLabel" name="s_r_dst_ident_label">
           <property name="text">
            <string>Identifier type:</string>
@@ -1147,7 +1149,7 @@ not multiple and the destination field is multiple</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
+        <item row="10" column="1">
          <widget class="QLineEdit" name="s_r_dst_ident">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1163,7 +1165,7 @@ not multiple and the destination field is multiple</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="1" colspan="2">
+        <item row="11" column="1" colspan="2">
          <layout class="QHBoxLayout" name="horizontalLayout_21">
           <item>
            <spacer name="HSpacer_347">
@@ -1249,7 +1251,7 @@ not multiple and the destination field is multiple</string>
           </item>
          </layout>
         </item>
-        <item row="11" column="0" colspan="4">
+        <item row="12" column="0" colspan="4">
          <widget class="QScrollArea" name="scrollArea11">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
@@ -1434,8 +1436,8 @@ is completed. This can be slow on large libraries.</string>
   <tabstop>query_field</tabstop>
   <tabstop>save_button</tabstop>
   <tabstop>remove_button</tabstop>
-  <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
+  <tabstop>search_field</tabstop>
   <tabstop>s_r_src_ident</tabstop>
   <tabstop>s_r_template</tabstop>
   <tabstop>search_for</tabstop>
