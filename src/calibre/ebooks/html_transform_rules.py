@@ -559,15 +559,7 @@ def test(return_tests=False):  # {{{
             self.ae(erule, next(iter(import_rules(export_rules([rule])))))
 
         def test_html_transform_actions(self):
-            try:
-                parse('a', fragment_context='div')
-            except TypeError:
-                import os
-                is_ci = os.environ.get('CI', '').lower() == 'true'
-                if is_ci:
-                    raise unittest.SkipTest('html5-parser too old on CI')
-                else:
-                    raise
+            parse('a', fragment_context='div')
 
             def r(html='<p>hello'):
                 return parse(namespace_elements=True, html=html)[1]
