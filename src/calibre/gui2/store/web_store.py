@@ -9,7 +9,7 @@ from qt.core import (
     QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from qt.webengine import QWebEngineProfile, QWebEngineView, QWebEngineDownloadItem
+from qt.webengine import QWebEngineDownloadRequest, QWebEngineView
 
 from calibre import random_user_agent, url_slash_cleaner
 from calibre.constants import STORE_DIALOG_APP_UID, cache_dir, islinux, iswindows
@@ -83,6 +83,10 @@ class Central(QWidget):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.view = v = QWebEngineView(self)
+        profile = v.page().profile()
+        profile.setCachePath(os.path.join(cache_dir(), 'web_store', 'hc'))
+        profile.setPersistentStoragePath(os.path.join(cache_dir(), 'web_store', 'ps'))
+        profile.setHttpUserAgent(random_user_agent(allow_ie=False))
         v.loadStarted.connect(self.load_started)
         v.loadProgress.connect(self.load_progress)
         v.loadFinished.connect(self.load_finished)
@@ -109,6 +113,10 @@ class Central(QWidget):
         b.clicked.connect(v.reload)
         h.addWidget(b)
 
+    @property
+    def profile(self):
+        return self.view.page().profile()
+
     def load_started(self):
         self.progress_bar.setValue(0)
 
@@ -126,14 +134,10 @@ class Main(MainWindow):
         self.setWindowIcon(QIcon(I('store.png')))
         self.setWindowTitle(data['window_title'])
         self.download_data = {}
-        profile = QWebEngineProfile.defaultProfile()
-        profile.setCachePath(os.path.join(cache_dir(), 'web_store', 'hc'))
-        profile.setPersistentStoragePath(os.path.join(cache_dir(), 'web_store', 'ps'))
-        profile.setHttpUserAgent(random_user_agent(allow_ie=False))
-        profile.downloadRequested.connect(self.download_requested)
         self.data = data
         self.central = c = Central(self)
         c.home.connect(self.go_home)
+        c.profile.downloadRequested.connect(self.download_requested)
         self.setCentralWidget(c)
         geometry = gprefs.get('store_dialog_main_window_geometry')
         if geometry is not None:
@@ -160,27 +164,28 @@ class Main(MainWindow):
         self.view.load(QUrl(url))
 
     def download_requested(self, download_item):
-        path = download_item.path()
-        fname = os.path.basename(path)
+        fname = download_item.downloadFileName()
         download_id = download_item.id()
         tdir = PersistentTemporaryDirectory()
         self.download_data[download_id] = download_item
-        path = os.path.join(tdir, fname)
-        download_item.setPath(path)
-        connect_lambda(download_item.downloadProgress, self, lambda self, done, total: self.download_progress(download_id, done, total))
-        connect_lambda(download_item.finished, self, lambda self: self.download_finished(download_id))
+        download_item.setDownloadDirectory(tdir)
+        connect_lambda(download_item.receivedBytesChanged, self, lambda self: self.download_progress(download_id))
+        connect_lambda(download_item.totalBytesChanged, self, lambda self: self.download_progress(download_id))
+        connect_lambda(download_item.isFinishedChanged, self, lambda self: self.download_finished(download_id))
         download_item.accept()
         self.central.download_progress.add_item(download_id, fname)
 
-    def download_progress(self, download_id, done, total):
-        self.central.download_progress.update_item(download_id, done, total)
+    def download_progress(self, download_id):
+        download_item = self.download_data.get(download_id)
+        if download_item is not None:
+            self.central.download_progress.update_item(download_id, download_item.receivedBytes(), download_item.totalBytes())
 
     def download_finished(self, download_id):
         self.central.download_progress.remove_item(download_id)
         download_item = self.download_data.pop(download_id)
-        path = download_item.path()
-        fname = os.path.basename(path)
-        if download_item.state() == QWebEngineDownloadItem.DownloadState.DownloadInterrupted:
+        fname = download_item.downloadFileName()
+        path = os.path.join(download_item.downloadDirectory(), fname)
+        if download_item.state() == QWebEngineDownloadRequest.DownloadState.DownloadInterrupted:
             error_dialog(self, _('Download failed'), _(
                 'Download of {0} failed with error: {1}').format(fname, download_item.interruptReasonString()), show=True)
             return
