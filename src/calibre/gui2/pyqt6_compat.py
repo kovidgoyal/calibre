@@ -35,7 +35,7 @@ QMessageBox.exec_ = QMessageBox.exec
 
 # Restore ability to associate a menu with an action
 QAction.setMenu = lambda self, menu: progress_indicator.set_menu_on_action(self, menu)
-QAction.menu = lambda self, menu: progress_indicator.menu_for_action(self)
+QAction.menu = lambda self: progress_indicator.menu_for_action(self)
 
 
 # Restore QModelIndex child
