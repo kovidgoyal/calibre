@@ -2,18 +2,18 @@
 #include "headless_integration.h"
 #include "headless_backingstore.h"
 #ifdef __APPLE__
-#include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+#include <QtGui/private/qcoretextfontdatabase_p.h>
 class QCoreTextFontEngine;
 #include <qpa/qplatformservices.h>
 #include <QtCore/private/qeventdispatcher_unix_p.h>
 #else
-#include "fontconfig_database.h"
+#include <QtGui/private/qfontconfigdatabase_p.h>
 #endif
 
 #ifdef Q_OS_WIN
 #include <QtCore/private/qeventdispatcher_win_p.h>
 #else
-#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
+#include <QtGui/private/qgenericunixeventdispatcher_p.h>
 #endif
 
 #include <QtGui/private/qpixmap_raster_p.h>
