@@ -173,8 +173,9 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 
         if hover:
             if top_level:
-                count = index.model().rowCount(index)
-                total_size = human_readable(sum(safe_size(index.child(r, 0)) for r in range(count)))
+                m = index.model()
+                count = m.rowCount(index)
+                total_size = human_readable(sum(safe_size(m.index(r, 0, index)) for r in range(count)))
                 suffix = f'{NBSP}{count}@{total_size}'
             else:
                 suffix = NBSP + human_readable(safe_size(index))
