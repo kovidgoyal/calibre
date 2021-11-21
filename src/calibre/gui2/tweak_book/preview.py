@@ -33,10 +33,11 @@ from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
 from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
-from calibre.gui2.webengine import (
-    Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
+from calibre.utils.webengine import (
+    Bridge, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
+from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.builtins import iteritems
