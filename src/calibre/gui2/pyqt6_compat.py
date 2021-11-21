@@ -8,7 +8,7 @@
 
 from qt.core import (
     QAction, QDialog, QDrag, QEventLoop, QMenu, QMessageBox, QSinglePointEvent,
-    QThread
+    QThread, QModelIndex
 )
 
 from calibre_extensions import progress_indicator
@@ -36,3 +36,7 @@ QMessageBox.exec_ = QMessageBox.exec
 # Restore ability to associate a menu with an action
 QAction.setMenu = lambda self, menu: progress_indicator.set_menu_on_action(self, menu)
 QAction.menu = lambda self, menu: progress_indicator.menu_for_action(self)
+
+
+# Restore QModelIndex child
+QModelIndex.child = lambda self, row, column: self.model().index(row, column, self)
