@@ -775,7 +775,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         editor = TemplateDialog(parent, text, mi)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
-        editor.textbox.setTabStopWidth(20)
+        editor.textbox.setTabStopDistance(20)
         d = editor.exec()
         if d:
             m.setData(index, (editor.rule[1]), Qt.ItemDataRole.EditRole)

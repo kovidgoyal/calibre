@@ -314,7 +314,7 @@ def apply_font_settings(page_or_view):
     else:
         s.resetFontFamily(QWebEngineSettings.FontFamily.SansSerifFont)
     sf = fs.get('standard_font') or 'serif'
-    sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
+    sf = getattr(QWebEngineSettings.FontFamily, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
     s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(sf))
     old_minimum = s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize)
     old_base = s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize)

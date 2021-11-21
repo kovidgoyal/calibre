@@ -10,8 +10,8 @@ import sys
 import threading
 from contextlib import contextmanager
 from qt.core import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QCoreApplication,
-    QDateTime, QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFileDialog,
+    QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QDateTime,
+    QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFileDialog,
     QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
     QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
     QPalette, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt, QThread,
@@ -381,8 +381,8 @@ def min_available_height():
 
 
 def get_screen_dpi():
-    d = QApplication.desktop()
-    return (d.logicalDpiX(), d.logicalDpiY())
+    s = QApplication.instance().primaryScreen()
+    return s.logicalDotsPerInchX(), s.logicalDotsPerInchY()
 
 
 _is_widescreen = None
@@ -820,8 +820,7 @@ class ResizableDialog(QDialog):
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        desktop = QCoreApplication.instance().desktop()
-        geom = desktop.availableGeometry(self)
+        geom = self.screen().availableSize()
         nh, nw = max(550, geom.height()-25), max(700, geom.width()-10)
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
@@ -1049,7 +1048,7 @@ class Application(QApplication):
         return restored
 
     def ensure_window_on_screen(self, widget):
-        screen_rect = self.desktop().availableGeometry(widget)
+        screen_rect = widget.screen().availableGeometry()
         g = widget.geometry()
         w = min(screen_rect.width(), g.width())
         h = min(screen_rect.height(), g.height())

@@ -385,8 +385,8 @@ class Main(MainWindow):
         for v, h in product(('top', 'bottom'), ('left', 'right')):
             p = f'dock_{v}_{h}'
             pref = tprefs[p] or tprefs.defaults[p]
-            area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
-            self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
+            area = getattr(Qt.DockWidgetArea, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
+            self.setCorner(getattr(Qt.Corner, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
         self.preview.apply_settings()
         self.live_css.apply_theme()
         for bar in (self.global_bar, self.tools_bar, self.plugins_bar):
