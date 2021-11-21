@@ -1,0 +1,8 @@
+project(headless)
+cmake_minimum_required(VERSION 3.21)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6Gui REQUIRED)
+add_library(headless MODULE main.cpp headless_backingstore.cpp headless_integration.cpp)
+set_property(TARGET headless PROPERTY QT_PLUGIN_TYPE "platforms")
+set_property(TARGET headless PROPERTY QT_PLUGIN_CLASS_NAME "HeadlessIntegrationPlugin")
+target_link_libraries(headless PRIVATE Qt::Gui Qt::GuiPrivate Qt::Core Qt::CorePrivate)
