@@ -86,3 +86,5 @@ int load_style(SIP_PYDICT icon_map_, int transient_scroller);
 %End
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) /ReleaseGIL/;
+void set_menu_on_action(QAction* ac, QMenu* menu);
+QMenu* menu_for_action(QAction *ac);

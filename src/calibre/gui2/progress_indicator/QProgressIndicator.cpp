@@ -431,3 +431,13 @@ void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor &
     painter.drawArc(drawing_rect, angle * 16, (360 - gap) * 16);
 	painter.restore();
 }
+
+void
+set_menu_on_action(QAction* ac, QMenu* menu) {
+    ac->setMenu<QMenu*>(menu);
+}
+
+QMenu*
+menu_for_action(QAction *ac) {
+    return ac->menu<QMenu*>();
+}
