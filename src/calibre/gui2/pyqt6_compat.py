@@ -34,7 +34,12 @@ QMessageBox.exec_ = QMessageBox.exec
 
 
 # Restore ability to associate a menu with an action
-QAction.setMenu = lambda self, menu: progress_indicator.set_menu_on_action(self, menu)
+def set_menu(self, menu):
+    self.keep_menu_ref = menu
+    progress_indicator.set_menu_on_action(self, menu)
+
+
+QAction.setMenu = set_menu
 QAction.menu = lambda self: progress_indicator.menu_for_action(self)
 
 
