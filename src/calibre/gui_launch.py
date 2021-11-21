@@ -30,6 +30,15 @@ def do_detach(fork=True, setsid=True, redirect=True):
     is_detached = True
 
 
+def setup_qt_logging():
+    from calibre.constants import DEBUG
+    if not DEBUG:
+        from qt.core import QLoggingCategory
+        QLoggingCategory.setFilterRules('''\
+qt.webenginecontext.info=false
+''')
+
+
 def detach_gui():
     from calibre.constants import islinux, isbsd, DEBUG
     if (islinux or isbsd) and not DEBUG and '--detach' in sys.argv:
@@ -59,6 +68,7 @@ def calibre(args=sys.argv):
         from calibre.debug import print_basic_debug_info
         print_basic_debug_info()
     detach_gui()
+    setup_qt_logging()
     with register_with_default_programs():
         from calibre.gui2.main import main
         main(args)
@@ -66,6 +76,7 @@ def calibre(args=sys.argv):
 
 def ebook_viewer(args=sys.argv):
     detach_gui()
+    setup_qt_logging()
     with register_with_default_programs():
         from calibre.gui2.viewer.main import main
         main(args)
@@ -73,12 +84,14 @@ def ebook_viewer(args=sys.argv):
 
 def store_dialog(args=sys.argv):
     detach_gui()
+    setup_qt_logging()
     from calibre.gui2.store.web_store import main
     main(args)
 
 
 def webengine_dialog(**kw):
     detach_gui()
+    setup_qt_logging()
     from calibre.debug import load_user_plugins
     load_user_plugins()
     import importlib
@@ -88,6 +101,7 @@ def webengine_dialog(**kw):
 
 def toc_dialog(**kw):
     detach_gui()
+    setup_qt_logging()
     from calibre.gui2.toc.main import main
     main(**kw)
 
@@ -95,11 +109,13 @@ def toc_dialog(**kw):
 def gui_ebook_edit(path=None, notify=None):
     ' For launching the editor from inside calibre '
     from calibre.gui2.tweak_book.main import gui_main
+    setup_qt_logging()
     gui_main(path, notify)
 
 
 def ebook_edit(args=sys.argv):
     detach_gui()
+    setup_qt_logging()
     with register_with_default_programs():
         from calibre.gui2.tweak_book.main import main
         main(args)
