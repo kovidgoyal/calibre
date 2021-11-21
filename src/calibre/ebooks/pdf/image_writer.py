@@ -73,7 +73,7 @@ def get_page_size(opts, for_comic=False):
         if opts.custom_size is not None:
             page_size = parse_pdf_page_size(opts.custom_size, opts.unit, opts.output_profile.dpi)
         if page_size is None:
-            page_size = QPageSize(getattr(QPageSize, opts.paper_size.capitalize()))
+            page_size = QPageSize(getattr(QPageSize.PageSizeId, opts.paper_size.capitalize()))
     return page_size
 
 

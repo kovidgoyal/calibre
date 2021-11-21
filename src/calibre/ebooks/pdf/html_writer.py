@@ -17,7 +17,7 @@ from qt.core import (
     QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
 )
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineUrlRequestInterceptor
+    QWebEnginePage, QWebEngineProfile, QWebEngineUrlRequestInterceptor, QWebEngineSettings
 )
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
@@ -150,24 +150,24 @@ class Renderer(QWebEnginePage):
         self.settle_time = 0
         self.wait_for_title = None
         s = self.settings()
-        s.setAttribute(s.JavascriptEnabled, True)
-        s.setFontSize(s.DefaultFontSize, int(opts.pdf_default_font_size))
-        s.setFontSize(s.DefaultFixedFontSize, int(opts.pdf_mono_font_size))
-        s.setFontSize(s.MinimumLogicalFontSize, 8)
-        s.setFontSize(s.MinimumFontSize, 8)
+        s.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(opts.pdf_default_font_size))
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(opts.pdf_mono_font_size))
+        s.setFontSize(QWebEngineSettings.FontSize.MinimumLogicalFontSize, 8)
+        s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, 8)
         std = {
             'serif': opts.pdf_serif_family,
             'sans' : opts.pdf_sans_family,
             'mono' : opts.pdf_mono_family
         }.get(opts.pdf_standard_font, opts.pdf_serif_family)
         if std:
-            s.setFontFamily(s.StandardFont, std)
+            s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, std)
         if opts.pdf_serif_family:
-            s.setFontFamily(s.SerifFont, opts.pdf_serif_family)
+            s.setFontFamily(QWebEngineSettings.FontFamily.SerifFont, opts.pdf_serif_family)
         if opts.pdf_sans_family:
-            s.setFontFamily(s.SansSerifFont, opts.pdf_sans_family)
+            s.setFontFamily(QWebEngineSettings.FontFamily.SansSerifFont, opts.pdf_sans_family)
         if opts.pdf_mono_family:
-            s.setFontFamily(s.FixedFont, opts.pdf_mono_family)
+            s.setFontFamily(QWebEngineSettings.FontFamily.FixedFont, opts.pdf_mono_family)
 
         self.titleChanged.connect(self.title_changed)
         self.loadStarted.connect(self.load_started)
