@@ -181,7 +181,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
         self.clear_button.clicked.connect(self.clear_button_clicked)
         self.replace_button.clicked.connect(self.replace_button_clicked)
-        self.program.setTabStopWidth(20)
+        self.program.setTabStopDistance(20)
         self.highlighter = PythonHighlighter(self.program.document())
 
         self.te_textbox = self.template_editor.textbox

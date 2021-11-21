@@ -226,7 +226,7 @@ class InsertImage(Dialog):
         self.fm = fm = QSortFilterProxyModel(self.view)
         self.fm.setDynamicSortFilter(self.for_browsing)
         fm.setSourceModel(self.model)
-        fm.setFilterCaseSensitivity(False)
+        fm.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         v.setModel(fm)
         l.addWidget(v, 1, 0, 1, 2)
         v.pressed.connect(self.pressed)

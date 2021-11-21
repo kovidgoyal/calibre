@@ -237,7 +237,7 @@
            <property name="documentTitle">
             <string notr="true"/>
            </property>
-           <property name="tabStopWidth">
+           <property name="tabStopDistance">
             <number>30</number>
            </property>
           </widget>

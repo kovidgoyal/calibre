@@ -117,7 +117,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         font.setPointSizeF(tprefs['editor_font_size'])
         self.setFont(font)
         self.calculate_metrics()
-        self.setTabStopWidth(tprefs['editor_tab_stop_width'] * self.space_width)
+        self.setTabStopDistance(tprefs['editor_tab_stop_width'] * self.space_width)
         font = self.heading_font = QFont(self.font())
         font.setPointSizeF(tprefs['editor_font_size'] * 1.5)
         font.setBold(True)

@@ -394,7 +394,7 @@ class FlowLayout(QLayout):  # {{{
         self.do_layout(rect, apply_geometry=True)
 
     def expandingDirections(self):
-        return Qt.Orientations(0)
+        return Qt.Orientation(0)
 
     def minimumSize(self):
         size = QSize()
