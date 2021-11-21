@@ -458,7 +458,7 @@ class Build(Command):
         from setup.parallel_build import cpu_count
         if iswindows or ishaiku:
             return  # Dont have headless operation on these platforms
-        from setup.build_environment import ft_inc_dirs, QMAKE
+        from setup.build_environment import CMAKE
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = absolutize
         headers = a([
@@ -470,50 +470,25 @@ class Build(Command):
             'calibre/headless/headless_backingstore.cpp',
             'calibre/headless/headless_integration.cpp',
         ])
-        if ismacos:
-            sources.extend(a(['calibre/headless/coretext_fontdatabase.mm']))
-        else:
-            headers.extend(a(['calibre/headless/fontconfig_database.h']))
-            sources.extend(a(['calibre/headless/fontconfig_database.cpp']))
         others = a(['calibre/headless/headless.json'])
         target = self.dest('headless')
+        if not ismacos:
+            target = target.replace('headless', 'libheadless')
         if not self.newer(target, headers + sources + others):
             return
 
-        pro = textwrap.dedent(
-        '''\
-            TARGET = headless
-            PLUGIN_TYPE = platforms
-            PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
-            QT += core-private gui-private
-            TEMPLATE = lib
-            CONFIG += plugin
-            QT += fontdatabase_support_private service_support_private eventdispatcher_support_private
-            HEADERS = {headers}
-            SOURCES = {sources}
-            OTHER_FILES = {others}
-            INCLUDEPATH += {freetype}
-            DESTDIR = {destdir}
-            CONFIG -= create_cmake  # Prevent qmake from generating a cmake build file which it puts in the calibre src directory
-            ''').format(
-                headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(
-                    target), freetype=' '.join(ft_inc_dirs))
         bdir = self.j(self.build_dir, 'headless')
-        if not os.path.exists(bdir):
-            os.makedirs(bdir)
-        pf = self.j(bdir, 'headless.pro')
-        open(self.j(bdir, '.qmake.conf'), 'wb').close()
-        with open(pf, 'wb') as f:
-            f.write(pro.encode('utf-8'))
+        if os.path.exists(bdir):
+            shutil.rmtree(bdir)
+        os.makedirs(bdir)
         cwd = os.getcwd()
         os.chdir(bdir)
         try:
-            self.check_call([QMAKE] + [self.b(pf)])
+            self.check_call([CMAKE, '-S', os.path.dirname(sources[0])])
             self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
-        if ismacos:
-            os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
+        os.rename(self.j(bdir, 'libheadless.' + ('dylib' if ismacos else 'so')), target)
 
     def create_sip_build_skeleton(self, src_dir, ext):
         from setup.build_environment import pyqt_sip_abi_version

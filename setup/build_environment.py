@@ -60,6 +60,8 @@ for x in ('qmake6', 'qmake-qt6', 'qt6-qmake', 'qmake'):
 QMAKE = os.environ.get('QMAKE', QMAKE)
 if iswindows and not QMAKE.lower().endswith('.exe'):
     QMAKE += '.exe'
+CMAKE = 'cmake'
+CMAKE = os.environ.get('CMAKE', CMAKE)
 
 PKGCONFIG = shutil.which('pkg-config')
 PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
