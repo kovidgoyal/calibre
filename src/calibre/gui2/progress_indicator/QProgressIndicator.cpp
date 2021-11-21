@@ -438,6 +438,6 @@ set_menu_on_action(QAction* ac, QMenu* menu) {
 }
 
 QMenu*
-menu_for_action(QAction *ac) {
+menu_for_action(const QAction *ac) {
     return ac->menu<QMenu*>();
 }
