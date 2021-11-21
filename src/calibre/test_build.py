@@ -339,15 +339,20 @@ class BuildTest(unittest.TestCase):
                 if hasattr(callback, 'result'):
                     QApplication.instance().quit()
 
-            p.runJavaScript('1 + 1', callback)
-            p.printToPdf(print_callback)
-            QTimer.singleShot(5000, lambda: QApplication.instance().quit())
+            def do_webengine_test(title):
+                nonlocal p
+                p.runJavaScript('1 + 1', callback)
+                p.printToPdf(print_callback)
+
+            p.titleChanged.connect(do_webengine_test)
+            p.runJavaScript(f'document.title = "test-run-{os.getpid()}";')
+            timeout = 10
+            QTimer.singleShot(timeout * 1000, lambda: QApplication.instance().quit())
             QApplication.instance().exec()
-            test_flaky = ismacos and not is_ci
-            if not test_flaky:
-                self.assertTrue(hasattr(callback, 'result'), 'Qt WebEngine failed to run in 5 seconds')
-                self.assertEqual(callback.result, 2, 'Simple JS computation failed')
-                self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
+            self.assertTrue(hasattr(callback, 'result'), f'Qt WebEngine failed to run in {timeout} seconds')
+            self.assertEqual(callback.result, 2, 'Simple JS computation failed')
+            self.assertTrue(hasattr(print_callback, 'result'), f'Qt WebEngine failed to print in {timeout} seconds')
+            self.assertIn(b'%PDF-1.4', bytes(print_callback.result), 'Print to PDF failed')
             del p
             del na
             destroy_app()
