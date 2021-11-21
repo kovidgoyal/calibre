@@ -131,7 +131,7 @@ class SearchBox2(QComboBox):  # {{{
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.ConnectionType.DirectConnection)
         # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-        self.activated[native_string_type].connect(self.history_selected, type=Qt.ConnectionType.QueuedConnection)
+        self.textActivated.connect(self.history_selected, type=Qt.ConnectionType.QueuedConnection)
         self.setEditable(True)
         self.as_you_type = True
         self.timer = QTimer()
@@ -285,7 +285,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         if not store_in_history:
-            self.activated[native_string_type].disconnect()
+            self.textActivated.disconnect()
         try:
             self.setFocus(Qt.FocusReason.OtherFocusReason)
             if not txt:
@@ -305,7 +305,7 @@ class SearchBox2(QComboBox):  # {{{
         finally:
             if not store_in_history:
                 # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-                self.activated[native_string_type].connect(self.history_selected, type=Qt.ConnectionType.QueuedConnection)
+                self.textActivated.connect(self.history_selected, type=Qt.ConnectionType.QueuedConnection)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -337,7 +337,7 @@ class SavedSearchBox(QComboBox):  # {{{
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.ConnectionType.DirectConnection)
-        self.activated[native_string_type].connect(self.saved_search_selected)
+        self.textActivated.connect(self.saved_search_selected)
 
         # Turn off auto-completion so that it doesn't interfere with typing
         # names of new searches.
