@@ -19,6 +19,7 @@ from qt.core import (
 )
 from threading import Lock, RLock
 
+import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
@@ -39,6 +40,7 @@ from calibre.utils.localization import get_lang
 from polyglot import queue
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
+del pqc
 try:
     NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 except AttributeError:

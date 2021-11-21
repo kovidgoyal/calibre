@@ -5,8 +5,8 @@
 import os
 from functools import lru_cache
 from qt.core import (
-    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QInputDevice,
-    pyqtSignal
+    QApplication, QEvent, QInputDevice, QMouseEvent, QObject, QPointF,
+    QPointingDevice, QScroller, Qt, pyqtSignal
 )
 
 from calibre.utils.monotonic import monotonic
@@ -174,7 +174,7 @@ class GestureManager(QObject):
             return
         etype = ev.type()
         if etype in (QEvent.Type.MouseButtonPress, QEvent.Type.MouseMove, QEvent.Type.MouseButtonRelease, QEvent.Type.MouseButtonDblClick):
-            if ev.source() in (Qt.MouseEventSource.MouseEventSynthesizedBySystem, Qt.MouseEventSource.MouseEventSynthesizedByQt):
+            if ev.pointingDevice().pointerType() is QPointingDevice.PointerType.Finger:
                 # swallow fake mouse events generated from touch events
                 ev.ignore()
                 return False
