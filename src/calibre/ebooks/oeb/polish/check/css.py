@@ -16,7 +16,7 @@ from qt.webengine import (
 from calibre import detect_ncpus as cpu_count, prints
 from calibre.ebooks.oeb.polish.check.base import ERROR, WARN, BaseError
 from calibre.gui2 import must_use_qt
-from calibre.gui2.webengine import secure_webengine
+from calibre.utils.webengine import secure_webengine
 
 
 class CSSParseError(BaseError):

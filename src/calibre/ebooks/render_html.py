@@ -12,7 +12,7 @@ from qt.webengine import QWebEnginePage, QWebEngineScript
 
 from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import must_use_qt
-from calibre.gui2.webengine import secure_webengine
+from calibre.utils.webengine import secure_webengine
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.monotonic import monotonic
 

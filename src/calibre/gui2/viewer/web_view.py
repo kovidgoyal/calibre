@@ -30,10 +30,11 @@ from calibre.gui2 import choose_images, error_dialog, safe_open_url, config
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
-from calibre.gui2.webengine import (
-    Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
+from calibre.utils.webengine import (
+    Bridge, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
+from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.serialize import json_loads

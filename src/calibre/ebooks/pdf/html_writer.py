@@ -31,7 +31,7 @@ from calibre.ebooks.pdf.image_writer import (
 )
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
-from calibre.gui2.webengine import secure_webengine
+from calibre.utils.webengine import secure_webengine
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.errors import NoGlyphs

@@ -59,7 +59,7 @@ def compiler():
 
     from calibre import walk
     from calibre.gui2 import must_use_qt
-    from calibre.gui2.webengine import secure_webengine
+    from calibre.utils.webengine import secure_webengine
     must_use_qt()
 
     with lzma.open(P(COMPILER_PATH, allow_user_override=False)) as lzf:
@@ -340,7 +340,7 @@ def run_rapydscript_tests():
     from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
     from calibre.gui2 import must_use_qt
     from calibre.gui2.viewer.web_view import send_reply
-    from calibre.gui2.webengine import secure_webengine, insert_scripts, create_script
+    from calibre.utils.webengine import secure_webengine, insert_scripts, create_script
     must_use_qt()
     scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
