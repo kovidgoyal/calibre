@@ -138,7 +138,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         painter.drawText(r, Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeading|Qt.TextFlag.TextSingleLine, text)
 
         if (system != QFontDatabase.WritingSystem.Any):
-            w = painter.fontMetrics().width(text + "  ")
+            w = painter.fontMetrics().horizontalAdvance(text + "  ")
             painter.setFont(font2)
             sample = QFontDatabase.writingSystemSample(system)
             if (option.direction == Qt.LayoutDirection.RightToLeft):
