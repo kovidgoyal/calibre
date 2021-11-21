@@ -142,4 +142,4 @@ int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scrol
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 void set_menu_on_action(QAction* ac, QMenu* menu);
-QMenu* menu_for_action(QAction *ac);
+QMenu* menu_for_action(const QAction *ac);
