@@ -1369,7 +1369,7 @@ qreal PictureFlow::device_pixel_ratio() const {
 
 void PictureFlow::mouseMoveEvent(QMouseEvent* event)
 {
-  int x = (int)(event->x() * device_pixel_ratio());
+  int x = (int)(event->position().x() * device_pixel_ratio());
   int distanceMovedSinceLastEvent = x - d->previousPos.x();
 
   // Check to see if we need to switch from single press mode to a drag mode
@@ -1468,7 +1468,7 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
 {
   bool accepted = false;
   int sideWidth = (d->buffer.width() - slideSize().width()) /2;
-  int x = (int)(event->x() * device_pixel_ratio());
+  int x = (int)(event->position().x() * device_pixel_ratio());
 
   if (d->singlePress)
   {
@@ -1495,7 +1495,7 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
 void PictureFlow::mouseDoubleClickEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton && d->activateOnDoubleClick) {
         int sideWidth = (d->buffer.width() - slideSize().width()) /2;
-        int x = (int)(event->x() * device_pixel_ratio());
+        int x = (int)(event->position().x() * device_pixel_ratio());
         if (sideWidth < x && x < sideWidth + slideSize().width() ) {
             emit itemActivated(d->getTarget());
             event->accept();
