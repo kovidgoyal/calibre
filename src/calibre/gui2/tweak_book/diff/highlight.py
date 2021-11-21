@@ -40,7 +40,7 @@ class QtHighlighter(QTextDocument):
                 dest_block = cursor.block()
                 c = QTextCursor(dest_block)
                 try:
-                    afs = block.layout().additionalFormats()
+                    afs = block.layout().formats()
                 except AttributeError:
                     afs = ()
                 for af in afs:

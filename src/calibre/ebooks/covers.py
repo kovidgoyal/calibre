@@ -138,7 +138,7 @@ class Block:
         for text in text.split('<br>') if text else ():
             text, formats = parse_text_formatting(sanitize(text))
             l = QTextLayout(unescape_formatting(text), font, img)
-            l.setAdditionalFormats(formats)
+            l.setFormats(formats)
             to = QTextOption(align)
             to.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
             l.setTextOption(to)

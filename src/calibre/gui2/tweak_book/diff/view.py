@@ -160,9 +160,9 @@ class TextBrowser(PlainTextEdit):  # {{{
             setattr(self, '%s_format' % x, f)
 
     def calculate_metrics(self):
-        w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
-        self.space_width = w.width(' ')
+        fm = self.fontMetrics()
+        self.number_width = max(map(lambda x:fm.horizontalAdvance(str(x)), range(10)))
+        self.space_width = fm.horizontalAdvance(' ')
 
     def show_context_menu(self, pos):
         m = QMenu(self)
@@ -879,7 +879,7 @@ class DiffSplit(QSplitter):  # {{{
             for word in words[lo:hi]:
                 if word == '\n':
                     if fmts:
-                        block.layout().setAdditionalFormats(fmts)
+                        block.layout().setFormats(fmts)
                     pos, block, fmts = 0, block.next(), []
                     continue
 
@@ -897,7 +897,7 @@ class DiffSplit(QSplitter):  # {{{
             rsb, rpos, rfmts = do_tag(rsb, rl, rlo, rhi, rpos, rfmts)
         for block, fmts in ((lsb, lfmts), (rsb, rfmts)):
             if fmts:
-                block.layout().setAdditionalFormats(fmts)
+                block.layout().setFormats(fmts)
     # }}}
 
 # }}}

@@ -566,7 +566,7 @@ class TextEdit(PlainTextEdit):
             c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
-            for r in block.layout().additionalFormats():
+            for r in block.layout().formats():
                 if r.format.property(SPELL_PROPERTY):
                     if not from_cursor or block.position() + r.start + r.length > c.position():
                         c.setPosition(block.position() + r.start)
@@ -730,7 +730,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
-            for r in block.layout().additionalFormats():
+            for r in block.layout().formats():
                 if r.format.property(SPELL_PROPERTY) and self.text_for_range(block, r) == word:
                     self.highlighter.reformat_block(block)
                     break
@@ -741,7 +741,7 @@ class TextEdit(PlainTextEdit):
         if cursor.isNull():
             return
         pos = cursor.positionInBlock()
-        for r in cursor.block().layout().additionalFormats():
+        for r in cursor.block().layout().formats():
             if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
