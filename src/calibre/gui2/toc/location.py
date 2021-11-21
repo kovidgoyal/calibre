@@ -11,7 +11,7 @@ from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView
 
 from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
-from calibre.gui2.webengine import secure_webengine
+from calibre.utils.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
 

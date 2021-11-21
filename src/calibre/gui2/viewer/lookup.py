@@ -18,7 +18,7 @@ from calibre import prints, random_user_agent
 from calibre.constants import cache_dir
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
-from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
+from calibre.utils.webengine import create_script, insert_scripts, secure_webengine
 from calibre.gui2.widgets2 import Dialog
 
 vprefs.defaults['lookup_locations'] = [
