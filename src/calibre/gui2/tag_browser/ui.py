@@ -642,7 +642,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
         self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
-        self.item_search.activated[str].connect(self.do_find)
+        self.item_search.textActivated.connect(self.do_find)
 
         # The tags view
         parent.tags_view = TagsView(parent)
