@@ -48,7 +48,7 @@ def add_fonts(parent):
 
 def writing_system_for_font(font):
     has_latin = True
-    systems = QFontDatabase().writingSystems(font.family())
+    systems = QFontDatabase.writingSystems(font.family())
 
     # this just confuses the algorithm below. Vietnamese is Latin with lots of
     # special chars
@@ -140,7 +140,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         if (system != QFontDatabase.WritingSystem.Any):
             w = painter.fontMetrics().width(text + "  ")
             painter.setFont(font2)
-            sample = QFontDatabase().writingSystemSample(system)
+            sample = QFontDatabase.writingSystemSample(system)
             if (option.direction == Qt.LayoutDirection.RightToLeft):
                 r.setRight(r.right() - w)
             else:

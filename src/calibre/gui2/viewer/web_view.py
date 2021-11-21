@@ -616,7 +616,7 @@ class WebView(RestartingWebEngineView):
         if family in ('.AppleSystemUIFont', 'MS Shell Dlg 2'):
             family = 'system-ui'
         ui_data = {
-            'all_font_families': QFontDatabase().families(),
+            'all_font_families': QFontDatabase.families(),
             'ui_font_family': family,
             'ui_font_sz': f'{fi.pixelSize()}px',
             'show_home_page_on_ready': self.show_home_page_on_ready,

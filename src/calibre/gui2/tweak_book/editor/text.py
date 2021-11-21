@@ -66,7 +66,7 @@ _dff = None
 def default_font_family():
     global _dff
     if _dff is None:
-        families = set(map(str, QFontDatabase().families()))
+        families = set(map(str, QFontDatabase.families()))
         for x in ('Ubuntu Mono', 'Consolas', 'Liberation Mono'):
             if x in families:
                 _dff = x
