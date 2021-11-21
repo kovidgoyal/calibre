@@ -11,7 +11,7 @@ import calendar, textwrap
 from collections import OrderedDict
 
 from qt.core import (
-    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex, QApplication,
+    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QRecursiveMutex, QApplication,
     QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
     QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
     QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
@@ -584,7 +584,7 @@ class Scheduler(QObject):
 
         self.recipe_model = RecipeModel()
         self.db = db
-        self.lock = QMutex(QMutex.RecursionMode.Recursive)
+        self.lock = QRecursiveMutex()
         self.download_queue = set()
 
         self.news_menu = QMenu()
