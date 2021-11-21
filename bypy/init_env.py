@@ -53,7 +53,7 @@ elif iswindows:
     dlls += ['WinExtras']
 
 QT_DLLS = frozenset(
-    'Qt5' + x for x in dlls
+    'Qt6' + x for x in dlls
 )
 
 QT_PLUGINS = [
