@@ -13,9 +13,13 @@ class To6(Command):
 
     description = 'Toggle between the Qt6 and master branches building everything needed'
 
+    def ccall(self, *a):
+        self.info(*a)
+        subprocess.check_call(a)
+
     def run(self, opts):
-        subprocess.check_call(['git', 'switch', '-'])
-        subprocess.check_call([sys.executable, 'setup.py', 'build', '--clean'])
-        subprocess.check_call([sys.executable, 'setup.py', 'build'])
-        subprocess.check_call([sys.executable, 'setup.py', 'gui', '--clean'])
-        subprocess.check_call([sys.executable, 'setup.py', 'gui'])
+        self.ccall('git', 'switch', '-')
+        self.ccall(sys.executable, 'setup.py', 'build', '--clean')
+        self.ccall(sys.executable, 'setup.py', 'build')
+        self.ccall(sys.executable, 'setup.py', 'gui', '--clean')
+        self.ccall(sys.executable, 'setup.py', 'gui', '--summary')
