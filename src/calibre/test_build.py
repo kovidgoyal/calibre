@@ -325,9 +325,6 @@ class BuildTest(unittest.TestCase):
             create_cover('xxx', ['yyy'])
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
-            if iswindows:
-                from qt.core import QtWin
-                QtWin
             p = QWebEnginePage()
 
             def callback(result):

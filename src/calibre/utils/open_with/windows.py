@@ -7,7 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 import sys
-from qt.core import QBuffer, QByteArray, QPixmap, Qt, QtWin, QIODevice
+from qt.core import QBuffer, QByteArray, QImage, QIODevice, QPixmap, Qt
 
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
@@ -17,7 +17,7 @@ ICON_SIZE = 256
 
 
 def hicon_to_pixmap(hicon):
-    return QtWin.fromHICON(int(hicon))
+    QPixmap.fromImage(QImage.fromHICON(int(hicon)))
 
 
 def pixmap_to_data(pixmap):

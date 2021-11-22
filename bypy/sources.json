@@ -499,14 +499,6 @@
         }
     },
 
-    {
-        "name": "qt-winextras",
-        "os": "windows",
-        "hashes": {
-            "unix": "sha256:65b8272005dec00791ab7d81ab266d1e3313a3bbd8e54e546d984cf4c4ab550e"
-        }
-    },
-
 
     {
         "name": "qt-webengine",
