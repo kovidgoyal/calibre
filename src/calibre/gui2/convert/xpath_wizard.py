@@ -60,7 +60,7 @@ class Wizard(QDialog):
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        self.setModal(Qt.WindowModality.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
 
     @property
     def xpath(self):

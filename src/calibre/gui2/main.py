@@ -278,6 +278,7 @@ class GuiRunner(QObject):
                 default_dir=initial_dir)
 
     def show_error(self, title, msg, det_msg=''):
+        print(det_msg, file=sys.stderr)
         self.hide_splash_screen()
         with self.app:
             error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
