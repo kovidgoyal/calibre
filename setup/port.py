@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import os
 import subprocess
 import sys
 
@@ -19,6 +20,9 @@ class To6(Command):
 
     def run(self, opts):
         self.ccall('git', 'switch', '-')
+        os.rename('bypy/b/other-b', 'bypy/c')
+        os.rename('bypy/b', 'bypy/c/other-b')
+        os.rename('bypy/c', 'bypy/b')
         self.ccall(sys.executable, 'setup.py', 'build', '--clean')
         self.ccall(sys.executable, 'setup.py', 'build')
         self.ccall(sys.executable, 'setup.py', 'gui', '--clean')
