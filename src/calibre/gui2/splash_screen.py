@@ -113,7 +113,7 @@ class SplashScreen(QSplashScreen):
         if not self.develop:
             return QSplashScreen.keyPressEvent(self, ev)
         ev.accept()
-        QApplication.instance().quit()
+        QApplication.instance().exit()
 
 
 def main():
