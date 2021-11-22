@@ -139,7 +139,7 @@ document.title = 'compiler initialized';
             QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
         def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
-            if level:
+            if level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
                 self.errors.append(msg)
             else:
                 print('{}:{}:{}'.format(source_id, line_num, msg))
@@ -410,7 +410,7 @@ def run_rapydscript_tests():
             self.working = False
 
         def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
-            print(msg, file=sys.stderr if level > 0 else sys.stdout)
+            print(msg, file=sys.stdout if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel else sys.stderr)
 
     tester = Tester()
     result = tester.spin_loop()
