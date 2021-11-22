@@ -96,9 +96,6 @@ PYQT_MODULES = (
 )
 del dlls
 
-if iswindows:
-    PYQT_MODULES += ('QtWinExtras',)
-
 
 def read_cal_file(name):
     with open(os.path.join(CALIBRE_DIR, 'src', 'calibre', name), 'rb') as f:
