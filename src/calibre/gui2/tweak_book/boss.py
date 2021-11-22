@@ -1882,7 +1882,7 @@ class Boss(QObject):
         if not self.confirm_quit():
             return False
         self.shutdown()
-        QApplication.instance().quit()
+        QApplication.instance().exit()
         return True
 
     def confirm_quit(self):
@@ -1935,7 +1935,7 @@ class Boss(QObject):
     def check_terminal_save(self):
         if self.doing_terminal_save and not self.save_manager.has_tasks:  # terminal save could have been aborted
             self.shutdown()
-            QApplication.instance().quit()
+            QApplication.instance().exit()
 
     def shutdown(self):
         self.save_state()
