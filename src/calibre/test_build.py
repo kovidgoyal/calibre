@@ -321,6 +321,10 @@ class BuildTest(unittest.TestCase):
         try:
             ensure_app()
             self.assertGreaterEqual(len(QFontDatabase.families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
+            from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
+            img = rasterize_svg(as_qimage=True)
+            self.assertFalse(img.isNull())
+            self.assertGreater(img.width(), 8)
             from calibre.ebooks.covers import create_cover
             create_cover('xxx', ['yyy'])
             na = QNetworkAccessManager()

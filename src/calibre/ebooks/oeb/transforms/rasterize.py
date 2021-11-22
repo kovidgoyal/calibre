@@ -20,10 +20,38 @@ from polyglot.urllib import urldefrag
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
 KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
+TEST_SVG = b'''
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+<path d="M4.5 11H3v4h4v-1.5H4.5V11zM3 7h1.5V4.5H7V3H3v4zm10.5 6.5H11V15h4v-4h-1.5v2.5zM11 3v1.5h2.5V7H15V3h-4z"/>
+</svg>'''
 
 
 class Unavailable(Exception):
     pass
+
+
+def rasterize_svg(data=TEST_SVG, sizes=(), width=0, height=0, print=None, fmt='PNG', as_qimage=False):
+    svg = QSvgRenderer(QByteArray(data))
+    size = svg.defaultSize()
+    if size.width() == 100 and size.height() == 100 and sizes:
+        size.setWidth(sizes[0])
+        size.setHeight(sizes[1])
+    if width or height:
+        size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
+    if print is not None:
+        print(f'Rasterizing SVG to {size.width()} x {size.height()}')
+    image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
+    image.fill(QColor("white").rgb())
+    painter = QPainter(image)
+    svg.render(painter)
+    painter.end()
+    if as_qimage:
+        return image
+    array = QByteArray()
+    buffer = QBuffer(array)
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+    image.save(buffer, fmt)
+    return array.data()
 
 
 class SVGRasterizer:
@@ -80,26 +108,7 @@ class SVGRasterizer:
                         logger.exception('Failed to convert percentage height:',
                                 image.get('height'))
 
-        data = QByteArray(xml2str(elem, with_tail=False))
-        svg = QSvgRenderer(data)
-        size = svg.defaultSize()
-        if size.width() == 100 and size.height() == 100 and sizes:
-            size.setWidth(sizes[0])
-            size.setHeight(sizes[1])
-        if width or height:
-            size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
-        logger.info('Rasterizing %r to %dx%d'
-                    % (elem, size.width(), size.height()))
-        image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
-        image.fill(QColor("white").rgb())
-        painter = QPainter(image)
-        svg.render(painter)
-        painter.end()
-        array = QByteArray()
-        buffer = QBuffer(array)
-        buffer.open(QIODevice.OpenModeFlag.WriteOnly)
-        image.save(buffer, format)
-        return array.data()
+        return rasterize_svg(xml2str(elem, with_tail=False), sizes=sizes, width=width, height=height, print=logger.info, fmt=format)
 
     def dataize_manifest(self):
         for item in self.oeb.manifest.values():
