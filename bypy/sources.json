@@ -477,14 +477,6 @@
     },
 
     {
-        "name": "qt-x11extras",
-        "os": "linux",
-        "hashes": {
-            "unix": "sha256:7014702ee9a644a5a93da70848ac47c18851d4f8ed622b29a72eed9282fc6e3e"
-        }
-    },
-
-    {
         "name": "qt-wayland",
         "os": "linux",
         "hashes": {
