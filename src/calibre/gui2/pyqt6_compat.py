@@ -7,8 +7,9 @@
 # party plugin code, we NEED backward compat.
 
 from qt.core import (
-    QAction, QDialog, QDrag, QEventLoop, QMenu, QMessageBox, QSinglePointEvent,
-    QThread, QModelIndex
+    QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QDrag,
+    QEventLoop, QFrame, QLineEdit, QMenu, QMessageBox, QModelIndex,
+    QSinglePointEvent, Qt, QThread, QToolButton
 )
 
 from calibre_extensions import progress_indicator
@@ -25,12 +26,17 @@ QSinglePointEvent.windowPos = lambda self: self.scenePosition()
 
 
 # Restore the removed exec_ method
-QDialog.exec_ = QDialog.exec
-QMenu.exec_ = QMenu.exec
-QDrag.exec_ = QDrag.exec
-QEventLoop.exec_ = QEventLoop.exec
-QThread.exec_ = QThread.exec
-QMessageBox.exec_ = QMessageBox.exec
+
+def exec_(self):
+    return self.exec()
+
+
+QDialog.exec_ = exec_
+QMenu.exec_ = exec_
+QDrag.exec_ = exec_
+QEventLoop.exec_ = exec_
+QThread.exec_ = exec_
+QMessageBox.exec_ = exec_
 
 
 # Restore ability to associate a menu with an action
@@ -43,5 +49,14 @@ QAction.setMenu = set_menu
 QAction.menu = lambda self: progress_indicator.menu_for_action(self)
 
 
-# Restore QModelIndex child
+# Restore QModelIndex::child
 QModelIndex.child = lambda self, row, column: self.model().index(row, column, self)
+
+
+# Restore enum values to various classes
+for cls in (Qt, QDialog, QToolButton, QAbstractItemView, QDialogButtonBox, QFrame, QComboBox, QLineEdit, QAction):
+    for var in tuple(vars(cls).values()):
+        m = getattr(var, '__members__', {})
+        for k, v in m.items():
+            if not hasattr(cls, k):
+                setattr(cls, k, v)
