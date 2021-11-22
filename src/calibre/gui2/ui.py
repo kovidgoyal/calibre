@@ -1076,7 +1076,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.system_tray_icon is not None and self.restart_after_quit:
             # Needed on windows to prevent multiple systray icons
             self.system_tray_icon.setVisible(False)
-        QApplication.instance().quit()
+        QApplication.instance().exit()
 
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
