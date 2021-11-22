@@ -492,15 +492,6 @@
     },
 
     {
-        "name": "qt-macextras",
-        "os": "macos",
-        "hashes": {
-            "unix": "sha256:6959b0f2cec71cd66800f36cab797430860e55fa33c9c23698d6a08fc2b8776e"
-        }
-    },
-
-
-    {
         "name": "qt-webengine",
         "hashes": {
             "unix": "sha256:c8afca0e43d84f7bd595436fbe4d13a5bbdb81ec5104d605085d07545b6f91e0"
