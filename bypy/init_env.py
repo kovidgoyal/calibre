@@ -46,7 +46,7 @@ dlls = [
 ]
 
 if islinux:
-    dlls += ['X11Extras', 'XcbQpa', 'WaylandClient', 'DBus']
+    dlls += ['XcbQpa', 'WaylandClient', 'DBus']
 elif ismacos:
     dlls += ['MacExtras', 'DBus']
 elif iswindows:
