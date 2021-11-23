@@ -561,8 +561,8 @@ Now coming to author name sorting:
     * Authors in the Tag browser are sorted by the sort value for the **authors**. Remember that this is different from the Author sort field for a book.
     * By default, this sort algorithm assumes that the author name is in ``First name Last name`` format and generates a ``Last name, First name`` sort value.
     * You can change this algorithm by going to :guilabel:`Preferences->Advanced->Tweaks` and setting the :guilabel:`author_sort_copy_method` tweak.
-    * You can force calibre to recalculate the author sort values for every author by right clicking on any author and selecting :guilabel:`Manage authors`, then pushing the `Recalculate all author sort values` button. Do this after you have set the author_sort_copy_method tweak to what you want.
-    * You can force calibre to recalculate the author sort values for all books by using the bulk metadata edit dialog (select all books and click edit metadata, check the `Automatically set author sort` checkbox, then press OK.)
+    * You can force calibre to recalculate the author sort values for every author by right clicking on any author and selecting :guilabel:`Manage authors`, then pushing the :guilabel:`Recalculate all author sort values` button. Do this after you have set the author_sort_copy_method tweak to what you want.
+    * You can force calibre to recalculate the author sort values for all books by using the bulk metadata edit dialog (select all books and click edit metadata, check the :guilabel:`Automatically set author sort` checkbox, then press OK).
     * When recalculating the author sort values for books, calibre uses the author sort values for each individual author. Therefore, ensure that the individual author sort values are correct before recalculating the books' author sort values.
     * You can control whether the Tag browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in :guilabel:`Preferences->Advanced->Tweaks`
 

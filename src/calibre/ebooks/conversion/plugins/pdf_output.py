@@ -47,7 +47,7 @@ class PDFOutput(OutputFormatPlugin):
             'non default output profile is used. Default is letter. Choices '
             'are {}').format(', '.join(PAPER_SIZES))),
         OptionRecommendation(name='custom_size', recommended_value=None,
-            help=_('Custom size of the document. Use the form widthxheight '
+            help=_('Custom size of the document. Use the form width x height '
             'e.g. `123x321` to specify the width and height. '
             'This overrides any specified paper-size.')),
         OptionRecommendation(name='preserve_cover_aspect_ratio',

@@ -26,7 +26,7 @@ class DOCXOutput(OutputFormatPlugin):
             'are %s') % PAGE_SIZES),
 
         OptionRecommendation(name='docx_custom_page_size', recommended_value=None,
-            help=_('Custom size of the document. Use the form widthxheight '
+            help=_('Custom size of the document. Use the form width x height '
             'EG. `123x321` to specify the width and height (in pts). '
             'This overrides any specified page-size.')),
 

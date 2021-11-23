@@ -63,7 +63,7 @@ class ComicInput(InputFormatPlugin):
         OptionRecommendation(name='dont_grayscale', recommended_value=False,
             help=_('Do not convert the image to grayscale (black and white)')),
         OptionRecommendation(name='comic_image_size', recommended_value=None,
-            help=_('Specify the image size as widthxheight pixels. Normally,'
+            help=_('Specify the image size as width x height pixels, for example: 123x321. Normally,'
                 ' an image size is automatically calculated from the output '
                 'profile, this option overrides it.')),
         OptionRecommendation(name='dont_add_comic_pages_to_toc', recommended_value=False,
