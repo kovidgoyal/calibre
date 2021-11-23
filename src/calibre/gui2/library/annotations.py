@@ -934,11 +934,11 @@ class AnnotationsBrowser(Dialog):
             return Dialog.keyPressEvent(self, ev)
 
     def setup_ui(self):
-        self.use_stemmer = us = QCheckBox(_('&Match on related English words'))
+        self.use_stemmer = us = QCheckBox(_('&Match on related words'))
         us.setChecked(gprefs['browse_annots_use_stemmer'])
         us.setToolTip('<p>' + _(
-            'With this option searching for words will also match on any related English words. For'
-            ' example: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
+            'With this option searching for words will also match on any related words (supported in several languages). For'
+            ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
         us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.CheckState.Unchecked))
 
         l = QVBoxLayout(self)
