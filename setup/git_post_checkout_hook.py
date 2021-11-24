@@ -18,7 +18,6 @@ os.chdir(base)
 
 if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
-    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     if 'qt6' in (prev_branch, cur_branch):
         os.rename('bypy/b/other-b', 'bypy/c')
@@ -28,7 +27,7 @@ if flags == '1':  # A branch checkout
         subprocess.check_call('./setup.py gui --clean'.split())
         subprocess.check_call('./setup.py build'.split())
 
-    subprocess.check_call(['./setup.py', 'gui', '--summary'])
+    subprocess.check_call('./setup.py gui --summary'.split())
 
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):
