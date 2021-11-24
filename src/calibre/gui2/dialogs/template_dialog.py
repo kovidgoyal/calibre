@@ -505,7 +505,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def set_word_wrap(self, to_what):
         gprefs['gpm_template_editor_word_wrap_mode'] = to_what
-        self.textbox.setWordWrapMode(QTextOption.WordWrap if to_what else QTextOption.NoWrap)
+        self.textbox.setWordWrapMode(QTextOption.WrapMode.WordWrap if to_what else QTextOption.WrapMode.NoWrap)
 
     def load_last_template_text(self):
         from calibre.customize.ui import find_plugin
@@ -560,7 +560,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def set_up_font_boxes(self):
         font = self.get_current_font()
-        self.font_box.setWritingSystem(QFontDatabase.Latin)
+        self.font_box.setWritingSystem(QFontDatabase.WritingSystem.Latin)
         self.font_box.setCurrentFont(font)
         self.font_box.setEditable(False)
         gprefs['gpm_template_editor_font'] = str(font.family())

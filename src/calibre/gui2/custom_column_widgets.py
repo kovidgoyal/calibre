@@ -556,7 +556,7 @@ class Text(Base):
 
     def edit(self):
         ctrl_or_shift_pressed = (QApplication.keyboardModifiers() &
-                (Qt.KeyboardModifier.ControlModifier + Qt.KeyboardModifier.ShiftModifier))
+                (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier))
         if (self.getter() != self.initial_val and (self.getter() or self.initial_val)):
             d = _save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '

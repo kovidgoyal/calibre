@@ -1273,7 +1273,7 @@ class PaperSizes(QComboBox):  # {{{
             from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
             choices = PAPER_SIZES
         for a in sorted(choices, key=numeric_sort_key):
-            s = getattr(QPageSize, a.capitalize())
+            s = getattr(QPageSize.PageSizeId, a.capitalize())
             sz = QPageSize.definitionSize(s)
             unit = {QPageSize.Unit.Millimeter: 'mm', QPageSize.Unit.Inch: 'inch'}[QPageSize.definitionUnits(s)]
             name = f'{QPageSize.name(s)} ({sz.width():g} x {sz.height():g} {unit})'
