@@ -1435,7 +1435,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def edit(self, db, id_):
         ctrl_or_shift_pressed = (QApplication.keyboardModifiers() &
-                (Qt.KeyboardModifier.ControlModifier + Qt.KeyboardModifier.ShiftModifier))
+                (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier))
         if self.changed:
             d = save_dialog(self, _('Tags changed'),
                     _('You have changed the tags. In order to use the tags'

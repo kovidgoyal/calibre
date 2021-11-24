@@ -97,7 +97,7 @@ class FileDialog(QObject):
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
         with sanitize_env_vars():
-            opts = QFileDialog.Option()
+            opts = QFileDialog.Option(0)
             if not use_native_dialog:
                 opts |= QFileDialog.Option.DontUseNativeDialog
             if has_long_filter:

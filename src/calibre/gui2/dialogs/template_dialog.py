@@ -392,7 +392,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.load_button.clicked.connect(self.load_template_from_file)
         self.save_button.clicked.connect(self.save_template)
 
-        self.textbox.setWordWrapMode(QTextOption.WordWrap)
+        self.textbox.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
@@ -549,7 +549,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def set_up_font_boxes(self):
         font = self.get_current_font()
-        self.font_box.setWritingSystem(QFontDatabase.Latin)
+        self.font_box.setWritingSystem(QFontDatabase.WritingSystem.Latin)
         self.font_box.setCurrentFont(font)
         self.font_box.setEditable(False)
         gprefs['gpm_template_editor_font'] = str(font.family())
