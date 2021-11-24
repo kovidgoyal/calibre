@@ -19,7 +19,7 @@ os.chdir(base)
 if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
 
-    if 'qt6' in (prev_branch, cur_branch):
+    if {prev_branch, cur_branch} == {'master', 'qt6'}:
         os.rename('bypy/b/other-b', 'bypy/c')
         os.rename('bypy/b', 'bypy/c/other-b')
         os.rename('bypy/c', 'bypy/b')
