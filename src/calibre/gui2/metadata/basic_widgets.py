@@ -753,7 +753,7 @@ class Format(QListWidgetItem):
         self.size = float(size)/(1024*1024)
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
-                                 text, parent, QListWidgetItem.ItemType.UserType)
+                                 text, parent, QListWidgetItem.ItemType.UserType.value)
         if timestamp is not None:
             ts = timestamp.astimezone(local_tz)
             t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
