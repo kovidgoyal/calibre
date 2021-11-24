@@ -933,7 +933,7 @@ class Wizard(QWizard):
 
     def set_button_texts(self):
         for but, text in iteritems(self.BUTTON_TEXTS):
-            self.setButtonText(getattr(self, but+'Button'), _(text))
+            self.setButtonText(getattr(QWizard.WizardButton, but+'Button'), _(text))
 
     def retranslate(self):
         for pid in self.pageIds():
@@ -943,7 +943,7 @@ class Wizard(QWizard):
         self.set_finish_text()
 
     def accept(self):
-        pages = map(self.page, self.visitedPages())
+        pages = map(self.page, self.visitedIds())
         for page in pages:
             page.commit()
         QWizard.accept(self)
