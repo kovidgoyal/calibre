@@ -140,7 +140,7 @@ user categories, and other information from the old to the new library</string>
    <item row="2" column="1" colspan="2">
     <widget class="HistoryLineEdit" name="location">
      <property name="sizeAdjustPolicy">
-      <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+      <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
      </property>
      <property name="minimumContentsLength">
       <number>40</number>
