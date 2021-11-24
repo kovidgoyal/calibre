@@ -18,6 +18,15 @@ os.chdir(base)
 
 if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    if 'qt6' in (prev_branch, cur_branch):
+        os.rename('bypy/b/other-b', 'bypy/c')
+        os.rename('bypy/b', 'bypy/c/other-b')
+        os.rename('bypy/c', 'bypy/b')
+        subprocess.check_call('./setup.py build --clean'.split())
+        subprocess.check_call('./setup.py gui --clean'.split())
+        subprocess.check_call('./setup.py build'.split())
 
     subprocess.check_call(['./setup.py', 'gui', '--summary'])
 
