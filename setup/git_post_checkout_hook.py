@@ -20,9 +20,14 @@ if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
 
     if {prev_branch, cur_branch} == {'master', 'qt6'}:
-        os.rename('bypy/b/other-b', 'bypy/c')
-        os.rename('bypy/b', 'bypy/c/other-b')
-        os.rename('bypy/c', 'bypy/b')
+        b = 'qt6' if cur_branch == 'qt6' else 'qt5'
+        for x in os.listdir(f'bypy/b/{b}'):
+            link = f'bypy/b/{x}'
+            try:
+                os.remove(link)
+            except FileNotFoundError:
+                pass
+            os.symlink(f'{b}/{x}', link)
         subprocess.check_call('./setup.py build --clean'.split())
         subprocess.check_call('./setup.py gui --clean'.split())
         subprocess.check_call('./setup.py build'.split())
