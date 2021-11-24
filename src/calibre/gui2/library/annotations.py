@@ -10,8 +10,8 @@ from functools import lru_cache, partial
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QCursor, QDateTime,
     QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
-    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QKeySequence, QLabel, QLocale, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter,
+    Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget, pyqtSignal
 )
 from urllib.parse import quote
@@ -31,10 +31,16 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 
 
+def render_timestamp(ts):
+    date = QDateTime.fromString(ts, Qt.DateFormat.ISODate).toLocalTime()
+    loc = QLocale.system()
+    return loc.toString(date, loc.dateTimeFormat(QLocale.FormatType.ShortFormat))
+
+
 # rendering {{{
 def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
     lines.append(hl['highlighted_text'])
-    date = QDateTime.fromString(hl['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
+    date = render_timestamp(hl['timestamp'])
     if as_markdown and link_prefix:
         cfi = hl['start_cfi']
         spine_index = (1 + hl['spine_index']) * 2
@@ -55,7 +61,7 @@ def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
 
 def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append(b['title'])
-    date = QDateTime.fromString(b['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
+    date = render_timestamp(b['timestamp'])
     if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
         link = (link_prefix + quote(b['pos'])).replace(')', '%29')
         date = f'[{date}]({link})'
@@ -857,7 +863,7 @@ class DetailsPanel(QWidget):
                 highlight_css = css_for_highlight_style(annot['style'])
 
         annot_text += '\n'.join(paras)
-        date = QDateTime.fromString(annot['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
+        date = render_timestamp(annot['timestamp'])
 
         text = '''
         <style>a {{ text-decoration: none }}</style>
