@@ -8,8 +8,8 @@
 
 from qt.core import (
     QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QDrag,
-    QEventLoop, QFrame, QImage, QIODevice, QLineEdit, QMenu, QMessageBox,
-    QModelIndex, QSinglePointEvent, Qt, QThread, QToolButton
+    QEventLoop, QFontMetrics, QFrame, QImage, QIODevice, QLineEdit, QMenu,
+    QMessageBox, QModelIndex, QSinglePointEvent, Qt, QThread, QToolButton, QPalette
 )
 
 from calibre_extensions import progress_indicator
@@ -53,8 +53,11 @@ QAction.menu = lambda self: progress_indicator.menu_for_action(self)
 QModelIndex.child = lambda self, row, column: self.model().index(row, column, self)
 
 
+# Restore QFontMetrics::width
+QFontMetrics.width = lambda self, text: self.horizontalAdvance(text)
+
 # Restore enum values to various classes
-for cls in (Qt, QDialog, QToolButton, QAbstractItemView, QDialogButtonBox, QFrame, QComboBox, QLineEdit, QAction, QImage, QIODevice):
+for cls in (Qt, QDialog, QToolButton, QAbstractItemView, QDialogButtonBox, QFrame, QComboBox, QLineEdit, QAction, QImage, QIODevice, QPalette):
     for var in tuple(vars(cls).values()):
         m = getattr(var, '__members__', {})
         for k, v in m.items():

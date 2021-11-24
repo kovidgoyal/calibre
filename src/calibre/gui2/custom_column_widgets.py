@@ -847,7 +847,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 wij = w.widgets[c]
                 if label_width == 0:
                     font_metrics = wij.fontMetrics()
-                    colon_width = font_metrics.width(':')
+                    colon_width = font_metrics.horizontalAdvance(':')
                     if bulk:
                         label_width = (font_metrics.averageCharWidth() *
                                tweaks['metadata_edit_bulk_cc_label_length']) - colon_width
