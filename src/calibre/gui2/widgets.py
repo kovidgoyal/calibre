@@ -740,7 +740,7 @@ class ComboBoxWithHelp(QComboBox):  # {{{
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.currentIndexChanged[int].connect(self.index_changed)
+        self.currentIndexChanged.connect(self.index_changed)
         self.help_text = ''
         self.state_set = False
 

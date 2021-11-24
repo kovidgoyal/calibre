@@ -517,7 +517,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.initialize_combos()
 
-        self.series.currentIndexChanged[int].connect(self.series_changed)
+        self.series.currentIndexChanged.connect(self.series_changed)
         connect_lambda(self.rating.currentIndexChanged, self, lambda self:self.apply_rating.setChecked(True))
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
@@ -724,18 +724,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_obj = None
 
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
-        self.search_mode.currentIndexChanged[int].connect(self.s_r_search_mode_changed)
-        self.search_field.currentIndexChanged[int].connect(self.s_r_search_field_changed)
-        self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
+        self.search_mode.currentIndexChanged.connect(self.s_r_search_mode_changed)
+        self.search_field.currentIndexChanged.connect(self.s_r_search_field_changed)
+        self.destination_field.currentIndexChanged.connect(self.s_r_destination_field_changed)
 
-        self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
-        self.replace_func.currentIndexChanged[native_string_type].connect(self.s_r_paint_results)
+        self.replace_mode.currentIndexChanged.connect(self.s_r_paint_results)
+        self.replace_func.currentIndexChanged.connect(self.s_r_paint_results)
         self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
-        self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
+        self.s_r_src_ident.currentIndexChanged.connect(self.s_r_identifier_type_changed)
         self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
         self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
@@ -759,7 +759,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.query_field.addItem("")
         self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
-        self.query_field.currentIndexChanged[native_string_type].connect(self.s_r_query_change)
+        self.query_field.currentIndexChanged.connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
         self.s_r_search_field_changed(0)
@@ -1357,7 +1357,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))
 
-    def s_r_query_change(self, item_name):
+    def s_r_query_change(self, idx):
+        item_name = self.query_field.currentText()
         if not item_name:
             self.s_r_reset_query_fields()
             self.saved_search_name = ''

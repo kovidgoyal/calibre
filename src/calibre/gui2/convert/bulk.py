@@ -50,7 +50,7 @@ class BulkConfig(Config):
             'values saved in a previous conversion (if they exist) instead '
             'of using the defaults specified in the Preferences'))
 
-        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged.connect(self.setup_pipeline)
         self.groups.setSpacing(5)
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)

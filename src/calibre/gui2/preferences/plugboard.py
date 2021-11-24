@@ -24,7 +24,6 @@ from calibre.library.save_to_disk import plugboard_any_format_value, \
 from calibre.srv.content import plugboard_content_server_value, plugboard_content_server_formats
 from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
-from polyglot.builtins import native_string_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -99,10 +98,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.dest_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
 
-        self.edit_device.currentIndexChanged[native_string_type].connect(self.edit_device_changed)
-        self.edit_format.currentIndexChanged[native_string_type].connect(self.edit_format_changed)
-        self.new_device.currentIndexChanged[native_string_type].connect(self.new_device_changed)
-        self.new_format.currentIndexChanged[native_string_type].connect(self.new_format_changed)
+        self.edit_device.currentIndexChanged.connect(self.edit_device_changed)
+        self.edit_format.currentIndexChanged.connect(self.edit_format_changed)
+        self.new_device.currentIndexChanged.connect(self.new_device_changed)
+        self.new_format.currentIndexChanged.connect(self.new_format_changed)
         self.existing_plugboards.itemClicked.connect(self.existing_pb_clicked)
         self.ok_button.clicked.connect(self.ok_clicked)
         self.del_button.clicked.connect(self.del_clicked)
@@ -137,7 +136,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         idx = self.dest_fields.index(dst)
         self.dest_widgets[i].setCurrentIndex(idx)
 
-    def edit_device_changed(self, txt):
+    def edit_device_changed(self, idx):
+        txt = self.edit_device.currentText()
         self.current_device = None
         if txt == '':
             self.clear_fields(new_boxes=False)
@@ -158,7 +158,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.ok_button.setEnabled(True)
         self.del_button.setEnabled(True)
 
-    def edit_format_changed(self, txt):
+    def edit_format_changed(self, idx):
+        txt = self.edit_format.currentText()
         self.edit_device.setCurrentIndex(0)
         self.current_device = None
         self.current_format = None
@@ -192,7 +193,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                        'will probably have no effect.'),
                      show=True)
 
-    def new_device_changed(self, txt):
+    def new_device_changed(self, idx):
+        txt = self.new_device.currentText()
         self.current_device = None
         if txt == '':
             self.clear_fields(edit_boxes=False)
@@ -276,7 +278,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.set_fields()
 
-    def new_format_changed(self, txt):
+    def new_format_changed(self, idx):
+        txt = self.new_format.currentText()
         self.current_format = None
         self.current_device = None
         self.new_device.setCurrentIndex(0)

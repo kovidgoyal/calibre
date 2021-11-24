@@ -106,8 +106,8 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.unapply_button.clicked.connect(self.unapply_button_clicked)
         self.add_category_button.clicked.connect(self.add_category)
         self.rename_category_button.clicked.connect(self.rename_category)
-        self.category_box.currentIndexChanged[int].connect(self.select_category)
-        self.category_filter_box.currentIndexChanged[int].connect(
+        self.category_box.currentIndexChanged.connect(self.select_category)
+        self.category_filter_box.currentIndexChanged.connect(
                                                 self.display_filtered_categories)
         self.item_filter_box.textEdited.connect(self.display_filtered_items)
         self.delete_category_button.clicked.connect(self.del_category)

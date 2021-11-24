@@ -72,7 +72,7 @@ class BasicSettings(QWidget):  # {{{
     def choices_widget(self, name, choices, fallback_val, none_val, prefs=None):
         prefs = prefs or tprefs
         widget = QComboBox(self)
-        widget.currentIndexChanged[int].connect(self.emit_changed)
+        widget.currentIndexChanged.connect(self.emit_changed)
         for key, human in sorted(iteritems(choices), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 

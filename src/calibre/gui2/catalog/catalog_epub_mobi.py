@@ -419,7 +419,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Hook Preset signals
         self.preset_delete_pb.clicked.connect(self.preset_remove)
         self.preset_save_pb.clicked.connect(self.preset_save)
-        self.preset_field.currentIndexChanged[native_string_type].connect(self.preset_change)
+        self.preset_field.currentIndexChanged.connect(self.preset_change)
 
         self.blocking_all_signals = False
 
@@ -614,11 +614,11 @@ class PluginWidget(QWidget,Ui_Form):
         self.preset_field_values = sorted(self.presets, key=sort_key)
         self.preset_field.addItems(self.preset_field_values)
 
-    def preset_change(self, item_name):
+    def preset_change(self, idx):
         '''
         Update catalog options from current preset
         '''
-        if not item_name:
+        if idx < 0:
             return
 
         current_preset = self.preset_field.currentText()
@@ -841,7 +841,7 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, checked=False, is_tristate=False):
         QTableWidgetItem.__init__(self, '')
-        self.setFlags(Qt.ItemFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled))
+        self.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
         if is_tristate:
             self.setFlags(self.flags() | Qt.ItemFlag.ItemIsTristate)
         if checked:

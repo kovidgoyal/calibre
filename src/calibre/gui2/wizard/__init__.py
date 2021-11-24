@@ -686,7 +686,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.registerField('library_location', self.location)
         self.button_change.clicked.connect(self.change)
         self.init_languages()
-        self.language.currentIndexChanged[int].connect(self.change_language)
+        self.language.currentIndexChanged.connect(self.change_language)
         self.location.textChanged.connect(self.location_text_changed)
         self.set_move_lib_label_text()
 

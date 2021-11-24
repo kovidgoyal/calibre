@@ -468,7 +468,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         layout.addLayout(header_layout)
         self.filter_combo = PluginFilterComboBox(self)
         self.filter_combo.setMinimumContentsLength(20)
-        self.filter_combo.currentIndexChanged[int].connect(self._filter_combo_changed)
+        self.filter_combo.currentIndexChanged.connect(self._filter_combo_changed)
         la = QLabel(_('Filter list of &plugins')+':', self)
         la.setBuddy(self.filter_combo)
         header_layout.addWidget(la)

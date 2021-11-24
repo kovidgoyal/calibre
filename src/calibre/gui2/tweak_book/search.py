@@ -335,7 +335,7 @@ class SearchWidget(QWidget):
         da.setToolTip('<p>'+_("Make the '.' special character match any character at all, including a newline"))
         ol.addWidget(da)
 
-        self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
+        self.mode_box.currentIndexChanged.connect(self.mode_changed)
         self.mode_changed(self.mode_box.currentIndex())
 
     def edit_function(self):
@@ -740,7 +740,7 @@ class EditSearch(QFrame):  # {{{
         h.addWidget(b)
         b.clicked.connect(self.emit_done)
 
-        self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
+        self.mode_box.currentIndexChanged.connect(self.mode_changed)
         self.mode_changed(self.mode_box.currentIndex())
 
     def edit_function(self):

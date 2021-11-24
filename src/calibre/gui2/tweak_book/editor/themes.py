@@ -569,7 +569,7 @@ class ThemeEditor(Dialog):
         t.setMinimumWidth(200)
         if t.count() > 0:
             t.setCurrentIndex(0)
-        t.currentIndexChanged[int].connect(self.show_theme)
+        t.currentIndexChanged.connect(self.show_theme)
         h.addWidget(t)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add &new theme'), self)

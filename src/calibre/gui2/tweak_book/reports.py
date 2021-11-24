@@ -1080,7 +1080,7 @@ class CSSWidget(QWidget):
         o.addItems([_('Ascending'), _('Descending')])
         o.setCurrentIndex(0 if self.read_state('sort-ascending', True) else 1)
         o.setEditable(False)
-        o.currentIndexChanged[int].connect(self.resort)
+        o.currentIndexChanged.connect(self.resort)
         h.addWidget(o)
         h.addStretch(10)
         self.summary = la = QLabel('\xa0')

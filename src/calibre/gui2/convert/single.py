@@ -28,7 +28,6 @@ from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.utils.config import prefs
-from polyglot.builtins import native_string_type
 
 
 class GroupModel(QAbstractListModel):
@@ -81,8 +80,8 @@ class Config(QDialog):
                 preferred_output_format)
         self.setup_pipeline()
 
-        self.input_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
-        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
+        self.input_formats.currentIndexChanged.connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged.connect(self.setup_pipeline)
         self.groups.setSpacing(5)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)

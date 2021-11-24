@@ -165,7 +165,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             raise AbortInitialize()
 
         self.build_function_names_box()
-        self.function_name.currentIndexChanged[native_string_type].connect(self.function_index_changed)
+        self.function_name.currentIndexChanged.connect(self.function_index_changed)
         self.function_name.editTextChanged.connect(self.function_name_edited)
         self.argument_count.valueChanged.connect(self.enable_replace_button)
         self.documentation.textChanged.connect(self.enable_replace_button)
@@ -183,7 +183,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_textbox = self.template_editor.textbox
         self.te_name = self.template_editor.template_name
         self.st_build_function_names_box()
-        self.te_name.currentIndexChanged[native_string_type].connect(self.st_function_index_changed)
+        self.te_name.currentIndexChanged.connect(self.st_function_index_changed)
         self.te_name.editTextChanged.connect(self.st_template_name_edited)
         self.st_create_button.clicked.connect(self.st_create_button_clicked)
         self.st_delete_button.clicked.connect(self.st_delete_button_clicked)
@@ -301,8 +301,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
         self.program.setReadOnly(False)
 
-    def function_index_changed(self, txt):
-        txt = str(txt)
+    def function_index_changed(self, idx):
+        txt = self.function_name.currentText()
         self.create_button.setEnabled(False)
         if not txt:
             self.argument_count.clear()
@@ -422,8 +422,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_test_template_button.setEnabled(b)
         self.te_textbox.setReadOnly(False)
 
-    def st_function_index_changed(self, txt):
-        txt = str(txt)
+    def st_function_index_changed(self, idx):
+        txt = self.te_name.currentText()
         if self.st_current_program_name:
             if self.st_current_program_text != self.te_textbox.toPlainText():
                 box = warning_dialog(self.gui, _('Template functions'),

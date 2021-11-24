@@ -974,7 +974,7 @@ class BulkBase(Base):
             self.main_widget.textChanged.connect(self.a_c_checkbox_changed)
         if hasattr(self.main_widget, 'currentIndexChanged'):
             # combobox widgets
-            self.main_widget.currentIndexChanged[int].connect(self.a_c_checkbox_changed)
+            self.main_widget.currentIndexChanged.connect(self.a_c_checkbox_changed)
         if hasattr(self.main_widget, 'valueChanged'):
             # spinbox widgets
             self.main_widget.valueChanged.connect(self.a_c_checkbox_changed)
