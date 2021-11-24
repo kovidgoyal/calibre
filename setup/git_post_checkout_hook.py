@@ -6,7 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, subprocess, sys
 
-prev_rev, current_rev, flags = [x.decode('utf-8') if isinstance(x, bytes) else x for x in sys.argv[1:]]
+prev_rev, current_rev, flags = sys.argv[1:]
 
 
 def get_branch_name(rev):
