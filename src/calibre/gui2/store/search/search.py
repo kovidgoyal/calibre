@@ -253,7 +253,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_splitter_state'] = bytearray(self.store_splitter.saveState())
         self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
         self.config['sort_col'] = self.results_view.model().sort_col
-        self.config['sort_order'] = self.results_view.model().sort_order
+        self.config['sort_order'] = self.results_view.model().sort_order.value
         self.config['open_external'] = self.open_external.isChecked()
 
         store_check = {}
@@ -288,8 +288,11 @@ class SearchDialog(QDialog, Ui_Dialog):
                     self.store_checks[n].setChecked(store_check[n])
 
         self.results_view.model().sort_col = self.config.get('sort_col', 2)
-        self.results_view.model().sort_order = self.config.get('sort_order', Qt.SortOrder.AscendingOrder)
-        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)
+        so = self.config.get('sort_order', Qt.SortOrder.AscendingOrder)
+        if isinstance(so, int):
+            so = Qt.SortOrder(so)
+        self.results_view.model().sort_order = so
+        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, so)
 
     def load_settings(self):
         # Seconds

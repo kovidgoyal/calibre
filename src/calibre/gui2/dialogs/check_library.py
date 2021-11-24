@@ -266,25 +266,25 @@ class CheckLibraryDialog(QDialog):
                 tl.setData(1, Qt.ItemDataRole.UserRole, self.is_fixable)
                 tl.setText(1, _('(fixable)'))
                 tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
-                tl.setCheckState(1, False)
+                tl.setCheckState(1, Qt.CheckState.Unchecked)
             else:
                 tl.setData(1, Qt.ItemDataRole.UserRole, self.is_deletable)
                 tl.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 tl.setText(1, _('(deletable)'))
                 tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
-                tl.setCheckState(1, False)
+                tl.setCheckState(1, Qt.CheckState.Unchecked)
             if attr == 'extra_covers':
                 tl.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 tl.setText(2, _('(deletable)'))
                 tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
-                tl.setCheckState(2, False)
+                tl.setCheckState(2, Qt.CheckState.Unchecked)
             self.top_level_items[attr] = tl
 
             for problem in list_:
                 it = Item()
                 if checkable:
                     it.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
-                    it.setCheckState(2, False)
+                    it.setCheckState(2, Qt.CheckState.Unchecked)
                     it.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 else:
                     it.setFlags(Qt.ItemFlag.ItemIsEnabled)
@@ -318,6 +318,8 @@ class CheckLibraryDialog(QDialog):
 
     def item_changed(self, item, column):
         def set_delete_boxes(node, col, to_what):
+            if isinstance(to_what, bool):
+                to_what = Qt.CheckState.Checked if to_what else Qt.CheckState.Unchecked
             self.log.blockSignals(True)
             if col:
                 node.setCheckState(col, to_what)
@@ -357,7 +359,7 @@ class CheckLibraryDialog(QDialog):
                     set_delete_boxes(item, column, item.checkState(column))
                     if column == 2:
                         self.log.blockSignals(True)
-                        item.setCheckState(1, False)
+                        item.setCheckState(1, Qt.CheckState.Unchecked)
                         self.log.blockSignals(False)
             else:
                 item.setCheckState(column, Qt.CheckState.Unchecked)
