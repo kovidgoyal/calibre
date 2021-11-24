@@ -245,15 +245,8 @@ user defined plugin is used instead.
 How do I use calibre with my iPad/iPhone/iPod touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The easiest way to transfer books wirelessly to your Apple device (iPad/iPhone/iPod)
-is to use the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=IOS>`__ iOS app.
-This app allows calibre to connect to your Apple device wirelessly, just as though you
-plugged in the device with a USB cable. You can browse files on the device
-in calibre and use the :guilabel:`Send to device` button to transfer files to
-your device wirelessly.
-
-Another easy way to browse your calibre collection from your Apple device
-is by using the calibre Content server, which makes your collection available
+An easy way to browse your calibre collection from your Apple device
+is by using :doc:`server`, which makes your collection available
 over the net. First perform the following steps in calibre
 
   * Set the Preferred Output Format in calibre to EPUB (The output format can be
@@ -285,6 +278,11 @@ right IP address to use.
 You will see a list of books in Safari, tap on any book and you will be given
 the option to either download it, or read it in the browser itself. If you
 choose to download it, Safari will ask you if you want to open it with iBooks.
+
+Many reading apps support browsing the calibre library directly via its `OPDS <httpd://opds.io/>`__ support.
+In such apps you can go to the online catalog screen and add the IP address of
+the calibre server to browse and download books from your calibre library
+within the app.
 
 How do I use calibre with my Android phone/tablet or Kindle Fire HD?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -331,16 +329,9 @@ utility, etc.
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to transfer books wirelessly to your Android device is to use
-the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=Android>`__ Android app.
-This app allows calibre to connect to your Android device wirelessly, just as though you
-plugged in the device with a USB cable. You can browse files on the device
-in calibre and use the :guilabel:`Send to device` button to transfer files to
-your device wirelessly.
-
-calibre also has a builtin web server, the :guilabel:`Content server`.
-You can browse your calibre collection on your Android device by using the
-calibre Content server, which makes your collection available over the net.
+calibre has a builtin web server, the :doc:`server`. It makes you calibre
+collection available over the net. You can brwse it on your device using a
+simple browser or a dedicated application.
 First perform the following steps in calibre
 
   * Set the :guilabel:`Preferred Output Format` in calibre to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
@@ -359,11 +350,11 @@ You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
 Android device.
 
-Calibre Companion and many reading apps support browsing the calibre library
-directly. For example, in Aldiko, click My Catalogs, then + to add a catalog,
-then give the catalog a title such as "calibre" and provide the URL listed
-above. You can now browse the calibre library and download directly into the
-reading software.
+Many reading apps support browsing the calibre library directly via its `OPDS <httpd://opds.io/>`__ support.
+In such apps you can go to the online catalog screen and add the IP address of
+the calibre server to browse and download books from your calibre library
+within the app.
+
 
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
