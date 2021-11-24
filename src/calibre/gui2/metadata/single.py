@@ -11,10 +11,10 @@ import os
 from datetime import datetime
 from functools import partial
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QFont, QFrame,
-    QGridLayout, QGroupBox, QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu,
-    QPushButton, QScrollArea, QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter,
-    Qt, QTabWidget, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QDialog, QDialogButtonBox, QFont, QFrame, QGridLayout, QGroupBox,
+    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea,
+    QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget,
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import ismacos
@@ -30,6 +30,7 @@ from calibre.gui2.metadata.basic_widgets import (
     TitleSortEdit, show_locked_file_error
 )
 from calibre.gui2.metadata.single_download import FullFetch
+from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.config import tweaks
 from calibre.utils.date import local_tz
@@ -269,26 +270,14 @@ class MetadataSingleDialogBase(QDialog):
         self.pubdate = PubdateEdit(self)
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
 
-        self.fetch_metadata_button = b = RightClickButton(self)
-        # The following rigmarole is needed so that Qt gives the button the
-        # same height as the other buttons in the dialog. There is no way to
-        # center the text in a QToolButton with an icon, so we can't just set an
-        # icon
-        b.setIcon(QIcon(I('download-metadata.png')))
-        b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        b.setMinimumHeight(b.sizeHint().height())
-        b.setIcon(QIcon())
-        b.setText(_('&Download metadata')), b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
+        self.fetch_metadata_button = b = CenteredToolButton(QIcon(I('download-metadata.png')), _('&Download metadata'), self)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
-        b.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         self.fetch_metadata_menu = m = QMenu(self.fetch_metadata_button)
         m.addAction(QIcon(I('edit-undo.png')), _('Undo last metadata download'), self.undo_fetch_metadata)
         self.fetch_metadata_button.setMenu(m)
         self.download_shortcut.activated.connect(self.fetch_metadata_button.click)
-        font = self.fmb_font = QFont()
-        font.setBold(True)
-        self.fetch_metadata_button.setFont(font)
 
         if self.use_toolbutton_for_config_metadata:
             self.config_metadata_button = QToolButton(self)

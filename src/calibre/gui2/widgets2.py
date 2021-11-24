@@ -10,7 +10,7 @@ from qt.core import (
     QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
     QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
     QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton, QTextCursor,
-    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal, QBrush, QPainter
+    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal, QBrush, QPainter, QProxyStyle
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -156,6 +156,59 @@ class RightClickButton(QToolButton):
             ev.accept()
             return
         return QToolButton.mousePressEvent(self, ev)
+
+
+class CenteredToolButtonStyle(QProxyStyle):
+
+    def __init__(self, ctb):
+        super().__init__()
+        self.setParent(ctb)
+        self.draw_text_called = self.draw_pixmap_called = False
+
+    def drawItemText(self, painter, rect, flags, palette, enabled, text, text_role=QPalette.ColorRole.NoRole):
+        b = self.parent()
+        if text != b.text():
+            return super().drawItemText(painter, rect, flags, palette, enabled, text, QPalette.ColorRole.NoRole)
+        self.text_rect = rect
+        self.text_flags = flags | Qt.AlignmentFlag.AlignCenter
+        self.text_palette = palette
+        self.text_enabled = enabled
+        self.text_role = text_role
+        self.draw_text_called = True
+        self.draw_both(painter)
+
+    def drawItemPixmap(self, painter, rect, alignment, pixmap):
+        self.pixmap_rect = rect
+        self.pixmap = pixmap
+        self.draw_pixmap_called = True
+        self.draw_both(painter)
+
+    def draw_both(self, painter):
+        if not self.draw_pixmap_called or not self.draw_text_called:
+            return
+        self.draw_text_called = self.draw_pixmap_called = False
+        b = self.parent()
+        fm = QFontMetrics(b.font())
+        w = b.iconSize().width()
+        full_rect = QRect(self.pixmap_rect.topLeft(), self.text_rect.bottomRight())
+        space = self.text_rect.left() - self.pixmap_rect.right() + 1
+        super().drawItemText(painter, full_rect, self.text_flags, self.text_palette, self.text_enabled, b.text(), self.text_role)
+        text_rect = self.itemTextRect(fm, full_rect, self.text_flags, self.text_enabled, b.text())
+        left = max(0, text_rect.left() - w - space)
+        pixmap_rect = QRect(left, self.pixmap_rect.top(), text_rect.right() - space - left, self.pixmap_rect.height())
+        super().drawItemPixmap(painter, pixmap_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self.pixmap)
+
+
+class CenteredToolButton(RightClickButton):
+
+    def __init__(self, icon, text, parent=None):
+        super().__init__(parent)
+        self.setText(text)
+        self.ps = CenteredToolButtonStyle(self)
+        self.setStyle(self.ps)
+        self.setIcon(icon)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
 
 class Dialog(QDialog):
