@@ -1811,16 +1811,6 @@ class StoreWeightlessBooksStore(StoreBase):
     formats = ['EPUB', 'HTML', 'LIT', 'MOBI', 'PDF']
 
 
-class StoreWHSmithUKStore(StoreBase):
-    name = 'WH Smith UK'
-    author = 'Charles Haley'
-    description = "Shop for savings on Books, discounted Magazine subscriptions and great prices on Stationery, Toys & Games"
-    actual_plugin = 'calibre.gui2.store.stores.whsmith_uk_plugin:WHSmithUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-
-
 class StoreWolneLekturyStore(StoreBase):
     name = 'Wolne Lektury'
     author = 'Tomasz Długosz'
@@ -1893,7 +1883,6 @@ plugins += [
     StoreSwiatEbookowStore,
     StoreVirtualoStore,
     StoreWeightlessBooksStore,
-    StoreWHSmithUKStore,
     StoreWolneLekturyStore,
     StoreWoblinkStore,
     XinXiiStore
