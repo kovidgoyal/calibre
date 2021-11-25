@@ -608,6 +608,14 @@ class TagsView(QTreeView):  # {{{
                 self.delete_user_category.emit(key)
                 return
             if action == 'delete_search':
+                if not question_dialog(
+                    self,
+                    title=_('Delete Saved search'),
+                    msg='<p>'+ _('Delete the saved search: {}?').format(key),
+                    skip_dialog_name='tb_delete_saved_search',
+                    skip_dialog_msg=_('Show this confirmation again')
+                ):
+                    return
                 self.model().db.saved_search_delete(key)
                 self.rebuild_saved_searches.emit()
                 return
