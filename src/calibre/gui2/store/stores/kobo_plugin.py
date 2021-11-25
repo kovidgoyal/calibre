@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -14,6 +14,7 @@ except ImportError:
     from urllib import quote_plus
 
 from lxml import html, etree
+import string, random
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.metadata import authors_to_string
@@ -24,11 +25,23 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
+def get_browser():
+    # kobo books uses akamai which for some reason times out sending responses
+    # when the UA is a real browser UA. It currently seems to work fine with a
+    # UA of the form python/word.
+    word_len = random.randint(3, 8)
+    word = ''.join(random.choice(string.ascii_lowercase) for i in range(word_len))
+    major_ver = random.randint(1, 3)
+    minor_ver = random.randint(0, 12)
+    br = browser(user_agent='python/{}-{}.{}'.format(word, major_ver, minor_ver), verify_ssl_certificates=False)
+    return br
+
+
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
     url = 'https://www.kobobooks.com/search/search.html?q=' + quote_plus(query)
 
-    br = browser()
+    br = get_browser()
 
     with closing(br.open(url, timeout=timeout)) as f:
         raw = f.read()
@@ -114,7 +127,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             yield result
 
     def get_details(self, search_result, timeout):
-        br = browser()
+        br = get_browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
             search_result.author = ', '.join(idata.xpath('.//h2[contains(@class, "author")]//a/text()'))
