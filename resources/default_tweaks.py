@@ -206,7 +206,7 @@ gui_last_modified_display_format = 'dd MMM yyyy'
 # book will sort under 'T'.
 # This flag affects calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
-# order until the title is edited. Editing a title and hitting return
+# order until the title is edited. Editing a title and hitting Enter
 # without changing anything is sufficient to change the sort. Or you can use
 # the 'Update title sort' action in the Bulk metadata edit dialog to update
 # it for many books at once.
@@ -401,7 +401,7 @@ sort_dates_using_visible_fields = False
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
-# You can control the behavior of double clicks and pressing enter on the books
+# You can control the behavior of double clicks and pressing Enter on the books
 # list. Choices: open_viewer, do_nothing, show_book_details, edit_cell,
 # edit_metadata. Selecting anything other than open_viewer or show_book_details
 # has the side effect of disabling editing a field using a single click.

@@ -73,7 +73,7 @@ user categories, and other information from the old to the new library</string>
    <item row="6" column="0" colspan="3">
     <widget class="QRadioButton" name="move_library">
      <property name="text">
-      <string>&amp;Move current library to new location</string>
+      <string>&amp;Move the current library to new location</string>
      </property>
     </widget>
    </item>

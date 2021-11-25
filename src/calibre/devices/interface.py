@@ -216,7 +216,7 @@ class DevicePlugin(Plugin):
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
         :param report_progress: Function that is called with a % progress
-                                (number between 0 and 100) for various tasks
+                                (number between 0 and 100) for various tasks.
                                 If it is called with -1 that means that the
                                 task does not have any progress information
         :param detected_device: Device information from the device scanner
@@ -302,7 +302,7 @@ class DevicePlugin(Plugin):
         Set a function to report progress information.
 
         :param report_progress: Function that is called with a % progress
-                                (number between 0 and 100) for various tasks
+                                (number between 0 and 100) for various tasks.
                                 If it is called with -1 that means that the
                                 task does not have any progress information
 

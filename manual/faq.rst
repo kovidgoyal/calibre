@@ -329,10 +329,9 @@ utility, etc.
 Over the air
 ^^^^^^^^^^^^^^
 
-calibre has a builtin web server, the :doc:`server`. It makes you calibre
-collection available over the net. You can brwse it on your device using a
-simple browser or a dedicated application.
-First perform the following steps in calibre
+calibre has a builtin web server, the :doc:`server`. It makes your calibre
+collection available over the net. You can browse it on your device using a
+simple browser or a dedicated application. First perform the following steps in calibre:
 
   * Set the :guilabel:`Preferred Output Format` in calibre to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the :guilabel:`Convert` button.

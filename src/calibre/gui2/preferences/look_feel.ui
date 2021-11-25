@@ -1109,7 +1109,7 @@ see the counts by hovering your mouse over any item.</string>
         <widget class="QCheckBox" name="opt_tag_browser_allow_keyboard_focus">
          <property name="toolTip">
           <string>&lt;p&gt;When checked, the Tag browser can get keyboard focus, allowing
-use of the keyboard to navigate the tree using the arrow keys. The RETURN key simulates
+use of the keyboard to navigate the tree using the arrow keys. The Enter key simulates
 a click on the selected item. The keyboard shortcut 'Tag browser /
 Give the Tag browser keyboard focus' changes the keyboard focus without
 using the mouse.&lt;/p&gt;</string>
