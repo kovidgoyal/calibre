@@ -1287,6 +1287,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                         _('Author names cannot contain & characters.'))
                 return False
         if key == 'search':
+            if val == str(item.data(role) or ''):
+                return True
             if val in self.db.saved_search_names():
                 return self.show_error_after_event_loop_tick(
                     _('Duplicate search name'), _('The saved search name %s is already used.')%val)
