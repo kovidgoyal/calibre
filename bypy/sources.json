@@ -449,6 +449,13 @@
     },
 
     {
+        "name": "qt-shadertools",
+        "hashes": {
+            "unix": "sha256:2c8d38724181b31cd828a56e377775c2d461ee2ea0d6362ebec411c3b288067e"
+        }
+    },
+
+    {
         "name": "qt-declarative",
         "hashes": {
             "unix": "sha256:5aeb841a5665f79672a302569754ea7d541c69102c551707e43489e797213c71"
