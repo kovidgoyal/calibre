@@ -458,7 +458,7 @@ class Build(Command):
         from setup.parallel_build import cpu_count
         if iswindows or ishaiku:
             return  # Dont have headless operation on these platforms
-        from setup.build_environment import CMAKE
+        from setup.build_environment import CMAKE, sw
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = absolutize
         headers = a([
@@ -480,11 +480,14 @@ class Build(Command):
         bdir = self.j(self.build_dir, 'headless')
         if os.path.exists(bdir):
             shutil.rmtree(bdir)
+        cmd = [CMAKE]
+        if sw and os.path.exists(os.path.join(sw, 'qt')):
+            cmd += ['-DCMAKE_SYSTEM_PREFIX_PATH=' + os.path.join(sw, 'qt').replace(os.sep, '/')]
         os.makedirs(bdir)
         cwd = os.getcwd()
         os.chdir(bdir)
         try:
-            self.check_call([CMAKE, '-S', os.path.dirname(sources[0])])
+            self.check_call(cmd + ['-S', os.path.dirname(sources[0])])
             self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
