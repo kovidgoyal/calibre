@@ -14,11 +14,12 @@ from qt.core import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
 
 from calibre import isbytestring, sanitize_file_name
-from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable)
+from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable, config_dir)
+from calibre.library import current_library_name
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
-    question_dialog, info_dialog, open_local_file, choose_dir)
+    question_dialog, info_dialog, open_local_file, choose_dir, choose_files, pixmap_to_data)
 from calibre.gui2.actions import InterfaceAction
 
 
@@ -244,11 +245,25 @@ class ChooseLibraryAction(InterfaceAction):
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.pick_random)
 
+        self.choose_library_icon_menu = QMenu(_('Choose/remove the icon for this library'))
+        self.choose_library_icon_menu.setIcon(QIcon(I('icon_choose.png')))
+        self.choose_library_icon_action = self.create_action(
+            spec=(_('Choose an icon'), 'icon_choose.png', None, None),
+            attr='action_choose_library_icon')
+        self.remove_library_icon_action = self.create_action(
+            spec=(_('Remove current icon'), 'trash.png', None, None),
+            attr='action_remove_library_icon')
+        self.choose_library_icon_action.triggered.connect(self.get_library_icon)
+        self.remove_library_icon_action.triggered.connect(partial(self.remove_library_icon, None))
+        self.choose_library_icon_menu.addAction(self.choose_library_icon_action)
+        self.choose_library_icon_menu.addAction(self.remove_library_icon_action)
+
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
 
             self.quick_menu = QMenu(_('Quick switch'))
             self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
+            self.choose_menu.addMenu(self.choose_library_icon_menu)
             self.rename_menu = QMenu(_('Rename library'))
             self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
             self.choose_menu.addAction(ac)
@@ -260,6 +275,7 @@ class ChooseLibraryAction(InterfaceAction):
                                                       type=Qt.ConnectionType.QueuedConnection)
             self.choose_menu.addAction(self.action_exim)
         else:
+            self.choose_menu.addMenu(self.choose_library_icon_menu)
             self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
@@ -317,6 +333,70 @@ class ChooseLibraryAction(InterfaceAction):
     def pick_random(self, *args):
         self.gui.iactions['Pick Random Book'].pick_random()
 
+    def get_library_icon(self):
+        try:
+            path = choose_files(self.gui, 'choose_library_icon',
+                        _('Select icon for library "%s"') % current_library_name(),
+                        filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                    all_files=False, select_only_single_file=True)
+            if path:
+                path = path[0]
+                p = QIcon(path).pixmap(QSize(128, 128))
+                d = os.path.join(config_dir, 'library_icons')
+                if not os.path.exists(d):
+                    os.makedirs(d)
+                icon_name = sanitize_file_name(current_library_name())+'.png'
+                with open(os.path.join(d, icon_name), 'wb') as f:
+                    f.write(pixmap_to_data(p, format='PNG'))
+                    path = os.path.basename(f.name)
+                self.set_library_icon()
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def rename_library_icon(self, old_name, new_name):
+        old_icon_name = sanitize_file_name(old_name)+'.png'
+        new_icon_name = sanitize_file_name(new_name)+'.png'
+        try:
+            d = os.path.join(config_dir, 'library_icons')
+            old = os.path.join(d, old_icon_name)
+            if os.path.exists(old):
+                os.rename(old, os.path.join(d, new_icon_name))
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def remove_library_icon(self, name):
+        if name is None:
+            name = current_library_name()
+        name = sanitize_file_name(name)+'.png'
+        try:
+            d = os.path.join(config_dir, 'library_icons', name)
+            if os.path.exists(d):
+                os.remove(os.path.join(d, ))
+                self.set_library_icon()
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def set_library_icon(self):
+        icon = None
+        icon_name = sanitize_file_name(current_library_name())+'.png'
+        path = os.path.join(config_dir, 'library_icons', icon_name)
+        if os.path.exists(path):
+            icon = QIcon(path)
+            if len(icon.availableSizes()) > 0:
+                self.qaction.setIcon(icon)
+                self.gui.setWindowIcon(icon)
+                self.remove_library_icon_action.setEnabled(True)
+            else:
+                icon = None
+        if icon is None:
+            icon = QIcon(I('library.png'))
+            self.qaction.setIcon(icon)
+            self.gui.setWindowIcon(icon)
+            self.remove_library_icon_action.setEnabled(False)
+
     def exim_data(self):
         if isportable:
             return error_dialog(self.gui, _('Cannot export/import'), _(
@@ -358,6 +438,7 @@ class ChooseLibraryAction(InterfaceAction):
         a.setText(lname.replace('&', '&&&'))  # I have no idea why this requires a triple ampersand
         self.update_tooltip(db.count())
         self.build_menus()
+        self.set_library_icon()
         state = self.view_state_map.get(self.stats.canonicalize_path(
             db.library_path), None)
         if state is not None:
@@ -506,6 +587,7 @@ class ChooseLibraryAction(InterfaceAction):
                     det_msg=det_msg, show=True)
             return
         self.stats.rename(location, newloc)
+        self.rename_library_icon(old_name, newname)
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
 
@@ -519,6 +601,7 @@ class ChooseLibraryAction(InterfaceAction):
                 override_icon='dialog_information.png',
                 yes_text=_('&OK'), no_text=_('&Undo'), yes_icon='ok.png', no_icon='edit-undo.png'):
             return
+        self.remove_library_icon(name)
         self.stats.remove(location)
         self.gui.library_broker.remove_library(location)
         self.build_menus()
