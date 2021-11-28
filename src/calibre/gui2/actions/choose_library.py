@@ -1,31 +1,43 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, weakref, sys
+import os
+import posixpath
+import sys
+import weakref
+from contextlib import suppress
 from functools import partial
-
-from qt.core import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
-        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
-        QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
+from qt.core import (
+    QAction, QCoreApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon,
+    QInputDialog, QLabel, QLineEdit, QMenu, QSize, Qt, QTimer, QToolButton,
+    QVBoxLayout, pyqtSignal
+)
 
 from calibre import isbytestring, sanitize_file_name
-from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable, config_dir)
+from calibre.constants import (
+    config_dir, filesystem_encoding, get_portable_base, isportable, iswindows
+)
+from calibre.gui2 import (
+    Dispatcher, choose_dir, choose_files, error_dialog, gprefs, info_dialog,
+    open_local_file, pixmap_to_data, question_dialog, warning_dialog
+)
+from calibre.gui2.actions import InterfaceAction
 from calibre.library import current_library_name
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
-from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
-    question_dialog, info_dialog, open_local_file, choose_dir, choose_files, pixmap_to_data)
-from calibre.gui2.actions import InterfaceAction
 
 
 def db_class():
     from calibre.db.legacy import LibraryDatabase
     return LibraryDatabase
+
+
+def library_icon_path(lib_name=''):
+    return os.path.join(config_dir, 'library_icons', sanitize_file_name(lib_name or current_library_name()) + '.png')
 
 
 class LibraryUsageStats:  # {{{
@@ -245,7 +257,7 @@ class ChooseLibraryAction(InterfaceAction):
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.pick_random)
 
-        self.choose_library_icon_menu = QMenu(_('Choose/remove the icon for this library'))
+        self.choose_library_icon_menu = QMenu(_('Change the icon for this library'))
         self.choose_library_icon_menu.setIcon(QIcon(I('icon_choose.png')))
         self.choose_library_icon_action = self.create_action(
             spec=(_('Choose an icon'), 'icon_choose.png', None, None),
@@ -254,9 +266,10 @@ class ChooseLibraryAction(InterfaceAction):
             spec=(_('Remove current icon'), 'trash.png', None, None),
             attr='action_remove_library_icon')
         self.choose_library_icon_action.triggered.connect(self.get_library_icon)
-        self.remove_library_icon_action.triggered.connect(partial(self.remove_library_icon, None))
+        self.remove_library_icon_action.triggered.connect(partial(self.remove_library_icon, ''))
         self.choose_library_icon_menu.addAction(self.choose_library_icon_action)
         self.choose_library_icon_menu.addAction(self.remove_library_icon_action)
+        self.original_library_icon = self.qaction.icon()
 
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
@@ -337,65 +350,47 @@ class ChooseLibraryAction(InterfaceAction):
         try:
             path = choose_files(self.gui, 'choose_library_icon',
                         _('Select icon for library "%s"') % current_library_name(),
-                        filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                        filters=[('Images', ['png', 'gif', 'jpg', 'jpeg', 'webp'])],
                         all_files=False, select_only_single_file=True)
             if path:
                 path = path[0]
-                p = QIcon(path).pixmap(QSize(128, 128))
-                d = os.path.join(config_dir, 'library_icons')
-                if not os.path.exists(d):
-                    os.makedirs(d)
-                icon_name = sanitize_file_name(current_library_name())+'.png'
-                with open(os.path.join(d, icon_name), 'wb') as f:
+                p = QIcon(path).pixmap(QSize(256, 256))
+                icp = library_icon_path()
+                os.makedirs(os.path.dirname(icp), exist_ok=True)
+                with open(icp, 'wb') as f:
                     f.write(pixmap_to_data(p, format='PNG'))
-                    path = os.path.basename(f.name)
                 self.set_library_icon()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
     def rename_library_icon(self, old_name, new_name):
-        old_icon_name = sanitize_file_name(old_name)+'.png'
-        new_icon_name = sanitize_file_name(new_name)+'.png'
+        old_path = library_icon_path(old_name)
+        new_path = library_icon_path(new_name)
         try:
-            d = os.path.join(config_dir, 'library_icons')
-            old = os.path.join(d, old_icon_name)
-            if os.path.exists(old):
-                os.rename(old, os.path.join(d, new_icon_name))
-        except:
+            if os.path.exists(old_path):
+                os.replace(old_path, new_path)
+        except Exception:
             import traceback
             traceback.print_exc()
 
-    def remove_library_icon(self, name):
-        if name is None:
-            name = current_library_name()
-        name = sanitize_file_name(name)+'.png'
+    def remove_library_icon(self, name=''):
         try:
-            d = os.path.join(config_dir, 'library_icons', name)
-            if os.path.exists(d):
-                os.remove(os.path.join(d, ))
-                self.set_library_icon()
-        except:
+            with suppress(FileNotFoundError):
+                os.remove(library_icon_path(name or current_library_name()))
+            self.set_library_icon()
+        except Exception:
             import traceback
             traceback.print_exc()
 
     def set_library_icon(self):
-        icon = None
-        icon_name = sanitize_file_name(current_library_name())+'.png'
-        path = os.path.join(config_dir, 'library_icons', icon_name)
-        if os.path.exists(path):
-            icon = QIcon(path)
-            if len(icon.availableSizes()) > 0:
-                self.qaction.setIcon(icon)
-                self.gui.setWindowIcon(icon)
-                self.remove_library_icon_action.setEnabled(True)
-            else:
-                icon = None
-        if icon is None:
-            icon = QIcon(I('library.png'))
-            self.qaction.setIcon(icon)
-            self.gui.setWindowIcon(icon)
-            self.remove_library_icon_action.setEnabled(False)
+        icon = QIcon(library_icon_path())
+        has_icon = not icon.isNull() and len(icon.availableSizes()) > 0
+        if not has_icon:
+            icon = self.original_library_icon
+        self.qaction.setIcon(icon)
+        self.gui.setWindowIcon(icon)
+        self.remove_library_icon_action.setEnabled(has_icon)
 
     def exim_data(self):
         if isportable:
@@ -730,6 +725,7 @@ class ChooseLibraryAction(InterfaceAction):
 
     def debug_leak(self):
         import gc
+
         from calibre.utils.mem import memory
         ref = self.dbref
         for i in range(3):
