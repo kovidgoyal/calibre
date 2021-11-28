@@ -61,6 +61,7 @@ def apply_colors(is_content_popup):
     des = document.documentElement.style
     des.setProperty('--calibre-viewer-background-color', opts.color_scheme.background)
     des.setProperty('--calibre-viewer-foreground-color', opts.color_scheme.foreground)
+    des.colorScheme = 'dark' if opts.is_dark_theme else 'light'
     if opts.color_scheme.link:
         des.setProperty('--calibre-viewer-link-color', opts.color_scheme.link)
     for elem in (document.documentElement, document.body):
