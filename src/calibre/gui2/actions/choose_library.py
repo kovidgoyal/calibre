@@ -338,7 +338,7 @@ class ChooseLibraryAction(InterfaceAction):
             path = choose_files(self.gui, 'choose_library_icon',
                         _('Select icon for library "%s"') % current_library_name(),
                         filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
-                    all_files=False, select_only_single_file=True)
+                        all_files=False, select_only_single_file=True)
             if path:
                 path = path[0]
                 p = QIcon(path).pixmap(QSize(128, 128))

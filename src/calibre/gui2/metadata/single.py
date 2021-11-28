@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 from functools import partial
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QFont, QFrame, QGridLayout, QGroupBox,
+    QApplication, QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea,
     QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget,
     QToolButton, QVBoxLayout, QWidget, pyqtSignal
