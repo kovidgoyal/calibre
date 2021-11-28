@@ -258,11 +258,9 @@ def get_editor_settings(tprefs):
 
 
 def create_dark_mode_script():
-    dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
     return create_script('dark-mode.js', '''
     (function() {
         var settings = JSON.parse(navigator.userAgent.split('|')[1]);
-        var dark_css = CSS;
 
         function apply_body_colors(event) {
             if (document.documentElement) {
@@ -278,7 +276,7 @@ def create_dark_mode_script():
         function apply_css() {
             var css = '';
             if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }';
-            if (settings.is_dark_theme) { css += dark_css; }
+            if (settings.is_dark_theme) { css = ':root { color-scheme: dark; }' + css; }
             var style = document.createElement('style');
             style.textContent = css;
             document.documentElement.appendChild(style);
@@ -288,7 +286,7 @@ def create_dark_mode_script():
         apply_body_colors();
         document.addEventListener("DOMContentLoaded", apply_css);
     })();
-    '''.replace('CSS', json.dumps(dark_mode_css), 1),
+    ''',
     injection_point=QWebEngineScript.InjectionPoint.DocumentCreation)
 
 
