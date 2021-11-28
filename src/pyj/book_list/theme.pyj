@@ -74,6 +74,7 @@ def set_ui_colors(is_dark_theme):
         s.setProperty('--calibre-color-' + k, val)
     get_color_as_rgba.cache = {}
     cached_color_to_rgba.cache = {}
+    document.documentElement.style.colorScheme = 'dark' if is_dark_theme else 'light'
 
 
 def browser_in_dark_mode():
@@ -96,7 +97,7 @@ def css_for_variables():
     for k in DEFAULT_COLORS:
         val = DEFAULT_COLORS[k][attr]
         ans.push(f'--calibre-color-{k}: {val};')
-    return ':root { ' + ans.join('\n') + '}\n\n' + input_css
+    return f':root {{ color-scheme: {attr}; ' + ans.join('\n') + '}\n\n' + input_css
 
 
 def get_color(name):
