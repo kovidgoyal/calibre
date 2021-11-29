@@ -163,7 +163,10 @@ def kdialog_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 def kdialog_filters(filters, all_files=True):
     ans = []
     for name, exts in filters:
-        ans.append('{} ({})'.format(name, ' '.join('*.' + x for x in exts)))
+        if not exts or (len(exts) == 1 and exts[0] == '*'):
+            ans.append(name + ' (*)')
+        else:
+            ans.append('{} ({})'.format(name, ' '.join('*.' + x for x in exts)))
     if all_files:
         ans.append(_('All files') + ' (*)')
     return '\n'.join(ans)
@@ -240,7 +243,10 @@ def zenity_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 def zenity_filters(filters, all_files=True):
     ans = []
     for name, exts in filters:
-        ans.append('--file-filter={} | {}'.format(name, ' '.join('*.' + x for x in exts)))
+        if not exts or (len(exts) == 1 and exts[0] == '*'):
+            ans.append('--file-filter={} | {}'.format(name, '*'))
+        else:
+            ans.append('--file-filter={} | {}'.format(name, ' '.join('*.' + x for x in exts)))
     if all_files:
         ans.append('--file-filter={} | {}'.format(_('All files'), '*'))
     return ans

@@ -56,8 +56,11 @@ class FileDialog(QObject):
         if filters:
             for filter in filters:
                 text, extensions = filter
-                extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
-                        extensions]
+                if not extensions or (len(extensions) == 1 and extensions[0] == '*'):
+                    extensions = ['*']
+                else:
+                    extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
+                            extensions]
                 etext = '%s (%s);;'%(text, ' '.join(extensions))
                 if len(etext) > 72:
                     has_long_filter = True

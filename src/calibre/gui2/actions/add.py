@@ -16,8 +16,8 @@ from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import MetaInformation, normalize_isbn
 from calibre.gui2 import (
-    choose_dir, choose_files, error_dialog, gprefs, info_dialog, question_dialog,
-    warning_dialog
+    choose_dir, choose_files, choose_files_and_remember_all_files, error_dialog,
+    gprefs, info_dialog, question_dialog, warning_dialog
 )
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
@@ -139,7 +139,7 @@ class AddAction(InterfaceAction):
         ids = self._check_add_formats_ok()
         if not ids:
             return
-        books = choose_files(self.gui, 'add formats dialog dir',
+        books = choose_files_and_remember_all_files(self.gui, 'add formats dialog dir',
                 _('Select book files'), filters=get_filters())
         if books:
             self._add_formats(books, ids)
@@ -529,7 +529,7 @@ class AddAction(InterfaceAction):
             fmts = self.gui.device_manager.device.settings().format_map
             filters = [(_('Supported books'), fmts)]
 
-        books = choose_files(self.gui, 'add books dialog dir',
+        books = choose_files_and_remember_all_files(self.gui, 'add books dialog dir',
                 _('Select books'), filters=filters)
         if not books:
             return

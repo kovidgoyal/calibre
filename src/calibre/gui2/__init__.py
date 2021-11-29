@@ -688,6 +688,26 @@ else:
     choose_files, choose_images, choose_dir, choose_save_file
 
 
+def choose_files_and_remember_all_files(
+    window, name, title, filters=[], select_only_single_file=False, default_dir='~'
+):
+    pref_name = f'{name}-last-used-filter-spec-all-files'
+    lufs = dynamic.get(pref_name, False)
+    af = _('All files'), ['*']
+    filters = list(filters)
+    filters.insert(0, af) if lufs else filters.append(af)
+    paths = choose_files(window, name, title, list(filters), False, select_only_single_file, default_dir)
+    if paths:
+        ext = paths[0].rpartition(os.extsep)[-1].lower()
+        used_all_files = True
+        for i, (name, exts) in enumerate(filters):
+            if ext in exts:
+                used_all_files = False
+                break
+        dynamic.set(pref_name, used_all_files)
+    return paths
+
+
 def is_dark_theme():
     pal = QApplication.instance().palette()
     col = pal.color(QPalette.ColorRole.Window)
