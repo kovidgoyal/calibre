@@ -169,7 +169,7 @@ class IframeBoss:
             'replace_highlights': self.replace_highlights,
             'clear_selection': def(): window.getSelection().removeAllRanges();,
         }
-        self.comm = IframeClient(handlers)
+        self.comm = IframeClient(handlers, 'main-iframe')
         self.last_window_ypos = 0
         self.length_before = None
 

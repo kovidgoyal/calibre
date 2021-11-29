@@ -287,7 +287,7 @@ class CommentsEditorBoss:
             'exec_command': self.exec_command,
             'focus': self.focus,
         }
-        self.comm = IframeClient(handlers)
+        self.comm = IframeClient(handlers, 'comments-editor-iframe')
 
     def initialize(self, data):
         window.onerror = self.onerror

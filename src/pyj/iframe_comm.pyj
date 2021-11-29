@@ -173,10 +173,14 @@ def create_wrapped_iframe(handlers, bootstrap_text, entry_point, kw):
     return iframe, ans
 
 
+client_instance_num = 0
+
 class IframeClient:
 
-    def __init__(self, handlers):
+    def __init__(self, handlers, name):
         self.encrypted_communications = False
+        self.name = name
+        self.instance_num = v'++client_instance_num'
         self.handlers = {k: handlers[k] for k in handlers}
         self.initialize_handler = handlers.initialize
         self.handlers.initialize = self.initialize
@@ -233,6 +237,7 @@ class IframeClient:
 
     def send_message(self, action, data):
         data.action = action
+        data.iframe_id = f'{self.name}-{self.instance_num}'
         if self.encrypted_communications:
             data = self.gcm_to_parent.encrypt(JSON.stringify(data))
         window.parent.postMessage(data, '*')
