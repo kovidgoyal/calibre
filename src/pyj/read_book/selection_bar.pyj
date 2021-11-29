@@ -1010,6 +1010,9 @@ class SelectionBar:
             self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
 
     def book_search(self):
+        cs = self.view.currently_showing?.selection?.text
+        if not cs or len(str.strip(cs)) < 2:
+            return error_dialog(_('Too little text'), _('Cannot search as too little text is selected. You must select at least two characters.'))
         self.view.show_search(True)
         self.clear_selection()
 
