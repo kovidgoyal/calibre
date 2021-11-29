@@ -255,7 +255,7 @@ def _config():  # {{{
             help='Asked library thing password at least once.')
     c.add_opt('search_as_you_type', default=False,
             help=_('Start searching as you type. If this is disabled then search will '
-            'only take place when the Enter or Return key is pressed.'))
+            'only take place when the Enter key is pressed.'))
     c.add_opt('highlight_search_matches', default=False,
             help=_('When searching, show all books with search results '
             'highlighted instead of showing only the matches. You can use the '

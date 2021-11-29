@@ -212,8 +212,8 @@ class Source(Plugin):
     ignore_ssl_errors = False
 
     #: Cached cover URLs can sometimes be unreliable (i.e. the download could
-    #: fail or the returned image could be bogus. If that is often the case
-    #: with this source set to False
+    #: fail or the returned image could be bogus). If that is often the case
+    #: with this source, set to False
     cached_cover_url_is_reliable = True
 
     #: A list of :class:`Option` objects. They will be used to automatically

@@ -1323,11 +1323,11 @@ when the column in the book list is changed using the cursor arrow keys</string>
          <item row="1" column="0">
           <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
            <property name="toolTip">
-            <string>Pressing return in a cell changes both the book and the
+            <string>Pressing 'Enter' in a cell changes both the book and the
 column being examined (the left-hand pane)</string>
            </property>
            <property name="text">
-            <string>&amp;Pressing 'return' changes examined column</string>
+            <string>&amp;Pressing 'Enter' changes the examined column</string>
            </property>
           </widget>
          </item>

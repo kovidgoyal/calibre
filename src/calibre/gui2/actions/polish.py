@@ -91,7 +91,7 @@ class Polish(QDialog):  # {{{
             ('remove_unused_css', _('Remove &unused CSS rules from the book')),
             ('compress_images', _('Losslessly &compress images')),
             ('add_soft_hyphens', _('Add s&oft hyphens')),
-            ('remove_soft_hyphens', _('Remove soft hyphens')),
+            ('remove_soft_hyphens', _('Remove so&ft hyphens')),
             ('upgrade_book', _('&Upgrade book internals')),
         ])
         prefs = gprefs.get('polishing_settings', {})
