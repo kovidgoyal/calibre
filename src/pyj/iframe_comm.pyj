@@ -173,14 +173,17 @@ def create_wrapped_iframe(handlers, bootstrap_text, entry_point, kw):
     return iframe, ans
 
 
-client_instance_num = 0
+instance_numbers = {}
 
 class IframeClient:
 
     def __init__(self, handlers, name):
         self.encrypted_communications = False
         self.name = name
-        self.instance_num = v'++client_instance_num'
+        if not instance_numbers[self.name]:
+            instance_numbers[self.name] = 0
+        instance_numbers[self.name] += 1
+        self.instance_num = instance_numbers[self.name]
         self.handlers = {k: handlers[k] for k in handlers}
         self.initialize_handler = handlers.initialize
         self.handlers.initialize = self.initialize
@@ -212,6 +215,9 @@ class IframeClient:
         msg = event.data
         data = msg.data
         if msg.encrypted:
+            if not self.gcm_from_parent:
+                print(f'the iframe {self.name}-{self.instance_num} got an encrypted message from its parent without being initialized')
+                return
             # We cannot use self.encrypted_communications as the 'display'
             # message has to be unencrypted as it transports Blob objects
             try:
