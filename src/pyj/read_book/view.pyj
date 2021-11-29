@@ -885,12 +885,14 @@ class View:
         is_current_book = self.book and self.book.key == book.key
         self.book_load_started = True
         if not is_current_book:
-            self.iframe_wrapper.reset()
-            self.content_popup_overlay.reset()
+            if self.book:
+                self.iframe_wrapper.reset()
+                self.content_popup_overlay.reset()
             self.loaded_resources = {}
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)
             self.search_overlay.clear_caches(book)
+            self.iframe_wrapper.init()
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
         hl = None

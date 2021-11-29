@@ -55,7 +55,7 @@ class IframeWrapper:
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
         if ':' in entry_point:
-            self.needs_init = False
+            self.needs_init = iframe.src is not entry_point
             self.srcdoc_created = True
             self.constructor_url = entry_point
             self.entry_point = None
@@ -115,6 +115,8 @@ class IframeWrapper:
         self.encrypted_communications = False
 
     def _send_message(self, action, encrypted, data):
+        if not self.ready:
+            return
         data.action = action
         msg = {'data':data, 'encrypted': encrypted}
         if encrypted:

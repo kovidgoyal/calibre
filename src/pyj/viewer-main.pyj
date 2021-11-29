@@ -442,8 +442,7 @@ if window is window.top:
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
 else:
     # iframe
-    div = document.getElementById('calibre-viewer-footnote-iframe')
-    if div:
-        footnotes_main()
-    else:
+    if document.location.pathname.endsWith('/__index__'):
         iframe_main()
+    elif document.location.pathname.endsWith('/__popup__'):
+        footnotes_main()

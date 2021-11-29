@@ -1006,4 +1006,5 @@ class IframeBoss:
 
 
 def main():
-    main.boss = IframeBoss()
+    if not main.boss:
+        main.boss = IframeBoss()

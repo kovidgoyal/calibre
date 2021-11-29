@@ -153,11 +153,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             return self.fail_request(rq)
         if name.startswith('book/'):
             name = name.partition('/')[2]
-            if name == '__index__':
+            if name in ('__index__', '__popup__'):
                 send_reply(rq, 'text/html', b'<div>\xa0</div>')
-                return
-            elif name == '__popup__':
-                send_reply(rq, 'text/html', b'<div id="calibre-viewer-footnote-iframe">\xa0</div>')
                 return
             try:
                 data, mime_type = get_data(name)
@@ -196,7 +193,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        prints("Blocking FAKE_PROTOCOL request: {}".format(rq.requestUrl().toString()))
+        prints("Blocking FAKE_PROTOCOL request: {} with code: {}".format(rq.requestUrl().toString(), fail_code))
 
 # }}}
 
