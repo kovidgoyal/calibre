@@ -20,7 +20,9 @@ from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import choose_files, error_dialog, sanitize_env_vars
+from calibre.gui2 import (
+    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
+)
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
@@ -529,6 +531,12 @@ class EbookViewer(MainWindow):
                 raise
             self.load_ebook(data['pathtoebook'], open_at=data['open_at'], reload_book=True)
             return
+        if iswindows:
+            try:
+                add_to_recent_docs(data['pathtoebook'])
+            except Exception:
+                import traceback
+                traceback.print_exc()
         self.current_book_data = data
         get_current_book_data(self.current_book_data)
         self.current_book_data['annotations_map'] = defaultdict(list)
