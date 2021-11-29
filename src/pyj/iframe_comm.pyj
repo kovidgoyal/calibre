@@ -186,11 +186,12 @@ class IframeClient:
         self.handlers.initialize = self.initialize
         self.ready_sent = False
         window.addEventListener('message', self.handle_message, False)
-        window.addEventListener('load', def():
-            if not self.ready_sent:
-                self.send_message('ready', {})
-                self.ready_sent = True
-        )
+        window.addEventListener('load', self.send_ready, {'once': True})
+
+    def send_ready(self):
+        if not self.ready_sent:
+            self.send_message('ready', {})
+            self.ready_sent = True
 
     def initialize(self, data):
         nonlocal print
