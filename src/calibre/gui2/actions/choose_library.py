@@ -22,7 +22,7 @@ from calibre.constants import (
     config_dir, filesystem_encoding, get_portable_base, isportable, iswindows
 )
 from calibre.gui2 import (
-    Dispatcher, choose_dir, choose_files, error_dialog, gprefs, info_dialog,
+    Dispatcher, choose_dir, choose_images, error_dialog, gprefs, info_dialog,
     open_local_file, pixmap_to_data, question_dialog, warning_dialog
 )
 from calibre.gui2.actions import InterfaceAction
@@ -348,12 +348,10 @@ class ChooseLibraryAction(InterfaceAction):
 
     def get_library_icon(self):
         try:
-            path = choose_files(self.gui, 'choose_library_icon',
-                        _('Select icon for library "%s"') % current_library_name(),
-                        filters=[('Images', ['png', 'gif', 'jpg', 'jpeg', 'webp'])],
-                        all_files=False, select_only_single_file=True)
-            if path:
-                path = path[0]
+            paths = choose_images(self.gui, 'choose_library_icon',
+                        _('Select icon for library "%s"') % current_library_name())
+            if paths:
+                path = paths[0]
                 p = QIcon(path).pixmap(QSize(256, 256))
                 icp = library_icon_path()
                 os.makedirs(os.path.dirname(icp), exist_ok=True)
