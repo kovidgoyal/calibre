@@ -1,3 +1,4 @@
+#define PY_SSIZE_T_CLEAN
 #include "util.h"
 #include <stdlib.h>
 #include <libproc.h>

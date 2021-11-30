@@ -22,6 +22,7 @@
    Copyright (C) 2005 Bram Cohen, Copyright (C) 2005, 2006 Canonical Ltd
 */
 
+#define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
 #include <stdlib.h>

@@ -5,7 +5,7 @@
  */
 
 #pragma once
-
+#define PY_SSIZE_T_CLEAN
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>

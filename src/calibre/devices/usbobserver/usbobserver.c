@@ -20,6 +20,8 @@
  */
 
 #define _DARWIN_USE_64_BIT_INODE
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 
 #include <stdio.h>

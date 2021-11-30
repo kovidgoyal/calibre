@@ -5,6 +5,7 @@
  * Distributed under terms of the GPL3 license.
  */
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <hyphen.h>
 

@@ -6,6 +6,7 @@
  */
 
 
+#define PY_SSIZE_T_CLEAN
 #define UNICODE
 #include <Python.h>
 #include <sys/types.h>

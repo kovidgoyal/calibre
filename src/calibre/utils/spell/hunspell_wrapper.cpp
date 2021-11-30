@@ -6,7 +6,7 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#define PY_SSIZE_T_CLEAN 1
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <new>
 #include <string>

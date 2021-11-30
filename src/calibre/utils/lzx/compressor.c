@@ -3,6 +3,7 @@
  *
  * Python/C implementation of an LZX compressor type.
  */
+#define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
 #include <structmember.h>

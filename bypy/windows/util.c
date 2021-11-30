@@ -3,6 +3,7 @@
  */
 
 #define UNICODE
+#define PY_SSIZE_T_CLEAN
 
 #define _WIN32_WINNT 0x0502
 #define WINDOWS_LEAN_AND_MEAN

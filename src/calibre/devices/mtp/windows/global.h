@@ -7,6 +7,7 @@
 
 #pragma once
 #define UNICODE
+#define PY_SSIZE_T_CLEAN
 #include <Windows.h>
 #include <atlbase.h>
 #include <Python.h>
