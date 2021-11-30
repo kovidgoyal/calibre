@@ -606,6 +606,26 @@
     },
 
     {
+        "name": "zipp",
+		"comment": "Only needed for importlib_metadata",
+        "unix": {
+            "filename": "zipp-3.6.0.tar.gz",
+            "hash": "sha256:71c644c5369f4a6e07636f0aa966270449561fcea2e3d6747b8d23efaa9d7832",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "importlib_metadata",
+		"comment": "Only needed for python < 3.10 by python-markdown",
+        "unix": {
+            "filename": "importlib_metadata-4.8.2.tar.gz",
+            "hash": "sha256:75bdec14c397f528724c1bfd9709d660b33a4d2e77387a3358f20b848bb5e5fb",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "feedparser",
         "unix": {
             "filename": "feedparser-6.0.8.tar.bz2",
