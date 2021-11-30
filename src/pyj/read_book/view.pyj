@@ -769,6 +769,8 @@ class View:
 
     def on_iframe_ready(self, data):
         data.width, data.height = self.iframe_size()
+        if ui_operations.on_iframe_ready:
+            ui_operations.on_iframe_ready()
         return self.do_pending_load
 
     def do_pending_load(self):

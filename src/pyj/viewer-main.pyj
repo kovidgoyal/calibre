@@ -431,6 +431,8 @@ if window is window.top:
         to_python.show_book_folder()
     ui_operations.show_help = def(which):
         to_python.show_help(which)
+    ui_operations.on_iframe_ready = def():
+        to_python.on_iframe_ready()
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

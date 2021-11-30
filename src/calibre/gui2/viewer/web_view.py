@@ -229,6 +229,7 @@ def create_profile():
 class ViewerBridge(Bridge):
 
     view_created = from_js(object)
+    on_iframe_ready = from_js()
     content_file_changed = from_js(object)
     set_session_data = from_js(object, object)
     set_local_storage = from_js(object, object)
@@ -499,6 +500,7 @@ class WebView(RestartingWebEngineView):
         self._page.linkHovered.connect(self.link_hovered)
         self.view_is_ready = False
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
+        self.bridge.on_iframe_ready.connect(self.on_iframe_ready)
         self.bridge.view_created.connect(self.on_view_created)
         self.bridge.content_file_changed.connect(self.on_content_file_changed)
         self.bridge.set_session_data.connect(self.set_session_data)
@@ -627,6 +629,9 @@ class WebView(RestartingWebEngineView):
         performance_monitor('bridge ready')
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
+
+    def on_iframe_ready(self):
+        performance_monitor('iframe ready')
 
     def on_view_created(self, data):
         self.view_created.emit(data)
