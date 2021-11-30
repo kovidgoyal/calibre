@@ -189,7 +189,7 @@ class Fonts:
         if not is_truetype_font(prefix):
             return None
         ext = 'otf' if prefix.startswith(b'OTTO') else 'ttf'
-        fname = ascii_filename('%s - %s.%s' % (name, variant, ext)).replace(' ', '_')
+        fname = ascii_filename('%s - %s.%s' % (name, variant, ext)).replace(' ', '_').replace('&', '_')
         with open(os.path.join(dest_dir, fname), 'wb') as dest:
             dest.write(prefix)
             dest.write(raw[32:])
