@@ -179,12 +179,9 @@ def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait
     '''
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname)
+    num_services = len(server.registry.async_get_service_infos())
     server.unregister_service(service)
-    try:
-        no_services = len(server.registry.services) == 0
-    except AttributeError:
-        no_services = len(server.services) == 0
-    if no_services:
+    if num_services < 2:
         stop_server(wait_for_stop=wait_for_stop)
 
 
