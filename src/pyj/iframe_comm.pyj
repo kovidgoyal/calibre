@@ -54,6 +54,7 @@ class IframeWrapper:
     def __init__(self, handlers, iframe, entry_point, bootstrap_text):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
+        self.reload_count = 0
         if ':' in entry_point:
             self.needs_init = iframe.src is not entry_point
             self.srcdoc_created = True
@@ -104,8 +105,9 @@ class IframeWrapper:
                 iframe.srcdoc = '<p>&nbsp;</p>'
                 iframe.srcdoc = sdoc
             else:
-                iframe.src = 'about:blank'
-                iframe.src = self.constructor_url
+                self.reload_count += 1
+                ch = '&' if '?' in self.constructor_url else '?'
+                iframe.src = self.constructor_url + f'{ch}rc={self.reload_count}'
         else:
             self.create_srcdoc()
 
