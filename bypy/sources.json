@@ -166,9 +166,9 @@
     {
         "name": "python",
         "unix": {
-            "filename": "Python-3.9.7.tar.xz",
-            "hash": "sha256:f8145616e68c00041d1a6399b76387390388f8359581abc24432bb969b5e3c57",
-            "urls": ["https://www.python.org/ftp/python/3.9.7/{filename}"]
+            "filename": "Python-3.10.0.tar.xz",
+            "hash": "sha256:5a99f8e7a6a11a7b98b4e75e0d1303d3832cada5534068f69c7b6222a7b1b002",
+            "urls": ["https://www.python.org/ftp/python/3.10.0/{filename}"]
         }
     },
 
@@ -601,26 +601,6 @@
         "unix": {
             "filename": "mechanize-0.4.7.tar.gz",
             "hash": "sha256:1773a8f5818398e0010e781dc0f942cd88b107a57424c904d545cd827c216809",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "zipp",
-		"comment": "Only needed for importlib_metadata",
-        "unix": {
-            "filename": "zipp-3.6.0.tar.gz",
-            "hash": "sha256:71c644c5369f4a6e07636f0aa966270449561fcea2e3d6747b8d23efaa9d7832",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "importlib_metadata",
-		"comment": "Only needed for python < 3.10 by python-markdown",
-        "unix": {
-            "filename": "importlib_metadata-4.8.2.tar.gz",
-            "hash": "sha256:75bdec14c397f528724c1bfd9709d660b33a4d2e77387a3358f20b848bb5e5fb",
             "urls": ["pypi"]
         }
     },
