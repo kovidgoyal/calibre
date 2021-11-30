@@ -807,6 +807,48 @@
     },
 
     {
+        "name": "multivolumefile",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "multivolumefile-0.2.3.tar.gz",
+            "hash": "sha256:a0648d0aafbc96e59198d5c17e9acad7eb531abea51035d08ce8060dcad709d6",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "python-brotli",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "brotli-1.0.9.zip",
+            "hash": "sha256:4d1b810aa0ed773f81dceda2cc7b403d01057458730e309856356d4ef4188438",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyzstd",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "pyzstd-0.15.0.tar.gz",
+            "hash": "sha256:bf15a39cb3c9b662775e22ffa8c4da09fdde6a15ece5e0ed710b6d3b4329cf36",
+            "urls": ["pypi"]
+        }
+    },
+
+
+    {
+        "name": "pyppmd",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "pyppmd-0.17.3.tar.gz",
+            "hash": "sha256:05a4765833623d5cc1c9afc27d9b05fb64f0319711beffe0b44d9695eb1beb0a",
+            "urls": ["pypi"]
+        }
+    },
+
+
+    {
         "name": "py7zr",
         "unix": {
             "filename": "py7zr-0.16.3.tar.gz",
