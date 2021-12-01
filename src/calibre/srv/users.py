@@ -3,14 +3,16 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, json, re
-from threading import RLock
-
 import apsw
+import json
+import os
+import re
+from functools import lru_cache
+from threading import RLock
 
 from calibre import as_unicode
 from calibre.constants import config_dir
-from calibre.utils.config import to_json, from_json
+from calibre.utils.config import from_json, to_json
 from polyglot.builtins import iteritems
 
 
@@ -25,6 +27,7 @@ def load_json(raw):
         return {}
 
 
+@lru_cache(maxsize=1024)
 def parse_restriction(raw):
     r = load_json(raw)
     if not isinstance(r, dict):
@@ -65,7 +68,7 @@ def validate_password(pw):
 
 def create_user_data(pw, readonly=False, restriction=None):
     return {
-        'pw':pw, 'restriction':parse_restriction(restriction or '{}'), 'readonly': readonly
+        'pw':pw, 'restriction':parse_restriction(restriction or '{}').copy(), 'readonly': readonly
     }
 
 
@@ -125,8 +128,6 @@ class UserManager:
     def __init__(self, path=None):
         self.path = os.path.join(config_dir, 'server-users.sqlite') if path is None else path
         self._conn = None
-        self._restrictions = {}
-        self._readonly = {}
 
     def get_session_data(self, username):
         with self.lock:
@@ -210,26 +211,19 @@ class UserManager:
             self.refresh()
 
     def refresh(self):
-        self._restrictions.clear()
-        self._readonly.clear()
+        pass  # legacy compat
 
     def is_readonly(self, username):
         with self.lock:
-            try:
-                return self._readonly[username]
-            except KeyError:
-                self._readonly[username] = False
             for readonly, in self.conn.cursor().execute(
                     'SELECT readonly FROM users WHERE name=?', (username,)):
-                self._readonly[username] = readonly == 'y'
-                return self._readonly[username]
-        return False
+                return readonly == 'y'
+            return False
 
     def set_readonly(self, username, value):
         with self.lock:
             self.conn.cursor().execute(
                 'UPDATE users SET readonly=? WHERE name=?', ('y' if value else 'n', username))
-            self._readonly.pop(username, None)
 
     def change_password(self, username, pw):
         with self.lock:
@@ -241,13 +235,9 @@ class UserManager:
 
     def restrictions(self, username):
         with self.lock:
-            r = self._restrictions.get(username)
-            if r is None:
-                for restriction, in self.conn.cursor().execute(
-                        'SELECT restriction FROM users WHERE name=?', (username,)):
-                    self._restrictions[username] = r = parse_restriction(restriction)
-                    break
-            return r
+            for restriction, in self.conn.cursor().execute(
+                    'SELECT restriction FROM users WHERE name=?', (username,)):
+                return parse_restriction(restriction).copy()
 
     def allowed_library_names(self, username, all_library_names):
         ' Get allowed library names for specified user from set of all library names '
@@ -266,7 +256,6 @@ class UserManager:
         if not isinstance(restrictions, dict):
             raise TypeError('restrictions must be a dict')
         with self.lock:
-            self._restrictions.pop(username, None)
             self.conn.cursor().execute(
                 'UPDATE users SET restriction=? WHERE name=?', (serialize_restriction(restrictions), username))
 

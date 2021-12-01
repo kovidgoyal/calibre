@@ -197,7 +197,6 @@ def main(args=sys.argv):
         except NoAutoReload as e:
             raise SystemExit(error_message(e))
 
-    ensure_single_instance()
     if opts.userdb:
         opts.userdb = os.path.abspath(os.path.expandvars(os.path.expanduser(opts.userdb)))
         connect(opts.userdb, exc_class=SystemExit).close()
@@ -207,6 +206,7 @@ def main(args=sys.argv):
         except (KeyboardInterrupt, EOFError):
             raise SystemExit(_('Interrupted by user'))
         raise SystemExit(0)
+    ensure_single_instance()
 
     libraries = args[1:]
     for lib in libraries:
