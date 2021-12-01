@@ -1390,6 +1390,7 @@ class KOBOTOUCH(KOBO):
     min_elipsa_fwversion            = (4, 28, 17820)
     min_libra2_fwversion            = (4, 29, 18730)
     min_sage_fwversion              = (4, 29, 18730)
+    min_fwversion_audiobooks        = (4, 29, 18730)
 
     has_kepubs = True
 
@@ -1436,6 +1437,8 @@ class KOBOTOUCH(KOBO):
                           SAGE_PRODUCT_ID + LIBRA2_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401, 0x409]
+
+    KOBO_AUDIOBOOKS_MIMETYPES = ['application/octet-stream', 'application/x-kobo-mp3z']
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
@@ -1673,6 +1676,10 @@ class KOBOTOUCH(KOBO):
                 if favouritesindex == 1:
                     playlist_map[lpath].append('Shortlist')
 
+                # Audiobooks are identified by their MimeType
+                if MimeType in self.KOBO_AUDIOBOOKS_MIMETYPES:
+                    playlist_map[lpath].append('Audiobook')
+
                 # The following is in flux:
                 # - FW2.0.0, DBVersion 53,55 accessibility == 1
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
@@ -1750,6 +1757,7 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - the book=', bl[idx])
                         debug_print('KoboTouch:update_booklist - the authors=', bl[idx].authors)
                         debug_print('KoboTouch:update_booklist - application_id=', bl[idx].application_id)
+                        debug_print('KoboTouch:update_booklist - size=', bl[idx].size)
                     bl_cache[lpath] = None
 
                     if ImageID is not None:
@@ -1759,7 +1767,7 @@ class KOBOTOUCH(KOBO):
                     if (ContentType == '6' and MimeType != 'application/x-kobo-epub+zip'):
                         if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
                             if self.update_metadata_item(bl[idx]):
-                                #                                print 'update_metadata_item returned true'
+                                # debug_print("KoboTouch:update_booklist - update_metadata_item returned true")
                                 changed = True
                         else:
                             debug_print("    Strange:  The file: ", prefix, lpath, " does not exist!")
@@ -2045,17 +2053,38 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
         return bl
 
+    @classmethod
+    def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
+        debug_print("KoboTouch:book_from_path - title=%s"%title)
+        book = super().book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+
+        # Kobo Audiobooks are directories with files in them.
+        if mime in cls.KOBO_AUDIOBOOKS_MIMETYPES and book.size == 0:
+            audiobook_path = cls.normalize_path(os.path.join(prefix, lpath))
+            # debug_print("KoboTouch:book_from_path - audiobook=", audiobook_path)
+            for audiofile in os.scandir(audiobook_path):
+                # debug_print("KoboTouch:book_from_path - audiofile=", audiofile)
+                if audiofile.is_file():
+                    size = audiofile.stat().st_size
+                    # debug_print("KoboTouch:book_from_path - size=", size)
+                    book.size += size
+            debug_print("KoboTouch:book_from_path - book.size=", book.size)
+
+        return book
+
     def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId=None):
         path = ContentID
 
-        if not externalId:
+        if not (externalId or MimeType == 'application/octet-stream'): 
             return super().path_from_contentid(ContentID, ContentType, MimeType, oncard)
 
         if oncard == 'cardb':
             print('path from_contentid cardb')
         else:
             if (ContentType == "6" or ContentType == "10"):
-                if path.startswith("file:///mnt/onboard/"):
+                if (MimeType == 'application/octet-stream'): # Audiobooks purchased from Kobo are in a different location.
+                    path = self._main_prefix + '.kobo/audiobook/' + path
+                elif path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
                 elif path.startswith("file:///mnt/sd/"):
                     path = self._card_a_prefix + path.replace("file:///mnt/sd/", '')
@@ -3148,7 +3177,7 @@ class KOBOTOUCH(KOBO):
         # debug_print('KoboTouch:set_core_metadata book="%s"' % book.title)
         show_debug = self.is_debugging_title(book.title)
         if show_debug:
-            debug_print('KoboTouch:set_core_metadata book="%s", series_only="%s"' % (book, series_only))
+            debug_print('KoboTouch:set_core_metadata book="%s", \nseries_only="%s"' % (book, series_only))
 
         plugboard = None
         if self.plugboard_func and not series_only:
@@ -3261,8 +3290,12 @@ class KOBOTOUCH(KOBO):
                 else:
                     pb = [(self.subtitle_template, 'subtitle')]
                     book.template_to_attribute(book, pb)
-                    new_subtitle = book.subtitle
-                if (new_subtitle and (book.kobo_subtitle is None or not book.subtitle == book.kobo_subtitle)) or \
+                    new_subtitle = book.subtitle if len(book.subtitle.strip()) else None
+                    if new_subtitle is not None and new_subtitle.startswith("PLUGBOARD TEMPLATE ERROR"):
+                        debug_print("KoboTouch:set_core_metadata subtitle template error - self.subtitle_template='%s'" % self.subtitle_template)
+                        debug_print("KoboTouch:set_core_metadata - new_subtitle=", new_subtitle)
+
+                if (new_subtitle is not None and (book.kobo_subtitle is None or book.subtitle != book.kobo_subtitle)) or \
                     (new_subtitle is None and book.kobo_subtitle is not None):
                     update_values.append(new_subtitle)
                     set_clause += ', Subtitle = ? '
@@ -3653,6 +3686,10 @@ class KOBOTOUCH(KOBO):
     @property
     def supports_series_list(self):
         return self.dbversion >= self.min_dbversion_seriesid and self.fwversion >= self.min_fwversion_serieslist
+
+    @property
+    def supports_audiobooks(self):
+        return self.fwversion >= self.min_fwversion_audiobooks
 
     def supports_kobo_archive(self):
         return self.dbversion >= self.min_dbversion_archive
