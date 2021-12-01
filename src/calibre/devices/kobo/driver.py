@@ -2075,14 +2075,14 @@ class KOBOTOUCH(KOBO):
     def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId=None):
         path = ContentID
 
-        if not (externalId or MimeType == 'application/octet-stream'): 
+        if not (externalId or MimeType == 'application/octet-stream'):
             return super().path_from_contentid(ContentID, ContentType, MimeType, oncard)
 
         if oncard == 'cardb':
             print('path from_contentid cardb')
         else:
             if (ContentType == "6" or ContentType == "10"):
-                if (MimeType == 'application/octet-stream'): # Audiobooks purchased from Kobo are in a different location.
+                if (MimeType == 'application/octet-stream'):  # Audiobooks purchased from Kobo are in a different location.
                     path = self._main_prefix + '.kobo/audiobook/' + path
                 elif path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
