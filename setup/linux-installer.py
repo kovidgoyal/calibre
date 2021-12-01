@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import errno
 import hashlib
@@ -742,6 +742,24 @@ def check_umask():
             raise SystemExit('The system umask is unsuitable, aborting')
 
 
+def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
+    # See https://sourceware.org/glibc/wiki/Glibc%20Timeline
+    import ctypes
+    libc = ctypes.CDLL(None)
+    try:
+        f = libc.gnu_get_libc_version
+    except AttributeError:
+        raise SystemExit('Your system is not based on GNU libc. The calibre binaries require GNU libc')
+    f.restype = ctypes.c_char_p
+    ver = f().decode('ascii')
+    q = tuple(map(int, ver.split('.')))
+    if q < min_required:
+        raise SystemExit(
+            ('Your system has GNU libc version {}. The calibre binaries require at least'
+            ' version: {} (released on {}). Update your system.'
+        ).format(ver, '.'.join(map(str, min_required)), release_date))
+
+
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False, version=None):
     if not ignore_umask and not isolated:
         check_umask()
@@ -751,6 +769,7 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             'You are running on an ARM system. The calibre binaries are only'
             ' available for x86 systems. You will have to compile from'
             ' source.')
+    check_glibc_version()
     run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
