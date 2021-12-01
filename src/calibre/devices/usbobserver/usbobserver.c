@@ -372,7 +372,7 @@ usbobserver_has_mtp_interface(io_service_t usb_device) {
 
 static PyObject*
 usbobserver_is_mtp(PyObject *self, PyObject * args) {
-    int serial_sz = 0;
+    Py_ssize_t serial_sz = 0;
     long vendor_id = 0, product_id = 0, bcd = 0;
     char *serial = NULL, buf[500] = {0};
     CFNumberRef num = NULL;

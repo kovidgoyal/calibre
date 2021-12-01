@@ -959,7 +959,8 @@ is_wow64_process(PyObject *self, PyObject *args) {
 
 static PyObject*
 write_file(PyObject *self, PyObject *args) {
-    int size, offset = 0;
+    int offset = 0;
+    Py_ssize_t size;
     const char *data;
     HANDLE handle;
     if (!PyArg_ParseTuple(args, "O&y#|i", convert_handle, &handle, &data, &size, &offset)) return NULL;

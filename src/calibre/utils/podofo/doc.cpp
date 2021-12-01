@@ -376,7 +376,7 @@ error:
 static PyObject *
 PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     const char *raw = NULL;
-    long len = 0;
+    Py_ssize_t len = 0;
     PoDoFo::PdfObject *metadata = NULL, *catalog = NULL;
     PoDoFo::PdfStream *str = NULL;
     TVecFilters compressed(1);
