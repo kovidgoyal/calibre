@@ -9,7 +9,7 @@ def classes(classes):
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class HinduHumanRights(BasicNewsRecipe):
+class MensDayOut(BasicNewsRecipe):
     title          = 'Mens Day Out'
     __author__     = 'Vishvas Vasuki'
     language       = 'en_IN'
