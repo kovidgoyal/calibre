@@ -56,6 +56,101 @@ List all usernames.
         print(name)
 
 
+def change_readonly(user_manager, args):
+    p = create_subcommand_parser('readonly', _('username set|reset|toggle|show') + '\n\n' + '''\
+Restrict the specified user account to prevent it from making changes. \
+The value of set makes the account readonly, reset allows it to make \
+changes, toggle flips the value and show prints out the current value. \
+''')
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 3:
+        p.print_help()
+        raise SystemExit(_('username and operation are required'))
+    username, op = args[1], args[2]
+    if op == 'toggle':
+        val = not user_manager.is_readonly(username)
+    elif op == 'set':
+        val = True
+    elif op == 'reset':
+        val = False
+    elif op == 'show':
+        print('set' if user_manager.is_readonly(username) else 'reset', end='')
+        return
+    else:
+        raise SystemExit(f'{op} is an unknown operation')
+    user_manager.set_readonly(username, val)
+
+
+def change_libraries(user_manager, args):
+    p = create_subcommand_parser(
+        'libraries', _('[options] username [library_name ...]') + '\n\n' + '''\
+Manage the libraries the specified user account is restricted to.
+''')
+    p.add_option('--action', type='choice', choices='allow-all allow block per-library show'.split(), default='show', help=_(
+        'Specify the action to perform.'
+        '\nA value of "show" shows the current library restrictions for the specified user.'
+        '\nA value of "allow-all" removes all library restrictions.'
+        '\nA value of "allow" allows access to only the specified libraries.'
+        '\nA value of "block" allows access to all, except the specified libraries.'
+        '\nA value of "per-library" sets per library restrictions. In this case the libraries list'
+        ' is interpreted as a list of library name followed by restriction to apply, followed'
+        ' by next library name and so on. Using a restriction of "=" removes any previous restriction'
+        ' on that library.'
+    ))
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 2:
+        p.print_help()
+        raise SystemExit(_('username is required'))
+    username, libraries = args[1], args[2:]
+    r = user_manager.restrictions(username)
+    if r is None:
+        raise SystemExit('The user {} does not exist'.format(username))
+
+    if opts.action == 'show':
+        if r['allowed_library_names']:
+
+            print('Allowed:')
+            for name in r['allowed_library_names']:
+                print('\t' + name)
+        if r['blocked_library_names']:
+            print('Blocked:')
+            for name in r['blocked_library_names']:
+                print('\t' + name)
+        if r['library_restrictions']:
+            print('Per Library:')
+            for name, res in r['library_restrictions'].items():
+                print('\t' + name)
+                print('\t\t' + res)
+        if not r['allowed_library_names'] and not r['blocked_library_names'] and not r['library_restrictions']:
+            print(f'{username} has no library restrictions')
+    elif opts.action == 'allow-all':
+        user_manager.update_user_restrictions(username, {})
+    elif opts.action == 'per-library':
+        if not libraries:
+            p.print_help()
+            raise SystemExit('Must specify at least one library and restriction')
+        if len(libraries) % 2 != 0:
+            p.print_help()
+            raise SystemExit('Must specify a restriction for every library')
+        lres = r['library_restrictions']
+        for i in range(0, len(libraries), 2):
+            name, res = libraries[i:i+2]
+            if res == '=':
+                lres.pop(name, None)
+            else:
+                lres[name] = res
+        user_manager.update_user_restrictions(username, r)
+    else:
+        if not libraries:
+            p.print_help()
+            raise SystemExit('Must specify at least one library name')
+        k = 'blocked_library_names' if opts.action == 'block' else 'allowed_library_names'
+        r.pop('allowed_library_names', None)
+        r.pop('blocked_library_names', None)
+        r[k] = libraries
+        user_manager.update_user_restrictions(username, r)
+
+
 def chpass(user_manager, args):
     p = create_subcommand_parser('chpass', _('username [password]') + '\n\n' + '''\
 Change the password of the new user account with the specified username. If the password
@@ -83,6 +178,10 @@ def main(user_manager, args):
         return chpass(user_manager, rest)
     if q == 'list':
         return list_users(user_manager, rest)
+    if q == 'readonly':
+        return change_readonly(user_manager, rest)
+    if q == 'libraries':
+        return change_libraries(user_manager, rest)
     if q != 'help':
         print(_('Unknown command: {}').format(q), file=sys.stderr)
         print()
