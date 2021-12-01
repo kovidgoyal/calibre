@@ -8,6 +8,7 @@ import posixpath
 import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
+from gettext import pgettext
 from functools import partial
 from gettext import pgettext
 from qt.core import (
