@@ -70,7 +70,7 @@ def _run(args, notify=None):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     decouple('edit-book-'), set_gui_prefs(tprefs)
-    override = 'calibre-edit-book' if islinux else None
+    override = 'calibre-ebook-edit' if islinux else None
     app = Application(args, override_program_name=override, color_prefs=tprefs, windows_app_uid=EDITOR_APP_UID)
     app.file_event_hook = EventAccumulator()
     app.load_builtin_fonts()
