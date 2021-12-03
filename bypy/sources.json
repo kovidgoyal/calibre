@@ -634,7 +634,6 @@
 
     {
         "name": "sgmllib3k",
-        "python": 3,
         "unix": {
             "filename": "sgmllib3k-1.0.0.tar.gz",
             "hash": "sha256:7868fb1c8bfa764c1ac563d3cf369c381d1325d36124933a726f29fcdaa812e9",
@@ -788,7 +787,6 @@
 
     {
         "name": "ifaddr",
-		"python": 3,
         "unix": {
             "filename": "ifaddr-0.1.7.tar.gz",
             "hash": "sha256:1f9e8a6ca6f16db5a37d3356f07b6e52344f6f9f7e806d618537731669eb1a94",
