@@ -23,6 +23,48 @@
 # - title by author
 # }}}
 
+{{{ 5.33.0 2021-12-03
+
+:: new features
+
+- Allow changing the icon used for calibre libraries. Right click the library icon in calibre and choose "Change the icon for this library"
+
+- Comments editor: Use a single line for all three toolbars if they fit
+
+- Edit book: Allow merging HTML files by drag and drop of the files onto another HTML file
+
+- Kobo driver: Add support for listing purchased audiobooks
+
+- Edit metadata all-in-one mode: The cover and formats column now gives as much vertical space as possible to the cover image
+
+- [1952562] Add books dialog: When a non-book file type is added the next time the dialog is used, preselect the "All files" filter
+
+- [1952764] calibre-server --manage-users: Allow managing users while the server is running and also add actions to automate changing user account restrictions
+
+- [1950762] EPUB 3 metadata: If the book contains a "subtitle" append it to the main title when reading metadata
+
+:: bug fixes
+
+- [1950673] E-book viewer: Fix an occasional hang on startup at "Loading section"
+
+- [1952142] Get books: Update the Kobo plugin for website changes
+
+- [1951673] Bulk edit metadata dialog: Fix changing the search mode resetting other fields
+
+- [1951507] E-book viewer: Fix sorting of highlights incorrect in books that use HTML ids with a hyphen in them
+
+- [1951467] PDF Output: Fix the option to break long words at the ends of lines causing boxes to be rendered at the end fo the line on macOS with some fonts
+
+- Google metadata plugin: When searching by ISBN if no results are found retry using an alternate query syntax
+
+:: improved recipes
+- Smithsonian Magazine
+
+:: new recipes
+- The Epoch Times by Kovid Goyal
+- Mens Day Out by Vishwas Vasuki
+}}}
+
 {{{ 5.32.0 2021-11-12
 
 :: new features
