@@ -10,7 +10,7 @@ prev_rev, current_rev, flags = sys.argv[1:]
 
 
 def get_branch_name(rev):
-    return subprocess.check_output(['git', 'name-rev', '--name-only', rev]).decode('utf-8').strip()
+    return subprocess.check_output(['git', 'name-rev', '--name-only', '--refs=refs/heads/*', rev]).decode('utf-8').strip()
 
 
 base = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
