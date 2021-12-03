@@ -194,7 +194,8 @@ def toc_anchor_map(toc):
         if name and node['id'] not in seen_map[name]:
             ans[name].append({'id':node['id'], 'frag':node['frag']})
             seen_map[name].add(node['id'])
-        tuple(map(process_node, node['children']))
+        for i in node['children']:
+            process_node(i)
 
     process_node(toc)
     return dict(ans)

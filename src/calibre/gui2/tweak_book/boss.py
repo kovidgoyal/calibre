@@ -391,7 +391,8 @@ class Boss(QObject):
             if ef:
                 if isinstance(ef, str):
                     ef = [ef]
-                tuple(map(self.gui.file_list.request_edit, ef))
+                for i in ef:
+                    self.gui.file_list.request_edit(i)
             else:
                 if tprefs['restore_book_state']:
                     self.restore_book_edit_state()

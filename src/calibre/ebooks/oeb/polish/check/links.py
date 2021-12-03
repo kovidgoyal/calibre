@@ -410,7 +410,8 @@ def check_external_links(container, progress_callback=(lambda num, total:None), 
         return []
     items = Queue()
     ans = []
-    tuple(map(items.put, iteritems(external_links)))
+    for el in iteritems(external_links):
+        items.put(el)
     progress_callback(0, len(external_links))
     done = []
     downloaded_html_ids = {}

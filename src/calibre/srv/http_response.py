@@ -254,7 +254,8 @@ class RequestData:  # {{{
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):
         etag = hashlib.sha1()
-        tuple(map(lambda x:etag.update(str(x).encode('utf-8')), etag_parts))
+        for i in etag_parts:
+            etag.update(str(i).encode('utf-8'))
         return ETaggedFile(output, etag.hexdigest())
 
     def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):

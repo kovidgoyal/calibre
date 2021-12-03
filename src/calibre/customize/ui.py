@@ -750,7 +750,7 @@ def initialize_plugins(perf=False):
                 times[plugin.name] = time.time() - st
             _initialized_plugins.append(plugin)
         except:
-            print('Failed to initialize plugin:', repr(zfp))
+            print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
             if DEBUG:
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks

@@ -221,7 +221,8 @@ class Pool:
             if not sip.isdeleted(x):
                 sip.delete(x)
 
-        tuple(map(safe_delete, self.workers))
+        for i in self.workers:
+            safe_delete(i)
         self.workers = []
 
 

@@ -600,8 +600,8 @@ class TagBrowserBar(QWidget):  # {{{
         find_shown = self.toggle_search_button.isChecked()
         self.toggle_search_button.setVisible(not find_shown)
         l = self.layout()
-        items = [l.itemAt(i) for i in range(l.count())]
-        tuple(map(l.removeItem, items))
+        for i in (l.itemAt(i) for i in range(l.count())):
+            l.removeItem(i)
         if find_shown:
             l.addWidget(self.alter_tb)
             self.alter_tb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)

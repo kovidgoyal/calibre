@@ -266,14 +266,15 @@ def main(args):
 
     for c in chars:
         if '-' in c:
-            parts = [x.strip() for x in c.split('-')]
+            parts = tuple(x.strip() for x in c.split('-'))
             if len(parts) != 2:
                 prints('Invalid range:', c, file=sys.stderr)
                 raise SystemExit(1)
             if opts.codes:
                 parts = tuple(map(conv_code, parts))
-            tuple(map(not_single, parts))
-            ranges.add(tuple(parts))
+            for i in parts:
+                not_single(i)
+            ranges.add(parts)
         else:
             if opts.codes:
                 c = conv_code(c)

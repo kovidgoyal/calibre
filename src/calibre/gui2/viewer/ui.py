@@ -431,6 +431,7 @@ class EbookViewer(MainWindow):
         if not hasattr(set_book_path, 'pathtoebook'):
             error_dialog(self, _('Cannot print book'), _(
                 'No book is currently open'), show=True)
+            return
         from .printing import print_book
         print_book(set_book_path.pathtoebook, book_title=self.current_book_data['metadata']['title'], parent=self)
 

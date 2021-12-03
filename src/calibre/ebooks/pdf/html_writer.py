@@ -455,8 +455,8 @@ def add_anchors_markup(root, uuid, anchors):
             # rescale the viewport
             a.tail = '\n'
         div.append(a)
-    a.count = 0
-    tuple(map(a, anchors))
+    for anchor in anchors:
+        a(anchor)
     a(uuid)
 
 

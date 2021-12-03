@@ -1129,7 +1129,8 @@ class MergeDialog(QDialog):  # {{{
 
         buttons = self.buttons = [QRadioButton(n) for n in names]
         buttons[0].setChecked(True)
-        tuple(map(w.l.addWidget, buttons))
+        for i in buttons:
+            w.l.addWidget(i)
         sa.setWidget(w)
 
         self.resize(self.sizeHint() + QSize(150, 20))
