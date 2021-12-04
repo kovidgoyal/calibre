@@ -6,7 +6,8 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QVBoxLayout
+    QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt,
+    QVBoxLayout
 )
 
 from calibre.gui2 import Application, gprefs
@@ -43,6 +44,13 @@ class CommentsDialog(QDialog):
         geom = gprefs.get('comments_dialog_geom', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, geom)
+        else:
+            self.resize(self.sizeHint())
+
+    def sizeHint(self):
+        ans = super().sizeHint()
+        ans.setWidth(500), ans.setHeight(600)
+        return ans
 
     def save_geometry(self):
         gprefs.set('comments_dialog_geom', bytearray(self.saveGeometry()))
