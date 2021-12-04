@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.33.1 2021-12-03
+{{{ 5.33.2 2021-12-03
 
 :: new features
 
@@ -57,8 +57,8 @@
 
 - Google metadata plugin: When searching by ISBN if no results are found retry using an alternate query syntax
 
-- 5.33.1 fixes a couple of regressions that broke the toolbar in the popup comments editor dialog and rendering of the download
-  metadata button in the edit metadata dialog on Windows
+- 5.33.2 fixes a couple of regressions that broke the toolbar in the popup comments editor dialog and rendering of the download
+  metadata button in the edit metadata dialog on Windows, as well as reading files from MTP devices on Windows
 
 :: improved recipes
 - Smithsonian Magazine
