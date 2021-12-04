@@ -5,20 +5,29 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from qt.core import Qt, QDialog, QDialogButtonBox, QVBoxLayout, QPlainTextEdit, QSize, QApplication
+from qt.core import (
+    QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QVBoxLayout
+)
 
-from calibre.gui2 import gprefs, Application
-from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
-from calibre.library.comments import comments_to_html
+from calibre.gui2 import Application, gprefs
+from calibre.gui2.comments_editor import Editor
 from calibre.gui2.widgets2 import Dialog
+from calibre.library.comments import comments_to_html
 
 
-class CommentsDialog(QDialog, Ui_CommentsDialog):
+class CommentsDialog(QDialog):
 
     def __init__(self, parent, text, column_name=None):
         QDialog.__init__(self, parent)
-        Ui_CommentsDialog.__init__(self)
-        self.setupUi(self)
+        self.setObjectName("CommentsDialog")
+        self.setWindowTitle(_("Edit comments"))
+        self.verticalLayout = l = QVBoxLayout(self)
+        self.textbox = tb = Editor(self)
+        self.buttonBox = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(tb)
+        l.addWidget(bb)
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
@@ -27,8 +36,6 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         self.textbox.html = comments_to_html(text) if text else ''
         self.textbox.wyswyg_dirtied()
         # self.textbox.setTabChangesFocus(True)
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('O&K'))
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
 
         if column_name:
             self.setWindowTitle(_('Edit "{0}"').format(column_name))
