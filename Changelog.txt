@@ -53,7 +53,7 @@
 
 - [1951507] E-book viewer: Fix sorting of highlights incorrect in books that use HTML ids with a hyphen in them
 
-- [1951467] PDF Output: Fix the option to break long words at the ends of lines causing boxes to be rendered at the end fo the line on macOS with some fonts
+- [1951467] PDF Output: Fix the option to break long words at the ends of lines causing boxes to be rendered at the end of the line on macOS with some fonts
 
 - Google metadata plugin: When searching by ISBN if no results are found retry using an alternate query syntax
 
