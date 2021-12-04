@@ -174,7 +174,7 @@ class CenteredToolButton(RightClickButton):
         opt = QStyleOptionToolButton()
         self.initStyleOption(opt)
         text = opt.text
-        opt.text = text
+        opt.text = ''
         opt.icon = QIcon()
         s = painter.style()
         painter.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt)
@@ -184,10 +184,11 @@ class CenteredToolButton(RightClickButton):
             flags = self.text_flags | Qt.TextFlag.TextHideMnemonic
         fw = s.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth, opt, self)
         opt.rect.adjust(fw, fw, -fw, -fw)
-        painter.drawItemText(opt.rect, flags, opt.palette, self.isEnabled(), text)
-        fm = QFontMetrics(opt.font)
-        text_rect = s.itemTextRect(fm, opt.rect, flags, self.isEnabled(), text)
         w = opt.iconSize.width()
+        text_rect = opt.rect.adjusted(w, 0, 0, 0)
+        painter.drawItemText(text_rect, flags, opt.palette, self.isEnabled(), text)
+        fm = QFontMetrics(opt.font)
+        text_rect = s.itemTextRect(fm, text_rect, flags, self.isEnabled(), text)
         left = text_rect.left() - w - 4
         pixmap_rect = QRect(left, opt.rect.top(), opt.iconSize.width(), opt.rect.height())
         painter.drawItemPixmap(pixmap_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self.icon().pixmap(opt.iconSize))
