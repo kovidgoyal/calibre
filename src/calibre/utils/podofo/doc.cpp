@@ -354,7 +354,8 @@ PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
             if ((str = metadata->GetStream()) != NULL) {
                 str->GetFilteredCopy(&buf, &len);
                 if (buf != NULL) {
-                    ans = Py_BuildValue("y#", buf, len);
+                    Py_ssize_t psz = len;
+                    ans = Py_BuildValue("y#", buf, psz);
                     free(buf); buf = NULL;
                     if (ans == NULL) goto error;
                 }

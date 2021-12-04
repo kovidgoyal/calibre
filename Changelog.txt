@@ -58,7 +58,7 @@
 - Google metadata plugin: When searching by ISBN if no results are found retry using an alternate query syntax
 
 - 5.33.1 fixes a couple of regressions that broke the toolbar in the popup comments editor dialog and rendering of the download
-  metadata button in the edit metadata dialog on windows
+  metadata button in the edit metadata dialog on Windows
 
 :: improved recipes
 - Smithsonian Magazine

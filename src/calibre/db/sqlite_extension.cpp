@@ -483,7 +483,8 @@ set_ui_language(PyObject *self, PyObject *args) {
 static int
 py_callback(void *ctx, int flags, const char *text, int text_length, int start_offset, int end_offset) {
     PyObject *ans = reinterpret_cast<PyObject*>(ctx);
-    pyobject_raii item(Py_BuildValue("{ss# si si si}", "text", text, text_length, "start", start_offset, "end", end_offset, "flags", flags));
+    Py_ssize_t psz = text_length;
+    pyobject_raii item(Py_BuildValue("{ss# si si si}", "text", text, psz, "start", start_offset, "end", end_offset, "flags", flags));
     if (item) PyList_Append(ans, item.ptr());
     return SQLITE_OK;
 }

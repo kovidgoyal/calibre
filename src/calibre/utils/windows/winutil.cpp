@@ -460,7 +460,8 @@ winutil_read_directory_changes(PyObject *self, PyObject *args) {
             p = (PFILE_NOTIFY_INFORMATION)(PyBytes_AS_STRING(buffer) + offset);
             offset += p->NextEntryOffset;
             if (p->FileNameLength) {
-                PyObject *temp = Py_BuildValue("ku#", p->Action, p->FileName, p->FileNameLength / sizeof(wchar_t));
+                Py_ssize_t psz = p->FileNameLength / sizeof(wchar_t);
+                PyObject *temp = Py_BuildValue("ku#", p->Action, p->FileName, psz);
                 if (!temp) { Py_DECREF(ans); return NULL; }
                 int ret = PyList_Append(ans, temp);
                 Py_DECREF(temp);
@@ -1048,7 +1049,8 @@ load_icon(PyObject *args, HMODULE handle, GRPICONDIRENTRY *entry) {
 	DWORD sz = SizeofResource(handle, res);
 	if (!sz) return NULL;
 	HICON icon = CreateIconFromResourceEx(data, sz, TRUE, 0x00030000, 0, 0, LR_DEFAULTCOLOR);
-	return Py_BuildValue("y#N", data, sz, Handle_create(icon, IconHandle));
+    Py_ssize_t psz = sz;
+	return Py_BuildValue("y#N", data, psz, Handle_create(icon, IconHandle));
 }
 
 struct GRPICONDIR {

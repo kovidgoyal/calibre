@@ -565,7 +565,8 @@ wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest,
         } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
 				total_read += bytes_read;
-                pyobject_raii res(PyObject_CallMethod(dest, "write", "y#", buf.ptr(), bytes_read));
+                Py_ssize_t br = bytes_read;
+                pyobject_raii res(PyObject_CallMethod(dest, "write", "y#", buf.ptr(), br));
 				if (!res) { return NULL; }
                 if (callback != NULL) {
 					pyobject_raii r(PyObject_CallFunction(callback, "kK", total_read, filesize));

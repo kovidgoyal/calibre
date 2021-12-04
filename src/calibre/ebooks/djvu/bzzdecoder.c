@@ -676,7 +676,8 @@ end:
         for (i = 0; i < 3; i++) {
             buflen <<= 8; buflen += (uint8_t)buf[i];
         }
-        ans = Py_BuildValue("y#", buf + 3, MIN(buflen, pos - buf));
+        Py_ssize_t psz = MIN(buflen, pos - buf);
+        ans = Py_BuildValue("y#", buf + 3, psz);
     }
     if (buf != NULL) free(buf);
     if (PyErr_Occurred()) return NULL;
