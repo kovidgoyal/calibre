@@ -5,12 +5,13 @@
 
 import weakref
 from qt.core import (
-    QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog, QFrame,
-    QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
-    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
-    QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
-    QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton, QTextCursor,
-    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal, QBrush, QPainter, QProxyStyle
+    QApplication, QBrush, QByteArray, QCalendarWidget, QCheckBox, QColor,
+    QColorDialog, QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog,
+    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence,
+    QLabel, QLayout, QMenu, QMimeData, QPainter, QPalette, QPixmap, QPoint,
+    QPushButton, QRect, QScrollArea, QSize, QSizePolicy, QStyle, QStyledItemDelegate,
+    QStyleOptionToolButton, QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor,
+    QToolButton, QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -158,57 +159,38 @@ class RightClickButton(QToolButton):
         return QToolButton.mousePressEvent(self, ev)
 
 
-class CenteredToolButtonStyle(QProxyStyle):
-
-    def __init__(self, ctb):
-        super().__init__()
-        self.setParent(ctb)
-        self.draw_text_called = self.draw_pixmap_called = False
-
-    def drawItemText(self, painter, rect, flags, palette, enabled, text, text_role=QPalette.ColorRole.NoRole):
-        b = self.parent()
-        if text != b.text():
-            return super().drawItemText(painter, rect, flags, palette, enabled, text, QPalette.ColorRole.NoRole)
-        self.text_rect = rect
-        self.text_flags = flags | Qt.AlignmentFlag.AlignCenter
-        self.text_palette = palette
-        self.text_enabled = enabled
-        self.text_role = text_role
-        self.draw_text_called = True
-        self.draw_both(painter)
-
-    def drawItemPixmap(self, painter, rect, alignment, pixmap):
-        self.pixmap_rect = rect
-        self.pixmap = pixmap
-        self.draw_pixmap_called = True
-        self.draw_both(painter)
-
-    def draw_both(self, painter):
-        if not self.draw_pixmap_called or not self.draw_text_called:
-            return
-        self.draw_text_called = self.draw_pixmap_called = False
-        b = self.parent()
-        fm = QFontMetrics(b.font())
-        w = b.iconSize().width()
-        full_rect = QRect(self.pixmap_rect.topLeft(), self.text_rect.bottomRight())
-        space = self.text_rect.left() - self.pixmap_rect.right() + 1
-        super().drawItemText(painter, full_rect, self.text_flags, self.text_palette, self.text_enabled, b.text(), self.text_role)
-        text_rect = self.itemTextRect(fm, full_rect, self.text_flags, self.text_enabled, b.text())
-        left = max(0, text_rect.left() - w - space)
-        pixmap_rect = QRect(left, self.pixmap_rect.top(), text_rect.right() - space - left, self.pixmap_rect.height())
-        super().drawItemPixmap(painter, pixmap_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self.pixmap)
-
-
 class CenteredToolButton(RightClickButton):
 
     def __init__(self, icon, text, parent=None):
         super().__init__(parent)
         self.setText(text)
-        self.ps = CenteredToolButtonStyle(self)
-        self.setStyle(self.ps)
         self.setIcon(icon)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed))
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.text_flags =  Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignCenter
+
+    def paintEvent(self, ev):
+        painter = QStylePainter(self)
+        opt = QStyleOptionToolButton()
+        self.initStyleOption(opt)
+        text = opt.text
+        opt.text = text
+        opt.icon = QIcon()
+        s = painter.style()
+        painter.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt)
+        if s.styleHint(QStyle.StyleHint.SH_UnderlineShortcut, opt, self):
+            flags = self.text_flags | Qt.TextFlag.TextShowMnemonic
+        else:
+            flags = self.text_flags | Qt.TextFlag.TextHideMnemonic
+        fw = s.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth, opt, self)
+        opt.rect.adjust(fw, fw, -fw, -fw)
+        painter.drawItemText(opt.rect, flags, opt.palette, self.isEnabled(), text)
+        fm = QFontMetrics(opt.font)
+        text_rect = s.itemTextRect(fm, opt.rect, flags, self.isEnabled(), text)
+        w = opt.iconSize.width()
+        left = text_rect.left() - w - 4
+        pixmap_rect = QRect(left, opt.rect.top(), opt.iconSize.width(), opt.rect.height())
+        painter.drawItemPixmap(pixmap_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self.icon().pixmap(opt.iconSize))
 
 
 class Dialog(QDialog):
