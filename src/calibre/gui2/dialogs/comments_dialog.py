@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 
 from qt.core import (
     QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt,
-    QVBoxLayout, QTimer
+    QVBoxLayout
 )
 
 from calibre.gui2 import Application, gprefs
@@ -46,10 +46,6 @@ class CommentsDialog(QDialog):
             QApplication.instance().safe_restore_geometry(self, geom)
         else:
             self.resize(self.sizeHint())
-        QTimer.singleShot(0, self.update_geometry)
-
-    def update_geometry(self):
-        self.textbox.toolbar.updateGeometry()
 
     def sizeHint(self):
         return QSize(650, 600)

@@ -15,7 +15,7 @@ from qt.core import (
     QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QIcon,
     QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
     QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QToolButton, QUrl,
+    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl,
     QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 
@@ -1139,6 +1139,7 @@ class Editor(QWidget):  # {{{
             ac = getattr(self.editor, 'action_align_'+x)
             self.toolbar.add_action(ac)
         self.toolbar.add_separator()
+        QTimer.singleShot(0, self.toolbar.updateGeometry)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.data_changed.connect(self.wyswyg_dirtied)
@@ -1186,6 +1187,7 @@ class Editor(QWidget):  # {{{
 
     def show_toolbars(self):
         self.toolbar.setVisible(True)
+        QTimer.singleShot(0, self.toolbar.updateGeometry)
 
     def toggle_toolbars(self):
         visible = self.toolbars_visible
