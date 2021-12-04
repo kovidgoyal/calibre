@@ -87,7 +87,8 @@ static uint16_t data_to_python(void *params, void *priv, uint32_t sendlen, unsig
     cb = (ProgressCallback *)priv;
     *putlen = sendlen;
     PyEval_RestoreThread(cb->state);
-    res = PyObject_CallMethod(cb->extra, "write", "y#", data, (Py_ssize_t)sendlen);
+    Py_ssize_t psz = sendlen;
+    res = PyObject_CallMethod(cb->extra, "write", "y#", data, psz);
     if (res == NULL) {
         ret = LIBMTP_HANDLER_RETURN_ERROR;
         *putlen = 0;
