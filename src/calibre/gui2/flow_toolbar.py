@@ -4,8 +4,8 @@
 
 
 from qt.core import (
-    QPainter, QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, Qt, QToolBar,
-    QToolButton, QWidget, pyqtSignal
+    QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt,
+    QToolBar, QToolButton, QWidget, pyqtSignal
 )
 
 
@@ -26,8 +26,8 @@ class Separator(QWidget):
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
     def paintEvent(self, ev):
-        p = QPainter(self)
-        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option(), p, self)
+        p = QStylePainter(self)
+        p.drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option())
 
 
 class Button(QToolButton):
