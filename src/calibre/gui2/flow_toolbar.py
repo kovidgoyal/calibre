@@ -74,6 +74,54 @@ class SingleLineToolBar(QToolBar):
         self.addSeparator()
 
 
+class LayoutItem:
+
+    def __init__(self, w):
+        self.widget = w
+        self.sz = sz = w.sizeHint()
+        self.width = sz.width()
+        self.height = sz.height()
+
+
+class Group:
+
+    def __init__(self, parent=None, leading_separator=None):
+        self.items = []
+        self.width = self.height = 0
+        self.parent = parent
+        self.leading_separator = leading_separator
+
+    def __bool__(self):
+        return bool(self.items)
+
+    def smart_spacing(self, horizontal=True):
+        p = self.parent
+        if p is None:
+            return -1
+        if p.isWidgetType():
+            which = QStyle.PixelMetric.PM_LayoutHorizontalSpacing if horizontal else QStyle.PixelMetric.PM_LayoutVerticalSpacing
+            return p.style().pixelMetric(which, None, p)
+        return p.spacing()
+
+    def layout_spacing(self, wid, horizontal=True):
+        ans = self.smart_spacing(horizontal)
+        if ans != -1:
+            return ans
+        return wid.style().layoutSpacing(
+            QSizePolicy.ControlType.ToolButton,
+            QSizePolicy.ControlType.ToolButton,
+            Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
+
+    def add_widget(self, w):
+        item = LayoutItem(w)
+        self.items.append(item)
+        hs, vs = self.layout_spacing(w), self.layout_spacing(w, False)
+        if self.items:
+            self.width += hs
+        self.width += item.width
+        self.height = max(vs + item.height, self.height)
+
+
 class FlowToolBar(QWidget):
 
     def __init__(self, parent=None, icon_size=18):
@@ -96,15 +144,6 @@ class FlowToolBar(QWidget):
     def add_separator(self):
         self.items.append(Separator(self.icon_size, self))
         self.updateGeometry()
-
-    def smart_spacing(self, horizontal=True):
-        p = self.parent()
-        if p is None:
-            return -1
-        if p.isWidgetType():
-            which = QStyle.PixelMetric.PM_LayoutHorizontalSpacing if horizontal else QStyle.PixelMetric.PM_LayoutVerticalSpacing
-            return p.style().pixelMetric(which, None, p)
-        return p.spacing()
 
     def hasHeightForWidth(self):
         return True
@@ -151,27 +190,44 @@ class FlowToolBar(QWidget):
             if current_line:
                 lines.append((line_height, current_line))
 
+        groups = []
+        current_group = Group(self.parent())
         for wid in self.items:
-            if not wid.isVisible() or (not current_line and isinstance(wid, Separator)):
+            if not wid.isVisible() or (not current_group and isinstance(wid, Separator)):
                 continue
-            isz = wid.sizeHint()
-            hs, vs = layout_spacing(wid), layout_spacing(wid, False)
-
-            next_x = x + isz.width() + hs
-            if next_x - hs > rect.right() and line_height > 0:
-                if isinstance(wid, Separator):
-                    continue
-                x = rect.x()
-                y = y + line_height + vs
-                next_x = x + isz.width() + hs
+            if isinstance(wid, Separator):
+                groups.append(current_group)
+                current_group = Group(self.parent(), wid)
+            else:
+                current_group.add_widget(wid)
+        if current_group:
+            groups.append(current_group)
+        x = rect.x()
+        y = 0
+        line_height = 0
+        vs = 0
+        for group in groups:
+            if current_line and x + group.width >= rect.right():
                 commit_line()
                 current_line = []
+                x = rect.x()
+                y += group.height
+                group.leading_separator = None
                 line_height = 0
-            if apply_geometry:
-                gmap[wid] = x, y, isz
-            x = next_x
-            line_height = max(line_height, isz.height())
-            current_line.append(wid)
+            if group.leading_separator:
+                current_line.append(group.leading_separator)
+                sz = group.leading_separator.sizeHint()
+                gmap[group.leading_separator] = x, y, sz
+                x += sz.width() + group.layout_spacing(group.leading_separator)
+            for item in group.items:
+                wid = item.widget
+                if not vs:
+                    vs = group.layout_spacing(wid, False)
+                if apply_geometry:
+                    gmap[wid] = x, y, item.sz
+                x += item.width + group.layout_spacing(wid)
+                current_line.append(wid)
+            line_height = group.height
 
         commit_line()
 
