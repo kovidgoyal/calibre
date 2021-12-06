@@ -1,20 +1,39 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env  python
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class AmericanProspect(BasicNewsRecipe):
-    title = u'American Prospect'
-    __author__ = u'Michael Heinz, a.peter'
-    version = 2
-
-    oldest_article = 30
+    title = 'American Prospect'
+    __author__ = 'Kovid Goyal'
+    oldest_article = 300
     language = 'en'
     max_articles_per_feed = 100
     recursions = 0
     no_stylesheets = True
     remove_javascript = True
+    encoding = 'utf-8'
 
     use_embedded_content = False
 
     no_stylesheets = True
-    auto_cleanup = True
-    feeds = [(u'Articles', u'feed://www.prospect.org/articles_rss.jsp')]
+
+    keep_only_tags = [
+        dict(id=['title', 'content']),
+    ]
+    remove_tags = [
+        classes('slideout-close-btn media-options')
+    ]
+
+    def get_feeds(self):
+        soup = self.index_to_soup('https://prospect.org/archive')
+        for a in soup.findAll('a', href=True):
+            href = a['href']
+            if href.endswith('-issue/'):
+                d = href.strip('/').split('/')[-1]
+                self.timefmt = ' [{}]'.format(d.rpartition('-')[0])
+                self.log('Found magazine URL', href)
+                return [('Articles', href + 'index.rss')]
+        return [('Articles', 'https://prospect.org/api/rss/all.rss')]
