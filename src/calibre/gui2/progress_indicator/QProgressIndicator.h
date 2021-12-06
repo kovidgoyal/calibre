@@ -8,6 +8,8 @@
 #include <QMenu>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <QProxyStyle>
+#include <QDialogButtonBox>
 
 #define arc_length_max 0.734f
 #define arc_length_min 0.02f
@@ -85,6 +87,23 @@ private:
 	bool m_has_pending_updates;
 	void notify_of_update() { if (!m_has_pending_updates) { m_has_pending_updates = true; emit updated(); } }
 	QParallelAnimationGroup m_animation;
+};
+
+class CalibreStyle : public QProxyStyle {
+    private:
+        const QHash<unsigned long, QString> icon_map;
+        QByteArray desktop_environment;
+        QDialogButtonBox::ButtonLayout button_layout;
+        int transient_scroller;
+
+    public:
+        CalibreStyle(const QHash<unsigned long, QString> &icmap, int transient_scroller);
+        virtual int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const;
+        virtual QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0, const QWidget * widget = 0) const;
+        virtual int pixelMetric(PixelMetric metric, const QStyleOption * option = 0, const QWidget * widget = 0) const;
+        virtual void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, QPainter * painter, const QWidget * widget = 0) const;
+        virtual void drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = 0) const;
+        virtual void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const;
 };
 
 /*!
