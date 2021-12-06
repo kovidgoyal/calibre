@@ -43,7 +43,7 @@ def keysequence_from_event(ev):  # {{{
         # Something like Shift+* or Shift+> we have to remove the shift,
         # since it is included in keycode.
         mods = mods & ~Qt.KeyboardModifier.ShiftModifier
-    return QKeySequence(k | mods)
+    return QKeySequence(k | int(mods))
 # }}}
 
 
