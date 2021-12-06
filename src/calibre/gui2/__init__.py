@@ -22,9 +22,8 @@ from threading import Lock, RLock
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
-    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
-    plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
+    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -1167,7 +1166,7 @@ class Application(QApplication):
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
         pcache = {}
-        for k, v in iteritems({
+        for k, v in {
             'DialogYesButton': 'ok.png',
             'DialogNoButton': 'window-close.png',
             'DialogCloseButton': 'window-close.png',
@@ -1186,15 +1185,11 @@ class Application(QApplication):
             'LineEditClearButton': 'clear_left.png',
             'ToolBarHorizontalExtensionButton': 'v-ellipsis.png',
             'ToolBarVerticalExtensionButton': 'h-ellipsis.png',
-        }):
+        }.items():
             if v not in pcache:
-                p = I(v)
-                if isinstance(p, bytes):
-                    p = p.decode(filesystem_encoding)
-                # if not os.path.exists(p): raise ValueError(p)
-                pcache[v] = p
-            v = pcache[v]
-            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = v
+                pcache[v] = I(v)
+                # if not os.path.exists(pcache[v]): raise ValueError(pcache[v])
+            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = pcache[v]
         transient_scroller = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
