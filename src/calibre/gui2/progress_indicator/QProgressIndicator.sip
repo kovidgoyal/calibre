@@ -7,10 +7,32 @@
 
 %ModuleHeaderCode
 #include <QPainter>
-int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scroller);
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 %End
+
+class CalibreStyle : QProxyStyle {
+%TypeHeaderCode
+#include <QProgressIndicator.h>
+%End
+
+public:
+    CalibreStyle(int transient_scroller);
+
+    void set_icon_map(SIP_PYDICT icon_map_);
+%MethodCode
+        QHash<unsigned long, QString> icon_map; 
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(a0, &pos, &key, &value)) {
+            icon_map.insert(PyLong_AsUnsignedLong(key), QString::fromUtf8(PyUnicode_AsUTF8(value)));
+        }
+        sipCpp->set_icon_map(icon_map);
+%End
+
+
+};
+
 
 class SpinAnimator : QObject {
 
@@ -74,16 +96,6 @@ signals:
 
 };
 
-int load_style(SIP_PYDICT icon_map_, int transient_scroller);
-%MethodCode
-	QHash<unsigned long,QString> icon_map;
-	PyObject *key, *value;
-	Py_ssize_t pos = 0;
-	while (PyDict_Next(a0, &pos, &key, &value)) {
-		icon_map.insert(PyLong_AsUnsignedLong(key), QString::fromUtf8(PyUnicode_AsUTF8(value)));
-	}
-	load_style(icon_map, a1);
-%End
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) /ReleaseGIL/;
 void set_menu_on_action(QAction* ac, QMenu* menu);

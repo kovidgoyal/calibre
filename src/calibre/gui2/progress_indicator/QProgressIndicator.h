@@ -90,14 +90,15 @@ private:
 };
 
 class CalibreStyle : public QProxyStyle {
-    private:
-        const QHash<unsigned long, QString> icon_map;
+    protected:
+        QHash<unsigned long, QString> icon_map;
         QByteArray desktop_environment;
         QDialogButtonBox::ButtonLayout button_layout;
         int transient_scroller;
 
     public:
-        CalibreStyle(const QHash<unsigned long, QString> &icmap, int transient_scroller);
+        CalibreStyle(int transient_scroller);
+        void set_icon_map(QHash<unsigned long, QString> &icon_map);
         virtual int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const;
         virtual QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0, const QWidget * widget = 0) const;
         virtual int pixelMetric(PixelMetric metric, const QStyleOption * option = 0, const QWidget * widget = 0) const;
@@ -157,7 +158,6 @@ private:
 	SpinAnimator m_animator;
 };
 
-int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scroller=0);
 void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 void set_menu_on_action(QAction* ac, QMenu* menu);
