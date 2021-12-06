@@ -880,8 +880,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.4.0.tar.gz",
-            "hash": "sha256:42ec368520b8da4a0987218510b1b520b4981e4405086c1be384733affc2bcb0",
+            "filename": "sip-6.5.0.tar.gz",
+            "hash": "sha256:a1cf8431a8eb9392b3ff6dc61d832d0447bfdcae5b3e4256a5fa74dbc25b0734",
             "urls": ["pypi"]
         }
     },
@@ -900,8 +900,8 @@
         "name": "pyqt-sip",
 		"comment": "runtime sip module for PyQt",
         "unix": {
-            "filename": "PyQt6_sip-13.1.0.tar.gz",
-            "hash": "sha256:7c31073fe8e6cb8a42e85d60d3a096700a9047c772b354d6227dfe965566ec8a",
+            "filename": "PyQt6_sip-13.2.0.tar.gz",
+            "hash": "sha256:10e6c5d0004308efcbe8826ff0b8faf6e6f60c9e906cffeb26834e18e6340ed4",
             "urls": ["pypi"]
         }
     },
@@ -909,8 +909,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.2.1.tar.gz",
-            "hash": "sha256:d603a5c8effccc9174b3f43834256401a61ea40f2338306ca22fb6a1e870b89c",
+            "filename": "PyQt6-6.2.2.tar.gz",
+            "hash": "sha256:9325a0f51c08e37340d916d2723daf9a25c844dac99d71d6c5aacb4f6ee00171",
             "urls": ["pypi"]
         }
     },
@@ -918,7 +918,7 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.2.1.tar.gz",
+            "filename": "PyQt6_WebEngine-6.2.2.tar.gz",
             "hash": "sha256:6f6d7cb612f20d1f1f8ea1bbe7ebb8bbaa3f7fcd56f0e9c41582851998be20c3",
             "urls": ["pypi"]
         }
