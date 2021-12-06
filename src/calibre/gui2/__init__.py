@@ -1201,7 +1201,9 @@ class Application(QApplication):
             transient_scroller = transient_scroller()
         icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 1] = I('close-for-light-theme.png')
         icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 2] = I('close-for-dark-theme.png')
-        self.pi.load_style(icon_map, transient_scroller)
+        self.calibre_style = style = self.pi.CalibreStyle(transient_scroller)
+        style.set_icon_map(icon_map)
+        self.setStyle(style)
 
     def _send_file_open_events(self):
         with self._file_open_lock:

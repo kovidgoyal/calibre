@@ -118,12 +118,16 @@ dpiScaled(qreal value) {
 #endif
 }
 
-CalibreStyle::CalibreStyle(const QHash<unsigned long, QString> &icmap, int transient_scroller) : QProxyStyle(QString::fromUtf8("Fusion")), icon_map(icmap), transient_scroller(transient_scroller) {
+CalibreStyle::CalibreStyle(int transient_scroller) : QProxyStyle(QString::fromUtf8("Fusion")), icon_map(), transient_scroller(transient_scroller) {
     setObjectName(QString("calibre"));
     desktop_environment = detectDesktopEnvironment();
     button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
     if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment || QLatin1String("CINNAMON") == desktop_environment || QLatin1String("X-CINNAMON") == desktop_environment)
         button_layout = QDialogButtonBox::GnomeLayout;
+}
+
+void CalibreStyle::set_icon_map(QHash<unsigned long, QString> &ic) {
+    icon_map = ic;
 }
 
 int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const {
@@ -375,11 +379,6 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
         default: break;
     }
     QProxyStyle::drawControl(element, option, painter, widget);
-}
-
-int load_style(const QHash<unsigned long,QString> &icon_map, int transient_scroller) {
-    QApplication::setStyle(new CalibreStyle(icon_map, transient_scroller));
-    return 0;
 }
 
 class NoActivateStyle: public QProxyStyle {
