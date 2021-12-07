@@ -306,6 +306,8 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
+If the recipe fails to download due to ssl error (especially on windows) try setting environment variable SSL_CERT_FILE or SSL_CERT_DIR see <https://www.mobileread.com/forums/showpost.php?p=3554230&postcount=4>.
+
 .. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
