@@ -45,7 +45,7 @@ def title_test(title, exact=False):
     return test
 
 
-def authors_test(authors):
+def authors_test(authors, subset=False):
     authors = {x.lower() for x in authors}
 
     def test(mi):
@@ -62,6 +62,8 @@ def authors_test(authors):
 
             au = {revert_to_fn_ln(x) for x in au}
 
+        if subset and authors.issubset(au):
+            return True
         if au == authors:
             return True
         prints('Author test failed. Expected: \'%s\' found \'%s\''%(authors, au))

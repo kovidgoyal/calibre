@@ -885,7 +885,7 @@ class Worker(Thread):  # Get details {{{
 
     def parse_detail_cells(self, mi, c1, c2):
         name = self.totext(c1, only_printable=True).strip().strip(':').strip()
-        val = self.totext(c2)
+        val = self.totext(c2).strip()
         if not val:
             return
         if name in self.language_names:
@@ -968,7 +968,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 21)
+    version = (1, 2, 22)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1660,7 +1660,7 @@ def manual_tests(domain, **kw):  # {{{
             {'title': 'Flüsternde Wälder',
              'authors': ['Nicola Förg']},
             [title_test('Flüsternde Wälder'),
-             authors_test(['Nicola Förg'])
+             authors_test(['Nicola Förg'], subset=True)
              ]
         ),
 
