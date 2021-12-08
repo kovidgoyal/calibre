@@ -164,8 +164,14 @@ class ToCEditAction(InterfaceAction):
             result_path = job['path'] + '.result'
             if job['started'] and os.path.exists(result_path):
                 self.jobs.remove(job)
-                with open(result_path) as f:
-                    ret = int(f.read().strip())
+                ret = -1
+
+                def read(result_path):
+                    nonlocal ret
+                    with open(result_path) as f:
+                        ret = int(f.read().strip())
+
+                retry_on_fail(read, result_path)
                 retry_on_fail(os.remove, result_path)
                 if ret == 0:
                     db = self.gui.current_db
