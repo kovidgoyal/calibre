@@ -58,3 +58,4 @@ recipes/debug
 /*env*/
 cmake-build-*
 bypy/b
+bypy/virtual-machines.conf
