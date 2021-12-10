@@ -17,7 +17,7 @@ First create some empty top level directory and run the following commands::
 
     git clone https://github.com/kovidgoyal/bypy.git
     git clone https://github.com/kovidgoyal/calibre.git
-    cd bypy && git switch qt5 && cd ../calibre
+    cd calibre
 
 Now we need to bootstrap calibre, for which all its Linux build dependencies
 must have already been installed (see the `Dependencies
