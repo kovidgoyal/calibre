@@ -29,8 +29,8 @@ class NOOK(USBMS):
     FORMATS     = ['epub', 'pdb', 'pdf']
 
     VENDOR_ID   = [0x2080, 0x18d1]  # 0x18d1 is for softrooted nook
-    PRODUCT_ID  = [0x001]
-    BCD         = [0x322]
+    PRODUCT_ID  = [0x001, 0xd]  # 0xd is Glowlight 4
+    BCD         = [0x322, 0x409]
 
     VENDOR_NAME = 'B&N'
     WINDOWS_MAIN_MEM = 'NOOK'
