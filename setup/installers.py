@@ -12,9 +12,7 @@ d = os.path.dirname
 
 def get_paths():
     base = d(d(os.path.abspath(__file__)))
-    traditional_bypy_location = os.path.join(d(base), 'bypy')
-    compat_bypy_location = os.path.join(base, 'bypy', 'b', 'bypy-old')
-    bypy = compat_bypy_location if os.path.exists(compat_bypy_location) else traditional_bypy_location
+    bypy = os.path.join(d(base), 'bypy')
     bypy = os.environ.get('BYPY_LOCATION', bypy)
     if not os.path.isdir(bypy):
         raise SystemExit(
