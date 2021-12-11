@@ -42,10 +42,13 @@ class ElPais(BasicNewsRecipe):
                               'articulo-apertura',
                               'articulo__contenedor'
                              ]}),
+        dict(name='div', attrs={'class': 'a_c',}),
+
     ]
 
     remove_tags = [
-        dict(attrs={'class': [
+        dict(
+            attrs={'class': [
                               'sumario__interior',
                               'articulo-trust',
                               'compartir',
@@ -54,7 +57,11 @@ class ElPais(BasicNewsRecipe):
                               'more_info',
                               'articulo-apoyos',
                               'top10',
-                             ]}),
+                             ]
+                    },
+            ),
+        dict(id='cta_id'),
+        dict(name='svg'),
     ]
 
     feeds = [
