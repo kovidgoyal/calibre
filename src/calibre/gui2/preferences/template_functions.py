@@ -467,6 +467,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         funcs = compile_user_template_functions(pref_value)
         self.db.new_api.set_user_template_functions(funcs)
         self.gui.library_view.model().refresh()
+        self.gui.library_view.model().research()
         load_user_template_functions(self.db.library_id, [], funcs)
         return False
 
