@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 import json, os, traceback, re
+from functools import partial
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QApplication, QTextCharFormat, QColor, QCursor,
@@ -392,7 +393,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.load_button.clicked.connect(self.load_template_from_file)
         self.save_button.clicked.connect(self.save_template)
 
-        self.textbox.setWordWrapMode(QTextOption.WordWrap)
+        self.set_word_wrap(gprefs.get('gpm_template_editor_word_wrap_mode', True))
         self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
@@ -482,19 +483,29 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def show_context_menu(self, point):
         m = self.textbox.createStandardContextMenu()
         m.addSeparator()
-        ca = m.addAction(_('Toggle word wrap'))
-        to_what = (QTextOption.NoWrap if self.textbox.wordWrapMode() == QTextOption.WordWrap
-                   else QTextOption.WordWrap)
-        ca.triggered.connect(lambda: self.textbox.setWordWrapMode(to_what))
+        word_wrapping = gprefs['gpm_template_editor_word_wrap_mode']
+        if word_wrapping:
+            ca = m.addAction(_('Disable word wrap'))
+            ca.setIcon(QIcon(I('list_remove.png')))
+        else:
+            ca = m.addAction(_('Enable word wrap'))
+            ca.setIcon(QIcon(I('ok.png')))
+        ca.triggered.connect(partial(self.set_word_wrap, not word_wrapping))
         m.addSeparator()
         ca = m.addAction(_('Load template from the Template tester'))
         ca.triggered.connect(self.load_last_template_text)
         m.addSeparator()
         ca = m.addAction(_('Load template from file'))
+        ca.setIcon(QIcon(I('document_open.png')))
         ca.triggered.connect(self.load_template_from_file)
         ca = m.addAction(_('Save template to file'))
+        ca.setIcon(QIcon(I('save.png')))
         ca.triggered.connect(self.save_template)
         m.exec(self.textbox.mapToGlobal(point))
+
+    def set_word_wrap(self, to_what):
+        gprefs['gpm_template_editor_word_wrap_mode'] = to_what
+        self.textbox.setWordWrapMode(QTextOption.WordWrap if to_what else QTextOption.NoWrap)
 
     def load_last_template_text(self):
         from calibre.customize.ui import find_plugin
