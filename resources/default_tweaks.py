@@ -594,3 +594,16 @@ skip_network_check = False
 # Sets the width of the tab stop in the template editor in "average characters".
 # For example, a value of 1 results in a space with the width of one average character.
 template_editor_tab_stop_width = 4
+
+#: Value for undefined numbers when sorting
+# Sets the value to use for undefined numbers when sorting.
+# For example, the value -10 sorts undefined numbers as if they were set to -10.
+# Use 'maximum' for the largest possible number. Use 'minimum' for the smallest
+# possible number. Quotes are optional if entering a number.
+# Examples:
+#   value_for_undefined_numbers_when_sorting = -100
+#   value_for_undefined_numbers_when_sorting = '2'
+#   value_for_undefined_numbers_when_sorting = -0.01
+#   value_for_undefined_numbers_when_sorting = 'minimum'
+#   value_for_undefined_numbers_when_sorting = 'maximum'
+value_for_undefined_numbers_when_sorting = 0

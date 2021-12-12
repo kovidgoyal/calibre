@@ -374,6 +374,9 @@ class TweaksView(QListView):
         self.setAlternatingRowColors(True)
         self.setSpacing(5)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        # On windows (at least) the automatic scroll bar appearing hides part
+        # of the last line in the list view. Force it always on.
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.setMinimumWidth(300)
 
     def currentChanged(self, cur, prev):
