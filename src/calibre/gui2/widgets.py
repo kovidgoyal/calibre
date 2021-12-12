@@ -880,7 +880,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
     @classmethod
     def initializeFormats(cls):
         baseFormat = QTextCharFormat()
-        baseFormat.setFontFamily('monospace')
+        baseFormat.setFontFamilies(['monospace'])
         p = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),

@@ -114,7 +114,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             config["%sfontbold" % name] = bold
             config["%sfontitalic" % name] = italic
         base_format = QTextCharFormat()
-        base_format.setFontFamily(config["fontfamily"])
+        base_format.setFontFamilies([config["fontfamily"]])
         config["fontsize"] = size
         base_format.setFontPointSize(config["fontsize"])
 
