@@ -562,8 +562,8 @@
     {
         "name": "css-parser",
         "unix": {
-            "filename": "css-parser-1.0.6.tar.gz",
-            "hash": "sha256:4ed448a8a5622edb1d30d616bbc4bd3d30f11be922343d7a92d7e418e324af2e",
+            "filename": "css-parser-1.0.7.tar.gz",
+            "hash": "sha256:25e096c63262dd249010ce36dab4cacd9595783ee09b5ed699ef12ab864ebbd1",
             "urls": ["pypi"]
         }
     },
