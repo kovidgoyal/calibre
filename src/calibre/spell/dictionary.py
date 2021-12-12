@@ -450,6 +450,7 @@ def find_tests():
             d = load_dictionary(get_dictionary(parse_lang_code('es-ES'))).obj
             self.assertTrue(d.recognized('Ahí'))
             self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
+            d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
             self.assertIn('adequately', self.suggestions('ade-quately'))
             self.assertIn('magic. Wand', self.suggestions('magic.wand'))
             self.assertIn('List', self.suggestions('Lis𝑘t'))
