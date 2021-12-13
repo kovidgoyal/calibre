@@ -651,14 +651,18 @@ class WritingTest(BaseTest):
 
     def test_dump_and_restore(self):  # {{{
         ' Test roundtripping the db through SQL '
-        cache = self.init_cache()
-        uv = int(cache.backend.user_version)
-        all_ids = cache.all_book_ids()
-        cache.dump_and_restore()
-        self.assertEqual(cache.set_field('title', {1:'nt'}), {1}, 'database connection broken')
-        cache = self.init_cache()
-        self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
-        self.assertEqual(int(cache.backend.user_version), uv)
+        import warnings
+        with warnings.catch_warnings():
+            # on python 3.10 apsw raises a deprecation warning which causes this test to fail on CI
+            warnings.simplefilter('ignore', DeprecationWarning)
+            cache = self.init_cache()
+            uv = int(cache.backend.user_version)
+            all_ids = cache.all_book_ids()
+            cache.dump_and_restore()
+            self.assertEqual(cache.set_field('title', {1:'nt'}), {1}, 'database connection broken')
+            cache = self.init_cache()
+            self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
+            self.assertEqual(int(cache.backend.user_version), uv)
     # }}}
 
     def test_set_author_data(self):  # {{{
