@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil, sys, json, errno
+import textwrap, os, shlex, subprocess, glob, shutil, sys, json, errno, sysconfig
 from collections import namedtuple
 
 from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows
@@ -167,9 +167,20 @@ def read_extensions():
     return ans
 
 
+def get_python_include_paths():
+    ans = []
+    for name in sysconfig.get_path_names():
+        if 'include' in name:
+            ans.append(name)
+
+    def gp(x):
+        return sysconfig.get_path(x)
+
+    return sorted(frozenset(filter(None, map(gp, sorted(ans)))))
+
+
 def init_env(debug=False, sanitize=False):
     from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
-    from distutils import sysconfig
     linker = None
     if isunix:
         cc = os.environ.get('CC', 'gcc')
@@ -202,17 +213,20 @@ def init_env(debug=False, sanitize=False):
         ldflags.append('-shared')
 
     if islinux or isbsd or ishaiku:
-        cflags.append('-I'+sysconfig.get_python_inc())
-        # getattr(..., 'abiflags') is for PY2 compat, since PY2 has no abiflags
-        # member
-        ldflags.append('-lpython{}{}'.format(
-            sysconfig.get_config_var('VERSION'), getattr(sys, 'abiflags', '')))
+        cflags.extend('-I' + x for x in get_python_include_paths())
+        ldlib = sysconfig.get_config_var('LIBDIR')
+        if ldlib:
+            ldflags += ['-L' + ldlib]
+        ldlib = sysconfig.get_config_var('VERSION')
+        if ldlib:
+            ldflags += ['-lpython' + ldlib + sys.abiflags]
+        ldflags += (sysconfig.get_config_var('LINKFORSHARED') or '').split()
 
     if ismacos:
         cflags.append('-D_OSX')
         ldflags.extend('-bundle -undefined dynamic_lookup'.split())
         cflags.extend(['-fno-common', '-dynamic'])
-        cflags.append('-I'+sysconfig.get_python_inc())
+        cflags.extend('-I' + x for x in get_python_include_paths())
 
     if iswindows:
         cc = cxx = win_cc
@@ -233,8 +247,8 @@ def init_env(debug=False, sanitize=False):
         for p in win_lib:
             if p:
                 ldflags.append('/LIBPATH:'+p)
-        cflags.append('-I%s'%sysconfig.get_python_inc())
-        ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
+        cflags.extend('-I' + x for x in get_python_include_paths())
+        ldflags.append('/LIBPATH:'+os.path.join(sysconfig.get_config_var('prefix'), 'libs'))
         linker = win_ld
     return namedtuple('Environment', 'cc cxx cflags ldflags linker make')(
         cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make')
