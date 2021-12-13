@@ -77,9 +77,8 @@ class WorkerThread(threading.Thread):
         requestsQueue and resultQueue are instances of queue.Queue passed
         by the ThreadPool class when it creates a new worker thread.
         """
-
+        kwds['daemon'] = True
         threading.Thread.__init__(self, **kwds)
-        self.setDaemon(1)
         self.workRequestQueue = requestsQueue
         self.resultQueue = resultsQueue
         self._dismissed = threading.Event()

@@ -278,8 +278,7 @@ class DBThread(Thread):
     CLOSE = '-------close---------'
 
     def __init__(self, path, row_factory):
-        Thread.__init__(self)
-        self.setDaemon(True)
+        Thread.__init__(self, daemon=True)
         self.path = path
         self.unhandled_error = (None, '')
         self.row_factory = row_factory

@@ -140,8 +140,7 @@ class DeviceManager(Thread):  # {{{
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
-        Thread.__init__(self)
-        self.setDaemon(True)
+        Thread.__init__(self, daemon=True)
         # [Device driver, Showing in GUI, Ejected]
         self.devices        = list(device_plugins())
         self.disabled_device_plugins = list(disabled_device_plugins())
