@@ -377,7 +377,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text, self.table.item(r, 0).text()):
                 self.table.setCurrentItem(self.table.item(r, 0))
-                self.table.setFocus(True)
+                self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
         # Nothing found. Pop up the little dialog for 1.5 seconds
         self.not_found_label.setVisible(True)
@@ -468,7 +468,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         if select_item is not None:
             self.table.setCurrentItem(select_item)
-            self.table.setFocus(True)
+            self.table.setFocus(Qt.FocusReason.OtherFocusReason)
             self.start_find_pos = select_item.row()
         else:
             self.table.setCurrentCell(0, 0)

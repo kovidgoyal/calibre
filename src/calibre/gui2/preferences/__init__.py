@@ -378,7 +378,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
         b.setDefault(True)
         b.setAutoDefault(True)
     w.changed_signal.connect(onchange)
-    bb.button(QDialogButtonBox.StandardButton.Cancel).setFocus(True)
+    bb.button(QDialogButtonBox.StandardButton.Cancel).setFocus(Qt.FocusReason.OtherFocusReason)
     l = QVBoxLayout()
     d.setLayout(l)
     l.addWidget(w)

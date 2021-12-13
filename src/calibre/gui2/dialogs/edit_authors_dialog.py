@@ -249,7 +249,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     break
         if select_item:
             self.table.setCurrentItem(select_item)
-            self.table.setFocus(True)
+            self.table.setFocus(Qt.FocusReason.OtherFocusReason)
             if select_sort or select_link:
                 self.table.editItem(select_item)
             self.start_find_pos = select_item.row() * 2 + select_item.column()
@@ -407,7 +407,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             text = icu_lower(str(item.text()))
             if st in text:
                 self.table.setCurrentItem(item)
-                self.table.setFocus(True)
+                self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
         # Nothing found. Pop up the little dialog for 1.5 seconds
         self.not_found_label.setVisible(True)

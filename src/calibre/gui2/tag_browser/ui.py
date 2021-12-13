@@ -845,7 +845,7 @@ class TagBrowserWidget(QFrame):  # {{{
             return
 
         self.item_search.lineEdit().blockSignals(True)
-        self.search_button.setFocus(True)
+        self.search_button.setFocus(Qt.FocusReason.OtherFocusReason)
         self.item_search.lineEdit().blockSignals(False)
 
         if txt.startswith('='):
