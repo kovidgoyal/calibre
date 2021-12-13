@@ -25,7 +25,7 @@ def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
 
-def _get_sort_value_for_undefined_numbers():
+def sort_value_for_undefined_numbers():
     t = tweaks['value_for_undefined_numbers_when_sorting']
     try:
         if t == 'minimum':
@@ -38,13 +38,10 @@ def _get_sort_value_for_undefined_numbers():
         return 0
 
 
-sort_value_for_undefined_numbers = _get_sort_value_for_undefined_numbers()
-
-
 def numeric_sort_key(x):
     # It isn't clear whether this function can ever be called with a non-numeric
     # argument, but we check just in case
-    return x if type(x) in (int, float) else sort_value_for_undefined_numbers
+    return x if type(x) in (int, float) else sort_value_for_undefined_numbers()
 
 
 IDENTITY = lambda x: x
@@ -77,7 +74,7 @@ class Field:
         self._default_sort_key = b''
 
         if dt in {'int', 'float', 'rating'}:
-            self._default_sort_key = sort_value_for_undefined_numbers
+            self._default_sort_key = sort_value_for_undefined_numbers()
             self._sort_key = numeric_sort_key
         elif dt == 'bool':
             self._default_sort_key = None
@@ -280,7 +277,7 @@ class CompositeField(OneToOneField):
                 val = val[:(-2 if p > 1 else -1)].strip()
             val = atof(val) * p
         except (TypeError, AttributeError, ValueError, KeyError):
-            val = sort_value_for_undefined_numbers
+            val = sort_value_for_undefined_numbers()
         return val
 
     def date_sort_key(self, val):
