@@ -6,14 +6,12 @@
 import textwrap
 from collections import OrderedDict
 from functools import partial
-from math import ceil, floor
 from operator import attrgetter
-
 from qt.core import (
-    QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
-    QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit, QComboBox,
-    QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate, QAbstractItemView, QItemSelectionModel,
-    QStyleOptionViewItem, Qt, QVBoxLayout, QWidget, pyqtSignal, QTextDocument
+    QAbstractItemView, QAbstractListModel, QApplication, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QGridLayout, QGroupBox, QIcon, QItemSelectionModel,
+    QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSizePolicy,
+    QSplitter, Qt, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import isbytestring
@@ -60,22 +58,6 @@ class AdaptSQP(SearchQueryParser):
 
     def __init__(self, *args, **kwargs):
         pass
-
-
-class Delegate(QStyledItemDelegate):  # {{{
-
-    def __init__(self, view):
-        QStyledItemDelegate.__init__(self, view)
-        self.view = view
-
-    def paint(self, p, opt, idx):
-        copy = QStyleOptionViewItem(opt)
-        copy.showDecorationSelected = True
-        if self.view.currentIndex() == idx:
-            copy.state |= QStyle.StateFlag.State_HasFocus
-        QStyledItemDelegate.paint(self, p, copy, idx)
-
-# }}}
 
 
 class Tweak:  # {{{
@@ -140,11 +122,6 @@ class Tweak:  # {{{
 # }}}
 
 
-# This is the width of the tweaks list view. Add the vertical scrollbar and
-# the margins to it.
-tweaks_list_minimum_width = 280
-
-
 class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
     def __init__(self, parent=None):
@@ -162,17 +139,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         except:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
-            # Compute the display length of the string then word wrap it so it
-            # fits in minimum_width. This seems much harder than it should be.
-            d = QTextDocument()
-            d.setDocumentMargin(0)
-            if tweak.is_customized:
-                d.setHtml('<b>' + tweak.name + '</b')
-            else:
-                d.setHtml(tweak.name)
-            avg_char_width = ceil(d.size().width()/len(tweak.name))
-            num_chars_per_line = int(floor(tweaks_list_minimum_width/avg_char_width))
-            return textwrap.fill(tweak.name, num_chars_per_line)
+            return tweak.name
         if role == Qt.ItemDataRole.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
@@ -390,12 +357,8 @@ class TweaksView(QListView):
         self.setAlternatingRowColors(True)
         self.setSpacing(5)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        # Compute the size of the display area. Tweak strings are wrapped so that
-        # they fit in tweaks_list_minimum_width, so we need to add the size of
-        # the scrollbar and a heuristic for margins
-        min_width = (tweaks_list_minimum_width + 20 +
-                     QApplication.instance().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent))
-        self.setMinimumWidth(min_width)
+        self.setMinimumWidth(300)
+        self.setWordWrap(True)
 
     def currentChanged(self, cur, prev):
         QListView.currentChanged(self, cur, prev)
@@ -472,8 +435,6 @@ class ConfigWidget(ConfigWidgetBase):
 
     def genesis(self, gui):
         self.gui = gui
-        self.delegate = Delegate(self.tweaks_view)
-        self.tweaks_view.setItemDelegate(self.delegate)
         self.tweaks_view.current_changed.connect(self.current_changed)
         self.view = self.tweaks_view
         self.highlighter = PythonHighlighter(self.edit_tweak.document())
