@@ -155,8 +155,10 @@ class Develop(Command):
         self.success()
 
     def install_env_module(self):
-        import distutils.sysconfig as s
-        libdir = s.get_python_lib(prefix=self.opts.staging_root)
+        import sysconfig
+        libdir = os.path.join(
+            self.opts.staging_root, sysconfig.get_config_var('PLATLIBDIR') or 'lib',
+            sysconfig.get_python_version(), 'site-packages')
         try:
             if not os.path.exists(libdir):
                 os.makedirs(libdir)
