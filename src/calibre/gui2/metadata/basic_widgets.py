@@ -1710,7 +1710,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         rules = msprefs['id_link_rules']
         if rules:
             formatter = EvalFormatter()
-            vals = {'id' : '(?P<new_id>[^/]+)'}
+            vals = {'id' : '(?P<new_id>.+)'}
             for key in rules.keys():
                 rule = rules[key]
                 for name, template in rule:
