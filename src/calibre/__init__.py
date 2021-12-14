@@ -319,6 +319,9 @@ def browser(honor_time=True, max_time=2, user_agent=None, verify_ssl_certificate
     opener.set_handle_robots(False)
     if user_agent is None:
         user_agent = random_user_agent(0, allow_ie=False)
+    elif user_agent == 'common_words/based':
+        from calibre.utils.random_ua import common_english_word_ua
+        user_agent = common_english_word_ua()
     opener.addheaders = [('User-agent', user_agent)]
     proxies = get_proxies()
     to_add = {}

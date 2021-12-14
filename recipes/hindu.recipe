@@ -37,8 +37,9 @@ class TheHindu(BasicNewsRecipe):
     ]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
+        br = BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
         br.addheaders += [('Referer', self.epaper_url)]     # needed for fetching cover
+        # br.set_debug_http(True)
         return br
 
     def get_cover_url(self):
@@ -99,7 +100,7 @@ class TheHindu(BasicNewsRecipe):
         #     {'title':'xxx', 'url':'http://www.thehindu.com/opinion/op-ed/rohingya-bangladeshs-burden-to-bear/article19694058.ece'},
         #     {'title':'yyy', 'url':'http://www.thehindu.com/sci-tech/energy-and-environment/on-river-washed-antique-plains/article19699327.ece'}
         # ])]
-        soup = self.index_to_soup('http://www.thehindu.com/todays-paper/')
+        soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')
         nav_div = soup.find(id='subnav-tpbar-latest')
         section_list = []
 
