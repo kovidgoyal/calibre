@@ -388,7 +388,7 @@ class ProceedQuestion(QWidget):
 
     def animated_paint(self, painter):
         top = (1 - self._show_fraction) * self.height()
-        painter.drawPixmap(0, top, self.rendered_pixmap)
+        painter.drawPixmap(0, int(top), self.rendered_pixmap)
 
     def paint_background(self, painter):
         br = 12  # border_radius
