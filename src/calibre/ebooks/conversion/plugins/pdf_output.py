@@ -69,10 +69,10 @@ class PDFOutput(OutputFormatPlugin):
                 'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_default_font_size',
             recommended_value=20, help=_(
-                'The default font size')),
+                'The default font size (in pixels)')),
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
-                'The default font size for monospaced text')),
+                'The default font size for monospaced text (in pixels)')),
         OptionRecommendation(name='pdf_hyphenate', recommended_value=False,
             help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.'
                    ' Note that depending on the fonts used this option can break the copying of text from the PDF file.')),

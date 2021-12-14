@@ -763,10 +763,10 @@ class Preview(QWidget):
 
     def apply_settings(self):
         s = self.view.settings()
-        s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, tprefs['preview_base_font_size'])
-        s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, tprefs['preview_mono_font_size'])
-        s.setFontSize(QWebEngineSettings.FontSize.MinimumLogicalFontSize, tprefs['preview_minimum_font_size'])
-        s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, tprefs['preview_minimum_font_size'])
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(tprefs['preview_base_font_size']))
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(tprefs['preview_mono_font_size']))
+        s.setFontSize(QWebEngineSettings.FontSize.MinimumLogicalFontSize, int(tprefs['preview_minimum_font_size']))
+        s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, int(tprefs['preview_minimum_font_size']))
         sf, ssf, mf = tprefs['engine_preview_serif_family'], tprefs['engine_preview_sans_family'], tprefs['engine_preview_mono_family']
         if sf:
             s.setFontFamily(QWebEngineSettings.FontFamily.SerifFont, sf)

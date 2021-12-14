@@ -152,8 +152,8 @@ class Renderer(QWebEnginePage):
         self.wait_for_title = None
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, True)
-        s.setFontSize(s.DefaultFontSize, opts.pdf_default_font_size)
-        s.setFontSize(s.DefaultFixedFontSize, opts.pdf_mono_font_size)
+        s.setFontSize(s.DefaultFontSize, int(opts.pdf_default_font_size))
+        s.setFontSize(s.DefaultFixedFontSize, int(opts.pdf_mono_font_size))
         s.setFontSize(s.MinimumLogicalFontSize, 8)
         s.setFontSize(s.MinimumFontSize, 8)
         std = {
