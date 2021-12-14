@@ -31,7 +31,7 @@ def get_containing_block(node):
 
 def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
     roles = elem_roles(a)
-    if roles['doc-noteref']:
+    if roles['doc-noteref'] or roles['doc-biblioref'] or roles['doc-glossref']:
         return True
     if roles['doc-link']:
         return False
