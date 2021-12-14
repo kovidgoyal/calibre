@@ -87,9 +87,9 @@ class TXTInput(InputFormatPlugin):
             help=_('Normally extra space at the beginning of lines is retained. '
                    'With this option they will be removed.')),
         OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
-            help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
-                   'of the standard markdown format. The extensions enabled by default: %default.\n'
-                   'To learn more about markdown extensions, see {}\n'
+            help=_('Enable extensions to Markdown syntax. Extensions are formatting that is not part '
+                   'of the standard Markdown format. The extensions enabled by default: %default.\n'
+                   'To learn more about Markdown extensions, see {}\n'
                    'This should be a comma separated list of extensions to enable:\n'
                    ).format('https://python-markdown.github.io/extensions/') + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     }

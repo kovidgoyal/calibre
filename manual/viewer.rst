@@ -62,7 +62,7 @@ Table of Contents
 ^^^^^^^^^^^^^^^^^^^^
 
 If the book you are reading defines a Table of Contents, you can access it by
-pressing the :guilabel:`Table of Contents` button.  This will bring up a list
+pressing the :guilabel:`Table of Contents` button. This will bring up a list
 of sections in the book. You can click on any of them to jump to that portion
 of the book.
 

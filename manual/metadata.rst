@@ -52,7 +52,7 @@ The normal edit metadata dialog also has :guilabel:`Next` and :guilabel:`Previou
 Search and replace
 ^^^^^^^^^^^^^^^^^^^^
 
-The :guilabel:`Bulk metadata edit` dialog allows you to perform arbitrarily powerful search and replace operations on the selected books. By default it uses a simple text search and replace, but it also support *regular expressions*. For more on regular expressions, see :ref:`regexptutorial`.
+The :guilabel:`Edit metadata for many books` dialog allows you to perform arbitrarily powerful search and replace operations on the selected books. By default it uses a simple text search and replace, but it also support *regular expressions*. For more on regular expressions, see :ref:`regexptutorial`.
 
 As noted above, there are two search and replace modes: character match and regular expression. Character match will look in the `Search field` you choose for the characters you type in the `search for` box and replace those characters with what you type in the `replace with` box. Each occurrence of the search characters in the field will be replaced. For example, assume the field being searched contains `a bad cat`. If you search for `a` to be replaced with `HELLO`, then the result will be `HELLO bHELLOd cHELLOt`.
 
