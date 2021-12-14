@@ -726,7 +726,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
                   <double>1.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>5.000000000000000</double>
+                  <double>3.000000000000000</double>
                  </property>
                  <property name="singleStep">
                   <double>0.100000000000000</double>
@@ -771,7 +771,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="cover_options_bg"/>
   <buttongroup name="merge_options_bg"/>
+  <buttongroup name="cover_options_bg"/>
  </buttongroups>
 </ui>

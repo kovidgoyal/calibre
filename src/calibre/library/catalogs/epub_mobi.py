@@ -33,7 +33,7 @@ class EPUB_MOBI(CatalogPlugin):
     file_types = {'azw3', 'epub', 'mobi'}
 
     THUMB_SMALLEST = "1.0"
-    THUMB_LARGEST = "2.0"
+    THUMB_LARGEST = "3.0"
 
     cli_options = [Option('--catalog-title',  # {{{
                           default='My Books',
@@ -349,7 +349,7 @@ class EPUB_MOBI(CatalogPlugin):
                 log.warning("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width, self.THUMB_LARGEST))
                 opts.thumb_width = self.THUMB_LARGEST
             opts.thumb_width = "%.2f" % float(opts.thumb_width)
-        except:
+        except Exception:
             log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width, self.THUMB_SMALLEST))
             opts.thumb_width = "1.0"
 
