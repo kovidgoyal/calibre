@@ -99,11 +99,6 @@ def wrap_range(r, wrapper):
     except:
         wrapper.appendChild(r.extractContents())
         r.insertNode(wrapper)
-    # remove any empty text nodes created by surroundContents() on either
-    # side of the wrapper. This happens for instance on Chrome when
-    # wrapping all text inside <i>some text</i>
-    r.commonAncestorContainer.normalize()
-
 
 def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers):
     start_node = r.startContainer
@@ -159,6 +154,10 @@ def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
     all_wrappers = v'[]'
     wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers)
     text_nodes_in_range(r).map(wrap_node)
+    # remove any empty text nodes created by surroundContents() on either
+    # side of the wrapper. This happens for instance on Chrome when
+    # wrapping all text inside <i>some text</i>
+    r.commonAncestorContainer.normalize()
     crw = wrapper_elem.dataset.calibreRangeWrapper
     v'delete intersecting_wrappers[crw]'
     if class_to_add_to_last and all_wrappers.length:
