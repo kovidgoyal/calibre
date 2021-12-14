@@ -275,6 +275,14 @@ def get_checkable_file_names(container):
     return file_names, ncx_toc
 
 
+def root_is_excluded_from_spell_check(root):
+    for child in root:
+        q = (getattr(child, 'text', '') or '').strip().lower()
+        if q == 'calibre-no-spell-check':
+            return True
+    return False
+
+
 def get_all_words(container, book_locale, get_word_count=False):
     words = defaultdict(list)
     words[None] = 0
@@ -283,6 +291,8 @@ def get_all_words(container, book_locale, get_word_count=False):
         if not container.exists(file_name):
             continue
         root = container.parsed(file_name)
+        if root_is_excluded_from_spell_check(root):
+            continue
         if file_name == container.opf_name:
             read_words_from_opf(root, words, file_name, book_locale)
         elif file_name == ncx_toc:
