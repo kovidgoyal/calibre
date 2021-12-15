@@ -297,10 +297,21 @@ def css_data(container, book_locale, result_data, *args):
             matches = tuple(select(selector))
         except SelectorError:
             return ()
-        for elem in matches:
-            for cls in elem.get('class', '').split():
-                if '.' + cls.lower() in lsel:
-                    class_map[cls][elem].append(rule)
+        seen = set()
+
+        def get_elem_and_ancestors(elem):
+            p = elem
+            while p is not None:
+                if p not in seen:
+                    yield p
+                    seen.add(p)
+                p = p.getparent()
+
+        for e in matches:
+            for elem in get_elem_and_ancestors(e):
+                for cls in elem.get('class', '').split():
+                    if '.' + cls.lower() in lsel:
+                        class_map[cls][elem].append(rule)
 
         return (MatchLocation(tag_text(elem), elem.sourceline) for elem in matches)
 
