@@ -70,7 +70,9 @@ class PdbHeaderBuilder:
 
     def __init__(self, identity, title):
         self.identity = identity.ljust(3, '\x00')[:8].encode('utf-8')
-        self.title = b'%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
+        if isinstance(title, str):
+            title = title.encode('ascii', 'replace')
+        self.title = b'%s\x00' % re.sub(b'[^-A-Za-z0-9 ]+', b'_', title).ljust(31, b'\x00')[:31]
 
     def build_header(self, section_lengths, out_stream):
         '''

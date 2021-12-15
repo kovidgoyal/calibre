@@ -67,7 +67,7 @@ class Writer(FormatWriter):
 
         lengths = [len(i) if i not in images else len(i[0]) + len(i[1]) for i in sections]
 
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition('\x00')[0])
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition(b'\x00')[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
 
         for item in sections:
