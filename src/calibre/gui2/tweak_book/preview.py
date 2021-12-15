@@ -341,12 +341,13 @@ class WebPage(QWebEnginePage):
         prints('%s:%s: %s' % (source_id, linenumber, msg))
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type == QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload:
+        if req_type in (QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload, QWebEngineUrlRequestInfo.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             safe_open_url(url)
+        prints('Blocking navigation request to:', url.toString())
         return False
 
     def go_to_anchor(self, anchor):

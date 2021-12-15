@@ -370,9 +370,7 @@ class WebPage(QWebEnginePage):
             pass
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type == QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload:
-            return True
-        if req_type == QWebEngineUrlRequestInfo.NavigationType.NavigationTypeBackForward:
+        if req_type in (QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload, QWebEngineUrlRequestInfo.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
