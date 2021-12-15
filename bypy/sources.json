@@ -14,7 +14,7 @@
         "os": "macos",
         "unix": {
             "filename": "cmake-3.22.0.tar.gz",
-            "hash": "sha256:00b4dc9b0066079d10f16eed32ec592963a44e7967371d2f5077fd1670ff36d9",
+            "hash": "sha256:998c7ba34778d2dfdb3df8a695469e24b11e2bfa21fbe41b361a3f45e1c9345e",
             "urls": ["https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0.tar.gz"]
         }
     },
@@ -237,7 +237,7 @@
         "os": "macos,windows",
         "unix": {
             "filename": "freetype-2.11.0.tar.xz",
-            "hash": "sha1:b074d5c34dc0e3cc150be6e7aa6b07c9ec4ed875",
+            "hash": "sha256:8bee39bd3968c4804b70614a0a3ad597299ad0e824bc8aad5ce8aaf48067bde7",
             "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
     },
@@ -246,8 +246,8 @@
         "name": "fontconfig",
         "os": "macos",
         "unix": {
-            "filename": "fontconfig-2.13.94.tar.bz2",
-            "hash": "sha256:f655dd2a986d7aa97e052261b36aa67b0a64989496361eca8d604e6414006741",
+            "filename": "fontconfig-2.13.94.tar.xz",
+            "hash": "sha256:a5f052cb73fd479ffb7b697980510903b563bbb55b8f7a2b001fcfb94026003c",
             "urls": ["https://www.fontconfig.org/release/{filename}"]
         }
     },
