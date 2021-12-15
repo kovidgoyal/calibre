@@ -4,7 +4,7 @@
         "os": "macos,windows",
         "unix": {
             "filename": "nasm-2.15.05.tar.xz",
-            "hash": "sha256:e24ade3e928f7253aa8c14aa44726d1edf3f98643f87c9d72ec1df44b26be8f5",
+            "hash": "sha256:3caf6729c1073bf96629b57cee31eeb54f4f8129b01902c73428836550b30a3f",
             "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/{filename}"]
         }
     },
