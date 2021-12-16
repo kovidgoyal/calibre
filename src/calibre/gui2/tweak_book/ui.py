@@ -205,12 +205,12 @@ class Central(QStackedWidget):  # {{{
     def eventFilter(self, obj, event):
         base = super()
         if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
-                Qt.MouseButton.RightButton, Qt.MouseButton.MidButton):
+                Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton):
             return base.eventFilter(obj, event)
         index = self.editor_tabs.tabBar().tabAt(event.pos())
         if index < 0:
             return base.eventFilter(obj, event)
-        if event.button() == Qt.MouseButton.MidButton:
+        if event.button() == Qt.MouseButton.MiddleButton:
             self._close_requested(index)
         ed = self.editor_tabs.widget(index)
         if ed is not None:
