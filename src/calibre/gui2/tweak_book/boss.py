@@ -360,6 +360,7 @@ class Boss(QObject):
         if cn:
             self.save_manager.clear_notify_data()
         self.gui.check_book.clear_at_startup()
+        self.gui.spell_check.clear_caches()
         dictionaries.clear_ignored(), dictionaries.clear_caches()
         parse_worker.clear()
         container = job.result

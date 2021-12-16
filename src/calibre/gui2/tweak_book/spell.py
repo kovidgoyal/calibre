@@ -21,6 +21,7 @@ from qt.core import (
 from threading import Thread
 
 from calibre.constants import __appname__
+from calibre.ebooks.oeb.base import OEB_DOCS, NCX_MIME, OPF_MIME
 from calibre.ebooks.oeb.polish.spell import (
     get_all_words, get_checkable_file_names, merge_locations, replace_word,
     undo_replace_word
@@ -912,6 +913,41 @@ class WordsView(QTableView):
         return self.model().word_for_row(self.currentIndex().row())
 
 
+class ManageExcludedFiles(Dialog):
+
+    def __init__(self, parent, excluded_files):
+        self.orig_excluded_files = frozenset(excluded_files)
+        super().__init__(_('Exclude files from spell check'), 'spell-check-exclude-files2', parent)
+
+    def sizeHint(self):
+        return QSize(500, 600)
+
+    def setup_ui(self):
+        self.la = la = QLabel(_(
+            'Choose the files to exclude below. In addition to this list any file'
+            ' can be permanently excluded by adding the comment {} just under its opening tag.').format(
+                '<!-- calibre-no-spell-check -->'))
+        la.setWordWrap(True)
+        la.setTextFormat(Qt.TextFormat.PlainText)
+        self.l = l = QVBoxLayout(self)
+        l.addWidget(la)
+        self.files = QListWidget(self)
+        self.files.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
+        cc = current_container()
+        for name, mt in cc.mime_map.items():
+            if mt in OEB_DOCS or mt in (NCX_MIME, OPF_MIME):
+                i = QListWidgetItem(self.files)
+                i.setText(name)
+                if name in self.orig_excluded_files:
+                    i.setSelected(True)
+        l.addWidget(self.files)
+        l.addWidget(self.bb)
+
+    @property
+    def excluded_files(self):
+        return {item.text() for item in self.files.selectedItems()}
+
+
 class SpellCheck(Dialog):
 
     work_finished = pyqtSignal(object, object, object)
@@ -929,6 +965,7 @@ class SpellCheck(Dialog):
         self.current_word_changed_timer = t = QTimer()
         t.timeout.connect(self.do_current_word_changed)
         t.setSingleShot(True), t.setInterval(100)
+        self.excluded_files = set()
         Dialog.__init__(self, _('Check spelling'), 'spell-check', parent)
         self.work_finished.connect(self.work_done, type=Qt.ConnectionType.QueuedConnection)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
@@ -952,6 +989,11 @@ class SpellCheck(Dialog):
         b.setToolTip('<p>' + _('Undo the last spell check word replacement, if any'))
         b.setIcon(QIcon(I('edit-undo.png')))
         b.clicked.connect(self.undo_last_change)
+        b = self.exclude_button = self.bb.addButton('', QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip('<p>' + _('Exclude some files in the book from spell check'))
+        b.setIcon(QIcon(I('chapters.png')))
+        b.clicked.connect(self.change_excluded_files)
+        self.update_exclude_button()
 
         self.progress = p = QWidget(self)
         s.addWidget(p)
@@ -1061,6 +1103,25 @@ class SpellCheck(Dialog):
             ev.accept()
             return
         return Dialog.keyPressEvent(self, ev)
+
+    def change_excluded_files(self):
+        d = ManageExcludedFiles(self, self.excluded_files)
+        if d.exec_() == QDialog.DialogCode.Accepted:
+            new = d.excluded_files
+            if new != self.excluded_files:
+                self.excluded_files = new
+                self.update_exclude_button()
+                self.refresh()
+
+    def clear_caches(self):
+        self.excluded_files = set()
+        self.update_exclude_button()
+
+    def update_exclude_button(self):
+        t = _('E&xclude files')
+        if self.excluded_files:
+            t += f' ({len(self.excluded_files)})'
+        self.exclude_button.setText(t)
 
     def sort_type_changed(self):
         tprefs['spell_check_case_sensitive_sort'] = bool(self.case_sensitive_sort.isChecked())
@@ -1257,7 +1318,7 @@ class SpellCheck(Dialog):
 
     def get_words(self, change_request=None):
         try:
-            words = get_all_words(current_container(), dictionaries.default_locale)
+            words = get_all_words(current_container(), dictionaries.default_locale, excluded_files=self.excluded_files)
             spell_map = {w:dictionaries.recognized(*w) for w in words}
         except:
             import traceback

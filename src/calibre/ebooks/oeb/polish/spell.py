@@ -283,12 +283,12 @@ def root_is_excluded_from_spell_check(root):
     return False
 
 
-def get_all_words(container, book_locale, get_word_count=False):
+def get_all_words(container, book_locale, get_word_count=False, excluded_files=()):
     words = defaultdict(list)
     words[None] = 0
     file_names, ncx_toc = get_checkable_file_names(container)
     for file_name in file_names:
-        if not container.exists(file_name):
+        if not container.exists(file_name) or file_name in excluded_files:
             continue
         root = container.parsed(file_name)
         if root_is_excluded_from_spell_check(root):

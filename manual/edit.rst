@@ -680,8 +680,8 @@ common in your book and to run a simple search and replace on individual words.
 
 .. note::
    To exclude an individual file from being spell checked when running the
-   spell check tool, you can add the following comment just under the first
-   opening tag in the file::
+   spell check tool, you can use the :guilabel:`Exclude files` button or
+   and the following comment just under the opening tag in the file::
 
         <!-- calibre-no-spell-check -->
 
