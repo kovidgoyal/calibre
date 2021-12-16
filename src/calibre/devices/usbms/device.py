@@ -530,7 +530,8 @@ class Device(DeviceConfig, DevicePlugin):
             if not os.access(sz, os.R_OK):
                 continue
             try:
-                sz = int(open(sz, 'rb').read().decode('utf-8'))
+                with open(sz, 'rb') as szf:
+                    sz = int(szf.read().decode('utf-8'))
             except:
                 continue
             if sz > 0:
