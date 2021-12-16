@@ -296,9 +296,9 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     w, h = img.width(), img.height()
     scaled, nw, nh = fit_image(w, h, width, height)
     if scaled:
-        img = img.scaled(nw, nh, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        img = img.scaled(int(nw), int(nh), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
         w, h = nw, nh
-    canvas = QImage(width, height, QImage.Format.Format_RGB32)
+    canvas = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     canvas.fill(QColor(bgcolor))
     overlay_image(img, canvas, (width - w)//2, (height - h)//2)
     return canvas
@@ -307,7 +307,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
 class Canvas:
 
     def __init__(self, width, height, bgcolor='#ffffff'):
-        self.img = QImage(width, height, QImage.Format.Format_RGB32)
+        self.img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
         self.img.fill(QColor(bgcolor))
 
     def __enter__(self):
@@ -326,7 +326,7 @@ class Canvas:
 
 def create_canvas(width, height, bgcolor='#ffffff'):
     'Create a blank canvas of the specified size and color '
-    img = QImage(width, height, QImage.Format.Format_RGB32)
+    img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     img.fill(QColor(bgcolor))
     return img
 
@@ -363,7 +363,7 @@ def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#f
     img = image_from_data(img)
     if not (left > 0 or right > 0 or top > 0 or bottom > 0):
         return img
-    canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format.Format_RGB32)
+    canvas = QImage(int(img.width() + left + right), int(img.height() + top + bottom), QImage.Format.Format_RGB32)
     canvas.fill(QColor(border_color))
     overlay_image(img, canvas, left, top)
     return canvas
@@ -376,7 +376,7 @@ def remove_borders_from_image(img, fuzz=None):
     absolute intensity units). Default is from a tweak whose default value is 10. '''
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
     img = image_from_data(img)
-    ans = imageops.remove_borders(img, max(0, fuzz))
+    ans = imageops.remove_borders(img, int(max(0, fuzz)))
     return ans if ans.size() != img.size() else img
 # }}}
 
@@ -432,7 +432,7 @@ def crop_image(img, x, y, width, height):
     img = image_from_data(img)
     width = min(width, img.width() - x)
     height = min(height, img.height() - y)
-    return img.copy(x, y, width, height)
+    return img.copy(int(x), int(y), int(width), int(height))
 
 # }}}
 

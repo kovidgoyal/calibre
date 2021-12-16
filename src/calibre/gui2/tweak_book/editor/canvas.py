@@ -97,7 +97,7 @@ class Trim(Command):
         img = canvas.current_image
         target = canvas.target
         sr = canvas.selection_state.rect
-        return img.copy(*get_selection_rect(img, sr, target))
+        return img.copy(*map(int, get_selection_rect(img, sr, target)))
 
 
 class AutoTrim(Trim):
