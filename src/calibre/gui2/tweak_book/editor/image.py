@@ -58,7 +58,7 @@ class ResizeDialog(QDialog):  # {{{
             oval = val / self.aspect_ratio if which == 'width' else val * self.aspect_ratio
             other = getattr(self, '_height' if which == 'width' else '_width')
             other.blockSignals(True)
-            other.setValue(oval)
+            other.setValue(int(oval))
             other.blockSignals(False)
 
     @property
