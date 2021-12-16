@@ -9,6 +9,7 @@ import os
 import textwrap
 import unicodedata
 from collections import OrderedDict
+from math import ceil
 from qt.core import (
     QAbstractListModel, QApplication, QCheckBox, QComboBox, QCursor, QDialog,
     QDialogButtonBox, QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox,
@@ -361,7 +362,7 @@ class Results(QWidget):
             self.current_result = 0
             prefixes = [QStaticText('<b>%s</b>' % os.path.basename(x)) for x in results]
             [(p.setTextFormat(Qt.TextFormat.RichText), p.setTextOption(self.text_option)) for p in prefixes]
-            self.maxwidth = max(x.size().width() for x in prefixes)
+            self.maxwidth = max(int(ceil(x.size().width())) for x in prefixes)
             self.results = tuple((prefix, self.make_text(text, positions), text)
                 for prefix, (text, positions) in zip(prefixes, iteritems(results)))
         else:
@@ -400,9 +401,9 @@ class Results(QWidget):
                 p.drawStaticText(offset, prefix)
                 offset.setX(self.maxwidth + 5)
                 p.drawStaticText(offset, self.divider)
-                offset.setX(offset.x() + self.divider.size().width())
+                offset.setX(offset.x() + int(ceil(self.divider.size().width())))
                 p.drawStaticText(offset, full)
-                offset.setY(offset.y() + size.height() + self.MARGIN // 2)
+                offset.setY(int(offset.y() + size.height() + self.MARGIN // 2))
                 if i in (self.current_result, self.mouse_hover_result):
                     offset.setX(0)
                     p.save()
