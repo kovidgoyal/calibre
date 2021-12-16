@@ -3,15 +3,8 @@ Pocket Calibre Recipe v1.5
 """
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from string import Template
 import json
 import operator
-import re
-import tempfile
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
 try:
     from urllib.error import HTTPError, URLError
 except ImportError:
