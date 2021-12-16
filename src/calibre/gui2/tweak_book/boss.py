@@ -1159,7 +1159,7 @@ class Boss(QObject):
         # Go to the next spelling error
         ed = self.gui.central.current_editor
         name = editor_name(ed)
-        find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
+        find_next_error(ed, name, self.gui, self.show_editor, self.edit_file, self.close_editor)
 
     def word_change_requested(self, w, new_word):
         if self.commit_all_editors_to_container():

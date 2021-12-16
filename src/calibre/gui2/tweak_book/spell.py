@@ -1376,7 +1376,7 @@ def find_next(word, locations, current_editor, current_editor_name,
     return False
 
 
-def find_next_error(current_editor, current_editor_name, gui_parent, show_editor, edit_file):
+def find_next_error(current_editor, current_editor_name, gui_parent, show_editor, edit_file, close_editor):
     files = get_checkable_file_names(current_container())[0]
     if current_editor_name not in files:
         current_editor_name = None
@@ -1391,12 +1391,18 @@ def find_next_error(current_editor, current_editor_name, gui_parent, show_editor
             from_cursor = True
             current_editor_name = None
         ed = editors.get(file_name, None)
+        needs_close = False
         if ed is None:
             edit_file(file_name)
             ed = editors[file_name]
+            needs_close = True
+        if hasattr(ed, 'highlighter'):
+            ed.highlighter.join()
         if ed.editor.find_next_spell_error(from_cursor=from_cursor):
             show_editor(file_name)
             return True
+        elif needs_close:
+            close_editor(file_name)
     return False
 
 # }}}
