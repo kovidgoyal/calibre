@@ -506,8 +506,8 @@ class Canvas(QWidget):
         return get_selection_rect(img, sr, target)
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton and self.target.contains(ev.pos()):
-            pos = ev.pos()
+        if ev.button() == Qt.MouseButton.LeftButton and self.target.contains(ev.position()):
+            pos = ev.position()
             self.selection_state.last_press_point = pos
             if self.selection_state.current_mode is None:
                 self.selection_state.current_mode = 'select'
@@ -528,10 +528,10 @@ class Canvas(QWidget):
             changed = True
         self.selection_state.in_selection = False
         self.selection_state.drag_corner = None
-        pos = ev.pos()
+        pos = ev.position()
         cursor = Qt.CursorShape.ArrowCursor
         try:
-            if not self.target.contains(pos):
+            if not self.target.contains(QPointF(pos)):
                 return
             if ev.buttons() & Qt.MouseButton.LeftButton:
                 if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
@@ -547,10 +547,10 @@ class Canvas(QWidget):
                         cursor = self.get_cursor()
                         changed = True
             else:
-                if self.selection_state.rect is None or not self.selection_state.rect.contains(pos):
+                if self.selection_state.rect is None or not self.selection_state.rect.contains(QPointF(pos)):
                     return
                 if self.selection_state.current_mode == 'selected':
-                    if self.selection_state.rect is not None and self.selection_state.rect.contains(pos):
+                    if self.selection_state.rect is not None and self.selection_state.rect.contains(QPointF(pos)):
                         self.selection_state.drag_corner = self.get_drag_corner(pos)
                         self.selection_state.in_selection = True
                         cursor = self.get_cursor()
@@ -570,7 +570,8 @@ class Canvas(QWidget):
                 else:
                     self.selection_state.current_mode = 'selected'
                 self.selection_state_changed.emit(self.has_selection)
-            elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(ev.pos()):
+            elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(
+                    ev.position()):
                 self.setCursor(self.get_cursor())
             self.update()
 
