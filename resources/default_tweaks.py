@@ -582,7 +582,7 @@ show_saved_search_box = False
 # Edit metadata->Copy metadata/Paste metadata actions. For example,
 # exclude_fields_on_paste = ['cover', 'timestamp', '#mycolumn']
 # to prevent pasting of the cover, Date and custom column, mycolumn.
-# You can also add a shortcut in Preferences->Shortcut->Edit metadata
+# You can also add a shortcut in Preferences->Shortcuts->Edit metadata
 # to paste metadata ignoring this tweak.
 exclude_fields_on_paste = []
 

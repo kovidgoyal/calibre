@@ -810,7 +810,7 @@ class BuiltinShorten(BuiltinFormatterFunction):
             'integers. For example, assume the title of the book is '
             '`Ancient English Laws in the Times of Ivanhoe`, and you want '
             'it to fit in a space of at most 15 characters. If you use '
-            '{title:shorten(9,-,5)}, the result will be `Ancient E-nhoe`. '
+            '{title:shorten(9,-,5)}, the result will be `Ancient E-anhoe`. '
             'If the field\'s length is less than left chars + right chars + '
             'the length of `middle text`, then the field will be used '
             'intact. For example, the title `The Dome` would not be changed.')
