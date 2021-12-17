@@ -14,8 +14,8 @@ from qt.core import (
 )
 from qt.webengine import (
     QWebEngineContextMenuData, QWebEnginePage, QWebEngineProfile, QWebEngineScript,
-    QWebEngineSettings, QWebEngineUrlRequestInfo, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler, QWebEngineView
+    QWebEngineSettings, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler,
+    QWebEngineView
 )
 from threading import Thread
 
@@ -341,7 +341,7 @@ class WebPage(QWebEnginePage):
         prints('%s:%s: %s' % (source_id, linenumber, msg))
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload, QWebEngineUrlRequestInfo.NavigationType.NavigationTypeBackForward):
+        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True

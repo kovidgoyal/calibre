@@ -13,7 +13,7 @@ from qt.core import (
     QWidget, pyqtSignal, sip
 )
 from qt.webengine import (
-    QWebEngineUrlRequestInfo, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler
+    QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
@@ -370,7 +370,7 @@ class WebPage(QWebEnginePage):
             pass
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEngineUrlRequestInfo.NavigationType.NavigationTypeReload, QWebEngineUrlRequestInfo.NavigationType.NavigationTypeBackForward):
+        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
