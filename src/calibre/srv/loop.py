@@ -328,6 +328,9 @@ class Connection:  # {{{
         self.handle_event = None  # prevent reference cycles
         try:
             self.socket.shutdown(socket.SHUT_WR)
+        except OSError:
+            pass
+        try:
             self.socket.close()
         except OSError:
             pass
