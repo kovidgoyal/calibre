@@ -140,24 +140,30 @@ class BuildInstaller(Command):
 class BuildInstallers(BuildInstaller):
 
     OS = ''
+    ALL_ARCHES = '64', '32'
 
     def run(self, opts):
-        bits = '64 32'.split()
-        for bitness in bits:
-            shutdown = bitness is bits[-1] and not opts.dont_shutdown
+        for bitness in self.ALL_ARCHES:
+            shutdown = bitness is self.ALL_ARCHES[-1] and not opts.dont_shutdown
             build_single(self.OS, bitness, shutdown)
 
 
 class Linux32(BuildInstaller):
     OS = 'linux'
     BITNESS = '32'
-    description = 'Build the 32-bit linux calibre installer'
+    description = 'Build the 32-bit Linux calibre installer'
 
 
 class Linux64(BuildInstaller):
     OS = 'linux'
     BITNESS = '64'
-    description = 'Build the 64-bit linux calibre installer'
+    description = 'Build the 64-bit Linux calibre installer'
+
+
+class LinuxArm64(BuildInstaller):
+    OS = 'linux'
+    BITNESS = 'arm64'
+    description = 'Build the 64-bit ARM Linux calibre installer'
 
 
 class Win32(BuildInstaller):
@@ -178,6 +184,7 @@ class OSX(BuildInstaller):
 
 class Linux(BuildInstallers):
     OS = 'linux'
+    ALL_ARCHES = '64', '32', 'arm64'
 
 
 class Win(BuildInstallers):
