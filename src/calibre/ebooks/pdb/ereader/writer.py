@@ -108,9 +108,9 @@ class Writer(FormatWriter):
                 item += struct.pack('>L', mo.start())
                 text = mo.group('text')
                 # Strip all PML tags from text
-                text = re.sub(br'\\U[0-9a-z]{4}', '', text)
-                text = re.sub(br'\\a\d{3}', '', text)
-                text = re.sub(br'\\.', '', text)
+                text = re.sub(br'\\U[0-9a-z]{4}', b'', text)
+                text = re.sub(br'\\a\d{3}', b'', text)
+                text = re.sub(br'\\.', b'', text)
                 # Add appropriate spacing to denote the various levels of headings
                 if 'val' in mo.groupdict().keys():
                     text = b'%s%s' % (b' ' * 4 * int(mo.group('val')), text)
