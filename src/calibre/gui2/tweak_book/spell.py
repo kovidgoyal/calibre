@@ -934,7 +934,8 @@ class ManageExcludedFiles(Dialog):
         self.files = QListWidget(self)
         self.files.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         cc = current_container()
-        for name, mt in cc.mime_map.items():
+        for name in sorted(cc.mime_map):
+            mt = cc.mime_map[name]
             if mt in OEB_DOCS or mt in (NCX_MIME, OPF_MIME):
                 i = QListWidgetItem(self.files)
                 i.setText(name)
