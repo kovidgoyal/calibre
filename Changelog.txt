@@ -23,6 +23,52 @@
 # - title by author
 # }}}
 
+{{{ 5.34.0 2021-12-17
+
+:: new features
+
+- Happy holidays to everyone!
+
+- Driver for the new Nook Glowlight 4
+
+- Edit book: Spell check tool: Add an exclude files button to exclude some files from being checked
+
+- EPUB/MOBI Catalogs: Increase the maximum thumbnail size to 3 inches from 2 inches
+
+- [1953739] Allow creating a shortcut in Preferences->Shortcuts->Edit metadata to paste metadata ignoring the value of the exclude_fields tweak
+
+- [1954715] E-book viewer: Displays links marked up as glossary and bibliography links as popups
+
+- [1954572] Add a tweak in Preferences->Tweaks to provide the sort value for undefined numbers
+
+:: bug fixes
+
+- Edit book: Fix pressing F8 to jump to next misspelled word not working after last word in current file
+
+- [1954889] Fix PDB E-reader output broken in calibre 5
+
+- [1954839] Edit book: Reports: Include descendant selectors that use classes when counting class usage
+
+- [1954726] E-book viewer: Fix an error when opening some books with highlights that span in-line text formatting
+
+- [1954460] MTP driver: Do not send the calibre device db files to the root folder on the Supernote A5 x as it fails
+
+- ToC Editor: Workaround an occasional error when closing on Windows if the file being edited is in a DropBox/antivirus prone folder
+
+- Fix a regression in the previous release that broke creating new keyboard shortcuts
+
+- Comments editor: When flowing the tool bar onto multiple lines do not split up groups of buttons
+
+- Various compatibility fixes for Python 3.10 used by some Linux distributions
+
+:: improved recipes
+- Pocket
+- El Pais
+- American Prospect
+- Mediapart
+
+}}}
+
 {{{ 5.33.2 2021-12-03
 
 :: new features
