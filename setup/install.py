@@ -15,7 +15,7 @@ import time
 
 from setup import (
     Command, __appname__, __version__, basenames, functions,
-    isbsd, ishaiku, islinux, modules
+    isbsd, isfreebsd, ishaiku, islinux, modules
 )
 
 HEADER = '''\
@@ -156,9 +156,12 @@ class Develop(Command):
 
     def install_env_module(self):
         import sysconfig
+        python_ver_prefix = ''
+        if isfreebsd:
+            python_ver_prefix = 'python'
         libdir = os.path.join(
             self.opts.staging_root, sysconfig.get_config_var('PLATLIBDIR') or 'lib',
-            sysconfig.get_python_version(), 'site-packages')
+            python_ver_prefix + sysconfig.get_python_version(), 'site-packages')
         try:
             if not os.path.exists(libdir):
                 os.makedirs(libdir)
