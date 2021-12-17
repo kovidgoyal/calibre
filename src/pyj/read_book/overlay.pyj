@@ -232,14 +232,14 @@ add_extra_css(def():
 )
 # }}}
 
-def simple_overlay_title(title, overlay, container):
+def simple_overlay_title(title, overlay, container, close_action):
     container.style.backgroundColor = get_color('window-background')
     def action():
         event = this
         event.stopPropagation()
         overlay.hide_current_panel(event)
 
-    create_top_bar(container, title=title, icon='close', action=action)
+    create_top_bar(container, title=title, icon='close', action=close_action or action)
 
 
 class MainOverlay:  # {{{
@@ -585,7 +585,14 @@ class OpenBook: # {{{
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
-        simple_overlay_title(_('Open a book'), self.overlay, container)
+        simple_overlay_title(_('Open a book'), self.overlay, container, def ():
+            ev = this
+            ev.stopPropagation(), ev.preventDefault()
+            if self.closeable:
+                self.overlay.hide_current_panel(ev)
+            else:
+                ui_operations.quit()
+        )
         create_open_book(container, self.overlay.view?.book)
 # }}}
 
