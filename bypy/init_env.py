@@ -74,6 +74,8 @@ if islinux:
     ]
 else:
     QT_PLUGINS.append('styles')
+if ismacos:
+    QT_PLUGINS.remove('platformthemes')
 
 PYQT_MODULES = (
     'Qt',
