@@ -9,13 +9,17 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import os, ctypes, sys, unittest, time, shutil
+import os, ctypes, sys, unittest, time, shutil, builtins
 
 from calibre.constants import iswindows, islinux, ismacos, plugins_loc
 from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
+
+
+def print(*a):
+    builtins.print(*a, flush=True, file=sys.__stdout__)
 
 
 class BuildTest(unittest.TestCase):
