@@ -159,6 +159,7 @@ elif ismacos:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     sw_inc_dir  = os.path.join(sw, 'include')
     sw_lib_dir  = os.path.join(sw, 'lib')
+    sw_bin_dir  = os.path.join(sw, 'bin')
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     hunspell_inc_dirs = [os.path.join(sw_inc_dir, 'hunspell')]
     podofo_lib = sw_lib_dir
@@ -167,6 +168,8 @@ elif ismacos:
     SSL = os.environ.get('OPENSSL_DIR', os.path.join(sw, 'private', 'ssl'))
     openssl_inc_dirs = [os.path.join(SSL, 'include')]
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
+    if os.path.exists(os.path.join(sw_bin_dir, 'cmake')):
+        CMAKE = os.path.join(sw_bin_dir, 'cmake')
 else:
     ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
             '/usr/include/freetype2')

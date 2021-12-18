@@ -25,7 +25,9 @@ from bypy.constants import (
 from bypy.freeze import (
     extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
 )
-from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
+from bypy.utils import (
+    current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk
+)
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
 iv = globals()['init_env']
@@ -35,7 +37,7 @@ py_ver = '.'.join(map(str, python_major_minor_version()))
 sign_app = runpy.run_path(join(dirname(abspath(__file__)), 'sign.py'))['sign_app']
 
 QT_PREFIX = join(PREFIX, 'qt')
-QT_FRAMEWORKS = [x.replace('5', '') for x in QT_DLLS]
+QT_FRAMEWORKS = [x.replace('6', '') for x in QT_DLLS]
 
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
@@ -56,7 +58,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
 
     dest = join(contents_dir, 'Frameworks', 'calibre-launcher.dylib')
     src = join(base, 'util.c')
-    cmd = [gcc] + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
+    cmd = [gcc] + '-arch x86_64 -arch arm64 -Wall -dynamiclib -std=gnu99'.split() + [src] + \
         ['-I' + base] + '-DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*pyver.split('.')).split() + \
         [f'-I{path_to_freeze_dir()}', f'-I{inc_dir}'] + \
         [f'-DENV_VARS={env}', f'-DENV_VAR_VALS={env_vals}'] + \
@@ -87,7 +89,8 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
         programs.append(out)
         is_gui = 'true' if ptype == 'gui' else 'false'
         cmd = [
-            gcc, '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
+            gcc, '-Wall', '-arch', 'x86_64', '-arch', 'arm64',
+            f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
             '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names'
         ]
         # print('\t'+' '.join(cmd))
@@ -108,7 +111,14 @@ def flipwritable(fn, mode=None):
     return old_mode
 
 
+def check_universal(path):
+    arches = get_arches_in_binary(path)
+    if arches != EXPECTED_ARCHES:
+        raise SystemExit(f'The file {path} is not a universal binary, it only has arches: {", ".join(arches)}')
+
+
 STRIPCMD = ['/usr/bin/strip', '-x', '-S', '-']
+EXPECTED_ARCHES = {'x86_64', 'arm64'}
 
 
 def strip_files(files, argv_max=(256 * 1024)):
@@ -272,6 +282,7 @@ class Freeze:
 
     @flush
     def fix_dependencies_in_lib(self, path_to_lib):
+        check_universal(path_to_lib)
         self.to_strip.append(path_to_lib)
         old_mode = flipwritable(path_to_lib)
         for dep, bname, is_id in self.get_local_dependencies(path_to_lib):
