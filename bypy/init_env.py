@@ -48,8 +48,9 @@ if islinux:
 elif ismacos:
     dlls += ['DBus']
 
+QT_MAJOR = 6
 QT_DLLS = frozenset(
-    'Qt6' + x for x in dlls
+    f'Qt{QT_MAJOR}' + x for x in dlls
 )
 
 QT_PLUGINS = [

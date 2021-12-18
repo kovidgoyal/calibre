@@ -33,11 +33,12 @@ abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basena
 iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
 QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
+QT_MAJOR = iv['QT_MAJOR']
 py_ver = '.'.join(map(str, python_major_minor_version()))
 sign_app = runpy.run_path(join(dirname(abspath(__file__)), 'sign.py'))['sign_app']
 
 QT_PREFIX = join(PREFIX, 'qt')
-QT_FRAMEWORKS = [x.replace('6', '') for x in QT_DLLS]
+QT_FRAMEWORKS = [x.replace(f'{QT_MAJOR}', '') for x in QT_DLLS]
 
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
@@ -329,8 +330,8 @@ class Freeze:
             self.fix_dependencies_in_lib(l)
             x = os.path.relpath(l, ddir)
             self.set_id(l, '@executable_path/' + x)
-        webengine_process = join(
-            self.frameworks_dir, 'QtWebEngineCore.framework/Versions/5/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess')
+        webengine_process = os.path.realpath(join(
+            self.frameworks_dir, 'QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess'))
         self.fix_dependencies_in_lib(webengine_process)
         cdir = dirname(dirname(webengine_process))
         dest = join(cdir, 'Frameworks')
@@ -408,8 +409,8 @@ class Freeze:
         for f in plugins:
             self.fix_dependencies_in_lib(f)
             if f.endswith('/podofo.so'):
-                self.change_dep('libpodofo.0.9.6.dylib',
-                    '@executable_path/../Frameworks/libpodofo.0.9.6.dylib', False, f)
+                self.change_dep('libpodofo.0.9.7.dylib',
+                    '@executable_path/../Frameworks/libpodofo.0.9.7.dylib', False, f)
 
     @flush
     def create_plist(self):
@@ -469,13 +470,13 @@ class Freeze:
     @flush
     def add_podofo(self):
         print('\nAdding PoDoFo')
-        pdf = join(PREFIX, 'lib', 'libpodofo.0.9.6.dylib')
+        pdf = join(PREFIX, 'lib', 'libpodofo.0.9.7.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.102.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.115.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(
@@ -520,7 +521,7 @@ class Freeze:
     def add_misc_libraries(self):
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
-            'icudata.67', 'icui18n.67', 'icuio.67', 'icuuc.67', 'hyphen.0',
+            'icudata.70', 'icui18n.70', 'icuio.70', 'icuuc.70', 'hyphen.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
             'crypto.1.1', 'ssl.1.1', 'iconv.2',  # 'ltdl.7'
         ):
