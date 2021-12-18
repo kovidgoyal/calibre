@@ -25,7 +25,7 @@ def get_exe():
     return 'python3' if sys.version_info.major == 2 else sys.executable
 
 
-def get_cmd(exe, bypy, which, bitness, sign_installers, notarize=True, compression_level='9', action='program'):
+def get_cmd(exe, bypy, which, bitness, sign_installers=False, notarize=True, compression_level='9', action='program'):
     cmd = [exe, bypy, which]
     if bitness and bitness != '64':
         cmd += ['--arch', bitness]
@@ -61,7 +61,7 @@ def build_only(which, bitness, spec, shutdown=False):
     dist = get_dist(base, which, bitness)
     dist = os.path.join(dist, 'c-extensions')
     if shutdown:
-        cmd = get_cmd(action='shutdown')
+        cmd = get_cmd(exe, bypy, which, bitness, action='shutdown')
         subprocess.Popen(cmd).wait()
     return dist
 
@@ -86,7 +86,7 @@ def build_single(which='windows', bitness='64', shutdown=True, sign_installers=T
             pass
         os.link(src, dest)
     if shutdown:
-        cmd = get_cmd(action='shutdown')
+        cmd = get_cmd(exe, bypy, which, bitness, action='shutdown')
         subprocess.Popen(cmd).wait()
 
 
