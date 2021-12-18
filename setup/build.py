@@ -178,6 +178,9 @@ def get_python_include_paths():
     return sorted(frozenset(filter(None, map(gp, sorted(ans)))))
 
 
+is_macos_universal_build = ismacos and 'universal2' in sysconfig.get_platform()
+
+
 def init_env(debug=False, sanitize=False):
     from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
     linker = None
@@ -222,6 +225,9 @@ def init_env(debug=False, sanitize=False):
         ldflags += (sysconfig.get_config_var('LINKFORSHARED') or '').split()
 
     if ismacos:
+        if is_macos_universal_build:
+            cflags.extend(['-arch', 'x86_64', '-arch', 'arm64'])
+            ldflags.extend(['-arch', 'x86_64', '-arch', 'arm64'])
         cflags.append('-D_OSX')
         ldflags.extend('-bundle -undefined dynamic_lookup'.split())
         cflags.extend(['-fno-common', '-dynamic'])
@@ -443,7 +449,7 @@ class Build(Command):
     def check_call(self, *args, **kwargs):
         """print cmdline if an error occurred
 
-        If something is missing (qmake e.g.) you get a non-informative error
+        If something is missing (cmake e.g.) you get a non-informative error
          self.check_call(qmc + [ext.name+'.pro'])
          so you would have to look at the source to see the actual command.
         """
@@ -481,6 +487,8 @@ class Build(Command):
         if os.path.exists(bdir):
             shutil.rmtree(bdir)
         cmd = [CMAKE]
+        if is_macos_universal_build:
+            cmd += ['-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64']
         if sw and os.path.exists(os.path.join(sw, 'qt')):
             cmd += ['-DCMAKE_SYSTEM_PREFIX_PATH=' + os.path.join(sw, 'qt').replace(os.sep, '/')]
         os.makedirs(bdir)
@@ -491,7 +499,7 @@ class Build(Command):
             self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
-        os.rename(self.j(bdir, 'libheadless.' + ('dylib' if ismacos else 'so')), target)
+        os.rename(self.j(bdir, 'libheadless.so'), target)
 
     def create_sip_build_skeleton(self, src_dir, ext):
         from setup.build_environment import pyqt_sip_abi_version
