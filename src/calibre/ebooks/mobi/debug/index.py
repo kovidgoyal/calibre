@@ -7,13 +7,14 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-
 from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
-from calibre.ebooks.mobi.reader.index import (CNCX, parse_indx_header,
-        parse_tagx_section, parse_index_record, INDEX_HEADER_FIELDS)
-from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
+from calibre.ebooks.mobi.reader.index import (
+    CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record,
+    parse_indx_header, parse_tagx_section
+)
+from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
 from polyglot.builtins import iteritems
 
 File = namedtuple('File',
@@ -71,7 +72,7 @@ def read_index(sections, idx, codec):
         cncx_records = [x.raw for x in sections[off:off+indx_header['ncncx']]]
         cncx = CNCX(cncx_records, codec)
 
-    tag_section_start = indx_header['tagx']
+    tag_section_start = get_tag_section_start(data, indx_header)
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
     read_variable_len_data(data, indx_header)
