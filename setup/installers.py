@@ -25,7 +25,7 @@ def get_exe():
     return 'python3' if sys.version_info.major == 2 else sys.executable
 
 
-def get_cmd(exe, bypy, which, bitness, sign_installers=False, notarize=True, compression_level='9', action='program'):
+def get_cmd(exe, bypy, which, bitness, sign_installers=False, notarize=True, compression_level='9', action='program', dont_strip=False):
     cmd = [exe, bypy, which]
     if bitness and bitness != '64':
         cmd += ['--arch', bitness]
@@ -35,6 +35,8 @@ def get_cmd(exe, bypy, which, bitness, sign_installers=False, notarize=True, com
             cmd.append('--sign-installers')
         if notarize:
             cmd.append('--notarize')
+        if dont_strip:
+            cmd.append('--dont-strip')
         cmd.append('--compression-level=' + compression_level)
     return cmd
 
@@ -66,10 +68,10 @@ def build_only(which, bitness, spec, shutdown=False):
     return dist
 
 
-def build_single(which='windows', bitness='64', shutdown=True, sign_installers=True, notarize=True, compression_level='9'):
+def build_single(which='windows', bitness='64', shutdown=True, sign_installers=True, notarize=True, compression_level='9', dont_strip=False):
     base, bypy = get_paths()
     exe = get_exe()
-    cmd = get_cmd(exe, bypy, which, bitness, sign_installers, notarize, compression_level=compression_level)
+    cmd = get_cmd(exe, bypy, which, bitness, sign_installers, notarize, compression_level=compression_level, dont_strip=dont_strip)
     ret = subprocess.Popen(cmd).wait()
     if ret != 0:
         raise SystemExit(ret)
@@ -128,12 +130,18 @@ class BuildInstaller(Command):
             choices=list('123456789'),
             help='Do not notarize the installers'
         )
+        parser.add_option(
+            '--dont-strip',
+            default=False,
+            action='store_true',
+            help='Do not strip the binaries'
+        )
 
     def run(self, opts):
         build_single(
             self.OS, self.BITNESS, not opts.dont_shutdown,
             not opts.dont_sign, not opts.dont_notarize,
-            compression_level=opts.compression_level
+            compression_level=opts.compression_level, dont_strip=opts.dont_strip
         )
 
 
