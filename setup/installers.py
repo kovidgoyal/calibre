@@ -223,7 +223,8 @@ class ExportPackages(Command):
     def run(self, opts):
         base, bypy = get_paths()
         exe = get_exe()
-        cmd = [exe, bypy, 'export'] + list(opts.cli_args) + ['download.calibre-ebook.com:/srv/download/ci/calibre3']
+        for which in ('linux', 'macos', 'windows'):
+            cmd = [exe, bypy, 'export'] + ['download.calibre-ebook.com:/srv/download/ci/calibre6'] + [which]
         ret = subprocess.Popen(cmd).wait()
         if ret != 0:
             raise SystemExit(ret)
