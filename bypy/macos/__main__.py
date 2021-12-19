@@ -65,7 +65,13 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
         [f'-DENV_VARS={env}', f'-DENV_VAR_VALS={env_vals}'] + \
         ['-I%s/python/Python.framework/Versions/Current/Headers' % PREFIX] + \
         '-current_version 1.0 -compatibility_version 1.0'.split() + \
-        '-fvisibility=hidden -o'.split() + [dest] + \
+        '-fvisibility=hidden -o'.split() + [dest]
+    # We need libxml2.dylib linked because Apple's system frameworks link
+    # against a system version. And libxml2 uses global variables so we get
+    # crashes if the system libxml2 is loaded. Loading plugins like the Qt
+    # ones or usbobserver causes it to be loaded. So pre-load our libxml2
+    # to avoid it.
+    cmd += ['-L', f'{PREFIX}/lib', '-l', 'xml2'] + \
         ['-install_name',
          '@executable_path/../Frameworks/' + os.path.basename(dest)] + \
         [('-F%s/python' % PREFIX), '-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
