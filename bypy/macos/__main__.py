@@ -47,6 +47,8 @@ ENV = dict(
 )
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
+ARCH_FLAGS = '-arch x86_64 -arch arm64'.split()
+EXPECTED_ARCHES = {'x86_64', 'arm64'}
 
 
 def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
@@ -59,7 +61,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
 
     dest = join(contents_dir, 'Frameworks', 'calibre-launcher.dylib')
     src = join(base, 'util.c')
-    cmd = [gcc] + '-arch x86_64 -arch arm64 -Wall -dynamiclib -std=gnu99'.split() + [src] + \
+    cmd = [gcc] + ARCH_FLAGS + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
         ['-I' + base] + '-DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*pyver.split('.')).split() + \
         [f'-I{path_to_freeze_dir()}', f'-I{inc_dir}'] + \
         [f'-DENV_VARS={env}', f'-DENV_VAR_VALS={env_vals}'] + \
@@ -95,9 +97,8 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
         out = join(contents_dir, 'MacOS', program)
         programs.append(out)
         is_gui = 'true' if ptype == 'gui' else 'false'
-        cmd = [
-            gcc, '-Wall', '-arch', 'x86_64', '-arch', 'arm64',
-            f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
+        cmd = [gcc] + ARCH_FLAGS + [
+            '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
             '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names'
         ]
         # print('\t'+' '.join(cmd))
@@ -125,7 +126,6 @@ def check_universal(path):
 
 
 STRIPCMD = ['/usr/bin/strip', '-x', '-S', '-']
-EXPECTED_ARCHES = {'x86_64', 'arm64'}
 
 
 def strip_files(files, argv_max=(256 * 1024)):
@@ -703,8 +703,8 @@ class Freeze:
                 plist['CFBundleExecutable'] = exe + '-placeholder-for-codesigning'
                 nexe = join(exe_dir, plist['CFBundleExecutable'])
                 base = os.path.dirname(abspath(__file__))
-                cmd = [
-                    gcc, '-Wall', '-Werror', '-DEXE_NAME="%s"' % exe, '-DREL_PATH="%s"' % rel_path,
+                cmd = [gcc] + ARCH_FLAGS + [
+                    '-Wall', '-Werror', '-DEXE_NAME="%s"' % exe, '-DREL_PATH="%s"' % rel_path,
                     join(base, 'placeholder.c'), '-o', nexe, '-headerpad_max_install_names'
                 ]
                 subprocess.check_call(cmd)
