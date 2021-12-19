@@ -12,18 +12,20 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 def serialize_image(block):
     yield '<div>'
     block = block['model']
-    media = block['media']
-    alt = prepare_string_for_xml(media.get('alt') or '', True)
+    img = block['image']
+    alt = prepare_string_for_xml(img.get('alt') or '', True)
     for q in ('originalSrc', 'src'):
-        if q in media:
-            src = prepare_string_for_xml(media[q])
+        if q in img:
+            src = prepare_string_for_xml(img[q])
             break
     else:
-        raise ValueError('No src found in media block: {}'.format(media))
+        raise ValueError('No src found in img block: {}'.format(img))
     yield '<img src="{}" alt="{}"/>'.format(src, alt)
     caption = block.get('caption')
-    if caption:
-        yield '<div>{}</div>'.format(prepare_string_for_xml(caption))
+    if caption and caption.get('type') == 'text':
+        yield '<div>'
+        yield from serialize_paragraph(caption)
+        yield '</div>'
     yield '</div>'
 
 
@@ -102,13 +104,30 @@ def parse_article_json(root, abort_article):
         lines.append('<h1>{}</h1>'.format(prepare_string_for_xml(article['headline'])))
     if article.get('contributor'):
         lines.extend(serialize_contributor(article['contributor']))
-    for block in article['blocks']:
+    for block in article['content']['model']['blocks']:
         bt = block.get('type')
         if bt == 'image':
             lines.extend(serialize_image(block))
         elif bt == 'text':
             lines.extend(serialize_text(block))
     return '<html><body id="main-content">' + '\n'.join(lines) + '</body></html>'
+
+
+def parse_raw_html(html, abort_article):
+    q = '>window.__INITIAL_DATA__="{'
+    idx = html.find(q)
+    if idx < 0:
+        raise ValueError('Failed to find JSON')
+    data = html[idx + len(q) - 2:]
+    idx = data.find('}";</script>')
+    data = data[:idx+2]
+    data = json.loads(data)
+    root = json.loads(data)
+    return parse_article_json(root, abort_article)
+
+
+if __name__ == '__main__':
+    print(parse_raw_html(open('/t/raw.html').read(), print))
 # }}}
 
 
@@ -124,10 +143,13 @@ class BBC(BasicNewsRecipe):
     publisher = 'BBC'
     category = 'news, UK, world'
     language = 'en_GB'
-    masthead_url = 'https://news.bbcimg.co.uk/img/1_0_1/cream/hi/news/news-blocks.gif'
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher,
     }
+    # Removes empty feeds - why keep them!?
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    resolve_internal_links = True
 
     feeds = [
         ('Top Stories', 'https://feeds.bbci.co.uk/news/rss.xml'),
@@ -150,12 +172,4 @@ class BBC(BasicNewsRecipe):
     ]
 
     def preprocess_raw_html(self, raw_html, url):
-        q = '>window.__INITIAL_DATA__={'
-        idx = raw_html.find(q)
-        if idx < 0:
-            raise ValueError('Failed to find JSON')
-        data = raw_html[idx + len(q) - 1:]
-        idx = data.find('};</script>')
-        data = data[:idx+1]
-        root = json.loads(data)
-        return parse_article_json(root, self.abort_article)
+        return parse_raw_html(raw_html, self.abort_article)
