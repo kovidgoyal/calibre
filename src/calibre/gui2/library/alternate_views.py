@@ -932,7 +932,7 @@ class GridView(QListView):
                     if scaled:
                         if self.ignore_render_requests.is_set():
                             return
-                        p = p.scaled(nwidth, nheight, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                        p = p.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
                         p.setDevicePixelRatio(dpr)
                     cdata = p
                 # update cache

@@ -257,7 +257,7 @@ def save_cover_data_to(
         changed = fmt != orig_fmt
     if resize_to is not None:
         changed = True
-        img = img.scaled(resize_to[0], resize_to[1], Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        img = img.scaled(int(resize_to[0]), int(resize_to[1]), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     owidth, oheight = img.width(), img.height()
     nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
     if letterbox:
@@ -269,7 +269,7 @@ def save_cover_data_to(
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
         if scaled:
             changed = True
-            img = img.scaled(nwidth, nheight, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
@@ -411,10 +411,10 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     if preserve_aspect_ratio:
         scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
         if scaled:
-            img = img.scaled(nwidth, nheight, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
     else:
         if img.width() != width or img.height() != height:
-            img = img.scaled(width, height, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     fmt = 'PNG' if as_png else 'JPEG'
     w, h = img.width(), img.height()
     return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)

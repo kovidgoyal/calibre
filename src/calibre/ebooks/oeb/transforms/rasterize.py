@@ -87,7 +87,7 @@ class SVGRasterizer:
             size.setWidth(sizes[0])
             size.setHeight(sizes[1])
         if width or height:
-            size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
+            size.scale(int(width), int(height), Qt.AspectRatioMode.KeepAspectRatio)
         logger.info('Rasterizing %r to %dx%d'
                     % (elem, size.width(), size.height()))
         image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
@@ -183,7 +183,7 @@ class SVGRasterizer:
         data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
-        size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
+        size.scale(int(width), int(height), Qt.AspectRatioMode.KeepAspectRatio)
         key = (svgitem.href, size.width(), size.height())
         if key in self.images:
             href = self.images[key]

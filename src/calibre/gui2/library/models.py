@@ -142,7 +142,7 @@ class ColumnIcon:  # {{{
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
                         scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)
-                        bm = bm.scaled(nw, nh, aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
+                        bm = bm.scaled(int(nw), int(nh), aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
                         bm.setDevicePixelRatio(self.dpr)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()

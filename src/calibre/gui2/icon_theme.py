@@ -187,7 +187,7 @@ def create_cover(report, icons=(), cols=5, size=120, padding=16):
             with lopen(ipath, 'rb') as f:
                 img = image_from_data(f.read())
             scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
-            img = img.scaled(nwidth, nheight, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
             dx = (size - nwidth) // 2
             canvas.compose(img, x + dx, y)
     return canvas.export()

@@ -153,7 +153,7 @@ class _Canvas(QGraphicsRectItem):
             max_width  = min(br.width(), self.max_x-x)
             if br.height() > max_height or br.width() > max_width:
                 p = ib.pixmap()
-                ib.setPixmap(p.scaled(max_width, max_height, Qt.AspectRatioMode.IgnoreAspectRatio,
+                ib.setPixmap(p.scaled(int(max_width), int(max_height), Qt.AspectRatioMode.IgnoreAspectRatio,
                                       Qt.TransformationMode.SmoothTransformation))
                 br = ib.boundingRect()
             ib.setParentItem(self)

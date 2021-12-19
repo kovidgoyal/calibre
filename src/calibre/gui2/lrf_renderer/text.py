@@ -25,7 +25,7 @@ class PixmapItem(QGraphicsPixmapItem):
         w, h = p.width(), p.height()
         p = p.copy(x0, y0, min(w, x1-x0), min(h, y1-y0))
         if p.width() != xsize or p.height() != ysize:
-            p = p.scaled(xsize, ysize, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            p = p.scaled(int(xsize), int(ysize), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
         QGraphicsPixmapItem.__init__(self, p)
         self.height, self.width = ysize, xsize
         self.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
@@ -33,7 +33,7 @@ class PixmapItem(QGraphicsPixmapItem):
 
     def resize(self, width, height):
         p = self.pixmap()
-        self.setPixmap(p.scaled(width, height, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.setPixmap(p.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.width, self.height = width, height
 
 
