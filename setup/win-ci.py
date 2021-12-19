@@ -33,7 +33,7 @@ def download_file(url):
 def sw():
     sw = os.environ['SW']
     os.chdir(sw)
-    url = 'https://download.calibre-ebook.com/ci/calibre3/windows-64.tar.xz'
+    url = 'https://download.calibre-ebook.com/ci/calibre6/windows-64.tar.xz'
     tarball = download_file(url)
     with tarfile.open(fileobj=io.BytesIO(tarball)) as tf:
         tf.extractall()

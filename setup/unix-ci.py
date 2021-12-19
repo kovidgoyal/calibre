@@ -139,7 +139,7 @@ def main():
 
         tball = 'macos-64' if ismacos else 'linux-64'
         download_and_decompress(
-            f'https://download.calibre-ebook.com/ci/calibre3/{tball}.tar.xz', SW
+            f'https://download.calibre-ebook.com/ci/calibre6/{tball}.tar.xz', SW
         )
         if not ismacos:
             install_linux_deps()
