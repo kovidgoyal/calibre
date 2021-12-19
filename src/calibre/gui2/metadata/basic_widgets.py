@@ -30,7 +30,7 @@ from calibre.ebooks.metadata import (
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 from calibre.gui2 import (
-    choose_files, choose_images, error_dialog, file_icon_provider, gprefs
+    choose_files_and_remember_all_files, choose_images, error_dialog, file_icon_provider, gprefs
 )
 from calibre.gui2.comments_editor import Editor
 from calibre.gui2.complete2 import EditWithComplete
@@ -973,7 +973,7 @@ class FormatsManager(QWidget):
         return
 
     def add_format(self, *args):
-        files = choose_files(
+        files = choose_files_and_remember_all_files(
                 self, 'add formats dialog', _("Choose formats for ") + self.dialog.title.current_val,
                 [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
