@@ -56,7 +56,7 @@ with tempfile.NamedTemporaryFile(prefix='install-dmg-', suffix='.py') as f:
     cmd = './setup.py osx --dont-shutdown'
     if 'develop' in sys.argv:
         print('Disabling code-signing and notarization')
-        cmd += ' --dont-sign --dont-notarize'
+        cmd += ' --dont-sign --dont-notarize --dont-strip'
     run(cmd)
     f.write(script.encode('utf-8'))
     f.flush()
