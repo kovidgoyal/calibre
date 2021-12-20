@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.date import parse_date, utcnow
+
+
+class AdvancedUserRecipe1639926896(BasicNewsRecipe):
+    __author__ = "Aisteru"
+    __copyright__ = "2021, Timothée Andres <timothee dot andres at gmail dot com>"
+    __license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+
+    title = "Equestria Daily"
+    description = "Everything new in Equestria and beyond!"
+    language = 'en_US'
+
+    # Max. supported by website: 50
+    max_articles_per_feed = 30
+
+    compress_news_images = True
+    no_stylesheets = True
+    keep_only_tags = [{'name': 'div', 'class_': ['post', 'hentry']}]
+    remove_tags = [{'name': 'div', 'class_': 'post-footer'}]
+    extra_css = '.article_date { margin-left: 10px; }'
+
+    # Masthead image dimensions
+    MI_WIDTH = 600
+    MI_HEIGHT = 200
+
+    # To discard posts under a certain section, simply comment the whole line
+    sections = [
+        ("Art", 'Art'),
+        ("News", 'News'),
+        ("Fics", 'Fanfiction'),
+        ("Media", 'Media'),
+        ("Comics", 'Comic'),
+        ("Community", 'Community'),
+        ("Editorial", 'Editorial'),
+    ]
+
+    def get_masthead_url(self):
+        soup = self.index_to_soup('https://www.equestriadaily.com')
+        img = soup.select_one('#header img')
+        return img['src']
+
+    def parse_index(self):
+        results = {}
+        current_date = utcnow()
+
+        def clean_description(description):
+            lines = description.split('\n')
+            return '\n'.join([line.strip() for line in lines if len(line.strip()) > 0])
+
+        for (section_name, section_url_name) in self.sections:
+            soup = self.index_to_soup(
+                f'https://www.equestriadaily.com/search/label/{section_url_name}?max-results={self.max_articles_per_feed}')
+            articles = soup.select('div.post.hentry')
+            previous_post_date = current_date
+
+            for article in articles:
+                article_entry = {}
+
+                header = article.select_one('h3 > a')
+                article_entry['title'] = header.text
+                article_entry['url'] = header['href']
+                article_entry['date'] = article.select_one('span.post-timestamp').text.split('\n')[1]
+                article_entry['description'] = clean_description(article.select_one('div.entry-content').text)
+                article_entry['content'] = ''  # Must be empty
+
+                post_date = previous_post_date
+
+                try:
+                    post_date = parse_date(article_entry['date'])
+                    previous_post_date = post_date
+                except Exception:
+                    pass
+
+                if (current_date - post_date).days <= self.oldest_article:
+                    results.setdefault(section_name, []).append(article_entry)
+
+        return [(section, results[section]) for section in results]
