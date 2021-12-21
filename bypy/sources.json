@@ -181,7 +181,7 @@
         },
         "windows": {
             "filename": "icu4c-70_1-src.zip",
-            "hash": "sha256:b45ad9292490781d04daf08d13a41554b7b46223462baff2bbd1e479aaac2968",
+            "hash": "sha256:0d41e13364af260e330fdc5d2d60531564108d6a1234209f5712f8d9693315a7",
             "urls": ["https://github.com/unicode-org/icu/releases/download/release-70-1/{filename}"]
         }
 
