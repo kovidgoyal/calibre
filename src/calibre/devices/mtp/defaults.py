@@ -32,7 +32,8 @@ class DeviceDefaults:
                 ),
                 # Supernote A5
                 ({'vendor': 0x2207, 'product': 0x0031}, {
-                    'calibre_file_paths': {'metadata':'Documents/metadata.calibre', 'driveinfo':'Documents/driveinfo.calibre'},
+                    'calibre_file_paths': {'metadata':'Document/metadata.calibre', 'driveinfo':'Document/driveinfo.calibre'},
+                    'send_to': ['Document', 'Documents'],
                 }),
         )
 
