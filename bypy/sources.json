@@ -446,8 +446,8 @@
 
     {
         "name": "nodejs",
-		"comment": "Needed for Qt WebEngine",
-        "os": "macos,windows",
+		"comment": "Needed for building Qt WebEngine",
+        "os": "macos",
         "unix": {
             "filename": "nodejs-src.tar.gz",
             "hash": "sha256:394991ab9c259a68b0a72735d2fcee957a9c78138bf8d9e02cf8c04f6be5c673",
