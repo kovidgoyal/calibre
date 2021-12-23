@@ -58,7 +58,6 @@ QT_PLUGINS = [
     'iconengines',
     # 'mediaservice',
     'platforms',
-    'platformthemes',
     # 'playlistformats',
     'sqldrivers',
     # 'webview',
@@ -68,6 +67,7 @@ QT_PLUGINS = [
 if islinux:
     QT_PLUGINS += [
         'platforminputcontexts',
+        'platformthemes',
         'wayland-decoration-client',
         'wayland-graphics-integration-client',
         'wayland-shell-integration',
@@ -75,8 +75,6 @@ if islinux:
     ]
 else:
     QT_PLUGINS.append('styles')
-if ismacos:
-    QT_PLUGINS.remove('platformthemes')
 
 PYQT_MODULES = (
     'Qt',

@@ -166,8 +166,6 @@ def freeze(env, ext_dir, incdir):
     for x in QT_DLLS:
         copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
     copybin(os.path.join(QT_PREFIX, 'bin', 'QtWebEngineProcess.exe'))
-    for x in 'libGLESv2 libEGL'.split():
-        copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
     plugdir = j(QT_PREFIX, 'plugins')
     tdir = j(env.app_base, 'plugins')
     for d in QT_PLUGINS:
