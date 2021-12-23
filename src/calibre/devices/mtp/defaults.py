@@ -12,6 +12,12 @@ from calibre.constants import iswindows
 from polyglot.builtins import iteritems
 
 
+supernote_settings = {
+    'calibre_file_paths': {'metadata':'Document/metadata.calibre', 'driveinfo':'Document/driveinfo.calibre'},
+    'send_to': ['Document', 'Documents'],
+}
+
+
 class DeviceDefaults:
 
     def __init__(self):
@@ -30,11 +36,9 @@ class DeviceDefaults:
                     'eBooks/import', 'eBooks', 'sdcard/ebooks'],
                     }
                 ),
-                # Supernote A5
-                ({'vendor': 0x2207, 'product': 0x0031}, {
-                    'calibre_file_paths': {'metadata':'Document/metadata.calibre', 'driveinfo':'Document/driveinfo.calibre'},
-                    'send_to': ['Document', 'Documents'],
-                }),
+                # Supernote A5 and A5X
+                ({'vendor': 0x2207, 'product': 0x0031}, supernote_settings),
+                ({'vendor': 0x2207, 'product': 0x0011}, supernote_settings),
         )
 
     def __call__(self, device, driver):
