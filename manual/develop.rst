@@ -210,9 +210,9 @@ Create a plain text file::
     export CALIBRE_DEVELOP_FROM="/Users/kovid/work/calibre/src"
     calibre-debug -g
 
-Save this file as ``/usr/bin/calibre-develop``, then set its permissions so that it can be executed::
+Save this file as :file:`/usr/local/bin/calibre-develop`, then set its permissions so that it can be executed::
 
-    chmod +x /usr/bin/calibre-develop
+    chmod +x /usr/local/bin/calibre-develop
 
 Once you have done this, run::
 
