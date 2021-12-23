@@ -91,7 +91,7 @@ def download_and_decompress(url, dest, compression=None):
 def install_qt_source_code():
     dest = os.path.expanduser('~/qt-base')
     os.mkdir(dest)
-    download_and_decompress('https://download.calibre-ebook.com/qtbase-everywhere-src-5.15.2.tar.xz', dest, 'J')
+    download_and_decompress('https://download.calibre-ebook.com/qtbase-everywhere-src-6.2.2.tar.xz', dest, 'J')
     qdir = glob.glob(dest + '/*')[0]
     os.environ['QT_SRC'] = qdir
 
