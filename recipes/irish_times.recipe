@@ -51,26 +51,37 @@ class IrishTimes(BasicNewsRecipe):
         # To understand the signin logic read signin javascript from submit button from
         # https://www.irishtimes.com/signin
 
+        br = BasicNewsRecipe.get_browser(self, user_agent='curl/7.80.0')
+        ip_data = json.loads(br.open('https://ipapi.co//json').read())
         br = BasicNewsRecipe.get_browser(self)
         url = 'https://www.irishtimes.com/signin'
         deviceid = str(uuid4()).replace('-', '')
         # Enable debug stuff?
         # br.set_debug_http(True)
         br.open(url).read()
+        from pprint import pprint
+        pprint(ip_data)
+        br.set_cookie('IT_country', ip_data['country_code'], '.irishtimes.com')
+        br.set_cookie('IT_eu', 'true' if ip_data['in_eu'] else 'false', '.irishtimes.com')
         rurl = 'https://www.irishtimes.com/auth-rest-api/v1/paywall/login'
         rq = Request(rurl, headers={
             'Accept': '*/*',
             'Accept-Language': 'en-US,en;q=0.5',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Origin': 'https://www.irishtimes.com',
             'Referer': url,
             'X-Requested-With': 'XMLHttpRequest',
-        },  data=urlencode({'username': self.username, 'password': self.password,'deviceid':deviceid, 'persistent':'on'}))
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+        },  data=urlencode({'username': self.username, 'password': self.password, 'deviceid':deviceid, 'persistent':'on', 'rid': ''}))
 
         r = br.open(rq)
         raw = r.read()
         data = json.loads(raw)
         # print(data)
         if r.code != 200 or b'user_id' not in raw:
+            pprint(data)
             raise ValueError('Failed to log in check username/password')
 
         # Set cookie
