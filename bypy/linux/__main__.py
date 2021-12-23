@@ -13,7 +13,7 @@ import time
 from functools import partial
 
 from bypy.constants import (
-    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
+    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version
 )
 from bypy.freeze import (
     extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
@@ -24,8 +24,10 @@ from bypy.utils import (
 
 j = os.path.join
 self_dir = os.path.dirname(os.path.abspath(__file__))
-arch = 'x86_64' if is64bit else 'i686'
-
+machine = (os.uname()[4] or '').lower()
+arch = 'x86_64'
+if machine.startswith('arm') or machine.startswith('aarch64'):
+    arch = 'arm64'
 py_ver = '.'.join(map(str, python_major_minor_version()))
 QT_PREFIX = os.path.join(PREFIX, 'qt')
 iv = globals()['init_env']

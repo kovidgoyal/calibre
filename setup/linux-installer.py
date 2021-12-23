@@ -25,6 +25,14 @@ if enc.lower() == 'ascii':
     enc = 'utf-8'
 dl_url = calibre_version = signature = None
 has_ssl_verify = hasattr(ssl, 'create_default_context')
+is_linux_arm = is_linux_arm64 = False
+machine = (os.uname()[4] or '').lower()
+arch = 'x86_64'
+if machine.startswith('arm') or machine.startswith('aarch64'):
+    is_linux_arm = True
+    is_linux_arm64 = machine.startswith('arm64') or machine.startswith('aarch64')
+    arch = 'arm64'
+
 
 if py3:
     unicode = str
@@ -320,9 +328,7 @@ def do_download(dest):
 
 
 def download_tarball():
-    fname = 'calibre-%s-i686.%s'%(calibre_version, 'txz')
-    if is64bit:
-        fname = fname.replace('i686', 'x86_64')
+    fname = 'calibre-%s-%s.%s'%(calibre_version, arch, 'txz')
     tdir = tempfile.gettempdir()
     cache = os.path.join(tdir, 'calibre-installer-cache')
     if not os.path.exists(cache):
@@ -648,14 +654,14 @@ def get_tarball_info(version):
     print('Downloading tarball signature securely...')
     if version:
         signature = get_https_resource_securely(
-                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz.sha512')
+                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + arch + '.txz.sha512')
         calibre_version = version
-        dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz'
+        dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + arch + '.txz'
     else:
         raw = get_https_resource_securely(
-                'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
+                'https://code.calibre-ebook.com/tarball-info/' + arch)
         signature, calibre_version = raw.rpartition(b'@')[::2]
-        dl_url = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
+        dl_url = 'https://calibre-ebook.com/dist/linux-' + arch
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
     dl_url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', dl_url)
@@ -763,11 +769,10 @@ def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False, version=None):
     if not ignore_umask and not isolated:
         check_umask()
-    machine = os.uname()[4]
-    if machine and machine.lower().startswith('arm') or machine.lower().startswith('aarch'):
+    if (is_linux_arm and not is_linux_arm64) or not is64bit:
         raise SystemExit(
-            'You are running on an ARM system. The calibre binaries are only'
-            ' available for x86 systems. You will have to compile from'
+            'You are running on a 32-bit system. The calibre binaries are only'
+            ' available for 64-bit systems. You will have to compile from'
             ' source.')
     check_glibc_version()
     run_installer(install_dir, isolated, bin_dir, share_dir, version)

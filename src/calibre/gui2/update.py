@@ -8,7 +8,7 @@ from qt.core import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon)
 
 from calibre.constants import (__appname__, __version__, iswindows, ismacos,
-        isportable, is64bit, numeric_version)
+        isportable, numeric_version)
 from calibre import prints, as_unicode
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_website_link
@@ -26,8 +26,6 @@ NO_CALIBRE_UPDATE = (0, 0, 0)
 def get_download_url():
     which = ('portable' if isportable else 'windows' if iswindows
             else 'osx' if ismacos else 'linux')
-    if which == 'windows' and is64bit:
-        which += '64'
     return localize_website_link('https://calibre-ebook.com/download_' + which)
 
 

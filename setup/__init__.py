@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import errno
 import os
-import platform
 import re
 import shutil
 import subprocess
@@ -18,7 +17,6 @@ import hashlib
 from contextlib import contextmanager
 from functools import lru_cache
 
-is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
 ismacos = 'darwin' in sys.platform
 isfreebsd = 'freebsd' in sys.platform
@@ -280,17 +278,12 @@ class Command:
             shutil.rmtree(ans)
 
 
-def installer_name(ext, is64bit=False):
-    if is64bit and ext == 'msi':
-        return 'dist/%s-64bit-%s.msi'%(__appname__, __version__)
-    if ext in ('exe', 'msi'):
-        return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
-    if ext == 'dmg':
-        if is64bit:
-            return 'dist/%s-%s-x86_64.%s'%(__appname__, __version__, ext)
-        return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
-
-    ans = 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
-    if is64bit:
-        ans = ans.replace('i686', 'x86_64')
-    return ans
+def installer_names(include_source=True):
+    base = f'dist/{__appname__}'
+    yield f'{base}-64bit-{__version__}.msi'
+    yield f'{base}-{__version__}.dmg'
+    yield f'{base}-portable-installer-{__version__}.exe'
+    for arch in ('x86_64', 'arm64'):
+        yield f'{base}-{__version__}-{arch}.txz'
+    if include_source:
+        yield f'{base}-{__version__}.tar.xz'

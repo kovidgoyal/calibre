@@ -34,7 +34,7 @@ if iswindows:
     wver = sys.getwindowsversion()
     isxp = wver.major < 6
     isoldvista = wver.build < 6002
-is64bit = sys.maxsize > (1 << 32)
+is64bit = True
 isworker = hasenv('CALIBRE_WORKER') or hasenv('CALIBRE_SIMPLE_WORKER')
 if isworker:
     os.environ.pop(environ_item('CALIBRE_FORCE_ANSI'), None)
@@ -412,8 +412,6 @@ def get_version():
             v = v[:-2]
     if is_running_from_develop:
         v += '*'
-    if iswindows and is64bit:
-        v += ' [64bit]'
 
     return v
 

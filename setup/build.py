@@ -182,7 +182,7 @@ is_macos_universal_build = ismacos and 'universal2' in sysconfig.get_platform()
 
 
 def init_env(debug=False, sanitize=False):
-    from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
+    from setup.build_environment import win_ld, win_inc, win_lib, NMAKE, win_cc
     linker = None
     if isunix:
         cc = os.environ.get('CC', 'gcc')
@@ -244,8 +244,7 @@ def init_env(debug=False, sanitize=False):
             ldflags.append('/DEBUG')
         # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
         # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
-        if is64bit:
-            cflags.append('/GS-')
+        cflags.append('/GS-')
 
         for p in win_inc:
             cflags.append('-I'+p)

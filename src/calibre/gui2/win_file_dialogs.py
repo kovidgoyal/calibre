@@ -13,7 +13,6 @@ from contextlib import suppress
 
 from polyglot.builtins import string_or_bytes
 
-is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialog.exe')
 current_app_uid = None
@@ -46,7 +45,7 @@ def get_hwnd(widget=None):
 def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
-    return struct.pack('=B4s' + ('Q' if is64bit else 'I'), 4, b'HWND', int(hwnd))
+    return struct.pack('=B4sQ', 4, b'HWND', int(hwnd))
 
 
 def serialize_secret(secret):
