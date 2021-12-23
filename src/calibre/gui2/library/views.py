@@ -1233,6 +1233,7 @@ class BooksView(QTableView):  # {{{
 
     def moveCursor(self, action, modifiers):
         orig = self.currentIndex()
+        action = QAbstractItemView.CursorAction(action)
         index = QTableView.moveCursor(self, action, modifiers)
         if action == QAbstractItemView.CursorAction.MovePageDown:
             moved = index.row() - orig.row()
