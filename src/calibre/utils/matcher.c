@@ -76,7 +76,7 @@ typedef struct {
 } StackItem;
 
 typedef struct {
-    ssize_t pos;
+    Py_ssize_t pos;
     int32_t needle_len;
     size_t size;
     StackItem *items;
