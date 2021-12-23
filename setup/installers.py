@@ -225,9 +225,9 @@ class ExportPackages(Command):
         exe = get_exe()
         for which in ('linux', 'macos', 'windows'):
             cmd = [exe, bypy, 'export'] + ['download.calibre-ebook.com:/srv/download/ci/calibre6'] + [which]
-        ret = subprocess.Popen(cmd).wait()
-        if ret != 0:
-            raise SystemExit(ret)
+            ret = subprocess.Popen(cmd).wait()
+            if ret != 0:
+                raise SystemExit(ret)
 
 
 class ExtDev(Command):
