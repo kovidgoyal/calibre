@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, subprocess, re, shutil
 from functools import lru_cache
 
-from setup import ismacos, iswindows, is64bit, islinux, ishaiku
+from setup import ismacos, iswindows, islinux, ishaiku
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
 
@@ -37,7 +37,7 @@ def merge_paths(a, b):
 
 if iswindows:
     from setup.vcvars import query_vcvarsall
-    env = query_vcvarsall(is64bit)
+    env = query_vcvarsall()
     win_path = env['PATH']
     os.environ['PATH'] = merge_paths(env['PATH'], os.environ['PATH'])
     NMAKE = 'nmake.exe'
