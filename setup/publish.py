@@ -7,8 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess, tempfile, json, time, filecmp, sys
 
-from setup import Command, __version__, require_clean_git, require_git_master
-from setup.upload import installers
+from setup import Command, __version__, require_clean_git, require_git_master, installer_names
 from setup.parallel_build import parallel_build, create_job
 
 
@@ -58,7 +57,7 @@ class Stage2(Command):
         p.communicate('\n'.join(session).encode('utf-8'))
         p.wait()
 
-        for installer in installers(include_source=False):
+        for installer in installer_names(include_source=False):
             installer = self.j(self.d(self.SRC), installer)
             if not os.path.exists(installer) or os.path.getsize(installer) < 10000:
                 raise SystemExit(
