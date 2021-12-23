@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, string, re, sys, errno
+import os, string, re, errno
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (
@@ -15,8 +15,6 @@ from pprint import pprint, pformat
 from polyglot.builtins import iteritems, itervalues
 
 from calibre import prints, as_unicode
-
-is64bit = sys.maxsize > (1 << 32)
 
 try:
     import winreg
@@ -622,7 +620,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
     detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
     # See http://stackoverflow.com/questions/10728644/properly-declare-sp-device-interface-detail-data-for-pinvoke
     # for why cbSize needs to be hardcoded below
-    detail.contents.cbSize = 8 if is64bit else 6
+    detail.contents.cbSize = 8
     required_size = DWORD(0)
     devinfo = SP_DEVINFO_DATA()
     devinfo.cbSize = sizeof(devinfo)
@@ -632,7 +630,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
             if err == ERROR_INSUFFICIENT_BUFFER:
                 buf = create_string_buffer(required_size.value + 50)
                 detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
-                detail.contents.cbSize = 8 if is64bit else 6
+                detail.contents.cbSize = 8
                 continue
             raise WinError(err)
         break

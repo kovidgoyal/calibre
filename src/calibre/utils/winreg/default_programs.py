@@ -9,7 +9,7 @@ from threading import Thread
 
 
 from calibre import guess_type, prints
-from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
+from calibre.constants import isportable, isfrozen, __version__, DEBUG
 from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
 from calibre.utils.lock import singleinstance
 from polyglot.builtins import iteritems, itervalues
@@ -23,25 +23,25 @@ def default_programs():
         'calibre.exe': {
             'icon_id':'main_icon',
             'description': _('The main calibre program, used to manage your collection of e-books'),
-            'capability_name': 'calibre' + ('64bit' if is64bit else ''),
-            'name': 'calibre' + (' 64-bit' if is64bit else ''),
-            'assoc_name': 'calibre' + ('64bit' if is64bit else ''),
+            'capability_name': 'calibre64bit',
+            'name': 'calibre 64-bit',
+            'assoc_name': 'calibre64bit',
         },
 
         'ebook-edit.exe': {
             'icon_id':'editor_icon',
             'description': _('The calibre E-book editor. It can be used to edit common e-book formats.'),
-            'capability_name': 'Editor' + ('64bit' if is64bit else ''),
-            'name': 'calibre Editor' + (' 64-bit' if is64bit else ''),
-            'assoc_name': 'calibreEditor' + ('64bit' if is64bit else ''),
+            'capability_name': 'Editor64bit',
+            'name': 'calibre Editor 64-bit',
+            'assoc_name': 'calibreEditor64bit',
         },
 
         'ebook-viewer.exe': {
             'icon_id':'viewer_icon',
             'description': _('The calibre E-book viewer. It can view most known e-book formats.'),
-            'capability_name': 'Viewer' + ('64bit' if is64bit else ''),
-            'name': 'calibre Viewer' + (' 64-bit' if is64bit else ''),
-            'assoc_name': 'calibreViewer' + ('64bit' if is64bit else ''),
+            'capability_name': 'Viewer64bit',
+            'name': 'calibre Viewer 64-bit',
+            'assoc_name': 'calibreViewer64bit',
         },
     }
 

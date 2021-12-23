@@ -16,7 +16,7 @@ import sys
 import zipfile
 
 from bypy.constants import (
-    CL, LINK, MT, PREFIX, RC, SIGNTOOL, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
+    CL, LINK, MT, PREFIX, RC, SIGNTOOL, SRC as CALIBRE_DIR, SW, build_dir,
     python_major_minor_version, worker_env
 )
 from bypy.freeze import (
@@ -32,7 +32,7 @@ QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MO
 
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 WINVER = VERSION + '.0'
-machine = 'X64' if is64bit else 'X86'
+machine = 'X64'
 j, d, a, b = os.path.join, os.path.dirname, os.path.abspath, os.path.basename
 create_installer = runpy.run_path(
     j(d(a(__file__)), 'wix.py'), {'calibre_constants': calibre_constants}
@@ -514,7 +514,7 @@ def build_launchers(env, incdir, debug=False):
 
 def copy_crt_and_d3d(env):
     printf('Copying CRT and D3D...')
-    plat = ('x64' if is64bit else 'x86')
+    plat = 'x64'
     for key, val in worker_env.items():
         if 'COMNTOOLS' in key.upper():
             redist_dir = os.path.dirname(os.path.dirname(val.rstrip(os.sep)))
@@ -533,7 +533,7 @@ def copy_crt_and_d3d(env):
         worker_env['WINDOWSSDKDIR'], 'Redist', 'D3D', plat)
     if not os.path.exists(d3d_path):
         raise SystemExit('Windows 10 D3D redistributable not found at: %r' % d3d_path)
-    mesa_path = os.path.join(os.environ['MESA'], ('64' if is64bit else '32'), 'opengl32sw.dll')
+    mesa_path = os.path.join(os.environ['MESA'], '64', 'opengl32sw.dll')
     if not os.path.exists(mesa_path):
         raise SystemExit('Mesa DLLs (opengl32sw.dll) not found at: %r' % mesa_path)
 
@@ -582,9 +582,8 @@ def main():
     if args.sign_installers:
         sign_executables(env)
     create_installer(env)
-    if not is64bit:
-        build_portable(env)
-        build_portable_installer(env)
+    build_portable(env)
+    build_portable_installer(env)
     if args.sign_installers:
         sign_installers(env)
 
