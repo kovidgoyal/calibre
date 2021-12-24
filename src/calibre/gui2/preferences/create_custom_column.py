@@ -733,8 +733,7 @@ class CreateNewCustomColumn(object):
             }
         dialog = CreateCustomColumn(gui, self, lookup_name, gui.library_view.model().orig_headers,
                                 freeze_key=freeze_key)
-        print(dialog.accepted, dialog.result())
-        if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key != None:
+        if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
             cc = self.custcols[lookup_name]
             db.create_custom_column(
                             label=cc['label'],
