@@ -173,7 +173,7 @@ output_callback(void *ctx, const void *buf, size_t size)
     DWORD written = 0;
 
     if (size > 0) {
-        if (!WriteFile(ds->out, buf, size, &written, NULL)) {
+        if (!WriteFile(ds->out, buf, (DWORD)size, &written, NULL)) {
             show_last_error(L"Failed to write uncompressed data to temp file");
             output_error_shown = 1;
             return 0;
@@ -515,7 +515,7 @@ void makedirs(LPWSTR path) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-	(void)hPrevInstance; (void)pCmdLine; (void)nCmdShow;
+	(void)hPrevInstance; (void)pCmdLine; (void)nCmdShow; (void)hInstance;
     LPVOID cdata = NULL;
     DWORD csz = 0;
     int ret = 1, argc;
