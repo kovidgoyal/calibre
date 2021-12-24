@@ -14,7 +14,7 @@ from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
-from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
+from calibre.gui2 import error_dialog, question_dialog
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -210,7 +210,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def add_custcol(self):
         model = self.gui.library_view.model()
-        CreateCustomColumn(self, None, None, model.orig_headers, ALL_COLUMNS)
+        CreateCustomColumn(self.gui, self, None, model.orig_headers)
         if self.cc_column_key is None:
             return
         row = self.opt_columns.rowCount()
@@ -225,7 +225,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             key = str(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
         except:
             key = ''
-        CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
+        CreateCustomColumn(self.gui, self, key, model.orig_headers)
         if self.cc_column_key is None:
             return
         self.setup_row(self.field_metadata, row, self.cc_column_key,

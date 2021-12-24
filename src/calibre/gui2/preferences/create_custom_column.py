@@ -7,7 +7,8 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to create a new custom column'''
 
-import re
+import copy, re
+from enum import Enum
 from functools import partial
 
 from qt.core import (
@@ -91,8 +92,9 @@ class CreateCustomColumn(QDialog):
     )))
     column_types_map = {k['datatype']:idx for idx, k in iteritems(column_types)}
 
-    def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
-        QDialog.__init__(self, parent)
+    def __init__(self, gui, caller, current_key, standard_colheads, freeze_key=False):
+        QDialog.__init__(self, gui)
+        self.gui = gui
         self.setup_ui()
         self.setWindowTitle(_('Create a custom column'))
         self.heading_label.setText('<b>' + _('Create a custom column'))
@@ -106,11 +108,10 @@ class CreateCustomColumn(QDialog):
         for sort_by in [_('Text'), _('Number'), _('Date'), _('Yes/No')]:
             self.composite_sort_by.addItem(sort_by)
 
-        self.parent = parent
-        self.parent.cc_column_key = None
-        self.editing_col = current_row is not None
+        self.caller = caller
+        self.caller.cc_column_key = None
+        self.editing_col = current_key is not None
         self.standard_colheads = standard_colheads
-        self.standard_colnames = standard_colnames
         self.column_type_box.setMaxVisibleItems(len(self.column_types))
         for t in self.column_types:
             self.column_type_box.addItem(self.column_types[t]['text'])
@@ -124,17 +125,15 @@ class CreateCustomColumn(QDialog):
         self.setWindowTitle(_('Edit custom column'))
         self.heading_label.setText('<b>' + _('Edit custom column'))
         self.shortcuts.setVisible(False)
-        idx = current_row
-        if idx < 0:
-            self.simple_error(_('No column selected'), _('No column has been selected'))
-            return
         col = current_key
-        if col not in parent.custcols:
+        if col not in caller.custcols:
             self.simple_error('', _('Selected column is not a user-defined column'))
             return
 
-        c = parent.custcols[col]
+        c = caller.custcols[col]
         self.column_name_box.setText(c['label'])
+        if freeze_key:
+            self.column_name_box.setEnabled(False)
         self.column_heading_box.setText(c['name'])
         self.column_heading_box.setFocus()
         ct = c['datatype']
@@ -511,21 +510,21 @@ class CreateCustomColumn(QDialog):
         if not col_heading:
             return self.simple_error('', _('No column heading was provided'))
 
-        db = self.parent.gui.library_view.model().db
+        db = self.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col
         bad_col = False
-        if key in self.parent.custcols:
+        if key in self.caller.custcols:
             if not self.editing_col or \
-                    self.parent.custcols[key]['colnum'] != self.orig_column_number:
+                    self.caller.custcols[key]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
 
         bad_head = False
-        for t in self.parent.custcols:
-            if self.parent.custcols[t]['name'] == col_heading:
+        for t in self.caller.custcols:
+            if self.caller.custcols[t]['name'] == col_heading:
                 if not self.editing_col or \
-                        self.parent.custcols[t]['colnum'] != self.orig_column_number:
+                        self.caller.custcols[t]['colnum'] != self.orig_column_number:
                     bad_head = True
         for t in self.standard_colheads:
             if self.standard_colheads[t] == col_heading:
@@ -647,7 +646,7 @@ class CreateCustomColumn(QDialog):
         display_dict['description'] = self.description_box.text().strip()
 
         if not self.editing_col:
-            self.parent.custcols[key] = {
+            self.caller.custcols[key] = {
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
@@ -656,17 +655,93 @@ class CreateCustomColumn(QDialog):
                     'colnum':None,
                     'is_multiple':is_multiple,
                 }
-            self.parent.cc_column_key = key
+            self.caller.cc_column_key = key
         else:
-            self.parent.custcols[self.orig_column_name]['label'] = col
-            self.parent.custcols[self.orig_column_name]['name'] = col_heading
+            cc = self.caller.custcols[self.orig_column_name]
+            cc['label'] = col
+            cc['name'] = col_heading
             # Remove any previous default value
-            self.parent.custcols[self.orig_column_name]['display'].pop('default_value', None)
-            self.parent.custcols[self.orig_column_name]['display'].update(display_dict)
-            self.parent.custcols[self.orig_column_name]['*edited'] = True
-            self.parent.custcols[self.orig_column_name]['*must_restart'] = True
-            self.parent.cc_column_key = key
+            cc['display'].pop('default_value', None)
+            cc['display'].update(display_dict)
+            cc['*edited'] = True
+            cc['*must_restart'] = True
+            self.caller.cc_column_key = key
         QDialog.accept(self)
 
     def reject(self):
         QDialog.reject(self)
+
+
+class CreateNewCustomColumn(object):
+
+    class Result(Enum):
+        COLUMN_ADDED = 0
+        CANCELED = 1
+        INVALID_KEY = 2
+        DUPLICATE_KEY = 3
+        INVALID_TYPE = 4
+        INVALID_IS_MULTIPLE = 5
+
+    '''
+    Open a dialog to create a new custom column with given lookup_name,
+    column_heading, datatype, and is_multiple. The lookup name must begin with
+    a '#' and must not already exist. The datatype must be valid and is_multiple
+    must be valid for that datatype. The user cannot change the datatype.
+
+    Set freeze_key to False if you want to allow the user choose a different
+    lookup name. The proposed lookup name still must not exist, and the user
+    will not be allowed to choose the lookup name of an existing column.
+
+    The parameter 'gui' is the main calibre gui (calibre.gui2.ui.get_gui())
+
+    The method returns a tuple (Result.enum_value, message). If tuple[0] is
+    Result.COLUMN_ADDED then the message is the lookup name including the '#',
+    otherwise it is a potentially localized error message. You or the user must
+    restart calibre for the column to be actually added.
+
+    Usage:
+        from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
+        result = CreateNewCustomColumn().create_new_custom_column(....)
+        if result[0] == CreateNewCustomColumn.Result.COLUMN_ADDED:
+    '''
+
+    def create_new_custom_column(self, gui, lookup_name, column_heading,
+                                 datatype, is_multiple, freeze_key=True):
+        db = gui.library_view.model().db
+        self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
+        if not lookup_name.startswith('#'):
+            return (self.Result.INVALID_KEY, _("The lookup name must begin with a '#'"))
+        if lookup_name in self.custcols:
+            return(self.Result.DUPLICATE_KEY, _("The custom column %s already exists") % lookup_name)
+        if datatype not in CreateCustomColumn.column_types_map:
+            return(self.Result.INVALID_TYPE,
+                   _("The custom column type %s doesn't exist") % datatype)
+        if is_multiple and '*' + datatype not in CreateCustomColumn.column_types_map:
+            return(self.Result.INVALID_IS_MULTIPLE,
+                   _("You cannot specify is_multiple for the datatype %s") % datatype)
+        if not column_heading:
+            column_heading = lookup_name
+        self.key = lookup_name
+        self.custcols[lookup_name] = {
+                'label': lookup_name,
+                'name': column_heading,
+                'datatype': datatype,
+                'display': {},
+                'normalized': None,
+                'colnum': None,
+                'is_multiple': is_multiple,
+            }
+        dialog = CreateCustomColumn(gui, self, lookup_name, gui.library_view.model().orig_headers,
+                                freeze_key=freeze_key)
+        print(dialog.accepted, dialog.result())
+        if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key != None:
+            cc = self.custcols[lookup_name]
+            db.create_custom_column(
+                            label=cc['label'],
+                            name=cc['name'],
+                            datatype=cc['datatype'],
+                            is_multiple=cc['is_multiple'],
+                            display=cc['display'])
+            gui.must_restart_before_config = True
+            return ((self.Result.COLUMN_ADDED, self.cc_column_key))
+        return (self.Result.CANCELED, _('Canceled'))
