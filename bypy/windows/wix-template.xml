@@ -39,6 +39,14 @@
             Language="1033"
             Property="NEWPRODUCTFOUND"/>
     </Upgrade>
+    <Upgrade Id="BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1">
+        <UpgradeVersion Maximum="{version}"
+            IncludeMaximum="yes"
+            OnlyDetect="no"
+            Language="1033"
+            MigrateFeatures="yes"
+            Property="THIRTYTWOBITINSTALLFOUND"/>
+    </Upgrade>
     <CustomAction Id="PreventDowngrading" Error="Newer version of {app} already installed. If you want to downgrade you must uninstall {app} first."/>
 
     <Property Id="APPLICATIONFOLDER">
