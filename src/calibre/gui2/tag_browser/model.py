@@ -56,13 +56,14 @@ class TagTreeItem:  # {{{
     file_icon_provider = None
 
     def __init__(self, data=None, is_category=False, icon_map=None,
-                 parent=None, tooltip=None, category_key=None, temporary=False):
+                 parent=None, tooltip=None, category_key=None, temporary=False,
+                 is_gst=False):
         if self.file_icon_provider is None:
             self.file_icon_provider = TagTreeItem.file_icon_provider = file_icon_provider().icon_from_ext
         self.parent = parent
         self.children = []
         self.blank = QIcon()
-        self.is_gst = False
+        self.is_gst = is_gst
         self.boxed = False
         self.temporary = False
         self.can_be_edited = False
@@ -103,6 +104,12 @@ class TagTreeItem:  # {{{
         del self.parent
         del self.children
 
+    def root_node(self):
+        p = self
+        while p.parent.type != self.ROOT:
+            p = p.parent
+        return p
+
     def ensure_icon(self):
         if self.icon_state_map[0] is not None:
             return
@@ -111,7 +118,10 @@ class TagTreeItem:  # {{{
                 fmt = self.tag.original_name.replace('ORIGINAL_', '')
                 cc = self.file_icon_provider(fmt)
             else:
-                cc = self.category_custom_icons.get(self.tag.category, None)
+                if self.is_gst:
+                    cc = self.category_custom_icons.get(self.root_node().category_key, None)
+                else:
+                    cc = self.category_custom_icons.get(self.tag.category, None)
         elif self.type == self.CATEGORY:
             cc = self.category_custom_icons.get(self.category_key, None)
         self.icon_state_map[0] = cc or QIcon()
@@ -461,6 +471,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         node = self.create_node(parent=last_category_node,
                                    data=p[1:] if i == 0 else p,
                                    is_category=True,
+                                   is_gst = is_gst,
                                    tooltip=tt if path == key else path,
                                    category_key=path,
                                    icon_map=self.icon_state_map)
@@ -468,7 +479,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                         category_node_map[path] = node
                         self.category_nodes.append(node)
                         node.can_be_edited = (not is_gst) and (i == (len(path_parts)-1))
-                        node.is_gst = is_gst
                         if not is_gst:
                             node.tag.is_hierarchical = '5state'
                             tree_root[p] = {}
@@ -481,9 +491,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                 node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
                                    is_category=True,
+                                   is_gst = False,
                                    tooltip=tt, category_key=key,
                                    icon_map=self.icon_state_map)
-                node.is_gst = False
                 category_node_map[key] = node
                 last_category_node = node
                 self.category_nodes.append(node)
@@ -663,10 +673,10 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 sub_cat = self.create_node(parent=category, data=name,
                                      tooltip=None, temporary=True,
                                      is_category=True,
+                                     is_gst=is_gst,
                                      category_key=category.category_key,
                                      icon_map=self.icon_state_map)
                                 sub_cat.tag.is_searchable = False
-                                sub_cat.is_gst = is_gst
                                 node_parent = sub_cat
                             last_idx = idx  # remember where we last partitioned
                         else:
@@ -678,10 +688,10 @@ class TagsModel(QAbstractItemModel):  # {{{
                             sub_cat = self.create_node(parent=category,
                                      data=collapse_letter,
                                      is_category=True,
+                                     is_gst=is_gst,
                                      tooltip=None, temporary=True,
                                      category_key=category.category_key,
                                      icon_map=self.icon_state_map)
-                        sub_cat.is_gst = is_gst
                         node_parent = sub_cat
                 else:
                     node_parent = category
@@ -698,28 +708,29 @@ class TagsModel(QAbstractItemModel):  # {{{
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         not category_is_hierarchical or len(components) == 1):
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
-                                    icon_map=self.icon_state_map)
+                                    is_gst=is_gst, icon_map=self.icon_state_map)
                     category_child_map[tag.name, tag.category] = n
                 else:
+                    child_key = key if is_gst else tag.category
                     for i,comp in enumerate(components):
                         if i == 0:
                             child_map = category_child_map
                             top_level_component = comp
                         else:
-                            child_map = {(t.tag.name, t.tag.category): t
-                                        for t in node_parent.children
+                            child_map = {(t.tag.name, key if is_gst else t.tag.category):
+                                         t for t in node_parent.children
                                             if t.type != TagTreeItem.CATEGORY}
-                        if (comp,tag.category) in child_map:
-                            node_parent = child_map[(comp,tag.category)]
+                        if (comp,child_key) in child_map:
+                            node_parent = child_map[(comp,child_key)]
                             t = node_parent.tag
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
                             if tag.id_set is not None and t.id_set is not None:
                                 t.id_set = t.id_set | tag.id_set
-                            intermediate_nodes[t.original_name, t.category] = t
+                            intermediate_nodes[t.original_name,child_key] = t
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
-                                t = intermediate_nodes.get((original_name, tag.category), None)
+                                t = intermediate_nodes.get((original_name, child_key), None)
                                 if t is None:
                                     t = copy.copy(tag)
                                     t.original_name = original_name
@@ -730,18 +741,19 @@ class TagsModel(QAbstractItemModel):  # {{{
                                         t.is_editable = False
                                     else:
                                         t.is_searchable = t.is_editable = False
-                                    intermediate_nodes[original_name, tag.category] = t
+                                    intermediate_nodes[original_name,child_key] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                                intermediate_nodes[t.original_name, t.category] = t
+                                intermediate_nodes[t.original_name,child_key] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
-                            node_parent = self.create_node(parent=node_parent, data=t,
-                                            tooltip=tt, icon_map=self.icon_state_map)
-                            child_map[(comp,tag.category)] = node_parent
+                            node_parent = self.create_node(parent=node_parent,
+                                               data=t, is_gst=is_gst, tooltip=tt,
+                                               icon_map=self.icon_state_map)
+                            child_map[(comp, child_key)] = node_parent
 
                         # Correct the average rating for the node
                         total = count = 0
