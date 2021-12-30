@@ -651,11 +651,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.initialize()
         self.qv_display_model.initialize()
         db = self.gui.current_db
+        mi = []
         try:
-            idx = self.gui.library_view.currentIndex().row()
-            mi = db.get_metadata(idx, index_is_id=False)
+            rows = self.gui.current_view().selectionModel().selectedRows()
+            for row in rows:
+                if row.isValid():
+                    mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
         except:
-            mi=None
+            pass
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
         self.grid_rules.initialize(db.field_metadata, db.prefs, mi, 'cover_grid_icon_rules')
