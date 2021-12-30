@@ -681,6 +681,7 @@ class CreateNewCustomColumn(object):
         DUPLICATE_KEY = 3
         INVALID_TYPE = 4
         INVALID_IS_MULTIPLE = 5
+        INVALID_DISPLAY = 6
 
     '''
     Open a dialog to create a new custom column with given lookup_name,
@@ -694,6 +695,38 @@ class CreateNewCustomColumn(object):
 
     The parameter 'gui' is the main calibre gui (calibre.gui2.ui.get_gui())
 
+    The 'display' parameter is used to pass item- and type-specific information
+    for the column. It is a dict. The easiest way to see the current values for
+    'display' for a particular column is to create a column like you want then
+    look for the lookup name in the file metadata_db_prefs_backup.json.
+
+    The key:value pairs for each type are:
+      all types:
+        'default_value': a string representation of the default value for the column
+        'description': a string containing the column description
+      comments columns:
+        'heading_position': a string specifying where a comment heading goes: hide, above, side
+        'interpret_as': a string specifying the comment's purpose: html, short-text, long-text, markdown
+      composite columns:
+        'composite_template': the template for a composite column
+        'composite_sort': a string specifying how the composite is to be sorted
+        'make_category': True or False -- whether the column is in the tag browser
+        'contains_html': True or False -- whether the column is HTML
+        'use_decorations': True or False -- should check marks be displayed
+      datetime columns:
+        'date_format': a string specifying the format
+      enumerated columns
+        'enum_values': a string containing comma-separated valid values for an enumeration
+        'enum_colors': a string containing comma-separated colors for an enumeration
+        'use_decorations': True or False -- should check marks be displayed
+      float and int columns:
+        'number_format': the format to apply for numeric columns
+      rating columns:
+        'allow_half_stars': True or False -- are half-stars allowed
+      text columns:
+        'is_names': True or False -- whether the items are comma or ampersand separated
+        'use_decorations': True or False -- should check marks be displayed
+
     The method returns a tuple (Result.enum_value, message). If tuple[0] is
     Result.COLUMN_ADDED then the message is the lookup name including the '#',
     otherwise it is a potentially localized error message. You or the user must
@@ -706,7 +739,7 @@ class CreateNewCustomColumn(object):
     '''
 
     def create_new_custom_column(self, gui, lookup_name, column_heading,
-                                 datatype, is_multiple, freeze_key=True):
+                                 datatype, is_multiple, display={}, freeze_key=True):
         db = gui.library_view.model().db
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
         if not lookup_name.startswith('#'):
@@ -719,6 +752,10 @@ class CreateNewCustomColumn(object):
         if is_multiple and '*' + datatype not in CreateCustomColumn.column_types_map:
             return(self.Result.INVALID_IS_MULTIPLE,
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
+        if not isinstance(display, dict):
+            return(self.Result.INVALID_DISPLAY,
+                   _("The display parameter must a python dictionary"))
+
         if not column_heading:
             column_heading = lookup_name
         self.key = lookup_name
@@ -726,7 +763,7 @@ class CreateNewCustomColumn(object):
                 'label': lookup_name,
                 'name': column_heading,
                 'datatype': datatype,
-                'display': {},
+                'display': display,
                 'normalized': None,
                 'colnum': None,
                 'is_multiple': is_multiple,
