@@ -700,21 +700,25 @@ class CreateNewCustomColumn(object):
     'display' for a particular column is to create a column like you want then
     look for the lookup name in the file metadata_db_prefs_backup.json.
 
-    The key:value pairs for each type are:
+    The permitted key:value pairs for each type are as follows. Note that this
+    list might be incorrect. As said above, the best way to get current values
+    is to create a similar column and look at the values in 'display'.
       all types:
-        'default_value': a string representation of the default value for the column
-        'description': a string containing the column description
+        'default_value': a string representation of the default value for the
+                column. Permitted values are type specific
+        'description': a string containing the column's description
       comments columns:
         'heading_position': a string specifying where a comment heading goes: hide, above, side
-        'interpret_as': a string specifying the comment's purpose: html, short-text, long-text, markdown
+        'interpret_as': a string specifying the comment's purpose:
+                html, short-text, long-text, markdown
       composite columns:
         'composite_template': the template for a composite column
         'composite_sort': a string specifying how the composite is to be sorted
-        'make_category': True or False -- whether the column is in the tag browser
-        'contains_html': True or False -- whether the column is HTML
+        'make_category': True or False -- whether the column is shown in the tag browser
+        'contains_html': True or False -- whether the column is interpreted as HTML
         'use_decorations': True or False -- should check marks be displayed
       datetime columns:
-        'date_format': a string specifying the format
+        'date_format': a string specifying the display format
       enumerated columns
         'enum_values': a string containing comma-separated valid values for an enumeration
         'enum_colors': a string containing comma-separated colors for an enumeration
@@ -727,10 +731,10 @@ class CreateNewCustomColumn(object):
         'is_names': True or False -- whether the items are comma or ampersand separated
         'use_decorations': True or False -- should check marks be displayed
 
-    The method returns a tuple (Result.enum_value, message). If tuple[0] is
-    Result.COLUMN_ADDED then the message is the lookup name including the '#',
-    otherwise it is a potentially localized error message. You or the user must
-    restart calibre for the column to be actually added.
+    This method returns a tuple (Result.enum_value, message). If tuple[0] is
+    Result.COLUMN_ADDED then the message is the lookup name including the '#'.
+    You or the user must restart calibre for the column to be actually added.
+    Otherwise it is a potentially localized error message.
 
     Usage:
         from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
@@ -754,7 +758,7 @@ class CreateNewCustomColumn(object):
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
         if not isinstance(display, dict):
             return(self.Result.INVALID_DISPLAY,
-                   _("The display parameter must a python dictionary"))
+                   _("The display parameter must a python dict"))
 
         if not column_heading:
             column_heading = lookup_name
