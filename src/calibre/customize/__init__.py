@@ -512,7 +512,7 @@ class CatalogPlugin(Plugin):  # {{{
 
         db.search(opts.search_text)
 
-        if opts.sort_by:
+        if getattr(opts, 'sort_by', None):
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
         return db.get_data_as_dict(ids=opts.ids)
@@ -530,7 +530,7 @@ class CatalogPlugin(Plugin):  # {{{
                 all_custom_fields.add(field+'_index')
         all_fields = all_std_fields.union(all_custom_fields)
 
-        if opts.fields != 'all':
+        if getattr(opts, 'fields', 'all') != 'all':
             # Make a list from opts.fields
             of = [x.strip() for x in opts.fields.split(',')]
             requested_fields = set(of)
