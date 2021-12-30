@@ -23,18 +23,18 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     no_stylesheets = True
     keep_only_tags = [
-        classes('content-body article-header featured-img'),
+        classes('Article-header Article-excerpt Article-author Article-thumbnail Article-bodyText'),
     ]
 
     def parse_section_index(self, slug):
         soup = self.index_to_soup('https://www.popsci.com/{}/'.format(slug))
-        main = soup.find(**classes('main-module'))
-        for div in main.findAll(**classes('main-item')):
-            a = div.find('a', href=True, **classes('linkable'))
+        main = soup.find(**classes('main-content'))
+        for div in main.findAll(**classes('Post')):
+            a = div.find('a', href=True, **classes('Post-link'))
             url = a['href']
-            title = self.tag_to_string(a.find(**classes('title')))
+            title = self.tag_to_string(div.find(**classes('Post-title')))
             desc = ''
-            dek = a.find(**classes('dek'))
+            dek = div.find(**classes('Post-excerpt'))
             if dek is not None:
                 desc = self.tag_to_string(dek)
             self.log(' ', title, url)
