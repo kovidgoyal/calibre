@@ -34,14 +34,11 @@ class Clarin(BasicNewsRecipe):
     needs_subscription = 'optional'
     INDEX = 'http://www.clarin.com'
     LOGIN = 'https://app-pase.clarin.com/pase-registracion/app/pase/ingresarNavegable?execution=e1s1'
-    masthead_url = 'http://www.clarin.com/images/logo_clarin.svg'
     cover_url = strftime('http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
 
     compress_news_images = True
     scale_news_images_to_device = True
     compress_news_images_max_size = 10  # kB
-    scale_news_images = True
-    handle_gzip = True
 
     # To get all the data (images)
     auto_cleanup = False
@@ -132,7 +129,7 @@ class Clarin(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for img in soup.findAll(['img']):
+        for img in soup.findAll(['img'], attrs={'data-big': True}):
             img['src'] = img['data-big']
 
         for figCaption in soup.findAll(['figcaption']):
