@@ -92,7 +92,7 @@ class CreateCustomColumn(QDialog):
     )))
     column_types_map = {k['datatype']:idx for idx, k in iteritems(column_types)}
 
-    def __init__(self, gui, caller, current_key, standard_colheads, freeze_key=False):
+    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.setup_ui()
@@ -132,7 +132,7 @@ class CreateCustomColumn(QDialog):
 
         c = caller.custcols[col]
         self.column_name_box.setText(c['label'])
-        if freeze_key:
+        if freeze_lookup_name:
             self.column_name_box.setEnabled(False)
         self.column_heading_box.setText(c['name'])
         self.column_heading_box.setFocus()
@@ -674,26 +674,24 @@ class CreateCustomColumn(QDialog):
 
 class CreateNewCustomColumn(object):
 
-    class Result(Enum):
-        COLUMN_ADDED = 0
-        CANCELED = 1
-        INVALID_KEY = 2
-        DUPLICATE_KEY = 3
-        INVALID_TYPE = 4
-        INVALID_IS_MULTIPLE = 5
-        INVALID_DISPLAY = 6
-
     '''
     Open a dialog to create a new custom column with given lookup_name,
     column_heading, datatype, and is_multiple. The lookup name must begin with
-    a '#' and must not already exist. The datatype must be valid and is_multiple
-    must be valid for that datatype. The user cannot change the datatype.
+    a '#'. The datatype must be valid and is_multiple must be valid for that
+    datatype. The user cannot change the datatype.
 
-    Set freeze_key to False if you want to allow the user choose a different
-    lookup name. The proposed lookup name still must not exist, and the user
-    will not be allowed to choose the lookup name of an existing column.
+    If generate_unused_lookup_name is False then the provided lookup_name must
+    not already exist. If generate_unused_lookup_name is True then if necessary
+    the method will add the suffix '_n' to the provided lookup_name to allocate
+    a new lookup_name, where 'n' is an integer. It could be that if a new
+    lookup name is generated then the user will be required to change the
+    column heading to make it is unique.
 
-    The parameter 'gui' is the main calibre gui (calibre.gui2.ui.get_gui())
+    Set freeze_lookup_name to False if you want to allow the user choose a
+    different lookup name. The user will not be allowed to choose the lookup
+    name of an existing column. The provided lookup_name must be unique or
+    generate_unused_lookup_name must be True regardless of the value of
+    freeze_lookup_name.
 
     The 'display' parameter is used to pass item- and type-specific information
     for the column. It is a dict. The easiest way to see the current values for
@@ -705,12 +703,12 @@ class CreateNewCustomColumn(object):
     is to create a similar column and look at the values in 'display'.
       all types:
         'default_value': a string representation of the default value for the
-                column. Permitted values are type specific
+                         column. Permitted values are type specific
         'description': a string containing the column's description
       comments columns:
         'heading_position': a string specifying where a comment heading goes: hide, above, side
         'interpret_as': a string specifying the comment's purpose:
-                html, short-text, long-text, markdown
+                        html, short-text, long-text, markdown
       composite columns:
         'composite_template': the template for a composite column
         'composite_sort': a string specifying how the composite is to be sorted
@@ -736,20 +734,53 @@ class CreateNewCustomColumn(object):
     You or the user must restart calibre for the column to be actually added.
     Otherwise it is a potentially localized error message.
 
+    The method returns Result.MUST_RESTART if further calibre configuration has
+    been blocked. You can check for this situation by calling must_restart(gui).
+
+    The parameter 'gui' passed when creating a class instance is the main
+    calibre gui (calibre.gui2.ui.get_gui())
+
     Usage:
         from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
-        result = CreateNewCustomColumn().create_new_custom_column(....)
-        if result[0] == CreateNewCustomColumn.Result.COLUMN_ADDED:
+        c = CreateNewCustomColumn(gui)
+        if c.must_restart():
+                ...
+        else:
+            result = c.create_new_custom_column(....)
+            if result[0] == CreateNewCustomColumn.Result.COLUMN_ADDED:
     '''
 
-    def create_new_custom_column(self, gui, lookup_name, column_heading,
-                                 datatype, is_multiple, display={}, freeze_key=True):
-        db = gui.library_view.model().db
+    class Result(Enum):
+        COLUMN_ADDED = 0
+        CANCELED = 1
+        INVALID_KEY = 2
+        DUPLICATE_KEY = 3
+        INVALID_TYPE = 4
+        INVALID_IS_MULTIPLE = 5
+        INVALID_DISPLAY = 6
+        MUST_RESTART = 7
+
+    def __init__(self, gui):
+        self.gui = gui
+
+    def create_new_custom_column(self, lookup_name, column_heading,
+                                 datatype, is_multiple, display={},
+                                 generate_unused_lookup_name=False,
+                                 freeze_lookup_name=True):
+        if self.must_restart():
+            return (self.Result.MUST_RESTART, _("You must restart calibre before making any more changes"))
+        db = self.gui.library_view.model().db
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
         if not lookup_name.startswith('#'):
             return (self.Result.INVALID_KEY, _("The lookup name must begin with a '#'"))
         if lookup_name in self.custcols:
-            return(self.Result.DUPLICATE_KEY, _("The custom column %s already exists") % lookup_name)
+            if not generate_unused_lookup_name:
+                return(self.Result.DUPLICATE_KEY, _("The custom column %s already exists") % lookup_name)
+            for i in range(1, 10000):
+                nk = '%s_%d'%(lookup_name, i)
+                if nk not in self.custcols:
+                    lookup_name = nk
+                    break
         if datatype not in CreateCustomColumn.column_types_map:
             return(self.Result.INVALID_TYPE,
                    _("The custom column type %s doesn't exist") % datatype)
@@ -772,8 +803,8 @@ class CreateNewCustomColumn(object):
                 'colnum': None,
                 'is_multiple': is_multiple,
             }
-        dialog = CreateCustomColumn(gui, self, lookup_name, gui.library_view.model().orig_headers,
-                                freeze_key=freeze_key)
+        dialog = CreateCustomColumn(self.gui, self, lookup_name, self.gui.library_view.model().orig_headers,
+                                freeze_lookup_name=freeze_lookup_name)
         if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
             cc = self.custcols[lookup_name]
             db.create_custom_column(
@@ -782,6 +813,9 @@ class CreateNewCustomColumn(object):
                             datatype=cc['datatype'],
                             is_multiple=cc['is_multiple'],
                             display=cc['display'])
-            gui.must_restart_before_config = True
+            self.gui.must_restart_before_config = True
             return ((self.Result.COLUMN_ADDED, self.cc_column_key))
         return (self.Result.CANCELED, _('Canceled'))
+
+    def must_restart(self):
+        return self.gui.must_restart_before_config
