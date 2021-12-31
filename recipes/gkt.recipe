@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class GKT(BasicNewsRecipe):
@@ -12,33 +12,36 @@ class GKT(BasicNewsRecipe):
     no_javascript = True
     auto_cleanup = True
 
-    def parse_gkt_section(self, url, ignore_error=False):
-        try:
-            root = self.index_to_soup(url, as_tree=True)
-        except Exception:
-            if ignore_error:
-                return
-            raise
-        for a in root.xpath('//div[@class="posts-listing"]/h1/a[@href]'):
-            title = self.tag_to_string(a).strip()
-            url = a.get('href')
-            if title and url:
-                self.log('\tFound article:', title, 'at', url)
-                yield {'title': title, 'url': url}
-
     def parse_index(self):
-        url = 'http://www.gktoday.in/'
-        root = self.index_to_soup(url, as_tree=True)
-        ans = []
-        h3 = root.xpath('//h3[@class="widget-title"]')[1]
-        for a in h3.getparent().xpath('descendant::li/a[@href]'):
-            category = self.tag_to_string(a).strip()
-            if 'PDF' in category or not category:
-                continue
-            url = a.get('href')
-            self.log('Found section:', category, 'at', url)
-            articles = list(self.parse_gkt_section(url)) + \
-                list(self.parse_gkt_section(url + '/page/2', ignore_error=True))
-            if articles:
-                ans.append((category, articles))
-        return ans
+        securl = 'https://www.gktoday.in/current-affairs/'
+        ans = {}
+
+        def p_tags(h1):
+            for sib in h1.next_siblings:
+                if sib.name == 'h1':
+                    break
+                if sib.name == 'p':
+                    yield sib
+
+        def find_cat(ps):
+            for p in ps:
+                for a in p.findAll('a', rel='tag'):
+                    return self.tag_to_string(a)
+
+        for i in range(1, 6):
+            page = '' if i == 1 else 'page/' + str(i)
+            self.log('Trying:', securl + page)
+            soup = self.index_to_soup(securl + page)
+            container = soup.find(**classes('left_middle_content'))
+            for h1 in container.findAll('h1'):
+                title = self.tag_to_string(h1)
+                a = h1.find('a')
+                if a is None:
+                    continue
+                url = a['href']
+                ps = tuple(p_tags(h1))
+                category = find_cat(ps) or 'Unknown'
+                ans.setdefault(category, []).append({
+                    'title': title, 'url': url, 'description': self.tag_to_string(ps[0])})
+                self.log('\t' + title + ' ' + url)
+        return list(ans.items())
