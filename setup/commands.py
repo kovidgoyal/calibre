@@ -23,9 +23,9 @@ __all__ = [
     'export_packages', 'hyphenation', 'liberation_fonts', 'csslint'
 ]
 
-from setup.installers import Linux, Win, OSX, Linux32, Linux64, LinuxArm64, Win32, Win64, ExtDev, BuildDep, ExportPackages
-linux, linux32, linux64, linuxarm64 = Linux(), Linux32(), Linux64(), LinuxArm64()
-win, win32, win64 = Win(), Win32(), Win64()
+from setup.installers import Linux, Win, OSX, Linux64, LinuxArm64, Win64, ExtDev, BuildDep, ExportPackages
+linux, linux64, linuxarm64 = Linux(), Linux64(), LinuxArm64()
+win, win64 = Win(), Win64()
 osx = OSX()
 extdev = ExtDev()
 build_dep = BuildDep()
