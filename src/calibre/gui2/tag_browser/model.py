@@ -471,7 +471,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         node = self.create_node(parent=last_category_node,
                                    data=p[1:] if i == 0 else p,
                                    is_category=True,
-                                   is_gst = is_gst,
+                                   is_gst=is_gst,
                                    tooltip=tt if path == key else path,
                                    category_key=path,
                                    icon_map=self.icon_state_map)
@@ -491,7 +491,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
                                    is_category=True,
-                                   is_gst = False,
+                                   is_gst=False,
                                    tooltip=tt, category_key=key,
                                    icon_map=self.icon_state_map)
                 category_node_map[key] = node
