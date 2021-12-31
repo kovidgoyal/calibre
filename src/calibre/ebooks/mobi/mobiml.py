@@ -6,14 +6,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
 import copy
-import re
 import numbers
+import re
+from contextlib import suppress
 from lxml import etree
-from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, urlnormalize
+
+from calibre.ebooks.mobi.utils import convert_color_for_font_tag
+from calibre.ebooks.oeb.base import (
+    XHTML, XHTML_NS, barename, namespace, urlnormalize
+)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
-from calibre.ebooks.mobi.utils import convert_color_for_font_tag
 from calibre.utils.imghdr import identify
 from polyglot.builtins import string_or_bytes
 
@@ -55,7 +58,8 @@ def convert_margin(style, which):
     ans = asfloat(style[which])
     raw = style._get(which)
     if isinstance(raw, str) and '%' in raw:
-        ans = min(style._unit_convert(raw, base=600), ans)
+        with suppress(TypeError):
+            ans = min(style._unit_convert(raw, base=600), ans)
     return ans
 
 
