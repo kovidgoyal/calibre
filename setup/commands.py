@@ -19,7 +19,7 @@ __all__ = [
     'upload_installers',
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
-    'linux', 'linux32', 'linux64', 'linuxarm64', 'win', 'win32', 'win64', 'osx', 'build_dep',
+    'linux', 'linux64', 'linuxarm64', 'win', 'win64', 'osx', 'build_dep',
     'export_packages', 'hyphenation', 'liberation_fonts', 'csslint'
 ]
 
