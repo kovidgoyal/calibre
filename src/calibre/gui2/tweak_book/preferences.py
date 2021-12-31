@@ -344,12 +344,23 @@ class PreviewSettings(BasicSettings):  # {{{
         BasicSettings.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
+        self.default_font_settings = {}
 
         def default_font(which):
-            from qt.webengine import QWebEngineSettings
-            s = QWebEngineSettings.defaultSettings()
-            which = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[which])
-            return s.fontFamily(which)
+            if not self.default_font_settings:
+                from qt.webengine import QWebEngineSettings
+                try:
+                    s = QWebEngineSettings.defaultSettings()
+                except AttributeError:  # PyQt6 bug
+                    from qt.webengine import QWebEnginePage
+                    page = QWebEnginePage()
+                    s = page.settings()
+                self.default_font_settings = {
+                    'serif': s.fontFamily(QWebEngineSettings.FontFamily.SerifFont),
+                    'sans': s.fontFamily(QWebEngineSettings.FontFamily.SansSerifFont),
+                    'mono': s.fontFamily(QWebEngineSettings.FontFamily.FixedFont),
+                }
+            return self.default_font_settings[which]
 
         def family_getter(which, w):
             ans = str(w.currentFont().family())
