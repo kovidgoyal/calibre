@@ -164,6 +164,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def clear_history(self):
         config[self.opt_name] = []
+        super().clear()
         self.clear()
     clear_search_history = clear_history
 
