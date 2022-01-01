@@ -61,7 +61,7 @@ class HeaderView(QHeaderView):  # {{{
 
     def event(self, e):
         if e.type() in (QEvent.Type.HoverMove, QEvent.Type.HoverEnter):
-            self.hover = self.logicalIndexAt(e.pos())
+            self.hover = self.logicalIndexAt(e.position().toPoint())
         elif e.type() in (QEvent.Type.Leave, QEvent.Type.HoverLeave):
             self.hover = -1
         return QHeaderView.event(self, e)
