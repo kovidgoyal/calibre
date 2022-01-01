@@ -4,17 +4,18 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+import json
+from calibre.web.feeds.news import BasicNewsRecipe
 
 country = 'us'
 country_defs = {
     'us': ('www.reuters.com', {
-        'Business': 'finance',
-        'Markets': 'finance/markets',
         'World': 'world',
-        'Politics': 'politics',
-        'Tech': 'news/technology',
-        'Wealth': 'finance/wealth',
+        'Business': 'business',
+        'Markets': 'markets',
+        'Tech': 'technology',
+        'Sports': 'lifestyle/sports',
+        'Wealth': 'markets/wealth',
     })
 }
 
@@ -32,6 +33,25 @@ def prefixed_classes(classes):
     return {'attrs': {'class': matcher}}
 
 
+def extract_article_list(raw):
+    if isinstance(raw, bytes):
+        raw = raw.decode('utf-8')
+    # open('/t/raw.html', 'w').write(raw)
+    idx = raw.index(';Fusion.globalContent={')
+    d = raw[idx:]
+    d = d[d.index('{'):]
+    data = json.JSONDecoder().raw_decode(d)[0]
+    # from pprint import pformat
+    # print(pformat(data), file=open('/t/raw.py', 'w'))
+    k = 'arcResult' if 'arcResult' in data else 'result'
+    for article in data[k]['articles']:
+        yield {'title': article['title'], 'description': article['description'], 'url': article['canonical_url']}
+
+
+# if __name__ == '__main__':
+#     print(list(extract_article_list(open('/t/World News _ Latest Top Stories _ Reuters.html').read())))
+
+
 class Reuters(BasicNewsRecipe):
     title = 'Reuters'
     description = 'News from all over'
@@ -39,29 +59,28 @@ class Reuters(BasicNewsRecipe):
     language = 'en'
 
     keep_only_tags = [
-        prefixed_classes('ArticlePage-article-header ArticlePage-article-body'),
+        prefixed_classes('ArticleHeader__heading___ ArticleHeader__author___ ArticleBody__container___ ArticlePage-article-header ArticlePage-article-body'),
     ]
     remove_tags = [
-        prefixed_classes('ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer-'),
+        prefixed_classes(
+            'ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer- RegistrationPrompt__container___'
+            ' SocialEmbed__inner___'
+        ),
         dict(name=['button', 'link']),
     ]
+    remove_attributes = ['style']
 
     def preprocess_html(self, soup, *a):
-        meta = soup.find(attrs={'name': "sailthru.image.full"})
-        if meta is not None:
-            url = meta['content']
-            body = soup.find(**prefixed_classes('ArticlePage-article-body'))
-            if body is not None:
-                div = soup.new_tag('div')
-                div.append(soup.new_tag('img', src=url))
-                body.insert(0, div)
+        for noscript in soup.findAll('noscript'):
+            if noscript.findAll('img'):
+                noscript.name = 'div'
         return soup
 
     def parse_index(self):
         base, sections = country_defs[country]
         ans = []
 
-        for section_title in sorted(sections):
+        for section_title in sections:
             slug = sections[section_title]
             self.log(section_title)
             articles = list(self.parse_reuters_section(base, slug))
@@ -73,15 +92,8 @@ class Reuters(BasicNewsRecipe):
 
     def parse_reuters_section(self, base, slug):
         url = 'https://' + base + '/' + slug
-        try:
-            soup = self.index_to_soup(url)
-        except Exception:
-            self.log.error('Failed to load Reuters section:', url)
-            return
-        for div in soup.findAll(**classes('news-headline-list')):
-            h3 = div.find(**classes('story-title'))
-            a = h3.parent
-            title = self.tag_to_string(h3)
-            url = 'https://{}{}'.format(base, a['href'])
-            self.log('\t', title, url)
-            yield {'title': title, 'url': url}
+        raw = self.index_to_soup(url, raw=True)
+        for article in extract_article_list(raw):
+            article['url'] = 'https://{}{}'.format(base, article['url'])
+            yield article
+            self.log('\t', article['title'], article['url'])
