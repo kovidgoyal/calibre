@@ -219,8 +219,7 @@ def dnd_merge_ok(md):
 
 
 def dragEnterEvent(self, event):
-    if int(event.possibleActions() & Qt.DropAction.CopyAction) + \
-        int(event.possibleActions() & Qt.DropAction.MoveAction) == 0:
+    if not event.possibleActions() & (Qt.DropAction.CopyAction | Qt.DropAction.MoveAction):
         return
     paths = self.paths_from_event(event)
     md = event.mimeData()
