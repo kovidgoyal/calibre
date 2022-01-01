@@ -232,7 +232,7 @@ def dropEvent(self, event):
     md = event.mimeData()
     if dnd_merge_ok(md):
         ids = set(map(int, filter(None, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' '))))
-        row = self.indexAt(event.pos()).row()
+        row = self.indexAt(event.position().toPoint()).row()
         if row > -1 and ids:
             book_id = self.model().id(row)
             if book_id and book_id not in ids:

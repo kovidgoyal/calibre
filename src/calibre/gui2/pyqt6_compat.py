@@ -10,7 +10,7 @@ from qt.core import (
     QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QDrag,
     QEventLoop, QFontMetrics, QFormLayout, QFrame, QImage, QIODevice, QLineEdit,
     QMenu, QMessageBox, QModelIndex, QPalette, QSinglePointEvent, Qt, QThread,
-    QToolButton, QEvent
+    QToolButton, QEvent, QDropEvent, QHoverEvent
 )
 
 from calibre_extensions import progress_indicator
@@ -24,6 +24,10 @@ QSinglePointEvent.globalY = lambda self: self.globalPosition().toPoint().y()
 QSinglePointEvent.localPos = lambda self: self.position()
 QSinglePointEvent.screenPos = lambda self: self.globalPosition()
 QSinglePointEvent.windowPos = lambda self: self.scenePosition()
+QDropEvent.pos = lambda self: self.position().toPoint()
+QDropEvent.posF = lambda self: self.position()
+QHoverEvent.pos = lambda self: self.position().toPoint()
+QHoverEvent.posF = lambda self: self.position()
 
 
 # Restore the removed exec_ method

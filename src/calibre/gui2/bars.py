@@ -232,7 +232,7 @@ class ToolBar(QToolBar):  # {{{
     # support drag&drop from/to library, from/to reader/card, enabled plugins
     def check_iactions_for_drag(self, event, md, func):
         if self.added_actions:
-            pos = event.pos()
+            pos = event.position().toPoint()
             for iac in itervalues(self.gui.iactions):
                 if iac.accepts_drops:
                     aa = iac.qaction
