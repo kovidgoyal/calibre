@@ -226,7 +226,7 @@ class ToolBar(QToolBar):  # {{{
             m = ac.menu()
             if m is not None:
                 if menu_mode is not None:
-                    ch.setPopupMode(menu_mode)
+                    ch.setPopupMode(QToolButton.ToolButtonPopupMode(menu_mode))
             return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins
