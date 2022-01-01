@@ -348,13 +348,9 @@ class PreviewSettings(BasicSettings):  # {{{
 
         def default_font(which):
             if not self.default_font_settings:
-                from qt.webengine import QWebEngineSettings
-                try:
-                    s = QWebEngineSettings.defaultSettings()
-                except AttributeError:  # PyQt6 bug
-                    from qt.webengine import QWebEnginePage
-                    page = QWebEnginePage()
-                    s = page.settings()
+                from qt.webengine import QWebEngineSettings, QWebEnginePage
+                page = QWebEnginePage()
+                s = page.settings()
                 self.default_font_settings = {
                     'serif': s.fontFamily(QWebEngineSettings.FontFamily.SerifFont),
                     'sans': s.fontFamily(QWebEngineSettings.FontFamily.SansSerifFont),
