@@ -673,32 +673,36 @@ class CreateCustomColumn(QDialog):
 
 
 class CreateNewCustomColumn(object):
+    """
+    Provide an API to create new custom columns.
 
-    '''
-    Open a dialog to create a new custom column with given lookup_name,
-    column_heading, datatype, and is_multiple. The lookup name must begin with
-    a '#'. The datatype must be valid and is_multiple must be valid for that
-    datatype. The user cannot change the datatype.
+    Use the create_column() method to open a dialog to create a new custom
+    column with given lookup_name, column_heading, datatype, and is_multiple.
+    The lookup name must begin with a '#'. The datatype must be valid and
+    is_multiple must be valid for that datatype. The user cannot change
+    the datatype.
 
     If generate_unused_lookup_name is False then the provided lookup_name must
     not already exist. If generate_unused_lookup_name is True then if necessary
     the method will add the suffix '_n' to the provided lookup_name to allocate
-    a new lookup_name, where 'n' is an integer. It could be that if a new
+    an unused lookup_name, where 'n' is an integer. It could be that if a new
     lookup name is generated then the user will be required to change the
     column heading to make it is unique.
 
     Set freeze_lookup_name to False if you want to allow the user choose a
     different lookup name. The user will not be allowed to choose the lookup
-    name of an existing column. The provided lookup_name must be unique or
-    generate_unused_lookup_name must be True regardless of the value of
+    name of an existing column. The provided lookup_name either must not exist
+    or generate_unused_lookup_name must be True, regardless of the value of
     freeze_lookup_name.
 
     The 'display' parameter is used to pass item- and type-specific information
     for the column. It is a dict. The easiest way to see the current values for
     'display' for a particular column is to create a column like you want then
-    look for the lookup name in the file metadata_db_prefs_backup.json.
+    look for the lookup name in the file metadata_db_prefs_backup.json. You must
+    restart calibre twice after creating a new column before its information
+    will appear in that file.
 
-    The permitted key:value pairs for each type are as follows. Note that this
+    The key:value pairs for each type are as follows. Note that this
     list might be incorrect. As said above, the best way to get current values
     is to create a similar column and look at the values in 'display'.
       all types:
@@ -706,11 +710,12 @@ class CreateNewCustomColumn(object):
                          column. Permitted values are type specific
         'description': a string containing the column's description
       comments columns:
-        'heading_position': a string specifying where a comment heading goes: hide, above, side
+        'heading_position': a string specifying where a comment heading goes:
+                            hide, above, side
         'interpret_as': a string specifying the comment's purpose:
                         html, short-text, long-text, markdown
       composite columns:
-        'composite_template': the template for a composite column
+        'composite_template': a string containing the template for the composite column
         'composite_sort': a string specifying how the composite is to be sorted
         'make_category': True or False -- whether the column is shown in the tag browser
         'contains_html': True or False -- whether the column is interpreted as HTML
@@ -722,7 +727,7 @@ class CreateNewCustomColumn(object):
         'enum_colors': a string containing comma-separated colors for an enumeration
         'use_decorations': True or False -- should check marks be displayed
       float and int columns:
-        'number_format': the format to apply for numeric columns
+        'number_format': the format to apply for the column
       rating columns:
         'allow_half_stars': True or False -- are half-stars allowed
       text columns:
@@ -731,24 +736,26 @@ class CreateNewCustomColumn(object):
 
     This method returns a tuple (Result.enum_value, message). If tuple[0] is
     Result.COLUMN_ADDED then the message is the lookup name including the '#'.
-    You or the user must restart calibre for the column to be actually added.
     Otherwise it is a potentially localized error message.
 
+    You or the user must restart calibre for the column(s) to be actually added.
+
     The method returns Result.MUST_RESTART if further calibre configuration has
-    been blocked. You can check for this situation by calling must_restart(gui).
+    been blocked. You can check for this situation in advance by calling
+    must_restart().
 
     The parameter 'gui' passed when creating a class instance is the main
     calibre gui (calibre.gui2.ui.get_gui())
 
     Usage:
         from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
-        c = CreateNewCustomColumn(gui)
-        if c.must_restart():
+        creator = CreateNewCustomColumn(gui)
+        if creator.must_restart():
                 ...
         else:
-            result = c.create_new_custom_column(....)
-            if result[0] == CreateNewCustomColumn.Result.COLUMN_ADDED:
-    '''
+            result = creator.create_column(....)
+            if result[0] == creator.Result.COLUMN_ADDED:
+    """
 
     class Result(Enum):
         COLUMN_ADDED = 0
@@ -762,15 +769,18 @@ class CreateNewCustomColumn(object):
 
     def __init__(self, gui):
         self.gui = gui
-
-    def create_new_custom_column(self, lookup_name, column_heading,
-                                 datatype, is_multiple, display={},
-                                 generate_unused_lookup_name=False,
-                                 freeze_lookup_name=True):
-        if self.must_restart():
-            return (self.Result.MUST_RESTART, _("You must restart calibre before making any more changes"))
-        db = self.gui.library_view.model().db
+        self.restart_required = gui.must_restart_before_config
+        self.db = db = self.gui.library_view.model().db
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
+        # Get the largest internal column number so we can be sure that we can
+        # detect duplicates.
+        self.created_count = max(x['colnum'] for x in self.custcols.values()) + 1
+
+    def create_column(self, lookup_name, column_heading, datatype, is_multiple,
+                      display={}, generate_unused_lookup_name=False, freeze_lookup_name=True):
+        """ See the class documentation for more information."""
+        if self.restart_required:
+            return (self.Result.MUST_RESTART, _("You must restart calibre before making any more changes"))
         if not lookup_name.startswith('#'):
             return (self.Result.INVALID_KEY, _("The lookup name must begin with a '#'"))
         if lookup_name in self.custcols:
@@ -794,20 +804,21 @@ class CreateNewCustomColumn(object):
         if not column_heading:
             column_heading = lookup_name
         self.key = lookup_name
+        self.created_count += 1
         self.custcols[lookup_name] = {
                 'label': lookup_name,
                 'name': column_heading,
                 'datatype': datatype,
                 'display': display,
                 'normalized': None,
-                'colnum': None,
+                'colnum': self.created_count,
                 'is_multiple': is_multiple,
             }
         dialog = CreateCustomColumn(self.gui, self, lookup_name, self.gui.library_view.model().orig_headers,
                                 freeze_lookup_name=freeze_lookup_name)
         if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
             cc = self.custcols[lookup_name]
-            db.create_custom_column(
+            self.db.create_custom_column(
                             label=cc['label'],
                             name=cc['name'],
                             datatype=cc['datatype'],
@@ -817,5 +828,27 @@ class CreateNewCustomColumn(object):
             return ((self.Result.COLUMN_ADDED, self.cc_column_key))
         return (self.Result.CANCELED, _('Canceled'))
 
+    def current_columns(self):
+        """
+        Return the currently defined custom columns
+
+        Return the currently defined custom columns including the ones that haven't
+        yet been created. It is a dict of dicts defined as follows:
+            custcols[lookup_name] = {
+                    'label': lookup_name,
+                    'name': column_heading,
+                    'datatype': datatype,
+                    'display': display,
+                    'normalized': None,
+                    'colnum': an integer used internally,
+                    'is_multiple': is_multiple,
+                }
+        Columns that already exist will have additional attributes that this class
+        doesn't use. See calibre.library.field_metadata.add_custom_field() for the
+        complete list.
+        """
+        return copy.deepcopy(self.custcols) #deepcopy to prevent users from changing it
+
     def must_restart(self):
-        return self.gui.must_restart_before_config
+        """Return true if calibre must be restarted before new columns can be added."""
+        return self.restart_required
