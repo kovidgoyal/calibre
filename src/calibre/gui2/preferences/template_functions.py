@@ -15,7 +15,7 @@ from calibre.utils.formatter_functions import (
     compile_user_function, compile_user_template_functions, formatter_functions,
     function_pref_is_python, function_pref_name, load_user_template_functions
 )
-from polyglot.builtins import iteritems, native_string_type
+from polyglot.builtins import iteritems
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

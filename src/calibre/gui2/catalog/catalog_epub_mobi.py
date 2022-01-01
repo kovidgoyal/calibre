@@ -14,7 +14,6 @@ from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import native_string_type
 
 from .catalog_epub_mobi_ui import Ui_Form
 from qt.core import (Qt, QAbstractItemView, QCheckBox, QComboBox,
