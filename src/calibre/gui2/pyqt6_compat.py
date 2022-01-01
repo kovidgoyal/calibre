@@ -60,7 +60,7 @@ QFontMetrics.width = lambda self, text: self.horizontalAdvance(text)
 # Restore enum values to various classes
 for cls in (
     Qt, QDialog, QToolButton, QAbstractItemView, QDialogButtonBox, QFrame, QComboBox,
-    QLineEdit, QAction, QImage, QIODevice, QPalette, QFormLayout, QEvent
+    QLineEdit, QAction, QImage, QIODevice, QPalette, QFormLayout, QEvent, QMessageBox
 ):
     for var in tuple(vars(cls).values()):
         m = getattr(var, '__members__', {})
