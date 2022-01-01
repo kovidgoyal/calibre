@@ -133,7 +133,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 continue
             try:
                 ac = self.init_iaction(action)
-            except:
+            except Exception:
                 # Ignore errors in loading user supplied plugins
                 import traceback
                 try:
