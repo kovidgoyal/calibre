@@ -64,6 +64,11 @@ class CompleteModel(QAbstractListModel):  # {{{
     def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
             try:
+                return self.current_items[index.row()].replace('\n', ' ')
+            except IndexError:
+                pass
+        if role == Qt.ItemDataRole.UserRole:
+            try:
                 return self.current_items[index.row()]
             except IndexError:
                 pass
@@ -106,7 +111,7 @@ class Completer(QListView):  # {{{
         if not self.isVisible():
             return
         self.hide()
-        text = self.model().data(index, Qt.ItemDataRole.DisplayRole)
+        text = self.model().data(index, Qt.ItemDataRole.UserRole)
         self.item_selected.emit(str(text))
 
     def set_items(self, items):
@@ -531,7 +536,7 @@ if __name__ == '__main__':
     d.setLayout(QVBoxLayout())
     le = EditWithComplete(d)
     d.layout().addWidget(le)
-    items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
+    items = ['oane\n line2\n line3', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
         'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar']
     le.update_items_cache(items)
     le.show_initial_value('')
