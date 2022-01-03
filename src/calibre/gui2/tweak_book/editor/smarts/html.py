@@ -731,10 +731,10 @@ class Smarts(NullSmarts):
 
         if key in (Qt.Key.Key_BraceLeft, Qt.Key.Key_BraceRight):
             mods = ev.modifiers()
-            if int(mods & Qt.KeyboardModifier.ControlModifier):
+            if mods & Qt.KeyboardModifier.ControlModifier:
                 if self.jump_to_enclosing_tag(editor, key == Qt.Key.Key_BraceLeft):
                     return True
-        if key == Qt.Key.Key_T and int(ev.modifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier)):
+        if key == Qt.Key.Key_T and ev.modifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier):
             return self.select_tag_contents(editor)
 
         return False
