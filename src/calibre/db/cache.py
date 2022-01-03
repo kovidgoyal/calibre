@@ -147,6 +147,7 @@ class Cache:
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.vls_for_books_cache = None
+        self.vls_for_books_lib_in_process = None
         self.vls_cache_lock = Lock()
         self.dirtied_sequence = 0
         self.cover_caches = set()
@@ -257,6 +258,7 @@ class Cache:
         self.clear_search_cache_count += 1
         self._search_api.update_or_clear(self, book_ids)
         self.vls_for_books_cache = None
+        self.vls_for_books_lib_in_process = None
 
     @read_api
     def last_modified(self):
@@ -2276,18 +2278,24 @@ class Cache:
             c = defaultdict(list)
             if not got_lock:
                 # We get here if resolving the books in a VL triggers another VL
-                # calculation. This can be 'real' recursion, in which case the
-                # eventual answer will be wrong. It can also be a  search using
-                # a location of 'all' that causes evaluation of a composite that
-                # references virtual_libraries(). If the composite isn't used in a
-                # VL then the eventual answer will be correct because get_metadata
-                # will clear the caches.
-                return c
+                # cache calculation. This can be 'real' recursion, for example a
+                # VL expression using a template that calls virtual_libraries(),
+                # or a search using a location of 'all' that causes evaluation
+                # of a composite that uses virtual_libraries(). The first case
+                # is an error and the exception message should appear somewhere.
+                # However, the error can seem nondeterministic. It might not be
+                # raised if the use is via a composite and that composite is
+                # evaluated before it is used in the search. The second case is
+                # also an error but if the composite isn't used in a VL then the
+                # eventual answer will be correct because get_metadata() will
+                # clear the caches.
+                raise ValueError(_('Recursion detected while processing virtual library "%s"')
+                                 % self.vls_for_books_lib_in_process)
             if self.vls_for_books_cache is None:
-                self.vls_for_books_cache_is_loading = True
                 libraries = self._pref('virtual_libraries', {})
                 for lib, expr in libraries.items():
                     book = None
+                    self.vls_for_books_lib_in_process = lib
                     try:
                         for book in self._search(expr, virtual_fields=virtual_fields):
                             c[book].append(lib)
