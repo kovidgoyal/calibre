@@ -405,7 +405,7 @@ class NotesDisplay(Details):
         self.setHtml('<div><a href="edit://moo">{}</a></div>{}'.format(_('Edit notes'), html))
         self.document().setDefaultStyleSheet('a[href] { text-decoration: none }')
         h = self.document().size().height() + 2
-        self.setMaximumHeight(h)
+        self.setMaximumHeight(int(h))
 
     def anchor_clicked(self, qurl):
         if qurl.scheme() == 'edit':

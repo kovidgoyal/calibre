@@ -41,8 +41,10 @@ def key_to_text(key):
 def ev_to_index(ev):
     m = ev.modifiers()
     mods = []
-    for x in ('ALT', 'CTRL', 'META', 'SHIFT'):
-        mods.append('y' if m & getattr(Qt, x) else 'n')
+    for x in (
+            Qt.KeyboardModifier.AltModifier, Qt.KeyboardModifier.ControlModifier,
+            Qt.KeyboardModifier.MetaModifier, Qt.KeyboardModifier.ShiftModifier):
+        mods.append('y' if m & x else 'n')
     return ''.join(mods) + key_to_text(ev.key())
 
 
