@@ -7,8 +7,7 @@ __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 '''
 technologyreview.com
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
-import re
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 def absurl(x):
@@ -38,26 +37,14 @@ class MitTechnologyReview(BasicNewsRecipe):
     tags = 'news, technology, science'
     no_stylesheets = True
 
-    """
-    regex for class names
-    """
-    articleHeaderRegex= '^.*contentHeader__wrapper.*$'
-    editorLetterHeaderRegex = "^.*contentHeader--vertical__wrapper.*$"
-    articleContentRegex = "^.*contentbody__wrapper.*$"
-    imagePlaceHolderRegex = "^.*image__placeholder.*$"
-    advertisementRegex = "^.*sliderAd__wrapper.*$"
-
     keep_only_tags = [
-        dict(name='header',  attrs={'class': re.compile(editorLetterHeaderRegex, re.IGNORECASE)}),
-        dict(name='header',  attrs={'class': re.compile(articleHeaderRegex, re.IGNORECASE)}),
-        dict(name='div',  attrs={'class': re.compile(articleContentRegex, re.IGNORECASE)})
+        prefixed_classes('contentHeader contentArticleHeader contentBody')
     ]
     remove_tags = [
         dict(name="aside"),
         dict(name="svg"),
         dict(name="blockquote"),
-        dict(name="img", attrs={'class': re.compile(imagePlaceHolderRegex, re.IGNORECASE)}),
-        dict(name="div", attrs={'class': re.compile(advertisementRegex, re.IGNORECASE)}),
+        prefixed_classes('image__placeholder sliderAd__wrapper'),
     ]
 
     def parse_index(self):
