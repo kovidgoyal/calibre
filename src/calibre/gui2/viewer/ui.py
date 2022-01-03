@@ -12,7 +12,7 @@ from hashlib import sha256
 from qt.core import (
     QApplication, QCursor, QDockWidget, QEvent, QMainWindow, QMenu, QMimeData,
     QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal
+    pyqtSignal, sip
 )
 from threading import Thread
 
@@ -503,13 +503,16 @@ class EbookViewer(MainWindow):
         try:
             ans = prepare_book(pathtoebook, force=reload_book, prepare_notify=self.prepare_notify)
         except WorkerError as e:
-            self.book_prepared.emit(False, {'exception': e, 'tb': e.orig_tb, 'pathtoebook': pathtoebook})
+            if not sip.isdeleted(self):
+                self.book_prepared.emit(False, {'exception': e, 'tb': e.orig_tb, 'pathtoebook': pathtoebook})
         except Exception as e:
             import traceback
-            self.book_prepared.emit(False, {'exception': e, 'tb': traceback.format_exc(), 'pathtoebook': pathtoebook})
+            if not sip.isdeleted(self):
+                self.book_prepared.emit(False, {'exception': e, 'tb': traceback.format_exc(), 'pathtoebook': pathtoebook})
         else:
             performance_monitor('prepared emitted')
-            self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at, 'reloaded': reload_book})
+            if not sip.isdeleted(self):
+                self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at, 'reloaded': reload_book})
 
     def prepare_notify(self):
         self.book_preparation_started.emit()
