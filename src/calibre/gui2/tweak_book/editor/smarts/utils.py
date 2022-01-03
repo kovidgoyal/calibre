@@ -42,7 +42,7 @@ def get_leading_whitespace_on_block(editor, previous=False):
 def no_modifiers(ev, *args):
     mods = ev.modifiers()
     for mod_mask in args:
-        if int(mods & mod_mask):
+        if mods & mod_mask:
             return False
     return True
 
@@ -50,7 +50,7 @@ def no_modifiers(ev, *args):
 def test_modifiers(ev, *args):
     mods = ev.modifiers()
     for mod_mask in args:
-        if not int(mods & mod_mask):
+        if not mods & mod_mask:
             return False
     return True
 
