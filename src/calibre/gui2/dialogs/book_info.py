@@ -209,12 +209,21 @@ class BookInfo(QDialog):
                 self.splitter.restoreState(saved_layout[1])
             except Exception:
                 pass
-        from calibre.gui2.ui import get_gui
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         a = self.ema = QAction('edit metadata', self)
         a.setShortcut(ema.shortcut())
         self.addAction(a)
         a.triggered.connect(self.edit_metadata)
+        vb = get_gui().iactions['View'].menuless_qaction
+        a = self.vba = QAction('view book', self)
+        a.setShortcut(vb.shortcut())
+        a.triggered.connect(self.view_book)
+        self.addAction(a)
+
+    def view_book(self):
+        if self.current_row is not None:
+            book_id = self.view.model().id(self.current_row)
+            get_gui().iactions['View']._view_calibre_books((book_id,))
 
     def edit_metadata(self):
         if self.current_row is not None:
