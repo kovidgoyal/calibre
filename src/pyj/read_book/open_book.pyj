@@ -3,29 +3,42 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
-from dom import unique_id
+from dom import clear, unique_id
+from gettext import gettext as _
 from read_book.globals import ui_operations
 from widgets import create_button
 
+current_container_id = None
+current_opened_book_path = None
+
 
 def create_open_book(container, book):
-    container.appendChild(E.div(style='margin: 1rem'))
+    nonlocal current_container_id, current_opened_book_path
+    container.appendChild(E.div(style='margin: 1rem', id=unique_id()))
     container = container.lastChild
+    current_container_id = container.id
+    current_opened_book_path = None
+    if book:
+        current_opened_book_path = book.manifest.pathtoebook
+    rebuild_open_list(container)
+
+
+def rebuild_open_list(container):
+    clear(container)
     container.appendChild(create_button(_('Open a book from your computer'), action=ui_operations.ask_for_open.bind(None, None)))
     sd = get_session_data()
     rl = sd.get('standalone_recently_opened')
-    if rl.length:
+    if rl?.length:
         container.appendChild(E.div(id=unique_id()))
         c = container.lastChild
         items = []
         c.appendChild(E.h2(style='margin-top: 1rem', _('Recently viewed books')))
         c.appendChild(E.div())
         for entry in rl:
-            if book and book.manifest.pathtoebook is entry.pathtoebook:
+            if current_opened_book_path and current_opened_book_path is entry.pathtoebook:
                 continue
             if jstype(entry.pathtoebook) is not 'string':
                 continue
@@ -62,3 +75,17 @@ def add_book_to_recently_viewed(book):
             ans.push(entry)
     sd.set('standalone_recently_opened', ans.slice(0, 25))
     return ans
+
+
+def remove_recently_opened(path):
+    sd = get_session_data()
+    rl = sd.get('standalone_recently_opened')
+    newl = v'[]'
+    for entry in rl:
+        if entry.key is not path:
+            newl.push(entry)
+    sd.set('standalone_recently_opened', newl)
+    if current_container_id:
+        container = document.getElementById(current_container_id)
+        if container:
+            rebuild_open_list(container)

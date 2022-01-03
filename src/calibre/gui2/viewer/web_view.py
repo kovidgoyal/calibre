@@ -753,3 +753,6 @@ class WebView(RestartingWebEngineView):
 
     def repair_after_fullscreen_switch(self):
         self.execute_when_ready('repair_after_fullscreen_switch')
+
+    def remove_recently_opened(self, path):
+        self.generic_action('remove-recently-opened', {'path': path})

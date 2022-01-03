@@ -306,10 +306,13 @@ class ActionsToolBar(ToolBar):
                     continue
                 if hasattr(set_book_path, 'pathtoebook') and path == os.path.abspath(set_book_path.pathtoebook):
                     continue
-                m.addAction('{}\t {}'.format(
-                    elided_text(entry['title'], pos='right', width=250),
-                    elided_text(os.path.basename(path), width=250))).triggered.connect(partial(
-                    self.open_book_at_path.emit, path))
+                if os.path.exists(path):
+                    m.addAction('{}\t {}'.format(
+                        elided_text(entry['title'], pos='right', width=250),
+                        elided_text(os.path.basename(path), width=250))).triggered.connect(partial(
+                        self.open_book_at_path.emit, path))
+                else:
+                    self.web_view.remove_recently_opened(path)
 
     def on_view_created(self, data):
         self.default_color_schemes = data['default_color_schemes']
