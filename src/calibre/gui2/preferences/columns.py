@@ -25,6 +25,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui = gui
         db = self.gui.library_view.model().db
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
+        for k, cc in self.custcols.items():
+            cc['original_key'] = k
+        self.initial_created_count = max(x['colnum'] for x in self.custcols.values()) + 1
+        self.created_count = self.initial_created_count
 
         self.column_up.clicked.connect(self.up_column)
         self.column_down.clicked.connect(self.down_column)
@@ -75,23 +79,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         db = model.db
         self.field_metadata = db.field_metadata
 
-        self.opt_columns.setColumnCount(4)
+        self.opt_columns.setColumnCount(5)
         item = QTableWidgetItem(_('Column header'))
         self.opt_columns.setHorizontalHeaderItem(0, item)
         item = QTableWidgetItem(_('Lookup name'))
         self.opt_columns.setHorizontalHeaderItem(1, item)
         item = QTableWidgetItem(_('Type'))
         self.opt_columns.setHorizontalHeaderItem(2, item)
-        item = QTableWidgetItem(_('Description'))
+        item = QTableWidgetItem(_('Status'))
         self.opt_columns.setHorizontalHeaderItem(3, item)
+        item = QTableWidgetItem(_('Description'))
+        self.opt_columns.setHorizontalHeaderItem(4, item)
 
         self.opt_columns.setRowCount(len(colmap))
         self.column_desc = dict(map(lambda x:(CreateCustomColumn.column_types[x]['datatype'],
                                          CreateCustomColumn.column_types[x]['text']),
                                   CreateCustomColumn.column_types))
 
-        for row, col in enumerate(colmap):
-            self.setup_row(self.field_metadata, row, col)
+        for row, key in enumerate(colmap):
+            self.setup_row(row, key)
 
         self.restore_geometry()
         self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
@@ -115,55 +121,73 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.resizeColumnsToContents()
         self.opt_columns.resizeRowsToContents()
 
-    def setup_row(self, field_metadata, row, col, oldkey=None):
+    def setup_row(self, row, key):
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
-        item = QTableWidgetItem(col)
+        item = QTableWidgetItem(key)
+        item.setToolTip(key)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 1, item)
 
-        if col.startswith('#'):
-            fm = self.custcols[oldkey if oldkey is not None else col]
+        if self.is_custom_key(key):
+            cc = self.custcols[key]
+            original_key = cc['original_key']
         else:
-            fm = field_metadata[col]
+            cc = self.field_metadata[key]
+            original_key = key
 
-        if col == 'title':
+        if key == 'title':
             coltype = _('Text')
-        elif col == 'ondevice':
+        elif key == 'ondevice':
             coltype = _('Yes/No with text')
         else:
-            dt = fm['datatype']
-            if fm['is_multiple']:
-                if col == 'authors' or fm.get('display', {}).get('is_names', False):
+            dt = cc['datatype']
+            if cc['is_multiple']:
+                if key == 'authors' or cc.get('display', {}).get('is_names', False):
                     coltype = _('Ampersand separated text, shown in the Tag browser')
                 else:
                     coltype = self.column_desc['*' + dt]
             else:
                 coltype = self.column_desc[dt]
-        coltype_info = (coltype if oldkey is None else
-                          ' ' + _('(lookup name was {}) {}'.format(oldkey, coltype)))
-
-        item = QTableWidgetItem(coltype_info)
+        item = QTableWidgetItem(coltype)
+        item.setToolTip(coltype)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 2, item)
 
-        desc = fm['display'].get('description', "")
-        item = QTableWidgetItem(desc)
+        if '*deleted' in cc:
+            col_status = _('Deleted column. Double-click to undelete it')
+        elif self.is_new_custom_column(cc):
+            col_status = _('New column')
+        elif original_key != key:
+            col_status = _('Edited. Lookup name was {}').format(original_key)
+        elif '*edited' in cc:
+            col_status = _('Edited')
+        else:
+            col_status = ''
+        item = QTableWidgetItem(col_status)
+        item.setToolTip(col_status)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 3, item)
 
-        item = QTableWidgetItem(fm['name'])
-        item.setData(Qt.ItemDataRole.UserRole, (col))
+        desc = cc['display'].get('description', "")
+        item = QTableWidgetItem(desc)
+        item.setToolTip(desc)
+        item.setFlags(flags)
+        self.opt_columns.setItem(row, 4, item)
+
+        item = QTableWidgetItem(cc['name'])
+        item.setToolTip(cc['name'])
+        item.setData(Qt.ItemDataRole.UserRole, key)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 0, item)
 
-        if col.startswith('#'):
+        if self.is_custom_key(key):
             item.setData(Qt.ItemDataRole.DecorationRole, (QIcon(I('column.png'))))
-        if col != 'ondevice':
+        if key != 'ondevice':
             flags |= Qt.ItemFlag.ItemIsUserCheckable
         item.setFlags(flags)
-        if col != 'ondevice':
-            item.setCheckState(Qt.CheckState.Unchecked if col in self.hidden_cols else
+        if key != 'ondevice':
+            item.setCheckState(Qt.CheckState.Unchecked if key in self.hidden_cols else
                     Qt.CheckState.Checked)
 
     def up_column(self):
@@ -188,24 +212,32 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_columns.setCurrentCell(idx+1, 0)
             self.changed_signal.emit()
 
+    def is_new_custom_column(self, cc):
+        return 'colnum' in cc and cc['colnum'] >= self.initial_created_count
+
+    def set_new_custom_column(self, cc):
+        self.created_count += 1
+        cc['colnum'] = self.created_count
+
     def del_custcol(self):
-        idx = self.opt_columns.currentRow()
-        if idx < 0:
+        row = self.opt_columns.currentRow()
+        if row < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = str(self.opt_columns.item(idx, 0).data(Qt.ItemDataRole.UserRole) or '')
-        if col not in self.custcols:
+        key = str(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole) or '')
+        if key not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
         if not question_dialog(self, _('Are you sure?'),
             _('Do you really want to delete column %s and all its data?') %
-            self.custcols[col]['name'], show_copy_button=False):
+            self.custcols[key]['name'], show_copy_button=False):
             return
-        self.opt_columns.removeRow(idx)
-        if self.custcols[col]['colnum'] is None:
-            del self.custcols[col]  # A newly-added column was deleted
+        if self.is_new_custom_column(self.custcols[key]):
+            del self.custcols[key]  # A newly-added column was deleted
+            self.opt_columns.removeRow(row)
         else:
-            self.custcols[col]['*deleteme'] = True
+            self.custcols[key]['*deleted'] = True
+            self.setup_row(row, key)
         self.changed_signal.emit()
 
     def add_custcol(self):
@@ -213,24 +245,54 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         CreateCustomColumn(self.gui, self, None, model.orig_headers)
         if self.cc_column_key is None:
             return
+        cc = self.custcols[self.cc_column_key]
+        self.set_new_custom_column(cc)
+        cc['original_key'] = self.cc_column_key
         row = self.opt_columns.rowCount()
         self.opt_columns.setRowCount(row + 1)
-        self.setup_row(self.field_metadata, row, self.cc_column_key)
+        self.setup_row(row, self.cc_column_key)
         self.changed_signal.emit()
+
+    def label_to_lookup_name(self, label):
+        return '#' + label
+
+    def is_custom_key(self, key):
+        return key.startswith('#')
 
     def edit_custcol(self):
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
             key = str(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
+            if key not in self.custcols:
+                return error_dialog(self, '',
+                            _('Selected column is not a user-defined column'),
+                            show=True)
+            cc = self.custcols[key]
+            if '*deleted' in cc:
+                if question_dialog(self, _('Undelete the column?'),
+                           _('The column is to be deleted. Do you want to undelete it?'),
+                           show_copy_button=False):
+                    cc.pop('*deleted', None)
+                    self.setup_row(row, key)
+                return
+            CreateCustomColumn(self.gui, self,
+                               self.label_to_lookup_name(self.custcols[key]['label']),
+                               model.orig_headers)
+            new_key = self.cc_column_key
+            if new_key is None:
+                return
+            if key != new_key:
+                self.custcols[new_key] = self.custcols[key]
+                self.custcols.pop(key, None)
+            cc = self.custcols[new_key]
+            if self.is_new_custom_column(cc):
+                cc.pop('*edited', None)
+            self.setup_row(row, new_key)
+            self.changed_signal.emit()
         except:
-            key = ''
-        CreateCustomColumn(self.gui, self, key, model.orig_headers)
-        if self.cc_column_key is None:
-            return
-        self.setup_row(self.field_metadata, row, self.cc_column_key,
-                       None if self.cc_column_key == key else key)
-        self.changed_signal.emit()
+            import traceback
+            traceback.print_exc()
 
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
@@ -258,26 +320,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui.library_view.save_state()
 
         must_restart = False
-        for c in self.custcols:
-            if self.custcols[c]['colnum'] is None:
-                db.create_custom_column(
-                                label=self.custcols[c]['label'],
-                                name=self.custcols[c]['name'],
-                                datatype=self.custcols[c]['datatype'],
-                                is_multiple=self.custcols[c]['is_multiple'],
-                                display=self.custcols[c]['display'])
+        for cc in self.custcols.values():
+            if '*deleted' in cc:
+                db.delete_custom_column(label=cc['label'])
                 must_restart = True
-            elif '*deleteme' in self.custcols[c]:
-                db.delete_custom_column(label=self.custcols[c]['label'])
-                must_restart = True
-            elif '*edited' in self.custcols[c]:
-                cc = self.custcols[c]
+            elif '*edited' in cc:
                 db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
                                               label=cc['label'],
-                                              display=self.custcols[c]['display'],
+                                              display=cc['display'],
                                               notify=False)
-                if '*must_restart' in self.custcols[c]:
+                if '*must_restart' in cc:
                     must_restart = True
+            elif self.is_new_custom_column(cc):
+                db.create_custom_column(label=cc['label'], name=cc['name'],
+                                        datatype=cc['datatype'], is_multiple=cc['is_multiple'],
+                                        display=cc['display'])
+                must_restart = True
         return must_restart
 
 
