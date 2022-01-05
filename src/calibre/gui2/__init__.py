@@ -1123,17 +1123,7 @@ class Application(QApplication):
             prints('Using calibre Qt style:', self.using_calibre_style)
         if self.using_calibre_style:
             self.load_calibre_style()
-        self.paletteChanged.connect(self.on_palette_change)
         self.on_palette_change()
-
-    def fix_combobox_text_color(self):
-        # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
-        # Buttontext is set to black for some reason
-        pal = QPalette(self.palette())
-        pal.setColor(QPalette.ColorRole.ButtonText, pal.color(QPalette.ColorRole.WindowText))
-        self.ignore_palette_changes = True
-        self.setPalette(pal, 'QComboBox')
-        self.ignore_palette_changes = False
 
     def set_palette(self, pal):
         self.ignore_palette_changes = True
@@ -1146,12 +1136,8 @@ class Application(QApplication):
         self.ignore_palette_changes = False
 
     def on_palette_change(self):
-        if self.ignore_palette_changes:
-            return
         self.is_dark_theme = is_dark_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
-        if ismacos and self.is_dark_theme and self.using_calibre_style:
-            QTimer.singleShot(0, self.fix_combobox_text_color)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
             if self.is_dark_theme:
@@ -1213,7 +1199,8 @@ class Application(QApplication):
         self.installTranslator(self._translator)
 
     def event(self, e):
-        if callable(self.file_event_hook) and e.type() == QEvent.Type.FileOpen:
+        etype = e.type()
+        if callable(self.file_event_hook) and etype == QEvent.Type.FileOpen:
             url = e.url().toString(QUrl.ComponentFormattingOption.FullyEncoded)
             if url and url.startswith('calibre://'):
                 with self._file_open_lock:
@@ -1227,6 +1214,9 @@ class Application(QApplication):
                 QTimer.singleShot(1000, self._send_file_open_events)
             return True
         else:
+            if etype == QEvent.Type.ApplicationPaletteChange:
+                if not self.ignore_palette_changes:
+                    self.on_palette_change()
             return QApplication.event(self, e)
 
     @property
