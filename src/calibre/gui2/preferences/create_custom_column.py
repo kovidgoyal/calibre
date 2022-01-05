@@ -512,20 +512,14 @@ class CreateCustomColumn(QDialog):
 
         db = self.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col
-        bad_col = False
-        if key in self.caller.custcols:
-            if not self.editing_col or \
-                    self.caller.custcols[key]['colnum'] != self.orig_column_number:
-                bad_col = True
-        if bad_col:
+        cc = self.caller.custcols
+        if key in cc and (not self.editing_col or cc[key]['colnum'] != self.orig_column_number):
             return self.simple_error('', _('The lookup name %s is already used')%col)
-
         bad_head = False
-        for t in self.caller.custcols:
-            if self.caller.custcols[t]['name'] == col_heading:
-                if not self.editing_col or \
-                        self.caller.custcols[t]['colnum'] != self.orig_column_number:
-                    bad_head = True
+        for cc in self.caller.custcols.values():
+            if cc['name'] == col_heading and cc['colnum'] != self.orig_column_number:
+                bad_head = True
+                break
         for t in self.standard_colheads:
             if self.standard_colheads[t] == col_heading:
                 bad_head = True
