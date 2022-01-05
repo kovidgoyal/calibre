@@ -40,7 +40,7 @@ class Stage2(Command):
         self.info('Starting builds for all platforms, this will take a while...')
 
         session = ['layout vertical']
-        platforms = 'linux', 'osx', 'win'
+        platforms = 'linux64', 'linuxarm64', 'osx', 'win'
         for x in platforms:
             cmd = (
                 '''{exe} -c "import subprocess; subprocess.Popen(['{exe}', './setup.py', '{x}']).wait() != 0 and'''
