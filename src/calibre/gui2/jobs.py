@@ -489,7 +489,11 @@ class DetailView(Dialog):  # {{{
             more = f.read()
             self.next_pos = f.tell()
             if more:
+                v = self.log.verticalScrollBar()
+                atbottom = v.value() >= v.maximum() - 1
                 self.log.appendPlainText(more.decode('utf-8', 'replace'))
+                if atbottom:
+                    v.setValue(v.maximum())
 # }}}
 
 
