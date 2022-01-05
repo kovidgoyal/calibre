@@ -355,9 +355,9 @@ class TextBrowser(PlainTextEdit):  # {{{
             if min(y_top, y_bot) > floor:
                 break
             painter.setFont(self.heading_font)
-            br = painter.drawText(3, y_top, w, y_bot - y_top - 5, Qt.TextFlag.TextSingleLine, text)
+            br = painter.drawText(3, int(y_top), int(w), int(y_bot - y_top - 5), Qt.TextFlag.TextSingleLine, text)
             painter.setPen(QPen(self.palette().text(), 2))
-            painter.drawLine(0, br.bottom()+3, w, br.bottom()+3)
+            painter.drawLine(0, int(br.bottom()+3), w, int(br.bottom()+3))
 
         for top, bot, kind in self.changes:
             if bot < fv:
@@ -369,7 +369,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             if min(y_top, y_bot) > floor:
                 break
             if y_top != y_bot:
-                painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
+                painter.fillRect(0,  int(y_top), int(w), int(y_bot - y_top), self.diff_backgrounds[kind])
             lines.append((y_top, y_bot, kind))
             if top in self.images:
                 img, maxw = self.images[top][:2]
@@ -377,7 +377,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                     y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top+1)).translated(origin).y() + 3
                     y_bot -= 3
                     scaled, imgw, imgh = fit_image(int(img.width()/img.devicePixelRatio()), int(img.height()/img.devicePixelRatio()), w - 3, y_bot - y_top)
-                    painter.drawPixmap(QRect(3, y_top, imgw, imgh), img)
+                    painter.drawPixmap(QRect(3, int(y_top), int(imgw), int(imgh)), img)
 
         painter.end()
         PlainTextEdit.paintEvent(self, event)
@@ -385,8 +385,8 @@ class TextBrowser(PlainTextEdit):  # {{{
         painter.setClipRect(event.rect())
         for top, bottom, kind in sorted(lines, key=lambda t_b_k:{'replace':0}.get(t_b_k[2], 1)):
             painter.setPen(QPen(self.diff_foregrounds[kind], 1))
-            painter.drawLine(0, top, w, top)
-            painter.drawLine(0, bottom - 1, w, bottom - 1)
+            painter.drawLine(0, int(top), int(w), int(top))
+            painter.drawLine(0, int(bottom - 1), int(w), int(bottom - 1))
 
     def wheelEvent(self, ev):
         if ev.angleDelta().x() == 0:
@@ -478,8 +478,8 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
                 continue
             if min(ly_top, ly_bot, ry_top, ry_bot) > h:
                 break
-            ly = painter.boundingRect(3, ly_top, left.width(), ly_bot - ly_top - 5, Qt.TextFlag.TextSingleLine, text).bottom() + 3
-            ry = painter.boundingRect(3, ry_top, right.width(), ry_bot - ry_top - 5, Qt.TextFlag.TextSingleLine, text).bottom() + 3
+            ly = painter.boundingRect(3, int(ly_top), int(left.width()), int(ly_bot - ly_top - 5), Qt.TextFlag.TextSingleLine, text).bottom() + 3
+            ry = painter.boundingRect(3, int(ry_top), int(right.width()), int(ry_bot - ry_top - 5), Qt.TextFlag.TextSingleLine, text).bottom() + 3
             line = create_line(ly, ry)
             painter.setPen(QPen(left.palette().text(), 2))
             painter.setRenderHints(QPainter.RenderHint.Antialiasing, ly != ry)
