@@ -883,7 +883,6 @@ class CreateNewCustomColumn(object):
         # items in the dict.
         return copy.deepcopy(self.custcols)
 
-
     def current_headings(self):
         """
         Return the currently defined column headings
