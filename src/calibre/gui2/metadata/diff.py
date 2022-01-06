@@ -319,7 +319,7 @@ class CoverView(QWidget):
         self.metadata = metadata
         self.pixmap = None
         self.blank = QPixmap(I('blank.png'))
-        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.PolicyFlag.GrowFlag|QSizePolicy.PolicyFlag.ExpandFlag)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
         self.sizePolicy().setHeightForWidth(True)
 
     def mouseDoubleClickEvent(self, ev):
