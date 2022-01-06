@@ -37,7 +37,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.add_custcol_button.clicked.connect(self.add_custcol)
         self.add_col_button.clicked.connect(self.add_custcol)
         self.edit_custcol_button.clicked.connect(self.edit_custcol)
-        self.opt_columns.currentCellChanged.connect(self.current_cell_changed)
+        self.opt_columns.currentItemChanged.connect(self.set_up_down_enabled)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_columns, 'item'+signal)
             signal.connect(self.columns_changed)
@@ -89,18 +89,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                   CreateCustomColumn.column_types))
 
         for row, key in enumerate(colmap):
-            self.setup_row(row, key)
+            self.setup_row(row, key, row)
         self.initial_row_count = row
         self.opt_columns.setSortingEnabled(True)
-        self.opt_columns.horizontalHeader().setSortIndicator(0, Qt.AscendingOrder)
+        self.opt_columns.horizontalHeader().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
         self.restore_geometry()
         self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
+        self.opt_columns.setCurrentCell(0, 1)
+        self.set_up_down_enabled(self.opt_columns.currentItem(), None)
         self.opt_columns.blockSignals(False)
 
-    def current_cell_changed(self, current_row, current_col, prev_row, prev_col):
-        if self.opt_columns.horizontalHeader().sortIndicatorSection() == 0:
-            self.column_up.setEnabled(current_row > 0 and current_row <= self.initial_row_count)
-            self.column_down.setEnabled(current_row < self.initial_row_count)
+    def set_up_down_enabled(self, current_item, _):
+        h = self.opt_columns.horizontalHeader()
+        row = current_item.row()
+        if h.sortIndicatorSection() == 0 and h.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder:
+            self.column_up.setEnabled(row > 0 and row <= self.initial_row_count)
+            self.column_down.setEnabled(row < self.initial_row_count)
 
     def columns_changed(self, *args):
         self.changed_signal.emit()
@@ -111,9 +115,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return self.gui.library_view.get_state()
 
     def table_sorted(self, column):
-        self.column_up.setEnabled(column == 0)
-        self.column_down.setEnabled(column == 0)
+        h = self.opt_columns.horizontalHeader()
+        enabled = column == 0 and h.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder
+        self.column_up.setEnabled(enabled)
+        self.column_down.setEnabled(enabled)
         self.opt_columns.scrollTo(self.opt_columns.currentIndex())
+        self.set_up_down_enabled(self.opt_columns.currentItem(), _)
 
     def row_double_clicked(self, r, c):
         self.edit_custcol()
@@ -127,7 +134,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 return
         self.opt_columns.resizeColumnsToContents()
 
-    def setup_row(self, row, key):
+    def setup_row(self, row, key, order):
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
         if self.is_custom_key(key):
@@ -137,9 +144,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cc = self.field_metadata[key]
             original_key = key
 
+        self.opt_columns.setSortingEnabled(False)
         item = QTableWidgetItem()
-        item.setData(Qt.ItemDataRole.DisplayRole, row)
-        item.setToolTip(str(row))
+        item.setData(Qt.ItemDataRole.DisplayRole, order)
+        item.setToolTip(str(order))
         item.setData(Qt.ItemDataRole.UserRole, key)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 0, item)
@@ -203,8 +211,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item.setToolTip(col_status)
         item.setFlags(flags)
         self.opt_columns.setItem(row, 5, item)
+        self.opt_columns.setSortingEnabled(True)
 
     def up_column(self):
+        self.opt_columns.setSortingEnabled(False)
         row = self.opt_columns.currentRow()
         if row > 0:
             for i in range(0, self.opt_columns.columnCount()):
@@ -212,12 +222,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 upper = self.opt_columns.takeItem(row, i)
                 self.opt_columns.setItem(row, i, lower)
                 self.opt_columns.setItem(row-1, i, upper)
-            self.setup_row(row-1, self.opt_columns.item(row-1, 2).text())
-            self.setup_row(row, self.opt_columns.item(row, 2).text())
-            self.opt_columns.setCurrentCell(row-1, 0)
+            self.setup_row(row-1, self.opt_columns.item(row-1, 2).text(), row-1)
+            self.setup_row(row, self.opt_columns.item(row, 2).text(), row)
+            self.opt_columns.setCurrentCell(row-1, 1)
             self.changed_signal.emit()
+        self.opt_columns.setSortingEnabled(True)
 
     def down_column(self):
+        self.opt_columns.setSortingEnabled(False)
         row = self.opt_columns.currentRow()
         if row < self.opt_columns.rowCount()-1:
             for i in range(0, self.opt_columns.columnCount()):
@@ -225,10 +237,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 upper = self.opt_columns.takeItem(row+1, i)
                 self.opt_columns.setItem(row+1, i, lower)
                 self.opt_columns.setItem(row, i, upper)
-            self.setup_row(row+1, self.opt_columns.item(row+1, 2).text())
-            self.setup_row(row, self.opt_columns.item(row, 2).text())
-            self.opt_columns.setCurrentCell(row+1, 0)
+            self.setup_row(row+1, self.opt_columns.item(row+1, 2).text(), row+1)
+            self.setup_row(row, self.opt_columns.item(row, 2).text(), row)
+            self.opt_columns.setCurrentCell(row+1, 1)
             self.changed_signal.emit()
+        self.opt_columns.setSortingEnabled(True)
 
     def is_new_custom_column(self, cc):
         return 'colnum' in cc and cc['colnum'] >= self.initial_created_count
@@ -255,7 +268,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_columns.removeRow(row)
         else:
             self.custcols[key]['*deleted'] = True
-            self.setup_row(row, key)
+            self.setup_row(row, key, self.column_order_val(row))
         self.changed_signal.emit()
 
     def add_custcol(self):
@@ -267,8 +280,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_new_custom_column(cc)
         cc['original_key'] = self.cc_column_key
         row = self.opt_columns.rowCount()
-        self.opt_columns.setRowCount(row + 1)
-        self.setup_row(row, self.cc_column_key)
+        o = self.opt_columns
+        o.setRowCount(row + 1)
+        self.setup_row(row, self.cc_column_key, row)
+        # We need to find the new item after sorting
+        for i in range(0, o.rowCount()):
+            if self.column_order_val(i) == row:
+                o.setCurrentCell(i, 1)
+                o.scrollTo(o.currentIndex())
+                break;
         self.changed_signal.emit()
 
     def label_to_lookup_name(self, label):
@@ -276,6 +296,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def is_custom_key(self, key):
         return key.startswith('#')
+
+    def column_order_val(self, row):
+        return int(self.opt_columns.item(row, 0).text())
 
     def edit_custcol(self):
         model = self.gui.library_view.model()
@@ -292,7 +315,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                            _('The column is to be deleted. Do you want to undelete it?'),
                            show_copy_button=False):
                     cc.pop('*deleted', None)
-                    self.setup_row(row, key)
+                    self.setup_row(row, key, self.column_order_val(row))
                 return
             CreateCustomColumn(self.gui, self,
                                self.label_to_lookup_name(self.custcols[key]['label']),
@@ -306,7 +329,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cc = self.custcols[new_key]
             if self.is_new_custom_column(cc):
                 cc.pop('*edited', None)
-            self.setup_row(row, new_key)
+            self.setup_row(row, new_key, self.column_order_val(row))
+            self.opt_columns.scrollTo(self.opt_columns.currentIndex())
             self.changed_signal.emit()
         except:
             import traceback
