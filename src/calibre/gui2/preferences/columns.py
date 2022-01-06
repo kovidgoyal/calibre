@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import copy, sys
 from contextlib import suppress
 
-from qt.core import Qt, QTableWidgetItem, QIcon, QVariant
+from qt.core import Qt, QTableWidgetItem, QIcon
 
 from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -138,7 +138,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             original_key = key
 
         item = QTableWidgetItem()
-        item.setData(Qt.ItemDataRole.DisplayRole, QVariant(row))
+        item.setData(Qt.ItemDataRole.DisplayRole, row)
         item.setToolTip(str(row))
         item.setData(Qt.ItemDataRole.UserRole, key)
         item.setFlags(flags)
@@ -315,7 +315,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        self.opt_columns.sortItems(0, Qt.AscendingOrder)
+        self.opt_columns.sortItems(0, Qt.SortOrder.AscendingOrder)
         config_cols = [str(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
