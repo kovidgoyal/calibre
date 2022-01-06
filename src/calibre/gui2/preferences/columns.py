@@ -7,8 +7,9 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy, sys
+from contextlib import suppress
 
-from qt.core import Qt, QTableWidgetItem, QIcon
+from qt.core import Qt, QTableWidgetItem, QIcon, QVariant
 
 from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -36,6 +37,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.add_custcol_button.clicked.connect(self.add_custcol)
         self.add_col_button.clicked.connect(self.add_custcol)
         self.edit_custcol_button.clicked.connect(self.edit_custcol)
+        self.opt_columns.currentCellChanged.connect(self.current_cell_changed)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_columns, 'item'+signal)
             signal.connect(self.columns_changed)
@@ -57,14 +59,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         rr = ConfigWidgetBase.commit(self)
         return self.apply_custom_column_changes() or rr
 
-    def columns_changed(self, *args):
-        self.changed_signal.emit()
-
-    def columns_state(self, defaults=False):
-        if defaults:
-            return self.gui.library_view.get_default_state()
-        return self.gui.library_view.get_state()
-
     def init_columns(self, defaults=False):
         # Set up columns
         self.opt_columns.blockSignals(True)
@@ -79,17 +73,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         db = model.db
         self.field_metadata = db.field_metadata
 
-        self.opt_columns.setColumnCount(5)
-        item = QTableWidgetItem(_('Column header'))
-        self.opt_columns.setHorizontalHeaderItem(0, item)
-        item = QTableWidgetItem(_('Lookup name'))
-        self.opt_columns.setHorizontalHeaderItem(1, item)
-        item = QTableWidgetItem(_('Type'))
-        self.opt_columns.setHorizontalHeaderItem(2, item)
-        item = QTableWidgetItem(_('Status'))
-        self.opt_columns.setHorizontalHeaderItem(3, item)
-        item = QTableWidgetItem(_('Description'))
-        self.opt_columns.setHorizontalHeaderItem(4, item)
+        self.opt_columns.setColumnCount(6)
+        self.opt_columns.setHorizontalHeaderItem(0, QTableWidgetItem(_('Order')))
+        self.opt_columns.setHorizontalHeaderItem(1, QTableWidgetItem(_('Column header')))
+        self.opt_columns.setHorizontalHeaderItem(2, QTableWidgetItem(_('Lookup name')))
+        self.opt_columns.setHorizontalHeaderItem(3, QTableWidgetItem(_('Type')))
+        self.opt_columns.setHorizontalHeaderItem(4, QTableWidgetItem(_('Description')))
+        self.opt_columns.setHorizontalHeaderItem(5, QTableWidgetItem(_('Status')))
+        self.opt_columns.horizontalHeader().sectionClicked.connect(self.table_sorted)
+        self.opt_columns.verticalHeader().hide()
 
         self.opt_columns.setRowCount(len(colmap))
         self.column_desc = dict(map(lambda x:(CreateCustomColumn.column_types[x]['datatype'],
@@ -98,10 +90,30 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         for row, key in enumerate(colmap):
             self.setup_row(row, key)
-
+        self.initial_row_count = row
+        self.opt_columns.setSortingEnabled(True)
+        self.opt_columns.horizontalHeader().setSortIndicator(0, Qt.AscendingOrder)
         self.restore_geometry()
         self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
         self.opt_columns.blockSignals(False)
+
+    def current_cell_changed(self, current_row, current_col, prev_row, prev_col):
+        if self.opt_columns.horizontalHeader().sortIndicatorSection() == 0:
+            self.column_up.setEnabled(current_row > 0 and current_row <= self.initial_row_count)
+            self.column_down.setEnabled(current_row < self.initial_row_count)
+
+    def columns_changed(self, *args):
+        self.changed_signal.emit()
+
+    def columns_state(self, defaults=False):
+        if defaults:
+            return self.gui.library_view.get_default_state()
+        return self.gui.library_view.get_state()
+
+    def table_sorted(self, column):
+        self.column_up.setEnabled(column == 0)
+        self.column_down.setEnabled(column == 0)
+        self.opt_columns.scrollTo(self.opt_columns.currentIndex())
 
     def row_double_clicked(self, r, c):
         self.edit_custcol()
@@ -109,25 +121,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def restore_geometry(self):
         geom = gprefs.get('custcol-prefs-table-geometry', None)
         if geom is not None and len(geom) == self.opt_columns.columnCount():
-            try:
+            with suppress(Exception):
                 for i in range(0, self.opt_columns.columnCount()):
                     self.opt_columns.setColumnWidth(i, geom[i])
-            except:
-                self.set_default_geometry()
-        else:
-            self.set_default_geometry()
-
-    def set_default_geometry(self):
+                return
         self.opt_columns.resizeColumnsToContents()
-        self.opt_columns.resizeRowsToContents()
 
     def setup_row(self, row, key):
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
-
-        item = QTableWidgetItem(key)
-        item.setToolTip(key)
-        item.setFlags(flags)
-        self.opt_columns.setItem(row, 1, item)
 
         if self.is_custom_key(key):
             cc = self.custcols[key]
@@ -135,6 +136,34 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             cc = self.field_metadata[key]
             original_key = key
+
+        item = QTableWidgetItem()
+        item.setData(Qt.ItemDataRole.DisplayRole, QVariant(row))
+        item.setToolTip(str(row))
+        item.setData(Qt.ItemDataRole.UserRole, key)
+        item.setFlags(flags)
+        self.opt_columns.setItem(row, 0, item)
+
+        flags |= Qt.ItemFlag.ItemIsUserCheckable
+        if key == 'ondevice':
+            item.setFlags(flags & ~Qt.ItemFlag.ItemIsEnabled)
+            item.setCheckState(Qt.CheckState.PartiallyChecked)
+        else:
+            item.setFlags(flags)
+            item.setCheckState(Qt.CheckState.Unchecked if key in self.hidden_cols else
+                    Qt.CheckState.Checked)
+
+        item = QTableWidgetItem(cc['name'])
+        item.setToolTip(cc['name'])
+        item.setFlags(flags)
+        if self.is_custom_key(key):
+            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon(I('column.png'))))
+        self.opt_columns.setItem(row, 1, item)
+
+        item = QTableWidgetItem(key)
+        item.setToolTip(key)
+        item.setFlags(flags)
+        self.opt_columns.setItem(row, 2, item)
 
         if key == 'title':
             coltype = _('Text')
@@ -152,7 +181,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item = QTableWidgetItem(coltype)
         item.setToolTip(coltype)
         item.setFlags(flags)
-        self.opt_columns.setItem(row, 2, item)
+        self.opt_columns.setItem(row, 3, item)
+
+        desc = cc['display'].get('description', "")
+        item = QTableWidgetItem(desc)
+        item.setToolTip(desc)
+        item.setFlags(flags)
+        self.opt_columns.setItem(row, 4, item)
 
         if '*deleted' in cc:
             col_status = _('Deleted column. Double-click to undelete it')
@@ -167,49 +202,32 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item = QTableWidgetItem(col_status)
         item.setToolTip(col_status)
         item.setFlags(flags)
-        self.opt_columns.setItem(row, 3, item)
-
-        desc = cc['display'].get('description', "")
-        item = QTableWidgetItem(desc)
-        item.setToolTip(desc)
-        item.setFlags(flags)
-        self.opt_columns.setItem(row, 4, item)
-
-        item = QTableWidgetItem(cc['name'])
-        item.setToolTip(cc['name'])
-        item.setData(Qt.ItemDataRole.UserRole, key)
-        item.setFlags(flags)
-        self.opt_columns.setItem(row, 0, item)
-
-        if self.is_custom_key(key):
-            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon(I('column.png'))))
-        if key != 'ondevice':
-            flags |= Qt.ItemFlag.ItemIsUserCheckable
-        item.setFlags(flags)
-        if key != 'ondevice':
-            item.setCheckState(Qt.CheckState.Unchecked if key in self.hidden_cols else
-                    Qt.CheckState.Checked)
+        self.opt_columns.setItem(row, 5, item)
 
     def up_column(self):
-        idx = self.opt_columns.currentRow()
-        if idx > 0:
+        row = self.opt_columns.currentRow()
+        if row > 0:
             for i in range(0, self.opt_columns.columnCount()):
-                lower = self.opt_columns.takeItem(idx-1, i)
-                upper = self.opt_columns.takeItem(idx, i)
-                self.opt_columns.setItem(idx, i, lower)
-                self.opt_columns.setItem(idx-1, i, upper)
-            self.opt_columns.setCurrentCell(idx-1, 0)
+                lower = self.opt_columns.takeItem(row-1, i)
+                upper = self.opt_columns.takeItem(row, i)
+                self.opt_columns.setItem(row, i, lower)
+                self.opt_columns.setItem(row-1, i, upper)
+            self.setup_row(row-1, self.opt_columns.item(row-1, 2).text())
+            self.setup_row(row, self.opt_columns.item(row, 2).text())
+            self.opt_columns.setCurrentCell(row-1, 0)
             self.changed_signal.emit()
 
     def down_column(self):
-        idx = self.opt_columns.currentRow()
-        if idx < self.opt_columns.rowCount()-1:
+        row = self.opt_columns.currentRow()
+        if row < self.opt_columns.rowCount()-1:
             for i in range(0, self.opt_columns.columnCount()):
-                lower = self.opt_columns.takeItem(idx, i)
-                upper = self.opt_columns.takeItem(idx+1, i)
-                self.opt_columns.setItem(idx+1, i, lower)
-                self.opt_columns.setItem(idx, i, upper)
-            self.opt_columns.setCurrentCell(idx+1, 0)
+                lower = self.opt_columns.takeItem(row, i)
+                upper = self.opt_columns.takeItem(row+1, i)
+                self.opt_columns.setItem(row+1, i, lower)
+                self.opt_columns.setItem(row, i, upper)
+            self.setup_row(row+1, self.opt_columns.item(row+1, 2).text())
+            self.setup_row(row, self.opt_columns.item(row, 2).text())
+            self.opt_columns.setCurrentCell(row+1, 0)
             self.changed_signal.emit()
 
     def is_new_custom_column(self, cc):
@@ -297,6 +315,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
+        self.opt_columns.sortItems(0, Qt.AscendingOrder)
         config_cols = [str(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
