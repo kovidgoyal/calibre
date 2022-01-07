@@ -77,14 +77,12 @@ class Matches(QAbstractItemModel):
     def enable_all(self):
         for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
-            data = (True)
-            self.setData(index, data, Qt.ItemDataRole.CheckStateRole)
+            self.setData(index, Qt.CheckState.Checked, Qt.ItemDataRole.CheckStateRole)
 
     def enable_none(self):
         for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
-            data = (False)
-            self.setData(index, data, Qt.ItemDataRole.CheckStateRole)
+            self.setData(index, Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
 
     def enable_invert(self):
         for i in range(len(self.matches)):
@@ -92,7 +90,7 @@ class Matches(QAbstractItemModel):
 
     def toggle_plugin(self, index):
         new_index = self.createIndex(index.row(), 0)
-        data = (is_disabled(self.get_plugin(index)))
+        data = Qt.CheckState.Unchecked if is_disabled(self.get_plugin(index)) else Qt.CheckState.Checked
         self.setData(new_index, data, Qt.ItemDataRole.CheckStateRole)
 
     def index(self, row, column, parent=QModelIndex()):
@@ -173,7 +171,7 @@ class Matches(QAbstractItemModel):
             return False
         col = index.column()
         if col == 0:
-            if bool(data):
+            if data in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
                 enable_plugin(self.get_plugin(index))
             else:
                 disable_plugin(self.get_plugin(index))
