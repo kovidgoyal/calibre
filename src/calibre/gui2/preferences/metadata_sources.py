@@ -90,6 +90,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         col = index.column()
         ret = False
         if col == 0 and role == Qt.ItemDataRole.CheckStateRole:
+            val = Qt.CheckState(val)
             if val == Qt.CheckState.Checked and 'Douban' in plugin.name:
                 if not question_dialog(self.gui_parent,
                     _('Are you sure?'), '<p>'+
@@ -99,7 +100,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
                         ' sure you want to enable it?'),
                     show_copy_button=False):
                     return ret
-            self.enabled_overrides[plugin] = int(val)
+            self.enabled_overrides[plugin] = val
             ret = True
         if col == 1 and role == Qt.ItemDataRole.EditRole:
             try:
@@ -208,7 +209,7 @@ class FieldsModel(QAbstractListModel):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.overrides = {f: self.state(f, Qt.CheckState.Checked) for f in self.fields}
+        self.overrides = {f: self.state(f, True) for f in self.fields}
         self.endResetModel()
 
     def select_all(self):
@@ -228,7 +229,7 @@ class FieldsModel(QAbstractListModel):  # {{{
             return False
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
-            self.overrides[field] = int(val)
+            self.overrides[field] = Qt.CheckState(val)
             ret = True
         if ret:
             self.dataChanged.emit(index, index)
