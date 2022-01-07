@@ -787,7 +787,8 @@ class CreateNewCustomColumn(object):
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
         # Get the largest internal column number so we can be sure that we can
         # detect duplicates.
-        self.created_count = max(x['colnum'] for x in self.custcols.values()) + 1
+        self.created_count = max((x['colnum'] for x in self.custcols.values()),
+                                         default=0) + 1
 
     def create_column(self, lookup_name, column_heading, datatype, is_multiple,
                       display={}, generate_unused_lookup_name=False, freeze_lookup_name=True):
