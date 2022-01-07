@@ -17,6 +17,7 @@ class AdvancedUserRecipe1639926896(BasicNewsRecipe):
     max_articles_per_feed = 30
 
     compress_news_images = True
+    compress_news_images_auto_size = 4
     no_stylesheets = True
     keep_only_tags = [{'name': 'div', 'class_': ['post', 'hentry']}]
     remove_tags = [{'name': 'div', 'class_': 'post-footer'}]
