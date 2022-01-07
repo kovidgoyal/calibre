@@ -288,7 +288,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if self.column_order_val(i) == row:
                 o.setCurrentCell(i, 1)
                 o.scrollTo(o.currentIndex())
-                break;
+                break
         self.changed_signal.emit()
 
     def label_to_lookup_name(self, label):
