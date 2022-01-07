@@ -35,6 +35,7 @@
     // is U+2010 but that does not render with the default Times font on macOS as of Monterey
     // and Qt 15.5 See https://bugs.launchpad.net/bugs/1951467 and can be easily reproduced
     // by converting a plain text file with the --pdf-hyphenate option
+    // See also settings.pyj
     if (HYPHEN_CHAR) {
         for (const elem of document.getElementsByTagName('*')) {
             if (elem.style) {

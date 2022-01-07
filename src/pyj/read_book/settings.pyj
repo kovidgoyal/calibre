@@ -74,6 +74,13 @@ def apply_colors(is_content_popup):
         ss = E.style(id=styles_id, type='text/css')
         document.documentElement.appendChild(ss)
     text = ''
+    if runtime.is_standalone_viewer and 'macos' in window.navigator.userAgent:
+        # Change the hyphenate character to a plain ASCII minus (U+002d) the default
+        # is U+2010 but that does not render with the default Times font on macOS as of Monterey
+        # and Qt 15.5 See https://bugs.launchpad.net/bugs/1951467 and can be easily reproduced
+        # by converting a plain text file with the --pdf-hyphenate option
+        # See also pdf-preprint.js
+        text += '\n* { -webkit-hyphenate-character: "-" !important }\n'
     if opts.override_book_colors is not 'never':
         text = 'body'
         if opts.override_book_colors is 'dark':
