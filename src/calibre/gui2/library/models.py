@@ -47,8 +47,6 @@ TIME_FMT = '%d %b %Y'
 ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.AlignRight, 'center':
         Qt.AlignmentFlag.AlignHCenter}
 
-_default_image = None
-
 
 def render_pin(color='green', save_to=None):
     svg = P('pin-template.svg', data=True).replace(b'fill:#f39509', ('fill:' + color).encode('utf-8'))
@@ -59,13 +57,6 @@ def render_pin(color='green', save_to=None):
     if save_to:
         pm.save(save_to)
     return pm
-
-
-def default_image():
-    global _default_image
-    if _default_image is None:
-        _default_image = QImage(I('default_cover.png'))
-    return _default_image
 
 
 def group_numbers(numbers):
@@ -224,7 +215,6 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate',
                               'languages']
-        self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
         self.last_search = ''  # The last search performed on this model
@@ -275,6 +265,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         ans = QIcon(pm)
         self.marked_text_icons[label] = color, ans
         return ans
+
+    @property
+    def default_image(self):
+        return QApplication.instance().cached_qimage('default_cover.png')
 
     def _clear_caches(self):
         self.color_cache = defaultdict(dict)

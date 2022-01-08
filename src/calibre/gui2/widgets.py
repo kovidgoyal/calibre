@@ -1097,7 +1097,7 @@ class Splitter(QSplitter):
             self.button.clicked.connect(self.double_clicked)
 
         if shortcut is not None:
-            self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
+            self.action_toggle = QAction(QIcon.ic(icon), _('Toggle') + ' ' + label,
                     self)
             self.action_toggle.changed.connect(self.update_shortcut)
             self.action_toggle.triggered.connect(self.toggle_triggered)

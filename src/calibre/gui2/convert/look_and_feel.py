@@ -18,7 +18,7 @@ from polyglot.builtins import iteritems
 class LookAndFeelWidget(Widget, Ui_Form):
 
     TITLE = _('Look & feel')
-    ICON  = I('lookfeel.png')
+    ICON  = 'lookfeel.png'
     HELP  = _('Control the look and feel of the output.')
     COMMIT_NAME = 'look_and_feel'
 

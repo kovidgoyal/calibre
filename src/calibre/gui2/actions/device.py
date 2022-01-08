@@ -126,9 +126,9 @@ class ShareConnMenu(QMenu):  # {{{
                 subject = opts.subjects.get(account, '')
                 alias = opts.aliases.get(account, '')
                 dest = 'mail:'+account+';'+formats+';'+subject
-                action1 = DeviceAction(dest, False, False, I('mail.png'),
+                action1 = DeviceAction(dest, False, False, 'mail.png',
                         alias or account)
-                action2 = DeviceAction(dest, True, False, I('mail.png'),
+                action2 = DeviceAction(dest, True, False, 'mail.png',
                         (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
@@ -136,22 +136,22 @@ class ShareConnMenu(QMenu):  # {{{
                 self.memory.append(action2)
                 if default:
                     ac = DeviceAction(dest, False, False,
-                            I('mail.png'), _('Email to') + ' ' +(alias or
+                            'mail.png', _('Email to') + ' ' +(alias or
                                 account))
                     self.addAction(ac)
                     self.email_actions.append(ac)
                     ac.a_s.connect(sync_menu.action_triggered)
                 action1.a_s.connect(sync_menu.action_triggered)
                 action2.a_s.connect(sync_menu.action_triggered)
-            action1 = DeviceAction('choosemail:', False, False, I('mail.png'),
+            action1 = DeviceAction('choosemail:', False, False, 'mail.png',
                     _('Select recipients'))
-            action2 = DeviceAction('choosemail:', True, False, I('mail.png'),
+            action2 = DeviceAction('choosemail:', True, False, 'mail.png',
                     _('Select recipients') + ' ' + _('(delete from library)'))
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
             self.memory.append(action1)
             self.memory.append(action2)
-            tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
+            tac1 = DeviceAction('choosemail:', False, False, 'mail.png',
                     _('Email to selected recipients...'))
             self.addAction(tac1)
             tac1.a_s.connect(sync_menu.action_triggered)

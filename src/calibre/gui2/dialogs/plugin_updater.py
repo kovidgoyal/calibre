@@ -11,8 +11,7 @@ import traceback
 from qt.core import (
     QAbstractItemView, QAbstractTableModel, QAction, QApplication, QBrush, QComboBox,
     QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QModelIndex, QPixmap, QSize, QSortFilterProxyModel, Qt, QTableView, QUrl,
-    QVBoxLayout
+    QModelIndex, QSize, QSortFilterProxyModel, Qt, QTableView, QUrl, QVBoxLayout
 )
 
 from calibre import prints
@@ -129,13 +128,12 @@ class ImageTitleLayout(QHBoxLayout):
         title_font = QFont()
         title_font.setPointSize(16)
         title_image_label = QLabel(parent)
-        pixmap = QPixmap()
-        pixmap.load(I(icon_name))
-        if pixmap is None:
+        ic = QIcon.ic(icon_name)
+        if ic.isNull():
             error_dialog(parent, _('Restart required'),
                          _('You must restart calibre before using this plugin!'), show=True)
         else:
-            title_image_label.setPixmap(pixmap)
+            title_image_label.setPixmap(ic.pixmap(32, 32))
         title_image_label.setMaximumSize(32, 32)
         title_image_label.setScaledContents(True)
         self.addWidget(title_image_label)
@@ -387,7 +385,7 @@ class DisplayPluginModel(QAbstractTableModel):
                 icon_name = 'plugin_new_valid.png'
             else:
                 icon_name = 'plugin_new_invalid.png'
-        return QIcon(I('plugins/' + icon_name))
+        return QIcon.ic('plugins/' + icon_name)
 
     def _get_status_tooltip(self, display_plugin):
         if display_plugin.is_deprecated:

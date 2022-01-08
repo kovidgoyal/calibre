@@ -9,6 +9,7 @@ import signal
 import sys
 import threading
 from contextlib import contextmanager
+from functools import lru_cache
 from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QDateTime,
     QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFileDialog,
@@ -1126,7 +1127,19 @@ class Application(QApplication):
         QTimer.singleShot(1000, lambda: QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, False))
         self.ignore_palette_changes = False
 
+    @lru_cache(maxsize=256)
+    def cached_qimage(self, name):
+        return self.cached_qpixmap(name).toImage()
+
+    @lru_cache(maxsize=256)
+    def cached_qpixmap(self, name):
+        ic = QIcon.ic(name)
+        pmap = ic.pixmap(ic.availableSizes()[0])
+        return pmap
+
     def on_palette_change(self):
+        self.cached_qimage.cache_clear()
+        self.cached_qpixmap.cache_clear()
         self.is_dark_theme = is_dark_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
