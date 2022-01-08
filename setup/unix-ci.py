@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -119,7 +118,7 @@ def main():
 
         tball = 'macos-64' if ismacos else 'linux-64'
         download_and_decompress(
-            'https://download.calibre-ebook.com/ci/calibre3/{}.tar.xz'.format(tball), SW
+            f'https://download.calibre-ebook.com/ci/calibre3/{tball}.tar.xz', SW
         )
         if not ismacos:
             install_linux_deps()
@@ -152,7 +151,7 @@ username = api
         run_python('setup.py test')
         run_python('setup.py test_rs')
     else:
-        raise SystemExit('Unknown action: {}'.format(action))
+        raise SystemExit(f'Unknown action: {action}')
 
 
 if __name__ == '__main__':

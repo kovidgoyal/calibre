@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 
 # Imports {{{
@@ -128,7 +126,7 @@ def parse_index(raw=None):  # {{{
 
         thread_id = url_to_plugin_id(url, deprecated)
         if thread_id in seen:
-            raise ValueError('thread_id for %s and %s is the same: %s' % (seen[thread_id], name, thread_id))
+            raise ValueError(f'thread_id for {seen[thread_id]} and {name} is the same: {thread_id}')
         seen[thread_id] = name
         entry = IndexEntry(name, url, donate, history, uninstall, deprecated, thread_id)
         yield entry
@@ -147,7 +145,7 @@ def load_plugins_index():
     try:
         with open(PLUGINS, 'rb') as f:
             raw = f.read()
-    except IOError as err:
+    except OSError as err:
         if err.errno == errno.ENOENT:
             return {}
         raise
@@ -173,13 +171,13 @@ def convert_node(fields, x, names={}, import_data=None):
         return dict(zip(keys, values))
     elif name == 'Call':
         if len(x.args) != 1 and len(x.keywords) != 0:
-            raise TypeError('Unsupported function call for fields: %s' % (fields,))
+            raise TypeError(f'Unsupported function call for fields: {fields}')
         return tuple(map(conv, x.args))[0]
     elif name == 'Name':
         if x.id not in names:
             if import_data is not None and x.id in import_data[0]:
                 return get_import_data(x.id, import_data[0][x.id], *import_data[1:])
-            raise ValueError('Could not find name %s for fields: %s' % (x.id, fields))
+            raise ValueError(f'Could not find name {x.id} for fields: {fields}')
         return names[x.id]
     elif name == 'BinOp':
         if x.right.__class__.__name__ == 'Str':
@@ -188,7 +186,7 @@ def convert_node(fields, x, names={}, import_data=None):
             return x.right.value
     elif name == 'Attribute':
         return conv(getattr(conv(x.value), x.attr))
-    raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
+    raise TypeError(f'Unknown datatype {x} for fields: {fields}')
 
 
 Alias = namedtuple('Alias', 'name asname')
@@ -221,7 +219,7 @@ def get_import_data(name, mod, zf, names):
                     return convert_node({x}, node.value)
         if is_module_import:
             return module
-        raise ValueError('Failed to find name: %r in module: %r' % (name, mod))
+        raise ValueError(f'Failed to find name: {name!r} in module: {mod!r}')
     else:
         raise ValueError('Failed to find module: %r' % mod)
 
@@ -457,7 +455,7 @@ def fetch_plugins(old_index):
 
 
 def plugin_to_index(plugin, count):
-    title = '<h3><img src="plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
+    title = '<h3><img src="plugin-icon.png"><a href={} title="Plugin forum thread">{}</a></h3>'.format(  # noqa
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
@@ -478,12 +476,12 @@ def plugin_to_index(plugin, count):
         block.append('<li>%s</li>' % li)
     block = '<ul>%s</ul>' % ('\n'.join(block))
     downloads = ('\xa0<span class="download-count">[%d total downloads]</span>' % count) if count else ''
-    zipfile = '<div class="end"><a href=%s title="Download plugin" download=%s>Download plugin \u2193</a>%s</div>' % (
+    zipfile = '<div class="end"><a href={} title="Download plugin" download={}>Download plugin \u2193</a>{}</div>'.format(
         quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''
     if desc:
         desc = '<p>%s</p>' % desc
-    return '%s\n%s\n%s\n%s\n\n' % (title, desc, block, zipfile)
+    return f'{title}\n{desc}\n{block}\n{zipfile}\n\n'
 
 
 def create_index(index, raw_stats):
@@ -526,14 +524,14 @@ h1 { text-align: center }
     try:
         with open('index.html', 'rb') as f:
             oraw = f.read()
-    except EnvironmentError:
+    except OSError:
         oraw = None
     if raw != oraw:
         atomic_write(raw, 'index.html')
 
     def plugin_stats(x):
         name, count = x
-        return '<tr><td>%s</td><td>%s</td></tr>\n' % (escape(name), count)
+        return f'<tr><td>{escape(name)}</td><td>{count}</td></tr>\n'
 
     pstats = list(map(plugin_stats, sorted(stats.items(), reverse=True, key=lambda x:x[1])))
     stats = '''\
@@ -560,7 +558,7 @@ h1 { text-align: center }
     try:
         with open('stats.html', 'rb') as f:
             oraw = f.read()
-    except EnvironmentError:
+    except OSError:
         oraw = None
     if raw != oraw:
         atomic_write(raw, 'stats.html')
@@ -574,7 +572,7 @@ def singleinstance():
     s = _singleinstance = socket.socket(socket.AF_UNIX)
     try:
         s.bind(b'\0calibre-plugins-mirror-singleinstance')
-    except socket.error as err:
+    except OSError as err:
         if getattr(err, 'errno', None) == errno.EADDRINUSE:
             return False
         raise
@@ -590,7 +588,7 @@ def update_stats():
         try:
             with open('stats.json', 'rb') as f:
                 stats = json.load(f)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
         if os.geteuid() != 0:
@@ -688,7 +686,7 @@ def test_parse():  # {{{
     new_entries = tuple(parse_index(raw))
     for i, entry in enumerate(old_entries):
         if entry != new_entries[i]:
-            print('The new entry: %s != %s' % (new_entries[i], entry))
+            print(f'The new entry: {new_entries[i]} != {entry}')
             raise SystemExit(1)
     pool = ThreadPool(processes=20)
     urls = [e.url for e in new_entries]
@@ -705,7 +703,7 @@ def test_parse():  # {{{
                 break
         new_url, aname = parse_plugin_zip_url(raw)
         if new_url != full_url:
-            print('new url (%s): %s != %s for plugin at: %s' % (aname, new_url, full_url, url))
+            print(f'new url ({aname}): {new_url} != {full_url} for plugin at: {url}')
             raise SystemExit(1)
 
 # }}}

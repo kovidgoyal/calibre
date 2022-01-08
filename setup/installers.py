@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -86,7 +85,7 @@ def build_single(which='windows', bitness='64', shutdown=True, sign_installers=T
         dest = os.path.join(base, 'dist', x)
         try:
             os.remove(dest)
-        except EnvironmentError:
+        except OSError:
             pass
         os.link(src, dest)
     if shutdown:
@@ -248,9 +247,9 @@ class ExtDev(Command):
         try:
             path = path.format(ext)
             src = os.path.join(ext_dir, os.path.basename(path))
-            subprocess.check_call(['ssh', '-S', control_path, host, 'chmod', '+w', '"{}"'.format(path)])
+            subprocess.check_call(['ssh', '-S', control_path, host, 'chmod', '+w', f'"{path}"'])
             with open(src, 'rb') as f:
-                p = subprocess.Popen(['ssh', '-S', control_path, host, 'cat - > "{}"'.format(path)], stdin=subprocess.PIPE)
+                p = subprocess.Popen(['ssh', '-S', control_path, host, f'cat - > "{path}"'], stdin=subprocess.PIPE)
                 p.communicate(f.read())
             if p.wait() != 0:
                 raise SystemExit(1)

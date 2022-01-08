@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -92,7 +91,7 @@ def build_cache_dir():
         _cache_dir_built = True
         try:
             os.mkdir(ans)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.EEXIST:
                 raise
     return ans
@@ -100,7 +99,7 @@ def build_cache_dir():
 
 def require_git_master(branch='master'):
     if subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).decode('utf-8').strip() != branch:
-        raise SystemExit('You must be in the {} git branch'.format(branch))
+        raise SystemExit(f'You must be in the {branch} git branch')
 
 
 def require_clean_git():
@@ -225,7 +224,7 @@ class Command:
         st = time.time()
         self.running(cmd)
         cmd.run(opts)
-        self.info('* %s took %.1f seconds' % (command_names[cmd], time.time() - st))
+        self.info(f'* {command_names[cmd]} took {time.time() - st:.1f} seconds')
         if os.environ.get('CI'):
             self.info('::endgroup::')
 

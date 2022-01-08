@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -108,7 +107,7 @@ class POT(Command):  # {{{
         for x in sorted(entries, key=lambda x:name_getter(x).lower()):
             name = name_getter(x)
             if name:
-                ans.append(u'msgid "{}"'.format(name))
+                ans.append(f'msgid "{name}"')
                 ans.append('msgstr ""')
                 ans.append('')
         pot = self.pot_header() + '\n\n' + '\n'.join(ans)
@@ -278,7 +277,7 @@ class Translations(POT):  # {{{
             self.cache_dir_created = True
             try:
                 os.mkdir(ans)
-            except EnvironmentError as err:
+            except OSError as err:
                 if err.errno != errno.EEXIST:
                     raise
         return ans
@@ -293,7 +292,7 @@ class Translations(POT):  # {{{
             with open(self.j(self.cache_dir, cname), 'rb') as f:
                 data = f.read()
                 return data[:20], data[20:]
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
         return None, None
@@ -387,7 +386,7 @@ class Translations(POT):  # {{{
                             self.bad.add(msgstr)
                             return match.group()
                         self.seen.add(self.msgid)
-                        return 'msgstr "{}"'.format(self.msgid)
+                        return f'msgstr "{self.msgid}"'
                     self.seen.add(msgstr)
                 return match.group()
 
@@ -405,7 +404,7 @@ class Translations(POT):  # {{{
                 if msgstr:
                     if msgstr and msgstr in self.bad:
                         self.bad.discard(msgstr)
-                        return 'msgstr "{}"'.format(self.msgid)
+                        return f'msgstr "{self.msgid}"'
                 return match.group()
 
         for (po_path, mo_path) in files:
@@ -475,7 +474,7 @@ class Translations(POT):  # {{{
         base = self.d(dest)
         try:
             os.mkdir(base)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.EEXIST:
                 raise
         from calibre.utils.serialize import msgpack_dumps
@@ -506,12 +505,12 @@ class Translations(POT):  # {{{
                     po_data = data.decode('utf-8')
                     data = json.loads(msgfmt(po_data))
                     translated_entries = {k:v for k, v in iteritems(data['entries']) if v and sum(map(len, v))}
-                    data[u'entries'] = translated_entries
-                    data[u'hash'] = h.hexdigest()
+                    data['entries'] = translated_entries
+                    data['hash'] = h.hexdigest()
                     cdata = b'{}'
                     if translated_entries:
                         raw = json.dumps(data, ensure_ascii=False, sort_keys=True)
-                        if isinstance(raw, type(u'')):
+                        if isinstance(raw, str):
                             raw = raw.encode('utf-8')
                         cdata = raw
                     self.write_cache(cdata, current_hash, src)
@@ -539,7 +538,7 @@ class Translations(POT):  # {{{
                     cm = langnames_to_langcodes([omsgid, msgid])
                     if cm[msgid] and cm[omsgid] and cm[msgid] != cm[omsgid]:
                         has_errors = True
-                        self.iso639_errors.append('In file %s the name %s is used as translation for both %s and %s' % (
+                        self.iso639_errors.append('In file {} the name {} is used as translation for both {} and {}'.format(
                             os.path.basename(path), msgstr, msgid, rmap[msgstr]))
                     # raise SystemExit(1)
                 rmap[msgstr] = msgid
@@ -730,8 +729,8 @@ class GetTranslations(Translations):  # {{{
                 if changed:
                     f.save()
         for slug, languages in iteritems(changes):
-            print('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug))
-            self.tx('push -r calibre.%s -t -l %s' % (slug, ','.join(languages)))
+            print('Pushing fixes for languages: {} in {}'.format(', '.join(languages), slug))
+            self.tx('push -r calibre.{} -t -l {}'.format(slug, ','.join(languages)))
 
     def check_for_errors(self):
         self.info('Checking for errors in .po files...')
@@ -750,8 +749,8 @@ class GetTranslations(Translations):  # {{{
                 languages.add(os.path.basename(parts[-1]).partition('.')[0])
         if languages:
             pot = 'main' if group == 'calibre' else group.replace('-', '_')
-            print('Pushing fixes for %s.pot languages: %s' % (pot, ', '.join(languages)))
-            self.tx('push -r calibre.{} -t -l '.format(pot) + ','.join(languages))
+            print('Pushing fixes for {}.pot languages: {}'.format(pot, ', '.join(languages)))
+            self.tx(f'push -r calibre.{pot} -t -l ' + ','.join(languages))
 
     def check_group(self, group):
         files = glob.glob(os.path.join(self.TRANSLATIONS, group, '*.po'))
@@ -769,11 +768,11 @@ class GetTranslations(Translations):  # {{{
         def check_for_control_chars(f):
             with open(f, 'rb') as f:
                 raw = f.read().decode('utf-8')
-            pat = re.compile(type(u'')(r'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]'))
+            pat = re.compile(r'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]')
             errs = []
             for i, line in enumerate(raw.splitlines()):
                 if pat.search(line) is not None:
-                    errs.append('There are ASCII control codes on line number: {}'.format(i + 1))
+                    errs.append(f'There are ASCII control codes on line number: {i + 1}')
             return '\n'.join(errs)
 
         for f in files:
@@ -848,7 +847,7 @@ class ISO639(Command):  # {{{
         m3to2 = {}
         nm = {}
         codes2, codes3 = set(), set()
-        unicode_type = type(u'')
+        unicode_type = str
         for x in entries:
             two = x.get('alpha_2')
             if two:
@@ -874,9 +873,9 @@ class ISO639(Command):  # {{{
             base_name = name.lower()
             nm[base_name] = threeb
 
-        x = {u'by_2':by_2, u'by_3':by_3, u'codes2':codes2,
-                u'codes3':codes3, u'2to3':m2to3,
-                u'3to2':m3to2, u'name_map':nm}
+        x = {'by_2':by_2, 'by_3':by_3, 'codes2':codes2,
+                'codes3':codes3, '2to3':m2to3,
+                '3to2':m3to2, 'name_map':nm}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))
@@ -911,7 +910,7 @@ class ISO3166(ISO639):  # {{{
         codes = set()
         three_map = {}
         name_map = {}
-        unicode_type = type(u'')
+        unicode_type = str
         for x in db['3166-1']:
             two = x.get('alpha_2')
             if two:
@@ -923,7 +922,7 @@ class ISO3166(ISO639):  # {{{
             three = x.get('alpha_3')
             if three:
                 three_map[unicode_type(three)] = two
-        x = {u'names':name_map, u'codes':frozenset(codes), u'three_map':three_map}
+        x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -34,9 +33,9 @@ def installers(include_source=True):
     installers.append(installer_name('txz', is64bit=True))
     installers.append(installer_name('msi', is64bit=True))
     if include_source:
-        installers.insert(0, 'dist/%s-%s.tar.xz' % (__appname__, __version__))
+        installers.insert(0, f'dist/{__appname__}-{__version__}.tar.xz')
     installers.append(
-        'dist/%s-portable-installer-%s.exe' % (__appname__, __version__)
+        f'dist/{__appname__}-portable-installer-{__version__}.exe'
     )
     return installers
 
@@ -126,7 +125,7 @@ def get_fosshub_data():
 def send_data(loc):
     subprocess.check_call([
         'rsync', '--inplace', '--delete', '-r', '-zz', '-h', '--info=progress2', '-e',
-        'ssh -x', loc + '/', '%s@%s:%s' % (STAGING_USER, STAGING_HOST, STAGING_DIR)
+        'ssh -x', loc + '/', f'{STAGING_USER}@{STAGING_HOST}:{STAGING_DIR}'
     ])
 
 
@@ -160,7 +159,7 @@ def calibre_cmdline(ver):
 def run_remote_upload(args):
     print('Running remotely:', ' '.join(args))
     subprocess.check_call([
-        'ssh', '-x', '%s@%s' % (STAGING_USER, STAGING_HOST), 'cd', STAGING_DIR, '&&',
+        'ssh', '-x', f'{STAGING_USER}@{STAGING_HOST}', 'cd', STAGING_DIR, '&&',
         'python', 'hosting.py'
     ] + args)
 
@@ -185,7 +184,7 @@ def upload_to_fosshub():
         if ans.get('error'):
             raise SystemExit(ans['error'])
         if res.getcode() != 200:
-            raise SystemExit('Request to {} failed with response code: {}'.format(path, res.getcode()))
+            raise SystemExit(f'Request to {path} failed with response code: {res.getcode()}')
         # from pprint import pprint
         # pprint(ans)
         return ans['status'] if 'status' in ans else ans['data']
@@ -204,7 +203,7 @@ def upload_to_fosshub():
     entries = []
     for fname in files:
         desc = installer_description(fname)
-        url = 'https://download.calibre-ebook.com/%s/%s' % (
+        url = 'https://download.calibre-ebook.com/{}/{}'.format(
             __version__, os.path.basename(fname)
         )
         entries.append({
@@ -221,7 +220,7 @@ def upload_to_fosshub():
     data = json.dumps(jq)
     # print(data)
     data = data.encode('utf-8')
-    if not request('projects/{}/releases/'.format(project_id), data=data):
+    if not request(f'projects/{project_id}/releases/', data=data):
         raise SystemExit('Failed to queue publish job with fosshub')
 
 
@@ -263,7 +262,7 @@ class UploadInstallers(Command):  # {{{
     def record_sizes(self, sizes):
         print('\nRecording dist sizes')
         args = [
-            '%s:%s:%s' % (__version__, fname, size)
+            f'{__version__}:{fname}:{size}'
             for fname, size in iteritems(sizes)
         ]
         check_call(['ssh', 'code', '/usr/local/bin/dist_sizes'] + args)
@@ -285,7 +284,7 @@ class UploadInstallers(Command):  # {{{
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in iteritems(files):
-                fo.write(('%s: %s\n' % (f, desc)).encode('utf-8'))
+                fo.write((f'{f}: {desc}\n').encode())
 
         while True:
             try:
@@ -345,7 +344,7 @@ class UploadUserManual(Command):  # {{{
                             for y in os.listdir(x):
                                 zf.write(os.path.join(x, y))
             bname = self.b(path) + '_plugin.zip'
-            dest = '%s/%s' % (DOWNLOADS, bname)
+            dest = f'{DOWNLOADS}/{bname}'
             subprocess.check_call(['scp', f.name, 'main:' + dest])
 
     def run(self, opts):
@@ -387,7 +386,7 @@ class UploadDemo(Command):  # {{{
             shell=True
         )
 
-        check_call('scp /tmp/html-demo.zip main:%s/' % (DOWNLOADS, ), shell=True)
+        check_call(f'scp /tmp/html-demo.zip main:{DOWNLOADS}/', shell=True)
 
 
 # }}}

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -28,7 +27,7 @@ def init_symbol_name(name):
 
 
 def absolutize(paths):
-    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
+    return list({x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths})
 
 
 class Extension:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -16,17 +15,13 @@ from polyglot.builtins import codepoint_to_chr, itervalues, iteritems, only_unic
 
 def get_opts_from_parser(parser):
     def do_opt(opt):
-        for x in opt._long_opts:
-            yield x
-        for x in opt._short_opts:
-            yield x
+        yield from opt._long_opts
+        yield from opt._short_opts
     for o in parser.option_list:
-        for x in do_opt(o):
-            yield x
+        yield from do_opt(o)
     for g in parser.option_groups:
         for o in g.option_list:
-            for x in do_opt(o):
-                yield x
+            yield from do_opt(o)
 
 
 class Kakasi(Command):  # {{{
@@ -145,7 +140,7 @@ class CACerts(Command):  # {{{
         try:
             with open(self.CA_PATH, 'rb') as f:
                 raw = f.read()
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
             raw = b''
@@ -298,7 +293,7 @@ class Resources(Command):  # {{{
             except Exception:
                 continue
             src = src.replace('def ' + func.__name__, 'def replace')
-            imports = ['from %s import %s' % (x.__module__, x.__name__) for x in func.imports]
+            imports = [f'from {x.__module__} import {x.__name__}' for x in func.imports]
             if imports:
                 src = '\n'.join(imports) + '\n\n' + src
             function_dict[func.name] = src

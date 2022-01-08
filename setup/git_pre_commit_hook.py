@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -55,7 +54,7 @@ class Bug:
             print('Working on bug:', summary)
             if int(bug) > 100000 and action != 'See':
                 self.close_bug(bug, action)
-                return match.group() + ' [%s](%s)' % (summary, LAUNCHPAD_BUG % bug)
+                return match.group() + f' [{summary}]({LAUNCHPAD_BUG % bug})'
             return match.group() + ' (%s)' % summary
         return match.group()
 
@@ -66,7 +65,7 @@ class Bug:
             'calibre is usually released every alternate Friday.'
         )
         action += 'ed'
-        msg = '%s in branch %s. %s' % (action, 'master', suffix)
+        msg = '{} in branch {}. {}'.format(action, 'master', suffix)
         msg = msg.replace('Fixesed', 'Fixed')
         msg += '\n\n status fixreleased'
 

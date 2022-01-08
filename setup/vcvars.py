@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ctypes.wintypes
@@ -129,7 +128,7 @@ def query_process(cmd, is64bit):
 def query_vcvarsall(is64bit=True):
     plat = 'amd64' if is64bit else 'amd64_x86'
     vcvarsall = find_vcvarsall()
-    env = query_process('"%s" %s & set' % (vcvarsall, plat), is64bit)
+    env = query_process(f'"{vcvarsall}" {plat} & set', is64bit)
 
     def g(k):
         try:

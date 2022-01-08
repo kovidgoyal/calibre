@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -16,7 +15,7 @@ class Message:
         self.filename, self.lineno, self.msg = filename, lineno, msg
 
     def __str__(self):
-        return '%s:%s: %s' % (self.filename, self.lineno, self.msg)
+        return f'{self.filename}:{self.lineno}: {self.msg}'
 
 
 def checkable_python_files(SRC):
@@ -95,7 +94,7 @@ class Check(Command):
         try:
             with open(self.cache_file, 'rb') as f:
                 cache = json.load(f)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
         dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
@@ -118,7 +117,7 @@ class Check(Command):
     def clean(self):
         try:
             os.remove(self.cache_file)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
 
@@ -129,6 +128,10 @@ class UpgradeSourceCode(Command):
 
     def run(self, opts):
         files = []
+        for f in os.listdir(os.path.dirname(os.path.abspath(__file__))):
+            q = os.path.join('setup', f)
+            if f.endswith('.py') and f not in ('linux-installer.py',) and not os.path.isdir(q):
+                files.append(q)
         for path in checkable_python_files(self.SRC):
             q = path.replace(os.sep, '/')
             if '/metadata/sources/' in q or '/store/stores/' in q:
