@@ -25,7 +25,7 @@ class ChooseFormat(QDialog):  # {{{
     def __init__(self, formats, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose format to edit'))
-        self.setWindowIcon(QIcon(I('dialog_question.png')))
+        self.setWindowIcon(QIcon.ic('dialog_question.png'))
         l = self.l = QGridLayout()
         self.setLayout(l)
         la = self.la = QLabel(_('Choose which format you want to edit:'))

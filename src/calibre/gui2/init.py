@@ -635,7 +635,7 @@ class LayoutMixin:  # {{{
             b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
             b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
             b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-            b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
+            b.setText(_('Layout')), b.setIcon(QIcon.ic('config.png'))
             b.setMenu(LayoutMenu(self))
             b.setToolTip(_(
                 'Show and hide various parts of the calibre main window'))

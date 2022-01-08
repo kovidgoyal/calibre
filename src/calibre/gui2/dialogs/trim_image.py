@@ -39,7 +39,7 @@ class TrimImage(QDialog):
         u.setShortcut(QKeySequence(QKeySequence.StandardKey.Undo))
         self.redo_action = r = c.redo_action
         r.setShortcut(QKeySequence(QKeySequence.StandardKey.Redo))
-        self.trim_action = ac = self.bar.addAction(QIcon(I('trim.png')), _('&Trim'), self.do_trim)
+        self.trim_action = ac = self.bar.addAction(QIcon.ic('trim.png'), _('&Trim'), self.do_trim)
         ac.setShortcut(QKeySequence('Ctrl+T'))
         ac.setToolTip('{} [{}]'.format(_('Trim image by removing borders outside the selected region'),
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))

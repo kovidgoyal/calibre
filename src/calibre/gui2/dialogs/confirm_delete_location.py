@@ -43,7 +43,7 @@ class Dialog(QDialog, Ui_Dialog):
 def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
-    d.setWindowIcon(QIcon(I(pixmap)))
+    d.setWindowIcon(QIcon.ic(pixmap))
     d.resize(d.sizeHint())
     ret = d.exec()
     d.break_cycles()

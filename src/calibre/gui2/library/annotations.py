@@ -253,10 +253,10 @@ class Export(Dialog):  # {{{
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = self.bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.copy_to_clipboard)
-        b.setIcon(QIcon(I('edit-copy.png')))
+        b.setIcon(QIcon.ic('edit-copy.png'))
         b = self.bb.addButton(_('Save to file'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.save_to_file)
-        b.setIcon(QIcon(I('save.png')))
+        b.setIcon(QIcon.ic('save.png'))
 
     def save_format_pref(self):
         self.prefs[self.pref_name] = self.export_format.currentData()
@@ -632,14 +632,14 @@ class BrowsePanel(QWidget):
         self.next_button = nb = QToolButton(self)
         h.addWidget(nb)
         nb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        nb.setIcon(QIcon(I('arrow-down.png')))
+        nb.setIcon(QIcon.ic('arrow-down.png'))
         nb.clicked.connect(self.show_next)
         nb.setToolTip(_('Find next match'))
 
         self.prev_button = nb = QToolButton(self)
         h.addWidget(nb)
         nb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        nb.setIcon(QIcon(I('arrow-up.png')))
+        nb.setIcon(QIcon.ic('arrow-up.png'))
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
@@ -925,7 +925,7 @@ class AnnotationsBrowser(Dialog):
         self.current_restriction = None
         Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser', parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
-        self.setWindowIcon(QIcon(I('highlight.png')))
+        self.setWindowIcon(QIcon.ic('highlight.png'))
 
     def do_open_annotation(self, book_id, fmt, annot):
         atype = annot['type']
@@ -975,11 +975,11 @@ class AnnotationsBrowser(Dialog):
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         self.delete_button = b = self.bb.addButton(_('&Delete all selected'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Delete the selected annotations'))
-        b.setIcon(QIcon(I('trash.png')))
+        b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(self.delete_selected)
         self.export_button = b = self.bb.addButton(_('&Export all selected'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Export the selected annotations'))
-        b.setIcon(QIcon(I('save.png')))
+        b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.export_selected)
         self.refresh_button = b = RightClickButton(self.bb)
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
@@ -989,7 +989,7 @@ class AnnotationsBrowser(Dialog):
         m.addAction(_('Rebuild search index')).triggered.connect(self.rebuild)
         b.setMenu(m)
         b.setToolTip(_('Refresh annotations in case they have been changed since this window was opened'))
-        b.setIcon(QIcon(I('restart.png')))
+        b.setIcon(QIcon.ic('restart.png'))
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.clicked.connect(self.refresh)
 

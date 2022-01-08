@@ -143,7 +143,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     acc = EventAccumulator(app)
     app.file_event_hook = acc
     app.load_builtin_fonts()
-    app.setWindowIcon(QIcon(I('viewer.png')))
+    app.setWindowIcon(QIcon.ic('viewer.png'))
     migrate_previous_viewer_prefs()
     main = EbookViewer(
         open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,

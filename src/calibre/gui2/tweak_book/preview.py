@@ -468,7 +468,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
             if ca.isEnabled():
                 menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
-        menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
+        menu.addAction(QIcon.ic('debug.png'), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
             menu.addAction(_('Open link'), partial(safe_open_url, data.linkUrl()))
         if QWebEngineContextMenuRequest.MediaType.MediaTypeImage.value <= data.mediaType().value <= QWebEngineContextMenuRequest.MediaType.MediaTypeFile.value:

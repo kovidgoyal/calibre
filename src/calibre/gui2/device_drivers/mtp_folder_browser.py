@@ -93,7 +93,7 @@ class Browser(QDialog):
         self.setMinimumSize(QSize(500, 500))
         self.folders.selected.connect(self.accept)
         self.setWindowTitle(_('Choose folder on device'))
-        self.setWindowIcon(QIcon(I('devices/tablet.png')))
+        self.setWindowIcon(QIcon.ic('devices/tablet.png'))
 
     @property
     def current_item(self):
@@ -139,7 +139,7 @@ class IgnoredFolders(QDialog):
         self.snb.clicked.connect(self.select_none)
         l.addWidget(self.bb)
         self.setWindowTitle(_('Choose folders to scan'))
-        self.setWindowIcon(QIcon(I('devices/tablet.png')))
+        self.setWindowIcon(QIcon.ic('devices/tablet.png'))
 
         self.resize(600, 500)
 

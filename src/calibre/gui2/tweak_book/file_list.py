@@ -274,7 +274,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.rendered_emblem_cache = {}
         self.font_name_cache = {}
         self.top_level_pixmap_cache = {
-            name : QIcon(I(icon)).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
+            name : QIcon.ic(icon).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in iteritems({
                 'text':'keyboard-prefs.png',
                 'styles':'lookfeel.png',
@@ -501,7 +501,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 for emblem in emblems:
                     pm = self.emblem_cache.get(emblem, None)
                     if pm is None:
-                        pm = self.emblem_cache[emblem] = QIcon(I(emblem)).pixmap(self.iconSize())
+                        pm = self.emblem_cache[emblem] = QIcon.ic(emblem).pixmap(self.iconSize())
                     pixmaps.append(pm)
                 num = len(pixmaps)
                 w, h = pixmaps[0].width(), pixmaps[0].height()
@@ -657,31 +657,31 @@ class FileList(QTreeWidget, OpenWithHandler):
             mt = str(ci.data(0, MIME_ROLE) or '')
             cat = str(ci.data(0, CATEGORY_ROLE) or '')
             n = elided_text(cn.rpartition('/')[-1])
-            m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
+            m.addAction(QIcon.ic('save.png'), _('Export %s') % n, partial(self.export, cn))
             if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
                 m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
             if num > 1:
-                m.addAction(QIcon(I('save.png')), _('Export all %d selected files') % num, self.export_selected)
+                m.addAction(QIcon.ic('save.png'), _('Export all %d selected files') % num, self.export_selected)
             if cn not in container.names_that_must_not_be_changed:
                 self.add_open_with_actions(m, cn)
 
             m.addSeparator()
 
-            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % n, self.edit_current_item)
+            m.addAction(QIcon.ic('modified.png'), _('&Rename %s') % n, self.edit_current_item)
             if is_raster_image(mt):
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % n, partial(self.mark_as_cover, cn))
+                m.addAction(QIcon.ic('default_cover.png'), _('Mark %s as cover image') % n, partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover page') % n, partial(self.mark_as_titlepage, cn))
+                m.addAction(QIcon.ic('default_cover.png'), _('Mark %s as cover page') % n, partial(self.mark_as_titlepage, cn))
             m.addSeparator()
 
         if num > 0:
             m.addSeparator()
             if num > 1:
-                m.addAction(QIcon(I('modified.png')), _('&Bulk rename the selected files'), self.request_bulk_rename)
-            m.addAction(QIcon(I('modified.png')), _('Change the file extension for the selected files'), self.request_change_ext)
-            m.addAction(QIcon(I('trash.png')), ngettext(
+                m.addAction(QIcon.ic('modified.png'), _('&Bulk rename the selected files'), self.request_bulk_rename)
+            m.addAction(QIcon.ic('modified.png'), _('Change the file extension for the selected files'), self.request_change_ext)
+            m.addAction(QIcon.ic('trash.png'), ngettext(
                 '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
-            m.addAction(QIcon(I('edit-copy.png')), ngettext(
+            m.addAction(QIcon.ic('edit-copy.png'), ngettext(
                 '&Copy the selected file to another editor instance',
                 '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
             m.addSeparator()
@@ -702,12 +702,12 @@ class FileList(QTreeWidget, OpenWithHandler):
             items.sort(key=self.index_of_name)
 
         if selected_map['text']:
-            m.addAction(QIcon(I('format-text-color.png')), _('Link &stylesheets...'), partial(self.link_stylesheets, selected_map['text']))
+            m.addAction(QIcon.ic('format-text-color.png'), _('Link &stylesheets...'), partial(self.link_stylesheets, selected_map['text']))
 
         if len(selected_map['text']) > 1:
-            m.addAction(QIcon(I('merge.png')), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
+            m.addAction(QIcon.ic('merge.png'), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
         if len(selected_map['styles']) > 1:
-            m.addAction(QIcon(I('merge.png')), _('&Merge selected style files'), partial(self.start_merge, 'styles', selected_map['styles']))
+            m.addAction(QIcon.ic('merge.png'), _('&Merge selected style files'), partial(self.start_merge, 'styles', selected_map['styles']))
         return m
 
     def choose_open_with(self, file_name, fmt):
@@ -1049,7 +1049,7 @@ class NewFileDialog(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.imp_button = b = bb.addButton(_('Import resource file (image/font/etc.)'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon(I('view-image.png')))
+        b.setIcon(QIcon.ic('view-image.png'))
         b.setToolTip(_('Import a file from your computer as a new'
                        ' file into the book.'))
         b.clicked.connect(self.import_file)

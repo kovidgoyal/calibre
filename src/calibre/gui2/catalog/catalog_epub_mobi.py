@@ -368,7 +368,7 @@ class PluginWidget(QWidget,Ui_Form):
                         prefix_rules.append(opt_value)
 
         # Add icon to the reset button, hook textChanged signal
-        self.reset_exclude_genres_tb.setIcon(QIcon(I('trash.png')))
+        self.reset_exclude_genres_tb.setIcon(QIcon.ic('trash.png'))
         self.reset_exclude_genres_tb.clicked.connect(self.exclude_genre_reset)
 
         # Hook textChanged event for exclude_genre QLineEdit
@@ -931,28 +931,28 @@ class GenericRulesTable(QTableWidget):
         self.move_rule_up_tb = QToolButton()
         self.move_rule_up_tb.setObjectName("move_rule_up_tb")
         self.move_rule_up_tb.setToolTip('Move rule up')
-        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
+        self.move_rule_up_tb.setIcon(QIcon.ic('arrow-up.png'))
         self.move_rule_up_tb.clicked.connect(self.move_row_up)
         vbl.addWidget(self.move_rule_up_tb)
 
         self.add_rule_tb = QToolButton()
         self.add_rule_tb.setObjectName("add_rule_tb")
         self.add_rule_tb.setToolTip('Add a new rule')
-        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
+        self.add_rule_tb.setIcon(QIcon.ic('plus.png'))
         self.add_rule_tb.clicked.connect(self.add_row)
         vbl.addWidget(self.add_rule_tb)
 
         self.delete_rule_tb = QToolButton()
         self.delete_rule_tb.setObjectName("delete_rule_tb")
         self.delete_rule_tb.setToolTip('Delete selected rule')
-        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
+        self.delete_rule_tb.setIcon(QIcon.ic('list_remove.png'))
         self.delete_rule_tb.clicked.connect(self.delete_row)
         vbl.addWidget(self.delete_rule_tb)
 
         self.move_rule_down_tb = QToolButton()
         self.move_rule_down_tb.setObjectName("move_rule_down_tb")
         self.move_rule_down_tb.setToolTip('Move rule down')
-        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
+        self.move_rule_down_tb.setIcon(QIcon.ic('arrow-down.png'))
         self.move_rule_down_tb.clicked.connect(self.move_row_down)
         vbl.addWidget(self.move_rule_down_tb)
 

@@ -202,12 +202,12 @@ class CheckpointView(QWidget):
         l.addWidget(v, 0, 0, 1, -1)
         model.dataChanged.connect(self.data_changed)
 
-        self.rb = b = QPushButton(QIcon(I('edit-undo.png')), _('&Revert to'), self)
+        self.rb = b = QPushButton(QIcon.ic('edit-undo.png'), _('&Revert to'), self)
         b.setToolTip(_('Revert the book to the selected checkpoint'))
         b.clicked.connect(self.revert_clicked)
         l.addWidget(b, 1, 1)
 
-        self.cb = b = QPushButton(QIcon(I('diff.png')), _('&Compare'), self)
+        self.cb = b = QPushButton(QIcon.ic('diff.png'), _('&Compare'), self)
         b.setToolTip(_('Compare the state of the book at the selected checkpoint with the current state'))
         b.clicked.connect(self.compare_clicked)
         l.addWidget(b, 1, 0)

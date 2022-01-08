@@ -911,7 +911,7 @@ class Wizard(QWizard):
     def __init__(self, parent):
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__+' '+_('Welcome wizard'))
-        self.setPixmap(QWizard.WizardPixmap.LogoPixmap, QIcon(I('library.png')).pixmap(48, 48))
+        self.setPixmap(QWizard.WizardPixmap.LogoPixmap, QIcon.ic('library.png').pixmap(48, 48))
         self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
         self.device_page = DevicePage()
         self.library_page = LibraryPage()

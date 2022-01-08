@@ -66,7 +66,7 @@ class ViewAction(InterfaceAction):
         self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), icon='viewer.png', triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
-        self.view_menu.addAction(QIcon(I('highlight.png')), _('Browse annotations'), self.browse_annots)
+        self.view_menu.addAction(QIcon.ic('highlight.png'), _('Browse annotations'), self.browse_annots)
         self.clear_sep1 = self.view_menu.addSeparator()
         self.clear_sep2 = self.view_menu.addSeparator()
         self.clear_history_action = cm('clear history',

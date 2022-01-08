@@ -515,7 +515,7 @@ def show_restart_warning(msg, parent=None):
     d = warning_dialog(parent, _('Restart needed'), msg,
             show_copy_button=False)
     b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
-    b.setIcon(QIcon(I('lt.png')))
+    b.setIcon(QIcon.ic('lt.png'))
     d.do_restart = False
 
     def rf():

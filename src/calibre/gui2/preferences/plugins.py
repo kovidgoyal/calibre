@@ -38,7 +38,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         QAbstractItemModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
         self.show_only_user_plugins = show_only_user_plugins
-        self.icon = QIcon(I('plugins.png'))
+        self.icon = QIcon.ic('plugins.png')
         p = QIcon(self.icon).pixmap(64, 64, QIcon.Mode.Disabled, QIcon.State.On)
         self.disabled_icon = QIcon(p)
         self._p = p

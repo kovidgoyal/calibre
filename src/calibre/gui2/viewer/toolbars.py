@@ -26,7 +26,7 @@ class Action:
     __slots__ = ('icon', 'text', 'shortcut_action')
 
     def __init__(self, icon=None, text=None, shortcut_action=None):
-        self.icon, self.text, self.shortcut_action = QIcon(I(icon)), text, shortcut_action
+        self.icon, self.text, self.shortcut_action = QIcon.ic(icon), text, shortcut_action
 
 
 class Actions:
@@ -438,11 +438,11 @@ class ConfigureToolBar(Dialog):
         self.bv = bv = QVBoxLayout()
         bv.addStretch(10)
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('forward.png'))), b.setToolTip(_('Add selected actions to the toolbar'))
+        b.setIcon(QIcon.ic('forward.png')), b.setToolTip(_('Add selected actions to the toolbar'))
         bv.addWidget(b), bv.addStretch(10)
         b.clicked.connect(self.add_actions)
         self.remove_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('back.png'))), b.setToolTip(_('Remove selected actions from the toolbar'))
+        b.setIcon(QIcon.ic('back.png')), b.setToolTip(_('Remove selected actions from the toolbar'))
         b.clicked.connect(self.remove_actions)
         bv.addWidget(b), bv.addStretch(10)
 

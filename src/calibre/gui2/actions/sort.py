@@ -55,7 +55,7 @@ class SortByAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-cover-browser', ))
 
     def genesis(self):
-        self.sorted_icon = QIcon(I('ok.png'))
+        self.sorted_icon = QIcon.ic('ok.png')
         self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
         def c(attr, title, tooltip, callback, keys=()):

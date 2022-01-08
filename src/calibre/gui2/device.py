@@ -764,7 +764,7 @@ class DeviceMenu(QMenu):  # {{{
         self._memory = []
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
-        self.set_default_menu.setIcon(QIcon(I('config.png')))
+        self.set_default_menu.setIcon(QIcon.ic('config.png'))
 
         basic_actions = [
                 ('main:', False, False,  I('reader.png'),
@@ -842,7 +842,7 @@ class DeviceMenu(QMenu):  # {{{
         self.addMenu(later_menus[0])
         self.addSeparator()
 
-        mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
+        mitem = self.addAction(QIcon.ic('eject.png'), _('Eject device'))
         mitem.setEnabled(False)
         connect_lambda(mitem.triggered, self, lambda self, x: self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
@@ -1008,7 +1008,7 @@ class DeviceMixin:  # {{{
         config_dialog = QDialog(self)
 
         config_dialog.setWindowTitle(_('Configure %s')%dev.get_gui_name())
-        config_dialog.setWindowIcon(QIcon(I('config.png')))
+        config_dialog.setWindowIcon(QIcon.ic('config.png'))
         l = QVBoxLayout(config_dialog)
         config_dialog.setLayout(l)
         bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)

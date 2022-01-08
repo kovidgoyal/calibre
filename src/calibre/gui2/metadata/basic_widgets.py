@@ -877,24 +877,24 @@ class FormatsManager(QWidget):
         self.cover_from_format_button = QToolButton(self)
         self.cover_from_format_button.setToolTip(
                 _('Set the cover for the book from the selected format'))
-        self.cover_from_format_button.setIcon(QIcon(I('default_cover.png')))
+        self.cover_from_format_button.setIcon(QIcon.ic('default_cover.png'))
         self.cover_from_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
 
         self.metadata_from_format_button = QToolButton(self)
-        self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
+        self.metadata_from_format_button.setIcon(QIcon.ic('edit_input.png'))
         self.metadata_from_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.metadata_from_format_button.setToolTip(
                 _('Set metadata for the book from the selected format'))
 
         self.add_format_button = QToolButton(self)
-        self.add_format_button.setIcon(QIcon(I('add_book.png')))
+        self.add_format_button.setIcon(QIcon.ic('add_book.png'))
         self.add_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.add_format_button.clicked.connect(self.add_format)
         self.add_format_button.setToolTip(
                 _('Add a format to this book'))
 
         self.remove_format_button = QToolButton(self)
-        self.remove_format_button.setIcon(QIcon(I('trash.png')))
+        self.remove_format_button.setIcon(QIcon.ic('trash.png'))
         self.remove_format_button.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self.remove_format_button.clicked.connect(self.remove_format)
         self.remove_format_button.setToolTip(
@@ -1129,7 +1129,7 @@ class Cover(ImageView):  # {{{
                 RightClickButton.__init__(self, parent)
                 self.setText(text)
                 if icon is not None:
-                    self.setIcon(QIcon(I(icon)))
+                    self.setIcon(QIcon.ic(icon))
                 self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Maximum)
                 self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
                 if action is not None:
@@ -1142,10 +1142,10 @@ class Cover(ImageView):  # {{{
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
         b.m = m = QMenu(b)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        m.addAction(QIcon(I('trim.png')), _('Automatically trim borders'), self.trim_cover)
+        m.addAction(QIcon.ic('trim.png'), _('Automatically trim borders'), self.trim_cover)
         m.addSeparator()
         m.addAction(_('Trim borders manually'), self.manual_trim_cover)
-        m.addAction(QIcon(I('edit-undo.png')), _('Undo last trim'), self.undo_trim)
+        m.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_trim)
         b.setMenu(m)
         self.remove_cover_button = CB(_('&Remove'), 'trash.png', self.remove_cover)
 
@@ -1153,8 +1153,8 @@ class Cover(ImageView):  # {{{
         self.generate_cover_button = b = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
         b.m = m = QMenu(b)
         b.setMenu(m)
-        m.addAction(QIcon(I('config.png')), _('Customize the styles and colors of the generated cover'), self.custom_cover)
-        m.addAction(QIcon(I('edit-undo.png')), _('Undo last Generate cover'), self.undo_generate)
+        m.addAction(QIcon.ic('config.png'), _('Customize the styles and colors of the generated cover'), self.custom_cover)
+        m.addAction(QIcon.ic('edit-undo.png'), _('Undo last Generate cover'), self.undo_generate)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
@@ -1815,7 +1815,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
                 QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.books_to_refresh = set()
         self.clear_button = QToolButton(parent)
-        self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.setIcon(QIcon.ic('trash.png'))
         self.clear_button.setToolTip(_('Clear publisher'))
         self.clear_button.clicked.connect(self.clearEditText)
 
@@ -1868,7 +1868,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
         self.setDisplayFormat(fmt)
         if create_clear_button:
             self.clear_button = QToolButton(parent)
-            self.clear_button.setIcon(QIcon(I('trash.png')))
+            self.clear_button.setIcon(QIcon.ic('trash.png'))
             self.clear_button.setToolTip(_('Clear date'))
             self.clear_button.clicked.connect(self.reset_date)
 

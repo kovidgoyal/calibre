@@ -130,7 +130,7 @@ class UpdateNotification(QDialog):
         self.setLayout(self.l)
         self.logo = QLabel()
         self.logo.setMaximumWidth(110)
-        self.logo.setPixmap(QIcon(I('lt.png')).pixmap(100, 100))
+        self.logo.setPixmap(QIcon.ic('lt.png').pixmap(100, 100))
         ver = calibre_version
         if ver.endswith('.0'):
             ver = ver[:-2]
@@ -142,7 +142,7 @@ class UpdateNotification(QDialog):
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
-        self.setWindowIcon(QIcon(I('lt.png')))
+        self.setWindowIcon(QIcon.ic('lt.png'))
         self.l.addWidget(self.logo, 0, 0)
         self.l.addWidget(self.label, 0, 1)
         self.cb = QCheckBox(
@@ -153,10 +153,10 @@ class UpdateNotification(QDialog):
         self.bb = QDialogButtonBox(self)
         b = self.bb.addButton(_('&Get update'), QDialogButtonBox.ButtonRole.AcceptRole)
         b.setDefault(True)
-        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setIcon(QIcon.ic('arrow-down.png'))
         if plugin_updates > 0:
             b = self.bb.addButton(_('Update &plugins'), QDialogButtonBox.ButtonRole.ActionRole)
-            b.setIcon(QIcon(I('plugins/plugin_updater.png')))
+            b.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         self.l.addWidget(self.bb, 2, 0, 1, -1)
@@ -249,13 +249,13 @@ class UpdateMixin:
             return
         if number_of_updates:
             plugin.qaction.setText(_('Plugin updates')+'*')
-            plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater_updates.png')))
+            plugin.qaction.setIcon(QIcon.ic('plugins/plugin_updater_updates.png'))
             plugin.qaction.setToolTip(
                 ngettext('A plugin update is available',
                          'There are {} plugin updates available', number_of_updates).format(number_of_updates))
         else:
             plugin.qaction.setText(_('Plugin updates'))
-            plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater.png')))
+            plugin.qaction.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
     def update_link_clicked(self, url):

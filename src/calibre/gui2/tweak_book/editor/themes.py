@@ -443,7 +443,7 @@ class Property(QWidget):
             b = ColorButton(data, key, text, self)
             b.changed.connect(self.changed), l.addWidget(b)
             bc = QToolButton(self)
-            bc.setIcon(QIcon(I('clear_left.png')))
+            bc.setIcon(QIcon.ic('clear_left.png'))
             bc.setToolTip(_('Remove color'))
             bc.clicked.connect(b.clear)
             h = QHBoxLayout()
@@ -571,11 +571,11 @@ class ThemeEditor(Dialog):
         t.currentIndexChanged.connect(self.show_theme)
         h.addWidget(t)
 
-        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add &new theme'), self)
+        self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('Add &new theme'), self)
         b.clicked.connect(self.create_new_theme)
         h.addWidget(b)
 
-        self.remove_button = b = QPushButton(QIcon(I('minus.png')), _('&Remove theme'), self)
+        self.remove_button = b = QPushButton(QIcon.ic('minus.png'), _('&Remove theme'), self)
         b.clicked.connect(self.remove_theme)
         h.addWidget(b)
         h.addStretch(1)

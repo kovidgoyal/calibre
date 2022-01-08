@@ -30,7 +30,7 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
             t_item.setText(0, format.upper())
             t_item.setText(1, exists)
             if convertible:
-                t_item.setIcon(2, QIcon(I('ok.png')))
+                t_item.setIcon(2, QIcon.ic('ok.png'))
             self.formats.addTopLevelItem(t_item)
             if i == 0:
                 self.formats.setCurrentItem(t_item)

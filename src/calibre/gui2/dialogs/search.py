@@ -298,7 +298,7 @@ def create_template_tab(self):
 
 def setup_ui(self, db):
     self.setWindowTitle(_("Advanced search"))
-    self.setWindowIcon(QIcon(I('search.png')))
+    self.setWindowIcon(QIcon.ic('search.png'))
     self.l = l = QVBoxLayout(self)
     self.h = h = QHBoxLayout()
     self.v = v = QVBoxLayout()

@@ -20,13 +20,13 @@ class Dialog(QDialog):
                  title=None, confirm_msg=None, show_cancel_button=True, extra_button=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title or _("Are you sure?"))
-        self.setWindowIcon(QIcon(I(icon)))
+        self.setWindowIcon(QIcon.ic(icon))
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
 
         self.icon_widget = Icon(self)
-        self.icon_widget.set_icon(QIcon(I(icon)))
+        self.icon_widget.set_icon(QIcon.ic(icon))
 
         self.msg = m = QLabel(self)
         m.setOpenExternalLinks(True)

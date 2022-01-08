@@ -27,7 +27,7 @@ def icon_for_level(level):
         icon = 'dialog_information.png'
     else:
         icon = None
-    return QIcon(I(icon)) if icon else QIcon()
+    return QIcon.ic(icon) if icon else QIcon()
 
 
 def prefix_for_level(level):
@@ -92,7 +92,7 @@ class Check(QSplitter):
     def context_menu(self, pos):
         m = QMenu(self)
         if self.items.count() > 0:
-            m.addAction(QIcon(I('edit-copy.png')), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
+            m.addAction(QIcon.ic('edit-copy.png'), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
         if list(m.actions()):
             m.exec(self.mapToGlobal(pos))
 

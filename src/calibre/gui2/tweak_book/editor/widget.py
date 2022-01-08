@@ -127,7 +127,7 @@ def register_text_editor_actions(_reg, palette):
     for s in ('xml', 'html', 'css'):
         editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']
     editor_toolbar_actions['html']['change-paragraph'] = actions['change-paragraph'] = QAction(
-        QIcon(I('format-text-heading.png')), _('Change paragraph to heading'), ac.parent())
+        QIcon.ic('format-text-heading.png'), _('Change paragraph to heading'), ac.parent())
 
 
 class Editor(QMainWindow):

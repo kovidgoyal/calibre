@@ -18,7 +18,7 @@ class PluginUpdaterAction(InterfaceAction):
     action_type = 'current'
 
     def genesis(self):
-        self.qaction.setIcon(QIcon(I('plugins/plugin_updater.png')))
+        self.qaction.setIcon(QIcon.ic('plugins/plugin_updater.png'))
         self.qaction.triggered.connect(self.check_for_plugin_updates)
 
     def check_for_plugin_updates(self):

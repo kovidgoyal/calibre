@@ -248,7 +248,7 @@ class CreateCustomColumn(QDialog):
 
     def setup_ui(self):  # {{{
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowIcon(QIcon(I('column.png')))
+        self.setWindowIcon(QIcon.ic('column.png'))
         self.vl = l = QVBoxLayout(self)
         self.heading_label = la = QLabel('')
         l.addWidget(la)

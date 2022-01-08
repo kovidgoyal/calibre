@@ -29,9 +29,9 @@ class BookmarksList(QListWidget):
         self.setAlternatingRowColors(True)
         self.setStyleSheet('QListView::item { padding: 0.5ex }')
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.ac_edit = ac = QAction(QIcon(I('edit_input.png')), _('Rename this bookmark'), self)
+        self.ac_edit = ac = QAction(QIcon.ic('edit_input.png'), _('Rename this bookmark'), self)
         self.addAction(ac)
-        self.ac_delete = ac = QAction(QIcon(I('trash.png')), _('Remove this bookmark'), self)
+        self.ac_delete = ac = QAction(QIcon.ic('trash.png'), _('Remove this bookmark'), self)
         self.addAction(ac)
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
@@ -118,21 +118,21 @@ class BookmarkManager(QWidget):
         la.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, -1)
 
-        self.button_new = b = QPushButton(QIcon(I('bookmarks.png')), _('&New'), self)
+        self.button_new = b = QPushButton(QIcon.ic('bookmarks.png'), _('&New'), self)
         b.clicked.connect(self.create_requested)
         b.setToolTip(_('Create a new bookmark at the current location'))
         l.addWidget(b)
 
-        self.button_delete = b = QPushButton(QIcon(I('trash.png')), _('&Remove'), self)
+        self.button_delete = b = QPushButton(QIcon.ic('trash.png'), _('&Remove'), self)
         b.setToolTip(_('Remove the currently selected bookmark'))
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
-        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('Pre&vious'), self)
+        self.button_prev = b = QPushButton(QIcon.ic('back.png'), _('Pre&vious'), self)
         b.clicked.connect(self.bookmarks_list.previous_bookmark)
         l.addWidget(b)
 
-        self.button_next = b = QPushButton(QIcon(I('forward.png')), _('Nex&t'), self)
+        self.button_next = b = QPushButton(QIcon.ic('forward.png'), _('Nex&t'), self)
         b.clicked.connect(self.bookmarks_list.next_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 

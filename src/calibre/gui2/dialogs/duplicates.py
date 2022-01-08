@@ -26,7 +26,7 @@ class DuplicatesQuestion(QDialog):
         if len(duplicates) > 1:
             t = '%d %s' % (len(duplicates), t)
         self.setWindowTitle(t)
-        self.i = i = QIcon(I('dialog_question.png'))
+        self.i = i = QIcon.ic('dialog_question.png')
         self.setWindowIcon(i)
 
         self.l1 = l1 = QLabel()
@@ -51,11 +51,11 @@ class DuplicatesQuestion(QDialog):
         l.addWidget(bb, 2, 0, 1, 2)
         l.setColumnStretch(1, 10)
         self.ab = ab = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
-        ab.clicked.connect(self.select_all), ab.setIcon(QIcon(I('plus.png')))
+        ab.clicked.connect(self.select_all), ab.setIcon(QIcon.ic('plus.png'))
         self.nb = ab = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
-        ab.clicked.connect(self.select_none), ab.setIcon(QIcon(I('minus.png')))
+        ab.clicked.connect(self.select_none), ab.setIcon(QIcon.ic('minus.png'))
         self.cb = cb = bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-        cb.setIcon(QIcon(I('edit-copy.png')))
+        cb.setIcon(QIcon.ic('edit-copy.png'))
         cb.clicked.connect(self.copy_to_clipboard)
 
         self.resize(self.sizeHint())

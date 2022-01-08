@@ -139,13 +139,13 @@ class AuthorsEdit(QDialog):
         l.addWidget(a, 2, 0)
 
         self.ab = b = QPushButton(_('&Add'))
-        b.setIcon(QIcon(I('plus.png')))
+        b.setIcon(QIcon.ic('plus.png'))
         l.addWidget(b, 2, 1)
         b.clicked.connect(self.add_author)
 
         self.db = b = QPushButton(_('&Remove selected'))
         l.addWidget(b, 2, 2)
-        b.setIcon(QIcon(I('minus.png')))
+        b.setIcon(QIcon.ic('minus.png'))
         b.clicked.connect(self.al.delete_selected)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)

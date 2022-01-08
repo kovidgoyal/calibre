@@ -87,7 +87,7 @@ class CheckLibraryDialog(QDialog):
         self.db = db
 
         self.setWindowTitle(_('Check library -- Problems found'))
-        self.setWindowIcon(QIcon(I('debug.png')))
+        self.setWindowIcon(QIcon.ic('debug.png'))
 
         self._tl = QHBoxLayout()
         self.setLayout(self._tl)

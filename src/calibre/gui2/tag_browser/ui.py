@@ -47,7 +47,7 @@ class TagBrowserMixin:  # {{{
              (_('Saved searches'),
                         self.do_saved_search_edit, (None,), 'search')
             ):
-            m.addAction(QIcon(I(category_icon_map[cat_name])), text,
+            m.addAction(QIcon.ic(category_icon_map[cat_name]), text,
                     partial(func, *args))
         fm = db.new_api.field_metadata
         categories = [x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])]
@@ -533,7 +533,7 @@ class TagBrowserBar(QWidget):  # {{{
             ' how it is sorted, what happens when you click'
             ' items, etc.'
         )))
-        b.setIcon(QIcon(I('config.png')))
+        b.setIcon(QIcon.ic('config.png'))
         b.m = QMenu(b)
         b.setMenu(b.m)
 
@@ -562,7 +562,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.search_button = QToolButton()
         self.search_button.setAutoRaise(True)
         self.search_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.search_button.setIcon(QIcon(I('search.png')))
+        self.search_button.setIcon(QIcon.ic('search.png'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         ac = QAction(parent)
         parent.addAction(ac)
@@ -573,10 +573,10 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
-        le.addAction(QIcon(I('window-close.png')), QLineEdit.ActionPosition.LeadingPosition).triggered.connect(self.close_find_box)
+        le.addAction(QIcon.ic('window-close.png'), QLineEdit.ActionPosition.LeadingPosition).triggered.connect(self.close_find_box)
         b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setCursor(Qt.CursorShape.PointingHandCursor)
-        b.setIcon(QIcon(I('search.png')))
+        b.setIcon(QIcon.ic('search.png'))
         b.setCheckable(True)
         b.setChecked(gprefs.get('tag browser search box visible', False))
         b.setToolTip(_('Find item in the Tag browser'))

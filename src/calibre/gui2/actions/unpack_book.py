@@ -23,7 +23,7 @@ class UnpackBook(QDialog):
 
     def __init__(self, parent, book_id, fmts, db):
         QDialog.__init__(self, parent)
-        self.setWindowIcon(QIcon(I('unpack-book.png')))
+        self.setWindowIcon(QIcon.ic('unpack-book.png'))
         self.book_id, self.fmts, self.db_ref = book_id, fmts, weakref.ref(db)
         self._exploded = None
         self._cleanup_dirs = []
@@ -102,10 +102,10 @@ class UnpackBook(QDialog):
         b.setContentsMargins(left, top, right, bottom)
         l.addLayout(b, stretch=10)
 
-        self.explode_button = QPushButton(QIcon(I('wizard.png')), _('&Explode book'))
-        self.preview_button = QPushButton(QIcon(I('view.png')), _('&Preview book'))
-        self.cancel_button  = QPushButton(QIcon(I('window-close.png')), _('&Cancel'))
-        self.rebuild_button = QPushButton(QIcon(I('exec.png')), _('&Rebuild book'))
+        self.explode_button = QPushButton(QIcon.ic('wizard.png'), _('&Explode book'))
+        self.preview_button = QPushButton(QIcon.ic('view.png'), _('&Preview book'))
+        self.cancel_button  = QPushButton(QIcon.ic('window-close.png'), _('&Cancel'))
+        self.rebuild_button = QPushButton(QIcon.ic('exec.png'), _('&Rebuild book'))
 
         self.explode_button.setToolTip(
                 _('Explode the book to edit its components'))

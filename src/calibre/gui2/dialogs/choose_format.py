@@ -15,7 +15,7 @@ class ChooseFormatDialog(QDialog):
     def __init__(self, window, msg, formats, show_open_with=False):
         QDialog.__init__(self, window)
         self.resize(507, 377)
-        self.setWindowIcon(QIcon(I("mimetypes/unknown.png")))
+        self.setWindowIcon(QIcon.ic("mimetypes/unknown.png"))
         self.setWindowTitle(_('Choose format'))
         self.l = l = QVBoxLayout(self)
         self.msg = QLabel(msg)

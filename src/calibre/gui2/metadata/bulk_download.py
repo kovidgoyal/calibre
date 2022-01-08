@@ -55,13 +55,13 @@ class ConfirmDialog(QDialog):
     def __init__(self, ids, parent):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Schedule download?'))
-        self.setWindowIcon(QIcon(I('download-metadata.png')))
+        self.setWindowIcon(QIcon.ic('download-metadata.png'))
 
         l = self.l = QGridLayout()
         self.setLayout(l)
 
         i = QLabel(self)
-        i.setPixmap(QIcon(I('download-metadata.png')).pixmap(128, 128))
+        i.setPixmap(QIcon.ic('download-metadata.png').pixmap(128, 128))
         l.addWidget(i, 0, 0)
         t = ngettext(
             'The download of metadata for the <b>selected book</b> will run in the background. Proceed?',
@@ -87,13 +87,13 @@ class ConfirmDialog(QDialog):
         b = self.bb.addButton(_('Download only &metadata'),
                 QDialogButtonBox.ButtonRole.AcceptRole)
         b.clicked.connect(self.only_metadata)
-        b.setIcon(QIcon(I('edit_input.png')))
+        b.setIcon(QIcon.ic('edit_input.png'))
         b = self.bb.addButton(_('Download only &covers'),
                 QDialogButtonBox.ButtonRole.AcceptRole)
         b.clicked.connect(self.only_covers)
-        b.setIcon(QIcon(I('default_cover.png')))
+        b.setIcon(QIcon.ic('default_cover.png'))
         b = self.b = self.bb.addButton(_('&Configure download'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon(I('config.png')))
+        b.setIcon(QIcon.ic('config.png'))
         connect_lambda(b.clicked, self, lambda self: show_config(self))
         l.addWidget(self.bb, 1, 0, 1, 2)
         b = self.bb.addButton(_('Download &both'),
@@ -101,7 +101,7 @@ class ConfirmDialog(QDialog):
         b.clicked.connect(self.accept)
         b.setDefault(True)
         b.setAutoDefault(True)
-        b.setIcon(QIcon(I('ok.png')))
+        b.setIcon(QIcon.ic('ok.png'))
 
         self.resize(self.sizeHint())
         b.setFocus(Qt.FocusReason.OtherFocusReason)

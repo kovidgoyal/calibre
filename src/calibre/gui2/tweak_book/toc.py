@@ -30,7 +30,7 @@ class TOCEditor(QDialog):
         t = title or current_container().mi.title
         self.book_title = t
         self.setWindowTitle(_('Edit the ToC in %s')%t)
-        self.setWindowIcon(QIcon(I('toc.png')))
+        self.setWindowIcon(QIcon.ic('toc.png'))
 
         l = self.l = QVBoxLayout()
         self.setLayout(l)
@@ -49,7 +49,7 @@ class TOCEditor(QDialog):
         bb.rejected.connect(self.reject)
         self.undo_button = b = bb.addButton(_('&Undo'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Undo the last action, if any'))
-        b.setIcon(QIcon(I('edit-undo.png')))
+        b.setIcon(QIcon.ic('edit-undo.png'))
         b.clicked.connect(self.toc_view.undo)
 
         self.read_toc()
@@ -148,7 +148,7 @@ class TOCViewer(QWidget):
         self.view.itemDoubleClicked.connect(self.emit_navigate)
         l.addWidget(self.view)
 
-        self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
+        self.refresh_action = QAction(QIcon.ic('view-refresh.png'), _('&Refresh'), self)
         self.refresh_action.triggered.connect(self.refresh)
         self.refresh_timer = t = QTimer(self)
         t.setInterval(1000), t.setSingleShot(True)

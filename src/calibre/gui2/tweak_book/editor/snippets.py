@@ -567,10 +567,10 @@ class UserSnippets(Dialog):
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Create/edit snippets'), 'snippet-editor', parent=parent)
-        self.setWindowIcon(QIcon(I('snippets.png')))
+        self.setWindowIcon(QIcon.ic('snippets.png'))
 
     def setup_ui(self):
-        self.setWindowIcon(QIcon(I('modified.png')))
+        self.setWindowIcon(QIcon.ic('modified.png'))
         self.l = l = QVBoxLayout(self)
         self.stack = s = QStackedLayout()
         l.addLayout(s), l.addWidget(self.bb)
@@ -596,22 +596,22 @@ class UserSnippets(Dialog):
         c.l2 = l = QVBoxLayout()
         h.addLayout(l)
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('plus.png'))), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon.ic('plus.png')), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.add_snippet)
         l.addWidget(b)
 
         self.edit_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('modified.png'))), b.setText(_('&Edit snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon.ic('modified.png')), b.setText(_('&Edit snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.edit_snippet)
         l.addWidget(b)
 
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('minus.png'))), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon.ic('minus.png')), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.remove_snippet)
         l.addWidget(b)
 
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('config.png'))), b.setText(_('Change &built-in')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon.ic('config.png')), b.setText(_('Change &built-in')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.change_builtin)
         l.addWidget(b)
 

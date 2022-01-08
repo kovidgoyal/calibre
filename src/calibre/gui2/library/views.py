@@ -513,7 +513,7 @@ class BooksView(QTableView):  # {{{
         ans.addAction(_('Restore default layout'), partial(handler, action='defaults'))
         if self.can_add_columns:
             ans.addAction(
-                    QIcon(I('column.png')), _('Add your own columns'), partial(handler, action='addcustcol'))
+                    QIcon.ic('column.png'), _('Add your own columns'), partial(handler, action='addcustcol'))
         return ans
 
     def show_row_header_context_menu(self, pos):

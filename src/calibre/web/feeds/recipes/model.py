@@ -155,8 +155,8 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
-        self.default_icon = (QIcon(I('news.png')))
-        self.custom_icon = (QIcon(I('user_profile.png')))
+        self.default_icon = (QIcon.ic('news.png'))
+        self.custom_icon = (QIcon.ic('user_profile.png'))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         try:

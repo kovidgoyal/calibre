@@ -52,7 +52,7 @@ class ImportLocation(QWidget):
         self.le = le = QLineEdit(self)
         le.setPlaceholderText(_('Location to import this library to'))
         l.addWidget(le, 1, 0)
-        self.b = b = QPushButton(QIcon(I('document_open.png')), _('Select &folder'), self)
+        self.b = b = QPushButton(QIcon.ic('document_open.png'), _('Select &folder'), self)
         b.clicked.connect(self.select_folder)
         l.addWidget(b, 1, 1)
         self.lpath = lpath
@@ -206,7 +206,7 @@ class EximDialog(Dialog):
             i = QListWidgetItem(self.export_lib_text(lpath), ll)
             i.setData(Qt.ItemDataRole.UserRole, lpath)
             i.setData(Qt.ItemDataRole.UserRole+1, lpaths[lpath])
-            i.setIcon(QIcon(I('lt.png')))
+            i.setIcon(QIcon.ic('lt.png'))
             i.setSelected(True)
         self.update_disk_usage.connect((
             lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(
@@ -233,7 +233,7 @@ class EximDialog(Dialog):
                              ' wish to import.'))
         la.setWordWrap(True)
         l.addWidget(la)
-        self.export_dir_button = b = QPushButton(QIcon(I('document_open.png')), _('Choose &folder'), self)
+        self.export_dir_button = b = QPushButton(QIcon.ic('document_open.png'), _('Choose &folder'), self)
         b.clicked.connect(self.select_import_folder)
         l.addWidget(b), l.addStretch()
 

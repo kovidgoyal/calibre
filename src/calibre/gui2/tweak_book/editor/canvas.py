@@ -289,9 +289,9 @@ class Canvas(QWidget):
         self.target = QRectF(0, 0, 0, 0)
 
         self.undo_action = a = self.undo_stack.createUndoAction(self, _('Undo') + ' ')
-        a.setIcon(QIcon(I('edit-undo.png')))
+        a.setIcon(QIcon.ic('edit-undo.png'))
         self.redo_action = a = self.undo_stack.createRedoAction(self, _('Redo') + ' ')
-        a.setIcon(QIcon(I('edit-redo.png')))
+        a.setIcon(QIcon.ic('edit-redo.png'))
 
     def load_image(self, data):
         self.is_valid = False

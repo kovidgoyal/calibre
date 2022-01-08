@@ -897,7 +897,7 @@ class Boss(QObject):
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         d.b = b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
-        b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
+        b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
         bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.show_current_diff(allow_revert=allow_revert, to_container=to_container)
@@ -1893,7 +1893,7 @@ class Boss(QObject):
             d.setWindowTitle(_('Unsaved changes'))
             d.i = QLabel('')
             d.i.setMaximumSize(QSize(64, 64))
-            d.i.setPixmap(QIcon(I('dialog_warning.png')).pixmap(d.i.maximumSize()))
+            d.i.setPixmap(QIcon.ic('dialog_warning.png').pixmap(d.i.maximumSize()))
             d.l.addWidget(d.i, 0, 0)
             d.m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
             d.m.setWordWrap(True)
@@ -1908,7 +1908,7 @@ class Boss(QObject):
                 d.do_save = x
                 d.accept()
             b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ButtonRole.ActionRole)
-            b.setIcon(QIcon(I('save.png')))
+            b.setIcon(QIcon.ic('save.png'))
             connect_lambda(b.clicked, d, lambda d: endit(d, True))
             b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ButtonRole.ActionRole)
             connect_lambda(b.clicked, d, lambda d: endit(d, False))

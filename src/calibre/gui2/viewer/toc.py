@@ -169,7 +169,7 @@ class TOCSearch(QWidget):
         self.search.setToolTip(_('Search for text in the Table of Contents'))
         s.search.connect(self.do_search)
         self.go = b = QToolButton(self)
-        b.setIcon(QIcon(I('search.png')))
+        b.setIcon(QIcon.ic('search.png'))
         b.clicked.connect(s.do_search)
         b.setToolTip(_('Find next match'))
         l.addWidget(s), l.addWidget(b)

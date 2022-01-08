@@ -80,10 +80,10 @@ def create_search_internet_menu(callback, author=None):
         if author is not None else
         _('Search the internet for this book')
     )
-    m.menuAction().setIcon(QIcon(I('search.png')))
+    m.menuAction().setIcon(QIcon.ic('search.png'))
     items = all_book_searches() if author is None else all_author_searches()
     for k in sorted(items, key=lambda k: name_for(k).lower()):
-        m.addAction(QIcon(I('search.png')), name_for(k), partial(callback, InternetSearch(author, k)))
+        m.addAction(QIcon.ic('search.png'), name_for(k), partial(callback, InternetSearch(author, k)))
     return m
 
 
@@ -109,7 +109,7 @@ def escape_for_menu(x):
 def init_manage_action(ac, field, value):
     from calibre.library.field_metadata import category_icon_map
     ic = category_icon_map.get(field) or 'blank.png'
-    ac.setIcon(QIcon(I(ic)))
+    ac.setIcon(QIcon.ic(ic))
     ac.setText(_('Manage %s') % escape_for_menu(value))
     ac.current_fmt = field, value
     return ac
@@ -119,7 +119,7 @@ def init_find_in_tag_browser(menu, ac, field, value):
     from calibre.gui2.ui import get_gui
     hidden_cats = get_gui().tags_view.model().hidden_categories
     if field not in hidden_cats:
-        ac.setIcon(QIcon(I('search.png')))
+        ac.setIcon(QIcon.ic('search.png'))
         ac.setText(_('Find %s in the Tag browser') % escape_for_menu(value))
         ac.current_fmt = field, value
         menu.addAction(ac)
@@ -155,7 +155,7 @@ def init_find_in_grouped_search(menu, field, value, book_info):
 
     if gsts_to_show:
         m = QMenu((_('Search calibre for %s') + '...')%escape_for_menu(value), menu)
-        m.setIcon(QIcon(I('search.png')))
+        m.setIcon(QIcon.ic('search.png'))
         menu.addMenu(m)
         m.addAction(QIcon(get_icon_path(field, '')),
                     _('in category %s')%escape_for_menu(field_name),
@@ -168,7 +168,7 @@ def init_find_in_grouped_search(menu, field, value, book_info):
                         lambda g=gst: book_info.search_requested(
                                 '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
     else:
-        menu.addAction(QIcon(I('search.png')),
+        menu.addAction(QIcon.ic('search.png'),
             _('Search calibre for {val} in category {name}').format(
                     val=escape_for_menu(value), name=escape_for_menu(field_name)),
             lambda g=field: book_info.search_requested(
@@ -313,7 +313,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     dt = data['type']
 
     def add_copy_action(name):
-        copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(name), lambda: QApplication.instance().clipboard().setText(name))
+        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(name), lambda: QApplication.instance().clipboard().setText(name))
 
     if dt == 'format':
         add_format_entries(menu, data, book_info, copy_menu, search_menu)
@@ -379,7 +379,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 init_find_in_grouped_search(search_menu, field, value, book_info)
             else:
                 v = data.get('original_value') or data.get('value')
-                copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(v),
+                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
                                         lambda: QApplication.instance().clipboard().setText(v))
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
@@ -387,7 +387,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             menu.addAction(ac)
         else:
             v = data.get('original_value') or data.get('value')
-            copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(v),
+            copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
                                     lambda: QApplication.instance().clipboard().setText(v))
     return search_internet_added
 
@@ -404,7 +404,7 @@ def create_copy_links(menu, data=None):
     def link(text, url):
         def doit():
             QApplication.instance().clipboard().setText(url)
-        menu.addAction(QIcon(I('edit-copy.png')), text, doit)
+        menu.addAction(QIcon.ic('edit-copy.png'), text, doit)
 
     menu.addSeparator()
     link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
@@ -426,15 +426,15 @@ def create_copy_links(menu, data=None):
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
     url = view.anchorAt(ev.pos())
     menu = QMenu(view)
-    copy_menu = menu.addMenu(QIcon(I('edit-copy.png')), _('Copy'))
-    copy_menu.addAction(QIcon(I('edit-copy.png')), _('All book details'), partial(copy_all, view))
+    copy_menu = menu.addMenu(QIcon.ic('edit-copy.png'), _('Copy'))
+    copy_menu.addAction(QIcon.ic('edit-copy.png'), _('All book details'), partial(copy_all, view))
     if view.textCursor().hasSelection():
-        copy_menu.addAction(QIcon(I('edit-copy.png')), _('Selected text'), view.copy)
+        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('Selected text'), view.copy)
     copy_menu.addSeparator()
     copy_links_added = False
     search_internet_added = False
     search_menu = QMenu(_('Search'), menu)
-    search_menu.setIcon(QIcon(I('search.png')))
+    search_menu.setIcon(QIcon.ic('search.png'))
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
         search_internet_added = add_item_specific_entries(menu, data, book_info, copy_menu, search_menu)
@@ -784,7 +784,7 @@ class BookInfo(HTMLDisplay):
             ('set_cover_format', 'default_cover.png'),
             ('find_in_tag_browser', 'search.png')
         ]:
-            ac = QAction(QIcon(I(icon)), '', self)
+            ac = QAction(QIcon.ic(icon), '', self)
             ac.current_fmt = None
             ac.current_url = None
             ac.triggered.connect(getattr(self, '%s_triggerred'%x))
@@ -792,12 +792,12 @@ class BookInfo(HTMLDisplay):
         self.manage_action = QAction(self)
         self.manage_action.current_fmt = self.manage_action.current_url = None
         self.manage_action.triggered.connect(self.manage_action_triggered)
-        self.edit_identifiers_action = QAction(QIcon(I('identifiers.png')), _('Edit identifiers for this book'), self)
+        self.edit_identifiers_action = QAction(QIcon.ic('identifiers.png'), _('Edit identifiers for this book'), self)
         self.edit_identifiers_action.triggered.connect(self.edit_identifiers)
-        self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
+        self.remove_item_action = ac = QAction(QIcon.ic('minus.png'), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
-        self.copy_identifiers_url_action = ac = QAction(QIcon(I('edit-copy.png')), _('Identifier &URL'), self)
+        self.copy_identifiers_url_action = ac = QAction(QIcon.ic('edit-copy.png'), _('Identifier &URL'), self)
         ac.triggered.connect(self.copy_id_url_triggerred)
         ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)

@@ -307,7 +307,7 @@ def main(args=sys.argv, logger=None):
     if pid <= 0:
         override = 'calibre-lrfviewer' if islinux else None
         app = Application(args, override_program_name=override)
-        app.setWindowIcon(QIcon(I('viewer.png')))
+        app.setWindowIcon(QIcon.ic('viewer.png'))
         opts = normalize_settings(parser, opts)
         stream = open(args[1], 'rb') if len(args) > 1 else None
         main = file_renderer(stream, opts, logger=logger)

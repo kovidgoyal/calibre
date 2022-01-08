@@ -262,11 +262,11 @@ class ItemView(QStackedWidget):  # {{{
 
         # Edit/remove item
         rs = l.rowCount()
-        ip.b1 = b = QPushButton(QIcon(I('edit_input.png')),
+        ip.b1 = b = QPushButton(QIcon.ic('edit_input.png'),
             _('Change the &location this entry points to'), self)
         b.clicked.connect(self.edit_item)
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        ip.b2 = b = QPushButton(QIcon(I('trash.png')),
+        ip.b2 = b = QPushButton(QIcon.ic('trash.png'),
             _('&Remove this entry'), self)
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         b.clicked.connect(self.delete_item)
@@ -277,17 +277,17 @@ class ItemView(QStackedWidget):  # {{{
 
         # Add new item
         rs = l.rowCount()
-        ip.b3 = b = QPushButton(QIcon(I('plus.png')), _('New entry &inside this entry'))
+        ip.b3 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &inside this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('inside'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        ip.b4 = b = QPushButton(QIcon(I('plus.png')), _('New entry &above this entry'))
+        ip.b4 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &above this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('before'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
-        ip.b5 = b = QPushButton(QIcon(I('plus.png')), _('New entry &below this entry'))
+        ip.b5 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &below this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('after'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         # Flatten entry
-        ip.b3 = b = QPushButton(QIcon(I('heuristics.png')), _('&Flatten this entry'))
+        ip.b3 = b = QPushButton(QIcon.ic('heuristics.png'), _('&Flatten this entry'))
         b.clicked.connect(self.flatten_item)
         b.setToolTip(_('All children of this entry are brought to the same '
                        'level as this entry.'))
@@ -300,7 +300,7 @@ class ItemView(QStackedWidget):  # {{{
 
         # Return to welcome
         rs = l.rowCount()
-        ip.b4 = b = QPushButton(QIcon(I('back.png')), _('&Return to welcome screen'))
+        ip.b4 = b = QPushButton(QIcon.ic('back.png'), _('&Return to welcome screen'))
         b.clicked.connect(self.go_to_root)
         b.setToolTip(_('Go back to the top level view'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
@@ -686,21 +686,21 @@ class TreeWidget(QTreeWidget):  # {{{
 
         if item is not None:
             m = QMenu(self)
-            m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
-            m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
-            m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
+            m.addAction(QIcon.ic('edit_input.png'), _('Change the location this entry points to'), self.edit_item)
+            m.addAction(QIcon.ic('modified.png'), _('Bulk rename all selected items'), self.bulk_rename)
+            m.addAction(QIcon.ic('trash.png'), _('Remove all selected items'), self.del_items)
             m.addSeparator()
             ci = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             p = item.parent() or self.invisibleRootItem()
             idx = p.indexOfChild(item)
             if idx > 0:
-                m.addAction(QIcon(I('arrow-up.png')), (_('Move "%s" up')%ci)+key(Qt.Key.Key_Up), self.move_up)
+                m.addAction(QIcon.ic('arrow-up.png'), (_('Move "%s" up')%ci)+key(Qt.Key.Key_Up), self.move_up)
             if idx + 1 < p.childCount():
-                m.addAction(QIcon(I('arrow-down.png')), (_('Move "%s" down')%ci)+key(Qt.Key.Key_Down), self.move_down)
+                m.addAction(QIcon.ic('arrow-down.png'), (_('Move "%s" down')%ci)+key(Qt.Key.Key_Down), self.move_down)
             if item.parent() is not None:
-                m.addAction(QIcon(I('back.png')), (_('Unindent "%s"')%ci)+key(Qt.Key.Key_Left), self.move_left)
+                m.addAction(QIcon.ic('back.png'), (_('Unindent "%s"')%ci)+key(Qt.Key.Key_Left), self.move_left)
             if idx > 0:
-                m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key.Key_Right), self.move_right)
+                m.addAction(QIcon.ic('forward.png'), (_('Indent "%s"')%ci)+key(Qt.Key.Key_Right), self.move_right)
 
             m.addSeparator()
             case_menu = QMenu(_('Change case'), m)
@@ -729,35 +729,35 @@ class TOCView(QWidget):  # {{{
         self.tocw.edit_item.connect(self.edit_item)
         l.addWidget(t, 0, 0, 7, 3)
         self.up_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-up.png')))
+        b.setIcon(QIcon.ic('arrow-up.png'))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 0, 3)
         b.setToolTip(_('Move current entry up [Ctrl+Up]'))
         b.clicked.connect(self.move_up)
 
         self.left_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('back.png')))
+        b.setIcon(QIcon.ic('back.png'))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 2, 3)
         b.setToolTip(_('Unindent the current entry [Ctrl+Left]'))
         b.clicked.connect(self.tocw.move_left)
 
         self.del_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('trash.png')))
+        b.setIcon(QIcon.ic('trash.png'))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 3, 3)
         b.setToolTip(_('Remove all selected entries'))
         b.clicked.connect(self.del_items)
 
         self.right_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('forward.png')))
+        b.setIcon(QIcon.ic('forward.png'))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 4, 3)
         b.setToolTip(_('Indent the current entry [Ctrl+Right]'))
         b.clicked.connect(self.tocw.move_right)
 
         self.down_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setIcon(QIcon.ic('arrow-down.png'))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 6, 3)
         b.setToolTip(_('Move current entry down [Ctrl+Down]'))
@@ -888,9 +888,9 @@ class TOCView(QWidget):  # {{{
         self.toc = get_toc(self.ebook)
         self.toc_lang, self.toc_uid = self.toc.lang, self.toc.uid
         self.toc_title = self.toc.toc_title
-        self.blank = QIcon(I('blank.png'))
-        self.ok = QIcon(I('ok.png'))
-        self.err = QIcon(I('dot_red.png'))
+        self.blank = QIcon.ic('blank.png')
+        self.ok = QIcon.ic('ok.png')
+        self.err = QIcon.ic('dot_red.png')
         self.icon_map = {None:self.blank, True:self.ok, False:self.err}
 
         def process_item(toc_node, parent):
@@ -1013,7 +1013,7 @@ class TOCEditor(QDialog):  # {{{
         t = title or os.path.basename(pathtobook)
         self.book_title = t
         self.setWindowTitle(_('Edit the ToC in %s')%t)
-        self.setWindowIcon(QIcon(I('highlight_only_on.png')))
+        self.setWindowIcon(QIcon.ic('highlight_only_on.png'))
 
         l = self.l = QVBoxLayout()
         self.setLayout(l)
@@ -1046,7 +1046,7 @@ class TOCEditor(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         self.undo_button = b = bb.addButton(_('&Undo'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Undo the last action, if any'))
-        b.setIcon(QIcon(I('edit-undo.png')))
+        b.setIcon(QIcon.ic('edit-undo.png'))
         b.clicked.connect(self.toc_view.undo)
 
         self.explode_done.connect(self.read_toc, type=Qt.ConnectionType.QueuedConnection)

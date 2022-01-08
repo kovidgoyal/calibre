@@ -227,7 +227,7 @@ class SchedulerDialog(QDialog):
         self.commit_on_change = True
         self.previous_urn = None
 
-        self.setWindowIcon(QIcon(I('scheduler.png')))
+        self.setWindowIcon(QIcon.ic('scheduler.png'))
         self.l = l = QGridLayout(self)
 
         # Left panel
@@ -357,14 +357,14 @@ class SchedulerDialog(QDialog):
         on.setMaximum(1000), la.setBuddy(on)
         on.setValue(gconf['oldest_news'])
         h.addWidget(la), h.addWidget(on)
-        self.download_all_button = b = QPushButton(QIcon(I('news.png')), _("Download &all scheduled"), self)
+        self.download_all_button = b = QPushButton(QIcon.ic('news.png'), _("Download &all scheduled"), self)
         b.setToolTip(_("Download all scheduled news sources at once"))
         b.clicked.connect(self.download_all_clicked)
         self.l.addWidget(b, 3, 0, 1, 1)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
+        b.setIcon(QIcon.ic('arrow-down.png')), b.setVisible(False)
         b.clicked.connect(self.download_clicked)
         self.l.addWidget(bb, 3, 1, 1, 1)
 
@@ -588,11 +588,11 @@ class Scheduler(QObject):
         self.download_queue = set()
 
         self.news_menu = QMenu()
-        self.news_icon = QIcon(I('news.png'))
-        self.scheduler_action = QAction(QIcon(I('scheduler.png')), _('Schedule news download'), self)
+        self.news_icon = QIcon.ic('news.png')
+        self.scheduler_action = QAction(QIcon.ic('scheduler.png'), _('Schedule news download'), self)
         self.news_menu.addAction(self.scheduler_action)
         self.scheduler_action.triggered[bool].connect(self.show_dialog)
-        self.cac = QAction(QIcon(I('user_profile.png')), _('Add or edit a custom news source'), self)
+        self.cac = QAction(QIcon.ic('user_profile.png'), _('Add or edit a custom news source'), self)
         self.cac.triggered[bool].connect(self.customize_feeds)
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()

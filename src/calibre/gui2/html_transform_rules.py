@@ -56,7 +56,7 @@ class TagAction(QWidget):
         l.addLayout(h)
 
         self.remove_button = b = QToolButton(self)
-        b.setToolTip(_('Remove this action')), b.setIcon(QIcon(I('minus.png')))
+        b.setToolTip(_('Remove this action')), b.setIcon(QIcon.ic('minus.png'))
         b.clicked.connect(self.request_remove)
         h.addWidget(b)
         self.action_desc = la = QLabel('')
@@ -217,7 +217,7 @@ class RuleEdit(QWidget):  # {{{
         l.addWidget(self.thenl)
         self.actions = a = ActionsContainer(self)
         l.addWidget(a)
-        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add another action'))
+        self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('Add another action'))
         b.clicked.connect(self.actions.new_action)
         l.addWidget(b)
         self.update_state()

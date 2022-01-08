@@ -112,7 +112,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.setWindowTitle(_('Edit Virtual library'))
         else:
             self.setWindowTitle(_('Create Virtual library'))
-        self.setWindowIcon(QIcon(I('lt.png')))
+        self.setWindowIcon(QIcon.ic('lt.png'))
 
         gl = QGridLayout()
         self.setLayout(gl)
@@ -328,8 +328,8 @@ class SearchRestrictionMixin:
         pass
 
     def init_search_restriction_mixin(self):
-        self.checked = QIcon(I('ok.png'))
-        self.empty = QIcon(I('blank.png'))
+        self.checked = QIcon.ic('ok.png')
+        self.empty = QIcon.ic('blank.png')
         self.current_search_action = QAction(self.empty, _('*current search'), self)
         self.current_search_action.triggered.connect(partial(self.apply_virtual_library, library='*'))
         self.addAction(self.current_search_action)

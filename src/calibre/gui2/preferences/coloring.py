@@ -384,7 +384,7 @@ class RuleEditor(QDialog):  # {{{
             self.rule_kind = 'emblem'
             rule_text = _('Cover grid emblem')
 
-        self.setWindowIcon(QIcon(I('format-fill-color.png')))
+        self.setWindowIcon(QIcon.ic('format-fill-color.png'))
         self.setWindowTitle(_('Create/edit a {0} rule').format(rule_text))
 
         self.l = l = QGridLayout(self)
@@ -451,7 +451,7 @@ class RuleEditor(QDialog):  # {{{
         elif self.rule_kind == 'emblem':
             create_filename_box()
             self.update_filename_box()
-            self.filename_button = QPushButton(QIcon(I('document_open.png')),
+            self.filename_button = QPushButton(QIcon.ic('document_open.png'),
                                                _('&Add new image'))
             l.addWidget(self.filename_box, 3, 0)
             l.addWidget(self.filename_button, 3, 2)
@@ -465,7 +465,7 @@ class RuleEditor(QDialog):  # {{{
             self.multiple_icon_cb.clicked.connect(self.multiple_box_clicked)
             l.addWidget(self.filename_box, 3, 5)
 
-            self.filename_button = QPushButton(QIcon(I('document_open.png')),
+            self.filename_button = QPushButton(QIcon.ic('document_open.png'),
                                                _('&Add icon'))
             l.addWidget(self.filename_button, 3, 6)
             l.addWidget(QLabel(_('(Icons should be square or landscape)')), 4, 6)
@@ -481,7 +481,7 @@ class RuleEditor(QDialog):  # {{{
         sa.setWidgetResizable(True)
         l.addWidget(sa, 6, 0, 1, 8)
 
-        self.add_button = b = QPushButton(QIcon(I('plus.png')),
+        self.add_button = b = QPushButton(QIcon.ic('plus.png'),
                 _('Add &another condition'))
         l.addWidget(b, 7, 0, 1, 8)
         b.clicked.connect(self.add_blank_condition)
@@ -497,7 +497,7 @@ class RuleEditor(QDialog):  # {{{
         l.addWidget(bb, 9, 0, 1, 8)
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icons'), QDialogButtonBox.ButtonRole.ActionRole)
-            b.setIcon(QIcon(I('minus.png')))
+            b.setIcon(QIcon.ic('minus.png'))
             b.clicked.connect(self.remove_icon_file_dialog)
             b.setToolTip('<p>' + _('Remove previously added icons. Note that removing an '
                                    'icon will cause rules that use it to stop working.') + '</p>')
@@ -559,7 +559,7 @@ class RuleEditor(QDialog):  # {{{
         self.icon_file_names.sort(key=sort_key)
         if doing_multiple:
             item = QStandardItem(_('Open to see checkboxes'))
-            item.setIcon(QIcon(I('blank.png')))
+            item.setIcon(QIcon.ic('blank.png'))
         else:
             item = QStandardItem('')
         item.setFlags(Qt.ItemFlag(0))
@@ -989,9 +989,9 @@ class EditRules(QWidget):  # {{{
         l1.setWordWrap(True)
         l.addWidget(l1, l.rowCount(), 0, 1, 2)
 
-        self.add_button = QPushButton(QIcon(I('plus.png')), _('&Add rule'),
+        self.add_button = QPushButton(QIcon.ic('plus.png'), _('&Add rule'),
                 self)
-        self.remove_button = QPushButton(QIcon(I('minus.png')),
+        self.remove_button = QPushButton(QIcon.ic('minus.png'),
                 _('&Remove rule(s)'), self)
         self.add_button.clicked.connect(self.add_rule)
         self.remove_button.clicked.connect(self.remove_rule)
@@ -1008,12 +1008,12 @@ class EditRules(QWidget):  # {{{
         g.addWidget(self.rules_view, 0, 0, 2, 1)
 
         self.up_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-up.png')))
+        b.setIcon(QIcon.ic('arrow-up.png'))
         b.setToolTip(_('Move the selected rule up'))
         b.clicked.connect(partial(self.move_rows, moving_up=True))
         g.addWidget(b, 0, 1, 1, 1, Qt.AlignmentFlag.AlignTop)
         self.down_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setIcon(QIcon.ic('arrow-down.png'))
         b.setToolTip(_('Move the selected rule down'))
         b.clicked.connect(partial(self.move_rows, moving_up=False))
         g.addWidget(b, 1, 1, 1, 1, Qt.AlignmentFlag.AlignBottom)
@@ -1021,18 +1021,18 @@ class EditRules(QWidget):  # {{{
         l.addLayout(g, l.rowCount(), 0, 1, 2)
         l.setRowStretch(l.rowCount() - 1, 10)
 
-        self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
+        self.add_advanced_button = b = QPushButton(QIcon.ic('plus.png'),
                 _('Add ad&vanced rule'), self)
         b.clicked.connect(self.add_advanced)
         self.hb = hb = FlowLayout()
         l.addLayout(hb, l.rowCount(), 0, 1, 2)
         hb.addWidget(b)
-        self.duplicate_rule_button = b = QPushButton(QIcon(I('edit-copy.png')),
+        self.duplicate_rule_button = b = QPushButton(QIcon.ic('edit-copy.png'),
                 _('Du&plicate rule'), self)
         b.clicked.connect(self.duplicate_rule)
         b.setEnabled(False)
         hb.addWidget(b)
-        self.convert_to_advanced_button = b = QPushButton(QIcon(I('modified.png')),
+        self.convert_to_advanced_button = b = QPushButton(QIcon.ic('modified.png'),
                 _('Convert to advanced r&ule'), self)
         b.clicked.connect(self.convert_to_advanced)
         b.setEnabled(False)
@@ -1040,7 +1040,7 @@ class EditRules(QWidget):  # {{{
         sep = Separator(self, b)
         hb.addWidget(sep)
 
-        self.open_icon_folder_button = b = QPushButton(QIcon(I('icon_choose.png')),
+        self.open_icon_folder_button = b = QPushButton(QIcon.ic('icon_choose.png'),
                 _('Open icon folder'), self)
         b.clicked.connect(self.open_icon_folder)
         hb.addWidget(b)

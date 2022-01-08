@@ -40,7 +40,7 @@ class LocationManager(QObject):  # {{{
         self.all_actions = []
 
         def ac(name, text, icon, tooltip):
-            icon = QIcon(I(icon))
+            icon = QIcon.ic(icon)
             ac = self.location_actions.addAction(icon, text)
             setattr(self, 'location_'+name, ac)
             ac.setAutoRepeat(False)
@@ -55,13 +55,13 @@ class LocationManager(QObject):  # {{{
             a.triggered.connect(receiver)
             if name != 'library':
                 self._mem.append(a)
-                a = m.addAction(QIcon(I('eject.png')), _('Eject this device'))
+                a = m.addAction(QIcon.ic('eject.png'), _('Eject this device'))
                 a.triggered.connect(self._eject_requested)
                 self._mem.append(a)
-                a = m.addAction(QIcon(I('config.png')), _('Configure this device'))
+                a = m.addAction(QIcon.ic('config.png'), _('Configure this device'))
                 a.triggered.connect(self._configure_requested)
                 self._mem.append(a)
-                a = m.addAction(QIcon(I('sync.png')), _('Update cached metadata on device'))
+                a = m.addAction(QIcon.ic('sync.png'), _('Update cached metadata on device'))
                 a.triggered.connect(lambda x : self.update_device_metadata.emit())
                 self._mem.append(a)
 
@@ -198,7 +198,7 @@ class SearchBar(QFrame):  # {{{
         x.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
-        x.setIcon(QIcon(I('vl.png')))
+        x.setIcon(QIcon.ic('vl.png'))
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(x)
@@ -206,7 +206,7 @@ class SearchBar(QFrame):  # {{{
         x = QToolButton(self)
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         x.setAutoRaise(True)
-        x.setIcon(QIcon(I('minus.png')))
+        x.setIcon(QIcon.ic('minus.png'))
         x.setObjectName('clear_vl')
         l.addWidget(x)
         x.setVisible(False)
@@ -220,7 +220,7 @@ class SearchBar(QFrame):  # {{{
         sb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         sb.setAutoRaise(True)
         sb.setText(_('Sort'))
-        sb.setIcon(QIcon(I('sort.png')))
+        sb.setIcon(QIcon.ic('sort.png'))
         sb.setMenu(QMenu(sb))
         sb.menu().aboutToShow.connect(self.populate_sort_menu)
         sb.setVisible(False)
@@ -243,7 +243,7 @@ class SearchBar(QFrame):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
-        self.search_button.setIcon(QIcon(I('search.png')))
+        self.search_button.setIcon(QIcon.ic('search.png'))
         self.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.search_button.setText(_('Search'))
         self.search_button.setAutoRaise(True)
@@ -260,7 +260,7 @@ class SearchBar(QFrame):  # {{{
         x.setText(_('Highlight'))
         x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        x.setIcon(QIcon(I('arrow-down.png')))
+        x.setIcon(QIcon.ic('arrow-down.png'))
         l.addWidget(x)
 
         x = parent.saved_search = SavedSearchBox(self)
@@ -271,7 +271,7 @@ class SearchBar(QFrame):  # {{{
         x = parent.copy_search_button = QToolButton(self)
         x.setAutoRaise(True)
         x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setIcon(QIcon(I("search_copy_saved.png")))
+        x.setIcon(QIcon.ic("search_copy_saved.png"))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
         x.setToolTip(_("Copy current search text (instead of search name)"))
@@ -280,7 +280,7 @@ class SearchBar(QFrame):  # {{{
         x = parent.save_search_button = RightClickButton(self)
         x.setAutoRaise(True)
         x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setIcon(QIcon(I("search_add_saved.png")))
+        x.setIcon(QIcon.ic("search_add_saved.png"))
         x.setObjectName("save_search_button")
         l.addWidget(x)
         x.setVisible(tweaks['show_saved_search_box'])
@@ -294,7 +294,7 @@ class SearchBar(QFrame):  # {{{
         x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         x.setAutoRaise(True)
-        x.setIcon(QIcon(I("bookmarks.png")))
+        x.setIcon(QIcon.ic("bookmarks.png"))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
 
@@ -322,7 +322,7 @@ class MainWindowMixin:  # {{{
 
     def init_main_window_mixin(self, db):
         self.setObjectName('MainWindow')
-        self.setWindowIcon(QIcon(I('lt.png')))
+        self.setWindowIcon(QIcon.ic('lt.png'))
         self.setWindowTitle(__appname__)
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)

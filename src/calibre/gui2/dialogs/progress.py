@@ -25,7 +25,7 @@ class ProgressDialog(QDialog):
             self.h = h = QHBoxLayout(self)
             self.icon = i = QLabel(self)
             if not isinstance(icon, QIcon):
-                icon = QIcon(I(icon))
+                icon = QIcon.ic(icon)
             i.setPixmap(icon.pixmap(64))
             h.addWidget(i, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
             self.l = l = QVBoxLayout()

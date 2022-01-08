@@ -67,10 +67,10 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         QAbstractTableModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
 
-        self.wait_icon     = (QIcon(I('jobs.png')))
-        self.running_icon  = (QIcon(I('exec.png')))
-        self.error_icon    = (QIcon(I('dialog_error.png')))
-        self.done_icon     = (QIcon(I('ok.png')))
+        self.wait_icon     = (QIcon.ic('jobs.png'))
+        self.running_icon  = (QIcon.ic('exec.png'))
+        self.error_icon    = (QIcon.ic('dialog_error.png'))
+        self.done_icon     = (QIcon.ic('ok.png'))
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
@@ -465,7 +465,7 @@ class DetailView(Dialog):  # {{{
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.copy_button = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon(I('edit-copy.png')))
+        b.setIcon(QIcon.ic('edit-copy.png'))
         b.clicked.connect(self.copy_to_clipboard)
         self.next_pos = 0
         self.update()

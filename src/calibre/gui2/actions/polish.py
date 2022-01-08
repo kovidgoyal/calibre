@@ -29,7 +29,7 @@ class Polish(QDialog):  # {{{
         from calibre.ebooks.oeb.polish.main import HELP
         QDialog.__init__(self, parent)
         self.db, self.book_id_map = weakref.ref(db), book_id_map
-        self.setWindowIcon(QIcon(I('polish.png')))
+        self.setWindowIcon(QIcon.ic('polish.png'))
         title = _('Polish book')
         if len(book_id_map) > 1:
             title = _('Polish %d books')%len(book_id_map)
@@ -313,7 +313,7 @@ class Report(QDialog):  # {{{
         QDialog.__init__(self, parent)
         self.gui = parent
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
-        self.setWindowIcon(QIcon(I('polish.png')))
+        self.setWindowIcon(QIcon.ic('polish.png'))
         self.reports = []
 
         self.l = l = QGridLayout()

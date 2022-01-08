@@ -81,9 +81,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignmentFlag.AlignCenter)
 
-        self.adv_search_button.setIcon(QIcon(I('gear.png')))
+        self.adv_search_button.setIcon(QIcon.ic('gear.png'))
         self.adv_search_button.setToolTip(_('Advanced search'))
-        self.configure.setIcon(QIcon(I('config.png')))
+        self.configure.setIcon(QIcon.ic('config.png'))
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
         self.search.clicked.connect(self.toggle_search)
@@ -120,7 +120,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         store_list_layout = QGridLayout()
         stores_check_widget.setLayout(store_list_layout)
 
-        icon = QIcon(I('donate.png'))
+        icon = QIcon.ic('donate.png')
         for i, x in enumerate(sorted(self.gui.istores.keys(), key=lambda x: x.lower())):
             cbox = QCheckBox(x)
             cbox.setChecked(existing.get(x, first_run))

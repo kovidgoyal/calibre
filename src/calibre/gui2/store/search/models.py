@@ -41,11 +41,11 @@ class Matches(QAbstractItemModel):
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
         QAbstractItemModel.__init__(self)
 
-        self.DRM_LOCKED_ICON = QIcon(I('drm-locked.png'))
-        self.DRM_UNLOCKED_ICON = QIcon(I('drm-unlocked.png'))
-        self.DRM_UNKNOWN_ICON = QIcon(I('dialog_question.png'))
-        self.DONATE_ICON = QIcon(I('donate.png'))
-        self.DOWNLOAD_ICON = QIcon(I('arrow-down.png'))
+        self.DRM_LOCKED_ICON = QIcon.ic('drm-locked.png')
+        self.DRM_UNLOCKED_ICON = QIcon.ic('drm-unlocked.png')
+        self.DRM_UNKNOWN_ICON = QIcon.ic('dialog_question.png')
+        self.DONATE_ICON = QIcon.ic('donate.png')
+        self.DOWNLOAD_ICON = QIcon.ic('arrow-down.png')
 
         # All matches. Used to determine the order to display
         # self.matches because the SearchFilter returns

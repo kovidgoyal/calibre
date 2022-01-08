@@ -398,11 +398,11 @@ class ConfigWidget(ConfigWidgetBase):
         g.setColumnStretch(0, 100)
         g.addWidget(self.search, 0, 0, 1, 1)
         self.next_button = b = QPushButton(self)
-        b.setIcon(QIcon(I("arrow-down.png")))
+        b.setIcon(QIcon.ic("arrow-down.png"))
         b.setText(_("&Next"))
         g.addWidget(self.next_button, 0, 1, 1, 1)
         self.previous_button = b = QPushButton(self)
-        b.setIcon(QIcon(I("arrow-up.png")))
+        b.setIcon(QIcon.ic("arrow-up.png"))
         b.setText(_("&Previous"))
         g.addWidget(self.previous_button, 0, 2, 1, 1)
 
@@ -447,7 +447,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.search.search.connect(self.find)
         self.view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.view.customContextMenuRequested.connect(self.show_context_menu)
-        self.copy_icon = QIcon(I('edit-copy.png'))
+        self.copy_icon = QIcon.ic('edit-copy.png')
 
     def show_context_menu(self, point):
         idx = self.tweaks_view.currentIndex()

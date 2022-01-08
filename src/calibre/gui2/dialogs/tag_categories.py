@@ -62,12 +62,12 @@ class TagCategories(QDialog, Ui_TagCategories):
         if self.book_ids is None:
             self.apply_vl_checkbox.setEnabled(False)
 
-        cc_icon = QIcon(I('column.png'))
+        cc_icon = QIcon.ic('column.png')
 
         self.category_labels = self.category_labels_orig[:]
-        self.category_icons  = [None, QIcon(I('user_profile.png')), QIcon(I('series.png')),
-                           QIcon(I('publisher.png')), QIcon(I('tags.png')),
-                           QIcon(I('languages.png'))]
+        self.category_icons  = [None, QIcon.ic('user_profile.png'), QIcon.ic('series.png'),
+                           QIcon.ic('publisher.png'), QIcon.ic('tags.png'),
+                           QIcon.ic('languages.png')]
         self.category_values = [None,
                            lambda: [t.original_name.replace('|', ',') for t in self.db_categories['authors']],
                            lambda: [t.original_name for t in self.db_categories['series']],
