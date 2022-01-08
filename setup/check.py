@@ -19,6 +19,18 @@ class Message:
         return '%s:%s: %s' % (self.filename, self.lineno, self.msg)
 
 
+def checkable_python_files(SRC):
+    for dname in ('odf', 'calibre'):
+        for x in os.walk(os.path.join(SRC, dname)):
+            for f in x[-1]:
+                y = os.path.join(x[0], f)
+                if (f.endswith('.py') and f not in (
+                        'dict_data.py', 'unicodepoints.py', 'krcodepoints.py',
+                        'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
+                        'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
+                    yield y
+
+
 class Check(Command):
 
     description = 'Check for errors in the calibre source code'
@@ -26,15 +38,7 @@ class Check(Command):
     CACHE = 'check.json'
 
     def get_files(self):
-        for dname in ('odf', 'calibre'):
-            for x in os.walk(self.j(self.SRC, dname)):
-                for f in x[-1]:
-                    y = self.j(x[0], f)
-                    if (f.endswith('.py') and f not in (
-                            'dict_data.py', 'unicodepoints.py', 'krcodepoints.py',
-                            'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
-                            'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
-                        yield y
+        yield from checkable_python_files(self.SRC)
 
         for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
             for f in x[-1]:
@@ -117,3 +121,17 @@ class Check(Command):
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
+
+
+class UpgradeSourceCode(Command):
+
+    description = 'Upgrade python source code'
+
+    def run(self, opts):
+        files = []
+        for path in checkable_python_files(self.SRC):
+            q = path.replace(os.sep, '/')
+            if '/metadata/sources/' in q or '/store/stores/' in q:
+                continue
+            files.append(q)
+        subprocess.call(['pyupgrade', '--py37-plus'] + files)

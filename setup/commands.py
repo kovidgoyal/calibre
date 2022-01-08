@@ -13,7 +13,7 @@ __all__ = [
     'git_version',
     'develop', 'install',
     'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
-    'check', 'test', 'test_rs',
+    'check', 'test', 'test_rs', 'upgrade_source_code',
     'sdist', 'bootstrap', 'extdev',
     'manual', 'tag_release',
     'upload_to_server',
@@ -66,8 +66,9 @@ bootstrap = Bootstrap()
 from setup.gui import GUI
 gui = GUI()
 
-from setup.check import Check
+from setup.check import Check, UpgradeSourceCode
 check = Check()
+upgrade_source_code = UpgradeSourceCode()
 
 from setup.test import Test, TestRS
 test = Test()
