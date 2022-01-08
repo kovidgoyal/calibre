@@ -182,13 +182,13 @@ class IdLinksEditor(Dialog):
             t.setItem(r, 2, QTableWidgetItem(template))
         l.addWidget(t)
         t.horizontalHeader().setSectionResizeMode(2, t.horizontalHeader().Stretch)
-        self.cb = b = QPushButton(QIcon(I('plus.png')), _('&Add rule'), self)
+        self.cb = b = QPushButton(QIcon.ic('plus.png'), _('&Add rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule())
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
-        self.rb = b = QPushButton(QIcon(I('minus.png')), _('&Remove rule'), self)
+        self.rb = b = QPushButton(QIcon.ic('minus.png'), _('&Remove rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.remove_rule())
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
-        self.eb = b = QPushButton(QIcon(I('modified.png')), _('&Edit rule'), self)
+        self.eb = b = QPushButton(QIcon.ic('modified.png'), _('&Edit rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule(self.table.currentRow()))
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         l.addWidget(self.bb)
@@ -265,7 +265,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
         if role == Qt.ItemDataRole.CheckStateRole:
             return Qt.CheckState.Checked if visible else Qt.CheckState.Unchecked
         if role == Qt.ItemDataRole.DecorationRole and field.startswith('#'):
-            return QIcon(I('column.png'))
+            return QIcon.ic('column.png')
         return None
 
     def toggle_all(self, show=True):
@@ -581,12 +581,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.edit_rules,
-                QIcon(I('format-fill-color.png')), _('Column &coloring'))
+                QIcon.ic('format-fill-color.png'), _('Column &coloring'))
 
         self.icon_rules = EditRules(self.tabWidget)
         self.icon_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.icon_rules,
-                QIcon(I('icon_choose.png')), _('Column &icons'))
+                QIcon.ic('icon_choose.png'), _('Column &icons'))
 
         self.grid_rules = EditRules(self.emblems_tab)
         self.grid_rules.changed.connect(self.changed_signal)

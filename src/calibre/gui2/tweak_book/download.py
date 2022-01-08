@@ -112,7 +112,7 @@ class DownloadResources(Dialog):
         self.progress.connect(self.download_status.progress, type=Qt.ConnectionType.QueuedConnection)
 
     def setup_ui(self):
-        self.setWindowIcon(QIcon(I('download-metadata.png')))
+        self.setWindowIcon(QIcon.ic('download-metadata.png'))
         self.choose_resources = cr = ChooseResources(self)
         self.download_status = ds = DownloadStatus(self)
         self.success = s = QLabel('')
@@ -226,7 +226,7 @@ class DownloadResources(Dialog):
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Close)
             b = self.bb.button(QDialogButtonBox.StandardButton.Ok)
             b.setText(_('See what &changed'))
-            b.setIcon(QIcon(I('diff.png')))
+            b.setIcon(QIcon.ic('diff.png'))
             connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))
             self.bb.setVisible(True)
 

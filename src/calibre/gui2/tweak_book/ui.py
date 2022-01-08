@@ -91,7 +91,7 @@ class Central(QStackedWidget):  # {{{
             i.invertPixels()
             self.modified_icon = QIcon(QPixmap.fromImage(i))
         else:
-            self.modified_icon = QIcon(I('modified.png'))
+            self.modified_icon = QIcon.ic('modified.png')
         self.editor_tabs.currentChanged.connect(self.current_editor_changed)
         self.editor_tabs.tabCloseRequested.connect(self._close_requested)
         self.search_panel = SearchPanel(self)
@@ -337,7 +337,7 @@ class Main(MainWindow):
             traceback.print_exc()
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
-        self.setWindowIcon(QIcon(I('tweak.png')))
+        self.setWindowIcon(QIcon.ic('tweak.png'))
         self.opts = opts
         self.path_to_ebook = None
         self.container = None
@@ -407,7 +407,7 @@ class Main(MainWindow):
 
         def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
             if not isinstance(icon, QIcon):
-                icon = QIcon(I(icon))
+                icon = QIcon.ic(icon)
             ac = actions[sid] = QAction(icon, text, self) if icon else QAction(text, self)
             ac.setObjectName('action-' + sid)
             if toolbar_allowed:
@@ -727,7 +727,7 @@ class Main(MainWindow):
         e = b.addMenu(_('&Help'))
         a = e.addAction
         a(self.action_help)
-        a(QIcon(I('donate.png')), _('&Donate to support calibre development'), open_donate)
+        a(QIcon.ic('donate.png'), _('&Donate to support calibre development'), open_donate)
         a(self.action_preferences)
 
     def search_menu_about_to_show(self):

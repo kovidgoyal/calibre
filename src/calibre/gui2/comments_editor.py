@@ -301,7 +301,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         r('insert_hr', 'format-text-hr', _('Insert separator'),)
         r('clear', 'trash', _('Clear'))
 
-        self.action_block_style = QAction(QIcon(I('format-text-heading.png')),
+        self.action_block_style = QAction(QIcon.ic('format-text-heading.png'),
                 _('Style text block'), self)
         self.action_block_style.setToolTip(
                 _('Style the selected text block'))
@@ -654,7 +654,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.setMinimumWidth(600)
         d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         d.br = b = QPushButton(_('&Browse'))
-        b.setIcon(QIcon(I('document_open.png')))
+        b.setIcon(QIcon.ic('document_open.png'))
 
         def cf():
             filetypes = []

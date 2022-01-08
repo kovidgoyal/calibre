@@ -131,7 +131,7 @@ class Main(MainWindow):
 
     def __init__(self, data):
         MainWindow.__init__(self, None)
-        self.setWindowIcon(QIcon(I('store.png')))
+        self.setWindowIcon(QIcon.ic('store.png'))
         self.setWindowTitle(data['window_title'])
         self.download_data = {}
         self.data = data

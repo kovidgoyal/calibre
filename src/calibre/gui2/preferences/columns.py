@@ -166,7 +166,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item.setToolTip(cc['name'])
         item.setFlags(flags)
         if self.is_custom_key(key):
-            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon(I('column.png'))))
+            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon.ic('column.png')))
         self.opt_columns.setItem(row, 1, item)
 
         item = QTableWidgetItem(key)

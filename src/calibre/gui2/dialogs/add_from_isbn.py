@@ -33,7 +33,7 @@ class AddFromISBN(QDialog):
     def setup_ui(self):
         self.resize(678, 430)
         self.setWindowTitle(_("Add books by ISBN"))
-        self.setWindowIcon(QIcon(I('add_book.png')))
+        self.setWindowIcon(QIcon.ic('add_book.png'))
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
         l.addLayout(h)

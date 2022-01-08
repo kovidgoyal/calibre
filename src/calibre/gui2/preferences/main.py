@@ -234,7 +234,7 @@ class Preferences(QDialog):
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(__appname__ + ' — ' + _('Preferences'))
-        self.setWindowIcon(QIcon(I('config.png')))
+        self.setWindowIcon(QIcon.ic('config.png'))
         self.l = l = QVBoxLayout(self)
 
         self.stack = QStackedWidget(self)
@@ -243,10 +243,10 @@ class Preferences(QDialog):
             QDialogButtonBox.StandardButton.Cancel
         )
         self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
-        self.wizard_button = QPushButton(QIcon(I('wizard.png')), _('Run Welcome &wizard'))
+        self.wizard_button = QPushButton(QIcon.ic('wizard.png'), _('Run Welcome &wizard'))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
-        self.restore_defaults_button = rdb = QPushButton(QIcon(I('clear_left.png')), _('Restore &defaults'))
+        self.restore_defaults_button = rdb = QPushButton(QIcon.ic('clear_left.png'), _('Restore &defaults'))
         rdb.clicked.connect(self.restore_defaults, type=Qt.ConnectionType.QueuedConnection)
         rdb.setAutoDefault(False)
         rdb.setVisible(False)
@@ -360,7 +360,7 @@ class Preferences(QDialog):
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.stack.setCurrentIndex(0)
         self.title_bar.show_plugin()
-        self.setWindowIcon(QIcon(I('config.png')))
+        self.setWindowIcon(QIcon.ic('config.png'))
 
         for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.Cancel):
             button = self.bb.button(button)

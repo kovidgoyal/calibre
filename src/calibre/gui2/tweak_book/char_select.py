@@ -370,7 +370,7 @@ class CategoryModel(QAbstractItemModel):
         self.starts.sort()
         self.bold_font = f = QApplication.font()
         f.setBold(True)
-        self.fav_icon = QIcon(I('rating.png'))
+        self.fav_icon = QIcon.ic('rating.png')
 
     def columnCount(self, parent=ROOT):
         return 1
@@ -658,8 +658,8 @@ class CharView(QListView):
                 pass
             else:
                 m = QMenu(self)
-                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % codepoint_to_chr(char_code), partial(self.copy_to_clipboard, char_code))
-                m.addAction(QIcon(I('rating.png')),
+                m.addAction(QIcon.ic('edit-copy.png'), _('Copy %s to clipboard') % codepoint_to_chr(char_code), partial(self.copy_to_clipboard, char_code))
+                m.addAction(QIcon.ic('rating.png'),
                             (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % codepoint_to_chr(char_code),
                             partial(self.remove_from_favorites, char_code))
                 if self.showing_favorites:
@@ -694,7 +694,7 @@ class CharSelect(Dialog):
     def __init__(self, parent=None):
         self.initialized = False
         Dialog.__init__(self, _('Insert character'), 'charmap_dialog', parent)
-        self.setWindowIcon(QIcon(I('character-set.png')))
+        self.setWindowIcon(QIcon.ic('character-set.png'))
         self.setFocusProxy(parent)
 
     def setup_ui(self):
@@ -724,7 +724,7 @@ class CharSelect(Dialog):
         h.returnPressed.connect(self.do_search)
         b.clicked.connect(self.do_search)
         self.clear_button = cb = QToolButton(self)
-        cb.setIcon(QIcon(I('clear_left.png')))
+        cb.setIcon(QIcon.ic('clear_left.png'))
         cb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cb.setText(_('Clear search'))
         cb.clicked.connect(self.clear_search)

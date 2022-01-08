@@ -460,7 +460,7 @@ class CompareSingle(QWidget):
             newl = QLabel('&%s:' % m['name'])
             newl.setBuddy(neww)
             button = RightClickButton(self)
-            button.setIcon(QIcon(I('back.png')))
+            button.setIcon(QIcon.ic('back.png'))
             button.setObjectName(field)
             connect_lambda(button.clicked, self, lambda self: self.revert(self.sender().objectName()))
             button.setToolTip(revert_tooltip % m['name'])
@@ -471,7 +471,7 @@ class CompareSingle(QWidget):
                 m.addAction(button.toolTip()).triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
                 m.addAction(_('Merge identifiers')).triggered.connect(self.merge_identifiers)
-                m.actions()[1].setIcon(QIcon(I('merge.png')))
+                m.actions()[1].setIcon(QIcon.ic('merge.png'))
             elif field == 'tags':
                 button.m = m = QMenu(button)
                 button.setMenu(m)
@@ -479,7 +479,7 @@ class CompareSingle(QWidget):
                 m.addAction(button.toolTip()).triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
                 m.addAction(_('Merge tags')).triggered.connect(self.merge_tags)
-                m.actions()[1].setIcon(QIcon(I('merge.png')))
+                m.actions()[1].setIcon(QIcon.ic('merge.png'))
 
             if cls is CoverView:
                 neww.zoom_requested.connect(self.zoom_requested)
@@ -613,7 +613,7 @@ class CompareMany(QDialog):
         self.l = l = QVBoxLayout(w)
         s.addWidget(w)
         self.next_called = False
-        self.setWindowIcon(QIcon(I('auto_author_sort.png')))
+        self.setWindowIcon(QIcon.ic('auto_author_sort.png'))
         self.get_metadata = get_metadata
         self.ids = list(ids)
         self.total = len(self.ids)
@@ -641,12 +641,12 @@ class CompareMany(QDialog):
         bb.rejected.connect(self.reject)
         if self.total > 1:
             self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
-            b.setIcon(QIcon(I('ok.png'))), b.setAutoDefault(False)
+            b.setIcon(QIcon.ic('ok.png')), b.setAutoDefault(False)
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
             self.rarb = b = bb.addButton(_('Re&ject all remaining'), QDialogButtonBox.ButtonRole.ActionRole)
-            b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
+            b.setIcon(QIcon.ic('minus.png')), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
@@ -657,7 +657,7 @@ class CompareMany(QDialog):
             self.addAction(ac)
             b.setToolTip(_('Reject changes and move to next [{}]').format(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
             connect_lambda(b.clicked, self, lambda self: self.next_item(False))
-            b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
+            b.setIcon(QIcon.ic('minus.png')), b.setAutoDefault(False)
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
             self.next_action = ac = QAction(self)

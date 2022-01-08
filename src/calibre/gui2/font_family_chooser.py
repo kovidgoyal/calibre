@@ -203,7 +203,7 @@ class FontFamilyDialog(QDialog):
     def __init__(self, current_family, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose font family'))
-        self.setWindowIcon(QIcon(I('font.png')))
+        self.setWindowIcon(QIcon.ic('font.png'))
         from calibre.utils.fonts.scanner import font_scanner
         self.font_scanner = font_scanner
 
@@ -228,17 +228,17 @@ class FontFamilyDialog(QDialog):
         self.bb.rejected.connect(self.reject)
         self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
                 QDialogButtonBox.ButtonRole.ActionRole)
-        afb.setIcon(QIcon(I('plus.png')))
+        afb.setIcon(QIcon.ic('plus.png'))
         afb.clicked.connect(self.add_fonts)
         self.ml = QLabel(_('Choose a font family from the list below:'))
         self.search = QLineEdit(self)
         self.search.setPlaceholderText(_('Search'))
         self.search.returnPressed.connect(self.find)
         self.nb = QToolButton(self)
-        self.nb.setIcon(QIcon(I('arrow-down.png')))
+        self.nb.setIcon(QIcon.ic('arrow-down.png'))
         self.nb.setToolTip(_('Find next'))
         self.pb = QToolButton(self)
-        self.pb.setIcon(QIcon(I('arrow-up.png')))
+        self.pb.setIcon(QIcon.ic('arrow-up.png'))
         self.pb.setToolTip(_('Find previous'))
         self.nb.clicked.connect(self.find_next)
         self.pb.clicked.connect(self.find_previous)
@@ -336,14 +336,14 @@ class FontFamilyChooser(QWidget):
         l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         self.button = QPushButton(self)
-        self.button.setIcon(QIcon(I('font.png')))
+        self.button.setIcon(QIcon.ic('font.png'))
         self.button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addWidget(self.button)
         self.default_text = _('Choose &font family')
         self.font_family = None
         self.button.clicked.connect(self.show_chooser)
         self.clear_button = QToolButton(self)
-        self.clear_button.setIcon(QIcon(I('clear_left.png')))
+        self.clear_button.setIcon(QIcon.ic('clear_left.png'))
         self.clear_button.clicked.connect(self.clear_family)
         l.addWidget(self.clear_button)
         self.setToolTip = self.button.setToolTip

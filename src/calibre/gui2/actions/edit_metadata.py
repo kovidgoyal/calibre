@@ -305,7 +305,7 @@ class EditMetadataAction(InterfaceAction):
             log_is_file=True, checkbox_msg=checkbox_msg,
             checkbox_checked=False, action_callback=review_apply,
             action_label=_('Revie&w downloaded metadata'),
-            action_icon=QIcon(I('auto_author_sort.png')))
+            action_icon=QIcon.ic('auto_author_sort.png'))
 
     def apply_downloaded_metadata(self, review, payload, *args):
         good_ids, tdir, log_file, lm_map, failed_ids = payload

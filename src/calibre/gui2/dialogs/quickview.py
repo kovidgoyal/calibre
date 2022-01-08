@@ -268,7 +268,7 @@ class Quickview(QDialog, Ui_Quickview):
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Show the Quickview panel in its own floating window'))
-            self.dock_button.setIcon(QIcon(I('arrow-up.png')))
+            self.dock_button.setIcon(QIcon.ic('arrow-up.png'))
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.refresh_button.setText(_('Refresh'))
@@ -276,7 +276,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.close_button.setVisible(False)
         else:
             self.dock_button.setToolTip(_('Embed the Quickview panel into the main calibre window'))
-            self.dock_button.setIcon(QIcon(I('arrow-down.png')))
+            self.dock_button.setIcon(QIcon.ic('arrow-down.png'))
         self.set_focus()
 
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
@@ -287,12 +287,12 @@ class Quickview(QDialog, Ui_Quickview):
         self.refresh_button.setEnabled(False)
         self.lock_qv.stateChanged.connect(self.lock_qv_changed)
 
-        self.view_icon = QIcon(I('view.png'))
+        self.view_icon = QIcon.ic('view.png')
         self.view_plugin = self.gui.iactions['View']
-        self.edit_metadata_icon = QIcon(I('edit_input.png'))
-        self.quickview_icon = QIcon(I('quickview.png'))
-        self.select_book_icon = QIcon(I('library.png'))
-        self.search_icon = QIcon(I('search.png'))
+        self.edit_metadata_icon = QIcon.ic('edit_input.png')
+        self.quickview_icon = QIcon.ic('quickview.png')
+        self.select_book_icon = QIcon.ic('library.png')
+        self.search_icon = QIcon.ic('search.png')
         self.books_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.books_table.customContextMenuRequested.connect(self.show_context_menu)
 

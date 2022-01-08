@@ -157,7 +157,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.original_authors[id_] = {'name': name, 'sort': v['sort'],
                                           'link': v['link']}
 
-        self.edited_icon = QIcon(I('modified.png'))
+        self.edited_icon = QIcon.ic('modified.png')
         self.empty_icon = QIcon()
         if prefs['use_primary_find_in_search']:
             self.string_contains = primary_contains
@@ -292,7 +292,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
         case_menu = QMenu(_('Change case'))
-        case_menu.setIcon(QIcon(I('font_size_larger.png')))
+        case_menu.setIcon(QIcon.ic('font_size_larger.png'))
         action_upper_case = case_menu.addAction(_('Upper case'))
         action_lower_case = case_menu.addAction(_('Lower case'))
         action_swap_case = case_menu.addAction(_('Swap case'))
@@ -310,20 +310,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         id_ = int(self.table.item(idx.row(), 0).data(Qt.ItemDataRole.UserRole))
         sub = self.get_column_name(idx.column())
         if self.context_item.text() != self.original_authors[id_][sub]:
-            ca = m.addAction(QIcon(I('undo.png')), _('Undo'))
+            ca = m.addAction(QIcon.ic('undo.png'), _('Undo'))
             ca.triggered.connect(partial(self.undo_cell,
                                          old_value=self.original_authors[id_][sub]))
             m.addSeparator()
-        ca = m.addAction(QIcon(I('edit-copy.png')), _('Copy'))
+        ca = m.addAction(QIcon.ic('edit-copy.png'), _('Copy'))
         ca.triggered.connect(self.copy_to_clipboard)
-        ca = m.addAction(QIcon(I('edit-paste.png')), _('Paste'))
+        ca = m.addAction(QIcon.ic('edit-paste.png'), _('Paste'))
         ca.triggered.connect(self.paste_from_clipboard)
         m.addSeparator()
         if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
             m.addSeparator()
-            ca = m.addAction(QIcon(I('lt.png')), _("Show books by author in book list"))
+            ca = m.addAction(QIcon.ic('lt.png'), _("Show books by author in book list"))
             ca.triggered.connect(self.search_in_book_list)
         else:
             ca = m.addAction(_('Copy to author'))

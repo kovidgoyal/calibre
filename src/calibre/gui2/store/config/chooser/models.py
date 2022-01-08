@@ -44,8 +44,8 @@ class Matches(QAbstractItemModel):
     def __init__(self, plugins):
         QAbstractItemModel.__init__(self)
 
-        self.NO_DRM_ICON = QIcon(I('ok.png'))
-        self.DONATE_ICON = QIcon(I('donate.png'))
+        self.NO_DRM_ICON = QIcon.ic('ok.png')
+        self.DONATE_ICON = QIcon.ic('donate.png')
 
         self.all_matches = plugins
         self.matches = plugins

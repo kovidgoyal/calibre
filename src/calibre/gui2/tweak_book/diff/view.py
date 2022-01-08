@@ -169,16 +169,16 @@ class TextBrowser(PlainTextEdit):  # {{{
         a = m.addAction
         i = str(self.textCursor().selectedText()).rstrip('\0')
         if i:
-            a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.StandardKey.Copy)
+            a(QIcon.ic('edit-copy.png'), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.StandardKey.Copy)
 
         if len(self.changes) > 0:
-            a(QIcon(I('arrow-up.png')), _('Previous change'), partial(self.next_change.emit, -1))
-            a(QIcon(I('arrow-down.png')), _('Next change'), partial(self.next_change.emit, 1))
+            a(QIcon.ic('arrow-up.png'), _('Previous change'), partial(self.next_change.emit, -1))
+            a(QIcon.ic('arrow-down.png'), _('Next change'), partial(self.next_change.emit, 1))
 
         if self.show_open_in_editor:
             b = self.cursorForPosition(pos).block()
             if b.isValid():
-                a(QIcon(I('tweak.png')), _('Open file in the editor'), partial(self.generate_sync_request, b.blockNumber()))
+                a(QIcon.ic('tweak.png'), _('Open file in the editor'), partial(self.generate_sync_request, b.blockNumber()))
 
         if len(m.actions()) > 0:
             m.exec(self.mapToGlobal(pos))

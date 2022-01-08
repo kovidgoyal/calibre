@@ -241,7 +241,7 @@ class ThemeCreateDialog(Dialog):
         self.description = QTextEdit(self)
         l.addRow(self.description)
         self.refresh_button = rb = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
-        rb.setIcon(QIcon(I('view-refresh.png')))
+        rb.setIcon(QIcon.ic('view-refresh.png'))
         rb.clicked.connect(self.refresh)
 
         self.apply_report()
@@ -313,7 +313,7 @@ class Compress(QProgressDialog):
         total = 2 + len(report.name_map)
         QProgressDialog.__init__(self, _('Losslessly optimizing images, please wait...'), _('&Abort'), 0, total, parent)
         self.setWindowTitle(self.labelText())
-        self.setWindowIcon(QIcon(I('lt.png')))
+        self.setWindowIcon(QIcon.ic('lt.png'))
         self.setMinimumDuration(0)
         self.update_signal.connect(self.do_update, type=Qt.ConnectionType.QueuedConnection)
         self.raw = self.prefix = None
@@ -611,7 +611,7 @@ class ChooseTheme(Dialog):
         vl.addLayout(l), vl.addWidget(self.bb)
         self.restore_defs_button = b = self.bb.addButton(_('Restore &default icons'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
-        b.setIcon(QIcon(I('view-refresh.png')))
+        b.setIcon(QIcon.ic('view-refresh.png'))
         self.c = c = QWidget(self)
         self.c.v = v = QVBoxLayout(self.c)
         v.addStretch(), v.addWidget(pi, 0, Qt.AlignmentFlag.AlignCenter)

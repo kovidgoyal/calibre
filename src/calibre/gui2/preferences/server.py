@@ -189,7 +189,7 @@ class Path(QWidget):
 
         self.b = b = QToolButton(self)
         l.addWidget(b)
-        b.setIcon(QIcon(I('document_open.png')))
+        b.setIcon(QIcon.ic('document_open.png'))
         b.setToolTip(_("Browse for the file"))
         b.clicked.connect(self.choose)
         init_opt(self, opt, layout)
@@ -819,11 +819,11 @@ class Users(QWidget):
 
         self.h = h = QHBoxLayout()
         lp.addLayout(h)
-        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('&Add user'), self)
+        self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('&Add user'), self)
         b.clicked.connect(self.add_user)
         h.addWidget(b)
         self.remove_button = b = QPushButton(
-            QIcon(I('minus.png')), _('&Remove user'), self
+            QIcon.ic('minus.png'), _('&Remove user'), self
         )
         b.clicked.connect(self.remove_user)
         h.addStretch(2), h.addWidget(b)
@@ -1107,7 +1107,7 @@ class SearchTheInternet(QWidget):
 
         self.h = QHBoxLayout()
         gl.addLayout(self.h)
-        self.add_url_button = b = QPushButton(QIcon(I('plus.png')), _('&Add URL'))
+        self.add_url_button = b = QPushButton(QIcon.ic('plus.png'), _('&Add URL'))
         b.clicked.connect(self.add_url)
         self.h.addWidget(b)
         self.export_button = b = QPushButton(_('Export URLs'))

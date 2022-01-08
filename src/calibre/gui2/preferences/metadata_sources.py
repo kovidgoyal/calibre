@@ -74,7 +74,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return plugin
         elif (role == Qt.ItemDataRole.DecorationRole and col == 0 and not
                     plugin.is_configured()):
-            return QIcon(I('list_remove.png'))
+            return QIcon.ic('list_remove.png')
         elif role == Qt.ItemDataRole.ToolTipRole:
             base = plugin.description + '\n\n'
             if plugin.is_configured():

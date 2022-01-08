@@ -488,10 +488,10 @@ class ToolbarSettings(QWidget):
         self.current.itemDoubleClicked.connect(self.remove_single_action)
         self.ub = b = QToolButton(self)
         connect_lambda(b.clicked, self, lambda self: self.move(up=True))
-        b.setToolTip(_('Move selected action up')), b.setIcon(QIcon(I('arrow-up.png')))
+        b.setToolTip(_('Move selected action up')), b.setIcon(QIcon.ic('arrow-up.png'))
         self.db = b = QToolButton(self)
         connect_lambda(b.clicked, self, lambda self: self.move(up=False))
-        b.setToolTip(_('Move selected action down')), b.setIcon(QIcon(I('arrow-down.png')))
+        b.setToolTip(_('Move selected action down')), b.setIcon(QIcon.ic('arrow-down.png'))
         self.gl1 = gl1 = QVBoxLayout()
         gl1.addWidget(self.available), gb1.setLayout(gl1)
         self.gl2 = gl2 = QGridLayout()
@@ -499,10 +499,10 @@ class ToolbarSettings(QWidget):
         gl2.addWidget(self.ub, 0, 1), gl2.addWidget(self.db, 2, 1)
         gb2.setLayout(gl2)
         self.lb = b = QToolButton(self)
-        b.setToolTip(_('Add selected actions to the toolbar')), b.setIcon(QIcon(I('forward.png')))
+        b.setToolTip(_('Add selected actions to the toolbar')), b.setIcon(QIcon.ic('forward.png'))
         l.addWidget(b, 1, 1), b.clicked.connect(self.add_action)
         self.rb = b = QToolButton(self)
-        b.setToolTip(_('Remove selected actions from the toolbar')), b.setIcon(QIcon(I('back.png')))
+        b.setToolTip(_('Remove selected actions from the toolbar')), b.setIcon(QIcon.ic('back.png'))
         l.addWidget(b, 3, 1), b.clicked.connect(self.remove_action)
         self.si = QSpacerItem(20, 10, hPolicy=QSizePolicy.Policy.Preferred, vPolicy=QSizePolicy.Policy.Expanding)
         l.setRowStretch(0, 10), l.setRowStretch(2, 10), l.setRowStretch(4, 10)
@@ -549,7 +549,7 @@ class ToolbarSettings(QWidget):
             all_items = {x:actions[x] for x in tprefs.defaults[name] if x}
         else:
             all_items = editor_toolbar_actions[name.split('_')[1]]
-        blank = QIcon(I('blank.png'))
+        blank = QIcon.ic('blank.png')
 
         def to_item(key, ac, parent):
             ic = ac.icon()
@@ -564,7 +564,7 @@ class ToolbarSettings(QWidget):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:
-            QListWidgetItem(QIcon(I('donate.png')), _('Donate'), self.available).setData(Qt.ItemDataRole.UserRole, 'donate')
+            QListWidgetItem(QIcon.ic('donate.png'), _('Donate'), self.available).setData(Qt.ItemDataRole.UserRole, 'donate')
 
         QListWidgetItem(blank, '--- %s ---' % _('Separator'), self.available)
         for key in items:
@@ -572,7 +572,7 @@ class ToolbarSettings(QWidget):
                 QListWidgetItem(blank, '--- %s ---' % _('Separator'), self.current)
             else:
                 if key == 'donate':
-                    QListWidgetItem(QIcon(I('donate.png')), _('Donate'), self.current).setData(Qt.ItemDataRole.UserRole, 'donate')
+                    QListWidgetItem(QIcon.ic('donate.png'), _('Donate'), self.current).setData(Qt.ItemDataRole.UserRole, 'donate')
                 else:
                     try:
                         ac = all_items[key]
@@ -748,7 +748,7 @@ class Preferences(QDialog):
         self.l = l = QGridLayout(self)
         self.setLayout(l)
         self.setWindowTitle(_('Preferences for Edit book'))
-        self.setWindowIcon(QIcon(I('config.png')))
+        self.setWindowIcon(QIcon.ic('config.png'))
 
         self.stacks = QStackedWidget(self)
         l.addWidget(self.stacks, 0, 1, 1, 1)
@@ -801,7 +801,7 @@ class Preferences(QDialog):
             (_('Toolbars'), 'wizard.png', 'toolbars'),
             (_('Integration with calibre'), 'lt.png', 'integration'),
         ]:
-            i = QListWidgetItem(QIcon(I(icon)), name, cl)
+            i = QListWidgetItem(QIcon.ic(icon), name, cl)
             i.setToolTip(name)
             cl.addItem(i)
             self.stacks.addWidget(getattr(self, panel + '_panel'))

@@ -121,10 +121,10 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.show_changes = False
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
-        b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
+        b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
         connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
     b = d.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-    b.setIcon(QIcon(I('edit-copy.png'))), b.setAutoDefault(False)
+    b.setIcon(QIcon.ic('edit-copy.png')), b.setAutoDefault(False)
 
     def copy_report():
         text = re.sub(r'</.+?>', '\n', report)
@@ -183,7 +183,7 @@ class CompressImages(Dialog):
 
     def setup_ui(self):
         from calibre.ebooks.oeb.polish.images import get_compressible_images
-        self.setWindowIcon(QIcon(I('compress-image.png')))
+        self.setWindowIcon(QIcon.ic('compress-image.png'))
         self.h = h = QHBoxLayout(self)
         self.images = i = QListWidget(self)
         h.addWidget(i)
@@ -268,7 +268,7 @@ class CompressImagesProgress(Dialog):
         self.cidone.emit()
 
     def setup_ui(self):
-        self.setWindowIcon(QIcon(I('compress-image.png')))
+        self.setWindowIcon(QIcon.ic('compress-image.png'))
         self.setCursor(Qt.CursorShape.BusyCursor)
         self.setMinimumWidth(350)
         self.l = l = QVBoxLayout(self)

@@ -86,11 +86,11 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-        self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
+        self.next_button = QPushButton(QIcon.ic('forward.png'), _('Next'),
                 self)
         self.next_button.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(self.next_clicked)
-        self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
+        self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
@@ -110,7 +110,7 @@ class MetadataSingleDialogBase(QDialog):
         ll.addSpacing(10)
         ll.addWidget(self.button_box)
 
-        self.setWindowIcon(QIcon(I('edit_input.png')))
+        self.setWindowIcon(QIcon.ic('edit_input.png'))
         self.setWindowTitle(BASE_TITLE)
 
         self.create_basic_metadata_widgets()
@@ -171,12 +171,12 @@ class MetadataSingleDialogBase(QDialog):
             b.m = m = Menu(b)
         else:
             b.m = m = QMenu(b)
-        ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
-        ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
-        ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
-        ac4 = m.addAction(QIcon(I('next.png')),
+        ac = m.addAction(QIcon.ic('forward.png'), _('Set author sort from author'))
+        ac2 = m.addAction(QIcon.ic('back.png'), _('Set author from author sort'))
+        ac3 = m.addAction(QIcon.ic('user_profile.png'), _('Manage authors'))
+        ac4 = m.addAction(QIcon.ic('next.png'),
                 _('Copy author to author sort'))
-        ac5 = m.addAction(QIcon(I('previous.png')),
+        ac5 = m.addAction(QIcon.ic('previous.png'),
                 _('Copy author sort to author'))
 
         b.setMenu(m)
@@ -186,14 +186,14 @@ class MetadataSingleDialogBase(QDialog):
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
-        self.swap_title_author_button.setIcon(QIcon(I('swap.png')))
+        self.swap_title_author_button.setIcon(QIcon.ic('swap.png'))
         self.swap_title_author_button.setToolTip(_(
             'Swap the author and title') + ' [%s]' % self.swap_title_author_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
         self.swap_title_author_shortcut.activated.connect(self.swap_title_author_button.click)
 
         self.manage_authors_button = QToolButton(self)
-        self.manage_authors_button.setIcon(QIcon(I('user_profile.png')))
+        self.manage_authors_button.setIcon(QIcon.ic('user_profile.png'))
         self.manage_authors_button.setToolTip('<p>' + _(
             'Manage authors. Use to rename authors and correct '
             'individual author\'s sort values') + '</p>')
@@ -226,7 +226,7 @@ class MetadataSingleDialogBase(QDialog):
         self.rating = RatingEdit(self)
         self.clear_ratings_button = QToolButton(self)
         self.clear_ratings_button.setToolTip(_('Clear rating'))
-        self.clear_ratings_button.setIcon(QIcon(I('trash.png')))
+        self.clear_ratings_button.setIcon(QIcon.ic('trash.png'))
         self.clear_ratings_button.clicked.connect(self.rating.zero)
 
         self.basic_metadata_widgets.append(self.rating)
@@ -234,19 +234,19 @@ class MetadataSingleDialogBase(QDialog):
         self.tags = TagsEdit(self)
         self.tags_editor_button = QToolButton(self)
         self.tags_editor_button.setToolTip(_('Open Tag editor'))
-        self.tags_editor_button.setIcon(QIcon(I('chapters.png')))
+        self.tags_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.tags_editor_button.clicked.connect(self.tags_editor)
         self.tags.tag_editor_requested.connect(self.tags_editor)
         self.clear_tags_button = QToolButton(self)
         self.clear_tags_button.setToolTip(_('Clear all tags'))
-        self.clear_tags_button.setIcon(QIcon(I('trash.png')))
+        self.clear_tags_button.setIcon(QIcon.ic('trash.png'))
         self.clear_tags_button.clicked.connect(self.tags.clear)
         self.basic_metadata_widgets.append(self.tags)
 
         self.identifiers = IdentifiersEdit(self)
         self.basic_metadata_widgets.append(self.identifiers)
         self.clear_identifiers_button = QToolButton(self)
-        self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.setIcon(QIcon.ic('trash.png'))
         self.clear_identifiers_button.setToolTip(_('Clear Ids'))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
         self.paste_isbn_button = b = RightClickButton(self)
@@ -254,7 +254,7 @@ class MetadataSingleDialogBase(QDialog):
                     _('Paste the contents of the clipboard into the '
                       'identifiers prefixed with isbn: or url:. Or right click, '
                       'to choose a different prefix.') + '</p>')
-        b.setIcon(QIcon(I('edit-paste.png')))
+        b.setIcon(QIcon.ic('edit-paste.png'))
         b.clicked.connect(self.identifiers.paste_identifier)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.setMenu(QMenu(b))
@@ -267,22 +267,22 @@ class MetadataSingleDialogBase(QDialog):
         self.pubdate = PubdateEdit(self)
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
 
-        self.fetch_metadata_button = b = CenteredToolButton(QIcon(I('download-metadata.png')), _('&Download metadata'), self)
+        self.fetch_metadata_button = b = CenteredToolButton(QIcon.ic('download-metadata.png'), _('&Download metadata'), self)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         self.fetch_metadata_menu = m = QMenu(self.fetch_metadata_button)
-        m.addAction(QIcon(I('edit-undo.png')), _('Undo last metadata download'), self.undo_fetch_metadata)
+        m.addAction(QIcon.ic('edit-undo.png'), _('Undo last metadata download'), self.undo_fetch_metadata)
         self.fetch_metadata_button.setMenu(m)
         self.download_shortcut.activated.connect(self.fetch_metadata_button.click)
 
         if self.use_toolbutton_for_config_metadata:
             self.config_metadata_button = QToolButton(self)
-            self.config_metadata_button.setIcon(QIcon(I('config.png')))
+            self.config_metadata_button.setIcon(QIcon.ic('config.png'))
         else:
             self.config_metadata_button = QPushButton(self)
             self.config_metadata_button.setText(_('Configure download metadata'))
-        self.config_metadata_button.setIcon(QIcon(I('config.png')))
+        self.config_metadata_button.setIcon(QIcon.ic('config.png'))
         self.config_metadata_button.clicked.connect(self.configure_metadata)
         self.config_metadata_button.setToolTip(
             _('Change how calibre downloads metadata'))
@@ -780,7 +780,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
             tl.addWidget(one, row, col+1, 1, 1)
             if two is not None:
                 tl.addWidget(two, row, col+2, 1, 1)
-                two.setIcon(QIcon(I(icon)))
+                two.setIcon(QIcon.ic(icon))
             ql = BuddyLabel(three)
             tl.addWidget(ql, row, col+3, 1, 1)
             self.labels.append(ql)
@@ -952,7 +952,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
             if button is not None:
                 tl.addWidget(button, row, 3, span, 1)
                 if icon is not None:
-                    button.setIcon(QIcon(I(icon)))
+                    button.setIcon(QIcon.ic(icon))
             if tab_to is not None:
                 if button is not None:
                     sto(widget, button)
@@ -1106,7 +1106,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
             if button is not None:
                 tl.addWidget(button, row, 3, span, 1)
                 if icon is not None:
-                    button.setIcon(QIcon(I(icon)))
+                    button.setIcon(QIcon.ic(icon))
             if tab_to is not None:
                 if button is not None:
                     sto(widget, button)

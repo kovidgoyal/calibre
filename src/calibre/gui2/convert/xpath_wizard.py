@@ -76,7 +76,7 @@ class XPathEdit(QWidget):
         self.l = l = QVBoxLayout()
         h.addLayout(l)
         self.button = b = QToolButton(self)
-        b.setIcon(QIcon(I('wizard.png')))
+        b.setIcon(QIcon.ic('wizard.png'))
         b.setToolTip(_('Use a wizard to generate the XPath expression'))
         b.clicked.connect(self.wizard)
         h.addWidget(b)

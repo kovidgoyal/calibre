@@ -64,12 +64,12 @@ def entry_to_icon_text(entry, only_text=False):
             from base64 import standard_b64decode
             data = bytearray(standard_b64decode(data))
     if not isinstance(data, (bytearray, bytes)):
-        icon = QIcon(I('blank.png'))
+        icon = QIcon.ic('blank.png')
     else:
         pmap = QPixmap()
         pmap.loadFromData(bytes(data))
         if pmap.isNull():
-            icon = QIcon(I('blank.png'))
+            icon = QIcon.ic('blank.png')
         else:
             icon = QIcon(pmap)
     return icon, entry.get('name', entry.get('Name')) or _('Unknown')
@@ -401,11 +401,11 @@ class EditPrograms(Dialog):  # {{{
 
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rb = b = self.bb.addButton(_('&Remove'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
+        b.clicked.connect(self.remove), b.setIcon(QIcon.ic('list_remove.png'))
         self.cb = b = self.bb.addButton(_('Change &icon'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.clicked.connect(self.change_icon), b.setIcon(QIcon(I('icon_choose.png')))
+        b.clicked.connect(self.change_icon), b.setIcon(QIcon.ic('icon_choose.png'))
         self.cb = b = self.bb.addButton(_('Change &name'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.clicked.connect(self.change_name), b.setIcon(QIcon(I('modified.png')))
+        b.clicked.connect(self.change_name), b.setIcon(QIcon.ic('modified.png'))
         l.addWidget(self.bb)
 
         self.populate()

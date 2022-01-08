@@ -58,7 +58,7 @@ class ImportOPML(QDialog):
         self.l = l = QFormLayout(self)
         self.setLayout(l)
         self.setWindowTitle(_('Import OPML file'))
-        self.setWindowIcon(QIcon(I('opml.png')))
+        self.setWindowIcon(QIcon.ic('opml.png'))
 
         self.h = h = QHBoxLayout()
         self.path = p = QLineEdit(self)
@@ -66,7 +66,7 @@ class ImportOPML(QDialog):
         p.setPlaceholderText(_('Path to OPML file'))
         h.addWidget(p)
         self.cfb = b = QToolButton(self)
-        b.setIcon(QIcon(I('document_open.png')))
+        b.setIcon(QIcon.ic('document_open.png'))
         b.setToolTip(_('Browse for OPML file'))
         b.clicked.connect(self.choose_file)
         h.addWidget(b)

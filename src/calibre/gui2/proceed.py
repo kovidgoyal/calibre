@@ -57,7 +57,7 @@ class Icon(QWidget):
         elif icon is None:
             self.icon = self.default_icon
         else:
-            self.icon = QIcon(I(icon)).pixmap(self.sizeHint())
+            self.icon = QIcon.ic(icon).pixmap(self.sizeHint())
         self.update()
 
     def sizeHint(self):
@@ -113,7 +113,7 @@ class ProceedQuestion(QWidget):
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.log_button = self.bb.addButton(_('View log'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.log_button.setIcon(QIcon(I('debug.png')))
+        self.log_button.setIcon(QIcon.ic('debug.png'))
         self.log_button.clicked.connect(self.show_log)
         self.copy_button = self.bb.addButton(_('&Copy to clipboard'),
                 QDialogButtonBox.ButtonRole.ActionRole)

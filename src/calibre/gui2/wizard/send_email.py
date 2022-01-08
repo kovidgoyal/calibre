@@ -30,7 +30,7 @@ class TestEmail(QDialog):
         QDialog.__init__(self, parent)
         self.test_func = parent.test_email_settings
         self.setWindowTitle(_("Test email settings"))
-        self.setWindowIcon(QIcon(I('config.ui')))
+        self.setWindowIcon(QIcon.ic('config.ui'))
         l = QVBoxLayout(self)
         opts = smtp_prefs().parse()
         self.from_ = la = QLabel(_("Send test mail from %s to:")%opts.from_)

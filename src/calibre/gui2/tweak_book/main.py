@@ -73,7 +73,7 @@ def _run(args, notify=None):
     app = Application(args, override_program_name=override, color_prefs=tprefs, windows_app_uid=EDITOR_APP_UID)
     app.file_event_hook = EventAccumulator()
     app.load_builtin_fonts()
-    app.setWindowIcon(QIcon(I('tweak.png')))
+    app.setWindowIcon(QIcon.ic('tweak.png'))
     main = Main(opts, notify=notify)
     main.set_exception_handler()
     main.show()

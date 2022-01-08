@@ -26,7 +26,7 @@ class PreferencesAction(InterfaceAction):
         pm = self.qaction.menu()
         cm = partial(self.create_menu_action, pm)
         if ismacos:
-            pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+            pm.addAction(QIcon.ic('config.png'), _('Preferences'), self.do_config)
         cm('welcome wizard', _('Run Welcome wizard'),
                 icon='wizard.png', triggered=self.gui.run_wizard)
         cm('plugin updater', _('Get plugins to enhance calibre'),

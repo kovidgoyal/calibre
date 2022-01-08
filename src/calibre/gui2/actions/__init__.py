@@ -158,7 +158,7 @@ class InterfaceAction(QObject):
             spec = self.action_spec
         text, icon, tooltip, shortcut = spec
         if icon is not None:
-            action = QAction(QIcon(I(icon)), text, self.gui)
+            action = QAction(QIcon.ic(icon), text, self.gui)
         else:
             action = QAction(text, self.gui)
         if attr == 'qaction':
@@ -253,7 +253,7 @@ class InterfaceAction(QObject):
         ac = menu.addAction(text)
         if icon is not None:
             if not isinstance(icon, QIcon):
-                icon = QIcon(I(icon))
+                icon = QIcon.ic(icon)
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:

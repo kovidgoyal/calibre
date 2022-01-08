@@ -196,14 +196,14 @@ class TagsView(QTreeView):  # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
-        self.search_icon = QIcon(I('search.png'))
-        self.search_copy_icon = QIcon(I("search_copy_saved.png"))
-        self.user_category_icon = QIcon(I('tb_folder.png'))
-        self.edit_metadata_icon = QIcon(I('edit_input.png'))
-        self.delete_icon = QIcon(I('list_remove.png'))
-        self.rename_icon = QIcon(I('edit-undo.png'))
-        self.plus_icon = QIcon(I('plus.png'))
-        self.minus_icon = QIcon(I('minus.png'))
+        self.search_icon = QIcon.ic('search.png')
+        self.search_copy_icon = QIcon.ic("search_copy_saved.png")
+        self.user_category_icon = QIcon.ic('tb_folder.png')
+        self.edit_metadata_icon = QIcon.ic('edit_input.png')
+        self.delete_icon = QIcon.ic('list_remove.png')
+        self.rename_icon = QIcon.ic('edit-undo.png')
+        self.plus_icon = QIcon.ic('plus.png')
+        self.minus_icon = QIcon.ic('minus.png')
 
         self._model = TagsModel(self)
         self._model.search_item_renamed.connect(self.search_item_renamed)
@@ -704,7 +704,7 @@ class TagsView(QTreeView):  # {{{
             if self.hidden_categories and not added_show_hidden_categories:
                 added_show_hidden_categories = True
                 m = self.context_menu.addMenu(_('Show category'))
-                m.setIcon(QIcon(I('plus.png')))
+                m.setIcon(QIcon.ic('plus.png'))
                 for col in sorted(self.hidden_categories,
                         key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
                     ac = m.addAction(self.db.field_metadata[col]['name'],
@@ -714,7 +714,7 @@ class TagsView(QTreeView):  # {{{
                         ac.setIcon(QIcon(ic))
                 m.addSeparator()
                 m.addAction(_('All categories'),
-                        partial(self.context_menu_handler, action='defaults')).setIcon(QIcon(I('plusplus.png')))
+                        partial(self.context_menu_handler, action='defaults')).setIcon(QIcon.ic('plusplus.png'))
 
         search_submenu = None
         if index.isValid():
@@ -772,10 +772,10 @@ class TagsView(QTreeView):  # {{{
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
-                                            action='edit_author_sort', index=tag.id)).setIcon(QIcon(I('auto_author_sort.png')))
+                                            action='edit_author_sort', index=tag.id)).setIcon(QIcon.ic('auto_author_sort.png'))
                             self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
-                                            action='edit_author_link', index=tag.id)).setIcon(QIcon(I('insert-link.png')))
+                                            action='edit_author_link', index=tag.id)).setIcon(QIcon.ic('insert-link.png'))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a User category'
@@ -848,7 +848,7 @@ class TagsView(QTreeView):  # {{{
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addSeparator()
                         search_submenu = self.context_menu.addMenu(_('Search for'))
-                        search_submenu.setIcon(QIcon(I('search.png')))
+                        search_submenu.setIcon(QIcon.ic('search.png'))
                         search_submenu.addAction(self.search_icon,
                                 '%s'%display_name(tag),
                                 partial(self.context_menu_handler, action='search',
@@ -899,7 +899,7 @@ class TagsView(QTreeView):  # {{{
                         tag_item.temporary and not key.startswith('@'):
                     self.context_menu.addSeparator()
                     search_submenu = self.context_menu.addMenu(_('Search for'))
-                    search_submenu.setIcon(QIcon(I('search.png')))
+                    search_submenu.setIcon(QIcon.ic('search.png'))
                     search_submenu.addAction(self.search_icon,
                             '%s'%display_name(tag_item.tag),
                             partial(self.context_menu_handler, action='search',
@@ -915,7 +915,7 @@ class TagsView(QTreeView):  # {{{
                 if item.tag.is_searchable:
                     if search_submenu is None:
                         search_submenu = self.context_menu.addMenu(_('Search for'))
-                        search_submenu.setIcon(QIcon(I('search.png')))
+                        search_submenu.setIcon(QIcon.ic('search.png'))
                         self.context_menu.addSeparator()
                     else:
                         search_submenu.addSeparator()
@@ -978,15 +978,15 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
-                            category=key)).setIcon(QIcon(I('minus.png')))
+                            category=key)).setIcon(QIcon.ic('minus.png'))
                 add_show_hidden_categories()
 
                 if tag is None:
                     self.context_menu.addSeparator()
                     self.context_menu.addAction(_('Change category icon'),
-                            partial(self.context_menu_handler, action='set_icon', key=key)).setIcon(QIcon(I('icon_choose.png')))
+                            partial(self.context_menu_handler, action='set_icon', key=key)).setIcon(QIcon.ic('icon_choose.png'))
                     self.context_menu.addAction(_('Restore default icon'),
-                            partial(self.context_menu_handler, action='clear_icon', key=key)).setIcon(QIcon(I('edit-clear.png')))
+                            partial(self.context_menu_handler, action='clear_icon', key=key)).setIcon(QIcon.ic('edit-clear.png'))
 
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
@@ -1007,7 +1007,7 @@ class TagsView(QTreeView):  # {{{
             add_show_hidden_categories()
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
-        m.setIcon(QIcon(I('config.png')))
+        m.setIcon(QIcon.ic('config.png'))
         da = m.addAction(_('Disable'),
             partial(self.context_menu_handler, action='categorization', category='disable'))
         fla = m.addAction(_('By first letter'),

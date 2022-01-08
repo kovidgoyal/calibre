@@ -25,7 +25,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.search_query.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.search_query.setMinimumContentsLength(25)
 
-        self.adv_search_button.setIcon(QIcon(I('search.png')))
+        self.adv_search_button.setIcon(QIcon.ic('search.png'))
 
         self._model = BooksModel(self.plugin.get_book_list())
         self.results_view.setModel(self._model)

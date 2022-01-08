@@ -359,7 +359,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     conf_name = 'config_widget_dialog_geometry_%s_%s'%(category, name)
     geom = gprefs.get(conf_name, None)
     d.setWindowTitle(_('Configure ') + pl.gui_name)
-    d.setWindowIcon(QIcon(I('config.png')))
+    d.setWindowIcon(QIcon.ic('config.png'))
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(QDialogButtonBox.StandardButton.Apply|QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.RestoreDefaults)
     bb.accepted.connect(d.accept)

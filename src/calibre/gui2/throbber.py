@@ -29,7 +29,7 @@ class ThrobbingButton(QToolButton):
         # toolbar
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         self._icon_size = -1
-        QToolButton.setIcon(self, QIcon(I('donate.png')))
+        QToolButton.setIcon(self, QIcon.ic('donate.png'))
         self.setText('\xa0')
         self.animation = QPropertyAnimation(self, b'icon_size', self)
         self.animation.setDuration(int(60/72.*1000))
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     w = QWidget()
     w.setLayout(QHBoxLayout())
     b = ThrobbingButton()
-    b.setIcon(QIcon(I('donate.png')))
+    b.setIcon(QIcon.ic('donate.png'))
     w.layout().addWidget(b)
     w.show()
     b.set_normal_icon_size(64, 64)

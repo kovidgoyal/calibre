@@ -340,8 +340,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
-        self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('plusplus.png')),
-                             QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
+        self.icon_state_map = [None, QIcon.ic('plus.png'), QIcon.ic('plusplus.png'),
+                             QIcon.ic('minus.png'), QIcon.ic('minusminus.png')]
 
         self.hidden_categories = set()
         self.search_restriction = None

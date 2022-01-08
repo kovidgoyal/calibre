@@ -139,14 +139,14 @@ class MovedDialog(QDialog):  # {{{
         self.loc = QLineEdit(loc, self)
         l.addWidget(self.loc, l.rowCount(), 0, 1, 1)
         self.cd = QToolButton(self)
-        self.cd.setIcon(QIcon(I('document_open.png')))
+        self.cd.setIcon(QIcon.ic('document_open.png'))
         self.cd.clicked.connect(self.choose_dir)
         l.addWidget(self.cd, l.rowCount() - 1, 1, 1, 1)
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Abort)
         b = self.bb.addButton(_('Library moved'), QDialogButtonBox.ButtonRole.AcceptRole)
-        b.setIcon(QIcon(I('ok.png')))
+        b.setIcon(QIcon.ic('ok.png'))
         b = self.bb.addButton(_('Forget library'), QDialogButtonBox.ButtonRole.RejectRole)
-        b.setIcon(QIcon(I('edit-clear.png')))
+        b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.forget_library)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
@@ -188,7 +188,7 @@ class BackupStatus(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         b = bb.addButton(_('Queue &all books for backup'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.mark_all_dirty)
-        b.setIcon(QIcon(I('lt.png')))
+        b.setIcon(QIcon.ic('lt.png'))
         l.addWidget(bb)
         self.db = weakref.ref(gui.current_db)
         self.setResult(9)
@@ -265,7 +265,7 @@ class ChooseLibraryAction(InterfaceAction):
         ac.triggered.connect(self.pick_random)
 
         self.choose_library_icon_menu = QMenu(_('Change the icon for this library'))
-        self.choose_library_icon_menu.setIcon(QIcon(I('icon_choose.png')))
+        self.choose_library_icon_menu.setIcon(QIcon.ic('icon_choose.png'))
         self.choose_library_icon_action = self.create_action(
             spec=(_('Choose an icon'), 'icon_choose.png', None, None),
             attr='action_choose_library_icon')
@@ -532,7 +532,7 @@ class ChooseLibraryAction(InterfaceAction):
         restrictions.insert(0, '')
         for vl in restrictions:
             if vl == vl_at_startup:
-                self.vl_to_apply_menu.addAction(QIcon(I('ok.png')), vl if vl else _('No Virtual library'),
+                self.vl_to_apply_menu.addAction(QIcon.ic('ok.png'), vl if vl else _('No Virtual library'),
                                                 Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
             else:
                 self.vl_to_apply_menu.addAction(vl if vl else _('No Virtual library'),

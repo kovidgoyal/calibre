@@ -146,10 +146,10 @@ class ItemEdit(QWidget):
         s.setPlaceholderText(_('Search for text...'))
         s.returnPressed.connect(self.find_next)
         l.addWidget(s, 1, 0)
-        self.ns_button = b = QPushButton(QIcon(I('arrow-down.png')), _('Find &next'), self)
+        self.ns_button = b = QPushButton(QIcon.ic('arrow-down.png'), _('Find &next'), self)
         b.clicked.connect(self.find_next)
         l.addWidget(b, 1, 1)
-        self.ps_button = b = QPushButton(QIcon(I('arrow-up.png')), _('Find &previous'), self)
+        self.ps_button = b = QPushButton(QIcon.ic('arrow-up.png'), _('Find &previous'), self)
         l.addWidget(b, 1, 2)
         b.clicked.connect(self.find_previous)
 
