@@ -250,7 +250,7 @@ class Delegate(QStyledItemDelegate):
         if width and width != st.textWidth():
             st.setTextWidth(width)
         br = st.size()
-        return QSize(br.width() + self.MARGIN, br.height() + self.MARGIN)
+        return QSize(int(br.width() + self.MARGIN), int(br.height() + self.MARGIN))
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
