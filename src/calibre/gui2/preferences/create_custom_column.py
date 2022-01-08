@@ -631,7 +631,7 @@ class CreateCustomColumn(QDialog):
                 display_dict['default_value'] = tv
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
-            display_dict['use_decorations'] = self.use_decorations.checkState()
+            display_dict['use_decorations'] = self.use_decorations.checkState() == Qt.CheckState.Checked
 
         if default_val and 'default_value' not in display_dict:
             display_dict['default_value'] = default_val
