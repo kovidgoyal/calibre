@@ -37,7 +37,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
 from polyglot import queue
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 del pqc
 try:
@@ -645,23 +645,10 @@ class FileIconProvider(QFileIconProvider):
 
     def __init__(self):
         QFileIconProvider.__init__(self)
-        upath, bpath = I('mimetypes'), I('mimetypes', allow_user_override=False)
-        if upath != bpath:
-            # User has chosen to override mimetype icons
-            path_map = {v:I('mimetypes/%s.png' % v) for v in set(itervalues(self.ICONS))}
-            icons = self.ICONS.copy()
-            for uicon in glob.glob(os.path.join(upath, '*.png')):
-                ukey = os.path.basename(uicon).rpartition('.')[0].lower()
-                if ukey not in path_map:
-                    path_map[ukey] = uicon
-                    icons[ukey] = ukey
-        else:
-            path_map = {v:os.path.join(bpath, v + '.png') for v in set(itervalues(self.ICONS))}
-            icons = self.ICONS
-        self.icons = {k:path_map[v] for k, v in iteritems(icons)}
+        self.icons = {k:f'mimetypes/{v}.png' for k, v in self.ICONS.items()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
-            self.icons[i] = QIcon(self.icons[i])
+            self.icons[i] = QIcon.ic(self.icons[i])
 
     def key_from_ext(self, ext):
         key = ext if ext in list(self.icons.keys()) else 'default'
@@ -674,7 +661,7 @@ class FileIconProvider(QFileIconProvider):
         candidate = self.icons[key]
         if isinstance(candidate, QIcon):
             return candidate
-        icon = QIcon(candidate)
+        icon = QIcon.ic(candidate)
         self.icons[key] = icon
         return icon
 

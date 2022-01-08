@@ -19,7 +19,7 @@ class NOOK(USBMS):
     gui_name       = _('The Nook')
     description    = _('Communicate with the Nook e-book reader.')
     author         = 'John Schember'
-    icon           = I('devices/nook.png')
+    icon           = 'devices/nook.png'
     supported_platforms = ['windows', 'linux', 'osx']
 
     # Ordered list of supported formats

@@ -56,7 +56,7 @@ class KINDLE(USBMS):
 
     name           = 'Kindle Device Interface'
     gui_name       = 'Amazon Kindle'
-    icon           = I('devices/kindle.png')
+    icon           = 'devices/kindle.png'
     description    = _('Communicate with the Kindle e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']

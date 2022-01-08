@@ -1382,7 +1382,7 @@ class KOBOTOUCH(KOBO):
         ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
         ' Sage and Libra 2 eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
-#    icon        = I('devices/kobotouch.jpg')
+#    icon        = 'devices/kobotouch.jpg'
 
     supported_dbversion             = 170
     min_supported_dbversion         = 53
