@@ -46,11 +46,11 @@ except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 
-def load_icon(name):
+def load_qicon(name):
     return QIcon(I(name))
 
 
-QIcon.ic = load_icon
+QIcon.ic = load_qicon
 
 
 # Setup gprefs {{{
