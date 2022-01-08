@@ -558,7 +558,10 @@ class Container(ContainerBase):  # {{{
     def has_name_and_is_not_empty(self, name):
         if not self.has_name(name):
             return False
-        return os.path.getsize(self.name_path_map[name]) > 0
+        try:
+            return os.path.getsize(self.name_path_map[name]) > 0
+        except OSError:
+            return False
 
     def has_name_case_insensitive(self, name):
         if not name:
