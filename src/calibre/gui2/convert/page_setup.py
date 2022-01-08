@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -36,7 +35,7 @@ class ProfileModel(QAbstractListModel):
             else:
                 ss = _('%(width)d x %(height)d pixels') % dict(width=w, height=h)
             ss = _('Screen size: %s') % ss
-            return ('%s [%s]' % (profile.description, ss))
+            return (f'{profile.description} [{ss}]')
         return None
 
 

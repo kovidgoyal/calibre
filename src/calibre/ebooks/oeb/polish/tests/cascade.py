@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -98,7 +97,7 @@ class CascadeTest(BaseTest):
             self.assertEqual(val, ans.cssText)
 
         def get_maps(html, styles=None, pseudo=False):
-            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
             c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }'})
             resolve_property, resolve_pseudo_property, select = resolve_styles(c, 'index.html')
             if pseudo:
@@ -151,7 +150,7 @@ class CascadeTest(BaseTest):
 
         def get_stats(html, *fonts):
             styles = []
-            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
             files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
@@ -159,9 +158,9 @@ class CascadeTest(BaseTest):
                     if k == 'src':
                         files[v] = b'xxx'
                         v = 'url(%s)' % v
-                    styles.append('%s : %s;' % (k, v))
+                    styles.append(f'{k} : {v};')
                 styles.append('}\n')
-            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
             files['styles.css'] = embeds + '\n'.join(styles)
             c = VirtualContainer(files)
             return StatsCollector(c, do_embed=True)

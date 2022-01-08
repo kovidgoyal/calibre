@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -246,7 +245,7 @@ class GuiRunner(QObject):
 
     def timed_print(self, *a, **kw):
         if DEBUG:
-            prints('[{:.2f}]'.format(monotonic() - self.startup_time), *a, **kw)
+            prints(f'[{monotonic() - self.startup_time:.2f}]', *a, **kw)
 
     def start_gui(self, db):
         from calibre.gui2.ui import Main

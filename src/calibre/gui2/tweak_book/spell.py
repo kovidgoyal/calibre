@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -316,7 +315,7 @@ class ManageUserDictionaries(Dialog):
         self.is_active.blockSignals(False)
         self.words.clear()
         for word, lang in sorted(d.words, key=lambda x:sort_key(x[0])):
-            i = QListWidgetItem('%s [%s]' % (word, get_language(lang)), self.words)
+            i = QListWidgetItem(f'{word} [{get_language(lang)}]', self.words)
             i.setData(Qt.ItemDataRole.UserRole, (word, lang))
 
     def add_word(self):
@@ -571,7 +570,7 @@ class ManageDictionaries(Dialog):  # {{{
             x.setData(0, Qt.ItemDataRole.FontRole, bf if x is item else None)
         lc = str(item.parent().data(0, Qt.ItemDataRole.UserRole))
         pl = dprefs['preferred_locales']
-        pl[lc] = '%s-%s' % (lc, str(item.data(0, Qt.ItemDataRole.UserRole)))
+        pl[lc] = f'{lc}-{str(item.data(0, Qt.ItemDataRole.UserRole))}'
         dprefs['preferred_locales'] = pl
 
     def init_dictionary(self, item):
@@ -593,7 +592,7 @@ class ManageDictionaries(Dialog):  # {{{
         cc = str(item.parent().data(0, Qt.ItemDataRole.UserRole))
         lc = str(item.parent().parent().data(0, Qt.ItemDataRole.UserRole))
         d = item.data(0, Qt.ItemDataRole.UserRole)
-        locale = '%s-%s' % (lc, cc)
+        locale = f'{lc}-{cc}'
         pl = dprefs['preferred_dictionaries']
         pl[locale] = d.id
         dprefs['preferred_dictionaries'] = pl
@@ -664,12 +663,12 @@ class WordsModel(QAbstractTableModel):
             if col == 0:
                 return word
             if col == 1:
-                return '{} '.format(len(self.words[(word, locale)]))
+                return f'{len(self.words[(word, locale)])} '
             if col == 2:
                 pl = calibre_langcode_to_name(locale.langcode)
                 countrycode = locale.countrycode
                 if countrycode:
-                    pl = ' %s (%s)' % (pl, countrycode)
+                    pl = f' {pl} ({countrycode})'
                 return pl
             if col == 3:
                 return self.misspelled_text((word, locale))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -40,7 +39,7 @@ def create_encoder(for_json=False):
                 return encoded(4, obj.as_dict(), ExtType)
         if for_json and isinstance(obj, bytes):
             return obj.decode('utf-8')
-        raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
+        raise TypeError(f'Cannot serialize objects of type {type(obj)}')
 
     return encoder
 

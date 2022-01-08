@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -226,11 +225,11 @@ class JobsManager:
                     job.callback(job)
                 except Exception:
                     import traceback
-                    self.log.error('Error running callback for job: %s:\n%s' % (job.name, traceback.format_exc()))
+                    self.log.error(f'Error running callback for job: {job.name}:\n{traceback.format_exc()}')
         self.prune_finished_jobs()
         if job.traceback and not job.was_aborted:
             logdata = job.read_log()
-            self.log.error('The job: %s failed:\n%s\n%s' % (job.job_name, logdata, job.traceback))
+            self.log.error(f'The job: {job.job_name} failed:\n{logdata}\n{job.traceback}')
         job.remove_log()
         self.start_waiting_jobs()
 

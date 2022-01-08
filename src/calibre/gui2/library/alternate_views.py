@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -562,7 +561,7 @@ class CoverDelegate(QStyledItemDelegate):
                 title = db.field_for('title', book_id, default_value='')
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
-                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, '%s\n\n%s' % (title, authors))
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
                 if cdata is False:
                     self.render_queue.put(book_id)
                 if self.title_height != 0:
@@ -670,7 +669,7 @@ class CoverDelegate(QStyledItemDelegate):
             if title and authors:
                 title = '<b>%s</b>' % ('<br>'.join(wrap(p(title), 120)))
                 authors = '<br>'.join(wrap(p(' & '.join(authors)), 120))
-                tt = '%s<br><br>%s' % (title, authors)
+                tt = f'{title}<br><br>{authors}'
                 series = db.field_for('series', book_id)
                 if series:
                     use_roman_numbers=config['use_roman_numerals_for_series_number']
@@ -815,7 +814,7 @@ class GridView(QListView):
             path = texture_path(tex)
             if path:
                 path = os.path.abspath(path).replace(os.sep, '/')
-                ss += 'background-image: url({});'.format(path)
+                ss += f'background-image: url({path});'
                 ss += 'background-attachment: fixed;'
                 pm = QPixmap(path)
                 if not pm.isNull():
@@ -823,9 +822,9 @@ class GridView(QListView):
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
         dark = max(r, g, b) < 115
         col = '#eee' if dark else '#111'
-        ss += 'color: {};'.format(col)
+        ss += f'color: {col};'
         self.delegate.highlight_color = QColor(col)
-        self.setStyleSheet('QListView {{ {} }}'.format(ss))
+        self.setStyleSheet(f'QListView {{ {ss} }}')
 
     def refresh_settings(self):
         size_changed = (

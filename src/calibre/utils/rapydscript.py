@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -142,7 +141,7 @@ document.title = 'compiler initialized';
             if level:
                 self.errors.append(msg)
             else:
-                print('{}:{}:{}'.format(source_id, line_num, msg))
+                print(f'{source_id}:{line_num}:{msg}')
 
         def __call__(self, src, options):
             self.compiler_result = null = object()
@@ -304,7 +303,7 @@ def compile_fast(
     if omit_baselib:
         args.append('--omit-baselib')
     if js_version:
-        args.append('--js-version={}'.format(js_version or 6))
+        args.append(f'--js-version={js_version or 6}')
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     if filename:
@@ -379,7 +378,7 @@ def run_rapydscript_tests():
             if fail_code is None:
                 fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
             rq.fail(fail_code)
-            print("Blocking FAKE_PROTOCOL request: {}".format(rq.requestUrl().toString()), file=sys.stderr)
+            print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()}", file=sys.stderr)
 
     class Tester(QWebEnginePage):
 
@@ -502,7 +501,7 @@ def create_pot(source_files):
         'package_version': __version__,
         'bugs_address': 'https://bugs.launchpad.net/calibre'
     })
-    c.eval('window.catalog = {{}}; window.gettext_options = {}; 1'.format(gettext_options))
+    c.eval(f'window.catalog = {{}}; window.gettext_options = {gettext_options}; 1')
     for fname in source_files:
         with open(fname, 'rb') as f:
             code = f.read().decode('utf-8')

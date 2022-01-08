@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009-2014, John Schember <john at nachtimwald.com> and Andres Gomez <agomez at igalia.com>'
 __docformat__ = 'restructuredtext en'

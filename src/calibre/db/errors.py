@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -14,5 +13,5 @@ class NoSuchFormat(ValueError):
 class NoSuchBook(KeyError):
 
     def __init__(self, book_id):
-        KeyError.__init__(self, 'No book with id: {} in database'.format(book_id))
+        KeyError.__init__(self, f'No book with id: {book_id} in database')
         self.book_id = book_id

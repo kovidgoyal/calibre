@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -361,7 +360,7 @@ class EmailMixin:  # {{{
             for to, (ids, nooutput) in iteritems(bad_recipients):
                 msg = _('This recipient has no valid formats defined') if nooutput else \
                         _('These books have no suitable input formats for conversion')
-                det_msg.append('%s - %s' % (to, msg))
+                det_msg.append(f'{to} - {msg}')
                 det_msg.extend('\t' + titles[bid] for bid in ids)
                 det_msg.append('\n')
             warning_dialog(self, _('Could not send'),

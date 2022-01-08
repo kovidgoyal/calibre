@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -242,7 +241,7 @@ def add_catalog(cache, path, title, dbapi=None):
     new_book_added = False
     with lopen(path, 'rb') as stream:
         with cache.write_lock:
-            matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
+            matches = cache._search('title:="{}" and tags:="{}"'.format(title.replace('"', '\\"'), _('Catalog')), None)
             db_id = None
             if matches:
                 db_id = list(matches)[0]

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -235,7 +234,7 @@ class BookmarkManager(QWidget):
         q = base
         while q in all_titles:
             c += 1
-            q = '{} #{}'.format(base, c)
+            q = f'{base} #{c}'
         return q
 
     def item_changed(self, item):
@@ -345,7 +344,7 @@ class BookmarkManager(QWidget):
         c = 0
         while True:
             c += 1
-            default_title = '{} #{}'.format(base_default_title, c)
+            default_title = f'{base_default_title} #{c}'
             if default_title not in all_titles:
                 break
 

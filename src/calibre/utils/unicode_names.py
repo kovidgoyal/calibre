@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -11,7 +10,7 @@ from polyglot.builtins import iteritems
 
 def character_name_from_code(code):
     from calibre_extensions.unicode_names import name_for_codepoint
-    return name_for_codepoint(code) or 'U+{:X}'.format(code)
+    return name_for_codepoint(code) or f'U+{code:X}'
 
 
 def html_entities():

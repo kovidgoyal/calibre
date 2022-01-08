@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -144,5 +143,5 @@ if __name__ == '__main__':
     for group in import_opml(open(sys.argv[-1], 'rb').read()):
         print(group.title)
         for title, url in group.feeds:
-            print('\t%s - %s' % (title, url))
+            print(f'\t{title} - {url}')
         print()

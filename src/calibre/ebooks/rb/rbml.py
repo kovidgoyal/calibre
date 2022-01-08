@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -104,7 +101,7 @@ class RBMLizer:
             toc.append('<H1>%s</H1><UL>\n' % _('Table of Contents:'))
             for item in self.oeb_book.toc:
                 if item.href in self.link_hrefs.keys():
-                    toc.append('<LI><A HREF="#%s">%s</A></LI>\n' % (self.link_hrefs[item.href], item.title))
+                    toc.append(f'<LI><A HREF="#{self.link_hrefs[item.href]}">{item.title}</A></LI>\n')
                 else:
                     self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
             toc.append('</UL>')
@@ -126,7 +123,7 @@ class RBMLizer:
         return self.get_anchor(page, '')
 
     def get_anchor(self, page, aid):
-        aid = '%s#%s' % (page.href, aid)
+        aid = f'{page.href}#{aid}'
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
         aid = self.link_hrefs[aid]

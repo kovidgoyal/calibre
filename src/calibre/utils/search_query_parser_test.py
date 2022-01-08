@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -353,7 +352,7 @@ class Tester(SearchQueryParser):
     def run_tests(self, ae):
         for query in self.tests.keys():
             res = self.parse(query)
-            ae(self.tests[query], res, 'Failed for query: {}'.format(query))
+            ae(self.tests[query], res, f'Failed for query: {query}')
 
 
 class TestSQP(unittest.TestCase):

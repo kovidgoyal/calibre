@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Read content from azw4 file.
 

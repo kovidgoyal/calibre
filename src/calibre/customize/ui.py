@@ -849,7 +849,7 @@ def main(args=sys.argv):
         type_len = name_len = 0
         for plugin in initialized_plugins():
             type_len, name_len = max(type_len, len(plugin.type)), max(name_len, len(plugin.name))
-        fmt = '%-{}s%-{}s%-15s%-15s%s'.format(type_len+1, name_len+1)
+        fmt = f'%-{type_len+1}s%-{name_len+1}s%-15s%-15s%s'
         print(fmt%tuple('Type|Name|Version|Disabled|Site Customization'.split('|')))
         print()
         for plugin in initialized_plugins():

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -65,7 +64,7 @@ class CombinedStyle:
 
     def serialize(self, styles, normal_style):
         makeelement = self.namespace.makeelement
-        w = lambda x: '{%s}%s' % (self.namespace.namespaces['w'], x)
+        w = lambda x: '{{{}}}{}'.format(self.namespace.namespaces['w'], x)
         block = makeelement(styles, 'w:style', w_styleId=self.id, w_type='paragraph')
         makeelement(block, 'w:name', w_val=self.name)
         makeelement(block, 'w:qFormat')
@@ -148,7 +147,7 @@ class DOCXStyle:
 
     def __init__(self, namespace):
         self.namespace = namespace
-        self.w = lambda x: '{%s}%s' % (namespace.namespaces['w'], x)
+        self.w = lambda x: '{{{}}}{}'.format(namespace.namespaces['w'], x)
         self.id = self.name = None
         self.next_style = None
         self.calculate_hash()
@@ -689,7 +688,7 @@ class StylesManager:
         self.pure_block_styles = sorted(pure_block_styles, key=block_counts.__getitem__)
         bnum = len(str(max(1, len(pure_block_styles) - 1)))
         for i, bs in enumerate(self.pure_block_styles):
-            bs.id = bs.name = '%0{}d Block'.format(bnum) % i
+            bs.id = bs.name = f'%0{bnum}d Block' % i
             bs.seq = i
             if i == 0:
                 self.normal_pure_block_style = bs
@@ -715,7 +714,7 @@ class StylesManager:
                 style.id = style.name = 'Normal'
             else:
                 if style.outline_level is None:
-                    val = 'Para %0{}d'.format(snum) % i
+                    val = f'Para %0{snum}d' % i
                 else:
                     val = 'Heading %d' % (style.outline_level + 1)
                     heading_styles.append(style)
@@ -738,7 +737,7 @@ class StylesManager:
         rnum = len(str(max(1, len(ds_counts) - 1)))
         for i, (text_style, count) in enumerate(ds_counts.most_common()):
             text_style.id = 'Text%d' % i
-            text_style.name = '%0{}d Text'.format(rnum) % i
+            text_style.name = f'%0{rnum}d Text' % i
             text_style.seq = i
         self.descendant_text_styles = sorted(descendant_style_map, key=attrgetter('seq'))
 

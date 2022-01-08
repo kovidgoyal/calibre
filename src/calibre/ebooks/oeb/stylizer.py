@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-
-
 '''
 CSS property propagation class.
 '''
@@ -312,7 +309,7 @@ class Stylizer:
             try:
                 matches = tuple(select(text))
             except SelectorError as err:
-                self.logger.error('Ignoring CSS rule with invalid selector: %r (%s)' % (text, as_unicode(err)))
+                self.logger.error(f'Ignoring CSS rule with invalid selector: {text!r} ({as_unicode(err)})')
                 continue
 
             if fl is not None:
@@ -403,7 +400,7 @@ class Stylizer:
                 size = float(style['font-size'][:-2])
                 style['font-size'] = "%.2fpt" % (size * font_scale)
             style = ';\n    '.join(': '.join(item) for item in style.items())
-            rules.append('%s {\n    %s;\n}' % (selector, style))
+            rules.append(f'{selector} {{\n    {style};\n}}')
         return '\n'.join(rules)
 
 
@@ -798,7 +795,7 @@ class Style:
 
     def __str__(self):
         items = sorted(iteritems(self._style))
-        return '; '.join("%s: %s" % (key, val) for key, val in items)
+        return '; '.join(f"{key}: {val}" for key, val in items)
 
     def cssdict(self):
         return dict(self._style)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Inspect the header of ereader files. This is primarily used for debugging.
 '''

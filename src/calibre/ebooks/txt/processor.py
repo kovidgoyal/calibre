@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -123,7 +120,7 @@ def create_markdown_object(extensions):
             for name, x in vars(module).items():
                 if type(x) is type and issubclass(x, Extension) and x is not Extension:
                     return x(**configs)
-            raise ImportError('No extension class in {}'.format(ext_name))
+            raise ImportError(f'No extension class in {ext_name}')
 
     from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
     extensions = [x.lower() for x in extensions]

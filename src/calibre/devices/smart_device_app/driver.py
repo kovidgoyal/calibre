@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 '''
 Created on 29 Jun 2012
@@ -2112,7 +2111,7 @@ def monkeypatched_service_type_name(type_: str, *, strict: bool = True) -> str:
         trailer = type_[-len(_LOCAL_TRAILER) + 1 :]
         has_protocol = False
     else:
-        raise BadTypeInNameException("Type '%s' must end with '%s'" % (type_, _LOCAL_TRAILER))
+        raise BadTypeInNameException(f"Type '{type_}' must end with '{_LOCAL_TRAILER}'")
 
     if strict or has_protocol:
         service_name = remaining.pop()

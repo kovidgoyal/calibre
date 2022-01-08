@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -279,7 +278,7 @@ class View:
     def _build_restriction_string(self, restriction):
         if self.base_restriction:
             if restriction:
-                return '(%s) and (%s)' % (self.base_restriction, restriction)
+                return f'({self.base_restriction}) and ({restriction})'
             else:
                 return self.base_restriction
         else:
@@ -295,7 +294,7 @@ class View:
         else:
             q = query
             if search_restriction:
-                q = '(%s) and (%s)' % (search_restriction, query)
+                q = f'({search_restriction}) and ({query})'
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)

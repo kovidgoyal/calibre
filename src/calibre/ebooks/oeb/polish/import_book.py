@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -27,7 +26,7 @@ def auto_fill_manifest(container):
             mitem = container.generate_item(name, unique_href=False)
             gname = container.href_to_name(mitem.get('href'), container.opf_name)
             if gname != name:
-                raise ValueError('This should never happen (gname=%r, name=%r, href=%r)' % (gname, name, mitem.get('href')))
+                raise ValueError('This should never happen (gname={!r}, name={!r}, href={!r})'.format(gname, name, mitem.get('href')))
             manifest_name_map[name] = mitem.get('id')
             manifest_id_map[mitem.get('id')] = name
 

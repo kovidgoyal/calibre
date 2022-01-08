@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -154,7 +153,7 @@ class Fonts:
         name = f.name if variant in f.embedded else f.family_name
         if is_symbol_font(name):
             return name
-        return '"%s", %s' % (name.replace('"', ''), f.css_generic_family)
+        return '"{}", {}'.format(name.replace('"', ''), f.css_generic_family)
 
     def embed_fonts(self, dest_dir, docx):
         defs = []
@@ -171,7 +170,7 @@ class Fonts:
                         d['font-weight'] = 'bold'
                     if 'Italic' in variant:
                         d['font-style'] = 'italic'
-                    d = ['%s: %s' % (k, v) for k, v in iteritems(d)]
+                    d = [f'{k}: {v}' for k, v in iteritems(d)]
                     d = ';\n\t'.join(d)
                     defs.append('@font-face {\n\t%s\n}\n' % d)
         return '\n'.join(defs)
@@ -189,7 +188,7 @@ class Fonts:
         if not is_truetype_font(prefix):
             return None
         ext = 'otf' if prefix.startswith(b'OTTO') else 'ttf'
-        fname = ascii_filename('%s - %s.%s' % (name, variant, ext)).replace(' ', '_').replace('&', '_')
+        fname = ascii_filename(f'{name} - {variant}.{ext}').replace(' ', '_').replace('&', '_')
         with open(os.path.join(dest_dir, fname), 'wb') as dest:
             dest.write(prefix)
             dest.write(raw[32:])

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -316,7 +315,7 @@ class MainWindowSettings(BasicSettings):  # {{{
         for v, h in product(('top', 'bottom'), ('left', 'right')):
             choices = {'vertical':{'left':_('Left'), 'right':_('Right')}[h],
                        'horizontal':{'top':_('Top'), 'bottom':_('Bottom')}[v]}
-            name = 'dock_%s_%s' % (v, h)
+            name = f'dock_{v}_{h}'
             w = self.choices_widget(name, choices, 'horizontal', 'horizontal')
             cn = {('top', 'left'): _('The &top-left corner'), ('top', 'right'):_('The top-&right corner'),
                   ('bottom', 'left'):_('The &bottom-left corner'), ('bottom', 'right'):_('The bottom-ri&ght corner')}[(v, h)]

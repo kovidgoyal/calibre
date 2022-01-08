@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -444,7 +443,7 @@ class ServerLoop:
             self.control_out.close()
 
     def __str__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.bind_address)
+        return f"{self.__class__.__name__}({self.bind_address!r})"
     __repr__ = __str__
 
     @property
@@ -473,7 +472,7 @@ class ServerLoop:
             try:
                 self.bind(af, socktype, proto)
             except OSError as serr:
-                msg = "%s -- (%s: %s)" % (msg, sa, as_unicode(serr))
+                msg = f"{msg} -- ({sa}: {as_unicode(serr)})"
                 if self.socket:
                     self.socket.close()
                 self.socket = None
@@ -492,7 +491,7 @@ class ServerLoop:
                 ip = get_external_ip()
                 if ip == self.bind_address[0]:
                     raise
-                self.log.warn('Failed to bind to %s with error: %s. Trying to bind to the default interface: %s instead' % (
+                self.log.warn('Failed to bind to {} with error: {}. Trying to bind to the default interface: {} instead'.format(
                     self.bind_address[0], as_unicode(err), ip))
                 self.bind_address = (ip, self.bind_address[1])
                 self.do_bind()

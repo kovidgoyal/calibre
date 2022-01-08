@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__ = 'GPL v3'
@@ -66,7 +65,7 @@ class CSV_XML(CatalogPlugin):
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s('%s'): Generating %s" % (self.name, current_library, self.fmt.upper()))
+            log(f"{self.name}('{current_library}'): Generating {self.fmt.upper()}")
             if opts.connected_device['is_device_connected']:
                 log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:

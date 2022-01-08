@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -235,7 +234,7 @@ class EmbedFonts:
             item.unload_data_from_memory()
             page_sheet = self.get_page_sheet()
             href = page_sheet.relhref(item.href)
-            css = '''@font-face { font-family: "%s"; font-weight: %s; font-style: %s; font-stretch: %s; src: url(%s) }''' % (
+            css = '''@font-face {{ font-family: "{}"; font-weight: {}; font-style: {}; font-stretch: {}; src: url({}) }}'''.format(
                 f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href)
             sheet = self.parser.parseString(css, validate=False)
             page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
@@ -243,7 +242,7 @@ class EmbedFonts:
 
         for f in fonts:
             if f['weight'] == weight and f['font-style'] == style.get('font-style', 'normal') and f['font-stretch'] == style.get('font-stretch', 'normal'):
-                self.log('Embedding font %s from %s' % (f['full_name'], f['path']))
+                self.log('Embedding font {} from {}'.format(f['full_name'], f['path']))
                 return do_embed(f)
         try:
             f = find_matching_font(fonts, style.get('font-weight', 'normal'), style.get('font-style', 'normal'), style.get('font-stretch', 'normal'))
@@ -252,5 +251,5 @@ class EmbedFonts:
                 self.log.exception('Failed to find a matching font for family', ff, 'not embedding')
                 self.warned2.add(ff)
                 return
-        self.log('Embedding font %s from %s' % (f['full_name'], f['path']))
+        self.log('Embedding font {} from {}'.format(f['full_name'], f['path']))
         return do_embed(f)

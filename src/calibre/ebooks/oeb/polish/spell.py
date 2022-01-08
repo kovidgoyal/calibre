@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -64,7 +63,7 @@ class Location:
         self.location_node, self.node_item, self.sourceline = location_node, node_item, location_node.sourceline
 
     def __repr__(self):
-        return '%s @ %s:%s' % (self.original_word, self.file_name, self.sourceline)
+        return f'{self.original_word} @ {self.file_name}:{self.sourceline}'
     __str__ = __repr__
 
     def replace(self, new_word):

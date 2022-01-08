@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -1528,7 +1527,7 @@ class Identifiers(Dialog):
 
     def __init__(self, identifiers, parent=None):
         Dialog.__init__(self, _('Edit Identifiers'), 'edit-identifiers-dialog', parent=parent)
-        self.text.setPlainText('\n'.join('%s:%s' % (k, identifiers[k]) for k in sorted(identifiers, key=sort_key)))
+        self.text.setPlainText('\n'.join(f'{k}:{identifiers[k]}' for k in sorted(identifiers, key=sort_key)))
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)

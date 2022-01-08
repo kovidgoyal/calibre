@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
@@ -485,7 +484,7 @@ class EbookViewer(MainWindow):
         self.web_view.show_home_page_on_ready = False
         if open_at:
             self.pending_open_at = open_at
-        self.setWindowTitle(_('Loading book') + '… — {}'.format(self.base_window_title))
+        self.setWindowTitle(_('Loading book') + f'… — {self.base_window_title}')
         self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
         self.current_book_data = {}
@@ -634,7 +633,7 @@ class EbookViewer(MainWindow):
         except Exception:
             title = _('Unknown')
         book_format = self.current_book_data['manifest']['book_format']
-        title = '{} [{}] — {}'.format(title, book_format, self.base_window_title)
+        title = f'{title} [{book_format}] — {self.base_window_title}'
         self.setWindowTitle(title)
     # }}}
 

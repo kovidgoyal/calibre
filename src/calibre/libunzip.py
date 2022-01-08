@@ -30,7 +30,7 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
         for pat, fname, new_name in zip(patterns, filepaths, names):
             if pat.search(name):
                 if verbose:
-                    print('Updating %s with %s' % (name, fname))
+                    print(f'Updating {name} with {fname}')
                 if new_name is None:
                     z.replace(fname, arcname=name, compress_type=compression)
                 else:

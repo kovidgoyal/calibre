@@ -118,7 +118,7 @@ class Split:
                         elem.set('pb_before', '1' if before else '0')
                         page_breaks.add(elem)
             except SelectorError as err:
-                self.log.warn('Ignoring page breaks specified with invalid CSS selector: %r (%s)' % (selector, as_unicode(err)))
+                self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
 
         for i, elem in enumerate(item.data.iter('*')):
             try:

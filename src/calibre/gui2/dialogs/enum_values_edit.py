@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2020, Charles Haley
 
 from qt.core import (QDialog, QColor, QDialogButtonBox, QHeaderView,

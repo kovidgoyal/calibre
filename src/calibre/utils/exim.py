@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -92,7 +91,7 @@ class Exporter:
 
     def new_part(self):
         self.parts.append(open(os.path.join(
-            self.base, 'part-{:04d}{}'.format(len(self.parts) + 1, self.EXT)), 'wb'))
+            self.base, f'part-{len(self.parts) + 1:04d}{self.EXT}'), 'wb'))
 
     def commit_part(self, is_last=False):
         self.f.write(struct.pack(self.TAIL_FMT, len(self.parts), self.VERSION, is_last))
@@ -138,7 +137,7 @@ class Exporter:
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
                 rpath = os.path.relpath(fpath, path).replace(os.sep, '/')
-                key = '%s:%s' % (pkey, rpath)
+                key = f'{pkey}:{rpath}'
                 try:
                     with lopen(fpath, 'rb') as f:
                         self.add_file(f, key)

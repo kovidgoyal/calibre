@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -82,7 +81,7 @@ def barename(x):
 
 
 def XML(x):
-    return '{%s}%s' % (TRANSITIONAL_NAMESPACES['xml'], x)
+    return '{{{}}}{}'.format(TRANSITIONAL_NAMESPACES['xml'], x)
 
 
 def generate_anchor(name, existing):
@@ -114,12 +113,12 @@ class DOCXNamespace:
     def is_tag(self, x, q):
         tag = getattr(x, 'tag', x)
         ns, name = q.partition(':')[0::2]
-        return '{%s}%s' % (self.namespaces.get(ns, None), name) == tag
+        return f'{{{self.namespaces.get(ns, None)}}}{name}' == tag
 
     def expand(self, name, sep=':'):
         ns, tag = name.partition(sep)[::2]
         if ns and tag:
-            tag = '{%s}%s' % (self.namespaces[ns], tag)
+            tag = f'{{{self.namespaces[ns]}}}{tag}'
         return tag or ns
 
     def get(self, x, attr, default=None):

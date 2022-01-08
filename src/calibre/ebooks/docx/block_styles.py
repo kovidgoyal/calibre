@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -167,12 +166,12 @@ def read_indent(parent, dest, XPath, get):
         l, lc = get(indent, 'w:left'), get(indent, 'w:leftChars')
         pl = simple_float(lc, 0.01) if lc is not None else simple_float(l, 0.05) if l is not None else None
         if pl is not None:
-            padding_left = '%.3g%s' % (pl, 'em' if lc is not None else 'pt')
+            padding_left = '{:.3g}{}'.format(pl, 'em' if lc is not None else 'pt')
 
         r, rc = get(indent, 'w:right'), get(indent, 'w:rightChars')
         pr = simple_float(rc, 0.01) if rc is not None else simple_float(r, 0.05) if r is not None else None
         if pr is not None:
-            padding_right = '%.3g%s' % (pr, 'em' if rc is not None else 'pt')
+            padding_right = '{:.3g}{}'.format(pr, 'em' if rc is not None else 'pt')
 
         h, hc = get(indent, 'w:hanging'), get(indent, 'w:hangingChars')
         fl, flc = get(indent, 'w:firstLine'), get(indent, 'w:firstLineChars')
@@ -181,7 +180,7 @@ def read_indent(parent, dest, XPath, get):
         ti = (simple_float(hc, 0.01) if hc is not None else simple_float(h, 0.05) if h is not None else
               simple_float(flc, 0.01) if flc is not None else simple_float(fl, 0.05) if fl is not None else None)
         if ti is not None:
-            text_indent = '%.3g%s' % (ti, 'em' if hc is not None or (h is None and flc is not None) else 'pt')
+            text_indent = '{:.3g}{}'.format(ti, 'em' if hc is not None or (h is None and flc is not None) else 'pt')
 
     setattr(dest, 'margin_left', padding_left)
     setattr(dest, 'margin_right', padding_right)
@@ -209,18 +208,18 @@ def read_spacing(parent, dest, XPath, get):
         a, al, aa = get(s, 'w:after'), get(s, 'w:afterLines'), get(s, 'w:afterAutospacing')
         pb = None if aa in {'on', '1', 'true'} else simple_float(al, 0.02) if al is not None else simple_float(a, 0.05) if a is not None else None
         if pb is not None:
-            padding_bottom = '%.3g%s' % (pb, 'ex' if al is not None else 'pt')
+            padding_bottom = '{:.3g}{}'.format(pb, 'ex' if al is not None else 'pt')
 
         b, bl, bb = get(s, 'w:before'), get(s, 'w:beforeLines'), get(s, 'w:beforeAutospacing')
         pt = None if bb in {'on', '1', 'true'} else simple_float(bl, 0.02) if bl is not None else simple_float(b, 0.05) if b is not None else None
         if pt is not None:
-            padding_top = '%.3g%s' % (pt, 'ex' if bl is not None else 'pt')
+            padding_top = '{:.3g}{}'.format(pt, 'ex' if bl is not None else 'pt')
 
         l, lr = get(s, 'w:line'), get(s, 'w:lineRule', 'auto')
         if l is not None:
             lh = simple_float(l, 0.05) if lr in {'exact', 'atLeast'} else simple_float(l, 1/240.0)
             if lh is not None:
-                line_height = '%.3g%s' % (lh, 'pt' if lr in {'exact', 'atLeast'} else '')
+                line_height = '{:.3g}{}'.format(lh, 'pt' if lr in {'exact', 'atLeast'} else '')
 
     setattr(dest, 'margin_top', padding_top)
     setattr(dest, 'margin_bottom', padding_bottom)
@@ -453,13 +452,13 @@ class ParagraphStyle:
     def clear_borders(self):
         for edge in border_edges[:-1]:
             for prop in ('width', 'color', 'style'):
-                setattr(self, 'border_%s_%s' % (edge, prop), inherit)
+                setattr(self, f'border_{edge}_{prop}', inherit)
 
     def clone_border_styles(self):
         style = ParagraphStyle(self.namespace)
         for edge in border_edges[:-1]:
             for prop in ('width', 'color', 'style'):
-                attr = 'border_%s_%s' % (edge, prop)
+                attr = f'border_{edge}_{prop}'
                 setattr(style, attr, getattr(self, attr))
         return style
 

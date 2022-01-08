@@ -24,7 +24,7 @@ MBP_NS = 'http://mobipocket.com/ns/mbp'
 
 
 def MBP(name):
-    return '{%s}%s' % (MBP_NS, name)
+    return f'{{{MBP_NS}}}{name}'
 
 
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}

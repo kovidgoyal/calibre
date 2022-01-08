@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -105,7 +104,7 @@ class TestAuth(BaseTest):
             self.ae(b'closed', urlopen(server, un='!@#$%^&*()-=_+', pw='!@#$%^&*()-=_+', method='basic').read())
 
             def request(un='testuser', pw='testpw'):
-                conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes('%s:%s' % (un, pw))})
+                conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(f'{un}:{pw}')})
                 r = conn.getresponse()
                 return r.status, r.read()
 
@@ -252,7 +251,7 @@ class TestAuth(BaseTest):
             conn = server.connect()
 
             def request(un='testuser', pw='testpw'):
-                conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes('%s:%s' % (un, pw))})
+                conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(f'{un}:{pw}')})
                 r = conn.getresponse()
                 return r.status, r.read()
 

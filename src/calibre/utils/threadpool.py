@@ -286,7 +286,7 @@ if __name__ == '__main__':
 
     # this will be called each time a result is available
     def print_result(request, result):
-        print("**Result: %s from request #%s" % (result, request.requestID))
+        print(f"**Result: {result} from request #{request.requestID}")
 
     # this will be called when an exception occurs within a thread
     def handle_exception(request, exc_info):

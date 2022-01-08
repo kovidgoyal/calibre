@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -54,7 +53,7 @@ def save_container(container, path):
             except OSError as err:
                 if err.errno != errno.EPERM:
                     raise
-                raise OSError('Failed to change permissions of %s to %s (%s), with error: %s. Most likely the %s directory has a restrictive umask' % (
+                raise OSError('Failed to change permissions of {} to {} ({}), with error: {}. Most likely the {} directory has a restrictive umask'.format(
                     temp.name, oct(st.st_mode), format_permissions(st.st_mode), errno.errorcode[err.errno], os.path.dirname(temp.name)))
             try:
                 os.fchown(fno, st.st_uid, st.st_gid)

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Read content from ztxt pdb file.
 '''

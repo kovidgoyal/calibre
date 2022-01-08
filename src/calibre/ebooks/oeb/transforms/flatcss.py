@@ -332,7 +332,7 @@ class CSSFlattener:
         dlineh = self.lineh
         for kind in ('margin', 'padding'):
             for edge in ('bottom', 'top'):
-                property = "%s-%s" % (kind, edge)
+                property = f"{kind}-{edge}"
                 if property not in cssdict:
                     continue
                 if '%' in cssdict[property]:
@@ -529,7 +529,7 @@ class CSSFlattener:
 
             if cssdict:
                 items = sorted(iteritems(cssdict))
-                css = ';\n'.join('%s: %s' % (key, val) for key, val in items)
+                css = ';\n'.join(f'{key}: {val}' for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 classes_list = classes.split()
                 # lower() because otherwise if the document uses the same class
@@ -547,7 +547,7 @@ class CSSFlattener:
 
             for psel, cssdict in iteritems(pseudo_classes):
                 items = sorted(iteritems(cssdict))
-                css = ';\n'.join('%s: %s' % (key, val) for key, val in items)
+                css = ';\n'.join(f'{key}: {val}' for key, val in items)
                 pstyles = pseudo_styles[psel]
                 if css in pstyles:
                     match = pstyles[css]
@@ -627,7 +627,7 @@ class CSSFlattener:
                 stylizer.page_rule['margin-bottom'] = '%gpt'%\
                         float(self.context.margin_bottom)
             items = sorted(stylizer.page_rule.items())
-            css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
+            css = ';\n'.join(f"{key}: {val}" for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
             rules = [css_text(r) for r in stylizer.font_face_rules + self.embed_font_rules]
             raw = '\n\n'.join(rules)
@@ -675,7 +675,7 @@ class CSSFlattener:
             x = sorted(((k+':'+psel, v) for v, k in iteritems(styles)))
             items.extend(x)
 
-        css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
+        css = ''.join(f".{key} {{\n{val};\n}}\n\n" for key, val in items)
 
         href = self.replace_css(css)
         global_css = self.collect_global_css()

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -164,7 +163,7 @@ class CSSState:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "CSSState(parse=%s, blocks=%s)" % (self.parse, self.blocks)
+        return f"CSSState(parse={self.parse}, blocks={self.blocks})"
     __str__ = __repr__
 
 

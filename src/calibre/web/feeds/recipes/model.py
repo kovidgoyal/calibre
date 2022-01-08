@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
@@ -85,7 +84,7 @@ class NewsCategory(NewsTreeItem):
         elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):
             return QApplication.instance().palette().color(QPalette.ColorRole.Link)
         elif role == Qt.ItemDataRole.UserRole:
-            return '::category::{}'.format(self.sortq[0])
+            return f'::category::{self.sortq[0]}'
         return None
 
     def flags(self):

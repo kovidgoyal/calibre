@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -296,7 +295,7 @@ class ManyToOneTable(Table):
                         # this is a many-to-one mapping we know that we can delete
                         # links without checking the item ID
                         db.executemany(
-                            'DELETE FROM {} WHERE book=?'.format(self.link_table), tuple((x,) for x in books_to_delete))
+                            f'DELETE FROM {self.link_table} WHERE book=?', tuple((x,) for x in books_to_delete))
                         affected_books |= books_to_delete
                 else:
                     # Process normally any items where the VL was not significant
@@ -327,7 +326,7 @@ class ManyToOneTable(Table):
         if existing_item is None or existing_item == item_id:
             # A simple rename will do the trick
             self.id_map[item_id] = new_name
-            db.execute('UPDATE {} SET {}=? WHERE id=?'.format(table, col), (new_name, item_id))
+            db.execute(f'UPDATE {table} SET {col}=? WHERE id=?', (new_name, item_id))
         else:
             # We have to replace
             new_id = existing_item
@@ -466,7 +465,7 @@ class ManyToManyTable(ManyToOneTable):
         if existing_item is None or existing_item == item_id:
             # A simple rename will do the trick
             self.id_map[item_id] = new_name
-            db.execute('UPDATE {} SET {}=? WHERE id=?'.format(table, col), (new_name, item_id))
+            db.execute(f'UPDATE {table} SET {col}=? WHERE id=?', (new_name, item_id))
         else:
             # We have to replace
             new_id = existing_item
@@ -478,7 +477,7 @@ class ManyToManyTable(ManyToOneTable):
             for book_id in books:
                 self.book_col_map[book_id] = tuple((existing_item if x == item_id else x) for x in self.book_col_map.get(book_id, ()) if x != existing_item)
             self.col_book_map[existing_item].update(books)
-            db.executemany('DELETE FROM {} WHERE book=? AND {}=?'.format(self.link_table, lcol), [
+            db.executemany(f'DELETE FROM {self.link_table} WHERE book=? AND {lcol}=?', [
                 (book_id, existing_item) for book_id in books])
             db.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
@@ -515,7 +514,7 @@ class ManyToManyTable(ManyToOneTable):
                                 tuple((main_id, x, book_id) for x in v))
                         else:
                             # duplicates
-                            db.execute('DELETE FROM {} WHERE book=?'.format(self.link_table), (book_id,))
+                            db.execute(f'DELETE FROM {self.link_table} WHERE book=?', (book_id,))
                             db.executemany(
                                 'INSERT INTO {} (book,{}) VALUES (?,?)'.format(self.link_table, self.metadata['link_column']),
                                 tuple((book_id, x) for x in vals))

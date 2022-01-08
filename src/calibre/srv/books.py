@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -81,7 +80,7 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
     with os.fdopen(fd, 'wb') as f:
         copy_format_to(f)
     tdir = tempfile.mkdtemp('', '', tdir)
-    job_id = ctx.start_job('Render book %s (%s)' % (book_id, fmt), 'calibre.srv.render_book', 'render', args=(
+    job_id = ctx.start_job(f'Render book {book_id} ({fmt})', 'calibre.srv.render_book', 'render', args=(
         pathtoebook, tdir, {'size':size, 'mtime':mtime, 'hash':bhash}),
         job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
     queued_jobs[bhash] = job_id
@@ -138,7 +137,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     with db.safe_read_lock:
         fm = db.format_metadata(book_id, fmt, allow_cache=False)
         if not fm:
-            raise HTTPNotFound('No %s format for the book (id:%s) in the library: %s' % (fmt, book_id, library_id))
+            raise HTTPNotFound(f'No {fmt} format for the book (id:{book_id}) in the library: {library_id}')
         size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
         bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
@@ -176,13 +175,13 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     base = abspath(os.path.join(books_cache_dir(), 'f'))
     mpath = abspath(os.path.join(base, bhash, name))
     if not mpath.startswith(base):
-        raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
+        raise HTTPNotFound(f'No book file with hash: {bhash} and name: {name}')
     try:
         return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), bhash, name)
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
-        raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
+        raise HTTPNotFound(f'No book file with hash: {bhash} and name: {name}')
 
 
 @endpoint('/book-get-last-read-position/{library_id}/{+which}', postprocess=json)
@@ -205,7 +204,7 @@ def get_last_read_position(ctx, rd, library_id, which):
             continue
         if book_id not in allowed_book_ids:
             continue
-        key = '{}:{}'.format(book_id, fmt)
+        key = f'{book_id}:{fmt}'
         ans[key] = db.get_last_read_positions(book_id, fmt, user)
     return ans
 
@@ -245,7 +244,7 @@ def get_annotations(ctx, rd, library_id, which):
             continue
         if book_id not in allowed_book_ids:
             continue
-        key = '{}:{}'.format(book_id, fmt)
+        key = f'{book_id}:{fmt}'
         ans[key] = {
             'last_read_positions': db.get_last_read_positions(book_id, fmt, user),
             'annotations_map': db.annotations_map_for_book(book_id, fmt, user_type='web', user=user) if user else {}

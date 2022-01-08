@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -149,7 +146,7 @@ class PMLMLizer:
         return self.get_anchor(page, '')
 
     def get_anchor_id(self, href, aid):
-        aid = '%s#%s' % (href, aid)
+        aid = f'{href}#{aid}'
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
         aid = self.link_hrefs[aid]
@@ -288,7 +285,7 @@ class PMLMLizer:
                     toc_title, toc_depth = self.toc[toc_page].get(toc_x, (None, 0))
                     if toc_title:
                         toc_depth = max(min(toc_depth, 4), 0)
-                        text.append(r'\C%s="%s"' % (toc_depth, toc_title))
+                        text.append(fr'\C{toc_depth}="{toc_title}"')
 
         # Process style information that needs holds a single tag.
         # Commented out because every page in an OEB book starts with this style.

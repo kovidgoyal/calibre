@@ -1827,7 +1827,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             elif cat['datatype'] == 'rating':
                 for l in list:
                     (id, val) = (l[0], l[1])
-                    tids[category][val] = (id, '{:05.2f}'.format(val))
+                    tids[category][val] = (id, f'{val:05.2f}')
             elif cat['datatype'] == 'text' and cat['is_multiple'] and \
                             cat['display'].get('is_names', False):
                 for l in list:
@@ -2712,7 +2712,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         table = self.field_metadata[field]['table']
         link = self.field_metadata[field]['link_column']
         bks = self.conn.get(
-            'SELECT book from books_{}_link WHERE {}=?'.format(table, link),
+            f'SELECT book from books_{table}_link WHERE {link}=?',
             (id,))
         books = []
         for (book_id,) in bks:

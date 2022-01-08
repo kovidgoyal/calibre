@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __author__ = "Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>"
@@ -540,8 +539,8 @@ def educateQuotes(text):
 
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break. Close the quotes by brute force:
-    text = re.sub(r"""^'(?=%s\\B)""" % (punct_class,), r"""&#8217;""", text)
-    text = re.sub(r"""^"(?=%s\\B)""" % (punct_class,), r"""&#8221;""", text)
+    text = re.sub(fr"""^'(?={punct_class}\\B)""", r"""&#8217;""", text)
+    text = re.sub(fr"""^"(?={punct_class}\\B)""", r"""&#8221;""", text)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
@@ -590,26 +589,26 @@ def educateQuotes(text):
                 &nbsp;      |   # a non-breaking space entity, or
                 --          |   # dashes, or
                 &[mn]dash;  |   # named dash entities
-                %s          |   # or decimal entities
+                {}          |   # or decimal entities
                 &\#x201[34];    # or hex
             )
             '                 # the quote
             (?=\w)            # followed by a word character
-            """ % (dec_dashes,), re.VERBOSE)
+            """.format(dec_dashes), re.VERBOSE)
     text = opening_single_quotes_regex.sub(r"""\1&#8216;""", text)
 
     closing_single_quotes_regex = re.compile(r"""
-            (%s)
+            ({})
             '
             (?!\s | s\b | \d)
-            """ % (close_class,), re.VERBOSE)
+            """.format(close_class), re.VERBOSE)
     text = closing_single_quotes_regex.sub(r"""\1&#8217;""", text)
 
     closing_single_quotes_regex = re.compile(r"""
-            (%s)
+            ({})
             '
             (\s | s\b)
-            """ % (close_class,), re.VERBOSE)
+            """.format(close_class), re.VERBOSE)
     text = closing_single_quotes_regex.sub(r"""\1&#8217;\2""", text)
 
     # Any remaining single quotes should be opening ones:
@@ -622,26 +621,26 @@ def educateQuotes(text):
                 &nbsp;      |   # a non-breaking space entity, or
                 --          |   # dashes, or
                 &[mn]dash;  |   # named dash entities
-                %s          |   # or decimal entities
+                {}          |   # or decimal entities
                 &\#x201[34];    # or hex
             )
             "                 # the quote
             (?=\w)            # followed by a word character
-            """ % (dec_dashes,), re.VERBOSE)
+            """.format(dec_dashes), re.VERBOSE)
     text = opening_double_quotes_regex.sub(r"""\1&#8220;""", text)
 
     # Double closing quotes:
     closing_double_quotes_regex = re.compile(r"""
-            #(%s)?   # character that indicates the quote should be closing
+            #({})?   # character that indicates the quote should be closing
             "
             (?=\s)
-            """ % (close_class,), re.VERBOSE)
+            """.format(close_class), re.VERBOSE)
     text = closing_double_quotes_regex.sub(r"""&#8221;""", text)
 
     closing_double_quotes_regex = re.compile(r"""
-            (%s)   # character that indicates the quote should be closing
+            ({})   # character that indicates the quote should be closing
             "
-            """ % (close_class,), re.VERBOSE)
+            """.format(close_class), re.VERBOSE)
     text = closing_double_quotes_regex.sub(r"""\1&#8221;""", text)
 
     if text.endswith('-"'):

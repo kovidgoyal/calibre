@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -107,7 +106,7 @@ class Level:
             self.num_fmt = 'bullet'
             self.lvl_text = '\uf0b7' if list_type == 'disc' else STYLE_MAP[list_type]
         else:
-            self.lvl_text = '%{}.'.format(self.ilvl + 1)
+            self.lvl_text = f'%{self.ilvl + 1}.'
             self.num_fmt = STYLE_MAP.get(list_type, 'decimal')
 
     def __hash__(self):

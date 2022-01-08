@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Read content from ereader pdb file with a 132 byte header created by Dropbook.
 '''

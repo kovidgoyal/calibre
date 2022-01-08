@@ -421,7 +421,7 @@ cw<ci<font-style<nu<0
         self.__write_obj.write('mi<tg<empty-att_<page-definition')
         for key in self.__page.keys():
             self.__write_obj.write(
-            '<%s>%s' % (key, self.__page[key])
+            f'<{key}>{self.__page[key]}'
             )
         self.__write_obj.write('\n')
 # mi<tg<open-att__<footn

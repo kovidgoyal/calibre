@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -29,7 +28,7 @@ def cdb_run(ctx, rd, which, version):
     try:
         m = module_for_cmd(which)
     except ImportError:
-        raise HTTPNotFound('No module named: {}'.format(which))
+        raise HTTPNotFound(f'No module named: {which}')
     if not getattr(m, 'readonly', False):
         ctx.check_for_write_access(rd)
     if getattr(m, 'version', 0) != int(version):
@@ -115,7 +114,7 @@ def cdb_delete_book(ctx, rd, book_ids, library_id):
     try:
         ids = {int(x) for x in book_ids.split(',')}
     except Exception:
-        raise HTTPBadRequest('invalid book_ids: {}'.format(book_ids))
+        raise HTTPBadRequest(f'invalid book_ids: {book_ids}')
     db.remove_books(ids)
     ctx.notify_changes(db.backend.library_path, books_deleted(ids))
     return {}

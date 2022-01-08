@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Read content from palmdoc pdb file.
 '''

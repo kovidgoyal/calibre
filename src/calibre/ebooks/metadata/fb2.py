@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__   = 'GPL v3'
@@ -56,7 +55,7 @@ class Context:
     def get_or_create(self, parent, tag, attribs={}, at_start=True):
         xpathstr='./fb:'+tag
         for n, v in attribs.items():
-            xpathstr += '[@%s="%s"]' % (n, v)
+            xpathstr += f'[@{n}="{v}"]'
         ans = self.XPath(xpathstr)(parent)
         if ans:
             ans = ans[0]
@@ -65,7 +64,7 @@ class Context:
         return ans
 
     def create_tag(self, parent, tag, attribs={}, at_start=True):
-        ans = parent.makeelement('{%s}%s' % (self.fb_ns, tag))
+        ans = parent.makeelement(f'{{{self.fb_ns}}}{tag}')
         ans.attrib.update(attribs)
         if at_start:
             parent.insert(0, ans)
@@ -209,7 +208,7 @@ def _parse_book_title(root, ctx):
     xp_ti = '//fb:title-info/fb:book-title/text()'
     xp_pi = '//fb:publish-info/fb:book-title/text()'
     xp_si = '//fb:src-title-info/fb:book-title/text()'
-    book_title = ctx.XPath('normalize-space(%s|%s|%s)' % (xp_ti, xp_pi, xp_si))(root)
+    book_title = ctx.XPath(f'normalize-space({xp_ti}|{xp_pi}|{xp_si})')(root)
 
     return book_title
 
@@ -243,7 +242,7 @@ def _parse_cover_data(root, imgid, mi, ctx):
                 fmt = identify(cdata)[0]
                 mi.cover_data = (fmt, cdata)
         else:
-            prints("WARNING: Unsupported coverpage mime-type '%s' (id=#%s)" % (mimetype, imgid))
+            prints(f"WARNING: Unsupported coverpage mime-type '{mimetype}' (id=#{imgid})")
 
 
 def _parse_tags(root, mi, ctx):
@@ -264,7 +263,7 @@ def _parse_series(root, mi, ctx):
     xp_ti = '//fb:title-info/fb:sequence[1]'
     xp_pi = '//fb:publish-info/fb:sequence[1]'
 
-    elms_sequence = ctx.XPath('%s|%s' % (xp_ti, xp_pi))(root)
+    elms_sequence = ctx.XPath(f'{xp_ti}|{xp_pi}')(root)
     if elms_sequence:
         mi.series = elms_sequence[0].get('name', None)
         if mi.series:

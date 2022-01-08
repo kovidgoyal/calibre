@@ -1022,7 +1022,7 @@ class LayoutButton(QToolButton):
         t = _('Hide {}') if self.isChecked() else _('Show {}')
         t = t.format(self.label)
         if self.shortcut:
-            t += ' [{}]'.format(self.shortcut)
+            t += f' [{self.shortcut}]'
         self.setText(t), self.setToolTip(t), self.setStatusTip(t)
 
     def set_state_to_show(self, *args):
@@ -1276,7 +1276,7 @@ class PaperSizes(QComboBox):  # {{{
             s = getattr(QPageSize, a.capitalize())
             sz = QPageSize.definitionSize(s)
             unit = {QPageSize.Unit.Millimeter: 'mm', QPageSize.Unit.Inch: 'inch'}[QPageSize.definitionUnits(s)]
-            name = '{} ({:g} x {:g} {})'.format(QPageSize.name(s), sz.width(), sz.height(), unit)
+            name = f'{QPageSize.name(s)} ({sz.width():g} x {sz.height():g} {unit})'
             self.addItem(name, a)
 
     @property

@@ -50,7 +50,7 @@ def text2int(textnum):
         else:
             for ending, replacement in ordinal_endings:
                 if word.endswith(ending):
-                    word = "%s%s" % (word[:-len(ending)], replacement)
+                    word = f"{word[:-len(ending)]}{replacement}"
 
             if word not in numwords:
                 # raise Exception("Illegal word: " + word)

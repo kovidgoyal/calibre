@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__   = 'GPL v3'
@@ -402,10 +401,10 @@ class WritingTest(BaseTest):
         mi = cache.get_metadata(1)
         old_path = cache.field_for('path', 1)
         old_title, old_author = mi.title, mi.authors[0]
-        ae(old_path, '%s/%s (1)' % (old_author, old_title))
+        ae(old_path, f'{old_author}/{old_title} (1)')
         mi.title, mi.authors = 'New Title', ['New Author']
         cache.set_metadata(1, mi)
-        ae(cache.field_for('path', 1), '%s/%s (1)' % (mi.authors[0], mi.title))
+        ae(cache.field_for('path', 1), f'{mi.authors[0]}/{mi.title} (1)')
         p = cache.format_abspath(1, 'FMT1')
         self.assertTrue(mi.authors[0] in p and mi.title in p)
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -138,7 +137,7 @@ def get_all_translators():
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        path = '{}/{}.mo'.format(mpath, which)
+        path = f'{mpath}/{which}.mo'
         data = zf.read(path)
         buf = io.BytesIO(data)
         try:
@@ -545,7 +544,7 @@ def localize_user_manual_link(url):
     from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', '/generated/%s/' % lc, parts.path or '')
-    path = '/%s%s' % (lc, path)
+    path = f'/{lc}{path}'
     parts = list(parts)
     parts[2] = path
     return urlunparse(parts)
@@ -569,7 +568,7 @@ def localize_website_link(url):
         return url
     from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)
-    path = '/{}{}'.format(lc, parts.path)
+    path = f'/{lc}{parts.path}'
     parts = list(parts)
     parts[2] = path
     return urlunparse(parts)

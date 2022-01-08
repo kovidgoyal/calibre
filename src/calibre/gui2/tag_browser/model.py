@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -132,7 +131,7 @@ class TagTreeItem:  # {{{
         if self.type == self.CATEGORY:
             return 'CATEGORY(category_key={!r}, name={!r}, num_children={!r}, temp={!r})'.format(
                 self.category_key, self.name, len(self.children), self.temporary)
-        return 'TAG(name={!r}), temp={!r})'.format(self.tag.name, self.temporary)
+        return f'TAG(name={self.tag.name!r}), temp={self.temporary!r})'
 
     def row(self):
         if self.parent is not None:
@@ -220,9 +219,9 @@ class TagTreeItem:  # {{{
             if gprefs['tag_browser_show_tooltips']:
                 tt = [self.tooltip] if self.tooltip else []
                 if tag.original_categories:
-                    tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
+                    tt.append('{}:{}'.format(','.join(tag.original_categories), tag.original_name))
                 else:
-                    tt.append('%s:%s' % (tag.category, tag.original_name))
+                    tt.append(f'{tag.category}:{tag.original_name}')
                 ar = self.average_rating
                 if ar:
                     tt.append(_('Average rating for books in this category: %.1f') % ar)
@@ -619,7 +618,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 if first_chr == last_chr:
                                     cl_list[cur_idx] = first_chr
                                 else:
-                                    cl_list[cur_idx] = '{} - {}'.format(first_chr, last_chr)
+                                    cl_list[cur_idx] = f'{first_chr} - {last_chr}'
                                 cur_idx += 1
             top_level_component = 'z' + data[key][0].original_name
 

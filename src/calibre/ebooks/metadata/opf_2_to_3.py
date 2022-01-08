@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -29,7 +28,7 @@ def upgrade_identifiers(root, data):
             if prefix and rest:
                 scheme, val = prefix, rest
         if scheme and val:
-            ident.text = '{}:{}'.format(scheme, val)
+            ident.text = f'{scheme}:{val}'
         for attr in tuple(ident.attrib):
             if attr != 'id':
                 del ident.attrib[attr]

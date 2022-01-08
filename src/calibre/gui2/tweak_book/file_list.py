@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -114,7 +113,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         fmt = '%d'
         if leading_zeros:
             largest = num + number - 1
-            fmt = '%0{}d'.format(len(str(largest)))
+            fmt = f'%0{len(str(largest))}d'
         ans['prefix'] = prefix + fmt
         ans['start'] = num
         if allow_spine_order:

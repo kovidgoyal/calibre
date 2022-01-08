@@ -624,12 +624,12 @@ class ProcessTokens:
     def default_func(self, pre, token, num):
         if num is None:
             num = 'true'
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+        return f'cw<{pre}<{token}<nu<{num}\n'
 
     def colorz_func(self, pre, token, num):
         if num is None:
             num = '0'
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+        return f'cw<{pre}<{token}<nu<{num}\n'
 
     def __list_type_func(self, pre, token, num):
         type = 'arabic'
@@ -648,7 +648,7 @@ class ProcessTokens:
                     msg = 'No type for "%s" in self.__number_type_dict\n'
                     raise self.__bug_handler
                 type = 'Arabic'
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, type)
+        return f'cw<{pre}<{token}<nu<{type}\n'
 
     def __language_func(self, pre, token, num):
         lang_name = self.__language_dict.get(int(re.search('[0-9]+', num).group()))
@@ -657,23 +657,23 @@ class ProcessTokens:
             if self.__run_level > 3:
                 msg = 'No entry for number "%s"' % num
                 raise self.__bug_handler(msg)
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, lang_name)
+        return f'cw<{pre}<{token}<nu<{lang_name}\n'
 
     def two_part_func(self, pre, token, num):
         list = token.split("<")
         token = list[0]
         num = list[1]
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+        return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
 
     def divide_by_2(self, pre, token, num):
         num = self.divide_num(num, 2)
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+        return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
     def divide_by_20(self, pre, token, num):
         num = self.divide_num(num, 20)
-        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+        return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
     def text_func(self, pre, token, num=None):
@@ -696,18 +696,18 @@ class ProcessTokens:
         num = '%X' % int(num)
         if len(num) != 2:
             num = "0" + num
-        return 'cw<%s<%s<%s<%s\n' % (pre, token, third_field, num)
+        return f'cw<{pre}<{token}<{third_field}<{num}\n'
         # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
     def bool_st_func(self, pre, token, num):
         if num is None or num == '' or num == '1':
-            return 'cw<%s<%s<nu<true\n' % (pre, token)
+            return f'cw<{pre}<{token}<nu<true\n'
             # return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
         elif num == '0':
-            return 'cw<%s<%s<nu<false\n' % (pre, token)
+            return f'cw<{pre}<{token}<nu<false\n'
             # return 'cw<nu<nu<nu<%s>false<%s\n' % (token, token)
         else:
-            msg = "boolean should have some value module process tokens\ntoken is %s\n'%s'\n" % (token, num)
+            msg = f"boolean should have some value module process tokens\ntoken is {token}\n'{num}'\n"
             raise self.__bug_handler(msg)
 
     def __no_sup_sub_func(self, pre, token, num):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -461,7 +460,7 @@ def export_rules(serialized_rules):
     lines = []
     for rule in serialized_rules:
         lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
-        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in rule.items() if k in allowed_keys and k != 'actions')
+        lines.extend('{}: {}'.format(k, v.replace('\n', ' ')) for k, v in rule.items() if k in allowed_keys and k != 'actions')
         for action in rule.get('actions', ()):
             lines.append(f"action: {action['type']}: {action.get('data', '')}")
         lines.append('')

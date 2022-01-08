@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (C) 2007-2010 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
@@ -129,7 +128,7 @@ class Node(xml.dom.Node):
             If refChild is null, insert newChild at the end of the list of children.
         """
         if newChild.nodeType not in self._child_node_types:
-            raise IllegalChild("%s cannot be child of %s" % (newChild.tagName, self.tagName))
+            raise IllegalChild(f"{newChild.tagName} cannot be child of {self.tagName}")
         if newChild.parentNode is not None:
             newChild.parentNode.removeChild(newChild)
         if refChild is None:
@@ -161,7 +160,7 @@ class Node(xml.dom.Node):
             # The DOM does not clearly specify what to return in this case
             return newChild
         if newChild.nodeType not in self._child_node_types:
-            raise IllegalChild("<%s> is not allowed in %s" % (newChild.tagName, self.tagName))
+            raise IllegalChild(f"<{newChild.tagName}> is not allowed in {self.tagName}")
         if newChild.parentNode is not None:
             newChild.parentNode.removeChild(newChild)
         _append_child(self, newChild)
@@ -189,8 +188,8 @@ class Node(xml.dom.Node):
     def __unicode__(self):
         val = []
         for c in self.childNodes:
-            val.append(type(u'')(c))
-        return u''.join(val)
+            val.append(str(c))
+        return ''.join(val)
     __str__ = __unicode__
 
 
@@ -263,7 +262,7 @@ class Text(Childless, Node):
     def toXml(self,level,f):
         """ Write XML in UTF-8 """
         if self.data:
-            f.write(_escape(type(u'')(self.data).encode('utf-8')))
+            f.write(_escape(str(self.data).encode('utf-8')))
 
 
 class CDATASection(Text, Childless):
@@ -334,7 +333,7 @@ class Element(Node):
         if required:
             for r in required:
                 if self.getAttrNS(r[0],r[1]) is None:
-                    raise AttributeError("Required attribute missing: %s in <%s>" % (r[1].lower().replace('-',''), self.tagName))
+                    raise AttributeError("Required attribute missing: {} in <{}>".format(r[1].lower().replace('-',''), self.tagName))
 
     def get_knownns(self, prefix):
         """ Odfpy maintains a list of known namespaces. In some cases a prefix is used, and
@@ -372,7 +371,7 @@ class Element(Node):
         """
         if check_grammar and self.allowed_children is not None:
             if element.qname not in self.allowed_children:
-                raise IllegalChild("<%s> is not allowed in <%s>" % (element.tagName, self.tagName))
+                raise IllegalChild(f"<{element.tagName}> is not allowed in <{self.tagName}>")
         self.appendChild(element)
         self._setOwnerDoc(element)
         if self.ownerDocument:
@@ -410,7 +409,7 @@ class Element(Node):
             # Construct a list of allowed arguments
             allowed_args = [a[1].lower().replace('-','') for a in allowed_attrs]
             if check_grammar and attr not in allowed_args:
-                raise AttributeError("Attribute %s is not allowed in <%s>" % (attr, self.tagName))
+                raise AttributeError(f"Attribute {attr} is not allowed in <{self.tagName}>")
             i = allowed_args.index(attr)
             self.removeAttrNS(allowed_attrs[i][0], allowed_attrs[i][1])
 
@@ -433,7 +432,7 @@ class Element(Node):
             # Construct a list of allowed arguments
             allowed_args = [a[1].lower().replace('-','') for a in allowed_attrs]
             if check_grammar and attr not in allowed_args:
-                raise AttributeError("Attribute %s is not allowed in <%s>" % (attr, self.tagName))
+                raise AttributeError(f"Attribute {attr} is not allowed in <{self.tagName}>")
             i = allowed_args.index(attr)
             self.setAttrNS(allowed_attrs[i][0], allowed_attrs[i][1], value)
 
@@ -476,7 +475,7 @@ class Element(Node):
                 f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
         f.write('>')
 
     def write_close_tag(self, level, f):
@@ -490,7 +489,7 @@ class Element(Node):
                 f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
         if self.childNodes:
             f.write('>')
             for element in self.childNodes:

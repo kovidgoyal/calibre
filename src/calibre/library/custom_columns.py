@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -557,8 +556,8 @@ class CustomColumns:
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
                 self.conn.execute(
-                '''DELETE FROM %s WHERE (SELECT COUNT(id) FROM %s WHERE
-                    value=%s.id) < 1''' % (table, lt, table))
+                '''DELETE FROM {} WHERE (SELECT COUNT(id) FROM {} WHERE
+                    value={}.id) < 1'''.format(table, lt, table))
                 self.data._data[id_][self.FIELD_MAP[data['num']]] = None
             set_val = val if data['is_multiple'] else [val]
             existing = getter()

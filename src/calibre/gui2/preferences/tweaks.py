@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -108,7 +107,7 @@ class Tweak:  # {{{
         for x, val in iteritems(self.default_values):
             val = self.custom_values.get(x, val)
             if isinstance(val, (list, tuple, dict, set, frozenset)):
-                ans.append('%s = %s' % (x, pformat(val)))
+                ans.append(f'{x} = {pformat(val)}')
             else:
                 ans.append('%s = %r'%(x, val))
         return '\n\n'.join(ans)

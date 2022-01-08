@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -199,7 +198,7 @@ def main(args=sys.argv):
     if oat and not (
             oat.startswith('toc:') or oat.startswith('toc-href:') or oat.startswith('toc-href-contains:') or
             oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:')):
-        raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
+        raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
     if get_session_pref('singleinstance', False):
         from calibre.utils.lock import SingleInstance

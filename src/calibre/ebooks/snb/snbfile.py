@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
@@ -100,7 +97,7 @@ class SNBFile:
                 f.fileBody = snbFile.read(f.fileSize)
                 binPos += f.fileSize
             else:
-                raise ValueError("Invalid file: {} {}".format(f.attr, f.fileName))
+                raise ValueError(f"Invalid file: {f.attr} {f.fileName}")
 
     def ParseFile(self, vfat, fileCount):
         fileNames = vfat[fileCount*12:].split(b'\0')
@@ -219,7 +216,7 @@ class SNBFile:
                 f.contentOffset = len(binStream)
                 binStream += f.fileBody
             else:
-                raise Exception("Unknown file type: {} {}".format(f.attr, f.fileName))
+                raise Exception(f"Unknown file type: {f.attr} {f.fileName}")
         vfatCompressed = zlib.compress(vfat+fileNameTable)
 
         # File header part 2

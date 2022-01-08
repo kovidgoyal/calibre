@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -2141,7 +2140,7 @@ if __name__ == '__main__':
     lines = []
 
     for k in sorted(entities):
-        lines.append("    '%s': %r," % (k, entities[k]))
+        lines.append(f"    '{k}': {entities[k]!r},")
 
     with open(__file__, 'r+b') as f:
         raw = f.read().decode('utf-8')

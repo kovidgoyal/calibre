@@ -89,10 +89,10 @@ class OEBReader:
                 continue
             if namespace(elem.tag) in DC_NSES:
                 tag = barename(elem.tag).lower()
-                elem.tag = '{%s}%s' % (DC11_NS, tag)
+                elem.tag = f'{{{DC11_NS}}}{tag}'
             if elem.tag.startswith('dc:'):
                 tag = elem.tag.partition(':')[-1].lower()
-                elem.tag = '{%s}%s' % (DC11_NS, tag)
+                elem.tag = f'{{{DC11_NS}}}{tag}'
             metadata.append(elem)
         for element in xpath(opf, 'o2:metadata//o2:meta'):
             metadata.append(element)

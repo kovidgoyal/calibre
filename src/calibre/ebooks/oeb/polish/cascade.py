@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -66,7 +65,7 @@ def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, ru
                 name = container.href_to_name(rule.href, sheet_name)
                 if container.has_name(name):
                     if name in importing:
-                        container.log.error('Recursive import of {} from {}, ignoring'.format(name, sheet_name))
+                        container.log.error(f'Recursive import of {name} from {sheet_name}, ignoring')
                     else:
                         csheet = container.parsed(name)
                         if isinstance(csheet, CSSStyleSheet):
@@ -174,7 +173,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
                 try:
                     matches = tuple(select(text))
                 except SelectorError as err:
-                    container.log.error('Ignoring CSS rule with invalid selector: %r (%s)' % (text, as_unicode(err)))
+                    container.log.error(f'Ignoring CSS rule with invalid selector: {text!r} ({as_unicode(err)})')
                     continue
                 m = pseudo_pat.search(text)
                 style = normalize_style_declaration(rule.style, sheet_name)

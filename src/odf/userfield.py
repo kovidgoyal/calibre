@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (C) 2006-2009 Søren Roug, European Environment Agency
 #
 # This is free software.  You may redistribute it under the terms
@@ -34,13 +33,13 @@ OUTENCODING = "utf-8"
 
 # OpenDocument v.1.0 section 6.7.1
 VALUE_TYPES = {
-    'float': (OFFICENS, u'value'),
-    'percentage': (OFFICENS, u'value'),
-    'currency': (OFFICENS, u'value'),
-    'date': (OFFICENS, u'date-value'),
-    'time': (OFFICENS, u'time-value'),
-    'boolean': (OFFICENS, u'boolean-value'),
-    'string': (OFFICENS, u'string-value'),
+    'float': (OFFICENS, 'value'),
+    'percentage': (OFFICENS, 'value'),
+    'currency': (OFFICENS, 'value'),
+    'date': (OFFICENS, 'date-value'),
+    'time': (OFFICENS, 'time-value'),
+    'boolean': (OFFICENS, 'boolean-value'),
+    'string': (OFFICENS, 'string-value'),
     }
 
 
@@ -63,7 +62,7 @@ class UserFields:
         self.document = None
 
     def loaddoc(self):
-        if isinstance(self.src_file, (bytes, type(u''))):
+        if isinstance(self.src_file, (bytes, str)):
             # src_file is a filename, check if it is a zip-file
             if not zipfile.is_zipfile(self.src_file):
                 raise TypeError("%s is no odt file." % self.src_file)

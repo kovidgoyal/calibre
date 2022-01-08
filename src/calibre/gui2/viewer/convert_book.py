@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -161,7 +160,7 @@ class ConversionFailure(ValueError):
         self.book_path = book_path
         self.worker_output = worker_output
         ValueError.__init__(
-                self, 'Failed to convert book: {} with error:\n{}'.format(book_path, worker_output))
+                self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
 
 
 running_workers = []

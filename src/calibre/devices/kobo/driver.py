@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -1573,11 +1572,11 @@ class KOBOTOUCH(KOBO):
         if main and carda and not self.is_main_drive(main):
             drives['main'] = carda
             drives['carda'] = main
-            debug_print('KoboTouch::sort_drives - swapped drives - main=%s, carda=%s' % (drives['main'], drives['carda']))
+            debug_print('KoboTouch::sort_drives - swapped drives - main={}, carda={}'.format(drives['main'], drives['carda']))
         return drives
 
     def is_main_drive(self, drive):
-        debug_print('KoboTouch::is_main_drive - drive=%s, path=%s' % (drive, os.path.join(drive, '.kobo')))
+        debug_print('KoboTouch::is_main_drive - drive={}, path={}'.format(drive, os.path.join(drive, '.kobo')))
         return os.path.exists(self.normalize_path(os.path.join(drive, '.kobo')))
 
     def books(self, oncard=None, end_session=True):
@@ -2128,13 +2127,13 @@ class KOBOTOUCH(KOBO):
                 from css_parser import parseFile as cssparseFile
                 try:
                     extra_sheet = cssparseFile(extra_css_path)
-                    debug_print("KoboTouch:get_extra_css: Using extra CSS in {} ({} rules)".format(extra_css_path, len(extra_sheet.cssRules)))
+                    debug_print(f"KoboTouch:get_extra_css: Using extra CSS in {extra_css_path} ({len(extra_sheet.cssRules)} rules)")
                     if len(extra_sheet.cssRules) ==0:
                         debug_print("KoboTouch:get_extra_css: Extra CSS file has no valid rules. CSS will not be modified.")
                         extra_sheet = None
                 except Exception as e:
-                    debug_print("KoboTouch:get_extra_css: Problem parsing extra CSS file {}".format(extra_css_path))
-                    debug_print("KoboTouch:get_extra_css: Exception {}".format(e))
+                    debug_print(f"KoboTouch:get_extra_css: Problem parsing extra CSS file {extra_css_path}")
+                    debug_print(f"KoboTouch:get_extra_css: Exception {e}")
 
         # create dictionary of features enabled in kobo extra css
         self.extra_css_options = {}
@@ -2166,7 +2165,7 @@ class KOBOTOUCH(KOBO):
             i = 0
             for file, n, mi in zip(files, names, metadata):
                 debug_print("KoboTouch:upload_books: Processing book: {} by {}".format(mi.title, " and ".join(mi.authors)))
-                debug_print("KoboTouch:upload_books: file=%s, name=%s" % (file, n))
+                debug_print(f"KoboTouch:upload_books: file={file}, name={n}")
                 self.report_progress(i / float(len(files)), "Processing book: {} by {}".format(mi.title, " and ".join(mi.authors)))
                 mi.kte_calibre_name = n
                 self._modify_epub(file, mi)
@@ -2208,7 +2207,7 @@ class KOBOTOUCH(KOBO):
         return result
 
     def _modify_epub(self, book_file, metadata, container=None):
-        debug_print("KoboTouch:_modify_epub:Processing {} - {}".format(metadata.author_sort, metadata.title))
+        debug_print(f"KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}")
 
         # Currently only modifying CSS, so if no stylesheet, don't do anything
         if not self.extra_sheet:
@@ -2229,9 +2228,9 @@ class KOBOTOUCH(KOBO):
 
                 # future css mods may be epub/kepub specific, so pass file extension arg
                 fileext = os.path.splitext(book_file)[-1].lower()
-                debug_print("KoboTouch:_modify_epub: Modifying {}".format(cssname))
+                debug_print(f"KoboTouch:_modify_epub: Modifying {cssname}")
                 if self._modify_stylesheet(newsheet, fileext):
-                    debug_print("KoboTouch:_modify_epub:CSS rules {} -> {} ({})".format(oldrules, len(newsheet.cssRules), cssname))
+                    debug_print(f"KoboTouch:_modify_epub:CSS rules {oldrules} -> {len(newsheet.cssRules)} ({cssname})")
                     container.dirty(cssname)
                     is_dirty = True
 
@@ -2285,8 +2284,8 @@ class KOBOTOUCH(KOBO):
                 container = get_container(book_file)
                 container.css_preprocessor = DummyCSSPreProcessor()
             except Exception as e:
-                debug_print("KoboTouch:create_container: exception from get_container {} - {}".format(metadata.author_sort, metadata.title))
-                debug_print("KoboTouch:create_container: exception is: {}".format(e))
+                debug_print(f"KoboTouch:create_container: exception from get_container {metadata.author_sort} - {metadata.title}")
+                debug_print(f"KoboTouch:create_container: exception is: {e}")
         else:
             commit_container = False
             debug_print("KoboTouch:create_container: received container")
@@ -3090,7 +3089,7 @@ class KOBOTOUCH(KOBO):
                 debug_print('        Did not find a record - adding shelf "%s"' % bookshelf_name)
             cursor.execute(addquery, add_values)
         elif result['_IsDeleted'] == 'true':
-            debug_print("KoboTouch:check_for_bookshelf - Shelf '%s' is deleted - undeleting. result['_IsDeleted']='%s'" % (
+            debug_print("KoboTouch:check_for_bookshelf - Shelf '{}' is deleted - undeleting. result['_IsDeleted']='{}'".format(
                 bookshelf_name, str(result['_IsDeleted'])))
             cursor.execute(updatequery, test_values)
 
@@ -3177,7 +3176,7 @@ class KOBOTOUCH(KOBO):
         # debug_print('KoboTouch:set_core_metadata book="%s"' % book.title)
         show_debug = self.is_debugging_title(book.title)
         if show_debug:
-            debug_print('KoboTouch:set_core_metadata book="%s", \nseries_only="%s"' % (book, series_only))
+            debug_print(f'KoboTouch:set_core_metadata book="{book}", \nseries_only="{series_only}"')
 
         plugboard = None
         if self.plugboard_func and not series_only:
@@ -3204,11 +3203,11 @@ class KOBOTOUCH(KOBO):
         kobo_metadata = book.kobo_metadata
 
         if show_debug:
-            debug_print('KoboTouch:set_core_metadata newmi.series="%s"' % (newmi.series, ))
-            debug_print('KoboTouch:set_core_metadata kobo_metadata.series="%s"' % (kobo_metadata.series, ))
-            debug_print('KoboTouch:set_core_metadata newmi.series_index="%s"' % (newmi.series_index, ))
-            debug_print('KoboTouch:set_core_metadata kobo_metadata.series_index="%s"' % (kobo_metadata.series_index, ))
-            debug_print('KoboTouch:set_core_metadata book.kobo_series_number="%s"' % (book.kobo_series_number, ))
+            debug_print(f'KoboTouch:set_core_metadata newmi.series="{newmi.series}"')
+            debug_print(f'KoboTouch:set_core_metadata kobo_metadata.series="{kobo_metadata.series}"')
+            debug_print(f'KoboTouch:set_core_metadata newmi.series_index="{newmi.series_index}"')
+            debug_print(f'KoboTouch:set_core_metadata kobo_metadata.series_index="{kobo_metadata.series_index}"')
+            debug_print(f'KoboTouch:set_core_metadata book.kobo_series_number="{book.kobo_series_number}"')
 
         if newmi.series is not None:
             new_series = newmi.series
@@ -3223,10 +3222,10 @@ class KOBOTOUCH(KOBO):
         series_changed = not (new_series == kobo_metadata.series)
         series_number_changed = not (new_series_number == book.kobo_series_number)
         if show_debug:
-            debug_print('KoboTouch:set_core_metadata new_series="%s"' % (new_series, ))
-            debug_print('KoboTouch:set_core_metadata new_series_number="%s"' % (new_series_number, ))
-            debug_print('KoboTouch:set_core_metadata series_number_changed="%s"' % (series_number_changed, ))
-            debug_print('KoboTouch:set_core_metadata series_changed="%s"' % (series_changed, ))
+            debug_print(f'KoboTouch:set_core_metadata new_series="{new_series}"')
+            debug_print(f'KoboTouch:set_core_metadata new_series_number="{new_series_number}"')
+            debug_print(f'KoboTouch:set_core_metadata series_number_changed="{series_number_changed}"')
+            debug_print(f'KoboTouch:set_core_metadata series_changed="{series_changed}"')
 
         if series_changed or series_number_changed:
             update_values.append(new_series)
@@ -3250,7 +3249,7 @@ class KOBOTOUCH(KOBO):
                 update_values.append(newmi.series_index)
                 set_clause += ', SeriesNumberFloat = ? '
                 if show_debug:
-                    debug_print("KoboTouch:set_core_metadata Setting SeriesID - new_series='%s', series_id='%s'" % (new_series, series_id))
+                    debug_print(f"KoboTouch:set_core_metadata Setting SeriesID - new_series='{new_series}', series_id='{series_id}'")
 
         if not series_only:
             if not (newmi.title == kobo_metadata.title):
@@ -3900,8 +3899,8 @@ class KOBOTOUCH(KOBO):
         debug_print('KoboTouch:dump_bookshelves - end')
 
     def __str__(self, *args, **kwargs):
-        options = ', '.join(['%s: %s' % (x.name, self.get_pref(x.name)) for x in self._config().preferences])
-        return "Driver:%s, Options - %s" % (self.name, options)
+        options = ', '.join([f'{x.name}: {self.get_pref(x.name)}' for x in self._config().preferences])
+        return f"Driver:{self.name}, Options - {options}"
 
 
 if __name__ == '__main__':

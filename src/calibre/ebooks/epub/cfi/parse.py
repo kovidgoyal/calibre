@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -22,7 +21,7 @@ class Parser:
         # calibre used to escape hyphens as well, so recognize them even though
         # not strictly spec compliant
         escaped_char = r'\^' + special_char[:-1] + '-]'
-        chars = r'(?:%s|(?:%s))+' % (unescaped_char, escaped_char)
+        chars = fr'(?:{unescaped_char}|(?:{escaped_char}))+'
         chars_no_space = chars.replace('0020', '0021')
         # No leading zeros allowed for integers
         integer = r'(?:[1-9][0-9]*)|0'
@@ -48,11 +47,11 @@ class Parser:
         # Text assertion patterns
         self.ta1_pat = c(r'({0})(?:,({0})){{0,1}}'.format(chars))
         self.ta2_pat = c(r',(%s)' % chars)
-        self.parameters_pat = c(r'(?:;(%s)=((?:%s,?)+))+' % (chars_no_space, chars))
+        self.parameters_pat = c(fr'(?:;({chars_no_space})=((?:{chars},?)+))+')
         self.csv_pat = c(r'(?:(%s),?)+' % chars)
 
         # Unescape characters
-        unescape_pat = c(r'%s(%s)' % (escaped_char[:2], escaped_char[2:]))
+        unescape_pat = c(fr'{escaped_char[:2]}({escaped_char[2:]})')
         self.unescape = lambda x: unescape_pat.sub(r'\1', x)
 
     def parse_epubcfi(self, raw):

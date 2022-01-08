@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 import re, sys
@@ -196,7 +195,7 @@ class Document:
         sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)
         for candidate in sorted_candidates[:5]:
             elem = candidate['elem']
-            self.debug("Top 5 : %6.3f %s" % (candidate['content_score'], describe(elem)))
+            self.debug("Top 5 : {:6.3f} {}".format(candidate['content_score'], describe(elem)))
 
         if len(sorted_candidates) == 0:
             return None
@@ -257,7 +256,7 @@ class Document:
             candidate = candidates[elem]
             ld = self.get_link_density(elem)
             score = candidate['content_score']
-            self.debug("Candid: %6.3f %s link density %.3f -> %6.3f" % (score, describe(elem), ld, score*(1-ld)))
+            self.debug(f"Candid: {score:6.3f} {describe(elem)} link density {ld:.3f} -> {score*(1-ld):6.3f}")
             candidate['content_score'] *= (1 - ld)
 
         return candidates
@@ -304,7 +303,7 @@ class Document:
         for elem in self.html.iter():
             if elem in self.keep_elements:
                 continue
-            s = "%s %s" % (elem.get('class', ''), elem.get('id', ''))
+            s = "{} {}".format(elem.get('class', ''), elem.get('id', ''))
             # self.debug(s)
             if REGEXES['unlikelyCandidatesRe'].search(s) and (not REGEXES['okMaybeItsACandidateRe'].search(s)) and elem.tag != 'body':
                 self.debug("Removing unlikely candidate - %s" % describe(elem))
@@ -408,10 +407,10 @@ class Document:
                     reason = "too short content length %s without a single image" % content_length
                     to_remove = True
                 elif weight < 25 and link_density > 0.2:
-                    reason = "too many links %.3f for its weight %s" % (link_density, weight)
+                    reason = f"too many links {link_density:.3f} for its weight {weight}"
                     to_remove = True
                 elif weight >= 25 and link_density > 0.5:
-                    reason = "too many links %.3f for its weight %s" % (link_density, weight)
+                    reason = f"too many links {link_density:.3f} for its weight {weight}"
                     to_remove = True
                 elif (counts["embed"] == 1 and content_length < 75) or counts["embed"] > 1:
                     reason = "<embed>s with too short content length, or too many <embed>s"

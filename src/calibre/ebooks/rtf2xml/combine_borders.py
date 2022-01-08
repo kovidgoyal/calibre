@@ -49,7 +49,7 @@ class CombineBorders:
     def end_border(self, line, write_obj):
         border_string = "|".join(self.__bord_att)
         self.__bord_att = []
-        write_obj.write('cw<bd<%s<nu<%s\n' % (self.__bord_pos,
+        write_obj.write('cw<bd<{}<nu<{}\n'.format(self.__bord_pos,
                                                 border_string))
         self.__state = 'default'
         self.__bord_string = ''

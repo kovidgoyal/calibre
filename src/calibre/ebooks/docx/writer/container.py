@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -54,7 +53,7 @@ def create_skeleton(opts, namespaces=None):
     namespaces = namespaces or DOCXNamespace().namespaces
 
     def w(x):
-        return '{%s}%s' % (namespaces['w'], x)
+        return '{{{}}}{}'.format(namespaces['w'], x)
     dn = {k:v for k, v in iteritems(namespaces) if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     doc = E.document()
@@ -97,7 +96,7 @@ def create_skeleton(opts, namespaces=None):
 
 def update_doc_props(root, mi, namespace):
     def setm(name, text=None, ns='dc'):
-        ans = root.makeelement('{%s}%s' % (namespace.namespaces[ns], name))
+        ans = root.makeelement(f'{{{namespace.namespaces[ns]}}}{name}')
         for child in tuple(root):
             if child.tag == ans.tag:
                 root.remove(child)
@@ -245,7 +244,7 @@ class DOCX:
         cp = E.coreProperties(E.revision("1"), E.lastModifiedBy('calibre'))
         ts = utcnow().isoformat(native_string_type('T')).rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
-            x = cp.makeelement('{%s}%s' % (namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
+            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
             x.text = ts
             cp.append(x)
         self.mi = mi

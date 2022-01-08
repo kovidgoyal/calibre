@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__   = 'GPL v3'
@@ -355,7 +354,7 @@ def ensure_id(elem, all_ids):
     c = 0
     while True:
         c += 1
-        q = 'toc_{}'.format(c)
+        q = f'toc_{c}'
         if q not in all_ids:
             elem.set('id', q)
             all_ids.add(q)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -59,7 +58,7 @@ from polyglot.builtins import (
 class FTSQueryError(ValueError):
 
     def __init__(self, query, sql_statement, apsw_error):
-        ValueError.__init__(self, 'Failed to parse search query: {} with error: {}'.format(query, apsw_error))
+        ValueError.__init__(self, f'Failed to parse search query: {query} with error: {apsw_error}')
         self.query = query
         self.sql_statement = sql_statement
 
@@ -1263,7 +1262,7 @@ class DB:
             author = ascii_filename(_('Unknown'))
         if author.upper() in WINDOWS_RESERVED_NAMES:
             author += 'w'
-        return '%s/%s%s' % (author, title, book_id)
+        return f'{author}/{title}{book_id}'
 
     def construct_file_name(self, book_id, title, author, extlen):
         '''
@@ -1450,7 +1449,7 @@ class DB:
                         f = lopen(path, 'rb')
                     except OSError as e:
                         # Ensure the path that caused this error is reported
-                        raise Exception('Failed to open %r with error: %s' % (path, e))
+                        raise Exception(f'Failed to open {path!r} with error: {e}')
 
                 with f:
                     if hasattr(dest, 'write'):
@@ -1825,11 +1824,11 @@ class DB:
                         fts_table=fts_table, highlight_start=highlight_start, highlight_end=highlight_end,
                         snippet_size=max(1, min(snippet_size, 64)))
             else:
-                text = 'highlight({}, 0, "{}", "{}")'.format(fts_table, highlight_start, highlight_end)
+                text = f'highlight({fts_table}, 0, "{highlight_start}", "{highlight_end}")'
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
         query = query.format('annotations', text)
         query += ' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'.format(fts_table=fts_table)
-        query += ' WHERE {fts_table} MATCH ?'.format(fts_table=fts_table)
+        query += f' WHERE {fts_table} MATCH ?'
         data = [fts_engine_query]
         if restrict_to_user:
             query += ' AND annotations.user_type = ? AND annotations.user = ?'
@@ -1837,7 +1836,7 @@ class DB:
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
-        query += ' ORDER BY {}.rank '.format(fts_table)
+        query += f' ORDER BY {fts_table}.rank '
         ls = json.loads
         try:
             for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):

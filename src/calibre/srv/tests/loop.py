@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -90,7 +89,7 @@ class LoopTest(BaseTest):
                 res = conn.getresponse()
                 if int(res.status) == int(http_client.REQUEST_TIMEOUT):
                     raise socket.timeout('Timeout')
-                raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
+                raise Exception('Got unexpected response: code: {} {} headers: {!r} data: {!r}'.format(
                     res.status, res.reason, res.getheaders(), res.read()))
             self.ae(pool.busy, 1)
         self.ae(1, sum(int(w.is_alive()) for w in pool.workers))

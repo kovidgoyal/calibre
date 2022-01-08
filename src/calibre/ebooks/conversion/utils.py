@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -445,7 +444,7 @@ class HeuristicProcessor:
         html = re.sub('<p[^>/]*/>', '<p> </p>', html)
         # Get rid of empty span, bold, font, em, & italics tags
         fmt_tags = 'font|[ibu]|em|strong'
-        open_fmt_pat, close_fmt_pat = r'<(?:{})(?:\s[^>]*)?>'.format(fmt_tags), '</(?:{})>'.format(fmt_tags)
+        open_fmt_pat, close_fmt_pat = fr'<(?:{fmt_tags})(?:\s[^>]*)?>', f'</(?:{fmt_tags})>'
         for i in range(2):
             html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
             html = re.sub(

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -63,7 +62,7 @@ from_js = pyqtSignal
 class to_js(str):
 
     def __call__(self, *a):
-        prints('WARNING: Calling {}() before the javascript bridge is ready'.format(self.name))
+        prints(f'WARNING: Calling {self.name}() before the javascript bridge is ready')
     emit = __call__
 
 

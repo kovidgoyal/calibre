@@ -299,7 +299,7 @@ def windows_hardlink(src, dest):
 
     sz = windows_get_size(dest)
     if sz != src_size:
-        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = f'Creating hardlink from {src} to {dest} failed: %s'
         raise OSError(msg % ('hardlink size: %d not the same as source size' % sz))
 
 
@@ -308,7 +308,7 @@ def windows_fast_hardlink(src, dest):
     winutil.create_hard_link(dest, src)
     ssz, dsz = windows_get_size(src), windows_get_size(dest)
     if ssz != dsz:
-        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = f'Creating hardlink from {src} to {dest} failed: %s'
         raise OSError(msg % ('hardlink size: %d not the same as source size: %s' % (dsz, ssz)))
 
 

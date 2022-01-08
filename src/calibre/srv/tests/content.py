@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -79,7 +78,7 @@ class ContentTest(LibraryBaseTest):
 
             def get(what, book_id, library_id=None, q=''):
                 q = ('?' + q) if q else q
-                conn.request('GET', '/get/%s/%s' % (what, book_id) + (('/' + library_id) if library_id else '') + q)
+                conn.request('GET', f'/get/{what}/{book_id}' + (('/' + library_id) if library_id else '') + q)
                 r = conn.getresponse()
                 return r, r.read()
 
@@ -259,7 +258,7 @@ class ContentTest(LibraryBaseTest):
             ('http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink')
         )
         text = '🐈\n\t\\mūs"'
-        t("<p id='{}'>Peña".format(text), [{"n":"p","x":"Peña","a":[['id',text]]}])
+        t(f"<p id='{text}'>Peña", [{"n":"p","x":"Peña","a":[['id',text]]}])
         text = 'a' * (127 * 1024)
         t('<p>{0}<p>{0}'.format(text), [{"n":"p","x":text}, {'n':'p','x':text}])
     # }}}

@@ -358,9 +358,9 @@ class SMTP:
     def putcmd(self, cmd, args=""):
         """Send a command to the server."""
         if args == "":
-            str = '%s%s' % (cmd, CRLF)
+            str = f'{cmd}{CRLF}'
         else:
-            str = '%s %s%s' % (cmd, args, CRLF)
+            str = f'{cmd} {args}{CRLF}'
         self.send(str)
 
     def getreply(self):
@@ -407,7 +407,7 @@ class SMTP:
 
         errmsg = "\n".join(resp)
         if self.debuglevel > 0:
-            self.debug('reply: retcode (%s); Msg: %s' % (errcode,errmsg))
+            self.debug(f'reply: retcode ({errcode}); Msg: {errmsg}')
         return errcode, errmsg
 
     def docmd(self, cmd, args=""):
@@ -499,7 +499,7 @@ class SMTP:
         optionlist = ''
         if options and self.does_esmtp:
             optionlist = ' ' + ' '.join(options)
-        self.putcmd("mail", "FROM:%s%s" % (quoteaddr(sender), optionlist))
+        self.putcmd("mail", f"FROM:{quoteaddr(sender)}{optionlist}")
         return self.getreply()
 
     def rcpt(self, recip, options=[]):
@@ -507,7 +507,7 @@ class SMTP:
         optionlist = ''
         if options and self.does_esmtp:
             optionlist = ' ' + ' '.join(options)
-        self.putcmd("rcpt", "TO:%s%s" % (quoteaddr(recip), optionlist))
+        self.putcmd("rcpt", f"TO:{quoteaddr(recip)}{optionlist}")
         return self.getreply()
 
     def data(self, msg):
@@ -596,7 +596,7 @@ class SMTP:
             return encode_base64(response, eol="")
 
         def encode_plain(user, password):
-            return encode_base64("\0%s\0%s" % (user, password), eol="")
+            return encode_base64(f"\0{user}\0{password}", eol="")
 
         AUTH_PLAIN = "PLAIN"
         AUTH_CRAM_MD5 = "CRAM-MD5"
@@ -633,7 +633,7 @@ class SMTP:
                 AUTH_PLAIN + " " + encode_plain(user, password))
         elif authmethod == AUTH_LOGIN:
             (code, resp) = self.docmd("AUTH",
-                "%s %s" % (AUTH_LOGIN, encode_base64(user, eol="")))
+                "{} {}".format(AUTH_LOGIN, encode_base64(user, eol="")))
             if code != 334:
                 raise SMTPAuthenticationError(code, resp)
             (code, resp) = self.docmd(encode_base64(password, eol=""))

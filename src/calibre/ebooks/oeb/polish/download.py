@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -150,9 +149,9 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
             filename = sanitize_file_name(filename)
             mt = guess_type(filename)
             if mt in OEB_DOCS:
-                raise ValueError('The external resource {} looks like a HTML document ({})'.format(url, filename))
+                raise ValueError(f'The external resource {url} looks like a HTML document ({filename})')
             if not mt or mt == 'application/octet-stream' or '.' not in filename:
-                raise ValueError('The external resource {} is not of a known type'.format(url))
+                raise ValueError(f'The external resource {url} is not of a known type')
             return True, (url, filename, dest.name, mt)
     except Exception as err:
         return False, (url, as_unicode(err))

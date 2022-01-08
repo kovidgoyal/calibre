@@ -898,7 +898,7 @@ class ZipFile:
             fname = decode_zip_internal_file_name(fname, zip_info.flag_bits)
             if fname != zip_info.orig_filename:
                 raise RuntimeError(
-                      'File name in directory "%s" and header "%s" differ.' % (
+                      'File name in directory "{}" and header "{}" differ.'.format(
                           zip_info.orig_filename, fname))
 
             zip_info.file_offset = file_offset
@@ -1546,7 +1546,7 @@ class PyZipFile(ZipFile):
             if os.path.isfile(initname):
                 # This is a package directory, add it
                 if basename:
-                    basename = "%s/%s" % (basename, name)
+                    basename = f"{basename}/{name}"
                 else:
                     basename = name
                 if self.debug:
@@ -1620,7 +1620,7 @@ class PyZipFile(ZipFile):
             fname = file_pyc
         archivename = os.path.split(fname)[1]
         if basename:
-            archivename = "%s/%s" % (basename, archivename)
+            archivename = f"{basename}/{archivename}"
         return (fname, archivename)
 
 
@@ -1655,7 +1655,7 @@ def main(args=None):
         zf = ZipFile(args[1], 'r')
         badfile = zf.testzip()
         if badfile:
-            print("The following enclosed file is corrupted: {!r}".format(badfile))
+            print(f"The following enclosed file is corrupted: {badfile!r}")
         print("Done testing")
 
     elif args[0] == '-e':

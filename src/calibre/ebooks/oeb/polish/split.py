@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -231,12 +230,12 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
                 purl = urlparse(url)
                 if purl.fragment in anchors_in_top:
                     if r is root2:
-                        a.set('href', '%s#%s' % (container.name_to_href(name, bottom_name), purl.fragment))
+                        a.set('href', f'{container.name_to_href(name, bottom_name)}#{purl.fragment}')
                     else:
                         a.set('href', '#' + purl.fragment)
                 elif purl.fragment in anchors_in_bottom:
                     if r is root1:
-                        a.set('href', '%s#%s' % (container.name_to_href(bottom_name, name), purl.fragment))
+                        a.set('href', f'{container.name_to_href(bottom_name, name)}#{purl.fragment}')
                     else:
                         a.set('href', '#' + purl.fragment)
 

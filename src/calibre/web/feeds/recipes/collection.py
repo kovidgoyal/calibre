@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -229,7 +228,7 @@ def download_builtin_recipe(urn):
     if recipe is None:
         raise ValueError('Failed to find recipe object in downloaded recipe: ' + urn)
     if recipe.requires_version > numeric_version:
-        raise ValueError('Downloaded recipe for {} requires calibre >= {}'.format(urn, recipe.requires_version))
+        raise ValueError(f'Downloaded recipe for {urn} requires calibre >= {recipe.requires_version}')
     return recipe_source
 
 

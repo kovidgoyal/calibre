@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -42,7 +41,7 @@ class TrimImage(QDialog):
         r.setShortcut(QKeySequence(QKeySequence.StandardKey.Redo))
         self.trim_action = ac = self.bar.addAction(QIcon(I('trim.png')), _('&Trim'), self.do_trim)
         ac.setShortcut(QKeySequence('Ctrl+T'))
-        ac.setToolTip('%s [%s]' % (_('Trim image by removing borders outside the selected region'),
+        ac.setToolTip('{} [{}]'.format(_('Trim image by removing borders outside the selected region'),
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         ac.setEnabled(False)
         c.selection_state_changed.connect(self.selection_changed)

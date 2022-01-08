@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 # Imports {{{
@@ -190,7 +189,7 @@ class Renderer(QWebEnginePage):
         self.load_hang_check_timer.start()
 
     def on_load_hang(self):
-        self.log(self.log_prefix, 'Loading not complete after {} seconds, aborting.'.format(int(monotonic() - self.load_started_at)))
+        self.log(self.log_prefix, f'Loading not complete after {int(monotonic() - self.load_started_at)} seconds, aborting.')
         self.load_finished(False)
 
     def title_changed(self, title):
@@ -206,7 +205,7 @@ class Renderer(QWebEnginePage):
         self.load_hang_check_timer.stop()
         if not ok:
             self.working = False
-            self.work_done.emit(self, 'Load of {} failed'.format(self.url().toString()))
+            self.work_done.emit(self, f'Load of {self.url().toString()} failed')
             return
         if self.wait_for_title and self.title() != self.wait_for_title:
             self.log(self.log_prefix, 'Load finished, waiting for title to change to:', self.wait_for_title)
@@ -215,7 +214,7 @@ class Renderer(QWebEnginePage):
 
     def javaScriptConsoleMessage(self, level, message, linenum, source_id):
         try:
-            self.log('{}:{}:{}'.format(source_id, linenum, message))
+            self.log(f'{source_id}:{linenum}:{message}')
         except Exception:
             pass
 
@@ -245,18 +244,18 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, request_info):
         method = bytes(request_info.requestMethod())
         if method not in (b'GET', b'HEAD'):
-            self.log.warn('Blocking URL request with method: {}'.format(method))
+            self.log.warn(f'Blocking URL request with method: {method}')
             request_info.block(True)
             return
         qurl = request_info.requestUrl()
         if qurl.scheme() != 'file':
-            self.log.warn('Blocking URL request with scheme: {}'.format(qurl.scheme()))
+            self.log.warn(f'Blocking URL request with scheme: {qurl.scheme()}')
             request_info.block(True)
             return
         path = qurl.toLocalFile()
         path = os.path.normcase(os.path.abspath(path))
         if not path.startswith(self.container_root) and not path.startswith(self.resources_root):
-            self.log.warn('Blocking request with path: {}'.format(path))
+            self.log.warn(f'Blocking request with path: {path}')
             request_info.block(True)
             return
 
@@ -502,7 +501,7 @@ def make_anchors_unique(container, log):
         new_frag = mapping.get(key)
         if new_frag is None:
             if name in spine_names:
-                log.warn('Link anchor: {}#{} not found, linking to top of file instead'.format(name, frag))
+                log.warn(f'Link anchor: {name}#{frag} not found, linking to top of file instead')
                 replacer.replaced = True
                 return 'https://calibre-pdf-anchor.n#' + name
             return url.rstrip('#')
@@ -520,12 +519,12 @@ def make_anchors_unique(container, log):
             count += 1
             key = spine_name, elem.get('id')
             if key not in mapping:
-                new_id = mapping[key] = 'a{}'.format(count)
+                new_id = mapping[key] = f'a{count}'
                 elem.set('id', new_id)
         body = last_tag(root)
         if not body.get('id'):
             count += 1
-            body.set('id', 'a{}'.format(count))
+            body.set('id', f'a{count}')
         name_anchor_map[spine_name] = body.get('id')
 
     for name in container.mime_map:
@@ -558,7 +557,7 @@ def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
     except KeyError:
         toc_pagenum = None
     if toc_pagenum is None:
-        log.warn('Failed to find ToC anchor in {}'.format(name))
+        log.warn(f'Failed to find ToC anchor in {name}')
         toc_pagenum = 0
     if toc_pagenum > 1:
         pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
@@ -579,11 +578,11 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
         if purl.netloc == 'calibre-pdf-anchor.a':
             loc = anchor_locations.get(purl.fragment)
             if loc is None:
-                log.warn('Anchor location for link to {} not found'.format(purl.fragment))
+                log.warn(f'Anchor location for link to {purl.fragment} not found')
         else:
             loc = anchor_locations.get(name_anchor_map.get(purl.fragment))
             if loc is None:
-                log.warn('Anchor location for link to {} not found'.format(purl.fragment))
+                log.warn(f'Anchor location for link to {purl.fragment} not found')
         return None if loc is None else loc.as_tuple
 
     pdf_doc.alter_links(replace_link, mark_links)
@@ -614,7 +613,7 @@ def annotate_toc(toc, anchor_locations, name_anchor_map, log):
             else:
                 loc = anchor_locations[frag]
         except Exception:
-            log.warn('Could not find anchor location for ToC entry: {} with href: {}'.format(child.title, frag))
+            log.warn(f'Could not find anchor location for ToC entry: {child.title} with href: {frag}')
             loc = AnchorLocation(1, 0, 0, 0)
         child.pdf_loc = loc
 
@@ -652,7 +651,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
             if not isinstance(result, dict):
                 raise ValueError('Not a dict')
         except Exception:
-            log.warn('Could not do page number mapping, got unexpected result: {}'.format(repr(result)))
+            log.warn(f'Could not do page number mapping, got unexpected result: {repr(result)}')
         else:
             default_map = {int(k): int(v) for k, v in iteritems(result)}
     return default_map
@@ -701,7 +700,7 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
         E('td', text=node.title or _('Unknown'), parent=tr)
         num = node.pdf_loc.pagenum
         num = page_number_display_map.get(num, num)
-        E('td', text='{}'.format(num), parent=tr)
+        E('td', text=f'{num}', parent=tr)
 
 # }}}
 
@@ -833,7 +832,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         if text is not None:
             ans.text = text
         if style is not None:
-            style = '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style))
+            style = '; '.join(f'{k}: {v}' for k, v in iteritems(style))
             ans.set('style', style)
         return ans
 
@@ -919,8 +918,8 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'flex-direction': 'column',
             'height': '100vh',
             'justify-content': justify,
-            'margin-left': '{}pt'.format(margins.left),
-            'margin-right': '{}pt'.format(margins.right),
+            'margin-left': f'{margins.left}pt',
+            'margin-right': f'{margins.right}pt',
             'margin-top': '0',
             'margin-bottom': '0',
             'padding': '0',
@@ -929,7 +928,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'background-color': 'unset',
         }
 
-        ans = m('div', style=style, id='p{}'.format(page_num))
+        ans = m('div', style=style, id=f'p{page_num}')
         return ans
 
     def format_template(template, page_num, height):

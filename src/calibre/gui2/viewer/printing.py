@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -170,7 +169,7 @@ def do_print():
     ext = data['input'].lower().rpartition('.')[-1]
     input_plugin = plugin_for_input_format(ext)
     if input_plugin is None:
-        raise ValueError('Not a supported file type: {}'.format(ext.upper()))
+        raise ValueError(f'Not a supported file type: {ext.upper()}')
     args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',
             '--disable-remove-fake-margins', '--chapter-mark', 'none', '-vv']
     if input_plugin.is_image_collection:

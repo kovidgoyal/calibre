@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -28,7 +27,7 @@ class BaseError:
         self.all_locations = None
 
     def __str__(self):
-        return '%s:%s (%s, %s):%s' % (self.__class__.__name__, self.name, self.line, self.col, self.msg)
+        return f'{self.__class__.__name__}:{self.name} ({self.line}, {self.col}):{self.msg}'
 
     __repr__ = __str__
 

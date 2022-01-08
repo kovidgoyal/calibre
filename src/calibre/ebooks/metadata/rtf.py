@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 """
@@ -81,7 +80,7 @@ def detect_codepage(stream):
 def encode(unistr):
     if not isinstance(unistr, str):
         unistr = force_unicode(unistr)
-    return ''.join(c if ord(c) < 128 else '\\u{}?'.format(ord(c)) for c in unistr)
+    return ''.join(c if ord(c) < 128 else f'\\u{ord(c)}?' for c in unistr)
 
 
 def decode(raw, codec):

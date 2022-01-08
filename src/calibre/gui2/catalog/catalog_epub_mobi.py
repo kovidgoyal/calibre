@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -195,7 +194,7 @@ class PluginWidget(QWidget,Ui_Form):
             if excluded_tags == start + end:
                 return ', '.join(excluded_tags)
             else:
-                return "%s  ...  %s" % (', '.join(start), ', '.join(end))
+                return "{}  ...  {}".format(', '.join(start), ', '.join(end))
 
         results = _('No genres will be excluded')
 
@@ -536,7 +535,7 @@ class PluginWidget(QWidget,Ui_Form):
         if False and self.DEBUG:
             print("opts_dict")
             for opt in sorted(opts_dict.keys(), key=sort_key):
-                print(" %s: %s" % (opt, repr(opts_dict[opt])))
+                print(f" {opt}: {repr(opts_dict[opt])}")
         return opts_dict
 
     def populate_combo_boxes(self):

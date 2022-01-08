@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -136,9 +135,9 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
     indent = ' ' * 8
     if feeds:
         if len(feeds[0]) == 1:
-            feeds = '\n'.join('%s%s,' % (indent, py3_repr(url)) for url in feeds)
+            feeds = '\n'.join(f'{indent}{py3_repr(url)},' for url in feeds)
         else:
-            feeds = '\n'.join('%s(%s, %s),' % (indent, py3_repr(title), py3_repr(url)) for title, url in feeds)
+            feeds = '\n'.join(f'{indent}({py3_repr(title)}, {py3_repr(url)}),' for title, url in feeds)
     else:
         feeds = ''
     if feeds:
@@ -256,7 +255,7 @@ class RecipeList(QWidget):  # {{{
                     self, 'save-custom-recipe', _('Save recipe'),
                     filters=[(_('Recipes'), ['recipe'])],
                     all_files=False,
-                    initial_filename='{}.recipe'.format(self.model.title(idx))
+                    initial_filename=f'{self.model.title(idx)}.recipe'
                 )
                 if path:
                     with open(path, 'wb') as f:
@@ -395,7 +394,7 @@ class BasicRecipe(QWidget):  # {{{
         if not title:
             return error_dialog(self, _('No feed URL'), _(
                 'You must specify a URL for the feed'), show=True)
-        QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
+        QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
         self.feed_title.clear(), self.feed_url.clear()
 
     def validate(self):
@@ -439,7 +438,7 @@ class BasicRecipe(QWidget):  # {{{
             self.max_articles.setValue(recipe.max_articles_per_feed)
             for x in (recipe.feeds or ()):
                 title, url = ('', x) if len(x) == 1 else x
-                QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
+                QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
 
 # }}}
 
@@ -720,7 +719,7 @@ class CustomRecipes(Dialog):
         if replace_recipes:
             self.recipe_list.replace_many_by_title(replace_recipes)
         if failed_recipes:
-            det_msg = '\n'.join('%s\n%s\n' % (title, tb) for title, tb in iteritems(failed_recipes))
+            det_msg = '\n'.join(f'{title}\n{tb}\n' for title, tb in iteritems(failed_recipes))
             error_dialog(self, _('Failed to create recipes'), _(
                 'Failed to create some recipes, click "Show details" for details'), show=True,
                          det_msg=det_msg)

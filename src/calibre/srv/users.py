@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -78,15 +77,15 @@ def connect(path, exc_class=ValueError):
     except apsw.CantOpenError as e:
         pdir = os.path.dirname(path)
         if os.path.isdir(pdir):
-            raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
+            raise exc_class(f'Failed to open userdb database at {path} with error: {as_unicode(e)}')
         try:
             os.makedirs(pdir)
         except OSError as e:
-            raise exc_class('Failed to make directory for userdb database at {} with error: {}'.format(pdir, as_unicode(e)))
+            raise exc_class(f'Failed to make directory for userdb database at {pdir} with error: {as_unicode(e)}')
         try:
             return apsw.Connection(path)
         except apsw.CantOpenError as e:
-            raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
+            raise exc_class(f'Failed to open userdb database at {path} with error: {as_unicode(e)}')
 
 
 class UserManager:

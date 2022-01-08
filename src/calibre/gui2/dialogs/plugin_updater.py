@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -525,7 +524,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
     def update_forum_label(self):
         txt = ''
         if self.forum_link:
-            txt = '<a href="%s">%s</a>' % (self.forum_link, self.forum_label_text)
+            txt = f'<a href="{self.forum_link}">{self.forum_label_text}</a>'
         self.forum_label.setText(txt)
 
     def _create_context_menu(self):
@@ -793,7 +792,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _download_zip(self, plugin_zip_url):
         from calibre.ptempfile import PersistentTemporaryFile
-        raw = get_https_resource_securely(plugin_zip_url, headers={'User-Agent':'%s %s' % (__appname__, __version__)})
+        raw = get_https_resource_securely(plugin_zip_url, headers={'User-Agent':f'{__appname__} {__version__}'})
         with PersistentTemporaryFile('.zip') as pt:
             pt.write(raw)
         return pt.name

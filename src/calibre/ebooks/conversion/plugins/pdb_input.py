@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -30,7 +27,7 @@ class PDBInput(InputFormatPlugin):
             raise PDBError('No reader available for format within container.\n Identity is %s. Book type is %s' %
                            (header.ident, IDENTITY_TO_NAME.get(header.ident, _('Unknown'))))
 
-        log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
+        log.debug(f'Detected ebook format as: {IDENTITY_TO_NAME[header.ident]} with identity: {header.ident}')
 
         reader = Reader(header, stream, log, options)
         opf = reader.extract_content(os.getcwd())

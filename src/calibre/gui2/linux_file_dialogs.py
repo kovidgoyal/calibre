@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import functools
@@ -147,7 +146,7 @@ def run_kde(cmd):
     if ret == 1:
         return  # canceled
     if ret != 0:
-        raise ValueError('KDE file dialog aborted with return code: {} and stderr: {}'.format(ret, stderr))
+        raise ValueError(f'KDE file dialog aborted with return code: {ret} and stderr: {stderr}')
     ans = stdout.splitlines()
     return ans
 
@@ -227,7 +226,7 @@ def run_zenity(cmd):
     if ret == 1:
         return  # canceled
     if ret != 0:
-        raise ValueError('GTK file dialog aborted with return code: {} and stderr: {}'.format(ret, stderr))
+        raise ValueError(f'GTK file dialog aborted with return code: {ret} and stderr: {stderr}')
     ans = stdout.splitlines()
     return ans
 
@@ -294,7 +293,7 @@ def zenity_choose_images(window, name, title, select_only_single_file=True, form
 
 def linux_native_dialog(name):
     prefix = check_for_linux_native_dialogs()
-    func = globals()['{}_choose_{}'.format(prefix, name)]
+    func = globals()[f'{prefix}_choose_{name}']
 
     @functools.wraps(func)
     def looped(window, *args, **kwargs):

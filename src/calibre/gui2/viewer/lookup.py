@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -209,7 +208,7 @@ class Page(QWebEnginePage):
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
         }.get(level, 'ERROR')
         if source_id == 'userscript:lookup.js':
-            prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
+            prints(f'{prefix}: {source_id}:{linenumber}: {msg}', file=sys.stderr)
             sys.stderr.flush()
 
     def zoom_in(self):

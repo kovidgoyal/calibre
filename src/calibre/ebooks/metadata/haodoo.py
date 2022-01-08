@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Read meta information from Haodoo.net pdb files.
 '''

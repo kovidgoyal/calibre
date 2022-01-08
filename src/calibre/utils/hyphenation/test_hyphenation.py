@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -49,7 +48,7 @@ class TestHyphenation(unittest.TestCase):
         def t(x, expected=None):
             self.ae(
                 dictionary_name_for_locale(x),
-                'hyph_{}.dic'.format(expected) if expected else None
+                f'hyph_{expected}.dic' if expected else None
             )
 
         t('en', 'en_US')
@@ -67,7 +66,7 @@ class TestHyphenation(unittest.TestCase):
 
         dp = path_to_dictionary(dictionary_name_for_locale('en'), cache_callback)
         self.assertTrue(
-            os.path.exists(dp), 'The dictionary {} does not exist'.format(dp)
+            os.path.exists(dp), f'The dictionary {dp} does not exist'
         )
         self.assertTrue(cache[0])
         cache[0] = False

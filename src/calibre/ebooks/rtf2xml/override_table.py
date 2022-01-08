@@ -187,7 +187,7 @@ class OverrideTable:
             the_keys = the_dict.keys()
             for the_key in the_keys:
                 self.__override_table_final += \
-                    '<%s>%s' % (the_key, the_dict[the_key])
+                    f'<{the_key}>{the_dict[the_key]}'
             self.__override_table_final += '\n'
         self.__override_table_final += '\n'
         self.__override_table_final += \

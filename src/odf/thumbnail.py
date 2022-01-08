@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # This contains a 128x128 px thumbnail in PNG format
 # Taken from https://cgit.freedesktop.org/libreoffice/core/tree/sysui/desktop/icons/hicolor/128x128/apps/main.png
 # License: GPL-3

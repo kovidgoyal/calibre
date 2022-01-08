@@ -1790,7 +1790,7 @@ class BasicNewsRecipe(Recipe):
                             arelpath = sorted(articles, key=numeric_sort_key)[0]
                             a.set('href', item.relhref(arelpath))
                             if url not in seen:
-                                log.debug('Resolved internal URL: %s -> %s' % (url, arelpath))
+                                log.debug(f'Resolved internal URL: {url} -> {arelpath}')
                                 seen.add(url)
 
 

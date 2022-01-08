@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -296,10 +295,10 @@ def parse_config_file(path=DEFAULT_CONFIG):
             try:
                 val = type(opt.default)(rest)
             except Exception:
-                raise ValueError('The value for %s: %s is not a valid number' % (key, rest))
+                raise ValueError(f'The value for {key}: {rest} is not a valid number')
         elif opt.choices:
             if rest not in opt.choices:
-                raise ValueError('The value for %s: %s is not valid' % (key, rest))
+                raise ValueError(f'The value for {key}: {rest} is not valid')
         ans[key] = val
     return Options(**ans)
 
@@ -312,7 +311,7 @@ def write_config_file(opts, path=DEFAULT_CONFIG):
         lines.append('# ' + o.shortdoc)
         if o.longdoc:
             lines.append('# ' + o.longdoc)
-        lines.append('%s %s' % (name, changed[name]))
+        lines.append(f'{name} {changed[name]}')
     raw = '\n'.join(lines).encode('utf-8')
     with ExclusiveFile(path) as f:
         f.truncate()

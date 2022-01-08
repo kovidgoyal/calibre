@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -232,7 +229,7 @@ class Device(DeviceConfig, DevicePlugin):
                 usbdevice.vendor_id, usbdevice.product_id, usbdevice.bcd,
                 data.get('manufacturer') or '', data.get('product') or '', data.get('serial_number') or '')
             if debug:
-                prints('USB Info for device: {}'.format(dev))
+                prints(f'USB Info for device: {dev}')
         return self.can_handle(dev, debug=debug)
 
     def open_windows(self):
@@ -251,7 +248,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         if debug:
             from pprint import pformat
-            prints('Drive letters for {}'.format(usbdev))
+            prints(f'Drive letters for {usbdev}')
             prints(pformat(dlmap))
 
         filtered = set()
@@ -264,7 +261,7 @@ class Device(DeviceConfig, DevicePlugin):
             elif self.windows_filter_pnp_id(pnp_id):
                 filtered.add(dl)
                 if debug:
-                    prints('Ignoring the drive %s because of a PNP filter on %s' % (dl, pnp_id))
+                    prints(f'Ignoring the drive {dl} because of a PNP filter on {pnp_id}')
             elif not drive_is_ok(dl, debug=debug):
                 filtered.add(dl)
                 if debug:
@@ -342,7 +339,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not matches:
             from pprint import pformat
             raise DeviceError(
-                'Could not detect BSD names for %s. Try rebooting.\nOutput from osx_get_usb_drives():\n%s' % (self.name, pformat(drives)))
+                f'Could not detect BSD names for {self.name}. Try rebooting.\nOutput from osx_get_usb_drives():\n{pformat(drives)}')
 
         pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
 
@@ -505,7 +502,7 @@ class Device(DeviceConfig, DevicePlugin):
                     except:
                         ok[node] = False
                     if DEBUG and not ok[node]:
-                        print('\nIgnoring the node: %s as could not read size from: %s' % (node, sz))
+                        print(f'\nIgnoring the node: {node} as could not read size from: {sz}')
 
                     devnodes.append(node)
 

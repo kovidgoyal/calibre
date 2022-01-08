@@ -1273,11 +1273,11 @@ class OPF:  # {{{
 
     def create_metadata_element(self, name, attrib=None, is_dc=True):
         if is_dc:
-            name = '{%s}%s' % (self.NAMESPACES['dc'], name)
+            name = '{{{}}}{}'.format(self.NAMESPACES['dc'], name)
         else:
             attrib = attrib or {}
             attrib['name'] = 'calibre:' + name
-            name = '{%s}%s' % (self.NAMESPACES['opf'], 'meta')
+            name = '{{{}}}{}'.format(self.NAMESPACES['opf'], 'meta')
         nsmap = dict(self.NAMESPACES)
         del nsmap['opf']
         elem = etree.SubElement(self.metadata, name, attrib=attrib,

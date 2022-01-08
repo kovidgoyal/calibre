@@ -565,7 +565,7 @@ class CatalogPlugin(Plugin):  # {{{
         from calibre.ptempfile import PersistentTemporaryDirectory
 
         if not type(self) in builtin_plugins and self.name not in config['disabled_plugins']:
-            files_to_copy = ["%s.%s" % (self.name.lower(),ext) for ext in ["ui","py"]]
+            files_to_copy = [f"{self.name.lower()}.{ext}" for ext in ["ui","py"]]
             resources = zipfile.ZipFile(self.plugin_path,'r')
 
             if self.resources_path is None:
@@ -575,7 +575,7 @@ class CatalogPlugin(Plugin):  # {{{
                 try:
                     resources.extract(file, self.resources_path)
                 except:
-                    print(" customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path)))
+                    print(f" customize:__init__.initialize(): {file} not found in {os.path.basename(self.plugin_path)}")
                     continue
             resources.close()
 

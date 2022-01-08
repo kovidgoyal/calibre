@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -386,7 +385,7 @@ def render_jacket(mi, output_profile,
             print("Custom column values available in jacket template:")
             for key in args.keys():
                 if key.startswith('_') and not key.endswith('_label'):
-                    print(" %s: %s" % ('#' + key[1:], args[key]))
+                    print(" {}: {}".format('#' + key[1:], args[key]))
 
         # Used in the comment describing use of custom columns in templates
         # Don't change this unless you also change it in template.xhtml

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -101,7 +100,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
         for k, v in iteritems({'pèché': 'peche', 'flüße':'Flusse', 'Štepánek':'ŠtepaneK'}):
-            self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
+            self.ae((1, len(k)), icu.primary_find(v, ' ' + k), f'Failed to find {v} in {k}')
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))
         self.assertFalse(icu.startswith('xyz', 'a'))
@@ -127,7 +126,7 @@ class TestICU(unittest.TestCase):
             for x in group[1]:
                 order, _ = icu.numeric_collator().collation_order(x)
                 if last is not None:
-                    assert_func(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
+                    assert_func(last, order, f'Order for {x} not correct: {last} != {order}')
                 last = order
 
         self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),
@@ -146,7 +145,7 @@ class TestICU(unittest.TestCase):
             for x in group[1]:
                 order, _ = icu.non_numeric_sort_collator().collation_order(x)
                 if last is not None:
-                    assert_func(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
+                    assert_func(last, order, f'Order for {x} not correct: {last} != {order}')
                 last = order
 
         self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),

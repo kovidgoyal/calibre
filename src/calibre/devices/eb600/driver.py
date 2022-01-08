@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -86,7 +83,7 @@ class TOLINO(EB600):
 
     def get_device_information(self, end_session=True):
         self.set_device_name()
-        return super(TOLINO, self).get_device_information(end_session)
+        return super().get_device_information(end_session)
 
     # There are apparently two versions of this device, one with swapped
     # drives and one without, see https://bugs.launchpad.net/bugs/1240504

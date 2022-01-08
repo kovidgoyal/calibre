@@ -282,7 +282,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.icon_field.setVisible(False)
 
             for n1, k1 in cols:
-                self.icon_field.addItem('{} ({})'.format(n1, k1), k1)
+                self.icon_field.addItem(f'{n1} ({k1})', k1)
             self.icon_file_names = []
             d = os.path.join(config_dir, 'cc_icons')
             if os.path.exists(d):
@@ -367,11 +367,11 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         tt = _('Template language tutorial')
         self.template_tutorial.setText(
-            '<a href="%s">%s</a>' % (
+            '<a href="{}">{}</a>'.format(
                 localize_user_manual_link('https://manual.calibre-ebook.com/template_lang.html'), tt))
         tt = _('Template function reference')
         self.template_func_reference.setText(
-            '<a href="%s">%s</a>' % (
+            '<a href="{}">{}</a>'.format(
                 localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/template_ref.html'), tt))
 
         s = gprefs.get('template_editor_break_on_print', False)

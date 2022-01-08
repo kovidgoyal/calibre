@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -603,7 +602,7 @@ class ScrollingTabWidget(QTabWidget):
             # widgets added to a tab widget, which looks horrible.
             if (cm.left(), cm.top(), cm.right(), cm.bottom()) == (0, 0, 0, 0):
                 pl.setContentsMargins(9, 9, 9, 9)
-        name = 'STW{}'.format(abs(id(self)))
+        name = f'STW{abs(id(self))}'
         sw.setObjectName(name)
         sw.setWidget(page)
         sw.setWidgetResizable(True)

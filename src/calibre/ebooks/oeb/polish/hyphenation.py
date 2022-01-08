@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import OEB_DOCS

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -410,11 +409,11 @@ class Container(ContainerBase):  # {{{
             raise ValueError('Renaming of %s is not allowed' % current_name)
         if self.exists(new_name) and (new_name == current_name or new_name.lower() != current_name.lower()):
             # The destination exists and does not differ from the current name only by case
-            raise ValueError('Cannot rename %s to %s as %s already exists' % (current_name, new_name, new_name))
+            raise ValueError(f'Cannot rename {current_name} to {new_name} as {new_name} already exists')
         new_path = self.name_to_abspath(new_name)
         base = os.path.dirname(new_path)
         if os.path.isfile(base):
-            raise ValueError('Cannot rename %s to %s as %s is a file' % (current_name, new_name, base))
+            raise ValueError(f'Cannot rename {current_name} to {new_name} as {base} is a file')
         if not os.path.exists(base):
             os.makedirs(base)
         old_path = parent_dir = self.name_to_abspath(current_name)
@@ -1142,9 +1141,9 @@ class EpubContainer(Container):
                     ans += ' 2'
                 else:
                     if not v.minor:
-                        ans += ' {}'.format(v.major)
+                        ans += f' {v.major}'
                     else:
-                        ans += ' {}.{}'.format(v.major, v.minor)
+                        ans += f' {v.major}.{v.minor}'
             except Exception:
                 pass
         return ans

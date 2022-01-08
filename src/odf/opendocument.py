@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2006-2010 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
@@ -46,7 +45,7 @@ from .office import (
 
 __version__= TOOLSVERSION
 
-_XMLPROLOGUE = u"<?xml version='1.0' encoding='UTF-8'?>\n"
+_XMLPROLOGUE = "<?xml version='1.0' encoding='UTF-8'?>\n"
 
 UNIXPERMS = 0o100644 << 16  # -rw-r--r--
 
@@ -144,27 +143,27 @@ class OpenDocument:
         if element.qname not in self.element_dict:
             self.element_dict[element.qname] = []
         self.element_dict[element.qname].append(element)
-        if element.qname == (STYLENS, u'style'):
+        if element.qname == (STYLENS, 'style'):
             self.__register_stylename(element)  # Add to style dictionary
-        styleref = element.getAttrNS(TEXTNS,u'style-name')
+        styleref = element.getAttrNS(TEXTNS,'style-name')
         if styleref is not None and styleref in self._styles_ooo_fix:
-            element.setAttrNS(TEXTNS,u'style-name', self._styles_ooo_fix[styleref])
+            element.setAttrNS(TEXTNS,'style-name', self._styles_ooo_fix[styleref])
 
     def __register_stylename(self, element):
         ''' Register a style. But there are three style dictionaries:
             office:styles, office:automatic-styles and office:master-styles
             Chapter 14
         '''
-        name = element.getAttrNS(STYLENS, u'name')
+        name = element.getAttrNS(STYLENS, 'name')
         if name is None:
             return
-        if element.parentNode.qname in ((OFFICENS,u'styles'), (OFFICENS,u'automatic-styles')):
+        if element.parentNode.qname in ((OFFICENS,'styles'), (OFFICENS,'automatic-styles')):
             if name in self._styles_dict:
                 newname = 'M'+name  # Rename style
                 self._styles_ooo_fix[name] = newname
                 # From here on all references to the old name will refer to the new one
                 name = newname
-                element.setAttrNS(STYLENS, u'name', name)
+                element.setAttrNS(STYLENS, 'name', name)
             self._styles_dict[name] = element
 
     def toXml(self, filename=''):
@@ -249,17 +248,17 @@ class OpenDocument:
         for e in top.childNodes:
             if e.nodeType == element.Node.ELEMENT_NODE:
                 for styleref in (
-                        (CHARTNS,u'style-name'),
-                        (DRAWNS,u'style-name'),
-                        (DRAWNS,u'text-style-name'),
-                        (PRESENTATIONNS,u'style-name'),
-                        (STYLENS,u'data-style-name'),
-                        (STYLENS,u'list-style-name'),
-                        (STYLENS,u'page-layout-name'),
-                        (STYLENS,u'style-name'),
-                        (TABLENS,u'default-cell-style-name'),
-                        (TABLENS,u'style-name'),
-                        (TEXTNS,u'style-name')):
+                        (CHARTNS,'style-name'),
+                        (DRAWNS,'style-name'),
+                        (DRAWNS,'text-style-name'),
+                        (PRESENTATIONNS,'style-name'),
+                        (STYLENS,'data-style-name'),
+                        (STYLENS,'list-style-name'),
+                        (STYLENS,'page-layout-name'),
+                        (STYLENS,'style-name'),
+                        (TABLENS,'default-cell-style-name'),
+                        (TABLENS,'style-name'),
+                        (TEXTNS,'style-name')):
                     if e.getAttrNS(styleref[0],styleref[1]):
                         stylename = e.getAttrNS(styleref[0],styleref[1])
                         if stylename not in stylenamelist:
@@ -277,7 +276,7 @@ class OpenDocument:
             stylenamelist = self._parseoneelement(top, stylenamelist)
         stylelist = []
         for e in self.automaticstyles.childNodes:
-            if e.getAttrNS(STYLENS,u'name') in stylenamelist:
+            if e.getAttrNS(STYLENS,'name') in stylenamelist:
                 stylelist.append(e)
         return stylelist
 
@@ -317,7 +316,7 @@ class OpenDocument:
                     ext=''
             else:
                 ext = mimetypes.guess_extension(mediatype)
-            manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
+            manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
             self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
         else:
             manifestfn = filename
@@ -341,7 +340,7 @@ class OpenDocument:
                 ext=''
         else:
             ext = mimetypes.guess_extension(mediatype)
-        manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
+        manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
         self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
         return manifestfn
 
@@ -353,7 +352,7 @@ class OpenDocument:
             indicates the image format.
         """
         ext = mimetypes.guess_extension(mediatype)
-        manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
+        manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
         self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
         return manifestfn
 
@@ -381,7 +380,7 @@ class OpenDocument:
     def _savePictures(self, object, folder):
         for arcname, picturerec in object.Pictures.items():
             what_it_is, fileobj, mediatype = picturerec
-            self.manifest.addElement(manifest.FileEntry(fullpath="%s%s" % (folder ,arcname), mediatype=mediatype))
+            self.manifest.addElement(manifest.FileEntry(fullpath=f"{folder}{arcname}", mediatype=mediatype))
             if what_it_is == IS_FILENAME:
                 self._z.write(fileobj, arcname, zipfile.ZIP_STORED)
             else:
@@ -403,7 +402,7 @@ class OpenDocument:
             belonging to the application that created the document.
         """
         for m in self.meta.childNodes[:]:
-            if m.qname == (METANS, u'generator'):
+            if m.qname == (METANS, 'generator'):
                 self.meta.removeChild(m)
         self.meta.addElement(meta.Generator(text=TOOLSVERSION))
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -45,7 +44,7 @@ class Tag:
         self.self_closing = self_closing
 
     def __repr__(self):
-        return '<%s start_block=%s start_offset=%s end_block=%s end_offset=%s self_closing=%s>' % (
+        return '<{} start_block={} start_offset={} end_block={} end_offset={} self_closing={}>'.format(
             self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
     __str__ = __repr__
 
@@ -233,7 +232,7 @@ def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
     with edit_block(cursor):
         text = select_tag(cursor, closing_tag)
         if insert:
-            text = '</%s>%s' % (new_name, text)
+            text = f'</{new_name}>{text}'
         else:
             text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', '</%s' % new_name, text)
         cursor.insertText(text)
@@ -502,7 +501,7 @@ class Smarts(NullSmarts):
         pos = min(c.position(), c.anchor())
         m = re.match(r'[a-zA-Z0-9:-]+', name)
         cname = name if m is None else m.group()
-        c.insertText('<{}>{}</{}>'.format(name, text, cname))
+        c.insertText(f'<{name}>{text}</{cname}>')
         c.setPosition(pos + 2 + len(name))
         editor.setTextCursor(c)
 

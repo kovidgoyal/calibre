@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8
 
 
 __license__   = 'GPL v3'
@@ -666,7 +665,7 @@ class CreateCustomColumn(QDialog):
         QDialog.reject(self)
 
 
-class CreateNewCustomColumn(object):
+class CreateNewCustomColumn:
     """
     Provide an API to create new custom columns.
 

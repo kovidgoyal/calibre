@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -2437,11 +2436,11 @@ class Cache:
             format_metadata[book_id] = {}
             for fmt in self._formats(book_id):
                 mdata = self.format_metadata(book_id, fmt)
-                key = '%s:%s:%s' % (key_prefix, book_id, fmt)
+                key = f'{key_prefix}:{book_id}:{fmt}'
                 format_metadata[book_id][fmt] = key
                 with exporter.start_file(key, mtime=mdata.get('mtime')) as dest:
                     self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
-            cover_key = '%s:%s:%s' % (key_prefix, book_id, '.cover')
+            cover_key = '{}:{}:{}'.format(key_prefix, book_id, '.cover')
             with exporter.start_file(cover_key) as dest:
                 if not self.copy_cover_to(book_id, dest, report_file_size=dest.ensure_space):
                     dest.discard()

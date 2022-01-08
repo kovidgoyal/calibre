@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import atexit
@@ -139,7 +138,7 @@ elif islinux:
     def create_single_instance_mutex(name, per_user=True):
         import socket
         from calibre.utils.ipc import eintr_retry_call
-        name = '%s-singleinstance-%s-%s' % (
+        name = '{}-singleinstance-{}-{}'.format(
             __appname__, (os.geteuid() if per_user else ''), name
         )
         name = name
@@ -160,7 +159,7 @@ elif islinux:
 else:
 
     def singleinstance_path(name, per_user=True):
-        name = '%s-singleinstance-%s-%s.lock' % (
+        name = '{}-singleinstance-{}-{}.lock'.format(
             __appname__, (os.geteuid() if per_user else ''), name
         )
         home = os.path.expanduser('~')

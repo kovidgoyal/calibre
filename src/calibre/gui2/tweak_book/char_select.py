@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -796,7 +795,7 @@ class CharSelect(Dialog):
     def show_char_info(self, char_code):
         if char_code > 0:
             category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
-            self.char_info.setText('%s - %s - %s (U+%04X)' % (category_name, subcategory_name, character_name, char_code))
+            self.char_info.setText(f'{category_name} - {subcategory_name} - {character_name} (U+{char_code:04X})')
         else:
             self.char_info.clear()
 

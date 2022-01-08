@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -986,11 +985,11 @@ class CSSRulesModel(QAbstractItemModel):
         elif role == Qt.ItemDataRole.DisplayRole:
             entry = self.index_to_entry(index)
             if isinstance(entry, CSSEntry):
-                return '[%{}d] %s'.format(self.num_size) % (entry.count, entry.rule.selector)
+                return f'[%{self.num_size}d] %s' % (entry.count, entry.rule.selector)
             elif isinstance(entry, CSSFileMatch):
                 return _('{0} [{1} elements]').format(entry.file_name, len(entry.locations))
             elif isinstance(entry, MatchLocation):
-                return '%s @ %s' % (entry.tag, entry.sourceline)
+                return f'{entry.tag} @ {entry.sourceline}'
         elif role == Qt.ItemDataRole.UserRole:
             return self.index_to_entry(index)
         elif role == Qt.ItemDataRole.FontRole:
@@ -1208,13 +1207,13 @@ class ClassesModel(CSSRulesModel):
         elif role == Qt.ItemDataRole.DisplayRole:
             entry = self.index_to_entry(index)
             if isinstance(entry, ClassEntry):
-                return '[%{}d] %s'.format(self.num_size) % (entry.num_of_matches, entry.cls)
+                return f'[%{self.num_size}d] %s' % (entry.num_of_matches, entry.cls)
             elif isinstance(entry, ClassFileMatch):
                 return _('{0} [{1} elements]').format(entry.file_name, len(entry.class_elements))
             elif isinstance(entry, ClassElement):
-                return '%s @ %s' % (entry.tag, entry.line_number)
+                return f'{entry.tag} @ {entry.line_number}'
             elif isinstance(entry, CSSRule):
-                return '%s @ %s:%s' % (entry.selector, entry.location.file_name, entry.location.line)
+                return f'{entry.selector} @ {entry.location.file_name}:{entry.location.line}'
         elif role == Qt.ItemDataRole.UserRole:
             return self.index_to_entry(index)
         elif role == Qt.ItemDataRole.FontRole:

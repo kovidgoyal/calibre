@@ -1097,7 +1097,7 @@ class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
     def update(self, settings):
         for name, value in settings.items():
             if name not in self.__class__.validSettings:
-                raise LrsError("%s not a valid setting for %s" % (name, self.__class__.__name__))
+                raise LrsError(f"{name} not a valid setting for {self.__class__.__name__}")
             self.attrs[name] = value
 
     def getLabel(self):

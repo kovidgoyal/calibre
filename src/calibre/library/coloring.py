@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -138,9 +137,9 @@ class Rule:  # {{{
                 'gt': ('', '', '1')
         }[action]
         if col == 'size':
-            return "cmp(booksize(), %s, '%s', '%s', '%s')" % (val, lt, eq, gt)
+            return f"cmp(booksize(), {val}, '{lt}', '{eq}', '{gt}')"
         else:
-            return "cmp(raw_field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
+            return f"cmp(raw_field('{col}'), {val}, '{lt}', '{eq}', '{gt}')"
 
     def rating_condition(self, col, action, val):
         if action == 'is set':
@@ -152,7 +151,7 @@ class Rule:  # {{{
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
+        return f"cmp(field('{col}'), {val}, '{lt}', '{eq}', '{gt}')"
 
     def date_condition(self, col, action, val):
         if action == 'count_days':

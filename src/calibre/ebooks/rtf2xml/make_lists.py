@@ -328,10 +328,10 @@ class MakeLists:
             for the_key in the_keys_list:
                 if the_key in not_allow:
                     continue
-                self.__write_obj.write('<%s>%s' % (the_key, list_dict[the_key]))
+                self.__write_obj.write(f'<{the_key}>{list_dict[the_key]}')
             the_keys_level = level_dict.keys()
             for the_key in the_keys_level:
-                self.__write_obj.write('<%s>%s' % (the_key, level_dict[the_key]))
+                self.__write_obj.write(f'<{the_key}>{level_dict[the_key]}')
         self.__write_obj.write('\n')
         self.__write_obj.write(
             'mi<mk<liststart_\n'

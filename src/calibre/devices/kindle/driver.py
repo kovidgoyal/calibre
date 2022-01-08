@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -557,7 +554,7 @@ class KINDLE2(KINDLE):
                     shutil.copyfileobj(src, dest)
                     fsync(dest)
         if DEBUG:
-            prints('Restored {} cover thumbnails that were destroyed by Amazon'.format(count))
+            prints(f'Restored {count} cover thumbnails that were destroyed by Amazon')
 
     def delete_single_book(self, path):
         try:
@@ -569,7 +566,7 @@ class KINDLE2(KINDLE):
                         os.remove(tp)
                     except OSError as err:
                         if err.errno != errno.ENOENT:
-                            prints('Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
+                            prints(f'Failed to delete thumbnail for {path!r} at {tp!r} with error: {err}')
         except Exception:
             import traceback
             traceback.print_exc()

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -46,7 +45,7 @@ def implementation(
             fields = sorted(afields)
         sort_by = sort_by or 'id'
         if sort_by not in afields:
-            return 'Unknown sort field: {}'.format(sort_by)
+            return f'Unknown sort field: {sort_by}'
         if not set(fields).issubset(afields):
             return 'Unknown fields: {}'.format(', '.join(set(fields) - afields))
         if search_text:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -170,7 +169,7 @@ def get_https_resource_securely(
         cert_file = P(cacerts, allow_user_override=False)
     p = urlsplit(url)
     if p.scheme != 'https':
-        raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
+        raise ValueError(f'URL {url} scheme must be https, not {p.scheme!r}')
 
     hostname, port = p.hostname, p.port
     proxies = get_proxies()

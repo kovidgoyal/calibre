@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #  jisyo.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>

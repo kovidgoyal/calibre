@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -121,7 +120,7 @@ class Route:
         self.type_checkers = self.endpoint.types.copy()
 
         def route_error(msg):
-            return RouteError('%s is not valid: %s' % (self.endpoint.route, msg))
+            return RouteError(f'{self.endpoint.route} is not valid: {msg}')
 
         for i, p in enumerate(parts):
             if p[0] == '{':
@@ -195,10 +194,10 @@ class Route:
         names = frozenset(kwargs)
         not_spec = self.required_names - names
         if not_spec:
-            raise RouteError('The required variable(s) %s were not specified for the route: %s' % (','.join(not_spec), self.endpoint.route))
+            raise RouteError('The required variable(s) {} were not specified for the route: {}'.format(','.join(not_spec), self.endpoint.route))
         unknown = names - self.all_names
         if unknown:
-            raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
+            raise RouteError('The variable(s) {} are not part of the route: {}'.format(','.join(unknown), self.endpoint.route))
 
         def quoted(x):
             if not isinstance(x, (str, bytes)):
@@ -241,7 +240,7 @@ class Router:
             return
         key = endpoint.route_key
         if key in self.routes:
-            raise RouteError('A route with the key: %s already exists as: %s' % (key, self.routes[key]))
+            raise RouteError(f'A route with the key: {key} already exists as: {self.routes[key]}')
         self.routes[key] = Route(endpoint)
         self.endpoints.add(endpoint)
 

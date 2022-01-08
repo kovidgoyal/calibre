@@ -111,7 +111,7 @@ class BorderParse:
                 value = 'true'
             style_att = self.__border_style_dict.get(att)
             if style_att:
-                att = '%s-%s' % (border_type, att)
+                att = f'{border_type}-{att}'
                 border_style_dict[att] = value
                 border_style_list.append(style_att)
             else:
@@ -123,7 +123,7 @@ class BorderParse:
                     'token does not have an att value\n'
                     'line is "%s"' % line
                     )
-                att = '%s-%s' % (border_type, att)
+                att = f'{border_type}-{att}'
                 border_dict[att] = value
         new_border_dict = self.__determine_styles(border_type, border_style_list)
         border_dict.update(new_border_dict)

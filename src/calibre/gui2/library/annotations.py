@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import codecs
@@ -586,7 +585,7 @@ class Restrictions(QWidget):
         tb.addItem(' ', ' ')
         for user_type, user in db.all_annotation_users():
             display_name = friendly_username(user_type, user)
-            tb.addItem(display_name, '{}:{}'.format(user_type, user))
+            tb.addItem(display_name, f'{user_type}:{user}')
         if before:
             row = tb.findData(before)
             if row > -1:
@@ -827,7 +826,7 @@ class DetailsPanel(QWidget):
         series_text = ''
         if series:
             use_roman_numbers = config['use_roman_numerals_for_series_number']
-            series_text = '{} of {}'.format(fmt_sidx(sidx, use_roman=use_roman_numbers), series)
+            series_text = f'{fmt_sidx(sidx, use_roman=use_roman_numbers)} of {series}'
         annot = r['annotation']
         atype = annotation_title(annot['type'], singular=True)
         book_format = r['format']

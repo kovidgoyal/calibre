@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
@@ -140,7 +139,7 @@ class DBCtx:
             parts = urlparse(self.library_path)
             self.library_id = parts.fragment or None
             self.url = urlunparse(parts._replace(fragment='')).rstrip('/')
-            self.br = browser(handle_refresh=False, user_agent='{} {}'.format(__appname__, __version__))
+            self.br = browser(handle_refresh=False, user_agent=f'{__appname__} {__version__}')
             self.is_remote = True
             username, password = read_credentials(opts)
             self.has_credentials = False

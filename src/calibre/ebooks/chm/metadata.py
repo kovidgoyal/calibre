@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -80,7 +79,7 @@ def _get_comments(soup):
         date = date.replace('\u00a9', '').strip()
         # and pages often comes as '(\d+ pages)'
         pages = re.search(r'\d+', pages).group(0)
-        return 'Published %s, %s pages.' % (date, pages)
+        return f'Published {date}, {pages} pages.'
     except:
         pass
     return None

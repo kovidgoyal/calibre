@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 #
 # Copyright (C) 2006 Søren Roug, European Environment Agency
 #
@@ -72,7 +71,7 @@ def get_metadata(stream, extract_cover=True):
 
         def find(field):
             ns, tag = fields[field]
-            ans = root.xpath('//ns0:{}'.format(tag), namespaces={'ns0': ns})
+            ans = root.xpath(f'//ns0:{tag}', namespaces={'ns0': ns})
             if ans:
                 return normalize(tostring(ans[0], method='text', encoding='unicode', with_tail=False)).strip()
 
@@ -172,7 +171,7 @@ def _set_metadata(raw, mi):
     def remove(*tag_names):
         for tag_name in tag_names:
             ns = fields[tag_name][0]
-            tag_name = '{}:{}'.format(nsrmap[ns], tag_name)
+            tag_name = f'{nsrmap[ns]}:{tag_name}'
             for x in xpath('descendant::' + tag_name, meta):
                 x.getparent().remove(x)
 
@@ -241,7 +240,7 @@ def _set_metadata(raw, mi):
     if not mi.is_null('series'):
         remove_user_metadata('opf.series', 'opf.seriesindex')
         add_user_metadata('opf.series', mi.series)
-        add_user_metadata('opf.seriesindex', '{}'.format(mi.series_index))
+        add_user_metadata('opf.seriesindex', f'{mi.series_index}')
     if not mi.is_null('identifiers'):
         remove_user_metadata('opf.identifiers')
         add_user_metadata('opf.identifiers', as_unicode(json.dumps(mi.identifiers)))

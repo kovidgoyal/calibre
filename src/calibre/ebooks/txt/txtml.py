@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -136,7 +133,7 @@ class TXTMLizer:
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
             text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '%s\n\n' % mo.group('t'), text)
-            text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '%s\n\n\n\n\n\n%s' % (mo.group('b'), mo.group('t')), text)
+            text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '{}\n\n\n\n\n\n{}'.format(mo.group('b'), mo.group('t')), text)
         else:
             text = re.sub('\n{7,}', '\n\n\n\n\n\n', text)
 
@@ -217,7 +214,7 @@ class TXTMLizer:
 
         # Are we in a heading?
         # This can either be a heading tag or a TOC item.
-        if tag in HEADING_TAGS or '%s#%s' % (page.href, tag_id) in self.toc_ids:
+        if tag in HEADING_TAGS or f'{page.href}#{tag_id}' in self.toc_ids:
             in_heading = True
             if not self.last_was_heading:
                 text.append('\n\n\n\n\n\n')

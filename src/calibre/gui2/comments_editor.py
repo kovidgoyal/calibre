@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -140,7 +139,7 @@ def use_implicit_styling_for_a(a, style_map):
 def merge_contiguous_links(root):
     all_hrefs = set(root.xpath('//a/@href'))
     for href in all_hrefs:
-        tags = root.xpath('//a[@href="{}"]'.format(href))
+        tags = root.xpath(f'//a[@href="{href}"]')
         processed = set()
 
         def insert_tag(parent, child):
@@ -209,7 +208,7 @@ def cleanup_qt_markup(root):
         filter_qt_styles(style)
     for tag, style in iteritems(style_map):
         if style:
-            tag.set('style', '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style)))
+            tag.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
         else:
             tag.attrib.pop('style', None)
     for span in root.xpath('//span[not(@style)]'):
@@ -372,7 +371,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if bf.leftMargin() == bf.rightMargin() and bf.leftMargin() > 0:
                 name = 'blockquote'
         else:
-            name = 'h{}'.format(lvl)
+            name = f'h{lvl}'
         for ac in self.block_style_actions:
             ac.setChecked(ac.block_name == name)
 

@@ -60,39 +60,39 @@ OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
 
 
 def XML(name):
-    return '{%s}%s' % (XML_NS, name)
+    return f'{{{XML_NS}}}{name}'
 
 
 def OPF(name):
-    return '{%s}%s' % (OPF2_NS, name)
+    return f'{{{OPF2_NS}}}{name}'
 
 
 def DC(name):
-    return '{%s}%s' % (DC11_NS, name)
+    return f'{{{DC11_NS}}}{name}'
 
 
 def XSI(name):
-    return '{%s}%s' % (XSI_NS, name)
+    return f'{{{XSI_NS}}}{name}'
 
 
 def DCTERMS(name):
-    return '{%s}%s' % (DCTERMS_NS, name)
+    return f'{{{DCTERMS_NS}}}{name}'
 
 
 def NCX(name):
-    return '{%s}%s' % (NCX_NS, name)
+    return f'{{{NCX_NS}}}{name}'
 
 
 def SVG(name):
-    return '{%s}%s' % (SVG_NS, name)
+    return f'{{{SVG_NS}}}{name}'
 
 
 def XLINK(name):
-    return '{%s}%s' % (XLINK_NS, name)
+    return f'{{{XLINK_NS}}}{name}'
 
 
 def CALIBRE(name):
-    return '{%s}%s' % (CALIBRE_NS, name)
+    return f'{{{CALIBRE_NS}}}{name}'
 
 
 _css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
@@ -370,7 +370,7 @@ def qname(name, nsmap):
     prefix, local = name.split(':', 1)
     if prefix not in nsmap:
         return name
-    return '{%s}%s' % (nsmap[prefix], local)
+    return f'{{{nsmap[prefix]}}}{local}'
 
 
 def isqname(name):
@@ -468,7 +468,7 @@ def urlnormalize(href):
     try:
         parts = urlparse(href)
     except ValueError as e:
-        raise ValueError('Failed to parse the URL: %r with underlying error: %s' % (href, as_unicode(e)))
+        raise ValueError(f'Failed to parse the URL: {href!r} with underlying error: {as_unicode(e)}')
     if not parts.scheme or parts.scheme == 'file':
         path, frag = urldefrag(href)
         parts = ('', '', path, '', '', frag)
@@ -674,7 +674,7 @@ class Metadata:
                 allowed = self.allowed
                 if allowed is not None and term not in allowed:
                     raise AttributeError(
-                        'attribute %r not valid for metadata term %r' % (
+                        'attribute {!r} not valid for metadata term {!r}'.format(
                             self.attr(term), barename(obj.term)))
                 return self.attr(term)
 

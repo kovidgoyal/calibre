@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -609,9 +608,9 @@ class ReadingTest(BaseTest):
                 if field == 'formats':
                     f = lambda x: x if x is None else tuple(x)
                 self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
-                                'Standard field: %s not the same for book %s' % (field, book_id))
+                                f'Standard field: {field} not the same for book {book_id}')
                 self.assertEqual(mi.format_field(field), pmi.format_field(field),
-                                'Standard field format: %s not the same for book %s' % (field, book_id))
+                                f'Standard field format: {field} not the same for book {book_id}')
 
                 def f(x):
                     try:
@@ -627,9 +626,9 @@ class ReadingTest(BaseTest):
             for field, meta in cache.field_metadata.custom_iteritems():
                 if meta['datatype'] != 'composite':
                     self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
-                                    'Custom field: %s not the same for book %s' % (field, book_id))
+                                    f'Custom field: {field} not the same for book {book_id}')
                     self.assertEqual(mi.format_field(field), pmi.format_field(field),
-                                    'Custom field format: %s not the same for book %s' % (field, book_id))
+                                    f'Custom field format: {field} not the same for book {book_id}')
 
         # Test handling of recursive templates
         cache.create_custom_column('comp2', 'comp2', 'composite', False, display={'composite_template':'{title}'})

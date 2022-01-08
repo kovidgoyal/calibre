@@ -1,6 +1,3 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -501,7 +498,7 @@ def set_epub_cover(container, cover_path, report, options=None, image_callback=N
         if wrapped_image is not None:
             # The cover page is a simple wrapper around a single cover image,
             # we can remove it safely.
-            log('Existing cover page {} is a simple wrapper, removing it'.format(cover_page))
+            log(f'Existing cover page {cover_page} is a simple wrapper, removing it')
             container.remove_item(cover_page)
             if wrapped_image != existing_image:
                 if image_callback is not None and not image_callback_called:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -42,7 +41,7 @@ cmi = create_manifest_item
 def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     mo = []
     for name, data, properties in manifest:
-        mo.append('<item id="%s" href="%s" media-type="%s" %s/>' % (
+        mo.append('<item id="{}" href="{}" media-type="{}" {}/>'.format(
             name, name, guess_type(name), ('properties="%s"' % properties if properties else '')))
     mo = ''.join(mo)
     metadata = ''
@@ -51,7 +50,7 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     if not spine:
         spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
     spine = ''.join('<itemref idref="%s"/>' % name for name in spine)
-    guide = ''.join('<reference href="%s" type="%s" title="%s"/>' % (name, typ, title) for name, typ, title in guide)
+    guide = ''.join(f'<reference href="{name}" type="{typ}" title="{title}"/>' for name, typ, title in guide)
     opf = OPF_TEMPLATE.format(manifest=mo, ver='%d.0'%ver, metadata=metadata, spine=spine, guide=guide)
     buf = BytesIO()
     with ZipFile(buf, 'w', ZIP_STORED) as zf:

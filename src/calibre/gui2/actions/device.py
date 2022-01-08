@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -92,7 +91,7 @@ class ShareConnMenu(QMenu):  # {{{
                 ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(
                         ip=listen_on, port=opts.port, protocol=protocol)
             except Exception:
-                ip_text = ' [{} {}]'.format(listen_on, protocol)
+                ip_text = f' [{listen_on} {protocol}]'
             self.ip_text = ip_text
             self.server_state_changed_signal.emit(running, ip_text)
             text = _('Stop Content server') + ip_text

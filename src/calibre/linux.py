@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 ''' Post installation script for linux '''
@@ -440,22 +439,22 @@ class ZshCompleter:  # {{{
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
         polyglot_write(f)('''
-_ebook_edit() {
+_ebook_edit() {{
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
 
     _arguments -C -s \\
-        %s
-        "1:ebook file:_files -g '(#i)*.(%s)'" \\
+        {}
+        "1:ebook file:_files -g '(#i)*.({})'" \\
         '*:file in ebook:->files' && return 0
 
     case $state in
         files)
-            ebookfile=${~${(Q)line[1]}}
+            ebookfile=${{~${{(Q)line[1]}}}}
 
             if [[ -f "$ebookfile" && "$ebookfile" =~ '\\.[eE][pP][uU][bB]$' ]]; then
                 _zip_cache_name="$ebookfile"
-                _zip_cache_list=( ${(f)"$(zipinfo -1 $_zip_cache_name 2>/dev/null)"} )
+                _zip_cache_list=( ${{(f)"$(zipinfo -1 $_zip_cache_name 2>/dev/null)"}} )
             else
                 return 1
             fi
@@ -465,8 +464,8 @@ _ebook_edit() {
     esac
 
     return 1
-}
-''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n')
+}}
+'''.format(opt_lines, '|'.join(tweakable_fmts)) + '\n\n')
 
     def do_calibredb(self, f):
         from calibre.db.cli.main import COMMANDS, option_parser_for
@@ -877,7 +876,7 @@ class PostInstall:
     def install_xdg_junk(self, cc, env):
 
         def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
-            filename = '%s-%s.png' % (basename, size)
+            filename = f'{basename}-{size}.png'
             render_img(iconsrc, filename, width=int(size), height=int(size))
             cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', str(size), filename, basename]
             if is_last_icon:

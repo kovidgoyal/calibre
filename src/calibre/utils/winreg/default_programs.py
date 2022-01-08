@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -95,7 +94,7 @@ def create_prog_id(ext, prog_id, ext_map, exe):
 
 
 def progid_name(assoc_name, ext):
-    return '%s.AssocFile.%s' % (assoc_name, ext.upper())
+    return f'{assoc_name}.AssocFile.{ext.upper()}'
 
 
 def cap_path(data):

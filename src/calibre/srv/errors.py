@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -66,4 +65,4 @@ class HTTPInternalServerError(HTTPSimpleResponse):
 class BookNotFound(HTTPNotFound):
 
     def __init__(self, book_id, db):
-        HTTPNotFound.__init__(self, 'No book with id: {} in library: {}'.format(book_id, db.server_library_id))
+        HTTPNotFound.__init__(self, f'No book with id: {book_id} in library: {db.server_library_id}')

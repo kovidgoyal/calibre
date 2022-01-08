@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''
 Defines the plugin system for conversions.
 '''

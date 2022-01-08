@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -313,7 +312,7 @@ class MetadataUpdater:
         print("%10s %10s %10s" % ("offset","flags","val"))
         for i in range(len(self.pdbrecords)):
             pdbrecord = self.pdbrecords[i]
-            print("%10X %10X %10X" % (pdbrecord[0], pdbrecord[1], pdbrecord[2]))
+            print(f"{pdbrecord[0]:10X} {pdbrecord[1]:10X} {pdbrecord[2]:10X}")
 
     def record(self, n):
         if n >= self.nrecs:

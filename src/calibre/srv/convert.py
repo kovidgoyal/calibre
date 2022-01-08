@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -110,7 +109,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
     status_file = share_open('status', 'wb')
 
     def notification(percent, msg=''):
-        status_file.write('{}:{}|||\n'.format(percent, msg).encode('utf-8'))
+        status_file.write(f'{percent}:{msg}|||\n'.encode('utf-8'))
         status_file.flush()
 
     output_path = os.path.abspath('output.' + output_fmt.lower())
@@ -142,7 +141,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     recs = [(k, v, OptionRecommendation.HIGH) for k, v in iteritems(recs)]
 
     job_id = ctx.start_job(
-        'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert',
+        f'Convert book {book_id} ({fmt})', 'calibre.srv.convert',
         'convert_book', args=(
             src_file.name, opf_file.name, cover_path, conversion_data['output_fmt'], recs),
         job_done_callback=job_done
@@ -170,7 +169,7 @@ def conversion_status(ctx, rd, job_id):
     with cache_lock:
         job_status = conversion_jobs.get(job_id)
         if job_status is None:
-            raise HTTPNotFound('No job with id: {}'.format(job_id))
+            raise HTTPNotFound(f'No job with id: {job_id}')
         job_status.last_check_at = monotonic()
         if job_status.running:
             percent, msg = job_status.current_status
@@ -193,7 +192,7 @@ def conversion_status(ctx, rd, job_id):
                 db.add_format(job_status.book_id, fmt, job_status.output_path)
             except NoSuchBook:
                 raise HTTPNotFound(
-                    'book_id {} not found in library'.format(job_status.book_id))
+                    f'book_id {job_status.book_id} not found in library')
             formats_added({job_status.book_id: (fmt,)})
             ans['size'] = os.path.getsize(job_status.output_path)
             ans['fmt'] = fmt
@@ -255,7 +254,7 @@ def profiles():
             else:
                 ss = _('%(width)d x %(height)d pixels') % dict(width=w, height=h)
             ss = _('Screen size: %s') % ss
-            return {'name': profile.name, 'description': ('%s [%s]' % (profile.description, ss))}
+            return {'name': profile.name, 'description': (f'{profile.description} [{ss}]')}
 
         ans = profiles.ans = {}
         ans['input'] = {p.short_name: desc(p) for p in input_profiles()}

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -420,7 +419,7 @@ def test():
     p.wait_for_tasks(30)
     results = {k:v.value for k, v in iteritems(get_results(p))}
     if results != expected_results:
-        raise SystemExit('%r != %r' % (expected_results, results))
+        raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()
 
     # Test common_data
@@ -434,7 +433,7 @@ def test():
     p.wait_for_tasks(30)
     results = {k:v.value for k, v in iteritems(get_results(p))}
     if results != expected_results:
-        raise SystemExit('%r != %r' % (expected_results, results))
+        raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()
 
     # Test large common data

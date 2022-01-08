@@ -264,7 +264,7 @@ class RecursiveFetcher:
                 data = response(f.read())
                 data.newurl = 'file:'+url  # This is what mechanize does for
                 # local URLs
-            self.log.debug('Fetched %s in %.1f seconds' % (url, time.monotonic() - st))
+            self.log.debug(f'Fetched {url} in {time.monotonic() - st:.1f} seconds')
             return data
 
         delta = time.monotonic() - self.last_fetch_at
@@ -295,7 +295,7 @@ class RecursiveFetcher:
                 raise err
         finally:
             self.last_fetch_at = time.monotonic()
-        self.log.debug('Fetched %s in %f seconds' % (url, time.monotonic() - st))
+        self.log.debug(f'Fetched {url} in {time.monotonic() - st:f} seconds')
         return data
 
     def start_fetch(self, url):
@@ -542,7 +542,7 @@ class RecursiveFetcher:
 
                     st = time.monotonic()
                     soup = self.get_soup(dsrc, url=iurl)
-                    self.log.debug('Parsed %s in %.1f seconds' % (iurl, time.monotonic() - st))
+                    self.log.debug(f'Parsed {iurl} in {time.monotonic() - st:.1f} seconds')
 
                     base = soup.find('base', href=True)
                     if base is not None:

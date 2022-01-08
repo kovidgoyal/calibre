@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -384,7 +383,7 @@ class Main(MainWindow):
         self.keyboard.finalize()
         self.setDockNestingEnabled(tprefs['nestable_dock_widgets'])
         for v, h in product(('top', 'bottom'), ('left', 'right')):
-            p = 'dock_%s_%s' % (v, h)
+            p = f'dock_{v}_{h}'
             pref = tprefs[p] or tprefs.defaults[p]
             area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
             self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
@@ -774,7 +773,7 @@ class Main(MainWindow):
                     bar.addAction(actions[ac])
                 except KeyError:
                     if DEBUG:
-                        prints('Unknown action for toolbar %r: %r' % (str(bar.objectName()), ac))
+                        prints(f'Unknown action for toolbar {str(bar.objectName())!r}: {ac!r}')
 
         for x in tprefs['global_book_toolbar']:
             add(self.global_bar, x)

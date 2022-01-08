@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -48,7 +47,7 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
                 if abs(sz - len(prev_glyph_data)) > 8:
                     # raise Exception('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
                     if log is not None:
-                        log('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
+                        log(f'Size mismatch for glyph id: {glyph_id} prev_sz: {len(prev_glyph_data)} sz: {sz}')
                 if hhea is not None:
                     m = hhea.metrics_for(glyph_id)
                     if m != hmetrics_map[glyph_id]:

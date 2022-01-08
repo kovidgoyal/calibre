@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -54,7 +53,7 @@ class BackupProgress:
         else:
             self.count += 1
             prints(
-                '%.1f%% %s - %s' % ((self.count * 100) / float(self.total), book_id,
+                '{:.1f}% {} - {}'.format((self.count * 100) / float(self.total), book_id,
                                      getattr(mi, 'title', 'Unknown'))
             )
 

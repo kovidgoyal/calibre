@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -195,7 +194,7 @@ class Fields:
             for runs in self.get_runs(field):
                 self.hyperlink_fields.append(({'anchor':dest}, runs))
         else:
-            log.warn('Unsupported reference field (%s), ignoring: %r' % (field.name, ref))
+            log.warn(f'Unsupported reference field ({field.name}), ignoring: {ref!r}')
 
     parse_noteref = parse_ref
 

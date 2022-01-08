@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -31,7 +30,7 @@ class DownloadItem(QWidget):
     def __init__(self, download_id, filename, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
-        self.la = la = QLabel('{}:\xa0'.format(filename))
+        self.la = la = QLabel(f'{filename}:\xa0')
         la.setMaximumWidth(400)
         l.addWidget(la)
 

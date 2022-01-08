@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -311,7 +310,7 @@ class StatusBar(QStatusBar):  # {{{
         if self.library_total != self.total:
             base = _('{0}, {1} total').format(base, self.library_total)
 
-        self.defmsg.setText('\xa0%s\xa0\xa0\xa0\xa0[%s]' % (msg, base))
+        self.defmsg.setText(f'\xa0{msg}\xa0\xa0\xa0\xa0[{base}]')
         self.clearMessage()
 
     def device_disconnected(self):

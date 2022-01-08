@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -164,7 +161,7 @@ class FB2MLizer:
             index = '1'
             if self.oeb_book.metadata.series_index:
                 index = self.oeb_book.metadata.series_index[0]
-            metadata['sequence'] = '<sequence name="%s" number="%s"/>' % (prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
+            metadata['sequence'] = '<sequence name="{}" number="{}"/>'.format(prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
 
         year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
@@ -205,7 +202,7 @@ class FB2MLizer:
             metadata['comments'] = ''
         else:
             from calibre.utils.html2text import html2text
-            metadata['comments'] = '<annotation><p>{}</p></annotation>'.format(prepare_string_for_xml(html2text(comments.value).strip()))
+            metadata['comments'] = f'<annotation><p>{prepare_string_for_xml(html2text(comments.value).strip())}</p></annotation>'
 
         # Keep the indentation level of the description the same as the body.
         header = textwrap.dedent('''\
@@ -333,7 +330,7 @@ class FB2MLizer:
                     # Don't put the encoded image on a single line.
                     step = 72
                     data = '\n'.join(raw_data[i:i+step] for i in range(0, len(raw_data), step))
-                    images.append('<binary id="%s" content-type="%s">%s</binary>' % (self.image_hrefs[item.href], content_type, data))
+                    images.append(f'<binary id="{self.image_hrefs[item.href]}" content-type="{content_type}">{data}</binary>')
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))

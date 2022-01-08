@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -145,7 +142,7 @@ class RBWriter:
             if len(metadata.creator) >= 1:
                 from calibre.ebooks.metadata import authors_to_string
                 text += 'AUTHOR=%s\n' % authors_to_string([x.value for x in metadata.creator])
-        text += 'GENERATOR=%s - %s\n' % (__appname__, __version__)
+        text += f'GENERATOR={__appname__} - {__version__}\n'
         text += 'PARSE=1\n'
         text += 'OUTPUT=1\n'
         text += 'BODY=index.html\n'

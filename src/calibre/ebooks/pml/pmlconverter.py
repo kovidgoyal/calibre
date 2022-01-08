@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Convert pml markup to and from html
 '''
@@ -223,9 +220,9 @@ class PML_HTMLizer:
         for key in self.STATES_TAGS:
             open, close = self.STATES_TAGS[key]
             if key in self.STATES_VALUE_REQ:
-                html = re.sub(r'(?u)%s\s*%s' % (open % '.*?', close), '', html)
+                html = re.sub(r'(?u){}\s*{}'.format(open % '.*?', close), '', html)
             else:
-                html = re.sub(r'(?u)%s\s*%s' % (open, close), '', html)
+                html = re.sub(fr'(?u){open}\s*{close}', '', html)
         html = re.sub(r'(?imu)<p>\s*</p>', '', html)
         return html
 
@@ -446,7 +443,7 @@ class PML_HTMLizer:
                 if code in self.LINK_STATES:
                     val = val.lstrip('#')
                 if pre:
-                    val = '%s-%s' % (pre, val)
+                    val = f'{pre}-{val}'
                 if code in self.STATES_VALUE_REQ:
                     text += self.STATES_TAGS[code][0] % val
                 else:
@@ -575,13 +572,13 @@ class PML_HTMLizer:
                         text = self.process_code(c, line)
                     elif c in 'FS':
                         l = line.read(1)
-                        if '%s%s' % (c, l) == 'Fn':
+                        if f'{c}{l}' == 'Fn':
                             text = self.process_code('Fn', line, 'fn')
-                        elif '%s%s' % (c, l) == 'FN':
+                        elif f'{c}{l}' == 'FN':
                             text = self.process_code('FN', line)
-                        elif '%s%s' % (c, l) == 'SB':
+                        elif f'{c}{l}' == 'SB':
                             text = self.process_code('SB', line)
-                        elif '%s%s' % (c, l) == 'Sd':
+                        elif f'{c}{l}' == 'Sd':
                             text = self.process_code('Sd', line, 'sb')
                     elif c in 'xXC':
                         empty = False
@@ -597,12 +594,12 @@ class PML_HTMLizer:
                         if c == 'x':
                             t = self.process_code(c, line)
                         elif c == 'X':
-                            t = self.process_code('%s%s' % (c, level), line)
+                            t = self.process_code(f'{c}{level}', line)
                         if not value or value == '':
                             text = t
                         else:
                             self.toc.append((level, (os.path.basename(self.file_name), id, value)))
-                            text = '%s<span id="%s"></span>' % (t, id)
+                            text = f'{t}<span id="{id}"></span>'
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
@@ -758,7 +755,7 @@ def pml_to_html(pml):
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
     if id.strip():
-        html = '<br /><br style="page-break-after: always;" /><div id="%s-%s">%s<small><a href="#r%s-%s">return</a></small></div>' % (
+        html = '<br /><br style="page-break-after: always;" /><div id="{}-{}">{}<small><a href="#r{}-{}">return</a></small></div>'.format(
             pre_id, id, pml_to_html(pml), pre_id, id)
     else:
         html = '<br /><br style="page-break-after: always;" /><div>%s</div>' % pml_to_html(pml)

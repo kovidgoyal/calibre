@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__   = 'GPL v3'
@@ -91,7 +90,7 @@ class Name(str):
         sharp = ord(b'#')
         buf = (
             codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
-            '#{:x}'.format(x).encode('ascii') for x in raw)
+            f'#{x:x}'.encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
 

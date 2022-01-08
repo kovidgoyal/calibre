@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -372,7 +371,7 @@ class Property:
         self.is_overriden = False
 
     def __repr__(self):
-        return '<Property name=%s value=%s important=%s color=%s specificity=%s is_overriden=%s>' % (
+        return '<Property name={} value={} important={} color={} specificity={} is_overriden={}>'.format(
             self.name, self.value, self.important, self.color, self.specificity, self.is_overriden)
 
 
@@ -502,7 +501,7 @@ class LiveCSS(QWidget):
         rule['properties'] = properties
 
         href = rule['href']
-        if hasattr(href, 'startswith') and href.startswith('%s://%s' % (FAKE_PROTOCOL, FAKE_HOST)):
+        if hasattr(href, 'startswith') and href.startswith(f'{FAKE_PROTOCOL}://{FAKE_HOST}'):
             qurl = QUrl(href)
             name = qurl.path()[1:]
             if name:

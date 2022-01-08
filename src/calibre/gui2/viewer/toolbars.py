@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -219,7 +218,7 @@ class ActionsToolBar(ToolBar):
                 self.addSeparator()
             else:
                 try:
-                    self.addAction(getattr(self, '{}_action'.format(x)))
+                    self.addAction(getattr(self, f'{x}_action'))
                 except AttributeError:
                     pass
         w = self.widgetForAction(self.color_scheme_action)
@@ -271,7 +270,7 @@ class ActionsToolBar(ToolBar):
 
     def update_dock_actions(self, visibility_map):
         for k in ('toc', 'bookmarks', 'lookup', 'inspector', 'highlights'):
-            ac = getattr(self, '{}_action'.format(k))
+            ac = getattr(self, f'{k}_action')
             ac.setChecked(visibility_map[k])
 
     def set_tooltips(self, rmap):
@@ -326,7 +325,7 @@ class ActionsToolBar(ToolBar):
         def add_action(key, defns):
             a = m.addAction(defns[key]['name'])
             a.setCheckable(True)
-            a.setObjectName('color-switch-action:{}'.format(key))
+            a.setObjectName(f'color-switch-action:{key}')
             a.triggered.connect(self.color_switch_triggerred)
             if key == ccs:
                 a.setChecked(True)

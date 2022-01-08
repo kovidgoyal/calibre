@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -321,7 +320,7 @@ class MobiReader:
 
         css = [self.base_css_rules, '\n\n']
         for cls, rule in self.tag_css_rules.items():
-            css.append('.%s { %s }\n\n' % (cls, rule))
+            css.append(f'.{cls} {{ {rule} }}\n\n')
         write_as_utf8('styles.css', ''.join(css))
 
         if self.book_header.exth is not None or self.embedded_mi is not None:

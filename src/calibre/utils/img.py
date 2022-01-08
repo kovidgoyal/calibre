@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -121,7 +120,7 @@ def image_from_data(data):
         q = what(None, data)
         if q == 'jxr':
             return load_jxr_data(data)
-        raise NotImage('Not a valid image (detected type: {})'.format(q))
+        raise NotImage(f'Not a valid image (detected type: {q})')
     return i
 
 
@@ -598,7 +597,7 @@ def optimize_jpeg(file_path):
 def optimize_png(file_path, level=7):
     ' level goes from 1 to 7 with 7 being maximum compression '
     exe = get_exe_path('optipng')
-    cmd = [exe] + '-fix -clobber -strip all -o{} -out'.format(level).split() + [False, True]
+    cmd = [exe] + f'-fix -clobber -strip all -o{level} -out'.split() + [False, True]
     return run_optimizer(file_path, cmd)
 
 

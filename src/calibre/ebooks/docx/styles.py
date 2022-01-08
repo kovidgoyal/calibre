@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -256,7 +255,7 @@ class Styles:
 
             if is_numbering and not is_section_break:
                 num_id, lvl = direct_formatting.numbering_id, direct_formatting.numbering_level
-                p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
+                p.set('calibre_num_id', f'{lvl}:{num_id}')
                 ps = self.numbering.get_para_style(num_id, lvl)
                 if ps is not None:
                     parent_styles.append(ps)
@@ -264,7 +263,7 @@ class Styles:
                 not is_numbering and not is_section_break and linked_style is not None and has_numbering(linked_style.paragraph_style)
             ):
                 num_id, lvl = linked_style.paragraph_style.numbering_id, linked_style.paragraph_style.numbering_level
-                p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
+                p.set('calibre_num_id', f'{lvl}:{num_id}')
                 is_numbering = True
                 ps = self.numbering.get_para_style(num_id, lvl)
                 if ps is not None:
@@ -497,14 +496,14 @@ class Styles:
 
         body_color = ''
         if self.body_color.lower() not in ('currentcolor', 'inherit'):
-            body_color = 'color: {};'.format(self.body_color)
+            body_color = f'color: {self.body_color};'
         prefix = textwrap.dedent(s) % (self.body_font_family, self.body_font_size, body_color)
         if ef:
             prefix = ef + '\n' + prefix
 
         ans = []
         for (cls, css) in sorted(itervalues(self.classes), key=lambda x:x[0]):
-            b = ('\t%s: %s;' % (k, v) for k, v in iteritems(css))
+            b = (f'\t{k}: {v};' for k, v in iteritems(css))
             b = '\n'.join(b)
-            ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))
+            ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)

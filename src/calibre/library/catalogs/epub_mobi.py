@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__ = 'GPL v3'
@@ -235,8 +234,8 @@ class EPUB_MOBI(CatalogPlugin):
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
-        opts.creator = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-        opts.creator_sort_as = '%s %s' % ('calibre', strftime('%Y-%m-%d'))
+        opts.creator = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+        opts.creator_sort_as = '{} {}'.format('calibre', strftime('%Y-%m-%d'))
         opts.connected_kindle = False
 
         # Finalize output_profile
@@ -343,14 +342,14 @@ class EPUB_MOBI(CatalogPlugin):
         # Limit thumb_width to 1.0" - 2.0"
         try:
             if float(opts.thumb_width) < float(self.THUMB_SMALLEST):
-                log.warning("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width, self.THUMB_SMALLEST))
+                log.warning(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_SMALLEST}'")
                 opts.thumb_width = self.THUMB_SMALLEST
             if float(opts.thumb_width) > float(self.THUMB_LARGEST):
-                log.warning("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width, self.THUMB_LARGEST))
+                log.warning(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_LARGEST}'")
                 opts.thumb_width = self.THUMB_LARGEST
             opts.thumb_width = "%.2f" % float(opts.thumb_width)
         except Exception:
-            log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width, self.THUMB_SMALLEST))
+            log.error(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_SMALLEST}'")
             opts.thumb_width = "1.0"
 
         # eval prefix_rules if passed from command line
@@ -386,7 +385,7 @@ class EPUB_MOBI(CatalogPlugin):
                        'output_profile', 'prefix_rules', 'preset', 'read_book_marker',
                        'search_text', 'sort_by', 'sort_descriptions_by_author', 'sync',
                        'thumb_width', 'use_existing_cover', 'wishlist_tag']:
-                build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
+                build_log.append(f"  {key}: {repr(opts_dict[key])}")
         if opts.verbose:
             log('\n'.join(line for line in build_log))
 
@@ -447,7 +446,7 @@ class EPUB_MOBI(CatalogPlugin):
             cpath = None
             existing_cover = False
             try:
-                search_text = 'title:"%s" author:%s' % (
+                search_text = 'title:"{}" author:{}'.format(
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
                 matches = db.search(search_text, return_matches=True, sort_results=False)
                 if matches:

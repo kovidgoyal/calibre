@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -171,7 +170,7 @@ def load_dictionary(dictionary):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         if iswindows:
-            path = r'\\?\{}'.format(path)
+            path = fr'\\?\{path}'
         return path
 
     obj = hunspell.Dictionary(fix_path(dictionary.dicpath), fix_path(dictionary.affpath))
@@ -217,7 +216,7 @@ class Dictionaries:
                                 ans.obj.add(word)
                             except Exception:
                                 # not critical since all it means is that the word won't show up in suggestions
-                                prints('Failed to add the word %r to the dictionary for %s' % (word, locale), file=sys.stderr)
+                                prints(f'Failed to add the word {word!r} to the dictionary for {locale}', file=sys.stderr)
             self.dictionaries[locale] = ans
         return ans
 

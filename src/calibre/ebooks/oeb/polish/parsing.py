@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -28,8 +27,8 @@ def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numb
     raw = clean_xml_chars(raw)
     root = html5_parser.parse(raw, maybe_xhtml=not discard_namespaces, line_number_attr=linenumber_attribute, keep_doctype=False, sanitize_names=True)
     if (discard_namespaces and root.tag != 'html') or (
-        not discard_namespaces and (root.tag != '{%s}%s' % (XHTML_NS, 'html') or root.prefix)):
-        raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
+        not discard_namespaces and (root.tag != '{{{}}}{}'.format(XHTML_NS, 'html') or root.prefix)):
+        raise ValueError(f'Failed to parse correctly, root has tag: {root.tag} and prefix: {root.prefix}')
     return root
 
 

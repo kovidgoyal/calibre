@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -164,7 +163,7 @@ def test_dedup_type3_fonts(src):
     num = dedup_type3_fonts(p)
     dest = src.rpartition('.')[0] + '-removed.pdf'
     p.save(dest)
-    print('Modified pdf with {} glyphs removed saved to:'.format(num), dest)
+    print(f'Modified pdf with {num} glyphs removed saved to:', dest)
 
 
 def test_list_fonts(src):
@@ -213,7 +212,7 @@ def test_podofo():
         p = podofo.PDFDoc()
         p.open(f.name)
         if (p.title, p.author) != (mi.title, mi.authors[0]):
-            raise ValueError('podofo failed to set title and author in Info dict %s != %s' % (
+            raise ValueError('podofo failed to set title and author in Info dict {} != {}'.format(
                 (p.title, p.author), (mi.title, mi.authors[0])))
         if not p.get_xmp_metadata():
             raise ValueError('podofo failed to write XMP packet')

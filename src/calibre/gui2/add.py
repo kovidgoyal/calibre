@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -524,7 +523,7 @@ class Adder(QObject):
 
     def finish(self):
         if DEBUG:
-            prints('Added %s books in %.1f seconds' % (len(self.added_book_ids or self.items), time.time() - self.start_time))
+            prints(f'Added {len(self.added_book_ids or self.items)} books in {time.time() - self.start_time:.1f} seconds')
         if self.report:
             added_some = self.items or self.added_book_ids
             d = warning_dialog if added_some else error_dialog

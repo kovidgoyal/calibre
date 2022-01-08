@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -227,7 +226,7 @@ def main(args=sys.argv):
     try:
         server = Server(libraries, opts)
     except BadIPSpec as e:
-        raise SystemExit('{}'.format(e))
+        raise SystemExit(f'{e}')
     if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
             raise SystemExit(

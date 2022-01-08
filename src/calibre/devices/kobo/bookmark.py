@@ -1,6 +1,3 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -57,7 +54,7 @@ class Bookmark():  # {{{
             'ORDER BY bm.ContentID, bm.chapterprogress'
         )
 
-        debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub chapters: contentId={}".format(self.contentId))
+        debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapters: contentId={self.contentId}")
         cursor.execute(kepub_chapter_query, book_query_values)
         kepub_chapters = {}
         if self.kepub:
@@ -69,7 +66,7 @@ class Bookmark():  # {{{
                                                          'chapter_title': chapter_row['Title'],
                                                          'chapter_index': chapter_row['VolumeIndex']
                                                         }
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={}".format(kepub_chapters))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={kepub_chapters}")
             except:
                 debug_print("Kobo::Bookmark::get_bookmark_data - No chapters found")
 
@@ -83,20 +80,20 @@ class Bookmark():  # {{{
             # For kepubs on newer firmware, the title needs to come from an 899 row.
             if self.kepub:
                 chapter_contentID = row['ContentID']
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub: chapter chapter_contentID='{}'".format(chapter_contentID))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter chapter_contentID='{chapter_contentID}'")
                 filename_index = chapter_contentID.find('!')
                 book_contentID_part = chapter_contentID[:filename_index]
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub: chapter book_contentID_part='{}'".format(book_contentID_part))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter book_contentID_part='{book_contentID_part}'")
                 file_contentID_part = chapter_contentID[filename_index + 1:]
                 filename_index = file_contentID_part.find('!')
                 opf_reference = file_contentID_part[:filename_index]
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub: chapter opf_reference='{}'".format(opf_reference))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter opf_reference='{opf_reference}'")
                 file_contentID_part = file_contentID_part[filename_index + 1:]
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub: chapter file_contentID_part='{}'".format(file_contentID_part))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter file_contentID_part='{file_contentID_part}'")
 #                 from urllib import quote
 #                 file_contentID_part = quote(file_contentID_part)
                 chapter_contentID = book_contentID_part + "!" + opf_reference + "!" + file_contentID_part
-                debug_print("Kobo::Bookmark::get_bookmark_data - getting kepub chapter chapter_contentID='{}'".format(chapter_contentID))
+                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapter chapter_contentID='{chapter_contentID}'")
                 kepub_chapter = kepub_chapters.get(chapter_contentID, None)
                 if kepub_chapter is not None:
                     chapter_title = kepub_chapter['chapter_title']

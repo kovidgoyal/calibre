@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -208,7 +207,7 @@ def run_file_dialog(
         prints('stdout+stderr from file dialog helper:', str([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
-        raise Exception('File dialog failed (return code %s): %s' % (h.rc, get_errors()))
+        raise Exception(f'File dialog failed (return code {h.rc}): {get_errors()}')
     server.join(2)
     if server.is_alive():
         raise Exception('Timed out waiting for read from pipe to complete')
@@ -362,7 +361,7 @@ def test(helper=HELPER):
     server.join(2)
     parts = list(filter(None, server.data.split(b'\0')))
     if parts[0] != secret:
-        raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
+        raise RuntimeError(f'Did not get back secret: {secret!r} != {parts[0]!r}')
     q = parts[1].decode('utf-8')
     if q != echo:
         raise RuntimeError('Unexpected response: %r' % server.data)

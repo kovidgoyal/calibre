@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -98,7 +97,7 @@ class GlobalUndoHistory(QAbstractListModel):
             self.states[self.pos].rewind_message = self.states[self.pos].message
             self.states[self.pos].message = message
         except IndexError:
-            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = %r, len(self.states) = %r' % (
+            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = {!r}, len(self.states) = {!r}'.format(
                 self.pos, len(self.states)))
         self.truncate()
         self.beginInsertRows(ROOT, self.pos+1, self.pos+1)

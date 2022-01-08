@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -67,7 +66,7 @@ def create_server_cert(
             pass
     if not alt_names:
         prefix = 'IP' if is_ip else 'DNS'
-        alt_names = ('{}:{}'.format(prefix, domain_or_ip),)
+        alt_names = (f'{prefix}:{domain_or_ip}',)
 
     # Create the Certificate Authority
     cakey = create_key_pair(key_size)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -216,7 +215,7 @@ class SeriesEdit(LineEdit):
         series_index = mi.get(self.field + '_index', default=1.0)
         val = ''
         if series:
-            val = '%s [%s]' % (series, mi.format_series_index(series_index))
+            val = f'{series} [{mi.format_series_index(series_index)}]'
         self.setText(val)
         self.setCursorPosition(0)
 
@@ -257,7 +256,7 @@ class IdentifiersEdit(LineEdit):
 
     @as_dict.setter
     def as_dict(self, val):
-        val = ('%s:%s' % (k, v) for k, v in iteritems(val))
+        val = (f'{k}:{v}' for k, v in iteritems(val))
         self.setText(', '.join(val))
         self.setCursorPosition(0)
 

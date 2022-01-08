@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -175,7 +174,7 @@ class ContentTest(LibraryBaseTest):
 
             def d(book_ids, username='12', status=OK):
                 book_ids = ','.join(map(str, book_ids))
-                r, data = make_request(conn, '/cdb/delete-books/{}'.format(book_ids),
+                r, data = make_request(conn, f'/cdb/delete-books/{book_ids}',
                                        username=username, password='test', prefix='', method='POST')
                 ae(status, r.status)
                 return data

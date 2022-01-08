@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -225,7 +224,7 @@ class TOCItem(QStandardItem):
 
     def __repr__(self):
         indent = ' ' * self.depth
-        return '{}▶ TOC Item: {} ({})'.format(indent, self.title, self.node_id)
+        return f'{indent}▶ TOC Item: {self.title} ({self.node_id})'
 
     def __str__(self):
         return repr(self)

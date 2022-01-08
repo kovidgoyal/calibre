@@ -376,16 +376,16 @@ class SearchDialog(QDialog):
         if template and value:
             cb = self.template_test_type_box
             op =  str(cb.itemData(cb.currentIndex()))
-            l = '{}#@#:{}:{}'.format(template, op, value)
+            l = f'{template}#@#:{op}:{value}'
             return 'template:"' + l + '"'
         return ''
 
     def date_search_string(self):
         field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
-        prefix = '%s:%s' % (field, op)
+        prefix = f'{field}:{op}'
         if self.sel_date.isChecked():
-            ans = '%s%s' % (prefix, self.date_year.value())
+            ans = f'{prefix}{self.date_year.value()}'
             m = self.date_month.itemData(self.date_month.currentIndex())
             if m > 0:
                 ans += '-%s' % m
@@ -396,8 +396,8 @@ class SearchDialog(QDialog):
         if self.sel_daysago.isChecked():
             val = self.date_daysago.value()
             val *= {0:1, 1:7, 2:30, 3:365}[self.date_ago_type.currentIndex()]
-            return '%s%sdaysago' % (prefix, val)
-        return '%s%s' % (prefix, str(self.date_human.itemData(self.date_human.currentIndex()) or ''))
+            return f'{prefix}{val}daysago'
+        return '{}{}'.format(prefix, str(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
     def adv_search_string(self):
         mk = self.matchkind.currentIndex()

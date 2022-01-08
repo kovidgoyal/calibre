@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__ = 'GPL v3'
@@ -128,7 +127,7 @@ def test_basic():
         c = comment(stream)
         expected = 'some comment\n'
         if c != expected:
-            raise ValueError('Comment not read: %r != %r' % (c, expected))
+            raise ValueError(f'Comment not read: {c!r} != {expected!r}')
         if set(names(stream)) != {
             '1/sub-one', 'one.txt', '2/sub-two.txt', '诶比屁.txt', 'Füße.txt',
             'uncompressed', 'max-compressed'}:
@@ -145,7 +144,7 @@ def test_basic():
                 d = extract_member(stream, name=name)
                 if d is None or d[1] != tdata[name]:
                     raise ValueError(
-                        'Failed to extract %s %r != %r' % (name, d, tdata[name]))
+                        f'Failed to extract {name} {d!r} != {tdata[name]!r}')
 
     do_test(stream)
     with PersistentTemporaryFile('test-unrar') as f:

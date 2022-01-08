@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -48,7 +47,7 @@ KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 
 def expand(name):
     prefix, name = name.partition(':')[::2]
-    return '{%s}%s' % (NS_MAP[prefix], name)
+    return f'{{{NS_MAP[prefix]}}}{name}'
 
 
 xpath_cache = {}
@@ -313,7 +312,7 @@ def metadata_from_xmp_packet(raw_bytes):
     for namespace in ('prism', 'pdfx'):
         for scheme in KNOWN_ID_SCHEMES:
             if scheme not in identifiers:
-                val = first_simple('//%s:%s' % (namespace, scheme), root)
+                val = first_simple(f'//{namespace}:{scheme}', root)
                 scheme = scheme.lower()
                 if scheme == 'isbn':
                     val = check_isbn(val)

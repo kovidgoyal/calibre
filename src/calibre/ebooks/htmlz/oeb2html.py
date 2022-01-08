@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -86,7 +83,7 @@ class OEB2HTML:
             if item.media_type in OEB_IMAGES:
                 if item.href not in self.images:
                     ext = os.path.splitext(item.href)[1]
-                    fname = '%s%s' % (len(self.images), ext)
+                    fname = f'{len(self.images)}{ext}'
                     fname = fname.zfill(10)
                     self.images[item.href] = fname
             if item in oeb_book.spine:
@@ -192,10 +189,10 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         at = ''
         for k, v in attribs.items():
             k = k.split('}')[-1]
-            at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
+            at += f' {k}="{prepare_string_for_xml(v, attribute=True)}"'
 
         # Write the tag.
-        text.append('<%s%s' % (tag, at))
+        text.append(f'<{tag}{at}')
         if tag in SELF_CLOSING_TAGS:
             text.append(' />')
         else:
@@ -285,7 +282,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         at = ''
         for k, v in attribs.items():
             k = k.split('}')[-1]
-            at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
+            at += f' {k}="{prepare_string_for_xml(v, attribute=True)}"'
 
         # Turn style into strings for putting in the tag.
         style_t = ''
@@ -293,7 +290,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             style_t = ' style="%s"' % style_a.replace('"', "'")
 
         # Write the tag.
-        text.append('<%s%s%s' % (tag, at, style_t))
+        text.append(f'<{tag}{at}{style_t}')
         if tag in SELF_CLOSING_TAGS:
             text.append(' />')
         else:
@@ -378,10 +375,10 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         at = ''
         for k, v in attribs.items():
             k = k.split('}')[-1]
-            at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
+            at += f' {k}="{prepare_string_for_xml(v, attribute=True)}"'
 
         # Write the tag.
-        text.append('<%s%s' % (tag, at))
+        text.append(f'<{tag}{at}')
         if tag in SELF_CLOSING_TAGS:
             text.append(' />')
         else:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -510,7 +509,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def handle_changes_from_server(self, library_path, change_event):
         if DEBUG:
-            prints('Received server change event: {} for {}'.format(change_event, library_path))
+            prints(f'Received server change event: {change_event} for {library_path}')
         if self.library_broker.is_gui_library(library_path):
             self.server_changes.put((library_path, change_event))
             self.server_change_notification_timer.start()

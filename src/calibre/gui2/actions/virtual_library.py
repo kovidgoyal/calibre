@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import QToolButton, QAction

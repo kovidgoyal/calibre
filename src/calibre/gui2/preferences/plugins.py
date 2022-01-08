@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -383,7 +382,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             elif op == 'remove':
                 if not confirm('<p>' +
                     _('Are you sure you want to remove the plugin: %s?')%
-                    '<b>{}</b>'.format(plugin.name),
+                    f'<b>{plugin.name}</b>',
                     'confirm_plugin_removal_msg', parent=self):
                     return
 

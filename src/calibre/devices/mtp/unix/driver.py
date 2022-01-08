@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -75,7 +74,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     traceback.print_stack()
                 return False
         if debug is not None and ans:
-            debug('Device {} claims to be an MTP device in the IOKit registry'.format(d))
+            debug(f'Device {d} claims to be an MTP device in the IOKit registry')
         return bool(ans)
 
     def set_debug_level(self, lvl):

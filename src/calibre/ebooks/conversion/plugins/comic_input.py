@@ -228,7 +228,7 @@ class ComicInput(InputFormatPlugin):
             if self.for_viewer:
                 wrapper_page_href = href(wrappers[0])
                 for i in range(num_pages_per_comic[0]):
-                    toc.add_item('{}#page_{}'.format(wrapper_page_href, i+1), None,
+                    toc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
                         _('Page')+' %d'%(i+1), play_order=i)
 
             else:
@@ -246,7 +246,7 @@ class ComicInput(InputFormatPlugin):
                     if self.for_viewer:
                         wrapper_page_href = href(wrappers[0])
                         for i in range(num_pages):
-                            stoc.add_item('{}#page_{}'.format(wrapper_page_href, i+1), None,
+                            stoc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
                                     _('Page')+' %d'%(i+1), play_order=po)
                             po += 1
                     else:
@@ -293,32 +293,32 @@ class ComicInput(InputFormatPlugin):
         from calibre.ebooks.oeb.base import XHTML_NS
 
         def page(pnum, src):
-            return '<img id="page_{}" src="{}"></img>'.format(pnum + 1, os.path.basename(src))
+            return f'<img id="page_{pnum + 1}" src="{os.path.basename(src)}"></img>'
 
         pages = '\n'.join(page(i, src) for i, src in enumerate(pages))
         base = os.path.dirname(pages[0])
         wrapper = '''
-        <html xmlns="%s">
+        <html xmlns="{}">
             <head>
                 <meta charset="utf-8"/>
                 <style type="text/css">
-                html, body, img { height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }
-                img {
-                    width: 100%%; height: 100%%;
+                html, body, img {{ height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }}
+                img {{
+                    width: 100%; height: 100%;
                     object-fit: contain;
                     margin-left: auto; margin-right: auto;
                     max-width: 100vw; max-height: 100vh;
-                    top: 50vh; transform: translateY(-50%%);
+                    top: 50vh; transform: translateY(-50%);
                     position: relative;
                     page-break-after: always;
-                }
+                }}
                 </style>
             </head>
             <body>
-            %s
+            {}
             </body>
         </html>
-        ''' % (XHTML_NS, pages)
+        '''.format(XHTML_NS, pages)
         path = os.path.join(base, cdir, 'wrapper.xhtml')
         with open(path, 'wb') as f:
             f.write(wrapper.encode('utf-8'))

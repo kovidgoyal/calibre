@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -36,7 +35,7 @@ class BonJour:  # {{{
 
         for s in mdns_services:
             self.services.append(publish(*s, use_ip_address=zipa, add_hostname=self.add_hostname))
-        loop.log('OPDS feeds advertised via BonJour at: %s port: %s' % (zipa, port))
+        loop.log(f'OPDS feeds advertised via BonJour at: {zipa} port: {port}')
         self.advertised_port = port
         self.started.set()
 

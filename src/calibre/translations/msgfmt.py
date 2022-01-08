@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# vim:fileencoding=utf-8
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
 
 

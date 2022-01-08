@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -61,7 +60,7 @@ def collator():
         try:
             _collator = _icu.Collator(_locale)
         except Exception as e:
-            print('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            print(f'Failed to load collator for locale: {_locale!r} with error {e!r}, using English')
             _collator = _icu.Collator('en')
     return _collator
 

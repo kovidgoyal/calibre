@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 
 """
@@ -23,8 +22,8 @@ SMALL_WORDS = re.compile(r'^(%s)$' % SMALL, re.I)
 INLINE_PERIOD = re.compile(r'[a-z][.][a-z]', re.I)
 UC_ELSEWHERE = re.compile(r'[%s]*?[a-zA-Z]+[A-Z]+?' % PUNCT)
 CAPFIRST = re.compile(str(r"^[%s]*?(\w)" % PUNCT), flags=re.UNICODE)
-SMALL_FIRST = re.compile(r'^([%s]*)(%s)\b' % (PUNCT, SMALL), re.I|re.U)
-SMALL_LAST = re.compile(r'\b(%s)[%s]?$' % (SMALL, PUNCT), re.I|re.U)
+SMALL_FIRST = re.compile(fr'^([{PUNCT}]*)({SMALL})\b', re.I|re.U)
+SMALL_LAST = re.compile(fr'\b({SMALL})[{PUNCT}]?$', re.I|re.U)
 SMALL_AFTER_NUM = re.compile(r'(\d+\s+)(a|an|the)\b', re.I|re.U)
 SUBPHRASE = re.compile(r'([:.;?!][ ])(%s)' % SMALL)
 APOS_SECOND = re.compile(r"^[dol]{1}['‘]{1}[a-z]+$", re.I)
@@ -89,18 +88,18 @@ def titlecase(text):
 
     result = "".join(line)
 
-    result = SMALL_FIRST.sub(lambda m: '%s%s' % (
+    result = SMALL_FIRST.sub(lambda m: '{}{}'.format(
         m.group(1),
         capitalize(m.group(2))
     ), result)
 
-    result = SMALL_AFTER_NUM.sub(lambda m: '%s%s' % (m.group(1),
+    result = SMALL_AFTER_NUM.sub(lambda m: '{}{}'.format(m.group(1),
         capitalize(m.group(2))
     ), result)
 
     result = SMALL_LAST.sub(lambda m: capitalize(m.group(0)), result)
 
-    result = SUBPHRASE.sub(lambda m: '%s%s' % (
+    result = SUBPHRASE.sub(lambda m: '{}{}'.format(
         m.group(1),
         capitalize(m.group(2))
     ), result)

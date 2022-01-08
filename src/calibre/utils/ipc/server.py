@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
 __license__   = 'GPL v3'
@@ -129,7 +128,7 @@ class Server(Thread):
         if isinstance(cw, string_or_bytes):
             raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
         if DEBUG:
-            print('Worker Launch took: {:.2f} seconds'.format(time.monotonic() - start))
+            print(f'Worker Launch took: {time.monotonic() - start:.2f} seconds')
         return cw
 
     def do_launch(self, gui, redirect_output, rfile, job_name=None):

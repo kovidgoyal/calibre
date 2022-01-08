@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 '''
 Writer content to palmdoc pdb file.
 '''

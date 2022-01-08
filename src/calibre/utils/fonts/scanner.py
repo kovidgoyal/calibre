@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__   = 'GPL v3'
@@ -342,7 +341,7 @@ class FontScanner(Thread):
                     s = os.stat(candidate)
                 except OSError:
                     continue
-                fileid = '{}||{}:{}'.format(candidate, s.st_size, s.st_mtime)
+                fileid = f'{candidate}||{s.st_size}:{s.st_mtime}'
                 if fileid in cached_fonts:
                     # Use previously cached metadata, since the file size and
                     # last modified timestamp have not changed.

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2006, Ed Summers <ehs@pobox.com>'
 __docformat__ = 'restructuredtext en'

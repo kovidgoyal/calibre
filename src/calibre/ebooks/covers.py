@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -603,7 +602,7 @@ def generate_cover(mi, prefs=None, as_qimage=False):
         p.setPen(color)
         block.draw(p)
     p.end()
-    img.setText('Generated cover', '%s %s' % (__appname__, __version__))
+    img.setText('Generated cover', f'{__appname__} {__version__}')
     if as_qimage:
         return img
     return pixmap_to_data(img)
@@ -679,7 +678,7 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
         p.setPen(color)
         block.draw(p)
     p.end()
-    img.setText('Generated cover', '%s %s' % (__appname__, __version__))
+    img.setText('Generated cover', f'{__appname__} {__version__}')
     if as_qimage:
         return img
     return pixmap_to_data(img)

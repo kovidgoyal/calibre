@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -553,7 +552,7 @@ def dump_categories_tree(data):
         if rating:
             rating = ',rating=%.1f' % rating
         try:
-            ans.append(indent*level + item['name'] + ' [count=%s%s]' % (item['count'], rating or ''))
+            ans.append(indent*level + item['name'] + ' [count={}{}]'.format(item['count'], rating or ''))
         except KeyError:
             print(item)
             raise

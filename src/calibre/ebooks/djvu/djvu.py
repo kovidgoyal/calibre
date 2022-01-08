@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 
 __license__   = 'GPL v3'

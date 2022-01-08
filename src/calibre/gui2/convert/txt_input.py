@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -30,7 +27,7 @@ class PluginWidget(Widget, Ui_Form):
             self.opt_formatting_type.addItem(x)
         self.md_map = {}
         for name, text in iteritems(MD_EXTENSIONS):
-            i = QListWidgetItem('%s - %s' % (name, text), self.opt_markdown_extensions)
+            i = QListWidgetItem(f'{name} - {text}', self.opt_markdown_extensions)
             i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
             i.setData(Qt.ItemDataRole.UserRole, name)
             self.md_map[name] = i

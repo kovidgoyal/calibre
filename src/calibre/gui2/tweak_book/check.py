@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -112,7 +111,7 @@ class Check(QSplitter):
     def clear_help(self, msg=None):
         if msg is None:
             msg = _('No problems found')
-        self.help.setText('<h2>%s</h2><p><a style="text-decoration:none" title="%s" href="run:check">%s</a></p>' % (
+        self.help.setText('<h2>{}</h2><p><a style="text-decoration:none" title="{}" href="run:check">{}</a></p>'.format(
             msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
@@ -200,7 +199,7 @@ class Check(QSplitter):
                 activate = activate.replace('%', '%%')
                 template = header + ((msg + activate) if many else (activate + msg)) + footer
             else:
-                activate = '<div><a href="activate:item" title="%s">%s %s</a></div>' % (
+                activate = '<div><a href="activate:item" title="{}">{} {}</a></div>'.format(
                        open_tt, err.name, loc)
                 activate = activate.replace('%', '%%')
                 template = header + activate + msg + footer
@@ -215,7 +214,7 @@ class Check(QSplitter):
             self.hide_busy()
 
         for err in sorted(errors, key=lambda e:(100 - e.level, e.name)):
-            i = QListWidgetItem('%s\xa0\xa0\xa0\xa0[%s]' % (err.msg, err.name), self.items)
+            i = QListWidgetItem(f'{err.msg}\xa0\xa0\xa0\xa0[{err.name}]', self.items)
             i.setData(Qt.ItemDataRole.UserRole, err)
             i.setIcon(icon_for_level(err.level))
         if errors:

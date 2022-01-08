@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -187,11 +186,11 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             if val:
                 ctext += '%s=[%s] '%(name, val)
 
-        first = E.span('%s %s by %s' % (book.title, series,
+        first = E.span('{} {} by {}'.format(book.title, series,
             authors_to_string(book.authors)), class_='first-line')
         div.append(first)
         ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
-        second = E.span('%s %s %s' % (ds, tags, ctext), class_='second-line')
+        second = E.span(f'{ds} {tags} {ctext}', class_='second-line')
         div.append(second)
 
         books_table.append(E.tr(thumbnail, data))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -98,7 +97,7 @@ def display_image(png_data):
     from base64 import standard_b64encode
 
     def serialize_gr_command(cmd, payload=None):
-        cmd = ','.join('{}={}'.format(k, v) for k, v in cmd.items())
+        cmd = ','.join(f'{k}={v}' for k, v in cmd.items())
         ans = []
         w = ans.append
         w(b'\033_G'), w(cmd.encode('ascii'))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -30,7 +29,7 @@ class ET:
         legacy = self.legacy or test.init_legacy(test.cloned_library)
         oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
         newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
-        test.assertEqual(oldres, newres, 'Equivalence test for %s with args: %s and kwargs: %s failed' % (
+        test.assertEqual(oldres, newres, 'Equivalence test for {} with args: {} and kwargs: {} failed'.format(
             self.func_name, reprlib.repr(self.args), reprlib.repr(self.kwargs)))
         self.retval = newres
         return newres
@@ -49,7 +48,7 @@ def compare_argspecs(old, new, attr):
 
     ok = len(old.args) == len(new.args) and get_defaults(old) == get_defaults(new)
     if not ok:
-        raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
+        raise AssertionError(f'The argspec for {attr} does not match. {old!r} != {new!r}')
 
 
 def run_funcs(self, db, ndb, funcs):
@@ -69,7 +68,7 @@ def run_funcs(self, db, ndb, funcs):
                     args = args[:-1]
                 meth = meth[1:]
             res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
-            self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
+            self.assertEqual(res1, res2, f'The method: {meth}() returned different results for argument {args}')
 # }}}
 
 
@@ -265,7 +264,7 @@ class LegacyTest(BaseTest):
                 fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
-                                 'The method: %s() returned different results for argument %s' % (meth, a))
+                                 f'The method: {meth}() returned different results for argument {a}')
 
         def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
             x.discard('metadata_db_prefs_backup.json')
@@ -318,7 +317,7 @@ class LegacyTest(BaseTest):
             meth, args = x[0], x[1:]
             self.assertEqual(
                 decode(getattr(db, meth)(*args)), decode(getattr(ndb, meth)(*args)),
-                'The method: %s() returned different results for argument %s' % (meth, args)
+                f'The method: {meth}() returned different results for argument {args}'
             )
         db.close()
     # }}}

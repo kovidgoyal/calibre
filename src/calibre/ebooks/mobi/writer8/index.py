@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -126,7 +125,7 @@ class Index:  # {{{
                 shifts = mask_to_bit_shifts[mask]
                 ans |= mask & (nentries << shifts)
             if len(cbs) != cls.control_byte_count:
-                raise ValueError('The entry {!r} is invalid'.format([lead_text, tags]))
+                raise ValueError(f'The entry {[lead_text, tags]!r} is invalid')
             control_bytes.append(cbs)
         return control_bytes
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -282,7 +281,7 @@ def make_highlighted_text(emph, text, positions):
         for p in positions:
             ch = get_char(text, p)
             parts.append(prepare_string_for_xml(text[pos:p]))
-            parts.append('<span style="%s">%s</span>' % (emph, prepare_string_for_xml(ch)))
+            parts.append(f'<span style="{emph}">{prepare_string_for_xml(ch)}</span>')
             pos = p + len(ch)
         parts.append(prepare_string_for_xml(text[pos:]))
         return ''.join(parts)
@@ -291,7 +290,7 @@ def make_highlighted_text(emph, text, positions):
 
 def emphasis_style():
     pal = QApplication.instance().palette()
-    return 'color: {}; font-weight: bold'.format(pal.color(QPalette.ColorRole.Link).name())
+    return f'color: {pal.color(QPalette.ColorRole.Link).name()}; font-weight: bold'
 
 
 class Results(QWidget):
@@ -845,7 +844,7 @@ class InsertSemantics(Dialog):
             'bodymatter': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
+        all_types = [(k, ((f'{t(v)} ({type_map_help[k]})') if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 

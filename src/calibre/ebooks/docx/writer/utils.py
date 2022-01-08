@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -27,7 +26,7 @@ def convert_color(value):
         return
     if val.alpha < 0.01:
         return
-    return '%02X%02X%02X' % (int(val.red * 255), int(val.green * 255), int(val.blue * 255))
+    return f'{int(val.red * 255):02X}{int(val.green * 255):02X}{int(val.blue * 255):02X}'
 
 
 def test_convert_color(return_tests=False):

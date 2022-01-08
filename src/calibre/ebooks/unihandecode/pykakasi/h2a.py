@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #  h2a.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -192,7 +191,7 @@ def ensure_prefix(root, prefixes, prefix, value=None):
     prefixes[prefix] = value or reserved_prefixes[prefix]
     prefixes = {k:v for k, v in iteritems(prefixes) if reserved_prefixes.get(k) != v}
     if prefixes:
-        root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in iteritems(prefixes)))
+        root.set('prefix', ' '.join(f'{k}: {v}' for k, v in iteritems(prefixes)))
     else:
         root.attrib.pop('prefix', None)
 
@@ -301,7 +300,7 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
     metadata = XPath('./opf:metadata')(root)[0]
     for scheme, val in iteritems(new_identifiers):
         ident = metadata.makeelement(DC('identifier'))
-        ident.text = '%s:%s' % (scheme, val)
+        ident.text = f'{scheme}:{val}'
         if package_identifier is None:
             metadata.append(ident)
         else:
@@ -323,7 +322,7 @@ def identifier_writer(name):
         metadata = XPath('./opf:metadata')(root)[0]
         if ival:
             ident = metadata.makeelement(DC('identifier'))
-            ident.text = '%s:%s' % (name, ival)
+            ident.text = f'{name}:{ival}'
             if package_identifier is None:
                 metadata.append(ident)
             else:
@@ -836,7 +835,7 @@ def set_series(root, prefixes, refines, series, series_index):
 
 
 def dict_reader(name, load=json.loads, try2=True):
-    pq = '%s:%s' % (CALIBRE_PREFIX, name)
+    pq = f'{CALIBRE_PREFIX}:{name}'
 
     def reader(root, prefixes, refines):
         for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
@@ -868,7 +867,7 @@ read_author_link_map = dict_reader('author_link_map')
 
 
 def dict_writer(name, serialize=dump_dict, remove2=True):
-    pq = '%s:%s' % (CALIBRE_PREFIX, name)
+    pq = f'{CALIBRE_PREFIX}:{name}'
 
     def writer(root, prefixes, refines, val):
         if remove2:

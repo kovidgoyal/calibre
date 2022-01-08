@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -292,7 +291,7 @@ class TestOPF3(unittest.TestCase):
         for name in 'author_link_map user_categories'.split():
             root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/>''' % name)
             self.ae({'1':1}, rt(root, name))
-            root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/><meta property="calibre:%s">{"2":2}</meta>''' % (name, name))
+            root = self.get_opf(f'''<meta name="calibre:{name}" content='{{"1":1}}'/><meta property="calibre:{name}">{{"2":2}}</meta>''')
             self.ae({'2':2}, rt(root, name))
             self.ae({'3':3}, st(root, name, {3:3}))
 
@@ -519,7 +518,7 @@ class TestOPF3(unittest.TestCase):
             for field in ALL_METADATA_FIELDS:
                 if field not in 'manifest spine':
                     v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
-                    self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
+                    self.ae(v2, v3, f'{field}: {v2!r} != {v3!r}')
 
         mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
         root = safe_xml_fromstring(raw)

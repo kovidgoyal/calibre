@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
@@ -57,7 +56,7 @@ if iswindows and not isportable:
         if args:
             quoted_args = []
             for arg in args:
-                quoted_args.append('"{}"'.format(arg))
+                quoted_args.append(f'"{arg}"')
             quoted_args = ' '.join(quoted_args)
         winutil.manage_shortcut(shortcut_path, target, description, quoted_args)
 
@@ -183,7 +182,7 @@ class Path(QWidget):
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.text = t = HistoryLineEdit(self)
-        t.initialize('server-opts-{}'.format(name))
+        t.initialize(f'server-opts-{name}')
         t.setClearButtonEnabled(True)
         t.currentTextChanged.connect(self.changed_signal.emit)
         l.addWidget(t)

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -128,7 +125,7 @@ class Matches(QAbstractItemModel):
         result = self.matches[row]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if col == 1:
-                return ('<b>%s</b><br><i>%s</i>' % (result.name, result.description))
+                return (f'<b>{result.name}</b><br><i>{result.description}</i>')
             elif col == 3:
                 return (result.headquarters)
             elif col == 5:

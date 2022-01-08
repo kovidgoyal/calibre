@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
@@ -104,7 +103,7 @@ Manage the libraries the specified user account is restricted to.
     username, libraries = args[1], args[2:]
     r = user_manager.restrictions(username)
     if r is None:
-        raise SystemExit('The user {} does not exist'.format(username))
+        raise SystemExit(f'The user {username} does not exist')
 
     if opts.action == 'show':
         if r['allowed_library_names']:
@@ -311,7 +310,7 @@ def manage_users_cli(path=None, args=()):
     def change_restriction(username):
         r = m.restrictions(username)
         if r is None:
-            raise SystemExit('The user {} does not exist'.format(username))
+            raise SystemExit(f'The user {username} does not exist')
         if r['allowed_library_names']:
             libs = r['allowed_library_names']
             prints(

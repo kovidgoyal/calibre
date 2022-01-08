@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -291,7 +290,7 @@ class HTTPRequest(Connection):
 
     @property
     def state_description(self):
-        return 'State: %s Client: %s:%s Request: %s' % (
+        return 'State: {} Client: {}:{} Request: {}'.format(
             getattr(self.handle_event, '__name__', None),
             self.remote_addr, self.remote_port,
             force_unicode(getattr(self, 'request_line', 'WebSocketConnection'), 'utf-8'))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (C) 2006-2007 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or

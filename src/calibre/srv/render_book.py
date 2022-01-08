@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -419,8 +418,8 @@ class RenderManager:
         self.max_workers = max_workers
 
     def launch_worker(self):
-        with lopen(os.path.join(self.tdir, '{}.json'.format(len(self.workers))), 'wb') as output:
-            error = lopen(os.path.join(self.tdir, '{}.error'.format(len(self.workers))), 'wb')
+        with lopen(os.path.join(self.tdir, f'{len(self.workers)}.json'), 'wb') as output:
+            error = lopen(os.path.join(self.tdir, f'{len(self.workers)}.error'), 'wb')
             p = start_pipe_worker('from calibre.srv.render_book import worker_main; worker_main()', stdout=error, stderr=error)
             p.output_path = output.name
             p.error_path = error.name

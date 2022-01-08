@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__   = 'GPL v3'
 __copyright__ = '20011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -363,7 +360,7 @@ class Reader(FormatReader):
         # plugin assemble the order based on hyperlinks.
         with CurrentDir(output_dir):
             for uid, num in self.uid_text_secion_number.items():
-                self.log.debug('Writing record with uid: %s as %s.html' % (uid, uid))
+                self.log.debug(f'Writing record with uid: {uid} as {uid}.html')
                 with open('%s.html' % uid, 'wb') as htmlf:
                     html = '<html><body>'
                     section_header, section_data = self.sections[num]
@@ -396,9 +393,9 @@ class Reader(FormatReader):
                     try:
                         save_cover_data_to(idata, '%s.jpg' % uid, compression_quality=70)
                         images.add(uid)
-                        self.log.debug('Wrote image with uid %s to images/%s.jpg' % (uid, uid))
+                        self.log.debug(f'Wrote image with uid {uid} to images/{uid}.jpg')
                     except Exception as e:
-                        self.log.error('Failed to write image with uid %s: %s' % (uid, e))
+                        self.log.error(f'Failed to write image with uid {uid}: {e}')
                 else:
                     self.log.error('Failed to write image with uid %s: No data.' % uid)
             # Composite images.
@@ -439,9 +436,9 @@ class Reader(FormatReader):
                             y_off += largest_height
                     with lopen('%s.jpg' % uid) as out:
                         out.write(canvas.export(compression_quality=70))
-                    self.log.debug('Wrote composite image with uid %s to images/%s.jpg' % (uid, uid))
+                    self.log.debug(f'Wrote composite image with uid {uid} to images/{uid}.jpg')
                 except Exception as e:
-                    self.log.error('Failed to write composite image with uid %s: %s' % (uid, e))
+                    self.log.error(f'Failed to write composite image with uid {uid}: {e}')
 
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
@@ -524,7 +521,7 @@ class Reader(FormatReader):
                     offset += 2
                     pid = struct.unpack('>H', d[offset:offset+2])[0]
                     if id in self.uid_text_secion_number:
-                        html += '<a href="%s.html#p%s">' % (id, pid)
+                        html += f'<a href="{id}.html#p{pid}">'
                         link_open = True
                     offset += 1
                 # Targeted paragraph link begins

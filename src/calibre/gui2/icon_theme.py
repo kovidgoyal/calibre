@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -692,7 +691,7 @@ class ChooseTheme(Dialog):
             self.themes.sort(key=lambda x:self.usage.get(x.get('name'), 0), reverse=True)
         self.theme_list.clear()
         for theme in self.themes:
-            i = QListWidgetItem(theme.get('title', '') + ' %s %s' % (theme.get('number'), self.usage.get(theme.get('name'))), self.theme_list)
+            i = QListWidgetItem(theme.get('title', '') + ' {} {}'.format(theme.get('number'), self.usage.get(theme.get('name'))), self.theme_list)
             i.setData(Qt.ItemDataRole.UserRole, theme)
             if 'cover-pixmap' in theme:
                 i.setData(Qt.ItemDataRole.DecorationRole, theme['cover-pixmap'])

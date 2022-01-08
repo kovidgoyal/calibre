@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -38,7 +35,7 @@ class SearchResult:
     def __str__(self):
         items = []
         for x in 'store_name title author price formats detail_item cover_url'.split():
-            items.append('\t%s=%r' % (x, getattr(self, x)))
+            items.append(f'\t{x}={getattr(self, x)!r}')
         return 'SearchResult(\n%s\n)' % '\n'.join(items)
     __repr__ = __str__
     __unicode__ = __str__

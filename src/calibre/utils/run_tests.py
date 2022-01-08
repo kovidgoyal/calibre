@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -48,7 +47,7 @@ class TestResult(unittest.TextTestResult):
         super().stopTestRun()
         if self.wasSuccessful():
             tests = sorted(self.times, key=self.times.get, reverse=True)
-            slowest = ['%s [%.1f s]' % (t.id(), self.times[t]) for t in tests[:3]]
+            slowest = [f'{t.id()} [{self.times[t]:.1f} s]' for t in tests[:3]]
             if len(slowest) > 1:
                 self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 

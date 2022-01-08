@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -77,7 +76,7 @@ def get_data(name):
         with share_open(path, 'rb') as f:
             return f.read(), guess_type(name)
     except OSError as err:
-        prints('Failed to read from book file: {} with error: {}'.format(name, as_unicode(err)))
+        prints(f'Failed to read from book file: {name} with error: {as_unicode(err)}')
     return None, None
 
 
@@ -124,14 +123,14 @@ def handle_mathjax_request(rq, name):
             with lopen(path, 'rb') as f:
                 raw = f.read()
         except OSError as err:
-            prints("Failed to get mathjax file: {} with error: {}".format(name, err), file=sys.stderr)
+            prints(f"Failed to get mathjax file: {name} with error: {err}", file=sys.stderr)
             rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
             return
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
     else:
-        prints("Failed to get mathjax file: {} outside mathjax directory".format(name), file=sys.stderr)
+        prints(f"Failed to get mathjax file: {name} outside mathjax directory", file=sys.stderr)
         rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
@@ -193,7 +192,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        prints("Blocking FAKE_PROTOCOL request: {} with code: {}".format(rq.requestUrl().toString(), fail_code))
+        prints(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}")
 
 # }}}
 
@@ -205,7 +204,7 @@ def create_profile():
         osname = 'windows' if iswindows else ('macos' if ismacos else 'linux')
         # DO NOT change the user agent as it is used to workaround
         # Qt bugs see workaround_qt_bug() in ajax.pyj
-        ua = 'calibre-viewer {} {}'.format(__version__, osname)
+        ua = f'calibre-viewer {__version__} {osname}'
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer
@@ -363,7 +362,7 @@ class WebPage(QWebEnginePage):
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
         }.get(level, 'ERROR')
-        prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
+        prints(f'{prefix}: {source_id}:{linenumber}: {msg}', file=sys.stderr)
         try:
             sys.stderr.flush()
         except OSError:
@@ -548,7 +547,7 @@ class WebView(RestartingWebEngineView):
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
-        self.setUrl(QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
+        self.setUrl(QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/'))
         self.urlChanged.connect(self.url_changed)
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
@@ -616,7 +615,7 @@ class WebView(RestartingWebEngineView):
         ui_data = {
             'all_font_families': QFontDatabase().families(),
             'ui_font_family': family,
-            'ui_font_sz': '{}px'.format(fi.pixelSize()),
+            'ui_font_sz': f'{fi.pixelSize()}px',
             'show_home_page_on_ready': self.show_home_page_on_ready,
             'system_colors': system_colors(),
             'QT_VERSION': QT_VERSION,

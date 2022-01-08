@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
 
 __license__   = 'GPL v3'
@@ -150,7 +149,7 @@ class DuplicatesQuestion(QDialog):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             check = '✓' if x.checkState(0) == Qt.CheckState.Checked else '✗'
-            title = '%s %s' % (check, str(x.text(0)))
+            title = f'{check} {str(x.text(0))}'
             dups = []
             for child in (x.child(j) for j in range(x.childCount())):
                 dups.append('\t' + str(child.text(0)))

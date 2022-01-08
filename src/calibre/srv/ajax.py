@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -474,7 +473,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
         try:
             dname, ditem = map(decode_name, (encoded_category, encoded_item))
         except:
-            raise HTTPNotFound('Invalid encoded param: %r (%r)' % (encoded_category, encoded_item))
+            raise HTTPNotFound(f'Invalid encoded param: {encoded_category!r} ({encoded_item!r})')
         num, offset = get_pagination(rd.query)
         sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
         sort_order = ensure_val(sort_order, 'asc', 'desc')

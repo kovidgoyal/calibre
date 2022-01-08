@@ -124,7 +124,7 @@ class ConvertToTags:
                 att = att.replace('"', '&quot;')
                 att = att.replace("'", '&quot;')
                 self.__write_obj.write(
-                ' %s="%s"' % (val, att)
+                f' {val}="{att}"'
                 )
             except:
                 if self.__run_level > 3:
@@ -154,7 +154,7 @@ class ConvertToTags:
             att = att.replace('"', '&quot;')
             att = att.replace("'", '&quot;')
             self.__write_obj.write(
-            ' %s="%s"' % (val, att))
+            f' {val}="{att}"')
         self.__write_obj.write('/>')
         self.__new_line = 0
         if element_name in self.__block:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -31,4 +30,4 @@ def change_pw(ctx, rd):
     except Exception as err:
         raise HTTPBadRequest(as_unicode(err))
     ctx.log.warn('Changed password for user', user)
-    return 'password for {} changed'.format(user)
+    return f'password for {user} changed'

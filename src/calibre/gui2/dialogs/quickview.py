@@ -666,7 +666,7 @@ class Quickview(QDialog, Ui_Quickview):
             elif col == 'size':
                 v = mi.get('book_size')
                 if v is not None:
-                    return ('{:n}'.format(v), v, 0)
+                    return (f'{v:n}', v, 0)
                 else:
                     return ('', None, 0)
             elif self.fm[col]['datatype'] == 'series':

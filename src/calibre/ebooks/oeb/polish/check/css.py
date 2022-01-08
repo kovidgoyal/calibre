@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import atexit
@@ -148,7 +147,7 @@ class Worker(QWebEnginePage):
                 self.pending = None
 
     def javaScriptConsoleMessage(self, level, msg, lineno, source_id):
-        msg = '{}:{}:{}'.format(source_id, lineno, msg)
+        msg = f'{source_id}:{lineno}:{msg}'
         self.console_messages.append(msg)
         try:
             print(msg)
@@ -159,7 +158,7 @@ class Worker(QWebEnginePage):
         self.working = True
         self.console_messages = []
         self.runJavaScript(
-            'window.check_css({})'.format(json.dumps(src)), QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
+            f'window.check_css({json.dumps(src)})', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
     def check_css_when_ready(self, src):
         if self.ready:
