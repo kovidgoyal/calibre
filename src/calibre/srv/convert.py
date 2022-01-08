@@ -109,7 +109,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
     status_file = share_open('status', 'wb')
 
     def notification(percent, msg=''):
-        status_file.write(f'{percent}:{msg}|||\n'.encode('utf-8'))
+        status_file.write(f'{percent}:{msg}|||\n'.encode())
         status_file.flush()
 
     output_path = os.path.abspath('output.' + output_fmt.lower())
