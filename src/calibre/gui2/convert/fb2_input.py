@@ -12,7 +12,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('FB2 input')
     HELP = _('Options specific to')+' FB2 '+_('input')
     COMMIT_NAME = 'fb2_input'
-    ICON = I('mimetypes/fb2.png')
+    ICON = 'mimetypes/fb2.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['input']['fb2'])

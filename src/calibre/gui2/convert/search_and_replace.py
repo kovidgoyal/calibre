@@ -21,7 +21,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     TITLE = _('Search &\nreplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
-    ICON = I('search.png')
+    ICON = 'search.png'
     STRIP_TEXT_FIELDS = False
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):

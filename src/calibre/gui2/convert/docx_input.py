@@ -14,7 +14,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('DOCX input')
     HELP = _('Options specific to')+' DOCX '+_('input')
     COMMIT_NAME = 'docx_input'
-    ICON = I('mimetypes/docx.png')
+    ICON = 'mimetypes/docx.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['input']['docx'])

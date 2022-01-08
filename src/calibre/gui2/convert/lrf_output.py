@@ -17,7 +17,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('LRF output')
     HELP = _('Options specific to')+' LRF '+_('output')
     COMMIT_NAME = 'lrf_output'
-    ICON = I('mimetypes/lrf.png')
+    ICON = 'mimetypes/lrf.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['output']['lrf'])

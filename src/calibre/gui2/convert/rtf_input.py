@@ -14,7 +14,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('RTF input')
     HELP = _('Options specific to')+' RTF '+_('input')
     COMMIT_NAME = 'rtf_input'
-    ICON = I('mimetypes/rtf.png')
+    ICON = 'mimetypes/rtf.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['input']['rtf'])
