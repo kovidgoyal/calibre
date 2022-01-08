@@ -12,7 +12,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('PDF input')
     HELP = _('Options specific to')+' PDF '+_('input')
     COMMIT_NAME = 'pdf_input'
-    ICON = I('mimetypes/pdf.png')
+    ICON = 'mimetypes/pdf.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['input']['pdf'])

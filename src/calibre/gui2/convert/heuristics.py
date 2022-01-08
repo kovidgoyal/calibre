@@ -16,7 +16,7 @@ class HeuristicsWidget(Widget, Ui_Form):
     TITLE = _('Heuristic\nprocessing')
     HELP  = _('Modify the document text and structure using common patterns.')
     COMMIT_NAME = 'heuristics'
-    ICON = I('heuristics.png')
+    ICON = 'heuristics.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['pipe']['heuristics'])

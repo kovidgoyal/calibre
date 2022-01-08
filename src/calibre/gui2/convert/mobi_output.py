@@ -18,7 +18,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('MOBI output')
     HELP = _('Options specific to')+' MOBI '+_('output')
     COMMIT_NAME = 'mobi_output'
-    ICON = I('mimetypes/mobi.png')
+    ICON = 'mimetypes/mobi.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['output']['mobi'])

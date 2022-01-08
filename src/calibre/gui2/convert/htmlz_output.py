@@ -14,7 +14,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('HTMLZ output')
     HELP = _('Options specific to')+' HTMLZ '+_('output')
     COMMIT_NAME = 'htmlz_output'
-    ICON = I('mimetypes/html.png')
+    ICON = 'mimetypes/html.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['output']['htmlz'])

@@ -14,7 +14,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('SNB output')
     HELP = _('Options specific to')+' SNB '+_('output')
     COMMIT_NAME = 'snb_output'
-    ICON = I('mimetypes/snb.png')
+    ICON = 'mimetypes/snb.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['output']['snb'])
