@@ -211,12 +211,12 @@ class Bool(Base):
 
         w = self.combobox
         items = [_('Yes'), _('No'), _('Undefined')]
-        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
+        icons = ['ok.png', 'list_remove.png', 'blank.png']
         if not self.db.new_api.pref('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
-            w.addItem(QIcon(icon), text)
+            w.addItem(QIcon.ic(icon), text)
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
@@ -1018,10 +1018,10 @@ class BulkBool(BulkBase, Bool):
             items.append('')
         else:
             items.append(_('Undefined'))
-        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
+        icons = ['ok.png', 'list_remove.png', 'blank.png']
         self.main_widget.blockSignals(True)
         for icon, text in zip(icons, items):
-            self.main_widget.addItem(QIcon(icon), text)
+            self.main_widget.addItem(QIcon.ic(icon), text)
         self.main_widget.blockSignals(False)
         self.finish_ui_setup(parent, is_bool=True)
 

@@ -184,7 +184,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     gui_name = _('Wireless device')
     gui_name_template = '%s: %s'
 
-    icon = I('devices/tablet.png')
+    icon = 'devices/tablet.png'
     description = _('Communicate with Smart Device apps')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Charles Haley'

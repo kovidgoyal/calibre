@@ -672,7 +672,7 @@ class CompareMany(QDialog):
         if self.total > 1:
             b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.next_action.triggered.connect(b.click)
-        b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
+        b.setIcon(QIcon.ic('forward.png' if self.total > 1 else 'ok.png'))
         connect_lambda(b.clicked, self, lambda self: self.next_item(True))
         b.setDefault(True), b.setAutoDefault(True)
         self.bbh = h = QHBoxLayout()

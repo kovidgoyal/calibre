@@ -704,13 +704,13 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def createEditor(self, parent, option, index):
         editor = DelegateCB(parent)
         items = [_('Yes'), _('No'), _('Undefined')]
-        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
+        icons = ['ok.png', 'list_remove.png', 'blank.png']
         if not index.model().db.new_api.pref('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         self.longest_text = ''
         for icon, text in zip(icons, items):
-            editor.addItem(QIcon(icon), text)
+            editor.addItem(QIcon.ic(icon), text)
             if len(text) > len(self.longest_text):
                 self.longest_text = text
         return editor

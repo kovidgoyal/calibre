@@ -1000,7 +1000,7 @@ class LayoutButton(QToolButton):
     def __init__(self, icon, text, splitter=None, parent=None, shortcut=None):
         QToolButton.__init__(self, parent)
         self.label = text
-        self.setIcon(QIcon(icon))
+        self.setIcon(QIcon.ic(icon))
         self.setCheckable(True)
         self.icname = os.path.basename(icon).rpartition('.')[0]
 

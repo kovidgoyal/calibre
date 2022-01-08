@@ -90,7 +90,7 @@ class LayoutMenu(QMenu):
         self.items = []
         if parent is None:
             buttons = [
-                QPushButton(QIcon(I(i + '.png')), i, self)
+                QPushButton(QIcon.ic(i + '.png'), i, self)
                 for i in 'search tags cover_flow grid book'.split()]
             for b in buttons:
                 b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')

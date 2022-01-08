@@ -49,7 +49,7 @@ class FOLDER_DEVICE(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     #: Icon for this device
-    icon = I('devices/folder.png')
+    icon = 'devices/folder.png'
     METADATA_CACHE = '.metadata.calibre'
     DRIVEINFO = '.driveinfo.calibre'
 

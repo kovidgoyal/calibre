@@ -455,9 +455,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                 tt = _('The lookup/search name is "{0}"{1}').format(key, cust_desc)
 
             if self.category_custom_icons.get(key, None) is None:
-                self.category_custom_icons[key] = QIcon(I(
+                self.category_custom_icons[key] = QIcon.ic(
                     category_icon_map['gst'] if is_gst else category_icon_map.get(
-                        key, (category_icon_map['user:'] if key.startswith('@') else category_icon_map['custom:']))))
+                        key, (category_icon_map['user:'] if key.startswith('@') else category_icon_map['custom:'])))
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]

@@ -121,9 +121,7 @@ class LocationManager(QObject):  # {{{
         self.configure_device.emit()
 
     def update_devices(self, cp=(None, None), fs=[-1, -1, -1], icon=None):
-        if icon is None:
-            icon = I('reader.png')
-        self.location_main.setIcon(QIcon(icon))
+        self.location_main.setIcon(QIcon.ic(icon or 'reader.png'))
         had_device = self.has_device
         if cp is None:
             cp = (None, None)

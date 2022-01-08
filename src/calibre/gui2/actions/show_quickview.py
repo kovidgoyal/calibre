@@ -19,7 +19,7 @@ class QuickviewButton(LayoutButton):  # {{{
     def __init__(self, gui, quickview_manager):
         self.qv = quickview_manager
         qaction = quickview_manager.qaction
-        LayoutButton.__init__(self, I('quickview.png'), _('Quickview'),
+        LayoutButton.__init__(self, 'quickview.png', _('Quickview'),
                               parent=gui, shortcut=qaction.shortcut().toString())
         self.toggled.connect(self.update_state)
         self.action_toggle = qaction
