@@ -49,7 +49,7 @@ def bulk_defaults_for_input_format(fmt):
 class Widget(QWidget):
 
     TITLE = _('Unknown')
-    ICON  = I('config.png')
+    ICON  = 'config.png'
     HELP  = ''
     COMMIT_NAME = None
     # If True, leading and trailing spaces are removed from line and text edit
@@ -66,7 +66,7 @@ class Widget(QWidget):
         self._options = options
         self._name = self.commit_name = self.COMMIT_NAME
         assert self._name is not None
-        self._icon = QIcon(self.ICON)
+        self._icon = QIcon.ic(self.ICON)
         for name in self._options:
             if not hasattr(self, 'opt_'+name):
                 raise Exception('Option %s missing in %s'%(name,

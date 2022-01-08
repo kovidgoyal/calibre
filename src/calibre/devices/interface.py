@@ -73,7 +73,7 @@ class DevicePlugin(Plugin):
     path_sep = os.sep
 
     #: Icon for this device
-    icon = I('reader.png')
+    icon = 'reader.png'
 
     # Encapsulates an annotation fetched from the device
     UserAnnotation = namedtuple('Annotation','type, value')

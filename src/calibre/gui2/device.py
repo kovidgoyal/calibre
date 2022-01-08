@@ -736,7 +736,7 @@ class DeviceAction(QAction):  # {{{
     a_s = pyqtSignal(object)
 
     def __init__(self, dest, delete, specific, icon_path, text, parent=None):
-        QAction.__init__(self, QIcon(icon_path), text, parent)
+        QAction.__init__(self, QIcon.ic(icon_path), text, parent)
         self.dest = dest
         self.delete = delete
         self.specific = specific
@@ -767,29 +767,29 @@ class DeviceMenu(QMenu):  # {{{
         self.set_default_menu.setIcon(QIcon.ic('config.png'))
 
         basic_actions = [
-                ('main:', False, False,  I('reader.png'),
+                ('main:', False, False,  'reader.png',
                     _('Send to main memory')),
-                ('carda:0', False, False, I('sd.png'),
+                ('carda:0', False, False, 'sd.png',
                     _('Send to storage card A')),
-                ('cardb:0', False, False, I('sd.png'),
+                ('cardb:0', False, False, 'sd.png',
                     _('Send to storage card B')),
         ]
 
         delete_actions = [
-                ('main:', True, False,   I('reader.png'),
+                ('main:', True, False,   'reader.png',
                     _('Main memory')),
-                ('carda:0', True, False,  I('sd.png'),
+                ('carda:0', True, False,  'sd.png',
                     _('Storage card A')),
-                ('cardb:0', True, False,  I('sd.png'),
+                ('cardb:0', True, False,  'sd.png',
                     _('Storage card B')),
         ]
 
         specific_actions = [
-                ('main:', False, True,  I('reader.png'),
+                ('main:', False, True,  'reader.png',
                     _('Main memory')),
-                ('carda:0', False, True, I('sd.png'),
+                ('carda:0', False, True, 'sd.png',
                     _('Storage card A')),
-                ('cardb:0', False, True, I('sd.png'),
+                ('cardb:0', False, True, 'sd.png',
                     _('Storage card B')),
         ]
 
@@ -945,7 +945,7 @@ class DeviceMixin:  # {{{
         return question_dialog(self, _('Manage the %s?')%name,
                 _('Detected the <b>%s</b>. Do you want calibre to manage it?')%
                 name, show_copy_button=False,
-                override_icon=QIcon(icon))
+                override_icon=QIcon.ic(icon))
 
     def after_callback_feedback(self, feedback):
         title, msg, det_msg = feedback

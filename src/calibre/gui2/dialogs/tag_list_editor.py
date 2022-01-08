@@ -45,7 +45,7 @@ class NameTableWidgetItem(QTableWidgetItem):
         if to_what:
             self.setIcon(QIcon.ic('trash.png'))
         else:
-            self.setIcon(QIcon(None))
+            self.setIcon(QIcon())
             self.current_value = self.initial_value
         self.is_deleted = to_what
 

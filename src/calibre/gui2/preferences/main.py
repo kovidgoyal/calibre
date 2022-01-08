@@ -95,7 +95,7 @@ class TitleBar(QWidget):
         self.show_msg()
 
     def show_plugin(self, plugin=None):
-        self.icon.set_icon(QIcon(I('lt.png') if plugin is None else plugin.icon))
+        self.icon.set_icon(QIcon.ic('lt.png' if plugin is None else plugin.icon))
         self.title.setText('<h1>' + (_('Preferences') if plugin is None else plugin.gui_name))
 
     def show_msg(self, msg=None):
@@ -136,7 +136,7 @@ class Category(QWidget):  # {{{
         self.actions = []
         for p in plugins:
             target = partial(self.triggered, p)
-            ac = self.bar.addAction(QIcon(p.icon), p.gui_name.replace('&', '&&'), target)
+            ac = self.bar.addAction(QIcon.ic(p.icon), p.gui_name.replace('&', '&&'), target)
             ac.setToolTip(textwrap.fill(p.description))
             ac.setWhatsThis(textwrap.fill(p.description))
             ac.setStatusTip(p.description)
@@ -327,7 +327,7 @@ class Preferences(QDialog):
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' + plugin.gui_name)
         self.showing_widget.restart_now.connect(self.restart_now)
         self.title_bar.show_plugin(plugin)
-        self.setWindowIcon(QIcon(plugin.icon))
+        self.setWindowIcon(QIcon.ic(plugin.icon))
 
         self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(False)
         self.wizard_button.setVisible(False)

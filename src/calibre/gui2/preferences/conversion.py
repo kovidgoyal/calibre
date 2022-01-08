@@ -35,7 +35,7 @@ class Model(QStringListModel):
         if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
-                return (QIcon(w.ICON))
+                return QIcon.ic(w.ICON)
         return QStringListModel.data(self, index, role)
 
 

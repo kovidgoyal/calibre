@@ -132,9 +132,9 @@ def get_icon_path(f, prefix):
     if ci:
         icon_path = os.path.join(config_dir, 'tb_icons', ci)
     elif prefix:
-        icon_path = I(category_icon_map['gst'])
+        icon_path = category_icon_map['gst']
     else:
-        icon_path = I(category_icon_map.get(f, 'search.png'))
+        icon_path = category_icon_map.get(f, 'search.png')
     return icon_path
 
 
@@ -157,13 +157,13 @@ def init_find_in_grouped_search(menu, field, value, book_info):
         m = QMenu((_('Search calibre for %s') + '...')%escape_for_menu(value), menu)
         m.setIcon(QIcon.ic('search.png'))
         menu.addMenu(m)
-        m.addAction(QIcon(get_icon_path(field, '')),
+        m.addAction(QIcon.ic(get_icon_path(field, '')),
                     _('in category %s')%escape_for_menu(field_name),
                     lambda g=field: book_info.search_requested(
                             '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
         for gst in gsts_to_show:
             icon_path = get_icon_path(gst, '@')
-            m.addAction(QIcon(icon_path),
+            m.addAction(QIcon.ic(icon_path),
                         _('in grouped search %s')%gst,
                         lambda g=gst: book_info.search_requested(
                                 '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))

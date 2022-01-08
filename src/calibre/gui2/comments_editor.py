@@ -258,7 +258,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
 
         def r(name, icon, text, checkable=False, shortcut=None):
-            ac = QAction(QIcon(I(icon + '.png')), text, self)
+            ac = QAction(QIcon.ic(icon + '.png'), text, self)
             ac.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
             if checkable:
                 ac.setCheckable(checkable)

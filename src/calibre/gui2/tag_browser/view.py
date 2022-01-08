@@ -711,7 +711,7 @@ class TagsView(QTreeView):  # {{{
                         partial(self.context_menu_handler, action='show', category=col))
                     ic = self.model().category_custom_icons.get(col)
                     if ic:
-                        ac.setIcon(QIcon(ic))
+                        ac.setIcon(QIcon.ic(ic))
                 m.addSeparator()
                 m.addAction(_('All categories'),
                         partial(self.context_menu_handler, action='defaults')).setIcon(QIcon.ic('plusplus.png'))
@@ -948,7 +948,7 @@ class TagsView(QTreeView):  # {{{
                                     key=key))
                     ic = self.model().category_custom_icons.get(key)
                     if ic:
-                        ac.setIcon(QIcon(ic))
+                        ac.setIcon(QIcon.ic(ic))
                     if fm['datatype'] == 'enumeration':
                         self.context_menu.addAction(_('Edit permissible values for %s')%category,
                             partial(self.context_menu_handler, action='edit_enum',
@@ -968,7 +968,7 @@ class TagsView(QTreeView):  # {{{
                                     index=tag.id))
                     ic = self.model().category_custom_icons.get(key)
                     if ic:
-                        ac.setIcon(QIcon(ic))
+                        ac.setIcon(QIcon.ic(ic))
                 elif key == 'search':
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',

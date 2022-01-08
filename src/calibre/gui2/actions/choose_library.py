@@ -392,7 +392,7 @@ class ChooseLibraryAction(InterfaceAction):
             traceback.print_exc()
 
     def set_library_icon(self):
-        icon = QIcon(library_icon_path())
+        icon = QIcon.ic(library_icon_path())
         has_icon = not icon.isNull() and len(icon.availableSizes()) > 0
         if not has_icon:
             icon = self.original_library_icon
