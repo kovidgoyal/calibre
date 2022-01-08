@@ -14,7 +14,7 @@ from calibre.ebooks.conversion.config import OPTIONS
 class StructureDetectionWidget(Widget, Ui_Form):
 
     TITLE = _('Structure\ndetection')
-    ICON  = I('chapters.png')
+    ICON  = 'chapters.png'
     HELP  = _('Fine tune the detection of chapter headings and '
             'other document structure.')
     COMMIT_NAME = 'structure_detection'

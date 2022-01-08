@@ -622,7 +622,8 @@ class CoversModel(QAbstractListModel):  # {{{
         QAbstractListModel.__init__(self, parent)
 
         if current_cover is None:
-            current_cover = QPixmap(I('default_cover.png'))
+            ic = QIcon.ic('default_cover.png')
+            current_cover = ic.pixmap(ic.availableSizes()[0])
         current_cover.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
 
         self.blank = QIcon.ic('blank.png').pixmap(*CoverDelegate.ICON_SIZE)

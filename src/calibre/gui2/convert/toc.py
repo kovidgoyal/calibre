@@ -16,7 +16,7 @@ from calibre.ebooks.conversion.config import OPTIONS
 class TOCWidget(Widget, Ui_Form):
 
     TITLE = _('Table of\nContents')
-    ICON  = I('toc.png')
+    ICON  = 'toc.png'
     HELP  = _('Control the creation/conversion of the Table of Contents.')
     COMMIT_NAME = 'toc'
 

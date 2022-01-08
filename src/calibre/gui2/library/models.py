@@ -47,15 +47,6 @@ TIME_FMT = '%d %b %Y'
 ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.AlignRight, 'center':
         Qt.AlignmentFlag.AlignHCenter}
 
-_default_image = None
-
-
-def default_image():
-    global _default_image
-    if _default_image is None:
-        _default_image = QImage(I('default_cover.png'))
-    return _default_image
-
 
 def group_numbers(numbers):
     for k, g in groupby(enumerate(sorted(numbers)), lambda i_x:i_x[0] - i_x[1]):
@@ -213,7 +204,6 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate',
                               'languages']
-        self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
         self.last_search = ''  # The last search performed on this model
@@ -239,6 +229,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.highlight_only = False
         self.row_height = 0
         self.read_config()
+
+    @property
+    def default_image(self):
+        return QApplication.instance().cached_qimage('default_cover.png')
 
     def _clear_caches(self):
         self.color_cache = defaultdict(dict)

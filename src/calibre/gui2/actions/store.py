@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from qt.core import QIcon, QSize
+from qt.core import QIcon
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -37,8 +37,7 @@ class StoreAction(InterfaceAction):
 
     def load_menu(self):
         self.store_list_menu.clear()
-        icon = QIcon()
-        icon.addFile(I('donate.png'), QSize(16, 16))
+        icon = QIcon.ic('donate.png')
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
             if p.base_plugin.affiliate:
                 self.store_list_menu.addAction(icon, n,

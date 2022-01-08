@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, errno
 
-from qt.core import QPixmap
+from qt.core import QPixmap, QApplication
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
@@ -49,7 +49,7 @@ def create_cover_file(db, book_id):
 class MetadataWidget(Widget, Ui_Form):
 
     TITLE = _('Metadata')
-    ICON  = I('dialog_information.png')
+    ICON  = 'dialog_information.png'
     HELP  = _('Set the metadata. The output file will contain as much of this '
             'metadata as possible.')
     COMMIT_NAME = 'metadata'
@@ -111,8 +111,7 @@ class MetadataWidget(Widget, Ui_Form):
                 self.cover_data = cover
                 self.set_cover_tooltip(pm)
         else:
-            pm = QPixmap(I('default_cover.png'))
-            pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+            pm = QApplication.instance().cached_qpixmap('default_cover.png')
             self.cover.setPixmap(pm)
             self.cover.setToolTip(_('This book has no cover'))
         for x in ('author', 'series', 'publisher'):

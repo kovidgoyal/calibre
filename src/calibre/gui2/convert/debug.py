@@ -16,7 +16,7 @@ from calibre.ebooks.conversion.config import OPTIONS
 class DebugWidget(Widget, Ui_Form):
 
     TITLE = _('Debug')
-    ICON  = I('debug.png')
+    ICON  = 'debug.png'
     HELP  = _('Debug the conversion process.')
     COMMIT_NAME = 'debug'
 

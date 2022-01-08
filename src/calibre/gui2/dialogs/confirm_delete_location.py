@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net' \
 __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.dialogs.confirm_delete_location_ui import Ui_Dialog
-from qt.core import QDialog, Qt, QPixmap, QIcon
+from qt.core import QDialog, Qt, QIcon
 
 
 class Dialog(QDialog, Ui_Dialog):
@@ -42,8 +42,9 @@ class Dialog(QDialog, Ui_Dialog):
 
 def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
     d = Dialog(msg, name, parent)
-    d.label.setPixmap(QPixmap(I(pixmap)))
-    d.setWindowIcon(QIcon.ic(pixmap))
+    ic = QIcon.ic(pixmap)
+    d.label.setPixmap(ic.pixmap(ic.availableSizes()[0]))
+    d.setWindowIcon(ic)
     d.resize(d.sizeHint())
     ret = d.exec()
     d.break_cycles()

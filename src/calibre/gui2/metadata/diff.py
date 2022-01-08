@@ -318,7 +318,8 @@ class CoverView(QWidget):
         self.field = field
         self.metadata = metadata
         self.pixmap = None
-        self.blank = QPixmap(I('blank.png'))
+        ic = QIcon.ic('blank.png')
+        self.blank = ic.pixmap(ic.availableSizes()[0])
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
         self.sizePolicy().setHeightForWidth(True)
 
@@ -665,7 +666,7 @@ class CompareMany(QDialog):
             self.addAction(ac)
         if action_button is not None:
             self.acb = b = bb.addButton(action_button[0], QDialogButtonBox.ButtonRole.ActionRole)
-            b.setIcon(QIcon(action_button[1]))
+            b.setIcon(QIcon.ic(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), QDialogButtonBox.ButtonRole.ActionRole)

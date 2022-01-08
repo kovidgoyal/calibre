@@ -153,7 +153,7 @@ class LibraryWidget(Splitter):  # {{{
         idx = 0 if orientation == Qt.Orientation.Vertical else 1
         size = 300 if orientation == Qt.Orientation.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover browser'),
-                I('cover_flow.png'),
+                'cover_flow.png',
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
                 side_index=idx, initial_side_size=size, initial_show=False,
