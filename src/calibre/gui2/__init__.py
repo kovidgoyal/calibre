@@ -47,13 +47,37 @@ except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 
+icons_subdirs = ('devices', 'plugins', 'mimetypes')
+
+
+def set_icon_paths():
+    paths = []
+    for main_dir in (os.path.join(config_dir, 'resources', 'images'), os.path.dirname(I(icons_subdirs[0], allow_user_override=False))):
+        if os.path.exists(main_dir):
+            paths.append(main_dir)
+            for subdir in icons_subdirs:
+                q = os.path.join(main_dir, subdir)
+                if os.path.exists(q):
+                    paths.append(q)
+    QIcon.setFallbackSearchPaths(paths + list(QIcon.fallbackSearchPaths()))
+    default_theme_path = P('icon-themes', allow_user_override=False)
+    paths = [default_theme_path]
+    user_theme_path = P('icon-themes')
+    if user_theme_path != default_theme_path:
+        paths.insert(0, user_theme_path)
+    QIcon.setThemeSearchPaths(paths)
+
+
 def load_qicon(name):
     if isinstance(name, QIcon):
         return name
     if not name:
         return QIcon()
     if not os.path.isabs(name):
-        name = I(name)
+        parts = name.split('/')
+        if len(parts) == 2 and parts[0] in icons_subdirs:
+            name = parts[1]
+        return QIcon.fromTheme(os.path.splitext(name)[0])
     return QIcon(name)
 
 
@@ -947,6 +971,7 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, qargs)
+        set_icon_paths()
         sh = self.styleHints()
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
             sh.setShowShortcutsInContextMenus(True)
@@ -1149,7 +1174,12 @@ class Application(QApplication):
             if self.is_dark_theme:
                 ss += 'QMenu { border: 1px solid palette(shadow); }'
             self.setStyleSheet(ss)
+        self.update_icon_theme()
         self.palette_changed.emit()
+
+    def update_icon_theme(self):
+        name = 'calibre-default-' + ('dark' if self.is_dark_theme else 'light')
+        QIcon.setThemeName(name)
 
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (
@@ -1157,7 +1187,6 @@ class Application(QApplication):
 
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
-        pcache = {}
         for k, v in {
             'DialogYesButton': 'ok.png',
             'DialogNoButton': 'window-close.png',
@@ -1178,16 +1207,11 @@ class Application(QApplication):
             'ToolBarHorizontalExtensionButton': 'v-ellipsis.png',
             'ToolBarVerticalExtensionButton': 'h-ellipsis.png',
         }.items():
-            if v not in pcache:
-                pcache[v] = I(v)
-                # if not os.path.exists(pcache[v]): raise ValueError(pcache[v])
-            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = pcache[v]
+            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = v.rpartition('.')[0]
         transient_scroller = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
             transient_scroller = transient_scroller()
-        icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 1] = I('close-for-light-theme.png')
-        icon_map[(QStyle.StandardPixmap.SP_CustomBase.value & 0xf0000000) + 2] = I('close-for-dark-theme.png')
         self.calibre_style = style = self.pi.CalibreStyle(transient_scroller)
         style.set_icon_map(icon_map)
         self.setStyle(style)
