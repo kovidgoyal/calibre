@@ -157,11 +157,7 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
 }
 
 QIcon CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption * option, const QWidget * widget) const {
-    if (standardIcon == QStyle::SP_DialogCloseButton) {
-        bool is_dark_theme = QApplication::instance()->property("is_dark_theme").toBool();
-        return QIcon(icon_map.value(QStyle::SP_CustomBase + (is_dark_theme ? 2 : 1)));
-    }
-    if (icon_map.contains(standardIcon)) return QIcon(icon_map.value(standardIcon));
+    if (icon_map.contains(standardIcon)) return QIcon::fromTheme(icon_map.value(standardIcon));
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 
