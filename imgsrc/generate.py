@@ -48,8 +48,10 @@ def iterfiles(only=()):
         obase = output_base
         if name.endswith('-for-dark-theme'):
             obase = dark_output_base
+            output_names = [x.replace('-for-dark-theme', '') for x in output_names]
         elif name.endswith('-for-light-theme'):
             obase = light_output_base
+            output_names = [x.replace('-for-light-theme', '') for x in output_names]
         output_files = [j(obase, n) + '.png' for n in output_names]
         if output_files:
             yield src, output_files

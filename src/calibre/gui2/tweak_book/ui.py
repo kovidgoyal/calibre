@@ -9,9 +9,9 @@ from functools import partial
 from gettext import pgettext
 from itertools import product
 from qt.core import (
-    QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QImage,
-    QLabel, QMenu, QPalette, QPixmap, QSize, QStackedWidget, Qt, QTabWidget, QTimer,
-    QUrl, QVBoxLayout, QWidget, pyqtSignal, QMenuBar
+    QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel,
+    QMenu, QMenuBar, QPalette, QSize, QStackedWidget, Qt, QTabWidget, QTimer, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prepare_string_for_xml, prints
@@ -85,13 +85,7 @@ class Central(QStackedWidget):  # {{{
         t.setDocumentMode(True)
         t.setTabsClosable(True)
         t.setMovable(True)
-        pal = self.palette()
-        if pal.color(QPalette.ColorRole.WindowText).lightness() > 128:
-            i = QImage(I('modified.png'))
-            i.invertPixels()
-            self.modified_icon = QIcon(QPixmap.fromImage(i))
-        else:
-            self.modified_icon = QIcon.ic('modified.png')
+        self.modified_icon = QIcon.ic('modified.png')
         self.editor_tabs.currentChanged.connect(self.current_editor_changed)
         self.editor_tabs.tabCloseRequested.connect(self._close_requested)
         self.search_panel = SearchPanel(self)
