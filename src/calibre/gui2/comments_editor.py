@@ -1083,6 +1083,7 @@ class Editor(QWidget):  # {{{
         self.tabs.setTabPosition(QTabWidget.TabPosition.South)
         self.wyswyg = QWidget(self.tabs)
         self.code_edit = QPlainTextEdit(self.tabs)
+        self.code_edit.setTabChangesFocus(True)
         self.source_dirty = False
         self.wyswyg_dirty = True
 
