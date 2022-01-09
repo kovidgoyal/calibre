@@ -50,6 +50,8 @@ except AttributeError:
 def load_qicon(name):
     if isinstance(name, QIcon):
         return name
+    if not name:
+        return QIcon()
     if not os.path.isabs(name):
         name = I(name)
     return QIcon(name)
