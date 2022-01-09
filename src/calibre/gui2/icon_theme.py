@@ -539,17 +539,18 @@ class Delegate(QStyledItemDelegate):
         bottom = option.rect.bottom() - 2
         painter.drawLine(0, bottom, option.rect.right(), bottom)
         if 'static-text' not in theme:
+            visit = _('Right click to visit theme homepage') if theme.get('url') else ''
             theme['static-text'] = QStaticText(_(
                 '''
             <h1>{title}</h1>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage}</p>
-            <p><i>Right click to visit theme homepage</i></p>
+            <p><i>{visit}</i></p>
             ''').format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
                        number=theme.get('number', 0), description=theme.get('description', ''),
                        size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
-                       usage=theme.get('usage', 0),
+                       usage=theme.get('usage', 0), visit=visit
         ))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
         painter.restore()
@@ -666,8 +667,6 @@ class ChooseTheme(Dialog):
             url = theme.get('url')
             if url:
                 safe_open_url(url)
-            else:
-                error_dialog(self, _('No homepage'), _('The {} theme has no homepage').format(theme.get('name', _('Unknown'))), show=True)
 
     def start_spinner(self, msg=None):
         self.pi.startAnimation()
