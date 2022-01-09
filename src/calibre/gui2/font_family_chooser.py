@@ -70,17 +70,17 @@ def writing_system_for_font(font):
     if not systems:
         return system, has_latin
 
-    if (len(systems) == 1 and systems[0] > QFontDatabase.WritingSystem.Cyrillic):
+    if (len(systems) == 1 and systems[0].value > QFontDatabase.WritingSystem.Cyrillic.value):
         return systems[0], has_latin
 
     if (len(systems) <= 2 and
-        systems[-1] > QFontDatabase.WritingSystem.Armenian and
-        systems[-1] < QFontDatabase.WritingSystem.Vietnamese):
+        systems[-1].value > QFontDatabase.WritingSystem.Armenian.value and
+        systems[-1].value < QFontDatabase.WritingSystem.Vietnamese.value):
         return systems[-1], has_latin
 
     if (len(systems) <= 5 and
-        systems[-1] >= QFontDatabase.WritingSystem.SimplifiedChinese and
-        systems[-1] <= QFontDatabase.WritingSystem.Korean):
+        systems[-1].value >= QFontDatabase.WritingSystem.SimplifiedChinese.value and
+        systems[-1].value <= QFontDatabase.WritingSystem.Korean.value):
         system = systems[-1]
 
     return system, has_latin
