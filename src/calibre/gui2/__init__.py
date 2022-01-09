@@ -1190,7 +1190,7 @@ class Application(QApplication):
         for k, v in {
             'DialogYesButton': 'ok.png',
             'DialogNoButton': 'window-close.png',
-            'DialogCloseButton': 'window-close.png',
+            'DialogCloseButton': 'close.png',
             'DialogOkButton': 'ok.png',
             'DialogCancelButton': 'window-close.png',
             'DialogHelpButton': 'help.png',
