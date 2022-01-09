@@ -25,6 +25,8 @@ skip = {'calibre'}
 j = os.path.join
 base = os.path.dirname(os.path.abspath(__file__))
 output_base = j(os.path.dirname(base), 'resources', 'images')
+dark_output_base = j(os.path.dirname(output_base), 'icon-themes', 'calibre-default-dark', 'base')
+light_output_base = j(os.path.dirname(output_base), 'icon-themes', 'calibre-default-light', 'base')
 hash_path = j(os.path.dirname(base), '.build-cache', 'imgsrc-gen.json')
 if os.path.exists(hash_path):
     with open(hash_path, 'rb') as f:
@@ -43,7 +45,12 @@ def iterfiles(only=()):
         if not only and h == hashes.get(name):
             continue
         output_names = [n for n in [name] + duplicates.get(name, []) if n not in skip]
-        output_files = [j(output_base, n) + '.png' for n in output_names]
+        obase = output_base
+        if name.endswith('-for-dark-theme'):
+            obase = dark_output_base
+        elif name.endswith('-for-light-theme'):
+            obase = light_output_base
+        output_files = [j(obase, n) + '.png' for n in output_names]
         if output_files:
             yield src, output_files
 
