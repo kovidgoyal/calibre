@@ -59,7 +59,7 @@ def set_icon_paths():
                 q = os.path.join(main_dir, subdir)
                 if os.path.exists(q):
                     paths.append(q)
-    QIcon.setFallbackSearchPaths(paths + list(QIcon.fallbackSearchPaths()))
+    QIcon.setFallbackSearchPaths(paths)
     default_theme_path = P('icon-themes', allow_user_override=False)
     paths = [default_theme_path]
     user_theme_path = P('icon-themes')
