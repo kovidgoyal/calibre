@@ -1168,13 +1168,13 @@ class Application(QApplication):
         self.cached_qimage.cache_clear()
         self.cached_qpixmap.cache_clear()
         self.is_dark_theme = is_dark_theme()
+        self.update_icon_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
             if self.is_dark_theme:
                 ss += 'QMenu { border: 1px solid palette(shadow); }'
             self.setStyleSheet(ss)
-        self.update_icon_theme()
         self.palette_changed.emit()
 
     def update_icon_theme(self):
