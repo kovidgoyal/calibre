@@ -43,7 +43,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
     # Ensure that people running from source have all their forms rebuilt for
     # the qt5 migration
     force_compile = os.environ.get('CALIBRE_FORCE_BUILD_UI_FORMS', '') in ('1', 'yes', 'true')
-    if check_for_migration:
+    if check_for_migration and not force_compile:
         from calibre.gui2 import gprefs
         force_compile = not gprefs.get(f'migrated_forms_to_qt{qt_major}', False)
 
