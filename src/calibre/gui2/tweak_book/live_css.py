@@ -424,7 +424,7 @@ class LiveCSS(QWidget):
     def apply_theme(self):
         f = self.font()
         f.setFamily(tprefs['editor_font_family'] or default_font_family())
-        f.setPointSize(tprefs['editor_font_size'])
+        f.setPointSizeF(tprefs['editor_font_size'])
         self.setFont(f)
         theme = get_theme(tprefs['editor_theme'])
         pal = self.palette()

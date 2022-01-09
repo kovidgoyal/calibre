@@ -253,9 +253,9 @@ class TextEdit(PlainTextEdit):
         if ff is None:
             ff = default_font_family()
         font.setFamily(ff)
-        font.setPointSize(tprefs['editor_font_size'])
+        font.setPointSizeF(tprefs['editor_font_size'])
         self.tooltip_font = QFont(font)
-        self.tooltip_font.setPointSize(font.pointSize() - 1)
+        self.tooltip_font.setPointSizeF(font.pointSizeF() - 1.)
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         w = self.fontMetrics()

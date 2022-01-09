@@ -5,16 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
-
-from qt.core import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
-        QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
-        QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
-        QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
-        QHBoxLayout, QLabel, QLineEdit, QSizePolicy, QAbstractItemView)
+import os
+import shutil
+from qt.core import (
+    QAbstractItemView, QDialog, QDialogButtonBox, QFont, QFontComboBox,
+    QFontDatabase, QFontInfo, QFontMetrics, QGridLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QListView, QPen, QPushButton, QSize, QSizePolicy, QStringListModel,
+    QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+)
 
 from calibre.constants import config_dir
-from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
+from calibre.gui2 import choose_files, empty_index, error_dialog, info_dialog
 
 
 def add_fonts(parent):
@@ -96,7 +97,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
     def do_size_hint(self, option, index):
         text = index.data(Qt.ItemDataRole.DisplayRole) or ''
         font = QFont(option.font)
-        font.setPointSize(QFontInfo(font).pointSize() * 1.5)
+        font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
         m = QFontMetrics(font)
         return QSize(m.width(text), m.height())
 
@@ -106,13 +107,14 @@ class FontFamilyDelegate(QStyledItemDelegate):
         try:
             self.do_paint(painter, option, index)
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         painter.restore()
 
     def do_paint(self, painter, option, index):
         text = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         font = QFont(option.font)
-        font.setPointSize(QFontInfo(font).pointSize() * 1.5)
+        font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
         font2 = QFont(font)
         font2.setFamily(text)
 
@@ -121,9 +123,11 @@ class FontFamilyDelegate(QStyledItemDelegate):
             font = font2
 
         r = option.rect
+        color = option.palette.text()
 
         if option.state & QStyle.StateFlag.State_Selected:
-            painter.setPen(QPen(option.palette.highlightedText(), 0))
+            color = option.palette.highlightedText()
+        painter.setPen(QPen(color, 0))
 
         if (option.direction == Qt.LayoutDirection.RightToLeft):
             r.setRight(r.right() - 4)
@@ -369,7 +373,8 @@ class FontFamilyChooser(QWidget):
 
 
 def test():
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     app
     d = QDialog()
     d.setLayout(QVBoxLayout())
