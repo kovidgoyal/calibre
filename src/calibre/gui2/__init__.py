@@ -71,16 +71,16 @@ def load_qicon(name):
         return name
     if not name:
         return QIcon()
-    if not os.path.isabs(name):
-        if override_icon_path:
-            q = os.path.join(override_icon_path, name)
-            if os.path.exists(q):
-                return QIcon(q)
-        parts = name.split('/')
-        if len(parts) == 2 and parts[0] in icons_subdirs:
-            name = parts[1]
-        return QIcon.fromTheme(os.path.splitext(name)[0])
-    return QIcon(name)
+    if os.path.isabs(name):
+        return QIcon(name)
+    if override_icon_path:
+        q = os.path.join(override_icon_path, name)
+        if os.path.exists(q):
+            return QIcon(q)
+    parts = name.split('/')
+    if len(parts) == 2 and parts[0] in icons_subdirs:
+        name = parts[1]
+    return QIcon.fromTheme(os.path.splitext(name)[0])
 
 
 QIcon.ic = load_qicon
