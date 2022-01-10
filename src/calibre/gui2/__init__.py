@@ -15,8 +15,8 @@ from qt.core import (
     QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFileDialog,
     QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
     QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
-    QPalette, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt, QThread,
-    QTimer, QTranslator, QUrl, pyqtSignal
+    QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt,
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal
 )
 from threading import Lock, RLock
 
@@ -38,6 +38,7 @@ from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
+from calibre.utils.resources import user_dir
 from polyglot import queue
 from polyglot.builtins import iteritems, string_or_bytes
 
@@ -48,22 +49,21 @@ except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 
+override_icon_path = None
+
+
 def set_icon_paths():
-    paths = []
-    for main_dir in (os.path.join(config_dir, 'resources', 'images'), os.path.dirname(I(icons_subdirs[0], allow_user_override=False))):
-        if os.path.exists(main_dir):
-            paths.append(main_dir)
-            for subdir in icons_subdirs:
-                q = os.path.join(main_dir, subdir)
-                if os.path.exists(q):
-                    paths.append(q)
-    QIcon.setFallbackSearchPaths(paths)
-    default_theme_path = P('icon-themes', allow_user_override=False)
-    paths = [default_theme_path]
-    user_theme_path = P('icon-themes')
-    if user_theme_path != default_theme_path:
-        paths.insert(0, user_theme_path)
-    QIcon.setThemeSearchPaths(paths)
+    global override_icon_path
+    q = os.path.join(user_dir, 'images')
+    override_icon_path = None
+    try:
+        if os.listdir(q):
+            override_icon_path = q
+    except Exception:
+        pass
+    QResource.registerResource(P('icons.rcc', allow_user_override=False))
+    QIcon.setFallbackSearchPaths([])
+    QIcon.setThemeSearchPaths([':/icons'])
 
 
 def load_qicon(name):
@@ -72,6 +72,10 @@ def load_qicon(name):
     if not name:
         return QIcon()
     if not os.path.isabs(name):
+        if override_icon_path:
+            q = os.path.join(override_icon_path, name)
+            if os.path.exists(q):
+                return QIcon(q)
         parts = name.split('/')
         if len(parts) == 2 and parts[0] in icons_subdirs:
             name = parts[1]
