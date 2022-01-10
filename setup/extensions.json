@@ -132,6 +132,14 @@
 		"needs_c++14": true
     },
     {
+        "name": "rcc_backend",
+        "sources": "calibre/gui2/rcc/rcc.cpp",
+        "headers": "calibre/gui2/rcc/rcc.h",
+        "sip_files": "calibre/gui2/rcc/rcc.sip",
+        "inc_dirs": "calibre/gui2/rcc",
+		"qt_project_type": "core"
+    },
+    {
         "name": "pictureflow",
         "sources": "calibre/gui2/pictureflow/pictureflow.cpp",
         "headers": "calibre/gui2/pictureflow/pictureflow.h",
