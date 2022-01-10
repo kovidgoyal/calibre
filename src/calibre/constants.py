@@ -248,6 +248,7 @@ class ExtensionsImporter:
             'podofo',
             'cPalmdoc',
             'progress_indicator',
+            'rcc_backend',
             'icu',
             'speedup',
             'html_as_json',
