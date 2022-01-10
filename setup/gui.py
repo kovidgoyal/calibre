@@ -14,6 +14,7 @@ class GUI(Command):
     description = 'Compile all GUI forms'
     PATH  = os.path.join(Command.SRC, __appname__, 'gui2')
     QRC = os.path.join(Command.RESOURCES, 'images.qrc')
+    RCC = os.path.join(Command.RESOURCES, 'icons.rcc')
 
     def add_options(self, parser):
         parser.add_option('--summary', default=False, action='store_true',
@@ -52,6 +53,10 @@ class GUI(Command):
             for root, _, files2 in os.walk('images'):
                 for name in files2:
                     sources.append(os.path.join(root, name))
+            if self.newer(self.RCC, sources):
+                self.info('Creating icon theme resource file')
+                from calibre.utils.rcc import compile_icon_dir_as_themes
+                compile_icon_dir_as_themes('images', self.RCC)
             if self.newer(self.QRC, sources):
                 self.info('Creating images.qrc')
                 for s in sources:
