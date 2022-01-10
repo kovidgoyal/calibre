@@ -41,7 +41,7 @@ class Extension:
         self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
         self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
         self.needs_exceptions = d['needs_exceptions'] = kwargs.get('needs_exceptions', False)
-        self.qt_project_type = d['qt_project_type'] = kwargs.get('qt_project_type', "widgets")
+        self.qt_modules = d['qt_modules'] = kwargs.get('qt_modules', ["widgets"])
         self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
         self.lib_dirs = d['lib_dirs'] = absolutize(kwargs.get('lib_dirs', []))
         self.extra_objs = d['extra_objs'] = absolutize(kwargs.get('extra_objs', []))
@@ -530,7 +530,7 @@ headers = {ext.headers}
 sources = {ext.sources}
 exceptions = {needs_exceptions}
 include-dirs = {ext.inc_dirs}
-qmake-QT = ["{ext.qt_project_type}"]
+qmake-QT = {ext.qt_modules}
 sip-file = "{os.path.basename(sipf)}"
 ''')
         shutil.copy2(sipf, src_dir)

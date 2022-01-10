@@ -137,7 +137,7 @@
         "headers": "calibre/gui2/rcc/rcc.h",
         "sip_files": "calibre/gui2/rcc/rcc.sip",
         "inc_dirs": "calibre/gui2/rcc",
-		"qt_project_type": "core"
+		"qt_modules": ["-gui"]
     },
     {
         "name": "pictureflow",
