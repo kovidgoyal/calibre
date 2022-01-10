@@ -26,7 +26,7 @@ class RCCResourceLibrary /NoDefaultCtors/
 %End
 
 public:
-    RCCResourceLibrary(quint8 formatVersion);
+    RCCResourceLibrary(quint8 formatVersion=3);
     ~RCCResourceLibrary();
 
 
