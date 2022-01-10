@@ -133,10 +133,10 @@
     },
     {
         "name": "rcc_backend",
-        "sources": "calibre/gui2/rcc/rcc.cpp",
-        "headers": "calibre/gui2/rcc/rcc.h",
-        "sip_files": "calibre/gui2/rcc/rcc.sip",
-        "inc_dirs": "calibre/gui2/rcc",
+        "sources": "calibre/utils/rcc/rcc.cpp",
+        "headers": "calibre/utils/rcc/rcc.h",
+        "sip_files": "calibre/utils/rcc/rcc.sip",
+        "inc_dirs": "calibre/utils/rcc",
 		"qt_modules": ["-gui"]
     },
     {
