@@ -23,8 +23,9 @@ from threading import Lock, RLock
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
-    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, config_dir, icons_subdirs,
+    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
+    plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -45,9 +46,6 @@ try:
     NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
-
-
-icons_subdirs = ('devices', 'plugins', 'mimetypes')
 
 
 def set_icon_paths():
