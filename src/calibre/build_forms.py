@@ -20,7 +20,24 @@ def find_forms(srcdir):
     return forms
 
 
-def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
+def ensure_icons_built(resource_dir, force_compile, info):
+    icons = os.path.join(resource_dir, 'icons.rcc')
+    images_dir = os.path.join(resource_dir, 'images')
+    if os.path.exists(icons) and not force_compile:
+        limit = os.stat(icons).st_mtime
+        for x in os.scandir(images_dir):
+            if x.name.endswith('.png'):
+                st = x.stat(follow_symlinks=False)
+                if st.st_mtime >= limit:
+                    break
+        else:
+            return
+    info('Building icons.rcc')
+    from calibre.utils.rcc import compile_icon_dir_as_themes
+    compile_icon_dir_as_themes(images_dir, icons)
+
+
+def build_forms(srcdir, info=None, summary=False, check_for_migration=False, check_icons=True):
     import re
     from qt.core import QT_VERSION_STR
     qt_major = QT_VERSION_STR.split('.')[0]
@@ -70,5 +87,8 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
             num += 1
     if num:
         info('Compiled %d forms' % num)
+    if check_icons:
+        resource_dir = os.path.join(os.path.dirname(srcdir), 'resources')
+        ensure_icons_built(resource_dir, force_compile, info)
     if check_for_migration and force_compile:
         gprefs.set(f'migrated_forms_to_qt{qt_major}', True)
