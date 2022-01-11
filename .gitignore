@@ -10,6 +10,7 @@ compile_commands.json
 link_commands.json
 src/calibre/plugins
 resources/images.qrc
+resources/icons.rcc
 manual/generated
 manual/locale
 manual/.doctrees
