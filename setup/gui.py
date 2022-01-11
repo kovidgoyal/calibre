@@ -6,6 +6,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from contextlib import suppress
 
 from setup import Command, __appname__
 
@@ -79,5 +80,6 @@ class GUI(Command):
             c = self.form_to_compiled_form(form)
             if os.path.exists(c):
                 os.remove(c)
-        if os.path.exists(self.QRC):
-            os.remove(self.QRC)
+        for x in (self.QRC, self.RCC):
+            with suppress(FileNotFoundError):
+                os.remove(x)
