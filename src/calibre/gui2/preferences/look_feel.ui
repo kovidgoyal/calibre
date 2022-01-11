@@ -150,7 +150,7 @@
        <item row="1" column="1">
         <widget class="QPushButton" name="icon_theme_button">
          <property name="text">
-          <string>Change &amp;icon theme (needs restart)</string>
+          <string>Change &amp;icon theme</string>
          </property>
         </widget>
        </item>
