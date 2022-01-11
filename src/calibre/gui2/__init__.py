@@ -23,9 +23,8 @@ from threading import Lock, RLock
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, config_dir, icons_subdirs,
-    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
-    plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
+    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -110,21 +109,21 @@ class IconResourceManager:
             self.override_icon_path = q
             legacy_theme_metadata = os.path.join(q, 'icon-theme.json')
             if os.path.exists(legacy_theme_metadata):
-                self.migrate_legacy_icon_theme()
+                self.migrate_legacy_icon_theme(legacy_theme_metadata)
         self.register_user_resource_files()
 
     def migrate_legacy_icon_theme(self, legacy_theme_metadata):
-        from calibre.utils.rcc import compile_icon_dir_as_themes
         import shutil
+
+        from calibre.utils.rcc import compile_icon_dir_as_themes
         images = os.path.dirname(legacy_theme_metadata)
         os.replace(legacy_theme_metadata, os.path.join(images, 'metadata.json'))
         compile_icon_dir_as_themes(
             images, self.user_theme_resource_file('any'), theme_name='calibre-user-any', inherits='calibre-default')
         for x in os.listdir(images):
             q = os.path.join(images, x)
-            if os.path.isdir(q):
-                if x in icons_subdirs:
-                    shutil.rmtree(q)
+            if os.path.isdir(q) and q != 'textures':
+                shutil.rmtree(q)
             else:
                 os.remove(q)
 
@@ -139,9 +138,7 @@ class IconResourceManager:
             q = os.path.join(self.override_icon_path, name)
             if os.path.exists(q):
                 return QIcon(q)
-        parts = name.split('/')
-        if len(parts) == 2 and parts[0] in icons_subdirs:
-            name = parts[1]
+        name = '__'.join(name.split('/'))
         return QIcon.fromTheme(os.path.splitext(name)[0])
 
     def set_theme(self, is_dark_theme):
