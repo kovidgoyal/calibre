@@ -57,12 +57,15 @@ def get_resources(zfp, name_or_list_of_names):
     return ans
 
 
-def get_icons(zfp, name_or_list_of_names):
+def get_icons(zfp, name_or_list_of_names, plugin_name=''):
     '''
     Load icons from the plugin zip file
 
     :param name_or_list_of_names: List of paths to resources in the zip file using / as
                 separator, or a single path
+
+    :param plugin_name: The human friendly name of the plugin, used to load icons from
+                the current theme, if present.
 
     :return: A dictionary of the form ``{name : QIcon}``. Any names
                 that were not found in the zip file will be null QIcons.
@@ -70,25 +73,34 @@ def get_icons(zfp, name_or_list_of_names):
                 be A QIcon.
     '''
     from qt.core import QIcon, QPixmap
-    names = name_or_list_of_names
-    ans = get_resources(zfp, names)
-    if isinstance(names, string_or_bytes):
-        names = [names]
-    if ans is None:
-        ans = {}
-    if isinstance(ans, string_or_bytes):
-        ans = dict([(names[0], ans)])
+    ans = {}
+    namelist = [name_or_list_of_names] if isinstance(name_or_list_of_names, string_or_bytes) else name_or_list_of_names
+    failed = set()
+    if plugin_name:
+        for name in namelist:
+            q = QIcon.ic(f'{plugin_name}/{name}')
+            if q.isNull():
+                failed.add(name)
+            else:
+                ans[name] = q
+    else:
+        failed = set(namelist)
+    if failed:
+        from_zfp = get_resources(zfp, list(failed))
+        if from_zfp is None:
+            from_zfp = {}
+        elif isinstance(from_zfp, string_or_bytes):
+            from_zfp = {namelist[0]: from_zfp}
 
-    ians = {}
-    for name in names:
-        p = QPixmap()
-        raw = ans.get(name, None)
-        if raw:
-            p.loadFromData(raw)
-        ians[name] = QIcon(p)
-    if len(names) == 1:
-        ians = ians.pop(names[0])
-    return ians
+        for name in failed:
+            p = QPixmap()
+            raw = from_zfp.get(name)
+            if raw:
+                p.loadFromData(raw)
+            ans[name] = QIcon(p)
+    if len(namelist) == 1 and ans:
+        ans = ans.pop(namelist[0])
+    return ans
 
 
 _translations_cache = {}
