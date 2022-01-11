@@ -44,7 +44,10 @@ def index_theme(name, inherits=''):
     return '\n'.join(lines)
 
 
-def compile_icon_dir_as_themes(path_to_dir, output_path, theme_name='calibre-default', inherits='', prefix='/icons'):
+def compile_icon_dir_as_themes(
+    path_to_dir, output_path, theme_name='calibre-default', inherits='',
+    for_theme='any', prefix='/icons',
+):
     with tempfile.TemporaryDirectory(dir=path_to_dir) as tdir, open(os.path.join(tdir, 'icons.qrc'), 'w') as qrc:
         print('<RCC>', file=qrc)
         print(f'  <qresource prefix="{prefix}">', file=qrc)
@@ -52,14 +55,17 @@ def compile_icon_dir_as_themes(path_to_dir, output_path, theme_name='calibre-def
         def file(name):
             print(f'    <file>{normpath(name)}</file>', file=qrc)
 
-        for q in (theme_name, theme_name + '-dark', theme_name + '-light'):
+        specific_themes = []
+        if for_theme == 'any':
+            specific_themes = [theme_name + '-dark', theme_name + '-light']
+        for q in [theme_name] + specific_themes:
             os.mkdir(os.path.join(tdir, q))
             for sd in ['images'] + [f'images/{x}' for x in icons_subdirs]:
                 os.makedirs(os.path.join(tdir, q, sd))
         with open(os.path.join(tdir, theme_name, 'index.theme'), 'w') as f:
             f.write(index_theme(theme_name, inherits))
             file(f'{theme_name}/index.theme')
-        for q in (theme_name + '-dark', theme_name + '-light'):
+        for q in specific_themes:
             with open(os.path.join(tdir, q, 'index.theme'), 'w') as f:
                 f.write(index_theme(q, inherits=theme_name))
                 file(f'{q}/index.theme')
@@ -73,10 +79,16 @@ def compile_icon_dir_as_themes(path_to_dir, output_path, theme_name='calibre-def
                 theme_dir = theme_name
                 dest_name = x
                 if base.endswith('-for-dark-theme'):
-                    theme_dir += '-dark'
+                    if for_theme == 'any':
+                        theme_dir += '-dark'
+                    elif for_theme == 'light':
+                        continue
                     dest_name = x.replace('-for-dark-theme', '')
                 elif base.endswith('-for-light-theme'):
-                    theme_dir += '-light'
+                    if for_theme == 'any':
+                        theme_dir += '-light'
+                    elif for_theme == 'dark':
+                        continue
                     dest_name = x.replace('-for-light-theme', '')
                 dest = theme_dir, 'images', sdir, dest_name
                 os.link(os.path.join(s, x), os.path.join(tdir, *dest))
