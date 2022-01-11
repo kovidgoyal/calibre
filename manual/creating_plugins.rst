@@ -138,15 +138,23 @@ Getting resources from the plugin ZIP file
 calibre's plugin loading system defines a couple of built-in functions that allow you to conveniently get files from the plugin ZIP file.
 
     **get_resources(name_or_list_of_names)**
-        This function should be called with a list of paths to files inside the ZIP file. For example to access the file icon.png in
-        the folder images in the ZIP file, you would use: ``images/icon.png``. Always use a forward slash as the path separator,
-        even on Windows. When you pass in a single name, the function will return the raw bytes of that file or None if the name
-        was not found in the ZIP file. If you pass in more than one name then it returns a dict mapping the names to bytes.
-        If a name is not found, it will not be present in the returned dict.
+        This function should be called with a list of paths to files inside the
+        ZIP file. For example to access the file :file:`icon.png` in the folder
+        images in the ZIP file, you would use: ``images/icon.png``. Always use
+        a forward slash as the path separator, even on Windows. When you pass
+        in a single name, the function will return the raw bytes of that file
+        or None if the name was not found in the ZIP file. If you pass in more
+        than one name then it returns a dict mapping the names to bytes.  If a
+        name is not found, it will not be present in the returned dict.
 
-    **get_icons(name_or_list_of_names)**
-        A convenience wrapper for get_resources() that creates QIcon objects from the raw bytes returned by get_resources.
-        If a name is not found in the ZIP file the corresponding QIcon will be null.
+    **get_icons(name_or_list_of_names, plugin_name='')**
+        A wrapper for get_resources() that creates QIcon objects
+        from the raw bytes returned by get_resources. If a name is not found
+        in the ZIP file the corresponding QIcon will be null. In order to
+        support icon theme-ing, pass in the human friendly name of your plugin
+        as ``plugin_name``. If the user is using an icon theme with icons for
+        you plugin, they will be loaded preferentially.
+
 
 Enabling user configuration of your plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
