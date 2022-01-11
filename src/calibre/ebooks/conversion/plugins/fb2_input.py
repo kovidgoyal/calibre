@@ -30,7 +30,7 @@ class FB2Input(InputFormatPlugin):
     options = {
     OptionRecommendation(name='no_inline_fb2_toc',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Do not insert a Table of Contents at the beginning of the book.'
+        help=_('Do not insert a Table of Contents at the beginning of the book'
                 )
         )}
 

@@ -126,7 +126,7 @@ class CreateCustomColumn(QDialog):
         self.shortcuts.setVisible(False)
         col = current_key
         if col not in caller.custcols:
-            self.simple_error('', _('Selected column is not a user-defined column'))
+            self.simple_error('', _('The selected column is not a user-defined column'))
             return
 
         c = caller.custcols[col]
@@ -826,7 +826,7 @@ class CreateNewCustomColumn:
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
         if not isinstance(display, dict):
             return(self.Result.INVALID_DISPLAY,
-                   _("The display parameter must a python dict"))
+                   _("The display parameter must be a python dict"))
         self.created_count += 1
         self.custcols[lookup_name] = {
                 'label': lookup_name,

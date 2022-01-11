@@ -22,7 +22,7 @@ class DOCXInput(InputFormatPlugin):
         OptionRecommendation(name='docx_no_pagebreaks_between_notes', recommended_value=False,
             help=_('Do not insert a page break after every endnote.')),
         OptionRecommendation(name='docx_inline_subsup', recommended_value=False,
-            help=_('Render superscripts and subscripts so that they do not affect the line height.')),
+            help=_('Render superscripts and subscripts so that they do not affect the line height')),
     }
 
     recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}

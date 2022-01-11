@@ -308,7 +308,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             key = str(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
             if key not in self.custcols:
                 return error_dialog(self, '',
-                            _('Selected column is not a user-defined column'),
+                            _('The selected column is not a user-defined column'),
                             show=True)
             cc = self.custcols[key]
             if '*deleted' in cc:

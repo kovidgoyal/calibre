@@ -579,7 +579,7 @@ class CatalogBuilder:
                         if not self.error:
                             self.error.append('Author sort mismatch')
 
-                        error_msg = _(f"Warning: Inconsistent Author Sort values for Author '{author[0]!s}':\n" +
+                        error_msg = _(f"Warning: Inconsistent author sort values for author '{author[0]!s}':\n" +
                                       f" {author[1]!s} != {current_author[1]!s}\n")
                         self.opts.log.warn('\n*** Metadata warning ***')
                         self.opts.log.warn(error_msg)

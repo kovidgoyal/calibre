@@ -31,7 +31,7 @@
    <item>
     <widget class="QCheckBox" name="opt_docx_inline_subsup">
      <property name="text">
-      <string>Render &amp;superscripts and subscripts so that they do not affect the line height.</string>
+      <string>Render &amp;superscripts and subscripts so that they do not affect the line height</string>
      </property>
     </widget>
    </item>

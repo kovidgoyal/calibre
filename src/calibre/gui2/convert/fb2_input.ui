@@ -30,7 +30,7 @@
    <item row="0" column="0">
     <widget class="QCheckBox" name="opt_no_inline_fb2_toc">
      <property name="text">
-      <string>Do not insert a &amp;Table of Contents at the beginning of the book.</string>
+      <string>Do not insert a &amp;Table of Contents at the beginning of the book</string>
      </property>
     </widget>
    </item>

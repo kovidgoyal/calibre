@@ -538,7 +538,7 @@ def create_global_prefs(conf_obj=None):
                    'your language is Spanish it will only match n. Note that '
                    'this is much slower than a simple search on very large '
                    'libraries. Also, this option will have no effect if you turn '
-                   'on case-sensitive searching'))
+                   'on case-sensitive searching.'))
     c.add_opt('case_sensitive', default=False, help=_(
         'Make searches case-sensitive'))
     c.add_opt('numeric_collation', default=False,

@@ -2288,7 +2288,7 @@ class Cache:
                 # also an error but if the composite isn't used in a VL then the
                 # eventual answer will be correct because get_metadata() will
                 # clear the caches.
-                raise ValueError(_('Recursion detected while processing virtual library "%s"')
+                raise ValueError(_('Recursion detected while processing Virtual library "%s"')
                                  % self.vls_for_books_lib_in_process)
             if self.vls_for_books_cache is None:
                 libraries = self._pref('virtual_libraries', {})
