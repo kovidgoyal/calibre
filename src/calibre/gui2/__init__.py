@@ -61,6 +61,14 @@ class IconResourceManager:
     def user_theme_resource_file(self, which):
         return os.path.join(config_dir, f'icons-{which}.rcc')
 
+    def remove_user_theme(self, which):
+        path = self.user_theme_resource_file(which)
+        if path in self.registered_user_resource_files:
+            QResource.unregisterResource(path)
+            self.registered_user_resource_files = tuple(x for x in self.registered_user_resource_files if x != path)
+        with suppress(FileNotFoundError):
+            os.remove(path)
+
     def register_user_resource_files(self):
         self.user_icon_theme_metadata.cache_clear()
         for x in self.registered_user_resource_files:
@@ -94,15 +102,23 @@ class IconResourceManager:
             f.close()
 
     @property
-    def user_theme_title(self):
+    def user_theme_metadata(self):
         q = QIcon.themeName()
         if q in (self.default_dark_theme_name, self.default_light_theme_name):
-            return _('Default icons')
+            return {}
         if q == self.user_dark_theme_name:
-            return self.user_icon_theme_metadata('dark')['title']
+            return self.user_icon_theme_metadata('dark')
         if q == self.user_light_theme_name:
-            return self.user_icon_theme_metadata('light')['title']
-        return self.user_icon_theme_metadata('any')['title']
+            return self.user_icon_theme_metadata('light')
+        return self.user_icon_theme_metadata('any')
+
+    @property
+    def user_theme_title(self):
+        return self.user_theme_metadata.get('title', _('Default icons'))
+
+    @property
+    def user_theme_name(self):
+        return self.user_theme_metadata.get('name', 'default')
 
     def initialize(self):
         if self.initialized:
