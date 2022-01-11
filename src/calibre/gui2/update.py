@@ -1,20 +1,23 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, ssl, json
-from threading import Thread, Event
+import re
+import ssl
+from qt.core import (
+    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt,
+    QUrl, pyqtSignal
+)
+from threading import Event, Thread
 
-from qt.core import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
-        QLabel, QCheckBox, QDialogButtonBox, QIcon)
-
-from calibre.constants import (__appname__, __version__, iswindows, ismacos,
-        isportable, numeric_version)
-from calibre import prints, as_unicode
-from calibre.utils.config import prefs
-from calibre.utils.localization import localize_website_link
-from calibre.utils.https import get_https_resource_securely
-from calibre.gui2 import config, dynamic, open_url
+from calibre import as_unicode, prints
+from calibre.constants import (
+    __appname__, __version__, ismacos, isportable, iswindows, numeric_version
+)
+from calibre.gui2 import config, dynamic, icon_resource_manager, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
+from calibre.utils.config import prefs
+from calibre.utils.https import get_https_resource_securely
+from calibre.utils.localization import localize_website_link
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
@@ -30,9 +33,8 @@ def get_download_url():
 
 
 def get_newest_version():
-    try:
-        icon_theme_name = json.loads(I('icon-theme.json', data=True))['name']
-    except Exception:
+    icon_theme_name = icon_resource_manager.user_theme_name
+    if icon_theme_name == 'default':
         icon_theme_name = ''
     headers={
         'CALIBRE-VERSION':__version__,
@@ -165,8 +167,9 @@ class UpdateNotification(QDialog):
         save_version_notified(calibre_version)
 
     def get_plugins(self):
-        from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
-            FILTER_UPDATE_AVAILABLE)
+        from calibre.gui2.dialogs.plugin_updater import (
+            FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+        )
         d = PluginUpdaterDialog(self.parent(),
                 initial_filter=FILTER_UPDATE_AVAILABLE)
         d.exec()
@@ -234,8 +237,9 @@ class UpdateMixin:
                     self._update_notification__.show()
         elif has_plugin_updates:
             if force:
-                from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
-                    FILTER_UPDATE_AVAILABLE)
+                from calibre.gui2.dialogs.plugin_updater import (
+                    FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+                )
                 d = PluginUpdaterDialog(self,
                         initial_filter=FILTER_UPDATE_AVAILABLE)
                 d.exec()
