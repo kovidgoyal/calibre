@@ -8,7 +8,6 @@ import tempfile
 from posixpath import normpath
 from qt.core import QFile, QIODevice
 
-from calibre.constants import icons_subdirs
 from calibre_extensions import rcc_backend
 
 
@@ -38,7 +37,7 @@ def index_theme(name, inherits=''):
     if inherits:
         lines.append(f'Inherits={inherits}')
     lines.append('')
-    subdirs = ['images'] + [f'images/{x}' for x in icons_subdirs]
+    subdirs = ['images']
     for sb in subdirs:
         lines += [f'[{sb}]', f'Size={sz}', f'MinSize={min_sz}', f'MaxSize={max_sz}', '']
     return '\n'.join(lines)
@@ -53,6 +52,7 @@ def compile_icon_dir_as_themes(
         print(f'  <qresource prefix="{prefix}">', file=qrc)
 
         def file(name):
+            name = name.replace('\\', '/')
             print(f'    <file>{normpath(name)}</file>', file=qrc)
 
         specific_themes = []
@@ -60,7 +60,7 @@ def compile_icon_dir_as_themes(
             specific_themes = [theme_name + '-dark', theme_name + '-light']
         for q in [theme_name] + specific_themes:
             os.mkdir(os.path.join(tdir, q))
-            for sd in ['images'] + [f'images/{x}' for x in icons_subdirs]:
+            for sd in ['images']:
                 os.makedirs(os.path.join(tdir, q, sd))
         with open(os.path.join(tdir, theme_name, 'index.theme'), 'w') as f:
             f.write(index_theme(theme_name, inherits))
@@ -70,33 +70,46 @@ def compile_icon_dir_as_themes(
                 f.write(index_theme(q, inherits=theme_name))
                 file(f'{q}/index.theme')
 
-        for sdir in ('.',) + icons_subdirs:
-            s = os.path.join(path_to_dir, sdir)
-            for x in os.listdir(s):
-                base, ext = os.path.splitext(x)
-                theme_dir = theme_name
-                dest_name = x
-                if ext.lower() not in ('.png',):
-                    if sdir == '.' and x == 'metadata.json':
-                        dest = theme_dir, dest_name
-                        os.link(os.path.join(s, x), os.path.join(tdir, *dest))
-                        file('/'.join(dest))
-                    continue
-                if base.endswith('-for-dark-theme'):
-                    if for_theme == 'any':
-                        theme_dir += '-dark'
-                    elif for_theme == 'light':
-                        continue
-                    dest_name = x.replace('-for-dark-theme', '')
-                elif base.endswith('-for-light-theme'):
-                    if for_theme == 'any':
-                        theme_dir += '-light'
-                    elif for_theme == 'dark':
-                        continue
-                    dest_name = x.replace('-for-light-theme', '')
-                dest = theme_dir, 'images', sdir, dest_name
-                os.link(os.path.join(s, x), os.path.join(tdir, *dest))
-                file('/'.join(dest))
+        def handle_image(image_path):
+            image_name = os.path.basename(image_path)
+            rp = os.path.relpath(os.path.dirname(image_path), path_to_dir).replace('\\', '/').strip('/').replace('/', '__')
+            if rp == '.':
+                rp = ''
+            else:
+                rp += '__'
+            base, ext = os.path.splitext(image_name)
+            theme_dir = theme_name
+            dest_name = image_name
+            if ext.lower() not in ('.png',):
+                if image_name == 'metadata.json':
+                    dest = theme_dir, dest_name
+                    os.link(image_path, os.path.join(tdir, *dest))
+                    file('/'.join(dest))
+                return
+            if base.endswith('-for-dark-theme'):
+                if for_theme == 'any':
+                    theme_dir += '-dark'
+                elif for_theme == 'light':
+                    return
+                dest_name = dest_name.replace('-for-dark-theme', '')
+            elif base.endswith('-for-light-theme'):
+                if for_theme == 'any':
+                    theme_dir += '-light'
+                elif for_theme == 'dark':
+                    return
+                dest_name = dest_name.replace('-for-light-theme', '')
+            dest = theme_dir, 'images', (rp + dest_name)
+            os.link(image_path, os.path.join(tdir, *dest))
+            file('/'.join(dest))
+
+        for dirpath, dirnames, filenames in os.walk(path_to_dir):
+            if 'textures' in dirnames:
+                dirnames.remove('textures')
+            if os.path.basename(tdir) in dirnames:
+                dirnames.remove(os.path.basename(tdir))
+            for f in filenames:
+                handle_image(os.path.join(dirpath, f))
+
         print('  </qresource>', file=qrc)
         print('</RCC>', file=qrc)
         qrc.close()

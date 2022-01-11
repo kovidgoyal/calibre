@@ -69,7 +69,6 @@ builtin_decorations = {
     'wavy': {'text-decoration-style': 'wavy', 'text-decoration-color': 'red', 'text-decoration-line': 'underline'},
     'strikeout': {'text-decoration-line': 'line-through', 'text-decoration-color': 'red'},
 }
-icons_subdirs = ('devices', 'plugins', 'mimetypes')
 
 
 _osx_ver = None
