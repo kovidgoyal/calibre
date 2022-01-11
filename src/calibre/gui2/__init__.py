@@ -8,7 +8,7 @@ import os
 import signal
 import sys
 import threading
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from functools import lru_cache
 from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QDateTime,
@@ -49,41 +49,48 @@ except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 
-override_icon_path = None
+class IconResourceManager:
+
+    def __init__(self):
+        self.override_icon_path = None
+        self.initialized = False
+
+    def initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
+        QResource.registerResource(P('icons.rcc', allow_user_override=False))
+        QIcon.setFallbackSearchPaths([])
+        QIcon.setThemeSearchPaths([':/icons'])
+        self.override_icon_path = None
+        q = os.path.join(user_dir, 'images')
+        with suppress(Exception):
+            if os.listdir(q):
+                self.override_icon_path = q
+
+    def __call__(self, name):
+        if isinstance(name, QIcon):
+            return name
+        if not name:
+            return QIcon()
+        if os.path.isabs(name):
+            return QIcon(name)
+        if self.override_icon_path:
+            q = os.path.join(self.override_icon_path, name)
+            if os.path.exists(q):
+                return QIcon(q)
+        parts = name.split('/')
+        if len(parts) == 2 and parts[0] in icons_subdirs:
+            name = parts[1]
+        return QIcon.fromTheme(os.path.splitext(name)[0])
+
+    def set_theme(self, is_dark_theme):
+        name = 'calibre-default-' + ('dark' if is_dark_theme else 'light')
+        QIcon.setThemeName(name)
 
 
-def set_icon_paths():
-    global override_icon_path
-    q = os.path.join(user_dir, 'images')
-    override_icon_path = None
-    try:
-        if os.listdir(q):
-            override_icon_path = q
-    except Exception:
-        pass
-    QResource.registerResource(P('icons.rcc', allow_user_override=False))
-    QIcon.setFallbackSearchPaths([])
-    QIcon.setThemeSearchPaths([':/icons'])
-
-
-def load_qicon(name):
-    if isinstance(name, QIcon):
-        return name
-    if not name:
-        return QIcon()
-    if os.path.isabs(name):
-        return QIcon(name)
-    if override_icon_path:
-        q = os.path.join(override_icon_path, name)
-        if os.path.exists(q):
-            return QIcon(q)
-    parts = name.split('/')
-    if len(parts) == 2 and parts[0] in icons_subdirs:
-        name = parts[1]
-    return QIcon.fromTheme(os.path.splitext(name)[0])
-
-
-QIcon.ic = load_qicon
+icon_resource_manager = IconResourceManager()
+QIcon.ic = icon_resource_manager
 
 
 # Setup gprefs {{{
@@ -973,7 +980,7 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, qargs)
-        set_icon_paths()
+        icon_resource_manager.initialize()
         sh = self.styleHints()
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
             sh.setShowShortcutsInContextMenus(True)
@@ -1180,8 +1187,7 @@ class Application(QApplication):
         self.palette_changed.emit()
 
     def update_icon_theme(self):
-        name = 'calibre-default-' + ('dark' if self.is_dark_theme else 'light')
-        QIcon.setThemeName(name)
+        icon_resource_manager.set_theme(self.is_dark_theme)
 
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (
