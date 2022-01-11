@@ -12,7 +12,7 @@ from contextlib import contextmanager, suppress
 from functools import lru_cache
 from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QDateTime,
-    QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFileDialog,
+    QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFile, QFileDialog,
     QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
     QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
     QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt,
@@ -54,6 +54,45 @@ class IconResourceManager:
     def __init__(self):
         self.override_icon_path = None
         self.initialized = False
+        self.dark_theme_name = self.default_dark_theme_name = 'calibre-default-dark'
+        self.light_theme_name = self.default_light_theme_name = 'calibre-default-light'
+        self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
+        self.registered_user_resource_files = ()
+
+    def user_theme_resource_file(self, which):
+        return os.path.join(config_dir, f'icons-{which}.rcc')
+
+    def register_user_resource_files(self):
+        self.user_icon_theme_metadata.cache_clear()
+        for x in self.registered_user_resource_files:
+            QResource.unregisterResource(x)
+        r = []
+        self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
+        for x in ('any', 'light', 'dark'):
+            path = self.user_theme_resource_file(x)
+            if os.path.exists(path):
+                QResource.registerResource(path)
+                r.append(path)
+                setattr(self, f'user_{x}_theme_name', f'calibre-user-{x}')
+        self.registered_user_resource_files = tuple(r)
+        any_dark = (self.user_any_theme_name + '-dark') if self.user_any_theme_name else ''
+        any_light = (self.user_any_theme_name + '-light') if self.user_any_theme_name else ''
+        self.dark_theme_name = self.user_dark_theme_name or any_dark or self.default_dark_theme_name
+        self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
+
+    @lru_cache(maxsize=4)
+    def user_icon_theme_metadata(self, which):
+        path = self.user_theme_resource_file(which)
+        if path not in self.registered_user_resource_files:
+            return {}
+        f = QFile(f':/icons/calibre-user-{which}/metadata.json')
+        if not f.open(QIODevice.OpenModeFlag.ReadOnly):
+            return {}
+        try:
+            import json
+            return json.loads(bytes(f.readAll()))
+        finally:
+            f.close()
 
     def initialize(self):
         if self.initialized:
@@ -64,9 +103,30 @@ class IconResourceManager:
         QIcon.setThemeSearchPaths([':/icons'])
         self.override_icon_path = None
         q = os.path.join(user_dir, 'images')
+        items = []
         with suppress(Exception):
-            if os.listdir(q):
-                self.override_icon_path = q
+            items = os.listdir(q)
+        if items:
+            self.override_icon_path = q
+            legacy_theme_metadata = os.path.join(q, 'icon-theme.json')
+            if os.path.exists(legacy_theme_metadata):
+                self.migrate_legacy_icon_theme()
+        self.register_user_resource_files()
+
+    def migrate_legacy_icon_theme(self, legacy_theme_metadata):
+        from calibre.utils.rcc import compile_icon_dir_as_themes
+        import shutil
+        images = os.path.dirname(legacy_theme_metadata)
+        os.replace(legacy_theme_metadata, os.path.join(images, 'metadata.json'))
+        compile_icon_dir_as_themes(
+            images, self.user_theme_resource_file('any'), theme_name='calibre-user-any', inherits='calibre-default')
+        for x in os.listdir(images):
+            q = os.path.join(images, x)
+            if os.path.isdir(q):
+                if x in icons_subdirs:
+                    shutil.rmtree(q)
+            else:
+                os.remove(q)
 
     def __call__(self, name):
         if isinstance(name, QIcon):
@@ -85,8 +145,7 @@ class IconResourceManager:
         return QIcon.fromTheme(os.path.splitext(name)[0])
 
     def set_theme(self, is_dark_theme):
-        name = 'calibre-default-' + ('dark' if is_dark_theme else 'light')
-        QIcon.setThemeName(name)
+        QIcon.setThemeName(self.dark_theme_name if is_dark_theme else self.light_theme_name)
 
 
 icon_resource_manager = IconResourceManager()

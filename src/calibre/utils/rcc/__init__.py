@@ -74,10 +74,14 @@ def compile_icon_dir_as_themes(
             s = os.path.join(path_to_dir, sdir)
             for x in os.listdir(s):
                 base, ext = os.path.splitext(x)
-                if ext.lower() not in ('.png',):
-                    continue
                 theme_dir = theme_name
                 dest_name = x
+                if ext.lower() not in ('.png',):
+                    if sdir == '.' and x == 'metadata.json':
+                        dest = theme_dir, dest_name
+                        os.link(os.path.join(s, x), os.path.join(tdir, *dest))
+                        file('/'.join(dest))
+                    continue
                 if base.endswith('-for-dark-theme'):
                     if for_theme == 'any':
                         theme_dir += '-dark'
