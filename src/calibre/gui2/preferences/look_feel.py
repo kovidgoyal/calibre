@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json
-
 from collections import defaultdict
 from threading import Thread
 
@@ -21,8 +20,8 @@ from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import default_author_link, choose_save_file, choose_files
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
+from calibre.gui2 import default_author_link, icon_resource_manager, choose_save_file, choose_files
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -414,7 +413,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r = self.register
 
         try:
-            self.icon_theme_title = json.loads(I('icon-theme.json', data=True))['name']
+            self.icon_theme_title = icon_resource_manager.user_theme_title
         except Exception:
             self.icon_theme_title = _('Default icons')
         self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
@@ -871,7 +870,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
             if self.commit_icon_theme is not None:
                 self.commit_icon_theme()
-                rr = True
             gprefs['default_author_link'] = self.default_author_link.value
             bcss = self.opt_book_details_css.toPlainText().encode('utf-8')
             defcss = P('templates/book_details.css', data=True, allow_user_override=False)
