@@ -71,7 +71,7 @@ class GUI(Command):
 
     def build_forms(self, summary=False):
         from calibre.build_forms import build_forms
-        build_forms(self.SRC, info=self.info, summary=summary)
+        build_forms(self.SRC, info=self.info, summary=summary, check_icons=False)
 
     def clean(self):
         forms = self.find_forms()
