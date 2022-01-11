@@ -683,7 +683,12 @@ class FileList(QTreeWidget, OpenWithHandler):
             m.addSeparator()
         md = QApplication.instance().clipboard().mimeData()
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
-            m.addAction(_('Paste files from other editor instance'), self.paste_from_other_instance)
+            import json
+            name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
+            m.addAction(ngettext(
+                _('Paste file from other editor instance'),
+                _('Paste {} files from other editor instance'),
+                len(name_map)).format(len(name_map)), self.paste_from_other_instance)
 
         selected_map = defaultdict(list)
         for item in sel:
