@@ -157,7 +157,15 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
 }
 
 QIcon CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption * option, const QWidget * widget) const {
-    if (icon_map.contains(standardIcon)) return QIcon::fromTheme(icon_map.value(standardIcon));
+    if (icon_map.contains(standardIcon)) {
+        QIcon ans = QIcon::fromTheme(icon_map.value(standardIcon));
+        if (ans.isNull() && QIcon::themeName().contains("user-any")) {
+            const bool is_dark_theme = QApplication::instance()->property("is_dark_theme").toBool();
+            QIcon q(QString(":/icons/calibre-default-%1/images/%2.png").arg(is_dark_theme ? "dark" : "light").arg(icon_map.value(standardIcon)));
+            if (!q.isNull()) ans = q;
+        }
+        return ans;
+    }
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 
