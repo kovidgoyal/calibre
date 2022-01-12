@@ -229,7 +229,7 @@ class InterfaceAction(QObject):
             an UUID to it.
         :param text: The text of the action.
         :param icon: Either a QIcon or a file name. The file name is passed to
-            the I() builtin, so you do not need to pass the full path to the images
+            the QIcon.ic() builtin, so you do not need to pass the full path to the images
             folder.
         :param shortcut: A string, a list of strings, None or False. If False,
             no keyboard shortcut is registered for this action. If None, a keyboard
