@@ -102,7 +102,7 @@ class IconResourceManager:
             f.close()
 
     @property
-    def user_theme_metadata(self):
+    def active_user_theme_metadata(self):
         q = QIcon.themeName()
         if q in (self.default_dark_theme_name, self.default_light_theme_name):
             return {}
@@ -114,11 +114,11 @@ class IconResourceManager:
 
     @property
     def user_theme_title(self):
-        return self.user_theme_metadata.get('title', _('Default icons'))
+        return self.active_user_theme_metadata.get('title', _('Default icons'))
 
     @property
     def user_theme_name(self):
-        return self.user_theme_metadata.get('name', 'default')
+        return self.active_user_theme_metadata.get('name', 'default')
 
     def initialize(self):
         if self.initialized:
