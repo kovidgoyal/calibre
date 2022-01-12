@@ -76,9 +76,10 @@ Overriding icons, templates, et cetera
 ----------------------------------------
 
 .. note::
-    calibre has direct support for icon themes, there are several icon themes
-    available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change Icon theme`.
-    The icon themes use the same mechanism as described below for overriding static resources.
+   calibre has direct support for icon themes, there are several icon themes
+   available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change Icon theme`.
+   It is preferable to use icon themes over overriding individual icons.
+
 
 calibre allows you to override the static resources, like icons, JavaScript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
@@ -104,7 +105,8 @@ relevant file is :file:`resources/images/remove_books.png`. Assuming you have an
 alternate icon in PNG format called :file:`my_remove_books.png` you would save it in
 the configuration folder as :file:`resources/images/remove_books.png`. All the
 icons used by the calibre user interface are in :file:`resources/images` and
-its sub-folders.
+its sub-folders. Placing an override file here will have even higher priority
+than a custom icon theme.
 
 Creating your own icon theme for calibre
 -------------------------------------------------------------
