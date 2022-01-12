@@ -165,7 +165,7 @@ class IconResourceManager:
             q = os.path.join(self.override_icon_path, name)
             if os.path.exists(q):
                 return QIcon(q)
-        return QIcon.fromTheme(os.path.splitext(name.replace('/', '__'))[0])
+        return QIcon.fromTheme(os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0])
 
     def set_theme(self, is_dark_theme):
         QIcon.setThemeName(self.dark_theme_name if is_dark_theme else self.light_theme_name)
