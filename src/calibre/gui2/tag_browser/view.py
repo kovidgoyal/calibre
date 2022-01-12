@@ -877,7 +877,7 @@ class TagsView(QTreeView):  # {{{
                             search_submenu.addAction(self.search_copy_icon,
                                      _('The saved search expression'),
                                      partial(self.context_menu_handler, action='raw_search',
-                                             key=tag.name))
+                                             key=tag.original_name))
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:

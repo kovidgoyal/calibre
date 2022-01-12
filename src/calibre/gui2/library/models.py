@@ -1122,7 +1122,8 @@ class BooksModel(QAbstractTableModel):  # {{{
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display=disp,
                                                update_last_modified=True)
-            self.refresh(reset=True)
+            self.refresh(reset=False)
+            self.research(reset=True)
             return True
 
         id = self.db.id(row)
