@@ -12,6 +12,7 @@ import math
 import os
 import sys
 import tempfile
+from contextlib import suppress
 from functools import lru_cache
 from io import BytesIO
 from itertools import count
@@ -468,12 +469,9 @@ def get_cover(metadata):
     etag_file, cover_file = map(path, 'etag jpg'.split())
 
     def safe_read(path):
-        try:
+        with suppress(FileNotFoundError):
             with open(path, 'rb') as f:
                 return f.read()
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
         return b''
     etag, cached = safe_read(etag_file), safe_read(cover_file)
     etag = etag.decode('utf-8')

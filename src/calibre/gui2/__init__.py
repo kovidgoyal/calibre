@@ -165,7 +165,15 @@ class IconResourceManager:
             q = os.path.join(self.override_icon_path, name)
             if os.path.exists(q):
                 return QIcon(q)
-        return QIcon.fromTheme(os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0])
+        icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
+        ans = QIcon.fromTheme(icon_name)
+        if ans.isNull():
+            if 'user-any' in QIcon.themeName():
+                tc = 'dark' if QApplication.instance().is_dark_theme else 'light'
+                q = QIcon(f':/icons/calibre-default-{tc}/images/{name}')
+                if not q.isNull():
+                    ans = q
+        return ans
 
     def set_theme(self):
         current = QIcon.themeName()
