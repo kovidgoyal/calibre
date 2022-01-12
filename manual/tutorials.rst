@@ -8,7 +8,6 @@ Here you will find tutorials to get you started using calibre's more advanced fe
 .. toctree::
    :maxdepth: 1
 
-   news
    sub_groups
    xpath
    template_lang
