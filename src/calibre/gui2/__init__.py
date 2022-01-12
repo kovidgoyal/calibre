@@ -167,8 +167,14 @@ class IconResourceManager:
                 return QIcon(q)
         return QIcon.fromTheme(os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0])
 
-    def set_theme(self, is_dark_theme):
-        QIcon.setThemeName(self.dark_theme_name if is_dark_theme else self.light_theme_name)
+    def set_theme(self):
+        current = QIcon.themeName()
+        new = self.dark_theme_name if QApplication.instance().is_dark_theme else self.light_theme_name
+        if current == new and current not in (self.default_dark_theme_name, self.default_light_theme_name):
+            # force reload of user icons by first changing theme to default and
+            # then to user
+            QIcon.setThemeName(self.default_dark_theme_name if QApplication.instance().is_dark_theme else self.default_light_theme_name)
+        QIcon.setThemeName(new)
 
 
 icon_resource_manager = IconResourceManager()
@@ -1269,7 +1275,7 @@ class Application(QApplication):
         self.palette_changed.emit()
 
     def update_icon_theme(self):
-        icon_resource_manager.set_theme(self.is_dark_theme)
+        icon_resource_manager.set_theme()
 
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (

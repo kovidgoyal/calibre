@@ -10,8 +10,8 @@ import importlib
 import json
 import math
 import os
-import shutil
 import sys
+import tempfile
 from functools import lru_cache
 from io import BytesIO
 from itertools import count
@@ -27,7 +27,7 @@ from qt.core import (
 from threading import Event, Thread
 
 from calibre import detect_ncpus as cpu_count, fit_image, human_readable, walk
-from calibre.constants import cache_dir, config_dir
+from calibre.constants import cache_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import (
     choose_dir, choose_save_file, empty_index, error_dialog, gprefs,
@@ -597,6 +597,10 @@ def default_theme():
     }
 
 
+def is_default_theme(t):
+    return t.get('name') == default_theme()['name']
+
+
 class ChooseThemeWidget(QWidget):
 
     sync_sorts = pyqtSignal(int)
@@ -724,7 +728,6 @@ class ChooseTheme(Dialog):
         self.cover_downloaded.connect(self.set_cover, type=Qt.ConnectionType.QueuedConnection)
         self.keep_downloading = True
         self.commit_changes = None
-        self.new_theme_title = None
 
     def on_finish(self):
         self.dialog_closed = True
@@ -833,94 +836,103 @@ class ChooseTheme(Dialog):
             tab.set_current_theme(default_theme()['name'])
 
     def accept(self):
-        if self.theme_list.currentRow() < 0:
-            return error_dialog(self, _('No theme selected'), _(
-                'You must first select an icon theme'), show=True)
-        theme = self.theme_list.currentItem().data(Qt.ItemDataRole.UserRole)
-        url = BASE_URL + theme['icons-url']
-        size = theme['compressed-size']
-        theme = {k:theme.get(k, '') for k in 'name title version'.split()}
+        themes_to_download = {}
+        themes_to_remove = set()
+        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+            t = tab.current_theme
+            if is_default_theme(t):
+                themes_to_remove.add(tab.for_theme)
+            else:
+                themes_to_download[t['name']] = t
+                t.setdefault('for_themes', []).append(tab.for_theme)
         self.keep_downloading = True
-        d = DownloadProgress(self, size)
-        d.canceled_signal.connect(lambda : setattr(self, 'keep_downloading', False))
-
-        self.downloaded_theme = None
+        self.err_traceback = None
 
         def download():
-            self.downloaded_theme = buf = BytesIO()
-            try:
-                response = get_https_resource_securely(url, get_response=True)
-                while self.keep_downloading:
-                    raw = response.read(1024)
-                    if not raw:
-                        break
-                    buf.write(raw)
-                    d.downloaded(buf.tell())
-                d.queue_accept()
-            except Exception:
-                import traceback
-                self.downloaded_theme = traceback.format_exc()
-                d.queue_reject()
+            dc = 0
+            for theme in themes_to_download.values():
+                buf = BytesIO()
+                try:
+                    url = BASE_URL + theme['icons-url']
+                    response = get_https_resource_securely(url, get_response=True)
+                    while self.keep_downloading:
+                        raw = response.read(1024)
+                        if not raw:
+                            break
+                        buf.write(raw)
+                        dc += len(raw)
+                        d.downloaded(dc)
+                except Exception:
+                    import traceback
+                    self.err_traceback = traceback.format_exc()
+                    d.queue_reject()
+                    return
+                import lzma
+                data = lzma.decompress(buf.getvalue())
+                theme['buf'] = BytesIO(data)
+            d.queue_accept()
 
-        t = Thread(name='DownloadIconTheme', target=download)
-        t.daemon = True
-        t.start()
-        ret = d.exec()
+        if themes_to_download:
+            size = sum(t['compressed-size'] for t in themes_to_download.values())
+            d = DownloadProgress(self, size)
+            d.canceled_signal.connect(lambda : setattr(self, 'keep_downloading', False))
+            t = Thread(name='DownloadIconTheme', target=download)
+            t.daemon = True
+            t.start()
+            ret = d.exec()
+            if self.err_traceback:
+                return error_dialog(self, _('Download failed'), _(
+                    'Failed to download icon themes, click "Show details" for more information.'), show=True, det_msg=self.err_traceback)
+            if ret == QDialog.DialogCode.Rejected or not self.keep_downloading or d.canceled:
+                return
 
-        if self.downloaded_theme and not isinstance(self.downloaded_theme, BytesIO):
-            return error_dialog(self, _('Download failed'), _(
-                'Failed to download icon theme, click "Show details" for more information.'), show=True, det_msg=self.downloaded_theme)
-        if ret == QDialog.DialogCode.Rejected or not self.keep_downloading or d.canceled or self.downloaded_theme is None:
-            return
-        dt = self.downloaded_theme
+        self.commit_changes = CommitChanges(tuple(themes_to_download.values()), themes_to_remove)
+        return super().accept()
 
-        def commit_changes():
-            import lzma
-            dt.seek(0)
-            f = BytesIO(lzma.decompress(dt.getvalue()))
-            f.seek(0)
-            # remove_icon_theme()
-            install_icon_theme(theme, f)
-        self.commit_changes = commit_changes
-        self.new_theme_title = theme['title']
-        return Dialog.accept(self)
+    @property
+    def new_theme_title(self):
+        if QApplication.instance().is_dark_theme:
+            order = 'dark', 'any', 'light'
+        else:
+            order = 'light', 'any', 'dark'
+        tm = {tab.for_theme: tab for tab in (self.tabs.widget(i) for i in range(self.tabs.count()))}
+        for x in order:
+            tab = tm[x]
+            t = tab.current_theme
+            if not is_default_theme(t):
+                return t['title']
 
 # }}}
 
 
-def safe_copy(src, destpath):
-    tpath = destpath + '-temp'
-    with open(tpath, 'wb') as dest:
-        shutil.copyfileobj(src, dest)
-    atomic_rename(tpath, destpath)
+class CommitChanges:
+
+    def __init__(self, downloaded_themes, themes_to_remove):
+        self.downloaded_themes = downloaded_themes
+        self.themes_to_remove = themes_to_remove
+
+    def __call__(self):
+        for x in self.themes_to_remove:
+            icon_resource_manager.remove_user_theme(x)
+        for theme in self.downloaded_themes:
+            for x in theme['for_themes']:
+                icon_resource_manager.remove_user_theme(x)
+                path = icon_resource_manager.user_theme_resource_file(x)
+                t = {k: theme[k] for k in 'name title version'.split()}
+                install_icon_theme(t, theme['buf'], path, x)
+        icon_resource_manager.register_user_resource_files()
+        icon_resource_manager.set_theme()
 
 
-def install_icon_theme(theme, f):
-    icdir = os.path.abspath(os.path.join(config_dir, 'resources', 'images'))
-    if not os.path.exists(icdir):
-        os.makedirs(icdir)
-    theme['files'] = set()
-    metadata_file = os.path.join(icdir, 'icon-theme.json')
-    with ZipFile(f) as zf:
-        for name in zf.namelist():
-            if '..' in name or name == 'blank.png':
-                continue
-            base = icdir
-            if '/' in name:
-                base = os.path.join(icdir, os.path.dirname(name))
-                if not os.path.exists(base):
-                    os.makedirs(base)
-            destpath = os.path.abspath(os.path.join(base, os.path.basename(name)))
-            if not destpath.startswith(icdir):
-                continue
-            with zf.open(name) as src:
-                safe_copy(src, destpath)
-            theme['files'].add(name)
-
-    theme['files'] = tuple(theme['files'])
-    buf = BytesIO(as_bytes(json.dumps(theme, indent=2)))
-    buf.seek(0)
-    safe_copy(buf, metadata_file)
+def install_icon_theme(theme, f, rcc_path, for_theme):
+    from calibre.utils.rcc import compile_icon_dir_as_themes
+    with ZipFile(f) as zf, tempfile.TemporaryDirectory() as tdir:
+        zf.extractall(tdir)
+        with open(os.path.join(tdir, 'metadata.json'), 'w') as f:
+            json.dump(theme, f)
+        inherits = 'calibre-default' if for_theme == 'any' else f'calibre-default-{for_theme}'
+        compile_icon_dir_as_themes(
+            tdir, rcc_path, theme_name=f'calibre-user-{for_theme}', inherits=inherits, for_theme=for_theme)
 
 
 if __name__ == '__main__':
