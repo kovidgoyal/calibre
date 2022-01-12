@@ -12,16 +12,17 @@ import math
 import os
 import shutil
 import sys
+from functools import lru_cache
 from io import BytesIO
 from itertools import count
-from functools import lru_cache
 from multiprocessing.pool import ThreadPool
 from qt.core import (
     QAbstractItemView, QApplication, QComboBox, QDialog, QDialogButtonBox,
-    QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QPen, QPixmap, QProgressDialog, QSize,
-    QSpinBox, QSplitter, QStackedLayout, QStaticText, QStyle, QStyledItemDelegate,
-    Qt, QTabWidget, QTextEdit, QVBoxLayout, QWidget, pyqtSignal, sip
+    QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader,
+    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen,
+    QPixmap, QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout,
+    QStaticText, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout,
+    QWidget, pyqtSignal, sip
 )
 from threading import Event, Thread
 
@@ -30,7 +31,7 @@ from calibre.constants import cache_dir, config_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import (
     choose_dir, choose_save_file, empty_index, error_dialog, gprefs,
-    icon_resource_manager, must_use_qt, question_dialog, safe_open_url
+    icon_resource_manager, must_use_qt, safe_open_url
 )
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -580,10 +581,6 @@ class DownloadProgress(ProgressDialog):
         self.rej.emit()
 
 
-def specialised_theme_name(for_theme):
-    return icon_resource_manager.user_icon_theme_metadata(for_theme).get('name')
-
-
 @lru_cache(maxsize=2)
 def default_theme():
     dc = 0
@@ -602,19 +599,24 @@ def default_theme():
 
 class ChooseThemeWidget(QWidget):
 
+    sync_sorts = pyqtSignal(int)
+
     def __init__(self, for_theme='any', parent=None):
         super().__init__(parent)
+        if parent:
+            self.sync_sorts.connect(parent.sync_sorts)
         self.vl = vl = QVBoxLayout(self)
         self.for_theme = for_theme
-        self.default_theme = default_theme()
         if self.for_theme == 'any':
             msg = _('Choose an icon theme below. It will be used for both light and dark color'
                     ' themes unless a color specific theme is chosen in one of the other tabs.')
         elif self.for_theme == 'light':
-            msg = _('Choose an icon theme below. It will be used preferentially for light color themes.')
+            msg = _('Choose an icon theme below. It will be used preferentially for light color themes.'
+                    ' If the default is chosen then the theme for "light and dark" will be used.')
         elif self.for_theme == 'dark':
-            msg = _('Choose an icon theme below. It will be used preferentially for dark color themes.')
-        self.current_theme = specialised_theme_name(self.for_theme) or 'default'
+            msg = _('Choose an icon theme below. It will be used preferentially for dark color themes.'
+                    ' If the default is chosen then the theme for "light and dark" will be used.')
+        self.currently_installed_theme_name = icon_resource_manager.user_icon_theme_metadata(for_theme).get('name')
         self.msg = la = QLabel(msg)
         la.setWordWrap(True)
         vl.addWidget(la)
@@ -626,14 +628,25 @@ class ChooseThemeWidget(QWidget):
         hl.addWidget(sl), hl.addWidget(sb), hl.addStretch(10)
         sb.addItems([_('Number of icons'), _('Popularity'), _('Name'),])
         sb.setEditable(False), sb.setCurrentIndex(gprefs.get('choose_icon_theme_sort_by', 1))
-        sb.currentIndexChanged.connect(self.re_sort)
-        sb.currentIndexChanged.connect(lambda : gprefs.set('choose_icon_theme_sort_by', sb.currentIndex()))
+        sb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        sb.currentIndexChanged.connect(self.sort_by_changed)
         self.theme_list = tl = QListWidget(self)
         vl.addWidget(tl)
         tl.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.delegate = Delegate(tl)
         tl.setItemDelegate(self.delegate)
         tl.itemPressed.connect(self.item_clicked)
+
+    def sort_by_changed(self):
+        self.re_sort()
+        gprefs.set('choose_icon_theme_sort_by', self.sort_by.currentIndex())
+        self.sync_sorts.emit(self.sort_by.currentIndex())
+
+    def sync_sort(self, idx):
+        if self.sort_by.currentIndex() != idx:
+            self.blockSignals(True)
+            self.sort_by.setCurrentIndex(idx)
+            self.blockSignals(False)
 
     def item_clicked(self, item):
         if QApplication.mouseButtons() & Qt.MouseButton.RightButton:
@@ -661,10 +674,12 @@ class ChooseThemeWidget(QWidget):
             item.setData(Qt.ItemDataRole.DecorationRole, pixmap)
 
     def show_themes(self, themes):
-        self.themes = [self.default_theme] + list(themes)
+        self.themes = [default_theme()] + list(themes)
         self.re_sort()
+        self.set_current_theme(self.currently_installed_theme_name)
 
     def re_sort(self):
+        ct = self.current_theme
         self.themes.sort(key=lambda x:sort_key(x.get('title', '')))
         field = self.sort_on
         if field == 'number':
@@ -677,6 +692,23 @@ class ChooseThemeWidget(QWidget):
             i.setData(Qt.ItemDataRole.UserRole, theme)
             if 'cover-pixmap' in theme:
                 i.setData(Qt.ItemDataRole.DecorationRole, theme['cover-pixmap'])
+        if ct:
+            self.set_current_theme(ct.get('name', ''))
+
+    @property
+    def current_theme(self):
+        ci = self.theme_list.currentItem()
+        if ci:
+            return ci.data(Qt.ItemDataRole.UserRole)
+        return default_theme()
+
+    def set_current_theme(self, name):
+        for i, t in enumerate(self.themes):
+            if t.get('name') == name:
+                self.theme_list.setCurrentRow(i, QItemSelectionModel.SelectionFlag.SelectCurrent | QItemSelectionModel.SelectionFlag.Clear)
+                self.theme_list.scrollToItem(self.theme_list.currentItem())
+                return True
+        return False
 
 
 class ChooseTheme(Dialog):
@@ -727,11 +759,16 @@ class ChooseTheme(Dialog):
         self.tabs.addTab(self.light_colors, _('For light only'))
         self.dark_colors = ChooseThemeWidget(for_theme='dark', parent=self)
         self.tabs.addTab(self.dark_colors, _('For dark only'))
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(gprefs.get('choose_icon_theme_initial_tab', 0))
+        self.tabs.currentChanged.connect(lambda idx: gprefs.set('choose_icon_theme_initial_tab', idx))
 
         t = Thread(name='GetIconThemes', target=self.get_themes)
         t.daemon = True
         t.start()
+
+    def sync_sorts(self, idx):
+        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+            tab.sync_sort(idx)
 
     def start_spinner(self, msg=None):
         self.pi.startAnimation()
@@ -774,10 +811,12 @@ class ChooseTheme(Dialog):
                          det_msg=self.themes, show=True)
             self.reject()
             return
+        self.setWindowTitle(_('Choose from {} available icon themes').format(len(self.themes)))
         for theme in self.themes:
             theme['usage'] = self.usage.get(theme['name'], 0)
         for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
             tab.show_themes(self.themes)
+        self.tabs.currentWidget().theme_list.setFocus(Qt.FocusReason.OtherFocusReason)
         get_covers(self.themes, self)
 
     def set_cover(self, theme, cdata):
@@ -790,13 +829,8 @@ class ChooseTheme(Dialog):
             tab.set_cover(theme['name'], p)
 
     def restore_defaults(self):
-        if self.current_theme is not None:
-            if not question_dialog(self, _('Are you sure?'), _(
-                    'Are you sure you want to remove the <b>%s</b> icon theme'
-                    ' and return to the stock icons?') % self.current_theme):
-                return
-        # self.commit_changes = lambda: remove_icon_theme('all')
-        Dialog.accept(self)
+        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+            tab.set_current_theme(default_theme()['name'])
 
     def accept(self):
         if self.theme_list.currentRow() < 0:
