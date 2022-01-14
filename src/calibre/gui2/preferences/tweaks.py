@@ -6,25 +6,24 @@ import textwrap
 from collections import OrderedDict
 from functools import partial
 from operator import attrgetter
-from qt.core import (
-    QAbstractItemView, QAbstractListModel, QApplication, QComboBox, QDialog,
-    QDialogButtonBox, QFont, QGridLayout, QGroupBox, QIcon, QItemSelectionModel,
-    QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSizePolicy,
-    QSplitter, Qt, QVBoxLayout, QWidget, pyqtSignal
-)
 
-from calibre import isbytestring
+from calibre import isbytestring, prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.utils.config_base import (
-    default_tweaks_raw, exec_tweaks, normalize_tweak, read_custom_tweaks,
-    write_custom_tweaks
-)
+from calibre.utils.config_base import (default_tweaks_raw, exec_tweaks,
+                                       normalize_tweak, read_custom_tweaks,
+                                       write_custom_tweaks)
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from polyglot.builtins import iteritems
+from qt.core import (QAbstractItemView, QAbstractListModel, QApplication,
+                     QComboBox, QDialog, QDialogButtonBox, QFont, QGridLayout,
+                     QGroupBox, QIcon, QItemSelectionModel, QLabel, QListView,
+                     QMenu, QModelIndex, QPlainTextEdit, QPushButton,
+                     QSizePolicy, QSplitter, Qt, QVBoxLayout, QWidget,
+                     pyqtSignal)
 
 ROOT = QModelIndex()
 
@@ -557,7 +556,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.search.search_done(True)
         if not idx.isValid():
             info_dialog(self, _('No matches'),
-                    _('Could not find any shortcuts matching %s')%query,
+                    _('Could not find any tweaks matching <i>{}</i>').format(prepare_string_for_xml(query)),
                     show=True, show_copy_button=False)
             return
         self.highlight_index(idx)
