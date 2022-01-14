@@ -726,7 +726,6 @@ class LayoutMixin:  # {{{
 
     def toggle_grid_view(self, show):
         self.library_view.alternate_views.show_view('grid' if show else None)
-        self.sort_sep.setVisible(show)
         self.sort_button.setVisible(show)
 
     def toggle_search_bar(self, show):
