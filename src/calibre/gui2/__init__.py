@@ -44,6 +44,13 @@ except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 
+def load_icon(name):
+    return QIcon(I(name))
+
+
+QIcon.ic = load_icon
+
+
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
