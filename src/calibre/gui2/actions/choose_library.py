@@ -9,7 +9,7 @@ import posixpath
 import sys
 import weakref
 from contextlib import suppress
-from functools import partial
+from functools import partial, lru_cache
 from qt.core import (
     QAction, QCoreApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon,
     QInputDialog, QLabel, QLineEdit, QMenu, QSize, Qt, QTimer, QToolButton,
@@ -37,6 +37,14 @@ def db_class():
 
 def library_icon_path(lib_name=''):
     return os.path.join(config_dir, 'library_icons', sanitize_file_name(lib_name or current_library_name()) + '.png')
+
+
+@lru_cache(maxsize=512)
+def library_qicon(lib_name=''):
+    q = library_icon_path(lib_name)
+    if os.path.exists(q):
+        return QIcon(q)
+    return getattr(library_qicon, 'default_icon', None) or QIcon.ic('lt.png')
 
 
 class LibraryUsageStats:  # {{{
@@ -268,7 +276,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.remove_library_icon_action.triggered.connect(partial(self.remove_library_icon, ''))
         self.choose_library_icon_menu.addAction(self.choose_library_icon_action)
         self.choose_library_icon_menu.addAction(self.remove_library_icon_action)
-        self.original_library_icon = self.qaction.icon()
+        self.original_library_icon = library_qicon.default_icon = self.qaction.icon()
 
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
@@ -357,6 +365,7 @@ class ChooseLibraryAction(InterfaceAction):
                 with open(icp, 'wb') as f:
                     f.write(pixmap_to_data(p, format='PNG'))
                 self.set_library_icon()
+                library_qicon.cache_clear()
         except Exception:
             import traceback
             traceback.print_exc()
@@ -367,6 +376,7 @@ class ChooseLibraryAction(InterfaceAction):
         try:
             if os.path.exists(old_path):
                 os.replace(old_path, new_path)
+            library_qicon.cache_clear()
         except Exception:
             import traceback
             traceback.print_exc()
@@ -376,6 +386,7 @@ class ChooseLibraryAction(InterfaceAction):
             with suppress(FileNotFoundError):
                 os.remove(library_icon_path(name or current_library_name()))
             self.set_library_icon()
+            library_qicon.cache_clear()
         except Exception:
             import traceback
             traceback.print_exc()
@@ -468,8 +479,9 @@ class ChooseLibraryAction(InterfaceAction):
         quick_actions, rename_actions, delete_actions = [], [], []
         for name, loc in locations:
             is_prev_lib = name == self.prev_lname
+            ic = library_qicon(name)
             name = name.replace('&', '&&')
-            ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
+            ac = self.quick_menu.addAction(ic, name, Dispatcher(partial(self.switch_requested,
                 loc)))
             ac.setStatusTip(_('Switch to: %s') % loc)
             if is_prev_lib:
@@ -494,9 +506,11 @@ class ChooseLibraryAction(InterfaceAction):
             locations_by_frequency = list(self.stats.locations(db, limit=sys.maxsize))
         for i, x in enumerate(locations_by_frequency[:len(self.switch_actions)]):
             name, loc = x
+            ic = library_qicon(name)
             name = name.replace('&', '&&')
             ac = self.switch_actions[i]
             ac.setText(name)
+            ac.setIcon(ic)
             ac.setStatusTip(_('Switch to: %s') % loc)
             ac.setVisible(True)
             qs_actions.append(ac)

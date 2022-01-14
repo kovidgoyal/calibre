@@ -6,26 +6,28 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from functools import partial
-from threading import Thread
-from contextlib import closing
 from collections import defaultdict
-
+from contextlib import closing
+from functools import partial
 from qt.core import (
-    QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
-    QApplication, QLineEdit, QHBoxLayout, QFormLayout, QCheckBox, QWidget,
-    QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize, QAbstractItemView)
+    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox,
+    QFormLayout, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QScrollArea, QSize, Qt, QToolButton, QVBoxLayout, QWidget
+)
+from threading import Thread
 
 from calibre import as_unicode
 from calibre.constants import ismacos
+from calibre.db.copy_to_library import copy_one_book
+from calibre.gui2 import (
+    Dispatcher, choose_dir, error_dialog, gprefs, info_dialog, warning_dialog
+)
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
-        info_dialog, choose_dir)
+from calibre.gui2.actions.choose_library import library_qicon
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key, numeric_sort_key
-from calibre.db.copy_to_library import copy_one_book
+from calibre.utils.icu import numeric_sort_key, sort_key
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -363,10 +365,11 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(_('Choose library...'), self.choose_library)
             self.menu.addSeparator()
         for name, loc in locations:
+            ic = library_qicon(name)
             name = name.replace('&', '&&')
-            self.menu.addAction(name, partial(self.copy_to_library,
+            self.menu.addAction(ic, name, partial(self.copy_to_library,
                 loc))
-            self.menu.addAction(name + ' ' + _('(delete after copy)'),
+            self.menu.addAction(ic, name + ' ' + _('(delete after copy)'),
                     partial(self.copy_to_library, loc, delete_after=True))
             self.menu.addSeparator()
         if len(locations) <= 5:
