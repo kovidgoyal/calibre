@@ -173,6 +173,7 @@ def searchable_text_for_name(name):
     for child in serialized_data['tree']['c']:
         if child.get('n') == 'body':
             stack.append(child)
+            # the JS code does not add the tail of body tags to flat text
             removed_tails.append((child.pop('l', None), child))
     ignore_text = {'script', 'style', 'title'}
     text_pos = 0
