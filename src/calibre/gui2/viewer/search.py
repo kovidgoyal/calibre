@@ -169,9 +169,11 @@ def searchable_text_for_name(name):
     ans = []
     serialized_data = json.loads(get_data(name)[0])
     stack = []
+    removed_tails = []
     for child in serialized_data['tree']['c']:
         if child.get('n') == 'body':
             stack.append(child)
+            removed_tails.append((child.pop('l', None), child))
     ignore_text = {'script', 'style', 'title'}
     text_pos = 0
     anchor_offset_map = OrderedDict()
@@ -200,6 +202,9 @@ def searchable_text_for_name(name):
             stack.append(tail)
         if children:
             stack.extend(reversed(children))
+    for (tail, body) in removed_tails:
+        if tail is not None:
+            body['l'] = tail
     return ''.join(ans), anchor_offset_map
 
 
