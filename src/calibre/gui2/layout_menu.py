@@ -3,7 +3,7 @@
 
 
 from qt.core import (
-    QFontMetrics, QHBoxLayout, QIcon, QMenu, QPainter, QPushButton, QSize,
+    QFontMetrics, QHBoxLayout, QIcon, QMenu, QStylePainter, QPushButton, QSize,
     QSizePolicy, Qt, QWidget, QStyleOption, QStyle, QEvent)
 
 
@@ -55,13 +55,13 @@ class LayoutItem(QWidget):
     def paintEvent(self, ev):
         shown = self.button.isChecked()
         ls = self.fm.lineSpacing()
-        painter = QPainter(self)
+        painter = QStylePainter(self)
         if self.mouse_over:
             tool = QStyleOption()
+            tool.initFrom(self)
             tool.rect = self.rect()
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
-            s = self.style()
-            s.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool, painter, self)
+            painter.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
         painter.drawText(
             0, 0,
             self.width(),
