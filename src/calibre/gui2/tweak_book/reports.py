@@ -8,7 +8,7 @@ import time, textwrap, os
 from threading import Thread
 from contextlib import suppress
 from operator import itemgetter
-from functools import partial
+from functools import partial, lru_cache
 from collections import defaultdict
 from csv import writer as csv_writer
 from io import StringIO
@@ -375,7 +375,6 @@ class ImagesDelegate(QStyledItemDelegate):
 
     def __init__(self, *args):
         QStyledItemDelegate.__init__(self, *args)
-        self.cache = {}
 
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, index)
@@ -383,7 +382,11 @@ class ImagesDelegate(QStyledItemDelegate):
         if entry is None:
             return ans
         th = self.parent().thumbnail_height
-        width, height = min(th, entry.width), min(th, entry.height)
+        pmap = self.pixmap(th, entry._replace(usage=()), self.parent().devicePixelRatioF())
+        if pmap.isNull():
+            width = height = 0
+        else:
+            width, height = pmap.width(), pmap.height()
         m = self.MARGIN * 2
         return QSize(max(width + m, ans.width()), height + m + self.MARGIN + ans.height())
 
@@ -394,14 +397,7 @@ class ImagesDelegate(QStyledItemDelegate):
             return
         painter.save()
         th = self.parent().thumbnail_height
-        k = (th, entry.name)
-        pmap = self.cache.get(k)
-        if pmap is None:
-            try:
-                dpr = painter.device().devicePixelRatioF()
-            except AttributeError:
-                dpr = painter.device().devicePixelRatio()
-            pmap = self.cache[k] = self.pixmap(th, entry, dpr)
+        pmap = self.pixmap(th, entry._replace(usage=()), painter.device().devicePixelRatioF())
         if pmap.isNull():
             bottom = option.rect.top()
         else:
@@ -415,14 +411,16 @@ class ImagesDelegate(QStyledItemDelegate):
         painter.drawText(rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, entry.basename)
         painter.restore()
 
+    @lru_cache(maxsize=1024)
     def pixmap(self, thumbnail_height, entry, dpr):
-        pmap = QPixmap(current_container().name_to_abspath(entry.name)) if entry.width > 0 and entry.height > 0 else QPixmap()
+        entry_ok = entry.width > 0 and entry.height > 0
+        entry_ok |= entry.mime_type == 'image/svg+xml'
+        pmap = QPixmap(current_container().name_to_abspath(entry.name)) if entry_ok > 0 else QPixmap()
         if not pmap.isNull():
             pmap.setDevicePixelRatio(dpr)
-            scaled, width, height = fit_image(entry.width, entry.height, thumbnail_height, thumbnail_height)
+            scaled, width, height = fit_image(pmap.width(), pmap.height(), thumbnail_height, thumbnail_height)
             if scaled:
-                pmap = pmap.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.TransformationMode.SmoothTransformation)
-                pmap.setDevicePixelRatio(dpr)
+                pmap = pmap.scaled(width, height, transformMode=Qt.TransformationMode.SmoothTransformation)
         return pmap
 
 
@@ -503,7 +501,7 @@ class ImagesWidget(QWidget):
     def __call__(self, data):
         self.model(data)
         self.filter_edit.clear()
-        self.delegate.cache.clear()
+        self.delegate.pixmap.cache_clear()
         self.files.resizeRowsToContents()
 
     def resize_to_contents(self, *args):
