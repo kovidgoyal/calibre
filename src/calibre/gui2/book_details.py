@@ -596,11 +596,11 @@ class CoverView(QWidget):  # {{{
 
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
-        paste = cm.addAction(_('Paste cover'))
-        copy = cm.addAction(_('Copy cover'))
-        save = cm.addAction(_('Save cover to disk'))
-        remove = cm.addAction(_('Remove cover'))
-        gc = cm.addAction(_('Generate cover from metadata'))
+        paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
+        copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
+        save = cm.addAction(QIcon.ic('save.png'), _('Save cover to disk'))
+        remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
+        gc = cm.addAction(QIcon.ic('default_cover.png'), _('Generate cover from metadata'))
         cm.addSeparator()
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
