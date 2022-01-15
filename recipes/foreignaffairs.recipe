@@ -136,7 +136,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         classes('article-header article-body article-lead-image article-body-text'),
     ]
     remove_tags = [
-        classes('loading-indicator paywall article-footer')
+        classes('loading-indicator paywall article-footer article-tools')
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
@@ -149,10 +149,12 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
             soup.head.title.string))[0]
         self.title = "Foreign Affairs ({})".format(date)
         self.timefmt = u' [%s]' % date
-        link = soup.find('link', rel='revision', href=True)['href']
+        link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        self.cover_url = (soup.find('img', {'class': 'subscribe-callout-image'})['data-src']
-                          .split("|", 1)[0].replace('issue_small_1x', 'issue_large_2x'))
+        self.cover_url = soup.find(**classes('subscribe-callout-image'))['data-src'].split("|")[-1]
+        self.cover_url = self.cover_url.split('?')[0]
+        self.cover_url = self.cover_url.replace('.webp', '')
+        self.cover_url = self.cover_url.replace('_webp_issue_small_2x', 'issue_large_2x')
 
         cls = soup.find('body')['class']
         if isinstance(cls, (list, tuple)):
