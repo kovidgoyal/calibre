@@ -683,9 +683,9 @@ class TagBrowserWidget(QFrame):  # {{{
         l.m.aboutToShow.connect(self.about_to_show_configure_menu)
         l.m.show_counts_action = ac = l.m.addAction('counts')
         ac.triggered.connect(self.toggle_counts)
-        l.m.show_avg_rating_action = ac = l.m.addAction('avg rating')
+        l.m.show_avg_rating_action = ac = l.m.addAction(QIcon.ic('rating.png'), 'avg rating')
         ac.triggered.connect(self.toggle_avg_rating)
-        sb = l.m.addAction(_('Sort by'))
+        sb = l.m.addAction(QIcon.ic('sort.png'), _('Sort by'))
         sb.m = l.sort_menu = QMenu(l.m)
         sb.setMenu(sb.m)
         sb.bg = QActionGroup(sb)
@@ -702,7 +702,7 @@ class TagBrowserWidget(QFrame):  # {{{
                 _('Set the sort order for entries in the Tag browser'))
         sb.setStatusTip(sb.toolTip())
 
-        ma = l.m.addAction(_('Search type when selecting multiple items'))
+        ma = l.m.addAction(QIcon.ic('search.png'), _('Search type when selecting multiple items'))
         ma.m = l.match_menu = QMenu(l.m)
         ma.setMenu(ma.m)
         ma.ag = QActionGroup(ma)
@@ -746,6 +746,7 @@ class TagBrowserWidget(QFrame):  # {{{
     def about_to_show_configure_menu(self):
         ac = self.alter_tb.m.show_counts_action
         ac.setText(_('Hide counts') if gprefs['tag_browser_show_counts'] else _('Show counts'))
+        ac.setIcon(QIcon.ic('minus.png') if gprefs['tag_browser_show_counts'] else QIcon.ic('plus.png'))
         ac = self.alter_tb.m.show_avg_rating_action
         ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
 
