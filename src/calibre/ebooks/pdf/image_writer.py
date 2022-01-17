@@ -98,20 +98,15 @@ class Image:  # {{{
                 path_or_bytes = f.read()
         self.img_data = path_or_bytes
         fmt, width, height = identify(path_or_bytes)
-        if width > 0 and height > 0 and fmt == 'jpeg':
-            self.fmt = fmt
-            self.width, self.height = width, height
-            self.cache_key = None
-        else:
-            self.img, self.fmt = image_and_format_from_data(path_or_bytes)
-            self.width, self.height = self.img.width(), self.img.height()
-            self.cache_key = self.img.cacheKey()
+        self.img, self.fmt = image_and_format_from_data(path_or_bytes)
+        self.width, self.height = self.img.width(), self.img.height()
+        self.cache_key = self.img.cacheKey()
 # }}}
 
 
 def draw_image_page(writer, img, preserve_aspect_ratio=True):
     if img.fmt == 'jpeg':
-        ref = writer.add_jpeg_image(img.img_data, img.width, img.height, img.cache_key)
+        ref = writer.add_jpeg_image(img.img_data, img.width, img.height, img.cache_key, depth=img.img.depth())
     else:
         ref = writer.add_image(img.img, img.cache_key)
     page_size = tuple(writer.page_size)
