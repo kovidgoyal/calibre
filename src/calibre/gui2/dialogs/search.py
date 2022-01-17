@@ -31,6 +31,8 @@ def init_dateop(cb):
             ('>', _('after')),
             ('<=', _('before or equal to')),
             ('>=', _('after or equal to')),
+            ('s', _('set')),
+            ('u', _('unset')),
     ]:
         cb.addItem(desc, op)
 
@@ -383,6 +385,8 @@ class SearchDialog(QDialog):
     def date_search_string(self):
         field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
+        if op in 'su':
+            return f'{field}:{"true" if op == "s" else "false"}'
         prefix = f'{field}:{op}'
         if self.sel_date.isChecked():
             ans = f'{prefix}{self.date_year.value()}'
