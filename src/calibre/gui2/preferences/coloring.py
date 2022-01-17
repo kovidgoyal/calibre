@@ -75,8 +75,9 @@ class ConditionEditor(QWidget):  # {{{
             ),
             'datetime' : (
                 (_('is equal to'), 'eq'),
-                (_('is less than'), 'lt'),
-                (_('is greater than'), 'gt'),
+                (_('is earlier than'), 'lt'),
+                (_('is later than'), 'gt'),
+                (_('is today'), 'is today'),
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
                 (_('is more days ago than'), 'older count days'),
@@ -199,6 +200,8 @@ class ConditionEditor(QWidget):  # {{{
     @property
     def current_val(self):
         ans = str(self.value_box.text()).strip()
+        if not self.value_box.isEnabled():
+            ans = ''
         if self.current_col == 'languages':
             rmap = {lower(v):k for k, v in iteritems(lang_map())}
             ans = rmap.get(lower(ans), ans)
@@ -310,8 +313,7 @@ class ConditionEditor(QWidget):  # {{{
                 tt += '\n' + _('You can match multiple values by separating'
                         ' them with %s')%m['is_multiple']['ui_to_list']
         self.value_box.setToolTip(tt)
-        if action in ('is set', 'is not set', 'is true', 'is false',
-                'is undefined'):
+        if action in ('is set', 'is not set', 'is true', 'is false', 'is undefined', 'is today'):
             self.value_box.setEnabled(False)
 # }}}
 

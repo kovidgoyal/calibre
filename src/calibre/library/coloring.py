@@ -6,6 +6,7 @@ import json
 import re
 from textwrap import dedent
 
+from calibre.utils.date import format_date, now
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
 color_row_key = '*row'
@@ -178,6 +179,9 @@ class Rule:  # {{{
             return ("test(field('%s'), '1', '')"%(col))
         if action == 'is not set':
             return ("test(field('%s'), '', '1')"%(col))
+        if action == 'is today':
+            today = format_date(now(), 'yyyy-MM-dd')
+            return f"strcmp(format_date(raw_field('{col}'), 'yyyy-MM-dd'), '{today}', '', '1', '')"
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),
