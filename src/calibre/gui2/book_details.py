@@ -377,7 +377,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                                         lambda: QApplication.instance().clipboard().setText(v))
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
-            ac.setText(_('Remove %s from this book') % escape_for_menu(value))
+            ac.setText(_('Remove %s from this book') % escape_for_menu(data.get('original_value') or value))
             menu.addAction(ac)
         else:
             v = data.get('original_value') or data.get('value')
