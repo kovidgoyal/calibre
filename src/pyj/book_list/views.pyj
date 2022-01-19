@@ -250,13 +250,14 @@ def show_top_message():
         if q.search:
             container.appendChild(E.br())
     if q.search:
-        text = _('Showing books matching: {} ')
-        if not library_data.search_result.total_num:
-            text = _('No books matching: {} ')
-        container.appendChild(E.span(
-            E.span(text.format(library_data.search_result.query)),
-            create_button(_('Clear'), 'close', def(): search();, _('Clear this search'))
-        ))
+        c = E.span()
+        if library_data.search_result.total_num:
+            c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query), ' ', _('(total matches: {}) ').format(library_data.search_result.total_num)))
+            c.appendChild(E.span(' ', E.a(_('Clear search'), class_='blue-link', onclick=def(): search();)))
+        else:
+            c.appendChild(E.span(_('No books matching:'), ' ', E.i(library_data.search_result.query)))
+
+        container.appendChild(c)
 
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
