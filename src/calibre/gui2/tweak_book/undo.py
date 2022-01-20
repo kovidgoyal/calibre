@@ -97,8 +97,8 @@ class GlobalUndoHistory(QAbstractListModel):
             self.states[self.pos].rewind_message = self.states[self.pos].message
             self.states[self.pos].message = message
         except IndexError:
-            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = {!r}, len(self.states) = {!r}'.format(
-                self.pos, len(self.states)))
+            raise IndexError('The checkpoint stack has an incorrect position pointer.'
+                             f' This should never happen: pos={self.pos!r}, len_states={len(self.states)=}')
         self.truncate()
         self.beginInsertRows(ROOT, self.pos+1, self.pos+1)
         self.states.append(State(new_container))
