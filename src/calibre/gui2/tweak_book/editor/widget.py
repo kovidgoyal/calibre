@@ -278,9 +278,9 @@ class Editor(QMainWindow):
             'Enter the name of the tag'))
         if ok:
             mru = tprefs['insert_tag_mru']
-        mru.insert(0, name)
-        tprefs['insert_tag_mru'] = mru
-        self._build_insert_tag_button_menu()
+            mru.insert(0, name)
+            tprefs['insert_tag_mru'] = mru
+            self._build_insert_tag_button_menu()
 
     def remove_insert_tag(self, name):
         mru = tprefs['insert_tag_mru']
