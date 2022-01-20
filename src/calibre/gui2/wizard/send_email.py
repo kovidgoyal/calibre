@@ -77,7 +77,7 @@ class TestEmail(QDialog):
             except Exception:
                 import traceback
                 tb = traceback.format_exc()
-            self.test_done.emit(tb)
+        self.test_done.emit(tb)
 
     def on_test_done(self, txt):
         if self.isVisible():
