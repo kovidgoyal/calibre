@@ -12,21 +12,16 @@ import time
 from collections import defaultdict
 from functools import partial
 from itertools import repeat
-from qt.core import (
-    QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, Qt
-)
 from threading import Thread
 
 from calibre.constants import preferred_encoding
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
-from calibre.gui2 import Dispatcher, config, error_dialog, gprefs, warning_dialog
+from calibre.gui2 import Dispatcher, config, gprefs, warning_dialog
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.library.save_to_disk import get_components
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import tweaks
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import (
     compose_mail, config as email_config, extract_email_address, sendmail
 )
@@ -192,123 +187,6 @@ def email_news(mi, remove, get_fmts, done, job_manager):
 
 plugboard_email_value = 'email'
 plugboard_email_formats = ['epub', 'mobi', 'azw3']
-
-
-class SelectRecipients(QDialog):  # {{{
-
-    def __init__(self, parent=None):
-        QDialog.__init__(self, parent)
-        self._layout = l = QGridLayout(self)
-        self.setLayout(l)
-        self.setWindowIcon(QIcon(I('mail.png')))
-        self.setWindowTitle(_('Select recipients'))
-        self.recipients = r = QListWidget(self)
-        l.addWidget(r, 0, 0, 1, -1)
-        self.la = la = QLabel(_('Add a new recipient:'))
-        la.setStyleSheet('QLabel { font-weight: bold }')
-        l.addWidget(la, l.rowCount(), 0, 1, -1)
-
-        self.labels = tuple(map(QLabel, (
-            _('&Address'), _('A&lias'), _('&Formats'), _('&Subject'))))
-        tooltips = (
-            _('The email address of the recipient'),
-            _('The optional alias (simple name) of the recipient'),
-            _('Formats to email. The first matching one will be sent (comma separated list)'),
-            _('The optional subject for email sent to this recipient'))
-
-        for i, name in enumerate(('address', 'alias', 'formats', 'subject')):
-            c = i % 2
-            row = l.rowCount() - c
-            self.labels[i].setText(str(self.labels[i].text()) + ':')
-            l.addWidget(self.labels[i], row, (2*c))
-            le = QLineEdit(self)
-            le.setToolTip(tooltips[i])
-            setattr(self, name, le)
-            self.labels[i].setBuddy(le)
-            l.addWidget(le, row, (2*c) + 1)
-        self.formats.setText(prefs['output_format'].upper())
-        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('&Add recipient'), self)
-        b.clicked.connect(self.add_recipient)
-        l.addWidget(b, l.rowCount(), 0, 1, -1)
-
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        l.addWidget(bb, l.rowCount(), 0, 1, -1)
-        bb.accepted.connect(self.accept)
-        bb.rejected.connect(self.reject)
-        self.setMinimumWidth(500)
-        self.setMinimumHeight(400)
-        self.resize(self.sizeHint())
-        self.init_list()
-
-    def add_recipient(self):
-        to = str(self.address.text()).strip()
-        if not to:
-            return error_dialog(
-                self, _('Need address'), _('You must specify an address'), show=True)
-        formats = ','.join([x.strip().upper() for x in str(self.formats.text()).strip().split(',') if x.strip()])
-        if not formats:
-            return error_dialog(
-                self, _('Need formats'), _('You must specify at least one format to send'), show=True)
-        opts = email_config().parse()
-        if to in opts.accounts:
-            return error_dialog(
-                self, _('Already exists'), _('The recipient %s already exists') % to, show=True)
-        acc = opts.accounts
-        acc[to] = [formats, False, False]
-        c = email_config()
-        c.set('accounts', acc)
-        alias = str(self.alias.text()).strip()
-        if alias:
-            opts.aliases[to] = alias
-            c.set('aliases', opts.aliases)
-        subject = str(self.subject.text()).strip()
-        if subject:
-            opts.subjects[to] = subject
-            c.set('subjects', opts.subjects)
-        self.create_item(alias or to, to, checked=True)
-
-    def create_item(self, alias, key, checked=False):
-        i = QListWidgetItem(alias, self.recipients)
-        i.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
-        i.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
-        i.setData(Qt.ItemDataRole.UserRole, key)
-        self.items.append(i)
-
-    def init_list(self):
-        opts = email_config().parse()
-        self.items = []
-
-        def sk(account):
-            return primary_sort_key(opts.aliases.get(account) or account)
-
-        for key in sorted(opts.accounts or (), key=sk):
-            self.create_item(opts.aliases.get(key, key), key)
-
-    def accept(self):
-        if not self.ans:
-            return error_dialog(self, _('No recipients'),
-                                _('You must select at least one recipient'), show=True)
-        QDialog.accept(self)
-
-    @property
-    def ans(self):
-        opts = email_config().parse()
-        ans = []
-        for i in self.items:
-            if i.checkState() == Qt.CheckState.Checked:
-                to = str(i.data(Qt.ItemDataRole.UserRole) or '')
-                fmts = tuple(x.strip().upper() for x in (opts.accounts[to][0] or '').split(','))
-                subject = opts.subjects.get(to, '')
-                ans.append((to, fmts, subject))
-        return ans
-
-
-def select_recipients(parent=None):
-    d = SelectRecipients(parent)
-    if d.exec() == QDialog.DialogCode.Accepted:
-        return d.ans
-    return ()
-# }}}
 
 
 class EmailMixin:  # {{{
@@ -510,9 +388,3 @@ class EmailMixin:  # {{{
                     ', '.join(sent_mails),  3000)
 
 # }}}
-
-
-if __name__ == '__main__':
-    from qt.core import QApplication
-    app = QApplication([])  # noqa
-    print(select_recipients())
