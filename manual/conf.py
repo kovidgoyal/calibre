@@ -171,14 +171,17 @@ def sort_languages(x):
     return sort_key(type(u'')(name))
 
 
+website = 'https://calibre-ebook.com'
 html_context['other_languages'].sort(key=sort_languages)
 html_context['support_text'] = _('Support calibre')
 html_context['support_tooltip'] = _('Contribute to support calibre development')
-html_context['homepage_url'] = 'https://calibre-ebook.com'
+html_context['homepage_url'] = website
 if needs_localization:
     html_context['homepage_url'] = localize_website_link(html_context['homepage_url'])
 extlinks = {
+    'website_en': (website, None),
     'website': (html_context['homepage_url'] + '/%s', None),
+    'download_file': (f'{website}/downloads/%s', '%s'),
 }
 del sort_languages, get_language
 

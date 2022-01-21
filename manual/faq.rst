@@ -158,8 +158,7 @@ How do I use some of the advanced features of the conversion tools?
 You can get help on any individual feature of the converters by mousing over
 it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
 A good place to start is to look at the following demo file that demonstrates
-some of the advanced features
-`html-demo.zip <https://calibre-ebook.com/downloads/html-demo.zip>`_
+some of the advanced features :download_file:`html-demo.zip <html-demo.zip>`.
 
 
 Device integration
@@ -196,7 +195,7 @@ We just need some information from you:
 
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of calibre. To send us the output, open a bug report and attach the output to it.
-See `how to report bugs <https://calibre-ebook.com/bugs>`_.
+See :website:`how to report bugs <bugs>`.
 
 My device is not being detected by calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,8 +215,8 @@ Follow these steps to find the problem:
       fix that by looking under :guilabel:`System Preferences > Security and
       Privacy > Privacy > Files and Folders`.
     * Make sure you are running the latest version of calibre (currently
-      |version|). The latest version can always be downloaded from `the calibre
-      website <https://calibre-ebook.com/download>`_.  You can tell what
+      |version|). The latest version can always be downloaded from :website:`the calibre
+      website <download>`.  You can tell what
       version of calibre you are currently running by looking at the bottom
       line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
@@ -603,7 +602,7 @@ Why doesn't calibre have a column for foo?
 calibre is designed to have columns for the most frequently and widely used
 fields. In addition, you can add any columns you like. Columns can be added via
 :guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
-`UI Power tips <https://calibre-ebook.com/demo#tutorials>`_ to learn how to
+:website:`UI Power tips <demo#tutorials>` to learn how to
 create your own columns, or read `this blog post
 <https://blog.calibre-ebook.com/calibre-custom-columns/>`_.
 
@@ -921,13 +920,13 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
       the :guilabel:`Security` tab. Make sure that your user account has full control
       for this folder.
 
-If you still cannot get the installer to work and you are on Windows, you can use the `calibre portable install <https://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
+If you still cannot get the installer to work and you are on Windows, you can use the :website:`calibre portable install <download_portable>`, which does not need an installer (it is just a zip file).
 
 My antivirus program claims calibre is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first thing to check is that you are downloading calibre from the official
-website: `<https://calibre-ebook.com/download>`_. Make sure you are clicking the
+website: :website:`<download>`. Make sure you are clicking the
 download links on the left, not the advertisements on the right. calibre is a
 very popular program and unscrupulous people try to setup websites offering it
 for download to fool the unwary.
@@ -995,8 +994,8 @@ proxies used by calibre in Preferences->Miscellaneous.
 I want some feature added to calibre. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
- 1. Create a patch by hacking on calibre and send it to me for review and inclusion. See `Development <https://calibre-ebook.com/get-involved>`_.
- 2. `Open a bug requesting the feature <https://calibre-ebook.com/bugs>`_. Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
+ 1. Create a patch by hacking on calibre and send it to me for review and inclusion. See :website:`Development <get-involved>`.
+ 2. :website:`Open a bug requesting the feature <bugs>`. Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
 
 Why doesn't calibre have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1008,8 +1007,8 @@ For many reasons:
     to see if you want to update once a year or so. There is a check box to
     turn off the update notification, on the update notification itself.
 
-  * calibre downloads currently use `about 150TB of bandwidth a month
-    <https://calibre-ebook.com/dynamic/downloads>`_. Implementing automatic
+  * calibre downloads currently use :website_en:`about 150TB of bandwidth a month
+    <dynamic/downloads>`. Implementing automatic
     updates would greatly increase that and end up costing thousands of dollars
     a month, which someone has to pay.
 
@@ -1032,7 +1031,7 @@ calibre is licensed under the GNU General Public License v3 (an open source lice
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A portable version of calibre is available `here <https://calibre-ebook.com/download_portable>`_.
+A portable version of calibre is available :website:`here <download_portable>`.
 
 How do I run parts of calibre like news download and the Content server on my own Linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

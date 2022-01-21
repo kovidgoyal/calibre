@@ -40,7 +40,7 @@ the folder in which you created :file:`__init__.py`::
     are in :file:`/Applications/calibre.app/Contents/MacOS/`.
 
 You can download the Hello World plugin from
-`helloworld_plugin.zip  <https://calibre-ebook.com/downloads/helloworld_plugin.zip>`_.
+:download_file:`helloworld_plugin.zip`.
 
 Every time you use calibre to convert a book, the plugin's :meth:`run` method will be called and the
 converted book will have its publisher set to "Hello World". This is a trivial plugin, lets move on to
@@ -54,7 +54,7 @@ This plugin will be spread over a few files (to keep the code clean). It will sh
 how to create elements in the calibre user interface and how to access
 and query the books database in calibre.
 
-You can download this plugin from `interface_demo_plugin.zip <https://calibre-ebook.com/downloads/interface_demo_plugin.zip>`_
+You can download this plugin from :download_file:`interface_demo_plugin.zip`
 
 .. _import_name_txt:
 
@@ -185,7 +185,7 @@ Edit book plugins
 
 Now let's change gears for a bit and look at creating a plugin to add tools to
 the calibre book editor. The plugin is available here:
-`editor_demo_plugin.zip <https://calibre-ebook.com/downloads/editor_demo_plugin.zip>`_.
+:download_file:`editor_demo_plugin.zip`.
 
 The first step, as for all plugins is to create the
 import name empty txt file, as described :ref:`above <import_name_txt>`.
@@ -259,7 +259,7 @@ data in a separate process. A simple example plugin follows that shows how
 to do this.
 
 You can download the plugin from
-`webengine_demo_plugin.zip  <https://calibre-ebook.com/downloads/webengine_demo_plugin.zip>`_.
+:download_file:`webengine_demo_plugin.zip`.
 
 The important part of the plugin is in two functions:
 
