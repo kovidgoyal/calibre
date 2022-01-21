@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 5.x.0 2021-xx-xx
+# {{{ 5.x.0 2022-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,61 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 5.35.0 2022-01-21
+
+:: new features
+
+- [1956006] Coloring/icon rules: Allow creating a rule for date columns that matches *today*
+
+- Kobo driver: Add support for new firmware
+
+- [1954890] Content server: Show total number of results when searching for books
+
+:: bug fixes
+
+- [1958028] E-book viewer: Fix searching for text near the end of a chapter sometimes not working
+
+- [1954714] E-book viewer: Fix auto hyphenation on macOS not rendering the hyphens correctly
+
+- Edit book: Reports: Fix thumbnails of SVG images not rendered
+
+- ODT metadata: Support reading tags from multiple <keyword> elements
+
+- [1958115] LRF Input: Fix a regression in calibre 5 that broke parsing of some LRF files
+
+- [1956097] MOBI output: Dont fail if input document contains invalid % based lengths
+
+- [1955308] AZW3 Input: Handle AZW3 files with incorrect TAGX Offset INDX header fields
+
+- [1956932] Comic conversion: Fix conversion of comic images that are stored as grayscale images in JPEG format not working when converting to PDF with image processing turned off
+
+- [1955967] calibredb catalog: Fix --ids and --search options not working for CSV/XML catalogs
+
+- [1958490] Tag browser: Fix the find box not using all available width
+
+- [1956192] E-book viewer: Remove books that do not exist from the recently opened book list
+
+- Completion popups: Fix display of items containing line breaks
+
+- [1956129] Fix line breaks in custom column descriptions not being rendered in their tooltips
+
+- [1956088] Fix Preferences->Searching->Clear search histories not taking effect till a restart for some search boxes
+
+- [1955732] Hierarchical entries in user category may not merge correctly in tag browser
+
+:: improved recipes
+- Foreign Affairs
+- MIT Technology Review
+- Reuters
+- Clarin
+- General Knowledge Today
+- Popular Science
+
+:: new recipes
+- Dw.de by xav
+- Equestria Daily by Timothee Andres
+}}}
 
 {{{ 5.34.0 2021-12-17
 
