@@ -6,6 +6,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+import unicodedata
 import time
 from datetime import datetime
 from io import StringIO
@@ -22,7 +23,7 @@ from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower, primary_sort_key
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, as_unicode
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import quote, urlparse
 
@@ -507,6 +508,21 @@ def identify(log, abort,  # {{{
         from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         am_rules = compile_rules(am_rules)
 
+    # normalize unicode strings
+    n = lambda x: unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
+    for r in results:
+        if r.tags:
+            r.tags = list(map(n, r.tags))
+        if r.authors:
+            r.authors = list(map(n, r.authors))
+        if r.author_sort:
+            r.author_sort = n(r.author_sort)
+        if r.title:
+            r.title = n(r.title)
+        if r.publisher:
+            r.publisher = n(r.publisher)
+        if r.comments:
+            r.comments = n(r.comments)
     max_tags = msprefs['max_tags']
     for r in results:
         if tm_rules:
