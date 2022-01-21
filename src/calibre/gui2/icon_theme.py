@@ -546,11 +546,11 @@ class Delegate(QStyledItemDelegate):
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage}</p>
             <p><i>Right click to visit theme homepage</i></p>
-            '''.format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
+            ''').format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
                        number=theme.get('number', 0), description=theme.get('description', ''),
                        size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
                        usage=theme.get('usage', 0),
-        )))
+        ))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
         painter.restore()
 
