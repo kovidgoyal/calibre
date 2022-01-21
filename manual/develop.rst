@@ -75,7 +75,7 @@ Getting the code
 ------------------
 
 You can get the calibre source code in two ways, using a version control system or
-directly downloading a :website_en:`tarball <dist/src>`.
+directly downloading a :website_base:`tarball <dist/src>`.
 
 calibre uses `Git <https://www.git-scm.com/>`_, a distributed version control
 system. Git is available on all the platforms calibre supports.  After
@@ -89,7 +89,7 @@ calibre is a very large project with a very long source control history, so the
 above can take a while (10 mins to an hour depending on your internet speed).
 
 If you want to get the code faster, the source code for the latest release is
-always available as an :website_en:`archive <dist/src>`.
+always available as an :website_base:`archive <dist/src>`.
 
 To update a branch to the latest code, use the command::
 

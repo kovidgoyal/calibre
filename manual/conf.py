@@ -179,7 +179,7 @@ html_context['homepage_url'] = website
 if needs_localization:
     html_context['homepage_url'] = localize_website_link(html_context['homepage_url'])
 extlinks = {
-    'website_en': (website, None),
+    'website_base': (website, None),
     'website': (html_context['homepage_url'] + '/%s', None),
     'download_file': (f'{website}/downloads/%s', '%s'),
 }

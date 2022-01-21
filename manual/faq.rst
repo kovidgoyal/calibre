@@ -1007,7 +1007,7 @@ For many reasons:
     to see if you want to update once a year or so. There is a check box to
     turn off the update notification, on the update notification itself.
 
-  * calibre downloads currently use :website_en:`about 150TB of bandwidth a month
+  * calibre downloads currently use :website_base:`about 150TB of bandwidth a month
     <dynamic/downloads>`. Implementing automatic
     updates would greatly increase that and end up costing thousands of dollars
     a month, which someone has to pay.
