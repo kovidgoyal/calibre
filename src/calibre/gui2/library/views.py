@@ -604,9 +604,9 @@ class BooksView(QTableView):  # {{{
             previous[field] = ascending
             gprefs[pname] = previous
             return
-        previous[m.sorted_on[0]] = m.sorted_on[1]
+        previous[m.sorted_on[0]] = Qt.SortOrder(m.sorted_on[1]).value
         gprefs[pname] = previous
-        self.sort_by_named_field(field, previous[field])
+        self.sort_by_named_field(field, Qt.SortOrder(previous[field]))
 
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
