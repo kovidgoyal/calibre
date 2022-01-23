@@ -208,11 +208,13 @@ def load_mathjax():
 
 
 if document.body:
+    settings = JSON.parse(window.navigator.userAgent.split('|')[1])
+    css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+    if settings.os is 'macos':
+        # See settings.pyj for reason for webkit-hyphenate-character
+        css += '\n* { -webkit-hyphenate-character: "-" !important }\n'
     document.body.addEventListener('click', onclick, True)
-    document.documentElement.appendChild(E.style(
-        type='text/css',
-        '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-    ))
+    document.documentElement.appendChild(E.style(type='text/css', css))
 
     fix_fullscreen_svg_images()
     if check_for_maths():

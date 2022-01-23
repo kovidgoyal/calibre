@@ -20,7 +20,8 @@ from threading import Thread
 
 from calibre import prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
+    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, ismacos,
+    iswindows
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
@@ -252,6 +253,7 @@ def get_editor_settings(tprefs):
         'bg': get_color('preview_background', dark_color),
         'fg': get_color('preview_foreground', dark_text_color),
         'link': get_color('preview_link_color', dark_link_color),
+        'os': 'windows' if iswindows else ('macos' if ismacos else 'linux'),
     }
 
 
