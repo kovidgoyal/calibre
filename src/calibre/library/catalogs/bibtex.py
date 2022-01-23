@@ -5,14 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, os, numbers
+import codecs
+import numbers
+import os
+import re
 from collections import namedtuple
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
-from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.ebooks.metadata import format_isbn
+from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from polyglot.builtins import string_or_bytes
 
 
@@ -107,12 +110,12 @@ class BIBTEX(CatalogPlugin):
                 "Applies to: BIBTEX output format"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        from calibre.utils.date import isoformat
-        from calibre.utils.html2text import html2text
-        from calibre.utils.bibtex import BibTeX
         from calibre.library.save_to_disk import preprocess_template
-        from calibre.utils.logging import default_log as log
+        from calibre.utils.bibtex import BibTeX
+        from calibre.utils.date import isoformat
         from calibre.utils.filenames import ascii_text
+        from calibre.utils.html2text import html2text
+        from calibre.utils.logging import default_log as log
 
         library_name = os.path.basename(db.library_path)
 
@@ -140,8 +143,11 @@ class BIBTEX(CatalogPlugin):
             for field in fields:
                 if field.startswith('#'):
                     item = db.get_field(entry['id'],field,index_is_id=True)
+                    m = db.new_api.field_metadata[field]
                     if isinstance(item, (bool, numbers.Number)):
                         item = repr(item)
+                    elif m.get('is_multiple'):
+                        item = m['is_multiple']['list_to_ui'].join(filter(None, item))
                 elif field == 'title_sort':
                     item = entry['sort']
                 elif field == 'library_name':
