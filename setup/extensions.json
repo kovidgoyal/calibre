@@ -198,7 +198,7 @@
     },
     {
         "name": "libusb",
-        "only": "macos linux haiku",
+        "only": "macos linux netbsd haiku",
         "sources": "calibre/devices/libusb/libusb.c",
         "libraries": "usb-1.0"
     },
@@ -210,7 +210,7 @@
     },
     {
         "name": "libmtp",
-        "only": "freebsd macos linux haiku",
+        "only": "freebsd netbsd macos linux haiku",
         "sources": "calibre/devices/mtp/unix/devices.c calibre/devices/mtp/unix/libmtp.c",
         "headers": "calibre/devices/mtp/unix/devices.h calibre/devices/mtp/unix/upstream/music-players.h calibre/devices/mtp/unix/upstream/device-flags.h",
         "libraries": "mtp"
