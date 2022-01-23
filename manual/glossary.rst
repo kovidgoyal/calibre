@@ -26,4 +26,4 @@ Glossary
        **URL** *(Uniform Resource Locator)* for example: ``http://example.com``
 
     regexp
-         **Regular expressions** provide a concise and flexible means for identifying strings of text of interest, such as particular characters, words, or patterns of characters. See `regexp syntax <https://docs.python.org/library/re.html>`_ for the syntax of regular expressions used in Python.
+         **Regular expressions** provide a concise and flexible means for identifying strings of text of interest, such as particular characters, words, or patterns of characters. See :doc:`the tutorial <regexp>` for an introduction to regular expressions.

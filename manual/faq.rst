@@ -920,7 +920,7 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
       the :guilabel:`Security` tab. Make sure that your user account has full control
       for this folder.
 
-If you still cannot get the installer to work and you are on Windows, you can use the :website:`calibre portable install <download_portable>`, which does not need an installer (it is just a zip file).
+If you still cannot get the installer to work and you are on Windows, you can use the :website:`calibre portable install <download_portable>`, which does not need an installer (it is just a ZIP file).
 
 My antivirus program claims calibre is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

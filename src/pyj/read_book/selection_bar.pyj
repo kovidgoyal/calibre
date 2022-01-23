@@ -194,7 +194,7 @@ def all_actions():
             'remove_highlight': a('trash', _('Remove this highlight') + _(' [Delete or D]'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection') + ' [Esc]', 'clear_selection'),
             'speak': a('bullhorn', _('Read aloud') + ' [T]', 'speak_aloud'),
-            'cite': a('reference-mode', _('Copy citation to clipboard') + ' [X]', 'cite'),
+            'cite': a('reference-mode', _('Copy a citation to this text') + ' [X]', 'cite'),
         }
         qh = all_actions.ans.quick_highlight
         qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
