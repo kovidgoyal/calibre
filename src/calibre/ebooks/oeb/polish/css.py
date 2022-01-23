@@ -502,12 +502,16 @@ def rename_class_in_rule_list(css_rules, old_name, new_name):
     # this regex will not match class names inside attribute value selectors
     # and it will match id selectors that contain .old_name but its the best
     # that can be done without implementing a full parser for CSS selectors
-    pat = re.compile(rf'(?<=\.){re.escape(old_name)}\b')
+    pat = re.compile(rf'(?<=\.){re.escape(old_name)}(?:\W|$)')
+
+    def repl(m):
+        return m.group().replace(old_name, new_name)
+
     changed = False
     for rule in css_rules:
         if rule.type == rule.STYLE_RULE:
             old = rule.selectorText
-            q = pat.sub(new_name, old)
+            q = pat.sub(repl, old)
             if q != old:
                 changed = True
                 rule.selectorText = q
@@ -519,11 +523,15 @@ def rename_class_in_rule_list(css_rules, old_name, new_name):
 
 def rename_class_in_doc(container, root, old_name, new_name):
     changed = False
-    pat = re.compile(rf'\b{re.escape(old_name)}\b')
+    pat = re.compile(rf'(?:^|\W){re.escape(old_name)}(?:\W|$)')
+
+    def repl(m):
+        return m.group().replace(old_name, new_name)
+
     for elem in root.xpath('//*[@class]'):
         old = elem.get('class')
         if old:
-            new = pat.sub(new_name, old)
+            new = pat.sub(repl, old)
             if new != old:
                 changed = True
                 elem.set('class', new)
