@@ -68,8 +68,9 @@ class TestEmail(QDialog):
 
     def run_test(self):
         from email.utils import parseaddr
-        addr = parseaddr(self.to.text().strip())[-1]
-        if not addr:
+        q = self.to.text().strip()
+        addr = parseaddr(q)[-1]
+        if not addr or '@' not in q:
             tb = f'{self.to.text().strip()} is not a valid email address'
         else:
             try:

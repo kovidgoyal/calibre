@@ -150,7 +150,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             na = as_unicode(value or '')
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
-            if not addr:
+            if not addr or '@' not in na:
                 return False
             self.accounts[na] = self.accounts.pop(account)
             self.account_order[row] = na

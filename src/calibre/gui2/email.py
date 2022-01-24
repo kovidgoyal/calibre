@@ -245,6 +245,10 @@ class SelectRecipients(QDialog):  # {{{
         if not to:
             return error_dialog(
                 self, _('Need address'), _('You must specify an address'), show=True)
+        from email.utils import parseaddr
+        if not parseaddr(to)[-1] or '@' not in to:
+            return error_dialog(
+                self, _('Invalid email address'), _('The address {} is invalid').format(to), show=True)
         formats = ','.join([x.strip().upper() for x in str(self.formats.text()).strip().split(',') if x.strip()])
         if not formats:
             return error_dialog(
