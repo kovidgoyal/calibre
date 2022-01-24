@@ -148,6 +148,9 @@ class ViewAction(InterfaceAction):
             title = db.title(id_, index_is_id=True)
             self._view_file(fmt_path, calibre_book_data=self.calibre_book_data(id_, format), open_at=open_at)
             self.update_history([(id_, title)])
+        else:
+            error_dialog(self.gui, _('E-book file missing'), _(
+                'The {} format file is missing from the calibre library folder').format(format), show=True)
 
     def book_downloaded_for_viewing(self, job):
         if job.failed:
