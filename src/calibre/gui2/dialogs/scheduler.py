@@ -597,6 +597,7 @@ class Scheduler(QObject):
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()
         self.all_action = self.news_menu.addAction(
+                QIcon.ic('download-metadata.png'),
                 _('Download all scheduled news sources'),
                 self.download_all_scheduled)
 

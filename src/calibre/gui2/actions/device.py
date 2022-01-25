@@ -162,7 +162,7 @@ class ShareConnMenu(QMenu):  # {{{
             action1.a_s.connect(sync_menu.action_triggered)
             action2.a_s.connect(sync_menu.action_triggered)
         else:
-            ac = self.addAction(_('Setup email based sharing of books'))
+            ac = self.addAction(QIcon.ic('mail.png'), _('Setup email based sharing of books'))
             self.email_actions.append(ac)
             ac.triggered.connect(self.setup_email)
 
