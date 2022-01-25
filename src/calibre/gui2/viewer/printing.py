@@ -37,7 +37,7 @@ class PrintDialog(Dialog):
     def __init__(self, book_title, parent=None, prefs=vprefs):
         self.book_title = book_title
         self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
-        self.paper_size_map = {a:getattr(QPageSize, a.capitalize()) for a in PAPER_SIZES}
+        self.paper_size_map = {a:getattr(QPageSize.PageSizeId, a.capitalize()) for a in PAPER_SIZES}
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
     def setup_ui(self):
