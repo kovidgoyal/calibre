@@ -56,6 +56,9 @@ def to_json(obj):
     if hasattr(obj, 'toBase64'):  # QByteArray
         return {'__class__': 'bytearray',
                 '__value__': bytes(obj.toBase64()).decode('ascii')}
+    v = getattr(obj, 'value', None)
+    if isinstance(v, int):  # Possibly an enum with integer values like all the Qt enums
+        return v
     raise TypeError(repr(obj) + ' is not JSON serializable')
 
 
