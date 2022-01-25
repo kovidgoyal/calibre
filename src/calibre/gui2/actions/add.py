@@ -58,21 +58,21 @@ class AddAction(InterfaceAction):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
         ma = partial(self.create_menu_action, self.add_menu)
-        ma('recursive-add', _('Add from folders and sub-folders')).triggered.connect(self.add_recursive_question)
-        ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR)')).triggered.connect(self.add_from_archive)
+        ma('recursive-add', _('Add from folders and sub-folders'), icon='mimetypes/dir.png').triggered.connect(self.add_recursive_question)
+        ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR)'), icon='mimetypes/zip.png').triggered.connect(self.add_from_archive)
         self.add_menu.addSeparator()
         ma('add-empty', _('Add empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
-        ma('add-isbn', _('Add from ISBN')).triggered.connect(self.add_from_isbn)
+        ma('add-isbn', _('Add from ISBN'), icon='identifiers.png').triggered.connect(self.add_from_isbn)
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut='Shift+A')
         ma('add-formats-clipboard', _('Add files to selected book records from clipboard'),
-                triggered=self.add_formats_from_clipboard, shortcut='Shift+Alt+A')
+                triggered=self.add_formats_from_clipboard, shortcut='Shift+Alt+A', icon='edit-paste.png')
         ma('add-empty-format-to-books', _(
             'Add an empty file to selected book records')).triggered.connect(self.add_empty_format_choose)
         self.add_menu.addSeparator()
-        ma('add-config', _('Control the adding of books'),
+        ma('add-config', _('Control the adding of books'), icon='config.png',
                 triggered=self.add_config)
         self.qaction.triggered.connect(self.add_books)
 

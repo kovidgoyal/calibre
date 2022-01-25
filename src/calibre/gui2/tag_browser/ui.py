@@ -749,6 +749,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.setIcon(QIcon.ic('minus.png') if gprefs['tag_browser_show_counts'] else QIcon.ic('plus.png'))
         ac = self.alter_tb.m.show_avg_rating_action
         ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
+        ac.setIcon(QIcon.ic('minus.png' if config['show_avg_rating'] else 'rating.png'))
 
     def toggle_counts(self):
         gprefs['tag_browser_show_counts'] ^= True
