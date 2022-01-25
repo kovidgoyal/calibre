@@ -368,7 +368,7 @@ class SearchRestrictionMixin:
     def build_virtual_library_menu(self, m, add_tabs_action=True):
         m.clear()
 
-        a = m.addAction(_('Create Virtual library'))
+        a = m.addAction(QIcon.ic('plus.png'), _('Create Virtual library'))
         a.triggered.connect(partial(self.do_create_edit, name=None))
         db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
@@ -376,15 +376,15 @@ class SearchRestrictionMixin:
         a = self.edit_menu
         self.build_virtual_library_list(a, self.do_create_edit)
         if virt_libs:
-            m.addMenu(a)
+            m.addMenu(a).setIcon(QIcon.ic('edit_input.png'))
 
         a = self.rm_menu
         self.build_virtual_library_list(a, self.remove_vl_triggered)
         if virt_libs:
-            m.addMenu(a)
+            m.addMenu(a).setIcon(QIcon.ic('minus.png'))
 
         if virt_libs:
-            m.addAction(_('Quick select Virtual library'), self.choose_vl_triggerred)
+            m.addAction(QIcon.ic('toc.png'), _('Quick select Virtual library'), self.choose_vl_triggerred)
 
         if add_tabs_action:
             if gprefs['show_vl_tabs']:

@@ -10,6 +10,7 @@ from qt.core import QAction, QDialog, QIcon, QToolButton, pyqtSignal
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import primary_sort_key
+from calibre.library.field_metadata import category_icon_map
 from polyglot.builtins import iteritems
 
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
@@ -36,6 +37,9 @@ class SortAction(QAction):
         QAction.__init__(self, text, parent)
         self.key, self.ascending = key, ascending
         self.triggered.connect(self)
+        ic = category_icon_map['custom:'] if self.key.startswith('#') else category_icon_map.get(key)
+        if ic:
+            self.setIcon(QIcon.ic(ic))
 
     def __call__(self):
         self.sort_requested.emit(self.key, self.ascending)
