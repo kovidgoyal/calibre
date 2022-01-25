@@ -476,7 +476,7 @@ def add_standalone_viewer_shortcuts(sc):
     )
 
     sc['print'] = desc(
-        "Ctrl+P",
+        "Ctrl+p",
         'ui',
         _('Print book to PDF'),
     )
