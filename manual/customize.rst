@@ -49,8 +49,7 @@ Environment variables
       the system theme -- beware of crashes and hangs.
     * ``CALIBRE_SHOW_DEPRECATION_WARNINGS`` - causes calibre to print deprecation warnings to stdout. Useful for calibre developers.
     * ``CALIBRE_NO_DEFAULT_PROGRAMS`` - prevent calibre from automatically registering the filetypes it is capable of handling with Windows.
-    * ``CALIBRE_USE_DARK_PALETTE`` - set it to ``1`` to have calibre use dark colors and ``0`` for normal colors (ignored on macOS).
-      On Windows 10 in the absence of this variable, the Windows system preference for dark colors is used.
+    * ``CALIBRE_USE_DARK_PALETTE`` - set it to ``1`` to have calibre use dark colors. Works on **Linux only**.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy``, ``https_proxy`` - used on Linux to specify an HTTP(S) proxy
 

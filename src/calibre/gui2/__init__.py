@@ -30,6 +30,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
     check_for_linux_native_dialogs, linux_native_dialog
 )
+from calibre.gui2.palette import dark_palette, fix_palette_colors
 from calibre.gui2.qt_file_dialogs import FileDialog
 from calibre.ptempfile import base_dir
 from calibre.utils.config_base import tweaks
@@ -1076,6 +1077,11 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, qargs)
+        self.original_palette = self.palette()
+        self.original_palette_modified = fix_palette_colors(self.original_palette)
+        if iswindows:
+            self.win_event_filter = WinEventFilter()
+            self.installNativeEventFilter(self.win_event_filter)
         icon_resource_manager.initialize()
         sh = self.styleHints()
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
@@ -1146,14 +1152,6 @@ class Application(QApplication):
             raise SystemExit(1)
 
         if iswindows:
-            # On windows the highlighted colors for inactive widgets are the
-            # same as non highlighted colors. This is a regression from Qt 4.
-            # https://bugreports.qt-project.org/browse/QTBUG-41060
-            p = self.palette()
-            for role in (QPalette.ColorRole.Highlight, QPalette.ColorRole.HighlightedText, QPalette.ColorRole.Base, QPalette.ColorRole.AlternateBase):
-                p.setColor(QPalette.ColorGroup.Inactive, role, p.color(QPalette.ColorGroup.Active, role))
-            self.setPalette(p)
-
             # Prevent text copied to the clipboard from being lost on quit due to
             # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
             self.aboutToQuit.connect(self.flush_clipboard)
@@ -1221,7 +1219,6 @@ class Application(QApplication):
         load_builtin_fonts()
 
     def set_dark_mode_palette(self):
-        from calibre.gui2.palette import dark_palette
         self.set_palette(dark_palette())
 
     def setup_styles(self, force_calibre_style):
@@ -1232,15 +1229,16 @@ class Application(QApplication):
         if force_calibre_style:
             using_calibre_style = True
         if using_calibre_style:
-            use_dark_palette = False
-            if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
-                if not ismacos:
-                    use_dark_palette = os.environ['CALIBRE_USE_DARK_PALETTE'] != '0'
+            if iswindows:
+                use_dark_palette = windows_is_system_dark_mode_enabled()
+            elif ismacos:
+                use_dark_palette = False
             else:
-                if iswindows:
-                    use_dark_palette = windows_is_system_dark_mode_enabled()
+                use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
             if use_dark_palette:
                 self.set_dark_mode_palette()
+            elif self.original_palette_modified:
+                self.set_palette(self.original_palette)
 
         self.using_calibre_style = using_calibre_style
         if DEBUG:
@@ -1248,6 +1246,15 @@ class Application(QApplication):
         if self.using_calibre_style:
             self.load_calibre_style()
         self.on_palette_change()
+
+    def check_for_windows_palette_change(self):
+        use_dark_palette = bool(windows_is_system_dark_mode_enabled())
+        if bool(self.is_dark_theme) != use_dark_palette:
+            if use_dark_palette:
+                self.set_dark_mode_palette()
+            else:
+                self.set_palette(self.original_palette)
+            self.on_palette_change()
 
     def set_palette(self, pal):
         self.ignore_palette_changes = True
@@ -1631,6 +1638,24 @@ def add_to_recent_docs(path):
     from calibre_extensions import winutil
     app = QApplication.instance()
     winutil.add_to_recent_docs(str(path), app.windows_app_uid)
+
+
+if iswindows:
+    import ctypes
+    from qt.core import QAbstractNativeEventFilter
+
+    class WinEventFilter(QAbstractNativeEventFilter):
+
+        def nativeEventFilter(self, eventType, message):
+            if eventType == b"windows_generic_MSG":
+                msg = ctypes.wintypes.MSG.from_address(message.__int__())
+                # https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
+                if msg.message == 0x001A:  # WM_SETTINGCHANGE
+                    if ctypes.wstring_at(msg.lParam) == 'ImmersiveColorSet':
+                        QApplication.instance().check_for_windows_palette_change()
+                        # prevent Qt from handling this event
+                        return True, 0
+            return False, 0
 
 
 def windows_is_system_dark_mode_enabled():
