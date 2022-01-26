@@ -32,7 +32,7 @@ class FE_India(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [classes('post-title place-line leftstory')]
+    keep_only_tags = [classes('wp-block-post-title wp-block-post-excerpt ie-network-post-meta-wrapper wp-block-post-featured-image wp-block-post-content')]
     remove_attributes = ['width', 'height']
 
     feeds = [
