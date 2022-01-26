@@ -31,27 +31,24 @@ class StraitsTimes(BasicNewsRecipe):
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher
     }
     keep_only_tags = [
-        classes('node-header node-subheadline group-byline-info group-updated-timestamp group-image-frame field-name-body')
+        classes('node-header node-subheadline group-byline-info group-updated-timestamp group-image-frame field-name-body article-content-rawhtml')
     ]
     remove_tags = [
-        classes('st_telegram_boilerplate'),
+        classes('st_telegram_boilerplate dropdown-menu ads'),
         dict(name='source'),
     ]
 
     feeds = [
-              (u'Top of the News' , u'http://www.straitstimes.com/print/top-of-the-news/rss.xml')
-              ,(u'World'           , u'http://www.straitstimes.com/print/world/rss.xml')
-              ,(u'Home'            , u'http://www.straitstimes.com/print/home/rss.xml')
-              ,(u'Business'        , u'http://www.straitstimes.com/print/business/rss.xml')
-              ,(u'Life'            , u'http://www.straitstimes.com/print/life/rss.xml')
-              ,(u'Science'         , u'http://www.straitstimes.com/print/science/rss.xml')
-              ,(u'Digital'         , u'http://www.straitstimes.com/print/digital/rss.xml')
-              ,(u'Insight'         , u'http://www.straitstimes.com/print/insight/rss.xml')
-              ,(u'Opinion'         , u'http://www.straitstimes.com/print/opinion/rss.xml')
-              ,(u'Forum'           , u'http://www.straitstimes.com/print/forum/rss.xml')
-              ,(u'Big Picture'     , u'http://www.straitstimes.com/print/big-picture/rss.xml')
-              ,(u'Community'       , u'http://www.straitstimes.com/print/community/rss.xml')
-              ,(u'Education'       , u'http://www.straitstimes.com/print/education/rss.xml')
+        (u'World'            , u'https://www.straitstimes.com/news/world/rss.xml')
+        ,(u'Business'        , u'https://www.straitstimes.com/news/business/rss.xml')
+        ,(u'Life'            , u'https://www.straitstimes.com/news/life/rss.xml')
+        ,(u'Tech'            , u'https://www.straitstimes.com/news/tech/rss.xml')
+        ,(u'Opinion'         , u'https://www.straitstimes.com/news/opinion/rss.xml')
+        ,(u'Life'            , u'https://www.straitstimes.com/news/life/rss.xml')
+        ,(u'Singapore'       , u'https://www.straitstimes.com/news/singapore/rss.xml')
+        ,(u'Asia'     	     , u'https://www.straitstimes.com/news/asia/rss.xml')
+        ,(u'Multimedia'      , u'https://www.straitstimes.com/news/multimedia/rss.xml')
+        ,(u'Sport'           , u'https://www.straitstimes.com/news/sport/rss.xml')
     ]
 
     def preprocess_html(self, soup):
