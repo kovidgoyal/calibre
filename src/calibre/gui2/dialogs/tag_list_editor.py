@@ -459,11 +459,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, 2, item)
 
         if self.last_sorted_by == 'name':
-            self.table.sortByColumn(0, self.name_order)
+            self.table.sortByColumn(0, Qt.SortOrder(self.name_order))
         elif self.last_sorted_by == 'count':
-            self.table.sortByColumn(1, self.count_order)
+            self.table.sortByColumn(1, Qt.SortOrder(self.count_order))
         else:
-            self.table.sortByColumn(2, self.was_order)
+            self.table.sortByColumn(2, Qt.SortOrder(self.was_order))
 
         if select_item is not None:
             self.table.setCurrentItem(select_item)
@@ -650,17 +650,17 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def do_sort_by_name(self):
         self.name_order = 1 - self.name_order
         self.last_sorted_by = 'name'
-        self.table.sortByColumn(0, self.name_order)
+        self.table.sortByColumn(0, Qt.SortOrder(self.name_order))
 
     def do_sort_by_count(self):
         self.count_order = 1 - self.count_order
         self.last_sorted_by = 'count'
-        self.table.sortByColumn(1, self.count_order)
+        self.table.sortByColumn(1, Qt.SortOrder(self.count_order))
 
     def do_sort_by_was(self):
         self.was_order = 1 - self.was_order
         self.last_sorted_by = 'count'
-        self.table.sortByColumn(2, self.was_order)
+        self.table.sortByColumn(2, Qt.SortOrder(self.was_order))
 
     def accepted(self):
         self.save_geometry()
