@@ -419,17 +419,17 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
         self.author_order = 1 - self.author_order
-        self.table.sortByColumn(0, self.author_order)
+        self.table.sortByColumn(0, Qt.SortOrder(self.author_order))
 
     def do_sort_by_author_sort(self):
         self.last_sorted_by = 'sort'
         self.author_sort_order = 1 - self.author_sort_order
-        self.table.sortByColumn(1, self.author_sort_order)
+        self.table.sortByColumn(1, Qt.SortOrder(self.author_sort_order))
 
     def do_sort_by_link(self):
         self.last_sorted_by = 'link'
         self.link_order = 1 - self.link_order
-        self.table.sortByColumn(2, self.link_order)
+        self.table.sortByColumn(2, Qt.SortOrder(self.link_order))
 
     def accepted(self):
         self.save_state()
