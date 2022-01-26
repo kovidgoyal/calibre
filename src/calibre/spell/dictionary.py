@@ -447,8 +447,8 @@ def find_tests():
         def test_dictionaries(self):
             for w in 'recognized one-half one\u2010half'.split():
                 self.ar(w)
-            d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
-            self.assertTrue(d.recognized('Achí'))
+            d = load_dictionary(get_dictionary(parse_lang_code('es-ES'))).obj
+            self.assertTrue(d.recognized('Ahí'))
             self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
             self.assertIn('adequately', self.suggestions('ade-quately'))
             self.assertIn('magic. Wand', self.suggestions('magic.wand'))
