@@ -1,2818 +1,44 @@
-# Affix file for British English MySpell dictionary
-# Also suitable as basis for Commonwealth and European English.
+﻿# Affix file for British English MySpell dictionary.
+# Also, suitable as basis for Commonwealth and European English.
 # Built from scratch for MySpell. Released under LGPL.
 #
-# David Bartlett, Andrew Brown.
-# R 1.20, 30/11/06
+# Sources used to verify the spelling of the words which
+# Marco Pinto included in the dictionary:
+#   1) Oxford Dictionaries;    5) Merriam-Webster Dictionary (used with caution ⚠);
+#   2) Collins Dictionary;     6) Wiktionary (used with caution ⚠);
+#   3) Macmillan Dictionary;   7) Wikipedia (used with caution ⚠);
+#   4) Cambridge Dictionary;   8) Physical dictionaries.
 #
-# 2008-12-18 - NOSUGGEST, NUMBER/COMPOUNDRULE patches (nemeth AT OOo)
-# 2010-03-09 (nemeth AT OOo)
-#  - UTF-8 encoded dictionary:
-#       - fix em-dash problem of OOo 3.2 by BREAK
-#       - suggesting words with typographical apostrophes
-#       - recognizing words with Unicode f ligatures
-#  - add phonetic suggestion (Copyright (C) 2000 Björn Jacke, see the end of the file)
-FLAG num
-AF 713
-AF 1 # 1
-AF 2,3 # 2
-AF 4,2 # 3
-AF 3,5,6,7 # 4
-AF 2 # 5
-AF 8,7,9 # 6
-AF 5,11,6 # 7
-AF 10 # 8
-AF 3 # 9
-AF 5,6,7 # 10
-AF 7,13,14 # 11
-AF 15,16,7 # 12
-AF 2,17 # 13
-AF 10,18,19,20 # 14
-AF 21,22,23 # 15
-AF 2,3,7 # 16
-AF 23 # 17
-AF 10,18,20 # 18
-AF 18,19,2,3 # 19
-AF 24,25,10,18,19,20 # 20
-AF 4,2,5,11,6 # 21
-AF 26,2,3 # 22
-AF 24,10,5,6 # 23
-AF 18,19 # 24
-AF 10,18,19,20,21,22,3 # 25
-AF 24,25,10,18,19,20,3,5,6,7 # 26
-AF 10,18,19,20,21,22 # 27
-AF 3,8,7,9 # 28
-AF 2,3,5,6,7 # 29
-AF 18,19,20,23 # 30
-AF 10,18,20,3 # 31
-AF 2,3,8,7,9 # 32
-AF 18,20 # 33
-AF 6,27,28 # 34
-AF 18,20,23 # 35
-AF 21,2,3,7 # 36
-AF 29,30 # 37
-AF 10,18,20,2,3 # 38
-AF 3,31 # 39
-AF 32,3,31 # 40
-AF 10,18,19,20,3 # 41
-AF 10,3 # 42
-AF 10,2,3 # 43
-AF 24,25,10,18,19,20,3 # 44
-AF 10,18,19,20,2,3 # 45
-AF 32 # 46
-AF 3,33 # 47
-AF 18,20,2,3 # 48
-AF 21,3,8,7,9 # 49
-AF 12 # 50
-AF 10,2 # 51
-AF 3,7 # 52
-AF 17 # 53
-AF 32,3 # 54
-AF 4,5,11,6 # 55
-AF 24 # 56
-AF 2,3,8,6,7 # 57
-AF 18,19,20 # 58
-AF 10,3,8,7,9 # 59
-AF 10,18,19 # 60
-AF 10,21,22 # 61
-AF 8,6,7 # 62
-AF 2,3,24,25,5,6,7 # 63
-AF 21,2,3 # 64
-AF 2,5,6 # 65
-AF 29,30,34,35,36 # 66
-AF 29,30,37,34,35,36 # 67
-AF 4 # 68
-AF 2,3,32 # 69
-AF 26,2 # 70
-AF 2,3,24,5,6,7 # 71
-AF 11 # 72
-AF 10,18 # 73
-AF 35,36 # 74
-AF 24,3,7 # 75
-AF 18,20,21,22,23 # 76
-AF 2,17,6,27,28 # 77
-AF 2,3,41,42,7 # 78
-AF 31 # 79
-AF 29,30,37,35,36 # 80
-AF 10,18,20,8,7,9 # 81
-AF 43,44,7 # 82
-AF 2,45 # 83
-AF 2,3,46,47,7 # 84
-AF 2,3,48 # 85
-AF 2,3,43,44,7 # 86
-AF 4,2,45 # 87
-AF 10,18,19,20,8,7,9 # 88
-AF 10,8,7,9 # 89
-AF 2,3,5,7 # 90
-AF 37,34,35,36 # 91
-AF 24,25,10,18,19,20,4,2,5,11,6 # 92
-AF 26 # 93
-AF 49,7,9 # 94
-AF 32,18,20,3 # 95
-AF 2,50 # 96
-AF 38,39,40 # 97
-AF 4,2,51 # 98
-AF 31,32 # 99
-AF 10,18,20,21,22 # 100
-AF 52,2,3 # 101
-AF 15,16 # 102
-AF 10,18,2,3,8,7,9 # 103
-AF 7,9 # 104
-AF 18 # 105
-AF 53,54,10,18,19,20 # 106
-AF 2,17,29,30,6,27,28 # 107
-AF 7,14 # 108
-AF 7 # 109
-AF 2,3,55,56,7 # 110
-AF 2,3,57,58,7 # 111
-AF 7,59,9 # 112
-AF 17,29,30,37,34,35,36 # 113
-AF 11,4,2 # 114
-AF 24,25,10,18,19,20,5,6 # 115
-AF 2,3,61,62,7 # 116
-AF 2,33 # 117
-AF 17,29,30,6,27,28 # 118
-AF 53,54,10 # 119
-AF 15,16,7,2,3 # 120
-AF 10,18,19,20,21,22,8,7,9 # 121
-AF 55,56,7 # 122
-AF 18,2,3 # 123
-AF 11,39 # 124
-AF 10,18,19,20,21,22,2,3,8,7,9 # 125
-AF 2,3,7,13,14 # 126
-AF 63,6 # 127
-AF 3,6,7 # 128
-AF 3,63,6,7 # 129
-AF 2,3,33,64,7 # 130
-AF 2,3,65,66,7 # 131
-AF 41,42,7 # 132
-AF 2,3,67,68,5,6,7 # 133
-AF 21,2,3,8,7,9 # 134
-AF 63,6,7 # 135
-AF 57,58,7 # 136
-AF 3,57,58,7 # 137
-AF 62,7 # 138
-AF 2,67 # 139
-AF 6,7 # 140
-AF 8,7 # 141
-AF 8 # 142
-AF 2,3,67 # 143
-AF 3,6,7,69 # 144
-AF 24,3 # 145
-AF 5,6,49,7 # 146
-AF 7,70,9 # 147
-AF 2,3,43,44,7,53 # 148
-AF 5 # 149
-AF 2,3,24 # 150
-AF 4,2,12,5,11,6,38,39,40 # 151
-AF 2,3,71,60,7 # 152
-AF 2,3,72,66,7 # 153
-AF 57,58,73,74,18,19,20 # 154
-AF 6 # 155
-AF 3,7,59,9,75 # 156
-AF 2,76 # 157
-AF 3,71,60,7 # 158
-AF 2,17,6,28 # 159
-AF 34,35,36 # 160
-AF 3,31,5,6,7 # 161
-AF 11,4 # 162
-AF 2,3,24,25,18,19,20 # 163
-AF 21,22,2,3 # 164
-AF 29,30,37,34,35,36,6,27,28 # 165
-AF 3,6,49,7 # 166
-AF 24,3,5,6,7 # 167
-AF 24,25,10,18,19,20,5,6,7 # 168
-AF 29,30,34,36 # 169
-AF 24,4,5,11,6 # 170
-AF 2,3,31,71,60,7 # 171
-AF 21,22 # 172
-AF 3,8,7 # 173
-AF 3,57,58,7,73 # 174
-AF 3,55,56,7 # 175
-AF 2,3,8,7 # 176
-AF 10,18,2 # 177
-AF 24,4,2,5,11,6 # 178
-AF 29,30,36 # 179
-AF 26,79,2,3 # 180
-AF 3,57,58,7,73,74 # 181
-AF 78,2 # 182
-AF 24,25,10,18,19,20,4 # 183
-AF 10,18,19,20,21,22,3,8,7,9 # 184
-AF 10,18,19,20,5,6 # 185
-AF 2,3,6,7 # 186
-AF 24,25,10,18,19,20,6 # 187
-AF 24,10,18 # 188
-AF 18,19,20,21,22,3,8,7,9 # 189
-AF 24,25,10,18,19,3 # 190
-AF 29,30,35,36 # 191
-AF 10,2,3,5,6,7 # 192
-AF 2,3,24,25,18,19,20,5,6,7 # 193
-AF 29 # 194
-AF 2,3,5,6,7,200 # 195
-AF 2,17,29,30 # 196
-AF 5,6 # 197
-AF 2,3,7,13,14,200 # 198
-AF 29,30,6,27,28 # 199
-AF 2,3,41,42,7,81,82 # 200
-AF 2,3,33 # 201
-AF 10,2,3,8,7,9 # 202
-AF 3,5,6,7,83 # 203
-AF 18,29,30,37,34,35,36,6,27,28 # 204
-AF 3,7,13,14,84 # 205
-AF 24,4 # 206
-AF 28 # 207
-AF 17,29,30 # 208
-AF 4,3 # 209
-AF 2,67,68 # 210
-AF 10,18,19,20,5,11,6 # 211
-AF 24,25,18,19,20 # 212
-AF 4,2,85 # 213
-AF 2,3,41,7 # 214
-AF 2,3,61,62,7,86 # 215
-AF 3,43,44,7 # 216
-AF 24,10,18,19,20 # 217
-AF 11,38,39,40,4,2,12 # 218
-AF 2,3,24,7 # 219
-AF 17,6,27,28 # 220
-AF 2,8,9 # 221
-AF 2,3,7,9 # 222
-AF 11,6,4 # 223
-AF 10,18,20,3,5,6,7 # 224
-AF 24,25,10 # 225
-AF 2,5,11,6 # 226
-AF 15,16,7,3 # 227
-AF 2,87 # 228
-AF 24,25,10,18 # 229
-AF 88,89,2,3 # 230
-AF 24,25,10,18,19 # 231
-AF 24,25,3 # 232
-AF 78,90,2 # 233
-AF 24,25,4,2 # 234
-AF 26,3 # 235
-AF 10,18,20,21,22,2,3 # 236
-AF 3,31,8,7,9 # 237
-AF 32,18,20,3,31 # 238
-AF 2,3,91 # 239
-AF 66,7 # 240
-AF 24,25,92,93,10,18,19,20,3,5,6,7 # 241
-AF 4,2,50 # 242
-AF 10,18,20,21,22,3,8,7,9 # 243
-AF 2,3,24,94,5,6,7 # 244
-AF 2,95 # 245
-AF 3,200 # 246
-AF 91 # 247
-AF 2,3,96,97,7 # 248
-AF 24,25,10,18,20,3,31 # 249
-AF 18,20,23,3 # 250
-AF 17,35,36 # 251
-AF 24,25,10,18,20,4,5,11,6 # 252
-AF 17,37 # 253
-AF 36 # 254
-AF 2,3,61,62,7,98 # 255
-AF 10,21 # 256
-AF 10,18,19,20,21,2,3,8,7,9 # 257
-AF 15,16,7,99 # 258
-AF 3,5,7 # 259
-AF 4,2,3 # 260
-AF 5,7 # 261
-AF 17,34,35,36 # 262
-AF 37,35,36 # 263
-AF 17,37,34,35,36 # 264
-AF 10,21,3,8,7,9 # 265
-AF 18,20,3 # 266
-AF 10,8,7 # 267
-AF 2,3,7,13 # 268
-AF 2,3,31,5,6,7 # 269
-AF 24,92,93,10,3,5,6,7 # 270
-AF 3,41,42,7 # 271
-AF 2,3,55,56,7,200 # 272
-AF 24,25,10,18,20 # 273
-AF 2,3,5,6,7,92,93,10 # 274
-AF 2,3,8,6,7,9 # 275
-AF 2,3,200 # 276
-AF 2,3,24,92,93,10,7 # 277
-AF 2,3,25,84,7,14 # 278
-AF 100,32 # 279
-AF 24,25 # 280
-AF 2,17,29,30,37 # 281
-AF 24,25,92,93,10,18,20 # 282
-AF 24,3,6,7,83 # 283
-AF 43,44 # 284
-AF 5,11,6,38,39,40 # 285
-AF 38,40 # 286
-AF 10,18,20,3,8,7,9 # 287
-AF 10,18,19,20,8,9 # 288
-AF 71,60,7 # 289
-AF 8,9 # 290
-AF 37 # 291
-AF 18,19,20,23,3 # 292
-AF 10,18,20,7 # 293
-AF 2,3,31,32 # 294
-AF 3,101,8,7 # 295
-AF 10,18,19,20,21,8,7,9 # 296
-AF 25,73,3,58,7 # 297
-AF 10,18,20,21,8,7,9 # 298
-AF 10,81,82,18,19,20,41,42,7 # 299
-AF 2,3,87,5,7 # 300
-AF 21,8,7,9 # 301
-AF 2,3,24,10,5,6,7 # 302
-AF 2,17,28 # 303
-AF 21,22,3,8,7,9 # 304
-AF 10,21,22,3,8,7,9 # 305
-AF 11,6,102,86,103,3 # 306
-AF 45 # 307
-AF 3,61,62,7 # 308
-AF 11,38,40 # 309
-AF 18,21,23,3,31,8,7,9 # 310
-AF 104,105,10,18,19,20 # 311
-AF 2,3,5,6,7,83 # 312
-AF 3,49,7,9 # 313
-AF 21,22,3 # 314
-AF 2,3,24,25 # 315
-AF 17,24,10,18,19,20,29,30,37,6,27,28 # 316
-AF 24,25,18,20,5,6,7 # 317
-AF 17,29,30,34,35,36 # 318
-AF 3,61,62,7,98,106 # 319
-AF 2,3,67,5,6,7 # 320
-AF 3,6,7,107 # 321
-AF 88,2,3 # 322
-AF 24,25,10,18,19,20,2 # 323
-AF 24,25,5,6,7 # 324
-AF 18,19,20,3 # 325
-AF 10,7 # 326
-AF 23,3 # 327
-AF 65,66,7 # 328
-AF 11,2 # 329
-AF 17,29,30,37,34,35,36,6,27,28 # 330
-AF 10,3,43,44,7 # 331
-AF 24,10,18,19,20,5,6,7 # 332
-AF 3,53,54,10,18,19,20 # 333
-AF 10,18,19,20,2,3,5,6,7 # 334
-AF 24,10,4,5,11,6 # 335
-AF 17,37,35,36 # 336
-AF 24,92,93,10 # 337
-AF 2,3,63,6,7 # 338
-AF 18,20,3,5,6,7 # 339
-AF 10,18,3 # 340
-AF 17,29,30,34,35,36,6,27,28 # 341
-AF 108,109 # 342
-AF 24,25,18,19,20,3,5,6,7 # 343
-AF 10,18,19,20,84,94,2,3,7,13,14 # 344
-AF 18,23 # 345
-AF 4,2,45,5,11,6 # 346
-AF 18,19,20,21,22,23 # 347
-AF 24,25,3,5,6,7 # 348
-AF 18,19,20,2,3 # 349
-AF 18,19,20,21,22 # 350
-AF 29,30,37,34,35,36,6,27 # 351
-AF 39 # 352
-AF 2,3,24,25,10,18,19,20,5,6,7 # 353
-AF 2,7 # 354
-AF 2,3,31,55,56,7 # 355
-AF 6,7,113 # 356
-AF 114,115,3,55,56,7 # 357
-AF 3,7,13,14 # 358
-AF 114,3,55,56,7 # 359
-AF 2,17,29,30,37,34,35,36 # 360
-AF 24,25,18,20,4,5,11,6 # 361
-AF 6,116,28,117 # 362
-AF 2,5,6,7 # 363
-AF 72,66,7 # 364
-AF 22 # 365
-AF 11,6,102 # 366
-AF 6,49,7 # 367
-AF 24,5,6,7 # 368
-AF 24,25,10,18,19,20,3,31,5,6,7 # 369
-AF 32,10,18,20 # 370
-AF 10,18,20,21,22,3,8,6,7 # 371
-AF 3,7,9 # 372
-AF 24,25,10,18,20,5,6,7 # 373
-AF 4,2,3,5,11,6,7 # 374
-AF 2,3,7,59,9,75 # 375
-AF 118,17,6,27,28 # 376
-AF 24,25,18,19,20,6 # 377
-AF 24,10,18,20 # 378
-AF 3,65,66,7 # 379
-AF 6,7,119 # 380
-AF 2,43,44 # 381
-AF 10,3,5,6,7 # 382
-AF 2,17,27,28 # 383
-AF 2,3,55,7 # 384
-AF 24,25,4,2,5,11,6 # 385
-AF 24,25,18,19,20,37,3 # 386
-AF 10,18,20,2,3,7 # 387
-AF 25,10,18,19,20 # 388
-AF 18,19,20,21,22,23,8,9 # 389
-AF 3,7,14 # 390
-AF 32,18,20 # 391
-AF 3,5,6,7,69 # 392
-AF 17,28 # 393
-AF 120,121,10,18,19,20,65,66 # 394
-AF 2,48 # 395
-AF 10,81,82,18,19,20 # 396
-AF 11,6,102,24,4,2 # 397
-AF 3,92,93,10,18,19,20 # 398
-AF 104,3,71,60,7 # 399
-AF 18,20,3,31 # 400
-AF 10,18,19,20,21,22,2,3,8,49,7,9 # 401
-AF 10,2,3,43,44,7 # 402
-AF 24,10,18,19,20,3,5,6,7 # 403
-AF 2,3,65,7 # 404
-AF 46,47,7 # 405
-AF 24,25,10,18,19,20,4,5,11,6 # 406
-AF 29,30,37,36 # 407
-AF 2,3,44,7 # 408
-AF 2,3,7,14 # 409
-AF 21,22,8,7,9 # 410
-AF 2,3,41,42,7,81 # 411
-AF 7,9,75 # 412
-AF 3,56,7 # 413
-AF 3,9 # 414
-AF 2,85,45 # 415
-AF 3,7,70,59,9 # 416
-AF 114,115,2,3,55,56,7 # 417
-AF 12,38,39,40 # 418
-AF 2,3,8,7,9,92,93,10,21 # 419
-AF 21,22,2,3,8,7,9 # 420
-AF 10,18,19,20,84,94,7,13,14 # 421
-AF 24,10,18,19,20,3 # 422
-AF 10,18,19,20,21 # 423
-AF 18,19,20,21,22,23,8,7,9 # 424
-AF 32,7 # 425
-AF 10,20,3 # 426
-AF 2,3,122 # 427
-AF 3,92,10,98 # 428
-AF 24,10 # 429
-AF 6,7,107 # 430
-AF 10,3,43,7 # 431
-AF 3,6,7,119 # 432
-AF 24,25,10,3 # 433
-AF 21,3 # 434
-AF 2,3,24,10 # 435
-AF 23,2,3 # 436
-AF 15,16,7,25 # 437
-AF 10,18,20,2,3,8,7,9 # 438
-AF 10,4 # 439
-AF 10,3,7 # 440
-AF 11,4,2,126 # 441
-AF 2,8,7,9 # 442
-AF 29,30,34,35,36,6,27,28 # 443
-AF 2,3,7,70,9 # 444
-AF 88,2 # 445
-AF 24,25,92,93,10,18,19,20,3 # 446
-AF 24,25,10,18,3 # 447
-AF 2,129,130 # 448
-AF 131,2 # 449
-AF 25,3 # 450
-AF 2,3,5,6,46,47,7 # 451
-AF 49,9 # 452
-AF 10,18,19,20,21,22,8 # 453
-AF 24,25,10,18,19,20,5,11,6 # 454
-AF 24,25,10,18,19,20,4,45 # 455
-AF 24,3,6,7,119 # 456
-AF 24,25,10,18,19,20,3,5,6,7,83 # 457
-AF 5,6,7,83 # 458
-AF 11,6,4,2 # 459
-AF 10,8,9 # 460
-AF 6,7,69 # 461
-AF 3,43,44,7,53,54,10,18,19,20 # 462
-AF 2,8 # 463
-AF 132,2 # 464
-AF 3,8,7,9,92,93,10,18,19,20,21,22 # 465
-AF 2,133 # 466
-AF 84 # 467
-AF 8,7,9,92,93,10,18,20,21,22 # 468
-AF 24,18,20 # 469
-AF 2,3,48,80,6,7 # 470
-AF 2,3,57,58,7,73 # 471
-AF 92,93,10,18,20,21 # 472
-AF 24,25,18,20,3,5,6,7 # 473
-AF 7,9,134 # 474
-AF 2,46,47 # 475
-AF 20 # 476
-AF 10,3,31,7 # 477
-AF 24,10,5,6,7 # 478
-AF 2,61,62,92,93,10 # 479
-AF 2,3,7,13,14,84 # 480
-AF 24,2,5,6 # 481
-AF 10,18,20,21,22,8,7,9 # 482
-AF 2,3,135 # 483
-AF 86 # 484
-AF 24,25,10,18,19,3,6,7,83 # 485
-AF 67 # 486
-AF 2,3,43,7 # 487
-AF 24,10,3,6,7 # 488
-AF 95 # 489
-AF 2,17,35,36 # 490
-AF 10,21,22,3,7 # 491
-AF 29,30,37,34,36 # 492
-AF 2,3,31 # 493
-AF 3,46,47,7 # 494
-AF 3,6,7,83 # 495
-AF 8,49,7,9 # 496
-AF 5,6,7,107 # 497
-AF 2,3,49,7,9 # 498
-AF 104,2,3,71,60,7 # 499
-AF 25,3,7 # 500
-AF 22,2,3 # 501
-AF 10,18,19,20,3,8,7,9 # 502
-AF 48 # 503
-AF 137 # 504
-AF 10,2,3,7 # 505
-AF 53,54,10,18,19 # 506
-AF 3,5,6,49,7 # 507
-AF 138,23,2,3 # 508
-AF 2,3,24,25,7 # 509
-AF 10,18,19,21,22,3,8,7,9 # 510
-AF 10,18,21,22 # 511
-AF 10,18,19,3 # 512
-AF 24,25,10,18,19,20,7 # 513
-AF 2,3,7,200 # 514
-AF 2,44 # 515
-AF 18,19,20,21,22,23,3 # 516
-AF 11,38,40,4 # 517
-AF 10,18,20,21,22,3 # 518
-AF 10,18,19,3,8,7,9 # 519
-AF 10,18,19,21,22 # 520
-AF 24,10,3,5,6,7 # 521
-AF 24,2,6 # 522
-AF 24,25,18,19 # 523
-AF 24,10,3 # 524
-AF 21 # 525
-AF 18,19,20,21,2,3 # 526
-AF 10,18,19,20,21,22,3,7 # 527
-AF 24,10,18,19,3,5,6,7 # 528
-AF 34,36 # 529
-AF 17,29,30,37,34,36 # 530
-AF 24,2 # 531
-AF 11,6,102,139 # 532
-AF 2,3,7,92,10 # 533
-AF 3,66,7 # 534
-AF 13,14 # 535
-AF 3,7,70,9 # 536
-AF 3,62,7 # 537
-AF 52,140,2 # 538
-AF 15,16,7,24,3 # 539
-AF 2,17,29,6,27,28 # 540
-AF 2,3,24,25,10 # 541
-AF 2,3,61,62,7,83 # 542
-AF 29,30,37 # 543
-AF 4,2,95 # 544
-AF 17,28,29,30,34,35,36 # 545
-AF 4,5,11 # 546
-AF 4,5,11,6,200 # 547
-AF 200 # 548
-AF 53,54,10,18,20 # 549
-AF 2,3,33,5,6,7 # 550
-AF 24,25,18,19,20,4,2 # 551
-AF 10,46,47,7 # 552
-AF 114,2,3,55,56,7 # 553
-AF 2,3,24,92,93,10,5,6,7 # 554
-AF 10,18,19,21,22,3 # 555
-AF 10,18,19,4 # 556
-AF 10,81,82,18 # 557
-AF 2,17,37 # 558
-AF 18,20,21,3,8,7,9 # 559
-AF 2,37 # 560
-AF 21,2,3,8,7 # 561
-AF 2,3,141 # 562
-AF 5,11,6,7 # 563
-AF 2,12 # 564
-AF 23,3,8,7,9 # 565
-AF 24,25,10,18,19,3,5,6,7 # 566
-AF 110,111,112,2,76 # 567
-AF 2,3,48,80,5,6,7 # 568
-AF 2,3,24,25,10,18,20,5,6,7 # 569
-AF 10,18,20,21,22,9 # 570
-AF 24,25,10,18,4 # 571
-AF 17,29,30,37,35,36,6,27,28 # 572
-AF 2,3,24,142,5,6,7 # 573
-AF 27,28 # 574
-AF 120,121,10,18,20,2,3,7 # 575
-AF 10,11,4,2 # 576
-AF 2,3,5,6,7,119 # 577
-AF 4,2,5,11 # 578
-AF 2,5 # 579
-AF 10,18,2,3 # 580
-AF 11,6 # 581
-AF 3,7,143,144 # 582
-AF 3,7,9,75 # 583
-AF 24,25,10,18,20,4 # 584
-AF 3,5,6,7,13,14 # 585
-AF 24,10,18,20,3,5,6,7 # 586
-AF 10,18,20,21 # 587
-AF 138,145,23,2,3,8,7,9 # 588
-AF 24,25,10,18,20,3,5,6,7 # 589
-AF 17,29,30,37,35,36 # 590
-AF 2,3,57,7 # 591
-AF 2,3,81 # 592
-AF 29,30,2 # 593
-AF 46,47 # 594
-AF 120,121,10,18,19,20 # 595
-AF 10,18,21,22,3 # 596
-AF 24,25,18 # 597
-AF 2,3,24,18,5,6,7 # 598
-AF 37,36 # 599
-AF 2,17,36 # 600
-AF 2,3,5,6,49,7 # 601
-AF 2,67,5 # 602
-AF 13,14,84 # 603
-AF 2,3,87 # 604
-AF 2,41,42 # 605
-AF 10,21,8,7,9 # 606
-AF 10,18,8,7,9 # 607
-AF 21,3,6,49,7 # 608
-AF 2,9 # 609
-AF 18,67 # 610
-AF 10,18,3,8,7,9 # 611
-AF 2,3,61,7 # 612
-AF 88,146,2,3 # 613
-AF 3,48 # 614
-AF 24,25,10,18,3,5,7 # 615
-AF 24,25,10,18,3,7 # 616
-AF 3,8,49,7,9 # 617
-AF 2,3,66,7 # 618
-AF 3,7,14,200 # 619
-AF 29,30,200 # 620
-AF 2,3,6,7,113 # 621
-AF 61,62,7 # 622
-AF 17,24,25,10,18,20,29,30,6,27,28 # 623
-AF 24,25,92,93,10,18,19,20,5,6 # 624
-AF 137,2 # 625
-AF 18,21,22,23 # 626
-AF 3,8,6,7,9 # 627
-AF 18,20,23,3,8,7,9 # 628
-AF 24,4,2 # 629
-AF 24,18,20,3,5,6,7 # 630
-AF 2,6 # 631
-AF 66 # 632
-AF 24,25,10,18,5,6 # 633
-AF 3,7,59,9 # 634
-AF 24,25,10,18,3,5,6,7 # 635
-AF 10,81,82,18,41,42,7 # 636
-AF 24,25,18,20 # 637
-AF 24,25,18,3,7 # 638
-AF 3,5,6,7,107 # 639
-AF 73,74,10,18,20 # 640
-AF 17,36 # 641
-AF 10,18,21,22,3,7 # 642
-AF 2,3,24,25,10,18,5,6,7 # 643
-AF 41,42 # 644
-AF 10,18,20,22,3,8,7,9 # 645
-AF 148,10,18,3 # 646
-AF 24,3,6,7 # 647
-AF 10,18,20,21,2,3,8,7,9 # 648
-AF 10,18,20,21,22,2,3,8,7,9 # 649
-AF 10,18,20,84,94,3,7,13,14 # 650
-AF 18,21,22,23,2,3,8,7,9 # 651
-AF 2,3,73,7 # 652
-AF 10,18,20,21,22,8,9 # 653
-AF 24,25,10,18,4,5,11,6 # 654
-AF 3,5,6,7,119 # 655
-AF 10,18,20,2 # 656
-AF 24,25,10,18,20,3,7 # 657
-AF 87 # 658
-AF 24,25,10,18,20,3 # 659
-AF 10,18,2,3,7 # 660
-AF 3,8,6,7 # 661
-AF 10,21,22,8,7,9 # 662
-AF 2,3,5,7,83 # 663
-AF 10,18,20,21,22,138,23 # 664
-AF 3,42,7 # 665
-AF 9 # 666
-AF 10,18,21,22,8,7,9 # 667
-AF 17,37,36 # 668
-AF 2,3,98 # 669
-AF 24,25,5,11,6 # 670
-AF 10,18,21,22,3,8,7,9 # 671
-AF 2,17,29 # 672
-AF 10,98,18,20,106,61,62,7 # 673
-AF 17,29,30,37,36,6,27,28 # 674
-AF 3,43,44,7,53 # 675
-AF 10,81,82,18,3,41,42,7 # 676
-AF 18,21,22,8,9 # 677
-AF 2,17,29,30,36 # 678
-AF 18,3 # 679
-AF 3,7,119 # 680
-AF 6,69 # 681
-AF 13,14,18 # 682
-AF 29,36 # 683
-AF 10,2,3,5,7 # 684
-AF 25,10,18 # 685
-AF 92,93,10,18 # 686
-AF 10,18,3,7 # 687
-AF 10,5,6,7 # 688
-AF 25 # 689
-AF 18,23,2,3 # 690
-AF 2,3,67,7 # 691
-AF 4,2,5,63,11,6 # 692
-AF 29,30,37,36,6,27,28 # 693
-AF 18,3,5,6,7 # 694
-AF 5,6,7,69 # 695
-AF 10,18,84,94,3,7,13,14 # 696
-AF 10,18,20,21,22,2,3,7,9 # 697
-AF 110,111,112,76 # 698
-AF 56 # 699
-AF 24,25,10,18,20,3,6,7 # 700
-AF 2,3,7,83 # 701
-AF 14,2,3 # 702
-AF 2,67,5,6,7 # 703
-AF 2,3,92,93,10 # 704
-AF 7,59,9,75 # 705
-AF 10,18,3,5,6,7 # 706
-AF 18,2,3,5,6,7 # 707
-AF 201,204 # 708
-AF 205,203 # 709
-AF 201,202 # 710
-AF 205 # 711
-AF 203,300 # 712
-AF 17,200 # 713
-AM 2042
-AM ts:0
-AM st:abatis ts:Ns
-AM ts:0 al:abode
-AM ts:0 st:abide
-AM st:ax ts:Ns
-AM st:acidosis ts:Ns
-AM ts:0 al:acidoses
-AM st:addendum ts:Ns
-AM ts:0 al:addenda
-AM st:adiposis ts:Ns
-AM ts:0 al:admen
-AM st:adman ts:Ns
-AM ts:0 al:afterlives
-AM st:afterlife ts:Ns
-AM st:agendum ts:Ns's
-AM st:agendum ts:Ns
-AM ts:0 al:airmen al:airmen's
-AM st:airman ts:Ns's
-AM st:airman ts:Ns
-AM ts:0 al:airwomen
-AM st:airwoman ts:Ns
-AM st:album ts:Ns's
-AM st:album ts:Ns
-AM ts:0 al:alba al:alba's
-AM ts:0 al:aldermen al:aldermen's
-AM st:alderman ts:Ns's
-AM st:alderman ts:Ns
-AM ts:0 al:alderwomen
-AM st:alderwoman ts:Ns
-AM ts:0 al:alewives
-AM st:alewife ts:Ns
-AM st:algum ts:Ns's
-AM st:algum ts:Ns
-AM st:alluvium ts:Ns
-AM ts:0 al:alluvia
-AM ts:0 al:almsmen al:almsmen's
-AM st:almsman ts:Ns's
-AM st:almsman ts:Ns
-AM st:aluminum ts:Ns's
-AM st:aluminum ts:Ns
-AM st:alumnus ts:Ns
-AM ts:0 al:alumni
-AM st:alveolus ts:Ns
-AM ts:0 al:alveoli
-AM st:Alyssum ts:Ns's
-AM st:Alyssum ts:Ns
-AM st:amanuensis ts:Ns
-AM ts:0 al:amanuenses
-AM st:ammonium ts:Ns's
-AM st:ammonium ts:Ns
-AM ts:0 al:ammonia al:ammonia's
-AM st:amniocentesis ts:Ns
-AM ts:0 al:amniocenteses
-AM st:be ts:Vd
-AM st:analysis ts:Ns
-AM ts:0 al:analyses
-AM st:anastomosis ts:Ns
-AM ts:0 al:anastomoses
-AM ts:0 al:anchormen al:anchormen's
-AM st:anchorman ts:Ns's
-AM st:anchorman ts:Ns
-AM st:anchorperson ts:Ns
-AM ts:0 al:anchorpeople
-AM ts:0 al:anchorwomen
-AM st:anchorwoman ts:Ns
-AM st:annulus ts:Ns
-AM ts:0 al:annuli
-AM st:antisepsis ts:Ns
-AM ts:0 al:antisepses
-AM st:antithesis ts:Ns
-AM ts:0 al:antitheses
-AM ts:0 al:apices's
-AM st:aphelion ts:Ns
-AM ts:0 al:aphelia
-AM st:Apium ts:Ns's
-AM st:Apium ts:Ns
-AM st:apex ts:Ns's
-AM st:apocryphon ts:Ns's
-AM st:apocryphon ts:Ns
-AM st:apotheosis ts:Ns
-AM ts:0 al:apotheoses
-AM st:apsis ts:Ns
-AM ts:0 al:apses
-AM st:aquarium ts:Ns
-AM ts:0 al:aquaria
-AM st:arcanum ts:Ns's
-AM st:arcanum ts:Ns
-AM ts:0 al:arcana al:arcana's
-AM ts:0 al:arose
-AM st:arise ts:Vd
-AM st:arteriosclerosis ts:Ns
-AM ts:0 al:arterioscleroses
-AM ts:0 al:artillerymen al:artillerymen's
-AM st:artilleryman ts:Ns's
-AM st:artilleryman ts:Ns
-AM st:asbestosis ts:Ns
-AM ts:0 al:asbestoses
-AM ts:0 al:assemblymen al:assemblymen's
-AM st:assemblyman ts:Ns's
-AM st:assemblyman ts:Ns
-AM ts:0 al:assemblywomen
-AM st:assemblywoman ts:Ns
-AM st:on ts:Ns
-AM st:eat ts:Vd
-AM st:atherosclerosis ts:Ns
-AM ts:0 al:atheroscleroses
-AM st:atrium ts:Ns
-AM ts:0 al:atria
-AM st:aurum ts:Ns's
-AM st:aurum ts:Ns
-AM st:auspex ts:Ns
-AM st:automaton ts:Ns
-AM ts:0 al:automata
-AM st:avitaminosis ts:Ns
-AM ts:0 al:avitaminoses
-AM ts:0 al:awoke al:awoken
-AM st:awake ts:Vd
-AM ts:0 al:axemen al:axemen's
-AM st:axeman ts:Ns's
-AM st:axeman ts:Ns
-AM st:axis ts:Ns
-AM ts:0 al:axes
-AM st:babysit ts:Vd
-AM ts:0 al:babysat
-AM st:bacillus ts:Ns
-AM ts:0 al:bacilli
-AM st:backlight ts:Vd
-AM ts:0 al:backwoodsmen al:backwoodsmen's
-AM st:backwoodsman ts:Ns's
-AM st:backwoodsman ts:Ns
-AM st:bacterium ts:Ns's
-AM st:bacterium ts:Ns
-AM ts:0 al:bacteria al:bacteria's
-AM ts:0 al:worse al:worst
-AM st:bid ts:Vd
-AM ts:0 al:badmen al:badmen's
-AM st:badman ts:Ns's
-AM st:badman ts:Ns
-AM ts:0 al:baggagemen al:baggagemen's
-AM st:baggageman ts:Ns's
-AM st:baggageman ts:Ns
-AM ts:0 al:bailsmen al:bailsmen's
-AM st:bailsman ts:Ns's
-AM st:bailsman ts:Ns
-AM ts:0 al:bandsmen al:bandsmen's
-AM st:bandsman ts:Ns's
-AM st:bandsman ts:Ns
-AM ts:0 al:bargemen al:bargemen's
-AM st:bargeman ts:Ns's
-AM st:bargeman ts:Ns
-AM ts:0 al:barmen al:barmen's
-AM st:barman ts:Ns's
-AM st:barman ts:Ns
-AM ts:0 al:basemen al:basemen's
-AM st:baseman ts:Ns's
-AM st:baseman ts:Ns
-AM st:basis ts:Ns
-AM st:basilicon ts:Ns's
-AM st:basilicon ts:Ns
-AM ts:0 al:bases
-AM ts:0 al:batmen
-AM st:batman ts:Ns
-AM ts:0 al:batsmen al:batsmen's
-AM st:batsman ts:Ns's
-AM st:batsman ts:Ns
-AM ts:0 al:am al:are al:art al:is al:was al:wast al:were
-AM ts:0 al:beadsmen al:beadsmen's
-AM st:beadsman ts:Ns's
-AM st:beadsman ts:Ns
-AM ts:0 al:bore al:born al:borne
-AM st:become ts:Vd
-AM ts:0 al:became
-AM ts:0 al:befell
-AM st:befall ts:Vd
-AM st:begin ts:Vd
-AM ts:0 al:began al:begun
-AM st:beget ts:Vd
-AM st:behold ts:Vd
-AM ts:0 al:beheld
-AM ts:0 al:belying
-AM ts:0 al:bellmen al:bellmen's
-AM st:bellman ts:Ns's
-AM st:bellman ts:Ns
-AM st:belie ts:Vd
-AM ts:0 al:bereft
-AM st:bereave ts:Vd
-AM ts:0 al:besought
-AM st:beseech ts:Vd
-AM ts:0 al:bespoke al:bespoken
-AM st:bespeak ts:Vd
-AM st:bis ts:Ns
-AM ts:0 al:bestrode
-AM st:bestride ts:Vd
-AM st:well ts:0
-AM ts:0 al:betook
-AM st:beton ts:Ns's
-AM st:beton ts:Ns
-AM ts:0 al:bethought
-AM st:bethink ts:Vd
-AM st:betake ts:Vd
-AM ts:0 al:bade
-AM ts:0 al:bode
-AM ts:0 st:by
-AM ts:0 al:bound
-AM st:bus ts:Ns's
-AM st:bus ts:Ns
-AM ts:0 al:bes
-AM st:bleed ts:Vd
-AM ts:0 al:bled
-AM st:blow ts:Vd
-AM ts:0 al:blew
-AM st:boon ts:Ns's
-AM st:boon ts:Ns
-AM ts:0 al:boatmen al:boatmen's
-AM st:boatman ts:Ns's
-AM st:boatman ts:Ns
-AM st:bide ts:Vd
-AM ts:0 al:bogeymen al:bogeymen's
-AM st:bogeyman ts:Ns's
-AM st:bogeyman ts:Ns
-AM ts:0 al:bondsmen al:bondsmen's
-AM st:bondsman ts:Ns's
-AM st:bondsman ts:Ns
-AM ts:0 al:bondwomen
-AM st:bondwoman ts:Ns
-AM st:boney ts:0
-AM ts:0 al:boa al:boa's
-AM st:boozey ts:0
-AM st:bear ts:Vd
-AM st:buy ts:Vd
-AM st:bind ts:Vd
-AM ts:0 al:bowmen al:bowmen's
-AM st:bowman ts:Ns's
-AM st:bowman ts:Ns
-AM st:brachium ts:Ns
-AM ts:0 al:brachia
-AM ts:0 al:broke al:broken
-AM st:breastfeed ts:Vd
-AM ts:0 al:breastfed
-AM st:breed ts:Vd
-AM ts:0 al:bred
-AM st:brother ts:Ns
-AM ts:0 al:brought
-AM st:break ts:Vd
-AM st:bronchus ts:Ns's
-AM st:bronchus ts:Ns
-AM ts:0 al:bronchi al:bronchi's
-AM ts:0 al:brethren
-AM st:bring ts:Vd
-AM st:bucktooth ts:Ns
-AM ts:0 al:buckteeth
-AM st:burley ts:0
-AM ts:0 al:bi al:bi's
-AM ts:0 al:bushmen al:bushmen's
-AM st:bushman ts:Ns's
-AM st:bushman ts:Ns
-AM ts:0 al:businessmen al:businessmen's
-AM st:businessman ts:Ns's
-AM st:businessman ts:Ns
-AM st:businessperson ts:Ns
-AM ts:0 al:businesspeople
-AM ts:0 al:businesswomen
-AM st:businesswoman ts:Ns
-AM ts:0 al:busmen
-AM st:busman ts:Ns
-AM ts:0 al:bought
-AM ts:0 al:bier
-AM st:cactus ts:Ns
-AM ts:0 al:cacti
-AM ts:0 al:caddying
-AM st:caddie ts:Vd
-AM st:caduceus ts:Ns
-AM ts:0 al:caducei
-AM st:caecum ts:Ns
-AM ts:0 al:caeca
-AM ts:0 al:cagier al:cagiest
-AM st:cagey ts:0
-AM st:calculus ts:Ns
-AM ts:0 al:calculi
-AM ts:0 al:cameramen al:cameramen's
-AM st:cameraman ts:Ns's
-AM st:cameraman ts:Ns
-AM ts:0 al:camerawomen
-AM st:camerawoman ts:Ns
-AM st:come ts:Vd
-AM ts:0 al:could
-AM ts:0 st:candelabrum
-AM ts:0 al:candelabra
-AM st:carnie ts:Vd
-AM st:carpus ts:Ns's
-AM st:carpus ts:Ns
-AM ts:0 al:carpi al:carpi's
-AM st:catalysis ts:Ns
-AM ts:0 al:catalyses
-AM ts:0 al:caught
-AM st:catharsis ts:Ns
-AM ts:0 al:catharses
-AM ts:0 al:cattlemen al:cattlemen's
-AM st:cattleman ts:Ns's
-AM st:cattleman ts:Ns
-AM st:catch ts:Vd
-AM ts:0 al:cavalrymen al:cavalrymen's
-AM st:cavalryman ts:Ns's
-AM st:cavalryman ts:Ns
-AM ts:0 al:cavemen al:cavemen's
-AM st:caveman ts:Ns's
-AM st:caveman ts:Ns
-AM st:cafe ts:Ns
-AM st:cedis ts:Ns
-AM st:cementum ts:Ns
-AM ts:0 al:cementa
-AM st:cerebrum ts:Ns
-AM ts:0 al:cerebra
-AM ts:0 al:chairmen al:chairmen's
-AM st:chairman ts:Ns's
-AM st:chairman ts:Ns
-AM ts:0 al:chairwomen
-AM st:chairwoman ts:Ns
-AM st:chancey ts:0
-AM ts:0 al:charwomen
-AM st:charwoman ts:Ns
-AM st:chum ts:Ns
-AM ts:0 al:chessmen al:chessmen's
-AM st:chessman ts:Ns's
-AM st:chessman ts:Ns
-AM ts:0 al:Chinamen al:Chinamen's
-AM st:Chinaman ts:Ns's
-AM st:Chinaman ts:Ns
-AM st:chinchillon ts:Ns's
-AM st:chinchillon ts:Ns
-AM ts:0 al:chose al:chosen
-AM st:choosey ts:0
-AM st:choose ts:Vd
-AM ts:0 al:cha
-AM ts:0 al:churchmen al:churchmen's
-AM st:churchman ts:Ns's
-AM st:churchman ts:Ns
-AM ts:0 al:churchwomen
-AM st:churchwoman ts:Ns
-AM st:cilium ts:Ns's
-AM st:cilium ts:Ns
-AM ts:0 al:cilia al:cilia's
-AM st:Cincinnatus ts:Ns
-AM st:cirrhosis ts:Ns
-AM ts:0 al:cirrhoses
-AM st:cirrus ts:Ns's
-AM st:cirrus ts:Ns
-AM ts:0 al:cirri al:cirri's
-AM st:clothe ts:Vd
-AM ts:0 al:clansmen al:clansmen's
-AM st:clansman ts:Ns's
-AM st:clansman ts:Ns
-AM st:classis ts:Ns
-AM ts:0 al:clayier al:clayiest
-AM st:clayey ts:0
-AM ts:0 al:cleft al:clove al:cloven
-AM ts:0 st:cleave
-AM ts:0 al:clergymen al:clergymen's
-AM st:clergyman ts:Ns's
-AM st:clergyman ts:Ns
-AM ts:0 al:clergywomen
-AM st:clergywoman ts:Ns
-AM ts:0 al:clung
-AM ts:0 al:cliquier al:cliquiest
-AM st:cliquey ts:0
-AM ts:0 al:clad
-AM st:cleave ts:Vd
-AM st:clubfoot ts:Ns
-AM st:cling ts:Vd
-AM ts:0 al:coachmen al:coachmen's
-AM st:coachman ts:Ns's
-AM st:coachman ts:Ns
-AM st:coccus ts:Ns's
-AM st:coccus ts:Ns
-AM ts:0 al:cocci al:cocci's
-AM st:cocoon ts:Ns's
-AM st:cocoon ts:Ns
-AM ts:0 al:cocoa al:cocoa's
-AM st:codon ts:Ns's
-AM st:codon ts:Ns
-AM ts:0 al:codices al:codices's
-AM st:codex ts:Ns's
-AM st:codex ts:Ns
-AM ts:0 al:coda al:coda's
-AM st:colon ts:Ns's
-AM st:colon ts:Ns
-AM ts:0 al:collying
-AM st:colloquium ts:Ns
-AM ts:0 al:colloquia
-AM ts:0 al:cola al:cola's
-AM st:colossus ts:Ns
-AM ts:0 al:colossi
-AM st:collie ts:Vd
-AM ts:0 al:came
-AM st:common ts:Ns's
-AM st:common ts:Ns
-AM ts:0 al:committeemen al:committeemen's
-AM st:committeeman ts:Ns's
-AM st:committeeman ts:Ns
-AM ts:0 al:committeewomen
-AM st:committeewoman ts:Ns
-AM ts:0 al:comma al:comma's
-AM st:compendium ts:Ns
-AM ts:0 al:compendia
-AM ts:0 al:congressmen al:congressmen's
-AM st:congressman ts:Ns's
-AM st:congressman ts:Ns
-AM st:congressperson ts:Ns
-AM ts:0 al:congresspeople
-AM ts:0 al:congresswomen
-AM st:congresswoman ts:Ns
-AM ts:0 al:conmen al:conmen's
-AM st:conman ts:Ns's
-AM st:conman ts:Ns
-AM st:consortium ts:Ns
-AM ts:0 al:consortia
-AM st:continuum ts:Ns
-AM ts:0 al:continua
-AM st:corditis ts:Ns
-AM st:corneum ts:Ns's
-AM st:corneum ts:Ns
-AM st:corpus ts:Ns's
-AM st:corpus ts:Ns
-AM ts:0 al:corpora al:corpora's
-AM st:corrigendum ts:Ns
-AM ts:0 al:corrigenda
-AM ts:0 al:cortices
-AM st:cortex ts:Ns
-AM st:cosey ts:0
-AM st:can ts:Vd
-AM ts:0 al:councilmen al:councilmen's
-AM st:councilman ts:Ns's
-AM st:councilman ts:Ns
-AM ts:0 al:councilwomen
-AM st:councilwoman ts:Ns
-AM ts:0 al:countermen al:countermen's
-AM st:counterman ts:Ns's
-AM st:counterman ts:Ns
-AM ts:0 al:countersunk
-AM st:countersink ts:Vd
-AM ts:0 al:countrymen al:countrymen's
-AM st:countryman ts:Ns's
-AM st:countryman ts:Ns
-AM ts:0 al:countrywomen
-AM st:countrywoman ts:Ns
-AM ts:0 al:kine al:kine's
-AM ts:0 al:cowmen al:cowmen's
-AM st:cowman ts:Ns's
-AM st:cowman ts:Ns
-AM ts:0 al:craftsmen al:craftsmen's
-AM st:craftsman ts:Ns's
-AM st:craftsman ts:Ns
-AM st:craftsperson ts:Ns
-AM ts:0 al:craftswomen
-AM st:craftswoman ts:Ns
-AM ts:0 al:crept
-AM st:crematorium ts:Ns
-AM ts:0 al:crematoria
-AM st:creep ts:Vd
-AM ts:0 al:crewmen al:crewmen's
-AM st:crewman ts:Ns's
-AM st:crewman ts:Ns
-AM st:crisis ts:Ns
-AM ts:0 al:crises
-AM st:criterium ts:Ns
-AM ts:0 al:criteria
-AM ts:0 al:crossbowmen al:crossbowmen's
-AM st:crossbowman ts:Ns's
-AM st:crossbowman ts:Ns
-AM st:crowfoot ts:Ns
-AM ts:0 al:crowfeet
-AM st:crystallitis ts:Ns
-AM st:cumulus ts:Ns
-AM st:cumulonimbus ts:Ns
-AM ts:0 al:cumulonimbi
-AM ts:0 al:cumuli
-AM st:curium ts:Ns's
-AM st:curium ts:Ns
-AM ts:0 al:curia al:curia's
-AM st:curriculum ts:Ns
-AM ts:0 al:curricula
-AM st:currie ts:Vd
-AM st:curvey ts:0
-AM ts:0 al:dairymen al:dairymen's
-AM st:dairyman ts:Ns's
-AM st:dairyman ts:Ns
-AM ts:0 al:dairywomen
-AM st:dairywoman ts:Ns
-AM ts:0 al:dalesmen al:dalesmen's
-AM st:dalesman ts:Ns's
-AM st:dalesman ts:Ns
-AM st:dalis ts:Ns
-AM ts:0 al:durst
-AM st:daris ts:Ns
-AM st:dashis ts:Ns
-AM st:datum ts:Ns's
-AM st:datum ts:Ns
-AM ts:0 al:data al:data's
-AM ts:0 al:deliverymen al:deliverymen's
-AM st:deliveryman ts:Ns's
-AM st:deliveryman ts:Ns
-AM st:desideratum ts:Ns
-AM ts:0 al:desiderata
-AM st:diaeresis ts:Ns
-AM ts:0 al:diaereses
-AM st:diagnosis ts:Ns
-AM ts:0 al:diagnoses
-AM st:dialysis ts:Ns
-AM ts:0 al:dialyses
-AM st:diastasis ts:Ns
-AM st:dex ts:Ns
-AM ts:0 al:dicier al:diciest
-AM st:dicey ts:0
-AM ts:0 al:dickier al:dickiest
-AM st:dickey ts:0
-AM st:dictum ts:Ns's
-AM st:dictum ts:Ns
-AM ts:0 al:dicta al:dicta's
-AM st:do ts:Vd
-AM ts:0 al:dying
-AM ts:0 al:dug
-AM st:dingey ts:0
-AM st:dinkey ts:0
-AM ts:0 al:dove
-AM ts:0 al:did al:didst
-AM st:dodecahedron ts:Ns
-AM ts:0 al:dodecahedra
-AM ts:0 al:dogfought
-AM st:dogfight ts:Vd
-AM st:dolman ts:Ns's
-AM st:dolman ts:Ns
-AM ts:0 al:doormen al:doormen's
-AM st:doorman ts:Ns's
-AM st:doorman ts:Ns
-AM ts:0 al:dopier al:dopiest
-AM st:dopey ts:0
-AM st:dormouse ts:Ns
-AM ts:0 al:dormice
-AM st:dive ts:Vd
-AM st:drink ts:Vd
-AM ts:0 al:draughtsmen al:draughtsmen's
-AM st:draughtsman ts:Ns's
-AM st:draughtsman ts:Ns
-AM ts:0 al:drew
-AM st:draw ts:Vd
-AM ts:0 st:drey
-AM st:drey ts:0
-AM ts:0 al:drank al:drunk
-AM ts:0 al:drove
-AM st:drive ts:Vd
-AM st:dig ts:Vd
-AM st:duodenum ts:Ns
-AM ts:0 al:duodena
-AM st:dare ts:Vd
-AM ts:0 al:dustmen al:dustmen's
-AM st:dustman ts:Ns's
-AM st:dustman ts:Ns
-AM ts:0 al:Dutchmen al:Dutchmen's
-AM st:Dutchman ts:Ns's
-AM st:Dutchman ts:Ns
-AM ts:0 al:Dutchwomen al:Dutchwomen's
-AM st:Dutchwoman ts:Ns's
-AM st:Dutchwoman ts:Ns
-AM st:die ts:Vd
-AM st:earthman ts:Ns
-AM st:eon ts:Ns
-AM ts:0 al:ate
-AM st:eclipsis ts:Ns
-AM st:effluvium ts:Ns
-AM ts:0 al:effluvia
-AM st:old ts:0
-AM st:electrolysis ts:Ns
-AM ts:0 al:electrolyses
-AM st:elephantiasis ts:Ns
-AM ts:0 al:elephantiases
-AM st:ellipsis ts:Ns
-AM ts:0 al:ellipses
-AM st:emeritus ts:Ns
-AM ts:0 al:emeriti
-AM st:emphasis ts:Ns
-AM ts:0 al:emphases
-AM st:emporium ts:Ns
-AM ts:0 al:emporia
-AM ts:0 al:Englishmen al:Englishmen's
-AM st:Englishman ts:Ns's
-AM st:Englishman ts:Ns
-AM ts:0 al:Englishwomen
-AM st:Englishwoman ts:Ns
-AM st:enuresis ts:Ns
-AM ts:0 al:enureses
-AM st:ephemeron ts:Ns's
-AM st:ephemeron ts:Ns
-AM st:epiphenomenon ts:Ns
-AM ts:0 al:epiphenomena
-AM st:equilibrium ts:Ns
-AM ts:0 al:equilibria
-AM st:erratum ts:Ns's
-AM st:erratum ts:Ns
-AM ts:0 al:errata al:errata's
-AM st:eucalyptus ts:Ns
-AM ts:0 al:eucalypti
-AM st:exegesis ts:Ns
-AM ts:0 al:exegeses
-AM st:extremum ts:Ns
-AM ts:0 al:ices
-AM ts:0 al:fell
-AM st:fantasie ts:Vd
-AM ts:0 al:further al:furthest
-AM st:fon ts:Ns's
-AM st:fon ts:Ns
-AM st:feed ts:Vd
-AM ts:0 al:fed
-AM ts:0 al:felt
-AM st:feis ts:Ns
-AM st:foot ts:Ns's
-AM st:foot ts:Ns
-AM st:fall ts:Vd
-AM st:feel ts:Vd
-AM ts:0 al:ferrymen al:ferrymen's
-AM st:ferryman ts:Ns's
-AM st:ferryman ts:Ns
-AM st:fibrosis ts:Ns
-AM ts:0 al:fibroses
-AM ts:0 al:fives
-AM ts:0 al:fought
-AM ts:0 al:found
-AM st:finis ts:Ns
-AM ts:0 al:fines
-AM ts:0 al:firemen al:firemen's
-AM st:fireman ts:Ns's
-AM st:fireman ts:Ns
-AM ts:0 al:fishermen al:fishermen's
-AM st:fisherman ts:Ns's
-AM st:fisherman ts:Ns
-AM ts:0 al:fishwives
-AM st:fishwife ts:Ns
-AM st:fife ts:Ns
-AM st:flagellum ts:Ns's
-AM st:flagellum ts:Ns
-AM ts:0 al:flagella al:flagella's
-AM ts:0 al:flagmen al:flagmen's
-AM st:flagman ts:Ns's
-AM st:flagman ts:Ns
-AM st:flakey ts:0
-AM st:flatfoot ts:Ns
-AM ts:0 al:flatfeet
-AM ts:0 st:fley
-AM st:fley ts:0
-AM ts:0 al:flung
-AM ts:0 al:floodlit
-AM st:floodlight ts:Vd
-AM st:flukey ts:0
-AM st:fling ts:Vd
-AM st:focus ts:Ns's
-AM st:focus ts:Ns
-AM ts:0 al:foci al:foci's
-AM ts:0 al:feet al:feet's
-AM ts:0 al:footmen al:footmen's
-AM st:footman ts:Ns's
-AM st:footman ts:Ns
-AM st:forum ts:Ns
-AM st:forbid ts:Vd
-AM ts:0 al:forbore al:forborne
-AM ts:0 al:forbade
-AM st:forbear ts:Vd
-AM st:forefoot ts:Ns
-AM ts:0 al:forefeet
-AM ts:0 al:forewent
-AM st:foreknow ts:Vd
-AM ts:0 al:foreknew
-AM ts:0 al:foremen al:foremen's
-AM st:foreman ts:Ns's
-AM st:foreman ts:Ns
-AM st:foreperson ts:Ns
-AM ts:0 al:forepeople
-AM st:foresee ts:Vd
-AM ts:0 al:foresaw
-AM ts:0 al:foretold
-AM ts:0 st:forethink
-AM st:foretell ts:Vd
-AM st:forego ts:Vd
-AM ts:0 al:forewomen
-AM st:forewoman ts:Ns
-AM st:forgive ts:Vd
-AM ts:0 al:forgot al:forgotten
-AM ts:0 al:forgave
-AM ts:0 al:forwent
-AM st:forget ts:Vd
-AM ts:0 al:forsook
-AM st:forsake ts:Vd
-AM ts:0 al:forswore al:forsworn
-AM st:forswear ts:Vd
-AM st:fortis ts:Ns
-AM ts:0 al:fora
-AM st:forgo ts:Vd
-AM st:fight ts:Vd
-AM st:find ts:Vd
-AM st:Francis ts:Ns
-AM ts:0 al:Frances
-AM ts:0 al:freedmen al:freedmen's
-AM st:freedman ts:Ns's
-AM st:freedman ts:Ns
-AM ts:0 al:freemen al:freemen's
-AM st:freeman ts:Ns's
-AM st:freeman ts:Ns
-AM ts:0 al:froze al:frozen
-AM ts:0 al:Frenchmen al:Frenchmen's
-AM st:Frenchman ts:Ns's
-AM st:Frenchman ts:Ns
-AM ts:0 al:Frenchwomen
-AM st:Frenchwoman ts:Ns
-AM ts:0 al:freshmen al:freshmen's
-AM st:freshman ts:Ns's
-AM st:freshman ts:Ns
-AM ts:0 al:frogmen al:frogmen's
-AM st:frogman ts:Ns's
-AM st:frogman ts:Ns
-AM ts:0 al:frontiersmen al:frontiersmen's
-AM st:frontiersman ts:Ns's
-AM st:frontiersman ts:Ns
-AM ts:0 st:freeze
-AM st:freeze ts:Vd
-AM st:fungus ts:Ns's
-AM st:fungus ts:Ns
-AM ts:0 al:fungi al:fungi's
-AM st:far ts:0
-AM st:gamesman ts:Ns
-AM st:gamey ts:0
-AM st:gammon ts:Ns's
-AM st:gammon ts:Ns
-AM ts:0 al:gamma al:gamma's
-AM st:ganglion ts:Ns's
-AM st:ganglion ts:Ns
-AM ts:0 al:ganglia al:ganglia's
-AM st:give ts:Vd
-AM st:goose ts:Ns's
-AM st:goose ts:Ns
-AM st:genus ts:Ns's
-AM st:genus ts:Ns
-AM st:genius ts:Ns's
-AM st:genius ts:Ns
-AM ts:0 al:genii al:genii's
-AM ts:0 al:gentlemen al:gentlemen's
-AM st:gentleman ts:Ns's
-AM st:gentleman ts:Ns
-AM ts:0 al:gentlewomen
-AM st:gentlewoman ts:Ns
-AM ts:0 al:genera al:genera's
-AM ts:0 al:got al:gotten
-AM ts:0 al:gave
-AM st:gladiolus ts:Ns
-AM ts:0 al:gladioli
-AM st:gleis ts:Ns
-AM ts:0 al:gluier al:gluiest
-AM st:gluey ts:0
-AM st:gluteus ts:Ns
-AM ts:0 al:glutei
-AM ts:0 al:went
-AM st:gonococcus ts:Ns
-AM ts:0 al:gonococci
-AM ts:0 al:best al:better
-AM ts:0 al:gooier al:gooiest
-AM st:gooey ts:0
-AM ts:0 al:geese al:geese's
-AM st:get ts:Vd
-AM st:gratis ts:Ns
-AM ts:0 al:grates
-AM st:grow ts:Vd
-AM ts:0 al:ground
-AM ts:0 al:groundsmen al:groundsmen's
-AM st:groundsman ts:Ns's
-AM st:groundsman ts:Ns
-AM st:grind ts:Vd
-AM ts:0 al:grew
-AM ts:0 al:guardsmen al:guardsmen's
-AM st:guardsman ts:Ns's
-AM st:guardsman ts:Ns
-AM ts:0 al:gunmen al:gunmen's
-AM st:gunman ts:Ns's
-AM st:gunman ts:Ns
-AM st:gymnasium ts:Ns's
-AM st:gymnasium ts:Ns
-AM ts:0 al:gymnasia al:gymnasia's
-AM st:have ts:Vd
-AM st:hajjis ts:Ns
-AM ts:0 al:hajjes
-AM st:halfpenny ts:Ns
-AM ts:0 al:halfpence,17
-AM st:halitosis ts:Ns
-AM ts:0 al:halitoses
-AM ts:0 al:hamstrung
-AM st:hamstring ts:Vd
-AM ts:0 al:handymen al:handymen's
-AM st:handyman ts:Ns's
-AM st:handyman ts:Ns
-AM ts:0 al:hung
-AM ts:0 al:hangmen al:hangmen's
-AM st:hangman ts:Ns's
-AM st:hangman ts:Ns
-AM st:harmonicon ts:Ns's
-AM st:harmonicon ts:Ns
-AM ts:0 al:harvestmen al:harvestmen's
-AM st:harvestman ts:Ns's
-AM st:harvestman ts:Ns
-AM st:hum ts:Ns
-AM ts:0 al:had al:hadst al:has al:hast
-AM ts:0 al:headmen al:headmen's
-AM st:headman ts:Ns's
-AM st:headman ts:Ns
-AM ts:0 al:headsmen al:headsmen's
-AM st:headsman ts:Ns's
-AM st:headsman ts:Ns
-AM ts:0 al:heartbroken
-AM st:heartbreak ts:Vd
-AM ts:0 al:hove
-AM st:hold ts:Vd
-AM ts:0 al:helmsmen al:helmsmen's
-AM st:helmsman ts:Ns's
-AM st:helmsman ts:Ns
-AM ts:0 al:henchmen al:henchmen's
-AM st:henchman ts:Ns's
-AM st:henchman ts:Ns
-AM ts:0 al:herdsmen al:herdsmen's
-AM st:herdsman ts:Ns's
-AM st:herdsman ts:Ns
-AM ts:0 al:hying
-AM ts:0 al:highwaymen al:highwaymen's
-AM st:highwayman ts:Ns's
-AM st:highwayman ts:Ns
-AM st:Hindus ts:Ns
-AM ts:0 al:Hindi
-AM st:Ho ts:Ns
-AM ts:0 al:held
-AM ts:0 al:holier al:holiest
-AM st:holey ts:0
-AM ts:0 al:homier al:homiest
-AM st:homey ts:0
-AM ts:0 al:horsemen al:horsemen's
-AM st:horseman ts:Ns's
-AM st:horseman ts:Ns
-AM ts:0 al:horsewomen
-AM st:horsewoman ts:Ns
-AM ts:0 al:horsier al:horsiest
-AM st:horsey ts:0
-AM ts:0 al:hotelmen al:hotelmen's
-AM st:hotelman ts:Ns's
-AM st:hotelman ts:Ns
-AM ts:0 al:housebroke al:housebroken
-AM st:housebreak ts:Vd
-AM ts:0 al:housemen al:housemen's
-AM st:houseman ts:Ns's
-AM st:houseman ts:Ns
-AM ts:0 al:housewives
-AM st:housewife ts:Ns
-AM st:heave ts:Vd
-AM ts:0 al:ha
-AM st:humerus ts:Ns
-AM ts:0 al:humeri
-AM st:hang ts:Vd
-AM st:hunkey ts:0
-AM ts:0 al:huntsmen al:huntsmen's
-AM st:huntsman ts:Ns's
-AM st:huntsman ts:Ns
-AM st:hydrocephalus ts:Ns
-AM ts:0 al:hydrocephali
-AM st:hydrolysis ts:Ns
-AM ts:0 al:hydrolyses
-AM st:hie ts:Vd
-AM st:hypnosis ts:Ns
-AM ts:0 al:hypnoses
-AM st:hypochondrium ts:Ns's
-AM st:hypochondrium ts:Ns
-AM st:hypothalamus ts:Ns
-AM ts:0 al:hypothalami
-AM st:hypothesis ts:Ns
-AM ts:0 al:hypotheses
-AM st:iambus ts:Ns
-AM ts:0 al:iambi
-AM ts:0 al:icemen al:icemen's
-AM st:iceman ts:Ns's
-AM st:iceman ts:Ns
-AM st:ex ts:Ns
-AM st:icosahedron ts:Ns
-AM ts:0 al:icosahedra
-AM st:ileum ts:Ns
-AM ts:0 al:ilea
-AM st:ilium ts:Ns
-AM ts:0 al:ilia
-AM st:inbreed ts:Vd
-AM ts:0 al:inbred
-AM st:incunabulum ts:Ns
-AM ts:0 al:incunabula
-AM ts:0 al:indices al:indices's
-AM st:index ts:Ns's
-AM st:index ts:Ns
-AM ts:0 al:infantrymen al:infantrymen's
-AM st:infantryman ts:Ns's
-AM st:infantryman ts:Ns
-AM st:interbreed ts:Vd
-AM ts:0 al:interbred
-AM ts:0 al:interwove al:interwoven
-AM st:interweave ts:Vd
-AM st:intron ts:Ns
-AM st:inwork ts:Vd
-AM ts:0 al:Irishmen al:Irishmen's
-AM st:Irishman ts:Ns's
-AM st:Irishman ts:Ns
-AM ts:0 al:Irishwomen al:Irishwomen's
-AM st:Irishwoman ts:Ns's
-AM st:Irishwoman ts:Ns
-AM st:us ts:Ns's
-AM ts:0 al:jackknives
-AM st:jackknife ts:Ns
-AM st:Jacobus ts:Ns's
-AM st:Jacobus ts:Ns
-AM st:jazzman ts:Ns
-AM st:jejunum ts:Ns
-AM ts:0 al:jejuna
-AM st:jimmie ts:Vd
-AM ts:0 al:jokier al:jokiest
-AM st:jokey ts:0
-AM ts:0 al:journeymen al:journeymen's
-AM st:journeyman ts:Ns's
-AM st:journeyman ts:Ns
-AM ts:0 al:joyrode
-AM st:joyride ts:Vd
-AM ts:0 al:jurymen al:jurymen's
-AM st:juryman ts:Ns's
-AM st:juryman ts:Ns
-AM ts:0 al:jurywomen
-AM st:jurywoman ts:Ns
-AM st:kalis ts:Ns
-AM ts:0 al:kept
-AM st:keep ts:Vd
-AM st:cow ts:Ns's
-AM st:cow ts:Ns
-AM ts:0 al:kinsmen al:kinsmen's
-AM st:kinsman ts:Ns's
-AM st:kinsman ts:Ns
-AM ts:0 al:kinswomen
-AM st:kinswoman ts:Ns
-AM ts:0 al:knelt
-AM st:kneel ts:Vd
-AM st:know ts:Vd
-AM ts:0 al:knives al:knives's
-AM st:knife ts:Ns's
-AM st:knife ts:Ns
-AM ts:0 al:knew
-AM st:labium ts:Ns's
-AM st:labium ts:Ns
-AM ts:0 al:labia al:labia's
-AM st:lacey ts:0
-AM st:lie ts:Vd
-AM ts:0 al:landsmen al:landsmen's
-AM st:landsman ts:Ns's
-AM st:landsman ts:Ns
-AM st:lum ts:Ns's
-AM st:lum ts:Ns
-AM ts:0 al:latices al:latices's
-AM st:lathis ts:Ns
-AM st:latex ts:Ns's
-AM st:latex ts:Ns
-AM ts:0 al:laundrymen al:laundrymen's
-AM st:laundryman ts:Ns's
-AM st:laundryman ts:Ns
-AM ts:0 al:laundrywomen
-AM st:laundrywoman ts:Ns
-AM ts:0 al:laymen al:laymen's
-AM st:layman ts:Ns's
-AM st:layman ts:Ns
-AM st:layperson ts:Ns
-AM ts:0 al:laypeople
-AM ts:0 al:laywomen
-AM st:laywoman ts:Ns
-AM ts:0 al:led
-AM ts:0 st:little
-AM ts:0 al:left
-AM st:Ledum ts:Ns
-AM st:lead ts:Vd
-AM st:leis ts:Ns
-AM st:leave ts:Vd
-AM ts:0 al:legmen al:legmen's
-AM st:legman ts:Ns's
-AM st:legman ts:Ns
-AM ts:0 al:lees
-AM st:lepton ts:Ns
-AM ts:0 al:lepta
-AM ts:0 al:least
-AM st:little ts:0
-AM ts:0 al:lettermen al:lettermen's
-AM st:letterman ts:Ns's
-AM st:letterman ts:Ns
-AM st:louse ts:Ns's
-AM st:louse ts:Ns
-AM ts:0 al:lain al:lay al:lying
-AM ts:0 al:lives al:lives's
-AM st:lifeboatman ts:Ns
-AM ts:0 al:lit
-AM st:limey ts:0
-AM ts:0 al:linesmen al:linesmen's
-AM st:linesman ts:Ns's
-AM st:linesman ts:Ns
-AM st:literatus ts:Ns
-AM st:light ts:Vd
-AM ts:0 al:least al:less al:lesser
-AM ts:0 al:liverymen al:liverymen's
-AM st:liveryman ts:Ns's
-AM st:liveryman ts:Ns
-AM st:life ts:Ns's
-AM st:life ts:Ns
-AM st:locus ts:Ns's
-AM st:locus ts:Ns
-AM ts:0 al:loci al:loci's
-AM st:logion ts:Ns
-AM ts:0 al:logia
-AM st:looney ts:0
-AM st:looney ts:Ns
-AM ts:0 al:lice al:lice's
-AM st:lungis ts:Ns
-AM ts:0 st:lie
-AM ts:0 al:mesdames al:mesdames's
-AM ts:0 al:mesdemoiselles al:mesdemoiselles's
-AM st:make ts:Vd
-AM ts:0 al:madmen al:madmen's
-AM st:madman ts:Ns's
-AM st:madman ts:Ns
-AM ts:0 al:madwomen
-AM st:madwoman ts:Ns
-AM st:magus ts:Ns
-AM st:magnesium ts:Ns's
-AM st:magnesium ts:Ns
-AM ts:0 al:magnesia al:magnesia's
-AM ts:0 al:made
-AM st:malis ts:Ns
-AM st:Malus ts:Ns's
-AM st:Malus ts:Ns
-AM st:mammon ts:Ns's
-AM ts:0 al:men al:men's
-AM st:mangey ts:0
-AM ts:0 al:menservants al:menservants's
-AM ts:0 al:more al:most
-AM ts:0 al:marksmen al:marksmen's
-AM st:marksman ts:Ns's
-AM st:marksman ts:Ns
-AM st:mascaron ts:Ns's
-AM st:mascaron ts:Ns
-AM st:mum ts:Ns's
-AM st:mum ts:Ns
-AM st:maximum ts:Ns's
-AM st:maximum ts:Ns
-AM ts:0 al:maxima al:maxima's
-AM ts:0 al:might
-AM st:medium ts:Ns's
-AM st:medium ts:Ns
-AM ts:0 al:media al:media's
-AM ts:0 al:met
-AM st:meiosis ts:Ns
-AM ts:0 al:meioses
-AM ts:0 al:molten
-AM st:memorandum ts:Ns
-AM ts:0 al:memoranda
-AM st:meniscus ts:Ns
-AM ts:0 al:menisci
-AM st:manservant ts:Ns's
-AM st:manservant ts:Ns
-AM st:man ts:Ns's
-AM st:man ts:Ns
-AM ts:0 al:merchantmen al:merchantmen's
-AM st:merchantman ts:Ns's
-AM st:merchantman ts:Ns
-AM st:meris ts:Ns
-AM st:meson ts:Ns's
-AM st:meson ts:Ns
-AM st:madame ts:Ns's
-AM st:madame ts:Ns
-AM st:mademoiselle ts:Ns's
-AM st:mademoiselle ts:Ns
-AM ts:0 al:mesa al:mesa's
-AM st:monsieur ts:Ns's
-AM st:metacarpus ts:Ns
-AM ts:0 al:metacarpi
-AM st:metamorphosis ts:Ns
-AM ts:0 al:metamorphoses
-AM st:metastasis ts:Ns
-AM ts:0 al:metastases
-AM st:metatarsus ts:Ns
-AM ts:0 al:metatarsi
-AM st:metathesis ts:Ns
-AM ts:0 al:metatheses
-AM st:metempsychosis ts:Ns
-AM ts:0 al:metempsychoses
-AM st:metis ts:Ns
-AM ts:0 al:methought
-AM st:methinks ts:Vd
-AM st:meet ts:Vd
-AM st:mouse ts:Ns's
-AM st:mouse ts:Ns
-AM st:micron ts:Ns's
-AM st:microanalysis ts:Ns
-AM ts:0 al:microanalyses
-AM ts:0 al:micra's
-AM ts:0 al:middlemen al:middlemen's
-AM st:middleman ts:Ns's
-AM st:middleman ts:Ns
-AM st:midlife ts:Ns
-AM ts:0 al:midshipmen al:midshipmen's
-AM st:midshipman ts:Ns's
-AM st:midshipman ts:Ns
-AM ts:0 al:midwives
-AM st:midwife ts:Ns
-AM st:may ts:Vd
-AM ts:0 al:militiamen al:militiamen's
-AM st:militiaman ts:Ns's
-AM st:militiaman ts:Ns
-AM ts:0 al:milkmen al:milkmen's
-AM st:milkman ts:Ns's
-AM st:milkman ts:Ns
-AM st:millennium ts:Ns
-AM ts:0 al:millennia
-AM st:Mimus ts:Ns
-AM st:minis ts:Ns
-AM st:minimum ts:Ns's
-AM st:minimum ts:Ns
-AM ts:0 al:minima al:minima's
-AM st:minus ts:Ns
-AM ts:0 al:mines
-AM ts:0 al:mini
-AM st:misdiagnosis ts:Ns
-AM ts:0 al:misdiagnoses
-AM ts:0 al:misled
-AM st:mislead ts:Vd
-AM st:missis ts:Ns
-AM ts:0 al:misspoke al:misspoken
-AM st:misspeak ts:Vd
-AM ts:0 al:mistook
-AM st:mistake ts:Vd
-AM ts:0 al:misunderstood
-AM st:misunderstand ts:Vd
-AM st:mitis ts:Ns
-AM st:mitochondrion ts:Ns
-AM st:mitosis ts:Ns
-AM ts:0 al:mitoses
-AM st:modus ts:Ns
-AM st:modulus ts:Ns
-AM ts:0 al:moduli
-AM ts:0 al:modi
-AM st:melt ts:Vd
-AM st:momentum ts:Ns
-AM ts:0 al:momenta
-AM ts:0 al:monies al:monies's
-AM st:money ts:Ns's
-AM st:money ts:Ns
-AM st:mononucleosis ts:Ns
-AM ts:0 al:mononucleoses
-AM ts:0 al:moonlit
-AM st:moonlight ts:Vd
-AM st:mopey ts:0
-AM st:much ts:0
-AM ts:0 st:much
-AM ts:0 al:motlier al:motliest
-AM st:motley ts:0
-AM ts:0 al:motormen al:motormen's
-AM st:motorman ts:Ns's
-AM st:motorman ts:Ns
-AM ts:0 al:mice al:mice's
-AM ts:0 al:mousier al:mousiest
-AM st:mousey ts:0
-AM ts:0 al:ma al:ma's
-AM st:nannie ts:Vd
-AM st:narcosis ts:Ns
-AM ts:0 al:narcoses
-AM st:necrosis ts:Ns
-AM ts:0 al:necroses
-AM ts:0 al:needlewomen
-AM st:needlewoman ts:Ns
-AM st:nemesis ts:Ns
-AM ts:0 al:nemeses
-AM st:nephritis ts:Ns
-AM ts:0 al:nephrites
-AM st:neurosis ts:Ns
-AM ts:0 al:neuroses
-AM ts:0 al:newsmen al:newsmen's
-AM st:newsman ts:Ns's
-AM st:newsman ts:Ns
-AM ts:0 al:newspapermen al:newspapermen's
-AM st:newspaperman ts:Ns's
-AM st:newspaperman ts:Ns
-AM ts:0 al:newspaperwomen
-AM st:newspaperwoman ts:Ns
-AM ts:0 al:newswomen
-AM st:newswoman ts:Ns
-AM st:nimbus ts:Ns
-AM ts:0 al:nimbi
-AM st:No ts:Ns's
-AM st:No ts:Ns
-AM ts:0 al:noblemen al:noblemen's
-AM st:nobleman ts:Ns's
-AM st:nobleman ts:Ns
-AM ts:0 al:noblewomen
-AM st:noblewoman ts:Ns
-AM ts:0 al:Norsemen al:Norsemen's
-AM st:Norseman ts:Ns's
-AM st:Norseman ts:Ns
-AM ts:0 al:nosier al:nosiest
-AM st:nosey ts:0
-AM st:novum ts:Ns's
-AM st:novum ts:Ns
-AM st:nucleus ts:Ns's
-AM st:nucleus ts:Ns
-AM st:nucleolus ts:Ns
-AM ts:0 al:nucleoli
-AM ts:0 al:nuclei al:nuclei's
-AM ts:0 al:nurserymen al:nurserymen's
-AM st:nurseryman ts:Ns's
-AM st:nurseryman ts:Ns
-AM ts:0 al:oarsmen al:oarsmen's
-AM st:oarsman ts:Ns's
-AM st:oarsman ts:Ns
-AM ts:0 al:oarswomen
-AM st:oarswoman ts:Ns
-AM st:oasis ts:Ns
-AM ts:0 al:oases
-AM st:oesophagus ts:Ns
-AM ts:0 al:oesophagi
-AM ts:0 al:oilmen al:oilmen's
-AM st:oilman ts:Ns's
-AM st:oilman ts:Ns
-AM ts:0 al:elder al:eldest
-AM ts:0 al:ombudsmen
-AM st:ombudsman ts:Ns
-AM ts:0 al:a
-AM st:opus ts:Ns's
-AM st:opus ts:Ns
-AM st:optimum ts:Ns
-AM ts:0 al:optima
-AM ts:0 al:opera al:opera's
-AM st:osmosis ts:Ns
-AM ts:0 al:osmoses
-AM st:osteoporosis ts:Ns
-AM ts:0 al:osteoporoses
-AM ts:0 al:outdrew
-AM st:outdraw ts:Vd
-AM ts:0 al:outfought
-AM st:outfight ts:Vd
-AM st:outgrow ts:Vd
-AM ts:0 al:outgrew
-AM st:outlie ts:Vd
-AM st:outrun ts:Vd
-AM ts:0 al:outran
-AM ts:0 al:outsold
-AM ts:0 al:outshone
-AM st:outshine ts:Vd
-AM st:outsell ts:Vd
-AM ts:0 st:outspeak
-AM ts:0 al:outwore al:outworn
-AM st:outwear ts:Vd
-AM st:ovum ts:Ns's
-AM st:ovum ts:Ns
-AM st:overeat ts:Vd
-AM ts:0 al:overbore al:overborne
-AM st:overbear ts:Vd
-AM st:overbuy ts:Vd
-AM ts:0 al:overbought
-AM st:overcome ts:Vd
-AM ts:0 al:overcame
-AM ts:0 al:overdrew
-AM st:overdraw ts:Vd
-AM ts:0 al:overate
-AM st:overemphasis ts:Ns
-AM ts:0 al:overemphases
-AM st:overfeed ts:Vd
-AM ts:0 al:overfed
-AM st:overgrow ts:Vd
-AM ts:0 al:overgrew
-AM ts:0 al:overhung
-AM st:overhang ts:Vd
-AM st:overlie ts:Vd
-AM ts:0 al:overlain al:overlay al:overlying
-AM st:overrun ts:Vd
-AM ts:0 al:overrode
-AM st:override ts:Vd
-AM ts:0 al:overran
-AM st:oversee ts:Vd
-AM ts:0 al:oversaw
-AM ts:0 al:oversold
-AM ts:0 al:overshot
-AM st:overshoot ts:Vd
-AM ts:0 al:overslept
-AM st:oversleep ts:Vd
-AM st:oversell ts:Vd
-AM ts:0 al:overtook
-AM st:overthrow ts:Vd
-AM ts:0 al:overthrew
-AM st:overtake ts:Vd
-AM ts:0 al:overwrought
-AM ts:0 al:overwrote
-AM st:overwrite ts:Vd
-AM st:overwork ts:Vd
-AM ts:0 al:ova al:ova's
-AM st:palladium ts:Ns
-AM ts:0 al:palladia
-AM st:papillon ts:Ns's
-AM st:papillon ts:Ns
-AM st:papyrus ts:Ns
-AM ts:0 al:papyri
-AM st:paralysis ts:Ns
-AM ts:0 al:paralyses
-AM st:paramoecium ts:Ns
-AM ts:0 al:paramoecia
-AM st:paraphrasis ts:Ns
-AM st:parenthesis ts:Ns
-AM ts:0 al:parentheses
-AM st:paresis ts:Ns
-AM ts:0 al:pareses
-AM st:paris ts:Ns
-AM ts:0 al:partook
-AM st:parthenogenesis ts:Ns
-AM ts:0 al:parthenogeneses
-AM st:partake ts:Vd
-AM st:pastis ts:Ns
-AM ts:0 al:pastes
-AM st:pavis ts:Ns
-AM st:peon ts:Ns's
-AM st:peon ts:Ns
-AM st:penny ts:Ns's
-AM st:penny ts:Ns
-AM ts:0 al:penknives
-AM st:penknife ts:Ns
-AM ts:0 al:penmen al:penmen's
-AM st:penman ts:Ns's
-AM st:penman ts:Ns
-AM ts:0 al:pence al:pence's,17
-AM ts:0 al:pea al:pea's
-AM st:person ts:Ns's
-AM st:person ts:Ns
-AM st:pericardium ts:Ns
-AM ts:0 al:pericardia
-AM st:perihelion ts:Ns
-AM ts:0 al:perihelia
-AM st:periphrasis ts:Ns
-AM ts:0 al:periphrases
-AM st:peristalsis ts:Ns
-AM ts:0 al:peristalses
-AM ts:0 al:people al:people's
-AM st:phallus ts:Ns
-AM ts:0 al:phalli
-AM st:phasis ts:Ns
-AM st:phenomenon ts:Ns's
-AM st:phenomenon ts:Ns
-AM ts:0 al:phenomena al:phenomena's
-AM ts:0 al:phonier al:phoniest
-AM st:phoney ts:0
-AM st:photosynthesis ts:Ns
-AM ts:0 al:photosyntheses
-AM st:phylum ts:Ns's
-AM st:phylum ts:Ns
-AM ts:0 al:phyla al:phyla's
-AM ts:0 al:pikemen
-AM st:pikeman ts:Ns
-AM st:pikis ts:Ns
-AM st:pilis ts:Ns
-AM st:piney ts:0
-AM st:pipis ts:Ns
-AM st:Pisum ts:Ns's
-AM st:Pisum ts:Ns
-AM st:pus ts:Ns
-AM st:piton ts:Ns's
-AM st:piton ts:Ns
-AM ts:0 al:pita al:pita's
-AM st:placeman ts:Ns
-AM ts:0 al:plainsmen al:plainsmen's
-AM st:plainsman ts:Ns's
-AM st:plainsman ts:Ns
-AM st:plasmon ts:Ns's
-AM st:plasmon ts:Ns
-AM st:pleon ts:Ns's
-AM st:pleon ts:Ns
-AM st:plectrum ts:Ns
-AM ts:0 al:plectra
-AM st:pleuron ts:Ns's
-AM st:pleuron ts:Ns
-AM ts:0 al:ploughmen al:ploughmen's
-AM st:ploughman ts:Ns's
-AM st:ploughman ts:Ns
-AM st:plie ts:Vd
-AM ts:0 al:pocketknives
-AM st:pocketknife ts:Ns
-AM st:pokey ts:0
-AM st:polis ts:Ns
-AM ts:0 al:policemen al:policemen's
-AM st:policeman ts:Ns's
-AM st:policeman ts:Ns
-AM ts:0 al:policewomen
-AM st:policewoman ts:Ns
-AM st:polyhedron ts:Ns
-AM ts:0 al:polyhedra
-AM ts:0 al:postmen al:postmen's
-AM st:postman ts:Ns's
-AM st:postman ts:Ns
-AM st:praxis ts:Ns
-AM ts:0 al:praxes
-AM st:preshrink ts:Vd
-AM ts:0 al:preshrank al:preshrunk
-AM ts:0 al:pressmen al:pressmen's
-AM st:pressman ts:Ns's
-AM st:pressman ts:Ns
-AM ts:0 al:prier al:priest
-AM st:prex ts:Ns
-AM ts:0 al:pricier al:priciest
-AM st:pricey ts:0
-AM ts:0 st:prey
-AM st:prey ts:0
-AM st:prognosis ts:Ns
-AM ts:0 al:prognoses
-AM st:prolegomenon ts:Ns
-AM st:prophylaxis ts:Ns
-AM ts:0 al:prophylaxes
-AM st:prosthesis ts:Ns
-AM ts:0 al:prostheses
-AM st:protozoon ts:Ns
-AM st:pseudopodium ts:Ns
-AM st:psittacosis ts:Ns
-AM ts:0 al:psittacoses
-AM st:psoriasis ts:Ns
-AM ts:0 al:psoriases
-AM st:psychoanalysis ts:Ns
-AM ts:0 al:psychoanalyses
-AM st:psychoneurosis ts:Ns
-AM ts:0 al:psychoneuroses
-AM st:psychosis ts:Ns
-AM ts:0 al:psychoses
-AM st:pubis ts:Ns
-AM ts:0 al:pubes
-AM st:pudendum ts:Ns
-AM ts:0 al:pudenda
-AM st:pulis ts:Ns
-AM st:punkey ts:0
-AM ts:0 al:pi
-AM st:puttie ts:Vd
-AM st:pylorus ts:Ns
-AM ts:0 al:pylori
-AM st:pyrolysis ts:Ns
-AM ts:0 al:pyrolyses
-AM st:pyxis ts:Ns
-AM st:pyxidium ts:Ns
-AM ts:0 al:pyxidia
-AM ts:0 al:pyxes
-AM st:quadrivium ts:Ns
-AM ts:0 al:quadrivia
-AM st:quantum ts:Ns's
-AM st:quantum ts:Ns
-AM ts:0 al:quanta al:quanta's
-AM ts:0 al:quarrymen al:quarrymen's
-AM st:quarryman ts:Ns's
-AM st:quarryman ts:Ns
-AM st:quotum ts:Ns's
-AM st:quotum ts:Ns
-AM st:radius ts:Ns's
-AM st:radius ts:Ns
-AM ts:0 al:radiomen al:radiomen's
-AM st:radioman ts:Ns's
-AM st:radioman ts:Ns
-AM ts:0 al:radii al:radii's
-AM st:ragis ts:Ns
-AM ts:0 al:railwaymen al:railwaymen's
-AM st:railwayman ts:Ns's
-AM st:railwayman ts:Ns
-AM st:rakis ts:Ns
-AM st:ring ts:Vd
-AM st:run ts:Vd
-AM st:rapinis ts:Ns
-AM st:Ron ts:Ns
-AM ts:0 al:rebound
-AM ts:0 st:rebind
-AM ts:0 al:redrew
-AM st:redraw ts:Vd
-AM ts:0 al:rove
-AM st:referendum ts:Ns
-AM ts:0 al:referenda
-AM ts:0 al:refroze al:refrozen
-AM st:refreeze ts:Vd
-AM st:regrow ts:Vd
-AM ts:0 al:reground
-AM st:regrind ts:Vd
-AM ts:0 al:regrew
-AM ts:0 al:rehung
-AM st:rehang ts:Vd
-AM ts:0 al:relit
-AM st:relight ts:Vd
-AM st:remake ts:Vd
-AM ts:0 al:remade
-AM ts:0 al:repairmen al:repairmen's
-AM st:repairman ts:Ns's
-AM st:repairman ts:Ns
-AM st:replicon ts:Ns's
-AM st:replicon ts:Ns
-AM st:rerun ts:Vd
-AM ts:0 al:reran
-AM st:resit ts:Vd
-AM ts:0 al:resold
-AM st:residuum ts:Ns
-AM ts:0 al:residua
-AM ts:0 al:resat
-AM st:resell ts:Vd
-AM ts:0 al:restrung
-AM st:restring ts:Vd
-AM ts:0 al:retook
-AM st:reteach ts:Vd
-AM ts:0 al:retaught
-AM ts:0 al:retold
-AM ts:0 al:rethought
-AM st:rethink ts:Vd
-AM ts:0 al:retying
-AM st:retell ts:Vd
-AM st:retake ts:Vd
-AM ts:0 al:retrod al:retrodden
-AM st:retread ts:Vd
-AM st:retie ts:Vd
-AM st:reversis ts:Ns
-AM ts:0 al:rewove al:rewoven
-AM ts:0 al:rewound
-AM st:rewind ts:Vd
-AM st:reweave ts:Vd
-AM ts:0 al:rewrote
-AM st:rewrite ts:Vd
-AM st:rheum ts:Ns's
-AM st:rheum ts:Ns
-AM ts:0 al:rhea al:rhea's
-AM st:rex ts:Ns
-AM ts:0 al:rode
-AM ts:0 al:rives
-AM ts:0 al:riflemen al:riflemen's
-AM st:rifleman ts:Ns's
-AM st:rifleman ts:Ns
-AM ts:0 al:rang al:rung
-AM ts:0 al:rose
-AM st:rife ts:Ns
-AM st:ride ts:Vd
-AM ts:0 al:Ra
-AM st:rise ts:Vd
-AM st:reeve ts:Vd
-AM ts:0 al:ran
-AM ts:0 st:ring
-AM st:sacrum ts:Ns
-AM ts:0 al:sacra
-AM ts:0 al:saves
-AM st:sagum ts:Ns's
-AM st:sagum ts:Ns
-AM st:sakis ts:Ns
-AM ts:0 al:salesmen al:salesmen's
-AM st:salesman ts:Ns's
-AM st:salesman ts:Ns
-AM st:salesperson ts:Ns's
-AM st:salesperson ts:Ns
-AM ts:0 al:salespeople al:salespeople's
-AM ts:0 al:saleswomen
-AM st:saleswoman ts:Ns
-AM ts:0 al:sandmen al:sandmen's
-AM st:sandman ts:Ns's
-AM st:sandman ts:Ns
-AM st:sing ts:Vd
-AM st:sink ts:Vd
-AM st:Sarum ts:Ns's
-AM st:Sarum ts:Ns
-AM st:sarcophagus ts:Ns
-AM ts:0 al:sarcophagi
-AM st:sarus ts:Ns's
-AM st:sarus ts:Ns
-AM st:satis ts:Ns
-AM st:sit ts:Vd
-AM st:safe ts:Ns
-AM st:see ts:Vd
-AM st:scaley ts:0
-AM st:scarey ts:0
-AM st:sclerosis ts:Ns
-AM ts:0 al:scleroses
-AM ts:0 al:Scotsmen al:Scotsmen's
-AM st:Scotsman ts:Ns's
-AM st:Scotsman ts:Ns
-AM ts:0 al:Scotswomen
-AM st:Scotswoman ts:Ns
-AM st:scrotum ts:Ns
-AM ts:0 al:scrota
-AM ts:0 al:seamen al:seamen's
-AM st:seaman ts:Ns's
-AM st:seaman ts:Ns
-AM ts:0 al:saw
-AM ts:0 al:sought
-AM ts:0 al:sod al:sodden
-AM ts:0 al:sold
-AM st:sepium ts:Ns's
-AM st:sepium ts:Ns
-AM st:sepsis ts:Ns
-AM ts:0 al:sepses
-AM st:septum ts:Ns's
-AM st:septum ts:Ns
-AM ts:0 al:septa al:septa's
-AM st:serum ts:Ns's
-AM ts:0 al:sera's
-AM ts:0 al:servicemen al:servicemen's
-AM st:serviceman ts:Ns's
-AM st:serviceman ts:Ns
-AM ts:0 al:servicewomen
-AM st:servicewoman ts:Ns
-AM ts:0 al:shook
-AM ts:0 al:should
-AM ts:0 al:shorn
-AM st:sheeney ts:0
-AM ts:0 al:shone
-AM st:shipman ts:Ns's
-AM st:shipman ts:Ns
-AM st:shine ts:Vd
-AM st:shake ts:Vd
-AM ts:0 al:shot
-AM st:shear ts:Vd
-AM st:Shoshonis ts:Ns
-AM st:shoot ts:Vd
-AM st:shall ts:Vd
-AM ts:0 al:showmen al:showmen's
-AM st:showman ts:Ns's
-AM st:showman ts:Ns
-AM st:shrink ts:Vd
-AM ts:0 al:shrank al:shrunk al:shrunken
-AM ts:0 al:signalmen al:signalmen's
-AM st:signalman ts:Ns's
-AM st:signalman ts:Ns
-AM st:silicon ts:Ns's
-AM st:silicon ts:Ns
-AM ts:0 al:silica al:silica's
-AM st:silicosis ts:Ns
-AM ts:0 al:silicoses
-AM ts:0 al:sang al:sung
-AM ts:0 al:sank al:sunk al:sunken
-AM st:siris ts:Ns
-AM st:Sus ts:Ns's
-AM st:Sus ts:Ns
-AM ts:0 al:sat
-AM ts:0 al:slew,147
-AM ts:0 al:slept
-AM st:sleep ts:Vd
-AM ts:0 st:slay
-AM ts:0 al:slung
-AM ts:0 al:slunk
-AM st:sling ts:Vd
-AM st:slink ts:Vd
-AM ts:0 al:smote
-AM st:smokey ts:0
-AM st:smite ts:Vd
-AM st:snakey ts:0
-AM ts:0 al:snowmen al:snowmen's
-AM st:snowman ts:Ns's
-AM st:snowman ts:Ns
-AM ts:0 st:seethe
-AM st:seethe ts:Vd
-AM st:solarium ts:Ns
-AM ts:0 al:solaria
-AM st:sell ts:Vd
-AM st:solidus ts:Ns
-AM ts:0 al:solidi
-AM st:seek ts:Vd
-AM ts:0 al:spacemen al:spacemen's
-AM st:spaceman ts:Ns's
-AM st:spaceman ts:Ns
-AM ts:0 al:spacewomen
-AM st:spacewoman ts:Ns
-AM ts:0 al:spacier al:spaciest
-AM st:spacey ts:0
-AM st:spit ts:Vd
-AM ts:0 al:spoke al:spoken
-AM st:spectrum ts:Ns's
-AM st:spectrum ts:Ns
-AM ts:0 al:spectra al:spectra's
-AM st:speed ts:Vd
-AM ts:0 al:sped
-AM ts:0 al:spellbound
-AM st:spellbind ts:Vd
-AM st:spermatozoon ts:Ns
-AM ts:0 al:spermatozoa
-AM st:spicey ts:0
-AM st:spikey ts:0
-AM ts:0 al:spun
-AM ts:0 al:spat
-AM st:splayfoot ts:Ns
-AM ts:0 al:splayfeet
-AM st:speak ts:Vd
-AM ts:0 al:spokesmen al:spokesmen's
-AM st:spokesman ts:Ns's
-AM st:spokesman ts:Ns
-AM st:spokesperson ts:Ns
-AM ts:0 al:spokespeople
-AM ts:0 al:spokeswomen
-AM st:spokeswoman ts:Ns
-AM ts:0 al:sportsmen al:sportsmen's
-AM st:sportsman ts:Ns's
-AM st:sportsman ts:Ns
-AM ts:0 al:sportswomen
-AM st:sportswoman ts:Ns
-AM ts:0 al:spotlit
-AM st:spotlight ts:Vd
-AM st:spring ts:Vd
-AM ts:0 al:sprang al:sprung
-AM st:spin ts:Vd
-AM st:sputum ts:Ns
-AM ts:0 al:sputa
-AM ts:0 al:stablemen al:stablemen's
-AM st:stableman ts:Ns's
-AM st:stableman ts:Ns
-AM st:stadium ts:Ns
-AM ts:0 al:stadia
-AM ts:0 al:staves
-AM st:stagey ts:0
-AM ts:0 al:stood
-AM st:stink ts:Vd
-AM st:staphylococcus ts:Ns
-AM ts:0 al:staphylococci
-AM ts:0 al:statesmen al:statesmen's
-AM st:statesman ts:Ns's
-AM st:statesman ts:Ns
-AM ts:0 al:stateswomen
-AM st:stateswoman ts:Ns
-AM ts:0 al:stove
-AM st:staff ts:Ns
-AM ts:0 al:stole al:stolen
-AM ts:0 al:steersmen al:steersmen's
-AM st:steersman ts:Ns's
-AM st:steersman ts:Ns
-AM ts:0 al:stuck
-AM st:stimulus ts:Ns's
-AM st:stimulus ts:Ns
-AM ts:0 al:stimuli al:stimuli's
-AM ts:0 al:stung
-AM ts:0 al:stank al:stunk
-AM st:steal ts:Vd
-AM st:stoney ts:0
-AM st:stand ts:Vd
-AM st:stave ts:Vd
-AM st:stratum ts:Ns's
-AM st:stratum ts:Ns
-AM st:stratus ts:Ns
-AM ts:0 al:strata al:strata's
-AM ts:0 al:strati
-AM st:streptococcus ts:Ns
-AM ts:0 al:streptococci
-AM st:strike ts:Vd
-AM ts:0 al:strode
-AM ts:0 al:strives
-AM ts:0 al:stricken al:struck
-AM ts:0 al:strung
-AM ts:0 al:strove
-AM st:strife ts:Ns
-AM st:stride ts:Vd
-AM ts:0 al:strongmen al:strongmen's
-AM st:strongman ts:Ns's
-AM st:strongman ts:Ns
-AM st:strive ts:Vd
-AM st:string ts:Vd
-AM st:stick ts:Vd
-AM st:sting ts:Vd
-AM ts:0 al:stuntmen al:stuntmen's
-AM st:stuntman ts:Ns's
-AM st:stuntman ts:Ns
-AM st:stylus ts:Ns
-AM ts:0 al:styli
-AM st:subgenus ts:Ns
-AM ts:0 al:subgenera
-AM st:substratum ts:Ns
-AM ts:0 al:substrata
-AM ts:0 al:supermen al:supermen's
-AM st:superman ts:Ns's
-AM st:superman ts:Ns
-AM ts:0 al:superwomen
-AM st:superwoman ts:Ns
-AM st:swim ts:Vd
-AM ts:0 al:swore al:sworn
-AM ts:0 al:swept
-AM ts:0 al:swollen
-AM st:sweep ts:Vd
-AM ts:0 al:swam al:swum
-AM ts:0 al:swung
-AM st:swell ts:Vd
-AM ts:0 al:swordsmen al:swordsmen's
-AM st:swordsman ts:Ns's
-AM st:swordsman ts:Ns
-AM st:swear ts:Vd
-AM st:swing ts:Vd
-AM st:syllabus ts:Ns
-AM ts:0 al:syllabi
-AM st:symbiosis ts:Ns
-AM ts:0 al:symbioses
-AM st:symposium ts:Ns
-AM ts:0 al:symposia
-AM st:synaeresis ts:Ns
-AM ts:0 al:synaereses
-AM st:synapsis ts:Ns
-AM st:synopsis ts:Ns
-AM ts:0 al:synopses
-AM st:synthesis ts:Ns
-AM ts:0 al:syntheses
-AM st:tackey ts:0
-AM ts:0 al:took
-AM st:tamis ts:Ns
-AM st:Tamus ts:Ns's
-AM st:Tamus ts:Ns
-AM ts:0 st:tantrum
-AM ts:0 al:tantra
-AM st:tapis ts:Ns
-AM st:tarsus ts:Ns
-AM ts:0 al:tarsi
-AM st:tum ts:Ns
-AM st:teach ts:Vd
-AM st:tawney ts:0
-AM st:taxis ts:Ns
-AM st:taxus ts:Ns's
-AM ts:0 al:taxes
-AM st:taxus ts:Ns
-AM ts:0 al:taught
-AM ts:0 al:tore al:torn
-AM st:tooth ts:Ns's
-AM st:tooth ts:Ns
-AM ts:0 al:told
-AM st:terminus ts:Ns
-AM ts:0 al:termini
-AM st:testis ts:Ns
-AM ts:0 al:testes
-AM st:tetrahedron ts:Ns
-AM ts:0 al:tetrahedra
-AM st:thalamus ts:Ns
-AM ts:0 al:thalami
-AM st:thesaurus ts:Ns
-AM ts:0 al:thesauri
-AM st:thesis ts:Ns
-AM ts:0 al:theses
-AM ts:0 al:thought
-AM st:think ts:Vd
-AM st:throw ts:Vd
-AM st:thrombus ts:Ns
-AM st:thrombosis ts:Ns
-AM ts:0 al:thromboses
-AM ts:0 al:thrombi
-AM ts:0 al:threw
-AM st:thunderstrike ts:Vd
-AM ts:0 al:tying
-AM st:titmouse ts:Ns
-AM ts:0 al:titmice
-AM st:tell ts:Vd
-AM st:take ts:Vd
-AM ts:0 al:teeth al:teeth's
-AM st:tear ts:Vd
-AM ts:0 al:townsmen al:townsmen's
-AM st:townsman ts:Ns's
-AM st:townsman ts:Ns
-AM ts:0 al:townswomen
-AM st:townswoman ts:Ns
-AM ts:0 al:tradesmen al:tradesmen's
-AM st:tradesman ts:Ns's
-AM st:tradesman ts:Ns
-AM st:tradesperson ts:Ns
-AM ts:0 al:tradeswomen
-AM st:tradeswoman ts:Ns
-AM ts:0 al:trainmen al:trainmen's
-AM st:trainman ts:Ns's
-AM st:trainman ts:Ns
-AM st:trapezium ts:Ns
-AM ts:0 al:trapezia
-AM ts:0 al:trod al:trodden
-AM ts:0 al:trenchermen al:trenchermen's
-AM st:trencherman ts:Ns's
-AM st:trencherman ts:Ns
-AM ts:0 al:tribesmen al:tribesmen's
-AM st:tribesman ts:Ns's
-AM st:tribesman ts:Ns
-AM ts:0 al:tribeswomen
-AM st:tribeswoman ts:Ns
-AM st:trichinosis ts:Ns
-AM ts:0 al:trichinoses
-AM st:trivium ts:Ns
-AM st:tread ts:Vd
-AM ts:0 st:trie
-AM st:tuberculosis ts:Ns
-AM ts:0 al:tuberculoses
-AM ts:0 al:ta
-AM st:tie ts:Vd
-AM st:umbilicus ts:Ns
-AM ts:0 al:umbilici
-AM ts:0 al:unbound
-AM st:unbear ts:Vd
-AM st:unbind ts:Vd
-AM st:unclothe ts:Vd
-AM ts:0 al:unclad
-AM st:underfeed ts:Vd
-AM ts:0 al:underwent
-AM st:underlie ts:Vd
-AM ts:0 st:underlie
-AM ts:0 al:underlain al:underlay al:underlying
-AM ts:0 al:undersold
-AM ts:0 al:undershot
-AM st:undershoot ts:Vd
-AM st:undersell ts:Vd
-AM ts:0 al:understood
-AM st:understand ts:Vd
-AM ts:0 al:undertook
-AM st:undertake ts:Vd
-AM st:undergo ts:Vd
-AM ts:0 al:underwrote
-AM st:underwrite ts:Vd
-AM ts:0 al:unfroze al:unfrozen
-AM st:unfreeze ts:Vd
-AM st:unmake ts:Vd
-AM ts:0 al:unmade
-AM st:unsling ts:Vd
-AM st:unsell ts:Vd
-AM st:unspeak ts:Vd
-AM st:unstring ts:Vd
-AM st:unstick ts:Vd
-AM st:unteach ts:Vd
-AM ts:0 al:untying
-AM st:untread ts:Vd
-AM st:untie ts:Vd
-AM ts:0 al:unwound
-AM st:unwind ts:Vd
-AM st:unweave ts:Vd
-AM st:uphold ts:Vd
-AM ts:0 al:upheld
-AM st:upshoot ts:Vd
-AM st:urinalysis ts:Ns
-AM ts:0 al:urinalyses
-AM ts:0 al:i's
-AM st:uterus ts:Ns
-AM ts:0 al:uteri
-AM st:vacuum ts:Ns's
-AM st:vacuum ts:Ns
-AM ts:0 al:vacua al:vacua's
-AM st:valis ts:Ns
-AM st:venturis ts:Ns
-AM ts:0 al:vertices
-AM st:vertex ts:Ns
-AM ts:0 al:vestrymen al:vestrymen's
-AM st:vestryman ts:Ns's
-AM st:vestryman ts:Ns
-AM ts:0 al:vying
-AM st:villus ts:Ns
-AM ts:0 al:villi
-AM st:vison ts:Ns's
-AM st:vison ts:Ns
-AM st:viscus ts:Ns
-AM ts:0 al:viscera
-AM st:vivarium ts:Ns
-AM ts:0 al:vivaria
-AM ts:0 al:vortices
-AM st:vortex ts:Ns
-AM st:vie ts:Vd
-AM st:wadis ts:Ns
-AM ts:0 al:woke al:woken
-AM ts:0 al:warehousemen al:warehousemen's
-AM st:warehouseman ts:Ns's
-AM st:warehouseman ts:Ns
-AM ts:0 al:washerwomen al:washerwomen's
-AM st:washerwoman ts:Ns's
-AM st:washerwoman ts:Ns
-AM ts:0 al:watchmen al:watchmen's
-AM st:watchman ts:Ns's
-AM st:watchman ts:Ns
-AM ts:0 al:watermen al:watermen's
-AM st:waterman ts:Ns's
-AM st:waterman ts:Ns
-AM st:wavey ts:0
-AM ts:0 al:wore al:worn
-AM ts:0 al:weathermen al:weathermen's
-AM st:weatherman ts:Ns's
-AM st:weatherman ts:Ns
-AM ts:0 al:wove al:woven
-AM ts:0 al:wept
-AM ts:0 al:Welshmen al:Welshmen's
-AM st:Welshman ts:Ns's
-AM st:Welshman ts:Ns
-AM ts:0 al:Welshwomen
-AM st:Welshwoman ts:Ns
-AM st:go ts:Vd
-AM st:weep ts:Vd
-AM st:whiney ts:0
-AM ts:0 al:wives
-AM ts:0 al:would al:wouldst
-AM ts:0 al:won
-AM ts:0 al:wound
-AM ts:0 al:wingmen al:wingmen's
-AM st:wingman ts:Ns's
-AM st:wingman ts:Ns
-AM ts:0 al:wiremen al:wiremen's
-AM st:wireman ts:Ns's
-AM st:wireman ts:Ns
-AM ts:0 al:withdrew
-AM st:withdraw ts:Vd
-AM st:withhold ts:Vd
-AM ts:0 al:withheld
-AM ts:0 al:withstood
-AM st:withstand ts:Vd
-AM st:wife ts:Ns
-AM st:wake ts:Vd
-AM ts:0 al:women al:women's
-AM st:woman ts:Ns's
-AM st:woman ts:Ns
-AM st:win ts:Vd
-AM ts:0 al:woodsmen al:woodsmen's
-AM st:woodsman ts:Ns's
-AM st:woodsman ts:Ns
-AM st:wear ts:Vd
-AM ts:0 al:wrought
-AM ts:0 al:workmen al:workmen's
-AM st:workman ts:Ns's
-AM st:workman ts:Ns
-AM st:ill ts:0
-AM st:will ts:Vd
-AM st:wind ts:Vd
-AM st:weave ts:Vd
-AM ts:0 al:wrung
-AM ts:0 al:wrote
-AM st:write ts:Vd
-AM st:work ts:Vd
-AM st:wring ts:Vd
-AM ts:0 al:yachtsmen al:yachtsmen's
-AM st:yachtsman ts:Ns's
-AM st:yachtsman ts:Ns
-AM ts:0 al:yachtswomen
-AM st:yachtswoman ts:Ns
-AM ts:0 al:yeomen al:yeomen's
-AM st:yeoman ts:Ns's
-AM st:yeoman ts:Ns
-AM is:Ns
-AM is:At
-AM is:N's
-AM is:Ns's
-AM is:Aness's
-AM is:Vd
-AM is:Vs
-AM is:Ar
-AM is:Nm's
-AM is:Vg
-AM is:Aness is:s
-AM is:Ay
-AM is:Nm
-AM is:Aness
-AM is:'s
+# Main difficulties developing this dictionary:
+#   1) Proper names;
+#   2) Possessive forms;
+#   3) Plurals.
+#
+# David Bartlett, Andrew Brown, Marco A.G.Pinto.
+# V 3.0.2, 2021-11-01
 
 SET UTF-8
-WORDCHARS 0123456789'-.’
-NOSUGGEST 200
+
+TRY esiaénrtolcdugmfphbyvkw-'.zqjxSNRTLCGDMFPHBEAUYOIVKWóöâôZQJXÅçèîêàïüäñ
+
+ICONV 1
+ICONV ’ '
+
+NOSUGGEST !
 
 # ordinal numbers
 COMPOUNDMIN 1
 # only in compounds: 1th, 2th, 3th
-ONLYINCOMPOUND 300
+ONLYINCOMPOUND _
 # compound rules:
 # 1. [0-9]*1[0-9]th (10th, 11th, 12th, 56714th, etc.)
 # 2. [0-9]*[02-9](1st|2nd|3rd|[4-9]th) (21st, 22nd, 123rd, 1234th, etc.)
 COMPOUNDRULE 2
-COMPOUNDRULE (201)*(202)(203)
-COMPOUNDRULE (201)*(204)(205)
+COMPOUNDRULE #*0{
+COMPOUNDRULE #*@}
+WORDCHARS 0123456789’
 
-TRY esiaénrtolcdugmfphbyvkw-'.zqjxSNRTLCGDMFPHBEAUYOIVKWóöâôZQJXÅçèîêàïüäñ
-REP 51
-REP A Å
-REP a à
-REP a á
-REP a â
-REP a ä
-REP a å
-REP c ç
-REP e è
-REP e é
-REP e ê
-REP e ë
-REP i í
-REP i ï
-REP n ñ
-REP o ó
-REP o ô
-REP o ö
-REP u û
-REP u ü
-REP nt n't
-REP alot a_lot
-REP avengence a_vengeance
-REP ninties 1990s
-REP teached taught
-REP rised rose
+REP 27
 REP f ph
 REP ph f
 REP f gh
@@ -2837,576 +63,1282 @@ REP eg e.g.
 REP ie i.e.
 REP t ght
 REP ght t
+REP ok OK
 REP ts ce
 REP ce ts
-SFX 127 N 1
-SFX 127 i 0 i 2028
-SFX 54 N 1
-SFX 54 0 lest . 2029
-SFX 128 N 1
-SFX 128 i 's i 2030
-SFX 52 N 1
-SFX 52 0 en . 2028
-SFX 74 N 1
-SFX 74 0 gest . 2029
-SFX 126 N 1
-SFX 126 s des's s 2031
-SFX 90 N 1
-SFX 90 0 ren's . 2031
-SFX 35 N 1
-SFX 35 y iness's y 2032
-SFX 65 N 1
-SFX 65 0 ded . 2033
-SFX 43 N 1
-SFX 43 0 led . 2033
-SFX 111 N 1
-SFX 111 0 zes . 2034
-SFX 70 N 1
-SFX 70 e den e 2033
-SFX 13 N 1
-SFX 13 0 ted . 2033
-SFX 67 N 1
-SFX 67 f ves f 2028
-SFX 75 N 1
-SFX 75 e ten e 2033
-SFX 140 N 1
-SFX 140 0 en's . 2031
-SFX 41 N 1
-SFX 41 0 med . 2033
-SFX 138 N 1
-SFX 138 e ier e 2035
-SFX 49 N 1
-SFX 49 0 n . 2033
-SFX 4 N 1
-SFX 4 0 es . 2028
-SFX 146 N 1
-SFX 146 0 im's . 2036
-SFX 58 N 1
-SFX 58 0 ging . 2037
-SFX 63 N 1
-SFX 63 0 en . 2033
-SFX 114 N 1
-SFX 114 0 per . 2035
-SFX 60 N 1
-SFX 60 0 bing . 2037
-SFX 9 N 1
-SFX 9 e ing e 2037
-SFX 136 N 1
-SFX 136 0 ses's . 2031
-SFX 56 N 1
-SFX 56 0 ping . 2037
-SFX 19 N 1
-SFX 19 0 nesses . 2038
-SFX 105 N 1
-SFX 105 0 best . 2029
-SFX 37 N 1
-SFX 37 y ily y 2039
-SFX 32 N 1
-SFX 32 0 ally . 2039
-SFX 115 N 1
-SFX 115 0 pest . 2029
-SFX 101 N 1
-SFX 101 e ce e 2028
-SFX 47 N 1
-SFX 47 0 king . 2037
-SFX 45 N 1
-SFX 45 x ces x 2028
-SFX 34 N 1
-SFX 34 y inesses y 2038
-SFX 28 N 1
-SFX 28 y ies y 2034
-SFX 89 N 1
-SFX 89 0 ims . 2028
-SFX 7 N 1
-SFX 7 0 s . 2034
-SFX 31 N 1
-SFX 31 0 s's . 2031
-SFX 6 N 1
-SFX 6 0 ing . 2037
-SFX 78 N 1
-SFX 78 0 ren . 2028
-SFX 94 N 1
-SFX 94 0 test . 2029
-SFX 87 N 1
-SFX 87 0 ta . 2028
-SFX 39 N 1
-SFX 39 0 ses . 2034
-SFX 11 N 1
-SFX 11 0 es . 2034
-SFX 139 N 1
-SFX 139 o id o 2033
-SFX 96 N 1
-SFX 96 0 fed . 2033
-SFX 88 N 1
-SFX 88 0 im . 2040
-SFX 61 N 1
-SFX 61 0 ned . 2033
-SFX 143 N 1
-SFX 143 0 ved . 2033
-SFX 72 N 1
-SFX 72 0 den . 2033
-SFX 118 N 1
-SFX 118 y ies's y 2031
-SFX 119 N 1
-SFX 119 y id y 2033
-SFX 69 N 1
-SFX 69 d t d 2033
-SFX 100 N 1
-SFX 100 0 allier . 2035
-SFX 22 N 1
-SFX 22 0 st . 2029
-SFX 30 N 1
-SFX 30 y iest y 2029
-SFX 97 N 1
-SFX 97 0 fing . 2037
-SFX 76 N 1
-SFX 76 0 zes . 2028
-SFX 131 N 1
-SFX 131 0 r . 2028
-SFX 99 N 1
-SFX 99 0 rer . 2035
-SFX 14 N 1
-SFX 14 0 ting . 2037
-SFX 137 N 1
-SFX 137 0 i . 2028
-SFX 107 N 1
-SFX 107 l t l 2033
-SFX 21 N 1
-SFX 21 0 r . 2035
-SFX 12 N 1
-SFX 12 0 ses . 2028
-SFX 18 N 1
-SFX 18 0 ness . 2041
-SFX 91 N 1
-SFX 91 e i e 2028
-SFX 10 N 1
-SFX 10 0 ly . 2039
-SFX 79 N 1
-SFX 79 0 e's . 2031
-SFX 141 N 1
-SFX 141 n 0 n 2028
-SFX 57 N 1
-SFX 57 0 ged . 2033
-SFX 25 N 1
-SFX 25 0 est . 2029
-SFX 83 N 1
-SFX 83 0 t . 2033
-SFX 134 N 1
-SFX 134 e t e 2033
-SFX 104 N 1
-SFX 104 0 ber . 2035
-SFX 17 N 1
-SFX 17 y ies y 2028
-SFX 26 N 1
-SFX 26 0 e . 2028
-SFX 129 N 1
-SFX 129 a or a 2028
-SFX 147 N 1
-SFX 147 y in y 2033
-SFX 77 N 1
-SFX 77 0 ser . 2035
-SFX 85 N 1
-SFX 85 x ces's x 2031
-SFX 40 N 1
-SFX 40 0 sing . 2037
-SFX 123 N 1
-SFX 123 e ia e 2028
-SFX 3 N 1
-SFX 3 0 s . 2028
-SFX 80 N 1
-SFX 80 o i's o 2031
-SFX 62 N 1
-SFX 62 0 ning . 2037
-SFX 55 N 1
-SFX 55 0 ped . 2033
-SFX 106 N 1
-SFX 106 0 nest . 2029
-SFX 29 N 1
-SFX 29 y ier y 2035
-SFX 68 N 1
-SFX 68 f ves's f 2031
-SFX 142 N 1
-SFX 142 0 rest . 2029
-SFX 120 N 1
-SFX 120 0 der . 2035
-SFX 86 N 1
-SFX 86 0 st . 2033
-SFX 53 N 1
-SFX 53 0 ler . 2035
-SFX 48 N 1
-SFX 48 o i o 2028
-SFX 109 N 1
-SFX 109 0 thest . 2029
-SFX 84 N 1
-SFX 84 0 ter . 2035
-SFX 33 N 1
-SFX 33 0 x . 2028
-SFX 24 N 1
-SFX 24 0 er . 2035
-SFX 51 N 1
-SFX 51 s ntes s 2028
-SFX 95 N 1
-SFX 95 x ges x 2028
-SFX 117 N 1
-SFX 117 y own y 2033
-SFX 59 N 1
-SFX 59 e 0 e 2033
-SFX 130 N 1
-SFX 130 a ur a 2028
-SFX 92 N 1
-SFX 92 0 lier . 2035
-SFX 66 N 1
-SFX 66 0 ding . 2037
-SFX 71 N 1
-SFX 71 0 bed . 2033
-SFX 64 N 1
-SFX 64 0 x's . 2031
-SFX 16 N 1
-SFX 16 0 ring . 2037
-SFX 121 N 1
-SFX 121 0 dest . 2029
-SFX 145 N 1
-SFX 145 e iest e 2029
-SFX 125 N 1
-SFX 125 0 es's . 2031
-SFX 15 N 1
-SFX 15 0 red . 2033
-SFX 135 N 1
-SFX 135 0 th . 2028
-SFX 124 N 1
-SFX 124 e ia's e 2031
-SFX 110 N 1
-SFX 110 0 zed . 2033
-SFX 42 N 1
-SFX 42 0 ming . 2037
-SFX 1 N 1
-SFX 1 0 's . 2042
-SFX 82 N 1
-SFX 82 0 mest . 2029
-SFX 93 N 1
-SFX 93 0 liest . 2029
-SFX 144 N 1
-SFX 144 0 ving . 2037
-SFX 81 N 1
-SFX 81 0 mer . 2035
-SFX 98 N 1
-SFX 98 0 ner . 2035
-SFX 2 N 1
-SFX 2 0 's . 2030
-SFX 122 N 1
-SFX 122 o ines o 2028
-SFX 116 N 1
-SFX 116 y ew y 2033
-SFX 36 N 1
-SFX 36 y iness y 2041
-SFX 132 N 1
-SFX 132 0 er . 2028
-SFX 27 N 1
-SFX 27 y ied y 2033
-SFX 20 N 1
-SFX 20 0 ness's . 2032
-SFX 103 N 1
-SFX 103 0 th . 2033
-SFX 8 N 1
-SFX 8 0 d . 2033
-SFX 46 N 1
-SFX 46 0 ked . 2033
-SFX 23 N 1
-SFX 23 e y e 2039
-SFX 113 N 1
-SFX 113 e d e 2033
-SFX 38 N 1
-SFX 38 0 sed . 2033
-SFX 148 N 1
-SFX 148 0 ist . 2029
-SFX 5 N 1
-SFX 5 0 ed . 2033
-SFX 108 N 1
-SFX 108 0 ther . 2035
-SFX 133 N 1
-SFX 133 a e a 2028
-SFX 50 N 1
-SFX 50 s des s 2028
-SFX 102 N 1
-SFX 102 0 ne . 2033
-SFX 44 N 1
-SFX 44 0 ling . 2037
-SFX 112 N 1
-SFX 112 0 zing . 2037
-SFX 73 N 1
-SFX 73 0 ger . 2035
 
-BREAK 3
-BREAK —
-BREAK –
-BREAK -
+PFX A Y 2
+PFX A 0 re [^e] 
+PFX A 0 re- e 
+PFX a Y 1
+PFX a 0 mis . 
+PFX I Y 4
+PFX I 0 il l 
+PFX I 0 ir r 
+PFX I 0 im [bmp] 
+PFX I 0 in [^blmpr] 
+PFX c Y 1
+PFX c 0 over . 
+PFX U Y 1
+PFX U 0 un . 
+PFX C Y 2
+PFX C 0 de [^e] 
+PFX C 0 de- e 
+PFX E Y 1
+PFX E 0 dis . 
+PFX F Y 5
+PFX F 0 com [bmp]
+PFX F 0 co [aeiouh]
+PFX F 0 cor r
+PFX F 0 col l
+PFX F 0 con [^abehilmopru]. 
+PFX K Y 1
+PFX K 0 pre . 
+PFX e Y 1
+PFX e 0 out . 
+PFX f Y 2
+PFX f 0 under [^r] 
+PFX f 0 under- r 
+PFX ^ Y 1
+PFX ^ 0 non- . 
+PFX 4 Y 1
+PFX 4 0 trans . 
 
-ICONV 6
-ICONV ’ '
-ICONV ﬃ ffi
-ICONV ﬄ ffl
-ICONV ﬀ ff
-ICONV ﬁ fi
-ICONV ﬂ fl
-
-OCONV 1
-OCONV ' ’
-
-#   PHONEtic_english.h - #PHONEtic transformation rules for use with #PHONEtic.c
-#   Copyright (C) 2000 Björn Jacke
-#
-#   This rule set is based on Lawrence Phillips original metaPHONE 
-#   algorithm with modifications made by Michael Kuhn in his
-#   C implantation, more modifications by Björn Jacke when
-#   converting the algorithm to a rule set and minor 
-#   touch ups by Kevin Atkinson
-#
-#   This library is free software; you can redistribute it and/or
-#   modify it under the terms of the GNU Lesser General Public
-#   License version 2.1 as published by the Free Software Foundation;
-#
-#   This library is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#   Lesser General Public License for more details.
-#
-#   You should have received a copy of the GNU Lesser General Public
-#   License along with this library; if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-#   Björn Jacke may be reached by email at bjoern.jacke@gmx.de
-#
-#   Changelog:
-#
-#   2000-01-05  Björn Jacke <bjoern.jacke@gmx.de>
-#               - first version with translation rules derived from
-#                 metaPHONE.cc distributed with aspell 0.28.3
-#               - "TH" is now representated as "@" because "0" is a
-#                 meta character
-#               - removed TH(!vowel) --> T; always use TH --> # instead
-#               - dropped "^AE" -> "E" (redundant)
-#               - "ing" is transformed to "N", not "NK"
-#               - "SCH(EO)" transforms to "SK" now
-#               - added R --> SILENT if (after a vowel) and no (vowel or
-#                 "y" follows) like in "Marcy" or "abort"
-#               - H is SILENT in RH at beginning of words
-#               - H is SILENT if vowel leads and "Y" follows
-#               - some ".OUGH.."  --> ...F exceptions added
-#               - "^V" transforms to "W"
-#   2000-01-07  Kevin Atkinson <kevinatk@home.com>
-#               Converted from header to data file.
-#
-#   2007-08-23  László Németh <nemeth AT OOo>
-#               Add PHONE header and #PHONE keywords
-#
-#   2010-03-09  László Németh <nemeth AT OOo>
-#               Temporarily removing acuted character É
-#               because of the missing UTF-8 support
-#
-# version 1.1
-
-# Documentation: http://aspell.net/man-html/PHONEtic-Code.html
-
-PHONE 104
-PHONE AH(AEIOUY)-^         *H
-PHONE AR(AEIOUY)-^         *R
-PHONE A(HR)^               *
-PHONE A^                   *
-PHONE AH(AEIOUY)-          H
-PHONE AR(AEIOUY)-          R
-PHONE A(HR)                _
-PHONE BB-                  _
-PHONE B                    B
-PHONE CQ-                  _
-PHONE CIA                  X
-PHONE CH                   X
-PHONE C(EIY)-              S
-PHONE CK                   K
-PHONE COUGH^               KF
-PHONE CC<                  C
-PHONE C                    K
-PHONE DG(EIY)              K
-PHONE DD-                  _
-PHONE D                    T
-PHONE EH(AEIOUY)-^         *H
-PHONE ER(AEIOUY)-^         *R
-PHONE E(HR)^               *
-PHONE ENOUGH^$             *NF
-PHONE E^                   *
-PHONE EH(AEIOUY)-          H
-PHONE ER(AEIOUY)-          R
-PHONE E(HR)                _
-PHONE FF-                  _
-PHONE F                    F
-PHONE GN^                  N
-PHONE GN$                  N
-PHONE GNS$                 NS
-PHONE GNED$                N
-PHONE GH(AEIOUY)-          K
-PHONE GH                   _
-PHONE GG9                  K
-PHONE G                    K
-PHONE H                    H
-PHONE IH(AEIOUY)-^         *H
-PHONE IR(AEIOUY)-^         *R
-PHONE I(HR)^               *
-PHONE I^                   *
-PHONE ING6                 N
-PHONE IH(AEIOUY)-          H
-PHONE IR(AEIOUY)-          R
-PHONE I(HR)                _
-PHONE J                    K
-PHONE KN^                  N
-PHONE KK-                  _
-PHONE K                    K
-PHONE LAUGH^               LF
-PHONE LL-                  _
-PHONE L                    L
-PHONE MB$                  M
-PHONE MM                   M
-PHONE M                    M
-PHONE NN-                  _
-PHONE N                    N
-PHONE OH(AEIOUY)-^         *H
-PHONE OR(AEIOUY)-^         *R
-PHONE O(HR)^               *
-PHONE O^                   *
-PHONE OH(AEIOUY)-          H
-PHONE OR(AEIOUY)-          R
-PHONE O(HR)                _
-PHONE PH                   F
-PHONE PN^                  N
-PHONE PP-                  _
-PHONE P                    P
-PHONE Q                    K
-PHONE RH^                  R
-PHONE ROUGH^               RF
-PHONE RR-                  _
-PHONE R                    R
-PHONE SCH(EOU)-            SK
-PHONE SC(IEY)-             S
-PHONE SH                   X
-PHONE SI(AO)-              X
-PHONE SS-                  _
-PHONE S                    S
-PHONE TI(AO)-              X
-PHONE TH                   @
-PHONE TCH--                _
-PHONE TOUGH^               TF
-PHONE TT-                  _
-PHONE T                    T
-PHONE UH(AEIOUY)-^         *H
-PHONE UR(AEIOUY)-^         *R
-PHONE U(HR)^               *
-PHONE U^                   *
-PHONE UH(AEIOUY)-          H
-PHONE UR(AEIOUY)-          R
-PHONE U(HR)                _
-PHONE V^                   W
-PHONE V                    F
-PHONE WR^                  R
-PHONE WH^                  W
-PHONE W(AEIOU)-            W
-PHONE X^                   S
-PHONE X                    KS
-PHONE Y(AEIOU)-            Y
-PHONE ZZ-                  _
-PHONE Z                    S
-
-#The rules in a different view:
-#
-# Exceptions:
-#
-#  Beginning of word: "gn", "kn-", "pn-", "wr-"  ----> drop first letter
-#                     "Aebersold", "Gnagy", "Knuth", "Pniewski", "Wright"
-#
-#  Beginning of word: "x"                                ----> change to "s"
-#                                     as in "Deng Xiaopeng"
-#
-#  Beginning of word: "wh-"                              ----> change to "w"
-#                                     as in "Whalen"
-#  Beginning of word: leading vowels are transformed to "*"
-#
-#  "[crt]ough" and "enough" are handled separately because of "F" sound
-#
-#
-#  A --> A      at beginning
-#          _      otherwise
-#
-#  B --> B      unless at the end of word after "m", as in "dumb", "McComb"
-#
-#  C --> X      (sh) if "-cia-" or "-ch-"
-#          S      if "-ci-", "-ce-", or "-cy-"
-#                 SILENT if "-sci-", "-sce-", or "-scy-", or "-cq-"
-#          K      otherwise, including in "-sch-"
-#
-#  D --> K      if in "-dge-", "-dgy-", or "-dgi-"
-#          T      otherwise
-#
-#  E --> A      at beginnig
-#          _      SILENT otherwise
-#  
-#  F --> F
-#
-#  G -->        SILENT if in "-gh-" and not at end or before a vowel
-#                            in "-gn" or "-gned" or "-gns"
-#                           in "-dge-" etc., as in above rule
-#          K      if before "i", or "e", or "y" if not double "gg"
-#
-#          K      otherwise (incl. "GG"!)
-#
-#  H -->        SILENT if after vowel and no vowel or "Y" follows
-#                        or after "-ch-", "-sh-", "-ph-", "-th-", "-gh-"
-#                        or after "rh-" at beginning
-#          H      otherwise
-#
-#  I --> A      at beginning
-#          _      SILENT otherwise
-#
-#  J --> K
-#
-#  K -->        SILENT if after "c"
-#          K      otherwise
-#
-#  L --> L
-#
-#  M --> M
-#  
-#  N --> N
-#
-#  O --> A      at beginning
-#          _      SILENT otherwise
-#
-#  P --> F      if before "h"
-#          P      otherwise
-#
-#  Q --> K
-#
-#  R -->        SILENT if after vowel and no vowel or "Y" follows
-#          R      otherwise
-#
-#  S --> X      (sh) if before "h" or in "-sio-" or "-sia-"
-#          SK     if followed by "ch(eo)" (SCH(EO))
-#          S      otherwise
-#
-#  T --> X      (sh) if "-tia-" or "-tio-"
-#          0      (th) if before "h"
-#                 silent if in "-tch-"
-#          T      otherwise
-#
-#  U --> A      at beginning
-#          _      SILENT otherwise
-#
-#  V --> V      if first letter of word
-#          F      otherwise
-#
-#  W -->        SILENT if not followed by a vowel
-#          W      if followed by a vowel
-#
-#  X --> KS
-#
-#  Y -->        SILENT if not followed by a vowel
-#          Y      if followed by a vowel
-# 
-#  Z --> S
-
+SFX V Y 15
+SFX V 0 tive [aio] 
+SFX V b ptive b 
+SFX V d sive d 
+SFX V be ptive be 
+SFX V e tive ce 
+SFX V de sive de 
+SFX V ke cative ke 
+SFX V e ptive me 
+SFX V e ive [st]e 
+SFX V e ative [^bcdkmst]e 
+SFX V 0 lative [aeiou]l 
+SFX V 0 ative [^aeiou]l 
+SFX V 0 ive [st] 
+SFX V y icative y 
+SFX V 0 ative [^abdeilosty] 
+SFX v Y 15
+SFX v 0 tively [aio] 
+SFX v b ptively b 
+SFX v d sively d 
+SFX v be ptively be 
+SFX v e tively ce 
+SFX v de sively de 
+SFX v ke catively ke 
+SFX v e ptively me 
+SFX v e ively [st]e 
+SFX v e atively [^bcdkmst]e 
+SFX v 0 latively [aeiou]l 
+SFX v 0 atively [^aeiou]l 
+SFX v 0 ively [st] 
+SFX v y icatively y 
+SFX v 0 atively [^abdeilosty] 
+SFX u Y 15
+SFX u 0 tiveness [aio] 
+SFX u b ptiveness b 
+SFX u d siveness d 
+SFX u be ptiveness be 
+SFX u e tiveness ce 
+SFX u de siveness de 
+SFX u ke cativeness ke 
+SFX u e ptiveness me 
+SFX u e iveness [st]e 
+SFX u e ativeness [^bcdkmst]e 
+SFX u 0 lativeness [aeiou]l 
+SFX u 0 ativeness [^aeiou]l 
+SFX u 0 iveness [st] 
+SFX u y icativeness y 
+SFX u 0 ativeness [^abdeilosty] 
+SFX N Y 34
+SFX N b ption b 
+SFX N d sion d 
+SFX N be ption be 
+SFX N e tion ce 
+SFX N de sion de 
+SFX N ke cation ke 
+SFX N e ption ume 
+SFX N e mation [^u]me 
+SFX N e ion [^i]cise 
+SFX N e ion [tfl]use 
+SFX N e ion [rsn]se 
+SFX N e ion ulse 
+SFX N e ion [v]ise 
+SFX N e ition ose 
+SFX N e ation [iou]te 
+SFX N e ion [^iou]te 
+SFX N e ation [^emnx][rc]ise 
+SFX N e ation [btv][e][rc]ise 
+SFX N e ation [^bcdkmst]e 
+SFX N e ation [^uriolsna][^bcdkmztrlvgu]e 
+SFX N e ation [^crbv][mi][^bcdkmztrlvgun]e 
+SFX N el ulsion el 
+SFX N 0 lation [aiou]l 
+SFX N 0 ation [^aeiou]l 
+SFX N 0 mation [aeiou]m 
+SFX N 0 ation [^aeiou]m 
+SFX N er ration er 
+SFX N 0 ation [^e]r 
+SFX N 0 ion [sx] 
+SFX N t ssion mit 
+SFX N 0 ion [^m]it 
+SFX N 0 ation [^i]t 
+SFX N y ication y 
+SFX N 0 ation [^bdelmrstxy] 
+SFX n Y 42
+SFX n 0 tion a 
+SFX n e tion ce 
+SFX n ke cation ke 
+SFX n e ation [iou]te 
+SFX n e ion [^iou]te 
+SFX n e ation [^ckt]e 
+SFX n el ulsion el 
+SFX n 0 lation [aiou]l 
+SFX n 0 ation [^aeiou]l 
+SFX n er ration er 
+SFX n 0 ation [^e]r 
+SFX n y ation py 
+SFX n y ication [^p]y 
+SFX n 0 ation [^aelry] 
+SFX n 0 tions a 
+SFX n 0 tion's a
+SFX n e tions ce 
+SFX n e tion's ce 
+SFX n ke cations ke 
+SFX n ke cation's ke 
+SFX n e ations [iou]te 
+SFX n e ation's [iou]te 
+SFX n e ions [^iou]te 
+SFX n e ion's [^iou]te 
+SFX n e ations [^ckt]e 
+SFX n e ation's [^ckt]e 
+SFX n el ulsions el 
+SFX n el ulsion's el 
+SFX n 0 lations [aiou]l 
+SFX n 0 lation's [aiou]l 
+SFX n 0 ations [^aeiou]l 
+SFX n 0 ation's [^aeiou]l 
+SFX n er rations er 
+SFX n er ration's er 
+SFX n 0 ations [^e]r 
+SFX n 0 ation's [^e]r 
+SFX n y ations py 
+SFX n y ation's py 
+SFX n y ications [^p]y 
+SFX n y ication's [^p]y 
+SFX n 0 ations [^aelry] 
+SFX n 0 ation's [^aelry] 
+SFX X Y 26
+SFX X b ptions b 
+SFX X d sions d 
+SFX X be ptions be 
+SFX X e tions ce 
+SFX X ke cations ke 
+SFX X de sions de 
+SFX X e ptions ume 
+SFX X e mations [^u]me 
+SFX X e ions [^o]se 
+SFX X e itions ose 
+SFX X e ations [iou]te 
+SFX X e ions [^iou]te 
+SFX X e ations [^bcdkmst]e 
+SFX X el ulsions el 
+SFX X 0 lations [aiou]l 
+SFX X 0 ations [^aeiou]l 
+SFX X 0 mations [aeiou]m 
+SFX X 0 ations [^aeiou]m 
+SFX X er rations er 
+SFX X 0 ations [^e]r 
+SFX X 0 ions [sx] 
+SFX X t ssions mit 
+SFX X 0 ions [^m]it 
+SFX X 0 ations [^i]t 
+SFX X y ications y 
+SFX X 0 ations [^bdelmrstxy] 
+SFX x Y 40
+SFX x b ptional b 
+SFX x d sional d 
+SFX x be ptional be 
+SFX x e tional ce 
+SFX x ke cational ke 
+SFX x de sional de 
+SFX x e ional [^o]se 
+SFX x e itional ose 
+SFX x e ional te 
+SFX x e ational [^bcdkst]e 
+SFX x el ulsional el 
+SFX x 0 lational [aiou]l 
+SFX x 0 ational [^aeiou]l 
+SFX x er rational er 
+SFX x 0 ational [^e]r 
+SFX x 0 ional [sx] 
+SFX x 0 ional [^n]t 
+SFX x 0 ational nt 
+SFX x y icational y 
+SFX x 0 ational [^bdelrstxy] 
+SFX x b ptionally b 
+SFX x d sionally d 
+SFX x be ptionally be 
+SFX x e tionally ce 
+SFX x ke cationally ke 
+SFX x de sionally de 
+SFX x e ionally [^o]se 
+SFX x e itionally ose 
+SFX x e ionally te 
+SFX x e ationally [^bcdkst]e 
+SFX x el ulsionally el 
+SFX x 0 lationally [aiou]l 
+SFX x 0 ationally [^aeiou]l 
+SFX x er rationally er 
+SFX x 0 ationally [^e]r 
+SFX x 0 ionally [sx] 
+SFX x 0 ionally [^n]t 
+SFX x 0 ationally nt 
+SFX x y icationally y 
+SFX x 0 ationally [^bdelrstxy] 
+SFX H N 13
+SFX H y ieth y 
+SFX H ree ird ree 
+SFX H ve fth ve 
+SFX H e th [^ev]e 
+SFX H 0 h t 
+SFX H 0 th [^ety] 
+SFX H y ieths y 
+SFX H ree irds ree 
+SFX H ve fths ve 
+SFX H e ths [^ev]e 
+SFX H 0 hs t 
+SFX H 0 ths [^ety] 
+SFX H 0 fold . 
+SFX Y Y 9
+SFX Y 0 ally ic 
+SFX Y 0 ly [^i]c 
+SFX Y e y [^aeiou]le 
+SFX Y 0 ly [aeiou]le 
+SFX Y 0 ly [^l]e 
+SFX Y 0 y [^aeiou]l 
+SFX Y y ily [^aeiou]y 
+SFX Y 0 ly [aeiou][ly] 
+SFX Y 0 ly [^cely] 
+SFX G Y 24
+SFX G e ing [^eioy]e 
+SFX G 0 ing [eoy]e 
+SFX G ie ying ie 
+SFX G 0 bing [^aeio][aeiou]b 
+SFX G 0 king [^aeio][aeiou]c 
+SFX G 0 ding [^aeio][aeiou]d 
+SFX G 0 fing [^aeio][aeiou]f 
+SFX G 0 ging [^aeio][aeiou]g 
+SFX G 0 king [^aeio][aeiou]k 
+SFX G 0 ling [^aeio][eiou]l 
+SFX G 0 ing [aeio][eiou]l 
+SFX G 0 ling [^aeo]al 
+SFX G 0 ing [aeo]al 
+SFX G 0 ming [^aeio][aeiou]m 
+SFX G 0 ning [^aeio][aeiou]n 
+SFX G 0 ping [^aeio][aeiou]p 
+SFX G 0 ring [^aeio][aeiou]r 
+SFX G 0 sing [^aeio][aeiou]s 
+SFX G 0 ting [^aeio][aeiou]t 
+SFX G 0 ving [^aeio][aeiou]v 
+SFX G 0 zing [^aeio][aeiou]z 
+SFX G 0 ing [aeio][aeiou][bcdfgkmnprstvz] 
+SFX G 0 ing [^aeiou][bcdfgklmnprstvz] 
+SFX G 0 ing [^ebcdfgklmnprstvz] 
+SFX J Y 25
+SFX J e ings [^eioy]e 
+SFX J 0 ings [eoy]e 
+SFX J ie yings ie 
+SFX J 0 bings [^aeio][aeiou]b 
+SFX J 0 king [^aeio][aeiou]c 
+SFX J 0 dings [^aeio][aeiou]d 
+SFX J 0 fings [^aeio][aeiou]f 
+SFX J 0 gings [^aeio][aeiou]g 
+SFX J 0 kings [^aeio][aeiou]k 
+SFX J 0 lings [^aeio][eiou]l 
+SFX J 0 ings [aeio][eiou]l 
+SFX J 0 lings [^aeo]al 
+SFX J 0 ings [aeo]al 
+SFX J 0 mings [^aeio][aeiou]m 
+SFX J 0 nings [^aeio][aiou]n 
+SFX J 0 pings [^aeio][aeiou]p 
+SFX J 0 rings [^aeio][aiou]r 
+SFX J 0 sings [^aeio][aeiou]s 
+SFX J 0 tings [^aeio][aiou]t 
+SFX J 0 vings [^aeio][aeiou]v 
+SFX J 0 zings [^aeio][aeiou]z 
+SFX J 0 ings [^aeio]e[nrt] 
+SFX J 0 ings [aeio][aeiou][bcdfgkmnprstvz] 
+SFX J 0 ings [^aeiou][bcdfgklmnprstvz] 
+SFX J 0 ings [^ebcdfgklmnprstvz] 
+SFX k Y 8
+SFX k e ingly [^eioy]e 
+SFX k 0 ingly [eoy]e 
+SFX k ie yingly ie 
+SFX k 0 kingly [^aeio][aeiou]c 
+SFX k 0 lingly [^aeio][aeiou]l 
+SFX k 0 ingly [aeio][aeiou][cl] 
+SFX k 0 ingly [^aeiou][cl] 
+SFX k 0 ingly [^ecl] 
+SFX D Y 25
+SFX D 0 d [^e]e 
+SFX D e d ee 
+SFX D 0 bed [^aeio][aeiou]b 
+SFX D 0 ked [^aeio][aeiou]c 
+SFX D 0 ded [^aeio][aeiou]d 
+SFX D 0 fed [^aeio][aeiou]f 
+SFX D 0 ged [^aeio][aeiou]g 
+SFX D 0 ked [^aeio][aeiou]k 
+SFX D 0 led [^aeio][eiou]l 
+SFX D 0 ed [aeio][eiou]l 
+SFX D 0 led [^aeo]al 
+SFX D 0 ed [aeo]al 
+SFX D 0 med [^aeio][aeiou]m 
+SFX D 0 ned [^aeio][aeiou]n 
+SFX D 0 ped [^aeio][aeiou]p 
+SFX D 0 red [^aeio][aeiou]r 
+SFX D 0 sed [^aeio][aeiou]s 
+SFX D 0 ted [^aeio][aeiou]t 
+SFX D 0 ved [^aeio][aeiou]v 
+SFX D 0 zed [^aeio][aeiou]z 
+SFX D y ied [^aeiou]y 
+SFX D 0 ed [aeiou]y 
+SFX D 0 ed [aeio][aeiou][bcdfgkmnprstvz] 
+SFX D 0 ed [^aeiou][bcdfgklmnprstvz] 
+SFX D 0 ed [^ebcdfgklmnprstvyz] 
+SFX d Y 16
+SFX d 0 d e 
+SFX d 0 ked [^aeio][aeiou]c 
+SFX d 0 led [^aeio][aeiou]l 
+SFX d y ied [^aeiou]y 
+SFX d 0 ed [aeiou]y 
+SFX d 0 ed [aeio][aeiou][cl] 
+SFX d 0 ed [^aeiou][cl] 
+SFX d 0 ed [^ecly] 
+SFX d e ing [^eioy]e 
+SFX d 0 ing [eoy]e 
+SFX d ie ying ie 
+SFX d 0 king [^aeio][aeiou]c 
+SFX d 0 ling [^aeio][aeiou]l 
+SFX d 0 ing [aeio][aeiou][cl] 
+SFX d 0 ing [^aeiou][cl] 
+SFX d 0 ing [^ecl] 
+SFX h Y 22
+SFX h 0 dly e 
+SFX h 0 bedly [^aeio][aeiou]b 
+SFX h 0 kedly [^aeio][aeiou]c 
+SFX h 0 dedly [^aeio][aeiou]d 
+SFX h 0 fedly [^aeio][aeiou]f 
+SFX h 0 gedly [^aeio][aeiou]g 
+SFX h 0 kedly [^aeio][aeiou]k 
+SFX h 0 ledly [^aeio][aeiou]l 
+SFX h 0 medly [^aeio][aeiou]m 
+SFX h 0 nedly [^aeio][aiou]n 
+SFX h 0 pedly [^aeio][aeiou]p 
+SFX h 0 redly [^aeio][aiou]r 
+SFX h 0 sedly [^aeio][aeiou]s 
+SFX h 0 tedly [^aeio][aiou]t 
+SFX h 0 vedly [^aeio][aeiou]v 
+SFX h 0 zedly [^aeio][aeiou]z 
+SFX h 0 edly [^aeio]e[nrt] 
+SFX h y iedly [^aeiou]y 
+SFX h 0 edly [aeiou]y 
+SFX h 0 edly [aeio][aeiou][bcdfgklmnprstvz] 
+SFX h 0 edly [^aeiou][bcdfgklmnprstvz] 
+SFX h 0 edly [^ebcdfgklmnprstvyz] 
+SFX i Y 66
+SFX i 0 dness e 
+SFX i 0 bedness [^aeio][aeiou]b 
+SFX i 0 kedness [^aeio][aeiou]c 
+SFX i 0 dedness [^aeio][aeiou]d 
+SFX i 0 fedness [^aeio][aeiou]f 
+SFX i 0 gedness [^aeio][aeiou]g 
+SFX i 0 kedness [^aeio][aeiou]k 
+SFX i 0 ledness [^aeio][aeiou]l 
+SFX i 0 medness [^aeio][aeiou]m 
+SFX i 0 nedness [^aeio][aiou]n 
+SFX i 0 pedness [^aeio][aeiou]p 
+SFX i 0 redness [^aeio][aiou]r 
+SFX i 0 sedness [^aeio][aeiou]s 
+SFX i 0 tedness [^aeio][aiou]t 
+SFX i 0 vedness [^aeio][aeiou]v 
+SFX i 0 zedness [^aeio][aeiou]z 
+SFX i 0 edness [^aeio]e[nrt] 
+SFX i y iedness [^aeiou]y 
+SFX i 0 edness [aeiou]y 
+SFX i 0 edness [aeio][aeiou][bcdfgklmnprstvz] 
+SFX i 0 edness [^aeiou][bcdfgklmnprstvz] 
+SFX i 0 edness [^ebcdfgklmnprstvyz] 
+SFX i 0 dnesses e 
+SFX i 0 bednesses [^aeio][aeiou]b 
+SFX i 0 kednesses [^aeio][aeiou]c 
+SFX i 0 dednesses [^aeio][aeiou]d 
+SFX i 0 fednesses [^aeio][aeiou]f 
+SFX i 0 gednesses [^aeio][aeiou]g 
+SFX i 0 kednesses [^aeio][aeiou]k 
+SFX i 0 lednesses [^aeio][aeiou]l 
+SFX i 0 mednesses [^aeio][aeiou]m 
+SFX i 0 nednesses [^aeio][aiou]n 
+SFX i 0 pednesses [^aeio][aeiou]p 
+SFX i 0 rednesses [^aeio][aiou]r 
+SFX i 0 sednesses [^aeio][aeiou]s 
+SFX i 0 tednesses [^aeio][aiou]t 
+SFX i 0 vednesses [^aeio][aeiou]v 
+SFX i 0 zednesses [^aeio][aeiou]z 
+SFX i 0 ednesses [^aeio]e[nrt] 
+SFX i y iednesses [^aeiou]y 
+SFX i 0 ednesses [aeiou]y 
+SFX i 0 ednesses [aeio][aeiou][bcdfgklmnprstvz] 
+SFX i 0 ednesses [^aeiou][bcdfgklmnprstvz] 
+SFX i 0 ednesses [^ebcdfgklmnprstvyz] 
+SFX i 0 dness's e 
+SFX i 0 bedness's [^aeio][aeiou]b 
+SFX i 0 kedness's [^aeio][aeiou]c 
+SFX i 0 dedness's [^aeio][aeiou]d 
+SFX i 0 fedness's [^aeio][aeiou]f 
+SFX i 0 gedness's [^aeio][aeiou]g 
+SFX i 0 kedness's [^aeio][aeiou]k 
+SFX i 0 ledness's [^aeio][aeiou]l 
+SFX i 0 medness's [^aeio][aeiou]m 
+SFX i 0 nedness's [^aeio][aiou]n 
+SFX i 0 pedness's [^aeio][aeiou]p 
+SFX i 0 redness's [^aeio][aiou]r 
+SFX i 0 sedness's [^aeio][aeiou]s 
+SFX i 0 tedness's [^aeio][aiou]t 
+SFX i 0 vedness's [^aeio][aeiou]v 
+SFX i 0 zedness's [^aeio][aeiou]z 
+SFX i 0 edness's [^aeio]e[nrt] 
+SFX i y iedness's [^aeiou]y 
+SFX i 0 edness's [aeiou]y 
+SFX i 0 edness's [aeio][aeiou][bcdfgklmnprstvz] 
+SFX i 0 edness's [^aeiou][bcdfgklmnprstvz] 
+SFX i 0 edness's [^ebcdfgklmnprstvyz] 
+SFX T Y 42
+SFX T 0 r e 
+SFX T 0 st e
+SFX T 0 ber [^aeio][aeiou]b 
+SFX T 0 best [^aeio][aeiou]b
+SFX T 0 ker [^aeio][aeiou]c 
+SFX T 0 kest [^aeio][aeiou]c
+SFX T 0 der [^aeio][aeiou]d 
+SFX T 0 dest [^aeio][aeiou]d
+SFX T 0 fer [^aeio][aeiou]f 
+SFX T 0 fest [^aeio][aeiou]f
+SFX T 0 ger [^aeio][aeiou]g 
+SFX T 0 gest [^aeio][aeiou]g
+SFX T 0 ker [^aeio][aeiou]k 
+SFX T 0 kest [^aeio][aeiou]k
+SFX T 0 ler [^aeio][aeiou]l 
+SFX T 0 lest [^aeio][aeiou]l
+SFX T 0 mer [^aeio][aeiou]m 
+SFX T 0 mest [^aeio][aeiou]m
+SFX T 0 ner [^aeio][aeiou]n 
+SFX T 0 nest [^aeio][aeiou]n
+SFX T 0 per [^aeio][aeiou]p 
+SFX T 0 pest [^aeio][aeiou]p
+SFX T 0 rer [^aeio][aeiou]r 
+SFX T 0 rest [^aeio][aeiou]r
+SFX T 0 ser [^aeio][aeiou]s 
+SFX T 0 sest [^aeio][aeiou]s
+SFX T 0 ter [^aeio][aeiou]t 
+SFX T 0 test [^aeio][aeiou]t
+SFX T 0 ver [^aeio][aeiou]v 
+SFX T 0 vest [^aeio][aeiou]v
+SFX T 0 zer [^aeio][aeiou]z 
+SFX T 0 zest [^aeio][aeiou]z
+SFX T y ier [^aeiou]y 
+SFX T y iest [^aeiou]y
+SFX T 0 er [aeiou]y 
+SFX T 0 est [aeiou]y
+SFX T 0 er [aeio][aeiou][bcdfgklmnprstvz]
+SFX T 0 er [^aeiou][bcdfgklmnprstvz]
+SFX T 0 er [^ebcdfgklmnprstvyz]
+SFX T 0 est [aeio][aeiou][bcdfgklmnprstvz]
+SFX T 0 est [^aeiou][bcdfgklmnprstvz]
+SFX T 0 est [^ebcdfgklmnprstvyz]
+SFX R Y 72
+SFX R 0 r e 
+SFX R 0 rs e 
+SFX R 0 ber [^aeio][aeiou]b 
+SFX R 0 bers [^aeio][aeiou]b 
+SFX R 0 ker [^aeio][aeiou]c 
+SFX R 0 kers [^aeio][aeiou]c 
+SFX R 0 der [^aeio][aeiou]d 
+SFX R 0 ders [^aeio][aeiou]d 
+SFX R 0 fer [^aeio][aeiou]f 
+SFX R 0 fers [^aeio][aeiou]f 
+SFX R 0 ger [^aeio][aeiou]g 
+SFX R 0 gers [^aeio][aeiou]g 
+SFX R 0 ker [^aeio][aeiou]k 
+SFX R 0 kers [^aeio][aeiou]k 
+SFX R 0 ler [^aeio][eiou]l 
+SFX R 0 er [aeio][eiou]l 
+SFX R 0 ler [^aeo]al 
+SFX R 0 er [aeo]al 
+SFX R 0 lers [^aeio][eiou]l 
+SFX R 0 ers [aeio][eiou]l 
+SFX R 0 lers [^aeo]al 
+SFX R 0 ers [aeo]al 
+SFX R 0 mer [^aeio][aeiou]m 
+SFX R 0 mers [^aeio][aeiou]m 
+SFX R 0 ner [^aeio][aeiou]n 
+SFX R 0 ners [^aeio][aeiou]n 
+SFX R 0 per [^aeio][aeiou]p 
+SFX R 0 pers [^aeio][aeiou]p 
+SFX R 0 rer [^aeio][aeiou]r 
+SFX R 0 rers [^aeio][aeiou]r 
+SFX R 0 ser [^aeio][aeiou]s 
+SFX R 0 sers [^aeio][aeiou]s 
+SFX R 0 ter [^aeio][aeiou]t 
+SFX R 0 ters [^aeio][aeiou]t 
+SFX R 0 ver [^aeio][aeiou]v 
+SFX R 0 vers [^aeio][aeiou]v 
+SFX R 0 zer [^aeio][aeiou]z 
+SFX R 0 zers [^aeio][aeiou]z 
+SFX R y ier [^aeiou]y 
+SFX R y iers [^aeiou]y 
+SFX R 0 er [aeiou]y 
+SFX R 0 ers [aeiou]y 
+SFX R 0 er [aeio][aeiou][bcdfgkmnprstvz] 
+SFX R 0 ers [aeio][aeiou][bcdfgkmnprstvz] 
+SFX R 0 er [^aeiou][bcdfgklmnprstvz] 
+SFX R 0 ers [^aeiou][bcdfgklmnprstvz] 
+SFX R 0 er [^ebcdfgklmnprstvyz] 
+SFX R 0 ers [^ebcdfgklmnprstvyz] 
+SFX R 0 r's e 
+SFX R 0 ber's [^aeio][aeiou]b 
+SFX R 0 ker's [^aeio][aeiou]c 
+SFX R 0 der's [^aeio][aeiou]d 
+SFX R 0 fer's [^aeio][aeiou]f 
+SFX R 0 ger's [^aeio][aeiou]g 
+SFX R 0 ker's [^aeio][aeiou]k 
+SFX R 0 ler's [^aeio][eiou]l 
+SFX R 0 er's [aeio][eiou]l 
+SFX R 0 ler's [^aeo]al 
+SFX R 0 er's [aeo]al 
+SFX R 0 mer's [^aeio][aeiou]m 
+SFX R 0 ner's [^aeio][aeiou]n 
+SFX R 0 per's [^aeio][aeiou]p 
+SFX R 0 rer's [^aeio][aeiou]r 
+SFX R 0 ser's [^aeio][aeiou]s 
+SFX R 0 ter's [^aeio][aeiou]t 
+SFX R 0 ver's [^aeio][aeiou]v 
+SFX R 0 zer's [^aeio][aeiou]z 
+SFX R y ier's [^aeiou]y 
+SFX R 0 er's [aeiou]y 
+SFX R 0 er's [aeio][aeiou][bcdfgkmnprstvz] 
+SFX R 0 er's [^aeiou][bcdfgklmnprstvz] 
+SFX R 0 er's [^ebcdfgklmnprstvyz] 
+SFX r Y 24
+SFX r 0 r e 
+SFX r 0 ler [^aeio][aeiou]l 
+SFX r 0 ker [^aeio][aeiou]c 
+SFX r y ier [^aeiou]y 
+SFX r 0 er [aeiou]y 
+SFX r 0 er [aeio][aeiou][cl] 
+SFX r 0 er [^aeiou][cl] 
+SFX r 0 er [^ecly] 
+SFX r 0 rs e 
+SFX r 0 lers [^aeio][aeiou]l 
+SFX r 0 kers [^aeio][aeiou]c 
+SFX r y iers [^aeiou]y 
+SFX r 0 ers [aeiou]y 
+SFX r 0 ers [aeio][aeiou][cl] 
+SFX r 0 ers [^aeiou][cl] 
+SFX r 0 ers [^ecly] 
+SFX r 0 r's e 
+SFX r 0 ler's [^aeio][aeiou]l 
+SFX r 0 ker's [^aeio][aeiou]c 
+SFX r y ier's [^aeiou]y 
+SFX r 0 er's [aeiou]y 
+SFX r 0 er's [aeio][aeiou][cl] 
+SFX r 0 er's [^aeiou][cl] 
+SFX r 0 er's [^ecly] 
+SFX S Y 9
+SFX S y ies [^aeiou]y 
+SFX S 0 s [aeiou]y 
+SFX S 0 es [sxz] 
+SFX S 0 es [cs]h 
+SFX S 0 s [^cs]h 
+SFX S 0 s [ae]u 
+SFX S 0 x [ae]u 
+SFX S 0 s [^ae]u 
+SFX S 0 s [^hsuxyz]
+SFX P Y 9
+SFX P y iness [^aeiou]y 
+SFX P 0 ness [aeiou]y 
+SFX P 0 ness [^y] 
+SFX P y inesses [^aeiou]y 
+SFX P 0 nesses [aeiou]y 
+SFX P 0 nesses [^y] 
+SFX P y iness's [^aeiou]y 
+SFX P 0 ness's [aeiou]y 
+SFX P 0 ness's [^y]  
+SFX m Y 20
+SFX m 0 sman [bdknmt] 
+SFX m 0 sman [aeiou][bdklmnt]e 
+SFX m 0 man [^aeiou][bdklmnt]e 
+SFX m 0 man [^bdklmnt]e 
+SFX m 0 man [^bdeknmt] 
+SFX m 0 smen [bdknmt] 
+SFX m 0 smen [aeiou][bdklmnt]e 
+SFX m 0 men [^aeiou][bdklmnt]e 
+SFX m 0 men [^bdklmnt]e 
+SFX m 0 men [^bdeknmt] 
+SFX m 0 sman's [bdknmt] 
+SFX m 0 sman's [aeiou][bdklmnt]e 
+SFX m 0 man's [^aeiou][bdklmnt]e 
+SFX m 0 man's [^bdklmnt]e 
+SFX m 0 man's [^bdeknmt] 
+SFX m 0 smen's [bdknmt] 
+SFX m 0 smen's [aeiou][bdklmnt]e 
+SFX m 0 men's [^aeiou][bdklmnt]e 
+SFX m 0 men's [^bdklmnt]e 
+SFX m 0 men's [^bdeknmt] 
+SFX 5 Y 20
+SFX 5 0 swoman [bdknmt] 
+SFX 5 0 swoman [aeiou][bdklmnt]e 
+SFX 5 0 woman [^aeiou][bdklmnt]e 
+SFX 5 0 woman [^bdklmnt]e 
+SFX 5 0 woman [^bdeknmt] 
+SFX 5 0 swomen [bdknmt] 
+SFX 5 0 swomen [aeiou][bdklmnt]e 
+SFX 5 0 women [^aeiou][bdklmnt]e 
+SFX 5 0 women [^bdklmnt]e 
+SFX 5 0 women [^bdeknmt] 
+SFX 5 0 swoman's [bdknmt] 
+SFX 5 0 swoman's [aeiou][bdklmnt]e 
+SFX 5 0 woman's [^aeiou][bdklmnt]e 
+SFX 5 0 woman's [^bdklmnt]e 
+SFX 5 0 woman's [^bdeknmt] 
+SFX 5 0 women's [^bdeknmt] 
+SFX 5 0 swomen's [bdknmt] 
+SFX 5 0 swomen's [aeiou][bdklmnt]e 
+SFX 5 0 women's [^aeiou][bdklmnt]e 
+SFX 5 0 women's [^bdklmnt]e 
+SFX 6 Y 3
+SFX 6 y iful [^aeiou]y 
+SFX 6 0 ful [aeiou]y 
+SFX 6 0 ful [^y] 
+SFX j Y 3
+SFX j y ifully [^aeiou]y 
+SFX j 0 fully [aeiou]y 
+SFX j 0 fully [^y] 
+SFX p Y 5
+SFX p y iless [^aeiou]y 
+SFX p 0 less [aeiou]y 
+SFX p 0 ess ll 
+SFX p 0 less [^l]l 
+SFX p 0 less [^ly] 
+SFX Q Y 44
+SFX Q 0 tise a 
+SFX Q e ise [^l]e 
+SFX Q le ilise [^aeiou]le 
+SFX Q e ise [aeiou]le 
+SFX Q um ise um 
+SFX Q 0 ise [^u]m 
+SFX Q s se is 
+SFX Q 0 ise [^i]s 
+SFX Q y ise [^aeiou]y 
+SFX Q 0 ise [aeiou]y 
+SFX Q 0 ise [^aemsy] 
+SFX Q 0 tises a 
+SFX Q e ises [^l]e 
+SFX Q le ilises [^aeiou]le 
+SFX Q e ises [aeiou]le 
+SFX Q um ises um 
+SFX Q 0 ises [^u]m 
+SFX Q s ses is 
+SFX Q 0 ises [^i]s 
+SFX Q y ises [^aeiou]y 
+SFX Q 0 ises [aeiou]y 
+SFX Q 0 ises [^aemsy] 
+SFX Q 0 tised a 
+SFX Q e ised [^l]e 
+SFX Q le ilised [^aeiou]le 
+SFX Q e ised [aeiou]le 
+SFX Q um ised um 
+SFX Q 0 ised [^u]m 
+SFX Q s sed is 
+SFX Q 0 ised [^i]s 
+SFX Q y ised [^aeiou]y 
+SFX Q 0 ised [aeiou]y 
+SFX Q 0 ised [^aemsy] 
+SFX Q 0 tising a 
+SFX Q e ising [^l]e 
+SFX Q le ilising [^aeiou]le 
+SFX Q e ising [aeiou]le 
+SFX Q um ising um 
+SFX Q 0 ising [^u]m 
+SFX Q s sing is 
+SFX Q 0 ising [^i]s 
+SFX Q y ising [^aeiou]y 
+SFX Q 0 ising [aeiou]y 
+SFX Q 0 ising [^aemsy] 
+SFX 8 Y 44
+SFX 8 0 tize a 
+SFX 8 e ize [^l]e 
+SFX 8 le ilize [^aeiou]le 
+SFX 8 e ize [aeiou]le 
+SFX 8 um ize um 
+SFX 8 0 ize [^u]m 
+SFX 8 s ze is 
+SFX 8 0 ize [^i]s 
+SFX 8 y ize [^aeiou]y 
+SFX 8 0 ize [aeiou]y 
+SFX 8 0 ize [^aemsy] 
+SFX 8 0 tizes a 
+SFX 8 e izes [^l]e 
+SFX 8 le ilizes [^aeiou]le 
+SFX 8 e izes [aeiou]le 
+SFX 8 um izes um 
+SFX 8 0 izes [^u]m 
+SFX 8 s zes is 
+SFX 8 0 izes [^i]s 
+SFX 8 y izes [^aeiou]y 
+SFX 8 0 izes [aeiou]y 
+SFX 8 0 izes [^aemsy] 
+SFX 8 0 tized a 
+SFX 8 e ized [^l]e 
+SFX 8 le ilized [^aeiou]le 
+SFX 8 e ized [aeiou]le 
+SFX 8 um ized um 
+SFX 8 0 ized [^u]m 
+SFX 8 s zed is 
+SFX 8 0 ized [^i]s 
+SFX 8 y ized [^aeiou]y 
+SFX 8 0 ized [aeiou]y 
+SFX 8 0 ized [^aemsy] 
+SFX 8 0 tizing a 
+SFX 8 e izing [^l]e 
+SFX 8 le ilizing [^aeiou]le 
+SFX 8 e izing [aeiou]le 
+SFX 8 um izing um 
+SFX 8 0 izing [^u]m 
+SFX 8 s zing is 
+SFX 8 0 izing [^i]s 
+SFX 8 y izing [^aeiou]y 
+SFX 8 0 izing [aeiou]y 
+SFX 8 0 izing [^aemsy] 
+SFX q Y 22
+SFX q 0 tisation a 
+SFX q e isation [^l]e 
+SFX q le ilisation [^aeiou]le 
+SFX q e isation [aeiou]le 
+SFX q um isation um 
+SFX q 0 isation [^u]m 
+SFX q s sation is 
+SFX q 0 isation [^i]s 
+SFX q y isation [^aeiou]y 
+SFX q 0 isation [aeiou]y 
+SFX q 0 isation [^aemsy] 
+SFX q 0 tisations a 
+SFX q e isations [^l]e 
+SFX q le ilisations [^aeiou]le 
+SFX q e isations [aeiou]le 
+SFX q um isations um 
+SFX q 0 isations [^u]m 
+SFX q s sations is 
+SFX q 0 isations [^i]s 
+SFX q y isations [^aeiou]y 
+SFX q 0 isations [aeiou]y 
+SFX q 0 isations [^aemsy] 
+SFX - Y 22
+SFX - 0 tization a 
+SFX - e ization [^l]e 
+SFX - le ilization [^aeiou]le 
+SFX - e ization [aeiou]le 
+SFX - um ization um 
+SFX - 0 ization [^u]m 
+SFX - s zation is 
+SFX - 0 ization [^i]s 
+SFX - y ization [^aeiou]y 
+SFX - 0 ization [aeiou]y 
+SFX - 0 ization [^aemsy] 
+SFX - 0 tizations a 
+SFX - e izations [^l]e 
+SFX - le ilizations [^aeiou]le 
+SFX - e izations [aeiou]le 
+SFX - um izations um 
+SFX - 0 izations [^u]m 
+SFX - s zations is 
+SFX - 0 izations [^i]s 
+SFX - y izations [^aeiou]y 
+SFX - 0 izations [aeiou]y 
+SFX - 0 izations [^aemsy] 
+SFX s Y 33
+SFX s 0 tiser a 
+SFX s e iser [^l]e 
+SFX s le iliser [^aeiou]le 
+SFX s e iser [aeiou]le 
+SFX s um iser um 
+SFX s 0 iser [^u]m 
+SFX s s ser is 
+SFX s 0 iser [^i]s 
+SFX s y iser [^aeiou]y 
+SFX s 0 iser [aeiou]y 
+SFX s 0 iser [^aemsy] 
+SFX s 0 tisers a 
+SFX s e isers [^l]e 
+SFX s le ilisers [^aeiou]le 
+SFX s e isers [aeiou]le 
+SFX s um isers um 
+SFX s 0 isers [^u]m 
+SFX s s sers is 
+SFX s 0 isers [^i]s 
+SFX s y isers [^aeiou]y 
+SFX s 0 isers [aeiou]y 
+SFX s 0 isers [^aemsy] 
+SFX s 0 tiser's a 
+SFX s e iser's [^l]e 
+SFX s le iliser's [^aeiou]le 
+SFX s e iser's [aeiou]le 
+SFX s um iser's um 
+SFX s 0 iser's [^u]m 
+SFX s s ser's is 
+SFX s 0 iser's [^i]s 
+SFX s y iser's [^aeiou]y 
+SFX s 0 iser's [aeiou]y 
+SFX s 0 iser's [^aemsy] 
+SFX 9 Y 33
+SFX 9 0 tizer a 
+SFX 9 e izer [^l]e 
+SFX 9 le ilizer [^aeiou]le 
+SFX 9 e izer [aeiou]le 
+SFX 9 um izer um 
+SFX 9 0 izer [^u]m 
+SFX 9 s zer is 
+SFX 9 0 izer [^i]s 
+SFX 9 y izer [^aeiou]y 
+SFX 9 0 izer [aeiou]y 
+SFX 9 0 izer [^aemsy] 
+SFX 9 0 tizers a 
+SFX 9 e izers [^l]e 
+SFX 9 le ilizers [^aeiou]le 
+SFX 9 e izers [aeiou]le 
+SFX 9 um izers um 
+SFX 9 0 izers [^u]m 
+SFX 9 s zers is 
+SFX 9 0 izers [^i]s 
+SFX 9 y izers [^aeiou]y 
+SFX 9 0 izers [aeiou]y 
+SFX 9 0 izers [^aemsy] 
+SFX 9 0 tizer's a 
+SFX 9 e izer's [^l]e 
+SFX 9 le ilizer's [^aeiou]le 
+SFX 9 e izer's [aeiou]le 
+SFX 9 um izer's um 
+SFX 9 0 izer's [^u]m 
+SFX 9 s zer's is 
+SFX 9 0 izer's [^i]s 
+SFX 9 y izer's [^aeiou]y 
+SFX 9 0 izer's [aeiou]y 
+SFX 9 0 izer's [^aemsy] 
+SFX t Y 22
+SFX t 0 tisable a 
+SFX t e isable [^l]e 
+SFX t le ilisable [^aeiou]le 
+SFX t e isable [aeiou]le 
+SFX t um isable um 
+SFX t 0 isable [^u]m 
+SFX t s sable is 
+SFX t 0 isable [^i]s 
+SFX t y isable [^aeiou]y 
+SFX t 0 isable [aeiou]y 
+SFX t 0 isable [^aemsy] 
+SFX t 0 tisability a 
+SFX t e isability [^l]e 
+SFX t le ilisability [^aeiou]le 
+SFX t e isability [aeiou]le 
+SFX t um isability um 
+SFX t 0 isability [^u]m 
+SFX t s sability is 
+SFX t 0 isability [^i]s 
+SFX t y isability [^aeiou]y 
+SFX t 0 isability [aeiou]y 
+SFX t 0 isability [^aemsy] 
+SFX + Y 22
+SFX + 0 tizable a 
+SFX + e izable [^l]e 
+SFX + le ilizable [^aeiou]le 
+SFX + e izable [aeiou]le 
+SFX + um izable um 
+SFX + 0 izable [^u]m 
+SFX + s zable is 
+SFX + 0 izable [^i]s 
+SFX + y izable [^aeiou]y 
+SFX + 0 izable [aeiou]y 
+SFX + 0 izable [^aemsy] 
+SFX + 0 tizability a 
+SFX + e izability [^l]e 
+SFX + le ilizability [^aeiou]le 
+SFX + e izability [aeiou]le 
+SFX + um izability um 
+SFX + 0 izability [^u]m 
+SFX + s zability is 
+SFX + 0 izability [^i]s 
+SFX + y izability [^aeiou]y 
+SFX + 0 izability [aeiou]y 
+SFX + 0 izability [^aemsy] 
+SFX M Y 1
+SFX M 0 's . 
+SFX B Y 48
+SFX B e able [^acegilotu]e 
+SFX B 0 able [acegilou]e 
+SFX B te ble ate 
+SFX B e able [^a]te 
+SFX B 0 bable [^aeio][aeiou]b 
+SFX B 0 kable [^aeio][aeiou]c 
+SFX B 0 dable [^aeio][aeiou]d 
+SFX B 0 fable [^aeio][aeiou]f 
+SFX B 0 gable [^aeio][aeiou]g 
+SFX B 0 kable [^aeio][aeiou]k 
+SFX B 0 lable [^aeio][aeiou]l 
+SFX B 0 mable [^aeio][aeiou]m 
+SFX B 0 nable [^aeio][aeiou]n 
+SFX B 0 pable [^aeio][aeiou]p 
+SFX B 0 rable [^aeio][aeiou]r 
+SFX B 0 sable [^aeio][aeiou]s 
+SFX B 0 table [^aeio][aeiou]t 
+SFX B 0 vable [^aeio][aeiou]v 
+SFX B 0 zable [^aeio][aeiou]z 
+SFX B 0 able [aeio][aeiou][bcdfgklmnprstvz] 
+SFX B 0 able [^aeiou][bcdfgklmnprstvz] 
+SFX B y iable [^aeiou]y 
+SFX B 0 able [aeiou]y 
+SFX B 0 able [^ebcdfgklmnprstvzy] 
+SFX B e ability [^acegilotu]e 
+SFX B 0 ability [acegilou]e 
+SFX B te bility ate 
+SFX B e ability [^a]te 
+SFX B 0 bability [^aeio][aeiou]b 
+SFX B 0 kability [^aeio][aeiou]c 
+SFX B 0 dability [^aeio][aeiou]d 
+SFX B 0 fability [^aeio][aeiou]f 
+SFX B 0 gability [^aeio][aeiou]g 
+SFX B 0 kability [^aeio][aeiou]k 
+SFX B 0 lability [^aeio][aeiou]l 
+SFX B 0 mability [^aeio][aeiou]m 
+SFX B 0 nability [^aeio][aeiou]n 
+SFX B 0 pability [^aeio][aeiou]p 
+SFX B 0 rability [^aeio][aeiou]r 
+SFX B 0 sability [^aeio][aeiou]s 
+SFX B 0 tability [^aeio][aeiou]t 
+SFX B 0 vability [^aeio][aeiou]v 
+SFX B 0 zability [^aeio][aeiou]z 
+SFX B 0 ability [aeio][aeiou][bcdfgklmnprstvz] 
+SFX B 0 ability [^aeiou][bcdfgklmnprstvz] 
+SFX B y iability [^aeiou]y 
+SFX B 0 ability [aeiou]y 
+SFX B 0 ability [^ebcdfgklmnprstvzy] 
+SFX 7 Y 9
+SFX 7 e able [acegilou]e 
+SFX 7 0 able [^acegilou]e 
+SFX 7 0 kable [^aeio][aeiou]c 
+SFX 7 0 lable [^aeio][aeiou]l 
+SFX 7 0 able [aeio][aeiou][cl] 
+SFX 7 0 able [^aeiou][cl] 
+SFX 7 y iable [^aeiou]y 
+SFX 7 0 able [aeiou]y 
+SFX 7 0 able [^cely] 
+SFX g Y 9
+SFX g e ability [^acegilou]e 
+SFX g 0 ability [acegilou]e 
+SFX g 0 kability [^aeio][aeiou]c 
+SFX g 0 lability [^aeio][aeiou]l 
+SFX g 0 ability [aeio][aeiou][cl] 
+SFX g 0 ability [^aeiou][cl] 
+SFX g y iability [^aeiou]y 
+SFX g 0 ability [aeiou]y 
+SFX g 0 ability [^cely] 
+SFX l Y 9
+SFX l e ably [^acegilou]e 
+SFX l 0 ably [acegilou]e 
+SFX l 0 kably [^aeio][aeiou]c 
+SFX l 0 lably [^aeio][aeiou]l 
+SFX l 0 ably [aeio][aeiou][cl] 
+SFX l 0 ably [^aeiou][cl] 
+SFX l y iably [^aeiou]y 
+SFX l 0 ably [aeiou]y 
+SFX l 0 ably [^cely] 
+SFX b Y 3
+SFX b e ible [^aeiou]e 
+SFX b 0 ible [aeiou]e 
+SFX b 0 ible [^e] 
+SFX L Y 12
+SFX L 0 ament m 
+SFX L y iment [^aeiou]y 
+SFX L 0 ment [aeiou]y 
+SFX L 0 ment [^my] 
+SFX L 0 aments m 
+SFX L y iments [^aeiou]y 
+SFX L 0 ments [aeiou]y 
+SFX L 0 ments [^my] 
+SFX L 0 ament's m 
+SFX L y iment's [^aeiou]y 
+SFX L 0 ment's [aeiou]y 
+SFX L 0 ment's [^my] 
+SFX Z Y 30
+SFX Z ic y dic
+SFX Z e y [^aeiouy]e
+SFX Z 0 y [aeiouy]e
+SFX Z 0 ey [aiouy]
+SFX Z 0 by [^aeio][aeiou]b
+SFX Z 0 ky [^adeio][aeiou]c
+SFX Z 0 dy [^aegio][aeiou]d
+SFX Z 0 fy [^aeio][aeiou]f
+SFX Z 0 gy [^aeio][aeiou]g
+SFX Z 0 ky [^aeio][aeiou]k
+SFX Z 0 ly [^aeio][aeiou]l
+SFX Z 0 my [^aeio][aeiou]m
+SFX Z 0 ny [^aeio][aiou]n
+SFX Z 0 py [^aeio][aeiou]p
+SFX Z 0 ry [^aegilost][aiou]r
+SFX Z 0 ry lur
+SFX Z 0 ry tar
+SFX Z 0 y [^aceiglmopt][a]r
+SFX Z 0 y [gl][a]r
+SFX Z 0 y [st]or
+SFX Z 0 y ged
+SFX Z 0 sy [^aeio][aeiou]s
+SFX Z 0 ty [^aeio][aiou]t
+SFX Z 0 vy [^aeio][aeiou]v
+SFX Z 0 zy [^aeio][aeiou]z
+SFX Z 0 y [^aeio]e[nrt]
+SFX Z 0 y [aeio][aeiou][bcdfgklmnprtvz]
+SFX Z 0 y [^aeiou][bcdfgklmnprstvz]
+SFX Z 0 y [^aebcdfgiklmnoprstuvyz]
+SFX Z 0 ity ous
+SFX 2 Y 63
+SFX 2 e iness [^aeiouy]e 
+SFX 2 0 iness [aeiouy]e 
+SFX 2 0 biness [^aeio][aeiou]b 
+SFX 2 0 kiness [^aeio][aeiou]c 
+SFX 2 0 diness [^aeio][aeiou]d 
+SFX 2 0 finess [^aeio][aeiou]f 
+SFX 2 0 giness [^aeio][aeiou]g 
+SFX 2 0 kiness [^aeio][aeiou]k 
+SFX 2 0 liness [^aeio][aeiou]l 
+SFX 2 0 miness [^aeio][aeiou]m 
+SFX 2 0 niness [^aeio][aiou]n 
+SFX 2 0 piness [^aeio][aeiou]p 
+SFX 2 0 riness [^aeio][aiou]r 
+SFX 2 0 siness [^aeio][aeiou]s 
+SFX 2 0 tiness [^aeio][aiou]t 
+SFX 2 0 viness [^aeio][aeiou]v 
+SFX 2 0 ziness [^aeio][aeiou]z 
+SFX 2 0 iness [^aeio]e[nrt] 
+SFX 2 0 iness [aeio][aeiou][bcdfgklmnprstvz] 
+SFX 2 0 iness [^aeiou][bcdfgklmnprstvz] 
+SFX 2 0 iness [^ebcdfgklmnprstvz]
+SFX 2 e inesses [^aeiouy]e 
+SFX 2 0 inesses [aeiouy]e 
+SFX 2 0 binesses [^aeio][aeiou]b 
+SFX 2 0 kinesses [^aeio][aeiou]c 
+SFX 2 0 dinesses [^aeio][aeiou]d 
+SFX 2 0 finesses [^aeio][aeiou]f 
+SFX 2 0 ginesses [^aeio][aeiou]g 
+SFX 2 0 kinesses [^aeio][aeiou]k 
+SFX 2 0 linesses [^aeio][aeiou]l 
+SFX 2 0 minesses [^aeio][aeiou]m 
+SFX 2 0 ninesses [^aeio][aiou]n 
+SFX 2 0 pinesses [^aeio][aeiou]p 
+SFX 2 0 rinesses [^aeio][aiou]r 
+SFX 2 0 sinesses [^aeio][aeiou]s 
+SFX 2 0 tinesses [^aeio][aiou]t 
+SFX 2 0 vinesses [^aeio][aeiou]v 
+SFX 2 0 zinesses [^aeio][aeiou]z 
+SFX 2 0 inesses [^aeio]e[nrt] 
+SFX 2 0 inesses [aeio][aeiou][bcdfgklmnprstvz] 
+SFX 2 0 inesses [^aeiou][bcdfgklmnprstvz] 
+SFX 2 0 inesses [^ebcdfgklmnprstvz]
+SFX 2 e iness's [^aeiouy]e 
+SFX 2 0 iness's [aeiouy]e 
+SFX 2 0 biness's [^aeio][aeiou]b 
+SFX 2 0 kiness's [^aeio][aeiou]c 
+SFX 2 0 diness's [^aeio][aeiou]d 
+SFX 2 0 finess's [^aeio][aeiou]f 
+SFX 2 0 giness's [^aeio][aeiou]g 
+SFX 2 0 kiness's [^aeio][aeiou]k 
+SFX 2 0 liness's [^aeio][aeiou]l 
+SFX 2 0 miness's [^aeio][aeiou]m 
+SFX 2 0 niness's [^aeio][aiou]n 
+SFX 2 0 piness's [^aeio][aeiou]p 
+SFX 2 0 riness's [^aeio][aiou]r 
+SFX 2 0 siness's [^aeio][aeiou]s 
+SFX 2 0 tiness's [^aeio][aiou]t 
+SFX 2 0 viness's [^aeio][aeiou]v 
+SFX 2 0 ziness's [^aeio][aeiou]z 
+SFX 2 0 iness's [^aeio]e[nrt] 
+SFX 2 0 iness's [aeio][aeiou][bcdfgklmnprstvz] 
+SFX 2 0 iness's [^aeiou][bcdfgklmnprstvz] 
+SFX 2 0 iness's [^ebcdfgklmnprstvz]
+SFX z Y 24
+SFX z e ily [^aeiouy]e 
+SFX z 0 ily [aeiouy]e 
+SFX z 0 ily [aiou]y 
+SFX z ey ily ey 
+SFX z y ily [^aeiou]y 
+SFX z 0 bily [^aeio][aeiou]b 
+SFX z 0 kily [^aeio][aeiou]c 
+SFX z 0 dily [^aeio][aeiou]d 
+SFX z 0 fily [^aeio][aeiou]f 
+SFX z 0 gily [^aeio][aeiou]g 
+SFX z 0 kily [^aeio][aeiou]k 
+SFX z 0 lily [^aeio][aeiou]l 
+SFX z 0 mily [^aeio][aeiou]m 
+SFX z 0 nily [^aeio][aiou]n 
+SFX z 0 pily [^aeio][aeiou]p 
+SFX z 0 rily [^aeio][aiou]r 
+SFX z 0 sily [^aeio][aeiou]s 
+SFX z 0 tily [^aeio][aiou]t 
+SFX z 0 vily [^aeio][aeiou]v 
+SFX z 0 zily [^aeio][aeiou]z 
+SFX z 0 ily [^aeio]e[nrt] 
+SFX z 0 ily [aeio][aeiou][bcdfgklmnprstvyz] 
+SFX z 0 ily [^aeiou][bcdfgklmnprstvz] 
+SFX z 0 ily [^ebcdfgklmnprstvyz] 
+SFX y Y 15
+SFX y e ory te 
+SFX y e atory [mr]e 
+SFX y e ary se 
+SFX y 0 ry [^mrst]e 
+SFX y 0 ory [^aeous]t 
+SFX y 0 ry [aeous]t 
+SFX y 0 ery h 
+SFX y 0 atory [^i]m 
+SFX y im matory im 
+SFX y 0 ory s 
+SFX y 0 ary ion 
+SFX y 0 ry [^i]on 
+SFX y 0 nery [aiu]n 
+SFX y 0 ry [^aiou]n 
+SFX y 0 ry [^ehmstn] 
+SFX O Y 22
+SFX O 0 al ch[ei]
+SFX O 0 al te
+SFX O 0 al [eimru][bfn]
+SFX O 0 al ss
+SFX O 0 al it
+SFX O 0 al [nt]ant
+SFX O 0 al [ghiorstx][ao]n
+SFX O 0 al [eo]nt
+SFX O 0 al as
+SFX O 0 l a
+SFX O 0 al [cos]t
+SFX O 0 ial eon
+SFX O 0 al [cdghmpwx]
+SFX O 0 ial r
+SFX O e ial [ai]ge
+SFX O e ial ice
+SFX O 0 tal ut
+SFX O e inal ude
+SFX O e al [mnrsv]e
+SFX O e al [aioy][dp]e
+SFX O e al uge
+SFX O y ial y
+SFX o Y 12
+SFX o 0 lly a 
+SFX o e ally [^bcgv]e 
+SFX o e ially [bcgv]e 
+SFX o 0 ially [bcrx] 
+SFX o um ally um 
+SFX o 0 ally [^u]m 
+SFX o y ally ty 
+SFX o y ially [^t]y 
+SFX o 0 ually [px]t 
+SFX o 0 tally [iu]t 
+SFX o 0 ally [^ipux]t 
+SFX o 0 ally [^aebcrtxmy] 
+SFX W Y 25
+SFX W ce tific ce 
+SFX W e atic me 
+SFX W se tic se 
+SFX W le ic ble 
+SFX W e ic [^b]le 
+SFX W e ic [^clms]e 
+SFX W 0 lic [^x][ay]l 
+SFX W 0 ic [x][ay]l 
+SFX W 0 ic [^ay]l 
+SFX W us ic us 
+SFX W 0 tic [^u]s 
+SFX W er ric [^hm]er 
+SFX W 0 ic [^e]r 
+SFX W 0 atic [aeiou]m 
+SFX W 0 ic [^aeiou]m 
+SFX W 0 tic ma 
+SFX W a ic [^im]a 
+SFX W a c [i]a 
+SFX W y etic thy 
+SFX W y ic [^t]hy 
+SFX W y tic sy 
+SFX W y ic [^hs]y 
+SFX W 0 ic [^aeilmrsy] 
+SFX W 0 ic [hm]er 
+SFX W 0 c [dghlmsz]i 
+SFX w Y 9
+SFX w e ical e 
+SFX w er rical er 
+SFX w 0 ical [^e]r 
+SFX w 0 atical [aeiou]m 
+SFX w 0 ical [^aeiou]m 
+SFX w 0 tical ma 
+SFX w a ical [^m]a 
+SFX w y ical y 
+SFX w 0 ical [^aemry] 
+SFX 1 Y 9
+SFX 1 e ically e 
+SFX 1 er rically er 
+SFX 1 0 ically [^e]r 
+SFX 1 0 atically [aeiou]m 
+SFX 1 0 ically [^aeiou]m 
+SFX 1 0 tically ma 
+SFX 1 a ically [^m]a 
+SFX 1 y ically y 
+SFX 1 0 ically [^aemry] 
+SFX 3 Y 27
+SFX 3 e ist [^aceiou]e 
+SFX 3 ce tist ce 
+SFX 3 0 ist [aeiou]e 
+SFX 3 y ist apy
+SFX 3 y ist ropy
+SFX 3 y ist [^aeioubp]y 
+SFX 3 0 ist [^r][^a][aeioubp]y 
+SFX 3 o ist o 
+SFX 3 0 ist [^eoy] 
+SFX 3 e ists [^aceiou]e 
+SFX 3 ce tists ce 
+SFX 3 0 ists [aeiou]e 
+SFX 3 y ists apy 
+SFX 3 y ists ropy 
+SFX 3 y ists [^aeioubp]y 
+SFX 3 0 ists [^r][^a][aeioubp]y 
+SFX 3 o ists o 
+SFX 3 0 ists [^eoy] 
+SFX 3 e ist's [^aceiou]e 
+SFX 3 ce tist's ce 
+SFX 3 0 ist's [aeiou]e 
+SFX 3 y ist's apy 
+SFX 3 y ist's ropy 
+SFX 3 y ist's [^aeioubp]y 
+SFX 3 0 ist's [^r][^a][aeioubp]y 
+SFX 3 o ist's o 
+SFX 3 0 ist's [^eoy] 
+SFX = Y 15
+SFX = y ilessness [^aeiou]y
+SFX = y ilessness's [^aeiou]y
+SFX = y ilessnesses [^aeiou]y
+SFX = 0 lessness [aeiou]y
+SFX = 0 lessness's [aeiou]y
+SFX = 0 lessnesses [aeiou]y
+SFX = 0 essness ll
+SFX = 0 essness's ll
+SFX = 0 essnesses ll
+SFX = 0 lessness [^l]l
+SFX = 0 lessness's [^l]l
+SFX = 0 lessnesses [^l]l
+SFX = 0 lessness [^ly]
+SFX = 0 lessness's [^ly]
+SFX = 0 lessnesses [^ly]
