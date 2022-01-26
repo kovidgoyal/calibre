@@ -436,7 +436,7 @@ def find_tests():
         def setUp(self):
             dictionaries = Dictionaries()
             dictionaries.initialize()
-            eng = parse_lang_code('en')
+            eng = parse_lang_code('en-GB')
             self.recognized = partial(dictionaries.recognized, locale=eng)
             self.suggestions = partial(dictionaries.suggestions, locale=eng)
 
