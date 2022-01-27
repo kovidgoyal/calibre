@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IndiaToday(BasicNewsRecipe):
@@ -7,14 +7,41 @@ class IndiaToday(BasicNewsRecipe):
     __author__ = 'Krittika Goyal'
     oldest_article = 15  # days
     max_articles_per_feed = 25
-
     no_stylesheets = True
-    auto_cleanup = True
+    use_embedded_content = False
+    remove_attributes = ['style']
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('story-kicker story-right'),
+        dict(itemProp='articleBody'),
+    ]
 
     feeds = [
-        ('The Big Story', 'https://www.indiatoday.in/rss/1206614'),
+        ('Editor\'s Note','https://www.indiatoday.in/rss/1206516'),
         ('Cover Story', 'https://www.indiatoday.in/rss/1206509'),
+        ('The Big Story', 'https://www.indiatoday.in/rss/1206614'),
+        ('UP Front','https://www.indiatoday.in/rss/1206609'),
+        ('Liesure','https://www.indiatoday.in/rss/1206551'),
         ('Nation', 'https://www.indiatoday.in/rss/1206514'),
+        ('Health','https://www.indiatoday.in/rss/1206515'),
+        ('Defence','https://www.indiatoday.in/rss/1206517'),
+        ('Guest Column','https://www.indiatoday.in/rss/1206612'),
         ('States', 'https://www.indiatoday.in/rss/1206500'),
         ('Economy', 'https://www.indiatoday.in/rss/1206513'),
+        ('Special Report','https://www.indiatoday.in/rss/1206616'),
+        ('Investigation','https://www.indiatoday.in/rss/1206617'),
+        ('Diplomacy','https://www.indiatoday.in/rss/1206512'),
+        ('Sports','https://www.indiatoday.in/rss/1206518'),
     ]
+
+    def preprocess_raw_html(self, raw_html, url):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        soup = BeautifulSoup(raw_html)
+        for script in soup.findAll('script'):
+            script.extract()
+        for style in soup.findAll('style'):
+            style.extract()
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return str(soup)
