@@ -13,7 +13,8 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from polyglot.builtins import iteritems
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
-NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
+NORMALS = frozenset({'metadata.opf', 'cover.jpg'})
+IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db'})
 
 '''
 Checks fields:
@@ -94,8 +95,7 @@ class CheckLibrary:
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
-            if self.ignore_name(auth_dir) or auth_dir in {'metadata.db',
-                    'metadata_db_prefs_backup.json'}:
+            if self.ignore_name(auth_dir) or auth_dir in IGNORE_AT_TOP_LEVEL:
                 continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
