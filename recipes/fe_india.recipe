@@ -19,13 +19,14 @@ class FE_India(BasicNewsRecipe):
     description = 'Financial news from India'
     publisher = 'The Indian Express Limited'
     category = 'news, politics, finances, India'
-    oldest_article = 30
+    oldest_article = 2
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf-8'
     use_embedded_content = False
     language = 'en_IN'
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
     publication_type = 'magazine'
 
     conversion_options = {
@@ -36,18 +37,30 @@ class FE_India(BasicNewsRecipe):
     remove_attributes = ['width', 'height']
 
     feeds = [
-        ('Latest news', 'https://www.financialexpress.com/feed/'),
+        # https://www.financialexpress.com/syndication/
+        # Print feeds
+        ('Front Page','https://www.financialexpress.com/print/front-page/feed/'),
+        ('Corporate Markets','https://www.financialexpress.com/print/corporate-markets/feed/'),
+        ('Economy','https://www.financialexpress.com/print/economy-print/feed/'),
+        ('Opinion','https://www.financialexpress.com/print/edits-columns/feed/'),
+        ('personal Finance','https://www.financialexpress.com/print/personal-finance-print/feed/'),
+        # ('Brandwagon', 'https://www.financialexpress.com/print/brandwagon/feed/'),
+        # Other Feeds
         ('Economy', 'https://www.financialexpress.com/economy/feed/'),
-        ('Industry', 'https://www.financialexpress.com/industry/feed/'),
         ('Banking & finance', 'https://www.financialexpress.com/industry/banking-finance/feed/'),
-        ('Companies', 'https://www.financialexpress.com/industry/companies/feed/'),
-        ('Jobs', 'https://www.financialexpress.com/industry/jobs/feed/'),
-        ('Tech', 'https://www.financialexpress.com/industry/tech/feed/'),
-        ('Lifestyle', 'https://www.financialexpress.com/industry/lifestyle/feed/'),
-        ('Health', 'https://www.financialexpress.com/industry/health/feed/'),
-        ('Science', 'https://www.financialexpress.com/industry/science/feed/'),
-        ('Sports', 'https://www.financialexpress.com/industry/sports/feed/'),
-        ('Fe Columnist', 'https://www.financialexpress.com/industry/fe-columnist/feed/'),
+        ('Opinion', 'https://www.financialexpress.com/opinion/feed/'),
+        ('Editorial', 'https://www.financialexpress.com/editorial/feed/'),
+        ('Budget', 'https://www.financialexpress.com/budget/feed/'),
+        ('Industry', 'https://www.financialexpress.com/industry/feed/'),
+        ('Market', 'https://www.financialexpress.com/market/feed/'),
+        ('Jobs', 'https://www.financialexpress.com/jobs/feed/'),
+        ('SME', 'https://www.financialexpress.com/industry/sme/feed/'),
+        ('Mutual Funds', 'https://www.financialexpress.com/money/mutual-funds/feed/'),
+        ('Health','https://www.financialexpress.com/lifestyle/health/feed'),
+        # ('Health Care','https://www.financialexpress.com/healthcare/feed'),
+        ('Science','https://www.financialexpress.com/lifestyle/science/feed'),
+        ('Infrastructure','https://www.financialexpress.com/infrastructure/feed'),
+        ('Money','https://www.financialexpress.com/money/feed'),
     ]
 
     def preprocess_html(self, soup, *a):
