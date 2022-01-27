@@ -523,7 +523,7 @@ class _Parser:
             if not text.startswith('program:'):
                 self.error(_("A stored template must begin with '{0}'").format('program:'))
             text = text[len('program:'):]
-            subprog = _Parser().program(self, self.funcs,
+            subprog = _Parser().program(self.parent, self.funcs,
                                         self.parent.lex_scanner.scan(text))
             self.funcs[name].cached_parse_tree = subprog
         return CallNode(self.line_number, name, subprog, arguments)
