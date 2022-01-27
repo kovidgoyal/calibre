@@ -25,30 +25,16 @@ class IndianExpress(BasicNewsRecipe):
         classes('share-social appstext story-tags')
     ]
     feeds = [
-        ('Front Page',
-         'http://indianexpress.com/print/front-page/feed/'),
-        ('Editorials',
-         'http://indianexpress.com/section/opinion/editorials/feed/'),
-        ('Crime',
-         'http://indianexpress.com/section/india/crime/feed/'),
-        ('Cricket',
-         'http://indianexpress.com/section/sports/cricket/feed/'),
-        ('Health',
-         'http://www.indianexpress.com/lifestyle/health/feed/'),
-        ('Asia',
-         'http://indianexpress.com/section/world/asia/'),
-        ('Politics',
-         'http://indianexpress.com/section/india/politics/feed/'),
-        ('Mumbai',
-         'http://www.indianexpress.com/cities/mumbai/feed/'),
-        ('Op-Ed',
-         'http://indianexpress.com/section/opinion/feed/'),
-        ('Lifestyle',
-         'http://indianexpress.com/section/lifestyle/feed/'),
-        ('Science & Technology',
-         'http://indianexpress.com/section/technology/feed/'),
-        ('Bollywood',
-         'http://indianexpress.com/section/entertainment/bollywood/feed/'),
+        ('Front Page', 'https://indianexpress.com/print/front-page/feed/'),
+        ('Op-Ed', 'http://indianexpress.com/section/opinion/feed/'),
+        ('Science & Technology', 'http://indianexpress.com/section/technology/feed/'),
+        ('Movie Reviews', 'https://indianexpress.com/section/entertainment/movie-review/feed/'),
+        ('Sunday Eye', 'https://indianexpress.com/print/eye/feed/'),
+        ('Explained', 'https://indianexpress.com/section/explained/feed/'),
+        ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/feed'),
+        ('Economy', 'https://indianexpress.com/print/economy/feed'),
+        ('Express Network', 'https://indianexpress.com/print/express-network/'),
+        # Want to add more? go-to:https://indianexpress.com/syndication/
     ]
 
     def preprocess_html(self, soup):
