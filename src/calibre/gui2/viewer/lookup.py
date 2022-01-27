@@ -238,6 +238,12 @@ class View(QWebEngineView):
         self.inspect_element.emit()
 
 
+def set_sync_override(allowed):
+    li = getattr(set_sync_override, 'instance', None)
+    if li is not None:
+        li.set_sync_override(allowed)
+
+
 class Lookup(QWidget):
 
     def __init__(self, parent):
@@ -275,6 +281,7 @@ class Lookup(QWidget):
         l.addLayout(h)
         h.addWidget(b), h.addWidget(rb)
         self.auto_update_query = a = QCheckBox(_('Update on selection change'), self)
+        self.disallow_auto_update = False
         a.setToolTip(textwrap.fill(
             _('Automatically update the displayed result when selected text in the book changes. With this disabled'
               ' the lookup is changed only when clicking the Refresh button.')))
@@ -282,6 +289,12 @@ class Lookup(QWidget):
         a.stateChanged.connect(self.auto_update_state_changed)
         l.addWidget(a)
         self.update_refresh_button_status()
+        set_sync_override.instance = self
+
+    def set_sync_override(self, allowed):
+        self.disallow_auto_update = not allowed
+        if self.auto_update_query.isChecked() and allowed:
+            self.update_query()
 
     def auto_update_state_changed(self, state):
         vprefs['auto_update_lookup'] = self.auto_update_query.isChecked()
@@ -370,7 +383,7 @@ class Lookup(QWidget):
     def selected_text_changed(self, text, annot_id):
         already_has_text = bool(self.current_query)
         self.selected_text = text or ''
-        if self.auto_update_query.isChecked() or not already_has_text:
+        if not self.disallow_auto_update and (self.auto_update_query.isChecked() or not already_has_text):
             self.debounce_timer.start()
         self.update_refresh_button_status()
 
