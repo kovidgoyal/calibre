@@ -11,7 +11,7 @@ from threading import Thread
 
 from qt.core import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor, QListWidgetItem,
+    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor, QHeaderView, QListWidgetItem,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
     QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
 )
@@ -180,7 +180,7 @@ class IdLinksEditor(Dialog):
             t.setItem(r, 1, QTableWidgetItem(val))
             t.setItem(r, 2, QTableWidgetItem(template))
         l.addWidget(t)
-        t.horizontalHeader().setSectionResizeMode(2, t.horizontalHeader().Stretch)
+        t.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.cb = b = QPushButton(QIcon.ic('plus.png'), _('&Add rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule())
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
