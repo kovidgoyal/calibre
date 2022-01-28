@@ -82,7 +82,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b",
             "number")
 
-        a(r"""(?:[^:]'[^']*'|"[^"]*")""", "string")
+        a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
 
         a(r'\(', "lparen")
         a(r'\)', "rparen")
