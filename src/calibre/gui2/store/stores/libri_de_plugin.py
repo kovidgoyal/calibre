@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 7  # Needed for dynamic plugin loading
+store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -30,7 +30,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = 'https://clk.tradedoubler.com/click?p=324630&a=3252627'
         url_details = ('https://clk.tradedoubler.com/click?p=324630&a=3252627'
-                       '&url=http://www.ebook.de/shop/action/productDetails?artiId={0}')
+                       '&url=https%3A%2F%2Fwww.ebook.de%2Fshop%2Faction%2FproductDetails%3FartiId%3D{0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
