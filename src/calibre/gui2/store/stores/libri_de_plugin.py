@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -28,9 +28,9 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class LibreDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'https://www.awin1.com/awclick.php?mid=9359&awinaffid=397537&clickref=gbhome'
-        url_details = ('https://www.awin1.com/cread.php?awinmid=9359&awinaffid=397537&clickref=gbdetails&p='
-                       'http%3A//www.ebook.de/shop/action/productDetails%3FartiId%3D{0}')
+        url = 'https://clk.tradedoubler.com/click?p=324630&a=3252627'
+        url_details = ('https://clk.tradedoubler.com/click?p=324630&a=3252627'
+                       '&url=https%3A%2F%2Fwww.ebook.de%2Fshop%2Faction%2FproductDetails%3FartiId%3D{0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
