@@ -492,6 +492,7 @@ class DB:
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
+        self.initialize_fts()
         self.set_user_template_functions(compile_user_template_functions(
                                  self.prefs.get('user_template_functions', [])))
         if load_user_formatter_functions:
@@ -564,6 +565,7 @@ class DB:
         defs['cover_browser_subtitle_field'] = 'rating'
         defs['styled_columns'] = {}
         defs['edit_metadata_ignore_display_order'] = False
+        defs['fts_enabled'] = False
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -919,6 +921,16 @@ class DB:
 
     # }}}
 
+    def initialize_fts(self):
+        self.fts = None
+        if not self.prefs['fts_enabled']:
+            return
+        from .fts.connect import FTS
+        self.fts = FTS(self.get_connection)
+
+    def get_connection(self):
+        return self.conn
+
     @property
     def conn(self):
         if self._conn is None:
@@ -1224,6 +1236,7 @@ class DB:
             cur.execute(metadata_sqlite)
         except:
             cur.execute('ROLLBACK')
+            raise
         else:
             cur.execute('COMMIT')
         if self.user_version == 0:

@@ -14,7 +14,7 @@ from polyglot.builtins import iteritems
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset({'metadata.opf', 'cover.jpg'})
-IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db'})
+IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db'})
 
 '''
 Checks fields:
