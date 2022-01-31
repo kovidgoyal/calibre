@@ -129,9 +129,14 @@ class Sendmail:
                 except Exception:
                     pass
 
+            relay = opts.relay_host
+            if relay and relay == 'smtp.live.com':
+                # Microsoft changed the SMTP server
+                relay = 'smtp-mail.outlook.com'
+
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
-                        relay=opts.relay_host,
+                        relay=relay,
                         username=opts.relay_username,
                         password=from_hex_unicode(opts.relay_password), port=opts.relay_port,
                         encryption=opts.encryption,
