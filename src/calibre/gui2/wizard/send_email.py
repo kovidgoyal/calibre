@@ -249,7 +249,7 @@ class SendEmail(QWidget, Ui_Form):
                 },
                 'hotmail': {
                     'name': 'Hotmail',
-                    'relay': 'smtp.live.com',
+                    'relay': 'smtp-mail.outlook.com',
                     'port': 587,
                     'username': '',
                     'url': 'www.hotmail.com',
