@@ -251,7 +251,7 @@ class SendEmail(QWidget, Ui_Form):
                     'name': 'Hotmail',
                     'relay': 'smtp-mail.outlook.com',
                     'port': 587,
-                    'username': '',
+                    'username': '@hotmail.com',
                     'url': 'www.hotmail.com',
                     'extra': _('If you are setting up a new'
                         ' Hotmail account, Microsoft requires that you '
