@@ -1,3 +1,9 @@
+CREATE TABLE fts_db.dirtied_formats ( id INTEGER PRIMARY KEY,
+	book INTEGER NOT NULL,
+	format TEXT NOT NULL COLLATE NOCASE,
+    UNIQUE(book, format)
+);
+
 CREATE TABLE fts_db.books_text ( id INTEGER PRIMARY KEY,
 	book INTEGER NOT NULL,
 	format TEXT NOT NULL COLLATE NOCASE,
@@ -15,22 +21,22 @@ CREATE VIRTUAL TABLE fts_db.books_fts_stemmed USING fts5(searchable_text, conten
 
 CREATE TRIGGER fts_db.books_fts_insert_trg AFTER INSERT ON fts_db.books_text 
 BEGIN
-    INSERT INTO fts_db.books_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
-    INSERT INTO fts_db.books_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO books_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO books_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
 END;
 
 CREATE TRIGGER fts_db.books_fts_delete_trg AFTER DELETE ON fts_db.books_text 
 BEGIN
-    INSERT INTO fts_db.books_fts(fts_db.books_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
-    INSERT INTO fts_db.books_fts_stemmed(fts_db.books_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO books_fts(books_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO books_fts_stemmed(books_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
 END;
 
 CREATE TRIGGER fts_db.books_fts_update_trg AFTER UPDATE ON fts_db.books_text 
 BEGIN
-    INSERT INTO fts_db.books_fts(fts_db.books_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
-    INSERT INTO fts_db.books_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
-    INSERT INTO fts_db.books_fts_stemmed(fts_db.books_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
-    INSERT INTO fts_db.books_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO books_fts(books_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO books_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO books_fts_stemmed(books_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO books_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
 END;
 
 PRAGMA fts_db.user_version=1;
