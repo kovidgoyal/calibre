@@ -928,6 +928,14 @@ class DB:
         from .fts.connect import FTS
         self.fts = FTS(self.get_connection)
 
+    def enable_fts(self, enabled=True):
+        if enabled != self.prefs['fts_enabled']:
+            self.prefs['fts_enabled'] = enabled
+            self.initialize_fts()
+            if self.fts is not None:
+                self.fts.dirty_existing()
+        return self.fts
+
     def get_connection(self):
         return self.conn
 
