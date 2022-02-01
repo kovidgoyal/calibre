@@ -483,7 +483,7 @@ class BooksView(QTableView):  # {{{
                      for hcol, hidx in iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
-                m.addAction(hname, partial(handler, action='show', column=hcol))
+                m.addAction(hname.replace('&', '&&'), partial(handler, action='show', column=hcol))
         ans.addSeparator()
         if col == 'ondevice':
             ans.addAction(_('Remember On Device column width'),
