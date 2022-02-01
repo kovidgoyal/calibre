@@ -881,6 +881,102 @@ A value of zero means calculate automatically.</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="edit_metadata_tab">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Edit metadata</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_61">
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout1">
+         <item>
+          <widget class="QLabel" name="edit_metadata_single_label">
+           <property name="text">
+            <string>Edit metadata (single) &amp;layout:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_edit_metadata_single_layout</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="opt_edit_metadata_single_layout">
+           <property name="toolTip">
+            <string>Choose a different layout for the Edit metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Select the custom columns to display in the dialogs and their order</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="3" column="1">
+           <widget class="QToolButton" name="em_down_button">
+            <property name="toolTip">
+             <string>Move down</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QToolButton" name="em_up_button">
+            <property name="toolTip">
+             <string>Move up</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0" rowspan="3">
+           <widget class="QListView" name="em_display_order">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tag_browser_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">

@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from collections import OrderedDict
 from functools import partial
 
 from qt.core import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
@@ -749,8 +750,29 @@ widgets = {
 def field_sort_key(y, fm=None):
     m1 = fm[y]
     name = icu_lower(m1['name'])
-    n1 = 'zzzzz' + name if m1['datatype'] == 'comments' and m1.get('display', {}).get('interpret_as') != 'short-text' else name
+    n1 = 'zzzzz' + name if column_is_comments(y, fm) else name
     return sort_key(n1)
+
+
+def column_is_comments(key, fm):
+    return (fm[key]['datatype'] == 'comments' and
+            fm[key].get('display', {}).get('interpret_as') != 'short-text')
+
+
+def get_field_list(db, use_defaults=False):
+    fm = db.field_metadata
+    fields = fm.custom_field_keys(include_composites=False)
+    displayable = db.prefs.get('edit_metadata_custom_columns_to_display', None)
+    if use_defaults or displayable is None:
+        fields.sort(key=partial(field_sort_key, fm=fm))
+        return [(k, True) for k in fields]
+    else:
+        field_set = set(fields)
+        result = OrderedDict({k:v for k,v in displayable if k in field_set})
+        for k in fields:
+            if k not in result:
+                result[k] = True
+        return [(k,v) for k,v in result.items()]
 
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
@@ -765,36 +787,22 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     fm = db.field_metadata
 
     # Get list of all non-composite custom fields. We must make widgets for these
-    fields = fm.custom_field_keys(include_composites=False)
-    cols_to_display = fields
-    cols_to_display.sort(key=partial(field_sort_key, fm=fm))
-
-    # This will contain the fields in the order to display them
-    cols = []
-
-    # The fields named here must be first in the widget list
-    tweak_cols = tweaks['metadata_edit_custom_column_order']
-    comments_in_tweak = 0
-    for key in (tweak_cols or ()):
-        # Add the key if it really exists in the database
-        if key in cols_to_display:
-            cols.append(key)
-            if fm[key]['datatype'] == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text':
-                comments_in_tweak += 1
-
-    # Add all the remaining fields
-    comments_not_in_tweak = 0
-    for key in cols_to_display:
-        if key not in cols:
-            cols.append(key)
-            if fm[key]['datatype'] == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text':
-                comments_not_in_tweak += 1
+    cols = [k[0] for k in get_field_list(db) if k[1]]
+    # This deals with the historical behavior where comments fields go to the
+    # bottom, starting on the left hand side. If a comment field is moved to
+    # somewhere else then it isn't moved to either side.
+    comments_at_end = 0
+    for k in cols[::-1]:
+        if not column_is_comments(k, fm):
+            break
+        comments_at_end += 1
+    comments_not_at_end = len([k for k in cols if column_is_comments(k, fm)]) - comments_at_end
 
     count = len(cols)
     layout_rows_for_comments = 9
     if two_column:
-        turnover_point = int(((count - comments_not_in_tweak + 1) +
-                                int(comments_in_tweak*(layout_rows_for_comments-1)))/2)
+        turnover_point = int(((count - comments_at_end + 1) +
+                                int(comments_not_at_end*(layout_rows_for_comments-1)))/2)
     else:
         # Avoid problems with multi-line widgets
         turnover_point = count + 1000
@@ -813,22 +821,22 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         dt = fm[key]['datatype']
         if dt == 'composite' or (bulk and dt == 'comments'):
             continue
-        is_comments = dt == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text'
+        is_comments = column_is_comments(key, fm)
         w = widget_factory(dt, fm[key]['colnum'])
         ans.append(w)
         if two_column and is_comments:
             # Here for compatibility with old layout. Comments always started
             # in the left column
-            comments_in_tweak -= 1
+            comments_not_at_end -= 1
             # no special processing if the comment field was named in the tweak
-            if comments_in_tweak < 0 and comments_not_in_tweak > 0:
+            if comments_not_at_end < 0 and comments_at_end > 0:
                 # Force a turnover, adding comments widgets below max_row.
                 # Save the row to return to if we turn over again
                 column = 0
                 row = max_row
                 base_row = row
-                turnover_point = row + int((comments_not_in_tweak * layout_rows_for_comments)/2)
-                comments_not_in_tweak = 0
+                turnover_point = row + int((comments_at_end * layout_rows_for_comments)/2)
+                comments_at_end = 0
 
         l = QGridLayout()
         if is_comments:
