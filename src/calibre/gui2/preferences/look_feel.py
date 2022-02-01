@@ -12,7 +12,7 @@ from threading import Thread
 
 from qt.core import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
+    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor, QListWidgetItem,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
     QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
 )
@@ -585,6 +585,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.emblems_tab.layout().addWidget(self.grid_rules)
 
         self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.tabBar().setVisible(False)
         keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
         keys = [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
@@ -622,6 +623,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.css_highlighter = get_highlighter('css')()
         self.css_highlighter.apply_theme(get_theme(None))
         self.css_highlighter.set_document(self.opt_book_details_css.document())
+        for i in range(self.tabWidget.count()):
+            self.sections_view.addItem(QListWidgetItem(self.tabWidget.tabIcon(i), self.tabWidget.tabText(i).replace('&', '')))
+        self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
+        self.sections_view.currentRowChanged.connect(self.tabWidget.setCurrentIndex)
+        self.sections_view.setMaximumWidth(self.sections_view.sizeHintForColumn(0) + 16)
+        self.sections_view.setSpacing(4)
+        self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
 
     def choose_icon_theme(self):
         from calibre.gui2.icon_theme import ChooseTheme
