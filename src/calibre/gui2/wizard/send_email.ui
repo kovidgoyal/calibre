@@ -241,7 +241,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Use &amp;Hotmail</string>
+        <string>Use &amp;Outlook</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">

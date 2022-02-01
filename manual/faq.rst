@@ -414,7 +414,7 @@ antivirus program.
 
 .. note::
     If you are concerned about giving calibre access to your email
-    account, simply create a new free email account with GMX or Hotmail
+    account, simply create a new free email account with GMX or Outlook
     and use it only for calibre.
 
 

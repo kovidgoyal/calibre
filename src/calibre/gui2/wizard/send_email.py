@@ -248,13 +248,13 @@ class SendEmail(QWidget, Ui_Form):
                     'at_in_username': True,
                 },
                 'hotmail': {
-                    'name': 'Hotmail',
+                    'name': 'Outlook',
                     'relay': 'smtp-mail.outlook.com',
                     'port': 587,
-                    'username': '@hotmail.com',
-                    'url': 'www.hotmail.com',
+                    'username': '@outlook.com',
+                    'url': 'outlook.live.com/owa/',
                     'extra': _('If you are setting up a new'
-                        ' Hotmail account, Microsoft requires that you '
+                        ' Outlook account, Microsoft requires that you '
                         ' verify your account periodically, before it'
                         ' will let calibre send email.'),
                     'at_in_username': True,
