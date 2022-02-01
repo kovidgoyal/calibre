@@ -99,14 +99,13 @@ class RelaySetup(QDialog):
         self.tl = QLabel(('<p>'+_('Setup sending email using') +
                 ' <b>{name}</b><p>' +
             _('If you don\'t have an account, you can sign up for a free {name} email '
-            'account at <a href="https://{url}">https://{url}</a>. {extra}')).format(
+            'account at <a href="https://{url}">{url}</a>. {extra}')).format(
                 **service))
         l.addWidget(self.tl, 0, 0, 3, 0)
         self.tl.setWordWrap(True)
         self.tl.setOpenExternalLinks(True)
         for name, label in (
                 ['from_', _('Your %s &email address:')],
-                ['username', _('Your %s &username:')],
                 ['password', _('Your %s &password:')],
                 ):
             la = QLabel(label%service['name'])
@@ -122,7 +121,6 @@ class RelaySetup(QDialog):
                 l.addWidget(self.ptoggle, r, 2)
                 self.ptoggle.stateChanged.connect(
                         lambda s: self.password.setEchoMode(QLineEdit.EchoMode.Normal if s == Qt.CheckState.Checked else QLineEdit.EchoMode.Password))
-        self.username.setText(service['username'])
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.bl = QLabel('<p>' + _(
             'If you plan to use email to send books to your Kindle, remember to'
@@ -135,12 +133,28 @@ class RelaySetup(QDialog):
         self.resize(self.sizeHint())
         self.service = service
 
+    @property
+    def service_username(self):
+        na = self.from_.text()
+        from email.utils import parseaddr
+        addr = parseaddr(na)[-1]
+        if not addr or '@' not in na:
+            return ''
+        return addr
+
     def accept(self):
-        un = str(self.username.text())
-        if self.service.get('at_in_username', False) and '@' not in un:
-            return error_dialog(self, _('Incorrect username'),
-                    _('%s needs the full email address as your username') %
-                    self.service['name'], show=True)
+        pw = self.password.text()
+        if not pw:
+            return error_dialog(self, _('No password'), _(
+                'You must specify a password'), show=True)
+        fr = self.from_.text().strip()
+        if not fr:
+            return error_dialog(self, _('No email address'), _(
+                'You must specify an email address'), show=True)
+        un = self.service_username
+        if not un:
+            return error_dialog(self, _('Incorrect email address'), _(
+                'The email address "{}" is not valid').format(self.from_.text()), show=True)
         QDialog.accept(self)
 
 
@@ -263,7 +277,7 @@ class SendEmail(QWidget, Ui_Form):
         d = RelaySetup(service, self)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
-        self.relay_username.setText(d.username.text())
+        self.relay_username.setText(d.service_username)
         self.relay_password.setText(d.password.text())
         self.email_from.setText(d.from_.text())
         self.relay_host.setText(service['relay'])
