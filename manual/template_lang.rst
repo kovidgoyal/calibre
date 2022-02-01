@@ -678,7 +678,7 @@ The same thing happens for authors, but using a different character for the cut,
 
 Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
 
-Tips:
+Tips
 -----
 
 * Use the Template Tester to test templates. Add the tester to the context menu for books in the library and/or give it a keyboard shortcut.
