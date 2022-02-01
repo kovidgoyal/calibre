@@ -884,10 +884,10 @@ A value of zero means calculate automatically.</string>
      <widget class="QWidget" name="edit_metadata_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
-        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
+        <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Edit metadata</string>
+       <string>Edit &amp;metadata</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_61">
        <item row="1" column="0">
@@ -927,7 +927,7 @@ A value of zero means calculate automatically.</string>
        <item row="6" column="0">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Select the custom columns to display in the dialogs and their order</string>
+          <string>Select the custom columns (for this library) to display in the edit metadata dialogs and their order</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="3" column="1">
