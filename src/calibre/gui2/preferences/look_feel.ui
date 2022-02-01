@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>897</width>
+    <width>1083</width>
     <height>580</height>
    </rect>
   </property>
@@ -323,9 +323,6 @@
       </layout>
      </widget>
      <widget class="QTabWidget" name="cover_grid_tab">
-      <property name="tabPosition">
-       <enum>QTabWidget::West</enum>
-      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
