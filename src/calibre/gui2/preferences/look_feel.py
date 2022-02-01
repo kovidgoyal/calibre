@@ -22,6 +22,7 @@ from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import default_author_link
+from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -259,8 +260,8 @@ class DisplayedFields(QAbstractListModel):  # {{{
             except:
                 pass
             if not name:
-                name = field
-            return name
+                return field
+            return f'{name} ({field})'
         if role == Qt.ItemDataRole.CheckStateRole:
             return Qt.CheckState.Checked if visible else Qt.CheckState.Unchecked
         if role == Qt.ItemDataRole.DecorationRole and field.startswith('#'):
@@ -325,6 +326,23 @@ def move_field_down(widget, model):
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
 
+# }}}
+
+
+class EMDisplayedFields(DisplayedFields):  # {{{
+    def __init__(self, db, parent=None):
+        DisplayedFields.__init__(self, db, parent)
+
+    def initialize(self, use_defaults=False):
+        self.beginResetModel()
+        self.fields = [[x[0], x[1]] for x in
+                em_get_field_list(self.db, use_defaults=use_defaults)]
+        self.endResetModel()
+        self.changed = True
+
+    def commit(self):
+        if self.changed:
+            self.db.new_api.set_pref('edit_metadata_custom_columns_to_display', self.fields)
 # }}}
 
 
@@ -515,6 +533,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
+        choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+                   (_('All on 1 tab'), 'alt2')]
+        r('edit_metadata_single_layout', gprefs,
+          choices=[(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+                   (_('All on 1 tab'), 'alt2')])
+
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
@@ -526,6 +550,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 lambda self: move_field_up(self.field_display_order, self.display_model))
         connect_lambda(self.df_down_button.clicked, self,
                 lambda self: move_field_down(self.field_display_order, self.display_model))
+
+        self.em_display_model = EMDisplayedFields(self.gui.current_db,
+                self.em_display_order)
+        self.em_display_model.dataChanged.connect(self.changed_signal)
+        self.em_display_order.setModel(self.em_display_model)
+        connect_lambda(self.em_up_button.clicked, self,
+                lambda self: move_field_up(self.em_display_order, self.em_display_model))
+        connect_lambda(self.em_down_button.clicked, self,
+                lambda self: move_field_down(self.em_display_order, self.em_display_model))
 
         self.qv_display_model = QVDisplayedFields(self.gui.current_db,
                 self.qv_display_order)
@@ -648,6 +681,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = font
         self.update_font_display()
         self.display_model.initialize()
+        self.em_display_model.initialize()
         self.qv_display_model.initialize()
         db = self.gui.current_db
         mi = []
@@ -709,6 +743,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.update_font_display()
         self.display_model.restore_defaults()
+        self.em_display_model.restore_defaults()
         self.qv_display_model.restore_defaults()
         self.edit_rules.clear()
         self.icon_rules.clear()
@@ -779,6 +814,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 QApplication.setFont(self.font_display.font())
                 rr = True
             self.display_model.commit()
+            self.em_display_model.commit()
             self.qv_display_model.commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
