@@ -48,7 +48,10 @@ def beautify_text(raw, syntax):
     from calibre.ebooks.oeb.polish.parsing import parse
     from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
     if syntax == 'xml':
-        root = safe_xml_fromstring(strip_encoding_declarations(raw))
+        try:
+            root = safe_xml_fromstring(strip_encoding_declarations(raw))
+        except etree.XMLSyntaxError:
+            return raw
         pretty_xml_tree(root)
     elif syntax == 'css':
         import logging
@@ -63,7 +66,7 @@ def beautify_text(raw, syntax):
                            # We dont care about @import rules
                            fetcher=lambda x: (None, None), log=_css_logger)
         data = parser.parseString(raw, href='<string>', validate=False)
-        return serialize(data, 'text/css')
+        return serialize(data, 'text/css').decode('utf-8')
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
