@@ -538,6 +538,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('edit_metadata_single_layout', gprefs,
           choices=[(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
                    (_('All on 1 tab'), 'alt2')])
+        r('edit_metadata_ignore_display_order', db.prefs)
 
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)

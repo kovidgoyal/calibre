@@ -564,6 +564,7 @@ class DB:
         defs['cover_browser_title_template'] = '{title}'
         defs['cover_browser_subtitle_field'] = 'rating'
         defs['styled_columns'] = {}
+        defs['edit_metadata_ignore_display_order'] = False
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
