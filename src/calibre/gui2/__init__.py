@@ -1650,7 +1650,7 @@ if iswindows:
             if eventType == b"windows_generic_MSG":
                 msg = ctypes.wintypes.MSG.from_address(message.__int__())
                 # https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
-                if msg.message == 0x001A:  # WM_SETTINGCHANGE
+                if msg.message == 0x001A and msg.lParam:  # WM_SETTINGCHANGE
                     if ctypes.wstring_at(msg.lParam) == 'ImmersiveColorSet':
                         QApplication.instance().check_for_windows_palette_change()
                         # prevent Qt from handling this event
