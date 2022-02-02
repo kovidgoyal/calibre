@@ -10,7 +10,7 @@ from functools import partial
 
 from qt.core import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle, QAbstractItemView,
-    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
+    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex, QStyleOptionViewItem,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
 )
 
@@ -49,7 +49,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         painter.setClipRect(nr)
         bg = option.palette.window()
         if self.old_look:
-            bg = option.palette.alternateBase() if option.features&option.Alternate else option.palette.base()
+            bg = option.palette.alternateBase() if option.features&QStyleOptionViewItem.ViewItemFeature.Alternate else option.palette.base()
         painter.fillRect(r, bg)
         style.proxy().drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget)
         painter.setOpacity(0.3)
