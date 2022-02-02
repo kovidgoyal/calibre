@@ -507,7 +507,7 @@ class Text(Base):
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.get_editor_button().clicked.connect(self.edit)
-            w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+            w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
             self.set_to_undefined = w.clear
         else:
             w = EditWithComplete(parent)
@@ -787,7 +787,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     fm = db.field_metadata
 
     # Get list of all non-composite custom fields. We must make widgets for these
-    cols = [k[0] for k in get_field_list(db) if k[1]]
+    cols = [k[0] for k in get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]]
     # This deals with the historical behavior where comments fields go to the
     # bottom, starting on the left hand side. If a comment field is moved to
     # somewhere else then it isn't moved to either side.
