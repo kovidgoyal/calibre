@@ -43,9 +43,9 @@ class BuildTest(unittest.TestCase):
     def test_dbus(self):
         from jeepney.io.blocking import open_dbus_connection
         if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
-            bus = open_dbus_connection(bus='SYSTEM')
+            bus = open_dbus_connection(bus='SYSTEM', auth_timeout=10.)
             bus.close()
-            bus = open_dbus_connection(bus='SESSION')
+            bus = open_dbus_connection(bus='SESSION', auth_timeout=10.)
             bus.close()
             del bus
 
