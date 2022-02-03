@@ -281,7 +281,7 @@ class Worker(Thread):  # Get details {{{
             descendant::*[starts-with(text(), "Publication Date:") or \
                     starts-with(text(), "Audible.com Release Date:")]
         '''
-        self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare',
+        self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare', 'Herausgeber',
                                 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
 
         self.language_xpath =    '''
@@ -733,7 +733,7 @@ class Worker(Thread):  # Get details {{{
                 a = series[0].xpath('descendant::a')
                 if a:
                     raw = self.tostring(a[0], encoding='unicode', method='text', with_tail=False)
-                    m = re.search(r'(?:Book|Libro)\s+(?P<index>[0-9.]+)\s+(?:of|de)\s+([0-9.]+)\s*:\s*(?P<series>.+)', raw.strip())
+                    m = re.search(r'(?:Book|Libro|Buch)\s+(?P<index>[0-9.]+)\s+(?:of|de|von)\s+([0-9.]+)\s*:\s*(?P<series>.+)', raw.strip())
                     if m is not None:
                         ans = (m.group('series').strip(), float(m.group('index')))
 
@@ -968,7 +968,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 22)
+    version = (1, 2, 23)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1656,6 +1656,15 @@ def manual_tests(domain, **kw):  # {{{
     # }}}
 
     all_tests['de'] = [  # {{{
+        # series
+        (
+            {'identifiers': {'isbn': '3499275120'}},
+            [title_test('Vespasian: Das Schwert des Tribuns: Historischer Roman',
+                        exact=False), authors_test(['Robert Fabbri']), series_test('Die Vespasian-Reihe', 1)
+             ]
+
+        ),
+
         (  # umlaut in title/authors
             {'title': 'Flüsternde Wälder',
              'authors': ['Nicola Förg']},
@@ -1663,7 +1672,6 @@ def manual_tests(domain, **kw):  # {{{
              authors_test(['Nicola Förg'], subset=True)
              ]
         ),
-
 
         (
             {'identifiers': {'isbn': '9783453314979'}},
