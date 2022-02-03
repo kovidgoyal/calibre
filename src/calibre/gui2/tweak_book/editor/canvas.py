@@ -93,10 +93,7 @@ class Trim(Command):
     TEXT = _('Trim image')
 
     def __call__(self, canvas):
-        img = canvas.current_image
-        target = canvas.target
-        sr = canvas.selection_state.rect
-        return img.copy(*map(int, get_selection_rect(img, sr, target)))
+        return canvas.current_image.copy(*map(int, canvas.rect_for_trim()))
 
 
 class AutoTrim(Trim):
@@ -501,6 +498,12 @@ class Canvas(QWidget):
             for edge in dm:
                 if edge is not None:
                     self.move_edge(edge, dp)
+
+    def rect_for_trim(self):
+        img = self.current_image
+        target = self.target
+        sr = self.selection_state.rect
+        return get_selection_rect(img, sr, target)
 
     def mousePressEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton and self.target.contains(ev.pos()):
