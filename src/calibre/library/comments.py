@@ -143,7 +143,7 @@ def merge_comments(one, two):
 
 def sanitize_comments_html(html):
     from calibre.ebooks.markdown import Markdown
-    text = html2text(html)
+    text = html2text(html, single_line_break=False)
     md = Markdown()
     html = md.convert(text)
     return html
