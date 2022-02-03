@@ -1060,16 +1060,30 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         self.labels = []
         sto = QWidget.setTabOrder
 
-        self.central_widget.tabBar().setVisible(False)
-        tab0 = QWidget(self)
-        self.central_widget.addTab(ScrollArea(tab0, self), _("&Metadata"))
-        l = QGridLayout()
-        tab0.setLayout(l)
+        # The dialog is in three main parts. Basic and custom metadata in one
+        # panel on the left over another panel containing comments, separated
+        # by a splitter. The cover and format information is in a panel on the
+        # right, separated by another splitter.
 
-        # Basic metadata in col 0
+        main_splitter = self.main_splitter = Splitter(Qt.Orientation.Horizontal, self)
+        self.central_widget.tabBar().setVisible(False)
+        self.central_widget.addTab(ScrollArea(main_splitter, self), _("&Metadata"))
+
+        # Left side (metadata & comments)
+        # basic and custom split from comments
+        metadata_splitter = self.metadata_splitter = Splitter(Qt.Orientation.Vertical, self)
+        main_splitter.addWidget(metadata_splitter)
+        metadata_widget = QWidget()
+        metadata_layout = QHBoxLayout()
+        metadata_layout.setContentsMargins(3, 0, 0, 0)
+        metadata_widget.setLayout(metadata_layout)
+        metadata_splitter.addWidget(metadata_widget)
+
+        gb = QGroupBox(_('Basic metadata'), metadata_splitter)
+        metadata_layout.addWidget(gb)
+
+        # Basic metadata in col 0, custom in col 1
         tl = QGridLayout()
-        gb = QGroupBox(_('Basic metadata'), tab0)
-        l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
         self.button_box_layout.insertWidget(1, self.fetch_metadata_button)
@@ -1130,7 +1144,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         # Custom metadata in col 1
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
-            gb = QGroupBox(_('Custom metadata'), tab0)
+            gb = QGroupBox(_('Custom metadata'), metadata_splitter)
             gbl = QVBoxLayout()
             gb.setLayout(gbl)
             sr = QScrollArea(gb)
@@ -1139,7 +1153,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
             sr.setFrameStyle(QFrame.Shape.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
-            l.addWidget(gb, 0, 1, 1, 1)
+            metadata_layout.addWidget(gb)
             sp = QSizePolicy()
             sp.setVerticalStretch(10)
             sp.setHorizontalPolicy(QSizePolicy.Policy.Minimum)
@@ -1147,21 +1161,29 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
             gb.setSizePolicy(sp)
             self.set_custom_metadata_tab_order()
 
-        # comments span col 0 & 1
-        w = QGroupBox(_('Comments'), tab0)
+        # comments below metadata splitter. The mess of widgets is to get the
+        # contents margins right so things line up
+        cw = QWidget()
+        cl = QHBoxLayout()
+        cw.setLayout(cl)
+        cl.setContentsMargins(3, 0, 0, 0)
+        metadata_splitter.addWidget(cw)
+        # Now the real stuff
         sp = QSizePolicy()
         sp.setVerticalStretch(10)
         sp.setHorizontalPolicy(QSizePolicy.Policy.Expanding)
         sp.setVerticalPolicy(QSizePolicy.Policy.Expanding)
-        w.setSizePolicy(sp)
-        lb = QHBoxLayout()
-        w.setLayout(lb)
-        lb.addWidget(self.comments)
-        l.addWidget(w, 1, 0, 1, 2)
+        cw.setSizePolicy(sp)
+        gb = QGroupBox(_('Comments'), metadata_splitter)
+        gbl = QHBoxLayout()
+        gbl.setContentsMargins(0, 0, 0, 0)
+        gb.setLayout(gbl)
+        cl.addWidget(gb)
+        gbl.addWidget(self.comments)
 
-        # Cover & formats in col 3
+        # Cover & formats on right side
         # First the cover & buttons
-        cover_group_box = QGroupBox(_('Cover'), tab0)
+        cover_group_box = QGroupBox(_('Cover'), main_splitter)
         cover_layout = QVBoxLayout()
         cover_layout.setContentsMargins(0, 0, 0, 0)
         cover_group_box.setLayout(cover_layout)
@@ -1185,13 +1207,27 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         cover_and_formats = QVBoxLayout()
         cover_and_formats.setContentsMargins(0, 0, 0, 0)
         cover_and_formats.addWidget(cover_group_box, stretch=100)
+        # Add the formats manager box
         cover_and_formats.addWidget(self.formats_manager)
-        l.addLayout(cover_and_formats, 0, 2, 2, 1)
         sto(self.cover.buttons[-1], self.formats_manager)
-
         self.formats_manager.formats.setMaximumWidth(10000)
         self.formats_manager.formats.setIconSize(QSize(32, 32))
 
+        cover_and_formats_widget = QWidget()
+        main_splitter.addWidget(cover_and_formats_widget)
+        cover_and_formats_widget.setLayout(cover_and_formats)
+
+    def save_widget_settings(self):
+        gprefs['all_on_one_metadata_splitter_1_state'] = bytearray(self.metadata_splitter.saveState())
+        gprefs['all_on_one_metadata_splitter_2_state'] = bytearray(self.main_splitter.saveState())
+
+    def restore_widget_settings(self):
+        s = gprefs.get('all_on_one_metadata_splitter_1_state')
+        if s is not None:
+            self.metadata_splitter.restoreState(s)
+        s = gprefs.get('all_on_one_metadata_splitter_2_state')
+        if s is not None:
+            self.main_splitter.restoreState(s)
 # }}}
 
 
