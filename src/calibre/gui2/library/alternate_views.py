@@ -455,7 +455,7 @@ class CoverDelegate(QStyledItemDelegate):
         if spc < 0.01:
             self.spacing = max(10, min(50, int(0.1 * self.original_width)))
         else:
-            self.spacing = self.parent().logicalDpiX() * CM_TO_INCH * spc
+            self.spacing = int(self.parent().logicalDpiX() * CM_TO_INCH * spc)
 
     def sizeHint(self, option, index):
         return self.item_size
