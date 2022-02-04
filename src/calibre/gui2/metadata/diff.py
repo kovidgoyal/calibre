@@ -547,6 +547,13 @@ class CompareSingle(QWidget):
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)
                 changed = True
+        if changed and not self.current_mi.languages:
+            # this is needed because blank language setting
+            # causes current UI language to be set
+            widgets = self.widgets['languages']
+            neww, oldw = widgets[:2]
+            if oldw.current_val:
+                self.current_mi.languages = oldw.current_val
         return changed
 
 
