@@ -416,7 +416,7 @@ class RuleEditor(QDialog):  # {{{
                 'Choosing icon with text will add an icon to the left of the'
                 ' column content, choosing icon with no text will hide'
                 ' the column content and leave only the icon.'
-                'If you choose composed icons and multiple rules match, then all the'
+                ' If you choose composed icons and multiple rules match, then all the'
                 ' matching icons will be combined, otherwise the icon from the'
                 ' first rule to match will be used.')))
             self.l3 = l3 = QLabel(_('of the column:'))
