@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 '''
 ebook-meta
 '''
-import sys, os
+import sys, os, unicodedata
 
 from calibre.utils.config import StringConfig
 from calibre.customize.ui import metadata_readers, metadata_writers, force_identifiers
@@ -108,6 +108,10 @@ def option_parser():
     return config().option_parser(USAGE.format(ft, w))
 
 
+def normalize(x):
+    return unicodedata.normalize('NFC', x)
+
+
 def do_set_metadata(opts, mi, stream, stream_type):
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
@@ -162,7 +166,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
 
 def main(args=sys.argv):
     parser = option_parser()
-    opts, args = parser.parse_args(args)
+    opts, args = parser.parse_args(list(map(normalize, args)))
     if len(args) < 2:
         parser.print_help()
         prints(_('No file specified'), file=sys.stderr)
