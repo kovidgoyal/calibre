@@ -17,7 +17,7 @@ from qt.core import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.comments_editor import Editor as CommentsEditor
-from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, elided_text
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, elided_text, gprefs
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
@@ -809,8 +809,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     ans = []
     column = row = base_row = max_row = 0
     label_width = 0
-    do_elision = tweaks['metadata_edit_elide_labels']
-    elide_pos = tweaks['metadata_edit_elision_point']
+    do_elision = gprefs['edit_metadata_elide_labels']
+    elide_pos = gprefs['edit_metadata_elision_point']
     elide_pos = elide_pos if elide_pos in {'left', 'middle', 'right'} else 'right'
     # make room on the right side for the scrollbar
     sb_width = QApplication.instance().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
@@ -857,10 +857,10 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                     colon_width = font_metrics.width(':')
                     if bulk:
                         label_width = (font_metrics.averageCharWidth() *
-                               tweaks['metadata_edit_bulk_cc_label_length']) - colon_width
+                               gprefs['edit_metadata_bulk_cc_label_length']) - colon_width
                     else:
                         label_width = (font_metrics.averageCharWidth() *
-                               tweaks['metadata_edit_single_cc_label_length']) - colon_width
+                               gprefs['edit_metadata_single_cc_label_length']) - colon_width
                 wij.setMaximumWidth(label_width)
                 if c == 0:
                     wij.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)

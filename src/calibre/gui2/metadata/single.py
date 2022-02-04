@@ -56,7 +56,6 @@ class MetadataSingleDialogBase(QDialog):
 
     view_format = pyqtSignal(object, object)
     edit_format = pyqtSignal(object, object)
-    cc_two_column = tweaks['metadata_single_use_2_cols_for_custom_fields']
     one_line_comments_toolbar = False
     use_toolbutton_for_config_metadata = True
 
@@ -309,13 +308,16 @@ class MetadataSingleDialogBase(QDialog):
             gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
             self.update_paste_identifiers_menu()
 
+    def use_two_columns_for_custom_metadata(self):
+        raise NotImplementedError
+
     def create_custom_metadata_widgets(self):  # {{{
         self.custom_metadata_widgets_parent = w = QWidget(self)
         layout = QGridLayout()
         w.setLayout(layout)
         self.custom_metadata_widgets, self.__cc_spacers = \
             populate_metadata_page(layout, self.db, None, parent=w, bulk=False,
-                two_column=self.cc_two_column)
+                two_column=self.use_two_columns_for_custom_metadata())
         self.__custom_col_layouts = [layout]
         for widget in self.custom_metadata_widgets:
             widget.connect_data_changed(self.data_changed)
@@ -745,6 +747,9 @@ class Splitter(QSplitter):
 
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
+    def use_two_columns_for_custom_metadata(self):
+        return gprefs['edit_metadata_single_use_2_cols_for_custom_fields']
+
     def do_layout(self):
         if len(self.db.custom_column_label_map) == 0:
             self.central_widget.tabBar().setVisible(False)
@@ -896,14 +901,15 @@ class DragTrackingWidget(QWidget):  # {{{
 
 class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
-    cc_two_column = False
     one_line_comments_toolbar = True
     use_toolbutton_for_config_metadata = False
-
     on_drag_enter = pyqtSignal()
 
     def handle_drag_enter(self):
         self.central_widget.setCurrentIndex(1)
+
+    def use_two_columns_for_custom_metadata(self):
+        return False
 
     def do_layout(self):
         self.central_widget.clear()
@@ -1051,9 +1057,11 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
 class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
 
-    cc_two_column = False
     one_line_comments_toolbar = True
     use_toolbutton_for_config_metadata = False
+
+    def use_two_columns_for_custom_metadata(self):
+        return False
 
     def do_layout(self):
         self.central_widget.clear()
