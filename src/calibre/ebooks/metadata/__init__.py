@@ -163,12 +163,15 @@ def get_title_sort_pat(lang=None):
         ans = frozenset(ans) if ans is not None else frozenset(data['eng'])
     except Exception:
         ans = frozenset((r'A\s+', r'The\s+', r'An\s+'))
-    ans = '|'.join(ans)
-    ans = '^(%s)'%ans
-    try:
-        ans = re.compile(ans, re.IGNORECASE)
-    except:
-        ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
+    if ans:
+        ans = '|'.join(ans)
+        ans = '^(%s)'%ans
+        try:
+            ans = re.compile(ans, re.IGNORECASE)
+        except:
+            ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
+    else:
+        ans = re.compile('^$')  # matches only the empty string
     _title_pats[lang] = ans
     return ans
 
