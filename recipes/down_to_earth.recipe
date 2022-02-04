@@ -1,8 +1,4 @@
-from __future__ import with_statement
-__license__ = 'GPL 3'
-__copyright__ = '2014, Amit <amitkp.ias@gmail.com>'
-
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class My_Feeds(BasicNewsRecipe):
@@ -16,19 +12,15 @@ class My_Feeds(BasicNewsRecipe):
     center_navbar = True
     use_embedded_content = False
     remove_empty_feeds = True
-    remove_tags_before = dict(name='div', id='PageContent')
-    remove_tags_after = [dict(name='div'), {'class': 'taxonomy-terms'}]
+    keep_only_tags = [
+        classes('detail-heading content-main news-basic-info news-banner news-detail-content')
+    ]
     remove_tags = [
+        classes('add-comment btn hindi_detail_link single-news-letter'),
         dict(id=['comments', 'breadcrumb', 'node_related_stories']),
         dict(attrs={'class': ['commentCount', 'box']})
     ]
 
     feeds = [
-        (u'editor', u'http://www.downtoearth.org.in/taxonomy/term/20348/0/feed'),
-        (u'cover story', u'http://www.downtoearth.org.in/taxonomy/term/20345/0/feed'),
-        (u'special report', u'http://www.downtoearth.org.in/taxonomy/term/20384/0/feed'),
-        (u'features', u'http://www.downtoearth.org.in/taxonomy/term/20350/0/feed'),
-        (u'news', u'http://www.downtoearth.org.in/taxonomy/term/20366/0/feed'),
-        (u'debate', u'http://www.downtoearth.org.in/taxonomy/term/20347/0/feed'),
-        (u'natural disasters', u'http://www.downtoearth.org.in/taxonomy/term/20822/0/feed')
+        ('All', 'https://www.downtoearth.org.in/rss/all'),
     ]
