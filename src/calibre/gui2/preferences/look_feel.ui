@@ -908,10 +908,10 @@ A value of zero means calculate automatically.</string>
       <attribute name="title">
        <string>Edit &amp;metadata</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_61">
-       <item row="1" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout1">
-         <item>
+      <layout class="QVBoxLayout" name="vbox_layout_61">
+       <item>
+        <layout class="QFormLayout">
+         <item row="0" column="0">
           <widget class="QLabel" name="edit_metadata_single_label">
            <property name="text">
             <string>Edit metadata (single) &amp;layout:</string>
@@ -921,29 +921,16 @@ A value of zero means calculate automatically.</string>
            </property>
           </widget>
          </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QComboBox" name="opt_edit_metadata_single_layout">
            <property name="toolTip">
             <string>Choose a different layout for the Edit metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="verticalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
        </item>
-       <item row="6" column="0">
+       <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select the custom columns (for this library) to display in the edit metadata dialogs and their order</string>
@@ -994,18 +981,103 @@ A value of zero means calculate automatically.</string>
          </layout>
         </widget>
        </item>
-       <item row="8" column="0">
-        <widget class="QCheckBox" name="opt_edit_metadata_ignore_display_order">
-         <property name="text">
-          <string>Show all columns in default order when editing metadata</string>
-         </property>
-         <property name="toolTip">
-          <string>&lt;p&gt;Check this box to make the edit metadata dialogs ignore the
+       <item>
+        <layout class="QHBoxLayout">
+         <item>
+          <layout class="QFormLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_edit_metadata_ignore_display_order">
+             <property name="text">
+              <string>Show all columns in default order when editing metadata</string>
+             </property>
+             <property name="toolTip">
+              <string>&lt;p&gt;Check this box to make the edit metadata dialogs ignore the
 above specifications, showing all the columns in the default order. This is
 useful for temporarily seeing all your columns in the dialogs without losing
 the display and order specifications.&lt;/p&gt;</string>
-         </property>
-        </widget>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_edit_metadata_elide_labels">
+             <property name="text">
+              <string>Elide labels when editing custom columns</string>
+             </property>
+             <property name="toolTip">
+              <string>If checked then labels wider than the label width
+will be elided, otherwise they will be word wrapped.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_102">
+             <property name="text">
+              <string>Elision point</string>
+               </property>
+             <property name="buddy">
+              <cstring>opt_edit_metadata_elision_point</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="opt_edit_metadata_elision_point">
+             <property name="toolTip">
+              <string>Choose where in the label to put the ...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QFormLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_edit_metadata_single_use_2_cols_for_custom_fields">
+             <property name="text">
+              <string>Use two columns for custom columns in the Default layout</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_102">
+             <property name="text">
+              <string>Bulk edit custom column label length</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_edit_metadata_bulk_cc_label_length</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="opt_edit_metadata_bulk_cc_label_length">
+             <property name="toolTip">
+              <string>The maximum width of a custom column label in bulk metadata
+edit. It is computed by multiplying the average width of characters
+in the font by this number.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_1022">
+             <property name="text">
+              <string>Single edit Custom column label length</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_edit_metadata_single_cc_label_length</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="opt_edit_metadata_single_cc_label_length">
+             <property name="toolTip">
+              <string>The maximum width of a custom column label in single
+metadata edit. It is computed by multiplying the average width of characters
+in the font by this number.</string>
+             </property>
+           </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

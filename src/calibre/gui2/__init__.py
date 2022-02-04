@@ -31,6 +31,7 @@ from calibre.gui2.linux_file_dialogs import (
 )
 from calibre.gui2.qt_file_dialogs import FileDialog
 from calibre.ptempfile import base_dir
+from calibre.utils.config_base import tweaks
 from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
@@ -204,6 +205,28 @@ def create_defs():
     defs['browse_annots_use_stemmer'] = True
     defs['annots_export_format'] = 'txt'
     defs['books_autoscroll_time'] = 2.0
+    defs['edit_metadata_single_use_2_cols_for_custom_fields'] = True
+    defs['edit_metadata_elide_labels'] = True
+    defs['edit_metadata_elision_point'] = "right"
+    defs['edit_metadata_bulk_cc_label_length'] = 25
+    defs['edit_metadata_single_cc_label_length'] = 12
+
+    def migrate_tweak(tweak_name, pref_name):
+        # If the tweak has been changed then leave the tweak in the file so
+        # that the user can bounce between versions with and without the
+        # migration. For versions before the migration the tweak wins. For
+        # versions after the migration any changes win.
+        v = tweaks.get(tweak_name, None)
+        migrated_tweak_name = pref_name + '_tweak_migrated'
+        m = gprefs.get(migrated_tweak_name, None)
+        if m is None and v is not None:
+            gprefs[pref_name] = v
+            gprefs[migrated_tweak_name] = True
+    migrate_tweak('metadata_edit_elide_labels', 'edit_metadata_elide_labels')
+    migrate_tweak('metadata_edit_elision_point', 'edit_metadata_elision_point')
+    migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
+    migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
+    migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
 
 
 create_defs()
