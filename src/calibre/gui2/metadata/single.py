@@ -13,7 +13,7 @@ from qt.core import (
     QApplication, QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea,
     QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QPalette
 )
 
 from calibre.constants import ismacos
@@ -743,6 +743,13 @@ class Splitter(QSplitter):
         return QSplitter.resizeEvent(self, ev)
 
 
+def color_splitter_handle(splitter):
+    # Slightly color the splitter handle. The Base color role takes light and
+    # dark mode into effect.
+    c = splitter.palette().color(QPalette.ColorRole.Base)
+    splitter.setStyleSheet("QSplitter::Handle { background: %s }"%c.name())
+
+
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
     def do_layout(self):
@@ -799,6 +806,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
         self.splitter = Splitter(Qt.Orientation.Horizontal, self)
+        color_splitter_handle(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.frame_resized.connect(self.cover.frame_resized)
         l.addWidget(self.splitter)
@@ -1039,6 +1047,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         wgl.addWidget(self.formats_manager)
 
         self.splitter = QSplitter(Qt.Orientation.Horizontal, tab1)
+        color_splitter_handle(self.splitter)
         tab1.l.addWidget(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.addWidget(wsp)
@@ -1203,23 +1212,24 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
             hl.addWidget(b)
         cover_layout.addLayout(hl)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
-        # Layout for both cover & formats boxes
-        cover_and_formats = QVBoxLayout()
-        cover_and_formats.setContentsMargins(0, 0, 0, 0)
-        cover_and_formats.addWidget(cover_group_box, stretch=100)
+        # Splitter for both cover & formats boxes
+        self.cover_and_formats = cover_and_formats = QSplitter(Qt.Orientation.Vertical)
+        # Put a very small margin on the left so that the word "Cover" doesn't
+        # touch the splitter
+        cover_and_formats.setContentsMargins(1, 0, 0, 0)
+        cover_and_formats.addWidget(cover_group_box)
         # Add the formats manager box
         cover_and_formats.addWidget(self.formats_manager)
         sto(self.cover.buttons[-1], self.formats_manager)
         self.formats_manager.formats.setMaximumWidth(10000)
         self.formats_manager.formats.setIconSize(QSize(32, 32))
-
-        cover_and_formats_widget = QWidget()
-        main_splitter.addWidget(cover_and_formats_widget)
-        cover_and_formats_widget.setLayout(cover_and_formats)
+        main_splitter.addWidget(cover_and_formats)
+        color_splitter_handle(main_splitter)
 
     def save_widget_settings(self):
         gprefs['all_on_one_metadata_splitter_1_state'] = bytearray(self.metadata_splitter.saveState())
         gprefs['all_on_one_metadata_splitter_2_state'] = bytearray(self.main_splitter.saveState())
+        gprefs['all_on_one_metadata_splitter_3_state'] = bytearray(self.cover_and_formats.saveState())
 
     def restore_widget_settings(self):
         s = gprefs.get('all_on_one_metadata_splitter_1_state')
@@ -1228,6 +1238,9 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         s = gprefs.get('all_on_one_metadata_splitter_2_state')
         if s is not None:
             self.main_splitter.restoreState(s)
+        s = gprefs.get('all_on_one_metadata_splitter_3_state')
+        if s is not None:
+            self.cover_and_formats.restoreState(s)
 # }}}
 
 
