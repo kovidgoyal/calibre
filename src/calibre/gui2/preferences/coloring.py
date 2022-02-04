@@ -413,6 +413,9 @@ class RuleEditor(QDialog):  # {{{
                 self.kind_box.addItem(tt, t)
             l.addWidget(self.kind_box, 3, 0)
             self.kind_box.setToolTip(textwrap.fill(_(
+                'Choosing icon with text will add an icon to the left of the'
+                ' column content, choosing icon with no text will hide'
+                ' the column content and leave only the icon.'
                 'If you choose composed icons and multiple rules match, then all the'
                 ' matching icons will be combined, otherwise the icon from the'
                 ' first rule to match will be used.')))
