@@ -23,6 +23,57 @@
 # - title by author
 # }}}
 
+{{{ 5.36.0 2022-02-04
+
+:: new features
+
+- Edit metadata dialog: Allow controlling which custom columns are present in this dialog via Preferences->Look & feel->Edit metadata
+
+- Edit metadata dialog: Allow manually sizing the various sections of the dialog in "All on 1 tab" mode
+
+- Edit book: Spell checking: Update the bundled English and Spanish dictionaries
+
+- [1958773] BibTeX catalogs: Support tags like custom columns
+
+:: bug fixes
+
+- [1959659] Amazon metadata download: Fix paragraphs in the comments being merged
+
+- [1958979] Amazon.de metadata download: Fix published date and series information not being fetched for some books
+
+- Email delivery: Fix sending email via Hotmail not working since this week because Microsoft changed the SMTP server name
+
+- [1959220] Do not remove articles for titles in the Polish language
+
+- [1959207] E-book viewer: When using Read aloud do not automatically lookup the highlighted word until read aloud is paused or stopped
+
+- E-book viewer: Fix Ctrl+p shortcut for printing not working
+
+- [1958882] Show an error when viewing a specific format and the file is missing
+
+- Edit book: Fix renaming of classes that start/end with non word characters not working
+
+- [1958730] Edit book: Preview panel: Fix hyphenation at end of line being rendered as boxes on macOS
+
+- [1959893] Fix incorrect selection size displayed in Trim image dialog when image is scaled down to fit
+
+- [1959782] Edit book: Fix pasting files from another editor instance failing if a file with the same name already exists
+
+- [1959981] When reviewing metadata if the newly downloaded metadata has no language but there is an existing language, ensure it is preserved
+
+:: improved recipes
+- India Today
+- Financial Express
+- Indian Express
+- Live Mint
+- Al Jazeera in English
+- The Financial Express
+- The Straits Times
+
+:: new recipes
+- title by author
+}}}
+
 {{{ 5.35.0 2022-01-21
 
 :: new features
