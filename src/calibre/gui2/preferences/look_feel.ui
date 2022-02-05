@@ -1022,7 +1022,7 @@ will be elided, otherwise they will be word wrapped.</string>
            <item row="2" column="1">
             <widget class="QComboBox" name="opt_edit_metadata_elision_point">
              <property name="toolTip">
-              <string>Choose where in the label to put the ...</string>
+              <string>Choose where in the label to put the...</string>
              </property>
             </widget>
            </item>
