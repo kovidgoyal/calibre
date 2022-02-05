@@ -171,6 +171,14 @@ class Text(QLineEdit):
         self.setText(str(val or ''))
 
 
+class IPAddresses(Text):
+
+    def set(self, val):
+        if isinstance(val, tuple):
+            val = ', '.join(map(str, val))
+        self.setText(str(val or ''))
+
+
 class Path(QWidget):
 
     changed_signal = pyqtSignal()
@@ -257,6 +265,8 @@ class AdvancedTab(QWidget):
                 w = Text
                 if name in ('ssl_certfile', 'ssl_keyfile'):
                     w = Path
+                elif name == 'trusted_ips':
+                    w = IPAddresses
             w = w(name, l)
             setattr(self, 'opt_' + name, w)
             self.widgets.append(w)
