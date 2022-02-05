@@ -63,7 +63,6 @@
 
 :: improved recipes
 - India Today
-- Financial Express
 - Indian Express
 - Live Mint
 - Al Jazeera in English
