@@ -8,6 +8,7 @@ import errno
 import hashlib
 import os
 import struct
+import time
 import uuid
 from collections import namedtuple
 from functools import wraps
@@ -21,7 +22,7 @@ from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.loop import WRITE
 from calibre.srv.utils import (
-    HTTP1, HTTP11, Cookie, MultiDict, fast_now_strftime, get_translator_for_lang,
+    HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang,
     http_date, socket_errors_socket_closed, sort_q_values
 )
 from calibre.utils.monotonic import monotonic
@@ -549,9 +550,13 @@ class HTTPConnection(HTTPRequest):
         ff = self.forwarded_for
         if ff:
             ff = '[%s] ' % ff
+        try:
+            ts = time.strftime('%d/%b/%Y:%H:%M:%S %z')
+        except Exception:
+            ts = 'strftime() failed'
         line = '{} port-{} {}{} {} "{}" {} {}'.format(
             self.remote_addr, self.remote_port, ff or '', username or '-',
-            fast_now_strftime('%d/%b/%Y:%H:%M:%S %z'),
+            ts,
             force_unicode(self.request_line or '', 'utf-8'),
             status_code, ('-' if response_size is None else response_size))
         self.access_log(line)

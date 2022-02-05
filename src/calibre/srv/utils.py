@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, socket, os, time
+import errno, socket, os
 from email.utils import formatdate
 from operator import itemgetter
 
@@ -465,7 +465,3 @@ def get_use_roman():
         from calibre.gui2 import config
         _use_roman = config['use_roman_numerals_for_series_number']
     return _use_roman
-
-
-def fast_now_strftime(fmt):
-    return as_unicode(time.strftime(fmt), errors='replace')
