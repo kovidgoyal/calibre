@@ -77,6 +77,10 @@ class Base:
             except:
                 pass
 
+    def key_of_column(self):
+        return self.db.field_metadata.label_to_key(self.col_metadata['label'],
+                                                   prefer_custom=True)
+
     def finish_ui_setup(self, parent, edit_widget):
         self.was_none = False
         w = QWidget(parent)
@@ -436,13 +440,12 @@ class Comments(Base):
 
 class MultipleWidget(QWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, column_key):
         QWidget.__init__(self, parent)
         layout = QHBoxLayout()
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        self.tags_box = EditWithComplete(parent)
+        self.tags_box = EditWithComplete(parent, disable_completion_pref=f'EMS_{column_key}Edit')
         layout.addWidget(self.tags_box, stretch=1000)
         self.editor_button = QToolButton(self)
         self.editor_button.setToolTip(_('Open Item editor. If CTRL or SHIFT is pressed, open Manage items'))
@@ -496,12 +499,11 @@ class Text(Base):
 
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
-        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
-                                                       prefer_custom=True)
+        self.key = self.key_of_column()
         self.parent = parent
 
         if self.col_metadata['is_multiple']:
-            w = MultipleWidget(parent)
+            w = MultipleWidget(parent, self.key_of_column())
             w.set_separator(self.sep['ui_to_list'])
             if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
@@ -510,7 +512,7 @@ class Text(Base):
             w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
             self.set_to_undefined = w.clear
         else:
-            w = EditWithComplete(parent)
+            w = EditWithComplete(parent, disable_completion_pref=f'EMS_{self.key_of_column()}Edit')
             w.set_separator(None)
             w.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
@@ -591,7 +593,8 @@ class Text(Base):
 class Series(Base):
 
     def setup_ui(self, parent):
-        w = EditWithComplete(parent)
+        w = EditWithComplete(parent, disable_completion_pref=f'EMS_{self.key_of_column()}Edit')
+
         w.set_separator(None)
         w.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -1176,6 +1179,8 @@ class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, EditWithComplete)
+        self.main_widget.set_disable_completion_pref(f'EMB_{self.key_of_column()}Edit')
+
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.main_widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
@@ -1402,6 +1407,7 @@ class BulkText(BulkBase):
 
             if is_tags:
                 w = RemoveTags(parent, values)
+                w.tags_box.set_disable_completion_pref(f'EMB_{self.key_of_column()}Remove')
                 w.remove_tags_button.clicked.connect(self.edit_remove)
                 l = QLabel(label_string(self.col_metadata['name'])+': ' +
                                            _('tags to remove'), parent)
@@ -1425,6 +1431,7 @@ class BulkText(BulkBase):
             self.main_widget.setSizeAdjustPolicy(
                         QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             self.main_widget.setMinimumContentsLength(25)
+        self.main_widget.set_disable_completion_pref(f'EMB_{self.key_of_column()}Edit')
         self.ignore_change_signals = False
         self.parent = parent
         self.finish_ui_setup(parent, add_edit_tags_button=(is_tags,self.edit_add))

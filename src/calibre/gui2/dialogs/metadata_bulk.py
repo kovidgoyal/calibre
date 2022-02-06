@@ -492,6 +492,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
+
+        self.publisher.set_disable_completion_pref('EMB_PublisherEdit')
+        self.tags.set_disable_completion_pref('EMB_TagsEdit')
+        self.remove_tags.set_disable_completion_pref('EMB_RemoveTagsEdit')
+        self.series.set_disable_completion_pref('EMB_SeriesEdit')
+        self.authors.set_disable_completion_pref('EMB_AuthorsEdit')
+        self.languages.set_disable_completion_pref('EMB_LanguagesEdit')
+
         self.model = model
         self.db = model.db
         self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])

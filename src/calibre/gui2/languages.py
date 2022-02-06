@@ -15,10 +15,11 @@ from polyglot.builtins import iteritems, itervalues
 
 class LanguagesEdit(EditWithComplete):
 
-    def __init__(self, parent=None, db=None, prefs=None):
+    def __init__(self, parent=None, db=None, prefs=None, disable_completion_pref=None):
         self.prefs = prefs or gui_prefs()
         self.refresh_recently_used()
-        EditWithComplete.__init__(self, parent, sort_func=self.sort_language_items_key)
+        EditWithComplete.__init__(self, parent,sort_func=self.sort_language_items_key,
+                                  disable_completion_pref=disable_completion_pref)
 
         self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)

@@ -12,6 +12,7 @@ from qt.core import (
 
 from calibre.constants import ismacos
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
+from calibre.gui2 import gprefs
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
@@ -344,6 +345,9 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.setTextElideMode(val)
     # }}}
 
+    def build_context_menu(self):
+        return LineEditECM.build_context_menu(self)
+
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         try:
@@ -439,6 +443,25 @@ class EditWithComplete(EnComboBox):
         self.setCompleter(None)
         self.eat_focus_out = True
         self.installEventFilter(self)
+        self.set_disable_completion_pref(kwargs.get('disable_completion_pref', None))
+
+    def set_disable_completion_pref(self, disable_completion_pref):
+        self.disable_completion_pref = dp = disable_completion_pref
+        if disable_completion_pref:
+            self.disable_completion_pref = dp + '_completion_disabled'
+            self.disable_popup = gprefs.get(self.disable_completion_pref, False)
+
+    def contextMenuEvent(self, event):
+        m = self.build_context_menu()
+        if self.disable_completion_pref is not None:
+            m.addSeparator()
+            act = m.addAction(_('Enable completion') if self.disable_popup else _('Disable completion'))
+            act.triggered.connect(self.toggle_completion)
+        m.exec(event.globalPos())
+
+    def toggle_completion(self):
+        self.disable_popup = not self.disable_popup
+        gprefs[self.disable_completion_pref] = self.disable_popup
 
     # Interface {{{
     def showPopup(self):

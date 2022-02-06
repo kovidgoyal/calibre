@@ -349,7 +349,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
     def __init__(self, parent, manage_authors):
         self.dialog = parent
         self.books_to_refresh = set()
-        EditWithComplete.__init__(self, parent)
+        EditWithComplete.__init__(self, parent, disable_completion_pref='EMS_AuthorsEdit')
         self.set_clear_button_enabled(False)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -611,7 +611,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent):
-        EditWithComplete.__init__(self, parent)
+        EditWithComplete.__init__(self, parent, disable_completion_pref='EMS_SeriesEdit')
         self.set_clear_button_enabled(False)
         self.set_separator(None)
         self.dialog = parent
@@ -1399,7 +1399,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
     tag_editor_requested = pyqtSignal()
 
     def __init__(self, parent):
-        EditWithComplete.__init__(self, parent)
+        EditWithComplete.__init__(self, parent, disable_completion_pref='EMS_TagsEdit')
         self.set_clear_button_enabled(False)
         self.set_elide_mode(Qt.TextElideMode.ElideMiddle)
         self.currentTextChanged.connect(self.data_changed)
@@ -1484,7 +1484,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
     data_changed = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
-        LE.__init__(self, *args, **kwargs)
+        LE.__init__(self, *args, disable_completion_pref='EMS_LanguagesEdit', **kwargs)
         self.set_clear_button_enabled(False)
         self.textChanged.connect(self.data_changed)
         self.setToolTip(self.TOOLTIP)
@@ -1805,7 +1805,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     data_changed = pyqtSignal()
 
     def __init__(self, parent):
-        EditWithComplete.__init__(self, parent)
+        EditWithComplete.__init__(self, parent, disable_completion_pref='EMS_PublisherEdit')
         self.set_clear_button_enabled(False)
         self.currentTextChanged.connect(self.data_changed)
         self.set_separator(None)

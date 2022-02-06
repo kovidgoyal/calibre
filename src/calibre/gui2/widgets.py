@@ -486,11 +486,14 @@ class LineEditECM:  # {{{
         menu.addMenu(case_menu)
         return case_menu
 
-    def contextMenuEvent(self, event):
+    def build_context_menu(self):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
         self.create_change_case_menu(menu)
-        menu.exec(event.globalPos())
+        return menu
+
+    def contextMenuEvent(self, event):
+        self.build_context_menu().exec(event.globalPos())
 
     def upper_case(self):
         from calibre.utils.icu import upper
@@ -635,6 +638,9 @@ class EnComboBox(QComboBox):  # {{{
         self.setLineEdit(EnLineEdit(self))
         self.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setMinimumContentsLength(20)
+
+    def build_context_menu(self):
+        return self.lineEdit().build_context_menu()
 
     def text(self):
         return str(self.currentText())
