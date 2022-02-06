@@ -1,13 +1,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import Qt, QDialog, QAbstractItemView, QApplication
+from qt.core import (
+    QAbstractItemView, QApplication, QDialog, QSortFilterProxyModel,
+    QStringListModel, Qt
+)
 
+from calibre.constants import islinux
+from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
-from calibre.gui2 import question_dialog, error_dialog, gprefs
-from calibre.constants import islinux
-from calibre.utils.icu import sort_key, primary_contains
+from calibre.utils.icu import sort_key
 
 
 class TagEditor(QDialog, Ui_TagEditor):
@@ -62,11 +65,13 @@ class TagEditor(QDialog, Ui_TagEditor):
         if tags:
             if not self.is_names:
                 tags.sort(key=sort_key)
-            for tag in tags:
-                self.applied_tags.addItem(tag)
         else:
             tags = []
-
+        self.applied_model = QStringListModel(tags)
+        p = QSortFilterProxyModel()
+        p.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        p.setSourceModel(self.applied_model)
+        self.applied_tags.setModel(p)
         if self.is_names:
             self.applied_tags.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
             self.applied_tags.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -75,11 +80,12 @@ class TagEditor(QDialog, Ui_TagEditor):
             all_tags = [tag for tag in self.db.all_custom(label=key)]
         else:
             all_tags = [tag for tag in self.db.all_tags()]
-        all_tags = sorted(set(all_tags), key=sort_key)
-        q = set(tags)
-        for tag in all_tags:
-            if tag not in q:
-                self.available_tags.addItem(tag)
+        all_tags = sorted(set(all_tags) - set(tags), key=sort_key)
+        self.all_tags_model = QStringListModel(all_tags)
+        p = QSortFilterProxyModel()
+        p.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        p.setSourceModel(self.all_tags_model)
+        self.available_tags.setModel(p)
 
         connect_lambda(self.apply_button.clicked, self, lambda self: self.apply_tags())
         connect_lambda(self.unapply_button.clicked, self, lambda self: self.unapply_tags())
@@ -98,10 +104,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
 
         if islinux:
-            self.available_tags.itemDoubleClicked.connect(self.apply_tags)
+            self.available_tags.doubleClicked.connect(self.apply_tags)
         else:
-            self.available_tags.itemActivated.connect(self.apply_tags)
-        self.applied_tags.itemActivated.connect(self.unapply_tags)
+            self.available_tags.activated.connect(self.apply_tags)
+        self.applied_tags.activated.connect(self.unapply_tags)
 
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
@@ -110,10 +116,11 @@ class TagEditor(QDialog, Ui_TagEditor):
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
 
-    def delete_tags(self, item=None):
+    def delete_tags(self):
         confirms, deletes = [], []
-        items = self.available_tags.selectedItems() if item is None else [item]
-        if not items:
+        row_indices = list(self.available_tags.selectionModel().selectedRows())
+
+        if not row_indices:
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec()
             return
         if not confirm(
@@ -121,93 +128,66 @@ class TagEditor(QDialog, Ui_TagEditor):
             'tag_editor_delete'):
             return
         pos = self.available_tags.verticalScrollBar().value()
-        for item in items:
-            used = self.db.is_tag_used(str(item.text())) \
+        for ri in row_indices:
+            tag = ri.data()
+            used = self.db.is_tag_used(tag) \
                 if self.key is None else \
-                self.db.is_item_used_in_multiple(str(item.text()), label=self.key)
+                self.db.is_item_used_in_multiple(tag, label=self.key)
             if used:
-                confirms.append(item)
+                confirms.append(ri)
             else:
-                deletes.append(item)
+                deletes.append(ri)
         if confirms:
-            ct = ', '.join([str(item.text()) for item in confirms])
+            ct = ', '.join(item.data() for item in confirms)
             if question_dialog(self, _('Are your sure?'),
                 '<p>'+_('The following tags are used by one or more books. '
                     'Are you certain you want to delete them?')+'<br>'+ct):
                 deletes += confirms
 
-        for item in deletes:
+        for item in sorted(deletes, key=lambda r: r.row(), reverse=True):
+            tag = item.data()
             if self.key is None:
-                self.db.delete_tag(str(item.text()))
+                self.db.delete_tag(tag)
             else:
-                bks = self.db.delete_item_from_multiple(str(item.text()),
-                                                        label=self.key)
+                bks = self.db.delete_item_from_multiple(tag, label=self.key)
                 self.db.refresh_ids(bks)
-            self.available_tags.takeItem(self.available_tags.row(item))
+            self.available_tags.model().removeRows(item.row(), 1)
         self.available_tags.verticalScrollBar().setValue(pos)
 
     def apply_tags(self, item=None):
-        items = self.available_tags.selectedItems() if item is None else [item]
-        rows = [self.available_tags.row(i) for i in items]
-        if not rows:
+        row_indices = list(self.available_tags.selectionModel().selectedRows())
+        row_indices.sort(key=lambda r: r.row(), reverse=True)
+        if not row_indices:
             text = self.available_filter_input.text()
             if text and text.strip():
                 self.add_tag_input.setText(text)
                 self.add_tag_input.setFocus(Qt.FocusReason.OtherFocusReason)
             return
-        row = max(rows)
+        pos = self.available_tags.verticalScrollBar().value()
         tags = self._get_applied_tags_box_contents()
-        for item in items:
-            tag = str(item.text())
+        for item in row_indices:
+            tag = item.data()
             tags.append(tag)
-            self.available_tags.takeItem(self.available_tags.row(item))
+            self.available_tags.model().removeRows(item.row(), 1)
+        self.available_tags.verticalScrollBar().setValue(pos)
 
         if not self.is_names:
             tags.sort(key=sort_key)
-        self.applied_tags.clear()
-        for tag in tags:
-            self.applied_tags.addItem(tag)
-
-        if row >= self.available_tags.count():
-            row = self.available_tags.count() - 1
-
-        if row > 2:
-            item = self.available_tags.item(row)
-            self.available_tags.scrollToItem(item)
-
-        # use the filter again when the applied tags were changed
-        self.filter_tags(self.applied_filter_input.text(), which='applied_tags')
+        self.applied_model.setStringList(tags)
 
     def _get_applied_tags_box_contents(self):
-        tags = []
-        for i in range(0, self.applied_tags.count()):
-            tags.append(str(self.applied_tags.item(i).text()))
-        return tags
+        return list(self.applied_model.stringList())
 
     def unapply_tags(self, item=None):
-        tags = self._get_applied_tags_box_contents()
-        items = self.applied_tags.selectedItems() if item is None else [item]
-        for item in items:
-            tag = str(item.text())
-            tags.remove(tag)
-            self.available_tags.addItem(tag)
+        row_indices = list(self.applied_tags.selectionModel().selectedRows())
+        tags = [r.data() for r in row_indices]
+        row_indices.sort(key=lambda r: r.row(), reverse=True)
+        for item in row_indices:
+            self.applied_model.removeRows(item.row(), 1)
 
-        if not self.is_names:
-            tags.sort(key=sort_key)
-        self.applied_tags.clear()
-        for tag in tags:
-            self.applied_tags.addItem(tag)
-
-        items = [str(self.available_tags.item(x).text()) for x in
-                range(self.available_tags.count())]
-        items.sort(key=sort_key)
-        self.available_tags.clear()
-        for item in items:
-            self.available_tags.addItem(item)
-
-        # use the filter again when the applied tags were changed
-        self.filter_tags(self.applied_filter_input.text(), which='applied_tags')
-        self.filter_tags(self.available_filter_input.text())
+        all_tags = self.all_tags_model.stringList() + tags
+        all_tags.sort(key=sort_key)
+        self.all_tags_model.setStringList(all_tags)
 
     def add_tag(self):
         tags = str(self.add_tag_input.text()).split(self.sep)
@@ -216,28 +196,20 @@ class TagEditor(QDialog, Ui_TagEditor):
             tag = tag.strip()
             if not tag:
                 continue
-            for item in self.available_tags.findItems(tag, Qt.MatchFlag.MatchFixedString):
-                self.available_tags.takeItem(self.available_tags.row(item))
+            for index in self.all_tags_model.match(self.all_tags_model.index(0), Qt.ItemDataRole.DisplayRole, tag, -1,
+                                                   Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive | Qt.MatchFlag.MatchWrap):
+                self.all_tags_model.removeRow(index.row())
             if tag not in tags_in_box:
                 tags_in_box.append(tag)
 
         if not self.is_names:
             tags_in_box.sort(key=sort_key)
-        self.applied_tags.clear()
-        for tag in tags_in_box:
-            self.applied_tags.addItem(tag)
-
+        self.applied_model.setStringList(tags_in_box)
         self.add_tag_input.setText('')
-        # use the filter again when the applied tags were changed
-        self.filter_tags(self.applied_filter_input.text(), which='applied_tags')
 
-    # filter tags
     def filter_tags(self, filter_value, which='available_tags'):
         collection = getattr(self, which)
-        q = icu_lower(str(filter_value))
-        for i in range(collection.count()):  # on every available tag
-            item = collection.item(i)
-            item.setHidden(bool(q and not primary_contains(q, str(item.text()))))
+        collection.model().setFilterFixedString(filter_value or '')
 
     def accept(self):
         self.tags = self._get_applied_tags_box_contents()
@@ -258,5 +230,6 @@ if __name__ == '__main__':
     db = db()
     app = Application([])
     d = TagEditor(None, db, current_tags='a b c'.split())
+
     if d.exec() == QDialog.DialogCode.Accepted:
         print(d.tags)
