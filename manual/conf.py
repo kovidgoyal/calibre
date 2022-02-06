@@ -239,11 +239,13 @@ latex_documents = [(master_doc, 'calibre.tex', title, 'Kovid Goyal', 'manual', F
 # If false, no module index is generated.
 # latex_use_modindex = True
 
+# we use lualatex as it is actively maintained and pdflatex and xelatex fail
+# to render smart quotes and dashes
+latex_engine = 'lualatex'
 latex_logo = 'resources/logo.png'
 latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
     'papersize':'letterpaper',
-    'fontenc':r'\usepackage[T2A,T1]{fontenc}',
     'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),
 }
