@@ -11,7 +11,7 @@ import socket
 import ssl
 import traceback
 from contextlib import suppress
-from functools import partial
+from functools import partial, lru_cache
 from io import BytesIO
 
 from calibre import as_unicode
@@ -165,7 +165,7 @@ class Connection:  # {{{
             self.remote_addr = self.remote_port = self.parsed_remote_addr = None
         self.is_trusted_ip = bool(self.opts.local_write and getattr(self.parsed_remote_addr, 'is_loopback', False))
         if not self.is_trusted_ip and self.opts.trusted_ips and self.parsed_remote_addr is not None:
-            self.is_trusted_ip = is_ip_trusted(self.parsed_remote_addr, self.opts.trusted_ips)
+            self.is_trusted_ip = is_ip_trusted(self.parsed_remote_addr, parsed_trusted_ips(self.opts.trusted_ips))
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.wait_for = READ
@@ -367,6 +367,11 @@ class Connection:  # {{{
 # }}}
 
 
+@lru_cache(maxsize=2)
+def parsed_trusted_ips(raw):
+    return tuple(parse_trusted_ips(raw)) if raw else ()
+
+
 class ServerLoop:
 
     LISTENING_MSG = 'calibre server listening on'
@@ -386,8 +391,6 @@ class ServerLoop:
         self.ready = False
         self.handler = handler
         self.opts = opts or Options()
-        if self.opts.trusted_ips:
-            self.opts.trusted_ips = tuple(parse_trusted_ips(self.opts.trusted_ips))
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
