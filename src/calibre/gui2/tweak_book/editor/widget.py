@@ -608,7 +608,7 @@ class Editor(QMainWindow):
             update_mark_text_action(self)
             m.addAction(actions['mark-selected-text'])
         if self.syntax != 'css' and actions['editor-cut'].isEnabled():
-            cm = QMenu(_('Change &case'), m)
+            cm = QMenu(_('C&hange case'), m)
             for ac in 'upper lower swap title capitalize'.split():
                 cm.addAction(actions['transform-case-' + ac])
             m.addMenu(cm)
