@@ -196,9 +196,10 @@ class TagEditor(QDialog, Ui_TagEditor):
             tag = tag.strip()
             if not tag:
                 continue
-            for index in self.all_tags_model.match(self.all_tags_model.index(0), Qt.ItemDataRole.DisplayRole, tag, -1,
-                                                   Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive | Qt.MatchFlag.MatchWrap):
-                self.all_tags_model.removeRow(index.row())
+            if self.all_tags_model.rowCount():
+                for index in self.all_tags_model.match(self.all_tags_model.index(0), Qt.ItemDataRole.DisplayRole, tag, -1,
+                                                    Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive | Qt.MatchFlag.MatchWrap):
+                    self.all_tags_model.removeRow(index.row())
             if tag not in tags_in_box:
                 tags_in_box.append(tag)
 
