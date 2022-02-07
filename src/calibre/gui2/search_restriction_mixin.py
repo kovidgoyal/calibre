@@ -110,6 +110,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.vl_name = QComboBox()
         self.vl_name.setEditable(True)
         self.vl_name.lineEdit().setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
+        self.vl_name.lineEdit().setClearButtonEnabled(True)
         la1.setBuddy(self.vl_name)
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
@@ -121,6 +122,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.la2 = la2 = QLabel(_('&Search expression:'))
         gl.addWidget(la2, 1, 0)
         self.vl_text = QLineEdit()
+        self.vl_text.setClearButtonEnabled(True)
         self.vl_text.textChanged.connect(self.search_text_changed)
         la2.setBuddy(self.vl_text)
         gl.addWidget(self.vl_text, 1, 1)
