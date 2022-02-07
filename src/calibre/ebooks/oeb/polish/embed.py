@@ -247,7 +247,13 @@ def embed_all_fonts(container, stats, report):
     # Add link to CSS in all files that need it
     for spine_name in modified:
         root = container.parsed(spine_name)
-        head = root.xpath('//*[local-name()="head"][1]')[0]
+        try:
+            head = root.xpath('//*[local-name()="head"][1]')[0]
+        except IndexError:
+            head = root.makeelement(XHTML('head'))
+            root.insert(0, head)
+            head.tail = '\n'
+            head.text = '\n  '
         href = container.name_to_href(name, spine_name)
         etree.SubElement(head, XHTML('link'), rel='stylesheet', type='text/css', href=href).tail = '\n'
         container.dirty(spine_name)
