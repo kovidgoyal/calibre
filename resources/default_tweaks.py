@@ -38,11 +38,9 @@ series_index_auto_increment = 'next'
 use_series_auto_increment_tweak_when_importing = False
 
 #: Add separator after completing an author name
-# Should the completion separator be append
-# to the end of the completed text to
-# automatically begin a new completion operation
-# for authors.
-# Can be either True or False
+# Set this if the completion separator should be appended to the end of the
+# completed text to automatically begin a new completion operation for authors.
+# It can be either True or False
 authors_completer_append_separator = False
 
 #: Author sort name algorithm
@@ -502,7 +500,14 @@ default_tweak_format = None
 # completions you will now have to press Tab to select one before pressing
 # Enter. Which technique you prefer will depend on the state of metadata in
 # your library and your personal editing style.
+#
+# If preselect_first_completion is False and you want Tab to accept what you
+# typed instead of the first completion then set tab_accepts_uncompleted_text
+# to True. If you do this then to select from the completions you must press
+# the Down or Up arrow keys. The tweak tab_accepts_uncompleted_text is ignored
+# if preselect_first_completion is True
 preselect_first_completion = False
+tab_accepts_uncompleted_text = False
 
 #: Completion mode when editing authors/tags/series/etc.
 # By default, when completing items, calibre will show you all the candidates
