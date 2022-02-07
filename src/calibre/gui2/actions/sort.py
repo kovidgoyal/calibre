@@ -126,7 +126,12 @@ class SortByAction(InterfaceAction):
             if key == sort_col:
                 sac.setIcon(self.sorted_icon)
             sac.sort_requested.connect(self.sort_requested)
-            menu.addAction(sac)
+            if key == sort_col:
+                before = menu.actions()[0] if menu.actions() else None
+                menu.insertAction(before, sac)
+                menu.insertSeparator(before)
+            else:
+                menu.addAction(sac)
 
     def choose_multisort(self):
         from calibre.gui2.dialogs.multisort import ChooseMultiSort
