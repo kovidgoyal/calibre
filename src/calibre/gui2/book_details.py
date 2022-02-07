@@ -13,7 +13,7 @@ from qt.core import (
 )
 
 from calibre import fit_image, sanitize_file_name
-from calibre.constants import config_dir
+from calibre.constants import config_dir, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -58,6 +58,9 @@ def css(reset=False):
     if not hasattr(css, 'ans'):
         val = P('templates/book_details.css', data=True).decode('utf-8')
         css.ans = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
+        if iswindows:
+            # On Windows the default monospace font family is Courier which is ugly
+            css.ans = 'pre { font-family: "Segoe UI Mono", "Consolas", monospace; }\n\n' + css.ans
     return css.ans
 
 
