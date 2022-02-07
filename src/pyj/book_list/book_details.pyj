@@ -513,12 +513,17 @@ def render_book(container_id, book_id):
         button_style += 'display: none;'
 
     def prev_next_button(is_prev):
+        delta = -1 if is_prev else 1
+        nbid = book_after(book_id, delta)
+        s = button_style
+        if not nbid or nbid is book_id:
+            s += '; display: none'
         return E.div(
-            style=button_style,
+            style=s,
             title=_('Previous book [Ctrl+Left]') if is_prev else _('Next book [Ctrl+Right]'),
             class_='next-book-button',
             svgicon('chevron-left' if is_prev else 'chevron-right'),
-            onclick=next_book.bind(None, book_id, (-1 if is_prev else 1))
+            onclick=next_book.bind(None, book_id, delta)
         )
 
     imgdiv = E.div(style='position: relative',
