@@ -437,8 +437,9 @@ class BooksView(QTableView):  # {{{
         ans = QMenu(view)
         handler = partial(self.column_header_context_handler, view=view, column=col)
         if col not in ('ondevice', 'inlibrary'):
-            ans.addAction(_('Hide column %s') % name, partial(handler, action='hide'))
+            ans.addAction(QIcon.ic('minus.png'), _('Hide column %s') % name, partial(handler, action='hide'))
         m = ans.addMenu(_('Sort on %s')  % name)
+        m.setIcon(QIcon.ic('sort.png'))
         a = m.addAction(_('Ascending'), partial(handler, action='ascending'))
         d = m.addAction(_('Descending'), partial(handler, action='descending'))
         if self._model.sorted_on[0] == col:
@@ -448,27 +449,31 @@ class BooksView(QTableView):  # {{{
         if col not in ('ondevice', 'inlibrary') and \
                 (not self.model().is_custom_column(col) or self.model().custom_columns[col]['datatype'] not in ('bool',)):
             m = ans.addMenu(_('Change text alignment for %s') % name)
+            m.setIcon(QIcon.ic('format-justify-center.png'))
             al = self._model.alignment_map.get(col, 'left')
             for x, t in (('left', _('Left')), ('right', _('Right')), ('center', _('Center'))):
-                a = m.addAction(t, partial(handler, action='align_'+x))
+                a = m.addAction(QIcon.ic(f'format-justify-{x}.png'), t, partial(handler, action='align_'+x))
                 if al == x:
                     a.setCheckable(True)
                     a.setChecked(True)
             if not isinstance(view, DeviceBooksView):
                 col_font = self._model.styled_columns.get(col)
                 m = ans.addMenu(_('Change font style for %s') % name)
+                m.setIcon(QIcon.ic('format-text-bold.png'))
                 for x, t, f in (
                         ('normal', _('Normal font'), None), ('bold', _('Bold font'), self._model.bold_font),
                         ('italic', _('Italic font'), self._model.italic_font), ('bi', _('Bold and Italic font'), self._model.bi_font),
                 ):
                     a = m.addAction(t, partial(handler, action='font_' + x))
+                    if x in ('bold', 'italic'):
+                        a.setIcon(QIcon.ic(f'format-text-{x}.png'))
                     if f is col_font:
                         a.setCheckable(True)
                         a.setChecked(True)
 
         if self.is_library_view:
             if self._model.db.field_metadata[col]['is_category']:
-                act = ans.addAction(_('Quickview column %s') % name, partial(handler, action='quickview'))
+                act = ans.addAction(QIcon.ic('quickview.png'), _('Quickview column %s') % name, partial(handler, action='quickview'))
                 rows = self.selectionModel().selectedRows()
                 if len(rows) > 1:
                     act.setEnabled(False)
@@ -479,6 +484,7 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
+            m.setIcon(QIcon.ic('plus.png'))
             hcols = [(hcol, str(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
                      for hcol, hidx in iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
@@ -522,7 +528,7 @@ class BooksView(QTableView):  # {{{
             view.column_header_context_menu.addSeparator()
             if not hasattr(view.column_header_context_menu, 'bl_split_action'):
                 view.column_header_context_menu.bl_split_action = view.column_header_context_menu.addAction(
-                        'xxx', partial(self.column_header_context_handler, action='split', column='title'))
+                        QIcon.ic('split.png'), 'xxx', partial(self.column_header_context_handler, action='split', column='title'))
             ac = view.column_header_context_menu.bl_split_action
             if self.pin_view.isVisible():
                 ac.setText(_('Un-split the book list'))
