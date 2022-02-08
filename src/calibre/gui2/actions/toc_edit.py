@@ -159,8 +159,9 @@ class ToCEditAction(InterfaceAction):
     def check_for_completions(self):
         from calibre.utils.filenames import retry_on_fail
         for job in tuple(self.jobs):
-            started_path = job['path'] + '.started'
-            result_path = job['path'] + '.result'
+            path = job['path']
+            started_path = path + '.started'
+            result_path = path + '.result'
             if job['started'] and os.path.exists(result_path):
                 self.jobs.remove(job)
                 ret = -1
@@ -179,11 +180,13 @@ class ToCEditAction(InterfaceAction):
                             'Cannot save changes made to {0} by the ToC editor as'
                             ' the calibre library has changed.').format(job['title']), show=True)
                     else:
-                        db.new_api.add_format(job['book_id'], job['fmt'], job['path'], run_hooks=False)
-                os.remove(job['path'])
+                        db.new_api.add_format(job['book_id'], job['fmt'], path, run_hooks=False)
+                retry_on_fail(os.remove, path)
             else:
                 if monotonic() - job['start_time'] > 120:
                     self.jobs.remove(job)
+                    error_dialog(self.gui, _('Failed to start editor'), _(
+                        'Could not edit: {}. The Table of Contents editor did not start in four minutes').format(job['title']), show=True)
                     continue
                 if os.path.exists(started_path):
                     job['started'] = True
