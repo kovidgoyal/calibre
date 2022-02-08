@@ -495,7 +495,7 @@ be configured to read metadata from the file name instead, via
 :guilabel:`Preferences->Import/export->Adding books->Read metadata from file contents`.
 
 You can also control how metadata is read from the filename using regular
-expressions (see :doc:`regexp`).  In the :guilabel:`Adding books` section of
+expressions (see :doc:`regexp`). In the :guilabel:`Adding books` section of
 the configuration dialog, you can specify a regular expression that calibre
 will use to try and guess metadata from the names of e-book files that you add
 to the library. The default regular expression is::

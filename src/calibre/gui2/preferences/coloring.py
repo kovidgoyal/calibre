@@ -131,7 +131,7 @@ class ConditionEditor(QWidget):  # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        texts = _('If the ___ column ___ values')
+        texts = _('If the ___ column ___ value')
         try:
             one, two, three = texts.split('___')
         except:

@@ -130,9 +130,9 @@ class KOBO(USBMS):
             'expired records and allow you to delete them with '
             'the new delete logic.'),
         _('Show previews') + ':::'+_(
-            'Kobo previews are included on the Touch and some other versions'
-            ' by default they are no longer displayed as there is no good reason to '
-            'see them.  Enable if you wish to see/delete them.'),
+            'Kobo previews are included on the Touch and some other versions.'
+            ' By default, they are no longer displayed as there is no good reason to '
+            'see them. Enable if you wish to see/delete them.'),
         _('Show recommendations') + ':::'+_(
             'Kobo now shows recommendations on the device. In some cases these have '
             'files but in other cases they are just pointers to the web site to buy. '
@@ -142,7 +142,7 @@ class KOBO(USBMS):
             'database version. With this option calibre will attempt '
             'to perform full read-write functionality - Here be Dragons!! '
             'Enable only if you are comfortable with restoring your kobo '
-            'to factory defaults and testing software'),
+            'to Factory defaults and testing software'),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -715,7 +715,7 @@ class KOBO(USBMS):
                     ' check by right clicking the device icon in calibre and'
                     ' selecting "Configure this device" and then the '
                     ' "Attempt to support newer firmware" option.'
-                    ' Doing so may require you to perform a factory reset of'
+                    ' Doing so may require you to perform a Factory reset of'
                     ' your Kobo.') + ((
                     '\nDevice database version: %s.'
                     '\nDevice firmware version: %s') % (self.dbversion, self.fwversion))
@@ -3728,7 +3728,7 @@ class KOBOTOUCH(KOBO):
                     ' check by right clicking the device icon in calibre and'
                     ' selecting "Configure this device" and then the'
                     ' "Attempt to support newer firmware" option.'
-                    ' Doing so may require you to perform a factory reset of'
+                    ' Doing so may require you to perform a Factory reset of'
                     ' your Kobo.'
                     ) +
                     '\n\n' +

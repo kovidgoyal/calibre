@@ -438,9 +438,9 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 
         self.show_previews_checkbox = create_checkbox(
                              _('Show previews'),
-                             _('Kobo previews are included on the Touch and some other versions'
-                               ' by default they are no longer displayed as there is no good reason to '
-                               'see them.  Enable if you wish to see/delete them.'),
+                             _('Kobo previews are included on the Touch and some other versions.'
+                               ' By default, they are no longer displayed as there is no good reason to '
+                               'see them. Enable if you wish to see/delete them.'),
                              device.get_pref('show_previews')
                              )
 
