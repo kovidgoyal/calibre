@@ -264,12 +264,12 @@ class Quickview(QDialog, Ui_Quickview):
         self.close_button.setDefault(False)
         self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
         if self.is_pane:
-            self.dock_button.setText(_('&Undock'))
+            self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Show the Quickview panel in its own floating window'))
             self.dock_button.setIcon(QIcon(I('arrow-up.png')))
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
-            self.refresh_button.setText(_('&Refresh'))
+            self.refresh_button.setText(_('Refresh'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
             self.close_button.setVisible(False)
         else:
