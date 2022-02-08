@@ -43,6 +43,12 @@ class FTSAPITest(BaseTest):
         self.ae(fts.all_currently_dirty(), [])
         cache.add_format(2, 'ADDED', BytesIO(b'data2'))
         self.ae(fts.all_currently_dirty(), [(2, 'ADDED')])
+        fts.add_text(2, 'ADDED', 'data2')
+        self.ae(fts.all_currently_dirty(), [])
+        cache.add_format(2, 'ADDED', BytesIO(b'data2'))
+        self.ae(fts.all_currently_dirty(), [(2, 'ADDED')])
+        fts.add_text(2, 'ADDED', 'data2')
+        self.ae(fts.all_currently_dirty(), [])
 
 
 def find_tests():

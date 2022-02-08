@@ -7,6 +7,8 @@ import builtins
 import os
 import sys
 
+from calibre.utils.date import EPOCH, utcnow
+
 from .schema_upgrade import SchemaUpgrade
 
 # TODO: db dump+restore
@@ -43,3 +45,16 @@ class FTS:
     def clear_all_dirty(self):
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats')
+
+    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash=''):
+        conn = self.get_connection()
+        ts = (utcnow() - EPOCH).total_seconds()
+        fmt = fmt.upper()
+        if text:
+            conn.execute(
+                'INSERT OR REPLACE INTO fts_db.books_text '
+                '(book, timestamp, format, format_size, format_hash, searchable_text, text_size, text_hash) VALUES '
+                '(?, ?, ?, ?, ?, ?, ?, ?)', (
+                    book_id, ts, fmt, fmt_size, fmt_hash, text, len(text), text_hash))
+        else:
+            conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? and format=?', (book_id, fmt))
