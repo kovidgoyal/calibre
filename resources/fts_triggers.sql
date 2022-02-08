@@ -4,8 +4,8 @@ CREATE TEMP TRIGGER fts_db_book_deleted_trg AFTER DELETE ON main.books BEGIN
 END;
 
 CREATE TEMP TRIGGER fts_db_format_deleted_trg AFTER DELETE ON main.data BEGIN
-    DELETE FROM books_text WHERE book=OLD.id AND format=OLD.format;
-    DELETE FROM dirtied_formats WHERE book=OLD.id AND format=OLD.format;
+    DELETE FROM books_text WHERE book=OLD.book AND format=OLD.format;
+    DELETE FROM dirtied_formats WHERE book=OLD.book AND format=OLD.format;
 END;
 
 CREATE TEMP TRIGGER fts_db_format_added_trg AFTER INSERT ON main.data BEGIN

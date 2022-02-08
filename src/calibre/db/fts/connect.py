@@ -39,3 +39,7 @@ class FTS:
     def all_currently_dirty(self):
         conn = self.get_connection()
         return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)
+
+    def clear_all_dirty(self):
+        conn = self.get_connection()
+        conn.execute('DELETE FROM fts_db.dirtied_formats')
