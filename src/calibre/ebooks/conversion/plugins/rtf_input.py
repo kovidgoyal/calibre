@@ -169,7 +169,7 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.covers import message_image
         if self.default_img is None:
             self.default_img = message_image('Conversion of WMF images is not supported.'
-            ' Use Microsoft Word or OpenOffice to save this RTF file'
+            ' Use Microsoft Word or LibreOffice to save this RTF file'
             ' as HTML and convert that in calibre.')
         name = name.replace('.wmf', '.jpg')
         with lopen(name, 'wb') as f:
