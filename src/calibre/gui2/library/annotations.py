@@ -364,17 +364,19 @@ class ResultsList(QTreeWidget):
         items = self.selectedItems()
         m = QMenu(self)
         if isinstance(result, dict):
-            m.addAction(_('Open in viewer'), partial(self.item_activated, item))
-            m.addAction(_('Show in calibre'), partial(self.show_in_calibre, item))
+            m.addAction(QIcon.ic('viewer.png'), _('Open in viewer'), partial(self.item_activated, item))
+            m.addAction(QIcon.ic('lt.png'), _('Show in calibre'), partial(self.show_in_calibre, item))
             if result.get('annotation', {}).get('type') == 'highlight':
-                m.addAction(_('Edit notes'), partial(self.edit_notes, item))
+                m.addAction(QIcon.ic('modified.png'), _('Edit notes'), partial(self.edit_notes, item))
         if items:
             m.addSeparator()
-            m.addAction(ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)), self.export_requested.emit)
-            m.addAction(ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)), self.delete_requested.emit)
+            m.addAction(QIcon.ic('save.png'),
+                        ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)), self.export_requested.emit)
+            m.addAction(QIcon.ic('trash.png'),
+                        ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)), self.delete_requested.emit)
         m.addSeparator()
-        m.addAction(_('Expand all'), self.expandAll)
-        m.addAction(_('Collapse all'), self.collapseAll)
+        m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
 
     def edit_notes(self, item):
