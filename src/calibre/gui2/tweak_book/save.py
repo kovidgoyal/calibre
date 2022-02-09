@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil, os, errno
+import shutil, os, errno, stat
 from threading import Thread
 
 from qt.core import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt, QSize)
@@ -49,7 +49,7 @@ def save_container(container, path):
                 # Somebody deleted the original file
         if st is not None:
             try:
-                os.fchmod(fno, st.st_mode)
+                os.fchmod(fno, st.st_mode | stat.S_IWUSR)
             except OSError as err:
                 if err.errno != errno.EPERM:
                     raise
