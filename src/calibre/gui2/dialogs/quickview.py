@@ -12,7 +12,7 @@ from functools import partial
 from qt.core import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
     QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu,
-    QShortcut, QTimer)
+    QShortcut, QTimer, QStyle)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -263,6 +263,8 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.close_button.setDefault(False)
         self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
+        self.refresh_button.setIcon(QIcon.ic('view-refresh.png'))
+        self.close_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogCloseButton))
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Show the Quickview panel in its own floating window'))
