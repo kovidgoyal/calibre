@@ -254,8 +254,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
-        menu.addAction(_('Expand all'), self.plugin_view.expandAll)
-        menu.addAction(_('Collapse all'), self.plugin_view.collapseAll)
+        menu.addAction(QIcon.ic('plus.png'), _('Expand all'), self.plugin_view.expandAll)
+        menu.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.plugin_view.collapseAll)
         menu.exec(self.plugin_view.mapToGlobal(pos))
 
     def show_user_installed_plugins(self, state):

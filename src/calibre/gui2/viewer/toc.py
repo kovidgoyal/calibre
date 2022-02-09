@@ -116,16 +116,16 @@ class TOCView(QTreeView):
         index = self.indexAt(pos)
         m = QMenu(self)
         if index.isValid():
-            m.addAction(_('Expand all items under %s') % index.data(), partial(self.expand_tree, index))
+            m.addAction(QIcon.ic('plus.png'), _('Expand all items under %s') % index.data(), partial(self.expand_tree, index))
         m.addSeparator()
-        m.addAction(_('Expand all items'), self.expandAll)
-        m.addAction(_('Collapse all items'), self.collapseAll)
+        m.addAction(QIcon.ic('plus.png'), _('Expand all items'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all items'), self.collapseAll)
         m.addSeparator()
         if index.isValid():
-            m.addAction(_('Expand all items at the level of {}').format(index.data()), partial(self.expand_at_level, index))
-            m.addAction(_('Collapse all items at the level of {}').format(index.data()), partial(self.collapse_at_level, index))
+            m.addAction(QIcon.ic('plus.png'), _('Expand all items at the level of {}').format(index.data()), partial(self.expand_at_level, index))
+            m.addAction(QIcon.ic('minus.png'), _('Collapse all items at the level of {}').format(index.data()), partial(self.collapse_at_level, index))
         m.addSeparator()
-        m.addAction(_('Copy Table of Contents to clipboard'), self.copy_to_clipboard)
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy Table of Contents to clipboard'), self.copy_to_clipboard)
         m.exec(self.mapToGlobal(pos))
 
     def copy_to_clipboard(self):

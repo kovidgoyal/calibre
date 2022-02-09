@@ -187,8 +187,8 @@ class Highlights(QTreeWidget):
                 'Delete this highlight', 'Delete selected highlights', len(self.selectedItems())
             ), self.delete_requested.emit)
         m.addSeparator()
-        m.addAction(_('Expand all'), self.expandAll)
-        m.addAction(_('Collapse all'), self.collapseAll)
+        m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 

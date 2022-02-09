@@ -521,7 +521,7 @@ class VLTabs(QTabBar):  # {{{
 
     def contextMenuEvent(self, ev):
         m = QMenu(self)
-        m.addAction(_('Sort tabs alphabetically'), self.sort_alphabetically)
+        m.addAction(QIcon.ic('sort.png'), _('Sort tabs alphabetically'), self.sort_alphabetically)
         hidden = self.current_db.new_api.pref('virt_libs_hidden')
         if hidden:
             s = m._s = m.addMenu(_('Restore hidden tabs'))
@@ -529,17 +529,17 @@ class VLTabs(QTabBar):  # {{{
                 s.addAction(x, partial(self.restore, x))
         m.addAction(_('Hide Virtual library tabs'), self.disable_bar)
         if gprefs['vl_tabs_closable']:
-            m.addAction(_('Lock Virtual library tabs'), self.lock_tab)
+            m.addAction(QIcon.ic('drm-locked.png'), _('Lock Virtual library tabs'), self.lock_tab)
         else:
-            m.addAction(_('Unlock Virtual library tabs'), self.unlock_tab)
+            m.addAction(QIcon.ic('drm-unlocked.png'), _('Unlock Virtual library tabs'), self.unlock_tab)
         i = self.tabAt(ev.pos())
         if i > -1:
             vl = str(self.tabData(i) or '')
             if vl:
                 vln = vl.replace('&', '&&')
                 m.addSeparator()
-                m.addAction(_('Edit "%s"') % vln, partial(self.gui.do_create_edit, name=vl))
-                m.addAction(_('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
+                m.addAction(QIcon.ic('edit_input.png'), _('Edit "%s"') % vln, partial(self.gui.do_create_edit, name=vl))
+                m.addAction(QIcon.ic('trash.png'), _('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
         m.exec(ev.globalPos())
 
     def sort_alphabetically(self):

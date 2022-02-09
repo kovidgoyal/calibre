@@ -680,8 +680,8 @@ class ShortcutConfig(QWidget):  # {{{
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
-        menu.addAction(_('Expand all'), self.view.expandAll)
-        menu.addAction(_('Collapse all'), self.view.collapseAll)
+        menu.addAction(QIcon.ic('plus.png'), _('Expand all'), self.view.expandAll)
+        menu.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.view.collapseAll)
         menu.exec(self.view.mapToGlobal(pos))
 
     def restore_defaults(self):
