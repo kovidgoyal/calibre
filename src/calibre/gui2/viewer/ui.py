@@ -101,7 +101,7 @@ class EbookViewer(MainWindow):
         self.setDockOptions(QMainWindow.DockOption.AnimatedDocks | QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
         self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
-        self.image_popup = ImagePopup(self)
+        self.image_popup = ImagePopup(self, prefs=vprefs)
         self.actions_toolbar = at = ActionsToolBar(self)
         at.open_book_at_path.connect(self.ask_for_open)
         self.addToolBar(Qt.ToolBarArea.LeftToolBarArea, at)

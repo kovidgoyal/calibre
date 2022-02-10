@@ -94,8 +94,9 @@ class ScrollArea(QScrollArea):
 
 class ImageView(QDialog):
 
-    def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
+    def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry', prefs=gprefs):
         QDialog.__init__(self)
+        self.prefs = prefs
         self.current_image_name = ''
         self.maximized_at_last_fullscreen = False
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
@@ -139,12 +140,12 @@ class ImageView(QDialog):
         l.addLayout(h)
         self.fit_image = i = QCheckBox(_('&Fit image'))
         i.setToolTip(_('Fit image inside the available space'))
-        i.setChecked(bool(gprefs.get('image_popup_fit_image')))
+        i.setChecked(bool(self.prefs.get('image_popup_fit_image')))
         i.stateChanged.connect(self.fit_changed)
         h.addWidget(i), h.addStretch(), h.addWidget(bb)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
-        geom = gprefs.get(self.geom_name)
+        geom = self.prefs.get(self.geom_name)
         if geom is not None:
             self.restoreGeometry(geom)
         fo.setChecked(self.isFullScreen())
@@ -197,7 +198,7 @@ class ImageView(QDialog):
 
     def fit_changed(self):
         fitted = bool(self.fit_image.isChecked())
-        gprefs.set('image_popup_fit_image', fitted)
+        self.prefs.set('image_popup_fit_image', fitted)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
         else:
@@ -241,7 +242,7 @@ class ImageView(QDialog):
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
         self.resize(QSize(int(geom.width()/2.5), geom.height()-50))
-        geom = gprefs.get(self.geom_name, None)
+        geom = self.prefs.get(self.geom_name, None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, geom)
         try:
@@ -259,7 +260,7 @@ class ImageView(QDialog):
             self.show()
 
     def done(self, e):
-        gprefs[self.geom_name] = bytearray(self.saveGeometry())
+        self.prefs[self.geom_name] = bytearray(self.saveGeometry())
         return QDialog.done(self, e)
 
     def toggle_fullscreen(self):
@@ -282,16 +283,17 @@ class ImageView(QDialog):
 
 class ImagePopup:
 
-    def __init__(self, parent):
+    def __init__(self, parent, prefs=gprefs):
         self.current_img = QPixmap()
         self.current_url = QUrl()
         self.parent = parent
         self.dialogs = []
+        self.prefs = prefs
 
     def __call__(self):
         if self.current_img.isNull():
             return
-        d = ImageView(self.parent, self.current_img, self.current_url)
+        d = ImageView(self.parent, self.current_img, self.current_url, prefs=self.prefs)
         self.dialogs.append(d)
         d.finished.connect(self.cleanup, type=Qt.ConnectionType.QueuedConnection)
         d()
