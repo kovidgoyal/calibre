@@ -240,6 +240,7 @@ class Config(QDialog):
         for w in widgets:
             w.set_help_signal.connect(self.help.setPlainText)
             w.setVisible(False)
+            w.layout().setContentsMargins(0, 0, 0, 0)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)

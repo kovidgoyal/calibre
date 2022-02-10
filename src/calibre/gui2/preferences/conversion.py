@@ -101,6 +101,7 @@ class Base(ConfigWidgetBase):
 
         for w in widgets:
             w.changed_signal.connect(self.changed_signal)
+            w.layout().setContentsMargins(6, 6, 6, 6)
             sa = QScrollArea(self)
             sa.setWidget(w)
             sa.setWidgetResizable(True)
