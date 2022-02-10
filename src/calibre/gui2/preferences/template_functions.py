@@ -6,7 +6,7 @@ import json
 import traceback
 from qt.core import QDialog, QDialogButtonBox
 
-from calibre.gui2 import error_dialog, question_dialog, warning_dialog
+from calibre.gui2 import error_dialog, gprefs, question_dialog, warning_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortInitialize, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
@@ -75,9 +75,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         </p>
         ''')
         self.textBrowser.setHtml(help_text)
-        self.textBrowser_showing = True
         self.textBrowser.adjustSize()
         self.show_hide_help_button.clicked.connect(self.show_hide_help)
+        self.textBrowser_showing = not gprefs.get('template_functions_prefs_tf_show_help', True)
+        self.textBrowser_height = self.textBrowser.height()
+        self.show_hide_help()
+
         help_text = _('''
         <p>
         Here you can create, edit (replace), and delete stored templates used
@@ -110,13 +113,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         </p>
         ''')
         self.st_textBrowser.setHtml(help_text.format('program:', 'arguments'))
-        self.st_textBrowser_showing = True
         self.st_textBrowser.adjustSize()
         self.st_show_hide_help_button.clicked.connect(self.st_show_hide_help)
+        self.st_textBrowser_height = self.st_textBrowser.height()
+        self.st_textBrowser_showing = not gprefs.get('template_functions_prefs_st_show_help', True)
+        self.st_show_hide_help()
 
     def st_show_hide_help(self):
+        gprefs['template_functions_prefs_st_show_help'] = not self.st_textBrowser_showing
         if self.st_textBrowser_showing:
-            self.st_textBrowser_height = self.st_textBrowser.height()
             self.st_textBrowser.setMaximumHeight(self.st_show_hide_help_button.height())
             self.st_textBrowser_showing = False
             self.st_show_hide_help_button.setText(_('Show help'))
@@ -126,8 +131,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.st_show_hide_help_button.setText(_('Hide help'))
 
     def show_hide_help(self):
+        gprefs['template_functions_prefs_tf_show_help'] = not self.textBrowser_showing
         if self.textBrowser_showing:
-            self.textBrowser_height = self.textBrowser.height()
             self.textBrowser.setMaximumHeight(self.show_hide_help_button.height())
             self.textBrowser_showing = False
             self.show_hide_help_button.setText(_('Show help'))
@@ -213,7 +218,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if row.isValid():
                     self.mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
 
-            self.template_editor.set_mi(self.mi[0], self.fm)
+            self.template_editor.set_mi(self.mi, self.fm)
 
     # Python function tab
 
