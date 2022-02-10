@@ -31,7 +31,6 @@ from calibre.gui2.metadata.basic_widgets import (
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
-from calibre.utils.config import tweaks
 from calibre.utils.date import local_tz
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import iteritems
