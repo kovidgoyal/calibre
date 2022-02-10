@@ -113,13 +113,6 @@
        <string>&amp;Template functions</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" colspan="2">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
