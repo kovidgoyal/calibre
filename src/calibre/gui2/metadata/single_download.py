@@ -462,6 +462,7 @@ class IdentifyWidget(QWidget):  # {{{
 
         self.query = QLabel('download starting...')
         self.query.setWordWrap(True)
+        self.query.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(self.query)
 
         self.comments_view.show_wait()
