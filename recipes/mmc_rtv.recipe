@@ -31,16 +31,16 @@ class MMCRTV(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'Slovenija', u'http://www.rtvslo.si/feeds/01.xml'),
-        (u'Evropska unija', u'http://www.rtvslo.si/feeds/16.xml'),
-        (u'Svet', u'http://www.rtvslo.si/feeds/02.xml'),
-        (u'Gospodarstvo', u'http://www.rtvslo.si/feeds/04.xml'),
-        (u'Okolje', u'http://www.rtvslo.si/feeds/12.xml'),
-        (u'Znanost in tehnologija', u'http://www.rtvslo.si/feeds/09.xml'),
+        (u'Slovenija', u'https://www.rtvslo.si/feeds/01.xml'),
+        (u'Evropska unija', u'https://www.rtvslo.si/feeds/16.xml'),
+        (u'Svet', u'https://www.rtvslo.si/feeds/02.xml'),
+        (u'Gospodarstvo', u'https://www.rtvslo.si/feeds/04.xml'),
+        (u'Okolje', u'https://www.rtvslo.si/feeds/12.xml'),
+        (u'Znanost in tehnologija', u'https://www.rtvslo.si/feeds/09.xml'),
         (u'Kultura', u'https://www.rtvslo.si/feeds/05.xml'),
         (u'Šport', u'https://www.rtvslo.si/feeds/03.xml'),
-        (u'Zabava', u'http://www.rtvslo.si/feeds/06.xml'),
-        (u'Ture avanture', u'http://www.rtvslo.si/feeds/28.xml'),
-        (u'Črna kronika', u'http://www.rtvslo.si/feeds/08.xml'),
+        (u'Zabava', u'https://www.rtvslo.si/feeds/06.xml'),
+        (u'Ture avanture', u'https://www.rtvslo.si/feeds/28.xml'),
+        (u'Črna kronika', u'https://www.rtvslo.si/feeds/08.xml'),
     ]
  
