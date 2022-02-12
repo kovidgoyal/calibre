@@ -174,11 +174,19 @@ class TextileMLizer(OEB2HTML):
         txt = ''
         left_padding_pts = 0
         left_margin_pts = 0
+
+        def add(x, y):
+            if isinstance(x, str):
+                x = 0
+            if isinstance(y, str):
+                y = 0
+            return x +y
+
         if 'padding-left' in style.cssdict() and style['padding-left'] != 'auto':
             left_padding_pts = unit_convert(style['padding-left'], style.width, style.fontSize, stylizer.profile.dpi)
         if 'margin-left' in style.cssdict() and style['margin-left'] != 'auto':
             left_margin_pts = unit_convert(style['margin-left'], style.width, style.fontSize, stylizer.profile.dpi)
-        left = left_margin_pts + left_padding_pts
+        left = add(left_margin_pts, left_padding_pts)
         emleft = min(int(round(left / stylizer.profile.fbase)), self.MAX_EM)
         if emleft >= 1:
             txt += '(' * emleft
@@ -188,7 +196,7 @@ class TextileMLizer(OEB2HTML):
             right_padding_pts = unit_convert(style['padding-right'], style.width, style.fontSize, stylizer.profile.dpi)
         if 'margin-right' in style.cssdict() and style['margin-right'] != 'auto':
             right_margin_pts = unit_convert(style['margin-right'], style.width, style.fontSize, stylizer.profile.dpi)
-        right = right_margin_pts + right_padding_pts
+        right = add(right_margin_pts, right_padding_pts)
         emright = min(int(round(right / stylizer.profile.fbase)), self.MAX_EM)
         if emright >= 1:
             txt += ')' * emright
