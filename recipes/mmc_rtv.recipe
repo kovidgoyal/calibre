@@ -16,6 +16,7 @@ class MMCRTV(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
+    publication_type = 'newspaper'
 
     cover_url = 'https://img.rtvslo.si/_static/novi/logo/tvmmc-light-bg.png'
 
@@ -25,6 +26,7 @@ class MMCRTV(BasicNewsRecipe):
     ]
     remove_tags=[
         dict(name='div', attrs={'class':'gallery-grid'}),
+        dict(name='div', attrs={'class':'gallery'}),
         dict(name='div', attrs={'class':'exposed-article'}),
         dict(name='div', attrs={'class':'d-lg-none'}),
         dict(name='div', attrs={'class':'section-heading'}),
