@@ -19,7 +19,7 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
         if callable(proceed) and files.length:
             proceed(container_id, files)
 
-    msg = msg or _('Upload books by <a>selecting the book files</a> or drag and drop of the files here')
+    msg = msg or _('Upload books by either <a>selecting the book files</a> or drag and drop the files here')
     c = E.div(E.span(), E.input(type='file', style='display:none', onchange=files_selected))
     if not single_file:
         c.lastChild.setAttribute('multiple', 'multiple')
