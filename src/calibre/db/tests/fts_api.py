@@ -7,6 +7,7 @@ import sys
 from io import BytesIO
 
 from calibre.db.tests.base import BaseTest
+from calibre.db.fts.text import html_to_text
 
 
 def print(*args, **kwargs):
@@ -49,6 +50,18 @@ class FTSAPITest(BaseTest):
         self.ae(fts.all_currently_dirty(), [(2, 'ADDED')])
         fts.add_text(2, 'ADDED', 'data2')
         self.ae(fts.all_currently_dirty(), [])
+
+    def test_fts_to_text(self):
+        from calibre.ebooks.oeb.polish.parsing import parse
+        html = '''
+<html><body>
+<div>first_para</div><p>second_para</p>
+<p>some <i>itali</i>c t<!- c -->ext</p>
+<div>nested<p>blocks</p></div>
+</body></html>
+'''
+        root = parse(html)
+        self.ae(tuple(html_to_text(root)), ('first_para\n\nsecond_para\n\nsome italic text\n\nnested\n\nblocks',))
 
 
 def find_tests():

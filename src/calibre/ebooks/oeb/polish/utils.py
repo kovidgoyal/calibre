@@ -10,6 +10,13 @@ from bisect import bisect
 from calibre import guess_type as _guess_type, replace_entities
 
 
+BLOCK_TAG_NAMES = frozenset((
+    'address', 'article', 'aside', 'blockquote', 'center', 'dir', 'fieldset',
+    'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre', 'section',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul',
+    'ol', 'li', 'body', 'td', 'th'))
+
+
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
 

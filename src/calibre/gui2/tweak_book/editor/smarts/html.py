@@ -15,6 +15,7 @@ from qt.core import Qt, QTextCursor, QTextEdit
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
+from calibre.ebooks.oeb.polish.utils import BLOCK_TAG_NAMES
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
@@ -282,13 +283,6 @@ def ensure_not_within_tag_definition(cursor, forward=True):
             return True
 
     return False
-
-
-BLOCK_TAG_NAMES = frozenset((
-    'address', 'article', 'aside', 'blockquote', 'center', 'dir', 'fieldset',
-    'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre', 'section',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul',
-    'ol', 'li', 'body', 'td', 'th'))
 
 
 def find_closest_containing_block_tag(block, offset, block_tag_names=BLOCK_TAG_NAMES):
