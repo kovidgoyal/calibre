@@ -15,6 +15,7 @@ from qt.core import (
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication)
 
 from calibre.constants import islinux
+from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, CcLongTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
@@ -431,6 +432,8 @@ class BooksView(QTableView):  # {{{
         elif action == 'reset_ondevice_width':
             gprefs.set('ondevice_column_width', 0)
             self.resizeColumnToContents(idx)
+        elif action == 'edit_enum':
+            EnumValuesEdit(self, self._model.db, column).exec()
         self.save_state()
 
     def create_context_menu(self, col, name, view):
@@ -473,10 +476,14 @@ class BooksView(QTableView):  # {{{
 
         if self.is_library_view:
             if self._model.db.field_metadata[col]['is_category']:
-                act = ans.addAction(QIcon.ic('quickview.png'), _('Quickview column %s') % name, partial(handler, action='quickview'))
+                act = ans.addAction(QIcon.ic('quickview.png'), _('Quickview column %s') % name,
+                                    partial(handler, action='quickview'))
                 rows = self.selectionModel().selectedRows()
                 if len(rows) > 1:
                     act.setEnabled(False)
+            if self._model.db.field_metadata[col]['datatype'] == 'enumeration':
+                ans.addAction(QIcon.ic('edit_input.png'), _('Edit permissible values for %s') % name,
+                              partial(handler, action='edit_enum'))
 
         hidden_cols = {self.column_map[i]: i for i in range(view.column_header.count())
                        if view.column_header.isSectionHidden(i) and self.column_map[i] not in ('ondevice', 'inlibrary')}
