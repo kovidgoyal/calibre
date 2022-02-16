@@ -309,7 +309,7 @@ You can insert the following two lines of code to start an interactive Python se
     ipython(locals())
 
 When running from the command line, this will start an interactive Python interpreter with access to all
-locally defined variables (variables in the local scope). The interactive prompt even has TAB completion
+locally defined variables (variables in the local scope). The interactive prompt even has :kbd:`Tab` completion
 for object properties and you can use the various Python facilities for introspection, such as
 :func:`dir`, :func:`type`, :func:`repr`, etc.
 

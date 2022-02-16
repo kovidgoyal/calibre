@@ -533,10 +533,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
-        choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+        choices = [(_('Default'), 'default'), (_('Compact metadata'), 'alt1'),
                    (_('All on 1 tab'), 'alt2')]
         r('edit_metadata_single_layout', gprefs,
-          choices=[(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+          choices=[(_('Default'), 'default'), (_('Compact metadata'), 'alt1'),
                    (_('All on 1 tab'), 'alt2')])
         r('edit_metadata_ignore_display_order', db.prefs)
         r('edit_metadata_elision_point', gprefs,
