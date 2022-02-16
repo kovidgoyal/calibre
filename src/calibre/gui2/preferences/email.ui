@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label_22">
      <property name="text">
-		 <string>&lt;p&gt;calibre can send your books to you (or your reader) by email. Emails will be automatically sent for downloaded news to all email addresses that have &lt;i&gt;Auto send&lt;/i&gt; checked.</string>
+      <string>&lt;p&gt;calibre can send your books to you (or your reader) by email. Emails will be automatically sent for downloaded news to all email addresses that have &lt;i&gt;Auto send&lt;/i&gt; checked.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -29,7 +29,7 @@
      <item>
       <widget class="QTableView" name="email_view">
        <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
+        <enum>QAbstractItemView::MultiSelection</enum>
        </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>

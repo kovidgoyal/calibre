@@ -270,8 +270,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def remove_email_account(self, *args):
-        idx = self.email_view.currentIndex()
-        self._email_accounts.remove(idx)
+        row_map = {}
+        for idx in self.email_view.selectionModel().selectedIndexes():
+            row_map[idx.row()] = idx
+        for idx in sorted(row_map.values(), reverse=True):
+            self._email_accounts.remove(idx)
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
