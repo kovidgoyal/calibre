@@ -338,6 +338,9 @@
         <string>&amp;Layout</string>
        </attribute>
        <layout class="QFormLayout" name="formLayout_2">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::ExpandingFieldsGrow</enum>
+        </property>
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="label_19">
           <property name="text">
@@ -421,7 +424,13 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0" colspan="5">
-            <widget class="QLabel" name="label_20">
+            <widget class="QLabel" name="cover_size_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>10</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
              </property>
