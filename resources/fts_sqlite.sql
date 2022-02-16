@@ -1,7 +1,7 @@
 CREATE TABLE fts_db.dirtied_formats ( id INTEGER PRIMARY KEY,
 	book INTEGER NOT NULL,
 	format TEXT NOT NULL COLLATE NOCASE,
-    in_progress INTEGER NOT NULL DEFAULT 0,
+    in_progress INTEGER NOT NULL DEFAULT FALSE,
     UNIQUE(book, format)
 );
 

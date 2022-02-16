@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import hashlib
 import operator
 import os
 import random
@@ -15,7 +16,7 @@ import weakref
 from collections import defaultdict
 from collections.abc import MutableSet, Set
 from functools import partial, wraps
-from io import BytesIO
+from io import DEFAULT_BUFFER_SIZE, BytesIO
 from threading import Lock
 from time import time
 
@@ -431,12 +432,30 @@ class Cache:
         return self.backend.enable_fts(weakref.ref(self) if enabled else None)
 
     @write_api
-    def get_next_fts_job(self):
+    def queue_next_fts_job(self):
+        from .fts.text import is_fmt_ok
         if not self.backend.fts_enabled:
             return
-        book_id, fmt = self.backend.get_next_fts_job()
-        if book_id is None:
-            return
+        while True:
+            book_id, fmt = self.backend.get_next_fts_job()
+            if book_id is None:
+                return
+            path = self.format_abspath(book_id, fmt)
+            if not path or not is_fmt_ok(fmt):
+                self.backend.remove_dirty_fts(book_id, fmt)
+                continue
+            with PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt, open(path, 'rb') as src:
+                sz = 0
+                h = hashlib.sha1()
+                while True:
+                    chunk = src.read(DEFAULT_BUFFER_SIZE)
+                    if not chunk:
+                        break
+                    sz += len(chunk)
+                    h.update(chunk)
+                    pt.write(chunk)
+            if self.backend.queue_fts_job(book_id, fmt, path, sz, h.hexdigest()):
+                break
 
     # }}}
 

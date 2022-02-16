@@ -6,9 +6,11 @@
 import builtins
 import os
 import sys
+from contextlib import suppress
 
 from calibre.utils.date import EPOCH, utcnow
 
+from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
 # TODO: check that closing of db connection works
@@ -26,6 +28,7 @@ class FTS:
 
     def __init__(self, dbref):
         self.dbref = dbref
+        self.pool = Pool(dbref)
 
     def initialize(self, conn):
         main_db_path = os.path.abspath(conn.db_filename('main'))
@@ -33,6 +36,7 @@ class FTS:
         conn.execute(f'ATTACH DATABASE "{dbpath}" AS fts_db')
         SchemaUpgrade(conn)
         conn.fts_dbpath = dbpath
+        conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
 
     def get_connection(self):
         db = self.dbref()
@@ -58,6 +62,10 @@ class FTS:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats')
 
+    def remove_dirty(self, book_id, fmt):
+        conn = self.get_connection()
+        conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
+
     def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash=''):
         conn = self.get_connection()
         ts = (utcnow() - EPOCH).total_seconds()
@@ -69,4 +77,25 @@ class FTS:
                 '(?, ?, ?, ?, ?, ?, ?, ?)', (
                     book_id, ts, fmt, fmt_size, fmt_hash, text, len(text), text_hash))
         else:
-            conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? and format=?', (book_id, fmt))
+            conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt))
+
+    def get_next_fts_job(self):
+        conn = self.get_connection()
+        for book_id, fmt in conn.get('SELECT book,format FROM fts_db.dirtied_formats WHERE in_progress=FALSE ORDER BY id'):
+            return book_id, fmt
+        return None, None
+
+    def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+        conn = self.get_connection()
+        fmt = fmt.upper()
+        for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND fmt=? AND format_size=? AND format_hash=?', (
+                book_id, fmt, fmt_size, fmt_hash)):
+            break
+        else:
+            self.pool.add_job(book_id, fmt, path, fmt_size, fmt_hash)
+            conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=TRUE WHERE book=? AND format=? LIMIT 1', (book_id, fmt))
+            return True
+        self.remove_dirty(book_id, fmt)
+        with suppress(OSError):
+            os.remove(path)
+        return False

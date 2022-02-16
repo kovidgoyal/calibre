@@ -51,15 +51,22 @@ def to_text(container, name):
     yield from html_to_text(root)
 
 
+def is_fmt_ok(input_fmt):
+    input_fmt = input_fmt.upper()
+    input_plugin = plugin_for_input_format(input_fmt)
+    is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
+    if not input_plugin or is_comic:
+        return False
+    return input_plugin
+
+
 def extract_text(pathtoebook):
     input_fmt = pathtoebook.rpartition('.')[-1].upper()
-    input_plugin = plugin_for_input_format(input_fmt)
     ans = ''
+    input_plugin = is_fmt_ok(input_fmt)
     if not input_plugin:
         return ans
-    is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
-    if is_comic:
-        return ans
+    input_plugin = plugin_for_input_format(input_fmt)
     with TemporaryDirectory() as tdir:
         texts = []
         book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)

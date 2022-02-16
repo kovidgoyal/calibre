@@ -50,6 +50,12 @@ class FTSAPITest(BaseTest):
         self.ae(fts.all_currently_dirty(), [(2, 'ADDED')])
         fts.add_text(2, 'ADDED', 'data2')
         self.ae(fts.all_currently_dirty(), [])
+        fts.dirty_existing()
+        j = fts.get_next_fts_job()
+        self.ae(j, (2, 'ADDED'))
+        self.ae(j, fts.get_next_fts_job())
+        fts.remove_dirty(*j)
+        self.assertNotEqual(j, fts.get_next_fts_job())
 
     def test_fts_to_text(self):
         from calibre.ebooks.oeb.polish.parsing import parse

@@ -944,6 +944,12 @@ class DB:
     def get_next_fts_job(self):
         return self.fts.get_next_fts_job()
 
+    def remove_dirty_fts(self, book_id, fmt):
+        return self.fts.remove_dirty(book_id, fmt)
+
+    def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+        return self.fts.queue_fts_job(book_id, fmt, path, fmt_size, fmt_hash)
+
     def get_connection(self):
         return self.conn
 

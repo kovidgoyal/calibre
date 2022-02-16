@@ -30,7 +30,6 @@ class Pool:
 
     def __init__(self, dbref):
         self.max_workers = 1
-        self.supervisor_thread = Thread(name='FTSSupervisor', daemon=True, target=self.supervise)
         self.jobs_queue = Queue()
         self.supervise_queue = Queue()
         self.workers = []
@@ -39,9 +38,10 @@ class Pool:
 
     def initialize(self):
         if not self.initialized:
-            self.initialized = True
+            self.supervisor_thread = Thread(name='FTSSupervisor', daemon=True, target=self.supervise)
             self.supervisor_thread.start()
             self.expand_workers()
+            self.initialized = True
 
     def expand_workers(self):
         while len(self.workers) < self.max_workers:
@@ -52,6 +52,11 @@ class Pool:
     def check_for_work(self):
         self.initialize()
         self.supervise_queue.put(check_for_work)
+
+    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+        self.initialize()
+        job = Job(book_id, fmt, path, fmt_size, fmt_hash)
+        self.jobs_queue.put(job)
 
     def supervise(self):
         while True:
