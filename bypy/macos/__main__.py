@@ -253,7 +253,7 @@ class Freeze:
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            if x.startswith('@rpath/Qt'):
+            if x.startswith('@rpath/Qt') or x.startswith('@rpath/libexpat'):
                 yield x, x[len('@rpath/'):], is_id
             elif x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib') and not is_id:
                 yield x, x, is_id
