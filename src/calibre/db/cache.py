@@ -11,6 +11,7 @@ import random
 import shutil
 import sys
 import traceback
+import weakref
 from collections import defaultdict
 from collections.abc import MutableSet, Set
 from functools import partial, wraps
@@ -168,6 +169,7 @@ class Cache:
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
         self.initialize_dynamic()
+        self.initialize_fts()
 
     @property
     def new_api(self):
@@ -420,6 +422,14 @@ class Cache:
         if self.backend.prefs['update_all_last_mod_dates_on_start']:
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
+
+    # FTS API {{{
+    def initialize_fts(self):
+        self.backend.initialize_fts(weakref.ref(self))
+
+    def enable_fts(self, enabled=True):
+        return self.backend.enable_fts(weakref.ref(self) if enabled else None)
+    # }}}
 
     # Cache Layer API {{{
 

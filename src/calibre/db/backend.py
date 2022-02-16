@@ -337,6 +337,7 @@ class Connection(apsw.Connection):  # {{{
         set_ui_language(get_lang())
         super().__init__(path)
         plugins.load_apsw_extension(self, 'sqlite_extension')
+        self.fts_dbpath = None
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
         self.execute('pragma cache_size=-5000')
@@ -492,7 +493,6 @@ class DB:
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
-        self.initialize_fts()
         self.set_user_template_functions(compile_user_template_functions(
                                  self.prefs.get('user_template_functions', [])))
         if load_user_formatter_functions:
@@ -921,17 +921,18 @@ class DB:
 
     # }}}
 
-    def initialize_fts(self):
+    def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
             return
         from .fts.connect import FTS
-        self.fts = FTS(self.get_connection)
+        self.fts = FTS(dbref)
 
-    def enable_fts(self, enabled=True):
+    def enable_fts(self, dbref=None):
+        enabled = dbref is not None
         if enabled != self.prefs['fts_enabled']:
             self.prefs['fts_enabled'] = enabled
-            self.initialize_fts()
+            self.initialize_fts(dbref)
             if self.fts is not None:
                 self.fts.dirty_existing()
         return self.fts

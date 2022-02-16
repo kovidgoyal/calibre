@@ -11,6 +11,7 @@ from calibre.utils.date import EPOCH, utcnow
 
 from .schema_upgrade import SchemaUpgrade
 
+# TODO: check that closing of db connection works
 # TODO: db dump+restore
 # TODO: calibre export/import
 # TODO: check library and vacuuming of fts db
@@ -23,13 +24,24 @@ def print(*args, **kwargs):
 
 class FTS:
 
-    def __init__(self, get_connection):
-        self.get_connection = get_connection
-        conn = self.get_connection()
+    def __init__(self, dbref):
+        self.dbref = dbref
+
+    def initialize(self, conn):
         main_db_path = os.path.abspath(conn.db_filename('main'))
-        self.dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
-        conn.execute(f'ATTACH DATABASE "{self.dbpath}" AS fts_db')
+        dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
+        conn.execute(f'ATTACH DATABASE "{dbpath}" AS fts_db')
         SchemaUpgrade(conn)
+        conn.fts_dbpath = dbpath
+
+    def get_connection(self):
+        db = self.dbref()
+        if db is None:
+            raise RuntimeError('db has been garbage collected')
+        ans = db.backend.conn
+        if ans.fts_dbpath is None:
+            self.initialize(ans)
+        return ans
 
     def dirty_existing(self):
         conn = self.get_connection()

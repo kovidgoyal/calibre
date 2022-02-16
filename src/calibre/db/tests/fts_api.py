@@ -30,7 +30,7 @@ class FTSAPITest(BaseTest):
 
     def test_fts_triggers(self):
         cache = self.init_cache()
-        fts = cache.backend.enable_fts()
+        fts = cache.enable_fts()
         self.ae(fts.all_currently_dirty(), [(1, 'FMT1'), (1, 'FMT2'), (2, 'FMT1')])
         fts.dirty_existing()
         self.ae(fts.all_currently_dirty(), [(1, 'FMT1'), (1, 'FMT2'), (2, 'FMT1')])
