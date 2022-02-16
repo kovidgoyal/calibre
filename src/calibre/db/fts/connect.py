@@ -38,7 +38,7 @@ class FTS:
         db = self.dbref()
         if db is None:
             raise RuntimeError('db has been garbage collected')
-        ans = db.backend.conn
+        ans = db.backend.get_connection()
         if ans.fts_dbpath is None:
             self.initialize(ans)
         return ans

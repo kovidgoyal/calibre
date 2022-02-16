@@ -937,6 +937,13 @@ class DB:
                 self.fts.dirty_existing()
         return self.fts
 
+    @property
+    def fts_enabled(self):
+        return getattr(self, 'fts', None) is not None
+
+    def get_next_fts_job(self):
+        return self.fts.get_next_fts_job()
+
     def get_connection(self):
         return self.conn
 

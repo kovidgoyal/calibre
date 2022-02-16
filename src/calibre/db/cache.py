@@ -429,6 +429,15 @@ class Cache:
 
     def enable_fts(self, enabled=True):
         return self.backend.enable_fts(weakref.ref(self) if enabled else None)
+
+    @write_api
+    def get_next_fts_job(self):
+        if not self.backend.fts_enabled:
+            return
+        book_id, fmt = self.backend.get_next_fts_job()
+        if book_id is None:
+            return
+
     # }}}
 
     # Cache Layer API {{{
