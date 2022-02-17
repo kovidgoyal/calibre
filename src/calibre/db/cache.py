@@ -457,6 +457,10 @@ class Cache:
             if self.backend.queue_fts_job(book_id, fmt, path, sz, h.hexdigest()):
                 break
 
+    @write_api
+    def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text):
+        return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text)
+
     # }}}
 
     # Cache Layer API {{{
@@ -2285,6 +2289,7 @@ class Cache:
             except Exception:
                 import traceback
                 traceback.print_exc()
+        self.backend.shutdown_fts()
         self.backend.close()
 
     @property

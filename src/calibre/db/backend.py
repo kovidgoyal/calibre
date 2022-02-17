@@ -950,6 +950,14 @@ class DB:
     def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         return self.fts.queue_fts_job(book_id, fmt, path, fmt_size, fmt_hash)
 
+    def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text):
+        return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text)
+
+    def shutdown_fts(self):
+        if self.fts_enabled:
+            self.fts.shutdown()
+            self.fts = None
+
     def get_connection(self):
         return self.conn
 

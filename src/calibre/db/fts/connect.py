@@ -4,6 +4,7 @@
 
 
 import builtins
+import hashlib
 import os
 import sys
 from contextlib import suppress
@@ -85,6 +86,16 @@ class FTS:
             return book_id, fmt
         return None, None
 
+    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text):
+        conn = self.get_connection()
+        text_hash = ''
+        if text:
+            text_hash = hashlib.sha1(text.encode('utf-8')).hexdigest()
+            for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND fmt=? AND text_hash=?', (book_id, fmt, text_hash)):
+                text = ''
+                break
+        self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash)
+
     def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         conn = self.get_connection()
         fmt = fmt.upper()
@@ -99,3 +110,6 @@ class FTS:
         with suppress(OSError):
             os.remove(path)
         return False
+
+    def shutdown(self):
+        self.pool.shutdown()

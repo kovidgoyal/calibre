@@ -3,12 +3,45 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from threading import Thread
+import os, sys
+import traceback, subprocess
+from contextlib import suppress
 from queue import Queue
+from threading import Thread
 
+from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 check_for_work = object()
 quit = object()
+
+
+class Job:
+
+    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash):
+        self.book_id = book_id
+        self.fmt = fmt
+        self.fmt_size = fmt_size
+        self.fmt_hash = fmt_hash
+        self.path = path
+
+
+class Result:
+
+    def __init__(self, job, err_msg=''):
+        self.book_id = job.book_id
+        self.fmt = job.fmt
+        self.fmt_size = job.fmt_size
+        self.fmt_hash = job.fmt_hash
+        self.ok = not bool(err_msg)
+        if self.ok:
+            with open(job.path + '.txt', 'rb') as src:
+                try:
+                    self.text = src.read().decode('utf-8', 'replace')
+                except Exception:
+                    self.ok = False
+                    self.text = traceback.format_exc()
+        else:
+            self.text = err_msg
 
 
 class Worker(Thread):
@@ -18,12 +51,47 @@ class Worker(Thread):
         self.currently_working = False
         self.jobs_queue = jobs_queue
         self.supervise_queue = supervise_queue
+        self.keep_going = True
 
     def run(self):
-        while True:
+        while self.keep_going:
             x = self.jobs_queue.get()
             if x is quit:
                 break
+            try:
+                res = self.run_job(x)
+                if res is not None:
+                    self.supervise_queue.put(res)
+            except Exception:
+                tb = traceback.format_exc()
+                self.supervise_queue.put(Result(x, tb))
+
+    def run_job(self, job):
+        txtpath = job.path + '.txt'
+        errpath = job.path + '.error'
+        try:
+            with open(errpath, 'wb') as error:
+                p = start_pipe_worker(
+                    f'from calibre.db.fts.text import main; main({job.path!r})',
+                    stdout=subprocess.DEVNULL, stderr=error, stdin=subprocess.DEVNULL, priority='low',
+                )
+                while self.keep_going:
+                    p.wait(0.1)
+                if p.returncode is None:
+                    p.kill()
+                    return
+                if os.path.exists(txtpath):
+                    return Result(job)
+            with open(errpath, 'rb') as f:
+                err = f.read().decode('utf-8', 'replace')
+                return Result(job, err)
+        finally:
+            with suppress(OSError):
+                os.remove(job.path)
+            with suppress(OSError):
+                os.remove(txtpath)
+            with suppress(OSError):
+                os.remove(errpath)
 
 
 class Pool:
@@ -43,6 +111,17 @@ class Pool:
             self.expand_workers()
             self.initialized = True
 
+    def shutdown(self):
+        if self.initialized:
+            self.initialized = False
+            self.supervise_queue.put(quit)
+            for w in self.workers:
+                w.keep_going = False
+                self.jobs_queue.put(quit)
+            self.supervisor_thread.join()
+            for w in self.workers:
+                w.join()
+
     def expand_workers(self):
         while len(self.workers) < self.max_workers:
             w = Worker(self.jobs_queue, self.supervise_queue)
@@ -53,15 +132,36 @@ class Pool:
         self.initialize()
         self.supervise_queue.put(check_for_work)
 
+    def do_check_for_work(self):
+        db = self.dbref()
+        if db is not None:
+            db.queue_next_fts_job()
+
     def add_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         self.initialize()
         job = Job(book_id, fmt, path, fmt_size, fmt_hash)
         self.jobs_queue.put(job)
 
+    def commit_result(self, result):
+        text = result.text
+        if not result.ok:
+            print(f'Failed to get text from book_id: {result.book_id} format: {result.fmt}', file=sys.stderr)
+            print(text, file=sys.stderr)
+            text = ''
+        db = self.dbref()
+        if db is not None:
+            db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text)
+
     def supervise(self):
         while True:
             x = self.supervise_queue.get()
-            if x is check_for_work:
-                pass
-            elif x is quit:
-                break
+            try:
+                if x is check_for_work:
+                    self.do_check_for_work()
+                elif x is quit:
+                    break
+                elif isinstance(x, Result):
+                    self.commit_result(x)
+                    self.do_check_for_work()
+            except Exception:
+                traceback.print_exc()

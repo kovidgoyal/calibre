@@ -79,3 +79,9 @@ def extract_text(pathtoebook):
             texts.extend(to_text(container, name))
         ans = '\n\n\n'.join(texts)
     return unicodedata.normalize('NFC', ans)
+
+
+def main(pathtoebook):
+    text = extract_text(pathtoebook)
+    with open(pathtoebook + '.txt', 'wb') as f:
+        f.write(text.encode('utf-8'))
