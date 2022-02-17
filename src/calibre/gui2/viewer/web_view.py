@@ -26,7 +26,7 @@ from calibre.constants import (
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.gui2 import choose_images, error_dialog, safe_open_url
+from calibre.gui2 import choose_images, error_dialog, safe_open_url, config
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
@@ -620,6 +620,7 @@ class WebView(RestartingWebEngineView):
             'system_colors': system_colors(),
             'QT_VERSION': QT_VERSION,
             'short_time_fmt': QLocale.system().timeFormat(QLocale.FormatType.ShortFormat),
+            'use_roman_numerals_for_series_number': config['use_roman_numerals_for_series_number'],
         }
         self.bridge.create_view(
             vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)

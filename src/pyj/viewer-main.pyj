@@ -24,7 +24,7 @@ from read_book.iframe import main as iframe_main
 from read_book.open_book import remove_recently_opened
 from read_book.prefs.head_foot import set_time_formatter
 from read_book.view import View
-from session import local_storage, session_defaults
+from session import local_storage, session_defaults, default_interface_data
 from utils import debounce, encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
 
@@ -189,6 +189,7 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
         view = View(document.getElementById('view'))
         window.addEventListener('resize', debounce(view.on_resize.bind(self), 250))
         to_python.view_created({'default_color_schemes': default_color_schemes})
+        default_interface_data.use_roman_numerals_for_series_number = ui_data.use_roman_numerals_for_series_number
         if ui_data.show_home_page_on_ready:
             view.overlay.open_book(False)
 
