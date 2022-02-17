@@ -427,9 +427,13 @@ class Cache:
     # FTS API {{{
     def initialize_fts(self):
         self.backend.initialize_fts(weakref.ref(self))
+        self.queue_next_fts_job()
 
-    def enable_fts(self, enabled=True):
-        return self.backend.enable_fts(weakref.ref(self) if enabled else None)
+    def enable_fts(self, enabled=True, start_pool=True):
+        fts = self.backend.enable_fts(weakref.ref(self) if enabled else None)
+        if start_pool:  # used in the tests
+            self.queue_next_fts_job()
+        return fts
 
     @write_api
     def queue_next_fts_job(self):
@@ -1618,6 +1622,7 @@ class Cache:
             try:
                 stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
+                self._queue_next_fts_job()
             finally:
                 if needs_close:
                     stream.close()

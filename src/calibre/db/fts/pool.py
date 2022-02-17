@@ -64,6 +64,7 @@ class Worker(Thread):
                     self.supervise_queue.put(res)
             except Exception:
                 tb = traceback.format_exc()
+                traceback.print_exc()
                 self.supervise_queue.put(Result(x, tb))
 
     def run_job(self, job):
@@ -122,20 +123,42 @@ class Pool:
             for w in self.workers:
                 w.join()
 
+    def prune_dead_workers(self):
+        self.workers = [w for w in self.workers if w.is_alive()]
+
     def expand_workers(self):
+        self.prune_dead_workers()
         while len(self.workers) < self.max_workers:
-            w = Worker(self.jobs_queue, self.supervise_queue)
-            self.workers.append(w)
-            w.start()
+            self.workers.append(self.create_worker())
+
+    def create_worker(self):
+        w = Worker(self.jobs_queue, self.supervise_queue)
+        w.start()
+        while not w.is_alive():
+            w.join(0.01)
+        return w
+
+    def shrink_workers(self):
+        self.prune_dead_workers()
+        extra = len(self.workers) - self.max_workers
+        while extra > 0:
+            self.jobs_queue.put(quit)
+            extra -= 1
+
+    # external API {{{
+    def set_num_of_workers(self, num):
+        self.initialize()
+        self.prune_dead_workers()
+        num = max(1, num)
+        self.max_workers = num
+        if num > len(self.workers):
+            self.expand_workers()
+        elif num < self.workers:
+            self.shrink_workers()
 
     def check_for_work(self):
         self.initialize()
         self.supervise_queue.put(check_for_work)
-
-    def do_check_for_work(self):
-        db = self.dbref()
-        if db is not None:
-            db.queue_next_fts_job()
 
     def add_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         self.initialize()
@@ -151,6 +174,12 @@ class Pool:
         db = self.dbref()
         if db is not None:
             db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text)
+    # }}}
+
+    def do_check_for_work(self):
+        db = self.dbref()
+        if db is not None:
+            db.queue_next_fts_job()
 
     def supervise(self):
         while True:

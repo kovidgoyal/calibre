@@ -96,7 +96,7 @@ class FTS:
                 break
         self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash)
 
-    def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         conn = self.get_connection()
         fmt = fmt.upper()
         for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND fmt=? AND format_size=? AND format_hash=?', (
