@@ -7,9 +7,10 @@ import re
 from collections import namedtuple
 from functools import partial
 from qt.core import (
-    QAction, QApplication, QColor, QEasingCurve, QIcon, QKeySequence, QLayout, QMenu,
-    QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QClipboard,
-    QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
+    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
+    QKeySequence, QLayout, QMenu, QMimeData, QPainter, QPen, QPixmap,
+    QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl, QWidget, pyqtProperty,
+    pyqtSignal
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -517,6 +518,7 @@ class CoverView(QWidget):  # {{{
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
         self.data = {}
+        self.last_trim_id = self.last_trim_pixmap = None
 
         self.do_layout()
 
@@ -605,6 +607,15 @@ class CoverView(QWidget):  # {{{
         remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
         gc = cm.addAction(QIcon.ic('default_cover.png'), _('Generate cover from metadata'))
         cm.addSeparator()
+        if self.pixmap is not self.default_pixmap and self.data.get('id'):
+            book_id = self.data['id']
+            cm.tc = QMenu(_('Trim cover'))
+            cm.tc.addAction(QIcon.ic('trim.png'), _('Automatically trim borders'), self.trim_cover)
+            cm.tc.addAction(_('Trim borders manually'), self.manual_trim_cover)
+            cm.tc.addSeparator()
+            cm.tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim).setEnabled(self.last_trim_id == book_id)
+            cm.addMenu(cm.tc)
+            cm.addSeparator()
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
@@ -616,6 +627,39 @@ class CoverView(QWidget):  # {{{
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
         cm.exec(ev.globalPos())
+
+    def trim_cover(self):
+        book_id = self.data.get('id')
+        if not book_id:
+            return
+        from calibre.utils.img import image_from_x, remove_borders_from_image
+        img = image_from_x(self.pixmap)
+        nimg = remove_borders_from_image(img)
+        if nimg is not img:
+            self.last_trim_id = book_id
+            self.last_trim_pixmap = self.pixmap
+            self.update_cover(QPixmap.fromImage(nimg))
+
+    def manual_trim_cover(self):
+        book_id = self.data.get('id')
+        if not book_id:
+            return
+        from calibre.gui2.dialogs.trim_image import TrimImage
+        from calibre.utils.img import image_to_data
+        cdata = image_to_data(image_from_x(self.pixmap), fmt='PNG', png_compression_level=1)
+        d = TrimImage(cdata, parent=self)
+        if d.exec() == QDialog.DialogCode.Accepted and d.image_data is not None:
+            self.last_trim_id = book_id
+            self.last_trim_pixmap = self.pixmap
+            self.update_cover(cdata=d.image_data)
+
+    def undo_last_trim(self):
+        book_id = self.data.get('id')
+        if not book_id or book_id != self.last_trim_id:
+            return
+        pmap = self.last_trim_pixmap
+        self.last_trim_pixmap = self.last_trim_id = None
+        self.update_cover(pmap)
 
     def open_with(self, entry):
         id_ = self.data.get('id', None)
