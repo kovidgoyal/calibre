@@ -59,16 +59,20 @@ class Reuters(BasicNewsRecipe):
     language = 'en'
 
     keep_only_tags = [
-        prefixed_classes('ArticleHeader__heading___ ArticleHeader__author___ ArticleBody__container___ ArticlePage-article-header ArticlePage-article-body'),
+        prefixed_classes('article-header__heading___ article-header__author___ article-body__content___'),
     ]
     remove_tags = [
         prefixed_classes(
-            'ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer- RegistrationPrompt__container___'
+            'context-widget__tabs___'
+            ' ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer- RegistrationPrompt__container___'
             ' SocialEmbed__inner___'
         ),
         dict(name=['button', 'link']),
     ]
     remove_attributes = ['style']
+    extra_css = '''
+    img { max-width: 100%; }
+    '''
 
     def preprocess_html(self, soup, *a):
         for noscript in soup.findAll('noscript'):
