@@ -23,7 +23,7 @@ class TheHindu(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
     no_stylesheets = True
-    remove_attributes = ['style']
+    remove_attributes = ['style', 'height', 'width']
     extra_css = '.lead-img-cont { text-align: center; } ' \
                 '.lead-img-caption { font-size: small; font-style: italic; } ' \
                 '.mobile-author-cont { font-size: small; text-transform: uppercase; } ' \
