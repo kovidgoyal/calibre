@@ -38,6 +38,7 @@
 - [1959928] Edit metadata: In "All in one" mode add an adjustable splitter between the cover and formats boxes
 
 :: bug fixes
+
 - [1960686] Textile output: Dont fail if input document has invalid padding or margin specifications
 
 - [1960446] E-book viewer: Fix image display window not remembering its size and settings when run from within calibre
