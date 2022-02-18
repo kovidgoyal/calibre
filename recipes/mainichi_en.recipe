@@ -12,9 +12,7 @@ www.mainichi.jp/english
 """
 
 from datetime import datetime
-from typing import List, Dict
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -40,7 +38,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
     remove_tags_after = {"class": "main-text"}
     remove_tags = [{"name": "div", "id": "tools"}, {"name": "div", "class": "sub"}]
 
-    def get_pickup_section(self, soup: BeautifulSoup()) -> List[Dict[str, str]]:
+    def get_pickup_section(self, soup):
         # Topmost story
         top = soup.find("section", attrs={"class": "pickup section"})
         top_link = top.find("p", attrs={"class": "midashi"}).find("a")
@@ -69,7 +67,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
             }
         ]
 
-    def retrieve_news_from_column(self, column) -> List[Dict[str, str]]:
+    def retrieve_news_from_column(self, column):
         column_news = []
 
         for item in column.findAll("li"):
@@ -88,7 +86,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
 
         return column_news
 
-    def get_top_stories(self, soup: BeautifulSoup()) -> List[Dict[str, str]]:
+    def get_top_stories(self, soup):
         top_stories = self.get_pickup_section(soup)
 
         news_section = soup.find("section", attrs={"class": "newslist"})
@@ -98,7 +96,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
 
         return top_stories
 
-    def get_editor_picks(self, soup: BeautifulSoup()) -> List[Dict[str, str]]:
+    def get_editor_picks(self, soup):
         editor_picks = []
 
         news_section = soup.find("section", attrs={"class": "newslist"})
@@ -108,8 +106,8 @@ class MainichiEnglishNews(BasicNewsRecipe):
 
         return editor_picks
 
-    def get_section(self, section) -> List[Dict[str, str]]:
-        soup: BeautifulSoup = self.index_to_soup(self.index + section + "index.html")
+    def get_section(self, section):
+        soup = self.index_to_soup(self.index + section + "index.html")
 
         section_news_items = self.get_pickup_section(soup)
 
@@ -124,7 +122,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
         return section_news_items
 
     def parse_index(self):
-        soup: BeautifulSoup = self.index_to_soup(self.index + "index.html")
+        soup = self.index_to_soup(self.index + "index.html")
 
         feeds = [
             ("Top Stories", self.get_top_stories(soup)),
@@ -142,6 +140,3 @@ class MainichiEnglishNews(BasicNewsRecipe):
         ]
 
         return feeds
-
-
-calibre_most_common_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
