@@ -4,10 +4,11 @@
 
 import builtins
 import sys
+import time
 from io import BytesIO
 
-from calibre.db.tests.base import BaseTest
 from calibre.db.fts.text import html_to_text
+from calibre.db.tests.base import BaseTest
 
 
 def print(*args, **kwargs):
@@ -27,6 +28,14 @@ class FTSAPITest(BaseTest):
         super().tearDown()
         from calibre_extensions.sqlite_extension import set_ui_language
         set_ui_language('en')
+
+    def test_fts_pool(self):
+        cache = self.init_cache()
+        fts = cache.enable_fts(start_pool=True)
+        st = time.monotonic()
+        while fts.all_currently_dirty() and time.monotonic() - st < 2:
+            fts.pool.supervisor_thread.join(0.01)
+        self.assertFalse(fts.all_currently_dirty())
 
     def test_fts_triggers(self):
         cache = self.init_cache()
