@@ -103,11 +103,14 @@ class TagEditor(QDialog, Ui_TagEditor):
             connect_lambda(ibox.textChanged, self, lambda self: self.edit_box_changed(self.sender().objectName()))
         getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
 
+        self.available_tags.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.applied_tags.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         if islinux:
             self.available_tags.doubleClicked.connect(self.apply_tags)
+            self.applied_tags.doubleClicked.connect(self.unapply_tags)
         else:
             self.available_tags.activated.connect(self.apply_tags)
-        self.applied_tags.activated.connect(self.unapply_tags)
+            self.applied_tags.activated.connect(self.unapply_tags)
 
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
