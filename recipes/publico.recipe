@@ -9,6 +9,7 @@ publico.pt
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.urllib import urlencode
 
 
 def classes(classes):
@@ -29,6 +30,7 @@ class PublicoPT(BasicNewsRecipe):
     language = 'pt'
     remove_empty_feeds = True
     extra_css = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
+    needs_subscription = True
 
     keep_only_tags = [
         dict(id='story-content story-header'.split()),
@@ -52,6 +54,23 @@ class PublicoPT(BasicNewsRecipe):
         (u'Local', u'http://feeds.feedburner.com/PublicoLocal'),
         (u'Tecnologia', u'http://feeds.feedburner.com/PublicoTecnologia')
     ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            postdata = urlencode({
+                'username': self.username,
+                'password': self.password
+            })
+            br.open(
+                'https://www.publico.pt/api/user/login',
+                data=postdata,
+                timeout=self.timeout
+            )
+
+            br.set_handle_refresh(True)
+
+        return br
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-media-viewer':True}):
