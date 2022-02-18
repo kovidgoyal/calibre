@@ -48,8 +48,16 @@ def binary_includes():
              ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1').split()
         )) + [
+            # debian/ubuntu for for some typical stupid reason use libpcre.so.3
+            # instead of libpcre.so.0 like other distros. And Qt's idiotic build
+            # system links against this pcre library despite being told to use
+            # the bundled pcre. Since libpcre doesn't depend on anything other
+            # than libc and libpthread we bundle the Ubuntu one here
+            glob.glob('/usr/lib/*/libpcre.so.3')[0],
+
             get_dll_path('podofo', 3), get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
             get_dll_path('ssl', 2), get_dll_path('crypto', 2), get_dll_path('python' + py_ver, 2),
+
             # We dont include libstdc++.so as the OpenGL dlls on the target
             # computer fail to load in the QPA xcb plugin if they were compiled
             # with a newer version of gcc than the one on the build computer.
