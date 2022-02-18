@@ -165,6 +165,7 @@ class RecentUAs(Command):  # {{{
     UA_PATH = os.path.join(Command.RESOURCES, 'user-agent-data.json')
 
     def run(self, opts):
+        return
         from setup.browser_data import get_data
         data = get_data()
         with open(self.UA_PATH, 'wb') as f:
