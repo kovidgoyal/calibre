@@ -1,58 +1,69 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
-'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__license__ = "GPL v3"
+__copyright__ = (
+    "2008-2013, Darko Miletic <darko.miletic at gmail.com>. "
+    "2022, Albert Aparicio Isarn <aaparicio at posteo.net>"
+)
+"""
 japantimes.co.jp
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
 class JapanTimes(BasicNewsRecipe):
-    title = 'The Japan Times'
-    __author__ = 'Darko Miletic'
-    description = "Daily news and features on Japan from the most widely read English-language newspaper in Japan. Coverage includes national news, business news, sports news, commentary and features on living in Japan, entertainment, the arts, education and more."  # noqa
-    language = 'en_JP'
-    category = 'news, politics, japan'
-    publisher = 'The Japan Times'
+    title = "The Japan Times"
+    __author__ = "Albert Aparicio Isarn (original recipe by Darko Miletic)"
+    description = (
+        "The latest news from Japan Times, Japan's leading English-language daily newspaper"
+    )
+    language = "en_JP"
+    category = "news, politics, japan"
+    publisher = "The Japan Times"
     oldest_article = 2
     max_articles_per_feed = 150
     no_stylesheets = True
+    remove_javascript = True
     use_embedded_content = False
-    encoding = 'utf8'
-    publication_type = 'newspaper'
-    extra_css = 'body{font-family: Geneva,Arial,Helvetica,sans-serif}'
+    encoding = "utf8"
+    publication_type = "newspaper"
+    masthead_url = "https://cdn-japantimes.com/wp-content/themes/jt_theme/library/img/japantimes-logo-tagline.png"
+    extra_css = "body{font-family: Geneva,Arial,Helvetica,sans-serif}"
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+        "comment": description,
+        "tags": category,
+        "publisher": publisher,
+        "language": language,
     }
 
-    remove_tags_after = dict(name='div', attrs={'class': 'entry'}),
-    keep_only_tags = [dict(name='div', attrs={'class': 'padding_block'})]
+    remove_tags_before = {"name": "h1"}
+    remove_tags_after = {"name": "ul", "attrs": {"class": "single-sns-area"}}
+    keep_only_tags = [
+        {"name": "div", "attrs": {"class": "padding_block"}},
+        # {"name": "h5", "attrs": {"class": "writer", "role": "author"}},
+        # {"name": "p", "attrs": {"class": "credit"}},
+    ]
     remove_tags = [
-        dict(name=['iframe', 'embed', 'object', 'base', 'form']), dict(attrs={'class': [
-            'meta_extras', 'related_articles']}), dict(attrs={'id': 'content_footer_menu'}),
-        dict(id='no_js_blocker'),
-        classes('single-sns-area jt-related-stories'),
+        {"name": "div", "id": "no_js_blocker", "attrs": {"class": "padding_block"}},
+        {"name": "div", "attrs": {"class": "single-upper-meta"}},
+        {"name": "ul", "attrs": {"class": "single-sns-area"}},
     ]
     feeds = [
-
-    (u'News', u'http://www.japantimes.co.jp/news/feed/'),
-    (u'Opinion', u'http://www.japantimes.co.jp/opinion/feed/'),
-    (u'Life', u'http://www.japantimes.co.jp/opinion/feed/'),
-    (u'Community', u'http://www.japantimes.co.jp/community/feed/'),
-    (u'Culture', u'http://www.japantimes.co.jp/culture/feed/'),
-    (u'Sports', u'http://www.japantimes.co.jp/sports/feed/')
+        (u"Top Stories", u"https://www.japantimes.co.jp/feed/topstories/"),
+        (u"News", u"https://www.japantimes.co.jp/news/feed/"),
+        (u"Opinion", u"https://www.japantimes.co.jp/opinion/feed/"),
+        (u"Life", u"https://www.japantimes.co.jp/life/feed/"),
+        (u"Community", u"https://www.japantimes.co.jp/community/feed/"),
+        (u"Culture", u"https://www.japantimes.co.jp/culture/feed/"),
+        (u"Sports", u"https://www.japantimes.co.jp/sports/feed/"),
     ]
 
     def get_article_url(self, article):
         rurl = BasicNewsRecipe.get_article_url(self, article)
-        return rurl.partition('?')[0]
+        return rurl.partition("?")[0]
 
     def preprocess_raw_html(self, raw, url):
-        return '<html><head>' + raw[raw.find('</head>'):]
+        return "<html><head>" + raw[raw.find("</head>") :]
