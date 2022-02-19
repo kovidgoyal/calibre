@@ -930,16 +930,28 @@ class DB:
 
     def enable_fts(self, dbref=None):
         enabled = dbref is not None
-        if enabled != self.prefs['fts_enabled']:
-            self.prefs['fts_enabled'] = enabled
-            self.initialize_fts(dbref)
-            if self.fts is not None:
-                self.fts.dirty_existing()
+        self.prefs['fts_enabled'] = enabled
+        self.initialize_fts(dbref)
+        if self.fts is not None:
+            self.fts.dirty_existing()
         return self.fts
 
     @property
     def fts_enabled(self):
         return getattr(self, 'fts', None) is not None
+
+    @property
+    def fts_has_idle_workers(self):
+        return self.fts_enabled and self.fts.pool.num_of_idle_workers > 0
+
+    @property
+    def fts_num_of_workers(self):
+        return self.fts.pool.num_of_workers if self.fts_enabled else 0
+
+    @fts_num_of_workers.setter
+    def fts_num_of_workers(self, num):
+        if self.fts_enabled:
+            self.fts.num_of_workers = num
 
     def get_next_fts_job(self):
         return self.fts.get_next_fts_job()

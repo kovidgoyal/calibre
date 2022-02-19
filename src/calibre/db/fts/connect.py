@@ -91,7 +91,7 @@ class FTS:
         text_hash = ''
         if text:
             text_hash = hashlib.sha1(text.encode('utf-8')).hexdigest()
-            for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND fmt=? AND text_hash=?', (book_id, fmt, text_hash)):
+            for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND text_hash=?', (book_id, fmt, text_hash)):
                 text = ''
                 break
         self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash)
@@ -99,12 +99,12 @@ class FTS:
     def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         conn = self.get_connection()
         fmt = fmt.upper()
-        for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND fmt=? AND format_size=? AND format_hash=?', (
+        for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND format_size=? AND format_hash=?', (
                 book_id, fmt, fmt_size, fmt_hash)):
             break
         else:
             self.pool.add_job(book_id, fmt, path, fmt_size, fmt_hash)
-            conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=TRUE WHERE book=? AND format=? LIMIT 1', (book_id, fmt))
+            conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=TRUE WHERE book=? AND format=?', (book_id, fmt))
             return True
         self.remove_dirty(book_id, fmt)
         with suppress(OSError):

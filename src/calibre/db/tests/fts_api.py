@@ -29,13 +29,19 @@ class FTSAPITest(BaseTest):
         from calibre_extensions.sqlite_extension import set_ui_language
         set_ui_language('en')
 
+    def wait_for_fts_to_finish(self, fts, timeout=10):
+        if fts.pool.initialized:
+            st = time.monotonic()
+            while fts.all_currently_dirty() and time.monotonic() - st < timeout:
+                fts.pool.supervisor_thread.join(0.01)
+
     def test_fts_pool(self):
         cache = self.init_cache()
-        fts = cache.enable_fts(start_pool=True)
-        st = time.monotonic()
-        while fts.all_currently_dirty() and time.monotonic() - st < 2:
-            fts.pool.supervisor_thread.join(0.01)
+        fts = cache.enable_fts()
+        self.wait_for_fts_to_finish(fts)
         self.assertFalse(fts.all_currently_dirty())
+        cache.add_format(1, 'TXT', BytesIO(b'a test text'))
+        self.wait_for_fts_to_finish(fts)
 
     def test_fts_triggers(self):
         cache = self.init_cache()

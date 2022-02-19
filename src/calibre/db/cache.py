@@ -448,7 +448,13 @@ class Cache:
             if not path or not is_fmt_ok(fmt):
                 self.backend.remove_dirty_fts(book_id, fmt)
                 continue
-            with PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt, open(path, 'rb') as src:
+            try:
+                src = open(path, 'rb')
+            except OSError:
+                self.backend.remove_dirty_fts(book_id, fmt)
+                traceback.print_exc()
+                continue
+            with PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt, src:
                 sz = 0
                 h = hashlib.sha1()
                 while True:
@@ -458,12 +464,22 @@ class Cache:
                     sz += len(chunk)
                     h.update(chunk)
                     pt.write(chunk)
-            if self.backend.queue_fts_job(book_id, fmt, path, sz, h.hexdigest()):
-                break
+            if self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest()):
+                if not self.backend.fts_has_idle_workers:
+                    break
 
     @write_api
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text):
         return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text)
+
+    @api
+    def set_fts_num_of_workers(self, num=None):
+        existing = self.backend.fts_num_of_workers
+        if num is not None and num != existing:
+            self.backend.fts_num_of_workers = num
+            if num > existing:
+                self.queue_next_fts_job()
+        return existing
 
     # }}}
 
@@ -1622,7 +1638,6 @@ class Cache:
             try:
                 stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
-                self._queue_next_fts_job()
             finally:
                 if needs_close:
                     stream.close()
@@ -1639,6 +1654,7 @@ class Cache:
             run_plugins_on_postimport(dbapi or self, book_id, fmt)
             stream_or_path.close()
 
+        self.queue_next_fts_job()
         return True
 
     @write_api

@@ -52,12 +52,14 @@ class Worker(Thread):
         self.jobs_queue = jobs_queue
         self.supervise_queue = supervise_queue
         self.keep_going = True
+        self.working = False
 
     def run(self):
         while self.keep_going:
             x = self.jobs_queue.get()
             if x is quit:
                 break
+            self.working = True
             try:
                 res = self.run_job(x)
                 if res is not None:
@@ -66,6 +68,8 @@ class Worker(Thread):
                 tb = traceback.format_exc()
                 traceback.print_exc()
                 self.supervise_queue.put(Result(x, tb))
+            finally:
+                self.working = False
 
     def run_job(self, job):
         txtpath = job.path + '.txt'
@@ -77,7 +81,9 @@ class Worker(Thread):
                     stdout=subprocess.DEVNULL, stderr=error, stdin=subprocess.DEVNULL, priority='low',
                 )
                 while self.keep_going:
-                    p.wait(0.1)
+                    with suppress(subprocess.TimeoutExpired):
+                        p.wait(0.1)
+                        break
                 if p.returncode is None:
                     p.kill()
                     return
@@ -146,7 +152,12 @@ class Pool:
             extra -= 1
 
     # external API {{{
-    def set_num_of_workers(self, num):
+    @property
+    def num_of_workers(self):
+        return len(self.workers)
+
+    @num_of_workers.setter
+    def num_of_workers(self, num):
         self.initialize()
         self.prune_dead_workers()
         num = max(1, num)
@@ -155,6 +166,10 @@ class Pool:
             self.expand_workers()
         elif num < self.workers:
             self.shrink_workers()
+
+    @property
+    def num_of_idle_workers(self):
+        return sum(1 if w.working else 0 for w in self.workers)
 
     def check_for_work(self):
         self.initialize()
