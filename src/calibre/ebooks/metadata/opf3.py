@@ -6,12 +6,14 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from contextlib import suppress
-from operator import attrgetter
 from functools import wraps
 from lxml import etree
+from operator import attrgetter
 
 from calibre import prints
-from calibre.ebooks.metadata import authors_to_string, check_isbn, string_to_authors
+from calibre.ebooks.metadata import (
+    authors_to_string, check_isbn, fmt_sidx, string_to_authors
+)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import (
     decode_is_multiple, encode_is_multiple, object_to_unicode
@@ -828,7 +830,7 @@ def set_series(root, prefixes, refines, series, series_index):
     for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection"]')(root):
         remove_element(meta, refines)
     if series:
-        create_series(root, refines, series, '%.2g' % series_index)
+        create_series(root, refines, series, fmt_sidx(series_index))
 # }}}
 
 # User metadata {{{
