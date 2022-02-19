@@ -228,7 +228,10 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
         return str(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
-    return fmt%i
+    ans = fmt%i
+    if '.' in ans:
+        ans = ans.rstrip('0')
+    return ans
 
 
 class Resource:
