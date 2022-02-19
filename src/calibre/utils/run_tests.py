@@ -126,8 +126,9 @@ def filter_tests_by_module(suite, *names):
 def run_tests(find_tests, verbosity=4):
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', nargs='?', default=None,
-                        help='The name of the test to run, for example: writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
+    parser.add_argument(
+        'name', nargs='?', default=None,
+        help='The name of the test to run, for example: writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
     args = parser.parse_args()
     tests = find_tests()
     if args.name:
@@ -137,7 +138,7 @@ def run_tests(find_tests, verbosity=4):
             tests = filter_tests_by_module(tests, args.name)
         if not tests._tests:
             raise SystemExit('No test named %s found' % args.name)
-    run_cli(tests, verbosity)
+    run_cli(tests, verbosity, buffer=not args.name)
 
 
 class TestImports(unittest.TestCase):
