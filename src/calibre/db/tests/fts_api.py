@@ -35,6 +35,9 @@ class FTSAPITest(BaseTest):
             while fts.all_currently_dirty() and time.monotonic() - st < timeout:
                 fts.pool.supervisor_thread.join(0.01)
 
+    def text_records(self, fts):
+        return fts.get_connection().get_dict('SELECT * FROM fts_db.books_text')
+
     def test_fts_pool(self):
         cache = self.init_cache()
         fts = cache.enable_fts()
@@ -42,6 +45,24 @@ class FTSAPITest(BaseTest):
         self.assertFalse(fts.all_currently_dirty())
         cache.add_format(1, 'TXT', BytesIO(b'a test text'))
         self.wait_for_fts_to_finish(fts)
+
+        def q(rec, **kw):
+            self.ae({x: rec[x] for x in kw}, kw)
+
+        def check(**kw):
+            tr = self.text_records(fts)
+            self.ae(len(tr), 1)
+            q(tr[0], **kw)
+
+        check(id=1, book=1, format='TXT', searchable_text='a test text')
+        # check re-adding does not rescan
+        cache.add_format(1, 'TXT', BytesIO(b'a test text'))
+        self.wait_for_fts_to_finish(fts)
+        check(id=1, book=1, format='TXT', searchable_text='a test text')
+        # check updating rescans
+        cache.add_format(1, 'TXT', BytesIO(b'a test text2'))
+        self.wait_for_fts_to_finish(fts)
+        check(id=2, book=1, format='TXT', searchable_text='a test text2')
 
     def test_fts_triggers(self):
         cache = self.init_cache()

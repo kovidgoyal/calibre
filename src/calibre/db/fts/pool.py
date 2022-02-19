@@ -62,12 +62,13 @@ class Worker(Thread):
             self.working = True
             try:
                 res = self.run_job(x)
-                if res is not None:
+                if res is not None and self.keep_going:
                     self.supervise_queue.put(res)
             except Exception:
                 tb = traceback.format_exc()
                 traceback.print_exc()
-                self.supervise_queue.put(Result(x, tb))
+                if self.keep_going:
+                    self.supervise_queue.put(Result(x, tb))
             finally:
                 self.working = False
 

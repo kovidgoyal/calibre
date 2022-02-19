@@ -16,6 +16,7 @@ import shutil
 import sys
 import time
 import uuid
+from contextlib import suppress
 from functools import partial
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -377,10 +378,23 @@ class Connection(apsw.Connection):  # {{{
         ans = self.cursor().execute(*args)
         if kw.get('all', True):
             return ans.fetchall()
-        try:
+        with suppress(StopIteration, IndexError):
             return next(ans)[0]
-        except (StopIteration, IndexError):
-            return None
+
+    def get_dict(self, *args, all=True):
+        ans = self.cursor().execute(*args)
+        desc = ans.getdescription()
+        field_names = tuple(x[0] for x in desc)
+
+        def as_dict(row):
+            return dict(zip(field_names, row))
+
+        if all:
+            return tuple(map(as_dict, ans))
+        ans = ans.fetchone()
+        if ans is not None:
+            ans = as_dict(ans)
+        return ans
 
     def execute(self, sql, bindings=None):
         cursor = self.cursor()
