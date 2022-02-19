@@ -119,17 +119,6 @@ class Pool:
             self.expand_workers()
             self.initialized = True
 
-    def shutdown(self):
-        if self.initialized:
-            self.initialized = False
-            self.supervise_queue.put(quit)
-            for w in self.workers:
-                w.keep_going = False
-                self.jobs_queue.put(quit)
-            self.supervisor_thread.join()
-            for w in self.workers:
-                w.join()
-
     def prune_dead_workers(self):
         self.workers = [w for w in self.workers if w.is_alive()]
 
@@ -190,6 +179,18 @@ class Pool:
         db = self.dbref()
         if db is not None:
             db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text)
+
+    def shutdown(self):
+        if self.initialized:
+            self.initialized = False
+            self.supervise_queue.put(quit)
+            for w in self.workers:
+                w.keep_going = False
+                self.jobs_queue.put(quit)
+            self.supervisor_thread.join()
+            for w in self.workers:
+                w.join()
+            self.workers = []
     # }}}
 
     def do_check_for_work(self):
