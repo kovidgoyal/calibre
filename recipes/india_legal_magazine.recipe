@@ -1,0 +1,30 @@
+#!/usr/bin/env  python
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class IndiaLegalLive(BasicNewsRecipe):
+    title = 'India Legal Magazine'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    oldest_article = 7  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes(
+            'tdb_single_subtitle tdb_single_date tdb_single_featured_image tdb_single_content'
+        ),
+    ]
+
+    feeds = [
+        ('Courts', 'https://www.indialegallive.com/constitutional-law-news/courts-news/rss'),
+        ('Ring Side', 'https://www.indialegallive.com/ringside/rss'),
+        ('Cover Story Articles', 'https://www.indialegallive.com/cover-story-articles/rss'),
+        ('Special', 'https://www.indialegallive.com/special/rss'),
+        ('Columns', 'https://www.indialegallive.com/column-news/rss'),
+    ]
