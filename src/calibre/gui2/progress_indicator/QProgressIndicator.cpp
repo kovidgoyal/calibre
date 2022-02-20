@@ -271,7 +271,12 @@ class CalibreStyle: public QProxyStyle {
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
                         QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
                         QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
-						color = color.lighter(125);
+                        if (is_color_dark(option->palette.color(QPalette::Window))) {
+                            color = color.darker(175);
+                            opt.palette.setColor(QPalette::HighlightedText, Qt::red);
+                        } else {
+                            color = color.lighter(125);
+                        }
                         opt.palette.setColor(QPalette::Highlight, color);
                         return QProxyStyle::drawPrimitive(element, &opt, painter, widget);
                     }
@@ -341,7 +346,18 @@ class CalibreStyle: public QProxyStyle {
         }
 
 		void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
+            const QStyleOptionViewItem *vopt = NULL;
 			switch(element) {
+                case CE_ItemViewItem: {
+                    if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
+                        if (is_color_dark(option->palette.color(QPalette::Window))) {
+                            QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
+                            opt.palette.setColor(QPalette::HighlightedText, Qt::yellow);
+                            QProxyStyle::drawControl(element, &opt, painter, widget);
+                            return;
+                        }
+                    }
+                } break;
 				case CE_MenuItem:  // {{{
 					// Draw menu separators that work in both light and dark modes
 					if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
