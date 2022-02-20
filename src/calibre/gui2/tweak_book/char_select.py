@@ -742,7 +742,7 @@ class CharSelect(Dialog):
         s.addWidget(self.category_view), s.addWidget(self.char_view)
 
         self.char_info = la = QLabel('\xa0')
-        la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        la.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         l.addWidget(la, 2, 0, 1, 3)
 
         self.rearrange_msg = la = QLabel(_(
@@ -793,11 +793,11 @@ class CharSelect(Dialog):
         return QSize(800, 600)
 
     def show_char_info(self, char_code):
+        text = '\xa0'
         if char_code > 0:
             category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
-            self.char_info.setText(f'{category_name} - {subcategory_name} - {character_name} (U+{char_code:04X})')
-        else:
-            self.char_info.clear()
+            text = _('{character_name} (U+{char_code:04X}) in {category_name} - {subcategory_name}').format(**locals())
+        self.char_info.setText(text)
 
     def show(self):
         self.initialize()
