@@ -17,10 +17,10 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://www3.interscience.wiley.com/cgi-bin/home')
+        br.open('https://onlinelibrary.wiley.com/')
         br.select_form(nr=0)
-        br['j_username'] = self.username
-        br['j_password'] = self.password
+        br['login'] = self.username
+        br['password'] = self.password
         response = br.submit()
         raw = response.read()
         if '<h2>LOGGED IN</h2>' not in raw:
@@ -29,7 +29,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
 
     # TO GET ARTICLE TOC
     def johm_get_index(self):
-        return self.index_to_soup('http://onlinelibrary.wiley.com/journal/10.1002/(ISSN)1553-5606/currentissue')
+        return self.index_to_soup('https://shmpublications.onlinelibrary.wiley.com/toc/15535606/current')
 
     # To parse artice toc
     def parse_index(self):
