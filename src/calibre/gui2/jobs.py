@@ -527,7 +527,7 @@ class JobsButton(QWidget):  # {{{
     def update_label(self):
         n = self.jobs()
         prefix = '<b>' if n > 0 else ''
-        self._jobs.setText(prefix + _('Jobs:') + f' {n} ')
+        self._jobs.setText(prefix + ' ' + _('Jobs:') + f' {n} ')
 
     def event(self, ev):
         m = None
