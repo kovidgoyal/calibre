@@ -987,6 +987,47 @@ A value of zero means calculate automatically.</string>
             </property>
            </widget>
           </item>
+          <item row="5" column="0">
+           <layout class="FlowLayout">
+            <item>
+             <widget class="QPushButton" name="em_export_layout_button">
+              <property name="text">
+               <string>Export list</string>
+              </property>
+              <property name="toolTip">
+               <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same column order for each one.&lt;/p&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="em_import_layout_button">
+              <property name="text">
+               <string>Import list</string>
+              </property>
+              <property name="toolTip">
+               <string>&lt;p&gt;Click this button to set the list to one
+previously exported. This could be useful if you have several libraries with
+similar structure and you want to use the same column order for each one. Columns
+in the imported list that aren't in the current library are ignored. Columns in
+the library that are not in the imported list are put at the end and marked
+as displayable.&lt;/p&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="em_reset_layout_button">
+              <property name="text">
+               <string>Reset list</string>
+              </property>
+              <property name="toolTip">
+               <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1623,6 +1664,11 @@ column being examined (the left-hand pane)</string>
    <extends>QTabWidget</extends>
    <header>calibre/gui2/widgets2.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FlowLayout</class>
+   <extends>QLayout</extends>
+   <header>calibre/gui2/widgets2.h</header>
   </customwidget>
  </customwidgets>
  <resources>

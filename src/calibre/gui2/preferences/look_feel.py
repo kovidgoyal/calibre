@@ -21,7 +21,7 @@ from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import default_author_link
+from calibre.gui2 import default_author_link, choose_save_file, choose_files
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
@@ -333,10 +333,10 @@ class EMDisplayedFields(DisplayedFields):  # {{{
     def __init__(self, db, parent=None):
         DisplayedFields.__init__(self, db, parent)
 
-    def initialize(self, use_defaults=False):
+    def initialize(self, use_defaults=False, pref_data_override=None):
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in
-                em_get_field_list(self.db, use_defaults=use_defaults)]
+                em_get_field_list(self.db, use_defaults=use_defaults, pref_data_override=pref_data_override)]
         self.endResetModel()
         self.changed = True
 
@@ -567,6 +567,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 lambda self: move_field_up(self.em_display_order, self.em_display_model))
         connect_lambda(self.em_down_button.clicked, self,
                 lambda self: move_field_down(self.em_display_order, self.em_display_model))
+        self.em_export_layout_button.clicked.connect(self.em_export_layout)
+        self.em_import_layout_button.clicked.connect(self.em_import_layout)
+        self.em_reset_layout_button.clicked.connect(self.em_reset_layout)
 
         self.qv_display_model = QVDisplayedFields(self.gui.current_db,
                 self.qv_display_order)
@@ -639,6 +642,36 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setSpacing(4)
         self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def em_export_layout(self):
+        filename = choose_save_file(self, 'em_import_export_field_list',
+                _('Save column list to file'),
+                filters=[(_('Column list'), ['json'])])
+        if filename:
+            try:
+                with open(filename, 'w') as f:
+                    json.dump(self.em_display_model.fields, f, indent=1)
+            except Exception as err:
+                error_dialog(self, _('Export field layout'),
+                             _('<p>Could not write field list. Error:<br>%s')%err, show=True)
+
+    def em_import_layout(self):
+        filename = choose_files(self, 'em_import_export_field_list',
+                _('Load column list from file'),
+                filters=[(_('Column list'), ['json'])])
+        if filename:
+            try:
+                with open(filename[0]) as f:
+                    fields = json.load(f)
+                self.em_display_model.initialize(pref_data_override=fields)
+                self.changed_signal.emit()
+            except Exception as err:
+                error_dialog(self, _('Import layout'),
+                             _('<p>Could not read field list. Error:<br>%s')%err, show=True)
+
+    def em_reset_layout(self):
+        self.em_display_model.initialize(use_defaults=True)
+        self.changed_signal.emit()
 
     def choose_icon_theme(self):
         from calibre.gui2.icon_theme import ChooseTheme
