@@ -13,7 +13,7 @@ from qt.core import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOpt
         QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit, QDialog, QPalette)
 
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
+from calibre.gui2 import UNDEFINED_QDATETIME, rating_font, gprefs
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor, DateTimeEdit as DateTimeEditBase
@@ -744,8 +744,14 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         Delegate for custom_column bool data.
         '''
         QStyledItemDelegate.__init__(self, parent)
+        self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
 
     def createEditor(self, parent, option, index):
+        if self.disallow_edit:
+            editor = QLineEdit(parent)
+            editor.setText(_('Template editing disabled'))
+            return editor
+        self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
         from calibre.gui2.dialogs.template_dialog import TemplateDialog
         m = index.model()
         mi = m.db.get_metadata(index.row(), index_is_id=False)
@@ -762,4 +768,16 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
             m.setData(index, (editor.rule[1]), Qt.ItemDataRole.EditRole)
         return None
 
+    def setEditorData(self, editor, index):
+        editor.setText('editing templates disabled')
+        editor.setReadOnly(True)
+
+    def setModelData(self, editor, model, index):
+        pass
+
+    def allow_one_edit(self):
+        self.disallow_edit = False
+
+    def refresh(self):
+        self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
 # }}}
