@@ -546,6 +546,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('edit_metadata_single_use_2_cols_for_custom_fields', gprefs)
         r('edit_metadata_bulk_cc_label_length', gprefs)
         r('edit_metadata_single_cc_label_length', gprefs)
+        r('edit_metadata_templates_only_F2_on_booklist', gprefs)
 
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
@@ -892,6 +893,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_grid()
+        gui.library_view.refresh_composite_edit()
         gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])

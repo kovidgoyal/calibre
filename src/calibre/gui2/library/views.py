@@ -866,6 +866,9 @@ class BooksView(QTableView):  # {{{
 
         self.was_restored = True
 
+    def refresh_composite_edit(self):
+        self.cc_template_delegate.refresh()
+
     def refresh_row_sizing(self):
         self.row_sizing_done = False
         self.do_row_sizing()
@@ -1225,6 +1228,10 @@ class BooksView(QTableView):  # {{{
     def keyPressEvent(self, ev):
         if handle_enter_press(self, ev):
             return
+        if ev.key() == Qt.Key.Key_F2:
+            key = self.column_map[self.currentIndex().column()]
+            if self._model.db.field_metadata[key]['datatype'] == 'composite':
+                self.cc_template_delegate.allow_one_edit()
         return QTableView.keyPressEvent(self, ev)
 
     def ids_to_rows(self, ids):

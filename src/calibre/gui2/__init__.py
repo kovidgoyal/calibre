@@ -210,6 +210,7 @@ def create_defs():
     defs['edit_metadata_elision_point'] = "right"
     defs['edit_metadata_bulk_cc_label_length'] = 25
     defs['edit_metadata_single_cc_label_length'] = 12
+    defs['edit_metadata_templates_only_F2_on_booklist'] = False
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
