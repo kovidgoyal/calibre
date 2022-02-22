@@ -133,6 +133,7 @@ class FilesView(QTableView):
 
     def __init__(self, model, parent=None):
         QTableView.__init__(self, parent)
+        self.setProperty('highlight_current_item', 150)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setAlternatingRowColors(True)
