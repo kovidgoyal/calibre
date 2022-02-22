@@ -1829,15 +1829,6 @@ class StoreWoblinkStore(StoreBase):
     affiliate = True
 
 
-class XinXiiStore(StoreBase):
-    name = 'XinXii'
-    description = ''
-    actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
-
-    headquarters = 'DE'
-    formats = ['EPUB', 'PDF']
-
-
 plugins += [
     StoreArchiveOrgStore,
     StoreBubokPublishingStore,
@@ -1882,7 +1873,6 @@ plugins += [
     StoreWeightlessBooksStore,
     StoreWolneLekturyStore,
     StoreWoblinkStore,
-    XinXiiStore
 ]
 
 # }}}
