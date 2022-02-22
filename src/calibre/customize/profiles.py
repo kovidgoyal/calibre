@@ -454,7 +454,7 @@ class TabletOutput(iPadOutput):
     description = _('Intended for generic tablet devices, does no resizing of images')
 
     screen_size = (10000, 10000)
-    comic_screen_size = (10000, 10000)
+    comic_screen_size = screen_size
 
 
 class SamsungGalaxy(TabletOutput):
@@ -561,7 +561,7 @@ class GenericEinkHD(GenericEink):
     description = _('Suitable for use with any modern high resolution e-ink device')
 
     screen_size = (10000, 10000)
-    comic_screen_size = (10000, 10000)
+    comic_screen_size = screen_size
 
 
 class JetBook5Output(OutputProfile):
