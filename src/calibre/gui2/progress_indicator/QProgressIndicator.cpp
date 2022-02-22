@@ -272,8 +272,7 @@ class CalibreStyle: public QProxyStyle {
                         QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
                         QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
                         if (is_color_dark(option->palette.color(QPalette::Window))) {
-                            color = color.darker(175);
-                            opt.palette.setColor(QPalette::HighlightedText, Qt::red);
+                            color = color.lighter(190);
                         } else {
                             color = color.lighter(125);
                         }
@@ -352,7 +351,7 @@ class CalibreStyle: public QProxyStyle {
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
                         if (is_color_dark(option->palette.color(QPalette::Window))) {
                             QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
-                            opt.palette.setColor(QPalette::HighlightedText, Qt::white);
+                            opt.palette.setColor(QPalette::HighlightedText, Qt::black);
                             QProxyStyle::drawControl(element, &opt, painter, widget);
                             return;
                         }
