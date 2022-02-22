@@ -134,7 +134,12 @@ def query_vcvarsall(is64bit=True):
         try:
             return env[k]
         except KeyError:
-            return env[k.lower()]
+            try:
+                return env[k.lower()]
+            except KeyError:
+                for k, v in env.items():
+                    print(f'{k}={v}', file=sys.stderr)
+                raise
 
     return {
         k: g(k)
