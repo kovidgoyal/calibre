@@ -17,12 +17,19 @@ class IndianExpress(BasicNewsRecipe):
 
     no_stylesheets = True
     use_embedded_content = False
+    remove_attributes = ['style','height','width']
+    ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
         classes('heading-part full-details')
     ]
     remove_tags = [
-        classes('share-social appstext story-tags')
+        dict(name='div', attrs={'id':'ie_story_comments'}),
+        dict(name='img', attrs={'src':'https://images.indianexpress.com/2021/06/explained-button-300-ie.jpeg'}),
+        dict(name='a', attrs={'href':'https://indianexpress.com/section/explained/?utm_source=newbanner'}),
+        dict(name='img', attrs={'src':'https://images.indianexpress.com/2021/06/opinion-button-300-ie.jpeg'}),
+        dict(name='a', attrs={'href':'https://indianexpress.com/section/opinion/?utm_source=newbanner'}),
+        classes('share-social appstext story-tags ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright')
     ]
     feeds = [
         ('Front Page', 'https://indianexpress.com/print/front-page/feed/'),
