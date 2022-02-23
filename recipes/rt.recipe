@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RtRecipe(BasicNewsRecipe):
+    title          = 'RT на русском'
+    __author__ = 'Vuizur'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup   = False
+    language = 'ru'
+
+    remove_tags_before = dict(name='h1')
+    remove_tags_after = dict(name='a', attrs={'class':'tags-trends__link'})
+    remove_tags = [
+        dict(name='div', attrs={'class':'error-on-page'}),
+        dict(name='div', attrs={'class':'short-url'}),
+        dict(name='div', attrs={'class':'follows-channel'}),
+        dict(name='a', attrs={'class':'tags-trends__link'})
+    ]
+
+    feeds          = [
+        ('RT на русском', 'https://russian.rt.com/rss'),
+    ]
