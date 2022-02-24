@@ -1,45 +1,24 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import with_statement, unicode_literals
+from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1592177429(BasicNewsRecipe):
-    title = 'Аргументы и Факты'
-    encoding = 'utf8'
-    language = 'ru'
+class AdvancedUserRecipe1645564525(BasicNewsRecipe):
+    title          = 'Аргументы и Факты - aif.ru'
+    __author__     = 'MrBeef12'
     oldest_article = 7
-    max_articles_per_feed = 25
-    verbose = 3
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    language = 'ru'
 
-    feeds = [
-        ('AIF', 'https://www.aif.ru/rss/all.php'),
+    feeds          = [
+        ('ПОЛИТИКА', 'https://aif.ru/rss/politics.php'),
+        ('ДЕНЬГИ', 'https://aif.ru/rss/money.php'),
+        ('ОБЩЕСТВО', 'https://aif.ru/rss/society.php'),
+        ('ЗДОРОВЬЕ', 'https://aif.ru/rss/health.php'),
+        ('КУЛЬТУРА', 'https://aif.ru/rss/culture.php'),
+        ('СПОРТ', 'https://aif.ru/rss/sport.php'),
+        ('АВТОМОБИЛИ', 'https://aif.ru/rss/automobile.php'),
+        ('НЕДВИЖИМОСТЬ', 'https://aif.ru/rss/realty.php'),
     ]
-    INDEX = 'https://www.aif.ru/rss/all.php'
-
-    def parse_index(self):
-        feeds = []
-        section_title = 'aif'
-        articles = []
-        soup = self.index_to_soup(self.INDEX)
-        ii = 0
-        for item in soup.findAll('item'):
-            if ii < self.max_articles_per_feed:
-                try:
-                    ii = ii + 1
-                    A = str(item)
-                    i = A.find(u'link')
-                    j = A.find(u'description')
-                    ZZ = item.find('description')
-                    ZZ1 = str(ZZ)  # bs4.element.Tag to str
-                    ZZ2 = ZZ1[24:-19]
-                    AU = A[i:j]
-                    try:
-                        articles.append({'url':AU[6:-2], 'title':ZZ2})
-                    except Exception:
-                        pass
-                except Exception:
-                    self.log("Exception handled!")
-        if articles:
-            feeds.append((section_title, articles))
-        return feeds
