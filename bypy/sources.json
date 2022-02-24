@@ -626,8 +626,8 @@
     {
         "name": "feedparser",
         "unix": {
-            "filename": "feedparser-5.2.1.tar.bz2",
-            "hash": "sha256:ce875495c90ebd74b179855449040003a1beb40cd13d5f037a0654251e260b02",
+            "filename": "feedparser-6.0.8.tar.bz2",
+            "hash": "sha256:5ce0410a05ab248c8c7cfca3a0ea2203968ee9ff4486067379af4827a59f9661",
             "urls": ["pypi"]
         }
     },
