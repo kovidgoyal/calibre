@@ -163,21 +163,37 @@ opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.iterdescendants('*'):
-        if tag.text is not None and barename(tag.tag) in opf_spell_tags:
+        if barename(tag.tag) in opf_spell_tags:
             if barename(tag.tag) == 'description':
-                add_words_from_escaped_html(tag.text, words, file_name, tag, 'text', book_locale)
+                if tag.text:
+                    add_words_from_escaped_html(tag.text, words, file_name, tag, 'text', book_locale)
+                for child in tag:
+                    if child.tail:
+                        add_words_from_escaped_html(child.tail, words, file_name, child, 'tail', book_locale)
             else:
-                add_words_from_text(tag, 'text', words, file_name, book_locale)
+                if tag.text:
+                    add_words_from_text(tag, 'text', words, file_name, book_locale)
+                for child in tag:
+                    if child.tail:
+                        add_words_from_text(child, 'tail', words, file_name, book_locale)
         add_words_from_attr(tag, _opf_file_as, words, file_name, book_locale)
 
 
 def count_chars_in_opf(root, counter, file_name, book_locale):
     for tag in root.iterdescendants('*'):
-        if tag.text is not None and barename(tag.tag) in opf_spell_tags:
+        if barename(tag.tag) in opf_spell_tags:
             if barename(tag.tag) == 'description':
-                count_chars_in_escaped_html(tag.text, counter, file_name, tag, 'text', book_locale)
+                if tag.text:
+                    count_chars_in_escaped_html(tag.text, counter, file_name, tag, 'text', book_locale)
+                for child in tag:
+                    if child.tail:
+                        count_chars_in_escaped_html(child.tail, counter, file_name, tag, 'tail', book_locale)
             else:
-                count_chars_in_text(tag, 'text', counter, file_name, book_locale)
+                if tag.text:
+                    count_chars_in_text(tag, 'text', counter, file_name, book_locale)
+                for child in tag:
+                    if child.tail:
+                        count_chars_in_text(tag, 'tail', counter, file_name, book_locale)
         count_chars_in_attr(tag, _opf_file_as, counter, file_name, book_locale)
 
 
@@ -201,7 +217,7 @@ html_spell_tags = {'script', 'style', 'link'}
 
 
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
-    if tag.text is not None and barename(tag.tag) not in html_spell_tags:
+    if tag.text is not None and isinstance(tag.tag, str) and barename(tag.tag) not in html_spell_tags:
         add_words_from_text(tag, 'text', words, file_name, locale)
     for attr in {'alt', 'title'}:
         add_words_from_attr(tag, attr, words, file_name, locale)
@@ -210,7 +226,7 @@ def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
 
 
 def count_chars_in_html_tag(tag, counter, file_name, parent_locale, locale):
-    if tag.text is not None and barename(tag.tag) not in html_spell_tags:
+    if tag.text is not None and isinstance(tag.tag, str) and barename(tag.tag) not in html_spell_tags:
         count_chars_in_text(tag, 'text', counter, file_name, locale)
     for attr in {'alt', 'title'}:
         count_chars_in_attr(tag, attr, counter, file_name, locale)
@@ -219,14 +235,15 @@ def count_chars_in_html_tag(tag, counter, file_name, parent_locale, locale):
 
 
 def locale_from_tag(tag):
-    if 'lang' in tag.attrib:
+    a = tag.attrib
+    if 'lang' in a:
         try:
             loc = parse_lang_code(tag.get('lang'))
         except ValueError:
             loc = None
         if loc is not None:
             return loc
-    if '{http://www.w3.org/XML/1998/namespace}lang' in tag.attrib:
+    if '{http://www.w3.org/XML/1998/namespace}lang' in a:
         try:
             loc = parse_lang_code(tag.get('{http://www.w3.org/XML/1998/namespace}lang'))
         except ValueError:
@@ -241,7 +258,7 @@ def read_words_from_html(root, words, file_name, book_locale):
         parent, parent_locale = stack.pop()
         locale = locale_from_tag(parent) or parent_locale
         read_words_from_html_tag(parent, words, file_name, parent_locale, locale)
-        stack.extend((tag, locale) for tag in parent.iterchildren('*'))
+        stack.extend((tag, locale) for tag in parent)
 
 
 def count_chars_in_html(root, counter, file_name, book_locale):
@@ -250,7 +267,7 @@ def count_chars_in_html(root, counter, file_name, book_locale):
         parent, parent_locale = stack.pop()
         locale = locale_from_tag(parent) or parent_locale
         count_chars_in_html_tag(parent, counter, file_name, parent_locale, locale)
-        stack.extend((tag, locale) for tag in parent.iterchildren('*'))
+        stack.extend((tag, locale) for tag in parent)
 
 
 def group_sort(locations):
