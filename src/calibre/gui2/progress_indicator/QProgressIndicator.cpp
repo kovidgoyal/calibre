@@ -343,6 +343,7 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
 }
 
 void CalibreStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
+    const QStyleOptionViewItem *vopt = NULL;
     switch(element) {
         case CE_ItemViewItem: {
             if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
