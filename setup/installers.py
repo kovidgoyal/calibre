@@ -95,6 +95,10 @@ def build_single(which='windows', bitness='64', shutdown=True, sign_installers=T
 def build_dep(args):
     base, bypy = get_paths()
     exe = get_exe()
+    pl = args[0]
+    args.insert(1, 'dependencies')
+    if '-' in pl:
+        args[0:1] = pl.split('-')[0], f'--arch={pl.split("-")[-1]}'
     cmd = [exe, bypy] + list(args)
     ret = subprocess.Popen(cmd).wait()
     if ret != 0:
@@ -192,14 +196,15 @@ class BuildDep(Command):
 
     description = (
         'Build a calibre dependency. For example, build_dep windows expat.'
-        ' Without arguments builds all deps for specified platform. Use windows 32 for 32bit.'
+        ' Without arguments builds all deps for specified platform. Use linux-arm64 for Linux ARM.'
         ' Use build_dep all somedep to build a dep for all platforms.'
     )
 
     def run(self, opts):
         args = opts.cli_args
+
         if args and args[0] == 'all':
-            for x in ('linux', 'linux 32', 'macos', 'windows', 'windows 32'):
+            for x in ('linux', 'linux-arm64', 'macos', 'windows'):
                 build_dep(x.split() + list(args)[1:])
         else:
             build_dep(args)
