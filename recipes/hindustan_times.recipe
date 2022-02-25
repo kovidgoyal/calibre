@@ -1,0 +1,58 @@
+#!/usr/bin/env  python
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class HindustanTimes(BasicNewsRecipe):
+    title = u'Hindustan Times'
+    description = 'News from India.'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    oldest_article = 1  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    extra_css = 'button { display: none; } '
+
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='div', attrs={'class':'sortDec'}),
+        dict(name='picture'),
+        dict(name='figcaption'),
+        classes('dateTime storyBy storyDetails detail freemiumText paywall'),
+    ]
+
+    remove_tags = [
+        classes('htsWrapper shareArticle new__newsletter__signup signup__box subscribe freemium-card adMinHeight313'
+                ' storyTopics embed_div shareIcons close-btn'),
+        dict(name='div', attrs={'class':[]}),
+        dict(name='footer'),
+    ]
+
+    feeds = [
+        ('Editorial','https://www.hindustantimes.com/feeds/rss/editorials/rssfeed.xml'),
+        ('Opinion','https://www.hindustantimes.com/feeds/rss/opinion/rssfeed.xml'),
+        ('HT Insight','https://www.hindustantimes.com/feeds/rss/ht-insight/rssfeed.xml'),
+        ('Analysis','https://www.hindustantimes.com/feeds/rss/analysis/rssfeed.xml'),
+        ('India News','https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml'),
+        ('World News','https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml'),
+        ('Business','https://www.hindustantimes.com/feeds/rss/business/rssfeed.xml'),
+        ('Science','https://www.hindustantimes.com/feeds/rss/science/rssfeed.xml'),
+        ('Education','https://www.hindustantimes.com/feeds/rss/education/rssfeed.xml'),
+        ('Elections','https://www.hindustantimes.com/feeds/rss/elections/rssfeed.xml'),
+        ('Sports','https://www.hindustantimes.com/feeds/rss/sports/rssfeed.xml'),
+        ('Books','https://www.hindustantimes.com/feeds/rss/books/rssfeed.xml'),
+        ('HT Weekend','https://www.hindustantimes.com/feeds/rss/ht-weekend/rssfeed.xml'),
+        # ('Entertainment','https://www.hindustantimes.com/feeds/rss/entertainment/rssfeed.xml'),
+        # ('Lifestyle',''https://www.hindustantimes.com/feeds/rss/lifestyle/rssfeed.xml'),
+        # ('Cities',''https://www.hindustantimes.com/feeds/rss/cities/rssfeed.xml'),
+        # ('Budget',''https://www.hindustantimes.com/feeds/rss/budget/rssfeed.xml')
+        ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup
