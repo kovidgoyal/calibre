@@ -100,7 +100,7 @@ def process_image_block(lines, block, data):
 
 
 def json_to_html(raw):
-    data = json.loads(raw)
+    data = json.loads(raw.replace(':undefined', ':null'))
     data = data['initialState']
     article = next(iter(data.values()))
     body = data[article['sprinkledBody']['id']]
