@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-# License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
+# License: GPL v3 Copyright: 2021, Jessie Wagg.null <pandorum.perspective@outlook.com>
 
 # Workaround a bunch of brain dead changes in PyQt6 that break backwards compat
 # for no good reason. Since we have a huge body of poorly maintained third
