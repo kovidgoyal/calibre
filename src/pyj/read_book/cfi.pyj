@@ -122,14 +122,14 @@ def text_length_in_range_wrapper(node):
     while p:
         if is_text_node(p):
             ans += p.nodeValue.length
-        elif p.nodeType is Node.ELEMENT_NODE and p.dataset.calibreRangeWrapper:
+        elif p.nodeType is Node.ELEMENT_NODE and p.dataset?.calibreRangeWrapper:
             ans += text_length_in_range_wrapper(p)
         p = p.nextSibling
     return ans
 
 
 def adjust_node_for_text_offset(node):
-    if node.parentNode and node.parentNode.dataset.calibreRangeWrapper:
+    if node.parentNode and node.parentNode.dataset?.calibreRangeWrapper:
         node = node.parentNode
     offset = 0
     adjusted = False
@@ -139,11 +139,11 @@ def adjust_node_for_text_offset(node):
             break
         if is_text_node(p):
             offset += p.nodeValue.length
-        elif p.nodeType is Node.ELEMENT_NODE and p.dataset.calibreRangeWrapper:
+        elif p.nodeType is Node.ELEMENT_NODE and p.dataset?.calibreRangeWrapper:
             offset += text_length_in_range_wrapper(p)
         node = p
         adjusted = True
-    if adjusted and node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
+    if adjusted and node.nodeType is Node.ELEMENT_NODE and node.dataset?.calibreRangeWrapper:
         if not node.firstChild or node.firstChild.nodeType is not Node.TEXT_NODE:
             node.insertBefore(document.createTextNode(''), node.firstChild or None)
         node = node.firstChild
@@ -153,7 +153,7 @@ def adjust_node_for_text_offset(node):
 def unwrapped_nodes(range_wrapper):
     ans = v'[]'
     for child in range_wrapper.childNodes:
-        if child.nodeType is Node.ELEMENT_NODE and child.dataset.calibreRangeWrapper:
+        if child.nodeType is Node.ELEMENT_NODE and child.dataset?.calibreRangeWrapper:
             ans = ans.concat(unwrapped_nodes(child))
         else:
             ans.push(child)
@@ -162,7 +162,7 @@ def unwrapped_nodes(range_wrapper):
 
 def increment_index_for_child(child, index, sentinel):
     is_element = child.nodeType is Node.ELEMENT_NODE
-    if is_element and child.dataset.calibreRangeWrapper:
+    if is_element and child.dataset?.calibreRangeWrapper:
         nodes = unwrapped_nodes(child)
         index = increment_index_for_children(nodes, index, sentinel)
     else:
@@ -199,11 +199,11 @@ def encode(doc, node, offset, tail):
             if q:
                 if q.nodeType is Node.ELEMENT_NODE:
                     node = q
-                    if node.dataset.calibreRangeWrapper:
+                    if node.dataset?.calibreRangeWrapper:
                         if not node.firstChild:
                             node.appendChild(document.createTextNode(''))
                         node = node.firstChild
-        elif node.dataset.calibreRangeWrapper:
+        elif node.dataset?.calibreRangeWrapper:
             if not node.firstChild:
                 node.appendChild(document.createTextNode(''))
             node = node.firstChild
@@ -234,7 +234,7 @@ def encode(doc, node, offset, tail):
         index = increment_index_for_children(p.childNodes, 0, sentinel)
         if is_first:
             is_first = False
-            if node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
+            if node.nodeType is Node.ELEMENT_NODE and node.dataset?.calibreRangeWrapper:
                 index -= 1
         # Add id assertions for robustness where possible
         id = node.id
@@ -292,7 +292,8 @@ def node_for_text_offset(nodes, offset, first_node):
                 return node, offset, True
             last_text_node = node
             offset -= l
-        elif node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
+        # mathml nodes dont have dataset
+        elif node.nodeType is Node.ELEMENT_NODE and node.dataset?.calibreRangeWrapper:
             qn, offset, ok = node_for_text_offset(unwrapped_nodes(node), offset)
             if ok:
                 return qn, offset, True
@@ -389,7 +390,7 @@ def decode(cfi, doc):
     # Find the text node that contains the offset
     if offset is not None:
         orig_offset = offset
-        if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
+        if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset?.calibreRangeWrapper:
             node = node.parentNode
         qnode, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, node)
         if not ok:
