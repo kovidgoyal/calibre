@@ -513,12 +513,21 @@ def tb_config_panel_handler():
 # }}}
 
 
+def onkeydown(container_id, close_action, ev):
+    if ev.key is 'Escape':
+        ev.preventDefault(), ev.stopPropagation()
+        close_action()
+
+
 def init(container_id):
     if not library_data.sortable_fields:
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
+    container.setAttribute('tabindex', '0')
+    container.addEventListener('keydown', onkeydown.bind(None, container_id, back), {'passive': False, 'capture': True})
     create_top_bar(container, title=_('Search for books'), action=back, icon='close')
     add_button(container, icon='cogs', action=show_panel.bind(None, 'book_list^search^prefs'), tooltip=_('Configure Tag browser'))
     container.appendChild(E.div(class_=CLASS_NAME))
     create_search_panel(container.lastChild)
+    container.focus()

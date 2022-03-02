@@ -227,6 +227,12 @@ def reset_to_defaults():
 
 def prefs_panel_handler(title_func, get_prefs_data, on_close=None, icon='close'):
 
+    def onkeydown(container_id, close_action, ev):
+        if ev.key is 'Escape':
+            ev.preventDefault(), ev.stopPropagation()
+            close_action()
+
+
     def close_action():
         if on_close is not None:
             on_close()
@@ -234,8 +240,11 @@ def prefs_panel_handler(title_func, get_prefs_data, on_close=None, icon='close')
 
     def init_prefs_panel(container_id):
         container = document.getElementById(container_id)
+        container.addEventListener('keydown', onkeydown.bind(None, container_id, close_action), {'passive': False, 'capture': True})
+        container.setAttribute('tabindex', '0')
         create_top_bar(container, title=title_func(), action=close_action, icon=icon)
         container.appendChild(E.div())
         create_prefs_widget(container.lastChild, get_prefs_data())
+        container.focus()
 
     return init_prefs_panel
