@@ -14,7 +14,7 @@ from qt.core import (
     QDialogButtonBox, QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QIcon, QItemSelectionModel, QLabel, QLineEdit, QListView, QMimeData,
     QModelIndex, QPainter, QPalette, QPixmap, QPlainTextEdit, QPoint, QRect, QSize,
-    QSizePolicy, QSplitter, QStaticText, QStyle, QStyledItemDelegate, Qt,
+    QSizePolicy, QSplitter, QStaticText, QStyle, QStyledItemDelegate, Qt, QTextCursor,
     QTextDocument, QTextOption, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
@@ -1286,6 +1286,31 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
             if ret:
                 return True
         return QPlainTextEdit.event(self, ev)
+
+    def mouseDoubleClickEvent(self, ev):
+        super().mouseDoubleClickEvent(ev)
+        c = self.textCursor()
+        # Workaround for QTextCursor considering smart quotes as word
+        # characters https://bugreports.qt.io/browse/QTBUG-101372
+        changed = False
+        while True:
+            q = c.selectedText()
+            if not q:
+                break
+            left = min(c.anchor(), c.position())
+            right = max(c.anchor(), c.position())
+            if q[0] in '“‘':
+                changed = True
+                c.setPosition(left + 1)
+                c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
+            elif q[-1] in '’”':
+                changed = True
+                c.setPosition(left)
+                c.setPosition(right - 1, QTextCursor.MoveMode.KeepAnchor)
+            else:
+                break
+        if changed:
+            self.setTextCursor(c)
 
 # }}}
 
