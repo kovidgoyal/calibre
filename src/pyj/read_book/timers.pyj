@@ -20,6 +20,7 @@ class Timers:
         self.rates = v'[]'
         if book.saved_reading_rates?.rates:
             self.rates = book.saved_reading_rates.rates.slice(0)
+            self.calculate()
 
     def reset_read_timer(self):
         self.last_scroll_at = None
