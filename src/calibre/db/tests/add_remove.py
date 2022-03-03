@@ -308,8 +308,21 @@ class AddRemoveTest(BaseTest):
     def test_copy_to_library(self):  # {{{
         from calibre.db.copy_to_library import copy_one_book
         from calibre.ebooks.metadata import authors_to_string
+        from calibre.utils.date import utcnow, EPOCH
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
+
+        def a(**kw):
+            ts = utcnow()
+            kw['timestamp'] = utcnow().isoformat()
+            return kw, (ts - EPOCH).total_seconds()
+
+        annot_list = [
+            a(type='bookmark', title='bookmark1 changed', seq=1),
+            a(type='highlight', highlighted_text='text1', uuid='1', seq=2),
+            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed again'),
+        ]
+        src_db.set_annotations_for_book(1, 'FMT1', annot_list)
 
         def make_rdata(book_id=1, new_book_id=None, action='add'):
             return {
@@ -326,6 +339,7 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp')
         compare_field('uuid', self.assertNotEqual)
+        self.assertEqual(src_db.all_annotations_for_book(1), dest_db.all_annotations_for_book(max(dest_db.all_book_ids())))
         rdata = copy_one_book(1, src_db, dest_db, preserve_date=False, preserve_uuid=True)
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp', self.assertNotEqual)
