@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class RtRecipe(BasicNewsRecipe):
     title          = 'RT на русском'
     __author__ = 'Vuizur'
