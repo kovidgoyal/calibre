@@ -3,12 +3,16 @@
 
 
 import glob
+import io
+import json
 import os
 import shlex
 import subprocess
 import sys
+import tarfile
 import time
 from tempfile import NamedTemporaryFile
+from urllib.request import urlopen
 
 _plat = sys.platform.lower()
 ismacos = 'darwin' in _plat
@@ -106,6 +110,23 @@ def install_linux_deps():
     run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev')
 
 
+def get_tx_tarball_url():
+    data = json.load(urlopen(
+        'https://api.github.com/repos/transifex/cli/releases/latest'))
+    for asset in data['assets']:
+        if asset['name'] == 'tx-linux-amd64.tar.gz':
+            return asset['browser_download_url']
+
+
+def get_tx():
+    url = get_tx_tarball_url()
+    print('Downloading:', url)
+    with urlopen(url) as f:
+        raw = f.read()
+    with tarfile.open(fileobj=io.BytesIO(raw), mode='r') as tf:
+        tf.extract('tx')
+
+
 def main():
     if iswindows:
         import runpy
@@ -130,16 +151,19 @@ def main():
     elif action == 'pot':
         transifexrc = '''\
 [https://www.transifex.com]
-api_hostname = https://api.transifex.com
+api_hostname  = https://api.transifex.com
+rest_hostname = https://rest.api.transifex.com
 hostname = https://www.transifex.com
 password = PASSWORD
+token = PASSWORD
 username = api
 '''.replace('PASSWORD', os.environ['tx'])
         with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
             f.write(transifexrc)
         install_qt_source_code()
         install_env()
-        run(sys.executable, '-m', 'pip', 'install', 'transifex-client')
+        get_tx()
+        os.environ['TX'] = os.path.abspath('tx')
         run(sys.executable, 'setup.py', 'pot')
     elif action == 'test':
         os.environ['CI'] = 'true'
