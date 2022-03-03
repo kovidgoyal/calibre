@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from read_book.globals import ui_operations
+
 THRESHOLD = 5
 FILTER_THRESHOLD = 25
 MAX_SAMPLES = 256
@@ -16,6 +18,8 @@ class Timers:
     def start_book(self, book):
         self.reset_read_timer()
         self.rates = v'[]'
+        if book.saved_reading_rates?.rates:
+            self.rates = book.saved_reading_rates.rates.slice(0)
 
     def reset_read_timer(self):
         self.last_scroll_at = None
@@ -54,6 +58,8 @@ class Timers:
             self.rates.shift()
         self.rates.push(rate)
         self.calculate()
+        if ui_operations.update_reading_rates:
+            ui_operations.update_reading_rates({'rates': self.rates.slice(0)})
 
     def time_for(self, length):
         if length >= 0 and self.rates.length >= THRESHOLD and self.average > 0:

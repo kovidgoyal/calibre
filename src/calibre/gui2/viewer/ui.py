@@ -30,7 +30,9 @@ from calibre.gui2.viewer.annotations import (
     AnnotationsSaveWorker, annotations_dir, parse_annotations
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import get_session_pref, vprefs
+from calibre.gui2.viewer.config import (
+    get_session_pref, load_reading_rates, save_reading_rates, vprefs
+)
 from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
 from calibre.gui2.viewer.integration import (
@@ -191,6 +193,7 @@ class EbookViewer(MainWindow):
         self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.web_view.highlights_changed.connect(self.highlights_changed)
+        self.web_view.update_reading_rates.connect(self.update_reading_rates)
         self.web_view.edit_book.connect(self.edit_book)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         at.update_action_state(False)
@@ -487,6 +490,7 @@ class EbookViewer(MainWindow):
         self.setWindowTitle(_('Loading book') + f'… — {self.base_window_title}')
         self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
+        self.save_reading_rates()
         self.current_book_data = {}
         get_current_book_data(self.current_book_data)
         self.search_widget.clear_searches()
@@ -577,7 +581,8 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         highlights = self.current_book_data['annotations_map']['highlight']
         self.highlights_widget.load(highlights)
-        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights, current_book_data=self.current_book_data)
+        rates = load_reading_rates(self.current_book_data['annotations_path_key'])
+        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights, current_book_data=self.current_book_data, reading_rates=rates)
         performance_monitor('webview loading requested')
 
     def load_book_data(self, calibre_book_data=None):
@@ -665,6 +670,20 @@ class EbookViewer(MainWindow):
             in_book_file and get_session_pref('save_annotations_in_ebook', default=True),
             get_session_pref('sync_annots_user', default='')
         )
+
+    def update_reading_rates(self, rates):
+        if not self.current_book_data:
+            return
+        self.current_book_data['reading_rates'] = rates
+        self.save_reading_rates()
+
+    def save_reading_rates(self):
+        if not self.current_book_data:
+            return
+        key = self.current_book_data.get('annotations_path_key')
+        rates = self.current_book_data.get('reading_rates')
+        if key and rates:
+            save_reading_rates(key, rates)
 
     def highlights_changed(self, highlights):
         if not self.current_book_data:
@@ -763,6 +782,7 @@ class EbookViewer(MainWindow):
         try:
             self.save_state()
             self.save_annotations()
+            self.save_reading_rates()
             if self.annotations_saver is not None:
                 self.annotations_saver.shutdown()
                 self.annotations_saver = None

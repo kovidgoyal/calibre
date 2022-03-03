@@ -274,6 +274,7 @@ class ViewerBridge(Bridge):
     edit_book = from_js(object, object, object)
     show_book_folder = from_js()
     show_help = from_js(object)
+    update_reading_rates = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -472,6 +473,7 @@ class WebView(RestartingWebEngineView):
     scrollbar_context_menu = pyqtSignal(object, object, object)
     close_prep_finished = pyqtSignal(object)
     highlights_changed = pyqtSignal(object)
+    update_reading_rates = pyqtSignal(object)
     edit_book = pyqtSignal(object, object, object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
@@ -534,6 +536,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
+        self.bridge.update_reading_rates.connect(self.update_reading_rates)
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
         self.bridge.show_help.connect(self.show_help)
@@ -638,10 +641,10 @@ class WebView(RestartingWebEngineView):
     def on_content_file_changed(self, data):
         self.current_content_file = data
 
-    def start_book_load(self, initial_position=None, highlights=None, current_book_data=None):
+    def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
         key = (set_book_path.path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
-        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url)
+        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url, reading_rates)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:
