@@ -569,6 +569,7 @@ def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
 
 
 def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
+    pc = pdf_doc.page_count()
 
     def replace_link(url):
         purl = urlparse(url)
@@ -583,7 +584,12 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
             loc = anchor_locations.get(name_anchor_map.get(purl.fragment))
             if loc is None:
                 log.warn(f'Anchor location for link to {purl.fragment} not found')
-        return None if loc is None else loc.as_tuple
+        if loc is None:
+            return None
+        if loc.pagenum > pc:
+            log.warn(f'Anchor location for link to {purl.fragment} is past the end of the document, moving it to last page')
+            loc.pagenum = pc
+        return loc.as_tuple
 
     pdf_doc.alter_links(replace_link, mark_links)
 # }}}

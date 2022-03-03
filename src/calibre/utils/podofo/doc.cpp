@@ -483,7 +483,7 @@ alter_link(PDFDoc *self, PdfDictionary &link, PyObject *alter_callback, bool mar
                 page = self->doc->GetPage(pagenum - 1);
             } catch(const PdfError &err) {
                 (void)err;
-                PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
+                PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file of %d pages", pagenum, self->doc->GetPageCount());
                 return ;
             }
             if (page) {
@@ -525,7 +525,10 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 		}
         for (auto const & ref: links) {
             PdfObject *lo = self->doc->GetObjects().GetObject(ref);
-            if (lo) alter_link(self, lo->GetDictionary(), alter_callback, mark_links, border, link_color);
+            if (lo) {
+                alter_link(self, lo->GetDictionary(), alter_callback, mark_links, border, link_color);
+                if (PyErr_Occurred()) return NULL;
+            }
         }
     } catch(const PdfError & err) {
         podofo_set_exception(err);
