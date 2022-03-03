@@ -60,6 +60,7 @@ def new_book(key, metadata):
         'recent_date': new Date(),
         'last_read': {},
         'last_read_position': {},
+        'saved_reading_rates': {},
         'annotations_map': {},
     }
 
@@ -299,6 +300,10 @@ class DB:
             for key in Object.keys(new_metadata):
                 book.metadata[key] = new_metadata[key]
             self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+
+    def save_reading_rates(self, book, rates):
+        book.saved_reading_rates = rates
+        self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
 
     def update_annotations_data_from_key(self, library_id, book_id, fmt, new_data):
         unkey = username_key(get_interface_data().username)

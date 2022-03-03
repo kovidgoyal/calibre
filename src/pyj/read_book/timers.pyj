@@ -18,7 +18,7 @@ class Timers:
     def start_book(self, book):
         self.reset_read_timer()
         self.rates = v'[]'
-        if book.saved_reading_rates?.rates:
+        if book?.saved_reading_rates?.rates:
             self.rates = book.saved_reading_rates.rates.slice(0)
             self.calculate()
 
