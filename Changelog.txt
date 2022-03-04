@@ -29,7 +29,7 @@
 
 - [1852929] E-book viewer: When displaying estimated time to completion for reading a book, remember the reading rate the next time the book is opened
 
-- [1961500] Dark theme: Highlight the current cell in the book list with a darker background and different foreground to make it more obvious
+- [1961500] Dark theme: Highlight the current cell in the book list with a lighter background and different foreground to make it more obvious
 
 - [1961639] An option to disable editing composite columns in the main book list when Tabbing through them (Preferences->Look & feel->Edit metadata)
 
