@@ -23,6 +23,45 @@
 # - title by author
 # }}}
 
+{{{ 5.38.0 2022-03-04
+
+:: new features
+
+- [1852929] E-book viewer: When displaying estimated time to completion for reading a book, remember the reading rate the next time the book is opened
+
+- [1961500] Dark theme: Highlight the current cell in the book list with a darker background and different foreground to make it more obvious
+
+- [1961639] An option to disable editing composite columns in the main book list when Tabbing through them (Preferences->Look & feel->Edit metadata)
+
+:: bug fixes
+
+- Tag editor: Fix regression in previous release that caused double clicking on tags to not work on non Linux platforms
+
+- [1962365] Copy to library: Fix annotations not being copied
+
+- [1962213] Edit book: Spell check: Fix words after a comment not being checked
+
+- [1960554] PDF Output: Fix conversion failing if there are ToC entries pointing to removed content
+
+- [1961775] E-book viewer: Fix an error when opening books with MathML for the second time if the last read position was at a MathML element
+
+- Edit book: Fix double clicking to select a word also selecting smart quotes surrounding the word
+
+- EPUB 3 metadata: Fix non-integer series index being sometimes represented using exponential notation
+
+:: improved recipes
+- Lenta.ru and aif.ru
+- Indian Express
+- Live Mint
+- Mainichi
+- Japan Times
+
+:: new recipes
+- Hindustan Times by unkn0wn
+- India Legal Magazine by unkn0wn
+- RT на русском by Vuizur
+}}}
+
 {{{ 5.37.0 2022-02-18
 
 :: new features
