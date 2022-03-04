@@ -30,7 +30,7 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 
 def get_filters():
-    return [
+    filters = [
             (_('Books'), BOOK_EXTENSIONS),
             (_('EPUB books'), ['epub', 'kepub']),
             (_('Kindle books'), ['mobi', 'prc', 'azw', 'azw3', 'kfx', 'tpz', 'azw1', 'azw4']),
@@ -42,6 +42,14 @@ def get_filters():
             (_('Archives'), ['zip', 'rar']),
             (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
+
+    excludeByDefault = tweaks['file_specs_to_exclude_by_default_when_adding_a_new_book']
+    
+    if len(excludeByDefault) != 0:
+        myBooks = [x for x in BOOK_EXTENSIONS if x not in excludeByDefault]
+        filters.insert(0,  (_('My Books'), myBooks))
+
+    return filters;
 
 
 class AddAction(InterfaceAction):

@@ -585,3 +585,10 @@ template_editor_tab_stop_width = 4
 #   value_for_undefined_numbers_when_sorting = 'minimum'
 #   value_for_undefined_numbers_when_sorting = 'maximum'
 value_for_undefined_numbers_when_sorting = 0
+
+#: File Specs to exclude by default when adding a new book
+# Allows you to exclude certain file formats from the default selection
+# of the Add Book dialog
+#  Example:
+# file_specs_to_exclude_by_default_when_adding_a_new_book = ['rar', 'zip' ]
+file_specs_to_exclude_by_default_when_adding_a_new_book = []
