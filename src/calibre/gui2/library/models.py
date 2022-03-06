@@ -578,11 +578,17 @@ class BooksModel(QAbstractTableModel):  # {{{
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
             idx = current.row()
-            data = self.get_book_display_info(idx)
-            if emit_signal:
-                self.new_bookdisplay_data.emit(data)
+            try:
+                data = self.get_book_display_info(idx)
+            except Exception:
+                import traceback
+                error_dialog(None, _('Unhandled error'), _(
+                    'Failed to read book data from calibre library. Click "Show details" for more information'), det_msg=traceback.format_exc(), show=True)
             else:
-                return data
+                if emit_signal:
+                    self.new_bookdisplay_data.emit(data)
+                else:
+                    return data
 
     def get_book_info(self, index):
         if isinstance(index, numbers.Integral):
@@ -1601,11 +1607,17 @@ class DeviceBooksModel(BooksModel):  # {{{
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
             idx = current.row()
-            data = self.get_book_display_info(idx)
-            if emit_signal:
-                self.new_bookdisplay_data.emit(data)
+            try:
+                data = self.get_book_display_info(idx)
+            except Exception:
+                import traceback
+                error_dialog(None, _('Unhandled error'), _(
+                    'Failed to read book data from calibre library. Click "Show details" for more information'), det_msg=traceback.format_exc(), show=True)
             else:
-                return data
+                if emit_signal:
+                    self.new_bookdisplay_data.emit(data)
+                else:
+                    return data
 
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows]
