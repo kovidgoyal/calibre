@@ -5,9 +5,9 @@
 import json
 from operator import itemgetter
 from qt.core import (
-    QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon, QInputDialog,
-    QItemSelectionModel, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt,
-    QWidget, pyqtSignal
+    QAbstractItemView, QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon,
+    QInputDialog, QItemSelectionModel, QLabel, QListWidget, QListWidgetItem,
+    QPushButton, QScroller, Qt, QWidget, pyqtSignal
 )
 
 from calibre.gui2 import choose_files, choose_save_file
@@ -32,6 +32,8 @@ class BookmarksList(QListWidget):
         self.addAction(ac)
         self.ac_delete = ac = QAction(QIcon(I('trash.png')), _('Remove this bookmark'), self)
         self.addAction(ac)
+        QScroller.grabGesture(self.viewport(), QScroller.ScrollerGestureType.TouchGesture)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
     @property
     def current_non_removed_item(self):

@@ -10,7 +10,7 @@ from qt.core import (
     QAbstractItemView, QColor, QDialog, QFont, QHBoxLayout, QIcon, QImage,
     QItemSelectionModel, QKeySequence, QLabel, QMenu, QPainter, QPainterPath,
     QPalette, QPixmap, QPushButton, QRect, QSizePolicy, QStyle, Qt, QTextCursor,
-    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, QScroller
 )
 
 from calibre.constants import (
@@ -175,6 +175,8 @@ class Highlights(QTreeWidget):
         self.uuid_map = {}
         self.section_font = QFont(self.font())
         self.section_font.setItalic(True)
+        QScroller.grabGesture(self.viewport(), QScroller.ScrollerGestureType.TouchGesture)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
     def show_context_menu(self, point):
         index = self.indexAt(point)

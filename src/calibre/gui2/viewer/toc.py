@@ -4,11 +4,10 @@
 
 import re
 from functools import partial
-
 from qt.core import (
-    QApplication, QFont, QHBoxLayout, QIcon, QMenu, QModelIndex, QStandardItem,
-    QStandardItemModel, QStyledItemDelegate, Qt, QToolButton, QToolTip, QTreeView,
-    QWidget, pyqtSignal, QEvent
+    QAbstractItemView, QApplication, QEvent, QFont, QHBoxLayout, QIcon, QMenu,
+    QModelIndex, QScroller, QStandardItem, QStandardItemModel, QStyledItemDelegate,
+    Qt, QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal
 )
 
 from calibre.gui2 import error_dialog
@@ -48,6 +47,8 @@ class TOCView(QTreeView):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
+        QScroller.grabGesture(self.viewport(), QScroller.ScrollerGestureType.TouchGesture)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
     def setModel(self, model):
         QTreeView.setModel(self, model)

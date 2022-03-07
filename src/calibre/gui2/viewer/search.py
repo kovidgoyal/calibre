@@ -6,8 +6,9 @@ import regex
 from collections import Counter, OrderedDict
 from html import escape
 from qt.core import (
-    QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, Qt, QToolButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemView, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel,
+    QScroller, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 from threading import Thread
 
@@ -471,6 +472,8 @@ class Results(QTreeWidget):  # {{{
         self.section_map = {}
         self.search_results = []
         self.item_map = {}
+        QScroller.grabGesture(self.viewport(), QScroller.ScrollerGestureType.TouchGesture)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
     def current_item_changed(self, current, previous):
         if current is not None:
