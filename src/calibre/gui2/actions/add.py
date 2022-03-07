@@ -30,8 +30,9 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 
 def get_filters():
+    archives = ['zip', 'rar']
     return [
-            (_('Books'), BOOK_EXTENSIONS),
+            (_('Books'), [x for x in BOOK_EXTENSIONS if x not in archives]),
             (_('EPUB books'), ['epub', 'kepub']),
             (_('Kindle books'), ['mobi', 'prc', 'azw', 'azw3', 'kfx', 'tpz', 'azw1', 'azw4']),
             (_('PDF books'), ['pdf', 'azw4']),
@@ -39,7 +40,7 @@ def get_filters():
             (_('LIT books'), ['lit']),
             (_('Text books'), ['txt', 'text', 'rtf', 'md', 'markdown', 'textile', 'txtz']),
             (_('Comics'), ['cbz', 'cbr', 'cbc']),
-            (_('Archives'), ['zip', 'rar']),
+            (_('Archives'), archives),
             (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
 
