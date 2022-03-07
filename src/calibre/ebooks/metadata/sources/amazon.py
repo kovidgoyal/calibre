@@ -97,7 +97,7 @@ def parse_details_page(url, log, timeout, browser, domain):
         return
     if domain == 'jp':
         for a in root.xpath('//a[@href]'):
-            if 'black-curtain-redirect.html' in a.get('href'):
+            if ('black-curtain-redirect.html' in a.get('href')) or ('/black-curtain/save-eligibility/black-curtain' in a.get('href')):
                 url = a.get('href')
                 if url:
                     if url.startswith('/'):
@@ -733,7 +733,10 @@ class Worker(Thread):  # Get details {{{
                 a = series[0].xpath('descendant::a')
                 if a:
                     raw = self.tostring(a[0], encoding='unicode', method='text', with_tail=False)
-                    m = re.search(r'(?:Book|Libro|Buch)\s+(?P<index>[0-9.]+)\s+(?:of|de|von)\s+([0-9.]+)\s*:\s*(?P<series>.+)', raw.strip())
+                    if self.domain == 'jp':
+                        m = re.search(r'(?P<index>[0-9.]+)\s*(?:巻|冊)\s*\(全\s*([0-9.]+)\s*(?:巻|冊)\):\s*(?P<series>.+)', raw.strip())
+                    else:
+                        m = re.search(r'(?:Book|Libro|Buch)\s+(?P<index>[0-9.]+)\s+(?:of|de|von)\s+([0-9.]+)\s*:\s*(?P<series>.+)', raw.strip())
                     if m is not None:
                         ans = (m.group('series').strip(), float(m.group('index')))
 
@@ -968,7 +971,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 23)
+    version = (1, 2, 24)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
