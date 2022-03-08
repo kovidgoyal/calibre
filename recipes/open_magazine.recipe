@@ -9,7 +9,7 @@ class OpenMagazine(BasicNewsRecipe):
     language = 'en_IN'
     __author__ = 'unkn0wn'
     oldest_article = 7  # days
-    max_articles_per_feed = 1
+    max_articles_per_feed = 50
     encoding = 'utf-8'
     use_embedded_content = False
     no_stylesheets = True
