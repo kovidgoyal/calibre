@@ -725,7 +725,9 @@ class BooksView(QTableView):  # {{{
                     saved_history)[:max_sort_levels]):
                 self.sort_by_column_and_order(self.column_map.index(col), order)
 
-    def apply_state(self, state, max_sort_levels=3):
+    def apply_state(self, state, max_sort_levels=3, save_state=True):
+        # set save_state=False if you will save the state yourself after calling
+        # this method.
         h = self.column_header
         cmap = {}
         hidden = state.get('hidden_columns', [])
@@ -739,13 +741,18 @@ class BooksView(QTableView):  # {{{
         for col, pos in positions.items():
             if col in cmap:
                 pmap[pos] = col
+        need_save_state = False
+        self.column_header.blockSignals(True)
         for pos in sorted(pmap.keys()):
             col = pmap[pos]
             idx = cmap[col]
             current_pos = h.visualIndex(idx)
             if current_pos != pos:
+                need_save_state = True
                 h.moveSection(current_pos, pos)
-
+        self.column_header.blockSignals(False)
+        if need_save_state and save_state:
+            self.save_state()
         # Because of a bug in Qt 5 we have to ensure that the header is actually
         # relaid out by changing this value, without this sometimes ghost
         # columns remain visible when changing libraries
