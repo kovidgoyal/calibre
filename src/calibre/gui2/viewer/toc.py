@@ -6,12 +6,13 @@ import re
 from functools import partial
 from qt.core import (
     QAbstractItemView, QApplication, QEvent, QFont, QHBoxLayout, QIcon, QMenu,
-    QModelIndex, QScroller, QStandardItem, QStandardItemModel, QStyledItemDelegate,
+    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate,
     Qt, QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal
 )
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.search_box import SearchBox2
+from calibre.gui2.gestures import GestureManager
 from calibre.utils.icu import primary_contains
 
 
@@ -45,10 +46,20 @@ class TOCView(QTreeView):
         self.setMouseTracking(True)
         self.set_style_sheet()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.context_menu)
+        self.context_menu = None
+        self.customContextMenuRequested.connect(self.show_context_menu)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
-        QScroller.grabGesture(self.viewport(), QScroller.ScrollerGestureType.TouchGesture)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.gesture_manager = GestureManager(self)
+
+    def viewportEvent(self, ev):
+        try:
+            ret = self.gesture_manager.handle_event(ev)
+        except AttributeError:
+            ret = None
+        if ret is not None:
+            return ret
+        return super().viewportEvent(ev)
 
     def setModel(self, model):
         QTreeView.setModel(self, model)
@@ -113,7 +124,7 @@ class TOCView(QTreeView):
         for x in self.model().items_at_depth(item.depth):
             self.expand(self.model().indexFromItem(x))
 
-    def context_menu(self, pos):
+    def show_context_menu(self, pos):
         index = self.indexAt(pos)
         m = QMenu(self)
         if index.isValid():
@@ -127,6 +138,7 @@ class TOCView(QTreeView):
             m.addAction(QIcon.ic('minus.png'), _('Collapse all items at the level of {}').format(index.data()), partial(self.collapse_at_level, index))
         m.addSeparator()
         m.addAction(QIcon.ic('edit-copy.png'), _('Copy Table of Contents to clipboard'), self.copy_to_clipboard)
+        self.context_menu = m
         m.exec(self.mapToGlobal(pos))
 
     def copy_to_clipboard(self):

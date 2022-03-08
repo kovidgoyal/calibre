@@ -192,7 +192,7 @@ class GestureManager(QObject):
 
     def close_open_menu(self):
         m = getattr(self.parent(), 'context_menu', None)
-        if m is not None and m.isVisible():
+        if m is not None and hasattr(m, 'isVisible') and m.isVisible():
             m.close()
             return True
 
