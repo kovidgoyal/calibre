@@ -450,7 +450,7 @@ def trash_name():
 
 @lru_cache(maxsize=2)
 def get_umask():
-    mask = os.umask(0o666)
+    mask = os.umask(0o22)
     os.umask(mask)
     return mask
 
