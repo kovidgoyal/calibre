@@ -346,13 +346,17 @@ class ConfigInterface:
 
 def retry_on_fail(func, *args, count=10, sleep_time=0.2):
     import time
+    ERROR_SHARING_VIOLATION = 32
+    ACCESS_DENIED = 5
     for i in range(count):
         try:
             return func(*args)
         except FileNotFoundError:
             raise
-        except OSError:
-            if not iswindows or i > count - 2:
+        except OSError as e:
+            # Windows stupidly gives us an ACCESS_DENIED rather than a
+            # ERROR_SHARING_VIOLATION if the file is open
+            if not iswindows or i > count - 2 or e.winerror not in (ERROR_SHARING_VIOLATION, ACCESS_DENIED):
                 raise
             # Try the operation repeatedly in case something like a virus
             # scanner has opened one of the files (I love windows)
