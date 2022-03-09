@@ -15,12 +15,10 @@ from calibre.constants import (
 )
 from calibre.utils.config_base import (
     Config, ConfigInterface, ConfigProxy, Option, OptionSet, OptionValues,
-    StringConfig, json_dumps, json_loads, make_config_dir, plugin_dir, prefs,
-    tweaks, from_json, to_json
+    StringConfig, commit_data, from_json, json_dumps, json_loads, make_config_dir,
+    plugin_dir, prefs, read_data, to_json, tweaks
 )
-from calibre.utils.lock import ExclusiveFile
-from polyglot.builtins import string_or_bytes, native_string_type
-
+from polyglot.builtins import native_string_type, string_or_bytes
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
@@ -29,7 +27,7 @@ optparse._ = _
 if False:
     # Make pyflakes happy
     Config, ConfigProxy, Option, OptionValues, StringConfig, OptionSet,
-    ConfigInterface, tweaks, plugin_dir, prefs, from_json, to_json
+    ConfigInterface, tweaks, plugin_dir, prefs, from_json, to_json, make_config_dir
 
 
 def check_config_write_access():
@@ -53,6 +51,7 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
     def format_option(self, option):
         import textwrap
+
         from calibre.utils.terminal import colored
 
         result = []
@@ -91,6 +90,7 @@ class OptionParser(optparse.OptionParser):
                  conflict_handler='resolve',
                  **kwds):
         import textwrap
+
         from calibre.utils.terminal import colored
 
         usage = textwrap.dedent(usage)
@@ -219,8 +219,8 @@ class DynamicConfig(dict):
         self.refresh()
 
     def read_old_serialized_representation(self):
-        from calibre.utils.shared_file import share_open
         from calibre.utils.serialize import pickle_loads
+        from calibre.utils.shared_file import share_open
         path = self.file_path.rpartition('.')[0]
         try:
             with share_open(path, 'rb') as f:
@@ -238,9 +238,12 @@ class DynamicConfig(dict):
         migrate = False
         if clear_current:
             self.clear()
-        if os.path.exists(self.file_path):
-            with ExclusiveFile(self.file_path) as f:
-                raw = f.read()
+        try:
+            raw = read_data(self.file_path)
+        except FileNotFoundError:
+            d = self.read_old_serialized_representation()
+            migrate = bool(d)
+        else:
             if raw:
                 try:
                     d = json_loads(raw)
@@ -250,14 +253,9 @@ class DynamicConfig(dict):
             else:
                 d = self.read_old_serialized_representation()
                 migrate = bool(d)
-        else:
-            d = self.read_old_serialized_representation()
-            migrate = bool(d)
         if migrate and d:
             raw = json_dumps(d, ignore_unserializable=True)
-            with ExclusiveFile(self.file_path) as f:
-                f.seek(0), f.truncate()
-                f.write(raw)
+            commit_data(self.file_path, raw)
 
         self.update(d)
 
@@ -283,13 +281,8 @@ class DynamicConfig(dict):
     def commit(self):
         if not getattr(self, 'name', None):
             return
-        if not os.path.exists(self.file_path):
-            make_config_dir()
         raw = json_dumps(self)
-        with ExclusiveFile(self.file_path) as f:
-            f.seek(0)
-            f.truncate()
-            f.write(raw)
+        commit_data(self.file_path, raw)
 
 
 dynamic = DynamicConfig()
@@ -345,17 +338,19 @@ class XMLConfig(dict):
 
     def refresh(self, clear_current=True):
         d = {}
-        if os.path.exists(self.file_path):
-            with ExclusiveFile(self.file_path) as f:
-                raw = f.read()
-                try:
-                    d = self.raw_to_object(raw) if raw.strip() else {}
-                except SystemError:
-                    pass
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    d = {}
+        try:
+            raw = read_data(self.file_path)
+        except FileNotFoundError:
+            pass
+        else:
+            try:
+                d = self.raw_to_object(raw) if raw.strip() else {}
+            except SystemError:
+                pass
+            except:
+                import traceback
+                traceback.print_exc()
+                d = {}
         if clear_current:
             self.clear()
         self.update(d)
@@ -393,15 +388,11 @@ class XMLConfig(dict):
     def commit(self):
         if self.no_commit:
             return
-        if hasattr(self, 'file_path') and self.file_path:
+        if getattr(self, 'file_path', None):
             dpath = os.path.dirname(self.file_path)
             if not os.path.exists(dpath):
                 os.makedirs(dpath, mode=CONFIG_DIR_MODE)
-            with ExclusiveFile(self.file_path) as f:
-                raw = self.to_raw()
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
+            commit_data(self.file_path, self.to_raw())
 
     def __enter__(self):
         self.no_commit = True
