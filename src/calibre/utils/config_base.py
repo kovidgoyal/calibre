@@ -344,33 +344,36 @@ class ConfigInterface:
         self.option_set.smart_update(opts1, opts2)
 
 
-def read_data(file_path, count=10, sleep_time=0.2):
+def retry_on_fail(func, *args, count=10, sleep_time=0.2):
     import time
-    count = 10
     for i in range(count):
         try:
-            with open(file_path, 'rb') as f:
-                return f.read()
+            return func(*args)
         except FileNotFoundError:
             raise
         except OSError:
-            if i > count - 2:
+            if not iswindows or i > count - 2:
                 raise
             # Try the operation repeatedly in case something like a virus
             # scanner has opened one of the files (I love windows)
             time.sleep(sleep_time)
 
 
+def read_data(file_path):
+    def r():
+        with open(file_path, 'rb') as f:
+            return f.read()
+    return retry_on_fail(r)
+
+
 def commit_data(file_path, data):
     import tempfile
-
-    from calibre.utils.filenames import atomic_rename
     bdir = os.path.dirname(file_path)
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
     try:
         with tempfile.NamedTemporaryFile(dir=bdir, delete=False) as f:
             f.write(data)
-        atomic_rename(f.name, file_path)
+        retry_on_fail(os.replace, f.name, file_path)
     finally:
         with suppress(FileNotFoundError, NameError):
             os.remove(f.name)
