@@ -375,7 +375,7 @@ def commit_data(file_path, data):
     bdir = os.path.dirname(file_path)
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
     try:
-        with tempfile.NamedTemporaryFile(dir=bdir, delete=False) as f:
+        with tempfile.NamedTemporaryFile(dir=bdir, prefix=os.path.basename(file_path).split('.')[0] + '-atomic-', delete=False) as f:
             f.write(data)
         retry_on_fail(os.replace, f.name, file_path)
     finally:
