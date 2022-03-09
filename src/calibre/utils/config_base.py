@@ -421,7 +421,9 @@ class Config(ConfigInterface):
             raise ValueError('The option %s is not defined.'%name)
         if not os.path.exists(config_dir):
             make_config_dir()
-        src = read_data(self.config_file_path)
+        src = b''
+        with suppress(FileNotFoundError):
+            src = read_data(self.config_file_path)
         opts = self.option_set.parse_string(src)
         setattr(opts, name, val)
         src = self.option_set.serialize(opts)
