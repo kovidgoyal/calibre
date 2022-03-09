@@ -4,13 +4,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, traceback, numbers
-from contextlib import suppress
-from functools import partial
+import numbers
+import os
+import re
+import traceback
 from collections import defaultdict
+from contextlib import suppress
 from copy import deepcopy
+from functools import partial
 
-from calibre.constants import config_dir, CONFIG_DIR_MODE, preferred_encoding, filesystem_encoding, iswindows
+from calibre.constants import (
+    CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows,
+    preferred_encoding
+)
 from polyglot.builtins import iteritems
 
 plugin_dir = os.path.join(config_dir, 'plugins')
@@ -376,6 +382,8 @@ def commit_data(file_path, data):
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
     try:
         with tempfile.NamedTemporaryFile(dir=bdir, prefix=os.path.basename(file_path).split('.')[0] + '-atomic-', delete=False) as f:
+            if hasattr(os, 'fchmod'):
+                os.fchmod(f.fileno(), 0o666 & ~get_umask())
             f.write(data)
         retry_on_fail(os.replace, f.name, file_path)
     finally:

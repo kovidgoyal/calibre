@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from polyglot.builtins import environ_item, hasenv
+from functools import lru_cache
 import sys, locale, codecs, os, collections, collections.abc
 
 __appname__   = 'calibre'
@@ -445,3 +446,16 @@ def get_windows_number_formats():
 
 def trash_name():
     return _('Trash') if ismacos else _('Recycle Bin')
+
+
+@lru_cache(maxsize=2)
+def get_umask():
+    mask = os.umask(0o666)
+    os.umask(mask)
+    return mask
+
+
+# call this at startup as it changed process global state, which doesnt work
+# with multi-threading. It's absurd there is no way to safely read the current
+# umask of a process.
+get_umask()
