@@ -367,9 +367,13 @@ def commit_data(file_path, data):
     from calibre.utils.filenames import atomic_rename
     bdir = os.path.dirname(file_path)
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
-    with tempfile.NamedTemporaryFile(dir=bdir, delete=False) as f:
-        f.write(data)
-    atomic_rename(f.name, file_path)
+    try:
+        with tempfile.NamedTemporaryFile(dir=bdir, delete=False) as f:
+            f.write(data)
+        atomic_rename(f.name, file_path)
+    finally:
+        with suppress(FileNotFoundError, NameError):
+            os.remove(f.name)
 
 
 class Config(ConfigInterface):
