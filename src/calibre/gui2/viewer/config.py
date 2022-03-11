@@ -68,5 +68,8 @@ def load_reading_rates(key):
     except OSError:
         existing = {}
     else:
-        existing = json.loads(raw)
+        try:
+            existing = json.loads(raw)
+        except Exception:
+            existing = {}
     return existing.get(key)
