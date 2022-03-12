@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 CATEGORIES = {
     'smart-news': 'Smart News',
     'history': 'History',
-    'science': 'Science',
+    'science-nature': 'Science',
     'innovation': 'Innovation',
     'arts-culture': 'Arts & Culture',
     'travel': 'Travel',
@@ -58,7 +58,7 @@ class Smithsonian(BasicNewsRecipe):
         ans = []
         for slug, title in CATEGORIES.items():
             url = 'https://www.smithsonianmag.com/category/' + slug + '/'
-            self.log('Parsing section:', title)
+            self.log('Parsing section:', title, 'at:', url)
             articles = list(self.parse_section(url))
             if articles:
                 ans.append((title, articles))
