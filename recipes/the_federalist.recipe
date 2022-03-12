@@ -43,6 +43,11 @@ class Federalist(BasicNewsRecipe):
         ('All', 'https://thefederalist.com/feed/'),
     ]
 
+    # def parse_index(self):
+    #     return [('Articles', [{
+    #         'title': 'test',
+    #         'url': 'https://thefederalist.com/2022/03/09/propaganda-press-wield-bidens-russia-blame-game-to-gaslight-americans-about-expensive-gas/'}])]
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-lazy-src': True}):
             img['src'] = img['data-lazy-src']
