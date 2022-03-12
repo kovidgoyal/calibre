@@ -30,7 +30,7 @@ class Federalist(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'title-lg post-categories article-excerpt article-author-details'
+            'title-lg article-thumbnail post-categories article-excerpt article-author-details'
             ' article-meta-author article-meta-date article-content article-body shortbio entry-header'
             ' byline-month byline-standard alpha-byline article-author-description article-author-details'),
     ]
@@ -44,9 +44,24 @@ class Federalist(BasicNewsRecipe):
     ]
 
     # def parse_index(self):
-    #     return [('Articles', [{
+    #     return [('Articles', [
+    #         {
     #         'title': 'test',
-    #         'url': 'https://thefederalist.com/2022/03/09/propaganda-press-wield-bidens-russia-blame-game-to-gaslight-americans-about-expensive-gas/'}])]
+    #         'url': 'https://thefederalist.com/2022/03/09/propaganda-press-wield-bidens-russia-blame-game-to-gaslight-americans-about-expensive-gas/'},
+    #         {
+    #         'title': 'test2',
+    #         'url': 'https://thefederalist.com/2022/03/10/white-house-will-blame-anyone-but-biden-for-februarys-7-9-inflation-jump/',
+    #         }
+    #     ])]
+
+    def preprocess_raw_html_(self, raw_html, url):
+        soup = self.index_to_soup(raw_html)
+        # this website puts article-thumbnail images inside article-body in
+        # some articles and outside it in others, so we have to special case it
+        for ab in soup.findAll(**classes('article-body')):
+            for img in ab.findAll(**classes('article-thumbnail')):
+                del img['class']
+        return str(soup)
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-lazy-src': True}):
