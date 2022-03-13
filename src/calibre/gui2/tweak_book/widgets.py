@@ -733,9 +733,9 @@ class InsertLink(Dialog):
                 frag = item.get('id', None) or item.get('name')
                 if not frag:
                     continue
-                text = lead_text(item, num_words=4)
+                text = lead_text(item, num_words=4).strip()
                 ac.append((text, frag))
-            ac.sort(key=lambda text_frag: numeric_sort_key(text_frag[0]))
+            ac.sort(key=lambda text_frag: numeric_sort_key(text_frag[0] or text_frag[1]))
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
