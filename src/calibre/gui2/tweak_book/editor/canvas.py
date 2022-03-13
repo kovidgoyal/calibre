@@ -531,8 +531,6 @@ class Canvas(QWidget):
         pos = ev.pos()
         cursor = Qt.CursorShape.ArrowCursor
         try:
-            if not self.target.contains(pos):
-                return
             if ev.buttons() & Qt.MouseButton.LeftButton:
                 if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
                     if self.selection_state.current_mode == 'select':
@@ -547,7 +545,7 @@ class Canvas(QWidget):
                         cursor = self.get_cursor()
                         changed = True
             else:
-                if self.selection_state.rect is None or not self.selection_state.rect.contains(pos):
+                if not self.target.contains(pos) or self.selection_state.rect is None or not self.selection_state.rect.contains(pos):
                     return
                 if self.selection_state.current_mode == 'selected':
                     if self.selection_state.rect is not None and self.selection_state.rect.contains(pos):
