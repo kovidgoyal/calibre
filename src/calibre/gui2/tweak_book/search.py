@@ -880,10 +880,10 @@ class SavedSearches(QWidget):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.setLayout(l)
 
         self.filter_text = ft = QLineEdit(self)
         ft.setClearButtonEnabled(True)
+        ft.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         ft.textChanged.connect(self.do_filter)
         ft.setPlaceholderText(_('Filter displayed searches'))
         l.addWidget(ft)
@@ -893,7 +893,8 @@ class SavedSearches(QWidget):
         self.stack = stack = QStackedLayout()
         self.main_widget = mw = QWidget(self)
         stack.addWidget(mw)
-        self.edit_search_widget = es = EditSearch(mw)
+        self.edit_search_widget = es = EditSearch(self)
+        es.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         stack.addWidget(es)
         es.done.connect(self.search_editing_done)
         mw.v = QVBoxLayout(mw)
