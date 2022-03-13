@@ -14,11 +14,21 @@ class IndiaLegalLive(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
 
+    masthead_url = 'https://d2r2ijn7njrktv.cloudfront.net/IL/uploads/2020/12/03181846/india-legal-live-logo-218x73-1.png'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.indialegallive.com/')
+        for citem in soup.findAll('img', src=lambda s: s and s.endswith('shot.jpg')):
+            return citem['src']
+
     keep_only_tags = [
         dict(name='h1'),
         classes(
             'tdb_single_subtitle tdb_single_date tdb_single_featured_image tdb_single_content'
         ),
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'style':'position:absolute;top:0;left:-9999px;'}),
     ]
 
     feeds = [
