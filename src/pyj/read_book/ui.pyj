@@ -479,6 +479,8 @@ class ReadUI:
         for fname in files_left:
             if fname is not raster_cover_name:
                 count += 1
+                # Chrome starts killing AJAX requests if there are too many in flight, unlike Firefox
+                # which is smart enough to queue them
                 if count < 20:
                     start_download(fname, base_path + encodeURIComponent(fname).replace(/%2[fF]/g, '/'))
                 else:
