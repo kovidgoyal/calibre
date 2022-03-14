@@ -437,6 +437,11 @@ class ReadUI:
             self.downloads_in_progress.remove(xhr)
             progress_track[this] = raster_cover_size if this is raster_cover_name else files[this].size
             update_progress()
+            if len(queued):
+                for fname in queued:
+                    start_download(fname, base_path + encodeURIComponent(fname).replace(/%2[fF]/g, '/'))
+                    queued.discard(fname)
+                    break
             if end_type is 'abort':
                 files_left.discard(this)
                 return
@@ -469,9 +474,15 @@ class ReadUI:
         if raster_cover_name:
             start_download(raster_cover_name, 'get/cover/' + book_id + '/' + encodeURIComponent(library_id))
 
+        count = 0
+        queued = set()
         for fname in files_left:
             if fname is not raster_cover_name:
-                start_download(fname, base_path + encodeURIComponent(fname).replace(/%2[fF]/g, '/'))
+                count += 1
+                if count < 20:
+                    start_download(fname, base_path + encodeURIComponent(fname).replace(/%2[fF]/g, '/'))
+                else:
+                    queued.add(fname)
 
     def ensure_maths(self, proceed):
         self.db.get_mathjax_info(def(mathjax_info):
