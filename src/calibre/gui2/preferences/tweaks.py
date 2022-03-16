@@ -355,6 +355,7 @@ class TweaksView(QListView):
         self.setAlternatingRowColors(True)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setMinimumWidth(300)
+        self.setStyleSheet('QListView::item { padding-top: 0.75ex; padding-bottom: 0.75ex; }')
         self.setWordWrap(True)
 
     def currentChanged(self, cur, prev):
