@@ -926,6 +926,9 @@ class Application(QApplication):
     def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
         self.ignore_palette_changes = False
         QNetworkProxyFactory.setUseSystemConfiguration(True)
+        # Allow import of webengine after construction of QApplication on new
+        # enough PyQt
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
