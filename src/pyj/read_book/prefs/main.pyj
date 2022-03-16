@@ -30,6 +30,13 @@ class Prefs:
         self.main_title = _('Configure book reader')
         container.appendChild(E.div(
             style='contain: paint; width: 100%; height: 100%; display: flex; flex-direction: column',
+            tabindex='-1',
+            onkeydown=def(ev):
+                if ev.key is 'Escape':
+                    ev.stopPropagation(), ev.preventDefault()
+                    if not self.cancel():
+                        self.close_func()
+            ,
             E.div(), E.div(style='flex-grow: 100; overflow: auto')
         ))
         container = container.firstChild
@@ -48,6 +55,7 @@ class Prefs:
         if self.stack.length > 1:
             self.stack.pop()
             self.display_panel(self.stack[-1])
+            return True
 
     def onclose(self):
         if self.stack.length > 1:
@@ -74,6 +82,8 @@ class Prefs:
         container = self.container
         clear(container)
         getattr(self, 'display_' + which)(container)
+        container.setAttribute('tabindex', '-1')
+        container.focus()
 
     def show_panel(self, which):
         self.stack.push(which)
