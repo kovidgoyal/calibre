@@ -492,25 +492,32 @@ class LineEditECM:  # {{{
         self.create_change_case_menu(menu)
         menu.exec(event.globalPos())
 
+    def modify_case_operation(self, func):
+        has_selection = self.hasSelectedText()
+        text = self.selectedText() if has_selection else self.text()
+        ntext = func(text)
+        if ntext != text:
+            self.insert(ntext) if has_selection else self.setText(ntext)
+
     def upper_case(self):
         from calibre.utils.icu import upper
-        self.setText(upper(str(self.text())))
+        self.modify_case_operation(upper)
 
     def lower_case(self):
         from calibre.utils.icu import lower
-        self.setText(lower(str(self.text())))
+        self.modify_case_operation(lower)
 
     def swap_case(self):
         from calibre.utils.icu import swapcase
-        self.setText(swapcase(str(self.text())))
+        self.modify_case_operation(swapcase)
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
-        self.setText(titlecase(str(self.text())))
+        self.modify_case_operation(titlecase)
 
     def capitalize(self):
         from calibre.utils.icu import capitalize
-        self.setText(capitalize(str(self.text())))
+        self.modify_case_operation(capitalize)
 
 # }}}
 

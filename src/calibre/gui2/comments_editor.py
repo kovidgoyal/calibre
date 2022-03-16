@@ -798,10 +798,16 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def text(self):
         return self.textCursor().selectedText()
+    selectedText = text
 
     def setText(self, text):
         with self.editing_cursor() as c:
             c.insertText(text)
+    insert = setText
+
+    def hasSelectedText(self):
+        c = self.textCursor()
+        return c.hasSelection()
 
     def contextMenuEvent(self, ev):
         menu = self.createStandardContextMenu()
