@@ -353,7 +353,6 @@ class TweaksView(QListView):
         QListView.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setAlternatingRowColors(True)
-        self.setSpacing(5)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setMinimumWidth(300)
         self.setWordWrap(True)
