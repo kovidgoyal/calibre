@@ -485,11 +485,13 @@ class ConfigWidget(ConfigWidgetBase):
             self.tweaks.set_plugin_tweaks(l)
             self.changed()
 
-    def current_changed(self, current, previous):
-        self.tweaks_view.scrollTo(current)
-        tweak = self.tweaks.data(current, Qt.ItemDataRole.UserRole)
-        self.help.setPlainText(tweak.doc)
-        self.edit_tweak.setPlainText(tweak.edit_text)
+    def current_changed(self, *a):
+        current = self.tweaks_view.currentIndex()
+        if current.isValid():
+            self.tweaks_view.scrollTo(current)
+            tweak = self.tweaks.data(current, Qt.ItemDataRole.UserRole)
+            self.help.setPlainText(tweak.doc)
+            self.edit_tweak.setPlainText(tweak.edit_text)
 
     def changed(self, *args):
         self.changed_signal.emit()
@@ -497,6 +499,7 @@ class ConfigWidget(ConfigWidgetBase):
     def initialize(self):
         self.tweaks = self._model = Tweaks()
         self.tweaks_view.setModel(self.tweaks)
+        self.tweaks_view.setCurrentIndex(self.tweaks_view.model().index(0))
 
     def restore_to_default(self, *args):
         idx = self.tweaks_view.currentIndex()
