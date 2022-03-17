@@ -33,7 +33,6 @@ from calibre.ebooks.metadata.opf3 import (
 from calibre.ebooks.metadata.utils import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
-from calibre.ebooks.mobi.tweak import set_cover
 from calibre.ebooks.oeb.base import (
     DC11_NS, OEB_DOCS, OEB_STYLES, OPF, OPF2_NS, Manifest, itercsslinks, iterlinks,
     rewrite_links, serialize, urlquote, urlunquote
@@ -1447,6 +1446,7 @@ def do_explode(path, dest):
 
 def opf_to_azw3(opf, outpath, container):
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
+    from calibre.ebooks.mobi.tweak import set_cover
 
     class Item(Manifest.Item):
 

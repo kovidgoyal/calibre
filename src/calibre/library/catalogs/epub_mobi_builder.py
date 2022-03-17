@@ -39,7 +39,6 @@ from calibre.utils.date import (
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
-from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems
@@ -3890,6 +3889,7 @@ class CatalogBuilder:
          (file): thumb written to /images
          (archive): current thumb archived under cover crc
         """
+        from calibre.utils.img import scale_image
 
         def _open_archive(mode='r'):
             try:
