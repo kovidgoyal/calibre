@@ -1377,21 +1377,15 @@ class CatalogBuilder:
          (str): BeautifulSoup HTML snippet to be inserted into <p> line item entry.
         """
 
-        soup = BeautifulSoup('')
+        prefix_char = prepare_string_for_xml(prefix_char or NBSP)
         if self.opts.fmt == 'mobi':
-            codeTag = soup.new_tag("code")
-            if prefix_char is None:
-                codeTag.insert(0, NavigableString(NBSP))
-            else:
-                codeTag.insert(0, NavigableString(prefix_char))
-            return codeTag
+            tagname = 'code'
+            html = f'<{tagname}>{prefix_char}</{tagname}>'
         else:
-            spanTag = soup.new_tag("span")
-            spanTag['class'] = "prefix"
-            if prefix_char is None:
-                prefix_char = NBSP
-            spanTag.insert(0, NavigableString(prefix_char))
-            return spanTag
+            tagname = 'span'
+            html =  f'<{tagname} class="prefix">{prefix_char}</{tagname}>'
+        soup = BeautifulSoup(html)
+        return soup.find(tagname)
 
     def generate_author_anchor(self, author):
         """ Generate legal XHTML anchor.
