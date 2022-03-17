@@ -25,7 +25,6 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
@@ -440,6 +439,7 @@ class RecursiveFetcher:
                     x.write(data)
                 tag['src'] = imgpath
             else:
+                from calibre.utils.img import image_from_data, image_to_data
                 try:
                     # Ensure image is valid
                     img = image_from_data(data)

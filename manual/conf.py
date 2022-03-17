@@ -20,9 +20,10 @@ sys.path.append(base)
 sys.path.insert(0, os.path.dirname(base))
 from setup import __appname__, __version__
 from calibre.utils.localization import localize_website_link
+import calibre.utils.img as cimg
 import custom
 del sys.path[0]
-custom
+custom, cimg
 # General configuration
 # ---------------------
 
