@@ -47,7 +47,6 @@ from calibre.utils.formatter_functions import (
     load_user_template_functions, unload_user_template_functions
 )
 from calibre.utils.icu import sort_key
-from calibre.utils.img import save_cover_data_to
 from polyglot.builtins import (
     cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
 )
@@ -1527,6 +1526,7 @@ class DB:
                 with lopen(path, 'wb') as f:
                     f.write(data)
             else:
+                from calibre.utils.img import save_cover_data_to
                 try:
                     save_cover_data_to(data, path)
                 except OSError:
