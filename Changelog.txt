@@ -23,6 +23,46 @@
 # - title by author
 # }}}
 
+{{{ 5.39.0 2022-03-18
+
+:: new features
+
+- [1963875] E-book viewer: Allow scrolling of the ToC, highlights, bookmarks, etc. with touch gestures
+
+- [1963822] Edit metadata dialog: When using the change case operations if some text is selected, only operate on the selected text
+
+- [1964123] Use atomic writes for the config files ensures no partial data is written in case of crash/powerloss
+
+:: bug fixes
+
+- [1964742] Content server: Fix reading of books with thousands of internal files not working in the Chrome browser
+
+- [1965182] Catalog generation: Fix a rare crash when generating very large catalogs
+
+- Edit/Polish book: Fix hardcoded Unicode ligatures not being preserved in AZW3 format books
+
+- [1963868] Fix automatic searches causing search box to lose focus when search as you type is enabled in Preferences->Searching
+
+- [1963748] Edit book: Check book: Auto fix package identifier being empty
+
+- [1963856] Amazon metadata download: Fix getting series info from amazon.jp
+
+- Edit book: Insert hyperlinks: When sorting anchors on elements without any text content, use the anchor itself
+
+- Edit book: Make the saved search panel freely resizable
+
+- Edit book: When dragging to select a region or adjust the selection fix mouse moving outside the image causing the region to no longer be adjusted
+
+:: improved recipes
+- India Legal Magazine
+- The Smithsonian
+- The Federalist
+
+:: new recipes
+- Swarajya Magazine by unkn0wn
+- Open Magazine by unkn0wn
+}}}
+
 {{{ 5.38.0 2022-03-04
 
 :: new features
