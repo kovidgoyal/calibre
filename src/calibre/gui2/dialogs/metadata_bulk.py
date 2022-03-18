@@ -54,6 +54,9 @@ class Caser(LineEditECM):
     def setText(self, text):
         self.title = text
 
+    def hasSelectedText(self):
+        return False
+
 
 class MyBlockingBusy(QDialog):  # {{{
 
