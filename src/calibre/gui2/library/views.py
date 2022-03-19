@@ -304,6 +304,7 @@ class BooksView(QTableView):  # {{{
         # {{{ Column Header setup
         self.can_add_columns = True
         self.was_restored = False
+        self.allow_save_state = True
         self.column_header = HeaderView(Qt.Orientation.Horizontal, self)
         self.pin_view.column_header = HeaderView(Qt.Orientation.Horizontal, self.pin_view)
         self.setHorizontalHeader(self.column_header)
@@ -692,7 +693,7 @@ class BooksView(QTableView):  # {{{
 
     def save_state(self):
         # Only save if we have been initialized (set_database called)
-        if len(self.column_map) > 0 and self.was_restored:
+        if len(self.column_map) > 0 and self.was_restored and self.allow_save_state:
             state = self.get_state()
             self.write_state(state)
             if self.is_library_view:
@@ -742,7 +743,10 @@ class BooksView(QTableView):  # {{{
             if col in cmap:
                 pmap[pos] = col
         need_save_state = False
-        self.column_header.blockSignals(True)
+        # Resetting column positions triggers a save state. There can be a lot
+        # of these. Batch them up and do it at the end.
+        # Can't use blockSignals() because that prevents needed processing somewhere
+        self.allow_save_state = False
         for pos in sorted(pmap.keys()):
             col = pmap[pos]
             idx = cmap[col]
@@ -750,7 +754,7 @@ class BooksView(QTableView):  # {{{
             if current_pos != pos:
                 need_save_state = True
                 h.moveSection(current_pos, pos)
-        self.column_header.blockSignals(False)
+        self.allow_save_state = True
         if need_save_state and save_state:
             self.save_state()
         # Because of a bug in Qt 5 we have to ensure that the header is actually
