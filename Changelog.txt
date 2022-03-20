@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.39.0 2022-03-18
+{{{ 5.39.1 2022-03-18
 
 :: new features
 
@@ -34,6 +34,8 @@
 - [1964123] Use atomic writes for the config files ensures no partial data is written in case of crash/powerloss
 
 :: bug fixes
+
+- 5.39.1 fixes a couple of regressions that broke case change in the Bulk metadata edit dialog and remembering column widths in the book list on some systems.
 
 - [1964742] Content server: Fix reading of books with thousands of internal files not working in the Chrome browser
 
