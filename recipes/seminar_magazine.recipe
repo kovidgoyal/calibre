@@ -1,0 +1,44 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import datetime
+
+
+class Seminar(BasicNewsRecipe):
+    title = 'Seminar Magazine'
+    __author__ = 'unkn0wn'
+    description = (
+        'Seminar - attempts a departure from the usual journal. Problems, national and international,'
+        ' are posed and discussed. Each issue deals with a single problem. Those who hold different'
+        ' and at times opposing viewpoints express their thoughts')
+    language = 'en_IN'
+    use_embedded_content = False
+    remove_javascript = True
+    masthead_url = 'https://www.india-seminar.com/semlogo/semlogo_top_1.jpg'
+    ignore_duplicate_articles = {'url'}
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('https://www.india-seminar.com/')
+        citem = soup.find('img', src=lambda x: x and x.endswith('cover.png'))
+        if citem:
+            cover_url = "https://www.india-seminar.com/" + citem['src']
+        return cover_url
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.india-seminar.com/semframe.html')
+        d = datetime.today()
+        a = soup.find(
+            'frame', src=lambda x: x and x.startswith('' + d.strftime('%Y') + '')
+        )
+        url = a['src']
+        self.log('Downloading issue:', url)
+        soup = self.index_to_soup('https://www.india-seminar.com/' + url)
+        ans = []
+
+        for a in soup.findAll('a', href=lambda x: x):
+            url = a['href']
+            if url.endswith('.htm'):
+                url = 'https://www.india-seminar.com/' + d.strftime('%Y') + '/' + url
+            title = self.tag_to_string(a)
+            self.log(title, ' at ', url)
+            ans.append({'title': title, 'url': url})
+        return [('Articles', ans)]
