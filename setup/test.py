@@ -139,6 +139,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(find_tests())
         from calibre.utils.html2text import find_tests
         a(find_tests())
+        from calibre.utils.shm import find_tests
+        a(find_tests())
         from calibre.library.comments import find_tests
         a(find_tests())
         from calibre.ebooks.compression.palmdoc import find_tests
