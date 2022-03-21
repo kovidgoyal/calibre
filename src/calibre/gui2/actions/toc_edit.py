@@ -182,11 +182,11 @@ class ToCEditAction(InterfaceAction):
                     else:
                         db.new_api.add_format(job['book_id'], job['fmt'], path, run_hooks=False)
                 retry_on_fail(os.remove, path)
-            else:
+            elif not job['started']:
                 if monotonic() - job['start_time'] > 120:
                     self.jobs.remove(job)
                     error_dialog(self.gui, _('Failed to start editor'), _(
-                        'Could not edit: {}. The Table of Contents editor did not start in four minutes').format(job['title']), show=True)
+                        'Could not edit: {}. The Table of Contents editor did not start in two minutes').format(job['title']), show=True)
                     continue
                 if os.path.exists(started_path):
                     job['started'] = True
