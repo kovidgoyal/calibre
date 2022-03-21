@@ -238,6 +238,7 @@ def find_tests():
                     shm.flush()
                     self.ae(s2.read(4), b'ABCD')
                 self.assertTrue(shm.name)
-            self.assertFalse(shm.name)
+            if not iswindows:
+                self.assertFalse(shm.name)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSHM)
