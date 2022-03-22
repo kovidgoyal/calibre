@@ -22,6 +22,9 @@ module_lists = {
         'QtWebEngineCore',
         'QtWebEngineWidgets',
     ),
+    'dbus': (
+        'QtDBus',
+    )
 }
 
 
@@ -54,7 +57,7 @@ def scan(name):
 
 
 top_level_module_names = ()
-for name in ('core', 'webengine'):
+for name in ('core', 'webengine', 'dbus'):
     top_level_module_names += module_lists[name]
     scan(name)
 with open(f'{base}/__init__.py', 'w') as f:

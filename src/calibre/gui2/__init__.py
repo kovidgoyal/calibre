@@ -16,7 +16,7 @@ from qt.core import (
     QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
     QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
     QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt,
-    QThread, QTimer, QTranslator, QUrl, pyqtSignal
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal, pyqtSlot
 )
 from threading import Lock, RLock
 
@@ -47,6 +47,8 @@ try:
     NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 except AttributeError:
     NO_URL_FORMATTING = getattr(QUrl, 'None')
+if islinux:
+    from qt.dbus import QDBusConnection, QDBusMessage, QDBusVariant
 
 
 class IconResourceManager:
@@ -1234,7 +1236,14 @@ class Application(QApplication):
             elif ismacos:
                 use_dark_palette = False
             else:
-                use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
+                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+                    use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
+                else:
+                    use_dark_palette = linux_is_system_dark_mode_enabled()
+                    bus = QDBusConnection.sessionBus()
+                    bus.connect(
+                        'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
+                        'org.freedesktop.portal.Settings', 'SettingChanged', 'ssv', self.linux_desktop_setting_changed)
             if use_dark_palette:
                 self.set_dark_mode_palette()
             elif self.original_palette_modified:
@@ -1246,6 +1255,18 @@ class Application(QApplication):
         if self.using_calibre_style:
             self.load_calibre_style()
         self.on_palette_change()
+
+    if islinux:
+        @pyqtSlot(str, str, QDBusVariant)
+        def linux_desktop_setting_changed(self, namespace, key, val):
+            if (namespace, key) == ('org.freedesktop.appearance', 'color-scheme'):
+                use_dark_palette = val.variant() == 1
+                if use_dark_palette != bool(self.is_dark_theme):
+                    if use_dark_palette:
+                        self.set_dark_mode_palette()
+                    else:
+                        self.set_palette(self.original_palette)
+                self.on_palette_change()
 
     def check_for_windows_palette_change(self):
         use_dark_palette = bool(windows_is_system_dark_mode_enabled())
@@ -1668,6 +1689,18 @@ def windows_is_system_dark_mode_enabled():
     if s.status() == QSettings.Status.NoError:
         return s.value("AppsUseLightTheme") == 0
     return False
+
+
+def linux_is_system_dark_mode_enabled():
+    bus = QDBusConnection.sessionBus()
+    m = QDBusMessage.createMethodCall(
+        'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
+        'org.freedesktop.portal.Settings', 'Read'
+    )
+    m.setArguments(['org.freedesktop.appearance', 'color-scheme'])
+    reply = bus.call(m, timeout=1000)
+    a = reply.arguments()
+    return len(a) and isinstance(a[0], int) and a[0] == 1
 
 
 def make_view_use_window_background(view):
