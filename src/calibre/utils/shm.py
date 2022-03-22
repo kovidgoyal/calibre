@@ -52,9 +52,8 @@ class SharedMemory:
     def __init__(
             self, name: str = '', size: int = 0, readonly: bool = False,
             mode: int = stat.S_IREAD | stat.S_IWRITE,
-            prefix: str = 'calibre-', unlink_on_exit: bool = False
+            prefix: str = 'calibre-'
     ):
-        self.unlink_on_exit = unlink_on_exit
         if size < 0:
             raise TypeError("'size' must be a non-negative integer")
         if size and name:
@@ -172,8 +171,6 @@ class SharedMemory:
 
     def __exit__(self, *a: object) -> None:
         self.close()
-        if self.unlink_on_exit:
-            self.unlink()
 
     @property
     def size(self) -> int:
@@ -205,6 +202,7 @@ class SharedMemory:
         if self._fd > -1:
             os.close(self._fd)
             self._fd = -1
+        self.unlink()
 
     def unlink(self) -> None:
         """Requests that the underlying shared memory block be destroyed.
@@ -212,11 +210,12 @@ class SharedMemory:
         In order to ensure proper cleanup of resources, unlink should be
         called once (and only once) across all processes which have access
         to the shared memory block."""
-        if self._name and not iswindows:
-            try:
-                _posixshmem.shm_unlink(self._name)
-            except FileNotFoundError:
-                pass
+        if self._name:
+            if not iswindows:
+                try:
+                    _posixshmem.shm_unlink(self._name)
+                except FileNotFoundError:
+                    pass
             self._name = ''
 
 
@@ -227,7 +226,7 @@ def find_tests():
         ae = unittest.TestCase.assertEqual
 
         def test_shm(self):
-            with SharedMemory(size=64, unlink_on_exit=True) as shm:
+            with SharedMemory(size=64) as shm:
                 q = b'test'
                 shm.write_data_with_size(q)
                 self.ae(shm.tell(), shm.num_bytes_for_size + len(q))
@@ -238,7 +237,6 @@ def find_tests():
                     shm.flush()
                     self.ae(s2.read(4), b'ABCD')
                 self.assertTrue(shm.name)
-            if not iswindows:
-                self.assertFalse(shm.name)
+            self.assertFalse(shm.name)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSHM)
