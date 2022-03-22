@@ -22,8 +22,6 @@ class CourrierInternational(BasicNewsRecipe):
     max_articles_per_feed = 50
     no_stylesheets = True
 
-    ignore_duplicate_articles = {'title', 'url'}
-
     html2lrf_options = ['--base-font-size', '10']
 
     keep_only_tags = [
@@ -60,19 +58,29 @@ class CourrierInternational(BasicNewsRecipe):
     feeds = [
         # Some articles requiring subscription fails on download.
         ('Tous', 'http://www.courrierinternational.com/feed/all/rss.xml'),
-        #        ('France', 'http://courrierint.com/rss/rp/14/0/rss.xml'),
-        #        ('Europe', 'http://courrierint.com/rss/rp/15/0/rss.xml'),
-        #        ('Amerique', 'http://courrierint.com/rss/rp/16/0/rss.xml'),
-        #        ('Asie', 'http://courrierint.com/rss/rp/17/0/rss.xml'),
-        #        ('Afrique', 'http://courrierint.com/rss/rp/18/0/rss.xml'),
-        #        ('Moyen-Orient', 'http://courrierint.com/rss/rp/19/0/rss.xml'),
-        #        ('Economie', 'http://courrierint.com/rss/rp/20/0/rss.xml'),
-        #        ('Multimedia', 'http://courrierint.com/rss/rp/23/0/rss.xml'),
-        #        ('Sciences', 'http://courrierint.com/rss/rp/22/0/rss.xml'),
-        #        ('Culture', 'http://courrierint.com/rss/rp/24/0/rss.xml'),
-        #        ('Insolites', 'http://courrierint.com/rss/rp/26/0/rss.xml'),
-        #        ('Cartoons', 'http://cs.courrierint.com/rss/all/rss.xml'),
-        #        ('Environnement', 'http://vt.courrierint.com/rss/all/rss.xml'),
-        #        ('Cinema', 'http://ca.courrierint.com/rss/all/rss.xml'),
-        #        ('Sport', 'http://st.courrierint.com/rss/all/rss.xml'),
+        ('France', 'https://www.courrierinternational.com/feed/category/6260/rss.xml'),
+        ('Europe', 'https://www.courrierinternational.com/feed/category/6261/rss.xml'),
+        ('Ameriques', 'https://www.courrierinternational.com/feed/category/6262/rss.xml'),
+        ('Asie', 'https://www.courrierinternational.com/feed/category/6263/rss.xml'),
+        ('Afrique', 'https://www.courrierinternational.com/feed/category/6264/rss.xml'),
+        ('Moyen-Orient', 'https://www.courrierinternational.com/feed/category/6265/rss.xml'),
+        ('Expat', 'https://www.courrierinternational.com/feed/category/6994/rss.xml'),
+        ('Business', 'https://www.courrierinternational.com/feed/category/6991/rss.xml'),
+        ('Culture', 'https://www.courrierinternational.com/feed/category/6270/rss.xml'),
+        ('Economie', 'https://www.courrierinternational.com/feed/category/6266/rss.xml'),
+        ('Écrans', 'https://www.courrierinternational.com/feed/category/7342/rss.xml'),
+        ('Éducation', 'https://www.courrierinternational.com/feed/category/6997/rss.xml'),
+        ('Environnement', 'https://www.courrierinternational.com/feed/category/6267/rss.xml'),
+        ('Infographie', 'https://www.courrierinternational.com/feed/category/6281/rss.xml'),
+        ('Lifestyle', 'https://www.courrierinternational.com/feed/category/7426/rss.xml'),
+        ('Planète buzz', 'https://www.courrierinternational.com/feed/category/6680/rss.xml'),
+        ('Politique', 'https://www.courrierinternational.com/feed/category/6681/rss.xml'),
+        ('Santé', 'https://www.courrierinternational.com/feed/category/6682/rss.xml'),
+        ('Sport', 'https://www.courrierinternational.com/feed/category/6273/rss.xml'),
+        ('Tendances', 'https://www.courrierinternational.com/feed/category/6282/rss.xml'),
+        ('Réveil', 'https://www.courrierinternational.com/feed/category/8224/rss.xml'),
+        ('Enquêtes', 'https://www.courrierinternational.com/feed/category/6678/rss.xml'),        
+        ('Histoire', 'https://www.courrierinternational.com/feed/category/6679/rss.xml'),        
+        ('Sciences & Techno', 'https://www.courrierinternational.com/feed/category/6268/rss.xml'),
+        ('Voyage', 'https://www.courrierinternational.com/feed/category/6271/rss.xml'),
     ]
