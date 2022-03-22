@@ -1145,7 +1145,11 @@ class TOCEditor(QDialog):  # {{{
 # }}}
 
 
-def main(path=None, title=None):
+def main(shm_name=None):
+    import json
+    import struct
+    from calibre.utils.shm import SharedMemory
+
     # Ensure we can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
@@ -1154,19 +1158,28 @@ def main(path=None, title=None):
         # prevents them from being grouped with viewer/editor process when
         # launched from within calibre, as both use calibre-parallel.exe
         set_app_uid(TOC_DIALOG_APP_UID)
+    with SharedMemory(name=shm_name) as shm:
+        pos = struct.calcsize('>II')
+        state, ok = struct.unpack('>II', shm.read(pos))
+        data = json.loads(shm.read_data_with_size())
+        title = data['title']
+        path = data['path']
+        s = struct.pack('>I', 1)
+        shm.seek(0), shm.write(s), shm.flush()
 
-    with open(path + '.started', 'w'):
-        pass
-    override = 'calibre-gui' if islinux else None
-    app = Application([], override_program_name=override)
-    d = TOCEditor(path, title=title, write_result_to=path + '.result')
-    d.start()
-    ret = 1
-    if d.exec() == QDialog.DialogCode.Accepted:
-        ret = 0
+        override = 'calibre-gui' if islinux else None
+        app = Application([], override_program_name=override)
+        d = TOCEditor(path, title=title, write_result_to=path + '.result')
+        d.start()
+        ok = 0
+        if d.exec() == QDialog.DialogCode.Accepted:
+            ok = 1
+        s = struct.pack('>II', 2, ok)
+        shm.seek(0), shm.write(s), shm.flush()
+
     del d
     del app
-    raise SystemExit(ret)
+    raise SystemExit(0 if ok else 1)
 
 
 if __name__ == '__main__':
