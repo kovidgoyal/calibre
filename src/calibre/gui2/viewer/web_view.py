@@ -7,9 +7,9 @@ import shutil
 import sys
 from itertools import count
 from qt.core import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QEvent, QFontDatabase, QFontInfo,
-    QHBoxLayout, QIODevice, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl,
-    QWidget, pyqtSignal, sip
+    QT_VERSION, QApplication, QByteArray, QEvent, QFontDatabase, QFontInfo,
+    QHBoxLayout, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl, QWidget,
+    pyqtSignal, sip
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
@@ -23,7 +23,7 @@ from calibre.constants import (
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.gui2 import choose_images, error_dialog, safe_open_url, config
+from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
@@ -33,7 +33,8 @@ from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import (
-    Bridge, create_script, from_js, insert_scripts, secure_webengine, to_js
+    Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply,
+    to_js
 )
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.functools import lru_cache
@@ -89,21 +90,6 @@ def background_image():
             ans = b'image/jpeg', b''
         ans = background_image.ans = mt.decode('utf-8'), data
     return ans
-
-
-def send_reply(rq, mime_type, data):
-    if sip.isdeleted(rq):
-        return
-    # make the buf a child of rq so that it is automatically deleted when
-    # rq is deleted
-    buf = QBuffer(parent=rq)
-    buf.open(QIODevice.OpenModeFlag.WriteOnly)
-    # we have to copy data into buf as it will be garbage
-    # collected by python
-    buf.write(data)
-    buf.seek(0)
-    buf.close()
-    rq.reply(mime_type.encode('ascii'), buf)
 
 
 @lru_cache(maxsize=2)

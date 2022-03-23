@@ -4,10 +4,25 @@
 
 
 import json
-from qt.core import QObject, pyqtSignal
+from qt.core import QBuffer, QIODevice, QObject, pyqtSignal, sip
 from qt.webengine import QWebEngineScript, QWebEngineSettings
 
 from calibre.utils.rapydscript import special_title
+
+
+def send_reply(rq, mime_type, data):
+    if sip.isdeleted(rq):
+        return
+    # make the buf a child of rq so that it is automatically deleted when
+    # rq is deleted
+    buf = QBuffer(parent=rq)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
+    # we have to copy data into buf as it will be garbage
+    # collected by python
+    buf.write(data)
+    buf.seek(0)
+    buf.close()
+    rq.reply(mime_type.encode('ascii'), buf)
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):

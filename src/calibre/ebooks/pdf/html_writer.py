@@ -10,28 +10,34 @@ import os
 import signal
 import sys
 from collections import namedtuple
+from functools import lru_cache
 from html5_parser import parse
 from io import BytesIO
 from itertools import count, repeat
 from qt.core import (
-    QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
+    QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl,
+    pyqtSignal, sip
 )
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineUrlRequestInterceptor, QWebEngineSettings
+    QWebEnginePage, QWebEngineProfile, QWebEngineSettings,
+    QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
+    QWebEngineUrlSchemeHandler
 )
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
-from calibre.constants import __version__, iswindows, ismacos
+from calibre.constants import (
+    FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows
+)
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.pdf.image_writer import (
     Image, PDFMetadata, draw_image_page, get_page_layout
 )
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
-from calibre.utils.webengine import secure_webengine
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.errors import NoGlyphs
@@ -43,7 +49,8 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems
+from calibre.utils.webengine import secure_webengine, send_reply
+from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -135,6 +142,87 @@ class Container(ContainerBase):
 
     def __init__(self, opf_path, log, root_dir=None):
         ContainerBase.__init__(self, root_dir or os.path.dirname(opf_path), opf_path, log)
+
+
+class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
+
+    def __init__(self, container, parent=None):
+        QWebEngineUrlSchemeHandler.__init__(self, parent)
+        self.allowed_hosts = (FAKE_HOST,)
+        self.container = container
+
+    def requestStarted(self, rq):
+        if bytes(rq.requestMethod()) != b'GET':
+            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = rq.requestUrl()
+        host = url.host()
+        if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
+            return self.fail_request(rq)
+        path = url.path()
+        if path.startswith('/book/'):
+            name = path[len('/book/'):]
+            try:
+                mime_type = self.container.mime_map.get(name) or guess_type(name)
+                try:
+                    with self.container.open(name) as f:
+                        q = os.path.abspath(f.name)
+                        if not q.startswith(self.container.root):
+                            raise FileNotFoundError('Attempt to leave sandbox')
+                        data = f.read()
+                except FileNotFoundError:
+                    print(f'Could not find file {name} in book', file=sys.stderr)
+                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    return
+                data = as_bytes(data)
+                mime_type = {
+                    # Prevent warning in console about mimetype of fonts
+                    'application/vnd.ms-opentype':'application/x-font-ttf',
+                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/font-sfnt': 'application/x-font-ttf',
+                }.get(mime_type, mime_type)
+                send_reply(rq, mime_type, data)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+        elif path.startswith('/mathjax/'):
+            try:
+                ignore, ignore, base, rest = path.split('/', 3)
+            except ValueError:
+                print(f'Could not find file {path} in mathjax', file=sys.stderr)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                return
+            try:
+                mime_type = guess_type(rest)
+                if base == 'loader' and '/' not in rest and '\\' not in rest:
+                    data = P(rest, allow_user_override=False, data=True)
+                elif base == 'data':
+                    q = os.path.abspath(os.path.join(mathjax_dir(), rest))
+                    if not q.startswith(mathjax_dir()):
+                        raise FileNotFoundError('')
+                    with open(q, 'rb') as f:
+                        data = f.read()
+                else:
+                    raise FileNotFoundError('')
+                send_reply(rq, mime_type, data)
+            except FileNotFoundError:
+                print(f'Could not find file {path} in mathjax', file=sys.stderr)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                return
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+        else:
+            return self.fail_request(rq)
+
+    def fail_request(self, rq, fail_code=None):
+        if fail_code is None:
+            fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
+        rq.fail(fail_code)
+        print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}", file=sys.stderr)
+
+# }}}
 
 
 class Renderer(QWebEnginePage):
@@ -236,7 +324,9 @@ class Renderer(QWebEnginePage):
 
         self.settle_time = settle_time
         self.page_layout = page_layout
-        self.setUrl(QUrl.fromLocalFile(path))
+        url = QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/')
+        url.setPath(path)
+        self.setUrl(url)
 
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
@@ -248,28 +338,22 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             request_info.block(True)
             return
         qurl = request_info.requestUrl()
-        if qurl.scheme() != 'file':
-            self.log.warn(f'Blocking URL request {qurl.toString()} as it is not for a local file')
-            request_info.block(True)
-            return
-        path = qurl.toLocalFile()
-        path = os.path.normcase(os.path.abspath(path))
-        if not path.startswith(self.container_root) and not path.startswith(self.resources_root):
-            self.log.warn(f'Blocking URL request with path: {path}')
+        if qurl.scheme() not in (FAKE_PROTOCOL,):
+            self.log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
             request_info.block(True)
             return
 
 
 class RenderManager(QObject):
 
-    def __init__(self, opts, log, container_root):
+    def __init__(self, opts, log, container):
         QObject.__init__(self)
         self.interceptor = RequestInterceptor(self)
         self.has_maths = {}
         self.interceptor.log = self.log = log
-        self.interceptor.container_root = os.path.normcase(os.path.abspath(container_root))
-        self.interceptor.resources_root = os.path.normcase(os.path.abspath(os.path.dirname(mathjax_dir())))
         ans = QWebEngineProfile(QApplication.instance())
+        self.url_handler = UrlSchemeHandler(container, parent=ans)
+        ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), self.url_handler)
         ua = 'calibre-pdf-output ' + __version__
         ans.setHttpUserAgent(ua)
         s = ans.settings()
@@ -378,7 +462,7 @@ def resolve_margins(margins, page_layout):
 
 
 def job_for_name(container, name, margins, page_layout):
-    index_file = container.name_to_abspath(name)
+    index_file = '/book/' + name
     if margins:
         page_layout = QPageLayout(page_layout)
         page_layout.setUnits(QPageLayout.Unit.Point)
@@ -994,12 +1078,9 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
 
 # Maths {{{
 
+@lru_cache(maxsize=2)
 def mathjax_dir():
     return P('mathjax', allow_user_override=False)
-
-
-def path_to_url(path):
-    return QUrl.fromLocalFile(path).toString()
 
 
 def add_maths_script(container):
@@ -1009,10 +1090,9 @@ def add_maths_script(container):
         has_maths[name] = hm = check_for_maths(root)
         if not hm:
             continue
-        script = root.makeelement(XHTML('script'), type="text/javascript", src=path_to_url(
-            P('pdf-mathjax-loader.js', allow_user_override=False)))
+        script = root.makeelement(XHTML('script'), type="text/javascript", src=f'{FAKE_PROTOCOL}://{FAKE_HOST}/mathjax/loader/pdf-mathjax-loader.js')
         script.set('async', 'async')
-        script.set('data-mathjax-path', path_to_url(mathjax_dir()))
+        script.set('data-mathjax-path', f'{FAKE_PROTOCOL}://{FAKE_HOST}/mathjax/data/')
         last_tag(root).append(script)
     return has_maths
 # }}}
@@ -1046,7 +1126,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     container.commit()
     report_progress(0.1, _('Completed markup transformation'))
 
-    manager = RenderManager(opts, log, container.root)
+    manager = RenderManager(opts, log, container)
     page_layout = get_page_layout(opts)
     pdf_doc = None
     anchor_locations = {}
