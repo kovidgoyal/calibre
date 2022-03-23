@@ -277,6 +277,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def do_search(self, *args):
         self._do_search()
+        self.timer.stop()
 
     def block_signals(self, yes):
         self.blockSignals(yes)
