@@ -1157,7 +1157,9 @@ class BooksView(QTableView):  # {{{
         if self.pin_view.isVisible():
             self.pin_view.horizontalScrollBar().setValue(pv_hpos)
 
-    def set_current_row(self, row=0, select=True, for_sync=False):
+    def set_current_row(self, row=0, select=True, for_sync=False, book_id=None):
+        if book_id is not None:
+            row = self.model().db.data.id_to_index(book_id)
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
