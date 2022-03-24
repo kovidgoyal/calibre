@@ -25,6 +25,24 @@ def common_user_agents():
     return user_agent_data()['common_user_agents']
 
 
+def common_chrome_user_agents():
+    for x in user_agent_data()['common_user_agents']:
+        if 'Chrome/' in x:
+            yield x
+
+
+def choose_randomly_by_popularity(ua_list):
+    pm = user_agents_popularity_map()
+    weights = None
+    if pm:
+        weights = tuple(map(pm.__getitem__, ua_list))
+    return random.choices(ua_list, weights=weights)[0]
+
+
+def random_common_chrome_user_agent():
+    return choose_randomly_by_popularity(tuple(common_chrome_user_agents()))
+
+
 def user_agents_popularity_map():
     return user_agent_data().get('user_agents_popularity', {})
 

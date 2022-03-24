@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, time, random, warnings
+import sys, os, re, time, warnings
 from polyglot.builtins import codepoint_to_chr, hasenv, native_string_type
 from math import floor
 from functools import partial
@@ -290,18 +290,14 @@ def is_mobile_ua(ua):
 
 
 def random_user_agent(choose=None, allow_ie=True):
-    from calibre.utils.random_ua import common_user_agents, user_agents_popularity_map
+    from calibre.utils.random_ua import common_user_agents, choose_randomly_by_popularity
     ua_list = common_user_agents()
     ua_list = tuple(x for x in ua_list if not is_mobile_ua(x))
     if not allow_ie:
         ua_list = tuple(x for x in ua_list if 'Trident/' not in x)
     if choose is not None:
         return ua_list[choose]
-    pm = user_agents_popularity_map()
-    weights = None
-    if pm:
-        weights = tuple(map(pm.__getitem__, ua_list))
-    return random.choices(ua_list, weights=weights)[0]
+    return choose_randomly_by_popularity(ua_list)
 
 
 def browser(honor_time=True, max_time=2, user_agent=None, verify_ssl_certificates=True, handle_refresh=True, **kw):
