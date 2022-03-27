@@ -217,6 +217,7 @@ General Program Mode
     or_expression   ::= and_expression [ '||' and_expression ]*
     and_expression  ::= not_expression [ '&&' not_expression ]*
     not_expression  ::= [ '!' not_expression ]* | compare_exp
+    concatenate_expr::= compare_expr [ '&' compare_expr ]*
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | 'inlist' |
                         '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
@@ -227,13 +228,15 @@ General Program Mode
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
     expression      ::= identifier | constant | function | assignment | field_reference |
                         if_expr | for_expr | break_expr | continue_expr |
-                        '(' expression_list ')'
+                        '(' expression_list ')' | function_def
     field_reference ::= '$' [ '$' ] [ '#' ] identifier
     identifier      ::= id_start [ id_rest ]*
     id_start        ::= letter | underscore
     id_rest         ::= id_start | digit
     constant        ::= " string " | ' string ' | number
     function        ::= identifier '(' expression_list [ ',' expression_list ]* ')'
+    function_def    ::= 'def' identifier '(' top_expression [ ',' top_expression ]* ')' ':'
+                        expression_list 'fed'
     assignment      ::= identifier '=' top_expression
     if_expr         ::= 'if' condition 'then' expression_list
                         [ elif_expr ] [ 'else' expression_list ] 'fi'
@@ -265,6 +268,7 @@ The operator precedence (order of evaluation) from highest (evaluated first) to 
 * Multiply (``*``) and divide (``/``). These operators are associative and evaluate left to right. Use parentheses if you want to change the order of evaluation.
 * Add (``+``) and subtract (``-``). These operators are associative and evaluate left to right.
 * Numeric and string comparisons. These operators return ``'1'`` if the comparison succeeds, otherwise the empty string (``''``). Comparisons are not associative: ``a < b < c`` is a syntax error.
+* String concatenation (``&``). The ``&`` operator returns a string formed by concatenating the left-hand and right-hand expressions. Example: ``'aaa' & 'bbb'`` returns ``'aaabbb'``. The operator is associative and evaluates left to right.
 * Unary logical not (``!``). This operator returns ``'1'`` if the expression is False (evaluates to the empty string), otherwise ``''``.
 * Logical and (``&&``). This operator returns '1' if both the left-hand and right-hand expressions are True, or the empty string ``''`` if either is False. It is associative, evaluates left to right, and does `short-circuiting <https://chortle.ccsu.edu/java5/Notes/chap40/ch40_2.html>`_.
 * Logical or (``||``). This operator returns ``'1'`` if either the left-hand or right-hand expression is True, or ``''`` if both are False. It is associative, evaluates left to right, and does `short-circuiting <https://chortle.ccsu.edu/java5/Notes/chap40/ch40_2.html>`_. It is an `inclusive or`, returning ``'1'`` if both the left- and right-hand expressions are True.
@@ -336,6 +340,31 @@ If the original Genre is `History.Military, Science Fiction.Alternate History, R
 :guilabel:`Edit metadata in bulk -> Search & replace` with :guilabel:`Search for` set to ``template`` to strip off the first level of the hierarchy and assign the resulting value to Genre.
 
 Note: the last line in the template, ``new_tags``, isn't strictly necessary in this case because ``for`` returns the value of the last top_expression in the expression list. The value of an assignment is the value of its expression, so the value of the ``for`` statement is what was assigned to ``new_tags``.
+
+**Function definition**
+
+If you have code in a template that repeats then you can put that code into a local function. The ``def`` keyword starts the definition. It is followed by the function name, the argument list, then the code in the function. The function definition ends with the ``fed`` keyword.
+
+Arguments are positional. When a function is called the supplied arguments are matched left to right against the defined parameters, with the value of the argument assigned to the parameter. It is an error to provide more arguments than defined parameters. Parameters can have default values, such as ``a = 25``. If an argument is not supplied for that parameter then the default value is used, otherwise the parameter is set to the empty string.
+
+The ``return`` statement can be used in a local function.
+
+A function must be defined before it can be used.
+
+Example: This template computes an approximate duration in years, months, and days from a number of days. The function ``to_plural()`` formats the computed values. Note that the example also uses the ``&`` operator::
+
+  program:
+  	days = 2112;
+	years = floor(days/360);
+	months = floor(mod(days, 360)/30);
+	days = days - ((years*360) + (months * 30));
+
+	def to_plural(v, str):
+		if v == 0 then return '' fi;
+		return v & ' ' & (if v == 1 then str else str & 's' fi) & ' '
+	fed;
+
+	to_plural(years, 'year') & to_plural(months, 'month') & to_plural(days,'day')
 
 **Relational operators**
 
