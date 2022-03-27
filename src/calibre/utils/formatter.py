@@ -3,6 +3,7 @@ Created on 23 Sep 2010
 
 @author: charles
 '''
+from _ast import arg, arguments
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -30,7 +31,7 @@ class Node:
     NODE_CONSTANT = 7
     NODE_FIELD = 8
     NODE_RAW_FIELD = 9
-    NODE_CALL = 10
+    NODE_CALL_STORED_TEMPLATE = 10
     NODE_ARGUMENTS = 11
     NODE_FIRST_NON_EMPTY = 12
     NODE_FOR = 13
@@ -47,6 +48,9 @@ class Node:
     NODE_RETURN = 24
     NODE_CHARACTER = 25
     NODE_STRCAT = 26
+    NODE_BINARY_STRINGOP = 27
+    NODE_LOCAL_FUNCTION_DEFINE = 28
+    NODE_LOCAL_FUNCTION_CALL = 29
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -115,12 +119,32 @@ class FunctionNode(Node):
         self.expression_list = expression_list
 
 
-class CallNode(Node):
+class StoredTemplateCallNode(Node):
     def __init__(self, line_number, name, function, expression_list):
-        Node.__init__(self, line_number, 'call template: ' + name)
-        self.node_type = self.NODE_CALL
+        Node.__init__(self, line_number, 'call template: ' + name + '()')
+        self.node_type = self.NODE_CALL_STORED_TEMPLATE
         self.function = function
         self.expression_list = expression_list
+
+
+class LocalFunctionDefineNode(Node):
+    def __init__(self, line_number, function_name, argument_list, block):
+        Node.__init__(self, line_number, 'define local function' + function_name + '()')
+        self.node_type = self.NODE_LOCAL_FUNCTION_DEFINE
+        self.name = function_name
+        self.argument_list = argument_list
+        self.block = block
+
+    def attributes_to_tuple(self):
+        return (self.line_number, self.argument_list, self.block)
+
+
+class LocalFunctionCallNode(Node):
+    def __init__(self, line_number, name, arguments):
+        Node.__init__(self, line_number, 'call local function: ' + name + '()')
+        self.node_type = self.NODE_LOCAL_FUNCTION_CALL
+        self.name = name
+        self.arguments = arguments
 
 
 class ArgumentsNode(Node):
@@ -148,6 +172,15 @@ class StringCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
         Node.__init__(self, line_number, 'comparision: ' + operator)
         self.node_type = self.NODE_COMPARE_STRING
+        self.operator = operator
+        self.left = left
+        self.right = right
+
+
+class StringBinaryNode(Node):
+    def __init__(self, line_number, operator, left, right):
+        Node.__init__(self, line_number, 'binary operator: ' + operator)
+        self.node_type = self.NODE_BINARY_STRINGOP
         self.operator = operator
         self.left = left
         self.right = right
@@ -384,6 +417,7 @@ class _Parser:
         self.func_names = frozenset(set(self.funcs.keys()))
         self.prog = prog[0]
         self.prog_len = len(self.prog)
+        self.local_functions = set()
         if prog[1] != '':
             self.error(_("Failed to scan program. Invalid input '{0}'").format(prog[1]))
         tree = self.expression_list()
@@ -455,6 +489,55 @@ class _Parser:
         self.consume()
         return ForNode(line_number, variable, list_expr, separator, block)
 
+    def define_function_expression(self):
+        self.consume()
+        line_number = self.line_number
+        if not self.token_is_id():
+            self.error(_("'{0}' statement: expected a function name identifier").format('def'))
+        variable = self.token()
+        if not self.token_op_is('('):
+            self.error(_("'{0}' statement: expected a '('").format('def'))
+        self.consume()
+        arguments = []
+        while not self.token_op_is(')'):
+            a = self.top_expr()
+            if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+                self.error(_("Parameters to a function must be "
+                             "variables or assignments"))
+            if a.node_type == Node.NODE_RVALUE:
+                a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))
+            arguments.append(a)
+            if not self.token_op_is(','):
+                break
+            self.consume()
+        t = self.token()
+        if t != ')':
+            self.error(_("'{0}' statement: expected a ')' at end of argument list").format('def'))
+        if not self.token_op_is(':'):
+            self.error(_("'{0}' statement: missing ':'").format('def'))
+        self.consume()
+        block = self.expression_list()
+        if not self.token_is('fed'):
+            self.error(_("'{0}' statement: missing the closing '{1}'").format('def', 'fed'))
+        self.consume()
+        self.local_functions.add(variable)
+        return LocalFunctionDefineNode(line_number, variable, arguments, block)
+
+    def local_call_expression(self, name, arguments):
+        return LocalFunctionCallNode(self.line_number, name, arguments)
+
+    def call_expression(self, name, arguments):
+        subprog = self.funcs[name].cached_parse_tree
+        if subprog is None:
+            text = self.funcs[name].program_text
+            if not text.startswith('program:'):
+                self.error(_("A stored template must begin with '{0}'").format('program:'))
+            text = text[len('program:'):]
+            subprog = _Parser().program(self.parent, self.funcs,
+                                        self.parent.lex_scanner.scan(text))
+            self.funcs[name].cached_parse_tree = subprog
+        return StoredTemplateCallNode(self.line_number, name, subprog, arguments)
+
     def top_expr(self):
         return self.or_expr()
 
@@ -478,7 +561,15 @@ class _Parser:
         if self.token_op_is('!'):
             self.consume()
             return LogopUnaryNode(self.line_number, 'not', self.not_expr())
-        return self.compare_expr()
+        return self.string_binary_expr()
+
+    def string_binary_expr(self):
+        left = self.compare_expr()
+        while self.token_op_is('&'):
+            operator = self.token()
+            right = self.compare_expr()
+            left = StringBinaryNode(self.line_number, operator, left, right)
+        return left
 
     def compare_expr(self):
         left = self.add_subtract_expr()
@@ -516,25 +607,13 @@ class _Parser:
             return NumericUnaryNode(self.line_number, '-', self.unary_plus_minus_expr())
         return self.expr()
 
-    def call_expression(self, name, arguments):
-        subprog = self.funcs[name].cached_parse_tree
-        if subprog is None:
-            text = self.funcs[name].program_text
-            if not text.startswith('program:'):
-                self.error(_("A stored template must begin with '{0}'").format('program:'))
-            text = text[len('program:'):]
-            subprog = _Parser().program(self.parent, self.funcs,
-                                        self.parent.lex_scanner.scan(text))
-            self.funcs[name].cached_parse_tree = subprog
-        return CallNode(self.line_number, name, subprog, arguments)
-
-    # {keyword: tuple(preprocessor, node builder) }
     keyword_nodes = {
             'if':       (lambda self:None, if_expression),
             'for':      (lambda self:None, for_expression),
             'break':    (lambda self: self.consume(), lambda self: BreakNode(self.line_number)),
             'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
-            'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.expr())),
+            'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.top_expr())),
+            'def':      (lambda self: None, define_function_expression),
     }
 
     # {inlined_function_name: tuple(constraint on number of length, node builder) }
@@ -601,7 +680,7 @@ class _Parser:
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
             id_ = id_.strip()
-            if id_ not in self.func_names:
+            if id_ not in self.func_names and id_ not in self.local_functions:
                 self.error(_('Unknown function {0}').format(id_))
 
             # Eat the opening paren, parse the argument list, then eat the closing paren
@@ -638,6 +717,9 @@ class _Parser:
                 if id_ == 'set_globals':
                     return SetGlobalsNode(line_number, new_args)
                 return GlobalsNode(line_number, new_args)
+            # Check for calling a local function template
+            if id_ in self.local_functions:
+                return self.local_call_expression(id_, arguments)
             # Check for calling a stored template
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
@@ -699,6 +781,7 @@ class _Interpreter:
         self.parent_book = parent.book
         self.funcs = funcs
         self.locals = {'$':val}
+        self.local_functions = dict()
         self.override_line_number = None
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if break_reporter:
@@ -709,7 +792,7 @@ class _Interpreter:
 
         try:
             if is_call:
-                ret =  self.do_node_call(CallNode(1, prog, None), args=args)
+                ret =  self.do_node_stored_template_call(StoredTemplateCallNode(1, prog, None), args=args)
             else:
                 ret = self.expression_list(prog)
         except ReturnExecuted as e:
@@ -731,60 +814,6 @@ class _Interpreter:
             raise e
         return val
 
-    INFIX_STRING_COMPARE_OPS = {
-        "==": lambda x, y: strcmp(x, y) == 0,
-        "!=": lambda x, y: strcmp(x, y) != 0,
-        "<": lambda x, y: strcmp(x, y) < 0,
-        "<=": lambda x, y: strcmp(x, y) <= 0,
-        ">": lambda x, y: strcmp(x, y) > 0,
-        ">=": lambda x, y: strcmp(x, y) >= 0,
-        "in": lambda x, y: re.search(x, y, flags=re.I),
-        "inlist": lambda x, y: list(filter(partial(re.search, x, flags=re.I),
-                                           [v.strip() for v in y.split(',') if v.strip()]))
-        }
-
-    def do_node_string_infix(self, prog):
-        try:
-            left = self.expr(prog.left)
-            right = self.expr(prog.right)
-            res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
-            if (self.break_reporter):
-                self.break_reporter(prog.node_name, res, prog.line_number)
-            return res
-        except (StopException, ValueError) as e:
-            raise e
-        except:
-            self.error(_("Error during string comparison: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
-
-    INFIX_NUMERIC_COMPARE_OPS = {
-        "==#": lambda x, y: x == y,
-        "!=#": lambda x, y: x != y,
-        "<#": lambda x, y: x < y,
-        "<=#": lambda x, y: x <= y,
-        ">#": lambda x, y: x > y,
-        ">=#": lambda x, y: x >= y,
-        }
-
-    def float_deal_with_none(self, v):
-        # Undefined values and the string 'None' are assumed to be zero.
-        # The reason for string 'None': raw_field returns it for undefined values
-        return float(v if v and v != 'None' else 0)
-
-    def do_node_numeric_infix(self, prog):
-        try:
-            left = self.float_deal_with_none(self.expr(prog.left))
-            right = self.float_deal_with_none(self.expr(prog.right))
-            res = '1' if self.INFIX_NUMERIC_COMPARE_OPS[prog.operator](left, right) else ''
-            if (self.break_reporter):
-                self.break_reporter(prog.node_name, res, prog.line_number)
-            return res
-        except (StopException, ValueError) as e:
-            raise e
-        except:
-            self.error(_("Value used in comparison is not a number: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
-
     def do_node_if(self, prog):
         line_number = prog.line_number
         test_part = self.expr(prog.condition)
@@ -801,6 +830,40 @@ class _Interpreter:
                 self.break_reporter("'if': else-block value", v, line_number)
             return v
         return ''
+
+    def do_node_for(self, prog):
+        line_number = prog.line_number
+        try:
+            separator = ',' if prog.separator is None else self.expr(prog.separator)
+            v = prog.variable
+            f = self.expr(prog.list_field_expr)
+            res = getattr(self.parent_book, f, f)
+            if res is not None:
+                if not isinstance(res, list):
+                    res = [r.strip() for r in res.split(separator) if r.strip()]
+                ret = ''
+                if self.break_reporter:
+                    self.break_reporter("'for' list value", separator.join(res), line_number)
+                try:
+                    for x in res:
+                        try:
+                            self.locals[v] = x
+                            ret = self.expression_list(prog.block)
+                        except ContinueExecuted as e:
+                            ret = e.get_value()
+                except BreakExecuted as e:
+                    ret = e.get_value()
+                if (self.break_reporter):
+                    self.break_reporter("'for' block value", ret, line_number)
+            elif self.break_reporter:
+                # Shouldn't get here
+                self.break_reporter("'for' list value", '', line_number)
+                ret = ''
+            return ret
+        except (StopException, ValueError) as e:
+            raise e
+        except Exception as e:
+            self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
     def do_node_rvalue(self, prog):
         try:
@@ -824,7 +887,7 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_call(self, prog, args=None):
+    def do_node_stored_template_call(self, prog, args=None):
         if (self.break_reporter):
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         if args is None:
@@ -849,6 +912,48 @@ class _Interpreter:
             val = e.get_value()
         self.override_line_number = saved_line_number
         self.locals = saved_locals
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
+        return val
+
+    def do_node_local_function_define(self, prog):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, '', prog.line_number)
+        self.local_functions[prog.name] = prog
+        return ''
+
+    def do_node_local_function_call(self, prog):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
+        line_number, argument_list, block  = self.local_functions[prog.name].attributes_to_tuple()
+        if len(prog.arguments) > len(argument_list):
+            self.error(_("Function {0}: argument count mismatch -- "
+                         "{1} given, at most {2} required").format(prog.name,
+                                                          len(prog.arguments),
+                                                          len(argument_list)),
+                       prog.line_number)
+        new_locals = dict()
+        for i,arg in enumerate(argument_list):
+            if len(prog.arguments) > i:
+                new_locals[arg.left] = self.expr(prog.arguments[i])
+            else:
+                new_locals[arg.left] = self.expr(arg.right)
+        saved_locals = self.locals
+        self.locals = new_locals
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
+            saved_line_number = self.override_line_number
+            self.override_line_number = (self.override_line_number if self.override_line_number
+                                         else line_number)
+        else:
+            saved_line_number = None
+        try:
+            val = self.expr(block)
+        except ReturnExecuted as e:
+            val = e.get_value()
+        finally:
+            self.locals = saved_locals
+            self.override_line_number = saved_line_number
         if (self.break_reporter):
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
@@ -951,40 +1056,6 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_for(self, prog):
-        line_number = prog.line_number
-        try:
-            separator = ',' if prog.separator is None else self.expr(prog.separator)
-            v = prog.variable
-            f = self.expr(prog.list_field_expr)
-            res = getattr(self.parent_book, f, f)
-            if res is not None:
-                if not isinstance(res, list):
-                    res = [r.strip() for r in res.split(separator) if r.strip()]
-                ret = ''
-                if self.break_reporter:
-                    self.break_reporter("'for' list value", separator.join(res), line_number)
-                try:
-                    for x in res:
-                        try:
-                            self.locals[v] = x
-                            ret = self.expression_list(prog.block)
-                        except ContinueExecuted as e:
-                            ret = e.get_value()
-                except BreakExecuted as e:
-                    ret = e.get_value()
-                if (self.break_reporter):
-                    self.break_reporter("'for' block value", ret, line_number)
-            elif self.break_reporter:
-                # Shouldn't get here
-                self.break_reporter("'for' list value", '', line_number)
-                ret = ''
-            return ret
-        except (StopException, ValueError) as e:
-            raise e
-        except Exception as e:
-            self.error(_("Unhandled exception '{0}'").format(e), line_number)
-
     def do_node_break(self, prog):
         if (self.break_reporter):
             self.break_reporter(prog.node_name, '', prog.line_number)
@@ -1013,6 +1084,60 @@ class _Interpreter:
         if (self.break_reporter):
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
+
+    INFIX_STRING_COMPARE_OPS = {
+        "==": lambda x, y: strcmp(x, y) == 0,
+        "!=": lambda x, y: strcmp(x, y) != 0,
+        "<": lambda x, y: strcmp(x, y) < 0,
+        "<=": lambda x, y: strcmp(x, y) <= 0,
+        ">": lambda x, y: strcmp(x, y) > 0,
+        ">=": lambda x, y: strcmp(x, y) >= 0,
+        "in": lambda x, y: re.search(x, y, flags=re.I),
+        "inlist": lambda x, y: list(filter(partial(re.search, x, flags=re.I),
+                                           [v.strip() for v in y.split(',') if v.strip()]))
+        }
+
+    def do_node_string_infix(self, prog):
+        try:
+            left = self.expr(prog.left)
+            right = self.expr(prog.right)
+            res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
+        except (StopException, ValueError) as e:
+            raise e
+        except:
+            self.error(_("Error during string comparison: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
+
+    INFIX_NUMERIC_COMPARE_OPS = {
+        "==#": lambda x, y: x == y,
+        "!=#": lambda x, y: x != y,
+        "<#": lambda x, y: x < y,
+        "<=#": lambda x, y: x <= y,
+        ">#": lambda x, y: x > y,
+        ">=#": lambda x, y: x >= y,
+        }
+
+    def float_deal_with_none(self, v):
+        # Undefined values and the string 'None' are assumed to be zero.
+        # The reason for string 'None': raw_field returns it for undefined values
+        return float(v if v and v != 'None' else 0)
+
+    def do_node_numeric_infix(self, prog):
+        try:
+            left = self.float_deal_with_none(self.expr(prog.left))
+            right = self.float_deal_with_none(self.expr(prog.right))
+            res = '1' if self.INFIX_NUMERIC_COMPARE_OPS[prog.operator](left, right) else ''
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
+        except (StopException, ValueError) as e:
+            raise e
+        except:
+            self.error(_("Value used in comparison is not a number: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     LOGICAL_BINARY_OPS = {
         'and': lambda self, x, y: self.expr(x) and self.expr(y),
@@ -1088,6 +1213,18 @@ class _Interpreter:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
+    def do_node_stringops(self, prog):
+        try:
+            res = self.expr(prog.left) + self.expr(prog.right)
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
+        except (StopException, ValueError) as e:
+            raise e
+        except:
+            self.error(_("Error during operator evaluation: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
+
     characters = {
         'return':    '\r',
         'newline':   '\n',
@@ -1116,32 +1253,35 @@ class _Interpreter:
         return res[0] if res else ''
 
     NODE_OPS = {
-        Node.NODE_IF:             do_node_if,
-        Node.NODE_ASSIGN:         do_node_assign,
-        Node.NODE_CONSTANT:       do_node_constant,
-        Node.NODE_RVALUE:         do_node_rvalue,
-        Node.NODE_FUNC:           do_node_func,
-        Node.NODE_FIELD:          do_node_field,
-        Node.NODE_RAW_FIELD:      do_node_raw_field,
-        Node.NODE_COMPARE_STRING: do_node_string_infix,
-        Node.NODE_COMPARE_NUMERIC:do_node_numeric_infix,
-        Node.NODE_ARGUMENTS:      do_node_arguments,
-        Node.NODE_CALL:           do_node_call,
-        Node.NODE_FIRST_NON_EMPTY:do_node_first_non_empty,
-        Node.NODE_FOR:            do_node_for,
-        Node.NODE_GLOBALS:        do_node_globals,
-        Node.NODE_SET_GLOBALS:    do_node_set_globals,
-        Node.NODE_CONTAINS:       do_node_contains,
-        Node.NODE_BINARY_LOGOP:   do_node_logop,
-        Node.NODE_UNARY_LOGOP:    do_node_logop_unary,
-        Node.NODE_BINARY_ARITHOP: do_node_binary_arithop,
-        Node.NODE_UNARY_ARITHOP:  do_node_unary_arithop,
-        Node.NODE_PRINT:          do_node_print,
-        Node.NODE_BREAK:          do_node_break,
-        Node.NODE_CONTINUE:       do_node_continue,
-        Node.NODE_RETURN:         do_node_return,
-        Node.NODE_CHARACTER:      do_node_character,
-        Node.NODE_STRCAT:         do_node_strcat,
+        Node.NODE_IF:                    do_node_if,
+        Node.NODE_ASSIGN:                do_node_assign,
+        Node.NODE_CONSTANT:              do_node_constant,
+        Node.NODE_RVALUE:                do_node_rvalue,
+        Node.NODE_FUNC:                  do_node_func,
+        Node.NODE_FIELD:                 do_node_field,
+        Node.NODE_RAW_FIELD:             do_node_raw_field,
+        Node.NODE_COMPARE_STRING:        do_node_string_infix,
+        Node.NODE_COMPARE_NUMERIC:       do_node_numeric_infix,
+        Node.NODE_ARGUMENTS:             do_node_arguments,
+        Node.NODE_CALL_STORED_TEMPLATE:  do_node_stored_template_call,
+        Node.NODE_FIRST_NON_EMPTY:       do_node_first_non_empty,
+        Node.NODE_FOR:                   do_node_for,
+        Node.NODE_GLOBALS:               do_node_globals,
+        Node.NODE_SET_GLOBALS:           do_node_set_globals,
+        Node.NODE_CONTAINS:              do_node_contains,
+        Node.NODE_BINARY_LOGOP:          do_node_logop,
+        Node.NODE_UNARY_LOGOP:           do_node_logop_unary,
+        Node.NODE_BINARY_ARITHOP:        do_node_binary_arithop,
+        Node.NODE_UNARY_ARITHOP:         do_node_unary_arithop,
+        Node.NODE_PRINT:                 do_node_print,
+        Node.NODE_BREAK:                 do_node_break,
+        Node.NODE_CONTINUE:              do_node_continue,
+        Node.NODE_RETURN:                do_node_return,
+        Node.NODE_CHARACTER:             do_node_character,
+        Node.NODE_STRCAT:                do_node_strcat,
+        Node.NODE_BINARY_STRINGOP:       do_node_stringops,
+        Node.NODE_LOCAL_FUNCTION_DEFINE: do_node_local_function_define,
+        Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
         }
 
     def expr(self, prog):
@@ -1234,10 +1374,10 @@ class TemplateFormatter(string.Formatter):
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(break|continue)\b',      lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(return|inlist)\b',       lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(\|\||&&|!)',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
-            (r'[(),=;:\+\-*/]',          lambda x,t: (_Parser.LEX_OP, t)),  # noqa
+            (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
+            (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
             (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
