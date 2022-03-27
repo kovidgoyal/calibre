@@ -46,7 +46,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
     BN_FACTOR = 1000
 
     KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
-                'separator', 'break', 'continue', 'return', 'in', 'inlist']
+                'separator', 'break', 'continue', 'return', 'in', 'inlist',
+                'def', 'fed']
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
