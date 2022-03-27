@@ -79,8 +79,8 @@ class CourrierInternational(BasicNewsRecipe):
         ('Sport', 'https://www.courrierinternational.com/feed/category/6273/rss.xml'),
         ('Tendances', 'https://www.courrierinternational.com/feed/category/6282/rss.xml'),
         ('Réveil', 'https://www.courrierinternational.com/feed/category/8224/rss.xml'),
-        ('Enquêtes', 'https://www.courrierinternational.com/feed/category/6678/rss.xml'),        
-        ('Histoire', 'https://www.courrierinternational.com/feed/category/6679/rss.xml'),        
+        ('Enquêtes', 'https://www.courrierinternational.com/feed/category/6678/rss.xml'),
+        ('Histoire', 'https://www.courrierinternational.com/feed/category/6679/rss.xml'),
         ('Sciences & Techno', 'https://www.courrierinternational.com/feed/category/6268/rss.xml'),
         ('Voyage', 'https://www.courrierinternational.com/feed/category/6271/rss.xml'),
     ]

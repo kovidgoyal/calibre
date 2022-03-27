@@ -3,7 +3,6 @@ Created on 23 Sep 2010
 
 @author: charles
 '''
-from _ast import arg, arguments
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
