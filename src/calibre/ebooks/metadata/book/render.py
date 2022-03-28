@@ -281,13 +281,14 @@ def mi_to_html(
                 if is_date_undefined(aval):
                     continue
                 aval = format_date(aval, 'yyyy-MM-dd')
+                key = field if field != 'timestamp' else 'date'
                 if val == aval:
                     val = '<a href="{}" title="{}">{}</a>'.format(
-                        search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                        search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
                             _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
                 else:
                     val = '<a href="{}" title="{}">{}</a>'.format(
-                        search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                        search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
                             _('Click to see books with {0}: {1} (derived from {2})').format(
                                 metadata['name'] or field, aval, val)), val)
             elif metadata['datatype'] == 'text' and metadata['is_multiple']:
