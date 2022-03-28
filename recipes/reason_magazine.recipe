@@ -1,0 +1,169 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+import json
+
+from calibre import prepare_string_for_xml
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+# {{{ parse article JSON
+def process_image_block(lines, block):
+    caption = block.get('captionText')
+    caption_lines = []
+    if caption:
+        if block.get('attributionText', '').strip():
+            caption += ' (' + block['attributionText'] + ')'
+        caption_lines.append('<p style="font-style: italic">' + caption + '</p>')
+    lines.append('<div style="text-align: center"><img src={}/>'.format(prepare_string_for_xml(block['url'], True)))
+    lines.extend(caption_lines)
+    lines.append('</div>')
+
+
+def json_to_html(raw):
+    data = json.loads(raw)
+    # open('/t/p.json', 'w').write(json.dumps(data, indent=2))
+    data = sorted((v['data'] for v in data['props']['pageProps']['urqlState'].values()), key=len)[-1]
+    article = json.loads(data)['article']
+    lines = []
+    lines.append('<h1 style="align: center">' + prepare_string_for_xml(article['title']) + '</h1>')
+    lines.append('<h2 style="align: center">' + prepare_string_for_xml(article['dek']) + '</h2>')
+    auts = ', '.join(x['displayName'] for x in article['authors'])
+    if auts:
+        lines.append('<p style="align: center">by ' + prepare_string_for_xml(auts) + '</p>')
+    if article.get('leadArt') and 'image' in article['leadArt']:
+        process_image_block(lines, article['leadArt']['image'])
+    for item in article['content']:
+        tn = item.get('__typename', '')
+        if tn.endswith('Image'):
+            process_image_block(lines, item)
+            continue
+        html = item.get('innerHtml')
+        if html is None or '</iframe>' in html:
+            continue
+        if 'innerHtml' not in item:
+            continue
+        tagname = item.get('tagName', 'P').lower()
+        lines.append('<{0}>{1}</{0}>'.format(tagname, html))
+    return '<html><body><div id="from-json-by-calibre">' + '\n'.join(lines) + '</div></body></html>'
+
+
+class NoJSON(ValueError):
+    pass
+
+
+def extract_html(soup):
+    script = soup.findAll('script', id='__NEXT_DATA__')
+    if not script:
+        raise NoJSON('No script tag with JSON data found')
+    raw = script[0].contents[0]
+    return json_to_html(raw)
+
+# }}}
+
+
+class Reason(BasicNewsRecipe):
+
+    title = 'Reason Magazine'
+    description = 'Free minds and free markets'
+    INDEX = 'https://reason.com/magazine/'
+    __author__ = 'Howard Cornett'
+    language = 'en'
+    encoding = 'utf-8'
+    needs_subscription = True
+
+    remove_tags = [
+        classes(
+            'next-post-link the-tags tag rcom-social tools comments-header-show logo-header'
+            ' navbar navbar-expanded-lg primary content-info sidebar magicSidebar advertisement logo entry-subtitle'
+        ),
+    ]
+
+    no_stylesheets = True
+    remove_attributes = ['style']
+    extra_css = '''
+        .credit { text-align: right; font-size: 75%; display: block }
+        .figcaption { font-size: 75% }
+        .caption { font-size: 75% }
+        .lead-img { display: block }
+        p.dropcap:first-letter {
+        float: left; text-transform: uppercase; font-weight: bold; font-size: 5.55em; line-height: 0.83;
+        margin: 0; padding-right: 7px; margin-bottom: -2px; text-align: center;
+        }
+    '''
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://reason.com/login')
+            br.select_form(id='login_form')
+            br['text_username'] = self.username
+            br['password_password'] = self.password
+            br.submit()
+        return br
+
+    def preprocess_raw_html(self, raw_html, url):
+        try:
+            return extract_html(self.index_to_soup(raw_html))
+        except NoJSON:
+            self.log.warn('No JSON found in: {} falling back to HTML'.format(url))
+        except Exception:
+            self.log.exception('Failed to extract JSON data from: {} falling back to HTML'.format(url))
+        return raw_html
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
+            # img['src'] = img['data-lazy-src'].split()[0]
+            data_lazy_src = img['data-lazy-src']
+            if ',' in data_lazy_src:
+                img['src'] = data_lazy_src.split(',')[0]
+            else:
+                img['src'] = data_lazy_src.split()[0]
+        return soup
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        cover = soup.find('img', title=lambda value: value and value.startswith('Reason Magazine,'))
+        if cover is not None:
+            self.cover_url = cover['src']
+        current_section, current_articles = 'Cover Story', []
+        feeds = []
+        for div in soup.findAll('div', **classes('issue-header-right toc-category-list')):
+            for h3 in div.findAll('h3', **classes('toc-department')):
+                if current_articles:
+                    feeds.append((current_section, current_articles))
+                current_articles = []
+                current_section = self.tag_to_string(h3)
+                self.log('\nFound section:', current_section)
+                title = h3.find_next_sibling().a.text
+                url = h3.find_next_sibling().a['href']
+                desc = h3.find_next_sibling().p.text
+                current_articles.append({
+                    'title': title,
+                    'url': url,
+                    'description': desc
+                })
+            for h2 in div.findAll('h2', **classes('toc-department')):
+                if current_articles:
+                    feeds.append((current_section, current_articles))
+                current_articles = []
+                current_section = self.tag_to_string(h2)
+                self.log('\nFound section:', current_section)
+            for article in div.findAll('article', attrs={'class': True}):
+                h4 = article.find('h4')
+                if h4.a is not None:
+                    title = h4.a.text
+                    url = h4.a['href']
+                else:
+                    title = ''
+                    url = ''
+                desc = h4.find_next_sibling().text
+                current_articles.append({
+                    'title': title,
+                    'url': url,
+                    'description': desc
+                })
+
+        if current_articles:
+            feeds.append((current_section, current_articles))
+        return feeds
