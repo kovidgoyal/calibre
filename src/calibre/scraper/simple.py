@@ -9,11 +9,18 @@ import secrets
 import sys
 import time
 from functools import lru_cache
-from qt.core import QApplication, QEventLoop, QUrl, pyqtSignal
+from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 
 from calibre.constants import cache_dir
 from calibre.gui2.webengine import create_script, insert_scripts
+
+
+def canonicalize_qurl(qurl):
+    qurl = qurl.adjusted(QUrl.UrlFormattingOption.StripTrailingSlash | QUrl.UrlFormattingOption.NormalizePathSegments)
+    if qurl.path() == '/':
+        qurl = qurl.adjusted(QUrl.UrlFormattingOption.RemovePath)
+    return qurl
 
 
 @lru_cache(maxsize=4)
@@ -42,15 +49,29 @@ def create_profile(cache_name='simple', allow_js=False):
 
 class SimpleScraper(QWebEnginePage):
 
-    html_fetched = pyqtSignal(str)
-
     def __init__(self, source, parent=None):
         profile = create_profile(source)
         self.token = profile.token
         super().__init__(profile, parent)
         self.setAudioMuted(True)
-        self.fetching_url = QUrl('invalid://XXX')
-        self.last_fetched_html = ''
+        self.loadStarted.connect(self.load_started)
+        self.loadFinished.connect(self.load_finished)
+        self.loadProgress.connect(self.load_progress)
+
+    def load_started(self):
+        if hasattr(self, 'current_fetch'):
+            self.current_fetch['load_started'] = True
+
+    def load_finished(self, ok):
+        if hasattr(self, 'current_fetch'):
+            self.current_fetch['load_finished'] = True
+            self.current_fetch['load_was_ok'] = ok
+            if not ok and self.is_current_url:
+                self.current_fetch['working'] = False
+
+    def load_progress(self, progress):
+        if hasattr(self, 'current_fetch'):
+            self.current_fetch['end_time'] = time.monotonic() + self.current_fetch['timeout']
 
     def javaScriptAlert(self, url, msg):
         pass
@@ -61,6 +82,12 @@ class SimpleScraper(QWebEnginePage):
     def javaScriptPrompt(self, url, msg, defval):
         return True, defval
 
+    @property
+    def is_current_url(self):
+        if not hasattr(self, 'current_fetch'):
+            return False
+        return canonicalize_qurl(self.url()) == self.current_fetch['fetching_url']
+
     def javaScriptConsoleMessage(self, level, message, line_num, source_id):
         parts = message.split(maxsplit=1)
         if len(parts) == 2 and parts[0] == self.token:
@@ -69,34 +96,36 @@ class SimpleScraper(QWebEnginePage):
             if t == 'print':
                 print(msg['text'], file=sys.stderr)
             elif t == 'domready':
-                if self.url() == self.fetching_url:
-                    if msg.get('failed'):
-                        self.last_fetched_html = '!'
-                    else:
-                        self.last_fetched_html = msg['html']
-                    self.html_fetched.emit(self.last_fetched_html)
-
-    def start_fetch(self, url_or_qurl):
-        self.fetching_url = QUrl(url_or_qurl)
-        self.load(self.fetching_url)
+                if self.is_current_url:
+                    self.current_fetch['working'] = False
+                    if not msg.get('failed'):
+                        self.current_fetch['html'] = msg['html']
 
     def fetch(self, url_or_qurl, timeout=60):
-        self.last_fetched_html = ''
-        self.start_fetch(url_or_qurl)
-        app = QApplication.instance()
-        end = time.monotonic() + timeout
-        while not self.last_fetched_html and time.monotonic() < end:
-            app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-        ans = self.last_fetched_html
-        self.last_fetched_html = ''
-        if ans == '!':
-            raise ValueError(f'Failed to load HTML from {url_or_qurl}')
-        return ans
+        fetching_url = QUrl(url_or_qurl)
+        self.current_fetch = {
+            'timeout': timeout, 'end_time': time.monotonic() + timeout,
+            'fetching_url': canonicalize_qurl(fetching_url), 'working': True,
+            'load_started': False
+        }
+        self.load(fetching_url)
+        try:
+            app = QApplication.instance()
+            while self.current_fetch['working'] and time.monotonic() < self.current_fetch['end_time']:
+                app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            ans = self.current_fetch.get('html')
+            if ans is None:
+                if self.current_fetch['working']:
+                    raise ValueError(f'Timed out loading HTML from {url_or_qurl}')
+                raise ValueError(f'Failed to load HTML from {url_or_qurl}')
+            return ans
+        finally:
+            del self.current_fetch
 
 
 if __name__ == '__main__':
     app = QApplication([])
     s = SimpleScraper('test')
-    s.fetch('file:///t/raw.html')
+    s.fetch('file:///t/raw.html', timeout=5)
     del s
     del app
