@@ -23,6 +23,13 @@ def remove_bookmark(annotations_manager, title, list_dom_node):
     )
 
 
+def edit_bookmark(annotations_manager, title, list_dom_node):
+    new_title = window.prompt(_('Enter new title for bookmark:'), title)
+    if new_title:
+        if annotations_manager.edit_bookmark(title, new_title):
+            console.log(list_dom_node)
+            list_dom_node.querySelector('.item-title').textContent = new_title
+
 
 def create_bookmarks_list(annotations_manager, onclick):
     bookmarks = sorted(annotations_manager.all_bookmarks(), key=def(x): return x.title.toLowerCase();)
@@ -30,10 +37,11 @@ def create_bookmarks_list(annotations_manager, onclick):
     for bookmark in bookmarks:
         if not bookmark.removed:
             sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, bookmark.title), _('Remove this bookmark'))
+            ea = create_side_action('edit', edit_bookmark.bind(None, annotations_manager, bookmark.title), _('Edit this bookmark'))
             items.push(create_item(
                 bookmark.title, data=bookmark.pos,
                 action=onclick.bind(None, goto_cfi.bind(None, bookmark.pos)),
-                side_actions=[sa]
+                side_actions=[sa, ea]
             ))
     c = E.div(style='margin-top: 1ex')
     build_list(c, items)
