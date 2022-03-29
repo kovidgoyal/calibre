@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
     QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
-    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal
+    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal, QAction, QKeySequence
 )
 
 from calibre import fit_image
@@ -120,16 +120,23 @@ class ImageView(QDialog):
         self.zi_button = zi = bb.addButton(_('Zoom &in'), QDialogButtonBox.ButtonRole.ActionRole)
         self.zo_button = zo = bb.addButton(_('Zoom &out'), QDialogButtonBox.ButtonRole.ActionRole)
         self.save_button = so = bb.addButton(_('&Save as'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.copy_button = co = bb.addButton(_('&Copy'), QDialogButtonBox.ButtonRole.ActionRole)
         self.rotate_button = ro = bb.addButton(_('&Rotate'), QDialogButtonBox.ButtonRole.ActionRole)
         self.fullscreen_button = fo = bb.addButton(_('&Full screen'), QDialogButtonBox.ButtonRole.ActionRole)
         zi.setIcon(QIcon(I('plus.png')))
         zo.setIcon(QIcon(I('minus.png')))
         so.setIcon(QIcon(I('save.png')))
+        co.setIcon(QIcon.ic('edit-copy.png'))
         ro.setIcon(QIcon(I('rotate-right.png')))
         fo.setIcon(QIcon(I('page.png')))
         zi.clicked.connect(self.zoom_in)
         zo.clicked.connect(self.zoom_out)
         so.clicked.connect(self.save_image)
+        co.clicked.connect(self.copy_image)
+        self.copy_action = QAction(self)
+        self.addAction(self.copy_action)
+        self.copy_action.triggered.connect(self.copy_button.click)
+        self.copy_action.setShortcut(QKeySequence.StandardKey.Copy)
         ro.clicked.connect(self.rotate_image)
         fo.setCheckable(True)
 
@@ -195,6 +202,10 @@ class ImageView(QDialog):
         if f:
             from calibre.utils.img import save_image
             save_image(self.current_img.toImage(), f)
+
+    def copy_image(self):
+        if self.current_img and not self.current_img.isNull():
+            QApplication.instance().clipboard().setPixmap(self.current_img)
 
     def fit_changed(self):
         fitted = bool(self.fit_image.isChecked())
