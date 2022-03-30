@@ -101,13 +101,21 @@ plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
-    file_types = {'cbr', 'cbz', 'cb7'}
+    file_types = {'cbr', 'cbz', 'cb7', 'cbc'}
     description = _('Extract cover from comic files')
 
     def customization_help(self, gui=False):
         return 'Read series number from volume or issue number. Default is volume, set this to issue to use issue number instead.'
 
     def get_metadata(self, stream, ftype):
+        if ftype == 'cbc':
+            from zipfile import ZipFile
+            zf = ZipFile(stream)
+            fcn = zf.open('comics.txt').read().decode('utf-8').splitlines()[0]
+            oname = getattr(stream, 'name', None)
+            stream = zf.open(fcn)
+            if oname:
+                stream.name = oname
         if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
             pos = stream.tell()
             id_ = stream.read(3)
