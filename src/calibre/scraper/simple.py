@@ -23,7 +23,7 @@ def canonicalize_qurl(qurl):
     return qurl
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=None)
 def create_profile(cache_name='simple', allow_js=False):
     from calibre.utils.random_ua import random_common_chrome_user_agent
     ans = QWebEngineProfile(cache_name, QApplication.instance())
