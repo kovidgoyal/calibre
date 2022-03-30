@@ -114,6 +114,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             fcn = zf.open('comics.txt').read().decode('utf-8').splitlines()[0]
             oname = getattr(stream, 'name', None)
             stream = zf.open(fcn)
+            ftype = fcn.split('.')[-1].lower()
             if oname:
                 stream.name = oname
         if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
