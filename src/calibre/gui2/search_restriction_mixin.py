@@ -6,17 +6,18 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 from gettext import pgettext
-
 from qt.core import (
-    Qt, QMenu, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox, QFrame,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction, QTextBrowser, QAbstractItemView)
+    QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QFrame,
+    QGridLayout, QIcon, QLabel, QLineEdit, QListView, QMenu, QRadioButton, QSize,
+    QStringListModel, Qt, QTextBrowser, QVBoxLayout
+)
 
-from calibre.gui2 import error_dialog, question_dialog, gprefs
+from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.search_query_parser import ParseException
 from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.search_query_parser import ParseException
 
 
 class SelectNames(QDialog):  # {{{
@@ -29,8 +30,9 @@ class SelectNames(QDialog):  # {{{
         self.la = la = QLabel(_('Create a Virtual library based on %s') % txt)
         l.addWidget(la)
 
-        self._names = QListWidget(self)
-        self._names.addItems(sorted(names, key=sort_key))
+        self.model = QStringListModel(sorted(names, key=sort_key))
+        self._names = QListView(self)
+        self._names.setModel(self.model)
         self._names.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         l.addWidget(self._names)
 
@@ -49,8 +51,8 @@ class SelectNames(QDialog):  # {{{
 
     @property
     def names(self):
-        for item in self._names.selectedItems():
-            yield str(item.data(Qt.ItemDataRole.DisplayRole) or '')
+        for index in self._names.selectedIndexes():
+            yield index.data(Qt.ItemDataRole.DisplayRole) or ''
 
     @property
     def match_type(self):
