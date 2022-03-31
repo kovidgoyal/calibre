@@ -123,6 +123,17 @@ class SimpleScraper(QWebEnginePage):
             del self.current_fetch
 
 
+def find_tests():
+    import unittest
+
+    class TestSimpleWebEngineScraper(unittest.TestCase):
+
+        def test_dom_load(self):
+            return
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
+
+
 if __name__ == '__main__':
     app = QApplication([])
     s = SimpleScraper('test')
