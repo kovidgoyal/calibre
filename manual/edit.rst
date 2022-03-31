@@ -49,7 +49,7 @@ you created the checkpoint. To create a checkpoint, use :guilabel:`Edit->Create
 checkpoint`. Checkpoints will also be automatically created for you whenever you
 run any automated tool like global search and replace. The checkpointing
 functionality is in addition to the normal undo/redo mechanism when editing
-individual files. Checkpoints are useful for when changes are spread over
+individual files. Checkpoints are needed for when changes are spread over
 multiple files in the book.
 
 That is the basic work flow for editing books -- Open a file, make changes,
@@ -517,7 +517,7 @@ You can create a checkpoint via :guilabel:`Edit->Create checkpoint`. And go back
 to a previous checkpoint with :guilabel:`Edit->Revert to ...`
 
 The check pointing functionality is in addition to the normal Undo/redo
-mechanism when editing individual files. Checkpoints are particularly useful
+mechanism when editing individual files. Checkpoints are needed
 for when changes are spread over multiple files in the book or when you wish to
 be able to revert a large group of related changes as a whole.
 
