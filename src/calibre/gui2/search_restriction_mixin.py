@@ -9,7 +9,7 @@ from gettext import pgettext
 from qt.core import (
     QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QFrame,
     QGridLayout, QIcon, QLabel, QLineEdit, QListView, QMenu, QRadioButton, QSize,
-    QStringListModel, Qt, QTextBrowser, QVBoxLayout
+    QStringListModel, Qt, QTextBrowser, QVBoxLayout, QSortFilterProxyModel
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
@@ -30,9 +30,18 @@ class SelectNames(QDialog):  # {{{
         self.la = la = QLabel(_('Create a Virtual library based on %s') % txt)
         l.addWidget(la)
 
+        self.filter = f = QLineEdit(self)
+        f.setPlaceholderText(_('Filter {}').format(txt))
+        f.setClearButtonEnabled(True)
+        l.addWidget(f)
+
         self.model = QStringListModel(sorted(names, key=sort_key))
+        self.pmodel = QSortFilterProxyModel(self)
+        self.pmodel.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        f.textChanged.connect(self.pmodel.setFilterFixedString)
+        self.pmodel.setSourceModel(self.model)
         self._names = QListView(self)
-        self._names.setModel(self.model)
+        self._names.setModel(self.pmodel)
         self._names.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         l.addWidget(self._names)
 
