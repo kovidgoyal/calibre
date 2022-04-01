@@ -493,7 +493,9 @@ class _Parser:
         line_number = self.line_number
         if not self.token_is_id():
             self.error(_("'{0}' statement: expected a function name identifier").format('def'))
-        variable = self.token()
+        function_name = self.token()
+        if function_name in self.local_functions:
+            self.error(_("Function name '{0}' is already defined").format(function_name))
         if not self.token_op_is('('):
             self.error(_("'{0}' statement: expected a '('").format('def'))
         self.consume()
@@ -519,8 +521,8 @@ class _Parser:
         if not self.token_is('fed'):
             self.error(_("'{0}' statement: missing the closing '{1}'").format('def', 'fed'))
         self.consume()
-        self.local_functions.add(variable)
-        return LocalFunctionDefineNode(line_number, variable, arguments, block)
+        self.local_functions.add(function_name)
+        return LocalFunctionDefineNode(line_number, function_name, arguments, block)
 
     def local_call_expression(self, name, arguments):
         return LocalFunctionCallNode(self.line_number, name, arguments)
@@ -895,7 +897,9 @@ class _Interpreter:
                 # evaluate the expression (recursive call)
                 args.append(self.expr(arg))
         saved_locals = self.locals
+        saved_local_functions = self.local_functions
         self.locals = {}
+        self.local_functions = {}
         for dex, v in enumerate(args):
             self.locals['*arg_'+ str(dex)] = v
         if (self.break_reporter):
@@ -911,6 +915,7 @@ class _Interpreter:
             val = e.get_value()
         self.override_line_number = saved_line_number
         self.locals = saved_locals
+        self.local_functions = saved_local_functions
         if (self.break_reporter):
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
