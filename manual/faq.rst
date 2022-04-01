@@ -925,8 +925,8 @@ If you still cannot get the installer to work and you are on Windows, you can us
 My antivirus program claims calibre is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first thing to check is that you are downloading calibre from the official
-website: :website:`<download>`. Make sure you are clicking the
+The first thing to check is that you are downloading calibre from the
+:website:`official website <download>`. Make sure you are clicking the
 download links on the left, not the advertisements on the right. calibre is a
 very popular program and unscrupulous people try to setup websites offering it
 for download to fool the unwary.
