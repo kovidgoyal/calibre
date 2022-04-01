@@ -23,6 +23,37 @@
 # - title by author
 # }}}
 
+{{{ 5.40.0 2022-xx-xx
+
+:: new features
+
+- [1966872] Content server viewer: Allow editing bookmarks
+
+- [1967028] Read covers from CBC comic files
+
+- [1966537] Allow filtering authors/tags when creating virtual library based on them
+
+- [1966851] Add a copy button to the image view popup
+
+- Template language: Support for nested functions and a string concatenation operator
+
+:: bug fixes
+
+- DOCX Output: Fix a comment immediately after a <li> tag breaking the conversion
+
+- Standalone ToC editor: Fix spurious error message if left open for more than two minutes
+
+- [1965693] Fix search-as-you-type triggers extra search after manual confirmation
+
+:: improved recipes
+- Courrier International
+
+:: new recipes
+- Reason Magazine by Howard Cornett
+- Seminar Magazine by unkn0wn
+- Frontline by unkn0wn
+}}}
+
 {{{ 5.39.1 2022-03-18
 
 :: new features
