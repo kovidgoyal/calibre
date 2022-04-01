@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.40.0 2022-xx-xx
+{{{ 5.40.0 2022-04-01
 
 :: new features
 
