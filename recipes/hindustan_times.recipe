@@ -12,24 +12,21 @@ class HindustanTimes(BasicNewsRecipe):
     max_articles_per_feed = 50
     encoding = 'utf-8'
     use_embedded_content = False
+    masthead_url = 'https://epaper.hindustantimes.com//Images/logo/logo.png'
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
-    extra_css = 'button { display: none; } '
+    extra_css = '.about-authors { font-size: smaller }'
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(name='div', attrs={'class':'sortDec'}),
-        dict(name='picture'),
-        dict(name='figcaption'),
-        classes('dateTime storyBy storyDetails detail freemiumText paywall'),
+        classes('fullStory dateTime storyBy storyDetails detail freemiumText paywall'),
     ]
 
     remove_tags = [
         classes('htsWrapper shareArticle new__newsletter__signup signup__box subscribe freemium-card adMinHeight313'
-                ' storyTopics embed_div shareIcons close-btn'),
+                ' storyTopics embed_div shareIcons close-btn mainCoachmarks sharePopUp'),
         dict(name='div', attrs={'class':[]}),
-        dict(name='footer'),
+        dict(name=['footer', 'button']),
     ]
 
     feeds = [
