@@ -522,13 +522,7 @@ class WordActionsOverlay:  # {{{
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
-        container.style.backgroundColor = get_color('window-background')
-        container.appendChild(E.div(
-            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
-            E.h2(_('Lookup: {}').format(self.word)),
-                E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
-            ))
-        container.appendChild(E.div())
+        simple_overlay_title(_('Lookup: {}').format(self.word), self.overlay, container)
         create_word_actions_panel(container, self.word, self.overlay.hide)
 # }}}
 
