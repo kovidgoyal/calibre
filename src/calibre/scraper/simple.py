@@ -119,9 +119,10 @@ class SimpleScraper(QWebEnginePage):
                 app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             ans = self.current_fetch.get('html')
             if ans is None:
+                eurl = fetching_url.toString()
                 if self.current_fetch['working']:
-                    raise ValueError(f'Timed out loading HTML from {url_or_qurl}')
-                raise ValueError(f'Failed to load HTML from {url_or_qurl}')
+                    raise TimeoutError(f'Timed out loading HTML from: {eurl}')
+                raise ValueError(f'Failed to load HTML from: {eurl}')
             return ans
         finally:
             del self.current_fetch
