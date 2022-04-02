@@ -21,7 +21,7 @@
         send_msg({type: 'print', text: text});
     }
 
-    if (!document.location.href.startsWith('chrome-error://')) {
+    if (!document.location.href.startsWith('chrome-error:') && !document.location.href.startsWith('about:')) {
         send_msg({type: 'domready', html: new XMLSerializer().serializeToString(document)}); 
     }
 })();
