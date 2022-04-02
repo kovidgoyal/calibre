@@ -16,7 +16,9 @@ from calibre.gui2.webengine import create_script, insert_scripts
 
 
 def canonicalize_qurl(qurl):
-    qurl = qurl.adjusted(QUrl.UrlFormattingOption.StripTrailingSlash | QUrl.UrlFormattingOption.NormalizePathSegments)
+    qurl = qurl.adjusted(
+        QUrl.UrlFormattingOption.StripTrailingSlash | QUrl.UrlFormattingOption.NormalizePathSegments | QUrl.UrlFormattingOption.RemoveFragment
+    )
     if qurl.path() == '/':
         qurl = qurl.adjusted(QUrl.UrlFormattingOption.RemovePath)
     return qurl
