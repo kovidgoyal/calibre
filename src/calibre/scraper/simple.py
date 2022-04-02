@@ -59,7 +59,7 @@ class Overseer:
         overseers.append(weakref.ref(self))
 
     def worker_for_source(self, source):
-        wname = f'{source}-{get_ident()}'
+        wname = f'{source}::{get_ident()}'
         with self.lock:
             ans = self.workers.get(wname)
             if ans is None:

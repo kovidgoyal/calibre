@@ -200,7 +200,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.model().set_query(query)
 
         # Plugins are in random order that does not change.
-        # Randomize the ord of the plugin names every time
+        # Randomize the order of the plugin names every time
         # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
