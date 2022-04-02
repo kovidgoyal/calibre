@@ -37,7 +37,8 @@ qt.webenginecontext.info=false
             raise SystemExit(int(rest))
         if cmd == b'FETCH':
             try:
-                html = s.fetch(QUrl.fromEncoded(json.loads(rest).encode('utf-8')))
+                d = json.loads(rest)
+                html = s.fetch(QUrl.fromEncoded(d['url'].encode('utf-8')), timeout=float(d['timeout']))
             except Exception as e:
                 import traceback
                 result = {'ok': False, 'tb': traceback.format_exc(), 'err': str(e)}
@@ -67,12 +68,12 @@ class Overseer:
                 ans = self.workers[wname] = w
         return ans
 
-    def fetch_url(self, url_or_qurl, source=''):
+    def fetch_url(self, url_or_qurl, source='', timeout=60):
         w = self.worker_for_source(source)
         if isinstance(url_or_qurl, str):
             url_or_qurl = QUrl(url_or_qurl)
         w.stdin.write(b'FETCH:')
-        w.stdin.write(json.dumps(bytes(url_or_qurl.toEncoded()).decode('utf-8')).encode('utf-8'))
+        w.stdin.write(json.dumps({'url': bytes(url_or_qurl.toEncoded()).decode('utf-8'), 'timeout': timeout}).encode('utf-8'))
         w.stdin.write(b'\n')
         w.stdin.flush()
         output = json.loads(w.stdout.readline())
@@ -117,13 +118,13 @@ def cleanup_overseers():
 read_url_lock = Lock()
 
 
-def read_url(storage, url):
+def read_url(storage, url, timeout=60):
     with read_url_lock:
         if not storage:
             storage.append(Overseer())
         scraper = storage[0]
     from calibre.ebooks.chardet import strip_encoding_declarations
-    return strip_encoding_declarations(scraper.fetch_url(url))
+    return strip_encoding_declarations(scraper.fetch_url(url, timeout=timeout))
 
 
 def find_tests():

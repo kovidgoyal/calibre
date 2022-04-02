@@ -23,11 +23,11 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
-def read_url(url):
+def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
     from calibre.scraper.simple import read_url as ru
-    return ru(read_url.storage, url)
+    return ru(read_url.storage, url, timeout=timeout)
 
 
 read_url.storage = []
@@ -36,7 +36,7 @@ read_url.storage = []
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
     url = 'https://www.kobobooks.com/search/search.html?q=' + quote_plus(query)
-    raw = read_url(url)
+    raw = read_url(url, timeout=timeout)
     if write_html_to is not None:
         with open(write_html_to, 'w') as f:
             f.write(raw)
@@ -119,7 +119,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             yield result
 
     def get_details(self, search_result, timeout):
-        raw = read_url(search_result.detail_item)
+        raw = read_url(search_result.detail_item, timeout=timeout)
         idata = html.fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):
             if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "DRM-Free")])'):
