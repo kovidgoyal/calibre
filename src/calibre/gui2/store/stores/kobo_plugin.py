@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from contextlib import closing
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
-from lxml import html, etree
-import string, random
+from lxml import etree, html
 
-from calibre import browser, url_slash_cleaner
+from calibre import url_slash_cleaner
+from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
@@ -24,84 +23,80 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+scraper = None
 
-def get_browser():
-    # kobo books uses akamai which for some reason times out sending responses
-    # when the UA is a real browser UA. It currently seems to work fine with a
-    # UA of the form python/word.
-    word_len = random.randint(3, 8)
-    word = ''.join(random.choice(string.ascii_lowercase) for i in range(word_len))
-    major_ver = random.randint(1, 3)
-    minor_ver = random.randint(0, 12)
-    br = browser(user_agent='python/{}-{}.{}'.format(word, major_ver, minor_ver), verify_ssl_certificates=False)
-    return br
+
+def read_url(url):
+    # Kobo uses Akamai which has some bot detection that uses network/tls
+    # protocol data. So use the Chromium network stack to make the request
+    global scraper
+    if scraper is None:
+        from calibre.scraper.simple import Overseer
+        scraper = Overseer()
+    return strip_encoding_declarations(scraper.fetch_url(url))
 
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
     url = 'https://www.kobobooks.com/search/search.html?q=' + quote_plus(query)
+    raw = read_url(url)
+    if write_html_to is not None:
+        with open(write_html_to, 'w') as f:
+            f.write(raw)
+    doc = html.fromstring(raw)
+    select = Select(doc)
+    for i, item in enumerate(select('.result-items .item-wrapper.book')):
+        if i == max_results:
+            break
+        for img in select('.item-image img[src]', item):
+            cover_url = img.get('src')
+            if cover_url.startswith('//'):
+                cover_url = 'https:' + cover_url
+            break
+        else:
+            cover_url = None
 
-    br = get_browser()
-
-    with closing(br.open(url, timeout=timeout)) as f:
-        raw = f.read()
-        if write_html_to is not None:
-            with open(write_html_to, 'wb') as f:
-                f.write(raw)
-        doc = html.fromstring(raw)
-        select = Select(doc)
-        for i, item in enumerate(select('.result-items .item-wrapper.book')):
-            if i == max_results:
-                break
-            for img in select('.item-image img[src]', item):
-                cover_url = img.get('src')
-                if cover_url.startswith('//'):
-                    cover_url = 'https:' + cover_url
-                break
-            else:
-                cover_url = None
-
-            for p in select('h2.title', item):
-                title = etree.tostring(p, method='text', encoding='unicode').strip()
-                for a in select('a[href]', p):
-                    url = a.get('href')
-                    break
-                else:
-                    url = None
+        for p in select('h2.title', item):
+            title = etree.tostring(p, method='text', encoding='unicode').strip()
+            for a in select('a[href]', p):
+                url = a.get('href')
                 break
             else:
-                title = None
-            if title:
-                for p in select('p.subtitle', item):
-                    title += ' - ' + etree.tostring(p, method='text', encoding='unicode').strip()
+                url = None
+            break
+        else:
+            title = None
+        if title:
+            for p in select('p.subtitle', item):
+                title += ' - ' + etree.tostring(p, method='text', encoding='unicode').strip()
 
-            authors = []
-            for a in select('.contributors a.contributor-name', item):
-                authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
-            authors = authors_to_string(authors)
+        authors = []
+        for a in select('.contributors a.contributor-name', item):
+            authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
+        authors = authors_to_string(authors)
 
-            for p in select('p.price', item):
-                price = etree.tostring(p, method='text', encoding='unicode').strip()
-                break
-            else:
-                price = None
+        for p in select('p.price', item):
+            price = etree.tostring(p, method='text', encoding='unicode').strip()
+            break
+        else:
+            price = None
 
-            if title and authors and url:
-                s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title
-                s.author = authors
-                s.price = price
-                s.detail_item = url
-                s.formats = 'EPUB'
-                s.drm = SearchResult.DRM_UNKNOWN
+        if title and authors and url:
+            s = SearchResult()
+            s.cover_url = cover_url
+            s.title = title
+            s.author = authors
+            s.price = price
+            s.detail_item = url
+            s.formats = 'EPUB'
+            s.drm = SearchResult.DRM_UNKNOWN
 
-                yield s
+            yield s
 
 
 class KoboStore(BasicStoreConfig, StorePlugin):
 
-    minimum_calibre_version = (2, 21, 0)
+    minimum_calibre_version = (5, 40, 1)
 
     def open(self, parent=None, detail_item=None, external=False):
         pub_id = '0dsO3kDu/AU'
@@ -127,17 +122,15 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             yield result
 
     def get_details(self, search_result, timeout):
-        br = get_browser()
-        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            search_result.author = ', '.join(idata.xpath('.//h2[contains(@class, "author")]//a/text()'))
-            if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):
-                if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "DRM-Free")])'):
-                    search_result.drm = SearchResult.DRM_UNLOCKED
-                if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Adobe DRM")])'):
-                    search_result.drm = SearchResult.DRM_LOCKED
-            else:
-                search_result.drm = SearchResult.DRM_UNKNOWN
+        raw = read_url(search_result.detail_item)
+        idata = html.fromstring(raw)
+        if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):
+            if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "DRM-Free")])'):
+                search_result.drm = SearchResult.DRM_UNLOCKED
+            if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Adobe DRM")])'):
+                search_result.drm = SearchResult.DRM_LOCKED
+        else:
+            search_result.drm = SearchResult.DRM_UNKNOWN
         return True
 
 
