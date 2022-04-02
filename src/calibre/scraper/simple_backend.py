@@ -23,12 +23,15 @@ def canonicalize_qurl(qurl):
 
 
 @lru_cache(maxsize=None)
-def create_profile(cache_name='simple', allow_js=False):
+def create_profile(cache_name='', allow_js=False):
     from calibre.utils.random_ua import random_common_chrome_user_agent
-    ans = QWebEngineProfile(cache_name, QApplication.instance())
+    if cache_name:
+        ans = QWebEngineProfile(cache_name, QApplication.instance())
+        ans.setCachePath(os.path.join(cache_dir(), 'scraper', cache_name))
+    else:
+        ans = QWebEngineProfile(QApplication.instance())
     ans.setHttpUserAgent(random_common_chrome_user_agent())
     ans.setHttpCacheMaximumSize(0)  # managed by webengine
-    ans.setCachePath(os.path.join(cache_dir(), 'scraper', cache_name))
     s = ans.settings()
     a = s.setAttribute
     a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
@@ -48,7 +51,7 @@ def create_profile(cache_name='simple', allow_js=False):
 
 class SimpleScraper(QWebEnginePage):
 
-    def __init__(self, source, parent=None):
+    def __init__(self, source='', parent=None):
         profile = create_profile(source)
         self.token = profile.token
         self.is_being_tested = source == 'test'

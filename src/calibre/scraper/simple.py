@@ -8,7 +8,7 @@ import os
 import sys
 import weakref
 from qt.core import QLoggingCategory, QUrl
-from threading import Lock, Thread
+from threading import Lock, Thread, get_ident
 
 from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
@@ -59,14 +59,15 @@ class Overseer:
         overseers.append(weakref.ref(self))
 
     def worker_for_source(self, source):
+        wname = f'{source}-{get_ident()}'
         with self.lock:
-            ans = self.workers.get(source)
+            ans = self.workers.get(wname)
             if ans is None:
                 w = start_pipe_worker(f'from calibre.scraper.simple import worker_main; worker_main({source!r})')
-                ans = self.workers[source] = w
+                ans = self.workers[wname] = w
         return ans
 
-    def fetch_url(self, source, url_or_qurl):
+    def fetch_url(self, url_or_qurl, source=''):
         w = self.worker_for_source(source)
         if isinstance(url_or_qurl, str):
             url_or_qurl = QUrl(url_or_qurl)
@@ -132,7 +133,7 @@ def find_tests():
             for f in ('book', 'nav'):
                 path = P(f'templates/new_{f}.html', allow_user_override=False)
                 url = QUrl.fromLocalFile(path)
-                html = overseer.fetch_url('test', url)
+                html = overseer.fetch_url(url, 'test')
 
                 def c(a):
                     ans = tostring(fromstring(a.encode('utf-8')), pretty_print=True, encoding='unicode')
@@ -140,7 +141,7 @@ def find_tests():
                 with open(path, 'rb') as f:
                     raw = f.read().decode('utf-8')
                 self.assertEqual(c(html), c(raw))
-            self.assertRaises(ValueError, overseer.fetch_url, 'test', 'file:///does-not-exist.html')
+            self.assertRaises(ValueError, overseer.fetch_url, 'file:///does-not-exist.html', 'test')
             w = overseer.workers
             self.assertEqual(len(w), 1)
             del overseer
