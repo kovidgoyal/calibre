@@ -56,25 +56,35 @@ class SimpleScraper(QWebEnginePage):
     def __init__(self, source, parent=None):
         profile = create_profile(source)
         self.token = profile.token
+        self.is_being_tested = source == 'test'
         super().__init__(profile, parent)
         self.setAudioMuted(True)
         self.loadStarted.connect(self.load_started)
         self.loadFinished.connect(self.load_finished)
         self.loadProgress.connect(self.load_progress)
 
+    def print(self, *a):
+        print(*a, file=sys.stderr)
+
     def load_started(self):
-        if hasattr(self, 'current_fetch'):
+        if self.is_being_tested:
+            self.print(f'load_started: {self.is_current_url=} {self.requestedUrl()=}')
+        if self.is_current_url:
             self.current_fetch['load_started'] = True
 
     def load_finished(self, ok):
-        if hasattr(self, 'current_fetch'):
+        if self.is_being_tested:
+            self.print(f'load_finished: {ok=} {self.is_current_url=}')
+        if self.is_current_url:
             self.current_fetch['load_finished'] = True
             self.current_fetch['load_was_ok'] = ok
             if not ok and self.is_current_url:
                 self.current_fetch['working'] = False
 
     def load_progress(self, progress):
-        if hasattr(self, 'current_fetch'):
+        if self.is_being_tested:
+            self.print(f'load_progress: {progress=} {self.is_current_url=}')
+        if self.is_current_url:
             self.current_fetch['end_time'] = time.monotonic() + self.current_fetch['timeout']
 
     def javaScriptAlert(self, url, msg):
@@ -90,7 +100,7 @@ class SimpleScraper(QWebEnginePage):
     def is_current_url(self):
         if not hasattr(self, 'current_fetch'):
             return False
-        return canonicalize_qurl(self.url()) == self.current_fetch['fetching_url']
+        return canonicalize_qurl(self.requestedUrl()) == self.current_fetch['fetching_url']
 
     def javaScriptConsoleMessage(self, level, message, line_num, source_id):
         parts = message.split(maxsplit=1)
@@ -100,6 +110,8 @@ class SimpleScraper(QWebEnginePage):
             if t == 'print':
                 print(msg['text'], file=sys.stderr)
             elif t == 'domready':
+                if self.is_being_tested:
+                    self.print(f'domready: {self.is_current_url=}')
                 if self.is_current_url:
                     self.current_fetch['working'] = False
                     if not msg.get('failed'):
@@ -137,6 +149,8 @@ qt.webenginecontext.info=false
     s = SimpleScraper(source)
     for line in sys.stdin.buffer:
         line = line.strip()
+        if source == 'test':
+            print(line.decode('utf-8'), file=sys.stderr)
         try:
             cmd, rest = line.split(b':', 1)
         except Exception:
@@ -225,11 +239,3 @@ def find_tests():
             self.assertFalse(w)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
-
-
-if __name__ == '__main__':
-    app = QApplication([])
-    s = SimpleScraper('test')
-    s.fetch('file:///t/raw.html', timeout=5)
-    del s
-    del app
