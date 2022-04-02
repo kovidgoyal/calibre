@@ -218,6 +218,10 @@ def find_tests():
                     return re.sub(r'\s+', ' ', ans)
                 self.assertEqual(c(html), c(open(path, 'rb').read().decode('utf-8')))
             self.assertRaises(ValueError, overseer.fetch_url, 'test', 'file:///does-not-exist.html')
+            w = overseer.workers
+            self.assertEqual(len(w), 1)
+            del overseer
+            self.assertFalse(w)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
 
