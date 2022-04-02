@@ -15,7 +15,6 @@ except ImportError:
 from lxml import etree, html
 
 from calibre import url_slash_cleaner
-from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
@@ -23,17 +22,15 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-scraper = None
-
 
 def read_url(url):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
-    global scraper
-    if scraper is None:
-        from calibre.scraper.simple import Overseer
-        scraper = Overseer()
-    return strip_encoding_declarations(scraper.fetch_url(url))
+    from calibre.scraper.simple import read_url as ru
+    return ru(read_url.storage, url)
+
+
+read_url.storage = []
 
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):

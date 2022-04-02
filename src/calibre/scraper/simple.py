@@ -114,6 +114,18 @@ def cleanup_overseers():
     return join_all
 
 
+read_url_lock = Lock()
+
+
+def read_url(storage, url):
+    with read_url_lock:
+        if not storage:
+            storage.append(Overseer())
+        scraper = storage[0]
+    from calibre.ebooks.chardet import strip_encoding_declarations
+    return strip_encoding_declarations(scraper.fetch_url(url))
+
+
 def find_tests():
     import re
     import unittest
