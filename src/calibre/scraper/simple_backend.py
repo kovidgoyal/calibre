@@ -108,6 +108,7 @@ class SimpleScraper(QWebEnginePage):
                 if self.is_being_tested:
                     self.print(f'domready: {self.is_current_url=}')
                 if self.is_current_url:
+                    self.triggerAction(QWebEnginePage.WebAction.Stop)
                     self.current_fetch['working'] = False
                     if not msg.get('failed'):
                         self.current_fetch['html'] = msg['html']
