@@ -218,7 +218,14 @@ def find_tests():
     import unittest
     from lxml.html import fromstring, tostring
     import re
+    skip = ''
+    is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
+    if is_sanitized:
+        skip = 'Skipping Scraper tests as ASAN is enabled'
+    elif 'SKIP_QT_BUILD_TEST' in os.environ:
+        skip = 'Skipping Scraper tests as it causes crashes in macOS VM'
 
+    @unittest.skipIf(skip, skip)
     class TestSimpleWebEngineScraper(unittest.TestCase):
 
         def test_dom_load(self):
@@ -231,7 +238,9 @@ def find_tests():
                 def c(a):
                     ans = tostring(fromstring(a.encode('utf-8')), pretty_print=True, encoding='unicode')
                     return re.sub(r'\s+', ' ', ans)
-                self.assertEqual(c(html), c(open(path, 'rb').read().decode('utf-8')))
+                with open(path, 'rb') as f:
+                    raw = f.read().decode('utf-8')
+                self.assertEqual(c(html), c(raw))
             self.assertRaises(ValueError, overseer.fetch_url, 'test', 'file:///does-not-exist.html')
             w = overseer.workers
             self.assertEqual(len(w), 1)
