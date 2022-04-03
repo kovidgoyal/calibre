@@ -135,7 +135,9 @@ def cache_path():
 
 
 def db():
-    return apsw.Connection(cache_path())
+    ans = apsw.Connection(cache_path())
+    ans.cursor().execute('pragma busy_timeout=2000')
+    return ans
 
 
 def table_definition():
@@ -166,12 +168,13 @@ def write_to_cache(full_name, etag, data):
 
 def read_from_cache(full_name):
     rowid = etag = data = date = None
-    database = db()
+    c = db().cursor()
     with suppress(StopIteration):
-        rowid, etag, data, date = next(database.cursor().execute(
+        rowid, etag, data, date = next(c.execute(
             table_definition() + 'SELECT id, etag, data, date FROM modules WHERE full_name=? LIMIT 1', (full_name,)))
     if rowid is not None:
-        database.cursor().execute('UPDATE modules SET atime=CURRENT_TIMESTAMP WHERE id=?', (rowid,))
+        with suppress(apsw.BusyError):
+            c.execute('UPDATE modules SET atime=CURRENT_TIMESTAMP WHERE id=?', (rowid,))
     if date is not None:
         date = parse_iso8601(date, assume_utc=True)
     return etag, data, date
