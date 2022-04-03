@@ -1187,9 +1187,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup = cleanup_overseers()
         from calibre.db.delete_service import shutdown
         shutdown()
+        from calibre.live import async_stop_worker
+        wait_for_stop = async_stop_worker()
         time.sleep(2)
         self.istores.join()
         wait_for_cleanup()
+        wait_for_stop()
         return True
 
     def run_wizard(self, *args):

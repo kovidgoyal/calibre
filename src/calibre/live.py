@@ -58,6 +58,12 @@ def stop_worker(timeout=2*DEFAULT_TIMEOUT):
             w.join(timeout)
 
 
+def async_stop_worker():
+    t = Thread(name='StopLiveDownloadWorker', target=stop_worker, daemon=True)
+    t.start()
+    return t.join
+
+
 def report_failure(full_name):
     print(f'Failed to download live module {full_name}', file=sys.stderr)
     import traceback
