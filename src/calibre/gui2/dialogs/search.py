@@ -270,8 +270,8 @@ def create_template_tab(self):
                   _("You can use the search test specifications described "
                     "in the calibre documentation. For example, with Number "
                     "comparisons you can the relational operators like '>=' etc. "
-                    "With Text comparisons you can use exact, contains "
-                    "or regular expression matches. With Date you can use "
+                    "With Text comparisons you can use contains (T), exact (=T), "
+                    "or regular expression matches (~T). With Date you can use "
                     "today, yesterday, etc. Set/not set takes 'true' for set "
                     "and 'false' for not set.") + '</p>')
     l.addRow(_('Template &value:'), le)
