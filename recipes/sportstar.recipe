@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class Sportstar(BasicNewsRecipe):
+    title = u'Sportstar'
+    __author__ = 'unkn0wn'
+    description = (
+        'Sportstar began as a Print Only multi-sport weekly on July 15, 1978.'
+        ' In 2018 the periodicity of Sportstar was made fortnightly with a lot of in-depth articles coming into the mix.'
+        ' Our readers have been the fount of inspiration in our attempts at exploring new angles in sports journalism.')
+    language = 'en_IN'
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    oldest_article = 14
+    max_articles_per_feed = 50
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    masthead_url = 'https://ss.thgim.com/static/theme/default/base/img/logoNew.png'
+    remove_attributes = ['height', 'width']
+    extra_css = '#pic-img{font-size: small; font-style: italic;}'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://sportstar.thehindu.com/magazine/ebook/')
+        tag = soup.find(attrs={'class': 'wrapImg'})
+        if tag:
+            self.cover_url = tag.find('img')['data-proxy-image'].replace(
+                "FREE_180", "FREE_1200"
+            )
+        return super().get_cover_url()
+
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='h2'),
+        classes('sport-icon byline home-content-date blog-img-grow home-content-p')
+    ]
+    remove_tags = [classes('bylineimg')]
+
+    remove_tags_after = [
+        classes('home-content-p'),
+    ]
+
+    feeds = [
+        ('Columns', 'https://sportstar.thehindu.com/columns/feeder/default.rss'),
+        ('Magazine', 'https://sportstar.thehindu.com/magazine/feeder/default.rss'),
+        ('Statsman', 'https://sportstar.thehindu.com/statsman/feeder/default.rss'),
+        # More feeds : https://sportstar.thehindu.com/rssfeeds/
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-proxy-image': True}):
+            img['src'] = img['data-proxy-image'].replace("FREE_180", "FREE_1200")
+        return soup
