@@ -12,7 +12,7 @@ from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 
 from calibre.constants import cache_dir
-from calibre.gui2.webengine import create_script, insert_scripts
+from calibre.utils.webengine import create_script, insert_scripts
 
 
 def canonicalize_qurl(qurl):
