@@ -35,6 +35,13 @@ class IndiaToday(BasicNewsRecipe):
         ('Sports','https://www.indiatoday.in/rss/1206518'),
     ]
 
+    extra_css = '[itemprop^="description"] {font-size: small; font-style: italic;}'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/India-Today-Group/India-Today/News/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
     def preprocess_raw_html(self, raw_html, url):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
         soup = BeautifulSoup(raw_html)

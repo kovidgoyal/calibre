@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -20,6 +19,7 @@ class TheWeek(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = True
     ignore_duplicate_articles = {'url'}
+    remove_attributes = ['style', 'align', 'border', 'hspace']
 
     feeds = [
         ('Cover Story', 'https://www.theweek.in/theweek/cover.rss'),
@@ -34,23 +34,24 @@ class TheWeek(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.theweek.in/theweek.html')
-        for img in soup.findAll('img', attrs={'data-src-web': lambda x: x and '/cover-magazine' in x}):
-            src = img['data-src-web']
-            try:
-                idx = src.rfind('.image.')
-            except Exception:
-                pass
-            else:
-                if idx > -1:
-                    src = src[:idx]
-            return 'https://img.theweek.in' + src
+        soup = self.index_to_soup(
+            'https://www.magzter.com/IN/Malayala_Manorama/THE_WEEK/Business/'
+        )
+        for citem in soup.findAll(
+            'meta', content=lambda s: s and s.endswith('view/3.jpg')
+        ):
+            return citem['content']
 
     def preprocess_html(self, soup):
         a = soup.find('a')
-        a.name = 'div'
+        if a:
+            a.name = 'div'
         h2 = soup.find('h2')
-        h2.string = fix_title(h2.string)
+        if h2:
+            h2.string = fix_title(h2.string)
+        for p in soup.findAll('p'):
+            if p.string == '\xa0':
+                p.decompose()
         return soup
 
     def populate_article_metadata(self, article, soup, first):

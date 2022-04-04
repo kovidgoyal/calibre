@@ -49,6 +49,11 @@ class HindustanTimes(BasicNewsRecipe):
         # ('Budget',''https://www.hindustantimes.com/feeds/rss/budget/rssfeed.xml')
         ]
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Hindustan-Times-Delhi/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
