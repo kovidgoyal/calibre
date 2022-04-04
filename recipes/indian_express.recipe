@@ -14,11 +14,13 @@ class IndianExpress(BasicNewsRecipe):
     oldest_article = 1  # days
     max_articles_per_feed = 25
     encoding = 'utf-8'
+    masthead_url = 'https://indianexpress.com/wp-content/themes/indianexpress/images/indian-express-logo-n.svg'
 
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style','height','width']
     ignore_duplicate_articles = {'url'}
+    extra_css = '#storycenterbyline {font-size:small};'
 
     keep_only_tags = [
         classes('heading-part full-details')
@@ -29,7 +31,10 @@ class IndianExpress(BasicNewsRecipe):
         dict(name='a', attrs={'href':'https://indianexpress.com/section/explained/?utm_source=newbanner'}),
         dict(name='img', attrs={'src':'https://images.indianexpress.com/2021/06/opinion-button-300-ie.jpeg'}),
         dict(name='a', attrs={'href':'https://indianexpress.com/section/opinion/?utm_source=newbanner'}),
-        classes('share-social appstext story-tags ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright')
+        classes(
+            'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
+            ' storytags pdsc-related-modify news-guard'
+        )
     ]
     feeds = [
         ('Front Page', 'https://indianexpress.com/print/front-page/feed/'),
@@ -41,8 +46,17 @@ class IndianExpress(BasicNewsRecipe):
         ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/feed'),
         ('Economy', 'https://indianexpress.com/print/economy/feed'),
         ('Express Network', 'https://indianexpress.com/print/express-network/'),
+        ('Research', 'https://indianexpress.com/section/research/feed/'),
+        ('UPSC-CSE Key','https://indianexpress.com/section/upsc-current-affairs/feed/'),
+        ('World','https://indianexpress.com/section/world/feed/'),
+        ('Business', 'https://indianexpress.com/section/business/feed/'),
         # Want to add more? go-to:https://indianexpress.com/syndication/
     ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/The-Indian-Express-Ltd./The-Indian-Express-Mumbai/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
