@@ -705,7 +705,7 @@ class KindlePaperWhiteOutput(KindleOutput):
 
     name = 'Kindle PaperWhite'
     short_name = 'kindle_pw'
-    description = _('This profile is intended for the Amazon Kindle PaperWhite 1 and 2')
+    description = _('This profile is intended for the Amazon Kindle Paperwhite 1 and 2')
 
     # Screen size is a best guess
     screen_size               = (658, 940)
@@ -730,7 +730,7 @@ class KindlePaperWhite3Output(KindleVoyageOutput):
 
     name = 'Kindle PaperWhite 3'
     short_name = 'kindle_pw3'
-    description = _('This profile is intended for the Amazon Kindle PaperWhite 3 and above')
+    description = _('This profile is intended for the Amazon Kindle Paperwhite 3 and above')
     # Screen size is currently just the spec size, actual renderable area will
     # depend on someone with the device doing tests.
     screen_size               = (1072, 1430)
@@ -742,7 +742,7 @@ class KindleOasisOutput(KindlePaperWhite3Output):
 
     name = 'Kindle Oasis'
     short_name = 'kindle_oasis'
-    description = _('This profile is intended for the Amazon Kindle Oasis 2017, PaperWhite 2021 and above')
+    description = _('This profile is intended for the Amazon Kindle Oasis 2017, Paperwhite 2021 and above')
     # Screen size is currently just the spec size, actual renderable area will
     # depend on someone with the device doing tests.
     screen_size               = (1264, 1680)

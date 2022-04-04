@@ -75,7 +75,7 @@ class RunAction(QDialog):
 
     def __init__(self, title, err_msg, action, parent=None):
         QDialog.__init__(self, parent)
-        self.setWindowTitle(_('Working please wait...'))
+        self.setWindowTitle(_('Working, please wait...'))
         self.title, self.action, self.tb, self.err_msg = title, action, None, err_msg
         self.abort = Event()
         self.setup_ui()

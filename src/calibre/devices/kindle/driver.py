@@ -328,7 +328,7 @@ class KINDLE(USBMS):
 class KINDLE2(KINDLE):
 
     name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
-    description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite/Voyage e-book reader.')
+    description    = _('Communicate with the Kindle 2/3/4/Touch/Paperwhite/Voyage e-book reader.')
 
     FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
