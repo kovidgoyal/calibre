@@ -8,6 +8,12 @@ timesofindia.indiatimes.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheEconomicTimes(BasicNewsRecipe):
     title = 'The Times of India'
     __author__ = 'Karthik'
@@ -40,7 +46,9 @@ class TheEconomicTimes(BasicNewsRecipe):
     remove_tags_before = dict(name='h1')
     remove_tags_after = dict(name='div', attrs={'class': 'storycontent'})
     remove_attributes = ['xmlns', 'style']
-    remove_tags = [dict(name='div', attrs={'class': 'readalso'})]
+    remove_tags = [
+        classes('readalso success_screen poll_withoutLogin hide')
+    ]
 
     feeds = [('Recent Stories', 'http://timesofindia.indiatimes.com/rssfeeds/1221656.cms'),
              ('India', 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),

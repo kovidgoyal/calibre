@@ -17,6 +17,8 @@ class LiveMint(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://images.livemint.com/static/livemint-logo-v1.svg'
+    cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/06/Delhi/Delhi/5_01/9376f23b_01_mr.jpg'
 
     if is_saturday:
         keep_only_tags = [
