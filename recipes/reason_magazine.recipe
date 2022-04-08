@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import unicode_literals
 import json
 
 from calibre import prepare_string_for_xml
@@ -64,7 +65,7 @@ def extract_html(soup):
 
 class Reason(BasicNewsRecipe):
 
-    title = 'Reason Magazine'
+    title = 'Reason'
     description = 'Free minds and free markets'
     INDEX = 'https://reason.com/magazine/'
     __author__ = 'Howard Cornett'
@@ -74,8 +75,8 @@ class Reason(BasicNewsRecipe):
 
     remove_tags = [
         classes(
-            'next-post-link the-tags tag rcom-social tools comments-header-show logo-header'
-            ' navbar navbar-expanded-lg primary content-info sidebar magicSidebar advertisement logo entry-subtitle'
+            'next-post-link the-tags tag rcom-social-tools most-read-container comments-header-show'
+            ' logo-header navbar navbar-expanded-lg primary content-info sidebar magicSidebar advertisement logo entry-subtitle'
         ),
     ]
 
@@ -128,42 +129,57 @@ class Reason(BasicNewsRecipe):
             self.cover_url = cover['src']
         current_section, current_articles = 'Cover Story', []
         feeds = []
-        for div in soup.findAll('div', **classes('issue-header-right toc-category-list')):
-            for h3 in div.findAll('h3', **classes('toc-department')):
-                if current_articles:
-                    feeds.append((current_section, current_articles))
-                current_articles = []
-                current_section = self.tag_to_string(h3)
-                self.log('\nFound section:', current_section)
-                title = h3.find_next_sibling().a.text
-                url = h3.find_next_sibling().a['href']
-                desc = h3.find_next_sibling().p.text
-                current_articles.append({
-                    'title': title,
-                    'url': url,
-                    'description': desc
-                })
-            for h2 in div.findAll('h2', **classes('toc-department')):
-                if current_articles:
-                    feeds.append((current_section, current_articles))
-                current_articles = []
-                current_section = self.tag_to_string(h2)
-                self.log('\nFound section:', current_section)
-            for article in div.findAll('article', attrs={'class': True}):
-                h4 = article.find('h4')
-                if h4.a is not None:
-                    title = h4.a.text
-                    url = h4.a['href']
-                else:
-                    title = ''
-                    url = ''
-                desc = h4.find_next_sibling().text
-                current_articles.append({
-                    'title': title,
-                    'url': url,
-                    'description': desc
-                })
+        for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'issue-header-right', 'toc-category-list'})}):
+            for h3 in div.findAll('h3', attrs={'class': True}):
+                cls = h3['class']
+                if hasattr(cls, 'split'):
+                    cls = cls.split()
+                if 'toc-department' in cls:
+                    if current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_articles = []
+                    current_section = self.tag_to_string(h3)
+                    self.log('\nFound section:', current_section)
+                    title = h3.find_next_sibling().a.text
+                    url = h3.find_next_sibling().a['href']
+                    desc = h3.find_next_sibling().p.text
+                    current_articles.append({
+                        'title': title,
+                        'url': url,
+                        'description': desc
+                    })
+            for h2 in div.findAll('h2', attrs={'class': True}):
+                cls = h2['class']
+                if hasattr(cls, 'split'):
+                    cls = cls.split()
+                if 'toc-department' in cls:
+                    if current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_articles = []
+                    current_section = self.tag_to_string(h2)
+                    self.log('\nFound section:', current_section)
+                for article in div.findAll('article', attrs={'class': True}):
+                    h4 = article.find('h4')
+                    if h4.a is not None:
+                        title = h4.a.text
+                        url = h4.a['href']
+                    else:
+                        title = ''
+                        url = ''
+                    desc = h4.find_next_sibling().text
+                    current_articles.append({
+                        'title': title,
+                        'url': url,
+                        'description': desc
+                    })
 
         if current_articles:
             feeds.append((current_section, current_articles))
         return feeds
+
+
+if __name__ == '__main__':
+    import sys
+
+    from calibre.ebooks.BeautifulSoup import BeautifulSoup
+    print(extract_html(BeautifulSoup(open(sys.argv[-1]).read())))
