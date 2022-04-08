@@ -67,6 +67,11 @@ class TheEconomicTimes(BasicNewsRecipe):
         # For mobile version
         # return 'http://m.timesofindia.com/PDAET/articleshow/' + article_id
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/Bennett-Coleman-and-Company-Limited/The-Times-of-India-Delhi/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
     def get_article_url(self, article):
         rurl = article.get('guid',  None)
         if '/articleshow/' in rurl:
