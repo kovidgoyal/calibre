@@ -1,52 +1,91 @@
+__license__ = 'GPL v3'
+__copyright__ = '2022, Howard Cornett howard at myreadinglife.com>'
+'''
+https://skepticalinquirer.org/
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
-class TheSkepticalInquirer(BasicNewsRecipe):
-    title = u'The Skeptical Inquirer'
-    description = 'Investigation of fringe science and paranormal claims.'
-    language = 'en'
-    __author__ = 'Starson17'
-    oldest_article = 31
-    cover_url = 'http://www.skeptricks.com/images/Skeptical_Inquirer_Magazine.jpg'
-    remove_empty_feeds = True
-    remove_javascript = True
-    max_articles_per_feed = 50
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class FreeInquiry(BasicNewsRecipe):
+    title = 'The Skeptical Inquirer'
+    __author__ = 'Howard Cornett'
+    description = 'The Magazine for Science and Reason'
+    publisher = 'Center for Inquiry'
     no_stylesheets = True
-
-    keep_only_tags = [dict(name='div', attrs={'id': ['content', 'bio']})]
+    encoding = 'utf-8'
+    use_embedded_content = False
+    language = 'en'
+    ignore_duplicate_articles = {'url'}
+    remove_empty_feeds = True
+    needs_subscription = True
+    extra_css             = """
+                            .entry-header{
+                                          text-transform: uppercase;
+                                          vertical-align: baseline;
+                                          display: inline;
+                                         }
+                            ul li{display: inline}
+                            """
 
     remove_tags = [
-        dict(name='div', attrs={'id': ['socialMedia']}),
+        classes(
+            'main-navigation swp-social-panel see-more user-admin d-print-none post-18669 wc-memberships-message'
+        ),
+        dict(id=['sidebar-TOC', 'loginModal']),
     ]
 
-    preprocess_regexps = [
-        (re.compile(r'\.\(JavaScript must be enabled to view this email address\)',
-                    re.DOTALL | re.IGNORECASE), lambda match: ''),
-    ]
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://skepticalinquirer.org/member-login/')
+            br.select_form(name='loginform')
+            br['log'] = self.username
+            br['pwd'] = self.password
+            br.submit()
+        return br
+
+    def parse_free_inquiry_index_page(self, currenturl, seen):
+        self.log('Parsing index page', currenturl)
+        soup = self.index_to_soup(currenturl)
+        cover = soup.find('img', class_='attachment-medium')
+        cover_img_split = cover['data-srcset'].split(',')[2]
+        cover_img = cover_img_split.split()[0]
+        if cover is not None:
+            self.cover_url = cover_img
+        for row in soup.findAll('div', attrs={'class': 'article-row'}):
+            for info in row.findAll('div', attrs={'class': 'article-info'}):
+                p = info.find('p')
+                desc = p.text
+                for span in info.findAll('span'):
+                    if span.find('h5') is not None:
+                        for h5 in span.find('h5'):
+                            if h5 is not None:
+                                art_title = h5
+                            else:
+                                art_title = ''
+                            if span.a['href'] is not None:
+                                url = span.a['href']
+                            else:
+                                url = ''
+                            seen.add(url)
+                            self.log('Found article:', art_title)
+                            yield{
+                                'title': art_title,
+                                'url': url,
+                                'description': desc
+                            }
 
     def parse_index(self):
-        feeds = []
-        for title, url in [("The Skeptical Inquirer", "http://www.csicop.org")]:
-            articles = self.make_links(url)
-            if articles:
-                feeds.append((title, articles))
-        return feeds
+        baseurl = 'https://skepticalinquirer.org/latest/'
+        articles = []
+        seen = set()
+        articles.extend(self.parse_free_inquiry_index_page(baseurl,seen))
 
-    def make_links(self, url):
-        soup = self.index_to_soup(url)
-        title = ''
-        current_articles = []
-        for item in soup.findAll(attrs={'class': ['article-single bigger']}):
-            page_url = url + str(item.a["href"])
-            title = str(item.a.string)
-            current_articles.append(
-                {'title': title, 'url': page_url, 'description': '', 'date': ''})
-        return current_articles
-
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-    '''
+        return [('Magazine Articles', articles)]
