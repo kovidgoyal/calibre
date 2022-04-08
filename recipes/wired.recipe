@@ -16,7 +16,7 @@ def classes(classes):
 
 class WiredDailyNews(BasicNewsRecipe):
     title = 'Wired Magazine, Monthly Edition'
-    __author__ = 'Darko Miletic, update by Zach Lapidus, Michael Marotta'
+    __author__ = 'Darko Miletic, update by Howard Cornett, Zach Lapidus, Michael Marotta'
     description = ('Wired is a full-color monthly American magazine, '
                    'published in both print and online editions, that '
                    'reports on how emerging technologies affect culture, '
@@ -57,10 +57,10 @@ class WiredDailyNews(BasicNewsRecipe):
         self.log('Parsing index page', currenturl)
         soup = self.index_to_soup(currenturl)
         baseurl = 'https://www.wired.com'
-        for a in soup.find("ul", {"class" : 'archive-list-component__items'}).findAll('a', href=True):
+        for a in soup.find("div", {"class" : 'multi-packages'}).findAll('a', href=True):
             url = a['href']
             if url.startswith('/story') and url.endswith('/'):
-                title = self.tag_to_string(a.parent.find('h2'))
+                title = self.tag_to_string(a.parent.find('h3'))
                 dateloc = a.parent.find('time')
                 date = self.tag_to_string(dateloc)
                 if title.lower() != 'read more' and title and url not in seen:
@@ -73,7 +73,7 @@ class WiredDailyNews(BasicNewsRecipe):
                     }
 
     def parse_index(self):
-        baseurl = 'https://www.wired.com/magazine/page/{}/'
+        baseurl = 'https://www.wired.com/magazine/?page={}/'
         pagenum = 1
         articles = []
         seen = set()
