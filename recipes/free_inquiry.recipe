@@ -1,0 +1,91 @@
+__license__ = 'GPL v3'
+__copyright__ = '2022, Howard Cornett howard at myreadinglife.com>'
+'''
+www.secularhumanism.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class FreeInquiry(BasicNewsRecipe):
+    title = 'Free Inquiry'
+    __author__ = 'Howard Cornett'
+    description = ("America's Bimonthly Journal of Humanist Ideas")
+    publisher = 'Center for Inquiry'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+    language = 'en'
+    ignore_duplicate_articles = {'url'}
+    remove_empty_feeds = True
+    needs_subscription = True
+    extra_css             = """
+                            .entry-header{
+                                          text-transform: uppercase;
+                                          vertical-align: baseline;
+                                          display: inline;
+                                         }
+                            ul li{display: inline}
+                            """
+
+    remove_tags = [
+        classes(
+            'main-navigation swp-social-panel see-more user-admin d-print-none post-18669 wc-memberships-message'
+        ),
+        dict(id=['sidebar-TOC', 'loginModal']),
+    ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://secularhumanism.org/member-login/')
+            br.select_form(name='loginform')
+            br['log'] = self.username
+            br['pwd'] = self.password
+            br.submit()
+        return br
+
+    def parse_free_inquiry_index_page(self, currenturl, seen):
+        self.log('Parsing index page', currenturl)
+        soup = self.index_to_soup(currenturl)
+        cover = soup.find('img', class_='attachment-medium')
+        cover_img_split = cover['data-srcset'].split(',')[2]
+        cover_img = cover_img_split.split()[0]
+        if cover is not None:
+            self.cover_url = cover_img
+        for row in soup.findAll('div', attrs={'class': 'article-row'}):
+            for info in row.findAll('div', attrs={'class': 'article-info'}):
+                p = info.find('p')
+                desc = p.text
+                for span in info.findAll('span'):
+                    if span.find('h5') is not None:
+                        for h5 in span.find('h5'):
+                            if h5 is not None:
+                                art_title = h5
+                            else:
+                                art_title = ''
+                            if span.a['href'] is not None:
+                                url = span.a['href']
+                            else:
+                                url = ''
+                            seen.add(url)
+                            self.log('Found article:', art_title)
+                            yield{
+                                'title': art_title,
+                                'url': url,
+                                'description': desc
+                            }
+
+    def parse_index(self):
+        baseurl = 'https://secularhumanism.org/latest/'
+        articles = []
+        seen = set()
+        articles.extend(self.parse_free_inquiry_index_page(baseurl,seen))
+
+        return [('Magazine Articles', articles)]
