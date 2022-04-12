@@ -104,6 +104,8 @@ class FTSAPITest(BaseTest):
 
     def test_fts_triggers(self):
         cache = self.init_cache()
+        # the cache fts jobs will clear dirtied flag so disable it
+        cache.queue_next_fts_job = lambda *a: None
         fts = cache.enable_fts(start_pool=False)
         self.ae(fts.all_currently_dirty(), [(1, 'FMT1'), (1, 'FMT2'), (2, 'FMT1')])
         fts.dirty_existing()
