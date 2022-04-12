@@ -1448,7 +1448,7 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 - [1903363] Metadata edit: "Set to Undefined" button missing on integer columns.
 
-- [1903086] Entry remains underlined in Tag Browser after clearing filter
+- [1903086] Entry remains underlined in Tag browser after clearing filter
 
 - [1902126] XML Catalogs: Fix languages field missing
 
