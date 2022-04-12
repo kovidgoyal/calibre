@@ -86,7 +86,7 @@ class FTS:
             return book_id, fmt
         return None, None
 
-    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text):
+    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg=''):
         conn = self.get_connection()
         text_hash = ''
         if text:

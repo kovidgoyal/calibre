@@ -52,6 +52,7 @@ class Worker(Thread):
 
     code_to_exec = 'from calibre.db.fts.text import main; main({!r})'
     max_duration = 30  # minutes
+    poll_interval = 0.1  # seconds
 
     def __init__(self, jobs_queue, supervise_queue):
         super().__init__(name='FTSWorker', daemon=True)
@@ -91,14 +92,14 @@ class Worker(Thread):
                 )
                 while self.keep_going and monotonic() <= time_limit:
                     with suppress(subprocess.TimeoutExpired):
-                        p.wait(0.1)
+                        p.wait(self.poll_interval)
                         break
                 if p.returncode is None:
                     p.kill()
-                    if monotonic() > time_limit:
-                        return Result(job, _('Extracting text from the {0} file of size {1} took too long').format(
-                            job.fmt, human_readable(job.fmt_size)))
-                    return
+                    if not self.keep_going:
+                        return
+                    return Result(job, _('Extracting text from the {0} file of size {1} took too long').format(
+                        job.fmt, human_readable(job.fmt_size)))
                 if os.path.exists(txtpath):
                     return Result(job)
             with open(errpath, 'rb') as f:
@@ -183,13 +184,15 @@ class Pool:
 
     def commit_result(self, result):
         text = result.text
+        err_msg = ''
         if not result.ok:
             print(f'Failed to get text from book_id: {result.book_id} format: {result.fmt}', file=sys.stderr)
             print(text, file=sys.stderr)
+            err_msg = text
             text = ''
         db = self.dbref()
         if db is not None:
-            db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text)
+            db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text, err_msg)
 
     def shutdown(self):
         if self.initialized:

@@ -469,8 +469,8 @@ class Cache:
                     break
 
     @write_api
-    def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text):
-        return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text)
+    def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
+        return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
     @api
     def set_fts_num_of_workers(self, num=None):
