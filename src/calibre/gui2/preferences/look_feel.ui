@@ -1094,7 +1094,7 @@ will be elided, otherwise they will be word wrapped.</string>
              </property>
              <property name="toolTip">
               <string>&lt;p&gt;Check this box to disable editing the template for
-a "Column made from other columns" in the book list when the column is entered
+a "Column built from other columns" in the book list when the column is entered
 using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&gt;</string>
              </property>
             </widget>

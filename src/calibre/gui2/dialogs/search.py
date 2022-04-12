@@ -267,9 +267,9 @@ def create_template_tab(self):
     le.setObjectName('template_value_box')
     le.setPlaceholderText(_('The value to search for'))
     le.setToolTip('<p>' +
-                  _("You can use the search test specifications described "
+                  _("You can use the search specifications described "
                     "in the calibre documentation. For example, with Number "
-                    "comparisons you can the relational operators like '>=' etc. "
+                    "comparisons you can use the relational operators like '>=' etc. "
                     "With Text comparisons you can use contains (T), exact (=T), "
                     "or regular expression matches (~T). With Date you can use "
                     "today, yesterday, etc. Set/not set takes 'true' for set "
