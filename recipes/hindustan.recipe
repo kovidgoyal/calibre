@@ -1,0 +1,48 @@
+#!/usr/bin/env  python
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class LiveHindustan(BasicNewsRecipe):
+    title = 'हिंदुस्तान'
+    description = 'भरोसा नए हिन्दुस्तान का। दुनिया भर में रहने वाले हिन्दीभाषी लोगों को हिन्दुस्तान समाचार पत्र के व्यापक नेटवर्क. '
+    language = 'hi'
+    __author__ = 'unkn0wn'
+    oldest_article = 1  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    use_embedded_content = False
+    masthead_url = 'https://www.livehindustan.com/static/images/new/logo/livehindustan.svg'
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+
+    keep_only_tags = [
+        classes('page-hdng stry-shrt-head img-hgt-blk athr-info tm-stmp stry-bdy'),
+    ]
+
+    remove_tags = [
+        classes('prlads ads'),
+        dict(name='section', attrs={'class':'glry-cnt mostvdtm main-wdgt glry-bg'}),
+    ]
+    remove_tags_after = [classes('stry-bdy')]
+
+    feeds = [
+        ('प्रमुख खबरें' ,'https://feed.livehindustan.com/rss/3127'),
+        ('देश', 'https://feed.livehindustan.com/rss/4911'),
+        ('विदेश', 'https://feed.livehindustan.com/rss/4913'),
+        ('ओपिनियन', 'https://feed.livehindustan.com/rss/5165'),
+        ('बिजनेस', 'https://feed.livehindustan.com/rss/4950'),
+        ('क्रिकेट', 'https://feed.livehindustan.com/rss/4925'),
+        ('खेल', 'https://feed.livehindustan.com/rss/4931'),
+        ('विज्ञान', 'https://feed.livehindustan.com/rss/1349437'),
+        ('गैजेट्स', 'https://feed.livehindustan.com/rss/4955'),
+        ('क्राइम', 'https://feed.livehindustan.com/rss/469651'),
+        ('करियर', 'https://feed.livehindustan.com/rss/4979'),
+        # https://www.livehindustan.com/rss/#collapseOne3116
+        ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Hindustan-Times-Hindi-New-Delhi/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
