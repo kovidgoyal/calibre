@@ -764,6 +764,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def build_data_convertors(self):
         rating_fields = {}
+        bool_fields = set()
 
         def renderer(field, decorator=False):
             idfunc = self.db.id
@@ -775,6 +776,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             dt = m['datatype']
 
             if decorator == 'bool':
+                bool_fields.add(field)
                 bt = self.db.new_api.pref('bools_are_tristate')
                 bn = self.bool_no_icon
                 by = self.bool_yes_icon
@@ -895,14 +897,23 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         def stars_tooltip(func, allow_half=True):
             def f(idx):
-                ans = val = int(func(idx))
+                val = int(func(idx))
                 ans = str(val // 2)
                 if allow_half and val % 2:
                     ans += '.5'
                 return _('%s stars') % ans
             return f
+
+        def bool_tooltip(key):
+            def f(idx):
+                return self.db.new_api.fast_field_for(self.db.new_api.fields[key],
+                                                     self.db.id(idx))
+            return f
+
         for f, allow_half in iteritems(rating_fields):
             tc[f] = stars_tooltip(self.dc[f], allow_half)
+        for f in bool_fields:
+            tc[f] = bool_tooltip(f)
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
         self.column_to_tc_map = [tc[col] for col in self.column_map]
