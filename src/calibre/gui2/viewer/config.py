@@ -38,13 +38,17 @@ def reading_rates_path():
 
 def save_reading_rates(key, rates):
     path = reading_rates_path()
+    existing = {}
     try:
         with open(path, 'rb') as f:
             raw = f.read()
     except OSError:
-        existing = {}
+        pass
     else:
-        existing = json.loads(raw)
+        try:
+            existing = json.loads(raw)
+        except Exception:
+            pass
     existing.pop(key, None)
     existing[key] = rates
     while len(existing) > 50:
