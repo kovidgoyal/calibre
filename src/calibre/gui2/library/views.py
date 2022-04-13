@@ -946,6 +946,8 @@ class BooksView(QTableView):  # {{{
                 # This is needed otherwise Qt does not always update the
                 # viewport correctly. See https://bugs.launchpad.net/bugs/1404697
                 self.row_header.viewport().update()
+            # refresh the rows because there might be a composite that uses marked_books()
+            self.model().refresh_rows(changed)
         else:
             # Marked items have either appeared or all been removed
             self.model().set_row_decoration(current_marked)

@@ -370,8 +370,9 @@ class View:
         '''
         old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
-            # Simple list. Make it a dict of string 'true'
-            self.marked_ids = dict.fromkeys(id_dict, 'true')
+            # Simple list. Make it a dict entry of string 'true'
+            self.marked_ids = {k: (self.marked_ids[k] if k in self.marked_ids else 'true')
+                               for k in id_dict}
         else:
             # Ensure that all the items in the dict are text
             self.marked_ids = {k: str(v) for k, v in iteritems(id_dict)}

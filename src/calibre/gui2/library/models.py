@@ -232,6 +232,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
         self.marked_icon = QIcon(I('marked.png'))
+        self.marked_text_icon = QIcon(I('marked-text.png'))
         self.bool_blank_icon_as_icon = QIcon(self.bool_blank_icon)
         self.row_decoration = None
         self.device_connected = False
@@ -1072,7 +1073,12 @@ class BooksModel(QAbstractTableModel):  # {{{
             return (section+1)
         if role == Qt.ItemDataRole.DecorationRole:
             try:
-                return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
+                m = self.db.data.get_marked(self.db.data.index_to_id(section))
+                if m:
+                    i = self.marked_icon if m == 'true' else self.marked_text_icon
+                else:
+                    i = self.row_decoration
+                return i
             except (ValueError, IndexError):
                 pass
         return None
