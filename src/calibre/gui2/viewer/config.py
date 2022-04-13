@@ -36,7 +36,7 @@ def reading_rates_path():
     return os.path.join(cache_dir(), 'viewer-reading-rates.json')
 
 
-def save_reading_rates(key, rates):
+def get_existing_reading_rates():
     path = reading_rates_path()
     existing = {}
     try:
@@ -49,12 +49,18 @@ def save_reading_rates(key, rates):
             existing = json.loads(raw)
         except Exception:
             pass
+    return existing
+
+
+def save_reading_rates(key, rates):
+    existing = get_existing_reading_rates()
     existing.pop(key, None)
     existing[key] = rates
     while len(existing) > 50:
         expired = next(iter(existing))
         del existing[expired]
     ddata = json.dumps(existing, indent=2).encode('utf-8')
+    path = reading_rates_path()
     try:
         with tempfile.NamedTemporaryFile(dir=os.path.dirname(path), delete=False) as f:
             f.write(ddata)
@@ -65,15 +71,5 @@ def save_reading_rates(key, rates):
 
 
 def load_reading_rates(key):
-    path = reading_rates_path()
-    try:
-        with open(path, 'rb') as f:
-            raw = f.read()
-    except OSError:
-        existing = {}
-    else:
-        try:
-            existing = json.loads(raw)
-        except Exception:
-            existing = {}
+    existing = get_existing_reading_rates()
     return existing.get(key)
