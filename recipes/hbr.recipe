@@ -1,0 +1,75 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import datetime
+from calibre import browser
+
+
+class HBR(BasicNewsRecipe):
+    title = 'Harvard Business Review'
+    __author__ = 'unkn0wn'
+    description = (
+        'Harvard Business Review is the leading destination for smart management thinking.'
+        ' Through its flagship magazine, books, and digital content and tools published on HBR.org,'
+        ' Harvard Business Review aims to provide professionals around the world with rigorous insights'
+        ' and best practices to help lead themselves and their organizations more effectively and to make a positive impact.')
+    language = 'en'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_javascript = True
+    masthead_url = 'http://hbr.org/resources/css/images/hbr_logo.svg'
+    remove_attributes = ['height', 'width', 'style']
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
+    extra_css = '''
+        article-sidebar{ font-size:small; text-align:left; font-style:italic; }
+        [close-caption]{ font-size:small; font-style:italic; text-align:center;}
+        article-ideainbrief{ font-size:small; text-align:left; }
+        '''
+
+    keep_only_tags = [
+        classes(
+            'headline-container pub-date hero-image-content article-summary article-body standard-content'
+        ),
+        dict(name='article-sidebar'),
+    ]
+
+    remove_tags = [
+        classes(
+            'left-rail--container translate-message follow-topic newsletter-container '
+        ),
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://hbr.org/magazine')
+        a = soup.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
+        url = a['href']
+        self.log('Downloading issue:', url)
+        cov_url = a.find('img', attrs={'src': True})['src']
+        self.cover_url = 'https://hbr.org' + cov_url
+        soup = self.index_to_soup('https://hbr.org' + url)
+        ans = []
+
+        for h3 in soup.findAll('h3', attrs={'class': 'hed'}):
+            d = datetime.today()
+            for a in h3.findAll(
+                'a', href=lambda x: x.startswith('/' + d.strftime('%Y') + '/')
+            ):
+                ul = a['href']
+                url = 'https://hbr.org' + ul
+                title = self.tag_to_string(a)
+                self.log(title, ' at ', url)
+                ans.append({'title': title, 'url': url})
+        return [('Articles', ans)]
+
+    # HBR changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
