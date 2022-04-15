@@ -198,7 +198,16 @@ class GoogleBooks(Source):
         goog = identifiers.get('google', None)
         if goog is not None:
             return ('google', goog, 'https://books.google.com/books?id=%s' % goog)
+    # }}}
 
+    def id_from_url(self, url):  # {{{
+        url_pattern = '(?:http|https)://books\.google\.com/books\?id=(?P<id_>.+)'
+        url_pattern = re.compile(url_pattern)
+        id_ = url_pattern.search(url).group('id_')
+        if id_:
+            return ('google', id_)
+        else:
+            return None
     # }}}
 
     def create_query(self, title=None, authors=None, identifiers={}, capitalize_isbn=False):  # {{{
