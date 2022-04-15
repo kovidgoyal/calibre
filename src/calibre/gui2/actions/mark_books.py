@@ -36,26 +36,22 @@ class MarkWithTextDialog(QDialog):
         textbox.initialize('mark_with_text')
 
         history = textbox.all_items
-        button_rows = min(4, len(history))
+        button_rows = min(4, len(history)-1)
         for i in range(0, button_rows):
             if i == 0:
                 layout.addWidget(QLabel(_('Recently used values:')), 0, 0, 1, 2)
             button = QPushButton()
-            text = history[i]
+            text = history[i+1]
             button.setText(text)
             button.clicked.connect(partial(self.button_pushed, text=text))
             row = i + 1
             layout.addWidget(button, row, 1)
-            label = QLabel('&' + str(row))
+            label = QLabel('&' + str(row+1))
             label.setBuddy(button)
             layout.addWidget(label, row, 0)
         if button_rows > 0:
             layout.addWidget(QLabel(_('Enter a value:')), button_rows+1, 0, 1, 2)
-            label = QLabel('&' + str(button_rows+1))
-        else:
-            label = QLabel('')
-        label.setBuddy(textbox)
-        layout.addWidget(label, button_rows+2, 0, 1, 1)
+        textbox.show_initial_value(history[0] if history else '')
         layout.addWidget(textbox, button_rows+2, 1)
         textbox.setFocus()
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
