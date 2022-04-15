@@ -201,13 +201,13 @@ class GoogleBooks(Source):
     # }}}
 
     def id_from_url(self, url):  # {{{
-        url_pattern = r'(?:http|https)://books\.google\.com/books\?id=(?P<id_>.+)'
-        url_pattern = re.compile(url_pattern)
-        id_ = url_pattern.search(url).group('id_')
-        if id_:
-            return ('google', id_)
-        else:
-            return None
+        from polyglot.urllib import urlparse, parse_qs
+        purl = urlparse(url)
+        if purl.netloc == 'books.google.com':
+            q = parse_qs(purl.query)
+            gid = q.get('id')
+            if gid:
+                return 'google', gid[0]
     # }}}
 
     def create_query(self, title=None, authors=None, identifiers={}, capitalize_isbn=False):  # {{{
