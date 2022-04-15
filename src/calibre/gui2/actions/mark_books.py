@@ -4,7 +4,6 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import defaultdict
 from functools import partial
 
 from qt.core import (QTimer, QApplication, Qt, QEvent, QDialog, QMenu, QIcon,

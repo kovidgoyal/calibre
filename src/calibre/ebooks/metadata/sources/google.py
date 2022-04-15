@@ -201,7 +201,7 @@ class GoogleBooks(Source):
     # }}}
 
     def id_from_url(self, url):  # {{{
-        url_pattern = '(?:http|https)://books\.google\.com/books\?id=(?P<id_>.+)'
+        url_pattern = r'(?:http|https)://books\.google\.com/books\?id=(?P<id_>.+)'
         url_pattern = re.compile(url_pattern)
         id_ = url_pattern.search(url).group('id_')
         if id_:

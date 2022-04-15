@@ -2042,8 +2042,8 @@ class KOBOTOUCH(KOBO):
                                           int(row['FavouritesIndex']), row['Accessibility'], row['IsDownloaded'],
                                           row['___UserID'], bookshelves,
                                           book_stats={
-                                                'StorePages': row['StorePages'], 
-                                                'StoreWordCount': row['StoreWordCount'], 
+                                                'StorePages': row['StorePages'],
+                                                'StoreWordCount': row['StoreWordCount'],
                                                 'StoreTimeToReadLowerEstimate': row['StoreTimeToReadLowerEstimate'],
                                                 'StoreTimeToReadUpperEstimate': row['StoreTimeToReadUpperEstimate']
                                                 }
@@ -3223,13 +3223,14 @@ class KOBOTOUCH(KOBO):
                     debug_print("KoboTouch:generate_update_from_template  template error - template='%s'" % template)
                     debug_print("KoboTouch:generate_update_from_template - new_value=", new_value)
 
-            debug_print(f"KoboTouch:generate_update_from_template - {book.title} - column_name='{column_name}', current_value='{current_value}', new_value='{new_value}'")
-            if (new_value is not None and \
-                            (current_value is None or new_value != current_value) ) or \
+            debug_print(
+                f"KoboTouch:generate_update_from_template - {book.title} - column_name='{column_name}',"
+                f" current_value='{current_value}', new_value='{new_value}'")
+            if (new_value is not None and
+                            (current_value is None or new_value != current_value)) or \
                         (new_value is None and current_value is not None):
                 update_values.append(new_value)
                 set_clause.append(column_name)
-
 
         plugboard = None
         if self.plugboard_func and not series_only:
@@ -3368,34 +3369,34 @@ class KOBOTOUCH(KOBO):
             if self.update_bookstats:
                 if self.bookstats_pagecount_template is not None:
                     current_bookstats_pagecount = book.kobo_bookstats.get('StorePages', None)
-                    generate_update_from_template(book, update_values, set_clause, 
-                                                    column_name='StorePages', 
-                                                    template=self.bookstats_pagecount_template, 
-                                                    new_value=book.bookstats_pagecount, 
-                                                    current_value=current_bookstats_pagecount 
+                    generate_update_from_template(book, update_values, set_clause,
+                                                    column_name='StorePages',
+                                                    template=self.bookstats_pagecount_template,
+                                                    new_value=book.bookstats_pagecount,
+                                                    current_value=current_bookstats_pagecount
                                                 )
                 if self.bookstats_wordcount_template is not None:
                     current_bookstats_wordcount = book.kobo_bookstats.get('StoreWordCount', None)
-                    generate_update_from_template(book, update_values, set_clause, 
-                                                    column_name='StoreWordCount', 
-                                                    template=self.bookstats_wordcount_template, 
-                                                    new_value=book.bookstats_wordcount, 
-                                                    current_value=current_bookstats_wordcount 
+                    generate_update_from_template(book, update_values, set_clause,
+                                                    column_name='StoreWordCount',
+                                                    template=self.bookstats_wordcount_template,
+                                                    new_value=book.bookstats_wordcount,
+                                                    current_value=current_bookstats_wordcount
                                                 )
                 if self.bookstats_timetoread_upper_template is not None:
                     current_bookstats_timetoread_upper = book.kobo_bookstats.get('StoreTimeToReadUpperEstimate', None)
-                    generate_update_from_template(book, update_values, set_clause, 
-                                                    column_name='StoreTimeToReadUpperEstimate', 
-                                                    template=self.bookstats_timetoread_upper_template, 
-                                                    new_value=book.bookstats_timetoread_upper, 
+                    generate_update_from_template(book, update_values, set_clause,
+                                                    column_name='StoreTimeToReadUpperEstimate',
+                                                    template=self.bookstats_timetoread_upper_template,
+                                                    new_value=book.bookstats_timetoread_upper,
                                                     current_value=current_bookstats_timetoread_upper
                                                 )
                 if self.bookstats_timetoread_lower_template is not None:
                     current_bookstats_timetoread_lower = book.kobo_bookstats.get('StoreTimeToReadLowerEstimate', None)
-                    generate_update_from_template(book, update_values, set_clause, 
-                                                    column_name='StoreTimeToReadLowerEstimate', 
-                                                    template=self.bookstats_timetoread_lower_template, 
-                                                    new_value=book.bookstats_timetoread_lower, 
+                    generate_update_from_template(book, update_values, set_clause,
+                                                    column_name='StoreTimeToReadLowerEstimate',
+                                                    template=self.bookstats_timetoread_lower_template,
+                                                    new_value=book.bookstats_timetoread_lower,
                                                     current_value=current_bookstats_timetoread_lower
                                                 )
 
@@ -3426,7 +3427,6 @@ class KOBOTOUCH(KOBO):
 
         if show_debug:
             debug_print("KoboTouch:set_core_metadata - end")
-
 
     @classmethod
     def config_widget(cls):

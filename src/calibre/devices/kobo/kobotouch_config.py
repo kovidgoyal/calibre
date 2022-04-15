@@ -693,21 +693,26 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     @property
     def update_bookstats(self):
         return self.update_bookstats_checkbox.isChecked()
+
     @property
     def bookstats_pagecount_template(self):
         return self.bookstats_pagecount_template_edit.template
+
     @property
     def bookstats_wordcount_template(self):
         return self.bookstats_wordcount_template_edit.template
+
     @property
     def bookstats_timetoread_lower_template(self):
         return self.bookstats_timetoread_lower_template_edit.template
+
     @property
     def bookstats_timetoread_upper_template(self):
         return self.bookstats_timetoread_upper_template_edit.template
 
 
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+
 
 class TemplateConfig(QWidget):  # {{{
 
