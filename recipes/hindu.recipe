@@ -55,8 +55,8 @@ class TheHindu(BasicNewsRecipe):
                 source.extract()
         except Exception:
             pass
-        for img in soup.findAll(attrs={'data-original': True}):
-            img['src'] = img['data-original']
+        # for img in soup.findAll(attrs={'data-original': True}):
+        #     img['src'] = img['data-original']
         # Place intro beneath the title, skip duplicates
         try:
             soup.h1.insert_after(soup.find('h2', attrs={'class': 'intro'}))
