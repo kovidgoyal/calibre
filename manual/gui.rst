@@ -485,6 +485,18 @@ partition your large collection of books into smaller, manageable chunks. To
 learn how to create and use Virtual libraries, see the tutorial:
 :ref:`virtual_libraries`.
 
+Temporarily marking books
+----------------------------
+
+You can temporarily mark arbitrary sets of books. Marked books will have a pin
+on them and can be searched for with ``marked:true``. To do so press
+:kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars` and add the Mark books
+button to the main toolbar. You can even create multiple types of marks by
+right clicking the :guilabel:`Mark books` button and choosing :guilabel:`Mark
+books with text label`. The text label you enter, can later be searched for
+with: ``marked:the-text-you-entered``.
+
+
 .. _config_filename_metadata:
 
 Guessing metadata from file names
