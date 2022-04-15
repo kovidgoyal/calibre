@@ -93,6 +93,7 @@ class View:
                     'au_map': self.get_author_data,
                     'ondevice': self.get_ondevice,
                     'marked': self.get_marked,
+                    'all_marked_labels': self.all_marked_labels,
                     'series_sort':self.get_series_sort,
                 }.get(col, self._get)
             if isinstance(col, numbers.Integral):
@@ -220,6 +221,9 @@ class View:
     def get_marked(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
         return self.marked_ids.get(id_, default_value)
+
+    def all_marked_labels(self):
+        return set(self.marked_ids.values()) - {'true'}
 
     def get_author_data(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)

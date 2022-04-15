@@ -23,7 +23,7 @@ from calibre import (
     fit_image, force_unicode, human_readable, isbytestring, prepare_string_for_xml,
     strftime
 )
-from calibre.constants import DEBUG, config_dir, filesystem_encoding
+from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
@@ -50,6 +50,17 @@ ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.A
         Qt.AlignmentFlag.AlignHCenter}
 
 _default_image = None
+
+
+def render_pin(color='green', save_to=None):
+    svg = P('pin-template.svg', data=True).replace(b'fill:#f39509', ('fill:' + color).encode('utf-8'))
+    pm = QPixmap()
+    dpr = QApplication.instance().devicePixelRatio()
+    pm.setDevicePixelRatio(dpr)
+    pm.loadFromData(svg, 'svg')
+    if save_to:
+        pm.save(save_to)
+    return pm
 
 
 def default_image():
@@ -232,7 +243,6 @@ class BooksModel(QAbstractTableModel):  # {{{
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
         self.marked_icon = QIcon(I('marked.png'))
-        self.marked_text_icon = QIcon(I('marked-text.png'))
         self.bool_blank_icon_as_icon = QIcon(self.bool_blank_icon)
         self.row_decoration = None
         self.device_connected = False
@@ -241,7 +251,32 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.row_height = 0
+        self.marked_text_icons = {}
         self.read_config()
+
+    def marked_text_icon_for(self, label):
+        import random
+        ans = self.marked_text_icons.get(label)
+        if ans is not None:
+            return ans[1]
+        used_labels = self.db.data.all_marked_labels()
+        for qlabel in tuple(self.marked_text_icons):
+            if qlabel not in used_labels:
+                del self.marked_text_icons[qlabel]
+        used_colors = {x[0] for x in self.marked_text_icons.values()}
+        if QApplication.instance().is_dark_theme:
+            all_colors = {dark_link_color, 'lightgreen', 'red', 'maroon', 'cyan', 'pink'}
+        else:
+            all_colors = {'blue', 'green', 'red', 'maroon', 'cyan', 'pink'}
+        for c in all_colors - used_colors:
+            color = c
+            break
+        else:
+            color = random.choice(sorted(all_colors))
+        pm = render_pin(color)
+        ans = QIcon(pm)
+        self.marked_text_icons[label] = color, ans
+        return ans
 
     def _clear_caches(self):
         self.color_cache = defaultdict(dict)
@@ -1075,7 +1110,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             try:
                 m = self.db.data.get_marked(self.db.data.index_to_id(section))
                 if m:
-                    i = self.marked_icon if m == 'true' else self.marked_text_icon
+                    i = self.marked_icon if m == 'true' else self.marked_text_icon_for(m)
                 else:
                     i = self.row_decoration
                 return i
