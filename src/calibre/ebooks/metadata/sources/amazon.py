@@ -971,7 +971,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 24)
+    version = (1, 2, 25)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -993,6 +993,7 @@ class Amazon(Source):
         'jp': _('Japan'),
         'es': _('Spain'),
         'br': _('Brazil'),
+        'in': _('India'),
         'nl': _('Netherlands'),
         'cn': _('China'),
         'ca': _('Canada'),
@@ -1109,7 +1110,7 @@ class Amazon(Source):
 
     def _get_book_url(self, identifiers):  # {{{
         domain, asin = self.get_domain_and_asin(
-            identifiers, extra_domains=('in', 'au', 'ca'))
+            identifiers, extra_domains=('au', 'ca'))
         if domain and asin:
             url = None
             r = self.referrer_for_domain(domain)
@@ -1809,6 +1810,13 @@ def manual_tests(domain, **kw):  # {{{
             {'identifiers': {'amazon_ca': '162380874X'}},
             [title_test('Parting Shot', exact=True), authors_test(['Mary Calmes'])
              ]
+        ),
+    ]  # }}}
+
+    all_tests['in'] = [  # {{{
+        (   # Paperback with series
+            {'identifiers': {'amazon_in': '1423146786'}},
+            [title_test('The Heroes of Olympus, Book Five The Blood of Olympus', exact=True)]
         ),
     ]  # }}}
 
