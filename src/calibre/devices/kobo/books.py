@@ -70,6 +70,7 @@ class Book(Book_):
         self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
         self.kobo_series_id     = None
         self.kobo_subtitle      = None
+        self.kobo_bookstats     = {}
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)
@@ -151,14 +152,14 @@ class KTCollectionsBookList(CollectionsBookList):
             if show_debug:  # or len(book.device_collections) > 0:
                 debug_print('KTCollectionsBookList:get_collections - tsval=', tsval, "book.title=", book.title, "book.title_sort=", book.title_sort)
                 debug_print('KTCollectionsBookList:get_collections - book.device_collections=', book.device_collections)
-#                debug_print(book)
+                # debug_print(book)
             # Make sure we can identify this book via the lpath
             lpath = getattr(book, 'lpath', None)
             if lpath is None:
                 continue
             # If the book is not in the current library, we don't want to use the metadtaa for the collections
             if book.application_id is None:
-                #                debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+                # debug_print("KTCollectionsBookList:get_collections - Book not in current library")
                 continue
             # Decide how we will build the collections. The default: leave the
             # book in all existing collections. Do not add any new ones.
@@ -205,7 +206,7 @@ class KTCollectionsBookList(CollectionsBookList):
                         debug_print("KTCollectionsBookList:get_collections - adding book.device_collections", book.device_collections)
                 # If the book is not in the current library, we don't want to use the metadtaa for the collections
                 elif book.application_id is None or not book.can_put_on_shelves:
-                    #                    debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+                    # debug_print("KTCollectionsBookList:get_collections - Book not in current library")
                     continue
                 else:
                     doing_dc = False
@@ -221,7 +222,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
                     val = list(val)
-#                    debug_print("KTCollectionsBookList:get_collections - val is list=", val)
+                    # debug_print("KTCollectionsBookList:get_collections - val is list=", val)
                 elif fm is not None and fm['datatype'] == 'series':
                     val = [orig_val]
                 elif fm is not None and fm['datatype'] == 'rating':
@@ -244,7 +245,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     debug_print("KTCollectionsBookList:get_collections - val=", val)
 
                 for category in val:
-                    #                    debug_print("KTCollectionsBookList:get_collections - category=", category)
+                    # debug_print("KTCollectionsBookList:get_collections - category=", category)
                     is_series = False
                     if doing_dc:
                         # Attempt to determine if this value is a series by

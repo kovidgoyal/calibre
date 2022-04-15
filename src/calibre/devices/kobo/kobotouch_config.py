@@ -120,6 +120,11 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['update_purchased_kepubs'] = self.update_purchased_kepubs
         p['subtitle_template'] = self.subtitle_template
         p['update_subtitle'] = self.update_subtitle
+        p['update_bookstats'] = self.update_bookstats
+        p['bookstats_wordcount_template'] = self.bookstats_wordcount_template
+        p['bookstats_pagecount_template'] = self.bookstats_pagecount_template
+        p['bookstats_timetoread_upper_template'] = self.bookstats_timetoread_upper_template
+        p['bookstats_timetoread_lower_template'] = self.bookstats_timetoread_lower_template
 
         p['modify_css'] = self.modify_css
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
@@ -560,27 +565,87 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                       "If the template is empty, the subtitle will be cleared."
                                       )
                             )
+        self.update_bookstats_checkbox = create_checkbox(
+                             _("Book stats"),
+                             _('Update the book stats '),
+                             device.get_pref('update_bookstats')
+                             )
+        self.bookstats_wordcount_template_edit = TemplateConfig(
+                            device.get_pref('bookstats_wordcount_template'),
+                            label=_("Words:"),
+                            tooltip=_("Enter a template to use to set the word count for the book. "
+                                      "If the template is empty, the word count will be cleared."
+                                      )
+                            )
+        self.bookstats_pagecount_template_edit = TemplateConfig(
+                            device.get_pref('bookstats_pagecount_template'),
+                            label=_("Pages:"),
+                            tooltip=_("Enter a template to use to set the page count for the book. "
+                                      "If the template is empty, the page count will be cleared."
+                                      )
+                            )
 
-        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 2)
-        self.options_layout.addWidget(self.update_core_metadata_checkbox, 1, 0, 1, 2)
-        self.options_layout.addWidget(self.update_subtitle_checkbox, 2, 0, 1, 1)
-        self.options_layout.addWidget(self.subtitle_template_edit, 2, 1, 1, 1)
-        self.options_layout.addWidget(self.update_purchased_kepubs_checkbox, 3, 0, 1, 2)
+        self.bookstats_timetoread_label = QLabel(_('Hours to read estimates:'))
+        self.bookstats_timetoread_upper_template_edit = TemplateConfig(
+                            device.get_pref('bookstats_timetoread_upper_template'),
+                            label=_("Upper:"),
+                            tooltip=_("Enter a template to use to set the upper estimate of the time to read for the book. "
+                                      "The estimate is in hours. "
+                                      "If the template is empty, the time will be cleared."
+                                      )
+                            )
+        self.bookstats_timetoread_lower_template_edit = TemplateConfig(
+                            device.get_pref('bookstats_timetoread_lower_template'),
+                            label=_("Lower:"),
+                            tooltip=_("Enter a template to use to set the lower estimate of the time to read for the book. "
+                                      "The estimate is in hours. "
+                                      "If the template is empty, the time will be cleared."
+                                      )
+                            )
+
+        line = 0
+        self.options_layout.addWidget(self.update_series_checkbox,                   line, 0, 1, 4)
+        line += 1
+        self.options_layout.addWidget(self.update_core_metadata_checkbox,            line, 0, 1, 4)
+        line += 1
+        self.options_layout.addWidget(self.update_subtitle_checkbox,                 line, 0, 1, 2)
+        self.options_layout.addWidget(self.subtitle_template_edit,                   line, 2, 1, 2)
+        line += 1
+        self.options_layout.addWidget(self.update_bookstats_checkbox,                line, 0, 1, 2)
+        self.options_layout.addWidget(self.bookstats_wordcount_template_edit,        line, 2, 1, 1)
+        self.options_layout.addWidget(self.bookstats_pagecount_template_edit,        line, 3, 1, 1)
+        line += 1
+        self.options_layout.addWidget(self.bookstats_timetoread_label,               line, 1, 1, 1)
+        self.options_layout.addWidget(self.bookstats_timetoread_lower_template_edit, line, 2, 1, 1)
+        self.options_layout.addWidget(self.bookstats_timetoread_upper_template_edit, line, 3, 1, 1)
+        line += 1
+        self.options_layout.addWidget(self.update_purchased_kepubs_checkbox,         line, 0, 1, 4)
 
         self.update_core_metadata_checkbox.clicked.connect(self.update_core_metadata_checkbox_clicked)
         self.update_subtitle_checkbox.clicked.connect(self.update_subtitle_checkbox_clicked)
+        self.update_bookstats_checkbox.clicked.connect(self.update_bookstats_checkbox_clicked)
         self.update_core_metadata_checkbox_clicked(device.get_pref('update_core_metadata'))
         self.update_subtitle_checkbox_clicked(device.get_pref('update_subtitle'))
+        self.update_bookstats_checkbox_clicked(device.get_pref('update_bookstats'))
 
     def update_core_metadata_checkbox_clicked(self, checked):
         self.update_series_checkbox.setEnabled(not checked)
         self.subtitle_template_edit.setEnabled(checked)
         self.update_subtitle_checkbox.setEnabled(checked)
+        self.update_bookstats_checkbox.setEnabled(checked)
         self.update_subtitle_checkbox_clicked(self.update_subtitle)
+        self.update_bookstats_checkbox_clicked(self.update_bookstats)
         self.update_purchased_kepubs_checkbox.setEnabled(checked)
 
     def update_subtitle_checkbox_clicked(self, checked):
         self.subtitle_template_edit.setEnabled(checked and self.update_core_metadata)
+
+    def update_bookstats_checkbox_clicked(self, checked):
+        self.bookstats_timetoread_label.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
+        self.bookstats_wordcount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
+        self.bookstats_pagecount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
+        self.bookstats_timetoread_upper_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
+        self.bookstats_timetoread_lower_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
 
     def edit_template(self):
         t = TemplateDialog(self, self.template)
@@ -590,6 +655,14 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
     def validate(self):
         if self.update_subtitle and not self.subtitle_template_edit.validate():
+            return False
+        if self.update_bookstats and not self.bookstats_pagecount_template_edit.validate():
+            return False
+        if self.update_bookstats and not self.bookstats_wordcount_template_edit.validate():
+            return False
+        if self.update_bookstats and not self.bookstats_timetoread_upper_template_edit.validate():
+            return False
+        if self.update_bookstats and not self.bookstats_timetoread_lower_template_edit.validate():
             return False
         return True
 
@@ -617,20 +690,43 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     def update_subtitle(self):
         return self.update_subtitle_checkbox.isChecked()
 
+    @property
+    def update_bookstats(self):
+        return self.update_bookstats_checkbox.isChecked()
+    @property
+    def bookstats_pagecount_template(self):
+        return self.bookstats_pagecount_template_edit.template
+    @property
+    def bookstats_wordcount_template(self):
+        return self.bookstats_wordcount_template_edit.template
+    @property
+    def bookstats_timetoread_lower_template(self):
+        return self.bookstats_timetoread_lower_template_edit.template
+    @property
+    def bookstats_timetoread_upper_template(self):
+        return self.bookstats_timetoread_upper_template_edit.template
+
+
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 
 class TemplateConfig(QWidget):  # {{{
 
-    def __init__(self, val, tooltip=None):
-        QWidget.__init__(self)
-        self.t = t = QLineEdit(self)
+    def __init__(self, val, label=None, tooltip=None):
+        super().__init__()
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+        col = 0
+        if label is not None:
+            l.addWidget(QLabel(label), 0, col, 1, 1)
+            col += 1
+        self.t = t = TemplateLineEditor(self)
         t.setText(val or '')
         t.setCursorPosition(0)
         self.setMinimumWidth(300)
-        self.l = l = QGridLayout(self)
-        self.setLayout(l)
-        l.addWidget(t, 1, 0, 1, 1)
+        l.addWidget(t, 0, col, 1, 1)
+        col += 1
         b = self.b = QPushButton(_('&Template editor'))
-        l.addWidget(b, 1, 1, 1, 1)
+        l.addWidget(b, 0, col, 1, 1)
         b.clicked.connect(self.edit_template)
         self.setToolTip(tooltip)
 
