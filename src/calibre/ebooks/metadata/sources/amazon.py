@@ -1033,6 +1033,22 @@ class Amazon(Source):
         Source.__init__(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
 
+    def id_from_url(self, url):
+        from polyglot.urllib import urlparse
+        purl = urlparse(url)
+        if purl.netloc and purl.path and '/dp/' in purl.path:
+            host_parts = tuple(x.lower() for x in purl.netloc.split('.'))
+            if 'amazon' in host_parts:
+                domain = host_parts[-1]
+            parts = purl.path.split('/')
+            idx = parts.index('dp')
+            try:
+                val = parts[idx+1]
+            except IndexError:
+                return
+            aid = 'amazon' if domain == 'com' else ('amazon_' + domain)
+            return aid, val
+
     def test_fields(self, mi):
         '''
         Return the first field from self.touched_fields that is null on the
