@@ -954,6 +954,8 @@ class BooksView(QTableView):  # {{{
             self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
             self.set_row_header_visibility()
+            # refresh the rows because there might be a composite that uses marked_books()
+            self.model().refresh_rows(current_marked)
 
     def set_row_header_visibility(self):
         visible = self.model().row_decoration is not None or gprefs['row_numbers_in_book_list']
