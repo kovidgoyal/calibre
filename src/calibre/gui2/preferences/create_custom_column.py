@@ -332,10 +332,10 @@ class CreateCustomColumn(QDialog):
         self.decimals_default_label = la = QLabel(_('This controls the number of decimal '
                                                     'digits you can enter when editing '
                                                     'this column using the GUI. The '
-                                                    'value can be between 1 and 9'))
+                                                    'value must be between 1 and 9'))
         la.setWordWrap(True)
         h.addWidget(la)
-        self.decimals_label = add_row(_('Decimals when editing:'), h)
+        self.decimals_label = add_row(_('Decimals &when editing:'), h)
 
         # Template
         self.composite_box = cb = TemplateLineEditor(self)
