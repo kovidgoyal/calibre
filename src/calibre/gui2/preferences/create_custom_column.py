@@ -436,7 +436,7 @@ class CreateCustomColumn(QDialog):
             getattr(self, 'decimals_'+x).setVisible(col_type == 'float')
         if needs_format:
             if col_type == 'datetime':
-                l, dl = _('&Format for dates'), _('Default: dd MMM yyyy.')
+                l, dl = _('&Format for dates:'), _('Default: dd MMM yyyy.')
                 self.format_box.setToolTip(_(
                     '<p>Date format.</p>'
                     '<p>The formatting codes are:'
@@ -467,7 +467,7 @@ class CreateCustomColumn(QDialog):
                     "<li>dd MMMM yy gives 05 January 10</li>\n"
                     "</ul> "))
             else:
-                l, dl = _('&Format for numbers'), (
+                l, dl = _('&Format for numbers:'), (
                     '<p>' + _('Default: Not formatted. For format language details see'
                     ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the Python documentation</a>'))
                 if col_type == 'int':
