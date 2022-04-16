@@ -553,7 +553,7 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             editor = ClearingDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
             editor.setRange(-1000000., 100000000.)
-            editor.setDecimals(2)
+            editor.setDecimals(m.custom_columns[col]['display'].get('decimals', 2))
         return editor
 
     def setModelData(self, editor, model, index):
