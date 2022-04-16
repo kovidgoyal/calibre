@@ -335,7 +335,7 @@ class CreateCustomColumn(QDialog):
                                                     'value can be between 1 and 9'))
         la.setWordWrap(True)
         h.addWidget(la)
-        self.decimals_label = add_row(_('Decimals when editing'), h)
+        self.decimals_label = add_row(_('Decimals when editing:'), h)
 
         # Template
         self.composite_box = cb = TemplateLineEditor(self)
