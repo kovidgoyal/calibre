@@ -223,7 +223,7 @@ class UpdateMixin:
                     '<a href="update:%s">%s%s</a></span>') % (
                         _('Update found'), version_url, calibre_version, plt)
         else:
-            plt = ngettext('updated plugin', 'updated plugins', number_of_plugin_updates)
+            plt = ngettext('plugin update available', 'plugin updates available', number_of_plugin_updates)
             msg = ('<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates, plt)
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
