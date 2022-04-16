@@ -197,7 +197,7 @@ class CreateCustomColumn(QDialog):
         elif ct == '*text':
             self.is_names.setChecked(c['display'].get('is_names', False))
         self.description_box.setText(c['display'].get('description', ''))
-        self.decimals_box.setValue(min(9, max(1, c['display'].get('decimals', 2))))
+        self.decimals_box.setValue(min(9, max(1, int(c['display'].get('decimals', 2)))))
 
         all_colors = [str(s) for s in list(QColor.colorNames())]
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
@@ -328,14 +328,13 @@ class CreateCustomColumn(QDialog):
         h = QHBoxLayout()
         self.decimals_box = fb = QSpinBox(self)
         fb.setRange(1, 9)
+        fb.setValue(2)
         h.addWidget(fb)
-        self.decimals_default_label = la = QLabel(_('This controls the number of decimal '
-                                                    'digits you can enter when editing '
-                                                    'this column using the GUI. The '
-                                                    'value can be between 1 and 9'))
+        self.decimals_default_label = la = QLabel(_(
+            'Control the number of decimal digits you can enter when editing this column'))
         la.setWordWrap(True)
         h.addWidget(la)
-        self.decimals_label = add_row(_('Decimals when editing:'), h)
+        self.decimals_label = add_row(_('Decimals when &editing:'), h)
 
         # Template
         self.composite_box = cb = TemplateLineEditor(self)
@@ -607,7 +606,7 @@ class CreateCustomColumn(QDialog):
             else:
                 display_dict = {'number_format': None}
             if col_type == 'float':
-                display_dict['decimals'] = self.decimals_box.value()
+                display_dict['decimals'] = int(self.decimals_box.value())
             if default_val:
                 try:
                     if col_type == 'int':

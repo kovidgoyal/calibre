@@ -286,7 +286,7 @@ class Float(Int):
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, ClearingDoubleSpinBox)
         self.editor.setRange(-1000000., float(100000000))
-        self.editor.setDecimals(self.col_metadata['display'].get('decimals', 2))
+        self.editor.setDecimals(int(self.col_metadata['display'].get('decimals', 2)))
 
 
 class Rating(Base):
@@ -1098,7 +1098,7 @@ class BulkFloat(BulkInt):
     def setup_ui(self, parent):
         self.make_widgets(parent, QDoubleSpinBox)
         self.main_widget.setRange(-1000000., float(100000000))
-        self.main_widget.setDecimals(self.col_metadata['display'].get('decimals', 2))
+        self.main_widget.setDecimals(int(self.col_metadata['display'].get('decimals', 2)))
         self.finish_ui_setup(parent)
 
     def set_to_undefined(self):
