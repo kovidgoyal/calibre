@@ -1,0 +1,154 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+import string
+
+from datetime import date
+
+
+class eenadu(BasicNewsRecipe):
+    title = 'ఈనాడు'
+    __author__ = 'unkn0wn'
+    description = 'THE LARGEST CIRCULATED TELUGU DAILY'
+    language = 'te'
+    use_embedded_content = False
+    remove_javascript = True
+    no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url', 'title'}
+    masthead_url = 'https://dxxd96tbpm203.cloudfront.net//img/logo.png'
+    cover_url = 'https://www.ads2publish.com/assets/images/epaper/eenadu-newspaper-epaper.jpg'
+    encoding = 'utf-8'
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('eng-body grey pub-t text-justify contlist-cont'),
+        dict(name='span', attrs={'id': 'PDSAIApbreak'}),
+    ]
+
+    remove_tags = [
+        classes('sshare-c'),
+    ]
+
+    def articles_from_soup(self, soup):
+        ans = []
+        for link in soup.findAll(attrs={'class': 'telugu_uni_body'}):
+            for a in link.findAll('a', attrs={'href': True}):
+                ul = a['href']
+                if ul.startswith('https') is False:
+                    url = 'https://www.eenadu.net/' + ul
+                else:
+                    url = ul
+                    if url.__contains__("videos"):
+                        url = 0
+                for h3 in a.findAll('h3'):
+                    title = self.tag_to_string(h3)
+                    if not url or not title:
+                        continue
+                    self.log('\t\tFound article:', title)
+                    self.log('\t\t\t', url)
+                    ans.append({
+                        'title': title,
+                        'url': url,
+                        'description': '',
+                        'date': ''
+                    })
+        return ans
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.eenadu.net/')
+        nav_div = soup.find(id='navbar')
+        section_list = [
+            # add links for your district edition here
+            ('సంపాదకీయం', 'https://www.eenadu.net/telangana/editorial'),
+            (
+                'హైదరాబాద్',
+                'https://www.eenadu.net/telangana/districts/hyderabad'
+            ),
+            # ('నిజామాబాద్', 'https://www.eenadu.net/telangana/districts/nizamabad'),
+            # ('నల్గొండ', 'https://www.eenadu.net/telangana/districts/nalgonda'),
+        ]
+
+        # Finding all the section titles that are acceptable
+        for x in nav_div.findAll(['a']):
+            if self.is_accepted_entry(x):
+                section_list.append(
+                    (string.capwords(self.tag_to_string(x)), x['href'])
+                )
+        feeds = []
+
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log('Found section:', section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+
+        return feeds
+
+    def is_accepted_entry(self, entry):
+        # Those sections in the top nav bar that we will omit
+        # https://www.eenadu.net/nri
+        is_sunday = date.today().weekday() == 6
+        if is_sunday:
+            omit_list = [
+                'net/',
+                '#',
+                'sports',
+                'movies',
+                'women',
+                'technology',
+                'business',
+                'devotional',
+                'youth',
+                'recipes',
+                'real-estate',
+                'temples',
+                'kathalu',
+                'viral-videos',
+                'nri',
+                'videos',
+                'explained',
+                'agriculture',
+                'crime',
+                'health',
+                'photos',
+                'kids-stories',
+                'education',
+            ]
+
+        else:
+            omit_list = [
+                'net/',
+                '#',
+                'sports',
+                'movies',
+                'women',
+                'technology',
+                'business',
+                'devotional',
+                'youth',
+                'recipes',
+                'real-estate',
+                'temples',
+                'kathalu',
+                'viral-videos',
+                'nri',
+                'videos',
+                'explained',
+                'agriculture',
+                'sunday-magazine',
+                'crime',
+                'health',
+                'photos',
+                'kids-stories',
+                'education',
+            ]
+
+        is_accepted = True
+        for omit_entry in omit_list:
+            if entry['href'].endswith(omit_entry):
+                is_accepted = False
+                break
+        return is_accepted
