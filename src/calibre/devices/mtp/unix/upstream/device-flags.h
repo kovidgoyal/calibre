@@ -19,8 +19,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301  USA
  *
  * This file is supposed to be included by both libmtp and libgphoto2.
  */
@@ -232,6 +232,12 @@
 #define DEVICE_FLAG_NIKON_BROKEN_CAPTURE	0x00100000
 
 /**
+ * To distinguish the V1 series from the DSLRs and handle them
+ * (libgphoto2)
+ */
+#define DEVICE_FLAG_NIKON_1			0x00200000
+
+/**
  * Broken capture support where cameras do not send CaptureComplete events.
  * (libgphoto2)
  */
@@ -269,14 +275,10 @@
  */
 #define DEVICE_FLAG_FORCE_RESET_ON_CLOSE	0x10000000
 /**
- * Early Creative Zen (etc) models actually only support
- * command 9805 (Get object property list) and will hang
- * if you try to get individual properties of an object.
- * Or so it seemed. Later bug fixes to the library has made
- * this work flawlessly so the bug flag is moot.
- * NOT USED ANYMORE, THIS FLAG MAY BE RECYCLED.
+ * On 2016 EOS cameras, do not close the session on exiting,
+ * as the device will only report ptp errors afterwards.
  */
-#define DEVICE_FLAG_BROKEN_GET_OBJECT_PROPVAL	0x20000000
+#define DEVICE_FLAG_DONT_CLOSE_SESSION          0x20000000
 /**
  * It seems that some devices return an bad data when
  * using the GetObjectInfo operation. So in these cases
@@ -288,6 +290,15 @@
  * 32 bit.
  */
 #define DEVICE_FLAG_PROPLIST_OVERRIDES_OI	0x40000000
+/**
+ * The MTP stack of Samsung Galaxy devices has a mysterious bug in
+ * GetPartialObject. When GetPartialObject is invoked to read the last
+ * bytes of a file and the amount of data to read is such that the
+ * last USB packet sent in the reply matches exactly the USB 2.0
+ * packet size, then the Samsung Galaxy device hangs, resulting in a
+ * timeout error.
+ */
+#define DEVICE_FLAG_SAMSUNG_OFFSET_BUG		0x80000000
 
 /**
  * All these bug flags need to be set on SONY NWZ Walkman
