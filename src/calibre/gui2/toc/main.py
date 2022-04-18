@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.polish.toc import (
     TOC, add_id, commit_toc, from_files, from_links, from_xpaths, get_toc
 )
 from calibre.gui2 import (
-    Application, error_dialog, info_dialog, question_dialog, set_app_uid
+    Application, error_dialog, info_dialog, set_app_uid
 )
 from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -140,7 +140,7 @@ class ItemView(QStackedWidget):  # {{{
     delete_item = pyqtSignal()
     flatten_item = pyqtSignal()
     go_to_root = pyqtSignal()
-    create_from_xpath = pyqtSignal(object, object)
+    create_from_xpath = pyqtSignal(object, object, object)
     create_from_links = pyqtSignal()
     create_from_files = pyqtSignal()
     flatten_toc = pyqtSignal()
@@ -314,23 +314,42 @@ class ItemView(QStackedWidget):  # {{{
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
 
-    def ask_if_duplicates_should_be_removed(self):
-        return not question_dialog(self, _('Remove duplicates'), _(
-            'Should headings with the same text at the same level be included?'),
-            yes_text=_('&Include duplicates'), no_text=_('&Remove duplicates'))
+    def headings_question(self, xpaths):
+        from calibre.gui2.widgets2 import Dialog
+
+        class D(Dialog):
+            def __init__(self, parent):
+                super().__init__(_('Configure ToC generation'), 'configure-toc-from-headings', parent=parent)
+
+            def setup_ui(s):
+                s.l = l = QVBoxLayout(s)
+                s.remove_duplicates_cb = rd = QCheckBox(_('Remove &duplicated headings at the same ToC level'))
+                l.addWidget(rd)
+                rd.setChecked(bool(self.prefs.get('toc_from_headings_remove_duplicates', True)))
+                s.prefer_title_cb = pt = QCheckBox(_('Use the &title attribute for ToC text'))
+                l.addWidget(pt)
+                pt.setToolTip(textwrap.fill(_(
+                    'When a heading tag has the "title" attribute use its contents as the text for the ToC entry,'
+                    ' instead of the the text inside the heading tag itself.')))
+                pt.setChecked(bool(self.prefs.get('toc_from_headings_prefer_title')))
+                l.addWidget(s.bb)
+
+        d = D(self)
+        if d.exec_() == QDialog.DialogCode.Accepted:
+            self.create_from_xpath.emit(xpaths, d.remove_duplicates_cb.isChecked(), d.prefer_title_cb.isChecked())
+        self.prefs.set('toc_from_headings_remove_duplicates', d.remove_duplicates_cb.isChecked())
+        self.prefs.set('toc_from_headings_prefer_title', d.prefer_title_cb.isChecked())
 
     def create_from_major_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 4)],
-                self.ask_if_duplicates_should_be_removed())
+        self.headings_question(['//h:h%d'%i for i in range(1, 4)])
 
     def create_from_all_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 7)],
-                self.ask_if_duplicates_should_be_removed())
+        self.headings_question(['//h:h%d'%i for i in range(1, 7)])
 
     def create_from_user_xpath(self):
         d = XPathDialog(self, self.prefs)
         if d.exec() == QDialog.DialogCode.Accepted and d.xpaths:
-            self.create_from_xpath.emit(d.xpaths, d.remove_duplicates_cb.isChecked())
+            self.create_from_xpath.emit(d.xpaths, d.remove_duplicates_cb.isChecked(), False)
 
     def hide_azw3_warning(self):
         self.w1.setVisible(False), self.w2.setVisible(False)
@@ -945,8 +964,8 @@ class TOCView(QWidget):  # {{{
         process_node(self.root, toc, nodes)
         self.highlight_item(nodes[0])
 
-    def create_from_xpath(self, xpaths, remove_duplicates=True):
-        toc = from_xpaths(self.ebook, xpaths)
+    def create_from_xpath(self, xpaths, remove_duplicates=True, prefer_title=False):
+        toc = from_xpaths(self.ebook, xpaths, prefer_title=prefer_title)
         if len(toc) == 0:
             return error_dialog(self, _('No items found'),
                 _('No items were found that could be added to the Table of Contents.'), show=True)

@@ -362,8 +362,10 @@ def ensure_id(elem, all_ids):
     return True, elem.get('id')
 
 
-def elem_to_toc_text(elem):
+def elem_to_toc_text(elem, prefer_title=False):
     text = xml2text(elem).strip()
+    if prefer_title:
+        text = elem.get('title', '').strip() or text
     if not text:
         text = elem.get('title', '')
     if not text:
@@ -398,7 +400,7 @@ def item_at_top(elem):
     return True
 
 
-def from_xpaths(container, xpaths):
+def from_xpaths(container, xpaths, prefer_title=False):
     '''
     Generate a Table of Contents from a list of XPath expressions. Each
     expression in the list corresponds to a level of the generate ToC. For
@@ -450,7 +452,7 @@ def from_xpaths(container, xpaths):
             lvl = item_level_map.get(item, None)
             if lvl is None:
                 continue
-            text = elem_to_toc_text(item)
+            text = elem_to_toc_text(item, prefer_title)
             parent = parent_for_level(lvl)
             if item_at_top(item):
                 dirtied, elem_id = False, None
