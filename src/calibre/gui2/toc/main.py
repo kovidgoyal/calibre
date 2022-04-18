@@ -335,7 +335,7 @@ class ItemView(QStackedWidget):  # {{{
                 l.addWidget(s.bb)
 
         d = D(self)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.create_from_xpath.emit(xpaths, d.remove_duplicates_cb.isChecked(), d.prefer_title_cb.isChecked())
         self.prefs.set('toc_from_headings_remove_duplicates', d.remove_duplicates_cb.isChecked())
         self.prefs.set('toc_from_headings_prefer_title', d.prefer_title_cb.isChecked())
