@@ -105,27 +105,20 @@ hr.metadata_divider {
 
 /*
 **	To skip a banner item (Series|Published|Rating|Tags),
-**	edit the appropriate CSS rule below.
+**	uncomment the appropriate CSS rule below.
 */
-table.cbj_header tr.cbj_series {
-	/* Uncomment the next line to remove 'Series' from banner section */
-	/* display:none; */
-	}
 
-table.cbj_header tr.cbj_pubdata {
-	/* Uncomment the next line to remove 'Published (year of publication)' from banner section */
-	/* display:none; */
-	}
+/* Uncomment the next line to remove 'Series' from banner section */
+/* table.cbj_header tr.cbj_series { display: none } */
 
-table.cbj_header tr.cbj_rating {
-	/* Uncomment the next line to remove 'Rating' from banner section */
-	/* display:none; */
-	}
+/* Uncomment the next line to remove 'Published (year of publication)' from banner section */
+/* table.cbj_header tr.cbj_pubdata { display:none } */
 
-table.cbj_header tr.cbj_tags {
-	/* Uncomment the next line to remove 'Tags' from banner section */
-	/* display:none; */
-	}
+/* Uncomment the next line to remove 'Rating' from banner section */
+/* table.cbj_header tr.cbj_rating { display:none } */
+
+/* Uncomment the next line to remove 'Tags' from banner section */
+/* table.cbj_header tr.cbj_tags { display:none } */
 
 hr {
 	/* This rule controls formatting for any hr elements contained in the jacket */
@@ -145,5 +138,5 @@ hr {
 	}
 
 .cbj_comments {
-	font-family: sans-serif; 
+	font-family: sans-serif;
 	}
