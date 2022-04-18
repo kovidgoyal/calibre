@@ -287,6 +287,7 @@ def render_jacket(mi, output_profile,
 
     template = re.sub(r'<!--.*?-->', '', template, flags=re.DOTALL)
     css = re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
+    css = re.sub(r'table.cbj_header [^:}].*?}', '', css, flags=re.DOTALL)
 
     try:
         title_str = alt_title if mi.is_null('title') else mi.title
