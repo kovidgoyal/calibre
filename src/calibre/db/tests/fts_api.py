@@ -87,8 +87,6 @@ class FTSAPITest(BaseTest):
         cache.close()
         self.assertFalse(fts.pool.initialized)
 
-        # TODO: check shutdown when worker hangs
-
         # check enabling scans pre-exisintg
         cache = self.new_library()
         cache.add_format(1, 'TXTZ', self.make_txtz(b'a test text'))
@@ -109,7 +107,15 @@ class FTSAPITest(BaseTest):
             check(id=2, book=1, format='TXTZ', err_msg='Extracting text from the TXTZ file of size 132 B took too long')
         for w in fts.pool.workers:
             w.max_duration = w.__class__.max_duration
+
+        # check shutdown when workers have hung
+        for w in fts.pool.workers:
+            w.code_to_exec = 'import time; time.sleep(100)'
+        cache.add_format(1, 'TXTZ', self.make_txtz(b'hung worker'))
+        workers = list(fts.pool.workers)
         cache.close()
+        for w in workers:
+            self.assertFalse(w.is_alive())
 
     def test_fts_triggers(self):
         cache = self.init_cache()
