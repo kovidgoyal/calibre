@@ -67,7 +67,7 @@ def all_actions():
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
             'select_all': Action('edit-select-all.png', _('Select all text in the current file')),
             'edit_book': Action('edit_book.png', _('Edit this book'), 'edit_book'),
-            'reload_book': Action('reload.png', _('Reload this book'), 'reload_book'),
+            'reload_book': Action('view-refresh.png', _('Reload this book'), 'reload_book'),
         }
         all_actions.ans = Actions(amap)
     return all_actions.ans
