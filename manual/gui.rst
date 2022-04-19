@@ -84,7 +84,7 @@ Edit metadata
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
 
-For more details see :ref:`metadata`.
+For more details, see :ref:`metadata`.
 
 .. _convert_ebooks:
 
@@ -163,7 +163,7 @@ The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for 
 The :guilabel:`Fetch news` action has three variations, accessed by doing a right-click on the button.
 
     1. **Schedule news download**: Allows you to schedule the download of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
-    2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information see :ref:`news`.
+    2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information, see :ref:`news`.
     3. **Download all scheduled news sources**: Causes calibre to immediately begin downloading all news sources that you have scheduled.
 
 
@@ -490,11 +490,11 @@ Temporarily marking books
 
 You can temporarily mark arbitrary sets of books. Marked books will have a pin
 on them and can be searched for with ``marked:true``. To do so press
-:kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars` and add the Mark books
-button to the main toolbar. You can even create multiple types of marks by
-right clicking the :guilabel:`Mark books` button and choosing :guilabel:`Mark
-books with text label`. The text label you enter, can later be searched for
-with: ``marked:the-text-you-entered``.
+:kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars & menus` and add the
+:guilabel:`Mark books` button to the main toolbar. You can even create multiple
+types of marks by right clicking the :guilabel:`Mark books` button and choosing
+:guilabel:`Mark books with text label`. The text label you enter, can later be
+searched for with: ``marked:the-text-you-entered``.
 
 
 .. _config_filename_metadata:

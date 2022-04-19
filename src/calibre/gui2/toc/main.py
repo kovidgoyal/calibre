@@ -330,7 +330,7 @@ class ItemView(QStackedWidget):  # {{{
                 l.addWidget(pt)
                 pt.setToolTip(textwrap.fill(_(
                     'When a heading tag has the "title" attribute use its contents as the text for the ToC entry,'
-                    ' instead of the the text inside the heading tag itself.')))
+                    ' instead of the text inside the heading tag itself.')))
                 pt.setChecked(bool(self.prefs.get('toc_from_headings_prefer_title')))
                 l.addWidget(s.bb)
 

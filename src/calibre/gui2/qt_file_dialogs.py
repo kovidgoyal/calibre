@@ -34,7 +34,7 @@ class Dummy:
 class FileDialog(QObject):
 
     def __init__(
-        self, title=_('Choose Files'),
+        self, title=_('Choose files'),
         filters=[],
         add_all_files_filter=True,
         parent=None,
