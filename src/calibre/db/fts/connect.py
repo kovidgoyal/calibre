@@ -67,11 +67,17 @@ class FTS:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
 
-    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash=''):
+    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash='', err_msg=''):
         conn = self.get_connection()
         ts = (utcnow() - EPOCH).total_seconds()
         fmt = fmt.upper()
-        if text:
+        if err_msg:
+            conn.execute(
+                'INSERT OR REPLACE INTO fts_db.books_text '
+                '(book, timestamp, format, format_size, format_hash, err_msg) VALUES '
+                '(?, ?, ?, ?, ?, ?)', (
+                    book_id, ts, fmt, fmt_size, fmt_hash, err_msg))
+        elif text:
             conn.execute(
                 'INSERT OR REPLACE INTO fts_db.books_text '
                 '(book, timestamp, format, format_size, format_hash, searchable_text, text_size, text_hash) VALUES '
@@ -94,7 +100,7 @@ class FTS:
             for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND text_hash=?', (book_id, fmt, text_hash)):
                 text = ''
                 break
-        self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash)
+        self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash, err_msg)
 
     def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash):
         conn = self.get_connection()

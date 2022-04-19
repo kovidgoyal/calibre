@@ -7,8 +7,9 @@ import os
 import shutil
 import sys
 import time
-from io import BytesIO
+from io import BytesIO, StringIO
 from zipfile import ZipFile
+from unittest.mock import patch
 
 from calibre.db.fts.text import html_to_text
 from calibre.db.tests.base import BaseTest
@@ -87,8 +88,6 @@ class FTSAPITest(BaseTest):
         self.assertFalse(fts.pool.initialized)
 
         # TODO: check shutdown when worker hangs
-        # TODO: add a max scan time and check that the worker honors it
-        # TODO: Add a column to store failures with tracebacks in the books_text table
 
         # check enabling scans pre-exisintg
         cache = self.new_library()
@@ -100,6 +99,16 @@ class FTSAPITest(BaseTest):
         cache.add_format(1, 'TXTZ', self.make_txtz(b'a test text', extra='xxx'))
         self.wait_for_fts_to_finish(fts)
         check(id=1, book=1, format='TXTZ', searchable_text='a test text')
+
+        # check max_duration
+        for w in fts.pool.workers:
+            w.max_duration = -1
+        with patch('sys.stderr', new_callable=StringIO):
+            cache.add_format(1, 'TXTZ', self.make_txtz(b'a timed out text'))
+            self.wait_for_fts_to_finish(fts)
+            check(id=2, book=1, format='TXTZ', err_msg='Extracting text from the TXTZ file of size 132 B took too long')
+        for w in fts.pool.workers:
+            w.max_duration = w.__class__.max_duration
         cache.close()
 
     def test_fts_triggers(self):
