@@ -23,7 +23,7 @@ from calibre import as_unicode, force_unicode, isbytestring, prints
 from calibre.constants import (
     filesystem_encoding, iswindows, plugins, preferred_encoding
 )
-from calibre.db import SPOOL_SIZE
+from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
@@ -53,14 +53,6 @@ from polyglot.builtins import (
 )
 
 # }}}
-
-
-class FTSQueryError(ValueError):
-
-    def __init__(self, query, sql_statement, apsw_error):
-        ValueError.__init__(self, f'Failed to parse search query: {query} with error: {apsw_error}')
-        self.query = query
-        self.sql_statement = sql_statement
 
 
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
@@ -978,6 +970,11 @@ class DB:
 
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
         return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
+
+    def search(self,
+        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
+    ):
+        yield from self.fts.search(fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,)
 
     def shutdown_fts(self):
         if self.fts_enabled:

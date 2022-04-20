@@ -481,6 +481,25 @@ class Cache:
                 self.queue_next_fts_job()
         return existing
 
+    @read_api
+    def fts_search(
+        self,
+        fts_engine_query,
+        use_stemming=True,
+        highlight_start=None,
+        highlight_end=None,
+        snippet_size=None,
+        restrict_to_book_ids=None,
+    ):
+        return tuple(self.backend.fts_search(
+            fts_engine_query,
+            use_stemming=use_stemming,
+            highlight_start=highlight_start,
+            highlight_end=highlight_end,
+            snippet_size=snippet_size,
+            restrict_to_book_ids=restrict_to_book_ids,
+        ))
+
     # }}}
 
     # Cache Layer API {{{

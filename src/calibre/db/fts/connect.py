@@ -3,13 +3,15 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import builtins
+import builtins, apsw
 import hashlib
 import os
 import sys
 from contextlib import suppress
 
 from calibre.utils.date import EPOCH, utcnow
+from calibre.db import FTSQueryError
+from calibre.db.annotations import unicode_normalize
 
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
@@ -116,6 +118,40 @@ class FTS:
         with suppress(OSError):
             os.remove(path)
         return False
+
+    def search(self,
+        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
+    ):
+        fts_engine_query = unicode_normalize(fts_engine_query)
+        fts_table = 'books_fts_stemmed' if use_stemming else 'books_fts'
+        text = 'books_text.searchable_text'
+        if highlight_start is not None and highlight_end is not None:
+            if snippet_size is not None:
+                text = 'snippet({fts_table}, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'.format(
+                        fts_table=fts_table, highlight_start=highlight_start, highlight_end=highlight_end,
+                        snippet_size=max(1, min(snippet_size, 64)))
+            else:
+                text = f'highlight({fts_table}, 0, "{highlight_start}", "{highlight_end}")'
+        query = 'SELECT {0}.id, {0}.book, {0}.format, {1} FROM {0} '
+        query = query.format('books_text', text)
+        query += ' JOIN {fts_table} ON books_text.id = {fts_table}.rowid'.format(fts_table=fts_table)
+        query += f' WHERE {fts_table} MATCH ?'
+        data = [fts_engine_query]
+        query += f' ORDER BY {fts_table}.rank '
+        try:
+            for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+                if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
+                    continue
+                yield {
+                    'id': rowid,
+                    'book_id': book_id,
+                    'format': fmt,
+                    'user_type': user_type,
+                    'user': user,
+                    'text': text,
+                }
+        except apsw.SQLError as e:
+            raise FTSQueryError(fts_engine_query, query, e)
 
     def shutdown(self):
         self.pool.shutdown()

@@ -11,6 +11,14 @@ import numbers
 from polyglot.builtins import iteritems
 
 
+class FTSQueryError(ValueError):
+
+    def __init__(self, query, sql_statement, apsw_error):
+        ValueError.__init__(self, f'Failed to parse search query: {query} with error: {apsw_error}')
+        self.query = query
+        self.sql_statement = sql_statement
+
+
 def _get_next_series_num_for_list(series_indices, unwrap=True):
     from calibre.utils.config_base import tweaks
     from math import ceil, floor
