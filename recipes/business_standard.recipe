@@ -17,8 +17,8 @@ class BusinessStandard(BasicNewsRecipe):
     title = 'Business Standard'
     __author__ = 'Darko Miletic'
     description = "India's most respected business daily"
-    oldest_article = 7
-    max_articles_per_feed = 100
+    oldest_article = 1
+    max_articles_per_feed = 20
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
@@ -26,25 +26,33 @@ class BusinessStandard(BasicNewsRecipe):
     category = 'news, business, money, india, world'
     language = 'en_IN'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
-    }
+    masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
     remove_attributes = ['width', 'height', 'style']
+
     keep_only_tags = [
-            classes('headline alternativeHeadline full-img story-content pubDate'),
+            classes('headline alternativeHeadline full-img article-content__img pubDate'),
+            dict(name='span', attrs={'class':'p-content'}),
     ]
     remove_tags = [
             classes('also-read-panel')
     ]
 
     feeds = [
-        (u'News Now', u'http://feeds.business-standard.com/rss/online.xml'),
-        (u'Banking & finance', u'http://feeds.business-standard.com/rss/3_0.xml'),
-        (u'Companies & Industry', u'http://feeds.business-standard.com/rss/2_0.xml'),
-        (u'Economy & Policy', u'http://feeds.business-standard.com/rss/4_0.xml'),
-        (u'Tech World', u'http://feeds.business-standard.com/rss/8_0.xml'),
-        (u'Life & Leisure', u'http://feeds.business-standard.com/rss/6_0.xml'),
-        (u'Markets & Investing', u'http://feeds.business-standard.com/rss/1_0.xml'),
-        (u'Management & Mktg', u'http://feeds.business-standard.com/rss/7_0.xml'),
-        (u'Opinion', u'http://feeds.business-standard.com/rss/5_0.xml')
+        (u'Companies', u'https://www.business-standard.com/rss/companies-101.rss'),
+        (u'Economy and Policy', u'https://www.business-standard.com/rss/economy-policy-102.rss'),
+        (u'Finance', u'https://www.business-standard.com/rss/finance-103.rss'),
+        (u'Beyond Business', u'https://www.business-standard.com/rss/beyond-business-104.rss'),
+        (u'Opinion', 'https://www.business-standard.com/rss/opinion-105.rss'),
+        (u'Markets', u'https://www.business-standard.com/rss/markets-106.rss'),
+        (u'Technology', u'https://www.business-standard.com/rss/technology-108.rss'),
+        (u'Personal Finance', u'https://www.business-standard.com/rss/pf-114.rss'),
+        (u'International', u'https://www.business-standard.com/rss/international-116.rss'),
+        # (u'Today\'s Paper', u'https://www.business-standard.com/rss/todays-paper.rss'),
+        # for todays paper - subscrition required
     ]
