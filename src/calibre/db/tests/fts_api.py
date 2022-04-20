@@ -117,6 +117,24 @@ class FTSAPITest(BaseTest):
         for w in workers:
             self.assertFalse(w.is_alive())
 
+    def test_fts_search(self):
+        cache = self.new_library()
+        fts = cache.enable_fts()
+        self.wait_for_fts_to_finish(fts)
+        self.assertFalse(fts.all_currently_dirty())
+        cache.add_format(1, 'TXT', BytesIO(b'some long text to help with testing search.'))
+        cache.add_format(2, 'MD', BytesIO(b'some other long text that will also help with the testing of search'))
+        self.assertTrue(fts.all_currently_dirty())
+        self.wait_for_fts_to_finish(fts)
+        self.assertFalse(fts.all_currently_dirty())
+        self.ae({x['id'] for x in cache.fts_search('help')}, {1, 2})
+        self.ae({x['format'] for x in cache.fts_search('help')}, {'TXT', 'MD'})
+        self.ae({x['id'] for x in cache.fts_search('also')}, {2})
+        self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']')}, {
+            'some other long text that will [also] help with the testing of search'})
+        self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']', snippet_size=3)}, {
+            '…will [also] help…'})
+
     def test_fts_triggers(self):
         cache = self.init_cache()
         # the cache fts jobs will clear dirtied flag so disable it

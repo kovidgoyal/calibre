@@ -19,8 +19,8 @@ CREATE TABLE fts_db.books_text ( id INTEGER PRIMARY KEY,
 );
 
 
-CREATE VIRTUAL TABLE fts_db.books_fts USING fts5(searchable_text, content = 'fts_db.books_text', content_rowid = 'id', tokenize = 'calibre remove_diacritics 2');
-CREATE VIRTUAL TABLE fts_db.books_fts_stemmed USING fts5(searchable_text, content = 'fts_db.books_text', content_rowid = 'id', tokenize = 'porter calibre remove_diacritics 2');
+CREATE VIRTUAL TABLE fts_db.books_fts USING fts5(searchable_text, content = 'books_text', content_rowid = 'id', tokenize = 'calibre remove_diacritics 2');
+CREATE VIRTUAL TABLE fts_db.books_fts_stemmed USING fts5(searchable_text, content = 'books_text', content_rowid = 'id', tokenize = 'porter calibre remove_diacritics 2');
 
 CREATE TRIGGER fts_db.books_fts_insert_trg AFTER INSERT ON fts_db.books_text 
 BEGIN
