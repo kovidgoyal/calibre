@@ -10,10 +10,11 @@ from calibre.customize import Plugin
 
 class OpenPopupMessage:
 
-    def __init__(self, title='', message='', level='info'):
+    def __init__(self, title='', message='', level='info', skip_dialog_skip_precheck=True):
         self.title = title
         self.message = message
         self.level = level
+        self.skip_dialog_skip_precheck = skip_dialog_skip_precheck
 
 
 class DevicePlugin(Plugin):

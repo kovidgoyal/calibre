@@ -155,7 +155,7 @@ def convert_open_popup(opm, skip_key):
             tc = m.toggle_checkbox
             tc.setVisible(True)
             tc.setText(_('Show this message again'))
-            tc.setChecked(True)
+            tc.setChecked(not self.opm.skip_dialog_skip_precheck)
             m.resize_needed.emit()
             m.finished.connect(m.on_cd_finished)
             return m
