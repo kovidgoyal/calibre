@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import weakref
+from contextlib import suppress
 from qt.core import QLoggingCategory, QUrl
 from threading import Lock, Thread, get_ident
 
@@ -52,6 +53,11 @@ qt.webenginecontext.info=false
 overseers = []
 
 
+def safe_wait(w, timeout):
+    with suppress(Exception):
+        return w.wait(timeout)
+
+
 class Overseer:
 
     def __init__(self):
@@ -90,10 +96,10 @@ class Overseer:
                 w.stdin.write(b'EXIT:0\n')
                 w.stdin.flush()
             for w in self.workers.values():
-                if w.wait(0.2) is None:
+                if safe_wait(w, 0.2) is None:
                     w.terminate()
                     if not iswindows:
-                        if w.wait(0.1) is None:
+                        if safe_wait(w, 0.1) is None:
                             w.kill()
             self.workers.clear()
     close = __del__
