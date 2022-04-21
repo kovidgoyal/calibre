@@ -840,7 +840,7 @@ class _Interpreter:
             f = self.expr(prog.list_field_expr)
             res = getattr(self.parent_book, f, f)
             if res is not None:
-                if not isinstance(res, list):
+                if isinstance(res, str):
                     res = [r.strip() for r in res.split(separator) if r.strip()]
                 ret = ''
                 if self.break_reporter:
