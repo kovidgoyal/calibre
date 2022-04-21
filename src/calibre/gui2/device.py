@@ -132,6 +132,37 @@ class BusyCursor:
         QApplication.restoreOverrideCursor()
 
 
+def convert_open_popup(opm, skip_key):
+    class OPM(OpenFeedback):
+
+        def __init__(self, opm):
+            super().__init__('placeholder')
+            self.opm = opm
+            self.skip_key = skip_key
+
+        def custom_dialog(self, parent):
+            from calibre.gui2.dialogs.message_box import MessageBox
+
+            class M(MessageBox):
+                def on_cd_finished(s):
+                    gprefs.set(self.skip_key, not s.toggle_checkbox.isChecked())
+            m = M({
+                'info': MessageBox.INFO, 'information': MessageBox.INFO,
+                'warn': MessageBox.WARNING, 'warning': MessageBox.WARNING,
+                }[self.opm.level], self.opm.title, self.opm.message,
+                parent=parent
+            )
+            tc = m.toggle_checkbox
+            tc.setVisible(True)
+            tc.setText(_('Show this message again'))
+            tc.setChecked(True)
+            m.resize_needed.emit()
+            m.finished.connect(m.on_cd_finished)
+            return m
+
+    return OPM(opm)
+
+
 class DeviceManager(Thread):  # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot,
@@ -191,6 +222,11 @@ class DeviceManager(Thread):  # {{{
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
+            opm = dev.get_open_popup_message()
+            if opm is not None:
+                skip_key = f'do_not_show_device_open_popup_message_{dev.__class__.__name__}'
+                if not gprefs.get(skip_key, False):
+                    self.open_feedback_msg(dev.get_gui_name(), convert_open_popup(opm, skip_key))
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)

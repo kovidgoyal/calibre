@@ -8,6 +8,14 @@ from calibre.constants import iswindows
 from calibre.customize import Plugin
 
 
+class OpenPopupMessage:
+
+    def __init__(self, title='', message='', level='info'):
+        self.title = title
+        self.message = message
+        self.level = level
+
+
 class DevicePlugin(Plugin):
     """
     Defines the interface that should be implemented by backends that
@@ -69,7 +77,7 @@ class DevicePlugin(Plugin):
     # Encapsulates an annotation fetched from the device
     UserAnnotation = namedtuple('Annotation','type, value')
 
-    #: GUI displays this as a message if not None. Useful if opening can take a
+    #: GUI displays this as a message if not None in the status bar. Useful if opening can take a
     #: long time
     OPEN_FEEDBACK_MESSAGE = None
 
@@ -125,6 +133,11 @@ class DevicePlugin(Plugin):
         if hasattr(cls, '__name__'):
             return cls.__name__
         return cls.name
+
+    @classmethod
+    def get_open_popup_message(self):
+        ' GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage '
+        return None
 
     # Device detection {{{
     def test_bcd(self, bcdDevice, bcd):

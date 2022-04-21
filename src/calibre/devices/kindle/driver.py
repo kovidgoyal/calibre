@@ -9,6 +9,7 @@ Device driver for Amazon's Kindle
 import datetime, os, re, json, hashlib, errno
 
 from calibre.constants import DEBUG, filesystem_encoding
+from calibre.devices.interface import OpenPopupMessage
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
@@ -94,6 +95,18 @@ class KINDLE(USBMS):
         ' That will give you a regular AZW3 file that you can add to calibre normally.'
         ' Click "Show details" to see the list of books.'
     )
+
+    @classmethod
+    def get_open_popup_message(cls):
+        from calibre.utils.localization import localize_website_link
+        return OpenPopupMessage(title=_('WARNING: E-book covers'), message=_(
+            'Amazon has <b>broken display of covers</b> for books sent to the Kindle by USB cable. To workaround it,'
+            ' you have to: <ol><li>Send the books to the Kindle</li><li>Disconnect the Kindle and wait for the covers to be deleted'
+            ' by Amazon</li><li>Reconnect the Kindle and calibre will restore the covers.</li></ol> After this the'
+            ' covers for those books should stay put. <a href="{}">Click here</a> for details.').format(localize_website_link(
+                'https://manual.calibre-ebook.com/faq.html#covers-for-books-i'
+                '-send-to-my-e-ink-kindle-show-up-momentarily-and-then-are-replaced-by-a-generic-cover')
+        ))
 
     def is_allowed_book_file(self, filename, path, prefix):
         lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2].replace('\\', '/')
