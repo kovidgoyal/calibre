@@ -101,7 +101,8 @@ class KINDLE(USBMS):
         from calibre.utils.localization import localize_website_link
         return OpenPopupMessage(title=_('WARNING: E-book covers'), message=_(
             'Amazon has <b>broken display of covers</b> for books sent to the Kindle by USB cable. To workaround it,'
-            ' you have to: <ol><li>Send the books to the Kindle</li><li>Disconnect the Kindle and wait for the covers to be deleted'
+            ' you have to either keep your Kindle in Airplane mode, or:'
+            '<ol><li>Send the books to the Kindle</li><li>Disconnect the Kindle and wait for the covers to be deleted'
             ' by Amazon</li><li>Reconnect the Kindle and calibre will restore the covers.</li></ol> After this the'
             ' covers for those books should stay put. <a href="{}">Click here</a> for details.').format(localize_website_link(
                 'https://manual.calibre-ebook.com/faq.html#covers-for-books-i'
