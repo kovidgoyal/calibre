@@ -354,6 +354,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         if field is not None:
             book_id = int(data['book_id'])
             value = remove_value = data['value']
+            remove_name = ''
             if field == 'identifiers':
                 ac = book_info.copy_link_action
                 ac.current_url = value
@@ -366,6 +367,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 init_find_in_tag_browser(search_menu, find_action, field, remove_value)
                 init_find_in_grouped_search(search_menu, field, remove_value, book_info)
                 menu.addAction(book_info.edit_identifiers_action)
+                remove_name = data.get('name') or value
             elif field in ('tags', 'series', 'publisher') or is_category(field):
                 add_copy_action(value)
                 init_find_in_tag_browser(search_menu, find_action, field, value)
@@ -381,7 +383,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                                         lambda: QApplication.instance().clipboard().setText(v))
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
-            ac.setText(_('Remove %s from this book') % escape_for_menu(data.get('original_value') or value))
+            ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
             menu.addAction(ac)
         else:
             v = data.get('original_value') or data.get('value')
