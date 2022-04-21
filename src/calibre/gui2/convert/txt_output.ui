@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>378</height>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,6 +126,16 @@
        <widget class="QCheckBox" name="opt_keep_color">
         <property name="text">
          <string>Keep text &amp;color, when possible</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Note that images will not be preserved. For that, convert to TXTZ instead.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
