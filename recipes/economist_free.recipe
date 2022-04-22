@@ -59,15 +59,14 @@ def load_article_from_json(raw, root):
     E(article, 'h1', data['headline'], style='font-size: x-large')
     E(article, 'div', data['description'], style='font-style: italic')
     E(article, 'div', (data['datePublishedString'] or '') + ' | ' + (data['dateline'] or ''), style='color: gray; margin: 1em')
-    images = data['image']
-    if 'main' in images:
+    main_image_url = data.get('image', {}).get('main', {}).get('url', {}).get('canonical')
+    if main_image_url:
         div = E(article, 'div')
         try:
-            E(div, 'img', src=images['main']['url']['canonical'])
+            E(div, 'img', src=main_image_url)
         except Exception:
             pass
-    text = data['text']
-    for node in text:
+    for node in data.get('text', []):
         process_node(node, article)
 
 
@@ -236,7 +235,7 @@ class Economist(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        #     'url':'file:///t/raw.html'
+        #     'url':'https://www.economist.com/briefing/2021/09/11/how-america-wasted-its-unipolar-moment'
         # }])]
         if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
