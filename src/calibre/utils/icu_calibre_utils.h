@@ -11,6 +11,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <unicode/uversion.h>
+#include <unicode/uvernum.h>
 #include <unicode/utypes.h>
 #include <unicode/uclean.h>
 #include <unicode/utf16.h>

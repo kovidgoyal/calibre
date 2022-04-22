@@ -364,7 +364,11 @@ Matcher_init(Matcher *self, PyObject *args, PyObject *kwds)
     if (!PyCapsule_CheckExact(collator)) { PyErr_SetString(PyExc_TypeError, "Collator must be a capsule"); return -1; }
     col = (UCollator*)PyCapsule_GetPointer(collator, NULL);
     if (col == NULL) return -1;
+#if U_ICU_VERSION_MAJOR_NUM > 70
+    self->collator = ucol_clone(self->collator, &status);
+#else
     self->collator = ucol_safeClone(col, NULL, NULL, &status);
+#endif
     col = NULL;
     if (U_FAILURE(status)) { self->collator = NULL; PyErr_SetString(PyExc_ValueError, u_errorName(status)); return -1; }
 

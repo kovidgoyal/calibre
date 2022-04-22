@@ -499,10 +499,13 @@ icu_Collator_clone(icu_Collator *self, PyObject *args)
 {
     UCollator *collator;
     UErrorCode status = U_ZERO_ERROR;
-    int32_t bufsize = -1;
     icu_Collator *clone;
 
-    collator = ucol_safeClone(self->collator, NULL, &bufsize, &status);
+#if U_ICU_VERSION_MAJOR_NUM > 70
+    collator = ucol_clone(self->collator, &status);
+#else
+    collator = ucol_safeClone(self->collator, NULL, NULL, &status);
+#endif
 
     if (collator == NULL || U_FAILURE(status)) {
         PyErr_SetString(PyExc_Exception, "Failed to create collator.");
