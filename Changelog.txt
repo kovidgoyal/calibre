@@ -35,7 +35,7 @@
 
 - Edit book: Table of Contents tool: Allow using the title attribute on headings tags to get the text for table of contents entries
 
-- When creating a custom column to display real numbers allow specifying th enumber of decimal digits to display
+- When creating a custom column to display real numbers allow specifying the number of decimal digits to display
 
 - Amazon metadata download: Add support for amazon.in country website
 
@@ -43,7 +43,7 @@
 
 - [1969302] Edit book: Fix AltGr+{ not working on some keyboard layouts
 
-- [1967828] TXT Input: Fix rare failure to convert some large TXT files with non-ascii text
+- [1967828] TXT Input: Fix rare failure to convert some large TXT files with non-ASCII text
 
 - Get books: Update English language Amazon plugins for website changes
 
