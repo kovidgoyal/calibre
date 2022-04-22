@@ -35,7 +35,7 @@
 
 - Edit book: Table of Contents tool: Allow using the title attribute on headings tags to get the text for table of contents entries
 
-- When creating a custom column to display real numbers allow specifying the number of decimal digits to display
+- When creating a custom column to display real (floating point) numbers allow specifying the number of decimal digits when editing values
 
 - Amazon metadata download: Add support for amazon.in country website
 
