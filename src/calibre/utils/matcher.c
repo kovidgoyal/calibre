@@ -365,7 +365,7 @@ Matcher_init(Matcher *self, PyObject *args, PyObject *kwds)
     col = (UCollator*)PyCapsule_GetPointer(collator, NULL);
     if (col == NULL) return -1;
 #if U_ICU_VERSION_MAJOR_NUM > 70
-    self->collator = ucol_clone(self->collator, &status);
+    self->collator = ucol_clone(col, &status);
 #else
     self->collator = ucol_safeClone(col, NULL, NULL, &status);
 #endif
