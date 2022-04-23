@@ -36,7 +36,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fl = db.field_metadata.get_search_terms()
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList, choices=fl)
         self.clear_history_button.clicked.connect(self.clear_histories)
-
+        self.opt_use_primary_find_in_search.setToolTip(_(
+            'Searching will ignore accents on characters as well as punctuation and spaces.\nSo for example: {0} will match {1}').format(
+                'Penasthumb', 'Peña’s Thumb'))
         self.gst_explanation.setText('<p>' + _(
     "<b>Grouped search terms</b> are search names that permit a query to automatically "
     "search across more than one column. For example, if you create a grouped "

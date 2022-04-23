@@ -135,10 +135,6 @@
        </item>
        <item row="4" column="0">
         <widget class="QCheckBox" name="opt_use_primary_find_in_search">
-         <property name="toolTip">
-          <string>Searching will ignore accents on characters as well as punctuation. So for example:
-Penas will match Peña’s</string>
-         </property>
          <property name="text">
           <string>Unaccented characters match &amp;accented characters and punctuation is ignored</string>
          </property>
