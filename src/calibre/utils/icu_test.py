@@ -229,10 +229,13 @@ class TestICU(unittest.TestCase):
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
     def test_remove_accents(self):
-        for q, expected in {
-            'MännÄr': 'MannAr', 'Peña': 'Pena', 'Kátia': 'Katia',
-        }.items():
-            self.ae(expected, icu.remove_accents(q))
+        for func in (icu.remove_accents_icu, icu.remove_accents_regex):
+            for q, expected in {
+                'MännÄr': 'MannAr', 'Peña': 'Pena', 'Kátia': 'Katia',
+                'Málaga': 'Malaga', 'François': 'Francois', 'Phút Hơn': 'Phut Hon',
+                '中文':'中文'
+            }.items():
+                self.ae(expected, func(q))
 
 
 def find_tests():

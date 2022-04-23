@@ -294,16 +294,27 @@ string_length = len
 utf16_length = _icu.utf16_length
 
 
-def remove_accents(txt: str) -> str:
-    t = getattr(remove_accents, 'transliterator', None)
+def remove_accents_icu(txt: str) -> str:
+    t = getattr(remove_accents_icu, 'transliterator', None)
     if t is None:
         t = _icu.Transliterator('remove_accents', '''\
 :: NFD (NFC);
 :: [:Nonspacing Mark:] Remove;
 :: NFC (NFD);
 ''')
-        setattr(remove_accents, 'transliterator', t)
+        setattr(remove_accents_icu, 'transliterator', t)
     return t.transliterate(txt)
+
+
+def remove_accents_regex(txt: str) -> str:
+    pat = getattr(remove_accents_regex, 'pat', None)
+    if pat is None:
+        import regex, unicodedata
+        pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
+        setattr(remove_accents_regex, 'pat', pat)
+        setattr(remove_accents_regex, 'normalize', unicodedata.normalize)
+    normalize = remove_accents_regex.normalize
+    return normalize('NFKC', pat.sub('', normalize('NFKD', txt)))
 
 
 ################################################################################
