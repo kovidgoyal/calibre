@@ -317,6 +317,8 @@ def remove_accents_regex(txt: str) -> str:
     return normalize('NFKC', pat.sub('', normalize('NFKD', txt)))
 
 
+remove_accents = remove_accents_regex  # more robust and faster
+
 ################################################################################
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
