@@ -627,7 +627,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
-        self.setFrameStyle(QFrame.Shape.NoFrame if gprefs['tag_browser_old_look'] else QFrame.Shape.StyledPanel)
+        self.setFrameStyle(QFrame.Shape.NoFrame)
         self._parent = parent
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
