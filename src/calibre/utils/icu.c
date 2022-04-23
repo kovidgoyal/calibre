@@ -118,6 +118,25 @@ icu_Collator_set_numeric(icu_Collator *self, PyObject *val, void *closure) {
 }
 // }}}
 
+// Collator.numeric {{{
+static PyObject *
+icu_Collator_get_max_variable(icu_Collator *self, void *closure) {
+    return Py_BuildValue("i", ucol_getMaxVariable(self->collator));
+}
+
+static int
+icu_Collator_set_max_variable(icu_Collator *self, PyObject *val, void *closure) {
+    int group = PyLong_AsLong(val);
+    UErrorCode status = U_ZERO_ERROR;
+    ucol_setMaxVariable(self->collator, group, &status);
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return -1;
+    }
+    return 0;
+}
+// }}}
+
 // Collator.actual_locale {{{
 static PyObject *
 icu_Collator_actual_locale(icu_Collator *self, void *closure) {
@@ -482,6 +501,12 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
      (getter)icu_Collator_get_numeric, (setter)icu_Collator_set_numeric,
      (char *)"If True the collator sorts contiguous digits as numbers rather than strings, so 2 will sort before 10.",
      NULL},
+
+    {(char *)"max_variable",
+     (getter)icu_Collator_get_max_variable, (setter)icu_Collator_set_max_variable,
+     (char *)"The highest sorting character affected by alternate handling",
+     NULL},
+
 
     {NULL}  /* Sentinel */
 };
@@ -1511,6 +1536,11 @@ exec_module(PyObject *mod) {
     ADDUCONST(UCOL_DECOMPOSITION_MODE);
     ADDUCONST(UCOL_STRENGTH);
     ADDUCONST(UCOL_NUMERIC_COLLATION);
+    ADDUCONST(UCOL_REORDER_CODE_SPACE);
+    ADDUCONST(UCOL_REORDER_CODE_PUNCTUATION);
+    ADDUCONST(UCOL_REORDER_CODE_SYMBOL);
+    ADDUCONST(UCOL_REORDER_CODE_CURRENCY);
+    ADDUCONST(UCOL_REORDER_CODE_DEFAULT);
 
     ADDUCONST(NFD);
     ADDUCONST(NFKD);
