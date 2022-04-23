@@ -324,7 +324,6 @@ class ReadingTest(BaseTest):
             'formats:#>1', 'formats:#=1', 'formats:=fmt1', 'formats:=fmt2',
             'formats:=fmt1 or formats:fmt2', '#formats:true', '#formats:false',
             '#formats:fmt1', '#formats:fmt2', '#formats:fmt1 and #formats:fmt2',
-
         )}
         old.conn.close()
         old = None
@@ -375,6 +374,9 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.search('template:{series}#@#:b:true'), {1,2})
         self.assertEqual(cache.search('template:{series}#@#:b:false'), {3})
 
+        # test primary search
+        cache.set_field('title', {1: "Gravity’s Raiñbow"})
+        self.assertEqual(cache.search('title:"Gravity\'s Rainbow"'), {1})
         # Note that the old db searched uuid for un-prefixed searches, the new
         # db does not, for performance
 

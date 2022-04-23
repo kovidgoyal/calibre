@@ -88,7 +88,10 @@ def primary_collator_without_punctuation():
     if _primary_no_punc_collator is None:
         _primary_no_punc_collator = collator().clone()
         _primary_no_punc_collator.strength = _icu.UCOL_PRIMARY
-        _primary_no_punc_collator.set_attribute(_icu.UCOL_ALTERNATE_HANDLING, _icu.UCOL_SHIFTED)
+        try:
+            _primary_no_punc_collator.set_attribute(_icu.UCOL_ALTERNATE_HANDLING, _icu.UCOL_SHIFTED)
+        except AttributeError:
+            pass  # people running from source without latest binary
     return _primary_no_punc_collator
 
 
