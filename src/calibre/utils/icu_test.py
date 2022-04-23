@@ -228,6 +228,12 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
+    def test_remove_accents(self):
+        for q, expected in {
+            'MännÄr': 'MannAr', 'Peña': 'Pena', 'Kátia': 'Katia',
+        }.items():
+            self.ae(expected, icu.remove_accents(q))
+
 
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestICU)

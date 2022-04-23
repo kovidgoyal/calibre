@@ -293,8 +293,20 @@ string_length = len
 # Return the number of UTF-16 codepoints in a string
 utf16_length = _icu.utf16_length
 
-################################################################################
 
+def remove_accents(txt: str) -> str:
+    t = getattr(remove_accents, 'transliterator', None)
+    if t is None:
+        t = _icu.Transliterator('remove_accents', '''\
+:: NFD (NFC);
+:: [:Nonspacing Mark:] Remove;
+:: NFC (NFD);
+''')
+        setattr(remove_accents, 'transliterator', t)
+    return t.transliterate(txt)
+
+
+################################################################################
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
     run(verbosity=4)

@@ -524,6 +524,197 @@ icu_Collator_clone(icu_Collator *self, PyObject *args)
 
 // }}}
 
+// Transliterator object definition {{{
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    UTransliterator *transliterator;
+} icu_Transliterator;
+
+static void
+icu_Transliterator_dealloc(icu_Transliterator* self)
+{
+    if (self->transliterator != NULL) utrans_close(self->transliterator);
+    self->transliterator = NULL;
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+icu_Transliterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    icu_Transliterator *self = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    PyObject *idp, *rulesp;
+    int forward = 1;
+
+    if (!PyArg_ParseTuple(args, "UU|p", &idp, &rulesp, &forward)) return NULL;
+    int32_t id_sz, rules_sz = 0;
+    UChar *id = python_to_icu(idp, &id_sz);
+    if (!id) return NULL;
+    UChar *rules = PyUnicode_GET_LENGTH(rulesp) > 0 ? python_to_icu(rulesp, &rules_sz) : NULL;
+    if (PyErr_Occurred()) { free(id); return NULL; }
+    UParseError pe;
+    UTransliterator* t = utrans_openU(id, id_sz, forward ? UTRANS_FORWARD : UTRANS_REVERSE, rules, rules_sz, &pe, &status);
+    free(id); free(rules); id = NULL; rules = NULL;
+    if (t == NULL || U_FAILURE(status)) {
+        PyObject *pre = icu_to_python(pe.preContext, u_strlen(pe.preContext)), *post = icu_to_python(pe.postContext, u_strlen(pe.postContext));
+        PyErr_Format(PyExc_ValueError, "Failed to compile Transliterator with error: %s line: %d offset: %d pre: %U post: %U", u_errorName(status), pe.line, pe.offset, pre, post);
+        Py_CLEAR(pre); Py_CLEAR(post);
+        if (t != NULL) utrans_close(t);
+        return NULL;
+    }
+    self = (icu_Transliterator *)type->tp_alloc(type, 0);
+    if (self != NULL) {
+        self->transliterator = t;
+    } else utrans_close(t);
+
+    return (PyObject *)self;
+}
+
+typedef struct Replaceable {
+    UChar *buf;
+    int32_t sz, capacity;
+} Replaceable;
+
+static int32_t replaceable_length(const UReplaceable* rep) {
+    const Replaceable* x = (const Replaceable*)rep;
+    return x->sz;
+}
+
+static UChar replaceable_charAt(const UReplaceable* rep, int32_t offset) {
+    const Replaceable* x = (const Replaceable*)rep;
+    if (offset >= x->sz || offset < 0) return 0xffff;
+    return x->buf[offset];
+}
+
+static UChar32 replaceable_char32At(const UReplaceable* rep, int32_t offset) {
+    const Replaceable* x = (const Replaceable*)rep;
+    if (offset >= x->sz || offset < 0) return 0xffff;
+    UChar32 c;
+    U16_GET_OR_FFFD(x->buf, 0, offset, x->sz, c);
+    return c;
+}
+
+static void replaceable_replace(UReplaceable* rep, int32_t start, int32_t limit, const UChar* text, int32_t repl_len) {
+    Replaceable* x = (Replaceable*)rep;
+    /* printf("start replace: start=%d limit=%d x->sz: %d text=%s repl_len=%d\n", start, limit, x->sz, PyUnicode_AsUTF8(icu_to_python(text, repl_len)), repl_len); */
+    const int32_t src_len = limit - start;
+    if (repl_len <= src_len) {
+        u_memcpy(x->buf + start, text, repl_len);
+        if (repl_len < src_len) {
+            u_memmove(x->buf + start + repl_len, x->buf + limit, x->sz - limit);
+            x->sz -= src_len - repl_len;
+        }
+    } else {
+        const int32_t sz = x->sz + (repl_len - src_len);
+        UChar *n = x->buf;
+        if (sz > x->capacity) n = realloc(x->buf, sizeof(UChar) * (sz + 256));
+        if (n) {
+            u_memmove(n + start + repl_len, n + limit, x->sz - limit);
+            u_memcpy(n + start, text, repl_len);
+            x->buf = n; x->sz = sz; x->capacity = sz + 256;
+        }
+    }
+    /* printf("end replace: %s\n", PyUnicode_AsUTF8(icu_to_python(x->buf, x->sz))); */
+}
+
+static void replaceable_copy(UReplaceable* rep, int32_t start, int32_t limit, int32_t dest) {
+    Replaceable* x = (Replaceable*)rep;
+    /* printf("start copy: start=%d limit=%d x->sz: %d dest=%d\n", start, limit, x->sz, dest); */
+    int32_t sz = x->sz + limit - start;
+    UChar *n = malloc((sz + 256) * sizeof(UChar));
+    if (n) {
+        u_memcpy(n, x->buf, dest);
+        u_memcpy(n + dest, x->buf + start, limit - start);
+        u_memcpy(n + dest + limit - start, x->buf + dest, x->sz - dest);
+        free(x->buf);
+        x->buf = n; x->sz = sz; x->capacity = sz + 256;
+    }
+    /* printf("end copy: %s\n", PyUnicode_AsUTF8(icu_to_python(x->buf, x->sz))); */
+}
+
+static void replaceable_extract(UReplaceable* rep, int32_t start, int32_t limit, UChar* dst) {
+    Replaceable* x = (Replaceable*)rep;
+    memcpy(dst, x->buf + start, sizeof(UChar) * (limit - start));
+}
+
+const static UReplaceableCallbacks replaceable_callbacks = {
+    .length = replaceable_length,
+    .charAt = replaceable_charAt,
+    .char32At = replaceable_char32At,
+    .replace = replaceable_replace,
+    .extract = replaceable_extract,
+    .copy = replaceable_copy,
+};
+
+static PyObject *
+icu_Transliterator_transliterate(icu_Transliterator *self, PyObject *input) {
+    Replaceable r;
+    UErrorCode status = U_ZERO_ERROR;
+    r.buf = python_to_icu(input, &r.sz);
+    if (r.buf == NULL) return NULL;
+    r.capacity = r.sz;
+    int32_t limit = r.sz;
+    utrans_trans(self->transliterator, (UReplaceable*)&r, &replaceable_callbacks, 0, &limit, &status);
+    PyObject *ans = NULL;
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+    } else ans = icu_to_python(r.buf, limit);
+    free(r.buf); r.buf = NULL;
+    return ans;
+}
+
+static PyMethodDef icu_Transliterator_methods[] = {
+    {"transliterate", (PyCFunction)icu_Transliterator_transliterate, METH_O,
+     "transliterate(text) -> Run the transliterator on the specified text"
+    },
+
+    {NULL}  /* Sentinel */
+};
+
+
+static PyTypeObject icu_TransliteratorType = { // {{{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "icu.Transliterator",
+    /* tp_basicsize      */ sizeof(icu_Transliterator),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)icu_Transliterator_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_doc            */ "Transliterator",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ icu_Transliterator_methods,
+    /* tp_members        */ 0,
+    /* tp_getset         */ 0,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ 0,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ icu_Transliterator_new,
+}; // }}}
+// }}}
+
 // BreakIterator object definition {{{
 typedef struct {
     PyObject_HEAD
@@ -1247,10 +1438,13 @@ exec_module(PyObject *mod) {
         return -1;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
         return -1;
+    if (PyType_Ready(&icu_TransliteratorType) < 0)
+        return -1;
 
-    Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType);
+    Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType); Py_INCREF(&icu_TransliteratorType);
     PyModule_AddObject(mod, "Collator", (PyObject *)&icu_CollatorType);
     PyModule_AddObject(mod, "BreakIterator", (PyObject *)&icu_BreakIteratorType);
+    PyModule_AddObject(mod, "Transliterator", (PyObject *)&icu_TransliteratorType);
     // uint8_t must be the same size as char
     PyModule_AddIntConstant(mod, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
     PyModule_AddStringConstant(mod, "icu_version", version);
