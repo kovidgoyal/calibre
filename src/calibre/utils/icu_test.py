@@ -118,6 +118,11 @@ class TestICU(unittest.TestCase):
         self.ae((0, 13), icu.primary_no_punc_find("typographers", 'typographer’s'))
         self.ae((0, 7), icu.primary_no_punc_find('abcd', 'a\u00adb\u200cc\u200dd'))
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
+        # test find all
+        m = []
+        a = lambda p,l : m.append((p, l))
+        icu.primary_collator_without_punctuation().find_all('a', 'a a🐱a', a)
+        self.ae(m, [(0, 1), (2, 1), (5, 1)])
 
     def test_collation_order(self):
         'Testing collation ordering'

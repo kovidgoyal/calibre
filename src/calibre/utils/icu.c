@@ -218,7 +218,7 @@ icu_Collator_find(icu_Collator *self, PyObject *args) {
     UErrorCode status = U_ZERO_ERROR;
     UStringSearch *search = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
@@ -243,6 +243,44 @@ end:
     if (b != NULL) free(b);
 
     return (PyErr_Occurred()) ? NULL : Py_BuildValue("ll", (long)pos, (long)length);
+} // }}}
+
+// Collator.find_all {{{
+static PyObject *
+icu_Collator_find_all(icu_Collator *self, PyObject *args) {
+    PyObject *a_ = NULL, *b_ = NULL, *callback;
+    UChar *a = NULL, *b = NULL;
+    int32_t asz = 0, bsz = 0, pos = -1, length = -1;
+    UErrorCode status = U_ZERO_ERROR;
+    UStringSearch *search = NULL;
+
+    if (!PyArg_ParseTuple(args, "UUO", &a_, &b_, &callback)) return NULL;
+
+    a = python_to_icu(a_, &asz);
+    b = python_to_icu(b_, &bsz);
+    if (a && b) {
+        search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
+        if (search && U_SUCCESS(status)) {
+            pos = usearch_first(search, &status);
+            int32_t codepoint_count = 0, pos_for_codepoint_count = 0;
+            while (pos != USEARCH_DONE) {
+                codepoint_count += u_countChar32(b + pos_for_codepoint_count, pos - pos_for_codepoint_count);
+                pos_for_codepoint_count = pos;
+                length = usearch_getMatchedLength(search);
+                length = u_countChar32(b + pos, length);
+                PyObject *ret = PyObject_CallFunction(callback, "ii", pos, length);
+                if (ret && ret == Py_None) pos = usearch_next(search, &status);
+                else pos = USEARCH_DONE;
+                Py_CLEAR(ret);
+            }
+        } else PyErr_SetString(PyExc_ValueError, u_errorName(status));
+    }
+    if (search != NULL) usearch_close(search);
+    if (a != NULL) free(a);
+    if (b != NULL) free(b);
+
+    if (PyErr_Occurred()) return NULL;
+    Py_RETURN_NONE;
 } // }}}
 
 // Collator.contains {{{
@@ -442,6 +480,10 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
      "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
+    },
+
+    {"find_all", (PyCFunction)icu_Collator_find_all, METH_VARARGS,
+        "find(pattern, source, callback) -> reports the position and length of all occurrences of pattern in source to callback. Aborts if callback returns anything other than None."
     },
 
     {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
