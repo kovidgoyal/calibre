@@ -116,6 +116,7 @@ class TestICU(unittest.TestCase):
         self.ae(x.get_attribute(icu._icu.UCOL_STRENGTH), icu._icu.UCOL_PRIMARY),
         self.ae((0, 4), icu.primary_no_punc_find('pena"', 'peña'))
         self.ae((0, 13), icu.primary_no_punc_find("typographers", 'typographer’s'))
+        self.ae((0, 7), icu.primary_no_punc_find('abcd', 'a\u00adb\u200cc\u200dd'))
 
     def test_collation_order(self):
         'Testing collation ordering'
