@@ -12,7 +12,8 @@ from calibre.utils.config_base import tweaks, prefs
 from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
-_locale = _collator = _primary_collator = _sort_collator = _non_numeric_sort_collator = _numeric_collator = _case_sensitive_collator = None
+_locale = _collator = _primary_collator = _sort_collator = _non_numeric_sort_collator = _numeric_collator = None
+_case_sensitive_collator = _primary_no_punc_collator = None
 cmp
 
 _none = ''
@@ -66,7 +67,9 @@ def collator():
 
 def change_locale(locale=None):
     global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator, _non_numeric_sort_collator
+    global _primary_no_punc_collator
     _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = _non_numeric_sort_collator = None
+    _primary_no_punc_collator = None
     _locale = locale
 
 
@@ -77,6 +80,16 @@ def primary_collator():
         _primary_collator = collator().clone()
         _primary_collator.strength = _icu.UCOL_PRIMARY
     return _primary_collator
+
+
+def primary_collator_without_punctuation():
+    'Ignores case differences, accented characters and punctuation'
+    global _primary_no_punc_collator
+    if _primary_no_punc_collator is None:
+        _primary_no_punc_collator = collator().clone()
+        _primary_no_punc_collator.strength = _icu.UCOL_PRIMARY
+        _primary_no_punc_collator.set_attribute(_icu.UCOL_ALTERNATE_HANDLING, _icu.UCOL_SHIFTED)
+    return _primary_no_punc_collator
 
 
 def sort_collator():
@@ -223,8 +236,10 @@ except AttributeError:  # For people running from source
 
 find = make_two_arg_func(collator, 'find')
 primary_find = make_two_arg_func(primary_collator, 'find')
+primary_no_punc_find = make_two_arg_func(primary_collator_without_punctuation, 'find')
 contains = make_two_arg_func(collator, 'contains')
 primary_contains = make_two_arg_func(primary_collator, 'contains')
+primary_no_punc_contains = make_two_arg_func(primary_collator_without_punctuation, 'contains')
 startswith = make_two_arg_func(collator, 'startswith')
 primary_startswith = make_two_arg_func(primary_collator, 'startswith')
 safe_chr = _icu.chr
