@@ -377,12 +377,48 @@ icu_Collator_set_upper_first(icu_Collator *self, PyObject *val, void *closure) {
 }
 // }}}
 
+
+// Collator.get/set_attribute {{{
+static PyObject *
+icu_Collator_get_attribute(icu_Collator *self, PyObject *args) {
+    int k;
+    if (!PyArg_ParseTuple(args, "i", &k)) return NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    long v = ucol_getAttribute(self->collator, k, &status);
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return NULL;
+    }
+    return PyLong_FromLong(v);
+}
+
+static PyObject *
+icu_Collator_set_attribute(icu_Collator *self, PyObject *args) {
+    int k, v;
+    if (!PyArg_ParseTuple(args, "ii", &k, &v)) return NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    ucol_setAttribute(self->collator, k, v, &status);
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return NULL;
+    }
+    Py_RETURN_NONE;
+} // }}}
+
 static PyObject*
 icu_Collator_clone(icu_Collator *self, PyObject *args);
 
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_O,
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
+    },
+
+    {"get_attribute", (PyCFunction)icu_Collator_get_attribute, METH_VARARGS,
+     "get_attribute(key) -> get the specified attribute on this collator."
+    },
+
+    {"set_attribute", (PyCFunction)icu_Collator_set_attribute, METH_VARARGS,
+     "set_attribute(key, val) -> set the specified attribute on this collator."
     },
 
     {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
@@ -1467,6 +1503,14 @@ exec_module(PyObject *mod) {
     ADDUCONST(UCOL_NON_IGNORABLE);
     ADDUCONST(UCOL_LOWER_FIRST);
     ADDUCONST(UCOL_UPPER_FIRST);
+    ADDUCONST(UCOL_FRENCH_COLLATION);
+    ADDUCONST(UCOL_ALTERNATE_HANDLING);
+    ADDUCONST(UCOL_CASE_FIRST);
+    ADDUCONST(UCOL_CASE_LEVEL);
+    ADDUCONST(UCOL_NORMALIZATION_MODE);
+    ADDUCONST(UCOL_DECOMPOSITION_MODE);
+    ADDUCONST(UCOL_STRENGTH);
+    ADDUCONST(UCOL_NUMERIC_COLLATION);
 
     ADDUCONST(NFD);
     ADDUCONST(NFKD);

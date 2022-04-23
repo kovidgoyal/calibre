@@ -19,12 +19,11 @@ _none = ''
 _none2 = b''
 _cmap = {}
 
-icu_unicode_version = getattr(_icu, 'unicode_version', None)
+icu_unicode_version = _icu.unicode_version
 _nmodes = {m:getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 
+
 # Ensure that the python internal filesystem and default encodings are not ASCII
-
-
 def is_ascii(name):
     try:
         return codecs.lookup(name).name == b'ascii'

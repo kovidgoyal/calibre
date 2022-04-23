@@ -112,6 +112,8 @@ class TestICU(unittest.TestCase):
         self.assertTrue(icu.contains('', ''))
         self.assertFalse(icu.contains('xxx', 'xx'))
         self.assertTrue(icu.primary_contains('pena', 'peña'))
+        x = icu.primary_collator()
+        self.ae(x.get_attribute(icu._icu.UCOL_STRENGTH), icu._icu.UCOL_PRIMARY),
 
     def test_collation_order(self):
         'Testing collation ordering'
