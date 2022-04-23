@@ -338,9 +338,9 @@ class CSSFlattener:
                 if '%' in cssdict[property]:
                     continue
                 value = style[property]
-                if value == 0:
+                if value == 0 or not isinstance(value, numbers.Number):
                     continue
-                elif value <= slineh:
+                if value <= slineh:
                     cssdict[property] = "%0.5fem" % (dlineh / fsize)
                 else:
                     try:
