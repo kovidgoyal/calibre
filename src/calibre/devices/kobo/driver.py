@@ -1386,7 +1386,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
     min_dbversion_seriesid          = 136
-    min_dbversion_bookstats         = 169
+    min_dbversion_bookstats         = 168
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
@@ -3209,7 +3209,7 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:set_series - end")
 
     def set_core_metadata(self, connection, book, series_only=False):
-        debug_print('KoboTouch:set_core_metadata book="%s"' % book.title)
+        # debug_print('KoboTouch:set_core_metadata book="%s"' % book.title)
         show_debug = self.is_debugging_title(book.title)
         if show_debug:
             debug_print(f'KoboTouch:set_core_metadata book="{book}", \nseries_only="{series_only}"')
@@ -3223,9 +3223,9 @@ class KOBOTOUCH(KOBO):
                     debug_print("KoboTouch:generate_update_from_template  template error - template='%s'" % template)
                     debug_print("KoboTouch:generate_update_from_template - new_value=", new_value)
 
-            debug_print(
-                f"KoboTouch:generate_update_from_template - {book.title} - column_name='{column_name}',"
-                f" current_value='{current_value}', new_value='{new_value}'")
+            # debug_print(
+            #     f"KoboTouch:generate_update_from_template - {book.title} - column_name='{column_name}',"
+            #     f" current_value='{current_value}', new_value='{new_value}'")
             if (new_value is not None and
                             (current_value is None or new_value != current_value)) or \
                         (new_value is None and current_value is not None):
