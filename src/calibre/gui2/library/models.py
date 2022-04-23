@@ -1100,9 +1100,17 @@ class BooksModel(QAbstractTableModel):  # {{{
             if role == Qt.ItemDataRole.DisplayRole:
                 return (self.headers[self.column_map[section]])
             return None
-        if DEBUG and role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Vertical:
-            col = self.db.field_metadata['uuid']['rec_index']
-            return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
+        if role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Vertical:
+            col = self.db.field_metadata['marked']['rec_index']
+            marked = self.db.data[section][col]
+            if marked is not None:
+                s = _('Marked with text "{0}"').format(marked) if marked != 'true' else _('Marked without text')
+            else:
+                s = ''
+            if DEBUG:
+                col = self.db.field_metadata['uuid']['rec_index']
+                s += ('\n' if s else '') + _('This book\'s UUID is "{0}"').format(self.db.data[section][col])
+            return s
 
         if role == Qt.ItemDataRole.DisplayRole:  # orientation is vertical
             return (section+1)
