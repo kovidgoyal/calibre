@@ -311,11 +311,15 @@ def toc_nodes_for_search_result(sr):
 
 def search_in_name(name, search_query, ctx_size=75):
     raw = searchable_text_for_name(name)[0]
-    for match in search_query.regex.finditer(raw):
-        start, end = match.span()
+
+    def miter():
+        for match in search_query.regex.finditer(raw):
+            yield match.span()
+
+    for (start, end) in miter():
         before = raw[max(0, start-ctx_size):start]
         after = raw[end:end+ctx_size]
-        yield before, match.group(), after, start
+        yield before, raw[start:end], after, start
 
 
 class SearchInput(QWidget):  # {{{
