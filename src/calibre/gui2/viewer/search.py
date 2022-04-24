@@ -18,6 +18,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.utils.icu import primary_collator_without_punctuation
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
@@ -312,9 +313,15 @@ def toc_nodes_for_search_result(sr):
 def search_in_name(name, search_query, ctx_size=75):
     raw = searchable_text_for_name(name)[0]
 
-    def miter():
-        for match in search_query.regex.finditer(raw):
-            yield match.span()
+    if search_query.mode in ('word', 'regex') or search_query.case_sensitive:
+        def miter():
+            for match in search_query.regex.finditer(raw):
+                yield match.span()
+    else:
+        spans = []
+        a = lambda s, l: spans.append((s, s + l))
+        primary_collator_without_punctuation().find_all(search_query.text, raw, a)
+        miter = lambda: spans
 
     for (start, end) in miter():
         before = raw[max(0, start-ctx_size):start]
@@ -371,7 +378,8 @@ class SearchInput(QWidget):  # {{{
         qt.addItem(_('Regex'), 'regex')
         qt.setToolTip('<p>' + _(
             'Choose the type of search: <ul>'
-            '<li><b>Contains</b> will search for the entered text anywhere.'
+            '<li><b>Contains</b> will search for the entered text anywhere. It will ignore punctuation,'
+            ' spaces and accents, unless Case sensitive searching is enabled.'
             '<li><b>Whole words</b> will search for whole words that equal the entered text.'
             '<li><b>Regex</b> will interpret the text as a regular expression.'
         ))
