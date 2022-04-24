@@ -30,6 +30,7 @@ typedef struct {
     // Type-specific fields go here.
     UCollator *collator;
     USet *contractions;
+    UBreakIterator *word_iterator;
 
 } icu_Collator;
 
@@ -38,7 +39,9 @@ icu_Collator_dealloc(icu_Collator* self)
 {
     if (self->collator != NULL) ucol_close(self->collator);
     if (self->contractions != NULL) uset_close(self->contractions);
-    self->collator = NULL;
+    if (self->word_iterator) ubrk_close(self->word_iterator);
+    self->collator = NULL; self->contractions = NULL;
+    self->word_iterator = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -61,6 +64,7 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self != NULL) {
         self->collator = collator;
         self->contractions = NULL;
+        self->word_iterator = NULL;
     }
 
     return (PyObject *)self;
@@ -210,6 +214,23 @@ end:
 } // }}}
 
 // Collator.find {{{
+
+static void
+create_word_iterator(icu_Collator *self) {
+    if (self->word_iterator) return;
+    UErrorCode status = U_ZERO_ERROR;
+    const char *loc = ucol_getLocaleByType(self->collator, ULOC_VALID_LOCALE, &status);
+    if (U_FAILURE(status) || !loc) {
+        PyErr_SetString(PyExc_ValueError, "Failed to get locale for collator");
+        return;
+    }
+    self->word_iterator = ubrk_open(UBRK_WORD, loc, NULL, -1, &status);
+    if (U_FAILURE(status) || !self->word_iterator) {
+        PyErr_SetString(PyExc_ValueError, "Failed to create word break iterator for collator");
+        return;
+    }
+}
+
 static PyObject *
 icu_Collator_find(icu_Collator *self, PyObject *args) {
     PyObject *a_ = NULL, *b_ = NULL;
@@ -217,15 +238,18 @@ icu_Collator_find(icu_Collator *self, PyObject *args) {
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
     UErrorCode status = U_ZERO_ERROR;
     UStringSearch *search = NULL;
+    int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
+    if (!PyArg_ParseTuple(args, "UU|p", &a_, &b_, &whole_words)) return NULL;
+    if (whole_words) create_word_iterator(self);
+    if (PyErr_Occurred()) return NULL;
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
     b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
 
-    search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
+    search = usearch_openFromCollator(a, asz, b, bsz, self->collator, whole_words ? self->word_iterator : NULL, &status);
     if (U_SUCCESS(status)) {
         pos = usearch_first(search, &status);
         if (pos != USEARCH_DONE) {
@@ -253,13 +277,16 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
     UErrorCode status = U_ZERO_ERROR;
     UStringSearch *search = NULL;
+    int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UUO", &a_, &b_, &callback)) return NULL;
+    if (!PyArg_ParseTuple(args, "UUO|p", &a_, &b_, &callback, &whole_words)) return NULL;
+    if (whole_words) create_word_iterator(self);
+    if (PyErr_Occurred()) return NULL;
 
     a = python_to_icu(a_, &asz);
     b = python_to_icu(b_, &bsz);
     if (a && b) {
-        search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
+        search = usearch_openFromCollator(a, asz, b, bsz, self->collator, whole_words ? self->word_iterator : NULL, &status);
         if (search && U_SUCCESS(status)) {
             pos = usearch_first(search, &status);
             int32_t codepoint_count = 0, pos_for_codepoint_count = 0;
@@ -620,6 +647,8 @@ icu_Collator_clone(icu_Collator *self, PyObject *args)
 
     clone->collator = collator;
     clone->contractions = NULL;
+    if (self->word_iterator) clone->word_iterator = ubrk_clone(self->word_iterator, &status);
+    else clone->word_iterator = NULL;
 
     return (PyObject*) clone;
 
