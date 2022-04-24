@@ -647,7 +647,11 @@ icu_Collator_clone(icu_Collator *self, PyObject *args)
 
     clone->collator = collator;
     clone->contractions = NULL;
+#if U_ICU_VERSION_MAJOR_NUM > 68
     if (self->word_iterator) clone->word_iterator = ubrk_clone(self->word_iterator, &status);
+#else
+    if (self->word_iterator) clone->word_iterator = ubrk_safeClone(self->word_iterator, NULL, NULL, &status);
+#endif
     else clone->word_iterator = NULL;
 
     return (PyObject*) clone;
