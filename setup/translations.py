@@ -230,7 +230,7 @@ class POT(Command):  # {{{
             subprocess.check_call(['xgettext', '-f', fl.name,
                 '--default-domain=calibre', '-o', out.name, '-L', 'Python',
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
-                '--no-wrap', '-k__', '--add-comments=NOTE:',
+                '--no-wrap', '-k__', '-kpgettext:1c,2', '--add-comments=NOTE:',
                 ])
             subprocess.check_call(['xgettext', '-j',
                 '--default-domain=calibre', '-o', out.name,
