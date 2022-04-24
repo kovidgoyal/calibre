@@ -72,7 +72,8 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
             ans = _icu.Collator(_locale)
         except Exception as e:
             print(f'Failed to load collator for locale: {_locale!r} with error {e!r}, using English', file=sys.stderr)
-            ans = _icu.Collator('en')
+            _locale = 'en'
+            ans = _icu.Collator(_locale)
     else:
         ans = collator().clone()
         if strength is not None:
