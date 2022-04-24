@@ -46,6 +46,13 @@ def process_node(node, html_parent):
                 html_parent.text = (html_parent.text or '') + text
 
 
+def safe_dict(data, *names):
+    ans = data
+    for x in names:
+        ans = ans.get(x) or {}
+    return ans
+
+
 def load_article_from_json(raw, root):
     data = json.loads(raw)['props']['pageProps']['content']
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
@@ -59,14 +66,14 @@ def load_article_from_json(raw, root):
     E(article, 'h1', data['headline'], style='font-size: x-large')
     E(article, 'div', data['description'], style='font-style: italic')
     E(article, 'div', (data['datePublishedString'] or '') + ' | ' + (data['dateline'] or ''), style='color: gray; margin: 1em')
-    main_image_url = data.get('image', {}).get('main', {}).get('url', {}).get('canonical')
+    main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
     if main_image_url:
         div = E(article, 'div')
         try:
             E(div, 'img', src=main_image_url)
         except Exception:
             pass
-    for node in data.get('text', []):
+    for node in data.get('text') or ():
         process_node(node, article)
 
 
@@ -235,7 +242,7 @@ class Economist(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        #     'url':'https://www.economist.com/briefing/2021/09/11/how-america-wasted-its-unipolar-moment'
+        #     'url':'https://www.economist.com/economic-and-financial-indicators/2022/04/23/economic-data-commodities-and-markets'
         # }])]
         if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
