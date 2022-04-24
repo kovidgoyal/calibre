@@ -127,6 +127,7 @@ class TestICU(unittest.TestCase):
         c = icu.primary_collator_without_punctuation()
         self.ae(c.find('a', 'abc a bc'), (0, 1))
         self.ae(c.find('a', 'abc a bc', True), (4, 1))
+        self.ae(c.find('pena', 'a peñaabc peña', True), (10, 4))
 
     def test_collation_order(self):
         'Testing collation ordering'

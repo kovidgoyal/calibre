@@ -313,14 +313,14 @@ def toc_nodes_for_search_result(sr):
 def search_in_name(name, search_query, ctx_size=75):
     raw = searchable_text_for_name(name)[0]
 
-    if search_query.mode in ('word', 'regex') or search_query.case_sensitive:
+    if search_query.mode == 'regex' or search_query.case_sensitive:
         def miter():
             for match in search_query.regex.finditer(raw):
                 yield match.span()
     else:
         spans = []
         a = lambda s, l: spans.append((s, s + l))
-        primary_collator_without_punctuation().find_all(search_query.text, raw, a)
+        primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
         miter = lambda: spans
 
     for (start, end) in miter():
@@ -380,7 +380,8 @@ class SearchInput(QWidget):  # {{{
             'Choose the type of search: <ul>'
             '<li><b>Contains</b> will search for the entered text anywhere. It will ignore punctuation,'
             ' spaces and accents, unless Case sensitive searching is enabled.'
-            '<li><b>Whole words</b> will search for whole words that equal the entered text.'
+            '<li><b>Whole words</b> will search for whole words that equal the entered text. As with'
+            ' "Contains" searches punctuation and accents are ignored.'
             '<li><b>Regex</b> will interpret the text as a regular expression.'
         ))
         qt.setCurrentIndex(qt.findData(vprefs.get(f'viewer-{self.panel_name}-mode', 'normal') or 'normal'))
