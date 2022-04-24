@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 # Setup code {{{
 import codecs
 import sys
-from functools import lru_cache
+import threading
 
 from calibre.utils.config_base import prefs, tweaks
 from calibre_extensions import icu as _icu
@@ -48,7 +48,9 @@ except:
 del is_ascii
 
 
-@lru_cache(maxsize=32)
+thread_local_collator_cache = threading.local()
+
+
 def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_first=None):
     global _locale
     if _locale is None:
@@ -57,7 +59,15 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
         else:
             from calibre.utils.localization import get_lang
             _locale = get_lang()
-    if strength is None and numeric is None and ignore_alternate_chars is None and upper_first is None:
+    key = strength, numeric, ignore_alternate_chars, upper_first
+    try:
+        ans = thread_local_collator_cache.cache.get(key)
+    except AttributeError:
+        thread_local_collator_cache.cache = {}
+        ans = None
+    if ans is not None:
+        return ans
+    if all(x is None for x in key):
         try:
             ans = _icu.Collator(_locale)
         except Exception as e:
@@ -77,13 +87,17 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
             except AttributeError:
                 pass  # people running from source without latest binary
 
+    thread_local_collator_cache.cache[key] = ans
     return ans
 
 
 def change_locale(locale=None):
     global _locale
     _locale = locale
-    collator.cache_clear()
+    try:
+        thread_local_collator_cache.cache.clear()
+    except AttributeError:
+        pass
 
 
 def primary_collator():
