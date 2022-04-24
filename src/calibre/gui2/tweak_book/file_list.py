@@ -7,7 +7,7 @@ import posixpath
 import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
-from functools import partial
+from functools import partial, lru_cache
 from gettext import pgettext
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont,
@@ -50,13 +50,16 @@ LINEAR_ROLE = CATEGORY_ROLE + 1
 MIME_ROLE = LINEAR_ROLE + 1
 NBSP = '\xa0'
 
-CATEGORIES = (
-    ('text', _('Text'), _('Chapter-')),
-    ('styles', _('Styles'), _('Style-')),
-    ('images', _('Images'), _('Image-')),
-    ('fonts', _('Fonts'), _('Font-')),
-    ('misc', pgettext('edit book file type', 'Miscellaneous'), _('Misc-')),
-)
+
+@lru_cache(maxsize=2)
+def category_defs():
+    return (
+        ('text', _('Text'), _('Chapter-')),
+        ('styles', _('Styles'), _('Style-')),
+        ('images', _('Images'), _('Image-')),
+        ('fonts', _('Fonts'), _('Font-')),
+        ('misc', pgettext('edit book file type', 'Miscellaneous'), _('Misc-')),
+    )
 
 
 def name_is_ok(name, show_error):
@@ -83,7 +86,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     d.l = l = QFormLayout(d)
     d.setLayout(l)
     d.prefix = p = QLineEdit(d)
-    default_prefix = {k:v for k, __, v in CATEGORIES}.get(category, _('Chapter-'))
+    default_prefix = {k:v for k, __, v in category_defs()}.get(category, _('Chapter-'))
     previous = tprefs.get('file-list-bulk-rename-prefix', {})
     prefix = prefix or previous.get(category, default_prefix)
     p.setText(prefix)
@@ -430,7 +433,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.root = self.invisibleRootItem()
         self.root.setFlags(Qt.ItemFlag.ItemIsDragEnabled)
         self.categories = {}
-        for category, text, __ in CATEGORIES:
+        for category, text, __ in category_defs():
             self.categories[category] = i = QTreeWidgetItem(self.root, 0)
             i.setText(0, text)
             i.setData(0, Qt.ItemDataRole.DecorationRole, self.top_level_pixmap_cache[category])
