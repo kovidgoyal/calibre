@@ -124,7 +124,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         row_indices = list(self.available_tags.selectionModel().selectedRows())
 
         if not row_indices:
-            error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec()
+            error_dialog(self, _('No tags selected'), _('You must select at least one tag from the list of Available tags.')).exec()
             return
         if not confirm(
             _('Deleting tags is done immediately and there is no undo.'),
