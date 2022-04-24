@@ -7,13 +7,13 @@ __docformat__ = 'restructuredtext en'
 # Setup code {{{
 import codecs
 import sys
+from functools import lru_cache
 
-from calibre.utils.config_base import tweaks, prefs
+from calibre.utils.config_base import prefs, tweaks
 from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
-_locale = _collator = _primary_collator = _sort_collator = _non_numeric_sort_collator = _numeric_collator = None
-_case_sensitive_collator = _primary_no_punc_collator = None
+_locale = None
 cmp
 
 _none = ''
@@ -48,91 +48,72 @@ except:
 del is_ascii
 
 
-def collator():
-    global _collator, _locale
-    if _collator is None:
-        if _locale is None:
+@lru_cache(maxsize=32)
+def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_first=None):
+    global _locale
+    if _locale is None:
+        if tweaks['locale_for_sorting']:
+            _locale = tweaks['locale_for_sorting']
+        else:
             from calibre.utils.localization import get_lang
-            if tweaks['locale_for_sorting']:
-                _locale = tweaks['locale_for_sorting']
-            else:
-                _locale = get_lang()
+            _locale = get_lang()
+    if strength is None and numeric is None and ignore_alternate_chars is None and upper_first is None:
         try:
-            _collator = _icu.Collator(_locale)
+            ans = _icu.Collator(_locale)
         except Exception as e:
-            print(f'Failed to load collator for locale: {_locale!r} with error {e!r}, using English')
-            _collator = _icu.Collator('en')
-    return _collator
+            print(f'Failed to load collator for locale: {_locale!r} with error {e!r}, using English', file=sys.stderr)
+            ans = _icu.Collator('en')
+    else:
+        ans = collator().clone()
+        if strength is not None:
+            ans.strength = strength
+        if numeric is not None:
+            ans.numeric = numeric
+        if upper_first is not None:
+            ans.upper_first = upper_first
+        if ignore_alternate_chars is not None:
+            try:
+                ans.set_attribute(_icu.UCOL_ALTERNATE_HANDLING, _icu.UCOL_SHIFTED if ignore_alternate_chars else _icu.UCOL_NON_IGNORABLE)
+            except AttributeError:
+                pass  # people running from source without latest binary
+
+    return ans
 
 
 def change_locale(locale=None):
-    global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator, _non_numeric_sort_collator
-    global _primary_no_punc_collator
-    _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = _non_numeric_sort_collator = None
-    _primary_no_punc_collator = None
+    global _locale
     _locale = locale
+    collator.cache_clear()
 
 
 def primary_collator():
-    'Ignores case differences and accented characters'
-    global _primary_collator
-    if _primary_collator is None:
-        _primary_collator = collator().clone()
-        _primary_collator.strength = _icu.UCOL_PRIMARY
-    return _primary_collator
+    'Ignores case differences and accented chars'
+    return collator(strength=_icu.UCOL_PRIMARY)
 
 
 def primary_collator_without_punctuation():
-    'Ignores case differences, accented characters and punctuation'
-    global _primary_no_punc_collator
-    if _primary_no_punc_collator is None:
-        _primary_no_punc_collator = collator().clone()
-        _primary_no_punc_collator.strength = _icu.UCOL_PRIMARY
-        try:
-            _primary_no_punc_collator.set_attribute(_icu.UCOL_ALTERNATE_HANDLING, _icu.UCOL_SHIFTED)
-        except AttributeError:
-            pass  # people running from source without latest binary
-    return _primary_no_punc_collator
+    'Ignores space and punctuation and case differences and accented chars'
+    return collator(strength=_icu.UCOL_PRIMARY, ignore_alternate_chars=True)
 
 
 def sort_collator():
     'Ignores case differences and recognizes numbers in strings (if the tweak is set)'
-    global _sort_collator
-    if _sort_collator is None:
-        _sort_collator = collator().clone()
-        _sort_collator.strength = _icu.UCOL_SECONDARY
-        _sort_collator.numeric = prefs['numeric_collation']
-    return _sort_collator
+    return collator(strength=_icu.UCOL_SECONDARY, numeric=prefs['numeric_collation'])
 
 
 def non_numeric_sort_collator():
     'Ignores case differences only'
-    global _non_numeric_sort_collator
-    if _non_numeric_sort_collator is None:
-        _non_numeric_sort_collator = collator().clone()
-        _non_numeric_sort_collator.strength = _icu.UCOL_SECONDARY
-        _non_numeric_sort_collator.numeric = False
-    return _non_numeric_sort_collator
+    return collator(strength=_icu.UCOL_SECONDARY, numeric=False)
 
 
 def numeric_collator():
     'Uses natural sorting for numbers inside strings so something2 will sort before something10'
-    global _numeric_collator
-    if _numeric_collator is None:
-        _numeric_collator = collator().clone()
-        _numeric_collator.strength = _icu.UCOL_SECONDARY
-        _numeric_collator.numeric = True
-    return _numeric_collator
+    return collator(strength=_icu.UCOL_SECONDARY, numeric=True)
 
 
 def case_sensitive_collator():
     'Always sorts upper case letter before lower case'
-    global _case_sensitive_collator
-    if _case_sensitive_collator is None:
-        _case_sensitive_collator = collator().clone()
-        _case_sensitive_collator.numeric = sort_collator().numeric
-        _case_sensitive_collator.upper_first = True
-    return _case_sensitive_collator
+    return collator(numeric=prefs['numeric_collation'], upper_first=True)
 
 
 def make_sort_key_func(collator_function, func_name='sort_key'):
@@ -273,10 +254,8 @@ def normalize(text, mode='NFC'):
 
 def contractions(col=None):
     global _cmap
-    col = col or _collator
-    if col is None:
-        col = collator()
-    ans = _cmap.get(collator, None)
+    col = col or collator()
+    ans = _cmap.get(col, None)
     if ans is None:
         ans = col.contractions()
         ans = frozenset(filter(None, ans))
@@ -326,7 +305,8 @@ def remove_accents_icu(txt: str) -> str:
 def remove_accents_regex(txt: str) -> str:
     pat = getattr(remove_accents_regex, 'pat', None)
     if pat is None:
-        import regex, unicodedata
+        import regex
+        import unicodedata
         pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
         setattr(remove_accents_regex, 'pat', pat)
         setattr(remove_accents_regex, 'normalize', unicodedata.normalize)
