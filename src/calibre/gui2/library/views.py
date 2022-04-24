@@ -516,11 +516,29 @@ class BooksView(QTableView):  # {{{
 
     def show_row_header_context_menu(self, pos):
         menu = QMenu(self)
-        menu.addAction(_('Hide row numbers'), self.hide_row_numbers)
+        # Even when hidden, row numbers show if any marks show, which is why it makes
+        # sense to offer "show row numbers" here. Saves having to go to Preferences
+        # Look & feel, assuming you know the trick.
+        if gprefs['row_numbers_in_book_list']:
+            menu.addAction(_('Hide row numbers'), partial(self.hide_row_numbers, show=False))
+        else:
+            menu.addAction(_('Show row numbers'), partial(self.hide_row_numbers, show=True))
+        db = self._model.db
+        row = self.row_header.logicalIndexAt(pos)
+        if row >= 0 and row < len(db.data):
+            book_id_col = db.field_metadata['id']['rec_index']
+            book_id = db.data[row][book_id_col]
+            m = menu.addAction(_('Toggle mark for book'), lambda: db.data.toggle_marked_ids({book_id,}))
+            ic = QIcon.ic('marked.png')
+            m.setIcon(ic)
+            from calibre.gui2.actions.mark_books import mark_books_with_text
+            m = menu.addAction(_('Mark book with text label'), partial(mark_books_with_text, {book_id,}))
+            m.setIcon(ic)
         menu.popup(self.mapToGlobal(pos))
 
-    def hide_row_numbers(self):
-        gprefs['row_numbers_in_book_list'] = False
+    # Probably should change the method name, but leave it for compatibility
+    def hide_row_numbers(self, show=False):
+        gprefs['row_numbers_in_book_list'] = show
         self.set_row_header_visibility()
 
     def show_column_header_context_menu(self, pos, view=None):
