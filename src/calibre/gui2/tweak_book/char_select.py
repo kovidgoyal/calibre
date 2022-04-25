@@ -732,6 +732,7 @@ class CharSelect(Dialog):
 
         self.category_view = CategoryView(self)
         self.category_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.category_view.clicked.connect(self.category_view_clicked)
         l.addWidget(s, 1, 0, 1, 3)
         self.char_view = CharView(self)
         self.char_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -759,6 +760,11 @@ class CharSelect(Dialog):
         h.addWidget(mm), h.addStretch(), h.addWidget(self.bb)
         l.addLayout(h, 4, 0, 1, 3)
         self.char_view.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def category_view_clicked(self):
+        p = self.parent()
+        if p is not None and p.focusWidget() is not None:
+            p.activateWindow()
 
     def do_search(self):
         text = str(self.search.text()).strip()
