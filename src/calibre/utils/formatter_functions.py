@@ -1385,6 +1385,53 @@ class BuiltinNot(BuiltinFormatterFunction):
         return '' if val else '1'
 
 
+class BuiltinListJoin(BuiltinFormatterFunction):
+    name = 'list_join'
+    arg_count = -1
+    category = 'List manipulation'
+    __doc__ = doc = _("list_join(with_separator, list1, separator1 [, list2, separator2]*) -- "
+                      "return a list made by joining the items in the source lists "
+                      "(list1 etc) using with_separator between the items in the "
+                      "result list. Items in each source list[123...] are separated "
+                      "by the associated separator[123...]. A list can contain "
+                      "zero values. It can be a field like publisher that is "
+                      "single-valued, effectively a one-item list. Duplicates "
+                      "are removed using a case-insensitive comparison. Items are "
+                      " returned in the order they appear in the source lists. "
+                      "If items on lists differ only in letter case then the last "
+                      "is used. All separators can be more than one character.\n"
+                      "Example:\n"
+                      "  program:\n"
+                      "    list_join('#@#', $authors, '&', $tags, ',')\n"
+                      "You can use list_join on the results of previous "
+                      "calls to list_join as follows\n"
+                      "  program:\n"
+                      "    a = list_join('#@#', $authors, '&', $tags, ',');\n"
+                      "    b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&')\n"
+                      "You can use expressions to generate a list. For example, "
+                      "assume you want items for ``authors`` and ``#genre``, but "
+                      "with the genre changed to the word 'Genre: ' followed by "
+                      "the first letter of the genre, i.e. the genre 'Fiction' "
+                      "becomes 'Genre: F'. The following will do that\n"
+                      "  program:\n"
+                      "    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')")
+
+    def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
+        if len(args) % 2 != 0:
+            raise ValueError(
+                _("Invalid 'List, separator' pairs. Every list must have one "
+                  "associated separator"))
+
+        # Starting in python 3.7 dicts preserve order so we don't need OrderedDict
+        result = dict()
+        i = 0
+        while i < len(args):
+            lst = [v.strip() for v in args[i].split(args[i+1]) if v.strip()]
+            result.update({item.lower():item for item in lst})
+            i += 2
+        return with_separator.join(result.values())
+
+
 class BuiltinListUnion(BuiltinFormatterFunction):
     name = 'list_union'
     arg_count = 3
@@ -2114,8 +2161,8 @@ _formatter_builtins = [
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
-    BuiltinListDifference(), BuiltinListEquals(),
-    BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
+    BuiltinListDifference(), BuiltinListEquals(), BuiltinListIntersection(),
+    BuiltinListitem(), BuiltinListJoin(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListRemoveDuplicates(), BuiltinListSort(),
     BuiltinListSplit(), BuiltinListUnion(),BuiltinLookup(),
     BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),

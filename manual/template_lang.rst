@@ -501,6 +501,24 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``list_difference(list1, list2, separator)`` -- return a list made by removing from ``list1`` any item found in ``list2`` using a case-insensitive comparison. The items in ``list1`` and ``list2`` are separated by separator, as are the items in the returned list.
 * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return ``yes_val`` if ``list1`` and `list2` contain the same items, otherwise return ``no_val``. The items are determined by splitting each list using the appropriate separator character (``sep1`` or ``sep2``). The order of items in the lists is not relevant. The comparison is case-insensitive.
 * ``list_intersection(list1, list2, separator)`` -- return a list made by removing from ``list1`` any item not found in ``list2``, using a case-insensitive comparison. The items in ``list1`` and ``list2`` are separated by separator, as are the items in the returned list.
+* ``list_join(with_separator, list1, separator1 [, list2, separator2]*)`` -- return a list made by joining the items in the source lists (``list1`` etc) using ``with_separator`` between the items in the result list. Items in each source ``list[123...]`` are separated by the associated ``separator[123...]``. A list can contain zero values. It can be a field like ``publisher`` that is single-valued, effectively a one-item list. Duplicates are removed using a case-insensitive comparison. Items are returned in the order they appear in the source lists. If items on lists differ only in letter case then the last is used. All separators can be more than one character.
+
+  Example::
+
+    program:
+      list_join('#@#', $authors, '&', $tags, ',')
+
+  You can use ``list_join`` on the results of previous calls to ``list_join`` as follows::
+
+    program:
+      a = list_join('#@#', $authors, '&', $tags, ',');
+      b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&', 'some value', ',')
+
+  You can use expressions to generate a list. For example, assume you want items for ``authors`` and ``#genre``, but with the genre changed to the word "Genre: " followed by the first letter of the genre, i.e. the genre "Fiction" becomes "Genre: F". The following will do that::
+
+    program:
+      list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')
+
 * ``list_re(src_list, separator, include_re, opt_replace)`` -- Construct a list by first separating ``src_list`` into items using the ``separator`` character. For each item in the list, check if it matches ``include_re``. If it does then add it to the list to be returned. If ``opt_replace`` is not the empty string then apply the replacement before adding the item to the returned list.
 * ``list_re_group(src_list, separator, include_re, search_re [, template_for_group]*)`` -- Like list_re except replacements are not optional. It uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 * ``list_remove_duplicates(list, separator)`` -- return a list made by removing duplicate items in ``list``. If items differ only in case then the last is returned. The items in ``list`` are separated by ``separator``, as are the items in the returned list.
