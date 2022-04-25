@@ -122,7 +122,7 @@ class MarkBooksAction(InterfaceAction):
         m.aboutToShow.connect(self.about_to_show_menu)
         ma = partial(self.create_menu_action, m)
         self.show_marked_action = a = ma('mark_with_text', _('Mark books with text label'), icon='marked.png')
-        a.triggered.connect(partial(self.mark_with_text, book_ids = None))
+        a.triggered.connect(partial(self.mark_with_text, book_ids=None))
         global mark_books_with_text
         mark_books_with_text = self.mark_with_text
         self.show_marked_action = a = ma('show-marked', _('Show marked books'), icon='search.png', shortcut='Shift+Ctrl+M')
