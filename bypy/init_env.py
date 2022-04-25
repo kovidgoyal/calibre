@@ -44,7 +44,7 @@ dlls = [
 ]
 
 if islinux:
-    dlls += ['XcbQpa', 'WaylandClient', 'DBus']
+    dlls += ['XcbQpa', 'WaylandClient', 'WaylandEglClientHwIntegration', 'DBus']
 elif ismacos:
     dlls += ['DBus']
 
@@ -66,6 +66,7 @@ QT_PLUGINS = [
 
 if islinux:
     QT_PLUGINS += [
+        'egldeviceintegrations',
         'platforminputcontexts',
         'platformthemes',
         'wayland-decoration-client',
