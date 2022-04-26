@@ -61,7 +61,7 @@ class MarkWithTextDialog(QDialog):
         layout.addWidget(button_box, button_rows+3, 0, 1, 2)
 
     def text(self):
-        return self.text_box.text()
+        return self.text_box.text().strip()
 
     def button_pushed(self, checked, text=''):
         self.text_box.setText(text)
@@ -69,7 +69,7 @@ class MarkWithTextDialog(QDialog):
         self.accept()
 
     def accept(self):
-        if not self.text_box.text():
+        if not self.text_box.text().strip():
             d = error_dialog(self.gui, _('Value cannot be empty'), _('You must provide a value'))
             d.exec_()
         else:
@@ -173,10 +173,14 @@ class MarkBooksAction(InterfaceAction):
         labels = sorted(counts.keys(), key=sort_key)
         self.show_marked_with_text.clear()
         if len(labels):
+            labs = labels[0:40]
             self.show_marked_with_text.setEnabled(True)
-            for t in labels:
+            for t in labs:
                 ac = self.show_marked_with_text.addAction(self.search_icon, f'{t} ({counts[t]})')
                 ac.triggered.connect(partial(self.show_marked_text, txt=t))
+            if len(labs) < len(labels):
+                self.show_marked_with_text.addAction(
+                    _('{0} labels not shown').format(len(labels) - len(labs)))
         else:
             self.show_marked_with_text.setEnabled(False)
 
