@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
+import string
 import socket
 import time
 from functools import partial
@@ -511,7 +512,10 @@ class Worker(Thread):  # Get details {{{
     def totext(self, elem, only_printable=False):
         res = self.tostring(elem, encoding='unicode', method='text')
         if only_printable:
-            filtered_characters = list(s for s in res if s.isprintable())
+            try:
+                filtered_characters = list(s for s in res if s.isprintable())
+            except AttributeError:
+                filtered_characters = list(s for s in res if s in string.printable)
             res = ''.join(filtered_characters).strip()
         return res
 
@@ -971,7 +975,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 25)
+    version = (1, 2, 26)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
