@@ -21,7 +21,7 @@ class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
-        base_url = "https://www.theguardian.com/theobserver"
+        base_url = "https://www.theguardian.com/observer"
     else:
         base_url = "https://www.theguardian.com/uk"
 
