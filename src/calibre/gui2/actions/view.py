@@ -168,12 +168,13 @@ class ViewAction(InterfaceAction):
 
                 if name is not None:
                     args.append(name)
-                    if open_at is not None:
-                        args.append('--open-at=' + open_at)
-                    if calibre_book_data is not None:
-                        with PersistentTemporaryFile('.json') as ptf:
-                            ptf.write(as_bytes(json.dumps(calibre_book_data)))
-                            args.append('--internal-book-data=' + ptf.name)
+                    if viewer != 'lrfviewer':
+                        if open_at is not None:
+                            args.append('--open-at=' + open_at)
+                        if calibre_book_data is not None:
+                            with PersistentTemporaryFile('.json') as ptf:
+                                ptf.write(as_bytes(json.dumps(calibre_book_data)))
+                                args.append('--internal-book-data=' + ptf.name)
                 self.gui.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
