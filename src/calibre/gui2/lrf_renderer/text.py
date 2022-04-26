@@ -79,8 +79,8 @@ class FontLoader:
             rfont = self.cache[font]
         else:
             italic = font[2] == QFont.Style.StyleItalic
-            rfont = QFont(font[0], font[3], font[1], italic)
-            rfont.setPixelSize(font[3])
+            rfont = QFont(font[0], int(font[3]), int(font[1]), italic)
+            rfont.setPixelSize(int(font[3]))
             rfont.setBold(wt>=69)
             self.cache[font] = rfont
         qfont = rfont
@@ -508,18 +508,18 @@ class Line(QGraphicsItem):
                     painter.save()
                     painter.setPen(QPen(Qt.PenStyle.NoPen))
                     painter.setBrush(QBrush(Qt.GlobalColor.yellow))
-                    painter.drawRect(x, 0, tok.width, tok.height)
+                    painter.drawRect(int(x), 0, tok.width, tok.height)
                     painter.restore()
                 painter.setPen(QPen(tok.text_color))
                 if tok.valign is None:
-                    painter.drawText(x, y, tok.string)
+                    painter.drawText(int(x), int(y), tok.string)
                 elif tok.valign == 'Sub':
-                    painter.drawText(x+1, y+self.descent/1.5, tok.string)
+                    painter.drawText(int(x+1), int(y+self.descent/1.5), tok.string)
                 elif tok.valign == 'Sup':
-                    painter.drawText(x+1, y-2.*self.descent, tok.string)
+                    painter.drawText(int(x+1), int(y-2.*self.descent), tok.string)
                 x += tok.width
             else:
-                painter.drawPixmap(x, 0, tok.pixmap())
+                painter.drawPixmap(int(x), 0, tok.pixmap())
                 x += tok.width
         painter.restore()
 
