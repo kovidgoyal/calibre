@@ -42,6 +42,7 @@ class Label(QLabel):
 
     def __init__(self, scrollarea):
         super().__init__(scrollarea)
+        scrollarea.zoom_requested.connect(self.zoom_requested)
         self.setBackgroundRole(QPalette.ColorRole.Text if QApplication.instance().is_dark_theme else QPalette.ColorRole.Base)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.setScaledContents(True)
@@ -49,7 +50,6 @@ class Label(QLabel):
         self.in_drag = False
         self.prev_drag_position = None
         self.scrollarea = scrollarea
-        self.current_wheel_angle_delta = 0
 
     @property
     def is_pannable(self):
@@ -76,17 +76,6 @@ class Label(QLabel):
             self.dragged(pos.x() - p.x(), pos.y() - p.y())
         return super().mouseMoveEvent(ev)
 
-    def wheelEvent(self, ev):
-        if ev.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            ad = ev.angleDelta().y()
-            if ad * self.current_wheel_angle_delta < 0:
-                self.current_wheel_angle_delta = 0
-            self.current_wheel_angle_delta += ad
-            if abs(self.current_wheel_angle_delta) >= 120:
-                self.zoom_requested.emit(self.current_wheel_angle_delta < 0)
-                self.current_wheel_angle_delta = 0
-            ev.accept()
-
     def dragged(self, dx, dy):
         h = self.scrollarea.horizontalScrollBar()
         if h.isVisible():
@@ -99,10 +88,23 @@ class Label(QLabel):
 class ScrollArea(QScrollArea):
 
     toggle_fit = pyqtSignal()
+    zoom_requested = pyqtSignal(bool)
+    current_wheel_angle_delta = 0
 
     def mouseDoubleClickEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton:
             self.toggle_fit.emit()
+
+    def wheelEvent(self, ev):
+        if ev.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            ad = ev.angleDelta().y()
+            if ad * self.current_wheel_angle_delta < 0:
+                self.current_wheel_angle_delta = 0
+            self.current_wheel_angle_delta += ad
+            if abs(self.current_wheel_angle_delta) >= 120:
+                self.zoom_requested.emit(self.current_wheel_angle_delta < 0)
+                self.current_wheel_angle_delta = 0
+            ev.accept()
 
 
 class ImageView(QDialog):
