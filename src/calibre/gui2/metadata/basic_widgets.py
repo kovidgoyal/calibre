@@ -1630,8 +1630,10 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                     val[k] = v
         ids = sorted(iteritems(val), key=keygen)
         txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
-        # Use selectAll + insert instead of setText so that undo works
-        self.selectAll(), self.insert(txt.strip())
+        if self.allow_undo:
+            self.selectAll(), self.insert(txt.strip())
+        else:
+            self.setText(txt.strip())
         self.setCursorPosition(0)
 
     def initialize(self, db, id_):
