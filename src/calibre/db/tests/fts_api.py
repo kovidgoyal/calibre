@@ -27,8 +27,10 @@ class FTSAPITest(BaseTest):
         super().setUp()
         from calibre_extensions.sqlite_extension import set_ui_language
         set_ui_language('en')
+        self.libraries_to_close = []
 
     def tearDown(self):
+        [c.close() for c in self.libraries_to_close]
         super().tearDown()
         from calibre_extensions.sqlite_extension import set_ui_language
         set_ui_language('en')
@@ -38,7 +40,9 @@ class FTSAPITest(BaseTest):
             shutil.rmtree(self.library_path)
         os.makedirs(self.library_path)
         self.create_db(self.library_path)
-        return self.init_cache()
+        ans = self.init_cache()
+        self.libraries_to_close.append(ans)
+        return ans
 
     def wait_for_fts_to_finish(self, fts, timeout=10):
         if fts.pool.initialized:
@@ -134,6 +138,7 @@ class FTSAPITest(BaseTest):
             'some other long text that will [also] help with the testing of search'})
         self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']', snippet_size=3)}, {
             '…will [also] help…'})
+        cache.close()
 
     def test_fts_triggers(self):
         cache = self.init_cache()
