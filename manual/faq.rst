@@ -388,16 +388,14 @@ do the following:
     address. Also note that Amazon does not allow email delivery of AZW3 and
     new style (KF8) MOBI files. Finally, Amazon recently started sending
     confirmation emails that you have to click on back to your GMX account
-    before the book is actually delivered. They prefer you use Gmail to avoid
-    the confirmation emails. See the note below for setting up Gmail to work
-    with calibre.
+    before the book is actually delivered.
 
 Even after doing this, you may have problems. One common source of problems is that some poorly designed antivirus
 programs block calibre from opening a connection to send email. Try adding an exclusion for calibre in your
 antivirus program.
 
 .. note::
-    Microsoft/Google/GMX can disable your account if you use it to send large
+    Microsoft/GMX can disable your account if you use it to send large
     amounts of email. So, when using these services to send mail calibre automatically
     restricts itself to sending one book every five minutes. If you don't mind
     risking your account being blocked you can reduce this wait interval by going
@@ -407,10 +405,8 @@ antivirus program.
     Google recently deliberately broke their email sending protocol (SMTP) support in
     an attempt to force everyone to use their web interface so they can
     show you more ads. They are trying to claim that SMTP is insecure,
-    that is incorrect and simply an excuse. If you have trouble with
-    Gmail you will need to `setup an app password
-    <https://support.google.com/accounts/answer/185833>`_. Use this app password
-    as the password for Gmail in the calibre settings.
+    that is incorrect and simply an excuse. Use some other email provider
+    instead.
 
 .. note::
     If you are concerned about giving calibre access to your email
