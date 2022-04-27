@@ -85,7 +85,7 @@ class FTSAPITest(BaseTest):
         check(id=2, book=1, format='TXT', searchable_text='a test text2')
         # check closing shuts down all workers
         cache.close()
-        self.assertFalse(fts.pool.initialized)
+        self.assertFalse(fts.pool.initialized.is_set())
 
         # check enabling scans pre-exisintg
         cache = self.new_library()

@@ -9,7 +9,7 @@ import sys
 import traceback
 from contextlib import suppress
 from queue import Queue
-from threading import Thread
+from threading import Thread, Event
 from time import monotonic
 
 from calibre import human_readable
@@ -121,15 +121,15 @@ class Pool:
         self.jobs_queue = Queue()
         self.supervise_queue = Queue()
         self.workers = []
-        self.initialized = False
+        self.initialized = Event()
         self.dbref = dbref
 
     def initialize(self):
-        if not self.initialized:
+        if not self.initialized.is_set():
             self.supervisor_thread = Thread(name='FTSSupervisor', daemon=True, target=self.supervise)
             self.supervisor_thread.start()
             self.expand_workers()
-            self.initialized = True
+            self.initialized.set()
 
     def prune_dead_workers(self):
         self.workers = [w for w in self.workers if w.is_alive()]
@@ -195,8 +195,7 @@ class Pool:
             db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text, err_msg)
 
     def shutdown(self):
-        if self.initialized:
-            self.initialized = False
+        if self.initialized.is_set():
             self.supervise_queue.put(quit)
             for w in self.workers:
                 w.keep_going = False
@@ -205,6 +204,7 @@ class Pool:
             for w in self.workers:
                 w.join()
             self.workers = []
+            self.initialized.clear()
     # }}}
 
     def do_check_for_work(self):
