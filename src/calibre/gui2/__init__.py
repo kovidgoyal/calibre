@@ -538,26 +538,6 @@ def is_widescreen():
     return _is_widescreen
 
 
-def disable_webengine_sandbox_if_needed():
-    # See https://sourceware.org/glibc/wiki/Glibc%20Timeline
-    if not isfrozen or iswindows or ismacos or QT_VERSION >= 0x60000:
-        return
-    import ctypes
-    libc = ctypes.CDLL(None)
-    try:
-        f = libc.gnu_get_libc_version
-    except AttributeError:
-        return
-    f.restype = ctypes.c_char_p
-    ver = f().decode('ascii')
-    q = tuple(map(int, ver.split('.')))
-    if q >= (2, 34):
-        setattr(disable_webengine_sandbox_if_needed, 'done', True)
-        setattr(disable_webengine_sandbox_if_needed, 'orig_val', os.environ.get('QTWEBENGINE_DISABLE_SANDBOX'))
-        print('Disabling Qt WebEngine sandbox as version of glibc on this system will break it', file=sys.stderr)
-        os.environ['QTWEBENGINE_DISABLE_SANDBOX'] = '1'
-
-
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
@@ -1047,7 +1027,6 @@ class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
         self.ignore_palette_changes = False
-        disable_webengine_sandbox_if_needed()
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         # Allow import of webengine after construction of QApplication on new
         # enough PyQt
@@ -1441,8 +1420,6 @@ def sanitize_env_vars():
     else:
         env_vars = {}
 
-    if getattr(disable_webengine_sandbox_if_needed, 'done', False):
-        env_vars['QTWEBENGINE_DISABLE_SANDBOX'] = None
     originals = {x:os.environ.get(x, '') for x in env_vars}
     changed = {x:False for x in env_vars}
     for var, suffix in iteritems(env_vars):
@@ -1455,8 +1432,6 @@ def sanitize_env_vars():
                 del os.environ[var]
             changed[var] = True
 
-    if getattr(disable_webengine_sandbox_if_needed, 'orig_val', False):
-        os.environ['QTWEBENGINE_DISABLE_SANDBOX'] = disable_webengine_sandbox_if_needed.orig_val
     try:
         yield
     finally:
@@ -1531,7 +1506,6 @@ def ensure_app(headless=True):
                     os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
             if headless and iswindows:
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
-            disable_webengine_sandbox_if_needed()
             _store_app = QApplication(args)
             if headless and has_headless:
                 _store_app.headless = True
