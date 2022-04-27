@@ -442,7 +442,7 @@ class Cache:
         fts = self.backend.enable_fts(weakref.ref(self) if enabled else None)
         if fts and start_pool:  # used in the tests
             from threading import Thread
-            self.fts_queue_thread = Thread(name='FTSQueue', target=self.dispatch_fts_jobs, args=(self.fts_job_queue,), daemon=True)
+            self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(self.fts_job_queue, weakref.ref(self)), daemon=True)
             self.fts_queue_thread.start()
             fts.pool.initialize()
             fts.pool.initialized.wait()
@@ -453,10 +453,14 @@ class Cache:
             self.fts_job_queue = Queue()
         return fts
 
-    def dispatch_fts_jobs(self, queue):
+    @staticmethod
+    def dispatch_fts_jobs(queue, dbref):
         from .fts.text import is_fmt_ok
 
         def do_one():
+            self = dbref()
+            if self is None:
+                return False
             with self.read_lock:
                 if not self.backend.fts_enabled:
                     return False
@@ -483,12 +487,10 @@ class Cache:
                 self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest())
                 return self.backend.fts_has_idle_workers
 
-        while not self.shutting_down:
-            x = queue.get()
-            if x is None:
-                break
-            if not self.backend.fts_enabled:
-                break
+        def loop_while_more_available():
+            self = dbref()
+            if not self or not self.backend.fts_enabled:
+                return
             has_more = True
             while has_more and not self.shutting_down and self.backend.fts_enabled:
                 try:
@@ -497,6 +499,12 @@ class Cache:
                     if self.backend.fts_enabled:
                         import traceback
                         traceback.print_exc()
+
+        while not getattr(dbref(), 'shutting_down', True):
+            x = queue.get()
+            if x is None:
+                break
+            loop_while_more_available()
 
     @write_api
     def queue_next_fts_job(self):
