@@ -2355,8 +2355,14 @@ class Cache:
     def vacuum(self):
         self.backend.vacuum()
 
+    def __del__(self):
+        self.close()
+
     @write_api
     def close(self):
+        if hasattr(self, 'close_called'):
+            return
+        self.close_called = True
         self.shutting_down = True
         self.event_dispatcher.close()
         if self.fts_queue_thread is not None:
