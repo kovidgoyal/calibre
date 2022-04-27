@@ -494,8 +494,9 @@ class Cache:
                 try:
                     has_more = do_one()
                 except Exception:
-                    import traceback
-                    traceback.print_exc()
+                    if self.backend.fts_enabled:
+                        import traceback
+                        traceback.print_exc()
 
     @write_api
     def queue_next_fts_job(self):
