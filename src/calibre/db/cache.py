@@ -431,24 +431,37 @@ class Cache:
         self.fts_queue_thread = None
         self.fts_job_queue = Queue()
         self.backend.initialize_fts(weakref.ref(self))
+        if self.is_fts_enabled():
+            self.start_fts_pool()
+
+    def start_fts_pool(self):
+        from threading import Thread
+        self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(self.fts_job_queue, weakref.ref(self)), daemon=True)
+        self.fts_queue_thread.start()
+        self.backend.fts.pool.initialize()
+        self.backend.fts.pool.initialized.wait()
         self.queue_next_fts_job()
 
     @read_api
     def is_fts_enabled(self):
         return self.backend.fts_enabled
 
+    @read_api
+    def fts_indexing_progress(self):
+        if not self.is_fts_enabled():
+            return 0, 0
+        num_to_scan = self.backend.fts.number_dirtied()
+        if not num_to_scan:
+            return 0, 1
+        return num_to_scan, (self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0)
+
     @write_api
     def enable_fts(self, enabled=True, start_pool=True, mark_all_dirty=False):
         fts = self.backend.enable_fts(weakref.ref(self) if enabled else None)
         if fts and start_pool:  # used in the tests
-            from threading import Thread
             if mark_all_dirty:
                 fts.dirty_existing()
-            self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(self.fts_job_queue, weakref.ref(self)), daemon=True)
-            self.fts_queue_thread.start()
-            fts.pool.initialize()
-            fts.pool.initialized.wait()
-            self.queue_next_fts_job()
+            self.start_fts_pool()
         if not fts and self.fts_queue_thread:
             self.fts_job_queue.put(None)
             self.fts_queue_thread = None

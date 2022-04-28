@@ -57,6 +57,10 @@ class FTS:
             SELECT book, format FROM main.data;
         ''')
 
+    def number_dirtied(self):
+        conn = self.get_connection()
+        return conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
+
     def all_currently_dirty(self):
         conn = self.get_connection()
         return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)
