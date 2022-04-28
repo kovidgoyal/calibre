@@ -438,10 +438,12 @@ class Cache:
         return self.backend.fts_enabled
 
     @write_api
-    def enable_fts(self, enabled=True, start_pool=True):
+    def enable_fts(self, enabled=True, start_pool=True, mark_all_dirty=False):
         fts = self.backend.enable_fts(weakref.ref(self) if enabled else None)
         if fts and start_pool:  # used in the tests
             from threading import Thread
+            if mark_all_dirty:
+                fts.dirty_existing()
             self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(self.fts_job_queue, weakref.ref(self)), daemon=True)
             self.fts_queue_thread.start()
             fts.pool.initialize()
