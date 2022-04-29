@@ -4,7 +4,7 @@
 
 import os
 from qt.core import (
-    QCheckBox, QHBoxLayout, QLabel, QSpinBox, QTimer, QVBoxLayout, QWidget
+    QCheckBox, QDialog, QHBoxLayout, QLabel, QSpinBox, QTimer, QVBoxLayout, QWidget
 )
 
 from calibre import detect_ncpus
@@ -88,6 +88,8 @@ class ScanStatus(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        if isinstance(parent, QDialog):
+            parent.finished.connect(self.shutdown)
         self.indexing_progress = IndexingProgress()
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -137,6 +139,9 @@ class ScanStatus(QWidget):
     def db(self):
         return get_db()
 
+    def shutdown(self):
+        self.indexing_status_timer.stop()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -146,3 +151,4 @@ if __name__ == '__main__':
     w = ScanStatus()
     w.show()
     app.exec_()
+    w.shutdown()
