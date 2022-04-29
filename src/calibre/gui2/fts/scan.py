@@ -58,6 +58,12 @@ class ScanProgress(QWidget):
         ))
         la.setWordWrap(True)
         l.addWidget(la)
+        self.warn_label = la = QLabel('<p><span style="color: red">{}</span>: {}'.format(
+            _('WARNING'), _(
+                'Not all the books in this library have been indexed yet.'
+                ' Searching will yield incomplete results.')))
+        la.setWordWrap(True)
+        l.addWidget(la)
 
     def schedule_change_num_of_workers(self):
         self.debounce_timer.stop()
@@ -69,10 +75,12 @@ class ScanProgress(QWidget):
     def update(self, indexing_progress):
         if indexing_progress.complete:
             t = _('All book files indexed')
+            self.warn_label.setVisible(False)
         else:
             done = indexing_progress.total - indexing_progress.left
             t = _('{0} of {1} book files ({2:.0%}) have been indexed').format(
                 done, indexing_progress.total, done / indexing_progress.total)
+            self.warn_label.setVisible(True)
         self.status_label.setText(t)
 
 
