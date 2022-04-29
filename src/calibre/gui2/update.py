@@ -74,7 +74,7 @@ class CheckForUpdates(Thread):
     daemon = True
 
     def __init__(self, parent):
-        Thread.__init__(self)
+        Thread.__init__(self, name='CheckForUpdates')
         self.shutdown_event = Event()
         self.signal = Signal(parent)
 
