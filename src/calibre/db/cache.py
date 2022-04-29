@@ -456,11 +456,9 @@ class Cache:
         return num_to_scan, (self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0)
 
     @write_api
-    def enable_fts(self, enabled=True, start_pool=True, mark_all_dirty=False):
+    def enable_fts(self, enabled=True, start_pool=True):
         fts = self.backend.enable_fts(weakref.ref(self) if enabled else None)
         if fts and start_pool:  # used in the tests
-            if mark_all_dirty:
-                fts.dirty_existing()
             self.start_fts_pool()
         if not fts and self.fts_queue_thread:
             self.fts_job_queue.put(None)
@@ -534,7 +532,7 @@ class Cache:
     @api
     def set_fts_num_of_workers(self, num=None):
         existing = self.backend.fts_num_of_workers
-        if num is not None and num != existing:
+        if num is not None:
             self.backend.fts_num_of_workers = num
             if num > existing:
                 self.queue_next_fts_job()

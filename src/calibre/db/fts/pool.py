@@ -9,10 +9,11 @@ import sys
 import traceback
 from contextlib import suppress
 from queue import Queue
-from threading import Thread, Event
+from threading import Event, Thread
 from time import monotonic
 
-from calibre import human_readable
+from calibre import detect_ncpus, human_readable
+from calibre.utils.config import dynamic
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 check_for_work = object()
@@ -116,8 +117,13 @@ class Worker(Thread):
 
 class Pool:
 
+    MAX_WORKERS_PREF_NAME = 'fts_pool_max_workers'
+
     def __init__(self, dbref):
-        self.max_workers = 1
+        try:
+            self.max_workers = min(max(1, int(dynamic.get(self.MAX_WORKERS_PREF_NAME, 1))), detect_ncpus())
+        except Exception:
+            self.max_workers = 1
         self.jobs_queue = Queue()
         self.supervise_queue = Queue()
         self.workers = []
@@ -142,8 +148,6 @@ class Pool:
     def create_worker(self):
         w = Worker(self.jobs_queue, self.supervise_queue)
         w.start()
-        while not w.is_alive():
-            w.join(0.01)
         return w
 
     def shrink_workers(self):
@@ -162,12 +166,14 @@ class Pool:
     def num_of_workers(self, num):
         self.initialize()
         self.prune_dead_workers()
-        num = max(1, num)
-        self.max_workers = num
-        if num > len(self.workers):
-            self.expand_workers()
-        elif num < self.workers:
-            self.shrink_workers()
+        num = min(max(1, num), detect_ncpus())
+        if num != self.max_workers:
+            self.max_workers = num
+            dynamic.set(self.MAX_WORKERS_PREF_NAME, num)
+            if num > len(self.workers):
+                self.expand_workers()
+            elif num < len(self.workers):
+                self.shrink_workers()
 
     @property
     def num_of_idle_workers(self):

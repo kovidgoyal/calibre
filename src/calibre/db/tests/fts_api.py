@@ -26,6 +26,9 @@ class FTSAPITest(BaseTest):
     def setUp(self):
         super().setUp()
         from calibre_extensions.sqlite_extension import set_ui_language
+        from calibre.db.fts.pool import Pool
+        self.orig_pw_pref_name = Pool.MAX_WORKERS_PREF_NAME
+        Pool.MAX_WORKERS_PREF_NAME = 'test_fts_max_workers'
         set_ui_language('en')
         self.libraries_to_close = []
 
@@ -33,6 +36,8 @@ class FTSAPITest(BaseTest):
         [c.close() for c in self.libraries_to_close]
         super().tearDown()
         from calibre_extensions.sqlite_extension import set_ui_language
+        from calibre.db.fts.pool import Pool
+        Pool.MAX_WORKERS_PREF_NAME = self.orig_pw_pref_name
         set_ui_language('en')
 
     def new_library(self):

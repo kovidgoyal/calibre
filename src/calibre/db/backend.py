@@ -957,7 +957,7 @@ class DB:
     @fts_num_of_workers.setter
     def fts_num_of_workers(self, num):
         if self.fts_enabled:
-            self.fts.num_of_workers = num
+            self.fts.pool.num_of_workers = num
 
     def get_next_fts_job(self):
         return self.fts.get_next_fts_job()
