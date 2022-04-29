@@ -40,6 +40,11 @@ class FTS:
         SchemaUpgrade(conn)
         conn.fts_dbpath = dbpath
         conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
+        num_dirty = conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
+        if not num_dirty:
+            num_indexed = conn.get('''SELECT COUNT(*) from fts_db.books_text''')[0][0]
+            if not num_indexed:
+                self.dirty_existing()
 
     def get_connection(self):
         db = self.dbref()
