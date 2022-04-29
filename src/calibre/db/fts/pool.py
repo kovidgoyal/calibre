@@ -129,6 +129,7 @@ class Pool:
         self.workers = []
         self.initialized = Event()
         self.dbref = dbref
+        self.keep_going = True
 
     def initialize(self):
         if not self.initialized.is_set():
@@ -202,10 +203,13 @@ class Pool:
 
     def shutdown(self):
         if self.initialized.is_set():
-            self.supervise_queue.put(quit)
+            self.keep_going = False
+            for i in range(2):
+                self.supervise_queue.put(quit)
             for w in self.workers:
                 w.keep_going = False
-                self.jobs_queue.put(quit)
+                for i in range(2*len(self.workers)):
+                    self.jobs_queue.put(quit)
             self.supervisor_thread.join()
             for w in self.workers:
                 w.join()
@@ -219,7 +223,7 @@ class Pool:
             db.queue_next_fts_job()
 
     def supervise(self):
-        while True:
+        while self.keep_going:
             x = self.supervise_queue.get()
             try:
                 if x is check_for_work:
