@@ -48,7 +48,8 @@ def html_to_text(root):
 
 def to_text(container, name):
     root = container.parsed(name)
-    yield from html_to_text(root)
+    if hasattr(root, 'xpath'):
+        yield from html_to_text(root)
 
 
 def is_fmt_ok(input_fmt):

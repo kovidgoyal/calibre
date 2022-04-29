@@ -16,7 +16,7 @@ from calibre.db.annotations import unicode_normalize
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
-# TODO: check that closing of db connection works
+# TODO: check that switching libraries with indexing enabled/disabled works
 # TODO: db dump+restore
 # TODO: calibre export/import
 # TODO: check library and vacuuming of fts db
