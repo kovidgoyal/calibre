@@ -522,9 +522,9 @@ class Worker(Thread):  # Get details {{{
     def parse_title(self, root):
 
         def sanitize_title(title):
-            ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
-            if not ans:
-                ans = title.rpartition('[')[0].strip()
+            ans = title.strip()
+            if not ans.startswith('['):
+                ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
             return ans
 
         h1 = root.xpath('//h1[@id="title"]')
@@ -975,7 +975,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 26)
+    version = (1, 2, 27)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
