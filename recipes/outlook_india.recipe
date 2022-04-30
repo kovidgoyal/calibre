@@ -1,67 +1,53 @@
-#!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
-from calibre.web.feeds.news import BasicNewsRecipe
+import json, re
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-def absurl(x):
-    if x.startswith('/'):
-        x = 'http://www.outlookindia.com' + x
-    return x
-
-
-class OutlookIndia(BasicNewsRecipe):
-
-    title = 'Outlook India'
-    __author__ = 'Kovid Goyal'
-    description = 'Weekly news and current affairs in India'
-    no_stylesheets = True
-    encoding = 'utf-8'
+class outlook(BasicNewsRecipe):
+    title = 'Outlook Magazine'
+    __author__ = 'unkn0wn'
+    description = ''
     language = 'en_IN'
-    ignore_duplicate_articles = {'title', 'url'}
-
-    keep_only_tags = [
-        dict(name='h1'),
-        dict(
-            attrs={'class': ['sub_head', 'magzine_stry_image', 'mainContent']}),
-        dict(attrs={'class': lambda x: x and set(
-            x.split()).intersection({'writter', 'covr_wr'})}),
-    ]
-    remove_tags = [
-        dict(name='meta'),
-    ]
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        # This site sends article titles in the cookie which occasionally
-        # contain non ascii characters causing httplib to fail. Instead just
-        # disable cookies as they're not needed for download. Proper solution
-        # would be to implement a unicode aware cookie jar
-        br.set_cookiejar(None)
-        return br
-
-    def preprocess_raw_html(self, raw_html, url):
-        import html5lib
-        from lxml import html
-        root = html5lib.parse(raw_html, treebuilder='lxml',
-                              namespaceHTMLElements=False)
-        return html.tostring(root)
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.outlookindia.com/magazine')
-        for img in soup.findAll('img', src=lambda x: x and 'Latest-Cover.jpg' in x):
-            self.cover_url = absurl(img['src'])
-            self.log('Found cover:', self.cover_url)
+        soup = self.index_to_soup('https://www.outlookindia.com/magazine/archive')
+        issue = soup.find(**classes('issue_listing'))
+        a = issue.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
+        url = a['href']
+        self.log('Downloading issue:', url)
+        self.cover_url = a.find('img', attrs={'src': True})['src']
+        soup = self.index_to_soup('https://www.outlookindia.com' + url)
+        ans = []
 
-        articles = []
-        for a in soup.findAll('a', href=lambda x: x and x.startswith('/magazine/story/')):
-            url = absurl(a['href'])
+        for h3 in soup.findAll(['h3', 'h4'],
+                               attrs={'class': 'tk-kepler-std-condensed-subhead'}):
+            a = h3.find('a', href=lambda x: x)
+            url = a['href']
             title = self.tag_to_string(a)
-            desc = ''
-            div = a.parent.findNextSibling(attrs={'class': 'descriptn'})
-            if div is not None:
-                desc = self.tag_to_string(div)
-            self.log('Found article:', title, 'at', url)
-            articles.append({'title': title, 'url': url, 'description': desc})
-        return [('Current Issue', articles)]
+            self.log('\t\tFound article:', title)
+            self.log('\t\t\t', url)
+            ans.append({
+                'title': title,
+                'url': url,
+            })
+        return [('Articles', ans)]
+
+    def preprocess_raw_html(self, raw, *a):
+        m = re.search('<!-- NewsArticle Schema -->.*?script.*?>', raw, flags=re.DOTALL)
+        raw = raw[m.end():].lstrip()
+        data = json.JSONDecoder().raw_decode(raw)[0]
+        title = data['headline']
+        body = data['articleBody']
+        body = body.replace('\r\n', '<p>')
+        author = ' and '.join(x['name'] for x in data['author'])
+        image = desc = ''
+        if data.get('image'):
+            image = '<p><img src="{}">'.format(data['image']['url'])
+        if data.get('description'):
+            desc = '<h2>' + data['description'] + '</h2>'
+        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        return html
