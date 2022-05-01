@@ -4,14 +4,14 @@
 
 import os
 from qt.core import (
-    QCheckBox, QDialog, QHBoxLayout, QLabel, QSpinBox, QTimer, QVBoxLayout, QWidget
+    QCheckBox, QDialog, QHBoxLayout, QLabel, QRadioButton, QTimer, QVBoxLayout,
+    QWidget
 )
 
 from calibre import detect_ncpus
-from calibre.db.fts.pool import Pool
+from calibre.db.cache import Cache
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
-from calibre.utils.config import dynamic
 
 
 class IndexingProgress:
@@ -35,29 +35,28 @@ class ScanProgress(QWidget):
         l.addWidget(la)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
-        self.niwl = la = QLabel(_('Number of workers used for indexing:'))
-        h.addWidget(la)
-        self.num_of_workers = n = QSpinBox(self)
-        n.setMinimum(1)
-        n.setMaximum(detect_ncpus())
-        self.debounce_timer = t = QTimer(self)
-        t.setInterval(750)
-        t.timeout.connect(self.change_num_of_workers)
-        t.setSingleShot(True)
-        n.valueChanged.connect(self.schedule_change_num_of_workers)
-        try:
-            c = min(max(1, int(dynamic.get(Pool.MAX_WORKERS_PREF_NAME, 1))), n.maximum())
-        except Exception:
-            c = 1
-        n.setValue(c)
-        h.addWidget(n), h.addStretch(10)
         self.wl = la = QLabel(_(
-            'Increasing the number of workers used for indexing will'
-            ' speed up indexing at the cost of using more of the computer\'s resources.'
-            ' Changes will take a few seconds to take effect.'
+            'Normally, calibre indexes books slowly in the background,'
+            ' to avoid overloading your computer. You can instead ask'
+            ' calibre to speed up indexing, if you intend to leave your'
+            ' computer running overnight or similar to quickly finish the indexing.'
+            ' Doing so will likely make both calibre and your computer less responsive,'
+            ' while the fast indexing is running.'
         ))
         la.setWordWrap(True)
         l.addWidget(la)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(QLabel(_('Indexing speed:')))
+        self.slow_button = sb = QRadioButton(_('&Slow'), self)
+        sb.setChecked(True)
+        h.addWidget(sb)
+        self.fast_button = fb = QRadioButton(_('&Fast'), self)
+        h.addWidget(fb)
+        fb.toggled.connect(self.change_speed)
+        h.addStretch(10)
+
+        l.addStretch(10)
         self.warn_label = la = QLabel('<p><span style="color: red">{}</span>: {}'.format(
             _('WARNING'), _(
                 'Not all the books in this library have been indexed yet.'
@@ -65,12 +64,14 @@ class ScanProgress(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
 
-    def schedule_change_num_of_workers(self):
-        self.debounce_timer.stop()
-        self.debounce_timer.start()
-
-    def change_num_of_workers(self):
-        get_db().set_fts_num_of_workers(self.num_of_workers.value())
+    def change_speed(self):
+        db = get_db()
+        if self.fast_button.isChecked():
+            db.fts_indexing_sleep_time = 0.1
+            db.set_fts_num_of_workers(max(1, detect_ncpus()))
+        else:
+            db.fts_indexing_sleep_time = Cache.fts_indexing_sleep_time
+            db.set_fts_num_of_workers(1)
 
     def update(self, indexing_progress):
         if indexing_progress.complete:
@@ -141,6 +142,7 @@ class ScanStatus(QWidget):
 
     def shutdown(self):
         self.indexing_status_timer.stop()
+        self.scan_progress.slow_button.setChecked(True)
 
 
 if __name__ == '__main__':

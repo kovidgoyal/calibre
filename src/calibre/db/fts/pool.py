@@ -13,7 +13,6 @@ from threading import Event, Thread
 from time import monotonic
 
 from calibre import detect_ncpus, human_readable
-from calibre.utils.config import dynamic
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 check_for_work = object()
@@ -117,13 +116,8 @@ class Worker(Thread):
 
 class Pool:
 
-    MAX_WORKERS_PREF_NAME = 'fts_pool_max_workers'
-
     def __init__(self, dbref):
-        try:
-            self.max_workers = min(max(1, int(dynamic.get(self.MAX_WORKERS_PREF_NAME, 1))), detect_ncpus())
-        except Exception:
-            self.max_workers = 1
+        self.max_workers = 1
         self.jobs_queue = Queue()
         self.supervise_queue = Queue()
         self.workers = []
@@ -170,7 +164,6 @@ class Pool:
         num = min(max(1, num), detect_ncpus())
         if num != self.max_workers:
             self.max_workers = num
-            dynamic.set(self.MAX_WORKERS_PREF_NAME, num)
             if num > len(self.workers):
                 self.expand_workers()
             elif num < len(self.workers):

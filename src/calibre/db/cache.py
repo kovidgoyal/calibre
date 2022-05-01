@@ -17,9 +17,9 @@ from collections import defaultdict
 from collections.abc import MutableSet, Set
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
-from threading import Lock
-from time import time
 from queue import Queue
+from threading import Lock
+from time import sleep, time
 
 from calibre import as_unicode, isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -138,6 +138,7 @@ class Cache:
     was necessary for maximum performance and flexibility.
     '''
     EventType = EventType
+    fts_indexing_sleep_time = 4  # seconds
 
     def __init__(self, backend):
         self.shutting_down = False
@@ -512,6 +513,7 @@ class Cache:
                     if self.backend.fts_enabled:
                         import traceback
                         traceback.print_exc()
+                sleep(self.fts_indexing_sleep_time)
 
         while not getattr(dbref(), 'shutting_down', True):
             x = queue.get()
