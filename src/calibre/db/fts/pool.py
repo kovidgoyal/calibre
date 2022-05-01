@@ -210,11 +210,13 @@ class Pool:
                 w.keep_going = False
                 for i in range(2*len(self.workers)):
                     self.jobs_queue.put(quit)
-            self.supervisor_thread.join()
-            for w in self.workers:
-                w.join()
-            self.workers = []
             self.initialized.clear()
+
+    def join(self):
+        self.supervisor_thread.join()
+        for w in self.workers:
+            w.join()
+        self.workers = []
     # }}}
 
     def do_check_for_work(self):

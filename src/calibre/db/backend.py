@@ -980,6 +980,10 @@ class DB:
     def shutdown_fts(self):
         if self.fts_enabled:
             self.fts.shutdown()
+
+    def join_fts(self):
+        if self.fts:
+            self.fts.pool.join()
             self.fts = None
 
     def get_connection(self):
