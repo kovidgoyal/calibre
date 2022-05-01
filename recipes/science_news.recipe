@@ -8,6 +8,7 @@ sciencenews.org
 from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
 
+
 class ScienceNewsIssue(BasicNewsRecipe):
     title = u'Science News'
     __author__ = u'Darko Miletic, Sujata Raman and Starson17'
@@ -25,15 +26,21 @@ class ScienceNewsIssue(BasicNewsRecipe):
     auto_cleanup = False
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and (
-            'single__content___' in x or 'header-default__title___' in x or
-            'header-default__deck___' in x or 'header-default__figure___' in x
-        )})
+        dict(
+            attrs={
+                'class':
+                lambda x: x and (
+                    'single__content___' in x or 'header-default__title___' in x or
+                    'header-default__deck___' in x or 'header-default__figure___' in
+                    x
+                )
+            }
+        )
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and (
-            'newsletter-signup__wrapper___' in x
-        )})
+        dict(
+            attrs={'class': lambda x: x and ('newsletter-signup__wrapper___' in x)}
+        )
     ]
 
     feeds = [(u"Articles", u'https://www.sciencenews.org/feed')]
@@ -45,5 +52,7 @@ class ScienceNewsIssue(BasicNewsRecipe):
         while d <= t:
             ld = d
             d += datetime.timedelta(days=14)
-        url = ld.strftime("https://www.sciencenews.org/wp-content/uploads/%Y/%m/%m%d%y_cover.jpg")
+        url = ld.strftime(
+            "https://www.sciencenews.org/wp-content/uploads/%Y/%m/%m%d%y_cover.jpg"
+        )
         return url

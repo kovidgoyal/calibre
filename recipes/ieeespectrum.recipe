@@ -4,50 +4,90 @@ Fetch RSS-Feeds http://spectrum.ieee.org
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class IEEESpectrumOnline(BasicNewsRecipe):
 
-    title          = u'IEEE Spectrum Online'
-    description    = 'All the articles and blog posts from IEEE Spectrum online. This is not the magazine.'
-    publisher      = u'IEEE.org'
-    __author__     = 'Armin Geller'
-    category       = 'news, electronics, IT, computer science'
+    title = u'IEEE Spectrum Online'
+    description = 'All the articles and blog posts from IEEE Spectrum online. This is not the magazine.'
+    publisher = u'IEEE.org'
+    __author__ = 'Armin Geller'
+    category = 'news, electronics, IT, computer science'
     # Version: 1.0 AGe 2014-07-31
     # Version: 1.1 AGe 2019-02-18
     # Version: 1.2 AGe 2021-05-03
-    language       = 'en'
-    encoding       = 'utf-8'
+    language = 'en'
+    encoding = 'utf-8'
     oldest_article = 7
     max_articles_per_feed = 100
     remove_empty_feeds = True
 
     feeds = [
-                ('IEEE Spectrum Recent Content', 'https://spectrum.ieee.org/rss/fulltext'),
-                ('Spectrum videos','https://spectrum.ieee.org/rss/videos'),
-                ('Blog: Automaton','https://spectrum.ieee.org/rss/blog/automaton/fulltext'),
-                ('Blog: Energywise','https://spectrum.ieee.org/rss/blog/energywise/fulltext'),
-                ('Blog: Nanoclast','https://spectrum.ieee.org/rss/blog/nanoclast/fulltext'),
-                ('Blog: Tech Talk','https://spectrum.ieee.org/rss/blog/tech-talk/fulltext'),
-                ('Blog: The Institute','https://spectrum.ieee.org/rss/the-institute/fulltext'),
-                ('Blog: Cars That Think','https://spectrum.ieee.org/rss/blog/cars-that-think/fulltext'),
-                ('Blog: Human OS','https://spectrum.ieee.org/rss/blog/the-human-os/fulltext'),
-                ('Blog: Risk Factor','https://spectrum.ieee.org/rss/blog/riskfactor/fulltext'),
-                ('Blog: View From the Valley','https://spectrum.ieee.org/rss/blog/view-from-the-valley/fulltext'),
-                ('Topic: Aerospace','https://spectrum.ieee.org/rss/blog/automaton/fulltext'),
-                ('Topic: Biomedical','https://spectrum.ieee.org/rss/biomedical/fulltext'),
-                ('Topic: Energy','https://spectrum.ieee.org/rss/energy/fulltext'),
-                ('Topic: Geek Life','https://spectrum.ieee.org/rss/at-work/fulltext'),
-                ('Topic: History','https://spectrum.ieee.org/rss/tech-history/fulltext'),
-                ('Topic: News From Around IEEE','https://spectrum.ieee.org/rss/blog/news-from-around-ieee/fulltext'),
-                ('Topic: Robotics','https://spectrum.ieee.org/rss/robotics/fulltext'),
-                ('Topic: Telecom','https://spectrum.ieee.org/rss/telecom/fulltext'),
-                ('Topic: IEEE COVID-19 News & Resources','https://spectrum.ieee.org/rss/the-institute/ieee-covid19-resources'),
-                ('Topic: At Work','https://spectrum.ieee.org/rss/at-work/fulltext'),
-                ('Topic: Computing','https://spectrum.ieee.org/rss/computing/fulltext'),
-                ('Topic: Gadgets','https://spectrum.ieee.org/rss/consumer-electronics/fulltext'),
-                ('Topic: Green Tech','https://spectrum.ieee.org/rss/green-tech/fulltext'),
-                ('Topic: Semiconductors','https://spectrum.ieee.org/rss/semiconductors/fulltext'),
-                ('Topic: Transportation','https://spectrum.ieee.org/rss/transportation/fulltext'),
-                ('Topic: Radio Spectrum Podcasts- NEW','https://feeds.transistor.fm/radiospectrum'),
+        ('IEEE Spectrum Recent Content', 'https://spectrum.ieee.org/rss/fulltext'),
+        ('Spectrum videos', 'https://spectrum.ieee.org/rss/videos'),
+        ('Blog: Automaton', 'https://spectrum.ieee.org/rss/blog/automaton/fulltext'),
+        (
+            'Blog: Energywise',
+            'https://spectrum.ieee.org/rss/blog/energywise/fulltext'
+        ),
+        ('Blog: Nanoclast', 'https://spectrum.ieee.org/rss/blog/nanoclast/fulltext'),
+        ('Blog: Tech Talk', 'https://spectrum.ieee.org/rss/blog/tech-talk/fulltext'),
+        (
+            'Blog: The Institute',
+            'https://spectrum.ieee.org/rss/the-institute/fulltext'
+        ),
+        (
+            'Blog: Cars That Think',
+            'https://spectrum.ieee.org/rss/blog/cars-that-think/fulltext'
+        ),
+        (
+            'Blog: Human OS',
+            'https://spectrum.ieee.org/rss/blog/the-human-os/fulltext'
+        ),
+        (
+            'Blog: Risk Factor',
+            'https://spectrum.ieee.org/rss/blog/riskfactor/fulltext'
+        ),
+        (
+            'Blog: View From the Valley',
+            'https://spectrum.ieee.org/rss/blog/view-from-the-valley/fulltext'
+        ),
+        (
+            'Topic: Aerospace',
+            'https://spectrum.ieee.org/rss/blog/automaton/fulltext'
+        ),
+        ('Topic: Biomedical', 'https://spectrum.ieee.org/rss/biomedical/fulltext'),
+        ('Topic: Energy', 'https://spectrum.ieee.org/rss/energy/fulltext'),
+        ('Topic: Geek Life', 'https://spectrum.ieee.org/rss/at-work/fulltext'),
+        ('Topic: History', 'https://spectrum.ieee.org/rss/tech-history/fulltext'),
+        (
+            'Topic: News From Around IEEE',
+            'https://spectrum.ieee.org/rss/blog/news-from-around-ieee/fulltext'
+        ),
+        ('Topic: Robotics', 'https://spectrum.ieee.org/rss/robotics/fulltext'),
+        ('Topic: Telecom', 'https://spectrum.ieee.org/rss/telecom/fulltext'),
+        (
+            'Topic: IEEE COVID-19 News & Resources',
+            'https://spectrum.ieee.org/rss/the-institute/ieee-covid19-resources'
+        ),
+        ('Topic: At Work', 'https://spectrum.ieee.org/rss/at-work/fulltext'),
+        ('Topic: Computing', 'https://spectrum.ieee.org/rss/computing/fulltext'),
+        (
+            'Topic: Gadgets',
+            'https://spectrum.ieee.org/rss/consumer-electronics/fulltext'
+        ),
+        ('Topic: Green Tech', 'https://spectrum.ieee.org/rss/green-tech/fulltext'),
+        (
+            'Topic: Semiconductors',
+            'https://spectrum.ieee.org/rss/semiconductors/fulltext'
+        ),
+        (
+            'Topic: Transportation',
+            'https://spectrum.ieee.org/rss/transportation/fulltext'
+        ),
+        (
+            'Topic: Radio Spectrum Podcasts- NEW',
+            'https://feeds.transistor.fm/radiospectrum'
+        ),
     ]
 
     # Add 'https://spectrum.ieee.org' in front of image url for download images

@@ -4,8 +4,10 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Quanta(BasicNewsRecipe):
-    title       = "Quanta Magazine"
+    title = "Quanta Magazine"
+    __author__ = 'lui1'
     description = "Articles from the magazine. Please set to download weekly."
 
     oldest_article = 7
@@ -15,7 +17,7 @@ class Quanta(BasicNewsRecipe):
     publication_type = "blog"
     cover_url = "https://d2r55xnwy6nx47.cloudfront.net/uploads/2017/05/logo.png"
 
-    feeds          = [
+    feeds = [
         ('Articles', 'https://api.quantamagazine.org/feed/'),
     ]
 

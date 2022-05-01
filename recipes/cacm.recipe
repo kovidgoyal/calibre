@@ -3,17 +3,18 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class CACM(BasicNewsRecipe):
-    title          = "ACM CACM Magazine"
-    description    = "Published on day 1 of every month."
+    title = "ACM CACM Magazine"
+    description = "Published on day 1 of every month."
     oldest_article = 30
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('ACM CACM', 'https://cacm.acm.org/magazine.rss'),
     ]
-    
+
     def get_cover_url(self):
         """
         Parse out cover URL from cover page.
