@@ -1,0 +1,67 @@
+import json
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ft(BasicNewsRecipe):
+    title = 'Financial Times'
+    language = 'en'
+    __author__ = "Kovid Goyal"
+    description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
+    oldest_article = 1.5
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['style', 'width', 'height']
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.todayspapers.co.uk/the-financial-times-front-page-today/'
+        )
+        tag = soup.find('div', attrs={'class': 'elementor-image'})
+        if tag:
+            self.cover_url = tag.find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    feeds = [
+        ('World', 'https://www.ft.com/world?format=rss'),
+        ('US', 'https://www.ft.com/world?format=rss'),
+        ('Companies', 'https://www.ft.com/companies?format=rss'),
+        ('Tech', 'https://www.ft.com/technology?format=rss'),
+        ('Markets', 'https://www.ft.com/companies?format=rss'),
+        ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
+        ('Opinion', 'https://www.ft.com/opinion?format=rss'),
+        ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
+        ('how to spend it', 'https://www.ft.com/htsi?format=rss'),
+    ]
+
+    def preprocess_raw_html(self, raw, *a):
+        # with open('/t/raw.html', 'w') as f:
+        #     f.write(raw)
+        m = re.search(r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw)
+        raw = raw[m.start():]
+        raw = raw.split('>', 1)[1]
+        # with open('/t/raw.json', 'w') as f:
+        #     f.write(raw)
+        data = json.JSONDecoder().raw_decode(raw)[0]
+        title = data['headline']
+        body = data['articleBody']
+        body = body.replace('\n\n', '<p>')
+        # remove embedded image links
+        body = re.sub(r'\[https://\S+?\]', '', body)
+        author = ''
+        if 'author' in data:
+            try:
+                author = data['author']['name']
+            except TypeError:
+                author = ' and '.join(x['name'] for x in data['author'])
+        image = desc = ''
+        if data.get('image'):
+            image = '<p><img src="{}">'.format(data['image']['url'])
+        if data.get('description'):
+            desc = '<h2>' + data['description'] + '</h2>'
+        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        return html
