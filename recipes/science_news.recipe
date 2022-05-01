@@ -4,22 +4,19 @@ __license__ = 'GPL v3'
 '''
 sciencenews.org
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 
+from calibre.web.feeds.news import BasicNewsRecipe
+import datetime
 
 class ScienceNewsIssue(BasicNewsRecipe):
-    title = u'Science News Recent Issues'
+    title = u'Science News'
     __author__ = u'Darko Miletic, Sujata Raman and Starson17'
-    description           = u'''Science News is an award-winning weekly
+    description = u'''Science News is an award-winning bi-weekly
     newsmagazine covering the most important research in all fields of science.
-    Its 16 pages each week are packed with short, accurate articles that appeal
-    to both general readers and scientists. Published since 1922, the magazine
-    now reaches about 150,000 subscribers and more than 1 million readers.
-    These are the latest News Items from Science News. This recipe downloads
-    the last 30 days worth of articles.'''
+    This recipe downloads the last 2 weeks of articles.'''
     category = u'Science, Technology, News'
     publisher = u'Society for Science & the Public'
-    oldest_article = 15
+    oldest_article = 14
     language = 'en'
     max_articles_per_feed = 50
     no_stylesheets = True
@@ -39,5 +36,14 @@ class ScienceNewsIssue(BasicNewsRecipe):
         )})
     ]
 
-    feeds = [(u"Science News Headlines",
-              u'https://www.sciencenews.org/feed')]
+    feeds = [(u"Articles", u'https://www.sciencenews.org/feed')]
+
+    def get_cover_url(self):
+        d = datetime.date(2022, 3, 26)
+        t = datetime.date.today()
+        ld = None
+        while d <= t:
+            ld = d
+            d += datetime.timedelta(days=14)
+        url = ld.strftime("https://www.sciencenews.org/wp-content/uploads/%Y/%m/%m%d%y_cover.jpg")
+        return url
