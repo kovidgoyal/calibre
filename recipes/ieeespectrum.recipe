@@ -4,11 +4,10 @@ Fetch RSS-Feeds http://spectrum.ieee.org
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class IEEESpectrumOnline(BasicNewsRecipe):
 
-class AdvancedUserRecipe1406801106(BasicNewsRecipe):
-
-    title          = u'IEEE-Spectrum Online'
-    description    = 'The world´s largest professional association dedicated to advancing technological innovation and excellence for the benefit of humanity'
+    title          = u'IEEE Spectrum Online'
+    description    = 'All the articles and blog posts from IEEE Spectrum online. This is not the magazine.'
     publisher      = u'IEEE.org'
     __author__     = 'Armin Geller'
     category       = 'news, electronics, IT, computer science'
@@ -20,10 +19,6 @@ class AdvancedUserRecipe1406801106(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     remove_empty_feeds = True
-    # auto_cleanup = True
-
-    cover_url = 'https://spectrum.ieee.org/assets/Images/logo-main-orange.png'
-    # cover_url = 'file:///c:/Users/Armin/AppData/Roaming/calibre/resources/images/news_covers/IEEESpectrum.png'
 
     feeds = [
                 ('IEEE Spectrum Recent Content', 'https://spectrum.ieee.org/rss/fulltext'),
