@@ -28,10 +28,10 @@ class ft(BasicNewsRecipe):
 
     feeds = [
         ('World', 'https://www.ft.com/world?format=rss'),
-        ('US', 'https://www.ft.com/world?format=rss'),
+        ('US', 'https://www.ft.com/us?format=rss'),
         ('Companies', 'https://www.ft.com/companies?format=rss'),
         ('Tech', 'https://www.ft.com/technology?format=rss'),
-        ('Markets', 'https://www.ft.com/companies?format=rss'),
+        ('Markets', 'https://www.ft.com/markets?format=rss'),
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
         ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
