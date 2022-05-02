@@ -915,6 +915,8 @@ class MobiReader:
                     imgfmt = 'png'
                 except AnimatedGIF:
                     pass
+                except OSError:
+                    continue
             path = os.path.join(output_dir, '%05d.%s' % (image_index, imgfmt))
             image_name_map[image_index] = os.path.basename(path)
             if imgfmt == 'png':
