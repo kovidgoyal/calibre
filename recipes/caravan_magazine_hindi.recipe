@@ -11,8 +11,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
 
 
 class CaravanMagazineHindi(BasicNewsRecipe):
@@ -28,8 +29,8 @@ class CaravanMagazineHindi(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-            classes('post-title short-desc author-details cover'),
-            dict(itemprop='articleBody'),
+        classes('post-title short-desc author-details cover'),
+        dict(itemprop='articleBody'),
     ]
 
     remove_tags = [
@@ -41,7 +42,11 @@ class CaravanMagazineHindi(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         if not self.username or not self.password:
             return br
-        data = json.dumps({'email': self.username, 'name': '', 'password': self.password})
+        data = json.dumps({
+            'email': self.username,
+            'name': '',
+            'password': self.password
+        })
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         rq = Request(
@@ -70,16 +75,25 @@ class CaravanMagazineHindi(BasicNewsRecipe):
 
         # find current issue cover
         feeds = []
-        sections = soup.find(attrs={'class': lambda x: x and 'current-magazine-issue' in x.split()}).find(
-                attrs={'class': lambda x: x and 'sections' in x.split()})
-        for section in sections.findAll(attrs={'class': lambda x: x and 'section' in x.split()}):
+        sections = soup.find(
+            attrs={
+                'class': lambda x: x and 'current-magazine-issue' in x.split()
+            }
+        ).find(attrs={'class': lambda x: x and 'sections' in x.split()})
+        for section in sections.findAll(
+            attrs={'class': lambda x: x and 'section' in x.split()}
+        ):
             a = section.find('a')
             section_title = self.tag_to_string(a)
             self.log('\nSection:', section_title)
             articles = []
             for article in section.findAll('article'):
-                details = article.find(attrs={'class': lambda x: x and 'details' in x.split()})
-                pre = details.find(attrs={'class': lambda x: x and 'pre-heading' in x.split()})
+                details = article.find(
+                    attrs={'class': lambda x: x and 'details' in x.split()}
+                )
+                pre = details.find(
+                    attrs={'class': lambda x: x and 'pre-heading' in x.split()}
+                )
                 if pre is not None:
                     pre.extract()
                 a = details.find('a')
@@ -98,6 +112,3 @@ class CaravanMagazineHindi(BasicNewsRecipe):
             for img in div.findAll('img'):
                 img['src'] = div['content']
         return soup
-
-
-calibre_most_common_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36'
