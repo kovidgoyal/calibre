@@ -7,7 +7,7 @@ import datetime
 
 class IEEESpectrumMagazine(BasicNewsRecipe):
     title = "IEEE Spectrum Magazine"
-    lang = 'en'
+    language = 'en'
     __author__ = 'yodha8'
     description = "Published on day 1 of every month."
     oldest_article = 120  # Mag gathers articles published older than a month online. So we scan for 4 months in the feed.

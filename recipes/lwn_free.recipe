@@ -3,13 +3,16 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LWNFree(BasicNewsRecipe):
-    title       = "LWN Linux Weekly News (Free)"
+    title = "LWN Linux Weekly News (Free)"
+    language = 'en'
+    __author__ = 'yodha8'
     description = "LWN is published every Thursday. Recipe skips current week's articles (subscriber-only) and pulls free articles from previous week."
     oldest_article = 14  # So we can grab previous week articles.
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('LWN Articles', 'https://lwn.net/headlines/Features'),
     ]
