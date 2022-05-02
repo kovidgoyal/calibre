@@ -3,15 +3,17 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import builtins, apsw
+import apsw
+import builtins
 import hashlib
 import os
 import sys
 from contextlib import suppress
+from threading import Lock
 
-from calibre.utils.date import EPOCH, utcnow
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize
+from calibre.utils.date import EPOCH, utcnow
 
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
@@ -32,27 +34,32 @@ class FTS:
     def __init__(self, dbref):
         self.dbref = dbref
         self.pool = Pool(dbref)
+        self.init_lock = Lock()
 
     def initialize(self, conn):
-        main_db_path = os.path.abspath(conn.db_filename('main'))
-        dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
-        conn.execute(f'ATTACH DATABASE "{dbpath}" AS fts_db')
-        SchemaUpgrade(conn)
-        conn.fts_dbpath = dbpath
-        conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
-        num_dirty = conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
-        if not num_dirty:
-            num_indexed = conn.get('''SELECT COUNT(*) from fts_db.books_text''')[0][0]
-            if not num_indexed:
-                self.dirty_existing()
+        needs_dirty = False
+        with self.init_lock:
+            if conn.fts_dbpath is None:
+                main_db_path = os.path.abspath(conn.db_filename('main'))
+                dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
+                conn.execute(f'ATTACH DATABASE "{dbpath}" AS fts_db')
+                SchemaUpgrade(conn)
+                conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
+                num_dirty = conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
+                if not num_dirty:
+                    num_indexed = conn.get('''SELECT COUNT(*) from fts_db.books_text''')[0][0]
+                    if not num_indexed:
+                        needs_dirty = True
+                conn.fts_dbpath = dbpath
+        if needs_dirty:
+            self.dirty_existing()
 
     def get_connection(self):
         db = self.dbref()
         if db is None:
             raise RuntimeError('db has been garbage collected')
         ans = db.backend.get_connection()
-        if ans.fts_dbpath is None:
-            self.initialize(ans)
+        self.initialize(ans)
         return ans
 
     def dirty_existing(self):
