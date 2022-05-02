@@ -28,12 +28,13 @@ class outlook(BasicNewsRecipe):
             a = h3.find('a', href=lambda x: x)
             url = a['href']
             title = self.tag_to_string(a)
+            desc = ''
+            p = h3.find_next_sibling('p')
+            if p:
+                desc = self.tag_to_string(desc)
             self.log('\t\tFound article:', title)
             self.log('\t\t\t', url)
-            ans.append({
-                'title': title,
-                'url': url,
-            })
+            ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
 
     def preprocess_raw_html(self, raw, *a):
