@@ -36,12 +36,12 @@ class ScanProgress(QWidget):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.wl = la = QLabel(_(
-            'Normally, calibre indexes books slowly in the background,'
-            ' to avoid overloading your computer. You can instead ask'
-            ' calibre to speed up indexing, if you intend to leave your'
-            ' computer running overnight or similar to quickly finish the indexing.'
-            ' Doing so will likely make both calibre and your computer less responsive,'
-            ' while the fast indexing is running.'
+            'Normally, calibre indexes books slowly, in the background,'
+            ' to avoid overloading your computer. You can instead have'
+            ' calibre speed up indexing. This is useful if you intend to leave your'
+            ' computer running overnight to quickly finish the indexing.'
+            ' Both your computer and calibre will be less responsive while'
+            ' fast indexing is active.'
         ))
         la.setWordWrap(True)
         l.addWidget(la)
