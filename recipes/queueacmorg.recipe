@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-# https://manual.calibre-ebook.com/news_recipe.html
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 '''
@@ -9,76 +9,15 @@ ACM Queue Magazine
 
 
 class QueueAcmOrg(BasicNewsRecipe):
-    __author__ = 'CoderAllan.github.com'
-    title                 = 'ACM Queue Magazine'
-    description           = ('Queue is the ACMs magazine for practicing software engineers. '
-                             'Written by engineers for engineers, Queue focuses on the technical '
-                             'problems and challenges that loom ahead, helping readers to sharpen '
-                             'their own thinking and pursue innovative solutions. Queue does not '
-                             'focus on either industry news or the latest "solutions." Rather, '
-                             'Queue takes a critical look at current and emerging technologies, '
-                             'highlighting problems that are likely to arise and posing questions '
-                             'that software engineers should be thinking about.')
-    category              = 'tecnology, engeneering, testing, hardware, software, developement, sql, performance'
-    oldest_article        = 45
-    max_articles_per_feed = 10
-    auto_cleanup          = True
-    language              = 'en'
+    title = "ACM Queue Magazine"
+    __author__ = 'yodha8'
+    description = "Queue is the ACM magazine for practicing software engineers. Published once every 2 months. Example: Jan-Feb."
+    oldest_article = 60
+    max_articles_per_feed = 50
+    auto_cleanup = True
+    language = 'en'
+    cover_url = "https://queue.acm.org/img/acmqueue_logo.gif"
 
-    # Feed are found here: http://queue.acm.org/rssfeeds.cfm
     feeds = [
-        ('Latest Queue Content', 'http://queue.acm.org/rss/feeds/latestitems.xml'),
-        ('Curmudgeon', 'http://queue.acm.org/rss/feeds/curmudgeon.xml'),
-        ('Opinion', 'http://queue.acm.org/rss/feeds/opinion.xml'),
-        ('Kodevicious', 'http://queue.acm.org/rss/feeds/kodevicious.xml'),
-        ('ACM TechNews', 'http://www.infoinc.com/acm/TechNews.rss'),
-        ('AI', 'http://queue.acm.org/rss/feeds/ai.xml'),
-        ('API Design', 'http://queue.acm.org/rss/feeds/apidesign.xml'),
-        ('Bioscience', 'http://queue.acm.org/rss/feeds/bioscience.xml'),
-        ('Compliance', 'http://queue.acm.org/rss/feeds/compliance.xml'),
-        ('Component Technologies', 'http://queue.acm.org/rss/feeds/componenttechnologies.xml'),
-        ('Computer Architecture', 'http://queue.acm.org/rss/feeds/computerarchitecture.xml'),
-        ('Concurrency', 'http://queue.acm.org/rss/feeds/concurrency.xml'),
-        ('DSPs', 'http://queue.acm.org/rss/feeds/dsps.xml'),
-        ('Databases', 'http://queue.acm.org/rss/feeds/databases.xml'),
-        ('Development', 'http://queue.acm.org/rss/feeds/development.xml'),
-        ('Distributed Computing', 'http://queue.acm.org/rss/feeds/distributedcomputing.xml'),
-        ('Distributed Development', 'http://queue.acm.org/rss/feeds/distributeddevelopment.xml'),
-        ('Education', 'http://queue.acm.org/rss/feeds/education.xml'),
-        ('Email and IM', 'http://queue.acm.org/rss/feeds/emailandim.xml'),
-        ('Embedded Systems', 'http://queue.acm.org/rss/feeds/embeddedsystems.xml'),
-        ('Failure and Recovery', 'http://queue.acm.org/rss/feeds/failureandrecovery.xml'),
-        ('File Systems and Storage', 'http://queue.acm.org/rss/feeds/filesystemsandstorage.xml'),
-        ('Game Development', 'http://queue.acm.org/rss/feeds/gamedevelopment.xml'),
-        ('Graphics', 'http://queue.acm.org/rss/feeds/graphics.xml'),
-        ('HCI', 'http://queue.acm.org/rss/feeds/hci.xml'),
-        ('Managing Megaservices', 'http://queue.acm.org/rss/feeds/managingmegaservices.xml'),
-        ('Mobile Computing', 'http://queue.acm.org/rss/feeds/mobilecomputing.xml'),
-        ('Networks', 'http://queue.acm.org/rss/feeds/networks.xml'),
-        ('Object-Relational Mapping', 'http://queue.acm.org/rss/feeds/object-relationalmapping.xml'),
-        ('Open Source', 'http://queue.acm.org/rss/feeds/opensource.xml'),
-        ('Patching and Deployment', 'http://queue.acm.org/rss/feeds/patchinganddeployment.xml'),
-        ('Performance', 'http://queue.acm.org/rss/feeds/performance.xml'),
-        ('Power Management', 'http://queue.acm.org/rss/feeds/powermanagement.xml'),
-        ('Privacy and Rights', 'http://queue.acm.org/rss/feeds/privacyandrights.xml'),
-        ('Processors', 'http://queue.acm.org/rss/feeds/processors.xml'),
-        ('Programming Languages', 'http://queue.acm.org/rss/feeds/programminglanguages.xml'),
-        ('Purpose-built Systems', 'http://queue.acm.org/rss/feeds/purpose-builtsystems.xml'),
-        ('Quality Assurance', 'http://queue.acm.org/rss/feeds/qualityassurance.xml'),
-        ('RFID', 'http://queue.acm.org/rss/feeds/rfid.xml'),
-        ('Risks Forum', 'http://queue.acm.org/rss/feeds/risksforum.xml'),
-        ('SIP', 'http://queue.acm.org/rss/feeds/sip.xml'),
-        ('Search Engines', 'http://queue.acm.org/rss/feeds/searchengines.xml'),
-        ('Security', 'http://queue.acm.org/rss/feeds/security.xml'),
-        ('Semi-structured Data', 'http://queue.acm.org/rss/feeds/semi-structureddata.xml'),
-        ('Social Computing', 'http://queue.acm.org/rss/feeds/socialcomputing.xml'),
-        ('System Administration', 'http://queue.acm.org/rss/feeds/systemadministration.xml'),
-        ('System Evolution', 'http://queue.acm.org/rss/feeds/systemevolution.xml'),
-        ('Virtual Machines', 'http://queue.acm.org/rss/feeds/virtualmachines.xml'),
-        ('Virtualization', 'http://queue.acm.org/rss/feeds/virtualization.xml'),
-        ('VoIP', 'http://queue.acm.org/rss/feeds/voip.xml'),
-        ('Web Development', 'http://queue.acm.org/rss/feeds/webdevelopment.xml'),
-        ('Web Security', 'http://queue.acm.org/rss/feeds/websecurity.xml'),
-        ('Web Services', 'http://queue.acm.org/rss/feeds/webservices.xml'),
-        ('Workflow Systems', 'http://queue.acm.org/rss/feeds/workflowsystems.xml'),
+        ("All Queue Content", "https://queue.acm.org/rss/feeds/queuecontent.xml"),
     ]
