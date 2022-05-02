@@ -431,9 +431,10 @@ class Cache:
     def initialize_fts(self):
         self.fts_queue_thread = None
         self.fts_job_queue = Queue()
-        self.backend.initialize_fts(weakref.ref(self))
+        fts = self.backend.initialize_fts(weakref.ref(self))
         if self.is_fts_enabled():
             self.start_fts_pool()
+        return fts
 
     def start_fts_pool(self):
         from threading import Thread
@@ -530,6 +531,19 @@ class Cache:
     @write_api
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
         return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
+
+    @api
+    def reindex_fts(self):
+        if not self.is_fts_enabled():
+            return
+        with self.write_lock:
+            self._shutdown_fts()
+        self._shutdown_fts(stage=2)
+        with self.write_lock:
+            self.backend.reindex_fts()
+            fts = self.initialize_fts()
+            self._queue_next_fts_job()
+        return fts
 
     @api
     def set_fts_num_of_workers(self, num=None):
@@ -2381,6 +2395,19 @@ class Cache:
     def __del__(self):
         self.close()
 
+    def _shutdown_fts(self, stage=1):
+        if stage == 1:
+            self.backend.shutdown_fts()
+            if self.fts_queue_thread is not None:
+                self.fts_job_queue.put(None)
+            return
+        # the fts supervisor thread could be in the middle of committing a
+        # result to the db, so holding a lock here will cause a deadlock
+        if self.fts_queue_thread is not None:
+            self.fts_queue_thread.join()
+            self.fts_queue_thread = None
+        self.backend.join_fts()
+
     @api
     def close(self):
         with self.write_lock:
@@ -2389,9 +2416,7 @@ class Cache:
             self.close_called = True
             self.shutting_down = True
             self.event_dispatcher.close()
-            self.backend.shutdown_fts()
-            if self.fts_queue_thread is not None:
-                self.fts_job_queue.put(None)
+            self._shutdown_fts()
             from calibre.customize.ui import available_library_closed_plugins
             for plugin in available_library_closed_plugins():
                 try:
@@ -2399,12 +2424,7 @@ class Cache:
                 except Exception:
                     import traceback
                     traceback.print_exc()
-        # the fts supervisor thread could be in the middle of committing a
-        # result to the db, so holding a lock here will cause a deadlock
-        if self.fts_queue_thread is not None:
-            self.fts_queue_thread.join()
-            self.fts_queue_thread = None
-        self.backend.join_fts()
+        self._shutdown_fts(stage=2)
         with self.write_lock:
             self.backend.close()
 

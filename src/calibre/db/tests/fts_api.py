@@ -143,6 +143,12 @@ class FTSAPITest(BaseTest):
             'some other long text that will [also] help with the testing of search'})
         self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']', snippet_size=3)}, {
             '…will [also] help…'})
+        fts = cache.reindex_fts()
+        self.wait_for_fts_to_finish(fts)
+        self.assertFalse(fts.all_currently_dirty())
+        self.ae({x['id'] for x in cache.fts_search('help')}, {1, 2})
+        cache.remove_books((1,))
+        self.ae({x['id'] for x in cache.fts_search('help')}, {2})
         cache.close()
 
     def test_fts_triggers(self):

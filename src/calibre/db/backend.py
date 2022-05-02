@@ -933,6 +933,7 @@ class DB:
             return
         from .fts.connect import FTS
         self.fts = FTS(dbref)
+        return self.fts
 
     def enable_fts(self, dbref=None):
         enabled = dbref is not None
@@ -961,6 +962,12 @@ class DB:
 
     def get_next_fts_job(self):
         return self.fts.get_next_fts_job()
+
+    def reindex_fts(self):
+        if self.conn.fts_dbpath:
+            self.conn.execute('DETACH fts_db')
+            os.remove(self.conn.fts_dbpath)
+            self.conn.fts_dbpath = None
 
     def remove_dirty_fts(self, book_id, fmt):
         return self.fts.remove_dirty(book_id, fmt)
