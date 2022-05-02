@@ -4,8 +4,8 @@
 
 import os
 from qt.core import (
-    QCheckBox, QDialog, QHBoxLayout, QLabel, QRadioButton, QTimer, QVBoxLayout,
-    QWidget
+    QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QRadioButton,
+    QTimer, QVBoxLayout, QWidget
 )
 
 from calibre import detect_ncpus
@@ -140,6 +140,23 @@ class ScanStatus(QWidget):
     def db(self):
         return get_db()
 
+    def specialize_button_box(self, bb: QDialogButtonBox):
+        bb.clear()
+        bb.addButton(QDialogButtonBox.StandardButton.Close)
+        b = bb.addButton(_('Re-index'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('view-refresh.png'))
+        b.setToolTip(_('Re-index all books in this library'))
+        b.clicked.connect(self.reindex)
+
+    def reindex(self):
+        if not confirm(_(
+                'This will force calibre to re-index all the books in this library, which'
+                ' can take a long time. Are you sure?'), 'fts-reindex-confirm', self):
+            return
+        from calibre.gui2.device import BusyCursor
+        with BusyCursor():
+            self.db.reindex_fts()
+
     def shutdown(self):
         self.indexing_status_timer.stop()
         self.scan_progress.slow_button.setChecked(True)
@@ -148,9 +165,14 @@ class ScanStatus(QWidget):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
-    get_db.db = db(os.path.expanduser('~/test library'))
     app = Application([])
-    w = ScanStatus()
-    w.show()
-    app.exec_()
-    w.shutdown()
+    d = QDialog()
+    l = QVBoxLayout(d)
+    bb = QDialogButtonBox(d)
+    bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+    get_db.db = db(os.path.expanduser('~/test library'))
+    w = ScanStatus(parent=d)
+    l.addWidget(w)
+    l.addWidget(bb)
+    w.specialize_button_box(bb)
+    d.exec()
