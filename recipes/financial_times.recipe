@@ -16,6 +16,7 @@ class ft(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'width', 'height']
+    masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
 
     def get_cover_url(self):
         soup = self.index_to_soup(
@@ -35,7 +36,7 @@ class ft(BasicNewsRecipe):
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
         ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
-        ('how to spend it', 'https://www.ft.com/htsi?format=rss'),
+        ('How to spend it', 'https://www.ft.com/htsi?format=rss'),
     ]
 
     def preprocess_raw_html(self, raw, *a):
@@ -50,17 +51,25 @@ class ft(BasicNewsRecipe):
         title = data['headline']
         body = data['articleBody']
         body = body.replace('\n\n', '<p>')
-        # remove embedded image links
-        body = re.sub(r'\[https://\S+?\]', '', body)
         author = ''
         if 'author' in data:
             try:
                 author = data['author']['name']
             except TypeError:
                 author = ' and '.join(x['name'] for x in data['author'])
-        image = desc = ''
+        image = desc = title_image_url = ''
         if data.get('image'):
-            image = '<p><img src="{}">'.format(data['image']['url'])
+            title_image_url = data['image']['url']
+            image = '<p><img src="{}">'.format(title_image_url)
+
+        # embedded image links
+        def insert_image(m):
+            url = m.group()[1:-1]
+            if url == title_image_url:
+                return ''
+            return '<p><img src="{}">'.format(url)
+
+        body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
         html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
