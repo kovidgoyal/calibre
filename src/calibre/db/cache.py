@@ -542,6 +542,7 @@ class Cache:
         with self.write_lock:
             self.backend.reindex_fts()
             fts = self.initialize_fts()
+            fts.initialize(self.backend.conn)  # ensure fts is pre-initialized needed for the tests
             self._queue_next_fts_job()
         return fts
 
