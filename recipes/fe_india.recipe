@@ -34,6 +34,7 @@ class FE_India(BasicNewsRecipe):
     }
 
     keep_only_tags = [classes('wp-block-post-title wp-block-post-excerpt ie-network-post-meta-wrapper wp-block-post-featured-image wp-block-post-content')]
+    remove_tags = [classes('parent_also_read')]
     remove_attributes = ['width', 'height']
 
     feeds = [
