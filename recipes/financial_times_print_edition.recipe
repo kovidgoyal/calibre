@@ -1,6 +1,6 @@
 import json
 import re
-
+from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -26,11 +26,19 @@ class ft(BasicNewsRecipe):
         return getattr(self, 'cover_url', self.cover_url)
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.ft.com/todaysnewspaper/')
-        # UK edition: https://www.ft.com/todaysnewspaper/uk
+        soup = self.index_to_soup('https://www.ft.com/todaysnewspaper/uk')
+        # International edition: https://www.ft.com/todaysnewspaper/international
         ans = self.ft_parse_index(soup)
         if not ans:
-            raise ValueError('Could not find any articles')
+            is_sunday = date.today().weekday() == 6
+            if is_sunday:
+                raise ValueError(
+                    'The Financial Times Newspaper is not published on Sundays.'
+                )
+            else:
+                raise ValueError(
+                    'The Financial Times Newspaper is not published today.'
+                )
         return ans
 
     def ft_parse_index(self, soup):
