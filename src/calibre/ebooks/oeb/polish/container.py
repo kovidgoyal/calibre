@@ -326,7 +326,7 @@ class Container(ContainerBase):  # {{{
         }
 
     def clone_data(self, dest_dir):
-        Container.commit(self, keep_parsed=True)
+        Container.commit(self, keep_parsed=False)
         self.cloned = True
         clone_dir(self.root, dest_dir)
         return self.data_for_clone(dest_dir)
