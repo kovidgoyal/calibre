@@ -2,15 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, sys
-from functools import cmp_to_key
+import os, time
 
 from calibre.constants import preferred_encoding, DEBUG
 from calibre import isbytestring
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.devices.usbms.books import Book as Book_, CollectionsBookList, none_cmp
+from calibre.devices.usbms.books import Book as Book_, CollectionsBookList
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
@@ -263,7 +262,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 for category in val:
                     # debug_print("KTCollectionsBookList:get_collections - category=", category)
                     if doing_dc:
-                        pass # No need to do anything with device_collections
+                        pass  # No need to do anything with device_collections
                     elif fm is not None and fm['is_custom']:  # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':

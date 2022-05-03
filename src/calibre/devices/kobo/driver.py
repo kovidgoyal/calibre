@@ -2514,7 +2514,7 @@ class KOBOTOUCH(KOBO):
         collections = booklists.get_collections(collections_attributes,
                         collections_template=self.collections_template,
                         template_globals={
-                            'serial_number': self.device_serial_no(), 
+                            'serial_number': self.device_serial_no(),
                             'firmware_version': self.fwversion,
                             'display_firmware_version': self.display_fwversion,
                             'dbversion': self.dbversion,
@@ -3888,7 +3888,6 @@ class KOBOTOUCH(KOBO):
 
     def has_activity_table(self):
         return self.dbversion >= self.min_dbversion_activity
-
 
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
