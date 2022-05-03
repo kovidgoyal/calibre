@@ -23,6 +23,48 @@
 # - title by author
 # }}}
 
+{{{ 5.42.0 2022-05-03
+
+:: new features
+
+- E-book viewer: Ignore accents when doing a search
+
+- [1969926] Book list searching: Ignore punctuation when searching. So that, for example, Gravitys will match Gravity's
+
+- [1970045] Show the text used for marking books in the tooltip
+
+:: bug fixes
+
+- [1971150] Edit book: Reduce memory consumption by the checkpoint system when doing operations that involve parsing all book files
+
+- [1971015] Amazon metadata download: Fix titles starting with [ being ignored
+
+- [1970497] Edit metadata dialog: Undo not working correctly in identifiers field
+
+- [1970391] Fix viewing LRF files not working
+
+- [1969981] PDF Output: Fix an error on some invalid CSS in the input document
+
+- Linux binary: Workaround for Qt WebEngine not working on systems with glibc > 2.33
+
+:: improved recipes
+- New Yorker
+- OMG! Ubuntu!
+- ACM Queue
+- CACM
+- Science News
+- Quanta Magazine
+- Outlook Magazine
+- Indian Express
+
+:: new recipes
+- Caravan Magazine (Hindi) by Areet Mahadevan
+- LWN (Free) by yodha8
+- IEEE Spectrum Magazine by yodha8
+- Financial Times by Kovid Goyal
+- Cosmos Magazine by yodha8
+}}}
+
 {{{ 5.41.0 2022-04-22
 
 :: new features
