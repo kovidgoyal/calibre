@@ -1,0 +1,112 @@
+import json
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class ft(BasicNewsRecipe):
+    title = 'Financial Times - Print Edition'
+    language = 'en'
+    __author__ = "Kovid Goyal"
+    description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['style', 'width', 'height']
+    masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.todayspapers.co.uk/the-financial-times-front-page-today/'
+        )
+        tag = soup.find('div', attrs={'class': 'elementor-image'})
+        if tag:
+            self.cover_url = tag.find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.ft.com/todaysnewspaper/')
+        # UK edition: https://www.ft.com/todaysnewspaper/uk
+        ans = self.ft_parse_index(soup)
+        if not ans:
+            raise ValueError('Could not find any articles')
+        return ans
+
+    def ft_parse_index(self, soup):
+        feeds = []
+        for section in soup.findAll(**classes('o-teaser-collection')):
+            h2 = section.find('h2')
+            secname = self.tag_to_string(h2)
+            self.log(secname)
+            articles = []
+            for a in section.findAll(
+                'a', href=True, **classes('js-teaser-heading-link')
+            ):
+                url = a['href']
+                url = 'https://www.ft.com' + url
+                title = self.tag_to_string(a)
+                desc = ''
+                desc_parent = a.findParent('div')
+                div = desc_parent.find_previous_sibling(
+                    'div', **classes('o-teaser__meta')
+                )
+                if div is not None:
+                    desc = div.find('a', **classes('o-teaser__tag'))
+                    desc = self.tag_to_string(desc)
+                    prefix = div.find('span', **classes('o-teaser__tag-prefix'))
+                    if prefix is not None:
+                        prefix = self.tag_to_string(prefix)
+                        desc = prefix + ' ' + desc
+                    articles.append({
+                        'title': title,
+                        'url': url,
+                        'description': desc
+                    })
+                    self.log('\t\t', desc)
+                    self.log('\t\tFound article:', title)
+                    self.log('\t\t\t', url)
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
+
+    def preprocess_raw_html(self, raw, *a):
+        # with open('/t/raw.html', 'w') as f:
+        #     f.write(raw)
+        m = re.search(
+            r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw
+        )
+        raw = raw[m.start():]
+        raw = raw.split('>', 1)[1]
+        # with open('/t/raw.json', 'w') as f:
+        #     f.write(raw)
+        data = json.JSONDecoder().raw_decode(raw)[0]
+        title = data['headline']
+        body = data['articleBody']
+        body = body.replace('\n\n', '<p>')
+
+        author = ''
+        if 'author' in data:
+            try:
+                author = data['author']['name']
+            except TypeError:
+                author = ' and '.join(x['name'] for x in data['author'])
+
+        image = desc = title_image_url = ''
+        if data.get('image'):
+            title_image_url = data['image']['url']
+            image = '<p><img src="{}">'.format(title_image_url)
+
+        # embedded image links
+        def insert_image(m):
+            url = m.group()[1:-1]
+            if url == title_image_url:
+                return ''
+            return '<p><img src="{}">'.format(url)
+
+        body = re.sub(r'\[https://\S+?\]', insert_image, body)
+
+        if data.get('description'):
+            desc = '<h2>' + data['description'] + '</h2>'
+        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        return html
