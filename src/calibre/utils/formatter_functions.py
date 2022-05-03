@@ -1414,7 +1414,7 @@ class BuiltinListJoin(BuiltinFormatterFunction):
                       "the first letter of the genre, i.e. the genre 'Fiction' "
                       "becomes 'Genre: F'. The following will do that\n"
                       "  program:\n"
-                      "    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')")
+                      "    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \\1'),  ',')")
 
     def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
         if len(args) % 2 != 0:
