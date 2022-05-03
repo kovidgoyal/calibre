@@ -153,8 +153,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         year, volnum, issue_vol = link.split('/')[-3:]
         self.cover_url = soup.find(**classes('subscribe-callout-image'))['data-src'].split("|")[-1]
         self.cover_url = self.cover_url.split('?')[0]
-        self.cover_url = self.cover_url.replace('.webp', '')
-        self.cover_url = self.cover_url.replace('_webp_issue_small_2x', 'issue_large_2x')
+        self.cover_url = self.cover_url.replace('_webp_issue_small_2x', '_webp_issue_large_2x')
 
         cls = soup.find('body')['class']
         if isinstance(cls, (list, tuple)):
