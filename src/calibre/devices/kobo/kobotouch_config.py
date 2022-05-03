@@ -7,14 +7,15 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
-                      QDialog, QDialogButtonBox, QCheckBox, QPushButton)
+from qt.core import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout, QDialog,
+                     QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 
 
 def wrap_msg(msg):
@@ -98,7 +99,10 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['manage_collections'] = self.manage_collections
         p['create_collections'] = self.create_collections
+        p['use_collections_columns'] = self.use_collections_columns
         p['collections_columns'] = self.collections_columns
+        p['use_collections_template'] = self.use_collections_template
+        p['collections_template'] = self.collections_template
         p['ignore_collections_names'] = self.ignore_collections_names
         p['delete_empty_collections'] = self.delete_empty_collections
 
@@ -244,12 +248,29 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.setChecked(device.get_pref('manage_collections'))
         self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
-        self.collections_columns_label = QLabel(_('Collections columns:'))
+        self.use_collections_columns_checkbox = create_checkbox(
+                             _("Collections columns:"),
+                             _('Use a columns to generate collections.'),
+                             device.get_pref('use_collections_columns')
+                             )
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
                 ' These are created on the Kobo. '
                 'Specify a tags type column for automatic management.'))
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
+
+        self.use_collections_template_checkbox = create_checkbox(
+                             _("Collections template:"),
+                             _('Use a template to generate collections.'),
+                             device.get_pref('use_collections_template')
+                             )
+        self.collections_template_edit = TemplateConfig(
+                            device.get_pref('collections_template'),
+                            tooltip=_("Enter a template to generate collections. "
+                                      "The result of the template will be combined with the values from Collections column."
+                                      "The template should return a list of collection names separated by ':@:' (without quotes)."
+                                      )
+                            )
 
         self.create_collections_checkbox = create_checkbox(
                          _("Create collections"),
@@ -269,20 +290,45 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                 'will not be changed. Names are separated by commas.'))
         self.ignore_collections_names_edit.setText(device.get_pref('ignore_collections_names'))
 
-        self.options_layout.addWidget(self.collections_columns_label,         1, 0, 1, 1)
+        self.options_layout.addWidget(self.use_collections_columns_checkbox,  1, 0, 1, 1)
         self.options_layout.addWidget(self.collections_columns_edit,          1, 1, 1, 1)
-        self.options_layout.addWidget(self.create_collections_checkbox,       2, 0, 1, 2)
-        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0, 1, 2)
-        self.options_layout.addWidget(self.ignore_collections_names_label,    4, 0, 1, 1)
-        self.options_layout.addWidget(self.ignore_collections_names_edit,     4, 1, 1, 1)
+        self.options_layout.addWidget(self.use_collections_template_checkbox, 2, 0, 1, 1)
+        self.options_layout.addWidget(self.collections_template_edit,         2, 1, 1, 1)
+        self.options_layout.addWidget(self.create_collections_checkbox,       3, 0, 1, 2)
+        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 4, 0, 1, 2)
+        self.options_layout.addWidget(self.ignore_collections_names_label,    5, 0, 1, 1)
+        self.options_layout.addWidget(self.ignore_collections_names_edit,     5, 1, 1, 1)
+
+        self.use_collections_columns_checkbox.clicked.connect(self.use_collections_columns_checkbox_clicked)
+        self.use_collections_template_checkbox.clicked.connect(self.use_collections_template_checkbox_clicked)
+        self.use_collections_columns_checkbox_clicked(device.get_pref('use_collections_columns'))
+        self.use_collections_template_checkbox_clicked(device.get_pref('use_collections_template'))
+
+    def use_collections_columns_checkbox_clicked(self, checked):
+        self.collections_columns_edit.setEnabled(checked)
+
+    def use_collections_template_checkbox_clicked(self, checked):
+        self.collections_template_edit.setEnabled(checked)
 
     @property
     def manage_collections(self):
         return self.isChecked()
 
     @property
+    def use_collections_columns(self):
+        return self.use_collections_columns_checkbox.isChecked()
+
+    @property
     def collections_columns(self):
         return self.collections_columns_edit.text().strip()
+
+    @property
+    def use_collections_template(self):
+        return self.use_collections_template_checkbox.isChecked()
+
+    @property
+    def collections_template(self):
+        return self.collections_template_edit.template
 
     @property
     def create_collections(self):
@@ -733,7 +779,7 @@ class TemplateConfig(QWidget):  # {{{
         b = self.b = QPushButton(_('&Template editor'))
         l.addWidget(b, 0, col, 1, 1)
         b.clicked.connect(self.edit_template)
-        self.setToolTip(tooltip)
+        self.setToolTip(wrap_msg(tooltip))
 
     @property
     def template(self):

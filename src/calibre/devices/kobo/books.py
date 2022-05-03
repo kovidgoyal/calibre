@@ -9,6 +9,7 @@ from calibre.constants import preferred_encoding, DEBUG
 from calibre import isbytestring
 
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.devices.usbms.books import Book as Book_, CollectionsBookList, none_cmp
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
@@ -132,7 +133,7 @@ class KTCollectionsBookList(CollectionsBookList):
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
-    def get_collections(self, collection_attributes):
+    def get_collections(self, collection_attributes, collections_template=None, template_globals=None):
         debug_print("KTCollectionsBookList:get_collections - start - collection_attributes=", collection_attributes)
 
         collections = {}
@@ -157,14 +158,17 @@ class KTCollectionsBookList(CollectionsBookList):
             lpath = getattr(book, 'lpath', None)
             if lpath is None:
                 continue
-            # If the book is not in the current library, we don't want to use the metadtaa for the collections
-            if book.application_id is None:
-                # debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+            # If the book is not in the current library, we don't want to use the metadata for the collections
+            # or it is a book that cannot be put in a collection (such as recommendations or previews)
+            if book.application_id is None or not book.can_put_on_shelves:
+                # debug_print("KTCollectionsBookList:get_collections - Book not in current library or cannot be put in a collection")
                 continue
+
             # Decide how we will build the collections. The default: leave the
             # book in all existing collections. Do not add any new ones.
             attrs = ['device_collections']
             if getattr(book, '_new_book', False):
+                debug_print("KTCollectionsBookList:get_collections - sending new book")
                 if prefs['manage_device_metadata'] == 'manual':
                     # Ensure that the book is in all the book's existing
                     # collections plus all metadata collections
@@ -173,11 +177,11 @@ class KTCollectionsBookList(CollectionsBookList):
                     # For new books, both 'on_send' and 'on_connect' do the same
                     # thing. The book's existing collections are ignored. Put
                     # the book in collections defined by its metadata.
-                    attrs = collection_attributes
+                    attrs = list(collection_attributes)
             elif prefs['manage_device_metadata'] == 'on_connect':
                 # For existing books, modify the collections only if the user
                 # specified 'on_connect'
-                attrs = collection_attributes
+                attrs = list(collection_attributes)
                 for cat_name in self.device_managed_collections:
                     if cat_name in book.device_collections:
                         if cat_name not in collections:
@@ -185,17 +189,22 @@ class KTCollectionsBookList(CollectionsBookList):
                             if show_debug:
                                 debug_print("KTCollectionsBookList:get_collections - Device Managed Collection:", cat_name)
                         if lpath not in collections[cat_name]:
-                            collections[cat_name][lpath] = (book, tsval, tsval)
+                            collections[cat_name][lpath] = book
                             if show_debug:
                                 debug_print("KTCollectionsBookList:get_collections - Device Managed Collection -added book to cat_name", cat_name)
                 book.device_collections = []
             if show_debug:
                 debug_print("KTCollectionsBookList:get_collections - attrs=", attrs)
 
+            if collections_template is not None:
+                attrs.append('%template%')
+
             for attr in attrs:
+                fm = None
                 attr = attr.strip()
                 if show_debug:
                     debug_print("KTCollectionsBookList:get_collections - attr='%s'"%attr)
+
                 # If attr is device_collections, then we cannot use
                 # format_field, because we don't know the fields where the
                 # values came from.
@@ -204,10 +213,16 @@ class KTCollectionsBookList(CollectionsBookList):
                     val = book.device_collections  # is a list
                     if show_debug:
                         debug_print("KTCollectionsBookList:get_collections - adding book.device_collections", book.device_collections)
-                # If the book is not in the current library, we don't want to use the metadtaa for the collections
-                elif book.application_id is None or not book.can_put_on_shelves:
-                    # debug_print("KTCollectionsBookList:get_collections - Book not in current library")
-                    continue
+                elif attr == '%template%':
+                    doing_dc = False
+                    val = ''
+                    if collections_template is not None:
+                        nv = SafeFormat().safe_format(collections_template, book,
+                                                      'KOBO', book, global_vars=template_globals)
+                        if show_debug:
+                            debug_print("KTCollectionsBookList:get_collections collections_template - result", nv)
+                        if nv:
+                            val = [v.strip() for v in nv.split(':@:') if v.strip()]
                 else:
                     doing_dc = False
                     ign, val, orig_val, fm = book.format_field_extended(attr)
@@ -216,6 +231,7 @@ class KTCollectionsBookList(CollectionsBookList):
                         debug_print("KTCollectionsBookList:get_collections - not device_collections")
                         debug_print('          ign=', ign, ', val=', val, ' orig_val=', orig_val, 'fm=', fm)
                         debug_print('          val=', val)
+
                 if not val:
                     continue
                 if isbytestring(val):
@@ -246,26 +262,16 @@ class KTCollectionsBookList(CollectionsBookList):
 
                 for category in val:
                     # debug_print("KTCollectionsBookList:get_collections - category=", category)
-                    is_series = False
                     if doing_dc:
-                        # Attempt to determine if this value is a series by
-                        # comparing it to the series name.
-                        if category == book.series:
-                            is_series = True
+                        pass # No need to do anything with device_collections
                     elif fm is not None and fm['is_custom']:  # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
-                        if fm['datatype'] == 'series':
-                            is_series = True
                     else:                       # is a standard field
                         if attr == 'tags' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
-                        if attr == 'series' or \
-                                ('series' in collection_attributes and
-                                 book.get('series', None) == category):
-                            is_series = True
 
                     # The category should not be None, but, it has happened.
                     if not category:
@@ -278,15 +284,7 @@ class KTCollectionsBookList(CollectionsBookList):
                         if show_debug:
                             debug_print("KTCollectionsBookList:get_collections - created collection for cat_name", cat_name)
                     if lpath not in collections[cat_name]:
-                        if is_series:
-                            if doing_dc:
-                                collections[cat_name][lpath] = \
-                                    (book, book.get('series_index', sys.maxsize), tsval)
-                            else:
-                                collections[cat_name][lpath] = \
-                                    (book, book.get(attr+'_index', sys.maxsize), tsval)
-                        else:
-                            collections[cat_name][lpath] = (book, tsval, tsval)
+                        collections[cat_name][lpath] = book
                         if show_debug:
                             debug_print("KTCollectionsBookList:get_collections - added book to collection for cat_name", cat_name)
                     if show_debug:
@@ -296,8 +294,7 @@ class KTCollectionsBookList(CollectionsBookList):
         result = {}
 
         for category, lpaths in collections.items():
-            books = sorted(lpaths.values(), key=cmp_to_key(none_cmp))
-            result[category] = [x[0] for x in books]
+            result[category] = lpaths.values()
         # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())
         debug_print("KTCollectionsBookList:get_collections - end")
         return result

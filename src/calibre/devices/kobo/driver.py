@@ -632,6 +632,7 @@ class KOBO(USBMS):
                 book.size = os.stat(self.normalize_path(path)).st_size
             b = booklists[blist].add_book(book, replace_metadata=True)
             if b:
+                debug_print("KoboTouch::add_books_to_metadata - have a new book - book=%s" % book)
                 b._new_book = True
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
@@ -740,7 +741,7 @@ class KOBO(USBMS):
                     ' Doing so may require you to perform a Factory reset of'
                     ' your Kobo.') + ((
                     '\nDevice database version: %s.'
-                    '\nDevice firmware version: %s') % (self.dbversion, self.fwversion))
+                    '\nDevice firmware version: %s') % (self.dbversion, self.display_fwversion))
                     , UserFeedback.WARN)
 
                 return False
@@ -972,6 +973,12 @@ class KOBO(USBMS):
     def show_previews(self):
         opts = self.settings()
         return opts.extra_customization[self.OPT_SHOW_PREVIEWS] is False
+
+    @property
+    def display_fwversion(self):
+        if self.fwversion is None:
+            return ''
+        return '.'.join([str(v) for v in list(self.fwversion)])
 
     def sync_booklists(self, booklists, end_session=True):
         debug_print('KOBO:sync_booklists - start')
@@ -2464,6 +2471,7 @@ class KOBOTOUCH(KOBO):
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
         debug_print("KoboTouch:update_device_database_collections - oncard='%s'"%oncard)
+        debug_print("KoboTouch:update_device_database_collections - device='%s'" % self)
         if self.modify_database_check("update_device_database_collections") is False:
             return
 
@@ -2501,9 +2509,17 @@ class KOBOTOUCH(KOBO):
         booklists.set_debugging_title(debugging_title)
         booklists.set_device_managed_collections(self.ignore_collections_names)
 
-        bookshelf_attribute = len(collections_attributes) > 0
+        have_bookshelf_attributes = len(collections_attributes) > 0 and self.use_collections_template
 
-        collections = booklists.get_collections(collections_attributes) if bookshelf_attribute else None
+        collections = booklists.get_collections(collections_attributes,
+                        collections_template=self.collections_template,
+                        template_globals={
+                            'serial_number': self.device_serial_no(), 
+                            'firmware_version': self.fwversion,
+                            'display_firmware_version': self.display_fwversion,
+                            'dbversion': self.dbversion,
+                            }
+                        ) if have_bookshelf_attributes else None
 #        debug_print('KoboTouch:update_device_database_collections - Collections:', collections)
 
         # Create a connection to the sqlite database
@@ -2514,7 +2530,7 @@ class KOBOTOUCH(KOBO):
         with closing(self.device_database_connection(use_row_factory=True)) as connection:
 
             if self.manage_collections:
-                if collections:
+                if collections is not None:
                     # debug_print("KoboTouch:update_device_database_collections - length collections=" + str(len(collections)))
 
                     # Need to reset the collections outside the particular loops
@@ -2595,7 +2611,7 @@ class KOBOTOUCH(KOBO):
                                     debug_print('            category not added to book.device_collections', book.device_collections)
                         debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
 
-                elif bookshelf_attribute:  # No collections but have set the shelf option
+                elif have_bookshelf_attributes:  # No collections but have set the shelf option
                     # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
                     debug_print("No Collections - resetting ReadStatus")
                     if self.dbversion < 53:
@@ -2606,7 +2622,7 @@ class KOBOTOUCH(KOBO):
 
             # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
             if (self.supports_bookshelves and self.manage_collections or self.supports_series()) and (
-                    bookshelf_attribute or update_series_details or update_core_metadata):
+                    have_bookshelf_attributes or update_series_details or update_core_metadata):
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves and series.")
 
                 self.series_set        = 0
@@ -2631,7 +2647,7 @@ class KOBOTOUCH(KOBO):
                             if show_debug:
                                 debug_print("KoboTouch:update_device_database_collections - calling set_core_metadata - series only")
                             self.set_core_metadata(connection, book, series_only=True)
-                        if self.manage_collections and bookshelf_attribute:
+                        if self.manage_collections and have_bookshelf_attributes:
                             if show_debug:
                                 debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
                             self.remove_book_from_device_bookshelves(connection, book)
@@ -3468,7 +3484,10 @@ class KOBOTOUCH(KOBO):
         c = super()._config()
 
         c.add_opt('manage_collections', default=True)
+        c.add_opt('use_collections_columns', default=True)
         c.add_opt('collections_columns', default='')
+        c.add_opt('use_collections_template', default=False)
+        c.add_opt('collections_template', default='')
         c.add_opt('create_collections', default=False)
         c.add_opt('delete_empty_collections', default=False)
         c.add_opt('ignore_collections_names', default='')
@@ -3664,8 +3683,20 @@ class KOBOTOUCH(KOBO):
         return self.manage_collections and self.supports_bookshelves and self.get_pref('create_collections') and len(self.collections_columns) > 0
 
     @property
+    def use_collections_columns(self):
+        return self.get_pref('use_collections_columns') and self.manage_collections
+
+    @property
     def collections_columns(self):
-        return self.get_pref('collections_columns') if self.manage_collections else ''
+        return self.get_pref('collections_columns') if self.use_collections_columns else ''
+
+    @property
+    def use_collections_template(self):
+        return self.get_pref('use_collections_template') and self.manage_collections
+
+    @property
+    def collections_template(self):
+        return self.get_pref('collections_template') if self.use_collections_template else ''
 
     def get_collections_attributes(self):
         collections_str = self.collections_columns
@@ -3858,6 +3889,7 @@ class KOBOTOUCH(KOBO):
     def has_activity_table(self):
         return self.dbversion >= self.min_dbversion_activity
 
+
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
         # and whether the user has chosen to support the firmware version
@@ -3888,7 +3920,7 @@ class KOBOTOUCH(KOBO):
                     (
                     '\nDevice database version: %s.'
                     '\nDevice firmware version: %s'
-                     ) % (self.dbversion, self.fwversion),
+                     ) % (self.dbversion, self.display_fwversion),
                     UserFeedback.WARN
                     )
 
