@@ -553,7 +553,7 @@ class KindlePage(QWizardPage, KindleUI):
                 accounts = {}
             for y in accounts.values():
                 y[2] = False
-            accounts[x] = ['AZW, MOBI, TPZ, PRC, AZW1', True, True]
+            accounts[x] = ['EPUB, TPZ', True, True]
             conf.set('accounts', accounts)
 
     def nextId(self):

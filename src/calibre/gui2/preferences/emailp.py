@@ -155,7 +155,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             self.accounts[na] = self.accounts.pop(account)
             self.account_order[row] = na
             if '@kindle.com' in addr:
-                self.accounts[na][0] = 'AZW, MOBI, TPZ, PRC, AZW1'
+                self.accounts[na][0] = 'EPUB, TPZ'
 
         self.dataChanged.emit(
                 self.index(index.row(), 0), self.index(index.row(), 3))
