@@ -564,8 +564,9 @@ class Cache:
         highlight_end=None,
         snippet_size=None,
         restrict_to_book_ids=None,
+        result_type=tuple,
     ):
-        return tuple(self.backend.fts_search(
+        return result_type(self.backend.fts_search(
             fts_engine_query,
             use_stemming=use_stemming,
             highlight_start=highlight_start,
