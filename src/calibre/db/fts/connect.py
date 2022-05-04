@@ -143,7 +143,7 @@ class FTS:
         text = 'books_text.searchable_text'
         if highlight_start is not None and highlight_end is not None:
             if snippet_size is not None:
-                text = f'snippet({fts_table}, 0, "{highlight_start}", "{highlight_end}", "…", {max(1, min(snippet_size, 64))})'
+                text = f'snippet("{fts_table}", 0, "{highlight_start}", "{highlight_end}", "…", {max(1, min(snippet_size, 64))})'
             else:
                 text = f'highlight("{fts_table}", 0, "{highlight_start}", "{highlight_end}")'
         query = 'SELECT {0}.id, {0}.book, {0}.format, {1} FROM {0} '
