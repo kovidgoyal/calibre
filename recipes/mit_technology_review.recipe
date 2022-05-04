@@ -50,11 +50,11 @@ class MitTechnologyReview(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         # find cover
-        self.cover_url = absurl(soup.find(
+        self.cover_url = soup.find(
             "div", attrs={"class":lambda name: name.startswith("magazineHero__image") if name else False}).find(
                 "img",
-                src=True
-                )['src'])
+                src=True, attrs={"class":lambda x: x.startswith('image__img') if x else False}
+                )['src']
         # parse articles
         current_articles = []
         classNamePrefixes = ["magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"]
