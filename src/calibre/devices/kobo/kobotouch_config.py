@@ -249,7 +249,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
         self.use_collections_columns_checkbox = create_checkbox(
                              _("Collections columns:"),
-                             _('Use a columns to generate collections.'),
+                             _('Use a column to generate collections.'),
                              device.get_pref('use_collections_columns')
                              )
         self.collections_columns_edit = QLineEdit(self)
@@ -265,9 +265,9 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                              )
         self.collections_template_edit = TemplateConfig(
                             device.get_pref('collections_template'),
-                            tooltip=_("Enter a template to generate collections. "
-                                      "The result of the template will be combined with the values from Collections column."
-                                      "The template should return a list of collection names separated by ':@:' (without quotes)."
+                            tooltip=_("Enter a template to generate collections."
+                                      " The result of the template will be combined with the values from Collections column."
+                                      " The template should return a list of collection names separated by ':@:' (without quotes)."
                                       )
                             )
 
