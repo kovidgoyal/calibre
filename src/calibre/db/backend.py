@@ -980,9 +980,9 @@ class DB:
             return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
     def fts_search(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
+        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text,
     ):
-        yield from self.fts.search(fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,)
+        yield from self.fts.search(fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text,)
 
     def shutdown_fts(self):
         if self.fts_enabled:

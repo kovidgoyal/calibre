@@ -9,6 +9,7 @@ import hashlib
 import os
 import sys
 from contextlib import suppress
+from itertools import repeat
 from threading import Lock
 
 from calibre.db import FTSQueryError
@@ -139,6 +140,8 @@ class FTS:
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
         return_text=True,
     ):
+        if restrict_to_book_ids is not None and not restrict_to_book_ids:
+            return
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'books_fts' + ('_stemmed' if use_stemming else '')
         if return_text:
@@ -153,18 +156,21 @@ class FTS:
             text = ''
         query = 'SELECT {0}.id, {0}.book, {0}.format {1} FROM {0} '.format('books_text', text)
         query += f' JOIN {fts_table} ON fts_db.books_text.id = {fts_table}.rowid'
-        query += f' WHERE "{fts_table}" MATCH ?'
-        data = [fts_engine_query]
+        query += ' WHERE '
+        data = []
+        if restrict_to_book_ids:
+            pl = ','.join(repeat('?', len(restrict_to_book_ids)))
+            query += f' fts_db.books_text.book IN ({pl}) AND '
+            data.extend(restrict_to_book_ids)
+        query += f' "{fts_table}" MATCH ?'
+        data.append(fts_engine_query)
         query += f' ORDER BY {fts_table}.rank '
         conn = self.get_connection()
         try:
             for record in conn.execute(query, tuple(data)):
-                book_id = record[1]
-                if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
-                    continue
                 yield {
                     'id': record[0],
-                    'book_id': book_id,
+                    'book_id': record[1],
                     'format': record[2],
                     'text': record[3] if return_text else '',
                 }
