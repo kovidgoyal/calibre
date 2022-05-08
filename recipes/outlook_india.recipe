@@ -14,13 +14,13 @@ class outlook(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.outlookindia.com/magazine/archive')
-        issue = soup.find(**classes('issue_listing'))
-        a = issue.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
+        soup = self.index_to_soup('https://www.outlookindia.com/')
+        a = soup.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
         url = a['href']
         self.log('Downloading issue:', url)
-        self.cover_url = a.find('img', attrs={'src': True})['src']
         soup = self.index_to_soup('https://www.outlookindia.com' + url)
+        cover = soup.find(**classes('listingPage_lead_story'))
+        self.cover_url = cover.find('img', attrs={'src': True})['src']
         ans = []
 
         for h3 in soup.findAll(['h3', 'h4'],
