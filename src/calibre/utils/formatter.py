@@ -50,6 +50,7 @@ class Node:
     NODE_BINARY_STRINGOP = 27
     NODE_LOCAL_FUNCTION_DEFINE = 28
     NODE_LOCAL_FUNCTION_CALL = 29
+    NODE_RANGE = 30
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -80,6 +81,18 @@ class ForNode(Node):
         self.variable = variable
         self.list_field_expr = list_field_expr
         self.separator = separator
+        self.block = block
+
+
+class RangeNode(Node):
+    def __init__(self, line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block):
+        Node.__init__(self, line_number, 'for ...:')
+        self.node_type = self.NODE_RANGE
+        self.variable = variable
+        self.start_expr = start_expr
+        self.stop_expr = stop_expr
+        self.step_expr = step_expr
+        self.limit_expr = limit_expr
         self.block = block
 
 
@@ -471,12 +484,38 @@ class _Parser:
             self.error(_("{0} statement: expected '{1}', "
                          "found '{2}'").format('for', 'in', self.token_text()))
         self.consume()
-        list_expr = self.top_expr()
-        if self.token_is('separator'):
+        if self.token_text() == 'range':
+            is_list = False
             self.consume()
-            separator = self.expr()
+            if not self.token_op_is('('):
+                self.error(_("{0} statement: expected '(', "
+                         "found '{1}'").format('for', self.token_text()))
+            self.consume()
+            start_expr = ConstantNode(line_number, '0')
+            step_expr = ConstantNode(line_number, '1')
+            limit_expr = None
+            stop_expr = self.top_expr()
+            if self.token_op_is(','):
+                self.consume()
+                start_expr = stop_expr
+                stop_expr = self.top_expr()
+                if self.token_op_is(','):
+                    self.consume()
+                    step_expr = self.top_expr()
+                    if self.token_op_is(','):
+                        self.consume()
+                        limit_expr = self.top_expr()
+            if not self.token_op_is(')'):
+                self.error(_("{0} statement: expected ')', "
+                         "found '{1}'").format('for', self.token_text()))
+            self.consume()
         else:
-            separator = None
+            is_list = True
+            list_expr = self.top_expr()
+            if self.token_is('separator'):
+                separator = self.expr()
+            else:
+                separator = None
         if not self.token_op_is(':'):
             self.error(_("{0} statement: expected '{1}', "
                          "found '{2}'").format('for', ':', self.token_text()))
@@ -486,7 +525,9 @@ class _Parser:
             self.error(_("{0} statement: expected '{1}', "
                          "found '{2}'").format('for', 'rof', self.token_text()))
         self.consume()
-        return ForNode(line_number, variable, list_expr, separator, block)
+        if is_list:
+            return ForNode(line_number, variable, list_expr, separator, block)
+        return RangeNode(line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block)
 
     def define_function_expression(self):
         self.consume()
@@ -860,6 +901,55 @@ class _Interpreter:
                 # Shouldn't get here
                 self.break_reporter("'for' list value", '', line_number)
                 ret = ''
+            return ret
+        except (StopException, ValueError) as e:
+            raise e
+        except Exception as e:
+            self.error(_("Unhandled exception '{0}'").format(e), line_number)
+
+    def do_node_range(self, prog):
+        line_number = prog.line_number
+        try:
+            try:
+                start_val = int(self.float_deal_with_none(self.expr(prog.start_expr)))
+            except ValueError:
+                self.error(_("{0}: {1} must be an integer").format('for', 'start'), line_number)
+            try:
+                stop_val = int(self.float_deal_with_none(self.expr(prog.stop_expr)))
+            except ValueError:
+                self.error(_("{0}: {1} must be an integer").format('for', 'stop'), line_number)
+            try:
+                step_val = int(self.float_deal_with_none(self.expr(prog.step_expr)))
+            except ValueError:
+                self.error(_("{0}: {1} must be an integer").format('for', 'step'), line_number)
+            try:
+                limit_val = (1000 if prog.limit_expr is None else
+                         int(self.float_deal_with_none(self.expr(prog.limit_expr))))
+            except ValueError:
+                self.error(_("{0}: {1} must be an integer").format('for', 'limit'), line_number)
+            var = prog.variable
+            if (self.break_reporter):
+                self.break_reporter("'for' 'start' value", str(start_val), line_number)
+                self.break_reporter("'for' 'stop' value", str(stop_val), line_number)
+                self.break_reporter("'for' 'step' value", str(step_val), line_number)
+                self.break_reporter("'for' 'limit' value", str(limit_val), line_number)
+            ret = ''
+            try:
+                range_gen = range(start_val, stop_val, step_val)
+                if len(range_gen) > limit_val:
+                    self.error(
+                        _("{0}: the range length ({1}) is larger than the limit ({2})").format
+                            ('for', str(len(range_gen)), str(limit_val)), line_number)
+                for x in range_gen:
+                    try:
+                        self.locals[var] = str(x)
+                        ret = self.expression_list(prog.block)
+                    except ContinueExecuted as e:
+                        ret = e.get_value()
+            except BreakExecuted as e:
+                ret = e.get_value()
+            if (self.break_reporter):
+                self.break_reporter("'for' block value", ret, line_number)
             return ret
         except (StopException, ValueError) as e:
             raise e
@@ -1270,6 +1360,7 @@ class _Interpreter:
         Node.NODE_CALL_STORED_TEMPLATE:  do_node_stored_template_call,
         Node.NODE_FIRST_NON_EMPTY:       do_node_first_non_empty,
         Node.NODE_FOR:                   do_node_for,
+        Node.NODE_RANGE:                 do_node_range,
         Node.NODE_GLOBALS:               do_node_globals,
         Node.NODE_SET_GLOBALS:           do_node_set_globals,
         Node.NODE_CONTAINS:              do_node_contains,
@@ -1378,6 +1469,7 @@ class TemplateFormatter(string.Formatter):
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
