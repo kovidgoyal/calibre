@@ -720,7 +720,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ma.setStatusTip(ma.toolTip())
 
         mt = l.m.addAction(_('Manage authors, tags, etc.'))
-        mt.setToolTip(_('All of these category_managers are available by right-clicking '
+        mt.setToolTip(_('All of these category managers are available by right-clicking '
                        'on items in the Tag browser above'))
         mt.m = l.manage_menu = QMenu(l.m)
         mt.setMenu(mt.m)
