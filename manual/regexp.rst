@@ -60,7 +60,11 @@ You can of course do that: Just put a backslash in front of any special characte
 So, what are the most useful sets?
 ------------------------------------
 
-Knew you'd ask. Some useful sets are ``[0-9]`` matching a single number, ``[a-z]`` matching a single lowercase letter, ``[A-Z]`` matching a single uppercase letter, ``[a-zA-Z]`` matching a single letter and ``[a-zA-Z0-9]`` matching a single letter or number. You can also use an escape sequence as shorthand:
+Knew you'd ask. Some useful sets are ``[0-9]`` matching a single number,
+``[a-z]`` matching a single lowercase letter, ``[A-Z]`` matching a single
+uppercase letter, ``[a-zA-Z]`` matching a single letter and ``[a-zA-Z0-9]``
+matching a single letter or number. You can also use an escape sequence as
+shorthand:
 
 ``\d``
     is equivalent to ``[0-9]``
@@ -75,7 +79,15 @@ Knew you'd ask. Some useful sets are ``[0-9]`` matching a single number, ``[a-z]
 .. note::
     "Whitespace" is a term for anything that won't be printed. These characters include space, tabulator, line feed, form feed, carriage return, non-breaking spaces, etc.
 
+.. note::
+   The upper and lower case sets may match both upper and lowercase if the
+   setting to make searches case insensitive is enabled. Such settings are
+   found, for instance in Preferences->Searching in calibre itself and on the
+   Search panel in the calibre viewer and editor programs.
+
 As a last note on sets, you can also define a set as any character *but* those in the set. You do that by including the character ``"^"`` as the *very first character in the set*. Thus, ``[^a]`` would match any character excluding "a". That's called complementing the set. Those escape sequence shorthands we saw earlier can also be complemented: ``"\D"`` means any non-number character, thus being equivalent to ``[^0-9]``. The other shorthands can be complemented by, you guessed it, using the respective uppercase letter instead of the lowercase one. So, going back to the example ``<p[^>]*>`` from the previous section, now you can see that the character set it's using tries to match any character except for a closing angle bracket.
+
+
 
 But if I had a few varying strings I wanted to match, things get complicated?
 -------------------------------------------------------------------------------
