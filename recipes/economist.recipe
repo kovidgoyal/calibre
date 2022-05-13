@@ -249,6 +249,7 @@ class Economist(BasicNewsRecipe):
             self.timefmt = ' [' + edition_date + ']'
         else:
             url = 'https://www.economist.com/printedition'
+        self.title = self.title + " from " + self.browser.open(url).geturl().split("/")[-1]
         raw = self.index_to_soup(url, raw=True)
         # with open('/t/raw.html', 'wb') as f:
         #     f.write(raw)
