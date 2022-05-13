@@ -929,10 +929,10 @@ class _Interpreter:
                 self.error(_("{0}: {1} must be an integer").format('for', 'limit'), line_number)
             var = prog.variable
             if (self.break_reporter):
-                self.break_reporter("'for' 'start' value", str(start_val), line_number)
-                self.break_reporter("'for' 'stop' value", str(stop_val), line_number)
-                self.break_reporter("'for' 'step' value", str(step_val), line_number)
-                self.break_reporter("'for' 'limit' value", str(limit_val), line_number)
+                self.break_reporter("'for': start value", str(start_val), line_number)
+                self.break_reporter("'for': stop value", str(stop_val), line_number)
+                self.break_reporter("'for': step value", str(step_val), line_number)
+                self.break_reporter("'for': limit value", str(limit_val), line_number)
             ret = ''
             try:
                 range_gen = range(start_val, stop_val, step_val)
@@ -940,9 +940,11 @@ class _Interpreter:
                     self.error(
                         _("{0}: the range length ({1}) is larger than the limit ({2})").format
                             ('for', str(len(range_gen)), str(limit_val)), line_number)
-                for x in range_gen:
+                for x in (str(x) for x in range_gen):
                     try:
-                        self.locals[var] = str(x)
+                        if (self.break_reporter):
+                            self.break_reporter(f"'for': assign to loop index '{var}'", x, line_number)
+                        self.locals[var] = x
                         ret = self.expression_list(prog.block)
                     except ContinueExecuted as e:
                         ret = e.get_value()
