@@ -75,37 +75,6 @@ Finally, I encourage you to ditch the content ToC and only have a metadata ToC i
     end-of-file generated ToC, some features on the Kindle will not work, such
     as the Page Flip feature.
 
-The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This is caused by a bug in the Amazon software. You can work around it by going
-to :guilabel:`Preferences->Conversion->Output Options->MOBI output` and setting
-the :guilabel:`Enable sharing of book content` option. If you are reconverting
-a previously converted book, you will also have to enable the option in the
-conversion dialog for that individual book (as per book conversion settings are
-saved and take precedence).
-
-Note that doing this will mean that the generated MOBI will show up under
-personal documents instead of Books on the Kindle Fire and Amazon whispersync
-will not work, but the covers will. It's your choice which functionality is
-more important to you. I encourage you to contact Amazon and ask them to fix
-this bug.
-
-The bug in Amazon's software is that when you put a MOBI file on a Kindle,
-unless the file is marked as a Personal document, Amazon assumes you bought the
-book from it and tries to download the cover thumbnail for it from its servers. When the
-download fails, it refuses to fallback to the cover defined in the MOBI file.
-This is likely deliberate on Amazon's part to try to force authors to sell only
-through them. In other words, the Kindle only displays covers for books marked as
-Personal Documents or books bought directly from Amazon.
-
-If you send a MOBI file to an e-ink Kindle with calibre using a USB connection,
-calibre works around this Amazon bug by uploading a cover thumbnail itself.
-However, that workaround is only possible when using a USB connection and
-sending with calibre. Note that if you send using email, Amazon will
-automatically mark the MOBI file as a Personal Document and the cover will
-work, but the book will show up in Personal Documents.
-
 How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order to convert a collection of HTML files in a specific order, you have to
@@ -490,6 +459,37 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
 
    If the workaround is not working for you make sure you Kindle firmware
    is at least version 5.12.5, released in April 2020.
+
+The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is caused by a bug in the Amazon software. You can work around it by going
+to :guilabel:`Preferences->Conversion->Output Options->MOBI output` and setting
+the :guilabel:`Enable sharing of book content` option. If you are reconverting
+a previously converted book, you will also have to enable the option in the
+conversion dialog for that individual book (as per book conversion settings are
+saved and take precedence).
+
+Note that doing this will mean that the generated MOBI will show up under
+personal documents instead of Books on the Kindle Fire and Amazon whispersync
+will not work, but the covers will. It's your choice which functionality is
+more important to you. I encourage you to contact Amazon and ask them to fix
+this bug.
+
+The bug in Amazon's software is that when you put a MOBI file on a Kindle,
+unless the file is marked as a Personal document, Amazon assumes you bought the
+book from it and tries to download the cover thumbnail for it from its servers. When the
+download fails, it refuses to fallback to the cover defined in the MOBI file.
+This is likely deliberate on Amazon's part to try to force authors to sell only
+through them. In other words, the Kindle only displays covers for books marked as
+Personal Documents or books bought directly from Amazon.
+
+If you send a MOBI file to an e-ink Kindle with calibre using a USB connection,
+calibre works around this Amazon bug by uploading a cover thumbnail itself.
+However, that workaround is only possible when using a USB connection and
+sending with calibre. Note that if you send using email, Amazon will
+automatically mark the MOBI file as a Personal Document and the cover will
+work, but the book will show up in Personal Documents.
 
 
 I transferred some books to my Kindle using calibre and they did not show up?
