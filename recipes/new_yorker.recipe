@@ -2,18 +2,11 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 from collections import OrderedDict
 
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import Tag
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 def absurl(x):
@@ -47,6 +40,10 @@ class NewYorker(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
+        prefixed_classes(
+            'SplitScreenContentHeaderHed- SplitScreenContentHeaderDek- SplitScreenContentHeaderByline-'
+            ' SplitScreenContentHeaderLeadWrapper-'
+        ),
         classes(
             'split-screen-content-header__dek split-screen-content-header__hed'
             ' content-header__dek content-header__hed content-header__publish-date content-header__lede-block'
@@ -59,6 +56,7 @@ class NewYorker(BasicNewsRecipe):
         classes(
             'social-icons'
         ),
+        prefixed_classes('ConsentBannerWrapper-'),
         dict(childtypes='iframe'),
     ]
     remove_attributes = ['style']
