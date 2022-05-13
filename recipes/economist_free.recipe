@@ -161,6 +161,11 @@ class Economist(BasicNewsRecipe):
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
     remove_attributes = ['data-reactid', 'width', 'height']
+    preprocess_regexps = [
+        (re.compile(r'<span data-ornament="ufinish">■</span></p>.*</body>', re.DOTALL|re.IGNORECASE),
+        lambda match: '<span data-ornament="ufinish">■</span></p></body>'
+        )
+    ]
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 1
