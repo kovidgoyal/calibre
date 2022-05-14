@@ -47,7 +47,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
                 'separator', 'break', 'continue', 'return', 'in', 'inlist',
-                'def', 'fed']
+                'def', 'fed', 'limit']
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
