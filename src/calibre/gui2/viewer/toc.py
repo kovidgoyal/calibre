@@ -264,7 +264,10 @@ class TOC(QStandardItemModel):
     def find_items(self, query):
         for item in self.all_items:
             text = item.text()
-            if not query or (text and primary_contains(query, text)):
+            if query and isinstance(query, str):
+                if text and isinstance(text, str) and primary_contains(query, text):
+                    yield item
+            else:
                 yield item
 
     def items_at_depth(self, depth):
