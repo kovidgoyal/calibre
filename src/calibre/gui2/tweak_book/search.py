@@ -1201,7 +1201,7 @@ class SavedSearches(QWidget):
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
             if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) in ('regex', 'function'):
-                ts = _('(Case sensitive: {0} Dot All: {1})').format(cs, da)
+                ts = _('(Case sensitive: {0} Dot all: {1})').format(cs, da)
             else:
                 ts = _('(Case sensitive: {0} [Normal search])').format(cs)
             self.description.set_text(_('{2} {3}\nFind: {0}\nReplace: {1}').format(

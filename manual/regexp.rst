@@ -83,7 +83,8 @@ shorthand:
    The upper and lower case sets may match both upper and lowercase if the
    setting to make searches case insensitive is enabled. Such settings are
    found, for instance in Preferences->Searching in calibre itself and on the
-   Search panel in the calibre viewer and editor programs.
+   Search panel in the calibre :guilabel:`Viewer` as well as the calibre :guilabel:`Edit
+   book` tool.
 
 As a last note on sets, you can also define a set as any character *but* those in the set. You do that by including the character ``"^"`` as the *very first character in the set*. Thus, ``[^a]`` would match any character excluding "a". That's called complementing the set. Those escape sequence shorthands we saw earlier can also be complemented: ``"\D"`` means any non-number character, thus being equivalent to ``[^0-9]``. The other shorthands can be complemented by, you guessed it, using the respective uppercase letter instead of the lowercase one. So, going back to the example ``<p[^>]*>`` from the previous section, now you can see that the character set it's using tries to match any character except for a closing angle bracket.
 
