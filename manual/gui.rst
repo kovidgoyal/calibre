@@ -327,7 +327,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
 .. _search_interface:
 
-The Search interface
+The search interface
 ---------------------
 You can search all book metadata by entering search terms in the Search bar. For example::
 
@@ -386,7 +386,7 @@ Two variants of equality searches are used for hierarchical items (e.g., A.B.C):
 
 *'Regular expression' searches*
 
-Regular expression searches are indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`_ can be used. Backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression is anchored. Character variants are significant: ``~e`` doesn't match ``é``.
+Regular expression searches are indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`__ can be used. Backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression is anchored. Character variants are significant: ``~e`` doesn't match ``é``.
 
 *'Character variant' searches*
 
@@ -396,9 +396,9 @@ Character variant searches are indicated by prefixing the search string with a c
   * character variants always match each other.
   * punctuation is always significant.
 
-The search options `Unaccented characters match accented characters and punctuation is ignored` and `Case sensitive searching` are ignored. They have no effect on this search's behavior.
+The search options :guilabel:`Unaccented characters match accented characters and punctuation is ignored` and :guilabel:`Case sensitive searching` are ignored. They have no effect on this search's behavior.
 
-The following compares this search to a contains search assuming the `Unaccented characters match...` option is checked (see above) given the same two book titles:
+The following compares this search to a contains search assuming the :guilabel:`Unaccented characters match...` option is checked (see above) given the same two book titles:
 
   1. Big, Bothéred, and Bad
   2. Big Bummer
