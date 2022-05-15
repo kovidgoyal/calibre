@@ -11,7 +11,7 @@ from qt.core import (
 )
 
 from calibre import strftime
-from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
+from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.icu import sort_key
@@ -66,6 +66,7 @@ def create_match_kind(self):
         _("Contains: the word or phrase matches anywhere in the metadata field"),
         _("Equals: the word or phrase must match the entire metadata field"),
         _("Regular expression: the expression must match anywhere in the metadata field"),
+        _("Character variant: 'contains' with accents ignored and punctuation significant")
     ])
     l = QHBoxLayout()
     l.addWidget(la), l.addWidget(m)
@@ -427,8 +428,10 @@ class SearchDialog(QDialog):
             self.mc = ''
         elif mk == EQUALS_MATCH:
             self.mc = '='
-        else:
+        elif mk == REGEXP_MATCH:
             self.mc = '~'
+        else:
+            self.mc = '^'
         all, any, phrase, none = map(lambda x: str(x.text()),
                 (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))
@@ -466,8 +469,10 @@ class SearchDialog(QDialog):
             self.mc = ''
         elif mk == EQUALS_MATCH:
             self.mc = '='
-        else:
+        elif mk == REGEXP_MATCH:
             self.mc = '~'
+        else:
+            self.mc = '^'
 
         ans = []
         self.box_last_values = {}

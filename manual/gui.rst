@@ -327,9 +327,9 @@ The Search & Sort section allows you to perform several powerful actions on your
 
 .. _search_interface:
 
-The search interface
+The Search interface
 ---------------------
-You can search all the metadata by entering search terms in the Search bar. Searches are case insensitive. For example::
+You can search all book metadata by entering search terms in the Search bar. For example::
 
     Asimov Foundation format:lrf
 
@@ -340,26 +340,92 @@ are available in the LRF format. Some more examples::
     title:"The Ring" or "This book is about a ring"
     format:epub publisher:feedbooks.com
 
-Searches are by default 'contains'. An item matches if the search string appears anywhere in the indicated metadata.
-Two other kinds of searches are available: equality search and search using `regular expressions <https://en.wikipedia.org/wiki/Regular_expression>`_.
+.. _search_kinds:
+
+*Search kinds*
+
+There are four search kinds: `contains`, `equality`, `regular expression` (see `regular expressions <https://en.wikipedia.org/wiki/Regular_expression>`_), and `character variant`. You choose the search kind with a prefix character.
+
+*'Contains' searches*
+
+Searches with no prefix character are `contains` and are by default case insensitive. An item matches if the search string appears anywhere in the indicated metadata. You can make `contains` searches case sensitive by checking the option `Case sensitive searching` in :guilabel:`Preferences / Searching`. If the search option `Unaccented characters match accented characters and punctuation is ignored` is checked then a character will match all its variants (e.g., `e` matches `é`, `è`, `ê`, and `ë`) and all punctuation including spaces are ignored. For example, if the `Unaccented characters match ...` option is checked then given the two book titles:
+
+  1. Big, Bothéred, and Bad
+  2. Big Bummer
+
+then these searches find:
+
+  * ``title:"er"`` matches both ('e' matches both 'é' and 'e').
+  * ``title:"g "`` matches both because spaces are ignored.
+  * ``title:"g,"`` matches both because the comma is ignored.
+  * ``title:"gb"`` matches both because ', ' is ignored in book 1 and spaces are ignored in book 2.
+  * ``title:"g b"`` matches both because comma and space are ignored.
+  * ``title:"db"`` matches #1 because the space in 'and Bad' is ignored.
+  * ``title:","`` matches both (it actually matches all books) because commas are ignored.
+
+If the `Unaccented characters match ...` option is not checked then character variants, punctuation, and spacing are all significant.
+
+You can set only one of the search options `Case sensitive searching` and `Unaccented characters match accented characters and punctuation is ignored`.
+
+*'Equality' searches*
 
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
-``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
-indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`_ can
-be used. Note that backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
+``tag:"=science"`` will match `science`, but not `science fiction` or `hard science`. Character variants are significant: `é` doesn't match `e`.
 
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
+Two variants of equality searches are used for hierarchical items (e.g., A.B.C): hierarchical prefix searches and hierarchical component searches. The first, indicated by a single period after the equals (``=.``) matches the initial parts of a hierarchical item. The second, indicated by two periods after the the equals (``=..``) matches an internal name in the hierarchical item. Examples, using the tag ``History.Military.WWII`` as the value:
 
-Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
-for the tag ``Science Fiction`` you would need to search for ``tag:"=science fiction"``. If you search for
-``tag:=science fiction`` you will find all books with the tag 'science' and containing the word 'fiction' in any
-metadata.
+  * ``tags:"=.History"`` : True. ``History`` is a prefix of the tag.
+  * ``tags:"=.History.Military"`` : True. ``History.Military`` is a prefix of the tag.
+  * ``tags:"=.History.Military.WWII"`` : True. ``History.Military.WWII`` is a prefix of the tag, albeit an improper one.
+  * ``tags:"=.Military"`` : False. ``Military`` is not a prefix of the tag.
+  * ``tags:"=.WWII"`` : False. ``WWII`` is not a prefix of the tag.
+  * ``tags:"=..History"`` : True. The hierarchy contains the value ``History``.
+  * ``tags:"=..Military"`` : True. The hierarchy contains the value ``Military``.
+  * ``tags:"=..WWII"`` : True. The hierarchy contains the value ``WWII``.
+  * ``tags:"=..Military.WWII"`` : False. The ``..`` search looks for single values.
+
+*'Regular expression' searches*
+
+Regular expression searches are indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`_ can be used. Backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression is anchored. Character variants are significant: ``~e`` doesn't match ``é``.
+
+*'Character variant' searches*
+
+Character variant searches are indicated by prefixing the search string with a caret (^). This search is similar to the `contains` search (above) except that:
+
+  * letter case is always ignored.
+  * character variants always match each other.
+  * punctuation is always significant.
+
+The search options `Unaccented characters match accented characters and punctuation is ignored` and `Case sensitive searching` are ignored. They have no effect on this search's behavior.
+
+The following compares this search to a contains search assuming the `Unaccented characters match...` option is checked (see above) given the same two book titles:
+
+  1. Big, Bothéred, and Bad
+  2. Big Bummer
+
+then these character variant searches find:
+
+  * ``title:"^er"`` matches both ('e' matches both 'é' and 'e')
+  * ``title:"^g"`` matches both
+  * ``title:"^g "`` matches #2 because the space is significant
+  * ``title:"^g,"`` matches #1 because the comma is significant
+  * ``title:"^gb"`` matches nothing because space and comma are significant
+  * ``title:"^g b"`` matches #2 because the comma is significant
+  * ``title:"^db"`` matches nothing
+  * ``title:"^,"`` matches #1 (instead of all books) because the comma is significant
+
+*More information*
+
+To search for a string that begins with an equals, tilde, or caret; prefix the string with a backslash.
+
+Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to find books with the tag ``Science Fiction`` you must search for ``tag:"=science fiction"``. If you search for ``tag:=science fiction`` you will find all books with the tag ``science`` and the word ``fiction`` in any metadata.
 
 You can build advanced search queries easily using the :guilabel:`Advanced search dialog` accessed by
-clicking the button |sbi|.
+clicking the button |sbi| on the left of the search box.
 
-Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, identifiers, date, pubdate, search, size, vl`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available, when searching the calibre library view. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
+Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover, comments, format, identifiers, date, pubdate, search, size, vl`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available, when searching the calibre library view. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
+
+*Dates*
 
 The syntax for searching for dates is::
 
@@ -367,7 +433,7 @@ The syntax for searching for dates is::
     date:<=2000-1-3 Will find all books added to calibre before 3 Jan, 2000
     pubdate:=2009 Will find all books published in 2009
 
-If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
+If the date is ambiguous then the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
 strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work.
@@ -379,48 +445,61 @@ For example::
 
 To avoid potential problems with translated strings when using a non-English version of calibre, the strings ``_today``, ``_yesterday``, ``_thismonth``, and ``_daysago`` are always available. They are not translated.
 
-You can search for books that have a format of a certain size like this::
-
-    size:>1.1M Will find books with a format larger than 1.1MB
-    size:<=1K  Will find books with a format smaller than 1KB
+*Searching dates and numeric values with relational comparisons*
 
 Dates and numeric fields support the relational operators ``=`` (equals), ``>`` (greater than), ``>=``
 (greater than or equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).
 Rating fields are considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3
 or higher.
 
-You can search for the number of items in multiple-valued fields such as tags. These searches begin with the character ``#``, then use the same syntax as numeric fields. For example, to find all books with more than 4 tags use ``tags:#>4``. To find all books with exactly 10 tags use ``tags:#=10``.
+You can search for books that have a format of a certain size like this:
 
-Series indices are searchable. For the standard series, the search name is 'series_index'. For
+    * ``size:>1.1M`` will find books with a format larger than 1.1MB
+    * ``size:<=1K``  will find books with a format smaller than or equal to 1KB
+
+You can search for the number of items in multiple-valued fields such as tags using the character ``#`` then using the same syntax as numeric fields. For example, to find all books with more than 4 tags use ``tags:#>4``. To find all books with exactly 10 tags use ``tags:#=10``.
+
+*Series indices*
+
+Series indices are searchable. For the standard series, the search name is ``series_index``. For
 custom series columns, use the column search name followed by _index. For example, to search the indices for a
 custom series column named ``#my_series``, you would use the search name ``#my_series_index``.
 Series indices are numbers, so you can use the relational operators described above.
 
-The special field ``search`` is used for saved searches. So if you save a search with the name
+*Saved searches*
+
+The special field ``search`` is used for :ref:`saved searches <saved_searches>`. If you save a search with the name
 "My spouse's books" you can enter ``search:"My spouse's books"`` in the Search bar to reuse the saved
 search. More about saving searches below.
 
-The special field ``vl`` is used to search for books in a Virtual library. For
-example, ``vl:Read`` will find all the books in the *Read* Virtual library. The search
+*Virtual libraries*
+
+The special field ``vl`` is used to search for books in a virtual library. For
+example, ``vl:Read`` will find all the books in the *Read* virtual library. The search
 ``vl:Read and vl:"Science Fiction"`` will find all the books that are in both the *Read* and
-*Science Fiction* Virtual libraries. The value following ``vl:`` must be the name of a
-Virtual library. If the Virtual library name contains spaces then surround it with quotes.
+*Science Fiction* virtual libraries. The value following ``vl:`` must be the name of a
+virtual library. If the virtual library name contains spaces then surround it with quotes.
 
-You can search for the absence or presence of a field using the special "true" and "false" values. For example::
+*Whether a field has a value*
 
-    cover:false will give you all books without a cover
-    series:true will give you all books that belong to a series
-    comments:false will give you all books with an empty comment
-    format:false will give you all books with no actual files (empty records)
+You can search for the absence or presence of a value for a field using "true" and "false". For example:
 
-Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``blank`` will find all books
+    * ``cover:false`` finds all books without a cover
+    * ``series:true`` finds all books that are in a series
+    * ``series:false`` finds all books that are not in a series
+    * ``comments:false`` finds all books with an empty comment
+    * ``formats:false`` finds all books with no book files (empty records)
+
+*Yes/no custom columns*
+
+Searching Yes/no custom columns for ``false``, ``empty``, or ``blank`` will find all books
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
 Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column. Note that the words ``yes``, ``no``, ``blank``, ``empty``, ``checked`` and ``unchecked`` are translated; you can use either the current language's equivalent word or the English word. The words ``true`` and ``false`` and the special values ``_yes``, ``_no``, and ``_empty`` are not translated.
 
-Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.B.C`, but not the tag `A`.
+*Identifiers*
 
-Identifiers (e.g., ISBN, DOI, LCCN, etc.) also use an extended syntax. First, note that an identifier has the form ``type:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which type and value to search for. Both the type and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
+Identifiers (e.g., ISBN, DOI, LCCN, etc.) use an extended syntax. An identifier has the form ``type:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently the type and value to search for. Both the type and the value parts of the query can use any of the :ref:`search kinds <search_kinds>`. Examples:
 
     * ``identifiers:true`` will find books with any identifier.
     * ``identifiers:false`` will find books with no identifier.
@@ -432,6 +511,23 @@ Identifiers (e.g., ISBN, DOI, LCCN, etc.) also use an extended syntax. First, no
     * ``identifiers:=isbn:=123456789`` will find books with a type equal to ISBN having a value equal to `123456789`.
     * ``identifiers:i:1`` will find books with a type containing an `i` having a value containing a `1`.
 
+*Search using templates*
+
+You can search using a template in :ref:`templatelangcalibre` instead of a metadata field. To do so you enter a template, a search type, and the value to search for. The syntax is::
+
+    template: (the template) #@#: (search type) : (the value)
+
+The ``template`` is any valid calibre template language template. The ``search type`` must be one of ``t`` (text search), ``d`` (date search), ``n`` (numeric search), or ``b`` (set/not set (boolean)). The ``value`` is whatever you want, and can use the :ref:`search kinds <search_kinds>` described above for the various search types. You must quote the entire search string if there are spaces anywhere in it.
+
+Examples:
+
+  * ``template:"program: connected_device_name('main')#@#:t:kindle"`` -- is true when the ``kindle`` device is connected.
+  * ``template:"program: select(formats_sizes(), 'EPUB')#@#:n:>1000000"`` -- finds books with EPUB files larger than 1 MB.
+  * ``template:"program: select(formats_modtimes('iso'), 'EPUB')#@#:d:>10daysago"`` -- finds books with EPUB files newer than 10 days ago.
+
+You can build template search queries easily using the :guilabel:`Advanced search dialog` accessed by clicking the button |sbi|. You can test templates on specific books using the calibre :guilabel:`Template tester`, which can be added to the toolbars or menus via :guilabel:`Preferences->Toolbars & menus`. It can also be assigned a keyboard shortcut via :guilabel:`Preferences->Shortcuts`.
+
+*Advanced search dialog*
 
 .. |sbi| image:: images/search_button.png
     :align: middle
@@ -441,30 +537,6 @@ Identifiers (e.g., ISBN, DOI, LCCN, etc.) also use an extended syntax. First, no
 
     :guilabel:`Advanced search dialog`
 
-You can search using a template in the :ref:`templatelangcalibre` instead of a
-metadata field. To do so you enter a template, a search type, and the value to
-search for. The syntax is::
-
-    template: (the template) #@#: (search type) : (the value)
-
-The ``template`` is any valid calibre template language template. The ``search
-type`` must be one of ``t`` (text search), ``d`` (date search), ``n`` (numeric
-search), or ``b`` (set/not set (boolean)). The ``value`` is whatever you want.
-It can use the special operators described above for the various search types.
-You must quote the entire search string if there are spaces anywhere in it.
-
-Examples:
-
-    * ``template:"program: connected_device_name('main')#@#:t:kindle"`` -- is true when the ``kindle`` device is connected
-	* ``template:"program: select(formats_sizes(), 'EPUB')#@#:n:>1000000"`` -- finds books with EPUB files larger than 1 MB
-    * ``template:"program: select(formats_modtimes('iso'), 'EPUB')#@#:d:>10daysago"`` -- finds books with EPUB files newer than 10 days ago
-
-You can build template search queries easily using the :guilabel:`Advanced
-search dialog` accessed by clicking the button |sbi|. You can test templates on
-specific books using the calibre :guilabel:`Template tester`. This can be added
-to the toolbars or menus via :guilabel:`Preferences->Toolbars & menus`. It can
-also be assigned a keyboard shortcut via :guilabel:`Preferences->Shortcuts`.
-
 .. _saved_searches:
 
 Saving searches
@@ -472,9 +544,7 @@ Saving searches
 
 calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the Search bar or using the Tag browser. Then type the name you would like to give to the search in the Saved Searches box next to the Search bar. Click the plus icon next to the saved searches box to save the search.
 
-Now you can access your saved search in the Tag browser under :guilabel:`Saved
-searches`. A single click will allow you to reuse any arbitrarily complex
-search easily, without needing to re-create it.
+Now you can access your saved search in the Tag browser under :guilabel:`Saved searches`. A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
 Virtual libraries
 -------------------
@@ -488,14 +558,9 @@ learn how to create and use Virtual libraries, see the tutorial:
 Temporarily marking books
 ----------------------------
 
-You can temporarily mark arbitrary sets of books. Marked books will have a pin
-on them and can be searched for with ``marked:true``. To do so press
-:kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars & menus` and add the
-:guilabel:`Mark books` button to the main toolbar. You can even create multiple
-types of marks by right clicking the :guilabel:`Mark books` button and choosing
-:guilabel:`Mark books with text label`. The text label you enter, can later be
-searched for with: ``marked:the-text-you-entered``.
+You can temporarily mark arbitrary sets of books. Marked books will have a pin on them and can be found with the search ``marked:true``. To mark a book press :kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars & menus` and add the :guilabel:`Mark books` button to the main toolbar.
 
+You can mark books with a specific text label by right clicking the :guilabel:`Mark books` button and choosing :guilabel:`Mark books with text label`. Books marked with text labels can later be found using the search ``marked:"=the-text-you-entered"``.
 
 .. _config_filename_metadata:
 

@@ -14,7 +14,7 @@ from calibre.constants import preferred_encoding, DEBUG
 from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
-from calibre.utils.icu import primary_no_punc_contains, sort_key
+from calibre.utils.icu import primary_no_punc_contains, primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from polyglot.builtins import iteritems, string_or_bytes
@@ -22,6 +22,7 @@ from polyglot.builtins import iteritems, string_or_bytes
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
+ACCENT_MATCH   = 3
 
 # Utils {{{
 
@@ -36,6 +37,9 @@ def _matchkind(query, case_sensitive=False):
             query = query[1:]
         elif query.startswith('~'):
             matchkind = REGEXP_MATCH
+            query = query[1:]
+        elif query.startswith('^'):
+            matchkind = ACCENT_MATCH
             query = query[1:]
 
     if not case_sensitive and matchkind != REGEXP_MATCH:
@@ -59,10 +63,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                 if internal_match_ok:
                     if query == t:
                         return True
-                    comps = [c.strip() for c in t.split('.') if c.strip()]
-                    for comp in comps:
-                        if sq == comp:
-                            return True
+                    return sq in [c.strip() for c in t.split('.') if c.strip()]
                 elif query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
@@ -73,6 +74,9 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
             elif matchkind == REGEXP_MATCH:
                 flags = regex.UNICODE | regex.VERSION1 | regex.FULLCASE | (0 if case_sensitive else regex.IGNORECASE)
                 if regex.search(query, t, flags) is not None:
+                    return True
+            elif matchkind == ACCENT_MATCH:
+                if primary_contains(query, t):
                     return True
             elif matchkind == CONTAINS_MATCH:
                 if not case_sensitive and use_primary_find_in_search:
