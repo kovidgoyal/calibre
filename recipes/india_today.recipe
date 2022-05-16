@@ -2,14 +2,22 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IndiaToday(BasicNewsRecipe):
-    title = u'India Today'
+    title = u'India Today Magaine'
     language = 'en_IN'
-    __author__ = 'Krittika Goyal'
-    oldest_article = 15  # days
-    max_articles_per_feed = 25
+    __author__ = 'unkn0wn'
     no_stylesheets = True
     use_embedded_content = False
-    remove_attributes = ['style']
+    remove_attributes = ['style','height','width']
+    ignore_duplicate_articles = {'url'}
+    extra_css = '[itemprop^="description"] {font-size: small; font-style: italic;}'
+    description = ('India’s Most Reputed, Credible and Popular news magazine.'
+                   ' Read the most preferred magazine of 9.5 million Indians to access highly researched and unbiased content.')
+    masthead_url = 'https://akm-img-a-in.tosshub.com/sites/all/themes/itg/logo.png'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/India-Today-Group/India-Today/News/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
 
     keep_only_tags = [
         dict(name='h1'),
@@ -17,30 +25,36 @@ class IndiaToday(BasicNewsRecipe):
         dict(itemProp='articleBody'),
     ]
 
-    feeds = [
-        ('Editor\'s Note','https://www.indiatoday.in/rss/1206516'),
-        ('Cover Story', 'https://www.indiatoday.in/rss/1206509'),
-        ('The Big Story', 'https://www.indiatoday.in/rss/1206614'),
-        ('UP Front','https://www.indiatoday.in/rss/1206609'),
-        ('Liesure','https://www.indiatoday.in/rss/1206551'),
-        ('Nation', 'https://www.indiatoday.in/rss/1206514'),
-        ('Health','https://www.indiatoday.in/rss/1206515'),
-        ('Defence','https://www.indiatoday.in/rss/1206517'),
-        ('Guest Column','https://www.indiatoday.in/rss/1206612'),
-        ('States', 'https://www.indiatoday.in/rss/1206500'),
-        ('Economy', 'https://www.indiatoday.in/rss/1206513'),
-        ('Special Report','https://www.indiatoday.in/rss/1206616'),
-        ('Investigation','https://www.indiatoday.in/rss/1206617'),
-        ('Diplomacy','https://www.indiatoday.in/rss/1206512'),
-        ('Sports','https://www.indiatoday.in/rss/1206518'),
-    ]
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.indiatoday.in/magazine')
+        ans = self.it_parse_index(soup)
+        return ans
 
-    extra_css = '[itemprop^="description"] {font-size: small; font-style: italic;}'
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.magzter.com/IN/India-Today-Group/India-Today/News/')
-        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-            return citem['content']
+    def it_parse_index(self, soup):
+        feeds = []
+        for section in soup.findAll('div', attrs={'class':['magazin-top-left', 'section-ordering']}):
+            sec = section.find('span')
+            secname = self.tag_to_string(sec)
+            self.log(secname)
+            articles = []
+            for a in section.findAll('a', href=lambda x: x and x.startswith(("/magazine/cover-story/story/", "https://www.indiatoday.in/magazine/"))):
+                url = a['href']
+                if url.startswith('https'):
+                    url = url
+                else:
+                    url = 'https://www.indiatoday.in' + url
+                title = self.tag_to_string(a)
+                empty = " "
+                if title is empty:
+                    url = ''
+                self.log('\t', title)
+                self.log('\t\t', url)
+                articles.append({
+                    'title': title,
+                    'url': url})
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
 
     def preprocess_raw_html(self, raw_html, url):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
