@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IndiaToday(BasicNewsRecipe):
-    title = u'India Today Magaine'
+    title = u'India Today Magazine'
     language = 'en_IN'
     __author__ = 'unkn0wn'
     no_stylesheets = True
