@@ -35,7 +35,7 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
     int i;
 
     if (!PyUnicode_CheckExact(obj)) {
-        PyErr_SetString(PyExc_TypeError, "Not a unicode string");
+        PyErr_Format(PyExc_TypeError, "%R is not a unicode string", obj);
         return NULL;
     }
     if(PyUnicode_READY(obj) == -1) {
@@ -105,7 +105,7 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
     int i;
 
     if (!PyUnicode_CheckExact(obj)) {
-        PyErr_SetString(PyExc_TypeError, "Not a unicode string");
+        PyErr_Format(PyExc_TypeError, "%R is not a unicode string", obj);
         return NULL;
     }
     if(PyUnicode_READY(obj) == -1) {
