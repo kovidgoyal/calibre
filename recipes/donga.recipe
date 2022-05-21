@@ -1,0 +1,57 @@
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+# Comment out sections you are not interested in
+sections = [
+    ("정치", "politics"),
+    ("사회", "national"),
+    ("경제", "economy"),
+    ("국제", "international"),
+    ("사설칼럼", "editorials"),
+    ("의학과학", "science"),
+    ("문화연예", "culture"),
+    ("스포츠", "sports"),
+    ("사람속으로", "inmul")
+    # Following sections are marked as marked optional
+    # as default. Uncomment to enable.
+    # , (u'건강', 'health')
+    # , (u'레저', 'leisure')
+    # , (u'도서', 'book')
+    # , (u'공연', 'show')
+    # , (u'여성', 'woman')
+    # , (u'여행', 'travel')
+    # , (u'생활정보', 'lifeinfo')
+]
+
+
+class Donga(BasicNewsRecipe):
+    language = "ko"
+    title = "동아일보"
+    description = "동아일보 기사"
+    __author__ = "Minsik Cho"
+    ignore_duplicate_articles = {"title", "url"}
+    compress_news_images = True
+    no_stylesheets = True
+    oldest_article = 2
+    encoding = "utf-8"
+
+    # RSS Feed in syntax:
+    # https://rss.donga.com/[sections].xml
+    feeds = [(title, "https://rss.donga.com/" + section + ".xml") for (title, section) in sections]
+
+    # Remove logo and print buttons
+    remove_tags = [
+        dict(name="div", attrs={"class": "popHeaderWrap"}),
+        dict(name="div", attrs={"class": "etc"}),
+    ]
+
+    def print_version(self, url):
+        # Original url in syntax:
+        # https://www.donga.com/news/[sections]/article/all/[date]/[gid]/1
+        # Return print version url with syntax:
+        # https://www.donga.com/news/View?gid=[gid]&date=[date]
+        reobject = re.search("(?<=/all/)([0-9]*)/([0-9]*)", url)
+        date = reobject.group(1)
+        gid = reobject.group(2)
+
+        return "https://www.donga.com/news/View?gid=" + gid + "&date=" + date
