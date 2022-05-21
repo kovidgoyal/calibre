@@ -65,7 +65,7 @@ def find_identical_books(mi, data):
     author_map, aid_map, title_map, lang_map = data
     found_books = None
     for a in mi.authors:
-        author_ids = author_map.get(icu_lower(a))
+        author_ids = author_map.get(icu_lower(str(a)))
         if author_ids is None:
             return set()
         books_by_author = {book_id for aid in author_ids for book_id in aid_map.get(aid, ())}
