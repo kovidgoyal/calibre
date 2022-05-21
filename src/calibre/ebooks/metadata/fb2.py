@@ -199,7 +199,7 @@ def _parse_author(elm_author, ctx):
         if nname:
             author = nname
 
-    return author
+    return str(author)
 
 
 def _parse_book_title(root, ctx):
