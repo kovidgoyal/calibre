@@ -964,16 +964,16 @@ class BooksView(QTableView):  # {{{
                 # This is needed otherwise Qt does not always update the
                 # viewport correctly. See https://bugs.launchpad.net/bugs/1404697
                 self.row_header.viewport().update()
-            # refresh the rows because there might be a composite that uses marked_books()
-            self.model().refresh_rows(changed)
+                # refresh the rows because there might be a composite that uses marked_books()
+                self.model().refresh_rows(sections)
         else:
             # Marked items have either appeared or all been removed
             self.model().set_row_decoration(current_marked)
             self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
             self.set_row_header_visibility()
-            # refresh the rows because there might be a composite that uses marked_books()
-            self.model().refresh_rows(current_marked)
+            # refresh rows for the ids because there might be a composite that uses marked_books()
+            self.model().refresh_ids(current_marked)
 
     def set_row_header_visibility(self):
         visible = self.model().row_decoration is not None or gprefs['row_numbers_in_book_list']

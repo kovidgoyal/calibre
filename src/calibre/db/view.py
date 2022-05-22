@@ -386,11 +386,12 @@ class View:
         changed_ids = old_marked_ids | cmids
         self.cache.clear_search_caches(changed_ids)
         self.cache.clear_caches(book_ids=changed_ids)
-        if old_marked_ids != cmids:
-            for funcref in itervalues(self.marked_listeners):
-                func = funcref()
-                if func is not None:
-                    func(old_marked_ids, cmids)
+        # Always call the listener because the labels might have changed even
+        # if the ids haven't.
+        for funcref in itervalues(self.marked_listeners):
+            func = funcref()
+            if func is not None:
+                func(old_marked_ids, cmids)
 
     def toggle_marked_ids(self, book_ids):
         book_ids = set(book_ids)
@@ -412,11 +413,16 @@ class View:
 
     def refresh_ids(self, ids):
         self.cache.clear_caches(book_ids=ids)
-        try:
-            return list(map(self.id_to_index, ids))
-        except ValueError:
-            pass
-        return None
+
+        # The ids list can contain invalid ids (deleted etc). We want to filter
+        # those out while keeping the valid ones.
+        def f(id_):
+            try:
+                return self.id_to_index(id_)
+            except ValueError:
+                return None
+        res = [i for i in map(f, ids) if i is not None]
+        return res if res else None
 
     def remove(self, book_id):
         try:
