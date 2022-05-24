@@ -1,0 +1,79 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class BT(BasicNewsRecipe):
+    title = u'Business Today Magazine'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    description = (
+        'Business Today is an Indian fortnightly business magazine published by Living Media India Limited,'
+        ' in publication since 1992. Best downloaded on Sundays, at the end and the middle of the month'
+    )
+    masthead_url = 'https://akm-img-a-in.tosshub.com/businesstoday/resource/img/logo.png'
+
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='h2'),
+        classes('brand-detial-main main-img story-with-main-sec'),
+    ]
+    remove_tags = [
+        dict(name='a', attrs={'title': 'videos'}),
+        classes('tranding-topics-main newsltter-iframe hedlineteg')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.businesstoday.in/magazine')
+        tag = soup.find(attrs={'class': 'issue-image'})
+        if tag:
+            self.cover_url = tag.find('img')['src']
+        section = None
+        sections = {}
+
+        for tag in soup.findAll(
+            'div', attrs={'class': ['magazin-top-left', 'section-ordering']}
+        ):
+            sec = tag.find(('span', 'h1'))
+            section = self.tag_to_string(sec)
+            self.log(section)
+            sections[section] = []
+
+            for a in tag.findAll(
+                'a',
+                href=lambda x: x and x.
+                startswith('https://www.businesstoday.in/magazine/')
+            ):
+                url = a['href']
+                title = self.tag_to_string(a)
+                self.log('\t', title)
+                self.log('\t\t', url)
+                sections[section].append({'title': title, 'url': url})
+
+        feeds = []
+
+        # Insert feeds in specified order, if available
+
+        feedSort = ['Editors Note']
+        for i in feedSort:
+            if i in sections:
+                feeds.append((i, sections[i]))
+
+        # Done with the sorted feeds
+
+        for i in feedSort:
+            del sections[i]
+
+        # Append what is left over...
+
+        for i in sections:
+            feeds.append((i, sections[i]))
+
+        return feeds
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src'].split('?')[0]
+        return soup
