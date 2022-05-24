@@ -105,6 +105,8 @@ class ScrollArea(QScrollArea):
                 self.zoom_requested.emit(self.current_wheel_angle_delta < 0)
                 self.current_wheel_angle_delta = 0
             ev.accept()
+        else:
+            super().wheelEvent(ev)
 
 
 class ImageView(QDialog):
