@@ -3,16 +3,23 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
-import json, time, random
+import json
+import random
+import time
 from base64 import standard_b64encode
 from datetime import date, timedelta
-
 from mechanize import Request
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 from css_selectors import Select
 
+# WSJ has started delivering the paywalled content encrypted even for logged in subscribers.
+# The content is then decrypted via javascript and displayed.
+# I could in theory reverse engineer their javascript and decrypt the content in the recipe,
+# but this is too much effort, at least for me. If anybody wants to have a stab at it, feel free,
+# the decryption code is in https://www.wsj.com/_next/static/chunks/fec483df-86515f08f3742e3f.js
+# You can get the encrypted data from any wsj paywalled article page by searching for encryptedDataHash in the HTML.
+#
 try:
     import urllib.parse as urlparse
 except ImportError:
@@ -24,25 +31,6 @@ except ImportError:
 
 
 needs_subscription = False
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-def prefixed_classes(classes):
-    q = frozenset(classes.split(' '))
-
-    def matcher(x):
-        if x:
-            for candidate in frozenset(x.split()):
-                for x in q:
-                    if candidate.startswith(x):
-                        return True
-        return False
-    return {'attrs': {'class': matcher}}
 
 
 class WSJ(BasicNewsRecipe):
@@ -72,7 +60,9 @@ class WSJ(BasicNewsRecipe):
         dict(name='div', id='article_story_body ncTitleArea snipper-ad-login'.split()),
         classes('nc-exp-artbody errorNotFound'),
         dict(attrs={'data-module-zone': 'article_snippet'}),
-        prefixed_classes('Headline__StyledHeadline- MediaLayout__Layout- ArticleByline__Container- ArticleTimestamp__Timestamp- ArticleBody__Container-'),
+        prefixed_classes(
+            'Headline__StyledHeadline- MediaLayout__Layout- ArticleByline__Container-'
+            ' ArticleTimestamp__Timestamp- ArticleBody__Container- PaywalledContent__PaywalledContentContainer- ArticleRoadblock__Container-'),
     ]
 
     remove_tags = [
@@ -119,33 +109,44 @@ class WSJ(BasicNewsRecipe):
 
     if needs_subscription:
         def get_browser(self, *a, **kw):
+            from pprint import pprint
+            pprint
             # To understand the login logic read app-min.js from
             # https://sso.accounts.dowjones.com/login
             itp = quote(self.WSJ_ITP, safe='')
             start_url = 'https://accounts.wsj.com/login?target=' + itp
-            self.log('Starting login process...')
+            self.log('Starting login process at', start_url)
             br = self.get_browser_for_wsj(*a, **kw)
+            # br.set_debug_http(True)
             res = br.open(start_url)
             sso_url = res.geturl()
             query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
             query = {k:v[0] for k, v in query.items()}
+            # pprint(query)
             request_query = {
                 'username': self.username,
                 'password': self.password,
                 'client_id': query['client'],
-                'sso': 'true',
                 'tenant': 'sso',
                 '_intstate': 'deprecated',
                 'connection': 'DJldap',
+                'headers': {
+                    'X-REMOTE-USER': self.username,
+                    'x-_dj-_client__id': query['client'],
+                },
             }
-            for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
+            for cookie in br.cookiejar:
+                if cookie.name == '_csrf':
+                    request_query[cookie.name] = cookie.value
+            for k in 'scope connection nonce state ui_locales ns mars protocol redirect_uri'.split():
                 if k in query:
                     request_query[k] = query[k]
+            # pprint(request_query)
             login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
             # you can get the version below from lib-min.js
-            # search for: str: "x.x.x"
+            # search for: "\d+\.\d+\.\d+"
             # This might need to be updated in the future
-            auth0_client = json.dumps({"name": "auth0.js", "version": "7.0.3"})
+            auth0_client = json.dumps({"name": "auth0.js-ulp", "version": "9.11.3"})
             if not isinstance(auth0_client, bytes):
                 auth0_client = auth0_client.encode('utf-8')
             auth0_client = standard_b64encode(auth0_client)
@@ -154,10 +155,12 @@ class WSJ(BasicNewsRecipe):
             rq = Request(login_url, headers={
                 'Accept': 'text/html',
                 'Accept-Language': 'en-US,en;q=0.8',
+                'Origin': 'https://sso.accounts.dowjones.com',
                 'Auth0-Client': auth0_client.rstrip('='),
                 'X-HTTP-Method-Override': 'POST',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-Remote-User': self.username
+                'X-Remote-User': self.username,
+                'x-dj-client_id': request_query['client_id'],
             }, data=request_query)
             self.log('Sending login request...')
             try:
