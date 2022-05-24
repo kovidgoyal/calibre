@@ -10,8 +10,9 @@ class IndiaToday(BasicNewsRecipe):
     remove_attributes = ['style','height','width']
     ignore_duplicate_articles = {'url'}
     extra_css = '[itemprop^="description"] {font-size: small; font-style: italic;}'
-    description = ('India’s Most Reputed, Credible and Popular news magazine.'
-                   ' Read the most preferred magazine of 9.5 million Indians to access highly researched and unbiased content.')
+    description = (
+        'India’s Most Reputed, Credible and Popular news magazine.'
+        ' Read the most preferred magazine of 9.5 million Indians to access highly researched and unbiased content.')
     masthead_url = 'https://akm-img-a-in.tosshub.com/sites/all/themes/itg/logo.png'
 
     def get_cover_url(self):
@@ -27,17 +28,17 @@ class IndiaToday(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.indiatoday.in/magazine')
-        ans = self.it_parse_index(soup)
-        return ans
 
-    def it_parse_index(self, soup):
-        feeds = []
-        for section in soup.findAll('div', attrs={'class':['magazin-top-left', 'section-ordering']}):
-            sec = section.find('span')
-            secname = self.tag_to_string(sec)
-            self.log(secname)
-            articles = []
-            for a in section.findAll('a', href=lambda x: x and x.startswith(("/magazine/cover-story/story/", "https://www.indiatoday.in/magazine/"))):
+        section = None
+        sections = {}
+
+        for tag in soup.findAll('div', attrs={'class':['magazin-top-left', 'section-ordering']}):
+            sec = tag.find('span')
+            section = self.tag_to_string(sec)
+            self.log(section)
+            sections[section] = []
+
+            for a in tag.findAll('a', href=lambda x: x and x.startswith(("/magazine/cover-story/story/", "https://www.indiatoday.in/magazine/"))):
                 url = a['href']
                 if url.startswith('https'):
                     url = url
@@ -49,11 +50,28 @@ class IndiaToday(BasicNewsRecipe):
                     url = ''
                 self.log('\t', title)
                 self.log('\t\t', url)
-                articles.append({
+                sections[section].append({
                     'title': title,
                     'url': url})
-            if articles:
-                feeds.append((secname, articles))
+
+        feeds = []
+
+        # Insert feeds in specified order, if available
+
+        feedSort = ['EDITOR\'S NOTE', 'Cover Story', 'The Big Story', 'Upfront', 'NATION', 'INTERVIEW']
+        for i in feedSort:
+            if i in sections:
+                feeds.append((i, sections[i]))
+
+        # Done with the sorted feeds
+
+        for i in feedSort:
+            del sections[i]
+
+        # Append what is left over...
+
+        for i in sections:
+            feeds.append((i, sections[i]))
         return feeds
 
     def preprocess_raw_html(self, raw_html, url):
