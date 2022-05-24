@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 from qt.core import (
-    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QStylePainter,
-    QSizePolicy, QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt,
-    QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
+    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QUrl,
+    QSizePolicy, QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption,
+    QStylePainter, Qt, QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
 )
 
 from calibre.constants import get_appname_for_display, get_version, ismacos
@@ -741,7 +741,15 @@ class LayoutMixin:  # {{{
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
         if cpath:
             if entry is None:
-                open_local_file(cpath)
+                pm = QPixmap()
+                pm.load(cpath)
+                pm.setDevicePixelRatio(self.devicePixelRatioF())
+                if pm.isNull():
+                    open_local_file(cpath)
+                else:
+                    from calibre.gui2.image_popup import ImageView
+                    iv = ImageView(QApplication.instance().focusWindow(), pm, QUrl.fromLocalFile(cpath), geom_name='book_details_image_view')
+                    iv(use_exec=True)
                 return
             from calibre.gui2.open_with import run_program
             run_program(entry, cpath, self)
