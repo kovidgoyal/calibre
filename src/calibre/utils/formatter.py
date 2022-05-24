@@ -513,6 +513,7 @@ class _Parser:
             is_list = True
             list_expr = self.top_expr()
             if self.token_is('separator'):
+                self.consume()
                 separator = self.expr()
             else:
                 separator = None
