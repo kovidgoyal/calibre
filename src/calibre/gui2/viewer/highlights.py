@@ -273,11 +273,12 @@ class Highlights(QTreeWidget):
                 self.num_of_items += 1
 
     def sorted_highlights(self, highlights):
-        defval = 999999999999999, cfi_sort_key('/99999999')
+        def_idx = 999999999999999
+        defval = def_idx, cfi_sort_key('/99999999')
 
         def cfi_key(h):
             cfi = h.get('start_cfi')
-            si = h.get('spine_index', defval[0])
+            si = h.get('spine_index', def_idx)
             return (si, cfi_sort_key(cfi)) if cfi else defval
 
         return sorted(highlights, key=cfi_key)
