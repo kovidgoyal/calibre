@@ -277,8 +277,8 @@ class Highlights(QTreeWidget):
 
         def cfi_key(h):
             cfi = h.get('start_cfi')
-            si = h.get('spine_index')
-            return (defval[0] if si is None else si, cfi_sort_key(cfi)) if cfi else defval
+            si = h.get('spine_index', defval[0])
+            return (si, cfi_sort_key(cfi)) if cfi else defval
 
         return sorted(highlights, key=cfi_key)
 
