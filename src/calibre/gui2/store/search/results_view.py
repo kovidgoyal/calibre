@@ -66,5 +66,5 @@ class ResultsView(QTreeView):
         if not result.downloads:
             da.setEnabled(False)
         menu.addSeparator()
-        menu.addAction(_('Goto in store...'), partial(self.open_requested.emit, result))
+        menu.addAction(_('Goto in store'), partial(self.open_requested.emit, result))
         menu.exec(event.globalPos())
