@@ -945,6 +945,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.vl_tabs.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
+        self.current_view().refresh_book_details()
         self.set_number_of_books_shown()
         self.update_status_bar()
 
