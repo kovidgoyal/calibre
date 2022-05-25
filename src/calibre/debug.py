@@ -100,7 +100,7 @@ Everything after the -- is passed to the script.
             action='store_true', default=False)
     parser.add_option('-r', '--run-plugin', help=_(
         'Run a plugin that provides a command line interface. For example:\n'
-        'calibre-debug -r "Add Books" -- file1 --option1\n'
+        'calibre-debug -r "Plugin Name" -- file1 --option1\n'
         'Everything after the -- will be passed to the plugin as arguments.'))
     parser.add_option('--diff', action='store_true', default=False, help=_(
         'Run the calibre diff tool. For example:\n'
