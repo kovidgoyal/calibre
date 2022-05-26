@@ -1391,7 +1391,7 @@ class BuiltinListJoin(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _("list_join(with_separator, list1, separator1 [, list2, separator2]*) -- "
                       "return a list made by joining the items in the source lists "
-                      "(list1 etc) using with_separator between the items in the "
+                      "(list1, etc) using with_separator between the items in the "
                       "result list. Items in each source list[123...] are separated "
                       "by the associated separator[123...]. A list can contain "
                       "zero values. It can be a field like publisher that is "
@@ -1400,19 +1400,19 @@ class BuiltinListJoin(BuiltinFormatterFunction):
                       " returned in the order they appear in the source lists. "
                       "If items on lists differ only in letter case then the last "
                       "is used. All separators can be more than one character.\n"
-                      "Example:\n"
+                      "Example:") + "\n" + (
                       "  program:\n"
-                      "    list_join('#@#', $authors, '&', $tags, ',')\n"
+                      "    list_join('#@#', $authors, '&', $tags, ',')\n") + _(
                       "You can use list_join on the results of previous "
-                      "calls to list_join as follows\n"
+                      "calls to list_join as follows:") + "\n" + (
                       "  program:\n"
                       "    a = list_join('#@#', $authors, '&', $tags, ',');\n"
-                      "    b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&')\n"
+                      "    b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&')\n") + _(
                       "You can use expressions to generate a list. For example, "
                       "assume you want items for authors and #genre, but "
                       "with the genre changed to the word 'Genre: ' followed by "
                       "the first letter of the genre, i.e. the genre 'Fiction' "
-                      "becomes 'Genre: F'. The following will do that\n"
+                      "becomes 'Genre: F'. The following will do that:") + "\n" + (
                       "  program:\n"
                       "    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \\1'),  ',')")
 
