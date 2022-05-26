@@ -53,11 +53,24 @@ class HBR(BasicNewsRecipe):
             for a in h3.findAll(
                 'a', href=lambda x: x.startswith('/' + d.strftime('%Y') + '/')
             ):
-                ul = a['href']
-                url = 'https://hbr.org' + ul
                 title = self.tag_to_string(a)
-                self.log(title, ' at ', url)
-                ans.append({'title': title, 'url': url})
+                url = a['href']
+                url = 'https://hbr.org' + url
+            div = h3.find_next_sibling('div', attrs={'class': 'stream-item-info'})
+            if div:
+                auth = self.tag_to_string(div)
+            dek = h3.find_next_sibling('div', attrs={'class': 'dek'})
+            if dek:
+                des = self.tag_to_string(dek)
+            desc = des + ' |' + auth
+            self.log('\t', title)
+            self.log('\t', desc)
+            self.log('\t\t', url)
+
+            ans.append({
+                'title': title,
+                'url': url,
+                'description': desc})
         return [('Articles', ans)]
 
     # HBR changes the content it delivers based on cookies, so the
