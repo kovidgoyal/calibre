@@ -13,10 +13,11 @@ __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
 from datetime import datetime, timedelta
+from functools import partial
 from math import trunc, floor, ceil, modf
 from contextlib import suppress
 
-from calibre import human_readable, prints
+from calibre import human_readable, prints, prepare_string_for_xml
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
@@ -2192,6 +2193,41 @@ class BuiltinCharacter(BuiltinFormatterFunction):
         raise NotImplementedError()
 
 
+class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
+    name = 'urls_from_identifiers'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _('urls_from_identifiers(identifiers, sort_results) -- given '
+                      'a comma-separated list of identifiers, where an identifier '
+                      'is a colon-separated pair of values (name:id_value), returns a '
+                      'comma-separated list of HTML URLs generated from the '
+                      'identifiers. The list not sorted if sort_results is 0 '
+                      '(character or number), otherwise it is sorted alphabetically '
+                      'by the identifier name. The URLs are generated in the same way '
+                      'as the built-in identifiers column when shown in Book details.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, identifiers, sort_results):
+        from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
+        try:
+            v = {}
+            for id_ in identifiers.split(','):
+                if id_:
+                    pair = id_.split(':', maxsplit=1)
+                    if len(pair) == 2:
+                        l = pair[0].strip()
+                        r = pair[1].strip()
+                        if l and r:
+                            v[l] = r
+            urls = urls_from_identifiers(v, sort_results=str(sort_results) != '0')
+            p = prepare_string_for_xml
+            a = partial(prepare_string_for_xml, attribute=True)
+            links = [f'<a href="{a(url)}" title="{a(id_typ)}:{a(id_val)}">{p(name)}</a>'
+                for name, id_typ, id_val, url in urls]
+            return ', '.join(links)
+        except Exception as e:
+            return str(e)
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -2222,7 +2258,7 @@ _formatter_builtins = [
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
-    BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(),
+    BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
     BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
 ]
 
