@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__license__ = "GPL v3"
+__copyright__ = "2022, Albert Aparicio Isarn <aaparicio at posteo.net>"
+
+"""
+https://www.asahi.com/ajw/
+"""
+
+from datetime import datetime
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AsahiShimbunEnglishNews(BasicNewsRecipe):
+    title = "The Asahi Shimbun"
+    __author__ = "Albert Aparicio Isarn"
+
+    description = ("The Asahi Shimbun is widely regarded for its journalism as the most respected daily newspaper in Japan."
+                   " The English version offers selected articles from the vernacular Asahi Shimbun, as well as extensive"
+                   " coverage of cool Japan,focusing on manga, travel and other timely news.")
+    publisher = "The Asahi Shimbun Company"
+    publication_type = "newspaper"
+    category = "news, japan"
+    language = "en_JP"
+
+    index = "https://www.asahi.com"
+    masthead_url = "https://p.potaufeu.asahi.com/ajw/css/images/en_logo@2x.png"
+
+    oldest_article = 3
+    max_articles_per_feed = 40
+    no_stylesheets = True
+    remove_javascript = True
+
+    remove_tags_before = {"id": "MainInner"}
+    remove_tags_after = {"class": "ArticleText"}
+    remove_tags = [{"name": "div", "class": "SnsUtilityArea"}]
+
+    def get_whats_new(self):
+        soup = self.index_to_soup(self.index + "/ajw/new")
+        news_section = soup.find("div", attrs={"class": "specialList"})
+
+        new_news = []
+
+        for item in news_section.findAll("li"):
+            title = item.find("p", attrs={"class": "title"}).string
+            date_string = item.find("p", attrs={"class": "date"}).next
+            date = date_string.strip()
+            url = self.index + item.find("a")["href"]
+
+            new_news.append(
+                {
+                    "title": title,
+                    "date": datetime.strptime(date, "%B %d, %Y").strftime("%Y/%m/%d"),
+                    "url": url,
+                    "description": "",
+                }
+            )
+
+        return new_news
+
+    def get_top6(self, soup):
+        top = soup.find("ul", attrs={"class": "top6"})
+
+        top6_news = []
+
+        for item in top.findAll("li"):
+            title = item.find("p", attrs={"class": "title"}).string
+            date_string = item.find("p", attrs={"class": "date"}).next
+            date = date_string.strip()
+            url = self.index + item.find("a")["href"]
+
+            top6_news.append(
+                {
+                    "title": title,
+                    "date": datetime.strptime(date, "%B %d, %Y").strftime("%Y/%m/%d"),
+                    "url": url,
+                    "description": "",
+                }
+            )
+
+        return top6_news
+
+    def get_section_news(self, soup):
+        news_grid = soup.find("ul", attrs={"class": "default"})
+
+        news = []
+
+        for item in news_grid.findAll("li"):
+            title = item.find("p", attrs={"class": "title"}).string
+            date_string = item.find("p", attrs={"class": "date"}).next
+            date = date_string.strip()
+
+            url = self.index + item.find("a")["href"]
+
+            news.append(
+                {
+                    "title": title,
+                    "date": datetime.strptime(date, "%B %d, %Y").strftime("%Y/%m/%d"),
+                    "url": url,
+                    "description": "",
+                }
+            )
+
+        return news
+
+    def get_section(self, section):
+        soup = self.index_to_soup(self.index + "/ajw/" + section)
+
+        section_news_items = self.get_top6(soup)
+        section_news_items.extend(self.get_section_news(soup))
+
+        return section_news_items
+
+    def get_special_section(self, section):
+        soup = self.index_to_soup(self.index + "/ajw/" + section)
+        top = soup.find("div", attrs={"class": "Section"})
+
+        special_news = []
+
+        for item in top.findAll("li"):
+            item_a = item.find("a")
+
+            text_split = item_a.text.strip().split("\n")
+            title = text_split[0]
+            description = text_split[1].strip()
+
+            url = self.index + item_a["href"]
+
+            special_news.append(
+                {
+                    "title": title,
+                    "date": "",
+                    "url": url,
+                    "description": description,
+                }
+            )
+
+        return special_news
+
+    def parse_index(self):
+        # soup = self.index_to_soup(self.index)
+
+        feeds = [
+            ("What's New", self.get_whats_new()),
+            ("National Report", self.get_section("national_report")),
+            ("Politics", self.get_section("politics")),
+            ("Business", self.get_section("business")),
+            ("Asia & World - China", self.get_section("asia_world/china")),
+            ("Asia & World - Korean Peninsula", self.get_section("asia_world/korean_peninsula")),
+            ("Asia & World - Around Asia", self.get_section("asia_world/around_asia")),
+            ("Asia & World - World", self.get_section("asia_world/world")),
+            ("Sci & Tech", self.get_section("sci_tech")),
+            ("Culture - Style", self.get_section("culture/style")),
+            ("Culture - Cooking", self.get_section("culture/cooking")),
+            ("Culture - Movies", self.get_section("culture/movies")),
+            ("Culture - Manga & Anime", self.get_section("culture/manga_anime")),
+            ("Travel", self.get_section("travel")),
+            ("Sports", self.get_section("sports")),
+            ("Opinion - Editorial", self.get_section("opinion/editorial")),
+            ("Opinion - Vox Populi", self.get_section("opinion/vox")),
+            ("Opinion - Views", self.get_section("opinion/views")),
+            ("Special", self.get_special_section("special")),
+        ]
+
+        return feeds
