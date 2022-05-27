@@ -23,6 +23,42 @@
 # - title by author
 # }}}
 
+{{{ 5.43.0 2022-05-27
+
+:: new features
+
+- Kobo driver: Allow using templates to generate collections
+
+- [1975406] Book details popup: Double clicking on the cover now uses calibre's internal image viewer. Right click on the cover to open it with another program.
+
+:: bug fixes
+
+- [1971461] Fix Book details blank when switching from device view to library view
+
+- [1973591] TXT Input: Fix a regression in 5.39 that caused the option to remove indents also removing blank lines
+
+- [1972069] E-book viewer: Fix incorrect sorting of highlights from the first internal file of a book
+
+:: improved recipes
+- Outlook Magazine
+- India Today
+- The New Yorker
+- Foreign Affairs
+
+:: new recipes
+- Asahi Shimbun by Albert Aparicio Isarn
+- Business Today Magazine by unkn0wn
+- Outlook Business Magazine by unkn0wn
+- Donga by Minsik Cho
+- Le Monde (English) by Darko Miletic
+- Hinduism Today by Vishwas Vasuki
+- The MIT Press Reader by yodha8
+- Live Science by yodha8
+- Financial Times Print Edition by Kovid Goyal
+- Various Catalan language news sources by santboia
+
+}}}
+
 {{{ 5.42.0 2022-05-03
 
 :: new features
