@@ -1401,14 +1401,14 @@ class BuiltinListJoin(BuiltinFormatterFunction):
                       " returned in the order they appear in the source lists. "
                       "If items on lists differ only in letter case then the last "
                       "is used. All separators can be more than one character.\n"
-                      "Example:") + "\n" + (
+                      "Example:") + "\n\n" + (
                       "  program:\n"
-                      "    list_join('#@#', $authors, '&', $tags, ',')\n") + _(
+                      "    list_join('#@#', $authors, '&', $tags, ',')\n\n") + _(
                       "You can use list_join on the results of previous "
                       "calls to list_join as follows:") + "\n" + (
-                      "  program:\n"
+                      "  program:\n\n"
                       "    a = list_join('#@#', $authors, '&', $tags, ',');\n"
-                      "    b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&')\n") + _(
+                      "    b = list_join('#@#', a, '#@#', $#genre, ',', $#people, '&')\n\n") + _(
                       "You can use expressions to generate a list. For example, "
                       "assume you want items for authors and #genre, but "
                       "with the genre changed to the word 'Genre: ' followed by "
