@@ -2509,7 +2509,7 @@ class KOBOTOUCH(KOBO):
         booklists.set_debugging_title(debugging_title)
         booklists.set_device_managed_collections(self.ignore_collections_names)
 
-        have_bookshelf_attributes = len(collections_attributes) > 0 and self.use_collections_template
+        have_bookshelf_attributes = len(collections_attributes) > 0 or self.use_collections_template
 
         collections = booklists.get_collections(collections_attributes,
                         collections_template=self.collections_template,
