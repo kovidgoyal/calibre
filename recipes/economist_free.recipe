@@ -220,6 +220,12 @@ class Economist(BasicNewsRecipe):
                     p.remove(noscript[0])
         for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
             x.getparent().remove(x)
+        # the economist uses <small> for small caps with a custom font
+        for x in root.xpath('//small'):
+            if x.text and len(x.text.split()) == 1 and len(x) == 0:
+                x.text = x.text.upper()
+                x.tag = 'span'
+                x.set('style', 'font-variant: small-caps')
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
