@@ -154,10 +154,10 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         if isinstance(to, str) and ('@pbsync.com' in to or '@kindle.com' in to):
-            # The pbsync service chokes on non-ascii filenames
+            # The pbsync service chokes on non-ascii filenames and commas
             # Dont know if amazon's service chokes or not, but since filenames
             # arent visible on Kindles anyway, might as well be safe
-            aname = ascii_filename(aname)
+            aname = ascii_filename(aname).replace(',', ' ')
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
