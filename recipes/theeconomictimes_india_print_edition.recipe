@@ -1,0 +1,82 @@
+'''
+economictimes.indiatimes.com
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class TheEconomicTimes(BasicNewsRecipe):
+    title = 'The Economic Times | Print Edition'
+    __author__ = 'unkn0wn'
+    description = 'Financial news from India.'
+    publisher = 'economictimes.indiatimes.com'
+    category = 'news, finances, politics, India'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en_IN'
+    remove_attributes = ['style', 'height', 'width']
+    publication_type = 'newspaper'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/98/The_Economic_Times_logo.svg'
+    cover_url = 'https://www.readwhere.com/read/imageapi/coverforissue/3034969/magazine/600'
+    ignore_duplicate_articles = {'title', 'url'}
+    extra_css = '''
+    .summary {font-weight:normal; font-size:normal; font-style:italic;}
+    time{font-size:small;}
+    '''
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes(
+            'artByline artSyn artImg artText publisher publish_on slideshowPackage'
+        ),
+    ]
+    remove_tags = [
+        classes(
+            'story_title storyCollection shareBar sr_widget_free jsSrWidgetFree srwidgetfree_3'
+            ' sr_paid jsSrWidgetPaid ar_wrp arwd_ld_chk adBox custom_ad mgid orn_free_r bold'
+        ),
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup(
+            'https://economictimes.indiatimes.com/print_edition.cms'
+        )
+        ans = self.et_parse_index(soup)
+        return ans
+
+    def et_parse_index(self, soup):
+        feeds = []
+        for section in soup.findAll('div', attrs={'class': 'printBox'}):
+            h2 = section.find('h2')
+            sec = self.tag_to_string(h2)
+            secname = re.sub(r'[0-9]', '', sec)
+            self.log(secname)
+            articles = []
+            for h3 in section.findAll(("h1", "h3", "h4", "h5")):
+                span = h3.find(
+                    'span',
+                    href=lambda x: x and x.startswith('/epaper/'),
+                    attrs={'class': 'banner'}
+                )
+                url = span['href']
+                url = 'https://economictimes.indiatimes.com' + url
+                title = self.tag_to_string(span)
+                div = h3.find_next_sibling('div', attrs={'class': 'dsc'})
+                if div is not None:
+                    desc = self.tag_to_string(div)
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log('\t', title)
+                self.log('\t', desc)
+                self.log('\t\t', url)
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
+
+    def preprocess_html(self, soup):
+        for image in soup.findAll('img', attrs={'src': True}):
+            image['src'] = image['src'].replace("width-300", "width-640")
+        for img in soup.findAll('img', attrs={'data-original': True}):
+            img['src'] = img['data-original']
+        return soup
