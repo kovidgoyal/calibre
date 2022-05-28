@@ -1,0 +1,77 @@
+'''
+www.business-standard.com
+'''
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class BusinessStandard(BasicNewsRecipe):
+    title = 'Business Standard | Print Edition'
+    __author__ = 'unkn0wn'
+    description = "India's most respected business daily"
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    publisher = 'Business Standard Limited'
+    category = 'news, business, money, india, world'
+    language = 'en_IN'
+
+    masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/'
+        )
+        for citem in soup.findAll(
+            'meta', content=lambda s: s and s.endswith('view/3.jpg')
+        ):
+            return citem['content']
+
+    remove_attributes = ['width', 'height', 'style']
+
+    keep_only_tags = [
+        classes(
+            'headline alternativeHeadline full-img article-content__img pubDate'
+        ),
+        dict(name='span', attrs={'class': 'p-content'}),
+    ]
+    remove_tags = [
+        classes('also-read-panel related-keyword more-stories-pagination')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.business-standard.com/todays-paper')
+        ans = self.bs_parse_index(soup)
+        return ans
+
+    def bs_parse_index(self, soup):
+        feeds = []
+        for section in soup.findAll('div', attrs={'class': 'row-inner'}):
+            h2 = section.find('h2')
+            secname = self.tag_to_string(h2)
+            self.log(secname)
+            articles = []
+            for a in section.findAll(
+                'a', href=lambda x: x and x.startswith('/article/')
+            ):
+                url = a['href']
+                url = 'https://www.business-standard.com' + url
+                ti = self.tag_to_string(a)
+                title = re.sub('Premium Content', 'Premium Content : ', ti)
+                articles.append({'title': title, 'url': url})
+                self.log('\t', title)
+                self.log('\t\t', url)
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
+
+
+calibre_most_common_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/	537.36'
