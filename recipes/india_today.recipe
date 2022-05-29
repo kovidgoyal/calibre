@@ -54,25 +54,14 @@ class IndiaToday(BasicNewsRecipe):
                     'title': title,
                     'url': url})
 
-        feeds = []
+        def sort_key(x):
+            section = x[0]
+            try:
+                return ('EDITOR\'S NOTE', 'Cover Story', 'The Big Story', 'Upfront', 'NATION', 'INTERVIEW').index(section)
+            except Exception:
+                return 99999999
 
-        # Insert feeds in specified order, if available
-
-        feedSort = ['EDITOR\'S NOTE', 'Cover Story', 'The Big Story', 'Upfront', 'NATION', 'INTERVIEW']
-        for i in feedSort:
-            if i in sections:
-                feeds.append((i, sections[i]))
-
-        # Done with the sorted feeds
-
-        for i in feedSort:
-            del sections[i]
-
-        # Append what is left over...
-
-        for i in sections:
-            feeds.append((i, sections[i]))
-        return feeds
+        return sorted(sections.items(), key=sort_key)
 
     def preprocess_raw_html(self, raw_html, url):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
