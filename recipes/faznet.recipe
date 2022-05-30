@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -7,52 +6,84 @@ __copyright__ = '2008-2011, Kovid Goyal <kovid at kovidgoyal.net>, Darko Miletic
 
 
 class FazNet(BasicNewsRecipe):
-    # Version 8.0
-    # Update 2017-09-01
+    # Version 9.1
+    # Update 2022-05-29
     # Armin Geller
-    # new web page layout
+    # new page layout
 
     title                 = 'FAZ.NET'
     __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'
     description           = 'Frankfurter Allgemeine Zeitung'
     publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
     category              = 'news, politics, Germany'
-    use_embedded_content  = False
-    language = 'de'
+
+    encoding              = 'utf-8'
+    language              = 'de'
 
     max_articles_per_feed = 30
     no_stylesheets        = True
-    encoding              = 'utf-8'
     remove_javascript     = True
 
-    keep_only_tags = [dict(name='article', attrs={'class':'atc'})]
+    extra_css      =  '''
+                      .atc-headlineemphasis, h1, h2 {font-size:1.6em; text-align:left}
+                      .atc-HeadlineEmphasisText {font-size:0.6em; text-align:left; display:block; text-transform:uppercase;}
+                      .atc-IntroText {font-size:1em; font-style:italic; font-weight:bold;margin-bottom:1em}
+                      h3 {font-size:1.3em;text-align:left}
+                      h4, h5, h6 {font-size:1em;text-align:left}
+                      .textbox-wide {font-size:1.3em; font-style:italic}
+                      .atc-ImageDescriptionText, .atc-ImageDescriptionCopyright {font-size: 0.75em; font-style:italic; font-weight:normal}
+                      .atc-MetaItem {
+                        font-size:0.6em; font-weight:normal; margin-bottom:0.75em; text-align:left;
+                        list-style-type:none; text-transform:uppercase; display:inline-block}
+                      .aut-Teaser_Avatar {font-size:0.6em; font-weight:bold; margin-bottom:0.75em; text-align:left}
+                      .aut-Teaser_Name {font-size:0.6em; font-weight:bold; margin-bottom:0.75em; float:left; text-align:left}
+                      .aut-Teaser_Description {font-size:0.6em; font-weight: normal; margin-bottom:0.75em; text-align:left; display:block}
+                      .atc-Footer{font-size:0.6em; font-weight: normal; margin-bottom:0.75em; display:block}
+                      '''
 
-    remove_tags_after = [dict(name='article', attrs={'class':['atc']})]
+    keep_only_tags = [dict(name='article', attrs={'class':'atc'}),
+                      dict(name='div', attrs={'id':'FAZContent'})
+                     ]
+
+    remove_tags_after = [dict(name='article', attrs={'class':'atc'})]
 
     remove_tags = [
-                    dict(name='aside', attrs={'class':['atc-ContainerMore ',
-                                                       'atc-ContainerMore atc-ContainerMoreOneTeaser sld-TeaserMoreOneTeaser  js-slider-teaser-more'
-                                                       ]}),
-                    dict(name='div', attrs={'class':['atc-ContainerSocialMedia',
-                                                     'atc-ContainerFunctions_Interaction ',
-                                                     'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium '
-                                                     ]})
+                   dict(name='div', attrs={'class':[
+                       'atc-ContainerSocialMedia',
+                       'atc-ContainerFunctions_Interaction ',
+                       'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium',
+                       'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium ctn-PlaceholderContent-has-centered-content',
+                       'ctn-PlaceholderBox ctn-PlaceholderBox-is-in-article-text-right',
+                       'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-text-left ctn-PlaceholderContent-is-in-article-small',
+                       'aut-Follow aut-Follow-is-small-teaser',
+                       'aut-Follow aut-Follow-is-teaser',
+                       'js-ctn-PaywallTeasers ctn-PaywallTeasers',
+                       'ctn-PaywallInfo_TeaserImageContainer',
+                       'ctn-PaywallInfo_OfferContainer'
+                   ]}),
+                   dict(name='aside', attrs={'class':['atc-ContainerMore',
+                                                     'atc-ContainerMoreOneTeaser'
+                                                    ]}),
+                   dict(name='span', attrs={'class':['data-button',
+                                                     'o-VisuallyHidden'
+                                                    ]}),
+                   dict(name='a', attrs={'class':'btn-Base_Link'})
                   ]
 
     feeds = [
-                ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
-                ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
-                ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
-                ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
-                ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
-                ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
-                ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
-                ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
-                ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
-                ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
-                ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
-                ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
-                ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
+             ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
+             ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
+             ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
+             ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
+             ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+             ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
+             ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
+             ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
+             ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
+             ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
+             ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
+             ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
+             ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
             ]
 
     # For multipages:
@@ -67,9 +98,10 @@ class FazNet(BasicNewsRecipe):
             texttag = soup2.find('article', attrs={'class':'atc'})
             for cls in (
                     'atc-Header',
-                    'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium ',
-                    'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium ctn-PlaceholderContent-has-centered-content ',
-                    'atc-ContainerMore '
+                    'atc-ContainerMore',
+                    'atc-ContainerFunctions_Interaction',
+                    'aut-Follow aut-Follow-is-small-teaser',
+                    'aut-Follow aut-Follow-is-teaser'
                     ):
                 div = texttag.find(attrs={'class':cls})
                 if div is not None:
@@ -80,14 +112,21 @@ class FazNet(BasicNewsRecipe):
             pager.extract()
             appendtag.insert(position,texttag)
 
+    # Find images
+
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
+        for img in soup.findAll('img', attrs={'data-retina-src':True}):
+            img['src'] = img['data-retina-src']
         for img in soup.findAll('img', attrs={'data-src':True}):
             img['src'] = img['data-src']
         return self.adeify_images(soup)
 
     # Some last cleanup
+
     def postprocess_html(self, soup, first_fetch):
-        for div in soup.findAll('div',attrs={'class':['atc-ContainerFunctions_Navigation','atc-ContainerFunctions_Interaction ']}):
+        for div in soup.findAll('div',attrs={'class':['atc-ContainerFunctions js-som-Abbinder',
+                                                      'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium'
+                                                     ]}):
             div.extract()
         return soup
