@@ -9,14 +9,9 @@ __license__ = 'GPL v3'
 lemonde.fr
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import date
 import re
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class LeMondeNumerique(BasicNewsRecipe):
@@ -90,12 +85,28 @@ class LeMondeNumerique(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('https://secure.lemonde.fr/sfuser/connexion')
-        br.select_form(nr=0)
-        br['email'] = self.username
-        br['password'] = self.password
-        br.submit()
+        if self.username is not None and self.password is not None:
+            try:
+                br.open('https://secure.lemonde.fr/sfuser/connexion')
+                br.select_form(nr=0)
+                br['email'] = self.username
+                br['password'] = self.password
+                br.submit()
+            except Exception as e:
+                self.log('Login failed with error:', str(e))
         return br
+
+    def get_cover_url(self):
+        # today's date is a reasonable guess for the ID of the cover
+        cover_id = date.today().strftime('%Y%m%d')
+        soup = self.index_to_soup('https://www.lemonde.fr/')
+        a = soup.find('a', {'id': 'jelec_link', 'style': True})
+        if a and a['style']:
+            url = a['style'].split('/')
+            if len(url) > 5 and url[3].isdigit():
+                # overwrite guess if actual cover ID was found
+                cover_id = url[3]
+        return 'https://www.lemonde.fr/thumbnail/journal/' + cover_id + '/1000/1490'
 
     def parse_index(self):
         ans = []
@@ -111,14 +122,17 @@ class LeMondeNumerique(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         for article in soup.find_all('section', {'class': 'teaser'}):
             # extract URL
-            a = article.find('a', {'class': 'teaser__link'})
+            a = article.find('a', {'class': 'teaser__link', 'href': True})
             if a is None:
                 continue
             url = a['href']
             # skip articles without relevant content (e.g., videos)
-            for el in 'blog chat live podcasts portfolio video visuel'.split():
+            for el in 'blog chat live newsletters podcasts portfolio video visuel'.split():
                 if '/' + el + '/' in url:
-                    continue
+                    url = None
+                    break
+            if url is None:
+                continue
             # extract title
             h3 = article.find('h3', {'class': 'teaser__title'})
             if h3 is None:
