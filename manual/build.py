@@ -42,29 +42,31 @@ def build_manual(language, base):
     sb = partial(sphinx_build, language, base)
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
-    latexdir = sb('latex', 'latex')
-    pwd = os.getcwd()
-    os.chdir(latexdir)
+    pdf_ok = language not in ('ja',)
+    if pdf_ok:
+        latexdir = sb('latex', 'latex')
+        pwd = os.getcwd()
+        os.chdir(latexdir)
 
-    def run_cmd(cmd):
-        p = subprocess.Popen(cmd, stdout=open(os.devnull, 'wb'), stdin=subprocess.PIPE)
-        p.stdin.close()
-        return p.wait()
-    try:
-        for i in range(3):
-            run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
-        run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
-        for i in range(2):
-            run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
-        if not os.path.exists('calibre.pdf'):
-            print('Failed to build pdf file, see calibre.log in the latex directory', file=sys.stderr)
-            raise SystemExit(1)
-    finally:
-        os.chdir(pwd)
+        def run_cmd(cmd):
+            p = subprocess.Popen(cmd, stdout=open(os.devnull, 'wb'), stdin=subprocess.PIPE)
+            p.stdin.close()
+            return p.wait()
+        try:
+            for i in range(3):
+                run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
+            run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
+            for i in range(2):
+                run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
+            if not os.path.exists('calibre.pdf'):
+                print('Failed to build pdf file, see calibre.log in the latex directory', file=sys.stderr)
+                raise SystemExit(1)
+        finally:
+            os.chdir(pwd)
+        pdf_dest = j(onlinedir, 'calibre.pdf')
+        shutil.copyfile(j(latexdir, 'calibre.pdf'), pdf_dest)
     epub_dest = j(onlinedir, 'calibre.epub')
-    pdf_dest = j(onlinedir, 'calibre.pdf')
     shutil.copyfile(j(epubdir, 'calibre.epub'), epub_dest)
-    shutil.copyfile(j(latexdir, 'calibre.pdf'), pdf_dest)
     epub_to_azw3(epub_dest)
 
 
