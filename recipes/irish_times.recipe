@@ -71,7 +71,6 @@ class IrishTimes(BasicNewsRecipe):
         return feeds
 
     def get_browser(self):
-        return super().get_browser()
         # To understand the signin logic read signin javascript from submit button from
         # https://www.irishtimes.com/signin
 
