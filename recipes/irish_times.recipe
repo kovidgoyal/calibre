@@ -3,18 +3,15 @@ __copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David
 '''
 irishtimes.com
 '''
-import re
 import json
 from uuid import uuid4
 from mechanize import Request
 try:
-    from urllib.parse import urlencode, urljoin
+    from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-    from urlparse import urljoin
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IrishTimes(BasicNewsRecipe):
@@ -34,20 +31,47 @@ class IrishTimes(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     temp_files = []
-    articles_are_obfuscated = True
-
-    feeds          = [
-        ('News', 'https://www.irishtimes.com/cmlink/the-irish-times-news-1.1319192'),
-        ('World', 'https://www.irishtimes.com/cmlink/irishtimesworldfeed-1.1321046'),
-        ('Politics', 'https://www.irishtimes.com/cmlink/irish-times-politics-rss-1.1315953'),
-        ('Business', 'https://www.irishtimes.com/cmlink/the-irish-times-business-1.1319195'),
-        ('Culture', 'https://www.irishtimes.com/cmlink/the-irish-times-culture-1.1319213'),
-        ('Sport', 'https://www.irishtimes.com/cmlink/the-irish-times-sport-1.1319194'),
-        ('Debate', 'https://www.irishtimes.com/cmlink/debate-1.1319211'),
-        ('Life & Style', 'https://www.irishtimes.com/cmlink/the-irish-times-life-style-1.1319214'),
+    keep_only_tags = [
+        dict(name=['h1', 'h2']),
+        classes('lead-art-wrapper article-body-wrapper'),
     ]
+    remove_tags = [
+        dict(name='button')
+    ]
+    remove_attributes = ['width', 'height']
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.irishtimes.com/')
+        section = 'Home page'
+        articles = []
+        feeds = []
+        for x in soup.findAll(name=['h3', 'article']):
+            if x.name == 'h3':
+                if 'writer_description' in x.get('class') or '':
+                    continue
+                articles and feeds.append((section, articles))
+                section = self.tag_to_string(x)
+                articles = []
+                self.log('Section:', section)
+                continue
+            a = x.find('a', attrs={'class': lambda x: x and 'primary-font'}, href=True)
+            if a is None:
+                a = x.find('a', attrs={'class': lambda x: x and 'promo-headline' in x}, href=True)
+            if a:
+                q = ''.join(a['class'])
+                if 'secondary-font' in q and section == 'Home page':
+                    continue
+                title = self.tag_to_string(a)
+                url = a['href']
+                if url.startswith('/'):
+                    url = 'https://www.irishtimes.com' + url
+                articles.append({'title': title, 'url': url})
+                self.log('\t', title)
+        articles and feeds.append((section, articles))
+        return feeds
 
     def get_browser(self):
+        return super().get_browser()
         # To understand the signin logic read signin javascript from submit button from
         # https://www.irishtimes.com/signin
 
@@ -89,26 +113,3 @@ class IrishTimes(BasicNewsRecipe):
 
         # br.set_debug_http(False)
         return br
-
-    def get_obfuscated_article(self, url):
-        # Insert a pic from the original url, but use content from the print url
-        pic = None
-        pics = self.index_to_soup(url)
-        div = pics.find('div', {'class' : re.compile('image-carousel')})
-        if div:
-            pic = div.img
-            if pic:
-                try:
-                    pic['src'] = urljoin(url, pic['src'])
-                    pic.extract()
-                except:
-                    pic = None
-
-        content = self.index_to_soup(url + '?mode=print&ot=example.AjaxPageLayout.ot')
-        if pic:
-            content.p.insert(0, pic)
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(content.prettify().encode('utf-8'))
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
