@@ -60,7 +60,7 @@ The File browser
 ------------------
 
 .. image:: images/files_browser.png
-    :alt: The File browser
+    :alt: The File browser showing files in the book
     :class: float-left-img
 
 The :guilabel:`File browser` gives you an overview of the various files inside
@@ -532,7 +532,7 @@ The Live preview panel
 ------------------------
 
 .. image:: images/live-preview.png
-    :alt: The Live preview panel
+    :alt: The Live preview panel showing a rendering of the current file
     :class: float-left-img
 
 The :guilabel:`File preview` gives you an overview of the various files inside
@@ -593,7 +593,7 @@ The Live CSS panel
 ---------------------
 
 .. image:: images/live_css.png
-    :alt: The Live CSS panel
+    :alt: The Live CSS panel showing the styles for the current element
     :class: float-left-img
 
 
@@ -794,7 +794,7 @@ entries the :guilabel:`Source` column to jump to where the link is defined and
 entries in the :guilabel:`Target` column to jump to where the link points.
 
 .. image:: images/reports-ss.png
-    :alt: The Reports tool
+    :alt: The Reports tool with information and statistics about the book
     :align: center
     :class: fit-img
 

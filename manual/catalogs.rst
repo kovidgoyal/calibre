@@ -37,7 +37,7 @@ Included sections
 -------------------
 
 .. image:: images/included_sections.png
-    :alt: Included sections
+    :alt: Included sections in catalog
     :align: center
 
 Sections enabled by a checkmark will be included in the generated catalog:
@@ -72,7 +72,7 @@ Excluded books
 -----------------
 
 .. image:: images/excluded_books.png
-    :alt: Excluded books
+    :alt: Excluded books in catalog
     :align: center
 
 Exclusion rules allow you to specify books that will not be cataloged.
@@ -92,7 +92,7 @@ Excluded genres
 ---------------
 
 .. image:: images/excluded_genres.png
-    :alt: Excluded genres
+    :alt: Excluded genres in catalog
     :align: center
 
 When the catalog is generated, tags in your database are used as genres. For example, you may use the tags ``Fiction`` and ``Nonfiction``. These tags become genres in the generated catalog, with books listed under their respective genre lists based on their assigned tags. A book will be listed in every genre section for which it has a corresponding tag.
@@ -107,7 +107,7 @@ Other options
 --------------
 
 .. image:: images/other_options.png
-    :alt: Other options
+    :alt: Other options for catalog
     :align: center
 
 :guilabel:`Catalog cover` specifies whether to generate a new cover or use an existing cover. It is possible to create a custom cover for your catalogs - see :ref:`custom_catalog_covers` for more information. If you have created a custom cover that you want to reuse, select :guilabel:`Use existing cover`. Otherwise, select :guilabel:`Generate new cover`.
