@@ -7,14 +7,17 @@ import os
 import traceback
 from itertools import count
 from qt.core import (
-    QAbstractItemModel, QDialog, QDialogButtonBox, QModelIndex, Qt, QTreeView,
-    QVBoxLayout, pyqtSignal
+    QAbstractItemModel, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
+    QModelIndex, QPushButton, QSize, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Event, Thread
 
+from calibre.gui2 import gprefs
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
-from calibre.gui2.viewer.widgets import ResultsDelegate
+from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.gui2.progress_indicator import ProgressIndicator
+
 
 ROOT = QModelIndex()
 
@@ -224,16 +227,95 @@ class ResultsView(QTreeView):
             self.expandAll()
 
 
+class Spinner(ProgressIndicator):
+
+    def sizeHint(self):
+        return QSize(8, 8)
+
+    def paintEvent(self, ev):
+        if self.isAnimated():
+            super().paintEvent(ev)
+
+
+class SearchInputPanel(QWidget):
+
+    search_signal = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        QHBoxLayout(self)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.v1 = v1 = QVBoxLayout()
+        v1.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.layout().addLayout(v1)
+        self.search_box = sb = SearchBox(self)
+        sb.initialize('library-fts-search-box')
+        sb.lineEdit().returnPressed.connect(self.search_requested)
+        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        v1.addWidget(sb)
+        self.h1 = h1 = QHBoxLayout()
+        v1.addLayout(h1)
+        self.restrict = r = QCheckBox(_('&Restrict searched books'))
+        r.setToolTip('<p>' + _(
+            'Restrict search results to only the books currently showing in the main'
+            ' library screen. This means that any Virtual libraries or search results'
+            ' are applied.'))
+        r.setChecked(gprefs['fts_library_restrict_books'])
+        r.stateChanged.connect(lambda state: gprefs.set('fts_library_restrict_books', state != Qt.CheckState.Unchecked))
+        self.related = rw = QCheckBox(_('&Match on related words'))
+        rw.setToolTip('<p>' + _(
+            'With this option searching for words will also match on any related words (supported in several languages). For'
+            ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
+        rw.setChecked(gprefs['fts_library_use_stemmer'])
+        rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked))
+        h1.addWidget(r), h1.addWidget(rw), h1.addStretch()
+
+        self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
+        sb.clicked.connect(self.search_requested)
+        self.v2 = v2 = QVBoxLayout()
+        v2.addWidget(sb)
+        self.pi = pi = Spinner(self)
+        v2.addWidget(pi)
+
+        self.layout().addLayout(v2)
+
+    def start(self):
+        self.pi.start()
+
+    def stop(self):
+        self.pi.stop()
+
+    def search_requested(self):
+        text = self.search_box.text().strip()
+        self.search_signal.emit(text)
+
+
+class ResultsPanel(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.sip = sip = SearchInputPanel(parent=self)
+        l.addWidget(sip)
+        self.results_view = rv = ResultsView(parent=self)
+        l.addWidget(rv)
+        self.search = rv.search
+        rv.search_started.connect(self.sip.start)
+        rv.search_complete.connect(self.sip.stop)
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
     d = QDialog()
+    d.sizeHint = lambda : QSize(1000, 680)
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     get_db.db = db(os.path.expanduser('~/test library'))
-    w = ResultsView(parent=d)
+    w = ResultsPanel(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
     w.search('asimov')

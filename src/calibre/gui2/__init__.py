@@ -342,6 +342,8 @@ def create_defs():
     defs['browse_annots_restrict_to_user'] = None
     defs['browse_annots_restrict_to_type'] = None
     defs['browse_annots_use_stemmer'] = True
+    defs['fts_library_use_stemmer'] = True
+    defs['fts_library_restrict_books'] = False
     defs['annots_export_format'] = 'txt'
     defs['books_autoscroll_time'] = 2.0
     defs['edit_metadata_single_use_2_cols_for_custom_fields'] = True
