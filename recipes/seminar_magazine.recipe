@@ -39,7 +39,8 @@ class Seminar(BasicNewsRecipe):
             url = a['href']
             if url.endswith('.htm'):
                 url = 'https://www.india-seminar.com/' + d.strftime('%Y') + '/' + url
-            title = self.tag_to_string(a)
-            self.log(title, ' at ', url)
-            ans.append({'title': title, 'url': url})
+            title = self.tag_to_string(a).strip()
+            if title:
+                self.log(title, ' at ', url)
+                ans.append({'title': title, 'url': url})
         return [('Articles', ans)]
