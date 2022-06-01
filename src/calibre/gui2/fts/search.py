@@ -5,6 +5,7 @@
 
 import os
 import traceback
+from contextlib import suppress
 from itertools import count
 from qt.core import (
     QAbstractItemModel, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
@@ -15,9 +16,8 @@ from threading import Event, Thread
 from calibre.gui2 import gprefs
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
-from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.progress_indicator import ProgressIndicator
-
+from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 
 ROOT = QModelIndex()
 
@@ -101,6 +101,8 @@ class ResultsModel(QAbstractItemModel):
         sk = fts_engine_query, use_stemming, restrict_to_book_ids, id(db)
         if sk == self.current_search_key:
             return False
+        self.current_thread_abort.set()
+        self.current_search_key = sk
         self.search_started.emit()
         self.beginResetModel()
         db.fts_search(
@@ -109,7 +111,6 @@ class ResultsModel(QAbstractItemModel):
         )
         self.endResetModel()
         self.current_query_id = next(self.query_id_counter)
-        self.current_thread_abort.set()
         self.current_thread_abort = Event()
         self.current_thread = Thread(
             name='FTSQuery', daemon=True, target=self.search_text_in_thread, args=(
@@ -125,7 +126,8 @@ class ResultsModel(QAbstractItemModel):
         generator = db.fts_search(*a, **kw, result_type=lambda x: x)
         for result in generator:
             if abort.is_set():
-                generator.send(True)
+                with suppress(StopIteration):
+                    generator.send(True)
                 return
             self.result_found.emit(query_id, result)
         self.all_results_found.emit(query_id)
@@ -303,6 +305,7 @@ class ResultsPanel(QWidget):
         self.search = rv.search
         rv.search_started.connect(self.sip.start)
         rv.search_complete.connect(self.sip.stop)
+        sip.search_signal.connect(self.search)
 
 
 if __name__ == '__main__':
@@ -318,5 +321,5 @@ if __name__ == '__main__':
     w = ResultsPanel(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
-    w.search('asimov')
+    w.sip.search_box.setText('asimov')
     d.exec()
