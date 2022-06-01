@@ -17,6 +17,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 
 ROOT = QModelIndex()
@@ -223,9 +224,13 @@ class ResultsView(QTreeView):
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
 
-    def search(self, *a, **kw):
+    def search(self, *a):
+        gui = get_gui()
+        restrict = None
+        if gui and gprefs['fts_library_restrict_books']:
+            restrict = gui.library_view.get_selected_ids(as_set=True)
         with BusyCursor():
-            self.m.search(*a, **kw)
+            self.m.search(*a, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
             self.expandAll()
 
 
@@ -321,5 +326,5 @@ if __name__ == '__main__':
     w = ResultsPanel(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
-    w.sip.search_box.setText('asimov')
+    w.sip.search_box.setText('control')
     d.exec()
