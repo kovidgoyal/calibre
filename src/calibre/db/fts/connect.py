@@ -168,12 +168,14 @@ class FTS:
         conn = self.get_connection()
         try:
             for record in conn.execute(query, tuple(data)):
-                yield {
+                ret = yield {
                     'id': record[0],
                     'book_id': record[1],
                     'format': record[2],
                     'text': record[3] if return_text else '',
                 }
+                if ret is True:
+                    break
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e) from e
 

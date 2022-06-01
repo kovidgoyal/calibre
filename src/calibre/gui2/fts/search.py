@@ -5,12 +5,15 @@
 
 import os
 import traceback
+from itertools import count
 from qt.core import (
     QAbstractItemModel, QDialog, QDialogButtonBox, QModelIndex, Qt, QTreeView,
-    QVBoxLayout
+    QVBoxLayout, pyqtSignal
 )
+from threading import Event, Thread
 
 from calibre.gui2.fts.utils import get_db
+from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.viewer.widgets import ResultsDelegate
 
 ROOT = QModelIndex()
@@ -61,15 +64,27 @@ class Results:
 
 class ResultsModel(QAbstractItemModel):
 
+    result_found = pyqtSignal(int, object)
+    all_results_found = pyqtSignal(int)
+    search_started = pyqtSignal()
+    search_complete = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.results = []
+        self.query_id_counter = count()
+        self.current_query_id = -1
+        self.current_thread_abort = Event()
+        self.current_thread = None
+        self.current_search_key = None
+        self.result_found.connect(self.result_with_text_found, type=Qt.ConnectionType.QueuedConnection)
+        self.all_results_found.connect(self.signal_search_complete, type=Qt.ConnectionType.QueuedConnection)
 
     def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None):
         db = get_db()
 
         def construct(all_matches):
-            r = {}
+            self.result_map = r = {}
             sr = self.results = []
 
             for x in all_matches:
@@ -77,16 +92,59 @@ class ResultsModel(QAbstractItemModel):
                 results = r.get(book_id)
                 if results is None:
                     results = Results(book_id)
-                    r[book_id] = results
+                    r[book_id] = len(sr)
                     sr.append(results)
-                results.append(x)
 
+        sk = fts_engine_query, use_stemming, restrict_to_book_ids, id(db)
+        if sk == self.current_search_key:
+            return False
+        self.search_started.emit()
         self.beginResetModel()
         db.fts_search(
             fts_engine_query, use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-            restrict_to_book_ids=restrict_to_book_ids, result_type=construct
+            restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
         )
         self.endResetModel()
+        self.current_query_id = next(self.query_id_counter)
+        self.current_thread_abort.set()
+        self.current_thread_abort = Event()
+        self.current_thread = Thread(
+            name='FTSQuery', daemon=True, target=self.search_text_in_thread, args=(
+                self.current_query_id, self.current_thread_abort, fts_engine_query,), kwargs=dict(
+                use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
+                restrict_to_book_ids=restrict_to_book_ids, return_text=True)
+        )
+        self.current_thread.start()
+        return True
+
+    def search_text_in_thread(self, query_id, abort, *a, **kw):
+        db = get_db()
+        generator = db.fts_search(*a, **kw, result_type=lambda x: x)
+        for result in generator:
+            if abort.is_set():
+                generator.send(True)
+                return
+            self.result_found.emit(query_id, result)
+        self.all_results_found.emit(query_id)
+
+    def result_with_text_found(self, query_id, result):
+        if query_id != self.current_query_id:
+            return
+        bid = result['book_id']
+        i = self.result_map.get(bid)
+        if i is not None:
+            parent = self.results[i]
+            parent_idx = self.index(i, 0)
+            r = len(parent)
+            self.beginInsertRows(parent_idx, r, r)
+            parent.append(result)
+            self.endInsertRows()
+
+    def signal_search_complete(self, query_id):
+        if query_id == self.current_query_id:
+            self.current_query_id = -1
+            self.current_thread = None
+            self.search_complete.emit()
 
     def index_to_entry(self, idx):
         q = idx.internalId()
@@ -147,13 +205,23 @@ class ResultsModel(QAbstractItemModel):
 
 class ResultsView(QTreeView):
 
+    search_started = pyqtSignal()
+    search_complete = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setHeaderHidden(True)
         self.m = ResultsModel(self)
+        self.m.search_complete.connect(self.search_complete)
+        self.m.search_started.connect(self.search_started)
         self.setModel(self.m)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
+
+    def search(self, *a, **kw):
+        with BusyCursor():
+            self.m.search(*a, **kw)
+            self.expandAll()
 
 
 if __name__ == '__main__':
@@ -168,5 +236,5 @@ if __name__ == '__main__':
     w = ResultsView(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
-    w.model().search('asimov')
+    w.search('asimov')
     d.exec()
