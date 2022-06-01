@@ -24,9 +24,15 @@ class BT(BasicNewsRecipe):
         dict(name='a', attrs={'title': 'videos'}),
         classes('tranding-topics-main newsltter-iframe hedlineteg')
     ]
+    extra_css = 'a[href^="https://www.businesstoday.in/videos"]{display: none;}'
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.businesstoday.in/magazine')
+        issue = soup.find(attrs={'class': 'view-id-latest_issue_magzine'})
+        a = issue.findAll('a', href=lambda x: x and x.startswith('/magazine/issue/'))[1]
+        url = a['href']
+        self.log('issue =', url)
+        soup = self.index_to_soup('https://www.businesstoday.in' + url)
         tag = soup.find(attrs={'class': 'issue-image'})
         if tag:
             self.cover_url = tag.find('img')['src']
