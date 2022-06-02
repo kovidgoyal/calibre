@@ -4,6 +4,7 @@
 
 
 import os
+import re
 import traceback
 from contextlib import suppress
 from itertools import count
@@ -21,6 +22,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 
 ROOT = QModelIndex()
+sanitize_text_pat = re.compile(r'\s+')
 
 
 class SearchDelegate(ResultsDelegate):
@@ -47,14 +49,26 @@ class Results:
 
     def __init__(self, book_id):
         self.book_id = book_id
-        self.search_results = []
-        self.append = self.search_results.append
+        self.text_map = {}
+        self.texts = []
+        self.formats = []
+
+    def add_result_with_text(self, result):
+        text = result['text']
+        q = sanitize_text_pat.sub('', text)
+        fmt = result['format']
+        i = self.text_map.get(q)
+        if i is None:
+            i = self.text_map[q] = len(self.texts)
+            self.texts.append(result)
+            self.formats.append(set())
+        self.formats[i].add(fmt)
 
     def __len__(self):
-        return len(self.search_results)
+        return len(self.texts)
 
     def __getitem__(self, x):
-        return self.search_results[x]
+        return self.texts[x]
 
     @property
     def title(self):
@@ -143,7 +157,7 @@ class ResultsModel(QAbstractItemModel):
             parent_idx = self.index(i, 0)
             r = len(parent)
             self.beginInsertRows(parent_idx, r, r)
-            parent.append(result)
+            parent.add_result_with_text(result)
             self.endInsertRows()
 
     def signal_search_complete(self, query_id):
