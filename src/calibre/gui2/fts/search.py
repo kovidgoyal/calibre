@@ -9,8 +9,9 @@ import traceback
 from contextlib import suppress
 from itertools import count
 from qt.core import (
-    QAbstractItemModel, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
-    QModelIndex, QPushButton, QSize, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemModel, QCheckBox, QDialog, QDialogButtonBox, QFont, QHBoxLayout,
+    QIcon, QModelIndex, QPushButton, QSize, Qt, QTreeView, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 from threading import Event, Thread
 
@@ -89,6 +90,8 @@ class ResultsModel(QAbstractItemModel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.italic_font = parent.font() if parent else QFont()
+        self.italic_font.setItalic(True)
         self.results = []
         self.query_id_counter = count()
         self.current_query_id = -1
@@ -212,11 +215,21 @@ class ResultsModel(QAbstractItemModel):
             return self.data_for_book(item, role)
         return self.data_for_match(item, role)
 
+    def flags(self, index):
+        item = self.index_to_entry(index)
+        if item is None:
+            return 0
+        if isinstance(item, Results):
+            return Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren
+
     def data_for_book(self, item, role):
         if role == Qt.ItemDataRole.DisplayRole:
             return item.title
         if role == Qt.ItemDataRole.UserRole:
             return item
+        if role == Qt.ItemDataRole.FontRole:
+            return self.italic_font
 
     def data_for_match(self, item, role):
         if role == Qt.ItemDataRole.UserRole:
