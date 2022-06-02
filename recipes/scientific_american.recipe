@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 __license__ = 'GPL v3'
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 from css_selectors import Select
 
 
@@ -9,11 +9,6 @@ def absurl(url):
     if url.startswith('/'):
         url = 'https://www.scientificamerican.com' + url
     return url
-
-
-keep_classes = {'article-header', 'article-content',
-                'article-media', 'article-author', 'article-text'}
-remove_classes = {'aside-banner', 'moreToExplore', 'article-footer'}
 
 
 class ScientificAmerican(BasicNewsRecipe):
@@ -31,12 +26,12 @@ class ScientificAmerican(BasicNewsRecipe):
     needs_subscription = 'optional'
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and bool(
-            set(x.split()).intersection(keep_classes))}),
+        classes(
+            'article-header article-content article-media article-author article-text feature-article--header'
+            ' feature-article--header-title opinion-article__header-title author-bio'),
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and bool(
-            set(x.split()).intersection(remove_classes))}),
+        classes('aside-banner moreToExplore article-footer flex-column--25 article-author__suggested'),
         dict(id=['seeAlsoLinks']),
     ]
 
@@ -55,12 +50,14 @@ class ScientificAmerican(BasicNewsRecipe):
         root = self.index_to_soup(
             'https://www.scientificamerican.com/sciammag/', as_tree=True)
         select = Select(root)
+        self.cover_url = [x.get('src', '') for x in select('main .store-listing__img img')][0]
         url = [x.get('href', '') for x in select('main .store-listing__img a')][0]
         url = absurl(url)
-        self.cover_url = [x.get('src', '') for x in select('main .store-listing__img img')][0]
 
         # Now parse the actual issue to get the list of articles
         select = Select(self.index_to_soup(url, as_tree=True))
+        self.cover_url = [x.get('src', '') for x in select('main .product-detail__image img')][0].split('?')[0]
+        self.cover_url += '?w=800'
         feeds = []
         for i, section in enumerate(select('#sa_body .toc-articles')):
             if i == 0:
