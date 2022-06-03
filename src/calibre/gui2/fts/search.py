@@ -9,9 +9,9 @@ import traceback
 from contextlib import suppress
 from itertools import count
 from qt.core import (
-    QAbstractItemModel, QCheckBox, QDialog, QDialogButtonBox, QFont, QHBoxLayout,
-    QIcon, QModelIndex, QPushButton, QSize, Qt, QTreeView, QVBoxLayout, QWidget,
-    pyqtSignal
+    QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
+    QFont, QHBoxLayout, QIcon, QModelIndex, QPushButton, QSize, QSplitter, Qt,
+    QTreeView, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Event, Thread
 
@@ -243,6 +243,7 @@ class ResultsView(QTreeView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setHeaderHidden(True)
         self.m = ResultsModel(self)
         self.m.search_complete.connect(self.search_complete)
@@ -324,20 +325,38 @@ class SearchInputPanel(QWidget):
         self.search_signal.emit(text)
 
 
+class DetailsPanel(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+
 class ResultsPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
+        self.splitter = s = QSplitter(self)
+        s.setChildrenCollapsible(False)
+        l.addWidget(s)
+
+        self.cw = cw = QWidget(self)
+        s.addWidget(cw)
+        l = QVBoxLayout(cw)
         self.sip = sip = SearchInputPanel(parent=self)
         l.addWidget(sip)
         self.results_view = rv = ResultsView(parent=self)
         l.addWidget(rv)
+        rv.selectionModel().selectionChanged.connect(self.selection_changed)
         self.search = rv.search
         rv.search_started.connect(self.sip.start)
         rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
+
+    def selection_changed(self):
+        for i in self.results_view.selectionModel().selectedIndexes():
+            print(i.data(Qt.ItemDataRole.UserRole))
 
 
 if __name__ == '__main__':
