@@ -71,7 +71,7 @@ class PlainTextEdit(QPlainTextEdit):
 
     def keyPressEvent (self, event):
         v = int(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier)
-        if v and event.key() == Qt.Key_Return:
+        if v and event.key() == Qt.Key.Key_Return:
             event.accept()
             self.ctrl_enter_pushed.emit()
         else:
