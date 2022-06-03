@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 
 from qt.core import (
     QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt,
-    QVBoxLayout
+    QVBoxLayout, QLabel, QHBoxLayout, pyqtSignal
 )
 
 from calibre.gui2 import Application, gprefs
@@ -66,6 +66,18 @@ class CommentsDialog(QDialog):
         return QDialog.closeEvent(self, ev)
 
 
+class PlainTextEdit(QPlainTextEdit):
+    ctrl_enter_pushed = pyqtSignal()
+
+    def keyPressEvent (self, event):
+        v = int(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier)
+        if v and event.key() == Qt.Key_Return:
+            event.accept()
+            self.ctrl_enter_pushed.emit()
+        else:
+            super().keyPressEvent(event)
+
+
 class PlainTextDialog(Dialog):
 
     def __init__(self, parent, text, column_name=None):
@@ -75,9 +87,16 @@ class PlainTextDialog(Dialog):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self._text = QPlainTextEdit(self)
+        self._text = PlainTextEdit(self)
+        self._text.ctrl_enter_pushed.connect(self.ctrl_enter_pushed)
         l.addWidget(self._text)
-        l.addWidget(self.bb)
+        hl = QHBoxLayout()
+        hl.addWidget(QLabel(_('CTRL-Return presses OK, ESC presses Cancel')))
+        hl.addWidget(self.bb)
+        l.addLayout(hl)
+
+    def ctrl_enter_pushed(self):
+        self.accept()
 
     @property
     def text(self):
