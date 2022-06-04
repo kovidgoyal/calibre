@@ -222,7 +222,7 @@ class Economist(BasicNewsRecipe):
             x.getparent().remove(x)
         # the economist uses <small> for small caps with a custom font
         for x in root.xpath('//small'):
-            if x.text and len(x.text.split()) == 1 and len(x) == 0:
+            if x.text and len(x) == 0:
                 x.text = x.text.upper()
                 x.tag = 'span'
                 x.set('style', 'font-variant: small-caps')
