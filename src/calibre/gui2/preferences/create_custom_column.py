@@ -326,11 +326,11 @@ class CreateCustomColumn(QDialog):
 
         # bool formatting
         h1 = QHBoxLayout()
-        self.bool_show_icon_button = QRadioButton('&Icon')
+        self.bool_show_icon_button = QRadioButton(_('&Icon'))
         h1.addWidget(self.bool_show_icon_button)
-        self.bool_show_text_button = QRadioButton('&Text')
+        self.bool_show_text_button = QRadioButton(_('&Text'))
         h1.addWidget(self.bool_show_text_button)
-        self.bool_show_both_button = QRadioButton('&Both')
+        self.bool_show_both_button = QRadioButton(_('&Both'))
         h1.addWidget(self.bool_show_both_button)
         self.bool_button_group = QGroupBox()
         self.bool_button_group.setLayout(h1)
@@ -340,7 +340,7 @@ class CreateCustomColumn(QDialog):
         la.setWordWrap(True)
         h.addWidget(la)
         h.setStretch(1, 10)
-        self.bool_show_label = add_row(_('Show:'), h)
+        self.bool_show_label = add_row(_('&Show:'), h)
 
         # Date/number formatting
         h = QHBoxLayout()
