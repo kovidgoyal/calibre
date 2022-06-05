@@ -13,7 +13,7 @@ from functools import partial
 from qt.core import (
     QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
     QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
-    QCheckBox, QSpinBox
+    QCheckBox, QSpinBox, QRadioButton, QGroupBox
 )
 
 from calibre.gui2 import error_dialog
@@ -173,6 +173,15 @@ class CreateCustomColumn(QDialog):
             self.comments_type.setCurrentIndex(idx)
         elif ct == 'rating':
             self.allow_half_stars.setChecked(bool(c['display'].get('allow_half_stars', False)))
+        elif ct == 'bool':
+            icon = bool(c['display'].get('bools_show_icons', True))
+            txt = bool(c['display'].get('bools_show_text', False))
+            if icon and txt:
+                self.bool_show_both_button.setChecked(True)
+            elif icon:
+                self.bool_show_icon_button.setChecked(True)
+            else:
+                self.bool_show_text_button.setChecked(True)
 
         # Default values
         dv = c['display'].get('default_value', None)
@@ -314,6 +323,24 @@ class CreateCustomColumn(QDialog):
         self.description_box = d = QLineEdit(self)
         d.setToolTip(_("Optional text describing what this column is for"))
         add_row(_("D&escription:"), d)
+
+        # bool formatting
+        h1 = QHBoxLayout()
+        self.bool_show_icon_button = QRadioButton('Icon')
+        h1.addWidget(self.bool_show_icon_button)
+        self.bool_show_text_button = QRadioButton('Text')
+        h1.addWidget(self.bool_show_text_button)
+        self.bool_show_both_button = QRadioButton('Both')
+        h1.addWidget(self.bool_show_both_button)
+        self.bool_button_group = QGroupBox()
+        self.bool_button_group.setLayout(h1)
+        h = QHBoxLayout()
+        h.addWidget(self.bool_button_group)
+        self.bool_button_group_label = la = QLabel(_('Choose whether an icon, text, or both is shown in the book list'))
+        la.setWordWrap(True)
+        h.addWidget(la)
+        h.setStretch(1, 10)
+        self.bool_show_label = add_row(_('Show:'), h)
 
         # Date/number formatting
         h = QHBoxLayout()
@@ -493,12 +520,18 @@ class CreateCustomColumn(QDialog):
             getattr(self, 'default_'+x).setVisible(col_type not in ['composite', '*composite'])
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
+
         is_comments = col_type == 'comments'
         self.comments_heading_position.setVisible(is_comments)
         self.comments_heading_position_label.setVisible(is_comments)
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
         self.allow_half_stars.setVisible(col_type == 'rating')
+
+        is_bool = col_type == 'bool'
+        self.bool_button_group.setVisible(is_bool)
+        self.bool_button_group_label.setVisible(is_bool)
+        self.bool_show_label.setVisible(is_bool)
 
     def accept(self):
         col = str(self.column_name_box.text()).strip()
@@ -645,6 +678,10 @@ class CreateCustomColumn(QDialog):
                     return self.simple_error(_('Invalid default value'),
                              _('The default value must be "Yes" or "No"'))
                 display_dict['default_value'] = tv
+            show_icon = bool(self.bool_show_icon_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
+            show_text = bool(self.bool_show_text_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
+            display_dict['bools_show_text'] = show_text
+            display_dict['bools_show_icons'] = show_icon
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState() == Qt.CheckState.Checked
