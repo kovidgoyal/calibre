@@ -451,7 +451,9 @@ class BooksView(QTableView):  # {{{
             ac.setCheckable(True)
             ac.setChecked(True)
         if col not in ('ondevice', 'inlibrary') and \
-                (not self.model().is_custom_column(col) or self.model().custom_columns[col]['datatype'] not in ('bool',)):
+                (not self.model().is_custom_column(col) or
+                 (self._model.custom_columns[col]['datatype'] != 'bool' or
+                  self._model.custom_columns[col]['display'].get('bools_show_text', False))):
             m = ans.addMenu(_('Change text alignment for %s') % name)
             m.setIcon(QIcon.ic('format-justify-center.png'))
             al = self._model.alignment_map.get(col, 'left')
