@@ -13,13 +13,29 @@ from functools import partial
 from qt.core import (
     QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
     QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
-    QCheckBox, QSpinBox, QRadioButton, QGroupBox
+    QCheckBox, QSpinBox, QRadioButton, QGroupBox, pyqtSignal
 )
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import parse_date, UNDEFINED_DATE
 from polyglot.builtins import iteritems
+
+
+class GroupBox(QGroupBox):
+    # A group box for radio buttons that acts passes along focus events so the
+    # correct child button is given the focus
+
+    got_focus = pyqtSignal()
+
+    def focusInEvent(self, ev):
+        # We need this backtab focus stuff because a backtab from a radio button
+        # gives the focus back to the group box instead of the next widget in the
+        # focus chain. For some reason a tab doesn't do that.
+        if ev.reason() != Qt.FocusReason.BacktabFocusReason:
+            self.got_focus.emit()
+        else:
+            self.focusNextPrevChild(False)
 
 
 class CreateCustomColumn(QDialog):
@@ -332,7 +348,9 @@ class CreateCustomColumn(QDialog):
         h1.addWidget(self.bool_show_text_button)
         self.bool_show_both_button = QRadioButton(_('&Both'))
         h1.addWidget(self.bool_show_both_button)
-        self.bool_button_group = QGroupBox()
+        self.bool_button_group = GroupBox()
+        self.bool_button_group.setFocusPolicy(Qt.StrongFocus)
+        self.bool_button_group.got_focus.connect(self.bool_groupbox_focused)
         self.bool_button_group.setLayout(h1)
         h = QHBoxLayout()
         h.addWidget(self.bool_button_group)
@@ -451,6 +469,14 @@ class CreateCustomColumn(QDialog):
 
         self.resize(self.sizeHint())
     # }}}
+
+    def bool_groupbox_focused(self):
+        if self.bool_show_icon_button.isChecked():
+            self.bool_show_icon_button.setFocus()
+        elif self.bool_show_text_button.isChecked():
+            self.bool_show_text_button.setFocus()
+        else:
+            self.bool_show_both_button.setFocus()
 
     def datatype_changed(self, *args):
         try:
