@@ -1877,7 +1877,7 @@ class Boss(QObject):
                     yes_text=_('Finish &saving first'), no_text=_('&Quit immediately')):
                 if self.save_manager.has_tasks:
                     self.start_terminal_save_indicator()
-                return False
+                    return False
 
         if not self.confirm_quit():
             return False
