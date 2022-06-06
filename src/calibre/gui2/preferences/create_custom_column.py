@@ -177,11 +177,11 @@ class CreateCustomColumn(QDialog):
             icon = bool(c['display'].get('bools_show_icons', True))
             txt = bool(c['display'].get('bools_show_text', False))
             if icon and txt:
-                self.bool_show_both_button.setChecked(True)
+                self.bool_show_both_button.click()
             elif icon:
-                self.bool_show_icon_button.setChecked(True)
+                self.bool_show_icon_button.click()
             else:
-                self.bool_show_text_button.setChecked(True)
+                self.bool_show_text_button.click()
 
         # Default values
         dv = c['display'].get('default_value', None)
@@ -326,13 +326,16 @@ class CreateCustomColumn(QDialog):
 
         # bool formatting
         h1 = QHBoxLayout()
-        self.bool_show_icon_button = QRadioButton(_('&Icon'))
-        h1.addWidget(self.bool_show_icon_button)
-        self.bool_show_text_button = QRadioButton(_('&Text'))
-        h1.addWidget(self.bool_show_text_button)
-        self.bool_show_both_button = QRadioButton(_('&Both'))
-        h1.addWidget(self.bool_show_both_button)
+        def add_bool_radio_button(txt):
+            b = QRadioButton(txt)
+            b.clicked.connect(partial(self.bool_radio_button_clicked, b))
+            h1.addWidget(b)
+            return b
+        self.bool_show_icon_button = add_bool_radio_button(_('&Icon'))
+        self.bool_show_text_button = add_bool_radio_button(_('&Text'))
+        self.bool_show_both_button = add_bool_radio_button(_('&Both'))
         self.bool_button_group = QGroupBox()
+        self.bool_button_group.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.bool_button_group.setLayout(h1)
         h = QHBoxLayout()
         h.addWidget(self.bool_button_group)
@@ -451,6 +454,10 @@ class CreateCustomColumn(QDialog):
 
         self.resize(self.sizeHint())
     # }}}
+
+    def bool_radio_button_clicked(self, button, clicked):
+        if clicked:
+            self.bool_button_group.setFocusProxy(button)
 
     def datatype_changed(self, *args):
         try:
