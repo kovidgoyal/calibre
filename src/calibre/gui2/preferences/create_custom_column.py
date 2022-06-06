@@ -326,6 +326,7 @@ class CreateCustomColumn(QDialog):
 
         # bool formatting
         h1 = QHBoxLayout()
+
         def add_bool_radio_button(txt):
             b = QRadioButton(txt)
             b.clicked.connect(partial(self.bool_radio_button_clicked, b))
