@@ -216,6 +216,8 @@ class TagEditor(QDialog, Ui_TagEditor):
         collection.model().setFilterFixedString(filter_value or '')
 
     def accept(self):
+        if self.add_tag_input.text().strip():
+            self.add_tag()
         self.tags = self._get_applied_tags_box_contents()
         self.save_state()
         return QDialog.accept(self)
