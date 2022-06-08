@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-import string
 
 from datetime import date
 
@@ -13,9 +12,9 @@ class eenadu(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
-    ignore_duplicate_articles = {'url', 'title'}
+    ignore_duplicate_articles = {"title", "url"}
     masthead_url = 'https://dxxd96tbpm203.cloudfront.net//img/logo.png'
-    cover_url = 'https://www.ads2publish.com/assets/images/epaper/eenadu-newspaper-epaper.jpg'
+    cover_url = 'https://d66zsp32hue2v.cloudfront.net/Eenadu/2022/06/07/TEL/5_01/9de49f18_01_mr.jpg'
     encoding = 'utf-8'
 
     keep_only_tags = [
@@ -24,54 +23,40 @@ class eenadu(BasicNewsRecipe):
         dict(name='span', attrs={'id': 'PDSAIApbreak'}),
     ]
 
-    remove_tags = [
-        classes('sshare-c'),
-    ]
+    remove_tags = [classes('sshare-c')]
 
     def articles_from_soup(self, soup):
         ans = []
-        for link in soup.findAll(attrs={'class': 'telugu_uni_body'}):
+        for link in soup.findAll(attrs={'class': ['telugu_uni_body', 'thumb-content-more', 'owl-carousel']}):
             for a in link.findAll('a', attrs={'href': True}):
-                ul = a['href']
-                if ul.startswith('https') is False:
-                    url = 'https://www.eenadu.net/' + ul
+                url = a['href']
+                if url.startswith('https') is False:
+                    url = 'https://www.eenadu.net/' + url
                 else:
-                    url = ul
-                    if url.__contains__("videos"):
-                        url = 0
+                    url = url
                 for h3 in a.findAll('h3'):
                     title = self.tag_to_string(h3)
                     if not url or not title:
                         continue
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
+                    self.log('\t', title)
+                    self.log('\t\t', url)
                     ans.append({
                         'title': title,
-                        'url': url,
-                        'description': '',
-                        'date': ''
-                    })
+                        'url': url})
         return ans
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.eenadu.net/')
         nav_div = soup.find(id='navbar')
         section_list = [
-            # add links for your district edition here
             ('సంపాదకీయం', 'https://www.eenadu.net/telangana/editorial'),
-            (
-                'హైదరాబాద్',
-                'https://www.eenadu.net/telangana/districts/hyderabad'
-            ),
-            # ('నిజామాబాద్', 'https://www.eenadu.net/telangana/districts/nizamabad'),
-            # ('నల్గొండ', 'https://www.eenadu.net/telangana/districts/nalgonda'),
         ]
 
         # Finding all the section titles that are acceptable
         for x in nav_div.findAll(['a']):
             if self.is_accepted_entry(x):
                 section_list.append(
-                    (string.capwords(self.tag_to_string(x)), x['href'])
+                    (self.tag_to_string(x), x['href'])
                 )
         feeds = []
 
@@ -79,12 +64,11 @@ class eenadu(BasicNewsRecipe):
         for section in section_list:
             section_title = section[0]
             section_url = section[1]
-            self.log('Found section:', section_title, section_url)
+            self.log(section_title, section_url)
             soup = self.index_to_soup(section_url)
             articles = self.articles_from_soup(soup)
             if articles:
                 feeds.append((section_title, articles))
-
         return feeds
 
     def is_accepted_entry(self, entry):
@@ -94,12 +78,15 @@ class eenadu(BasicNewsRecipe):
         if is_sunday:
             omit_list = [
                 'net/',
+                'javascript:void(0)',
                 '#',
                 'sports',
                 'movies',
                 'women',
                 'technology',
                 'business',
+                'stories.eenadu.net',
+                'calendar',
                 'devotional',
                 'youth',
                 'recipes',
@@ -107,7 +94,7 @@ class eenadu(BasicNewsRecipe):
                 'temples',
                 'kathalu',
                 'viral-videos',
-                'nri',
+                'Nri',
                 'videos',
                 'explained',
                 'agriculture',
@@ -121,12 +108,15 @@ class eenadu(BasicNewsRecipe):
         else:
             omit_list = [
                 'net/',
+                'javascript:void(0)',
                 '#',
                 'sports',
                 'movies',
                 'women',
                 'technology',
                 'business',
+                'stories.eenadu.net',
+                'calendar',
                 'devotional',
                 'youth',
                 'recipes',
@@ -134,7 +124,7 @@ class eenadu(BasicNewsRecipe):
                 'temples',
                 'kathalu',
                 'viral-videos',
-                'nri',
+                'Nri',
                 'videos',
                 'explained',
                 'agriculture',
