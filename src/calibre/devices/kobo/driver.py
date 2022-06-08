@@ -89,7 +89,7 @@ class KOBO(USBMS):
     # The firmware for these devices is not being updated. But the Kobo desktop application
     # will update the database if the device is connected. The database structure is completely
     # backwardly compatible.
-    supported_dbversion = 169
+    supported_dbversion = 170
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1384,7 +1384,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 169
+    supported_dbversion             = 170
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1398,7 +1398,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 32, 19501)
+    max_supported_fwversion         = (4, 33, 19608)
     # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -3680,7 +3680,8 @@ class KOBOTOUCH(KOBO):
 
     @property
     def create_collections(self):
-        return self.manage_collections and self.supports_bookshelves and self.get_pref('create_collections') and len(self.collections_columns) > 0
+        return self.manage_collections and self.supports_bookshelves and self.get_pref('create_collections') \
+                    and (len(self.collections_columns) > 0 or len(self.collections_template) > 0)
 
     @property
     def use_collections_columns(self):
