@@ -1,0 +1,69 @@
+'''
+nautil.us
+'''
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class Nautilus(BasicNewsRecipe):
+    title = u'Nautilus'
+    language = 'en'
+    __author__ = 'unkn0wn'
+    oldest_article = 45  # days
+    max_articles_per_feed = 50
+    description = (
+        'Nautilus is a different kind of science magazine. Our stories take you into the depths'
+        ' of science and spotlight its ripples in our lives and cultures. We believe any subject in science,'
+        ' no matter how complex, can be explained with clarity and vitality.')
+    no_stylesheets = True
+    use_embedded_content = False
+    masthead_url = 'https://nautil.us/wp-content/themes/nautilus/images/logo/light.svg'
+    remove_attributes = ['height', 'width']
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+
+    keep_only_tags = [classes('article-left-col feature-image article-content')]
+
+    remove_tags = [
+        classes(
+            'article-action-list article-bottom-newsletter_box main-post-comments-toggle-wrap main-post-comments-wrapper social-share supported-one'
+        )
+    ]
+
+    feeds = [
+        ('ANTHROPOLOGY', 'https://nautil.us/topics/anthropology/feed'),
+        ('ENVIRONMENT', 'https://nautil.us/topics/environment/feed'),
+        ('HEALTH', 'https://nautil.us/topics/health/feed'),
+        ('PALEONTOLOGY', 'https://nautil.us/topics/paleontology/feed'),
+        ('TECHNOLOGY', 'https://nautil.us/topics/technology/feed'),
+        ('ARTS', 'https://nautil.us/topics/arts/feed'),
+        ('EVOLUTION', 'https://nautil.us/topics/evolution/feed'),
+        ('HISTORY', 'https://nautil.us/topics/history/feed'),
+        ('PHILOSOPHY', 'https://nautil.us/topics/philosophy/feed'),
+        ('ZOOLOGY', 'https://nautil.us/topics/zoology/feed'),
+        ('ASTRONOMY', 'https://nautil.us/topics/astronomy/feed'),
+        ('GENERAL', 'https://nautil.us/topics/general/feed'),
+        ('MATH', 'https://nautil.us/topics/math/feed'),
+        ('PHYSICS', 'https://nautil.us/topics/physics/feed'),
+        ('COMMUNICATION', 'https://nautil.us/topics/communication/feed'),
+        ('GENETICS', 'https://nautil.us/topics/genetics/feed'),
+        ('MICROBIOLOGY', 'https://nautil.us/topics/microbiology/feed'),
+        ('PHILOSOPHY', 'https://nautil.us/topics/psychology/feed'),
+        ('ECONOMICS', 'https://nautil.us/topics/economics/feed'),
+        ('GEOSCIENCE', 'https://nautil.us/topics/geoscience/feed'),
+        ('NEUROSCIENCE', 'https://nautil.us/topics/neuroscience/feed'),
+        ('SOCIOLOGY', 'https://nautil.us/topics/sociology/feed'),
+    ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.presspassnow.com/nautilus/issues/')
+        div = soup.find('div', **classes('image-fade_in_back'))
+        if div:
+            self.cover_url = div.find('img',
+                                      attrs={'srcset': True
+                                             })['srcset'].split(',')[-1].split()[0]
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src'].split('?')[0]
+        return soup
