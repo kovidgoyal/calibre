@@ -872,6 +872,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                             return
                     else:
                         return
+            for action in self.iactions.values():
+                try:
+                    action.library_about_to_change(olddb, db)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
             self.library_path = newloc
             prefs['library_path'] = self.library_path
             self.book_on_device(None, reset=True)
@@ -893,7 +899,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
             self.rebuild_vl_tabs()
             for action in self.iactions.values():
-                action.library_changed(db)
+                try:
+                    action.library_changed(db)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
             self.library_broker.gui_library_changed(db, olddb)
             if self.device_connected:
                 self.set_books_in_library(self.booklists(), reset=True)

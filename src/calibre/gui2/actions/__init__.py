@@ -324,6 +324,16 @@ class InterfaceAction(QObject):
         '''
         pass
 
+    def library_about_to_change(self, olddb, db):
+        '''
+        Called whenever the current library is changed.
+
+        :param olddb: The LibraryDatabase corresponding to the previous library.
+        :param db: The LibraryDatabase corresponding to the new library.
+
+        '''
+        pass
+
     def library_changed(self, db):
         '''
         Called whenever the current library is changed.
