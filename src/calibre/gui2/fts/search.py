@@ -339,13 +339,13 @@ class SearchInputPanel(QWidget):
             ' library screen. This means that any Virtual libraries or search results'
             ' are applied.'))
         r.setChecked(gprefs['fts_library_restrict_books'])
-        r.stateChanged.connect(lambda state: gprefs.set('fts_library_restrict_books', state != Qt.CheckState.Unchecked))
+        r.stateChanged.connect(lambda state: gprefs.set('fts_library_restrict_books', state != Qt.CheckState.Unchecked.value))
         self.related = rw = QCheckBox(_('&Match on related words'))
         rw.setToolTip('<p>' + _(
             'With this option searching for words will also match on any related words (supported in several languages). For'
             ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
         rw.setChecked(gprefs['fts_library_use_stemmer'])
-        rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked))
+        rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = QLabel(self)
         h1.addWidget(r), h1.addWidget(rw), h1.addWidget(s), h1.addStretch()
 

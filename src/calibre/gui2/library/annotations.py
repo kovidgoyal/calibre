@@ -946,7 +946,7 @@ class AnnotationsBrowser(Dialog):
         us.setToolTip('<p>' + _(
             'With this option searching for words will also match on any related words (supported in several languages). For'
             ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
-        us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.CheckState.Unchecked))
+        us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.CheckState.Unchecked.value))
 
         l = QVBoxLayout(self)
 
