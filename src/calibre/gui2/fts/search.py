@@ -8,11 +8,13 @@ import os
 import re
 import traceback
 from contextlib import suppress
+from functools import partial
 from itertools import count
 from qt.core import (
     QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
-    QFont, QHBoxLayout, QIcon, QLabel, QModelIndex, QPixmap, QPushButton, QRect,
-    QSize, QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
+    QFont, QHBoxLayout, QIcon, QLabel, QMenu, QModelIndex, QPixmap, QPushButton,
+    QRect, QSize, QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 from threading import Event, Thread
 
@@ -30,6 +32,18 @@ from calibre.gui2.widgets2 import HTMLDisplay
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
 fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
+
+
+def mark_books(*book_ids):
+    gui = get_gui()
+    if gui is not None:
+        gui.iactions['Mark Books'].add_ids(book_ids)
+
+
+def jump_to_book(book_id):
+    gui = get_gui()
+    if gui is not None:
+        gui.library_view.select_rows((book_id,))
 
 
 class SearchDelegate(ResultsDelegate):
@@ -322,6 +336,8 @@ class ResultsView(QTreeView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setHeaderHidden(True)
         self.m = ResultsModel(self)
@@ -354,6 +370,18 @@ class ResultsView(QTreeView):
         with BusyCursor():
             self.m.search(*a, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
             self.expandAll()
+
+    def show_context_menu(self, pos):
+        index = self.indexAt(pos)
+        results, match = self.m.data_for_index(index)
+        m = QMenu(self)
+        if results:
+            m.addAction(QIcon.ic('auto-scroll.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id))
+            m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
+        m.addSeparator()
+        m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
+        m.exec(self.mapToGlobal(pos))
 
 
 class Spinner(ProgressIndicator):
@@ -435,9 +463,16 @@ class ResultDetails(QWidget):
         self.pixmap_label = pl = QLabel(self)
         pl.setScaledContents(True)
         self.current_book_id = -1
-        self.book_info = HTMLDisplay(self)
-        self.book_info.setDefaultStyleSheet('a { text-decoration: none; }')
-        self.book_info.anchor_clicked.connect(self.mark_current_book)
+        self.book_info = bi = HTMLDisplay(self)
+        bi.setDefaultStyleSheet('a { text-decoration: none; }')
+        bi.anchor_clicked.connect(self.book_info_anchor_clicked)
+
+    def book_info_anchor_clicked(self, url):
+        if self.current_book_id > 0:
+            if url.host() == 'mark':
+                mark_books(self.current_book_id)
+            elif url.host() == 'jump':
+                jump_to_book(self.current_book_id)
 
     def resizeEvent(self, ev):
         self.do_layout()
@@ -450,8 +485,11 @@ class ResultDetails(QWidget):
         self.pixmap_label.setGeometry(QRect(0, 0, nw, nh))
         w = g.width() - nw - 8
         d = self.book_info.document()
-        d.setTextWidth(float(w) - 2 * d.documentMargin())
-        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, int(math.ceil(2 * d.documentMargin() + d.size().height()))))
+        d.setDocumentMargin(0)
+        d.setTextWidth(float(w))
+        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, int(math.ceil(d.size().height()))))
+        self.book_info.verticalScrollBar().setVisible(False)
+        self.book_info.horizontalScrollBar().setVisible(False)
 
     def show_result(self, results, individual_match=None):
         old_current_book_id, self.current_book_id = self.current_book_id, results.book_id
@@ -466,16 +504,13 @@ class ResultDetails(QWidget):
         if results.series:
             sidx = fmt_sidx(results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=results.series) + '</p>'
-        text += '<p><a href="calibre://mark" title="{1}">{0}</a></p>'.format(
-            _('Mark this book in the library'), '<p>' + _(
+        text += '<p><a href="calibre://jump" title="{1}"><img valign="bottom" src="calibre-icon:///lt.png" width=16 height=16>\xa0{0}</a>\xa0\xa0\xa0 '.format(
+            _('Show'), '<p>' + _('Scroll to this book in the book list and select it.'))
+        text += '<a href="calibre://mark" title="{1}"><img valig="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
+            _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
                 ' You can search for marked books using the search term: {0}').format('<p>marked:true'))
         self.book_info.setHtml(text)
-
-    def mark_current_book(self, url):
-        gui = get_gui()
-        if gui is not None:
-            gui.iactions['Mark Books'].add_ids((self.current_book_id,))
 
 
 class DetailsPanel(QStackedWidget):
@@ -513,6 +548,7 @@ p { margin: 0; }
 <div style="margin-top: 1em"><a href="{fts_url}">Full syntax reference</a></div>
 ''').format(fts_url=fts_url))
         hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        hp.document().setDocumentMargin(0)
         hp.anchor_clicked.connect(safe_open_url)
         self.addWidget(hp)
         # }}}
@@ -592,6 +628,6 @@ if __name__ == '__main__':
     w = ResultsPanel(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
-    w.sip.search_box.setText('NEAR(control unreasonable)')
+    w.sip.search_box.setText('asimov')
     w.sip.search_button.click()
     d.exec()
