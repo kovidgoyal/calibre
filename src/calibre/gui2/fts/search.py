@@ -507,7 +507,7 @@ class ResultDetails(QWidget):
             sidx = fmt_sidx(results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=results.series) + '</p>'
         text += '<p><a href="calibre://jump" title="{1}"><img valign="bottom" src="calibre-icon:///lt.png" width=16 height=16>\xa0{0}</a>\xa0\xa0\xa0 '.format(
-            _('Show'), '<p>' + _('Scroll to this book in the book list and select it.'))
+            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'))
         text += '<a href="calibre://mark" title="{1}"><img valig="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
