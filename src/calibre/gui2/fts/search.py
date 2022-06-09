@@ -501,11 +501,20 @@ class ResultDetails(QWidget):
         self.do_layout()
 
     def render_book_info(self, results):
+        t = results.title
+        if len(t) > 72:
+            t = t[:71] + '…'
         text = f'<p><b>{results.title}</b><br>'
-        text += f'{authors_to_string(results.authors)}</p>'
+        au = results.authors
+        if len(au) > 3:
+            au = list(au[:3]) + ['…']
+        text += f'{authors_to_string(au)}</p>'
         if results.series:
             sidx = fmt_sidx(results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
-            text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=results.series) + '</p>'
+            series = results.series
+            if len(series) > 60:
+                series = series[:59] + '…'
+            text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
         text += '<p><a href="calibre://jump" title="{1}"><img valign="bottom" src="calibre-icon:///lt.png" width=16 height=16>\xa0{0}</a>\xa0\xa0\xa0 '.format(
             _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'))
         text += '<a href="calibre://mark" title="{1}"><img valig="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
