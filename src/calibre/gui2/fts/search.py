@@ -376,7 +376,7 @@ class ResultsView(QTreeView):
         results, match = self.m.data_for_index(index)
         m = QMenu(self)
         if results:
-            m.addAction(QIcon.ic('auto-scroll.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id))
+            m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id))
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
@@ -487,9 +487,11 @@ class ResultDetails(QWidget):
         d = self.book_info.document()
         d.setDocumentMargin(0)
         d.setTextWidth(float(w))
-        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, int(math.ceil(d.size().height()))))
-        self.book_info.verticalScrollBar().setVisible(False)
-        self.book_info.horizontalScrollBar().setVisible(False)
+        h = min(int(math.ceil(d.size().height())), self.pixmap_label.height())
+        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, h))
+        if self.book_info.horizontalScrollBar().isVisible():
+            h += self.book_info.horizontalScrollBar().height() + 1
+            self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, h))
 
     def show_result(self, results, individual_match=None):
         old_current_book_id, self.current_book_id = self.current_book_id, results.book_id
