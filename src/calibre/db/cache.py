@@ -891,7 +891,7 @@ class Cache:
 
     @api
     def cover(self, book_id,
-            as_file=False, as_image=False, as_path=False):
+            as_file=False, as_image=False, as_path=False, as_pixmap=False):
         '''
         Return the cover image or None. By default, returns the cover as a
         bytestring.
@@ -902,6 +902,7 @@ class Cache:
 
         :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
         :param as_image: If True return the image as a QImage object
+        :param as_pixmap: If True return the image as a QPixmap object
         :param as_path: If True return the image as a path pointing to a
                         temporary file
         '''
@@ -916,16 +917,18 @@ class Cache:
                 if not self.copy_cover_to(book_id, pt):
                     return
             ret = pt.name
+        elif as_pixmap or as_image:
+            from qt.core import QPixmap, QImage
+            ret = QImage() if as_image else QPixmap()
+            with self.safe_read_lock:
+                path = self._format_abspath(book_id, '__COVER_INTERNAL__')
+                if path:
+                    ret.load(path)
         else:
             buf = BytesIO()
             if not self.copy_cover_to(book_id, buf):
                 return
             ret = buf.getvalue()
-            if as_image:
-                from qt.core import QImage
-                i = QImage()
-                i.loadFromData(ret)
-                ret = i
         return ret
 
     @read_api
