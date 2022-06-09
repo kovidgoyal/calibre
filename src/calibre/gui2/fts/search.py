@@ -10,8 +10,8 @@ from contextlib import suppress
 from itertools import count
 from qt.core import (
     QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
-    QFont, QHBoxLayout, QIcon, QModelIndex, QPushButton, QSize, QSplitter, Qt,
-    QTreeView, QVBoxLayout, QWidget, pyqtSignal
+    QFont, QHBoxLayout, QIcon, QLabel, QModelIndex, QPushButton, QSize, QSplitter,
+    Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Event, Thread
 
@@ -86,6 +86,7 @@ class ResultsModel(QAbstractItemModel):
     result_found = pyqtSignal(int, object)
     all_results_found = pyqtSignal(int)
     search_started = pyqtSignal()
+    matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -122,12 +123,14 @@ class ResultsModel(QAbstractItemModel):
         self.current_thread_abort.set()
         self.current_search_key = sk
         self.search_started.emit()
+        self.matches_found.emit(-1)
         self.beginResetModel()
         db.fts_search(
             fts_engine_query, use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
             restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
         )
         self.endResetModel()
+        self.matches_found.emit(len(self.results))
         self.current_query_id = next(self.query_id_counter)
         self.current_thread_abort = Event()
         self.current_thread = Thread(
@@ -239,6 +242,7 @@ class ResultsModel(QAbstractItemModel):
 class ResultsView(QTreeView):
 
     search_started = pyqtSignal()
+    matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -248,6 +252,7 @@ class ResultsView(QTreeView):
         self.m = ResultsModel(self)
         self.m.search_complete.connect(self.search_complete)
         self.m.search_started.connect(self.search_started)
+        self.m.matches_found.connect(self.matches_found)
         self.setModel(self.m)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
@@ -303,7 +308,8 @@ class SearchInputPanel(QWidget):
             ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
         rw.setChecked(gprefs['fts_library_use_stemmer'])
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked))
-        h1.addWidget(r), h1.addWidget(rw), h1.addStretch()
+        self.summary = s = QLabel(self)
+        h1.addWidget(r), h1.addWidget(rw), h1.addWidget(s), h1.addStretch()
 
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
@@ -323,6 +329,12 @@ class SearchInputPanel(QWidget):
     def search_requested(self):
         text = self.search_box.text().strip()
         self.search_signal.emit(text)
+
+    def matches_found(self, num):
+        if num < 0:
+            self.summary.setText('')
+        else:
+            self.summary.setText(ngettext('One book matched', '{num} books matched', num).format(num=num))
 
 
 class DetailsPanel(QWidget):
@@ -351,6 +363,7 @@ class ResultsPanel(QWidget):
         rv.selectionModel().selectionChanged.connect(self.selection_changed)
         self.search = rv.search
         rv.search_started.connect(self.sip.start)
+        rv.matches_found.connect(self.sip.matches_found)
         rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
 
