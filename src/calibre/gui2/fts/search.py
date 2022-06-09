@@ -147,6 +147,16 @@ class ResultsModel(QAbstractItemModel):
         self.result_found.connect(self.result_with_text_found, type=Qt.ConnectionType.QueuedConnection)
         self.all_results_found.connect(self.signal_search_complete, type=Qt.ConnectionType.QueuedConnection)
 
+    def clear_results(self):
+        self.current_query_id = -1
+        self.current_thread_abort.set()
+        self.search_started.emit()
+        self.matches_found.emit(-1)
+        self.beginResetModel()
+        self.results = []
+        self.endResetModel()
+        self.search_complete.emit()
+
     def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None):
         db = get_db()
         failure = []
@@ -359,6 +369,7 @@ class Spinner(ProgressIndicator):
 class SearchInputPanel(QWidget):
 
     search_signal = pyqtSignal(object)
+    clear_search = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -368,6 +379,7 @@ class SearchInputPanel(QWidget):
         v1.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.layout().addLayout(v1)
         self.search_box = sb = SearchBox(self)
+        sb.cleared.connect(self.clear_search)
         sb.initialize('library-fts-search-box')
         sb.lineEdit().returnPressed.connect(self.search_requested)
         sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
@@ -522,6 +534,10 @@ p { margin: 0; }
             self.setCurrentIndex(1)
             self.result_details.show_result(results, individual_match)
 
+    def clear(self):
+        self.setCurrentIndex(0)
+        self.currently_showing = None, None
+
 
 class LeftPanel(QWidget):
 
@@ -555,9 +571,11 @@ class ResultsPanel(QWidget):
         rv.matches_found.connect(self.sip.matches_found)
         rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
+        sip.clear_search.connect(rv.model().clear_results)
 
         self.details = d = DetailsPanel(self)
         rv.current_changed.connect(d.show_result)
+        rv.search_started.connect(d.clear)
         s.addWidget(d)
 
 
