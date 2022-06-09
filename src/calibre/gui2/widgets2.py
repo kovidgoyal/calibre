@@ -584,6 +584,8 @@ class HTMLDisplay(QTextBrowser):
                         '426082'))
             else:
                 return QByteArray(data)
+        elif qurl.scheme() == 'calibre-icon':
+            return QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
         else:
             return QTextBrowser.loadResource(self, rtype, qurl)
 

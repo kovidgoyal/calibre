@@ -178,6 +178,21 @@ class IconResourceManager:
                     ans = q
         return ans
 
+    def icon_as_png(self, name, as_bytearray=False, compression_level=0):
+        ans = self(name)
+        ba = QByteArray()
+        if ans.availableSizes():
+            from qt.core import QImageWriter
+            pmap = ans.pixmap(ans.availableSizes()[0])
+            buf = QBuffer(ba)
+            buf.open(QIODevice.OpenModeFlag.WriteOnly)
+            w = QImageWriter(buf, b'PNG')
+            cl = min(9, max(0, compression_level))
+            w.setQuality(10 * (9-cl))
+            w.setQuality(90)
+            w.write(pmap.toImage())
+        return ba if as_bytearray else ba.data()
+
     def set_theme(self):
         current = QIcon.themeName()
         new = self.dark_theme_name if QApplication.instance().is_dark_theme else self.light_theme_name
@@ -190,6 +205,7 @@ class IconResourceManager:
 
 icon_resource_manager = IconResourceManager()
 QIcon.ic = icon_resource_manager
+QIcon.icon_as_png = icon_resource_manager.icon_as_png
 
 
 # Setup gprefs {{{
