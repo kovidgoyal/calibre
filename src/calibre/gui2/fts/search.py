@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import math
 import os
 import re
 import traceback
@@ -10,13 +11,15 @@ from contextlib import suppress
 from itertools import count
 from qt.core import (
     QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
-    QFont, QHBoxLayout, QIcon, QLabel, QModelIndex, QPushButton, QSize, QSplitter,
-    QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
+    QFont, QHBoxLayout, QIcon, QLabel, QModelIndex, QPixmap, QPushButton, QRect,
+    QSize, QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Event, Thread
 
+from calibre import fit_image
 from calibre.db import FTSQueryError
-from calibre.gui2 import error_dialog, gprefs, safe_open_url
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx
+from calibre.gui2 import config, error_dialog, gprefs, safe_open_url
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -49,7 +52,7 @@ class SearchDelegate(ResultsDelegate):
 
 class Results:
 
-    _title = None
+    _title = _authors = _series = _series_index = None
 
     def __init__(self, book_id):
         self.book_id = book_id
@@ -82,6 +85,44 @@ class Results:
             except Exception:
                 self._title = _('Unknown book')
         return self._title
+
+    @property
+    def authors(self):
+        if self._authors is None:
+            try:
+                self._authors = get_db().field_for('authors', self.book_id)
+            except Exception:
+                self._authors = _('Unknown author'),
+        return self._authors
+
+    @property
+    def cover(self):
+        try:
+            ans = get_db().cover(self.book_id, as_pixmap=True)
+        except Exception:
+            ans = QPixmap()
+        if ans.isNull():
+            ic = QIcon.ic('default_cover.png')
+            ans = ic.pixmap(ic.availableSizes()[0])
+        return ans
+
+    @property
+    def series(self):
+        if self._series is None:
+            try:
+                self._series = get_db().field_for('series', self.book_id)
+            except Exception:
+                self._series = ''
+        return self._series
+
+    @property
+    def series_index(self):
+        if self._series_index is None:
+            try:
+                self._series_index = get_db().field_for('series_index', self.book_id)
+            except Exception:
+                self._series_index = 1
+        return self._series_index
 
 
 class ResultsModel(QAbstractItemModel):
@@ -375,11 +416,62 @@ class SearchInputPanel(QWidget):
             self.summary.setText(ngettext('One book matched', '{num} books matched', num).format(num=num))
 
 
+class ResultDetails(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.pixmap_label = pl = QLabel(self)
+        pl.setScaledContents(True)
+        self.current_book_id = -1
+        self.book_info = HTMLDisplay(self)
+        self.book_info.anchor_clicked.connect(self.mark_current_book)
+
+    def resizeEvent(self, ev):
+        self.do_layout()
+
+    def do_layout(self):
+        g = self.geometry()
+        max_width, max_height = g.width() // 2, g.height() // 3
+        p = self.pixmap_label.pixmap()
+        scaled, nw, nh = fit_image(p.width(), p.height(), max_width, max_height)
+        self.pixmap_label.setGeometry(QRect(0, 0, nw, nh))
+        w = g.width() - nw - 8
+        d = self.book_info.document()
+        d.setTextWidth(float(w) - 2 * d.documentMargin())
+        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, int(math.ceil(2 * d.documentMargin() + d.size().height()))))
+
+    def show_result(self, results, individual_match=None):
+        old_current_book_id, self.current_book_id = self.current_book_id, results.book_id
+        if old_current_book_id != self.current_book_id:
+            self.pixmap_label.setPixmap(results.cover)
+            self.render_book_info(results)
+        self.do_layout()
+
+    def render_book_info(self, results):
+        text = f'<p><b>{results.title}</b><br>'
+        text += f'{authors_to_string(results.authors)}</p>'
+        if results.series:
+            sidx = fmt_sidx(results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
+            text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=results.series) + '</p>'
+        text += '<p><a href="calibre://mark" title="{1}">{0}</a></p>'.format(
+            _('Mark this book in the library'), '<p>' + _(
+                'Put a pin on this book in the calibre library, for future reference.'
+                ' You can search for marked books using the search term: {0}').format('<p>marked:true'))
+        self.book_info.setHtml(text)
+
+    def mark_current_book(self, url):
+        gui = get_gui()
+        if gui is not None:
+            gui.iactions['Mark Books'].add_ids((self.current_book_id,))
+
+
 class DetailsPanel(QStackedWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.currently_showing = None, None
+
+        # help panel {{{
         self.help_panel = hp = HTMLDisplay(self)
         hp.setHtml('''
 <style>
@@ -409,9 +501,13 @@ p { margin: 0; }
         hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         hp.anchor_clicked.connect(safe_open_url)
         self.addWidget(hp)
+        # }}}
+
+        self.result_details = rd = ResultDetails(self)
+        self.addWidget(rd)
 
     def sizeHint(self):
-        return QSize(300, 700)
+        return QSize(400, 700)
 
     def show_result(self, results=None, individual_match=None):
         key = results, individual_match
@@ -420,10 +516,9 @@ p { margin: 0; }
         self.currently_showing = key
         if results is None:
             self.setCurrentIndex(0)
-        elif individual_match is None:
-            self.setCurrentIndex(1)
         else:
-            self.setCurrentIndex(2)
+            self.setCurrentIndex(1)
+            self.result_details.show_result(results, individual_match)
 
 
 class LeftPanel(QWidget):
@@ -477,5 +572,6 @@ if __name__ == '__main__':
     w = ResultsPanel(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
-    w.sip.search_box.setText('control')
+    w.sip.search_box.setText('NEAR(control unreasonable)')
+    w.sip.search_button.click()
     d.exec()

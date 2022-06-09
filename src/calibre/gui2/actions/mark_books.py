@@ -207,6 +207,9 @@ class MarkBooksAction(InterfaceAction):
     def toggle_ids(self, book_ids):
         self.gui.current_db.data.toggle_marked_ids(book_ids)
 
+    def add_ids(self, book_ids):
+        self.gui.current_db.data.add_marked_ids(book_ids)
+
     def show_marked(self):
         self.gui.search.set_search_string('marked:true')
 

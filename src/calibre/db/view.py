@@ -399,6 +399,9 @@ class View:
         common = mids.intersection(book_ids)
         self.set_marked_ids((mids | book_ids) - common)
 
+    def add_marked_ids(self, book_ids):
+        self.set_marked_ids(set(self.marked_ids) | set(book_ids))
+
     def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
