@@ -236,7 +236,7 @@ class ResultsModel(QAbstractItemModel):
         if item is None:
             return 0
         if isinstance(item, Results):
-            return Qt.ItemFlag.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren
 
     def data_for_book(self, item, role):
@@ -265,11 +265,15 @@ class ResultsView(QTreeView):
         self.m = ResultsModel(self)
         self.m.search_complete.connect(self.search_complete)
         self.m.search_started.connect(self.search_started)
+        self.m.search_started.connect(self.focus_self)
         self.m.query_failed.connect(self.query_failed, type=Qt.ConnectionType.QueuedConnection)
         self.m.matches_found.connect(self.matches_found)
         self.setModel(self.m)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
+
+    def focus_self(self):
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def query_failed(self, query, err_msg):
         error_dialog(self, _('Invalid search query'), _(
