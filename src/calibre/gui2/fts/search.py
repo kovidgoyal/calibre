@@ -424,6 +424,7 @@ class ResultDetails(QWidget):
         pl.setScaledContents(True)
         self.current_book_id = -1
         self.book_info = HTMLDisplay(self)
+        self.book_info.setDefaultStyleSheet('a { text-decoration: none; }')
         self.book_info.anchor_clicked.connect(self.mark_current_book)
 
     def resizeEvent(self, ev):
@@ -473,6 +474,7 @@ class DetailsPanel(QStackedWidget):
 
         # help panel {{{
         self.help_panel = hp = HTMLDisplay(self)
+        hp.setDefaultStyleSheet('a { text-decoration: none; }')
         hp.setHtml('''
 <style>
 div { margin-top: 0.5ex }
