@@ -15,7 +15,8 @@ from qt.core import (
 )
 from threading import Event, Thread
 
-from calibre.gui2 import gprefs
+from calibre.db import FTSQueryError
+from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -88,6 +89,7 @@ class ResultsModel(QAbstractItemModel):
     search_started = pyqtSignal()
     matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
+    query_failed = pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -104,18 +106,22 @@ class ResultsModel(QAbstractItemModel):
 
     def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None):
         db = get_db()
+        failure = []
 
         def construct(all_matches):
             self.result_map = r = {}
             sr = self.results = []
 
-            for x in all_matches:
-                book_id = x['book_id']
-                results = r.get(book_id)
-                if results is None:
-                    results = Results(book_id)
-                    r[book_id] = len(sr)
-                    sr.append(results)
+            try:
+                for x in all_matches:
+                    book_id = x['book_id']
+                    results = r.get(book_id)
+                    if results is None:
+                        results = Results(book_id)
+                        r[book_id] = len(sr)
+                        sr.append(results)
+            except FTSQueryError as e:
+                failure.append(e)
 
         sk = fts_engine_query, use_stemming, restrict_to_book_ids, id(db)
         if sk == self.current_search_key:
@@ -130,15 +136,22 @@ class ResultsModel(QAbstractItemModel):
             restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
         )
         self.endResetModel()
-        self.matches_found.emit(len(self.results))
+        if not failure:
+            self.matches_found.emit(len(self.results))
         self.current_query_id = next(self.query_id_counter)
         self.current_thread_abort = Event()
-        self.current_thread = Thread(
-            name='FTSQuery', daemon=True, target=self.search_text_in_thread, args=(
-                self.current_query_id, self.current_thread_abort, fts_engine_query,), kwargs=dict(
-                use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                restrict_to_book_ids=restrict_to_book_ids, return_text=True)
-        )
+        if failure:
+            self.current_thread = Thread(target=lambda *a: None)
+            self.all_results_found.emit(self.current_query_id)
+            if fts_engine_query.strip():
+                self.query_failed.emit(fts_engine_query, str(failure[0]))
+        else:
+            self.current_thread = Thread(
+                name='FTSQuery', daemon=True, target=self.search_text_in_thread, args=(
+                    self.current_query_id, self.current_thread_abort, fts_engine_query,), kwargs=dict(
+                    use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
+                    restrict_to_book_ids=restrict_to_book_ids, return_text=True)
+            )
         self.current_thread.start()
         return True
 
@@ -252,10 +265,17 @@ class ResultsView(QTreeView):
         self.m = ResultsModel(self)
         self.m.search_complete.connect(self.search_complete)
         self.m.search_started.connect(self.search_started)
+        self.m.query_failed.connect(self.query_failed, type=Qt.ConnectionType.QueuedConnection)
         self.m.matches_found.connect(self.matches_found)
         self.setModel(self.m)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
+
+    def query_failed(self, query, err_msg):
+        error_dialog(self, _('Invalid search query'), _(
+            'The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the'
+            ' supported query syntax.').format(
+                query=query, fts_url='https://www.sqlite.org/fts5.html#full_text_query_syntax'), det_msg=err_msg, show=True)
 
     def search(self, *a):
         gui = get_gui()
