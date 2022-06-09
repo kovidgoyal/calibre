@@ -11,20 +11,22 @@ from itertools import count
 from qt.core import (
     QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
     QFont, QHBoxLayout, QIcon, QLabel, QModelIndex, QPushButton, QSize, QSplitter,
-    Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
+    QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Event, Thread
 
 from calibre.db import FTSQueryError
-from calibre.gui2 import gprefs, error_dialog
+from calibre.gui2 import error_dialog, gprefs, safe_open_url
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.gui2.widgets2 import HTMLDisplay
 
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
+fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
 
 
 class SearchDelegate(ResultsDelegate):
@@ -251,12 +253,21 @@ class ResultsModel(QAbstractItemModel):
         if role == Qt.ItemDataRole.UserRole:
             return item
 
+    def data_for_index(self, index):
+        item = self.index_to_entry(index)
+        if item is None:
+            return None, None
+        if isinstance(item, Results):
+            return item, None
+        return self.index_to_entry(self.parent(index)), item
+
 
 class ResultsView(QTreeView):
 
     search_started = pyqtSignal()
     matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
+    current_changed = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -272,6 +283,9 @@ class ResultsView(QTreeView):
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
 
+    def currentChanged(self, current, previous):
+        self.current_changed.emit(*self.m.data_for_index(current))
+
     def focus_self(self):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -279,7 +293,7 @@ class ResultsView(QTreeView):
         error_dialog(self, _('Invalid search query'), _(
             'The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the'
             ' supported query syntax.').format(
-                query=query, fts_url='https://www.sqlite.org/fts5.html#full_text_query_syntax'), det_msg=err_msg, show=True)
+                query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
     def search(self, *a):
         gui = get_gui()
@@ -361,10 +375,65 @@ class SearchInputPanel(QWidget):
             self.summary.setText(ngettext('One book matched', '{num} books matched', num).format(num=num))
 
 
-class DetailsPanel(QWidget):
+class DetailsPanel(QStackedWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.currently_showing = None, None
+        self.help_panel = hp = HTMLDisplay(self)
+        hp.setHtml('''
+<style>
+div { margin-top: 0.5ex }
+.h { font-weight: bold; }
+.bq { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }
+p { margin: 0; }
+</style>
+                   ''' + _('''
+<div class="h">Search for single words</div>
+<p>Simply type the word:</p>
+<div class="bq">awesome<br>calibre</div>
+
+<div class="h">Search for phrases</div>
+<p>Enclose the phrase in quotes:</p>
+<div class="bq">"early run"<br>"song of love"</div>
+
+<div class="h">Boolean searches</div>
+<div class="bq">(calibre AND ebook) NOT gun<br>simple NOT ("high bar" OR hard)</div>
+
+<div class="h">Phrases near each other</div>
+<div class="bq">NEAR("people" "in Asia" "try")<br>NEAR("Kovid" "calibre", 30)</div>
+<p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
+
+<div style="margin-top: 1em"><a href="{fts_url}">Full syntax reference</a></div>
+''').format(fts_url=fts_url))
+        hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        hp.anchor_clicked.connect(safe_open_url)
+        self.addWidget(hp)
+
+    def sizeHint(self):
+        return QSize(300, 700)
+
+    def show_result(self, results=None, individual_match=None):
+        key = results, individual_match
+        if key == self.currently_showing:
+            return
+        self.currently_showing = key
+        if results is None:
+            self.setCurrentIndex(0)
+        elif individual_match is None:
+            self.setCurrentIndex(1)
+        else:
+            self.setCurrentIndex(2)
+
+
+class LeftPanel(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        QVBoxLayout(self)
+
+    def sizeHint(self):
+        return QSize(650, 700)
 
 
 class ResultsPanel(QWidget):
@@ -377,23 +446,22 @@ class ResultsPanel(QWidget):
         s.setChildrenCollapsible(False)
         l.addWidget(s)
 
-        self.cw = cw = QWidget(self)
-        s.addWidget(cw)
-        l = QVBoxLayout(cw)
+        self.lp = lp = LeftPanel(self)
+        s.addWidget(lp)
+        l = lp.layout()
         self.sip = sip = SearchInputPanel(parent=self)
         l.addWidget(sip)
         self.results_view = rv = ResultsView(parent=self)
         l.addWidget(rv)
-        rv.selectionModel().selectionChanged.connect(self.selection_changed)
         self.search = rv.search
         rv.search_started.connect(self.sip.start)
         rv.matches_found.connect(self.sip.matches_found)
         rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
 
-    def selection_changed(self):
-        for i in self.results_view.selectionModel().selectedIndexes():
-            print(i.data(Qt.ItemDataRole.UserRole))
+        self.details = d = DetailsPanel(self)
+        rv.current_changed.connect(d.show_result)
+        s.addWidget(d)
 
 
 if __name__ == '__main__':
