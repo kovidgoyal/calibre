@@ -13,7 +13,7 @@ from itertools import cycle
 
 from calibre.constants import numeric_version, ismacos
 from calibre import prints, isbytestring, fsync
-from calibre.constants import filesystem_encoding, DEBUG
+from calibre.constants import filesystem_encoding, is_debugging
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
@@ -25,7 +25,7 @@ def debug_print(*args, **kw):
     base_time = getattr(debug_print, 'base_time', None)
     if base_time is None:
         debug_print.base_time = base_time = time.monotonic()
-    if DEBUG:
+    if is_debugging():
         prints('DEBUG: %6.1f'%(time.monotonic()-base_time), *args, **kw)
 
 

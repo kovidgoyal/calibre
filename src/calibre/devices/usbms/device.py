@@ -19,7 +19,7 @@ from collections import namedtuple
 from itertools import repeat
 
 from calibre import prints
-from calibre.constants import DEBUG, isfreebsd, islinux, ismacos, iswindows
+from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -236,7 +236,7 @@ class Device(DeviceConfig, DevicePlugin):
         from calibre.devices.scanner import drive_is_ok
         from calibre.devices.winusb import get_drive_letters_for_device
         usbdev = self.device_being_opened
-        debug = DEBUG or getattr(self, 'do_device_debug', False)
+        debug = is_debugging() or getattr(self, 'do_device_debug', False)
         try:
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
         except Exception:
@@ -394,7 +394,7 @@ class Device(DeviceConfig, DevicePlugin):
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = get_mounted_filesystems()
         drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
-        if DEBUG:
+        if is_debugging():
             print()
             from pprint import pprint
             pprint({'bsd_drives': bsd_drives, 'mount_map': mount_map, 'drives': drives})
@@ -501,7 +501,7 @@ class Device(DeviceConfig, DevicePlugin):
                             ok[node] = False
                     except:
                         ok[node] = False
-                    if DEBUG and not ok[node]:
+                    if is_debugging() and not ok[node]:
                         print(f'\nIgnoring the node: {node} as could not read size from: {sz}')
 
                     devnodes.append(node)
@@ -568,7 +568,7 @@ class Device(DeviceConfig, DevicePlugin):
             'the device has already been ejected, or your '
             'kernel is exporting a deprecated version of SYSFS.')
                     %self.__class__.__name__)
-        if DEBUG:
+        if is_debugging():
             print('\nFound device nodes:', main, carda, cardb)
 
         self._linux_mount_map = {}
@@ -614,7 +614,7 @@ class Device(DeviceConfig, DevicePlugin):
                     os.remove(path)
                 except:
                     pass
-            if DEBUG and ro:
+            if is_debugging() and ro:
                 print('\nThe mountpoint', mp, 'is readonly, ignoring it')
             return ro
 

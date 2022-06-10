@@ -70,7 +70,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     from calibre.customize.ui import device_plugins, disabled_device_plugins
     from calibre.debug import print_basic_debug_info
     from calibre.devices.scanner import DeviceScanner
-    from calibre.constants import iswindows, ismacos
+    from calibre.constants import iswindows, ismacos, debug, is_debugging
     from calibre import prints
     from polyglot.io import PolyglotStringIO
     oldo, olde = sys.stdout, sys.stderr
@@ -92,6 +92,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     if disabled_plugins is None:
         disabled_plugins = list(disabled_device_plugins())
 
+    orig_debug = is_debugging()
+    debug(True)
     try:
         print_basic_debug_info(out=buf)
         s = DeviceScanner()
@@ -187,6 +189,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
         if hasattr(buf, 'getvalue'):
             return buf.getvalue()
     finally:
+        debug(orig_debug)
         sys.stdout = oldo
         sys.stderr = olde
         if plugins is None:

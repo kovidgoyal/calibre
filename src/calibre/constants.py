@@ -108,9 +108,13 @@ else:
 DEBUG = hasenv('CALIBRE_DEBUG')
 
 
-def debug():
+def debug(val=True):
     global DEBUG
-    DEBUG = True
+    DEBUG = bool(val)
+
+
+def is_debugging():
+    return DEBUG
 
 
 def _get_cache_dir():
