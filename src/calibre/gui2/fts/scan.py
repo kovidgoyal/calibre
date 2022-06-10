@@ -4,8 +4,8 @@
 
 import os
 from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QRadioButton,
-    QTimer, QVBoxLayout, QWidget, pyqtSignal
+    QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QPushButton,
+    QRadioButton, QTimer, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import detect_ncpus
@@ -28,8 +28,14 @@ class IndexingProgress:
     def complete(self):
         return not self.left or not self.total
 
+    @property
+    def almost_complete(self):
+        return self.complete or (self.left / self.total) > 0.9
+
 
 class ScanProgress(QWidget):
+
+    switch_to_search_panel = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -68,6 +74,9 @@ class ScanProgress(QWidget):
                 ' Searching will yield incomplete results.')))
         la.setWordWrap(True)
         l.addWidget(la)
+        self.switch_anyway = sa = QPushButton(self)
+        sa.clicked.connect(self.switch_to_search_panel)
+        l.addWidget(sa)
 
     def change_speed(self):
         db = get_db()
@@ -82,17 +91,22 @@ class ScanProgress(QWidget):
         if complete:
             t = _('All book files indexed')
             self.warn_label.setVisible(False)
+            self.switch_anyway.setIcon(QIcon.ic('search.png'))
+            self.switch_anyway.setText(_('Start &searching'))
         else:
             done = total - left
             t = _('{0} of {1} book files ({2:.0%}) have been indexed').format(
                 done, total, done / (total or 1))
             self.warn_label.setVisible(True)
+            self.switch_anyway.setIcon(QIcon.ic('dialog_warning.png'))
+            self.switch_anyway.setText(_('Start &searching even with incomplete indexing'))
         self.status_label.setText(t)
 
 
 class ScanStatus(QWidget):
 
     indexing_progress_changed = pyqtSignal(bool, int, int)
+    switch_to_search_panel = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -112,6 +126,7 @@ class ScanStatus(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
         self.scan_progress = sc = ScanProgress(self)
+        sc.switch_to_search_panel.connect(self.switch_to_search_panel)
         self.indexing_progress_changed.connect(self.scan_progress.update)
         l.addWidget(sc)
 

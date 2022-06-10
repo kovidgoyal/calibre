@@ -28,9 +28,13 @@ class FTSDialog(Dialog):
         l.addLayout(h)
         h.addWidget(self.bb)
         self.scan_status = ss = ScanStatus(self)
+        ss.switch_to_search_panel.connect(self.show_results_panel)
         self.results_panel = rp = ResultsPanel(self)
         s.addWidget(ss), s.addWidget(rp)
-        self.show_scan_status()
+        if ss.indexing_progress.almost_complete:
+            self.show_results_panel()
+        else:
+            self.show_scan_status()
 
     def show_scan_status(self):
         self.stack.setCurrentWidget(self.scan_status)
@@ -39,6 +43,7 @@ class FTSDialog(Dialog):
     def show_results_panel(self):
         self.stack.setCurrentWidget(self.results_panel)
         self.results_panel.specialize_button_box(self.bb)
+        self.results_panel.on_show()
 
     def library_changed(self):
         self.results_panel.clear_results()

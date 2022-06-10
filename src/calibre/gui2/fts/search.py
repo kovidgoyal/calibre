@@ -637,6 +637,9 @@ class ResultsPanel(QWidget):
     def shutdown(self):
         self.clear_results()
 
+    def on_show(self):
+        self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
