@@ -600,6 +600,8 @@ class ResultsPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        if isinstance(parent, QDialog):
+            parent.finished.connect(self.shutdown)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.splitter = s = QSplitter(self)
@@ -618,12 +620,22 @@ class ResultsPanel(QWidget):
         rv.matches_found.connect(self.sip.matches_found)
         rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
-        sip.clear_search.connect(rv.model().clear_results)
+        sip.clear_search.connect(self.clear_results)
 
         self.details = d = DetailsPanel(self)
         rv.current_changed.connect(d.show_result)
         rv.search_started.connect(d.clear)
         s.addWidget(d)
+
+    def specialize_button_box(self, bb):
+        bb.clear()
+        bb.addButton(QDialogButtonBox.StandardButton.Close)
+
+    def clear_results(self):
+        self.results_view.m.clear_results()
+
+    def shutdown(self):
+        self.clear_results()
 
 
 if __name__ == '__main__':

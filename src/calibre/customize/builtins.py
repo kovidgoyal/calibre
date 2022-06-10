@@ -855,6 +855,12 @@ class ActionBrowseAnnotations(InterfaceActionBase):
     description = _('Browse highlights and bookmarks from all books in the library')
 
 
+class ActionFullTextSearch(InterfaceActionBase):
+    name = 'Full Text Search'
+    actual_plugin = 'calibre.gui2.actions.fts:FullTextSearchAction'
+    description = _('Search the full text of all books in the calibre library')
+
+
 class ActionEditToC(InterfaceActionBase):
     name = 'Edit ToC'
     actual_plugin = 'calibre.gui2.actions.toc_edit:ToCEditAction'
@@ -1097,7 +1103,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks]
+        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
+        ActionFullTextSearch,]
 
 # }}}
 
