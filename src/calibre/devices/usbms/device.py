@@ -393,6 +393,16 @@ class Device(DeviceConfig, DevicePlugin):
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = get_mounted_filesystems()
+        # macOS 13 Ventura uses a weird scheme for mounted FAT devices of the
+        # form fat://basename_of_bsd_name/basename_of_mountpoint
+        # see https://www.mobileread.com/forums/showthread.php?t=347294
+        for dev_node in tuple(mount_map):
+            if ':' in dev_node and '//' in dev_node:
+                val = mount_map[dev_node]
+                dev_node = dev_node.split('/')[-2]
+                dev_node = f'/dev/{dev_node}'
+                if dev_node not in mount_map:
+                    mount_map[dev_node] = val
         drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
         if is_debugging():
             print()
