@@ -249,13 +249,13 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             return
         qurl = request_info.requestUrl()
         if qurl.scheme() != 'file':
-            self.log.warn(f'Blocking URL request with scheme: {qurl.scheme()}')
+            self.log.warn(f'Blocking URL request {qurl.toString()} as it is not for a local file')
             request_info.block(True)
             return
         path = qurl.toLocalFile()
         path = os.path.normcase(os.path.abspath(path))
         if not path.startswith(self.container_root) and not path.startswith(self.resources_root):
-            self.log.warn(f'Blocking request with path: {path}')
+            self.log.warn(f'Blocking URL request with path: {path}')
             request_info.block(True)
             return
 
