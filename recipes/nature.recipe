@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 BASE = 'https://www.nature.com'
 
@@ -39,11 +39,15 @@ class Nature(BasicNewsRecipe):
     no_javascript = True
     no_stylesheets = True
 
-    keep_only_tags = [
-        dict(name='div', attrs={'data-component': check_words('article-container')})
-    ]
+    keep_only_tags = [dict(name="article")]
 
-    remove_tags = [dict(attrs={'class': check_words('hide-print')})]
+    remove_tags = [
+        classes(
+            "u-hide-print hide-print c-latest-content__item c-context-bar "
+            "c-pdf-button__container u-js-hide"
+        ),
+        dict(name="img", attrs={"class": ["visually-hidden"]}),
+    ]
 
     def parse_index(self):
         soup = self.index_to_soup(BASE + '/nature/current-issue')
@@ -51,17 +55,15 @@ class Nature(BasicNewsRecipe):
             'img', attrs={'data-test': check_words('issue-cover-image')}
         )['src']
         try:
-            self.cover_url = self.cover_url.replace("w200","w500")  # enlarge cover size resolution
+            self.cover_url = self.cover_url.replace("w200", "w500")  # enlarge cover size resolution
         except:
             """
             failed, img src might have changed, use default width 200
             """
             pass
-        section_tags = soup.find(
-            'div', {'data-container-type': check_words('issue-section-list')}
-        )
-        section_tags = section_tags.findAll(
-            'div', {'class': check_words('article-section')}
+
+        section_tags = soup.find_all(
+            "section", attrs={"data-container-type": "issue-section-list"}
         )
 
         sections = defaultdict(list)
