@@ -5,7 +5,7 @@
 import os
 from qt.core import (
     QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QRadioButton,
-    QTimer, QVBoxLayout, QWidget
+    QTimer, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import detect_ncpus
@@ -17,7 +17,12 @@ from calibre.gui2.fts.utils import get_db
 class IndexingProgress:
 
     def __init__(self):
-        self.left = self.total = 0
+        self.left = self.total = -1
+
+    def update(self, left, total):
+        changed = (left, total) != (self.left, self.total)
+        self.left, self.total = left, total
+        return changed
 
     @property
     def complete(self):
@@ -73,19 +78,21 @@ class ScanProgress(QWidget):
             db.fts_indexing_sleep_time = Cache.fts_indexing_sleep_time
             db.set_fts_num_of_workers(1)
 
-    def update(self, indexing_progress):
-        if indexing_progress.complete:
+    def update(self, complete, left, total):
+        if complete:
             t = _('All book files indexed')
             self.warn_label.setVisible(False)
         else:
-            done = indexing_progress.total - indexing_progress.left
+            done = total - left
             t = _('{0} of {1} book files ({2:.0%}) have been indexed').format(
-                done, indexing_progress.total, done / indexing_progress.total)
+                done, total, done / (total or 1))
             self.warn_label.setVisible(True)
         self.status_label.setText(t)
 
 
 class ScanStatus(QWidget):
+
+    indexing_progress_changed = pyqtSignal(bool, int, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,6 +112,7 @@ class ScanStatus(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
         self.scan_progress = sc = ScanProgress(self)
+        self.indexing_progress_changed.connect(self.scan_progress.update)
         l.addWidget(sc)
 
         l.addStretch(10)
@@ -116,8 +124,9 @@ class ScanStatus(QWidget):
         self.update_stats()
 
     def update_stats(self):
-        self.indexing_progress.left, self.indexing_progress.total = self.db.fts_indexing_progress()
-        self.scan_progress.update(self.indexing_progress)
+        changed = self.indexing_progress.update(*self.db.fts_indexing_progress())
+        if changed:
+            self.indexing_progress_changed.emit(self.indexing_progress.complete, self.indexing_progress.left, self.indexing_progress.total)
 
     def change_fts_state(self):
         if not self.enable_fts.isChecked() and not confirm(_(
