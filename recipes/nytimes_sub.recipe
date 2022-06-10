@@ -98,7 +98,7 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(href='#site-content #site-index'.split()),
         dict(attrs={'aria-hidden':'true'}),
         dict(attrs={'data-videoid':True}),
-        dict(name='button meta link'.split()),
+        dict(name='button meta link time source'.split()),
         dict(id=lambda x: x and x.startswith('story-ad-')),
         dict(name='head'),
         dict(role='toolbar'),
@@ -113,17 +113,20 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         article = soup.find(id='story')
-        # The NYT is apparently A/B testing a new page layout
-        has_supplemental = article is not None and article.find(**classes('story-body-supplemental')) is not None
-        if has_supplemental:
-            keep_only_tags = [
-                dict(id='story-header'),
-                classes('story-body-supplemental story-interrupter'),
-            ]
+        if article is None:
+            keep_only_tags = [dict(attrs={'aria-label': 'Main content'})]
         else:
-            keep_only_tags = [
-                dict(id='story'),
-            ]
+            # The NYT is apparently A/B testing a new page layout
+            has_supplemental = article is not None and article.find(**classes('story-body-supplemental')) is not None
+            if has_supplemental:
+                keep_only_tags = [
+                    dict(id='story-header'),
+                    classes('story-body-supplemental story-interrupter'),
+                ]
+            else:
+                keep_only_tags = [
+                    dict(id='story'),
+                ]
         body = new_tag(soup, 'body')
         for spec in keep_only_tags:
             for tag in soup.find('body').findAll(**spec):
@@ -153,6 +156,11 @@ class NewYorkTimes(BasicNewsRecipe):
                 if span is not None and self.tag_to_string(span).strip().lower() == 'image':
                     span.name = 'img'
                     span['src'] = div['itemid']
+
+        # Remove live storline menu
+        for span in soup.findAll(attrs={'data-storyline-module-name': 'menu'}):
+            span.parent.extract()
+
         return soup
 
     def read_todays_paper(self):
@@ -310,7 +318,7 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('All articles', [
-        #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2018/05/31/theater/best-25-plays-how-we-made-the-list.html'},
+        #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2020/11/27/world/americas/coronavirus-migrants-venezuela.html'},
         # ])]
         if is_web_edition:
             return self.parse_web_sections()
