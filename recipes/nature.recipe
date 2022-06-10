@@ -30,7 +30,7 @@ class Nature(BasicNewsRecipe):
         ' publishing peer-reviewed research in all fields of science and'
         ' technology on the basis of its originality, importance,'
         ' interdisciplinary interest, timeliness, accessibility, elegance and'
-        ' surprising conclusions.  Nauture also provides rapid, authoritative,'
+        ' surprising conclusions. Nature also provides rapid, authoritative,'
         ' insightful and arresting news and interpretation of topical and coming'
         ' trends affecting science, scientists and the wider public.'
     )
