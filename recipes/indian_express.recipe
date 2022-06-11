@@ -33,7 +33,7 @@ class IndianExpress(BasicNewsRecipe):
         dict(name='a', attrs={'href':'https://indianexpress.com/section/opinion/?utm_source=newbanner'}),
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
-            ' storytags pdsc-related-modify news-guard premium-story'
+            ' storytags pdsc-related-modify news-guard premium-story append_social_share'
         )
     ]
     feeds = [
@@ -50,8 +50,10 @@ class IndianExpress(BasicNewsRecipe):
         ('UPSC-CSE Key','https://indianexpress.com/section/upsc-current-affairs/feed/'),
         ('World','https://indianexpress.com/section/world/feed/'),
         ('Business', 'https://indianexpress.com/section/business/feed/'),
-        ('Political Pulse', 'https://indianexpress.com/section/india/political-pulse/feed/'),
+        ('Political Pulse', 'https://indianexpress.com/section/political-pulse/feed'),
         ('India', 'https://indianexpress.com/section/india/feed/'),
+        ('Business', 'https://indianexpress.com/section/business/feed/'),
+        ('Education', 'https://indianexpress.com/section/education/feed/'),
         # Want to add more? go-to:https://indianexpress.com/syndication/
     ]
 
