@@ -1,5 +1,8 @@
+# -*- mode: python; coding: utf-8; -*-
+# vim: set syntax=python fileencoding=utf-8
+
 __license__ = 'GPL v3'
-__copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2022, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.haaretz.com
 '''
@@ -24,52 +27,63 @@ class Haaretz_en(BasicNewsRecipe):
     language = 'en_IL'
     needs_subscription = True
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}    
     publication_type = 'newspaper'
-    PREFIX = 'http://www.haaretz.com'
-    masthead_url = PREFIX + '/images/logos/HaaretzLogo.gif'
+    PREFIX = 'https://www.haaretz.com'
+    LOGIN = 'https://services.haaretz.com/ms-sso/loginUrlEncoded'
+    LOGOUT = 'https://services.haaretz.com/ms-sso/logout'
     extra_css             = """
-                                body{font-family: Verdana,Arial,Helvetica,sans-serif }
-                                h1, .articleBody {font-family: Georgia, serif}
-                                .authorBar {font-size: small}
+                                body{font-family: Merriweather, "Helvetica Neue", Helvetica, Arial, sans-serif }
+                                div.mx time{display: none}
+                                div.my time{display: none}
+                                div.mq time{display: none}
+                                div.mr time{display: none}
                             """
 
     conversion_options = {
         'comment': description, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'content'})]
+    keep_only_tags = [
+        dict(name='div', attrs={'data-test': 'articleHeader'}),
+        dict(attrs={'data-test': 'articleBodyImage'}),
+        dict(name='div', attrs={'class': ['bu a b d e ', 'bu a b d e']}),
+        dict(name='div', attrs={'data-test': 'articleBody'})
+    ]
     remove_attributes = ['width', 'height']
     remove_tags = [
-        dict(name=['iframe', 'link', 'object', 'embed']), dict(name='div', attrs={
-            'class': ['rightcol', 'fblike']}), dict(name='div', attrs={'id': 'article_sso_form'})
+        dict(name=['div', 'ul', 'button', 'svg'], attrs={'data-test': ['audioPlayer', 'newsletter', 'relatedArticles', 'tags', 'writerAlertButton', 'IconAlefLogo']})
     ]
 
     feeds = [
 
-    (u'Headlines', 'http://www.haaretz.com/cmlink/1.263335'),
-    (u'Opinion', 'http://www.haaretz.com/cmlink/1.628752'),
-    (u'Defence and diplomacy', 'http://www.haaretz.com/cmlink/1.628763'),
-    (u'National', 'http://www.haaretz.com/cmlink/1.628764'),
-    (u'International', 'http://www.haaretz.com/cmlink/1.628765'),
-    (u'Jewish World', 'http://www.haaretz.com/cmlink/1.628766'),
-    (u'Business', 'http://www.haaretz.com/cmlink/1.628767'),
-    (u'Real Estate', 'http://www.haaretz.com/cmlink/1.628768'),
-    (u'Features', 'http://www.haaretz.com/cmlink/1.628769'),
-    (u'Arts & Leisure', 'http://www.haaretz.com/cmlink/1.628771'),
-    (u'Books', 'http://www.haaretz.com/cmlink/1.628772'),
-    (u'Food & Wine', 'http://www.haaretz.com/cmlink/1.628773'),
-    (u'Sports', 'http://www.haaretz.com/cmlink/1.628774')
+    (u'Headlines', 'https://www.haaretz.com/srv/haaretz-latest-headlines'),
+    (u'Opinion', 'https://www.haaretz.com/srv/opinion-rss'),
+    (u'Security & Aviation', 'https://www.haaretz.com/srv/security-&-aviation-rss'),
+    (u'Israel News', 'https://www.haaretz.com/srv/israel-news-rss'),
+    (u'World News', 'https://www.haaretz.com/srv/world-news-rss'),
+    (u'Jewish World', 'https://www.haaretz.com/srv/jewish-world-rss'),
+    (u'Business', 'https://www.haaretz.com/srv/business-rss'),
+    (u'Science & Health', 'https://www.haaretz.com/srv/science-&-health-rss'),
+    (u'Life & Culture', 'https://www.haaretz.com/srv/life-&-culture-rss'),
+    (u'Books', 'https://www.haaretz.com/srv/books-rss'),
+    (u'Food', 'https://www.haaretz.com/srv/food-rss')
     ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.PREFIX)
         if self.username is not None and self.password is not None:
-            data = urlencode({'cb': 'parseEngReply', 'newsso': 'true', 'fromlogin': 'true', 'layer': 'eng_login', 'userName': self.username, 'password': self.password  # noqa
-                                     })
-            br.open('https://sso.haaretz.com/sso/sso/signIn', data)
+            data = urlencode(
+                {
+                    'newsso': 'true',
+                    'fromlogin': 'true',
+                    'site': '85',
+                    'layer': 'login',
+                    'anonymousId': '16549476476914546',
+                    'userName': self.username,
+                    'password': self.password
+                }
+            )
+            br.open(self.LOGIN, data)
         return br
-
-    def print_version(self, url):
-        article = url.rpartition('/')[2]
-        return 'http://www.haaretz.com/misc/article-print-page/' + article
