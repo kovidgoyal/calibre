@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+##
+# Title:        The Healthy From Reader's Digest Calibre Recipe
+##
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+##
+# Written:      June 2022
+# Last Edited:  2022-06-11
+##
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheHealthy(BasicNewsRecipe):
+    title          = 'The Healthy from Readers Digest'
+    language = 'en'
+    __author__ = 'Stephen Genusa'
+    # Get everything in a single file
+    # oldest_article = 900
+    # max_articles_per_feed = 900
+    # Get only recent articles
+    oldest_article = 14
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds = [
+        ('Allergies', 'https://www.thehealthy.com/allergies/feed'),
+        ('Alzheimers', 'https://www.thehealthy.com/alzheimers/feed'),
+        ('Arthritis', 'https://www.thehealthy.com/arthritis/feed'),
+        ('Back Pain', 'https://www.thehealthy.com/pain/back-pain/feed'),
+        ('Cancer', 'https://www.thehealthy.com/cancer/feed'),
+        ('Cold and Flu', 'https://www.thehealthy.com/cold-flu/feed'),
+        ('Diabetes', 'https://www.thehealthy.com/diabetes/feed'),
+        ('Fatigue', 'https://www.thehealthy.com/fatigue/feed'),
+        ('Headaches and Migraines', 'https://www.thehealthy.com/headaches/feed'),
+        ('Heart Disease', 'https://www.thehealthy.com/heart-disease/feed'),
+        ('Irritable Bowel Syndrome', 'https://www.thehealthy.com/digestive-health/ibs/feed'),
+        ('Menopause', 'https://www.thehealthy.com/menopause/feed'),
+        ('Pain Management', 'https://www.thehealthy.com/pain/feed'),
+        ('Respiratory Conditions', 'https://www.thehealthy.com/respiratory/feed'),
+        ('Skin Health', 'https://www.thehealthy.com/skin-health/feed'),
+        ('Sleep', 'https://www.thehealthy.com/sleep/feed'),
+        ('Beauty', 'https://www.thehealthy.com/beauty/feed'),
+        ('Exercise', 'https://www.thehealthy.com/exercise/feed'),
+        ('Food', 'https://www.thehealthy.com/food/feed'),
+        ('Nutrition', 'https://www.thehealthy.com/nutrition/feed'),
+        ('Digestive Health', 'https://www.thehealthy.com/digestive-health/feed'),
+        ('Vitamins and Supplements', 'https://www.thehealthy.com/nutrition/vitamins/feed'),
+        ('Weight Loss', 'https://www.thehealthy.com/weight-loss/feed'),
+        ("Children's Health", 'https://www.thehealthy.com/family/childrens-health/feed'),
+        ('Family', 'https://www.thehealthy.com/family/feed'),
+        ('Relationships', 'https://www.thehealthy.com/family/relationships/feed'),
+        ('Sexual Health', 'https://www.thehealthy.com/sex/feed'),
+        ('Anxiety', 'https://www.thehealthy.com/mental-health/anxiety/feed'),
+        ('Depression', 'https://www.thehealthy.com/mental-health/depression/feed'),
+        ('Healthy Aging', 'https://www.thehealthy.com/aging/healthy-aging/feed'),
+        ('Aging', 'https://www.thehealthy.com/aging/feed'),
+        ('Mental Health', 'https://www.thehealthy.com/mental-health/feed'),
+        ('Mind and Memory', 'https://www.thehealthy.com/aging/mind-memory/feed'),
+        ('Care Giving', 'https://www.thehealthy.com/healthcare/caregiving/feed'),
+        ('Eye Care', 'https://www.thehealthy.com/eye-care/feed'),
+        ('First Aid', 'https://www.thehealthy.com/first-aid/feed'),
+        ('Health Care', 'https://www.thehealthy.com/healthcare/feed'),
+        ('Home Remedies', 'https://www.thehealthy.com/home-remedies/feed'),
+        ('Oral and Dental Care', 'https://www.thehealthy.com/dental/feed'),
+        ('Self Care', 'https://www.thehealthy.com/mental-health/self-care/feed'),        
+    ]
