@@ -30,6 +30,7 @@ class FTSDialog(Dialog):
         self.scan_status = ss = ScanStatus(self)
         ss.switch_to_search_panel.connect(self.show_results_panel)
         self.results_panel = rp = ResultsPanel(self)
+        rp.switch_to_scan_panel.connect(self.show_scan_status)
         s.addWidget(ss), s.addWidget(rp)
         if ss.indexing_progress.almost_complete:
             self.show_results_panel()

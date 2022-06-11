@@ -598,6 +598,8 @@ class LeftPanel(QWidget):
 
 class ResultsPanel(QWidget):
 
+    switch_to_scan_panel = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         if isinstance(parent, QDialog):
@@ -630,6 +632,7 @@ class ResultsPanel(QWidget):
     def specialize_button_box(self, bb):
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
+        bb.addButton(_('Show &indexing status'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.switch_to_scan_panel)
 
     def clear_results(self):
         self.results_view.m.clear_results()

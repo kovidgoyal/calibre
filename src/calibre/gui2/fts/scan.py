@@ -76,7 +76,10 @@ class ScanProgress(QWidget):
         l.addWidget(la)
         self.switch_anyway = sa = QPushButton(self)
         sa.clicked.connect(self.switch_to_search_panel)
-        l.addWidget(sa)
+        h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        h.addWidget(sa), h.addStretch(10)
+        l.addLayout(h)
 
     def change_speed(self):
         db = get_db()
