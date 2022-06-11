@@ -1,61 +1,88 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import re
-
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-class TheHindu(BasicNewsRecipe):
-    title = u'The Business Line'
-    language = 'en_IN'
-
-    oldest_article = 7
-    __author__ = 'Dhiru'
-    max_articles_per_feed = 100
+class BusinessLine(BasicNewsRecipe):
+    title = 'The Hindu BusinessLine'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Hindu BusinessLine is known for its credibility, accuracy, in-depth analysis of markets and sober coverage'
+        ' of business news. BusinessLine reduces the daily grind of business to relevant, readable, byte-sized stories.'
+        ' The newspaper is extensively followed by the decision makers and change leaders from the world of business.'
+    )
     no_stylesheets = True
+    use_embedded_content = False
+    oldest_article = 1.15  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    language = 'en_IN'
+    remove_attributes = ['height', 'width', 'padding-bottom']
+    masthead_url = 'https://www.thehindubusinessline.com/theme/images/bl-online/bllogo.png'
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
+        )
+        for citem in soup.findAll(
+            'meta', content=lambda s: s and s.endswith('view/3.jpg')
+        ):
+            return citem['content']
 
     keep_only_tags = [
-        dict(name='h1'),
-        classes('textbyline article-image contentbody'),
+        classes(
+            'tp-title-inf bi-line leadtext lead-img-caption slide-moadal img-container'
+        ),
+        dict(
+            name='div', attrs={'id': lambda x: x and x.startswith('content-body-')}
+        )
     ]
+
     remove_tags = [
+        classes(
+            'swiper-button-prev left-arrow swiper-button-next right-arrow close cursor tagsBtm share-topic comment-rules vuukle-div paywallbox '
+        )
     ]
 
-    extra_css = '.photo-caption { font-size: smaller }'
+    feeds = [
+        (
+            'Markets',
+            'https://www.thehindubusinessline.com/markets/feeder/default.rss'
+        ),
+        (
+            'Companies',
+            'https://www.thehindubusinessline.com/companies/feeder/default.rss'
+        ),
+        (
+            'Opinion',
+            'https://www.thehindubusinessline.com/opinion/feeder/default.rss'
+        ),
+        (
+            'Economy',
+            'https://www.thehindubusinessline.com/economy/feeder/default.rss'
+        ),
+        (
+            'Portfolio Premium',
+            'https://www.thehindubusinessline.com/portfolio/feeder/default.rss'
+        ),
+        (
+            'Info-Tech',
+            'https://www.thehindubusinessline.com/info-tech/feeder/default.rss'
+        ),
+        (
+            'Data-Stories',
+            'https://www.thehindubusinessline.com/data-stories/feeder/default.rss'
+        ),
+        (
+            'Money & Banking',
+            'https://www.thehindubusinessline.com/money-and-banking/feeder/default.rss'
+        ),
+        ('News', 'https://www.thehindubusinessline.com/news/feeder/default.rss'),
+    ]
 
-    def preprocess_html(self, soup, *a):
-        for img in soup.findAll(attrs={'data-proxy-image': True}):
-            img['src'] = re.sub(r'/alternates/[^/]+', '/alternates/LANDSCAPE_730', img['data-proxy-image'], flags=re.I)
+    def preprocess_html(self, soup):
+        for image in soup.findAll('source', attrs={'srcset': True}):
+            image['src'] = image['srcset']
+        for img in soup.findAll('img', attrs={'data-src-template': True}):
+            img['src'] = img['data-src-template']
         return soup
-
-    def parse_index(self):
-        soup = self.index_to_soup(
-            'https://www.thehindubusinessline.com/todays-paper/tp-index')
-        div = soup.find(attrs={'class': 'left-column'})
-        feeds = []
-        current_section = None
-        current_articles = []
-        for x in div.findAll(['h2', 'li']):
-            if current_section and x.name == 'li':
-                a = x.find('a', href=True)
-                if a is not None:
-                    title = self.tag_to_string(a)
-                    current_articles.append({'url': a['href'], 'title': title, 'date': '', 'description': ''})
-                    self.log('\t' + title)
-            if x.name == 'h2':
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(x).strip().capitalize()
-                self.log(current_section)
-                current_articles = []
-        return feeds
