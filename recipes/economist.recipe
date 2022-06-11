@@ -53,9 +53,16 @@ def safe_dict(data, *names):
     return ans
 
 
+class JSONHasNoContent(ValueError):
+    pass
+
+
 def load_article_from_json(raw, root):
-    data = json.loads(raw)['props']['pageProps']['content']
-    # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+    # open('/t/raw.json', 'w').write(raw)
+    try:
+        data = json.loads(raw)['props']['pageProps']['content']
+    except KeyError as e:
+        raise JSONHasNoContent(e)
     if isinstance(data, list):
         data = data[0]
     body = root.xpath('//body')[0]
@@ -75,6 +82,20 @@ def load_article_from_json(raw, root):
             pass
     for node in data.get('text') or ():
         process_node(node, article)
+
+
+def cleanup_html_article(root):
+    main = root.xpath('//main')[0]
+    body = root.xpath('//body')[0]
+    for child in tuple(body):
+        body.remove(child)
+    body.append(main)
+    main.set('id', '')
+    main.tag = 'article'
+    for x in root.xpath('//*[@style]'):
+        x.set('style', '')
+    for x in root.xpath('//button'):
+        x.getparent().remove(x)
 
 
 def classes(classes):
@@ -104,6 +125,7 @@ class Economist(BasicNewsRecipe):
 
     title = 'The Economist'
     language = 'en'
+    encoding = 'utf-8'
 
     __author__ = "Kovid Goyal"
     description = (
@@ -208,7 +230,10 @@ class Economist(BasicNewsRecipe):
         root = parse(raw)
         script = root.xpath('//script[@id="__NEXT_DATA__"]')
         if script:
-            load_article_from_json(script[0].text, root)
+            try:
+                load_article_from_json(script[0].text, root)
+            except JSONHasNoContent:
+                cleanup_html_article(root)
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))
             if noscript and noscript[0].text:
@@ -248,7 +273,7 @@ class Economist(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        #     'url':'https://www.economist.com/economic-and-financial-indicators/2022/04/23/economic-data-commodities-and-markets'
+        #     'url':'https://www.economist.com/interactive/briefing/2022/06/11/huge-foundation-models-are-turbo-charging-ai-progress'
         # }])]
         if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
