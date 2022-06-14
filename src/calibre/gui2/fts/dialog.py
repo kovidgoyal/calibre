@@ -37,12 +37,16 @@ class FTSDialog(Dialog):
         self.results_panel = rp = ResultsPanel(self)
         rp.switch_to_scan_panel.connect(self.show_scan_status)
         s.addWidget(ss), s.addWidget(rp)
-        if ss.indexing_progress.almost_complete:
+        self.show_appropriate_panel()
+        self.update_indexing_label()
+        self.scan_status.indexing_progress_changed.connect(self.update_indexing_label)
+
+    def show_appropriate_panel(self):
+        ss = self.scan_status
+        if ss.indexing_enabled and ss.indexing_progress.almost_complete:
             self.show_results_panel()
         else:
             self.show_scan_status()
-        self.update_indexing_label()
-        self.scan_status.indexing_progress_changed.connect(self.update_indexing_label)
 
     def update_indexing_label(self):
         ip = self.scan_status.indexing_progress
@@ -52,12 +56,11 @@ class FTSDialog(Dialog):
             self.indexing_label.setVisible(True)
             try:
                 p = (ip.total - ip.left) / ip.total
-                p = int(100 * p)
             except Exception:
                 self.indexing_label.setVisible(False)
             else:
                 if p < 100:
-                    t = _('Indexing is only {0}% done').format(p)
+                    t = _('Indexing is only {0:.0%} done').format(p)
                     ss = ''
                     if p < 90:
                         ss = 'QLabel { color: red }'
@@ -79,6 +82,8 @@ class FTSDialog(Dialog):
 
     def library_changed(self):
         self.results_panel.clear_results()
+        self.scan_status.reset_indexing_state_for_current_db()
+        self.show_appropriate_panel()
 
     def sizeHint(self):
         return QSize(1000, 680)

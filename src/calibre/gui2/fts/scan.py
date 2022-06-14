@@ -101,7 +101,7 @@ class ScanProgress(QWidget):
             self.switch_anyway.setText(_('Start &searching'))
         else:
             done = total - left
-            t = _('{0} of {1} book files ({2:.0%}) have been indexed').format(
+            t = _('{0} of {1} book files, {2:.0%} have been indexed').format(
                 done, total, done / (total or 1))
             self.warn_label.setVisible(True)
             self.switch_anyway.setIcon(QIcon.ic('dialog_warning.png'))
@@ -187,9 +187,21 @@ class ScanStatus(QWidget):
         with BusyCursor():
             self.db.reindex_fts()
 
+    @property
+    def indexing_enabled(self):
+        return self.enable_fts.isChecked()
+
+    def reset_indexing_state_for_current_db(self):
+        self.enable_fts.blockSignals(True)
+        self.enable_fts.setChecked(self.db.is_fts_enabled())
+        self.enable_fts.blockSignals(False)
+        self.update_stats()
+        self.apply_fts_state()
+
     def shutdown(self):
         self.indexing_status_timer.stop()
         self.scan_progress.slow_button.setChecked(True)
+        self.reset_indexing_state_for_current_db()
 
 
 if __name__ == '__main__':

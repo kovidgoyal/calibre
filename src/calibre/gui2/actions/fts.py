@@ -28,6 +28,6 @@ class FullTextSearchAction(InterfaceAction):
         self.dialog.show()
         self.dialog.raise_()
 
-    def library_about_to_change(self, olddb, db):
+    def library_changed(self, db):
         if self._dialog is not None:
             self._dialog.library_changed()
