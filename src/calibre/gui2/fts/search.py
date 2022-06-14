@@ -18,7 +18,7 @@ from qt.core import (
 )
 from threading import Event, Thread
 
-from calibre import fit_image
+from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, safe_open_url
@@ -147,6 +147,7 @@ class ResultsModel(QAbstractItemModel):
     matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
     query_failed = pyqtSignal(str, str)
+    result_with_context_found = pyqtSignal(object, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -245,6 +246,7 @@ class ResultsModel(QAbstractItemModel):
             self.beginInsertRows(parent_idx, r, r)
             parent.add_result_with_text(result)
             self.endInsertRows()
+            self.result_with_context_found.emit(parent, r)
 
     def signal_search_complete(self, query_id):
         if query_id == self.current_query_id:
@@ -333,6 +335,7 @@ class ResultsView(QTreeView):
     matches_found = pyqtSignal(int)
     search_complete = pyqtSignal()
     current_changed = pyqtSignal(object, object)
+    result_with_context_found = pyqtSignal(object, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -341,6 +344,7 @@ class ResultsView(QTreeView):
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setHeaderHidden(True)
         self.m = ResultsModel(self)
+        self.m.result_with_context_found.connect(self.result_with_context_found)
         self.m.search_complete.connect(self.search_complete)
         self.m.search_started.connect(self.search_started)
         self.m.search_started.connect(self.focus_self)
@@ -351,7 +355,10 @@ class ResultsView(QTreeView):
         self.setItemDelegate(self.delegate)
 
     def currentChanged(self, current, previous):
-        self.current_changed.emit(*self.m.data_for_index(current))
+        results, individual_match = self.m.data_for_index(current)
+        if individual_match is not None:
+            individual_match = current.row()
+        self.current_changed.emit(results, individual_match)
 
     def focus_self(self):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -460,12 +467,19 @@ class ResultDetails(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.key = None
         self.pixmap_label = pl = QLabel(self)
         pl.setScaledContents(True)
-        self.current_book_id = -1
         self.book_info = bi = HTMLDisplay(self)
         bi.setDefaultStyleSheet('a { text-decoration: none; }')
         bi.anchor_clicked.connect(self.book_info_anchor_clicked)
+        self.results = r = HTMLDisplay(self)
+        r.setDefaultStyleSheet('a { text-decoration: none; }')
+        r.anchor_clicked.connect(self.results_anchor_clicked)
+
+    @property
+    def current_book_id(self):
+        return -1 if self.key is None else self.key[0]
 
     def book_info_anchor_clicked(self, url):
         if self.current_book_id > 0:
@@ -473,6 +487,10 @@ class ResultDetails(QWidget):
                 mark_books(self.current_book_id)
             elif url.host() == 'jump':
                 jump_to_book(self.current_book_id)
+
+    def results_anchor_clicked(self, url):
+        if self.current_book_id > 0:
+            print(url)
 
     def resizeEvent(self, ev):
         self.do_layout()
@@ -492,43 +510,75 @@ class ResultDetails(QWidget):
         if self.book_info.horizontalScrollBar().isVisible():
             h += self.book_info.horizontalScrollBar().height() + 1
             self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, h))
+        top = max(self.book_info.geometry().bottom(), self.pixmap_label.geometry().bottom())
+        self.results.setGeometry(QRect(0, top, g.width(), g.height() - top))
 
     def show_result(self, results, individual_match=None):
-        old_current_book_id, self.current_book_id = self.current_book_id, results.book_id
+        key = results.book_id, len(results.texts), individual_match
+        if key == self.key:
+            return False
+        old_current_book_id = self.current_book_id
+        self.key = key
         if old_current_book_id != self.current_book_id:
             self.pixmap_label.setPixmap(results.cover)
             self.render_book_info(results)
+        self.render_results(results, individual_match)
         self.do_layout()
+        return True
+
+    def result_with_context_found(self, results, individual_match):
+        if results.book_id == self.current_book_id:
+            return self.show_result(results, self.key[2])
+        return False
 
     def render_book_info(self, results):
         t = results.title
         if len(t) > 72:
             t = t[:71] + '…'
-        text = f'<p><b>{results.title}</b><br>'
+        text = f'<p><b>{prepare_string_for_xml(results.title)}</b><br>'
         au = results.authors
         if len(au) > 3:
             au = list(au[:3]) + ['…']
-        text += f'{authors_to_string(au)}</p>'
+        text += f'{prepare_string_for_xml(authors_to_string(au))}</p>'
         if results.series:
             sidx = fmt_sidx(results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
             series = results.series
             if len(series) > 60:
                 series = series[:59] + '…'
+            series = prepare_string_for_xml(series)
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
         text += '<p><a href="calibre://jump" title="{1}"><img valign="bottom" src="calibre-icon:///lt.png" width=16 height=16>\xa0{0}</a>\xa0\xa0\xa0 '.format(
             _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'))
-        text += '<a href="calibre://mark" title="{1}"><img valig="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
+        text += '<a href="calibre://mark" title="{1}"><img valign="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
                 ' You can search for marked books using the search term: {0}').format('<p>marked:true'))
         self.book_info.setHtml(text)
+
+    def render_results(self, results, individual_match=None):
+        html = []
+
+        def markup_text(text):
+            count = 0
+
+            def sub(m):
+                nonlocal count
+                count += 1
+                return '<b><i>' if count % 2 else '</i></b>'
+
+            return re.sub('\x1d', sub, text)
+
+        for (result, formats) in zip(results.texts, results.formats):
+            text = result['text']
+            text = markup_text(prepare_string_for_xml(text))
+            html.append(f'<hr><p>{text}</p>')
+        self.results.setHtml('\n'.join(html))
 
 
 class DetailsPanel(QStackedWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.currently_showing = None, None
 
         # help panel {{{
         self.help_panel = hp = HTMLDisplay(self)
@@ -571,19 +621,18 @@ p { margin: 0; }
         return QSize(400, 700)
 
     def show_result(self, results=None, individual_match=None):
-        key = results, individual_match
-        if key == self.currently_showing:
-            return
-        self.currently_showing = key
         if results is None:
             self.setCurrentIndex(0)
         else:
             self.setCurrentIndex(1)
             self.result_details.show_result(results, individual_match)
 
+    def result_with_context_found(self, results, individual_match):
+        if self.currentIndex() == 1:
+            self.result_details.result_with_context_found(results, individual_match)
+
     def clear(self):
         self.setCurrentIndex(0)
-        self.currently_showing = None, None
 
 
 class LeftPanel(QWidget):
@@ -627,6 +676,7 @@ class ResultsPanel(QWidget):
         self.details = d = DetailsPanel(self)
         rv.current_changed.connect(d.show_result)
         rv.search_started.connect(d.clear)
+        rv.result_with_context_found.connect(d.result_with_context_found)
         s.addWidget(d)
 
     def specialize_button_box(self, bb):
