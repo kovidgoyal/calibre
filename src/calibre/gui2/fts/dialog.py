@@ -4,13 +4,14 @@
 
 
 import os
-from qt.core import QDialogButtonBox, QHBoxLayout, QSize, QStackedWidget, QVBoxLayout
-
-from calibre.gui2.fts.utils import get_db
-from calibre.gui2.widgets2 import Dialog
+from qt.core import (
+    QDialogButtonBox, QHBoxLayout, QLabel, QSize, QStackedWidget, QVBoxLayout
+)
 
 from calibre.gui2.fts.scan import ScanStatus
 from calibre.gui2.fts.search import ResultsPanel
+from calibre.gui2.fts.utils import get_db
+from calibre.gui2.widgets2 import Dialog
 
 
 class FTSDialog(Dialog):
@@ -26,7 +27,11 @@ class FTSDialog(Dialog):
         h = QHBoxLayout()
         h.setContentsMargins(0, 0, 0, 0)
         l.addLayout(h)
-        h.addWidget(self.bb)
+        self.indexing_label = il = QLabel(self)
+        il.setToolTip('<p>' + _(
+            'Indexing of all books in this library is not yet complete, so search results'
+            ' will not be from all books. Click the show indexing status button to see details.'))
+        h.addWidget(il), h.addStretch(), h.addWidget(self.bb)
         self.scan_status = ss = ScanStatus(self)
         ss.switch_to_search_panel.connect(self.show_results_panel)
         self.results_panel = rp = ResultsPanel(self)
@@ -36,14 +41,40 @@ class FTSDialog(Dialog):
             self.show_results_panel()
         else:
             self.show_scan_status()
+        self.update_indexing_label()
+        self.scan_status.indexing_progress_changed.connect(self.update_indexing_label)
+
+    def update_indexing_label(self):
+        ip = self.scan_status.indexing_progress
+        if self.stack.currentWidget() is self.scan_status or ip.complete:
+            self.indexing_label.setVisible(False)
+        else:
+            self.indexing_label.setVisible(True)
+            try:
+                p = (ip.total - ip.left) / ip.total
+                p = int(100 * p)
+            except Exception:
+                self.indexing_label.setVisible(False)
+            else:
+                if p < 100:
+                    t = _('Indexing is only {0}% done').format(p)
+                    ss = ''
+                    if p < 90:
+                        ss = 'QLabel { color: red }'
+                    self.indexing_label.setStyleSheet(ss)
+                    self.indexing_label.setText(t)
+                else:
+                    self.indexing_label.setVisible(False)
 
     def show_scan_status(self):
         self.stack.setCurrentWidget(self.scan_status)
         self.scan_status.specialize_button_box(self.bb)
+        self.update_indexing_label()
 
     def show_results_panel(self):
         self.stack.setCurrentWidget(self.results_panel)
         self.results_panel.specialize_button_box(self.bb)
+        self.update_indexing_label()
         self.results_panel.on_show()
 
     def library_changed(self):

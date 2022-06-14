@@ -19,6 +19,9 @@ class IndexingProgress:
     def __init__(self):
         self.left = self.total = -1
 
+    def __repr__(self):
+        return f'IndexingProgress(left={self.left}, total={self.total})'
+
     def update(self, left, total):
         changed = (left, total) != (self.left, self.total)
         self.left, self.total = left, total
@@ -30,7 +33,7 @@ class IndexingProgress:
 
     @property
     def almost_complete(self):
-        return self.complete or (self.left / self.total) > 0.9
+        return self.complete or (self.left / self.total) < 0.1
 
 
 class ScanProgress(QWidget):
