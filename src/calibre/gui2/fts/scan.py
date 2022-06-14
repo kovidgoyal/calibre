@@ -141,7 +141,8 @@ class ScanStatus(QWidget):
         self.enable_fts.toggled.connect(self.change_fts_state)
         self.indexing_status_timer = t = QTimer(self)
         t.timeout.connect(self.update_stats)
-        t.start(1000)
+        t.setInterval(1000)
+        t.start()
         self.update_stats()
 
     def update_stats(self):
@@ -197,6 +198,9 @@ class ScanStatus(QWidget):
         self.enable_fts.blockSignals(False)
         self.update_stats()
         self.apply_fts_state()
+
+    def startup(self):
+        self.indexing_status_timer.start()
 
     def shutdown(self):
         self.indexing_status_timer.stop()

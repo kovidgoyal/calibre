@@ -88,6 +88,10 @@ class FTSDialog(Dialog):
     def sizeHint(self):
         return QSize(1000, 680)
 
+    def show(self):
+        super().show()
+        self.scan_status.startup()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
