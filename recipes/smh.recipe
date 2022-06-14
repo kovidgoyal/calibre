@@ -1,66 +1,50 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
+__license__ = "GPL v3"
+__copyright__ = "2010-2011, Darko Miletic <darko.miletic at gmail.com>"
+"""
 smh.com.au
-'''
+"""
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Smh_au(BasicNewsRecipe):
-    title = 'The Sydney Morning Herald'
-    __author__ = 'Darko Miletic'
-    description = 'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'  # noqa
-    publisher = 'Fairfax Digital'
-    category = 'news, politics, Australia, Sydney'
+    title = "The Sydney Morning Herald"
+    __author__ = "Darko Miletic"
+    description = "Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news."  # noqa
+    publisher = "Fairfax Digital"
+    category = "news, politics, Australia, Sydney"
     oldest_article = 2
     max_articles_per_feed = 200
     no_stylesheets = True
-    ignore_duplicate_articles = {'title', 'url'}
+    ignore_duplicate_articles = {"title", "url"}
     use_embedded_content = False
-    encoding = 'utf-8'
-    use_embedded_content = False
-    language = 'en_AU'
+    encoding = "utf-8"
+
+    language = "en_AU"
     remove_empty_feeds = True
-    masthead_url = 'http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg'
-    publication_type = 'newspaper'
-    extra_css             = """
-                                h1{font-family: Georgia,"Times New Roman",Times,serif }
-                                body{font-family: Arial,Helvetica,sans-serif}
-                                .cT-imageLandscape,.cT-imagePortrait{font-size: x-small}
-                            """
+    masthead_url = "http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg"
+    publication_type = "newspaper"
 
-    feeds = [
-        ('Politics', 'http://www.smh.com.au/rssheadlines/political-news/article/rss.xml'),
-        ('NSW News', 'http://www.smh.com.au/rssheadlines/nsw/article/rss.xml'),
-        ('World', 'http://www.smh.com.au/rssheadlines/world/article/rss.xml'),
-        ('National', 'http://www.smh.com.au/rssheadlines/national/article/rss.xml'),
-        ('Business', 'http://www.smh.com.au/rssheadlines/business/article/rss.xml'),
-        ('Entertainment', 'http://feeds.smh.com.au/rssheadlines/entertainment.xml'),
-        ('Technology', 'http://www.smh.com.au/rssheadlines/technology-news/article/rss.xml'),
-        ('Health', 'http://www.smh.com.au/rssheadlines/health/article/rss.xml'),
-        ('Sport', 'http://feeds.smh.com.au/rssheadlines/sport.xml'),
-        ('Cricket', 'http://www.smh.com.au/rssheadlines/cricket/article/rss.xml'),
-    ]
-
-    remove_tags_after = [
-        dict(name='div', attrs={'class': 'articleBody'})
-    ]
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'content'})
-    ]
+    keep_only_tags = [dict(name="article")]
     remove_tags = [
-        dict(name='div', attrs={
-             'id': ['googleAds', 'moreGoogleAds', 'comments', 'video-player-content']}),
-        dict(name='div', attrs={'class': 'cT-imageMultimedia'}),
-        dict(name=['object', 'embed', 'iframe']),
-        dict(attrs={'class': 'hidden'}),
-        dict(name=['link', 'meta', 'base', 'embed', 'object', 'iframe'])
+        dict(name=["button"]),
+        dict(id=["saveTooltip"]),
+        dict(attrs={"class": "noPrint"}),
     ]
-    remove_attributes = ['width', 'height', 'lang']
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('bod'):
-            item.name = 'div'
-        return soup
+    # https://www.smh.com.au/rssheadlines
+    feeds = [
+        ("Latest News", "https://www.smh.com.au/rss/feed.xml"),
+        ("Federal Politics", "https://www.smh.com.au/rss/politics/federal.xml"),
+        ("NSW News", "https://www.smh.com.au/rss/national/nsw.xml"),
+        ("World", "https://www.smh.com.au/rss/world.xml"),
+        ("National", "https://www.smh.com.au/rss/national.xml"),
+        ("Business", "https://www.smh.com.au/rss/business.xml"),
+        ("Culture", "https://www.smh.com.au/rss/culture.xml"),
+        ("Technology", "https://www.smh.com.au/rss/technology.xml"),
+        ("Environment", "https://www.smh.com.au/rss/environment.xml"),
+        ("Lifestyle", "https://www.smh.com.au/rss/lifestyle.xml"),
+        ("Property", "https://www.smh.com.au/rss/property.xml"),
+        ("Sport", "https://www.smh.com.au/rss/sport.xml"),
+        ("Ruby League", "https://www.smh.com.au/rss/sport/nrl.xml"),
+        ("AFL", "https://www.smh.com.au/rss/sport/afl.xml"),
+    ]
