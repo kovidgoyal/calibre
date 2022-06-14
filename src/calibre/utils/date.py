@@ -248,12 +248,12 @@ def utcnow():
 def utcfromtimestamp(stamp):
     try:
         return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
-    except ValueError:
+    except Exception:
         # Raised if stamp is out of range for the platforms gmtime function
         # For example, this happens with negative values on windows
         try:
             return EPOCH + timedelta(seconds=stamp)
-        except (ValueError, OverflowError):
+        except Exception:
             # datetime can only represent years between 1 and 9999
             import traceback
             traceback.print_exc()
