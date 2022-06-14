@@ -232,6 +232,10 @@ class SearchBar(QFrame):  # {{{
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
+        parent.full_text_search_action = ac = parent.search.add_action('lt.png', QLineEdit.ActionPosition.LeadingPosition)
+        ac.setToolTip('<p>' + _('Search the full text of all books in the library, not just their metadata'))
+        ac.triggered.connect(self.do_fts)
+
         parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.ActionPosition.LeadingPosition)
         parent.addAction(ac)
         ac.setToolTip(_('Advanced search'))
@@ -299,6 +303,10 @@ class SearchBar(QFrame):  # {{{
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
         get_gui().iactions['Sort By'].update_menu(self.sort_button.menu())
+
+    def do_fts(self):
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['Full Text Search'].show_fts()
 
 # }}}
 
