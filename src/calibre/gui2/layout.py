@@ -232,7 +232,7 @@ class SearchBar(QFrame):  # {{{
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
-        parent.full_text_search_action = ac = parent.search.add_action('lt.png', QLineEdit.ActionPosition.LeadingPosition)
+        parent.full_text_search_action = ac = parent.search.add_action('fts.png', QLineEdit.ActionPosition.LeadingPosition)
         ac.setToolTip('<p>' + _('Search the full text of all books in the library, not just their metadata'))
         ac.triggered.connect(self.do_fts)
 
