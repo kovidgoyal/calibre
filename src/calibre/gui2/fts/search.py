@@ -481,6 +481,10 @@ class ResultDetails(QWidget):
     def current_book_id(self):
         return -1 if self.key is None else self.key[0]
 
+    @property
+    def current_individual_match(self):
+        return None if self.key is None else self.key[2]
+
     def book_info_anchor_clicked(self, url):
         if self.current_book_id > 0:
             if url.host() == 'mark':
@@ -528,7 +532,7 @@ class ResultDetails(QWidget):
 
     def result_with_context_found(self, results, individual_match):
         if results.book_id == self.current_book_id:
-            return self.show_result(results, self.key[2])
+            return self.show_result(results, self.current_individual_match)
         return False
 
     def render_book_info(self, results):
@@ -568,7 +572,10 @@ class ResultDetails(QWidget):
 
             return re.sub('\x1d', sub, text)
 
-        for (result, formats) in zip(results.texts, results.formats):
+        ci = self.current_individual_match
+        for i, (result, formats) in enumerate(zip(results.texts, results.formats)):
+            if ci is not None and ci != i:
+                continue
             text = result['text']
             text = markup_text(prepare_string_for_xml(text))
             html.append(f'<hr><p>{text}</p>')
