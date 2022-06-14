@@ -546,6 +546,19 @@ calibre allows you to save a frequently used search under a special name and the
 
 Now you can access your saved search in the Tag browser under :guilabel:`Saved searches`. A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
+Searching the full text of all books
+---------------------------------------
+
+calibre can *optionally* index the full text of books in the library to allow
+for instant searching of words inside any book. To enable this functionality
+go to :guilabel:`Preferences->Toolbars & menus->The main toolbar` and add the
+:guilabel:`Search full text` button to the toolbar.
+
+Click the newly added button to show the full text search window. Enable
+indexing for the current library. Once indexing is complete you can search all
+the text in the full library. When you add new books to the library, they will
+be automatically indexed in the background.
+
 Virtual libraries
 -------------------
 
@@ -849,6 +862,8 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Add empty books to calibre
     * - :kbd:`Ctrl+M`
       - Toggle mark/unmarked status on selected books
+    * - :kbd:`Ctrl+/` or :kbd:`Ctrl+Alt+F`
+      - Open the popup to search the full text of all books in the library
     * - :kbd:`Q`
       - Open the Quick View popup for viewing books in related series/tags/etc.
     * - :kbd:`Shift+Q`

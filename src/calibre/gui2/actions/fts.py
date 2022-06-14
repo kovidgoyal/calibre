@@ -8,8 +8,8 @@ from calibre.gui2.actions import InterfaceAction
 class FullTextSearchAction(InterfaceAction):
 
     name = 'Full Text Search'
-    action_spec = (_('Search full text of books'), 'search.png',
-                   _('Search the full text of all books in the calibre library'), _('Z'))
+    action_spec = (_('Search full text'), 'search.png',
+                   _('Search the full text of all books in the calibre library'), ('Ctrl+/', 'Ctrl+Alt+F'))
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
