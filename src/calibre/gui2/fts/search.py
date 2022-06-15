@@ -570,7 +570,7 @@ class ResultDetails(QWidget):
                 count += 1
                 return '<b><i>' if count % 2 else '</i></b>'
 
-            return re.sub('\x1d', sub, text)
+            return re.sub('\x1d', sub, re.sub(r'\s+', ' ', text))
 
         ci = self.current_individual_match
         for i, (result, formats) in enumerate(zip(results.texts, results.formats)):
