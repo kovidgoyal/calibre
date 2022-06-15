@@ -165,6 +165,7 @@ class ResultsModel(QAbstractItemModel):
     def clear_results(self):
         self.current_query_id = -1
         self.current_thread_abort.set()
+        self.current_search_key = None
         self.search_started.emit()
         self.matches_found.emit(-1)
         self.beginResetModel()
@@ -435,7 +436,7 @@ class SearchInputPanel(QWidget):
         rw.setChecked(gprefs['fts_library_use_stemmer'])
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = QLabel(self)
-        h1.addWidget(r), h1.addWidget(rw), h1.addWidget(s), h1.addStretch()
+        h1.addWidget(r), h1.addWidget(rw), h1.addStretch(), h1.addWidget(s)
 
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
@@ -460,7 +461,7 @@ class SearchInputPanel(QWidget):
         if num < 0:
             self.summary.setText('')
         else:
-            self.summary.setText(ngettext('One book matched', '{num} books matched', num).format(num=num))
+            self.summary.setText(ngettext('One book', '{num} books', num).format(num=num))
 
 
 class ResultDetails(QWidget):
@@ -587,6 +588,12 @@ class ResultDetails(QWidget):
             html.append(f'<p>{text}</p>')
         self.results.setHtml('\n'.join(html))
 
+    def clear(self):
+        self.key = None
+        self.book_info.setHtml('')
+        self.results.setHtml('')
+        self.pixmap_label.setPixmap(QPixmap())
+
 
 class DetailsPanel(QStackedWidget):
 
@@ -646,6 +653,7 @@ p { margin: 0; }
 
     def clear(self):
         self.setCurrentIndex(0)
+        self.result_details.clear()
 
 
 class LeftPanel(QWidget):
@@ -655,7 +663,7 @@ class LeftPanel(QWidget):
         QVBoxLayout(self)
 
     def sizeHint(self):
-        return QSize(650, 700)
+        return QSize(700, 700)
 
 
 class ResultsPanel(QWidget):
