@@ -954,7 +954,7 @@ class CSSRulesModel(QAbstractItemModel):
         if not index.isValid():
             return ROOT
         parent = index.internalPointer()
-        if parent is self.rules or parent is None:
+        if parent in self.rules or parent is None:
             return ROOT
         try:
             pidx, grand_parent = self.parent_map[parent]
