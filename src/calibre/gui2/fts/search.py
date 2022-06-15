@@ -578,7 +578,13 @@ class ResultDetails(QWidget):
                 continue
             text = result['text']
             text = markup_text(prepare_string_for_xml(text))
-            html.append(f'<hr><p>{text}</p>')
+            html.append('<hr>')
+            for fmt in formats:
+                fmt = fmt.upper()
+                tt = _('Open the book, in the {fmt} format.\nWhen using the calibre viewer, it will attempt to scroll\nto this search result automatically.'
+                       ).format(fmt=fmt)
+                html.append(f'<a title="{tt}" href="book:///{self.current_book_id}/{fmt}">{fmt}</a>\xa0 ')
+            html.append(f'<p>{text}</p>')
         self.results.setHtml('\n'.join(html))
 
 
