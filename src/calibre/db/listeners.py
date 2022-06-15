@@ -40,6 +40,9 @@ class EventType(Enum):
     #: When a book format is edited, with arguments: (book_id, fmt)
     book_edited = auto()
 
+    #: When the indexing progress changes
+    indexing_progress_changed = auto()
+
 
 class EventDispatcher(Thread):
 

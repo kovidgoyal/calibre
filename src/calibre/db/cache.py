@@ -431,6 +431,7 @@ class Cache:
     def initialize_fts(self):
         self.fts_queue_thread = None
         self.fts_job_queue = Queue()
+        self.fts_indexing_left = self.fts_indexing_total = 0
         fts = self.backend.initialize_fts(weakref.ref(self))
         if self.is_fts_enabled():
             self.start_fts_pool()
@@ -448,14 +449,20 @@ class Cache:
     def is_fts_enabled(self):
         return self.backend.fts_enabled
 
-    @read_api
+    @api
     def fts_indexing_progress(self):
-        if not self.is_fts_enabled():
-            return 0, 0
-        num_to_scan = self.backend.fts.number_dirtied()
-        if not num_to_scan:
-            return 0, 1
-        return num_to_scan, (self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0)
+        return self.fts_indexing_left, self.fts_indexing_total
+
+    def _update_fts_indexing_numbers(self):
+        # this is called when new formats are added and when a format is
+        # indexed, but NOT when books or formats are deleted, so total may not
+        # be up to date.
+        nl = self.backend.fts.number_dirtied()
+        nt = self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0
+        if (self.fts_indexing_left, self.fts_indexing_total) != (nl, nt):
+            self.fts_indexing_left = nl
+            self.fts_indexing_total = nt
+            self.event_dispatcher(EventType.indexing_progress_changed, nl, nt)
 
     @write_api
     def enable_fts(self, enabled=True, start_pool=True):
@@ -527,10 +534,13 @@ class Cache:
         if not self.backend.fts_enabled:
             return
         self.fts_job_queue.put(True)
+        self._update_fts_indexing_numbers()
 
     @write_api
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
-        return self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
+        ans = self.backend.commit_fts_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
+        self._update_fts_indexing_numbers()
+        return ans
 
     @api
     def reindex_fts(self):

@@ -5,13 +5,15 @@
 import os
 from qt.core import (
     QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QPushButton,
-    QRadioButton, QTimer, QVBoxLayout, QWidget, pyqtSignal
+    QRadioButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import detect_ncpus
 from calibre.db.cache import Cache
+from calibre.db.listeners import EventType
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
+from calibre.gui2.ui import get_gui
 
 
 class IndexingProgress:
@@ -139,11 +141,20 @@ class ScanStatus(QWidget):
         l.addStretch(10)
         self.apply_fts_state()
         self.enable_fts.toggled.connect(self.change_fts_state)
-        self.indexing_status_timer = t = QTimer(self)
-        t.timeout.connect(self.update_stats)
-        t.setInterval(1000)
-        t.start()
         self.update_stats()
+        gui = get_gui()
+        if gui is None:
+            self.db.add_listener(self)
+        else:
+            gui.add_db_listener(self.gui_update_event)
+
+    def gui_update_event(self, db, event_type, event_data):
+        if event_type is EventType.indexing_progress_changed:
+            self.update_stats()
+
+    def __call__(self, event_type, library_id, event_data):
+        if event_type is EventType.indexing_progress_changed:
+            self.update_stats()
 
     def update_stats(self):
         changed = self.indexing_progress.update(*self.db.fts_indexing_progress())
@@ -200,10 +211,9 @@ class ScanStatus(QWidget):
         self.apply_fts_state()
 
     def startup(self):
-        self.indexing_status_timer.start()
+        pass
 
     def shutdown(self):
-        self.indexing_status_timer.stop()
         self.scan_progress.slow_button.setChecked(True)
         self.reset_indexing_state_for_current_db()
 
