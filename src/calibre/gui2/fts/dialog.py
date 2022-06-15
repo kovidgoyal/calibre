@@ -17,7 +17,7 @@ from calibre.gui2.widgets2 import Dialog
 class FTSDialog(Dialog):
 
     def __init__(self, parent=None):
-        super().__init__(_('Search the text of all books in the library'), 'library-fts-dialog-2',
+        super().__init__(_('Search the text of all books in the library'), 'library-fts-dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setWindowIcon(QIcon.ic('fts.png'))
 

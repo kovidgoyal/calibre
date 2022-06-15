@@ -731,6 +731,9 @@ class ResultsPanel(QWidget):
         rv.search_started.connect(d.clear)
         rv.result_with_context_found.connect(d.result_with_context_found)
         s.addWidget(d)
+        st = gprefs.get('fts_search_splitter_state')
+        if st is not None:
+            s.restoreState(st)
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
@@ -745,6 +748,8 @@ class ResultsPanel(QWidget):
         self.results_view.m.clear_results()
 
     def shutdown(self):
+        b = self.splitter.saveState()
+        gprefs['fts_search_splitter_state'] = bytearray(b)
         self.clear_results()
 
     def on_show(self):
