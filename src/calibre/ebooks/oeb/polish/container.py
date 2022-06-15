@@ -54,7 +54,8 @@ from polyglot.urllib import urlparse
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
-OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf', 'application/font-sfnt'}
+OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'),
+             guess_type('.woff2'), 'application/font-woff', 'application/font-sfnt', 'application/vnd.ms-opentype'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 null = object()
 
@@ -146,14 +147,6 @@ class ContainerBase:  # {{{
         ans = guess_type(name)
         if ans == 'text/html':
             ans = 'application/xhtml+xml'
-        if ans in {'application/x-font-truetype', 'application/vnd.ms-opentype'}:
-            opfversion = self.opf_version_parsed[:2]
-            if opfversion > (3, 0):
-                return 'application/font-sfnt'
-            if opfversion >= (3, 0):
-                # bloody epubcheck has recently decided it likes this mimetype
-                # for ttf files
-                return 'application/vnd.ms-opentype'
         return ans
 
     def decode(self, data, normalize_to_nfc=True):
