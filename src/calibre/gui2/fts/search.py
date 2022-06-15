@@ -6,6 +6,7 @@
 import math
 import os
 import re
+import time
 import traceback
 from contextlib import suppress
 from functools import partial
@@ -21,7 +22,7 @@ from threading import Event, Thread
 from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import config, error_dialog, gprefs, safe_open_url
+from calibre.gui2 import config, error_dialog, gprefs, question_dialog, safe_open_url
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.annotations import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -172,6 +173,11 @@ class ResultsModel(QAbstractItemModel):
         self.results = []
         self.endResetModel()
         self.search_complete.emit()
+
+    def abort_search(self):
+        self.current_thread_abort.set()
+        self.signal_search_complete(self.current_query_id)
+        self.current_search_key = None  # so that re-doing the search works
 
     def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None):
         db = get_db()
@@ -394,6 +400,13 @@ class ResultsView(QTreeView):
 
 class Spinner(ProgressIndicator):
 
+    last_mouse_press_at = 0
+    clicked = pyqtSignal(object)
+
+    def __init__(self, *a):
+        super().__init__(*a)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
     def sizeHint(self):
         return QSize(8, 8)
 
@@ -401,11 +414,28 @@ class Spinner(ProgressIndicator):
         if self.isAnimated():
             super().paintEvent(ev)
 
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            self.last_mouse_press_at = time.monotonic()
+            ev.accept()
+        super().mousePressEvent(ev)
+
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            dt = time.monotonic() - self.last_mouse_press_at
+            self.last_mouse_press_at = 0
+            if dt < 0.5:
+                self.clicked.emit(ev)
+                ev.accept()
+                return
+        super().mouseReleaseEvent(ev)
+
 
 class SearchInputPanel(QWidget):
 
     search_signal = pyqtSignal(object)
     clear_search = pyqtSignal()
+    request_stop_search = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -443,6 +473,7 @@ class SearchInputPanel(QWidget):
         self.v2 = v2 = QVBoxLayout()
         v2.addWidget(sb)
         self.pi = pi = Spinner(self)
+        pi.clicked.connect(self.request_stop_search)
         v2.addWidget(pi)
 
         self.layout().addLayout(v2)
@@ -684,6 +715,7 @@ class ResultsPanel(QWidget):
         s.addWidget(lp)
         l = lp.layout()
         self.sip = sip = SearchInputPanel(parent=self)
+        sip.request_stop_search.connect(self.request_stop_search)
         l.addWidget(sip)
         self.results_view = rv = ResultsView(parent=self)
         l.addWidget(rv)
@@ -699,6 +731,10 @@ class ResultsPanel(QWidget):
         rv.search_started.connect(d.clear)
         rv.result_with_context_found.connect(d.result_with_context_found)
         s.addWidget(d)
+
+    def request_stop_search(self):
+        if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
+            self.results_view.m.abort_search()
 
     def specialize_button_box(self, bb):
         bb.clear()
