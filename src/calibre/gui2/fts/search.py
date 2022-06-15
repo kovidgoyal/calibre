@@ -163,6 +163,10 @@ class ResultsModel(QAbstractItemModel):
         self.result_found.connect(self.result_with_text_found, type=Qt.ConnectionType.QueuedConnection)
         self.all_results_found.connect(self.signal_search_complete, type=Qt.ConnectionType.QueuedConnection)
 
+    def all_book_ids(self):
+        for r in self.results:
+            yield r.book_id
+
     def clear_results(self):
         self.current_query_id = -1
         self.current_thread_abort.set()
@@ -743,6 +747,21 @@ class ResultsPanel(QWidget):
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
         bb.addButton(_('Show &indexing status'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.switch_to_scan_panel)
+        b = bb.addButton(_('&Mark books'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('marked.png'))
+        m = QMenu(b)
+        m.addAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), partial(self.mark_books, 'mark'))
+        m.addAction(QIcon.ic('edit-select-all.png'), _('Select all matched books in the library'), partial(self.mark_books, 'select'))
+        b.setMenu(m)
+
+    def mark_books(self, which):
+        gui = get_gui()
+        if gui is not None:
+            book_ids = tuple(self.results_view.model().all_book_ids())
+            if which == 'mark':
+                gui.iactions['Mark Books'].add_ids(book_ids)
+            elif which == 'select':
+                gui.library_view.select_rows(book_ids)
 
     def clear_results(self):
         self.results_view.m.clear_results()
