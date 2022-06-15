@@ -60,10 +60,11 @@ class FTSDialog(Dialog):
             except Exception:
                 self.indexing_label.setVisible(False)
             else:
-                if p < 100:
-                    t = _('Indexing is only {0:.0%} done').format(p)
+                if p < 1:
+                    q = f'{p:.0%}'
+                    t = _('Indexing is almost complete') if q == '100%' else _('Indexing is only {} done').format(q)
                     ss = ''
-                    if p < 90:
+                    if p < 0.9:
                         ss = 'QLabel { color: red }'
                     self.indexing_label.setStyleSheet(ss)
                     self.indexing_label.setText(t)

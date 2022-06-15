@@ -103,8 +103,11 @@ class ScanProgress(QWidget):
             self.switch_anyway.setText(_('Start &searching'))
         else:
             done = total - left
-            t = _('{0} of {1} book files, {2:.0%} have been indexed').format(
-                done, total, done / (total or 1))
+            p = done / (total or 1)
+            p = f'{p:.0%}'
+            if p == '100%':
+                p = _('almost 100%')
+            t = _('{0} of {1} book files, {2} have been indexed').format(done, total, p)
             self.warn_label.setVisible(True)
             self.switch_anyway.setIcon(QIcon.ic('dialog_warning.png'))
             self.switch_anyway.setText(_('Start &searching even with incomplete indexing'))
