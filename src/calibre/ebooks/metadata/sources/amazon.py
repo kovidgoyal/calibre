@@ -27,6 +27,23 @@ from calibre.utils.random_ua import accept_header_for_ua
 from calibre.ebooks.oeb.base import urlquote
 
 
+def sort_matches_preferring_kindle_editions(matches):
+    upos_map = {url:i for i, url in enumerate(matches)}
+
+    def skey(url):
+        opos = upos_map[url]
+        parts = url.split('/')
+        try:
+            idx = parts.index('dp')
+        except Exception:
+            idx = -1
+        if idx < 0 or idx + 1 >= len(parts) or not parts[idx+1].startswith('B'):
+            return 1, opos
+        return 0, opos
+    matches.sort(key=skey)
+    return matches
+
+
 def iri_quote_plus(url):
     ans = urlquote(url)
     if isinstance(ans, bytes):
@@ -975,7 +992,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 27)
+    version = (1, 2, 28)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1031,6 +1048,12 @@ class Amazon(Source):
                    ' MOBI file came from a different Amazon country store, you could get'
                    ' incorrect results.'
                )),
+        Option('prefer_kindle_edition', 'bool', False, _('Prefer the Kindle edition, when available'),
+               _(
+                   'When searching for a book and the search engine returns both paper and Kindle editions,'
+                   ' always prefer the Kindle edition, instead of whatever the search engine returns at the'
+                   ' top.')
+        ),
     )
 
     def __init__(self, *args, **kwargs):
@@ -1527,6 +1550,9 @@ class Amazon(Source):
                                      authors=authors, timeout=timeout)
             log.error('No matches found with query: %r' % query)
             return
+
+        if self.prefs['prefer_kindle_edition']:
+            matches = sort_matches_preferring_kindle_editions(matches)
 
         workers = [Worker(
             url, result_queue, br, log, i, domain, self, testing=testing, timeout=timeout,
