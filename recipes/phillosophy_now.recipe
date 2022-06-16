@@ -1,12 +1,12 @@
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre import browser
 from collections import OrderedDict
 
 
 class PhilosophyNow(BasicNewsRecipe):
 
     title = 'Philosophy Now'
-    __author__ = 'Rick Shang'
+    __author__ = 'unkn0wn'
     description = '''Philosophy Now is a lively magazine for everyone
     interested in ideas. It isn't afraid to tackle all the major questions of
     life, the universe and everything. Published every two months, it tries to
@@ -15,65 +15,64 @@ class PhilosophyNow(BasicNewsRecipe):
     reading matter for those already ensnared by the muse, such as philosophy
     students and academics.'''
     language = 'en'
-    category = 'news'
-    encoding = 'UTF-8'
-
-    keep_only_tags = [dict(attrs={'id': 'fullMainColumn'})]
-    remove_tags = [dict(attrs={'class': 'articleTools'})]
-    no_javascript = True
+    use_embedded_content = False
     no_stylesheets = True
-    needs_subscription = True
+    remove_javascript = True
+    remove_attributes = ['height', 'width', 'style']
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.open('https://philosophynow.org/auth/login')
-        br.select_form(name="loginForm")
-        br['username'] = self.username
-        br['password'] = self.password
-        br.submit()
-        return br
+    keep_only_tags = [classes('article_page')]
+    remove_tags = [dict(name='div', attrs={'id':'welcome_box'})]
 
     def parse_index(self):
-        # Go to the issue
-        soup0 = self.index_to_soup('http://philosophynow.org/')
-        issue = soup0.find('div', attrs={'id': 'navColumn'})
-
-        # Find date & cover
-        cover = issue.find('div', attrs={'id': 'cover'})
-        date = self.tag_to_string(cover.find('h3')).strip()
-        self.timefmt = u' [%s]' % date
-        img = cover.find('img', src=True)['src']
-        self.cover_url = 'http://philosophynow.org' + \
-            re.sub('medium', 'large', img)
-        issuenum = re.sub('/media/images/covers/medium/issue', '', img)
-        issuenum = re.sub('.jpg', '', issuenum)
-
-        # Go to the main body
-        current_issue_url = 'http://philosophynow.org/issues/' + issuenum
-        soup = self.index_to_soup(current_issue_url)
-        div = soup.find('div', attrs={'class': 'contentsColumn'})
+        soup = self.index_to_soup('https://philosophynow.org/')
+        div = soup.find('div', attrs={'id': 'aside_issue_cover'})
+        url = div.find('a', href=True)['href']
+        for issue in div.findAll('div', attrs={'id':'aside_issue_text'}):
+            self.log('Downloading issue:', self.tag_to_string(issue).strip())
+        cov_url = div.find('img', src=True)['src']
+        self.cover_url = 'https://philosophynow.org' + cov_url
+        soup = self.index_to_soup('https://philosophynow.org' + url)
 
         feeds = OrderedDict()
 
-        for post in div.findAll('h1'):
+        for h2 in soup.findAll('h2', attrs={'class':'article_list_title'}):
             articles = []
-            a = post.find('a', href=True)
-            if a is not None:
-                url = "http://philosophynow.org" + a['href']
-                title = self.tag_to_string(a).strip()
-                s = post.findPrevious('h3')
-                section_title = self.tag_to_string(s).strip()
-                d = post.findNext('h2')
-                desc = self.tag_to_string(d).strip()
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
+            a = h2.find('a', href=True)
+            url = a['href']
+            url = 'https://philosophynow.org' + url
+            title = self.tag_to_string(a)
+            des = h2.find_next_sibling('p')
+            if des:
+                desc = self.tag_to_string(des)
+            h3 = h2.find_previous_sibling('h3')
+            section_title = self.tag_to_string(h3).title()
+            self.log('\t', title)
+            self.log('\t', desc)
+            self.log('\t\t', url)
+            articles.append({
+                'title': title,
+                'url': url,
+                'description': desc})
 
-                if articles:
-                    if section_title not in feeds:
-                        feeds[section_title] = []
-                    feeds[section_title] += articles
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
         ans = [(key, val) for key, val in feeds.items()]
         return ans
 
-    def cleanup(self):
-        self.browser.open('http://philosophynow.org/auth/logout')
+    # PN changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
