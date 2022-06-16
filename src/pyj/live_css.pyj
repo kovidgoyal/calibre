@@ -179,13 +179,16 @@ def selector_matches(node, selector):
 
 
 def process_rules(node, rules, address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans):
+    offset = 0
     for rule_index in range(rules.length):
         rule = rules[rule_index]
-        rule_address = address.concat(v'[rule_index]')
+        rule_address = address.concat(v'[rule_index - offset]')
         if rule.type is CSSRule.MEDIA_RULE:
             process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
             continue
         if rule.type is not CSSRule.STYLE_RULE:
+            if rule.type is CSSRule.NAMESPACE_RULE:
+                offset += 1
             continue
         st = rule.selectorText
         if not selector_matches(node, st):
