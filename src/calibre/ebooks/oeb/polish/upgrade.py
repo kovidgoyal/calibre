@@ -7,7 +7,7 @@ import sys
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
 from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, xpath
 from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
-from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import (
     commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc

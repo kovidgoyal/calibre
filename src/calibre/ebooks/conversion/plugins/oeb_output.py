@@ -45,6 +45,7 @@ class OEBOutput(OutputFormatPlugin):
                             self.log.exception('Something went wrong while trying to'
                                     ' workaround Pocketbook cover bug, ignoring')
                         self.migrate_lang_code(root)
+                        self.adjust_mime_types(root)
                     raw = etree.tostring(root, pretty_print=True,
                             encoding='utf-8', xml_declaration=True)
                     if key == OPF_MIME:
@@ -66,6 +67,15 @@ class OEBOutput(OutputFormatPlugin):
                 with lopen(path, 'wb') as f:
                     f.write(item.bytes_representation)
                 item.unload_data_from_memory(memory=path)
+
+    def adjust_mime_types(self, root):
+        from calibre.ebooks.oeb.polish.utils import adjust_mime_for_epub
+        for x in root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item"]'):
+            mt = x.get('media-type')
+            if mt:
+                nmt = adjust_mime_for_epub(filename=os.path.basename(x.get('href') or ''), mime=mt)
+                if nmt != mt:
+                    x.set('media-type', nmt)
 
     def workaround_nook_cover_bug(self, root):  # {{{
         cov = root.xpath('//*[local-name() = "meta" and @name="cover" and'

@@ -9,7 +9,7 @@ from css_parser.css import CSSRule
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
-from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.utils.fonts.utils import get_all_font_names, is_font_embeddable, UnsupportedFont

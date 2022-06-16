@@ -9,8 +9,7 @@ import os, sys
 
 from calibre import prints, as_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath, css_text
-from calibre.ebooks.oeb.polish.container import OEB_FONTS
-from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type, OEB_FONTS
 from calibre.utils.fonts.sfnt.subset import subset
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import get_font_names
@@ -34,8 +33,9 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 
 def iter_subsettable_fonts(container):
+    woff_font_types = guess_type('a.woff'), guess_type('a.woff2')
     for name, mt in iteritems(container.mime_map):
-        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
+        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt not in woff_font_types:
             yield name, mt
 
 

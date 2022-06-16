@@ -229,8 +229,7 @@ def replace_file(container, name, path, basename, force_mt=None):
 
 
 def mt_to_category(container, mt):
-    from calibre.ebooks.oeb.polish.utils import guess_type
-    from calibre.ebooks.oeb.polish.container import OEB_FONTS
+    from calibre.ebooks.oeb.polish.utils import guess_type, OEB_FONTS
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
     if mt in OEB_DOCS:
         category = 'text'

@@ -19,7 +19,7 @@ from qt.core import (
 
 from calibre import human_readable, sanitize_file_name
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image
 )
