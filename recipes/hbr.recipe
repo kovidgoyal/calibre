@@ -1,6 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from datetime import datetime
 from calibre import browser
+from collections import OrderedDict
+import re
 
 
 class HBR(BasicNewsRecipe):
@@ -46,32 +48,44 @@ class HBR(BasicNewsRecipe):
         cov_url = a.find('img', attrs={'src': True})['src']
         self.cover_url = 'https://hbr.org' + cov_url
         soup = self.index_to_soup('https://hbr.org' + url)
-        ans = []
+
+        feeds = OrderedDict()
 
         for h3 in soup.findAll('h3', attrs={'class': 'hed'}):
+            articles = []
             d = datetime.today()
             for a in h3.findAll(
                 'a', href=lambda x: x.startswith('/' + d.strftime('%Y') + '/')
             ):
+
                 title = self.tag_to_string(a)
                 url = a['href']
                 url = 'https://hbr.org' + url
             div = h3.find_next_sibling('div', attrs={'class': 'stream-item-info'})
             if div:
-                auth = self.tag_to_string(div)
+                aut = self.tag_to_string(div).replace('Magazine Article ', '')
+                auth = re.sub(r"(?<=\w)([A-Z])", r", \1", aut)
             dek = h3.find_next_sibling('div', attrs={'class': 'dek'})
             if dek:
                 des = self.tag_to_string(dek)
-            desc = des + ' |' + auth
+            desc = des + ' |' + auth.title()
+            sec = h3.findParent('li').find_previous_sibling('div', **classes('stream-section-label')).find('h4')
+            section_title = self.tag_to_string(sec).title()
+            self.log(section_title)
             self.log('\t', title)
             self.log('\t', desc)
             self.log('\t\t', url)
 
-            ans.append({
+            articles.append({
                 'title': title,
                 'url': url,
                 'description': desc})
-        return [('Articles', ans)]
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.items()]
+        return ans
 
     # HBR changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
