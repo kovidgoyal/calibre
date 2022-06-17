@@ -27,7 +27,7 @@ class Haaretz_en(BasicNewsRecipe):
     language = 'en_IL'
     needs_subscription = True
     remove_empty_feeds = True
-    ignore_duplicate_articles = {'url'}    
+    ignore_duplicate_articles = {'url'}
     publication_type = 'newspaper'
     PREFIX = 'https://www.haaretz.com'
     LOGIN = 'https://services.haaretz.com/ms-sso/loginUrlEncoded'
@@ -52,7 +52,8 @@ class Haaretz_en(BasicNewsRecipe):
     ]
     remove_attributes = ['width', 'height']
     remove_tags = [
-        dict(name=['div', 'ul', 'button', 'svg'], attrs={'data-test': ['audioPlayer', 'newsletter', 'relatedArticles', 'tags', 'writerAlertButton', 'IconAlefLogo']})
+        dict(name=['div', 'ul', 'button', 'svg'], attrs={'data-test': [
+            'audioPlayer', 'newsletter', 'relatedArticles', 'tags', 'writerAlertButton', 'IconAlefLogo']})
     ]
 
     feeds = [
