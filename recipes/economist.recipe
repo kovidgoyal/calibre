@@ -9,6 +9,7 @@ except ImportError:
 import json
 from html5_parser import parse
 from lxml import etree
+from collections import defaultdict
 
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
@@ -304,31 +305,20 @@ class Economist(BasicNewsRecipe):
         script_tag = soup.find("script", id="__NEXT_DATA__")
         if script_tag is not None:
             data = json.loads(script_tag.string)
-            self.cover_url = data['props']['pageProps']['content']['image']['main']['url']['canonical']
+            self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical")
             self.log('Got cover:', self.cover_url)
-        feeds = []
-        for section in soup.findAll(**classes('layout-weekly-edition-section')):
-            h2 = section.find('h2')
-            secname = self.tag_to_string(h2)
-            self.log(secname)
-            articles = []
-            for a in section.findAll('a', href=True, **classes('headline-link weekly-edition-wtw__link')):
-                spans = a.findAll('span')
-                if len(spans) == 2:
-                    title = u'{}: {}'.format(*map(self.tag_to_string, spans))
-                else:
-                    title = self.tag_to_string(a)
-                desc = ''
-                desc_parent = a.findParent('div')
-                if desc_parent is not None:
-                    p = desc_parent.find(itemprop='description')
-                    if p is not None:
-                        desc = self.tag_to_string(p)
-                articles.append({'title': title, 'url': process_url(a['href']), 'description': desc})
-                self.log(' ', title, articles[-1]['url'], '\n   ', desc)
-            if articles:
-                feeds.append((secname, articles))
-        return feeds
+
+            feeds_dict = defaultdict(list)
+            for part in safe_dict(data, "props", "pageProps", "content", "hasPart", "parts"):
+                section = safe_dict(part, "print", "section", "headline")
+                title = safe_dict(part, "print", "headline")
+                url = safe_dict(part, "url", "canonical")
+                desc = safe_dict(part, "print", "description")
+                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                self.log(' ', title, url, '\n   ', desc)
+            return [(section, articles) for section, articles in feeds_dict.items()]
+        else:
+            return []
 
     def eco_find_image_tables(self, soup):
         for x in soup.findAll('table', align=['right', 'center']):
