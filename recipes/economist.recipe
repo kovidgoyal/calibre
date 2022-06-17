@@ -310,10 +310,12 @@ class Economist(BasicNewsRecipe):
 
             feeds_dict = defaultdict(list)
             for part in safe_dict(data, "props", "pageProps", "content", "hasPart", "parts"):
-                section = safe_dict(part, "print", "section", "headline")
-                title = safe_dict(part, "print", "headline")
-                url = safe_dict(part, "url", "canonical")
-                desc = safe_dict(part, "print", "description")
+                section = safe_dict(part, "print", "section", "headline") or ''
+                title = safe_dict(part, "print", "headline") or ''
+                url = safe_dict(part, "url", "canonical") or ''
+                if not section or not title or not url:
+                    continue
+                desc = safe_dict(part, "print", "description") or ''
                 feeds_dict[section].append({"title": title, "url": url, "description": desc})
                 self.log(' ', title, url, '\n   ', desc)
             return [(section, articles) for section, articles in feeds_dict.items()]
