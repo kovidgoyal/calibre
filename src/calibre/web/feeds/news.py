@@ -1462,7 +1462,7 @@ class BasicNewsRecipe(Recipe):
             dir = self.output_dir
         title = self.short_title()
         if self.output_profile.periodical_date_in_title:
-            title += strftime(self.timefmt)
+            title += strftime(self.timefmt,self.publication_date())
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
