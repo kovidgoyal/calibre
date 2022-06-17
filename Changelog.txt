@@ -23,6 +23,52 @@
 # - title by author
 # }}}
 
+{{{ 5.44.0 2022-06-17
+
+:: new features
+
+- [1976105] Amazon metadata download: Add an option to prefer the Kindle edition when multiple book types are returned by the search (Preferences->Metadata download->Configure the Amazon plugin)
+
+- Kobo driver: Support for updated firmware
+
+- [1977681] Allow customizing how yes/no columns are displayed (Preferences->Add your own columns)
+
+- Manage tags dialog: If tags are present in the add tags input when OK is clicked, add them automatically, without needing to click the plus button first
+
+:: bug fixes
+
+- [1978500] Edit book: Live CSS: Fix @namespace rules causing jumping to rule definition to go to the wrong definition
+
+- Workaround for Apple bug in macOS 13 that prevents device detection
+
+- Dont use commas in filenames when sending to pbsync and kindle email addresses
+
+- Edit book: When quitting while a save is in progress and the save completes while the confirmation popup is visible, dont abort the quit.
+
+:: improved recipes
+- Harvard Business Review
+- Philosophy Now
+- Sydney Morning Herald
+- Haaretz
+- Indian Express
+- Hindi Business Line
+- The New York Times
+- Nature
+- Eenadu
+- Scientific American
+- Business Today
+- Irish Times
+- FAZ.net
+- Le Monde
+- Economist
+
+:: new recipes
+- Nautilus by unkn0wn
+- The Healthy from Reader's Digest by Stephen Genusa
+- Business Standard Print Edition by unkn0wn
+- The Economic Times India Print Edition by unkn0wn
+}}}
+
 {{{ 5.43.0 2022-05-27
 
 :: new features
