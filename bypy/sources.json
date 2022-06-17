@@ -889,6 +889,16 @@
     },
 
     {
+        "name": "ply",
+		"comment": "Needed for sip (build time dependency)",
+        "unix": {
+            "filename": "ply-3.11.tar.gz",
+            "hash": "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "packaging",
 		"comment": "Needed for sip (build time dependency)",
         "unix": {
@@ -902,8 +912,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.5.0.tar.gz",
-            "hash": "sha256:a1cf8431a8eb9392b3ff6dc61d832d0447bfdcae5b3e4256a5fa74dbc25b0734",
+            "filename": "sip-6.6.1.tar.gz",
+            "hash": "sha256:696c575c72144122701171f2cc767fe6cc87050ea755a04909152a8508ae10c3",
             "urls": ["pypi"]
         }
     },
@@ -922,8 +932,8 @@
         "name": "pyqt-sip",
 		"comment": "runtime sip module for PyQt",
         "unix": {
-            "filename": "PyQt6_sip-13.2.0.tar.gz",
-            "hash": "sha256:10e6c5d0004308efcbe8826ff0b8faf6e6f60c9e906cffeb26834e18e6340ed4",
+            "filename": "PyQt6_sip-13.3.1.tar.gz",
+            "hash": "sha256:d629c0e39d5ccfdae567b92ba74d92f9180b7c55535f82251f1a12a9076a9e01",
             "urls": ["pypi"]
         }
     },
@@ -931,8 +941,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.2.2.tar.gz",
-            "hash": "sha256:9325a0f51c08e37340d916d2723daf9a25c844dac99d71d6c5aacb4f6ee00171",
+            "filename": "PyQt6-6.3.0.tar.gz",
+            "hash": "sha256:4fd85dcb15ea4e734b6e4e216fe9a6246779761edaf2cf7c0cce1a2303a8d31b",
             "urls": ["pypi"]
         }
     },
@@ -940,8 +950,8 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.2.2.tar.gz",
-            "hash": "sha256:6f6d7cb612f20d1f1f8ea1bbe7ebb8bbaa3f7fcd56f0e9c41582851998be20c3",
+            "filename": "PyQt6_WebEngine-6.3.0.tar.gz",
+            "hash": "sha256:ab2aedbeec54f1bcff872f7dfc236aa0fce4b55cd30f608ca89b408ee9e8147b",
             "urls": ["pypi"]
         }
     },
