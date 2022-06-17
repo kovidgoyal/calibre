@@ -157,7 +157,7 @@ Windows development environment
 
 .. note:: You must also get the calibre source code separately as described above.
 
-Install calibre normally, using the Windows installer. Then open a Command Prompt and change to
+Install calibre normally, using the `Windows installer <https://calibre-ebook.com/download_windows>`_. Then open a Command Prompt and change to
 the previously checked out calibre code folder. For example::
 
     cd C:\Users\kovid\work\calibre
@@ -191,7 +191,7 @@ macOS development environment
 
 .. note:: You must also get the calibre source code separately as described above.
 
-Install calibre normally using the provided .dmg. Then open a Terminal and change to
+Install calibre normally using the `provided .dmg <https://calibre-ebook.com/download_osx>`_. Then open a Terminal and change to
 the previously checked out calibre code folder, for example::
 
     cd /Users/kovid/work/calibre
@@ -233,7 +233,7 @@ used in Windows and macOS. Alternatively, you can install calibre from source. I
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary as a runtime, which is the
 recommended method.
 
-Install calibre using the binary installer. Then open a terminal and change to the previously checked out calibre code folder, for example::
+Install calibre using the `binary installer <https://calibre-ebook.com/download_linux>`_. Then open a terminal and change to the previously checked out calibre code folder, for example::
 
     cd /home/kovid/work/calibre
 
@@ -242,6 +242,11 @@ calibre is the folder that contains the src and resources sub-folders.
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src folder.
 So, following the example above, it would be ``/home/kovid/work/calibre/src``. How to set environment variables depends on
 your Linux distribution and what shell you are using.
+
+.. note::
+    It is recommended to use the binary installer provided from upstream.
+    Should you insist on using a package provided by your distribution, use
+    the ``CALIBRE_PYTHON_PATH`` and ``CALIBRE_RESOURCES_PATH`` variables instead.
 
 Once you have set the environment variable, open a new terminal and check that it was correctly set by using
 the command::
