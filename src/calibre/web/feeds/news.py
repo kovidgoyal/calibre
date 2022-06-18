@@ -1457,16 +1457,18 @@ class BasicNewsRecipe(Recipe):
     def publication_date(self):
         '''
         Use this method to set the date when this issue was published.
-        Defaults to the moment of download.
-        '''  
+        Defaults to the moment of download. Must return a :class:`datetime.datetime`
+        object.
+        '''
         return nowf()
 
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
         title = self.short_title()
+        pdate = self.publication_date()
         if self.output_profile.periodical_date_in_title:
-            title += strftime(self.timefmt)
+            title += strftime(self.timefmt, pdate)
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
@@ -1489,7 +1491,7 @@ class BasicNewsRecipe(Recipe):
         language = canonicalize_lang(self.language)
         if language is not None:
             mi.language = language
-        mi.pubdate = self.publication_date()
+        mi.pubdate = pdate
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
 
