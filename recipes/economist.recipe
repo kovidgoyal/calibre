@@ -270,7 +270,8 @@ class Economist(BasicNewsRecipe):
     def publication_date(self):
         if edition_date:
             return parse_only_date(edition_date, as_utc=False)
-        return BasicNewsRecipe.publication_date(self)
+        url = self.browser.open("https://www.economist.com/printedition").geturl()
+        return parse_only_date(url.split("/")[-1], as_utc=False)
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
