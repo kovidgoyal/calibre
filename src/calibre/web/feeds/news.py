@@ -1455,6 +1455,10 @@ class BasicNewsRecipe(Recipe):
         prepare_masthead_image(path_to_image, out_path, self.MI_WIDTH, self.MI_HEIGHT)
 
     def publication_date(self):
+        '''
+        Use this method to set the date when this issue was published.
+        Defaults to the moment of download.
+        '''  
         return nowf()
 
     def create_opf(self, feeds, dir=None):
