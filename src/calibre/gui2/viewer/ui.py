@@ -99,6 +99,7 @@ class EbookViewer(MainWindow):
         t.setSingleShot(True), t.setInterval(3000), t.setTimerType(Qt.TimerType.VeryCoarseTimer)
         connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
         self.pending_open_at = open_at
+        self.pending_search = None
         self.base_window_title = _('E-book viewer')
         self.setDockOptions(QMainWindow.DockOption.AnimatedDocks | QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
         self.setWindowTitle(self.base_window_title)
@@ -195,6 +196,7 @@ class EbookViewer(MainWindow):
         self.web_view.highlights_changed.connect(self.highlights_changed)
         self.web_view.update_reading_rates.connect(self.update_reading_rates)
         self.web_view.edit_book.connect(self.edit_book)
+        self.web_view.content_file_changed.connect(self.content_file_changed)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         at.update_action_state(False)
         self.setCentralWidget(self.web_view)
@@ -310,11 +312,11 @@ class EbookViewer(MainWindow):
         if not is_visible:
             self.toc.scroll_to_current_toc_node()
 
-    def show_search(self, text, trigger=False):
+    def show_search(self, text, trigger=False, search_type=None, case_sensitive=None):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
         self.search_dock.raise_()
-        self.search_widget.focus_input(text)
+        self.search_widget.focus_input(text, search_type, case_sensitive)
         if trigger:
             self.search_widget.trigger()
 
@@ -425,6 +427,11 @@ class EbookViewer(MainWindow):
             self.loading_overlay.hide()
             self.actions_toolbar.update_action_state(True)
 
+    def content_file_changed(self, fname):
+        if self.pending_search:
+            search, self.pending_search = self.pending_search, None
+            self.show_search(text=search['query'], trigger=True, search_type=search['type'], case_sensitive=search['case_sensitive'])
+
     def show_error(self, title, msg, details):
         self.loading_overlay.hide()
         error_dialog(self, title, msg, det_msg=details or None, show=True)
@@ -526,6 +533,7 @@ class EbookViewer(MainWindow):
         if self.shutting_down:
             return
         open_at, self.pending_open_at = self.pending_open_at, None
+        self.pending_search = None
         self.web_view.clear_caches()
         if not ok:
             self.actions_toolbar.update_action_state(False)
@@ -577,6 +585,12 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'cfi', 'data': open_at}
             elif open_at.startswith('ref:'):
                 initial_position = {'type': 'ref', 'data': open_at[len('ref:'):]}
+            elif open_at.startswith('search:'):
+                self.pending_search = {'type': 'normal', 'query': open_at[len('search:'):], 'case_sensitive': False}
+                initial_position = {'type': 'bookpos', 'data': 0}
+            elif open_at.startswith('regex:'):
+                self.pending_search = {'type': 'regex', 'query': open_at[len('regex:'):], 'case_sensitive': True}
+                initial_position = {'type': 'bookpos', 'data': 0}
             elif is_float(open_at):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         highlights = self.current_book_data['annotations_map']['highlight']

@@ -462,6 +462,7 @@ class WebView(RestartingWebEngineView):
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
     view_created = pyqtSignal(object)
+    content_file_changed = pyqtSignal(str)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -623,6 +624,7 @@ class WebView(RestartingWebEngineView):
 
     def on_content_file_changed(self, data):
         self.current_content_file = data
+        self.content_file_changed.emit(self.current_content_file)
 
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
         key = (set_book_path.path,)

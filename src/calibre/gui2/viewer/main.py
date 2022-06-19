@@ -131,7 +131,10 @@ View an e-book.
         'the string "something". The form toc-href:something will match the '
         'href (internal link destination) of toc nodes. The matching is exact. '
         'If you want to match a substring, use the form toc-href-contains:something. '
-        'The form ref:something will use Reference mode references.'))
+        'The form ref:something will use Reference mode references. The form search:something will'
+        ' search for something after opening the book. The form regex:something will search'
+        ' for the regular expression something after opening the book.'
+    ))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading the last opened book'))
 
@@ -197,7 +200,7 @@ def main(args=sys.argv):
     oat = opts.open_at
     if oat and not (
             oat.startswith('toc:') or oat.startswith('toc-href:') or oat.startswith('toc-href-contains:') or
-            oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:')):
+            oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:') or oat.startswith('search:') or oat.startswith('regex:')):
         raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
     if get_session_pref('singleinstance', False):

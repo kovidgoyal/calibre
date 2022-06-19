@@ -319,9 +319,10 @@ def search_in_name(name, search_query, ctx_size=75):
                 yield match.span()
     else:
         spans = []
-        a = lambda s, l: spans.append((s, s + l))
-        primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
         miter = lambda: spans
+        if raw:
+            a = lambda s, l: spans.append((s, s + l))
+            primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
     for (start, end) in miter():
         before = raw[max(0, start-ctx_size):start]
@@ -454,9 +455,16 @@ class SearchInput(QWidget):  # {{{
     def find_previous(self):
         self.emit_search(backwards=True)
 
-    def focus_input(self, text=None):
+    def focus_input(self, text=None, search_type=None, case_sensitive=None):
         if text and hasattr(text, 'rstrip'):
             self.search_box.setText(text)
+        if search_type is not None:
+            idx = self.query_type.findData(search_type)
+            if idx < 0:
+                idx = self.query_type.findData('normal')
+            self.query_type.setCurrentIndex(idx)
+        if case_sensitive is not None:
+            self.case_sensitive.setChecked(bool(case_sensitive))
         self.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
         le = self.search_box.lineEdit()
         le.end(False)
@@ -668,8 +676,8 @@ class SearchPanel(QWidget):  # {{{
     def update_hidden_message(self):
         self.hidden_message.setVisible(self.results.current_result_is_hidden)
 
-    def focus_input(self, text=None):
-        self.search_input.focus_input(text)
+    def focus_input(self, text=None, search_type=None, case_sensitive=None):
+        self.search_input.focus_input(text, search_type, case_sensitive)
 
     def search_cleared(self):
         self.results.clear_all_results()
