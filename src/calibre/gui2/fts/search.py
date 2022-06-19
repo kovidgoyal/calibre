@@ -319,7 +319,7 @@ class ResultsModel(QAbstractItemModel):
     def flags(self, index):
         item = self.index_to_entry(index)
         if item is None:
-            return 0
+            return Qt.ItemFlag.NoItemFlags
         if isinstance(item, Results):
             return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren
@@ -393,6 +393,7 @@ class ResultsView(QTreeView):
         with BusyCursor():
             self.m.search(*a, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
             self.expandAll()
+            self.setCurrentIndex(self.m.index(0, 0))
 
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
