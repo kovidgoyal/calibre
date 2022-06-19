@@ -72,7 +72,7 @@ class Results:
     def __init__(self, book_id):
         self.book_id = book_id
         self.text_map = {}
-        self.texts = []
+        self.result_dicts = []
         self.formats = []
 
     def add_result_with_text(self, result):
@@ -81,16 +81,16 @@ class Results:
         fmt = result['format']
         i = self.text_map.get(q)
         if i is None:
-            i = self.text_map[q] = len(self.texts)
-            self.texts.append(result)
+            i = self.text_map[q] = len(self.result_dicts)
+            self.result_dicts.append(result)
             self.formats.append(set())
         self.formats[i].add(fmt)
 
     def __len__(self):
-        return len(self.texts)
+        return len(self.result_dicts)
 
     def __getitem__(self, x):
-        return self.texts[x]
+        return self.result_dicts[x]
 
     @property
     def title(self):
@@ -182,6 +182,11 @@ class ResultsModel(QAbstractItemModel):
         self.current_thread_abort.set()
         self.signal_search_complete(self.current_query_id)
         self.current_search_key = None  # so that re-doing the search works
+
+    def get_result(self, book_id, result_num):
+        idx = self.result_map[book_id]
+        results = self.results[idx]
+        return results.result_dicts[result_num]
 
     def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None):
         db = get_db()
@@ -501,6 +506,8 @@ class SearchInputPanel(QWidget):
 
 class ResultDetails(QWidget):
 
+    show_in_viewer = pyqtSignal(int, int, str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.key = None
@@ -529,8 +536,10 @@ class ResultDetails(QWidget):
                 jump_to_book(self.current_book_id)
 
     def results_anchor_clicked(self, url):
-        if self.current_book_id > 0:
-            print(url)
+        if self.current_book_id > 0 and url.scheme() == 'book':
+            book_id, result_num, fmt = url.path().strip('/').split('/')
+            book_id, result_num = int(book_id), int(result_num)
+            self.show_in_viewer.emit(int(book_id), int(result_num), fmt)
 
     def resizeEvent(self, ev):
         self.do_layout()
@@ -554,7 +563,7 @@ class ResultDetails(QWidget):
         self.results.setGeometry(QRect(0, top, g.width(), g.height() - top))
 
     def show_result(self, results, individual_match=None):
-        key = results.book_id, len(results.texts), individual_match
+        key = results.book_id, len(results.result_dicts), individual_match
         if key == self.key:
             return False
         old_current_book_id = self.current_book_id
@@ -609,7 +618,7 @@ class ResultDetails(QWidget):
             return re.sub('\x1d', sub, re.sub(r'\s+', ' ', text))
 
         ci = self.current_individual_match
-        for i, (result, formats) in enumerate(zip(results.texts, results.formats)):
+        for i, (result, formats) in enumerate(zip(results.result_dicts, results.formats)):
             if ci is not None and ci != i:
                 continue
             text = result['text']
@@ -619,7 +628,7 @@ class ResultDetails(QWidget):
                 fmt = fmt.upper()
                 tt = _('Open the book, in the {fmt} format.\nWhen using the calibre viewer, it will attempt to scroll\nto this search result automatically.'
                        ).format(fmt=fmt)
-                html.append(f'<a title="{tt}" href="book:///{self.current_book_id}/{fmt}">{fmt}</a>\xa0 ')
+                html.append(f'<a title="{tt}" href="book:///{self.current_book_id}/{i}/{fmt}">{fmt}</a>\xa0 ')
             html.append(f'<p>{text}</p>')
         self.results.setHtml('\n'.join(html))
 
@@ -631,6 +640,8 @@ class ResultDetails(QWidget):
 
 
 class DetailsPanel(QStackedWidget):
+
+    show_in_viewer = pyqtSignal(int, int, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -670,6 +681,7 @@ p { margin: 0; }
         # }}}
 
         self.result_details = rd = ResultDetails(self)
+        rd.show_in_viewer.connect(self.show_in_viewer)
         self.addWidget(rd)
 
     def sizeHint(self):
@@ -731,6 +743,7 @@ class ResultsPanel(QWidget):
         sip.clear_search.connect(self.clear_results)
 
         self.details = d = DetailsPanel(self)
+        d.show_in_viewer.connect(self.show_in_viewer)
         rv.current_changed.connect(d.show_result)
         rv.search_started.connect(d.clear)
         rv.result_with_context_found.connect(d.result_with_context_found)
@@ -738,6 +751,14 @@ class ResultsPanel(QWidget):
         st = gprefs.get('fts_search_splitter_state')
         if st is not None:
             s.restoreState(st)
+
+    def show_in_viewer(self, book_id, result_num, fmt):
+        r = self.results_view.m.get_result(book_id, result_num)
+        text = r['text'].strip('…').replace('\x1d', '').replace('\xa0', ' ')
+        text = sanitize_text_pat.sub(' ', text)
+        gui = get_gui()
+        if gui is not None:
+            gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
