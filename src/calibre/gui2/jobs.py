@@ -70,6 +70,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     job_done  = pyqtSignal(int)
 
     def __init__(self):
+        self.header_titles = _('Job'), _('Status'), _('Progress'), _('Running time'), _('Start time'),
         QAbstractTableModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
 
@@ -96,18 +97,13 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         return len(self.jobs)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.ItemDataRole.DisplayRole:
-            return None
-        if orientation == Qt.Orientation.Horizontal:
-            return ({
-              0: _('Job'),
-              1: _('Status'),
-              2: _('Progress'),
-              3: _('Running time'),
-              4: _('Start time'),
-            }.get(section, ''))
-        else:
-            return (section+1)
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                try:
+                    return self.header_titles[section]
+                except Exception:
+                    pass
+            return str(section + 1)
 
     def show_tooltip(self, arg):
         widget, pos = arg
@@ -661,8 +657,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             state = gprefs.get('jobs view column layout3', None)
             if state is not None:
                 self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
-        except:
-            pass
+        except Exception:
+            import traceback
+            traceback.print_exc()
         idx = self.jobs_view.model().index(0, 0)
         if idx.isValid():
             sm = self.jobs_view.selectionModel()
@@ -670,12 +667,14 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def save_state(self):
         try:
-            state = bytearray(self.jobs_view.horizontalHeader().saveState())
-            gprefs['jobs view column layout3'] = state
-            geom = bytearray(self.saveGeometry())
-            gprefs['jobs_dialog_geometry'] = geom
-        except:
-            pass
+            with gprefs:
+                state = bytearray(self.jobs_view.horizontalHeader().saveState())
+                gprefs['jobs view column layout3'] = state
+                geom = bytearray(self.saveGeometry())
+                gprefs['jobs_dialog_geometry'] = geom
+        except Exception:
+            import traceback
+            traceback.print_exc()
 
     def show_job_details(self, index):
         index = self.proxy_model.mapToSource(index)
