@@ -7,7 +7,7 @@ from qt.core import (
     QItemSelectionModel, QSlider, QSortFilterProxyModel, Qt, QTableView, QWidget
 )
 
-from calibre.gui2.preferences.look_feel import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 
 
 class VoicesModel(QAbstractTableModel):

@@ -30,7 +30,7 @@ class TagMapAction(InterfaceAction):
     def do_map(self, book_ids, selected):
         from calibre.ebooks.metadata.tag_mapper import map_tags
         from calibre.gui2.tag_mapper import RulesDialog
-        from calibre.gui2.device import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         d = RulesDialog(self.gui)
         d.setWindowTitle(ngettext(
             'Map tags for one book in the library',

@@ -33,7 +33,7 @@ from calibre.gui2.tweak_book.function_replace import (
     Function, FunctionBox, FunctionEditor, functions as replace_functions,
     remove_function
 )
-from calibre.gui2.tweak_book.widgets import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from polyglot.builtins import error_message, iteritems

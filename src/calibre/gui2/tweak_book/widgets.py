@@ -10,7 +10,7 @@ import unicodedata
 from collections import OrderedDict
 from math import ceil
 from qt.core import (
-    QAbstractListModel, QApplication, QCheckBox, QComboBox, QCursor, QDialog,
+    QAbstractListModel, QApplication, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QIcon, QItemSelectionModel, QLabel, QLineEdit, QListView, QMimeData,
     QModelIndex, QPainter, QPalette, QPixmap, QPlainTextEdit, QPoint, QRect, QSize,
@@ -43,15 +43,6 @@ from calibre.utils.matcher import (
 from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
-
-
-class BusyCursor:
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 
 class Dialog(BaseDialog):

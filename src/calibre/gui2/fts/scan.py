@@ -229,7 +229,7 @@ class ScanStatus(QWidget):
                 'This will force calibre to re-index all the books in this library, which'
                 ' can take a long time. Are you sure?'), 'fts-reindex-confirm', self):
             return
-        from calibre.gui2.device import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         with BusyCursor():
             self.db.reindex_fts()
 

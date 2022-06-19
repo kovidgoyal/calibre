@@ -16,7 +16,8 @@ from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container
-from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
+from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont

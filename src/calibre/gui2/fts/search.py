@@ -24,7 +24,7 @@ from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, question_dialog, safe_open_url
 from calibre.gui2.fts.utils import get_db
-from calibre.gui2.library.annotations import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox

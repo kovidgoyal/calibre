@@ -767,7 +767,7 @@ class LayoutMixin:  # {{{
                     fmt), show=True)
 
     def bd_edit_book(self, book_id, fmt):
-        from calibre.gui2.device import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         with BusyCursor():
             self.iactions['Tweak ePub'].ebook_edit_format(book_id, fmt)
 

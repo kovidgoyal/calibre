@@ -16,7 +16,8 @@ from qt.core import (
 )
 
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.widgets import BusyCursor, Dialog
+from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.icu import safe_chr as codepoint_to_chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word

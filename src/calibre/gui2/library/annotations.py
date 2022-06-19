@@ -7,7 +7,7 @@ import os
 import re
 from functools import lru_cache, partial
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QCursor, QDateTime,
+    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime,
     QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QLocale, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter,
     Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
@@ -27,6 +27,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 
 
@@ -326,15 +327,6 @@ class Export(Dialog):  # {{{
 def current_db():
     from calibre.gui2.ui import get_gui
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
-
-
-class BusyCursor:
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 
 class ResultsList(QTreeWidget):

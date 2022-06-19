@@ -60,11 +60,12 @@ from calibre.gui2.tweak_book.spell import (
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.widgets import (
-    AddCover, BusyCursor, FilterCSS, ImportForeign, InsertLink, InsertSemantics,
+    AddCover, FilterCSS, ImportForeign, InsertLink, InsertSemantics,
     InsertTag, MultiSplit, QuickOpen, RationalizeFolders
 )
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.utils.config import JSONConfig
+from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache

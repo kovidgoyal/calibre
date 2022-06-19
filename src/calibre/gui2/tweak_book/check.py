@@ -15,7 +15,7 @@ from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITI
 from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.widgets import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 
 
 def icon_for_level(level):

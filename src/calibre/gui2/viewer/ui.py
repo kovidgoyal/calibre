@@ -741,7 +741,7 @@ class EbookViewer(MainWindow):
         cmd = [exe]
         if selected_text:
             cmd += ['--select-text', selected_text]
-        from calibre.gui2.tweak_book.widgets import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         with sanitize_env_vars():
             subprocess.Popen(cmd + [path, file_name])
             with BusyCursor():

@@ -6,9 +6,9 @@ import os, traceback, time, io, re, sys, weakref
 from threading import Thread, Event
 
 from qt.core import (
-    QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
-    QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
-    QApplication, QEventLoop, QTimer)
+    QMenu, QAction, QActionGroup, QIcon, pyqtSignal, QDialog,
+    QObject, QVBoxLayout, QDialogButtonBox, QCoreApplication,
+    QEventLoop, QTimer)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
@@ -22,6 +22,7 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
         warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
         show_restart_warning, gprefs, question_dialog)
+from calibre.gui2.widgets import BusyCursor
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name
 from calibre.utils.filenames import ascii_filename
@@ -121,15 +122,6 @@ def device_name_for_plugboards(device_class):
     if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
         return device_class.DEVICE_PLUGBOARD_NAME
     return device_class.__class__.__name__
-
-
-class BusyCursor:
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 
 def convert_open_popup(opm, skip_key):

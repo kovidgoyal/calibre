@@ -12,7 +12,7 @@ from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.search import get_search_regex, InvalidRegex, initialize_search_request
-from calibre.gui2.tweak_book.widgets import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
 from polyglot.builtins import iteritems, error_message
 

@@ -8,7 +8,7 @@ from collections import defaultdict, deque
 from qt.core import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
 
 from ..themes import highlight_to_char_format
-from calibre.gui2.tweak_book.widgets import BusyCursor
+from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
 from polyglot.builtins import iteritems
 

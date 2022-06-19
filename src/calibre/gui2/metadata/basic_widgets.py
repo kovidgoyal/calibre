@@ -1040,7 +1040,7 @@ class FormatsManager(QWidget):
         self.dialog.do_view_format(item.path, item.ext)
 
     def edit_format(self, item, *args):
-        from calibre.gui2.device import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         with BusyCursor():
             self.dialog.do_edit_format(item.path, item.ext)
 

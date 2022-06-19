@@ -29,7 +29,7 @@ class AuthorMapAction(InterfaceAction):
     def do_map(self, book_ids, selected):
         from calibre.ebooks.metadata.author_mapper import map_authors, compile_rules
         from calibre.gui2.author_mapper import RulesDialog
-        from calibre.gui2.device import BusyCursor
+        from calibre.gui2.widgets import BusyCursor
         d = RulesDialog(self.gui)
         d.setWindowTitle(ngettext(
             'Map authors for one book in the library',

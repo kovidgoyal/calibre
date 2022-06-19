@@ -10,7 +10,7 @@ from functools import partial
 from itertools import chain
 from math import ceil
 from qt.core import (
-    QApplication, QBrush, QColor, QCursor, QEvent, QEventLoop, QFont, QHBoxLayout,
+    QApplication, QBrush, QColor, QEvent, QEventLoop, QFont, QHBoxLayout,
     QIcon, QImage, QKeySequence, QMenu, QPainter, QPainterPath, QPalette, QPen,
     QPixmap, QPlainTextEdit, QRect, QScrollBar, QSplitter, QSplitterHandle, Qt,
     QTextCharFormat, QTextCursor, QTextLayout, QTimer, QWidget, pyqtSignal
@@ -25,20 +25,12 @@ from calibre.gui2.tweak_book.editor.text import (
     LineNumbers, PlainTextEdit, default_font_family
 )
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
+from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes, iteritems
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
-
-
-class BusyCursor:
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 
 def beautify_text(raw, syntax):

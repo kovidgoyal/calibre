@@ -1299,6 +1299,16 @@ class PaperSizes(QComboBox):  # {{{
 # }}}
 
 
+class BusyCursor:  # {{{
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
+# }}}
+
+
 if __name__ == '__main__':
     from qt.core import QTextEdit
     app = QApplication([])

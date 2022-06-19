@@ -11,7 +11,7 @@ from threading import Thread
 
 from qt.core import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor, QHeaderView, QListWidgetItem,
+    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QHeaderView, QListWidgetItem,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
     QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
 )
@@ -34,19 +34,11 @@ from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.utils.resources import set_data
 from polyglot.builtins import iteritems
-
-
-class BusyCursor:
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 
 class DefaultAuthorLink(QWidget):  # {{{
