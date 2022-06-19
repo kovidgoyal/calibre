@@ -793,6 +793,7 @@ class ResultsPanel(QWidget):
         b = self.splitter.saveState()
         gprefs['fts_search_splitter_state'] = bytearray(b)
         self.clear_results()
+        self.sip.search_box.setText('')
 
     def on_show(self):
         self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)

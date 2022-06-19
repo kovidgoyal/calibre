@@ -93,6 +93,7 @@ class FTSDialog(Dialog):
     def show(self):
         super().show()
         self.scan_status.startup()
+        self.results_panel.on_show()
 
 
 if __name__ == '__main__':
