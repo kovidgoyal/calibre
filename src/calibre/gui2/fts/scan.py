@@ -3,6 +3,8 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+import time
+from collections import deque
 from qt.core import (
     QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QPushButton,
     QRadioButton, QVBoxLayout, QWidget, pyqtSignal
@@ -13,6 +15,7 @@ from calibre.db.cache import Cache
 from calibre.db.listeners import EventType
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
+from calibre.gui2.jobs import human_readable_interval
 from calibre.gui2.ui import get_gui
 
 
@@ -20,12 +23,22 @@ class IndexingProgress:
 
     def __init__(self):
         self.left = self.total = -1
+        self.clear_rate_information()
 
     def __repr__(self):
         return f'IndexingProgress(left={self.left}, total={self.total})'
 
+    def clear_rate_information(self):
+        self.done_events = deque()
+
     def update(self, left, total):
         changed = (left, total) != (self.left, self.total)
+        if changed:
+            done_num = self.left - left
+            if done_num:
+                self.done_events.append((done_num, time.monotonic()))
+                if len(self.done_events) > 50:
+                    self.done_events.popleft()
         self.left, self.total = left, total
         return changed
 
@@ -36,6 +49,19 @@ class IndexingProgress:
     @property
     def almost_complete(self):
         return self.complete or (self.left / self.total) < 0.1
+
+    @property
+    def time_left(self):
+        if self.left < 2:
+            return _('almost done')
+        if len(self.done_events) < 5:
+            return _('calculating time left')
+        start_time = self.done_events[0][1]
+        end_time = self.done_events[-1][1]
+        num_done = sum(x[0] for x in self.done_events) - self.done_events[0][0]
+        rate = num_done / max(0.1, end_time - start_time)
+        seconds_left = self.left / rate
+        return _('~{} left').format(human_readable_interval(seconds_left))
 
 
 class ScanProgress(QWidget):
@@ -86,6 +112,10 @@ class ScanProgress(QWidget):
         h.addWidget(sa), h.addStretch(10)
         l.addLayout(h)
 
+    @property
+    def indexing_progress(self):
+        return self.parent().indexing_progress
+
     def change_speed(self):
         db = get_db()
         if self.fast_button.isChecked():
@@ -94,6 +124,7 @@ class ScanProgress(QWidget):
         else:
             db.fts_indexing_sleep_time = Cache.fts_indexing_sleep_time
             db.set_fts_num_of_workers(1)
+        self.indexing_progress.clear_rate_information()
 
     def update(self, complete, left, total):
         if complete:
@@ -107,7 +138,7 @@ class ScanProgress(QWidget):
             p = f'{p:.0%}'
             if p == '100%':
                 p = _('almost 100%')
-            t = _('{0} of {1} book files, {2} have been indexed').format(done, total, p)
+            t = _('{0} of {1} book files, {2} have been indexed, {3}').format(done, total, p, self.indexing_progress.time_left)
             self.warn_label.setVisible(True)
             self.switch_anyway.setIcon(QIcon.ic('dialog_warning.png'))
             self.switch_anyway.setText(_('Start &searching even with incomplete indexing'))
@@ -214,11 +245,12 @@ class ScanStatus(QWidget):
         self.apply_fts_state()
 
     def startup(self):
-        pass
+        self.indexing_progress.clear_rate_information()
 
     def shutdown(self):
         self.scan_progress.slow_button.setChecked(True)
         self.reset_indexing_state_for_current_db()
+        self.indexing_progress.clear_rate_information()
 
 
 if __name__ == '__main__':
