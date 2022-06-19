@@ -912,8 +912,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.6.1.tar.gz",
-            "hash": "sha256:696c575c72144122701171f2cc767fe6cc87050ea755a04909152a8508ae10c3",
+            "filename": "sip-6.6.2.tar.gz",
+            "hash": "sha256:0e3efac1c5dfd8e525ae57140927df26993e13f58b89d1577c314f4105bfd90d",
             "urls": ["pypi"]
         }
     },
@@ -922,8 +922,8 @@
         "name": "pyqt-builder",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "PyQt-builder-1.12.2.tar.gz",
-            "hash": "sha256:f62bb688d70e0afd88c413a8d994bda824e6cebd12b612902d1945c5a67edcd7",
+            "filename": "PyQt-builder-1.13.0.tar.gz",
+            "hash": "sha256:4877580c38ceb5320e129b381d083b0a8601c68166d8b99707f08fa0a1689eef",
             "urls": ["pypi"]
         }
     },
@@ -932,8 +932,8 @@
         "name": "pyqt-sip",
 		"comment": "runtime sip module for PyQt",
         "unix": {
-            "filename": "PyQt6_sip-13.3.1.tar.gz",
-            "hash": "sha256:d629c0e39d5ccfdae567b92ba74d92f9180b7c55535f82251f1a12a9076a9e01",
+            "filename": "PyQt6_sip-13.4.0.tar.gz",
+            "hash": "sha256:6d87a3ee5872d7511b76957d68a32109352caf3b7a42a01d9ee20032b350d979",
             "urls": ["pypi"]
         }
     },
@@ -941,8 +941,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.3.0.tar.gz",
-            "hash": "sha256:4fd85dcb15ea4e734b6e4e216fe9a6246779761edaf2cf7c0cce1a2303a8d31b",
+            "filename": "PyQt6-6.3.1.tar.gz",
+            "hash": "sha256:8cc6e21dbaf7047d1fc897e396ccd9710a12f2ef976563dad65f06017d2c9757",
             "urls": ["pypi"]
         }
     },
@@ -950,8 +950,8 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.3.0.tar.gz",
-            "hash": "sha256:ab2aedbeec54f1bcff872f7dfc236aa0fce4b55cd30f608ca89b408ee9e8147b",
+            "filename": "PyQt6_WebEngine-6.3.1.tar.gz",
+            "hash": "sha256:c3d1f5527b4b15f44102d617c59b1d74d9af50f821629e9335f13df47de8f007",
             "urls": ["pypi"]
         }
     },
