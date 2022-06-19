@@ -9,7 +9,7 @@ import json
 import os
 import time
 from functools import partial
-from qt.core import QAction, QIcon, Qt, pyqtSignal, QDialog
+from qt.core import QAction, QIcon, Qt, pyqtSignal, QDialog, QApplication, QCursor
 
 from calibre.constants import ismacos, iswindows
 from calibre.gui2 import (
@@ -21,6 +21,15 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
 from polyglot.builtins import as_bytes
+
+
+class BusyCursor:
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
 
 
 def preferred_format(formats):
@@ -159,8 +168,7 @@ class ViewAction(InterfaceAction):
         self._view_file(job.result)
 
     def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True, calibre_book_data=None, open_at=None):
-        self.gui.setCursor(Qt.CursorShape.BusyCursor)
-        try:
+        with BusyCursor():
             if internal:
                 args = [viewer]
                 if ismacos and 'ebook' in viewer:
@@ -198,8 +206,6 @@ class ViewAction(InterfaceAction):
 
                 open_local_file(name)
                 time.sleep(2)  # User feedback
-        finally:
-            self.gui.unsetCursor()
 
     def _view_file(self, name, calibre_book_data=None, open_at=None):
         ext = os.path.splitext(name)[1].upper().replace('.',
