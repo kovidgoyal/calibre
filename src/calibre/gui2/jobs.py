@@ -48,13 +48,19 @@ def human_readable_interval(secs):
     seconds = secs % 60
     parts = []
     if days > 0:
-        parts.append('%dd' % days)
-    if hours > 0:
-        parts.append('%dh' % hours)
-    if minutes > 0:
-        parts.append('%dm' % minutes)
-    if secs > 0:
-        parts.append('%ds' % seconds)
+        parts.append(_('{} days').format(days))
+        if hours > 0:
+            parts.append(_('{} hours').format(hours))
+    elif hours > 0:
+        parts.append(_('{} hours').format(hours))
+        if minutes > 0:
+            parts.append(_('{} minutes').format(minutes))
+    elif minutes > 0:
+        parts.append(_('{} minutes').format(minutes))
+        if secs > 0:
+            parts.append(_('{} seconds').format(seconds))
+    elif secs > 0:
+        parts.append(_('{} seconds').format(seconds))
     return ' '.join(parts)
 
 
