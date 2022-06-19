@@ -189,9 +189,8 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
 
     def flags(self, index):
         if not index.isValid():
-            return 0
-        flags = Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        return flags
+            return Qt.ItemFlag.NoItemFlags
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def data(self, index, role):
         if not index.isValid():
