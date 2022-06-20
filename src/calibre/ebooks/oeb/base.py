@@ -1903,7 +1903,10 @@ class OEBBook:
         return
 
     def _to_ncx(self):
-        lang = str(self.metadata.language[0])
+        try:
+            lang = str(self.metadata.language[0])
+        except IndexError:
+            lang = 'en'
         lang = lang.replace('_', '-')
         ncx = etree.Element(NCX('ncx'),
             attrib={'version': '2005-1', XML('lang'): lang},
