@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os
+import unittest, os, time
 from io import BytesIO
 
 from calibre.constants import iswindows
@@ -166,6 +166,23 @@ class FilesystemTest(BaseTest):
                     for fmt in cache.formats(book_id):
                         self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))
                         self.assertEqual(cache.format_metadata(book_id, fmt)['mtime'], cache.format_metadata(book_id, fmt)['mtime'])
+        cache.add_format(1, 'TXT', BytesIO(b'testing exim'))
+        cache.fts_indexing_sleep_time = 0.001
+        cache.enable_fts()
+        cache.set_fts_num_of_workers(4)
+        st = time.monotonic()
+        while cache.fts_indexing_left > 0 and time.monotonic() - st < 15:
+            time.sleep(0.05)
+        if cache.fts_indexing_left > 0:
+            raise ValueError('FTS indexing did not complete')
+        self.assertEqual(cache.fts_search('exim')[0]['id'], 1)
+        with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
+            exporter = Exporter(tdir)
+            cache.export_library('l', exporter)
+            exporter.commit()
+            importer = Importer(tdir)
+            ic = import_library('l', importer, idir)
+            self.assertEqual(ic.fts_search('exim')[0]['id'], 1)
 
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule

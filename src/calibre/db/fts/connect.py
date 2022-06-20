@@ -19,8 +19,6 @@ from calibre.utils.date import EPOCH, utcnow
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
-# TODO: calibre export/import should preserve indexed data
-
 
 def print(*args, **kwargs):
     kwargs['file'] = sys.__stdout__

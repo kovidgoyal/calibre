@@ -473,6 +473,8 @@ class Cache:
             self.fts_job_queue.put(None)
             self.fts_queue_thread = None
             self.fts_job_queue = Queue()
+        if fts:
+            self._update_fts_indexing_numbers()
         return fts
 
     @write_api
@@ -497,6 +499,7 @@ class Cache:
             if not path or not is_fmt_ok(fmt):
                 with self.write_lock:
                     self.backend.remove_dirty_fts(book_id, fmt)
+                    self._update_fts_indexing_numbers()
                 return True
 
             with self.read_lock, open(path, 'rb') as src, PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt:
@@ -2617,7 +2620,9 @@ class Cache:
         key_prefix = as_hex_unicode(library_key)
         book_ids = self._all_book_ids()
         total = len(book_ids) + 1
-        format_metadata = {}
+        has_fts = self.is_fts_enabled()
+        if has_fts:
+            total += 1
         if progress is not None:
             progress('metadata.db', 0, total)
         pt = PersistentTemporaryFile('-export.db')
@@ -2627,12 +2632,28 @@ class Cache:
         with lopen(pt.name, 'rb') as f:
             exporter.add_file(f, dbkey)
         os.remove(pt.name)
+        poff = 1
+        if has_fts:
+            poff += 1
+            if progress is not None:
+                progress('full-text-search.db', 1, total)
+            pt = PersistentTemporaryFile('-export.db')
+            pt.close()
+            self.backend.backup_fts_database(pt.name)
+            ftsdbkey = key_prefix + ':::' + 'full-text-search.db'
+            with lopen(pt.name, 'rb') as f:
+                exporter.add_file(f, ftsdbkey)
+            os.remove(pt.name)
+
+        format_metadata = {}
         metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total}
+        if has_fts:
+            metadata['full-text-search.db'] = ftsdbkey
         for i, book_id in enumerate(book_ids):
             if abort is not None and abort.is_set():
                 return
             if progress is not None:
-                progress(self._field_for('title', book_id), i + 1, total)
+                progress(self._field_for('title', book_id), i + poff, total)
             format_metadata[book_id] = {}
             for fmt in self._formats(book_id):
                 mdata = self.format_metadata(book_id, fmt)
@@ -2743,6 +2764,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     from calibre.db.backend import DB
     metadata = importer.metadata[library_key]
     total = metadata['total']
+    poff = 1
     if progress is not None:
         progress('metadata.db', 0, total)
     if abort is not None and abort.is_set():
@@ -2751,6 +2773,16 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         src = importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)
         shutil.copyfileobj(src, f)
         src.close()
+    if 'full-text-search.db' in metadata:
+        if progress is not None:
+            progress('full-text-search.db', 1, total)
+        if abort is not None and abort.is_set():
+            return
+        poff += 1
+        with open(os.path.join(library_path, 'full-text-search.db'), 'wb') as f:
+            src = importer.start_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path)
+            shutil.copyfileobj(src, f)
+            src.close()
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
     format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
@@ -2759,7 +2791,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
             return
         title = cache._field_for('title', book_id)
         if progress is not None:
-            progress(title, i + 1, total)
+            progress(title, i + poff, total)
         cache._update_path((book_id,), mark_as_dirtied=False)
         for fmt, fmtkey in iteritems(fmt_key_map):
             if fmt == '.cover':

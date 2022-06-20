@@ -16,7 +16,7 @@ import shutil
 import sys
 import time
 import uuid
-from contextlib import suppress
+from contextlib import suppress, closing
 from functools import partial
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -1255,7 +1255,6 @@ class DB:
     def dump_and_restore(self, callback=None, sql=None):
         import codecs
         from apsw import Shell
-        from contextlib import closing
         if callback is None:
             callback = lambda x: x
         uv = int(self.user_version)
@@ -2184,14 +2183,18 @@ class DB:
         self.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
 
     def backup_database(self, path):
-        dest_db = apsw.Connection(path)
-        with dest_db.backup('main', self.conn, 'main') as b:
-            while not b.done:
-                try:
-                    b.step(100)
-                except apsw.BusyError:
-                    pass
-        dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
-        dest_db.close()
+        with closing(apsw.Connection(path)) as dest_db:
+            with dest_db.backup('main', self.conn, 'main') as b:
+                while not b.done:
+                    with suppress(apsw.BusyError):
+                        b.step(128)
+            dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
 
+    def backup_fts_database(self, path):
+        with closing(apsw.Connection(path)) as dest_db:
+            with dest_db.backup('main', self.conn, 'fts_db') as b:
+                while not b.done:
+                    with suppress(apsw.BusyError):
+                        b.step(128)
+            dest_db.cursor().execute('VACUUM;')
     # }}}
