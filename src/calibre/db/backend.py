@@ -979,6 +979,9 @@ class DB:
         if self.fts is not None:
             return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
+    def fts_unindex(self, book_id, fmt=None):
+        self.fts.unindex(book_id, fmt=fmt)
+
     def fts_search(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text,
     ):

@@ -87,6 +87,13 @@ class FTS:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
 
+    def unindex(self, book_id, fmt=None):
+        conn = self.get_connection()
+        if fmt is None:
+            conn.execute('DELETE FROM books_text WHERE book=?', (book_id,))
+        else:
+            conn.execute('DELETE FROM books_text WHERE book=? AND format=?', (book_id, fmt.upper()))
+
     def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash='', err_msg=''):
         conn = self.get_connection()
         ts = (utcnow() - EPOCH).total_seconds()

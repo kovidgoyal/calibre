@@ -237,6 +237,17 @@ class ResultsModel(QAbstractItemModel):
         self.current_thread.start()
         return True
 
+    def remove_book(self, book_id):
+        idx = self.result_map.get(book_id)
+        if idx is not None:
+            self.beginRemoveRows(ROOT, idx, idx)
+            del self.results[idx]
+            del self.result_map[book_id]
+            self.endRemoveRows()
+            self.matches_found.emit(len(self.results))
+            return True
+        return False
+
     def search_text_in_thread(self, query_id, abort, *a, **kw):
         db = get_db()
         generator = db.fts_search(*a, **kw, result_type=lambda x: x)
@@ -506,6 +517,7 @@ class SearchInputPanel(QWidget):
 class ResultDetails(QWidget):
 
     show_in_viewer = pyqtSignal(int, int, str)
+    remove_book_from_results = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -533,6 +545,10 @@ class ResultDetails(QWidget):
                 mark_books(self.current_book_id)
             elif url.host() == 'jump':
                 jump_to_book(self.current_book_id)
+            elif url.host() == 'unindex':
+                db = get_db()
+                db.fts_unindex(self.current_book_id)
+                self.remove_book_from_results.emit(self.current_book_id)
 
     def results_anchor_clicked(self, url):
         if self.current_book_id > 0 and url.scheme() == 'book':
@@ -601,6 +617,10 @@ class ResultDetails(QWidget):
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
                 ' You can search for marked books using the search term: {0}').format('<p>marked:true'))
+        if not get_db().has_id(results.book_id):
+            text += '<p><a href="calibre://unindex" title="{1}"><img valign="bottom" src="calibre-icon:///trash.png" width=16 height=16>\xa0{0}</a>'.format(
+                _('Remove from index'), _('This book has been deleted from the library but is still present in the'
+                                          ' full text search index. Remove it.'))
         self.book_info.setHtml(text)
 
     def render_results(self, results, individual_match=None):
@@ -643,6 +663,7 @@ class ResultDetails(QWidget):
 class DetailsPanel(QStackedWidget):
 
     show_in_viewer = pyqtSignal(int, int, str)
+    remove_book_from_results = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -683,6 +704,7 @@ p { margin: 0; }
 
         self.result_details = rd = ResultDetails(self)
         rd.show_in_viewer.connect(self.show_in_viewer)
+        rd.remove_book_from_results.connect(self.remove_book_from_results)
         self.addWidget(rd)
 
     def sizeHint(self):
@@ -745,6 +767,7 @@ class ResultsPanel(QWidget):
 
         self.details = d = DetailsPanel(self)
         d.show_in_viewer.connect(self.show_in_viewer)
+        d.remove_book_from_results.connect(self.remove_book_from_results)
         rv.current_changed.connect(d.show_result)
         rv.search_started.connect(d.clear)
         rv.result_with_context_found.connect(d.result_with_context_found)
@@ -752,6 +775,9 @@ class ResultsPanel(QWidget):
         st = gprefs.get('fts_search_splitter_state')
         if st is not None:
             s.restoreState(st)
+
+    def remove_book_from_results(self, book_id):
+        self.results_view.m.remove_book(book_id)
 
     def show_in_viewer(self, book_id, result_num, fmt):
         r = self.results_view.m.get_result(book_id, result_num)

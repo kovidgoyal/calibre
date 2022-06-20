@@ -475,6 +475,10 @@ class Cache:
             self.fts_job_queue = Queue()
         return fts
 
+    @write_api
+    def fts_unindex(self, book_id, fmt=None):
+        self.backend.fts_unindex(book_id, fmt=fmt)
+
     @staticmethod
     def dispatch_fts_jobs(queue, dbref):
         from .fts.text import is_fmt_ok
