@@ -13,7 +13,6 @@ from collections import defaultdict
 
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.date import parse_only_date
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -255,18 +254,6 @@ class Economist(BasicNewsRecipe):
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
-    def populate_article_metadata(self, article, soup, first):
-        els = soup.findAll(name=['span', 'p'],
-                           attrs={'class': ['flytitle-and-title__title', 'blog-post__rubric']})
-        result = []
-        for el in els[0:2]:
-            if el is not None and el.contents:
-                for descendant in el.contents:
-                    if isinstance(descendant, NavigableString):
-                        result.append(type(u'')(descendant))
-        article.summary = u'. '.join(result) + u'.'
-        article.text_summary = clean_ascii_chars(article.summary)
-
     def publication_date(self):
         if edition_date:
             return parse_only_date(edition_date, as_utc=False)
@@ -317,6 +304,9 @@ class Economist(BasicNewsRecipe):
                 if not section or not title or not url:
                     continue
                 desc = safe_dict(part, "print", "description") or ''
+                sub = safe_dict(part, "print", "subheadline") or ''
+                if sub and section != sub:
+                    desc = sub + ' :: ' + desc
                 feeds_dict[section].append({"title": title, "url": url, "description": desc})
                 self.log(' ', title, url, '\n   ', desc)
             return [(section, articles) for section, articles in feeds_dict.items()]
