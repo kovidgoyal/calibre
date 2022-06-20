@@ -19,8 +19,6 @@ from calibre.utils.date import EPOCH, utcnow
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
-# TODO: check that switching libraries with indexing enabled/disabled works
-# TODO: db dump+restore
 # TODO: calibre export/import should preserve indexed data
 # TODO: check library and vacuuming of fts db
 

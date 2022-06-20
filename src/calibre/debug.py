@@ -146,7 +146,7 @@ def reinit_db(dbpath):
                     last_restore_error = None
                 try:
                     dest.execute(statement)
-                except sqlite3.OperationalError as e:
+                except (sqlite3.OperationalError, sqlite3.IntegrityError) as e:
                     last_restore_error = as_unicode(e)
                     # The dump produces an extra commit at the end, so
                     # only print this error if there are more
