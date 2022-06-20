@@ -20,7 +20,6 @@ from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
 # TODO: calibre export/import should preserve indexed data
-# TODO: check library and vacuuming of fts db
 
 
 def print(*args, **kwargs):
@@ -79,6 +78,10 @@ class FTS:
     def clear_all_dirty(self):
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats')
+
+    def vacuum(self):
+        conn = self.get_connection()
+        conn.execute('VACUUM')
 
     def remove_dirty(self, book_id, fmt):
         conn = self.get_connection()

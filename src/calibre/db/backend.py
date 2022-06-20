@@ -1282,6 +1282,8 @@ class DB:
 
     def vacuum(self):
         self.execute('VACUUM')
+        if self.fts_enabled:
+            self.fts.vacuum()
 
     @property
     def user_version(self):
