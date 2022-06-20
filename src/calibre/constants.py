@@ -344,6 +344,15 @@ class Plugins(collections.abc.Mapping):
         finally:
             conn.enableloadextension(False)
 
+    def load_sqlite3_extension(self, conn, name):
+        conn.enable_load_extension(True)
+        try:
+            ext = 'pyd' if iswindows else 'so'
+            path = os.path.join(plugins_loc, f'{name}.{ext}')
+            conn.load_extension(path)
+        finally:
+            conn.enable_load_extension(False)
+
 
 plugins = None
 if plugins is None:

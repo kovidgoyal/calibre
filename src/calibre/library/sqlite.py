@@ -17,7 +17,7 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG, plugins_loc
+from calibre.constants import iswindows, DEBUG, plugins_loc, plugins
 from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
 from calibre import prints
@@ -270,6 +270,7 @@ def do_connect(path, row_factory=None):
     # Dummy functions for dynamically created filters
     conn.create_function('books_list_filter', 1, lambda x: 1)
     conn.create_collation(native_string_type('icucollate'), icu_collator)
+    plugins.load_sqlite3_extension(conn, 'sqlite_extension')
     return conn
 
 

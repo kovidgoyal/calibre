@@ -448,6 +448,11 @@ calibre_sqlite_extension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_ro
     fts5api->xCreateTokenizer(fts5api, "porter", reinterpret_cast<void *>(fts5api), &tok2, NULL);
     return SQLITE_OK;
 }
+
+MYEXPORT int
+sqlite3_sqliteextension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi){
+    return calibre_sqlite_extension_init(db, pzErrMsg, pApi);
+}
 }
 
 static PyObject*
