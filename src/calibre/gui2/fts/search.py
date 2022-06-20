@@ -95,19 +95,17 @@ class Results:
     @property
     def title(self):
         if self._title is None:
-            try:
+            with suppress(Exception):
                 self._title = get_db().field_for('title', self.book_id)
-            except Exception:
-                self._title = _('Unknown book')
+            self._title = self._title or _('Unknown book')
         return self._title
 
     @property
     def authors(self):
         if self._authors is None:
-            try:
+            with suppress(Exception):
                 self._authors = get_db().field_for('authors', self.book_id)
-            except Exception:
-                self._authors = _('Unknown author'),
+            self._authors = self._authors or [_('Unknown author')]
         return self._authors
 
     @property
@@ -585,7 +583,7 @@ class ResultDetails(QWidget):
         t = results.title
         if len(t) > 72:
             t = t[:71] + '…'
-        text = f'<p><b>{prepare_string_for_xml(results.title)}</b><br>'
+        text = f'<p><b>{prepare_string_for_xml(t)}</b><br>'
         au = results.authors
         if len(au) > 3:
             au = list(au[:3]) + ['…']
