@@ -8,11 +8,40 @@ class LWNFree(BasicNewsRecipe):
     title = "LWN Linux Weekly News (Free)"
     language = 'en'
     __author__ = 'yodha8'
-    description = "LWN is published every Thursday. Recipe skips current week's articles (subscriber-only) and pulls free articles from previous week."
-    oldest_article = 14  # So we can grab previous week articles.
+    description = "LWN is published every Thursday. This recipe skips current week's articles (subscriber-only) and pulls free articles from previous week."
+    oldest_article = 28  # So we can grab previous week articles.
     max_articles_per_feed = 100
     auto_cleanup = True
 
     feeds = [
         ('LWN Articles', 'https://lwn.net/headlines/Features'),
     ]
+
+    def parse_feeds(self):
+        """Remove paid articles and articles older than a week."""
+
+        prev_feeds = super().parse_feeds()
+
+        remove_articles = []
+        weekly_count = 0
+
+        for article in prev_feeds[0]:
+
+            # Paid article
+            if "[$]" in article.title:
+                remove_articles.append(article)
+                continue
+
+            # Count how many free weekly edition we passed
+            if "Weekly Edition" in article.title:
+                weekly_count += 1
+
+            # Remove all articles starting from 2nd free weekly edition
+            if weekly_count > 1:
+                remove_articles.append(article)
+
+        # Remove everything but prev week's free articles
+        for pa in remove_articles:
+            prev_feeds[0].remove_article(pa)
+
+        return prev_feeds
