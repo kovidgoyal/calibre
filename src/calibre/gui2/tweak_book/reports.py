@@ -115,7 +115,7 @@ class FileCollection(QAbstractTableModel):
                     return self.COLUMN_HEADERS[section]
             elif role == Qt.ItemDataRole.TextAlignmentRole:
                 with suppress(IndexError):
-                    return self.alignments[section].value
+                    return int(self.alignments[section])
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
     def location(self, index):
@@ -280,7 +280,7 @@ class FilesModel(FileCollection):
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
         elif role == Qt.ItemDataRole.TextAlignmentRole:
-            return (Qt.AlignVCenter | self.alignments[index.column()]).value
+            return int(Qt.AlignVCenter | self.alignments[index.column()])
 
 
 class FilesWidget(QWidget):
@@ -470,7 +470,7 @@ class ImagesModel(FileCollection):
                 pass
         elif role == Qt.TextAlignmentRole:
             with suppress(IndexError):
-                return self.alignments[index.column()].value
+                return int(self.alignments[index.column()])
 
 
 class ImagesWidget(QWidget):
@@ -739,7 +739,7 @@ class WordsModel(FileCollection):
                 pass
         elif role == Qt.TextAlignmentRole:
             with suppress(IndexError):
-                return self.alignments[index.column()].value
+                return int(self.alignments[index.column()])
 
     def location(self, index):
         return None
@@ -831,7 +831,7 @@ class CharsModel(FileCollection):
                 pass
         elif role == Qt.TextAlignmentRole:
             with suppress(IndexError):
-                return self.alignments[index.column()].value
+                return int(self.alignments[index.column()])
 
     def location(self, index):
         return None

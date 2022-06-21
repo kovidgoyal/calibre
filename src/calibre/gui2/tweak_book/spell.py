@@ -646,7 +646,7 @@ class WordsModel(QAbstractTableModel):
             elif role == Qt.ItemDataRole.InitialSortOrderRole:
                 return Qt.SortOrder.DescendingOrder if section == 1 else Qt.SortOrder.AscendingOrder
             elif role == Qt.ItemDataRole.TextAlignmentRole:
-                return (Qt.AlignmentFlag.AlignVCenter | self.alignments[section]).value
+                return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[section])
 
     def misspelled_text(self, w):
         if self.spell_map[w]:
@@ -673,7 +673,7 @@ class WordsModel(QAbstractTableModel):
             if col == 3:
                 return self.misspelled_text((word, locale))
         if role == Qt.ItemDataRole.TextAlignmentRole:
-            return (Qt.AlignmentFlag.AlignVCenter | self.alignments[index.column()]).value
+            return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[index.column()])
 
     def sort(self, column, order=Qt.SortOrder.AscendingOrder):
         reverse = order != Qt.SortOrder.AscendingOrder
