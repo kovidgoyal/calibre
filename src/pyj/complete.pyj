@@ -112,6 +112,7 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
 
 def create_simple_input_with_history_native(name, tooltip=None, placeholder=None, history_size=100, input_type='text'):
     # cannot use in standalone viewer because of: https://bugreports.qt.io/browse/QTBUG-54433
+    # fixed in Qt 6.4.0
     dl_id = unique_id()
     dl = document.createElement('datalist')
     dl.id = dl_id
