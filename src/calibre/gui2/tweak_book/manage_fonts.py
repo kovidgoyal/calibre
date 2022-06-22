@@ -136,7 +136,7 @@ class AllFonts(QAbstractTableModel):
         if role == Qt.ItemDataRole.TextAlignmentRole:
             col = index.column()
             if col == 0:
-                return int(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+                return int(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)  # https://bugreports.qt.io/browse/PYSIDE-1974
         if role in (Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + 1):
             row = index.row()
             try:

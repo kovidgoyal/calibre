@@ -142,7 +142,7 @@ class Matches(QAbstractItemModel):
                 return Qt.CheckState.Checked
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             if col in self.CENTERED_COLUMNS:
-                return int(Qt.AlignmentFlag.AlignHCenter)
+                return int(Qt.AlignmentFlag.AlignHCenter)  # https://bugreports.qt.io/browse/PYSIDE-1974
             return Qt.AlignmentFlag.AlignLeft
         elif role == Qt.ItemDataRole.ToolTipRole:
             if col == 0:

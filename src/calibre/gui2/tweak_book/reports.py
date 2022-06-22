@@ -115,7 +115,7 @@ class FileCollection(QAbstractTableModel):
                     return self.COLUMN_HEADERS[section]
             elif role == Qt.ItemDataRole.TextAlignmentRole:
                 with suppress(IndexError):
-                    return int(self.alignments[section])
+                    return int(self.alignments[section])  # https://bugreports.qt.io/browse/PYSIDE-1974
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
     def location(self, index):
@@ -280,7 +280,7 @@ class FilesModel(FileCollection):
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
         elif role == Qt.ItemDataRole.TextAlignmentRole:
-            return int(Qt.AlignVCenter | self.alignments[index.column()])
+            return int(Qt.AlignVCenter | self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
 
 class FilesWidget(QWidget):
@@ -468,9 +468,9 @@ class ImagesModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             with suppress(IndexError):
-                return int(self.alignments[index.column()])
+                return int(self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
 
 class ImagesWidget(QWidget):
@@ -737,9 +737,9 @@ class WordsModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             with suppress(IndexError):
-                return int(self.alignments[index.column()])
+                return int(self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
     def location(self, index):
         return None
@@ -829,9 +829,9 @@ class CharsModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             with suppress(IndexError):
-                return int(self.alignments[index.column()])
+                return int(self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
     def location(self, index):
         return None

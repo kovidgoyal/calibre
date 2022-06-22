@@ -1067,7 +1067,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             cname = self.column_map[index.column()]
             ans = Qt.AlignmentFlag.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
-            return int(ans)
+            return int(ans)  # https://bugreports.qt.io/browse/PYSIDE-1974
         elif role == Qt.ItemDataRole.FontRole and self.styled_columns:
             cname = self.column_map[index.column()]
             return self.styled_columns.get(cname)
@@ -1787,7 +1787,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             cname = self.column_map[index.column()]
             ans = Qt.AlignmentFlag.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
-            return int(ans)
+            return int(ans)  # https://bugreports.qt.io/browse/PYSIDE-1974
         return None
 
     def headerData(self, section, orientation, role):
