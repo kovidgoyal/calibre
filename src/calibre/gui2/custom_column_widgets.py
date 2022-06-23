@@ -592,7 +592,7 @@ class Text(Base):
 class Series(Base):
 
     def setup_ui(self, parent):
-        w = EditWithComplete(parent, sort_key=title_sort)
+        w = EditWithComplete(parent, sort_func=title_sort)
         w.set_separator(None)
         w.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
