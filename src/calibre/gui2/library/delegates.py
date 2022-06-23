@@ -468,6 +468,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     '''
     Delegate for text data.
     '''
+    use_title_sort = False
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
@@ -478,7 +479,10 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         col = m.column_map[index.column()]
         key = m.db.field_metadata.key_to_label(col)
         if m.db.field_metadata[col]['datatype'] != 'comments':
-            editor = EditWithComplete(parent)
+            if self.use_title_sort:
+                editor = EditWithComplete(parent, sort_func=title_sort)
+            else:
+                editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
             complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
@@ -504,6 +508,8 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 
 class CcSeriesDelegate(CcTextDelegate):  # {{{
+
+    use_title_sort = True
 
     def initStyleOption(self, option, index):
         CcTextDelegate.initStyleOption(self, option, index)
