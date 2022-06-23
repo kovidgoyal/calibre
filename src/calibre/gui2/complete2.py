@@ -320,6 +320,9 @@ class LineEdit(QLineEdit, LineEditECM):
         self.no_popup = False
 
     # Interface {{{
+    def set_sort_func(self, sort_func):
+        self.mcompleter.model().sort_func = sort_func
+
     def update_items_cache(self, complete_items):
         self.all_items = complete_items
 
@@ -457,6 +460,10 @@ class EditWithComplete(EnComboBox):
         self.installEventFilter(self)
 
     # Interface {{{
+
+    def set_sort_func(self, sort_func):
+        self.lineEdit().set_sort_func(sort_func)
+
     def showPopup(self):
         orig = self.disable_popup
         self.disable_popup = False

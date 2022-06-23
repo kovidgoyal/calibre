@@ -611,7 +611,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent):
-        EditWithComplete.__init__(self, parent)
+        EditWithComplete.__init__(self, parent, sort_func=title_sort)
         self.set_clear_button_enabled(False)
         self.set_separator(None)
         self.dialog = parent

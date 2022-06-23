@@ -495,6 +495,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
+        self.series.set_sort_func(title_sort)
         self.model = model
         self.db = model.db
         self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])
