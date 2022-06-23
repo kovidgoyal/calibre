@@ -644,7 +644,7 @@ class WordsModel(QAbstractTableModel):
                 except IndexError:
                     pass
             elif role == Qt.ItemDataRole.InitialSortOrderRole:
-                return Qt.SortOrder.DescendingOrder if section == 1 else Qt.SortOrder.AscendingOrder
+                return (Qt.SortOrder.DescendingOrder if section == 1 else Qt.SortOrder.AscendingOrder).value  # https://bugreports.qt.io/browse/PYSIDE-1974
             elif role == Qt.ItemDataRole.TextAlignmentRole:
                 return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[section])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
