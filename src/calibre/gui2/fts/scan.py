@@ -56,12 +56,15 @@ class IndexingProgress:
             return _('almost done')
         if len(self.done_events) < 5:
             return _('calculating time left')
-        start_time = self.done_events[0][1]
-        end_time = self.done_events[-1][1]
-        num_done = sum(x[0] for x in self.done_events) - self.done_events[0][0]
-        rate = num_done / max(0.1, end_time - start_time)
-        seconds_left = self.left / rate
-        return _('~{} left').format(human_readable_interval(seconds_left))
+        try:
+            start_time = self.done_events[0][1]
+            end_time = self.done_events[-1][1]
+            num_done = sum(x[0] for x in self.done_events) - self.done_events[0][0]
+            rate = num_done / max(0.1, end_time - start_time)
+            seconds_left = self.left / rate
+            return _('~{} left').format(human_readable_interval(seconds_left))
+        except Exception:
+            return _('calculating time left')
 
 
 class ScanProgress(QWidget):
