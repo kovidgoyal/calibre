@@ -35,7 +35,7 @@ class IndexingProgress:
         changed = (left, total) != (self.left, self.total)
         if changed:
             done_num = self.left - left
-            if done_num:
+            if done_num > 0 and self.left > -1:  # initial event will have self.left == -1
                 self.done_events.append((done_num, time.monotonic()))
                 if len(self.done_events) > 50:
                     self.done_events.popleft()
