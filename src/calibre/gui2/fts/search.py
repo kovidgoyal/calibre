@@ -252,7 +252,7 @@ class ResultsModel(QAbstractItemModel):
         db = get_db()
         generator = db.fts_search(*a, **kw, result_type=lambda x: x)
         for result in generator:
-            if abort.is_set():
+            if abort.wait(0.01):
                 with suppress(StopIteration):
                     generator.send(True)
                 return
