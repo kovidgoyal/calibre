@@ -785,7 +785,10 @@ class ResultsPanel(QWidget):
         text = sanitize_text_pat.sub(' ', text)
         gui = get_gui()
         if gui is not None:
-            gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
+            if fmt in config['internally_viewed_formats']:
+                gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
+            else:
+                gui.iactions['View'].view_format_by_id(book_id, fmt)
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
