@@ -558,7 +558,12 @@ click the :guilabel:`FT` button at the left edge of the search bar.
 
 Then, enable indexing for the current library. Once indexing is complete you can
 search all the text in the full library. When you add new books to the library,
-they will be automatically indexed in the background.
+they will be automatically indexed in the background. This search
+allows you to quickly find all books that contain a word or combination of
+words. You can even search for words that occur near other words, as shown in
+the examples in the search popup window. Note that this search tool will find only one
+occurrence of the search query in a particular book, not list every occurrence,
+for that it is best to search inside the book using the calibre :guilabel:`E-book viewer`.
 
 Virtual libraries
 -------------------
