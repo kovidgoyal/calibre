@@ -795,7 +795,7 @@ class ResultsPanel(QWidget):
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
         bb.addButton(_('Show &indexing status'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.switch_to_scan_panel)
-        b = bb.addButton(_('&Mark books'), QDialogButtonBox.ButtonRole.ActionRole)
+        b = bb.addButton(_('&Mark all books'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon.ic('marked.png'))
         m = QMenu(b)
         m.addAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), partial(self.mark_books, 'mark'))
