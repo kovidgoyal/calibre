@@ -56,6 +56,8 @@ class ThrobbingButton(QToolButton):
         if self.animation.state() != QAbstractAnimation.State.Stopped or not self.isVisible():
             return
         size = self.iconSize().width()
+        if size < 1:
+            size = max(0, self.width() - 4)
         smaller = int(0.7 * size)
         self.animation.setStartValue(smaller)
         self.animation.setEndValue(size)
@@ -67,6 +69,7 @@ class ThrobbingButton(QToolButton):
 
     def paintEvent(self, ev):
         size = self._icon_size if self._icon_size > 10 else self.iconSize().width()
+        size = size or max(0, self.width() - 4)
         p = QPainter(self)
         opt = QStyleOptionToolButton()
         self.initStyleOption(opt)
