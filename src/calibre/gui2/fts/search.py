@@ -252,7 +252,7 @@ class ResultsModel(QAbstractItemModel):
         db = get_db()
         generator = db.fts_search(*a, **kw, result_type=lambda x: x)
         for result in generator:
-            if abort.wait(0.01):
+            if abort.wait(0.01):  # wait for some time so that other threads/processes that try to access the db can be scheduled
                 with suppress(StopIteration):
                     generator.send(True)
                 return
