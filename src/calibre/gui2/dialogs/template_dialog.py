@@ -676,7 +676,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
             self.text_cursor_changed()
-            if self.break_box.checkState() == 0:
+            if self.break_box.checkState() == Qt.CheckState.Unchecked:
                 self.display_values(cur_text)
 
     def display_values(self, txt):
