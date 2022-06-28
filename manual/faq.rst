@@ -746,8 +746,8 @@ Note however, that Amazon's EPUB intake is very flawed, they will reject a
 number of EPUB files that work everywhere else. In such cases you can try the
 following trick:
 
-1. Convert the EPUB file to MOBI
-1. Then convert the MOBI file back to EPUB and send the resulting EPUB
+#. Convert the EPUB file to MOBI
+#. Then convert the MOBI file back to EPUB and send the resulting EPUB
 
 This will remove all advanced formatting, embedded fonts, etc., but greatly
 increase the chances of Amazon accepting the EPUB.
