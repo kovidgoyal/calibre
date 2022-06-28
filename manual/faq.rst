@@ -731,6 +731,36 @@ Miscellaneous
   :local:
 
 
+Amazon is stopping email delivery of MOBI files?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Amazon `have announced
+<https://blog.the-ebook-reader.com/2022/05/03/amazon-dropping-mobi-support-on-send-to-kindle-apps/>`__
+that they will stop accepting MOBI files emailed to ``@kindle.com`` email
+addresses. You can instruct calibre to send EPUB instead of MOBI by going to
+:guilabel:`Preferences->Sharing books by email` and then removing MOBI from the
+list of formats to send your ``@kindle.com`` email address and adding EPUB
+instead.
+
+Note however, that Amazon's EPUB intake is very flawed, they will reject a
+number of EPUB files that work everywhere else. In such cases you can try the
+following trick:
+
+1. Convert the EPUB file to MOBI
+1. Then convert the MOBI file back to EPUB and send the resulting EPUB
+
+This will remove all advanced formatting, embedded fonts, etc., but greatly
+increase the chances of Amazon accepting the EPUB.
+
+.. note:: If you were previously using email delivery of periodicals downloaded
+   by calibre, you will be better off sending those by USB cable or downloading
+   them from the calibre Content server via the Kindle's built-in browser.
+   However, if you want to continue email delivery you can try changing the
+   output format in Preferences->Behavior to EPUB, then calibre will download
+   the news in EPUB format. Whether Amazon will accept the EPUB or not is a
+   whole other question.
+
+
 I want calibre to download news from my favorite news website.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are reasonably proficient with computers, you can teach calibre to download news from any website of your choosing. To learn how to do this see :ref:`news`.
