@@ -5,7 +5,7 @@
 
 import os
 from qt.core import (
-    QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, QVBoxLayout
+    QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, QVBoxLayout, Qt
 )
 
 from calibre.gui2.fts.scan import ScanStatus
@@ -20,6 +20,7 @@ class FTSDialog(Dialog):
         super().__init__(_('Search the text of all books in the library'), 'library-fts-dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setWindowIcon(QIcon.ic('fts.png'))
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMinMaxButtonsHint)
 
     def setup_ui(self):
         l = QVBoxLayout(self)
