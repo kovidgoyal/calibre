@@ -19,11 +19,11 @@ class OpenMagazine(BasicNewsRecipe):
     extra_css = '[id^="caption-attachment"] {font-size: small;font-style: italic;}'
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://openthemagazine.com/magazine/')
-        tag = soup.find(attrs={'class': 'mb-2 right-image'})
+        soup = self.index_to_soup('https://openthemagazine.com/')
+        tag = soup.find(attrs={'class': 'magazine-item mr-1'})
         if tag:
             self.cover_url = tag.find('img')['src']
-        return super().get_cover_url()
+        return getattr(self, 'cover_url', None)
 
     keep_only_tags = [
         classes('post-data post-thumb post-meta post-excerp'),
