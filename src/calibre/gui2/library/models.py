@@ -585,6 +585,9 @@ class BooksModel(QAbstractTableModel):  # {{{
             return 0
         return len(self.db.data) if self.db else 0
 
+    def all_current_book_ids(self):
+        return self.db.data._map_filtered
+
     def count(self):
         return self.rowCount(None)
 

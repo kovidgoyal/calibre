@@ -398,7 +398,7 @@ class ResultsView(QTreeView):
         gui = get_gui()
         restrict = None
         if gui and gprefs['fts_library_restrict_books']:
-            restrict = gui.library_view.get_selected_ids(as_set=True)
+            restrict = frozenset(gui.library_view.model().all_current_book_ids())
         with BusyCursor():
             self.m.search(*a, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
             self.expandAll()
