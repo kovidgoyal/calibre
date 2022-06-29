@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-from datetime import date
+from datetime import date, datetime, timedelta
+from calibre.utils.date import parse_date
 
 
 class eenadu(BasicNewsRecipe):
@@ -55,9 +56,17 @@ class eenadu(BasicNewsRecipe):
         # Finding all the section titles that are acceptable
         for x in nav_div.findAll(['a']):
             if self.is_accepted_entry(x):
-                section_list.append(
-                    (self.tag_to_string(x), x['href'])
-                )
+                sec = self.tag_to_string(x)
+                link = x['href']
+                if link.endswith('telangana'):
+                    sec = 'తెలంగాణ'
+                if link.endswith('andhra-pradesh'):
+                    sec = 'ఆంధ్రప్రదేశ్'
+                if link.endswith('andhra-pradesh/districts'):
+                    sec = 'ఆంధ్రప్రదేశ్.. ఆసక్తికర జిల్లా వార్తలు'
+                if link.endswith('telangana/districts'):
+                    sec = 'తెలంగాణ.. ఆసక్తికర జిల్లా వార్తలు'
+                section_list.append((sec, link))
         feeds = []
 
         # For each section title, fetch the article urls
@@ -142,3 +151,17 @@ class eenadu(BasicNewsRecipe):
                 is_accepted = False
                 break
         return is_accepted
+
+    def preprocess_html(self, soup):
+        div = soup.find('div', **classes('pub-t'))
+        if div:
+            date = parse_date(
+                self.tag_to_string(div)
+                    .strip().replace('Published : ','').replace('Updated : ','').replace(' IST',':00.000001')
+                ).replace(tzinfo=None)
+            today = datetime.now()
+            if (today - date) > timedelta(1.5):
+                self.abort_article('Skipping old article')
+        else:  # may not be an artilce.
+            self.abort_article()
+        return soup
