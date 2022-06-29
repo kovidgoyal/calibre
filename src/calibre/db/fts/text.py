@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import os
 import re
 import unicodedata
 
@@ -61,6 +62,19 @@ def is_fmt_ok(input_fmt):
     return input_plugin
 
 
+def pdftotext(path):
+    import subprocess
+
+    from calibre.ebooks.pdf.pdftohtml import PDFTOTEXT, popen
+    from calibre.utils.cleantext import clean_ascii_chars
+    cmd = [PDFTOTEXT] + '-enc UTF-8 -nodiag -eol unix'.split() + [os.path.basename(path), '-']
+    p = popen(cmd, cwd=os.path.dirname(path), stdout=subprocess.PIPE, stdin=subprocess.DEVNULL)
+    raw = p.stdout.read()
+    if p.wait() != 0:
+        return ''
+    return clean_ascii_chars(raw).decode('utf-8', 'replace')
+
+
 def extract_text(pathtoebook):
     input_fmt = pathtoebook.rpartition('.')[-1].upper()
     ans = ''
@@ -68,6 +82,8 @@ def extract_text(pathtoebook):
     if not input_plugin:
         return ans
     input_plugin = plugin_for_input_format(input_fmt)
+    if input_fmt == 'PDF':
+        return pdftotext(pathtoebook)
     with TemporaryDirectory() as tdir:
         texts = []
         book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)

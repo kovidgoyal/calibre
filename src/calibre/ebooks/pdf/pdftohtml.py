@@ -33,6 +33,7 @@ if iswindows and hasattr(sys, 'frozen'):
     PDFTOHTML = os.path.join(base, 'pdftohtml.exe')
 if (islinux or isbsd) and getattr(sys, 'frozen', False):
     PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
+PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if iswindows else ''))
 
 
 def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):

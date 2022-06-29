@@ -38,7 +38,7 @@ qt_get_dll_path = partial(get_dll_path, loc=os.path.join(QT_PREFIX, 'lib'))
 
 def binary_includes():
     return [
-        j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'optipng', 'JxrDecApp')] + [
+        j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'optipng', 'JxrDecApp')] + [
 
         j(PREFIX, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
         ] + list(map(

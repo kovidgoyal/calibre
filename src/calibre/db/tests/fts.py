@@ -3,12 +3,14 @@
 
 
 import builtins
+import os
 import sys
+import tempfile
 from apsw import Connection
 
 from calibre.constants import plugins
-from calibre.db.tests.base import BaseTest
 from calibre.db.annotations import unicode_normalize
+from calibre.db.tests.base import BaseTest
 
 
 def print(*args, **kwargs):
@@ -51,7 +53,7 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
 
 
 def tokenize(text, flags=None, remove_diacritics=True):
-    from calibre_extensions.sqlite_extension import tokenize, FTS5_TOKENIZE_DOCUMENT
+    from calibre_extensions.sqlite_extension import FTS5_TOKENIZE_DOCUMENT, tokenize
     if flags is None:
         flags = FTS5_TOKENIZE_DOCUMENT
     return tokenize(unicode_normalize(text), remove_diacritics, flags)
@@ -182,6 +184,73 @@ class FTSTest(BaseTest):
         self.ae(conn.search('moose AND one'), [])
 
     # }}}
+
+    def test_pdftotext(self):
+        pdf_data = '''\
+%PDF-1.1
+%¥±ë
+
+1 0 obj
+  << /Type /Catalog
+     /Pages 2 0 R
+  >>
+endobj
+
+2 0 obj
+  << /Type /Pages
+     /Kids [3 0 R]
+     /Count 1
+     /MediaBox [0 0 300 144]
+  >>
+endobj
+
+3 0 obj
+  <<  /Type /Page
+      /Parent 2 0 R
+      /Resources
+       << /Font
+           << /F1
+               << /Type /Font
+                  /Subtype /Type1
+                  /BaseFont /Times-Roman
+               >>
+           >>
+       >>
+      /Contents 4 0 R
+  >>
+endobj
+
+4 0 obj
+  << /Length 55 >>
+stream
+  BT
+    /F1 18 Tf
+    0 0 Td
+    (Hello World) Tj
+  ET
+endstream
+endobj
+
+xref
+0 5
+0000000000 65535 f
+0000000018 00000 n
+0000000077 00000 n
+0000000178 00000 n
+0000000457 00000 n
+trailer
+  <<  /Root 1 0 R
+      /Size 5
+  >>
+startxref
+565
+%%EOF'''
+        with tempfile.TemporaryDirectory() as tdir:
+            pdf = os.path.join(tdir, 'test.pdf')
+            with open(pdf, 'w') as f:
+                f.write(pdf_data)
+            from calibre.db.fts.text import pdftotext
+            self.assertEqual(pdftotext(pdf).strip(), 'Hello World')
 
 
 def find_tests():

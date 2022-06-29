@@ -409,11 +409,12 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
     def test_executables(self):
         from calibre.utils.ipc.launch import Worker
-        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, PDFTOTEXT
         w = Worker({})
         self.assertTrue(os.path.exists(w.executable), 'calibre-parallel (%s) does not exist' % w.executable)
         self.assertTrue(os.path.exists(w.gui_executable), 'calibre-parallel-gui (%s) does not exist' % w.gui_executable)
         self.assertTrue(os.path.exists(PDFTOHTML), 'pdftohtml (%s) does not exist' % PDFTOHTML)
+        self.assertTrue(os.path.exists(PDFTOTEXT), 'pdftotext (%s) does not exist' % PDFTOTEXT)
         if iswindows:
             from calibre.devices.usbms.device import eject_exe
             self.assertTrue(os.path.exists(eject_exe()), 'calibre-eject.exe (%s) does not exist' % eject_exe())
