@@ -1,36 +1,31 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
-
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def fix_title(title):
-    return title.replace('-', ' ').capitalize()
+from datetime import datetime
 
 
 class TheWeek(BasicNewsRecipe):
     title = u'The Week'
+    description = (
+        'The Week is the best selling general interest English news magazine. The magazine covers politics, entertainment,'
+        ' social issues, trends, technology, lifestyle and everything else you should be knowing. Best downloaded on Mondays.')
     language = 'en_IN'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'unkn0wn'
     encoding = 'utf-8'
-    oldest_article = 8  # days
-    max_articles_per_feed = 25
     no_stylesheets = True
-    use_embedded_content = True
-    ignore_duplicate_articles = {'url'}
-    remove_attributes = ['style', 'align', 'border', 'hspace']
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url', 'title'}
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://www.theweek.in/content/dam/week/logo/The-Week-Logo-Big.png'
 
-    feeds = [
-        ('Cover Story', 'https://www.theweek.in/theweek/cover.rss'),
-        ('Sports', 'https://www.theweek.in/theweek/sports.rss'),
-        ('Current', 'https://www.theweek.in/theweek/current.rss'),
-        ('Statescan', 'https://www.theweek.in/theweek/statescan.rss'),
-        ('Leisure', 'https://www.theweek.in/theweek/leisure.rss'),
-        ('Business', 'https://www.theweek.in/theweek/business.rss'),
-        ('Specials', 'https://www.theweek.in/theweek/specials.rss'),
-        ('More', 'https://www.theweek.in/theweek/more.rss'),
-        ('Society', 'https://www.theweek.in/leisure/society.rss'),
+    keep_only_tags = [
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'article-title', 'article-image', 'articlecontentbody section',
+                    'element11-page-content'
+                ]
+            }
+        ),
     ]
 
     def get_cover_url(self):
@@ -42,17 +37,24 @@ class TheWeek(BasicNewsRecipe):
         ):
             return citem['content']
 
-    def preprocess_html(self, soup):
-        a = soup.find('a')
-        if a:
-            a.name = 'div'
-        h2 = soup.find('h2')
-        if h2:
-            h2.string = fix_title(h2.string)
-        for p in soup.findAll('p'):
-            if p.string == '\xa0':
-                p.decompose()
-        return soup
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.theweek.in/theweek.html')
+        ans = []
+        d = datetime.today()
 
-    def populate_article_metadata(self, article, soup, first):
-        article.title = fix_title(article.title)
+        for a in soup.findAll(
+            'a', href=lambda x: x and '/' + d.strftime('%Y') + '/' in x
+        ):
+            url = a['href']
+            title = self.tag_to_string(a).strip()
+            if not url or not title:
+                continue
+            self.log('\t', title)
+            self.log('\t\t', url)
+            ans.append({'title': title, 'url': url})
+        return [('Articles', ans)]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src-web': True}):
+            img['src'] = img['data-src-web']
+        return soup
