@@ -542,7 +542,7 @@ class Delegate(QStyledItemDelegate):
             visit = _('Right click to visit theme homepage') if theme.get('url') else ''
             theme['static-text'] = QStaticText(_(
                 '''
-            <h1>{title}</h1>
+            <h2>{title}</h2>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage:n}</p>
