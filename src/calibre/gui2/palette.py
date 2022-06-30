@@ -26,7 +26,7 @@ def dark_palette():
     disabled_color = QColor(127,127,127)
     p.setColor(QPalette.ColorRole.Window, dark_color)
     p.setColor(QPalette.ColorRole.WindowText, dark_text_color)
-    p.setColor(QPalette.ColorRole.PlaceholderText, QColor('#888'))
+    p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
     p.setColor(QPalette.ColorRole.Base, QColor(18,18,18))
     p.setColor(QPalette.ColorRole.AlternateBase, dark_color)
     p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
