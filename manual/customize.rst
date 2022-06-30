@@ -40,7 +40,7 @@ Environment variables
     * ``CALIBRE_OVERRIDE_LANG`` - used to force the language used by the interface (ISO 639 language code)
     * ``CALIBRE_TEST_TRANSLATION`` - used to test a translation .po file (should be the path to the .po file)
     * ``CALIBRE_NO_NATIVE_FILEDIALOGS`` - causes calibre to not use native file dialogs for selecting files/folders.
-    * ``CALIBRE_NO_NATIVE_MENUBAR`` - causes calibre to not create a native (global) menu on Ubuntu Unity and similar linux desktop environments. The menu is instead placed inside the window, as is traditional.
+    * ``CALIBRE_NO_NATIVE_MENUBAR`` - causes calibre to not create a native (global) menu on Ubuntu Unity and similar Linux desktop environments. The menu is instead placed inside the window, as is traditional.
     * ``CALIBRE_USE_SYSTEM_THEME`` - by default, on Linux, calibre uses its own
       builtin Qt style. This is to avoid crashes and hangs caused by incompatibilities
       between the version of Qt calibre is built against and the system Qt. The
