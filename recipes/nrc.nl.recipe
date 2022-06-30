@@ -2,10 +2,10 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import datetime
 import json
-from time import sleep
 from mechanize import Request
 from contextlib import closing
 import re
+
 
 class NRC(BasicNewsRecipe):
     title = 'NRC'
@@ -17,18 +17,24 @@ class NRC(BasicNewsRecipe):
     country = 'NL'
     category = 'news, politics, Netherlands'
     resolve_internal_links = True
-    remove_tags_before = {'class':'article__header-and-content'}
-    remove_tags_after  = {'class':'article__header-and-content'}
+    remove_tags_before = {'class': 'article__header-and-content'}
+    remove_tags_after = {'class': 'article__header-and-content'}
     remove_tags = [
-        dict(attrs={'class':['article__footer',
-                             'lees-ook',
-                             'luister-naar',
-                             'print-layout-warning',
-                             'newslettersignup',
-                             'article__byline',
-                             'article__published-in',
-                             'article__featured-image__caption__producer',
-                             'metabox',]}),
+        dict(
+            attrs={
+                'class': [
+                    'article__footer',
+                    'lees-ook',
+                    'luister-naar',
+                    'print-layout-warning',
+                    'newslettersignup',
+                    'article__byline',
+                    'article__published-in',
+                    'article__featured-image__caption__producer',
+                    'metabox',
+                ]
+            }
+        ),
         dict(name=['script', 'noscript', 'style']),
     ]
     remove_attributes = ["class", "id", "name", "style"]
@@ -36,24 +42,26 @@ class NRC(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     delay = 0.3
-    
+
     touchscreen = True
-    
+
     frontpage = None
-    
+
     title_regexp = None
-    
+
     @staticmethod
     def _monthly_list_url(date, fmt="%Y/%m/"):
         return "https://www.nrc.nl/de/data/NH/" + date.strftime(fmt)
-    
+
     def _clean_article_title(self, title):
         if not title:
             return title
         if self.title_regexp is None:
-            self.title_regexp = re.compile(r'<span class="keyword">([^<]+)</span>\s*')
+            self.title_regexp = re.compile(
+                r'<span class="keyword">([^<]+)</span>\s*'
+            )
         return self.title_regexp.sub(r"\1 ", title)
-    
+
     def parse_index(self):
         sections = []
         today = datetime.date.today()
@@ -64,15 +72,22 @@ class NRC(BasicNewsRecipe):
         }
         monthly_list_urls = [
             self._monthly_list_url(today),
-            self._monthly_list_url(datetime.date(today.year, today.month, 1) - datetime.timedelta(days=1))
+            self._monthly_list_url(
+                datetime.date(today.year, today.month, 1) -
+                datetime.timedelta(days=1)
+            )
         ]
         issue_url = None
         issue_date = None
         for monthly_list_url in monthly_list_urls:
-            with closing(self.browser.open(Request(monthly_list_url, None, headers))) as r:
+            with closing(
+                self.browser.open(Request(monthly_list_url, None, headers))
+            ) as r:
                 issues = json.loads(r.read())
                 if len(issues) > 0:
-                    issue_date = datetime.datetime.strptime(issues[0]["published_at"], "%Y-%m-%dT%H:%M:%SZ")
+                    issue_date = datetime.datetime.strptime(
+                        issues[0]["published_at"], "%Y-%m-%dT%H:%M:%SZ"
+                    )
                     issue_url = self._monthly_list_url(issue_date, "%Y/%m/%d/")
                     self.frontpage = issues[0]["frontpage"]
                     break
@@ -93,14 +108,12 @@ class NRC(BasicNewsRecipe):
                 if doc not in documents:
                     self.log.warn('Document not found:', doc)
                     continue
-                articles.append(dict(
-                    title=documents[doc]["headline"],
-                    url=documents[doc]["url"]
-                ))
-            sections.append((
-                section["name"],
-                articles
-            ))
+                articles.append(
+                    dict(
+                        title=documents[doc]["headline"], url=documents[doc]["url"]
+                    )
+                )
+            sections.append((section["name"], articles))
         return sections
 
     def preprocess_html(self, soup):
