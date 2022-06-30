@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 10  # Needed for dynamic plugin loading
+store_version = 11  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -96,20 +96,17 @@ class KoboStore(BasicStoreConfig, StorePlugin):
     minimum_calibre_version = (5, 40, 1)
 
     def open(self, parent=None, detail_item=None, external=False):
-        pub_id = '0dsO3kDu/AU'
-        murl = 'https://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
-
         if detail_item:
-            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, quote_plus(detail_item))
+            purl = detail_item
             url = purl
         else:
             purl = None
-            url = murl
+            url = 'https://kobo.com'
 
         if external or self.config.get('open_external', False):
             open_url(url_slash_cleaner(url))
         else:
-            d = WebStoreDialog(self.gui, murl, parent, purl)
+            d = WebStoreDialog(self.gui, url, parent, purl)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec()

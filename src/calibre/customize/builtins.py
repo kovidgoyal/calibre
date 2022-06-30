@@ -1650,7 +1650,7 @@ class StoreKoboStore(StoreBase):
 
     headquarters = 'CA'
     formats = ['EPUB']
-    affiliate = True
+    affiliate = False
 
 
 class StoreLegimiStore(StoreBase):
