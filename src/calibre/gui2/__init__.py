@@ -1229,7 +1229,10 @@ class Application(QApplication):
             using_calibre_style = True
         if using_calibre_style:
             if iswindows:
-                use_dark_palette = windows_is_system_dark_mode_enabled()
+                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+                    use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
+                else:
+                    use_dark_palette = windows_is_system_dark_mode_enabled()
             elif ismacos:
                 use_dark_palette = False
             else:
@@ -1257,6 +1260,8 @@ class Application(QApplication):
         @pyqtSlot(str, str, QDBusVariant)
         def linux_desktop_setting_changed(self, namespace, key, val):
             if (namespace, key) == ('org.freedesktop.appearance', 'color-scheme'):
+                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+                    return
                 use_dark_palette = val.variant() == 1
                 if use_dark_palette != bool(self.is_dark_theme):
                     if use_dark_palette:
@@ -1266,6 +1271,8 @@ class Application(QApplication):
                 self.on_palette_change()
 
     def check_for_windows_palette_change(self):
+        if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+            return
         use_dark_palette = bool(windows_is_system_dark_mode_enabled())
         if bool(self.is_dark_theme) != use_dark_palette:
             if use_dark_palette:
