@@ -1,55 +1,122 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
-nrc.nl
-'''
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import datetime
+import json
+from time import sleep
+from mechanize import Request
+from contextlib import closing
+import re
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
-
-
-class Pagina12(BasicNewsRecipe):
+class NRC(BasicNewsRecipe):
     title = 'NRC'
-    __author__ = 'Darko Miletic'
-    description = 'News from Netherlands'
-    publisher = 'nrc.nl'
-    category = 'news, politics, Netherlands'
-    oldest_article = 2
-    max_articles_per_feed = 200
-    no_stylesheets = True
-    encoding = 'utf8'
-    use_embedded_content = False
+    __author__ = 'Cristi Ghera'
+    max_articles_per_feed = 100
+    description = 'NRC - Nieuws, achtergronden en onderzoeksjournalistiek'
+    needs_subscription = False
     language = 'nl'
     country = 'NL'
-    remove_empty_feeds = True
-    masthead_url = 'http://www.nrc.nl/nrc.nl/images/logo_nrc.png'
-
-    keep_only_tags = [
-        dict(name=['h1', 'figure']),
-        dict(attrs={'class': ['intro', 'byline']}),
-        dict(attrs={'class': lambda x: x and 'article__content' in x}),
+    category = 'news, politics, Netherlands'
+    resolve_internal_links = True
+    remove_tags_before = {'class':'article__header-and-content'}
+    remove_tags_after  = {'class':'article__header-and-content'}
+    remove_tags = [
+        dict(attrs={'class':['article__footer',
+                             'lees-ook',
+                             'luister-naar',
+                             'print-layout-warning',
+                             'newslettersignup',
+                             'article__byline',
+                             'article__published-in',
+                             'article__featured-image__caption__producer',
+                             'metabox',]}),
+        dict(name=['script', 'noscript', 'style']),
     ]
-    remove_attributes = ['style']
-
-    feeds = ['http://www.nrc.nl/rss/']
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    delay = 0.3
+    
+    touchscreen = True
+    
+    frontpage = None
+    
+    title_regexp = None
+    
+    @staticmethod
+    def _monthly_list_url(date, fmt="%Y/%m/"):
+        return "https://www.nrc.nl/de/data/NH/" + date.strftime(fmt)
+    
+    def _clean_article_title(self, title):
+        if not title:
+            return title
+        if self.title_regexp is None:
+            self.title_regexp = re.compile(r'<span class="keyword">([^<]+)</span>\s*')
+        return self.title_regexp.sub(r"\1 ", title)
+    
+    def parse_index(self):
+        sections = []
+        today = datetime.date.today()
+        headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'DNT': '1',
+        }
+        monthly_list_urls = [
+            self._monthly_list_url(today),
+            self._monthly_list_url(datetime.date(today.year, today.month, 1) - datetime.timedelta(days=1))
+        ]
+        issue_url = None
+        issue_date = None
+        for monthly_list_url in monthly_list_urls:
+            with closing(self.browser.open(Request(monthly_list_url, None, headers))) as r:
+                issues = json.loads(r.read())
+                if len(issues) > 0:
+                    issue_date = datetime.datetime.strptime(issues[0]["published_at"], "%Y-%m-%dT%H:%M:%SZ")
+                    issue_url = self._monthly_list_url(issue_date, "%Y/%m/%d/")
+                    self.frontpage = issues[0]["frontpage"]
+                    break
+        if issue_url is None:
+            return []
+        with closing(self.browser.open(Request(issue_url, None, headers))) as r:
+            edition = json.loads(r.read())
+        documents = {}
+        for headline in edition["paperheadlines"]:
+            item = headline["item"]
+            documents[headline["document_id"]] = dict(
+                url=item["full_url"],
+                headline=self._clean_article_title(item["headline"])
+            )
+        for section in edition["sections"]:
+            articles = []
+            for doc in section["document_ids"]:
+                if doc not in documents:
+                    self.log.warn('Document not found:', doc)
+                    continue
+                articles.append(dict(
+                    title=documents[doc]["headline"],
+                    url=documents[doc]["url"]
+                ))
+            sections.append((
+                section["name"],
+                articles
+            ))
+        return sections
 
     def preprocess_html(self, soup):
-        src = None
-        for meta in soup.findAll('meta', itemprop='image', content=True):
-            src = meta['content']
-            break
-        if src is not None:
-            div = soup.find(
-                'div', attrs={'class': lambda x: x and 'featured-img' in x})
-            if div is not None:
-                img = new_tag(soup, 'img')
-                img['src'] = src
-                div.append(img)
+        for tag in soup():
+            if tag.name == 'img':
+                if tag.has_attr('data-src-medium'):
+                    tag['src'] = tag['data-src-medium'].split("|")[0]
+                elif tag.has_attr('data-src'):
+                    tag['src'] = tag['data-src'].split("|")[0]
+                if tag['src'].startswith('//'):
+                    tag['src'] = 'https:' + tag['src']
+                elif tag['src'].startswith('/'):
+                    tag['src'] = 'https://www.nrc.nl' + tag['src']
+        if self.browser.cookiejar:
+            self.browser.cookiejar.clear()
         return soup
+
+    def get_cover_url(self):
+        return self.frontpage

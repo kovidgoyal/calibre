@@ -1,93 +1,69 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import uuid
 
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
- Modified by Tony Stegall
- on 10/10/10 to include function to grab print version of articles
-'''
-from datetime import date
-from calibre.web.feeds.news import BasicNewsRecipe
-'''
-added by Tony Stegall
-'''
-#######################################################
-from calibre.ptempfile import PersistentTemporaryFile
-#######################################################
-
-
-class AdvancedUserRecipe1249039563(BasicNewsRecipe):
-    title = u'De Volkskrant'
-    __author__ = 'acidzebra'
-    oldest_article = 7
+class Volkskrant(BasicNewsRecipe):
+    title = 'Volkskrant'
+    __author__ = 'Cristi Ghera'
     max_articles_per_feed = 100
+    description = 'Volkskrant - Nieuws, achtergronden en columns'
+    needs_subscription = False
+    resolve_internal_links = True
+    remove_tags_before = dict(id='main-content')
+    remove_tags_after  = dict(id='main-content')
+    remove_tags = [
+        dict(attrs={'class':['article-footer__sharing', 'artstyle__editorial-tips', 'artstyle__advertisement','artstyle__container__icon','artstyle__disabled-embed','container__title__icon',]}),
+        dict(attrs={'data-element-id': ['article-element-authors']}),
+        dict(name=['script', 'noscript', 'style']),
+    ]
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
     no_stylesheets = True
-    language = 'nl'
+    ignore_duplicate_articles = {'url'}
+    
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.volkskrant.nl/privacy-wall/accept?redirectUri=%2Feditie%2Fvandaag%2F&authId=' + str(uuid.uuid4()))
+        containers = soup.findAll('section', attrs={'class': 'section--horizontal'})
+        sections = []
+        for container in containers:
+            section_title = self.tag_to_string(container.find('h2')).strip()
+            articles = []
+            
+            for art in container.findAll('article'):
+                a = art.find('a')
+                url = a['href']
+                if url[0] == '/':
+                    url = 'https://www.volkskrant.nl' + url
+                if '/editie/' not in url:
+                    continue
+                header = a.find('header')
+                teaser_label = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__label'})).strip()
+                teaser_sublabel = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__sublabel'})).strip()
+                teaser_title = self.tag_to_string(header.find('h3').find('span', attrs={'class': 'teaser__title__value--short'})).strip()
+                if teaser_label.lower() == "podcast":
+                    continue
+                parts = []
+                if teaser_label:
+                    parts.append(teaser_label.upper())
+                if teaser_sublabel:
+                    parts.append(teaser_sublabel)
+                if teaser_title:
+                    parts.append(teaser_title)
+                article_title = ' \u2022 '.join(parts)
+                pubdate = ''
+                description = ''
+                articles.append(dict(title=article_title,
+                                    url=url,
+                                    date=pubdate,
+                                    description=description,
+                                    content=''))
+            
+            sections.append((section_title, articles))
+        return sections
 
-    extra_css      = '''
-                        body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                        h1{font-size:large;}
-                     '''
-    '''
-      Change Log:
-        Date:       10/10/10  - Modified code to include obfuscated to get the print version
-        Author:   Tony Stegall
-
-        Date:       01/01/11  - Modified for better results around December/January.
-        Author:   Martin Tarenskeen
-    '''
-    # #########################################################################
-    temp_files = []
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.browser.clone_browser()
-        br.open(url)
-        year = date.today().year
-
-        try:
-            response = br.follow_link(
-                url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)' % year, nr=0)
-            html = response.read()
-        except:
-            year = year - 1
-            try:
-                response = br.follow_link(
-                    url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)' % year, nr=0)
-                html = response.read()
-            except:
-                response = br.open(url)
-                html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-
-    # #########################################################################
-
-    '''
-      Change Log:
-       Date: 10/15/2010
-       Feeds updated by Martin Tarenskeen
-       Date: 09/09/2012
-       Feeds updated by Eric Lammerts
-    '''
-
-    feeds = [
-        (u'Nieuws', u'http://www.volkskrant.nl/nieuws/rss.xml'),
-        (u'Binnenland', u'http://www.volkskrant.nl/nieuws/binnenland/rss.xml'),
-        (u'Buitenland', u'http://www.volkskrant.nl/buitenland/rss.xml'),
-        (u'Economie', u'http://www.volkskrant.nl/nieuws/economie/rss.xml'),
-        (u'Politiek', u'http://www.volkskrant.nl/politiek/rss.xml'),
-        (u'Sport', u'http://www.volkskrant.nl/sport/rss.xml'),
-        (u'Cultuur', u'http://www.volkskrant.nl/nieuws/cultuur/rss.xml'),
-        (u'Gezondheid & wetenschap',
-         u'http://www.volkskrant.nl/nieuws/gezondheid--wetenschap/rss.xml'),
-        (u'Tech & Media', u'http://www.volkskrant.nl/tech-media/rss.xml'),
-        (u'Reizen', u'http://www.volkskrant.nl/nieuws/reizen/rss.xml'),
-        (u'Opinie', u'http://www.volkskrant.nl/opinie/rss.xml'),
-        (u'Opmerkelijk', u'http://www.volkskrant.nl/nieuws/opmerkelijk/rss.xml')]
+    def preprocess_html(self, soup):
+        for tag in soup():
+            if tag.name == 'img':
+                if tag['src'][0] == '/':
+                    tag['src'] = 'https://www.volkskrant.nl' + tag['src']
+        return soup
