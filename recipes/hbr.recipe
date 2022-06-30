@@ -22,9 +22,9 @@ class HBR(BasicNewsRecipe):
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
     extra_css = '''
-        article-sidebar{ font-size:small; text-align:left; font-style:italic; }
-        [close-caption]{ font-size:small; font-style:italic; text-align:center;}
-        article-ideainbrief{ font-size:small; text-align:left; }
+        article-sidebar{font-family:Georgia,"Times New Roman",Times,serif; border:ridge; text-align:left;}
+        [close-caption]{ border:ridge; font-size:small; text-align:center;}
+        article-ideainbrief{font-family:Georgia,"Times New Roman",Times,serif; text-align:left; font-style:italic; }
         '''
 
     keep_only_tags = [
