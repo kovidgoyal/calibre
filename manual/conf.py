@@ -138,7 +138,6 @@ html_theme_options = {
     'show_powered_by': False,
     'fixed_sidebar': True,
     'sidebar_collapse': True,
-    'analytics_id': 'UA-20736318-1',
     'github_button': False,
 }
 

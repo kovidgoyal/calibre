@@ -2,6 +2,15 @@
 
 {%- block extrahead %}
 {% if not embedded %}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YMW4X5CSKP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YMW4X5CSKP');
+</script>
 <!-- Quantcast Choice. Consent Manager Tag v2.0 (for TCF 2.0) -->
 <!-- See https://www.quantcast.com/protect/sites username is email -->
 <script type="text/javascript" async=true>
