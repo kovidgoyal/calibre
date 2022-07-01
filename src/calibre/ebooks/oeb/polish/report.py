@@ -165,13 +165,13 @@ def links_data(container, *args):
             for a in link_pat(root):
                 href = a.get('href')
                 text = description_for_anchor(a)
+                location = LinkLocation(name, a.sourceline, href)
                 if href:
                     base, frag = href.partition('#')[0::2]
                     if frag and not base:
                         dest = name
                     else:
                         dest = safe_href_to_name(container, href, name)
-                    location = LinkLocation(name, a.sourceline, href)
                     links.append((base, frag, dest, location, text))
                 else:
                     links.append(('', '', None, location, text))
