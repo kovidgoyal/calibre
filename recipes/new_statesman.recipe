@@ -40,4 +40,4 @@ class NewStatesman(BasicNewsRecipe):
         'language': language
     }
 
-    feeds = [(u'Articles', u'https://www.newstatesman.com/feeds/site_feed.rss')]
+    feeds = [(u'Articles', u'https://www.newstatesman.com/feed')]
