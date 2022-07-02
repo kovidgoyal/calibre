@@ -43,10 +43,7 @@ from polyglot import queue
 from polyglot.builtins import iteritems, string_or_bytes
 
 del pqc
-try:
-    NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
-except AttributeError:
-    NO_URL_FORMATTING = getattr(QUrl, 'None')
+NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 if islinux:
     from qt.dbus import QDBusConnection, QDBusMessage, QDBusVariant
 
