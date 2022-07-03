@@ -39,6 +39,9 @@ class SwarajyaMag(BasicNewsRecipe):
             if url.startswith('/'):
                 url = 'https://swarajyamag.com' + url
             title = self.tag_to_string(a)
-            self.log(title, ' at ', url)
-            ans.append({'title': title, 'url': url})
+            d = a.find_previous_sibling('a', **classes('_2nEd_'))
+            if d:
+                desc = 'By ' + self.tag_to_string(d).strip()
+            self.log(title, ' at ', url, '\n', desc)
+            ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]

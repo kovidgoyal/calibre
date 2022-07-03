@@ -58,9 +58,7 @@ class Nautilus(BasicNewsRecipe):
         soup = self.index_to_soup('https://www.presspassnow.com/nautilus/issues/')
         div = soup.find('div', **classes('image-fade_in_back'))
         if div:
-            self.cover_url = div.find('img',
-                                      attrs={'srcset': True
-                                             })['srcset'].split(',')[-1].split()[0]
+            self.cover_url = div.find('img', src=True)['src']
         return getattr(self, 'cover_url', self.cover_url)
 
     def preprocess_html(self, soup):

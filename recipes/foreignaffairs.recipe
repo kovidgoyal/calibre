@@ -141,6 +141,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
                           'publisher': publisher}
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
