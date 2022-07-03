@@ -16,6 +16,7 @@ if False:
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.interface_demo.main import DemoDialog
 
+
 class InterfacePlugin(InterfaceAction):
 
     name = 'Interface Plugin Demo'
@@ -40,7 +41,7 @@ class InterfacePlugin(InterfaceAction):
         # should pass a list of names to get_icons. In this case, get_icons
         # will return a dictionary mapping names to QIcons. Names that
         # are not found in the zip file will result in null QIcons.
-        icon = get_icons('images/icon.png')
+        icon = get_icons('images/icon.png', 'Interface Demo Plugin')
 
         # The qaction is automatically created from the action_spec defined
         # above
@@ -67,4 +68,3 @@ class InterfacePlugin(InterfaceAction):
         # In an actual non trivial plugin, you would probably need to
         # do something based on the settings in prefs
         prefs
-
