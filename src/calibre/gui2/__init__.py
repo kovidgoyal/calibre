@@ -167,11 +167,11 @@ class IconResourceManager:
                 return QIcon(q)
         icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
         ans = QIcon.fromTheme(icon_name)
-        if ans.isNull() and not tuple(ans.availableSizes()):
+        if ans.isNull() or not len(ans.availableSizes()):
             if 'user-any' in QIcon.themeName():
                 tc = 'dark' if QApplication.instance().is_dark_theme else 'light'
                 q = QIcon(f':/icons/calibre-default-{tc}/images/{name}')
-                if not q.isNull() and tuple(q.availableSizes()):
+                if not q.isNull() and len(q.availableSizes()):
                     ans = q
         return ans
 

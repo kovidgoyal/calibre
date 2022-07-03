@@ -79,7 +79,7 @@ def get_icons(zfp, name_or_list_of_names, plugin_name=''):
     if plugin_name:
         for name in namelist:
             q = QIcon.ic(f'{plugin_name}/{name}')
-            if q.isNull() or not tuple(q.availableSizes()):
+            if q.isNull() or not len(q.availableSizes()):
                 failed.add(name)
             else:
                 ans[name] = q
