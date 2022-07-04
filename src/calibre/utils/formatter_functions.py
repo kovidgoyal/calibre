@@ -2265,14 +2265,25 @@ class BuiltinBookValues(BuiltinFormatterFunction):
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_values() function cannot be used in a composite column'))
-        with suppress(Exception):
+        try:
             from calibre.gui2.ui import get_gui
             db = get_gui().current_db
+        except:
+            return _('This function can be used only in the GUI')
+        if column not in db.field_metadata:
+            raise ValueError(_("The column {} doesn't exist").format(column))
+        try:
             ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
-            ff = db.new_api.field_for
-            s = {ff(column, id_) for id_ in ids if ff(column, id_)}
+            s = set()
+            for id_ in ids:
+                f = db.new_api.get_proxy_metadata(id_).get(column, None)
+                if isinstance(f, (tuple, list)):
+                    s.update(f)
+                elif f:
+                    s.add(str(f))
             return sep.join(s)
-        return _('This function can be used only in the GUI')
+        except Exception as e:
+            raise ValueError(e)
 
 
 _formatter_builtins = [
