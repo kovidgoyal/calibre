@@ -247,8 +247,42 @@ get_requires_aqua_system_appearance(PyObject *self, PyObject *unused) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+set_appearance(PyObject *self, PyObject *args) {
+    const char *val;
+    if (!PyArg_ParseTuple(args, "s", &val)) return NULL;
+    [NSApplication sharedApplication];
+    if (strcmp(val, "system") == 0) {
+        NSApp.appearance = nil;
+    } else if (strcmp(val, "light") == 0) {
+        NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    }  else if (strcmp(val, "dark") == 0) {
+        NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+    } else {
+        PyErr_Format(PyExc_KeyError, "Unknown appearance type: %s", val);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+
+}
+
+static PyObject*
+get_appearance(PyObject *self, PyObject *args) {
+    int effective = 0;
+    if (!PyArg_ParseTuple(args, "|p", &effective)) return NULL;
+    [NSApplication sharedApplication];
+    if (effective) {
+        if (!NSApp.effectiveAppearance) return PyUnicode_FromString("");
+        return PyUnicode_FromString([NSApp.effectiveAppearance.name UTF8String]);
+    }
+    if (!NSApp.appearance) return PyUnicode_FromString("");
+    return PyUnicode_FromString([NSApp.appearance.name UTF8String]);
+}
+
 
 static PyMethodDef module_methods[] = {
+    {"get_appearance", (PyCFunction)get_appearance, METH_VARARGS, ""},
+    {"set_appearance", (PyCFunction)set_appearance, METH_VARARGS, ""},
     {"set_requires_aqua_system_appearance", (PyCFunction)set_requires_aqua_system_appearance, METH_O, ""},
     {"get_requires_aqua_system_appearance", (PyCFunction)get_requires_aqua_system_appearance, METH_NOARGS, ""},
     {"transient_scroller", (PyCFunction)transient_scroller, METH_NOARGS, ""},
