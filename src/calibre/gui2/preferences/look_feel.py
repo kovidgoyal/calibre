@@ -415,6 +415,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
+        r('color_palette', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Light'), 'light'), (_('Dark'), 'dark')])
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)

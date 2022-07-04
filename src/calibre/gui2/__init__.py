@@ -307,6 +307,7 @@ def create_defs():
     defs['auto_add_auto_convert'] = True
     defs['auto_add_everything'] = False
     defs['ui_style'] = 'calibre' if iswindows or ismacos else 'system'
+    defs['color_palette'] = 'system'
     defs['tag_browser_old_look'] = False
     defs['tag_browser_hide_empty_categories'] = False
     defs['tag_browser_always_autocollapse'] = False
@@ -1041,6 +1042,10 @@ class Application(QApplication):
     palette_changed = pyqtSignal()
 
     def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+        if ismacos and not headless:
+            from calibre_extensions.cocoa import set_appearance
+            if gprefs['color_palette'] != 'system':
+                set_appearance(gprefs['color_palette'])
         self.ignore_palette_changes = False
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         # Allow import of webengine after construction of QApplication on new
@@ -1226,21 +1231,15 @@ class Application(QApplication):
             using_calibre_style = True
         if using_calibre_style:
             if iswindows:
-                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
-                    use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
-                else:
-                    use_dark_palette = windows_is_system_dark_mode_enabled()
+                use_dark_palette = gprefs['color_palette'] == 'dark' or (gprefs['color_palette'] == 'system' and windows_is_system_dark_mode_enabled())
             elif ismacos:
-                use_dark_palette = False
+                use_dark_palette = gprefs['color_palette'] == 'dark'
             else:
-                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
-                    use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
-                else:
-                    use_dark_palette = linux_is_system_dark_mode_enabled()
-                    bus = QDBusConnection.sessionBus()
-                    bus.connect(
-                        'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-                        'org.freedesktop.portal.Settings', 'SettingChanged', 'ssv', self.linux_desktop_setting_changed)
+                use_dark_palette = gprefs['color_palette'] == 'dark' or (gprefs['color_palette'] == 'system' and linux_is_system_dark_mode_enabled())
+                bus = QDBusConnection.sessionBus()
+                bus.connect(
+                    'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
+                    'org.freedesktop.portal.Settings', 'SettingChanged', 'ssv', self.linux_desktop_setting_changed)
             if use_dark_palette:
                 self.set_dark_mode_palette()
             elif self.original_palette_modified:
@@ -1257,7 +1256,7 @@ class Application(QApplication):
         @pyqtSlot(str, str, QDBusVariant)
         def linux_desktop_setting_changed(self, namespace, key, val):
             if (namespace, key) == ('org.freedesktop.appearance', 'color-scheme'):
-                if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+                if gprefs['color_palette'] != 'system':
                     return
                 use_dark_palette = val.variant() == 1
                 if use_dark_palette != bool(self.is_dark_theme):
@@ -1268,7 +1267,7 @@ class Application(QApplication):
                 self.on_palette_change()
 
     def check_for_windows_palette_change(self):
-        if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+        if gprefs['color_palette'] != 'system':
             return
         use_dark_palette = bool(windows_is_system_dark_mode_enabled())
         if bool(self.is_dark_theme) != use_dark_palette:
