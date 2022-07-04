@@ -745,3 +745,97 @@ class ReadingTest(BaseTest):
                 val = val.encode('utf-8')
             self.assertEqual(got, val)
     # }}}
+
+    def test_template_db_functions(self):  # {{{
+        from calibre.ebooks.metadata.book.base import Metadata
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
+        formatter = SafeFormat()
+
+        db = self.init_cache(self.library_path)
+        db.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
+
+        db = self.init_legacy(self.library_path)
+        class GetGuiAns():
+            current_db = None
+        get_gui_ans = GetGuiAns()
+        get_gui_ans.current_db = db
+        from calibre.gui2.ui import get_gui
+        get_gui.ans = get_gui_ans
+
+        try:
+            # need an empty metadata object to pass to the formatter
+            mi = Metadata('A', 'B')
+
+            # test counting books matching the search
+            v = formatter.safe_format('program: book_count("series:true", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, '2')
+
+            # test counting books when none match the search
+            v = formatter.safe_format('program: book_count("series:afafaf", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, '0')
+
+            # test is_multiple values
+            v = formatter.safe_format('program: book_values("tags", "tags:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
+
+            # test not is_multiple values
+            v = formatter.safe_format('program: book_values("series", "series:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, 'A Series One')
+
+            # test returning values for a column not searched for
+            v = formatter.safe_format('program: book_values("tags", "series:\\"A Series One\\"", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
+
+            # test getting a singleton value from books where the column is empty
+            v = formatter.safe_format('program: book_values("series", "series:false", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, '')
+
+            # test getting a multiple value from books where the column is empty
+            v = formatter.safe_format('program: book_values("tags", "tags:false", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, '')
+
+            # test fetching an unknown column
+            v = formatter.safe_format('program: book_values("taaags", "tags:false", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(v, "TEMPLATE ERROR The column taaags doesn't exist")
+
+            # test finding all books
+            v = formatter.safe_format('program: book_values("id", "title:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'1', '2', '3'})
+
+            # test getting value of a composite
+            v = formatter.safe_format('program: book_values("#mult", "id:1", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'b', 'c', 'a'})
+
+            # test getting value of a custom float
+            v = formatter.safe_format('program: book_values("#float", "title:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'20.02', '10.01'})
+
+            # test getting value of an int (rating)
+            v = formatter.safe_format('program: book_values("rating", "title:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
+            self.assertEqual(set(v.split(',')), {'4', '6'})
+        finally:
+            get_gui.ans = None
+    # }}}
+
+
+import unittest, importlib, sys
+from calibre.utils.run_tests import run_tests, filter_tests_by_name
+
+
+if __name__ == '__main__':
+    try:
+        import init_calibre  # noqa
+    except ImportError:
+        pass
+    tests = sys.argv[1:]
+    sys.argv = sys.argv[0:1]
+
+    def find_tests():
+        m = importlib.import_module('calibre.db.tests.reading')
+        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(m)])
+        if tests:
+            return filter_tests_by_name(suite, *tests)
+        else:
+            return suite
+
+    run_tests(find_tests)
