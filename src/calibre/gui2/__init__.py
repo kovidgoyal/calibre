@@ -167,11 +167,11 @@ class IconResourceManager:
                 return QIcon(q)
         icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
         ans = QIcon.fromTheme(icon_name)
-        if ans.isNull() or not len(ans.availableSizes()):
+        if not ans.is_ok():
             if 'user-any' in QIcon.themeName():
                 tc = 'dark' if QApplication.instance().is_dark_theme else 'light'
                 q = QIcon(f':/icons/calibre-default-{tc}/images/{name}')
-                if not q.isNull() and len(q.availableSizes()):
+                if q.is_ok():
                     ans = q
         return ans
 
@@ -203,6 +203,7 @@ class IconResourceManager:
 icon_resource_manager = IconResourceManager()
 QIcon.ic = icon_resource_manager
 QIcon.icon_as_png = icon_resource_manager.icon_as_png
+QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
 
 
 # Setup gprefs {{{
