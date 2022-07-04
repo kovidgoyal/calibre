@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import unittest, functools, importlib, importlib.resources
+import unittest, functools, importlib, importlib.resources, os
 from calibre.utils.monotonic import monotonic
 
 
@@ -138,6 +138,175 @@ def run_tests(find_tests, verbosity=4):
         if not tests._tests:
             raise SystemExit('No test named %s found' % args.name)
     run_cli(tests, verbosity)
+
+
+class TestImports(unittest.TestCase):
+
+    def base_check(self, base, exclude_packages, exclude_modules):
+        import importlib
+        import_base = os.path.dirname(base)
+        count = 0
+        for root, dirs, files in os.walk(base):
+            for d in tuple(dirs):
+                if not os.path.isfile(os.path.join(root, d, '__init__.py')):
+                    dirs.remove(d)
+            for fname in files:
+                module_name, ext = os.path.splitext(fname)
+                if ext != '.py':
+                    continue
+                path = os.path.join(root, module_name)
+                relpath = os.path.relpath(path, import_base).replace(os.sep, '/')
+                full_module_name = '.'.join(relpath.split('/'))
+                if full_module_name.endswith('.__init__'):
+                    full_module_name = full_module_name.rpartition('.')[0]
+                if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
+                    continue
+                importlib.import_module(full_module_name)
+                count += 1
+        return count
+
+    def test_import_of_all_python_modules(self):
+        from calibre.constants import iswindows, ismacos, islinux, isbsd
+        exclude_packages = {'calibre.devices.mtp.unix.upstream'}
+        exclude_modules = set()
+        if not iswindows:
+            exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
+            exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
+        if not ismacos:
+            exclude_modules.add('calibre.utils.open_with.osx')
+        if not islinux:
+            exclude_modules |= {
+                    'calibre.linux',
+                    'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
+                    'calibre.gui2.linux_file_dialogs',
+            }
+        if not isbsd:
+            exclude_modules.add('calibre.devices.usbms.hal')
+        d = os.path.dirname
+        SRC = d(d(d((os.path.abspath(__file__)))))
+        self.assertGreater(self.base_check(os.path.join(SRC, 'odf'), exclude_packages, exclude_modules), 10)
+        base = os.path.join(SRC, 'calibre')
+        self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)
+
+        import calibre.web.feeds.feedparser as f
+        del f
+        from calibre.ebooks.markdown import Markdown
+        del Markdown
+
+
+def find_tests(which_tests=None, exclude_tests=None):
+    from calibre.constants import iswindows
+    ans = []
+    a = ans.append
+
+    def ok(x):
+        return (not which_tests or x in which_tests) and (not exclude_tests or x not in exclude_tests)
+
+    if ok('build'):
+        from calibre.test_build import find_tests
+        a(find_tests())
+    if ok('srv'):
+        from calibre.srv.tests.main import find_tests
+        a(find_tests())
+    if ok('db'):
+        from calibre.db.tests.main import find_tests
+        a(find_tests())
+    if ok('polish'):
+        from calibre.ebooks.oeb.polish.tests.main import find_tests
+        a(find_tests())
+    if ok('opf'):
+        from calibre.ebooks.metadata.opf2 import suite
+        a(suite())
+        from calibre.ebooks.metadata.opf3_test import suite
+        a(suite())
+    if ok('css'):
+        from tinycss.tests.main import find_tests
+        a(find_tests())
+        from calibre.ebooks.oeb.normalize_css import test_normalization
+        a(test_normalization(return_tests=True))
+        from calibre.ebooks.css_transform_rules import test
+        a(test(return_tests=True))
+        from calibre.ebooks.html_transform_rules import test
+        a(test(return_tests=True))
+        from css_selectors.tests import find_tests
+        a(find_tests())
+    if ok('docx'):
+        from calibre.ebooks.docx.fields import test_parse_fields
+        a(test_parse_fields(return_tests=True))
+        from calibre.ebooks.docx.writer.utils import test_convert_color
+        a(test_convert_color(return_tests=True))
+    if ok('cfi'):
+        from calibre.ebooks.epub.cfi.tests import find_tests
+        a(find_tests())
+    if ok('matcher'):
+        from calibre.utils.matcher import test
+        a(test(return_tests=True))
+    if ok('scraper'):
+        from calibre.scraper.simple import find_tests
+        a(find_tests())
+    if ok('icu'):
+        from calibre.utils.icu_test import find_tests
+        a(find_tests())
+    if ok('smartypants'):
+        from calibre.utils.smartypants import run_tests
+        a(run_tests(return_tests=True))
+    if ok('ebooks'):
+        from calibre.ebooks.metadata.rtf import find_tests
+        a(find_tests())
+        from calibre.ebooks.metadata.html import find_tests
+        a(find_tests())
+        from calibre.utils.xml_parse import find_tests
+        a(find_tests())
+        from calibre.gui2.viewer.annotations import find_tests
+        a(find_tests())
+    if ok('misc'):
+        from calibre.ebooks.metadata.test_author_sort import find_tests
+        a(find_tests())
+        from calibre.ebooks.metadata.tag_mapper import find_tests
+        a(find_tests())
+        from calibre.ebooks.metadata.author_mapper import find_tests
+        a(find_tests())
+        from calibre.utils.shared_file import find_tests
+        a(find_tests())
+        from calibre.utils.test_lock import find_tests
+        a(find_tests())
+        from calibre.utils.search_query_parser_test import find_tests
+        a(find_tests())
+        from calibre.utils.html2text import find_tests
+        a(find_tests())
+        from calibre.utils.shm import find_tests
+        a(find_tests())
+        from calibre.library.comments import find_tests
+        a(find_tests())
+        from calibre.ebooks.compression.palmdoc import find_tests
+        a(find_tests())
+        from calibre.gui2.viewer.convert_book import find_tests
+        a(find_tests())
+        from calibre.utils.hyphenation.test_hyphenation import find_tests
+        a(find_tests())
+        from calibre.live import find_tests
+        a(find_tests())
+        if iswindows:
+            from calibre.utils.windows.wintest import find_tests
+            a(find_tests())
+            from calibre.utils.windows.winsapi import find_tests
+            a(find_tests())
+        a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
+    if ok('dbcli'):
+        from calibre.db.cli.tests import find_tests
+        a(find_tests())
+
+    tests = unittest.TestSuite(ans)
+    return tests
+
+
+def run_test(test_name, verbosity=4):
+    # calibre-debug -c "from calibre.utils.run_tests import *; import sys; run_test(sys.argv[-1])" some_test_name
+    tests = find_tests()
+    tests = filter_tests_by_name(tests, test_name)
+    if not tests._tests:
+        raise SystemExit(f'No test named {test_name} found')
+    run_cli(tests, verbosity, buffer=False)
 
 
 def run_cli(suite, verbosity=4, buffer=True):
