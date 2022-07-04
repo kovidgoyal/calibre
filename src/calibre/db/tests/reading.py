@@ -755,6 +755,7 @@ class ReadingTest(BaseTest):
         db.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
 
         db = self.init_legacy(self.library_path)
+
         class GetGuiAns():
             current_db = None
         get_gui_ans = GetGuiAns()
@@ -816,26 +817,3 @@ class ReadingTest(BaseTest):
         finally:
             get_gui.ans = None
     # }}}
-
-
-import unittest, importlib, sys
-from calibre.utils.run_tests import run_tests, filter_tests_by_name
-
-
-if __name__ == '__main__':
-    try:
-        import init_calibre  # noqa
-    except ImportError:
-        pass
-    tests = sys.argv[1:]
-    sys.argv = sys.argv[0:1]
-
-    def find_tests():
-        m = importlib.import_module('calibre.db.tests.reading')
-        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(m)])
-        if tests:
-            return filter_tests_by_name(suite, *tests)
-        else:
-            return suite
-
-    run_tests(find_tests)
