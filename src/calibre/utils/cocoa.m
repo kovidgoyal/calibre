@@ -225,7 +225,32 @@ release_io_pm_assertion(PyObject *self, PyObject *args) {
 	return NULL;
 }
 
+static PyObject*
+set_requires_aqua_system_appearance(PyObject *self, PyObject *yes) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (PyObject_IsTrue(yes)) {
+        [defaults setBool:YES forKey:@"NSRequiresAquaSystemAppearance"];
+    } else {
+        if (yes == Py_None) [defaults removeObjectForKey:@"NSRequiresAquaSystemAppearance"];
+        else [defaults setBool:NO forKey:@"NSRequiresAquaSystemAppearance"];
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+get_requires_aqua_system_appearance(PyObject *self, PyObject *unused) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:@"NSRequiresAquaSystemAppearance"]) {
+        if ([defaults boolForKey:@"NSRequiresAquaSystemAppearance"]) { Py_RETURN_TRUE; }
+        Py_RETURN_FALSE;
+    }
+    Py_RETURN_NONE;
+}
+
+
 static PyMethodDef module_methods[] = {
+    {"set_requires_aqua_system_appearance", (PyCFunction)set_requires_aqua_system_appearance, METH_O, ""},
+    {"get_requires_aqua_system_appearance", (PyCFunction)get_requires_aqua_system_appearance, METH_NOARGS, ""},
     {"transient_scroller", (PyCFunction)transient_scroller, METH_NOARGS, ""},
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
     {"enable_cocoa_multithreading", (PyCFunction)enable_cocoa_multithreading, METH_NOARGS, ""},
