@@ -102,6 +102,8 @@ Everything after the -- is passed to the script.
         'Run a plugin that provides a command line interface. For example:\n'
         'calibre-debug -r "Plugin name" -- file1 --option1\n'
         'Everything after the -- will be passed to the plugin as arguments.'))
+    parser.add_option('-t', '--run-test', help=_(
+        'Run the named test(s)'))
     parser.add_option('--diff', action='store_true', default=False, help=_(
         'Run the calibre diff tool. For example:\n'
         'calibre-debug --diff file1 file2'))
@@ -313,6 +315,11 @@ def main(args=sys.argv):
             prints(_('No plugin named %s found')%opts.run_plugin)
             raise SystemExit(1)
         plugin.cli_main([plugin.name] + args[1:])
+    elif opts.run_test:
+        from calibre.utils.run_tests import run_test
+        from calibre.constants import debug
+        debug(False)
+        run_test(opts.run_test)
     elif opts.diff:
         from calibre.gui2.tweak_book.diff.main import main
         main(['calibre-diff'] + args[1:])

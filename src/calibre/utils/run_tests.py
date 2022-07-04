@@ -301,7 +301,7 @@ def find_tests(which_tests=None, exclude_tests=None):
 
 
 def run_test(test_name, verbosity=4, buffer=False):
-    # calibre-debug -c "from calibre.utils.run_tests import *; import sys; run_test(sys.argv[-1])" some_test_name
+    # calibre-debug -t test_name
     tests = find_tests()
     tests = filter_tests_by_name(tests, test_name)
     if not tests._tests:
