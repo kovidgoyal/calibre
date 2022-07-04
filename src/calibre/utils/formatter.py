@@ -13,7 +13,7 @@ from functools import partial
 from math import modf
 
 from calibre import prints
-from calibre.constants import DEBUG
+from calibre.constants import is_debugging
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import strcmp
@@ -1390,7 +1390,7 @@ class _Interpreter:
         except (ValueError, ExecutionBase, StopException) as e:
             raise e
         except Exception as e:
-            if (DEBUG):
+            if is_debugging():
                 traceback.print_exc()
             self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)),
                        prog.line_number)
@@ -1451,7 +1451,7 @@ class TemplateFormatter(string.Formatter):
                 return fmt, '', ''
             return matches.groups()
         except:
-            if DEBUG:
+            if is_debugging():
                 traceback.print_exc()
             return fmt, '', ''
 
@@ -1697,7 +1697,7 @@ class TemplateFormatter(string.Formatter):
             except StopException as e:
                 ans = error_message(e)
             except Exception as e:
-                if DEBUG:  # and getattr(e, 'is_locking_error', False):
+                if is_debugging():  # and getattr(e, 'is_locking_error', False):
                     traceback.print_exc()
                     if column_name:
                         prints('Error evaluating column named:', column_name)

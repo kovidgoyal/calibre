@@ -306,6 +306,9 @@ def run_test(test_name, verbosity=4):
     tests = filter_tests_by_name(tests, test_name)
     if not tests._tests:
         raise SystemExit(f'No test named {test_name} found')
+    # Turn off DEBUG to stop random printing and exception traces
+    from calibre.constants import debug
+    debug(False)
     run_cli(tests, verbosity, buffer=False)
 
 
