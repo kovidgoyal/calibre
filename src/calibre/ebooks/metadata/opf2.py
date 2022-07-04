@@ -588,7 +588,7 @@ class OPF:  # {{{
                                 formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwd(), unquote_urls=True,
-            populate_spine=True, try_to_guess_cover=True, preparsed_opf=None, read_toc=True):
+            populate_spine=True, try_to_guess_cover=False, preparsed_opf=None, read_toc=True):
         self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
         self.path_to_html_toc = self.html_toc_fragment = None
