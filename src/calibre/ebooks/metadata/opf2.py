@@ -1158,26 +1158,6 @@ class OPF:  # {{{
         for m in self.XPath('//*[local-name()="meta" and @name="primary-writing-mode" and @content]')(self.root):
             return m.get('content')
 
-    def guess_cover(self):
-        '''
-        Try to guess a cover. Needed for some old/badly formed OPF files.
-        '''
-        if self.base_dir and os.path.exists(self.base_dir):
-            for item in self.identifier_path(self.metadata):
-                scheme = None
-                for key in item.attrib.keys():
-                    if key.endswith('scheme'):
-                        scheme = item.get(key)
-                        break
-                if scheme is None:
-                    continue
-                if item.text:
-                    prefix = item.text.replace('-', '')
-                    for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                        cpath = os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK)
-                        if os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK):
-                            return cpath
-
     @property
     def epub3_raster_cover(self):
         for item in self.itermanifest():
@@ -1239,11 +1219,6 @@ class OPF:  # {{{
                 for item in self.guide:
                     if item.type and item.type.lower() == t:
                         return item.path
-        try:
-            if self.try_to_guess_cover:
-                return self.guess_cover()
-        except:
-            pass
 
     @cover.setter
     def cover(self, path):
