@@ -317,7 +317,6 @@ def main(args=sys.argv):
         plugin.cli_main([plugin.name] + args[1:])
     elif opts.run_test:
         from calibre.utils.run_tests import run_test
-        from calibre.constants import debug
         debug(False)
         run_test(opts.run_test)
     elif opts.diff:
