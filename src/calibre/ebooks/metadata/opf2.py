@@ -1174,8 +1174,8 @@ class OPF:  # {{{
                 if item.text:
                     prefix = item.text.replace('-', '')
                     for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                        cpath = os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK)
-                        if os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK):
+                        cpath = os.path.join(self.base_dir, prefix + suffix)
+                        if os.access(cpath, os.R_OK):
                             return cpath
 
     @property
