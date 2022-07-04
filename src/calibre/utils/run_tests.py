@@ -302,8 +302,17 @@ def find_tests(which_tests=None, exclude_tests=None):
 
 def run_test(test_name, verbosity=4, buffer=False):
     # calibre-debug -t test_name
-    tests = find_tests()
-    tests = filter_tests_by_name(tests, test_name)
+    which_tests = None
+    if test_name.startswith('@'):
+        which_tests = test_name[1:],
+    tests = find_tests(which_tests)
+    if test_name != 'all':
+        if test_name.startswith('.'):
+            tests = filter_tests_by_module(tests, test_name[1:])
+        elif test_name.startswith('@'):
+            pass
+        else:
+            tests = filter_tests_by_name(tests, test_name)
     if not tests._tests:
         raise SystemExit(f'No test named {test_name} found')
     run_cli(tests, verbosity, buffer=buffer)

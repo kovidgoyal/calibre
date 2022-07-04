@@ -103,7 +103,10 @@ Everything after the -- is passed to the script.
         'calibre-debug -r "Plugin name" -- file1 --option1\n'
         'Everything after the -- will be passed to the plugin as arguments.'))
     parser.add_option('-t', '--run-test', help=_(
-        'Run the named test(s)'))
+        'Run the named test(s). Use the special value "all" to run all tests.'
+        ' If the test name starts with a period it is assumed to be a module name.'
+        ' If the test name starts with @ it is assumed to be a category name.'
+    ))
     parser.add_option('--diff', action='store_true', default=False, help=_(
         'Run the calibre diff tool. For example:\n'
         'calibre-debug --diff file1 file2'))
