@@ -316,8 +316,8 @@ def main(args=sys.argv):
             raise SystemExit(1)
         plugin.cli_main([plugin.name] + args[1:])
     elif opts.run_test:
-        from calibre.utils.run_tests import run_test
         debug(False)
+        from calibre.utils.run_tests import run_test
         run_test(opts.run_test)
     elif opts.diff:
         from calibre.gui2.tweak_book.diff.main import main
