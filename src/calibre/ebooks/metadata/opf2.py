@@ -587,8 +587,12 @@ class OPF:  # {{{
     author_link_map = MetadataField('author_link_map', is_dc=False,
                                 formatter=json.loads, renderer=dump_dict)
 
-    def __init__(self, stream, basedir=os.getcwd(), unquote_urls=True,
-            populate_spine=True, try_to_guess_cover=True, preparsed_opf=None, read_toc=True):
+    def __init__(self, stream, basedir=None, unquote_urls=True,
+            populate_spine=True, try_to_guess_cover=None, preparsed_opf=None, read_toc=True):
+        if try_to_guess_cover is None:
+            try_to_guess_cover = basedir is not None
+        if basedir is None:
+            basedir = os.getcwd()
         self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
         self.path_to_html_toc = self.html_toc_fragment = None
