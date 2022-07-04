@@ -963,24 +963,19 @@ A value of zero means calculate automatically.</string>
            </widget>
           </item>
           <item row="5" column="0">
-           <layout class="FlowLayout">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QPushButton" name="em_export_layout_button">
-              <property name="text">
-               <string>Export list</string>
-              </property>
+             <widget class="QPushButton" name="em_reset_layout_button">
               <property name="toolTip">
-               <string>&lt;p&gt;Click this button to write the current display
-settings to a file. This could be useful if you have several libraries with similar
-structure and you want to use the same column order for each one.&lt;/p&gt;</string>
+               <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
+              </property>
+              <property name="text">
+               <string>Reset list</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="em_import_layout_button">
-              <property name="text">
-               <string>Import list</string>
-              </property>
               <property name="toolTip">
                <string>&lt;p&gt;Click this button to set the list to one
 previously exported. This could be useful if you have several libraries with
@@ -989,17 +984,35 @@ in the imported list that aren't in the current library are ignored. Columns in
 the library that are not in the imported list are put at the end and marked
 as displayable.&lt;/p&gt;</string>
               </property>
+              <property name="text">
+               <string>Import list</string>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="em_reset_layout_button">
-              <property name="text">
-               <string>Reset list</string>
-              </property>
+             <widget class="QPushButton" name="em_export_layout_button">
               <property name="toolTip">
-               <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
+               <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same column order for each one.&lt;/p&gt;</string>
+              </property>
+              <property name="text">
+               <string>Export list</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -1037,7 +1050,7 @@ will be elided, otherwise they will be word wrapped.</string>
            <item row="2" column="0">
             <widget class="QLabel" name="label_1023">
              <property name="text">
-              <string>          </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -1064,13 +1077,13 @@ will be elided, otherwise they will be word wrapped.</string>
            </item>
            <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_edit_metadata_templates_only_F2_on_booklist">
-             <property name="text">
-              <string>&amp;Tab key doesn't edit column templates in the book list</string>
-             </property>
              <property name="toolTip">
               <string>&lt;p&gt;Check this box to disable editing the template for
-a "Column built from other columns" in the book list when the column is entered
+a &quot;Column built from other columns&quot; in the book list when the column is entered
 using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&gt;</string>
+             </property>
+             <property name="text">
+              <string>&amp;Tab key doesn't edit column templates in the book list</string>
              </property>
             </widget>
            </item>
@@ -1662,11 +1675,6 @@ column being examined (the left-hand pane)</string>
    <extends>QTabWidget</extends>
    <header>calibre/gui2/widgets2.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>FlowLayout</class>
-   <extends>QLayout</extends>
-   <header>calibre/gui2/widgets2.h</header>
   </customwidget>
  </customwidgets>
  <resources>
