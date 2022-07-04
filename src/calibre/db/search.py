@@ -654,11 +654,13 @@ class Parser(SearchQueryParser):  # {{{
             matches = set()
             error_string = '*@*TEMPLATE_ERROR*@*'
             template_cache = {}
+            global_vars = {}
             for book_id in candidates:
                 mi = self.dbcache.get_proxy_metadata(book_id)
                 val = mi.formatter.safe_format(template, {}, error_string, mi,
                                             column_name='search template',
-                                            template_cache=template_cache)
+                                            template_cache=template_cache,
+                                            global_vars=global_vars)
                 if val.startswith(error_string):
                     raise ParseException(val[len(error_string):])
                 if sep == 't':

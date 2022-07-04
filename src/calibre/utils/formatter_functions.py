@@ -2111,7 +2111,7 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
 class BuiltinArguments(BuiltinFormatterFunction):
     name = 'arguments'
     arg_count = -1
-    category = 'other'
+    category = 'Other'
     __doc__ = doc = _('arguments(id[=expression] [, id[=expression]]*) '
                       '-- Used in a stored template to retrieve the arguments '
                       'passed in the call. It both declares and initializes '
@@ -2131,7 +2131,7 @@ class BuiltinArguments(BuiltinFormatterFunction):
 class BuiltinGlobals(BuiltinFormatterFunction):
     name = 'globals'
     arg_count = -1
-    category = 'other'
+    category = 'Other'
     __doc__ = doc = _('globals(id[=expression] [, id[=expression]]*) '
                       '-- Retrieves "global variables" that can be passed into '
                       'the formatter. It both declares and initializes local '
@@ -2150,14 +2150,11 @@ class BuiltinSetGlobals(BuiltinFormatterFunction):
     name = 'set_globals'
     arg_count = -1
     category = 'other'
-    __doc__ = doc = _('globals(id[=expression] [, id[=expression]]*) '
-                      '-- Retrieves "global variables" that can be passed into '
-                      'the formatter. It both declares and initializes local '
-                      'variables with the names of the global variables passed '
-                      'in. If the corresponding variable is not provided in '
-                      'the passed-in globals then it assigns that variable the '
-                      'provided default value. If there is no default value '
-                      'then the variable is set to the empty string.')
+    __doc__ = doc = _('set_globals(id[=expression] [, id[=expression]]*) '
+                      '-- Sets "global variables" that can be passed into '
+                      'the formatter. The globals are given the name of the id '
+                      'passed in. The value of the id is used unless an '
+                      'expression is provided.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         # The globals function is implemented in-line in the formatter
@@ -2228,10 +2225,61 @@ class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
             return str(e)
 
 
+class BuiltinBookCount(BuiltinFormatterFunction):
+    name = 'book_count'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _('book_count(query, use_vl) -- returns the count of '
+                      'books found by searching for query. If use_vl is '
+                      '0 (zero) then virtual libraries are ignored. This '
+                      'function can be used only in the GUI.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, query, use_vl):
+        from calibre.db.fields import rendering_composite_name
+        if (not tweaks.get('allow_template_database_functions_in_composites', False) and
+                formatter.global_vars.get(rendering_composite_name, None)):
+            raise ValueError(_('The book_count() function cannot be used in a composite column'))
+        with suppress(Exception):
+            try:
+                from calibre.gui2.ui import get_gui
+                ids = get_gui().current_db.search_getting_ids(query, None,
+                                                              use_virtual_library=use_vl != '0')
+                return len(ids)
+            except Exception as e:
+                traceback.print_exc()
+        return _('This function can be used only in the GUI')
+
+
+class BuiltinBookValues(BuiltinFormatterFunction):
+    name = 'book_values'
+    arg_count = 4
+    category = 'Template database functions'
+    __doc__ = doc = _('book_values(column, query, sep, use_vl) -- returns a list '
+                      'of the values contained in the column "column", separated '
+                      'by "sep", in the books found by searching for "query". '
+                      'If use_vl is 0 (zero) then virtual libraries are ignored. '
+                      'This function can be used only in the GUI.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, column, query, sep, use_vl):
+        from calibre.db.fields import rendering_composite_name
+        if (not tweaks.get('allow_template_database_functions_in_composites', False) and
+                formatter.global_vars.get(rendering_composite_name, None)):
+            raise ValueError(_('The book_values() function cannot be used in a composite column'))
+        with suppress(Exception):
+            from calibre.gui2.ui import get_gui
+            db = get_gui().current_db
+            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
+            ff = db.new_api.field_for
+            s = {ff(column, id_) for id_ in ids if ff(column, id_)}
+            return sep.join(s)
+        return _('This function can be used only in the GUI')
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
-    BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
+    BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBookCount(),
+    BuiltinBookValues(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCharacter(), BuiltinCheckYesNo(), BuiltinCeiling(),
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),

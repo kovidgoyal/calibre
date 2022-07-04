@@ -21,6 +21,8 @@ from calibre.utils.localization import calibre_langcode_to_name
 from polyglot.builtins import iteritems
 
 
+rendering_composite_name = '__rendering_composite__'
+
 def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
@@ -296,7 +298,8 @@ class CompositeField(OneToOneField):
         ans = formatter.safe_format(
             self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
             mi, column_name=self._composite_name, template_cache=template_cache,
-            template_functions=self.get_template_functions()).strip()
+            template_functions=self.get_template_functions(),
+            global_vars={rendering_composite_name:'1'}).strip()
         with self._lock:
             self._render_cache[book_id] = ans
         return ans

@@ -413,6 +413,33 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
   An author is separated from its link value by the ``val_separator`` string with no added spaces. ``author:linkvalue`` pairs are separated by the ``pair_separator`` string argument with no added spaces. It is up to you to choose separator strings that do not occur in author names or links. An author is included even if the author link is empty.
 * ``author_sorts(val_separator)`` -- returns a string containing a list of author's sort values for the authors of the book. The sort is the one in the author metadata information (different from the author_sort in books). The returned list has the form ``author sort 1`` ``val_separator`` ``author sort 2`` etc. with no added spaces. The author sort values in this list are in the same order as the authors of the book. If you want spaces around ``val_separator`` then include them in the ``val_separator`` string.
+* ``book_count(query, use_vl)`` -- returns the count of books found by searching for ``query``. If ``use_vl`` is ``0`` (zero) then virtual libraries are ignored. This function and its companion `book_values()`` are particularly useful in template searches, supporting searches that combine information from many books such as looking for series with only one book. It cannot be used in composite columns unless the tweak ``allow_template_database_functions_in_composites`` is set to True. It can be used only in the GUI.
+
+  For example this tempate search uses this function and its companion to find all series with only one book:
+
+  1) Define a stored template (using :guilabel:`Preferences->Advanced->Template functions`) named ``series_only_one_book`` (the name is arbitrary). The template is::
+
+	program:
+	    vals = globals(vals='');
+	    if !vals then
+	        all_series = book_values('series', 'series:true', ',', 0);
+	        for series in all_series:
+	            if book_count('series:="' & series & '"', 0) == 1 then
+	                vals = list_join(',', vals, ',', series, ',')
+	            fi
+	        rof;
+	        set_globals(vals)
+	    fi;
+	    str_in_list(vals, ',', $series, 1, '')
+
+    The first time the template runs (the first book checked) it stores the results of the database lookups in a ``global`` template variable named ``vals``. These results are used to check subsequent books without redoing the lookups.
+
+  2) Use the stored template in a template search::
+
+      template:"program: series_only_one_book()#@#:n:1"
+
+  Using a stored template instead of putting the template into the search eliminates problems caused by the requirement to escape quotes in search expressions.
+* ``book_values(column, query, sep, use_vl)`` -- returns a list of the unique values contained in the column ``column`` (a lookup name), separated by ``sep``, in the books found by searching for ``query``. If ``use_vl`` is ``0`` (zero) then virtual libraries are ignored. This function and its companion `book_count()`` are particularly useful in template searches, supporting searches that combine information from many books such as looking for series with only one book. It cannot be used in composite columns unless the tweak ``allow_template_database_functions_in_composites`` is set to True. It can be used only in the GUI.
 * ``booksize()`` -- returns the value of the calibre 'size' field. Returns '' if there are no formats.
 * ``check_yes_no(field_name, is_undefined, is_false, is_true)`` -- checks if the value of the yes/no field named by the lookup name ``field_name`` is one of the values specified by the parameters, returning ``'yes'`` if a match is found otherwise returning the empty string. Set the parameter ``is_undefined``, ``is_false``, or ``is_true`` to 1 (the number) to check that condition, otherwise set it to 0. Example:
 

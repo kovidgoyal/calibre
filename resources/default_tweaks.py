@@ -585,3 +585,10 @@ template_editor_tab_stop_width = 4
 #   value_for_undefined_numbers_when_sorting = 'minimum'
 #   value_for_undefined_numbers_when_sorting = 'maximum'
 value_for_undefined_numbers_when_sorting = 0
+
+#: Allow template database functions in composite columns
+# If True then the template database functions book_values() and book_count()
+# can be used in composite custom columns. Note: setting this tweak to True and
+# using these functions in composites can be very slow.
+# Default: False
+allow_template_database_functions_in_composites = False
