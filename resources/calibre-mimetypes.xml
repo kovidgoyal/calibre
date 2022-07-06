@@ -4,10 +4,6 @@
         <comment>SONY E-book compiled format</comment>
         <glob pattern="*.lrf"/>
     </mime-type>
-    <mime-type type="application/epub+zip">
-        <comment>EPUB ebook format</comment>
-        <glob pattern="*.epub"/>
-    </mime-type>
     <mime-type type="text/lrs">
         <comment>SONY E-book source format</comment>
         <glob pattern="*.lrs"/>
