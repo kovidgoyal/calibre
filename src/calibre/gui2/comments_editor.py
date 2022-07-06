@@ -206,6 +206,9 @@ def cleanup_qt_markup(root):
                     remove_zero_indents(ts)
     for style in itervalues(style_map):
         filter_qt_styles(style)
+        fw = style.get('font-weight')
+        if fw in ('600', '700'):
+            style['font-weight'] = 'bold'
     for tag, style in iteritems(style_map):
         if style:
             tag.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
