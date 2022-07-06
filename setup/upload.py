@@ -36,7 +36,7 @@ def installer_description(fname):
     if fname.endswith('.msi'):
         return 'Windows installer'
     if fname.endswith('.dmg'):
-        return 'OS X dmg'
+        return 'macOS dmg'
     if fname.endswith('.exe'):
         return 'Calibre Portable'
     return 'Unknown file'
