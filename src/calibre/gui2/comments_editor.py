@@ -103,13 +103,13 @@ def remove_heading_font_styles(tag, style):
     expected_size = (None, 'xx-large', 'x-large', 'large', None, 'small', 'x-small')[lvl]
     if style.get('font-size', 1) == expected_size:
         del style['font-size']
-    if style.get('font-weight') in ('600', '700'):
+    if style.get('font-weight') in ('600', '700', 'bold'):
         del style['font-weight']
 
 
 def use_implicit_styling_for_span(span, style):
     is_italic = style.get('font-style') == 'italic'
-    is_bold = style.get('font-weight') in ('600', '700')
+    is_bold = style.get('font-weight') in ('600', '700', 'bold')
     if is_italic and not is_bold:
         del style['font-style']
         span.tag = 'em'
