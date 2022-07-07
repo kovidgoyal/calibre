@@ -61,7 +61,7 @@ class StorePlugin:  # {{{
     def create_browser(self):
         '''
         If the server requires special headers, such as a particular user agent
-        or a referrer, then implement this method in you plugin to return a
+        or a referrer, then implement this method in your plugin to return a
         customized browser instance. See the Gutenberg plugin for an example.
 
         Note that if you implement the open() method in your plugin and use the

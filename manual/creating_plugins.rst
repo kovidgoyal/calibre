@@ -153,7 +153,7 @@ calibre's plugin loading system defines a couple of built-in functions that allo
         in the ZIP file the corresponding QIcon will be null. In order to
         support icon theme-ing, pass in the human friendly name of your plugin
         as ``plugin_name``. If the user is using an icon theme with icons for
-        you plugin, they will be loaded preferentially.
+        your plugin, they will be loaded preferentially.
 
 
 Enabling user configuration of your plugin
