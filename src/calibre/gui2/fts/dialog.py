@@ -32,7 +32,7 @@ class FTSDialog(Dialog):
         self.indexing_label = il = QLabel(self)
         il.setToolTip('<p>' + _(
             'Indexing of all books in this library is not yet complete, so search results'
-            ' will not be from all books. Click the show indexing status button to see details.'))
+            ' will not be from all books. Click the <i>Show indexing status</i> button to see details.'))
         h.addWidget(il), h.addStretch(), h.addWidget(self.bb)
         self.scan_status = ss = ScanStatus(self)
         ss.switch_to_search_panel.connect(self.show_results_panel)
