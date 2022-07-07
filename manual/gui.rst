@@ -348,7 +348,7 @@ There are four search kinds: `contains`, `equality`, `regular expression` (see `
 
 *'Contains' searches*
 
-Searches with no prefix character are `contains` and are by default case insensitive. An item matches if the search string appears anywhere in the indicated metadata. You can make `contains` searches case sensitive by checking the option `Case sensitive searching` in :guilabel:`Preferences / Searching`. If the search option `Unaccented characters match accented characters and punctuation is ignored` is checked then a character will match all its variants (e.g., `e` matches `é`, `è`, `ê`, and `ë`) and all punctuation including spaces are ignored. For example, if the `Unaccented characters match ...` option is checked then given the two book titles:
+Searches with no prefix character are `contains` and are by default case insensitive. An item matches if the search string appears anywhere in the indicated metadata. You can make `contains` searches case sensitive by checking the option `Case sensitive searching` in :guilabel:`Preferences / Searching`. If the search option `Unaccented characters match accented characters and punctuation is ignored` is checked then a character will match all its variants (e.g., `e` matches `é`, `è`, `ê`, and `ë`) and all punctuation and whitespace are ignored. For example, if the `Unaccented characters match ...` option is checked then given the two book titles:
 
   1. Big, Bothéred, and Bad
   2. Big Bummer
@@ -394,7 +394,7 @@ Character variant searches are indicated by prefixing the search string with a c
 
   * letter case is always ignored.
   * character variants always match each other.
-  * punctuation is always significant.
+  * punctuation and whitespace are always significant.
 
 The search options :guilabel:`Unaccented characters match accented characters and punctuation is ignored` and :guilabel:`Case sensitive searching` are ignored. They have no effect on this search's behavior.
 
