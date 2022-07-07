@@ -647,7 +647,8 @@ class ResultDetails(QWidget):
             html.append('<hr>')
             for fmt in formats:
                 fmt = fmt.upper()
-                tt = _('Open the book, in the {fmt} format.\nWhen using the calibre viewer, it will attempt to scroll\nto this search result automatically.'
+                tt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\n'
+                       'to this search result automatically.'
                        ).format(fmt=fmt)
                 html.append(f'<a title="{tt}" href="book:///{self.current_book_id}/{i}/{fmt}">{fmt}</a>\xa0 ')
             html.append(f'<p>{text}</p>')
