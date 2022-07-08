@@ -739,7 +739,7 @@ Amazon `have announced
 that they will stop accepting MOBI files emailed to ``@kindle.com`` email
 addresses. You can instruct calibre to send EPUB instead of MOBI by going to
 :guilabel:`Preferences->Sharing books by email` and then removing MOBI from the
-list of formats to send your ``@kindle.com`` email address and adding EPUB
+list of formats to send to your ``@kindle.com`` email address and adding EPUB
 instead.
 
 Note however, that Amazon's EPUB intake is very flawed, they will reject a
@@ -747,7 +747,7 @@ number of EPUB files that work everywhere else. In such cases you can try the
 following trick:
 
 #. Convert the EPUB file to MOBI
-#. Then convert the MOBI file back to EPUB and send the resulting EPUB
+#. Then convert the MOBI file back to EPUB and send the resulting EPUB file
 
 This will remove all advanced formatting, embedded fonts, etc., but greatly
 increase the chances of Amazon accepting the EPUB.
@@ -755,7 +755,7 @@ increase the chances of Amazon accepting the EPUB.
 .. note:: If you were previously using email delivery of periodicals downloaded
    by calibre, you will be better off sending those by USB cable or downloading
    them from the calibre Content server via the Kindle's built-in browser.
-   However, if you want to continue email delivery you can try changing the
+   However, if you want to continue using email delivery you can try changing the
    output format in Preferences->Behavior to EPUB, then calibre will download
    the news in EPUB format. Whether Amazon will accept the EPUB or not is a
    whole other question.
