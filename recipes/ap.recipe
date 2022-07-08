@@ -7,6 +7,7 @@ import json
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.date import utcnow, parse_date
 
 
 def extract_article(raw):
@@ -41,6 +42,7 @@ class AssociatedPress(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = False
+    oldest_article = 1.5
 
     def parse_index(self):
         feeds = []
@@ -74,6 +76,13 @@ class AssociatedPress(BasicNewsRecipe):
                 if not title:
                     continue
                 title = title.split('\u2014')[-1]
+                updated = article.get('updated')
+                if updated:
+                    updated = parse_date(updated, assume_utc=True)
+                    delta = utcnow() - updated
+                    if (delta.days*24*3600 + delta.seconds) > 24*3600*self.oldest_article:
+                        self.log('Skipping', title, 'as it is too old')
+                        continue
                 self.log('\tFound article:', title, 'at', url)
                 articles.append({'title': title, 'url': url})
         self.log('')
