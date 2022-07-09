@@ -125,6 +125,19 @@
          <item row="0" column="1" colspan="2" rowspan="2">
           <widget class="QTextBrowser" name="textBrowser"/>
          </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="show_only_user_defined">
+           <property name="text">
+            <string>Show &amp;only user defined template functions</string>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;If checked the 'Function' box will show only user defined
+template functions. If unchecked the box will show both system and user defined
+functions. Unchecking can be useful for copying source of a system function to create
+a new related user defined function.&lt;/p&gt;</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -145,7 +158,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_3">
            <property name="toolTip">
             <string/>
@@ -158,7 +171,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QSpinBox" name="argument_count">
            <property name="toolTip">
             <string>Set this to -1 if the function takes a variable number of arguments</string>
@@ -168,10 +181,10 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QTextEdit" name="documentation"/>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>D&amp;ocumentation:</string>
@@ -184,7 +197,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
             <widget class="QPushButton" name="clear_button">
