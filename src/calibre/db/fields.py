@@ -23,6 +23,7 @@ from polyglot.builtins import iteritems
 
 rendering_composite_name = '__rendering_composite__'
 
+
 def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 

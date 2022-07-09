@@ -2245,7 +2245,7 @@ class BuiltinBookCount(BuiltinFormatterFunction):
                 ids = get_gui().current_db.search_getting_ids(query, None,
                                                               use_virtual_library=use_vl != '0')
                 return len(ids)
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
         return _('This function can be used only in the GUI')
 
