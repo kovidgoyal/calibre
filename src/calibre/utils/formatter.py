@@ -903,7 +903,7 @@ class _Interpreter:
                 self.break_reporter("'for' list value", '', line_number)
                 ret = ''
             return ret
-        except (StopException, ValueError) as e:
+        except (StopException, ValueError, ReturnExecuted) as e:
             raise e
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
