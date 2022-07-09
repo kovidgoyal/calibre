@@ -168,6 +168,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.db.prefs['user_template_functions'] = []
             raise AbortInitialize()
 
+        self.show_only_user_defined.setChecked(True)
+        self.show_only_user_defined.stateChanged.connect(self.show_only_user_defined_changed)
         self.build_function_names_box()
         self.function_name.currentIndexChanged.connect(self.function_index_changed)
         self.function_name.editTextChanged.connect(self.function_name_edited)
@@ -222,6 +224,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # Python function tab
 
+    def show_only_user_defined_changed(self, state):
+        self.build_function_names_box()
+
     def enable_replace_button(self):
         self.replace_button.setEnabled(self.delete_button.isEnabled())
 
@@ -233,23 +238,35 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
 
+    def function_type_string(self, name):
+        if name in self.builtins:
+            return ' -- ' + _('Built-in function')
+        else:
+            return ' -- ' + _('User function')
+
     def build_function_names_box(self, scroll_to=''):
         self.function_name.blockSignals(True)
-        func_names = sorted(self.funcs)
+        if self.show_only_user_defined.isChecked():
+            func_names = sorted([k for k in self.funcs if k not in self.builtins])
+        else:
+            func_names = sorted(self.funcs)
         self.function_name.clear()
         self.function_name.addItem('')
-        self.function_name.addItems(func_names)
+        scroll_to_index = 0
+        for idx,n in enumerate(func_names):
+            self.function_name.addItem(n + self.function_type_string(n))
+            self.function_name.setItemData(idx+1, n)
+            if scroll_to and n == scroll_to:
+                scroll_to_index = idx+1
         self.function_name.setCurrentIndex(0)
         self.function_name.blockSignals(False)
-        if scroll_to:
-            idx = self.function_name.findText(scroll_to)
-            if idx >= 0:
-                self.function_name.setCurrentIndex(idx)
-                if scroll_to not in self.builtins:
-                    self.delete_button.setEnabled(True)
+        if scroll_to_index:
+            self.function_name.setCurrentIndex(scroll_to_index)
+            if scroll_to not in self.builtins:
+                self.delete_button.setEnabled(True)
 
     def delete_button_clicked(self):
-        name = str(self.function_name.currentText())
+        name = str(self.function_name.itemData(self.function_name.currentIndex()))
         if name in self.builtins:
             error_dialog(self.gui, _('Template functions'),
                          _('You cannot delete a built-in function'), show=True)
@@ -267,6 +284,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
         name = use_name if use_name else str(self.function_name.currentText())
+        name = name.split(' -- ')[0]
+        if not name:
+            error_dialog(self.gui, _('Template functions'),
+                         _('Name cannot be empty'), show=True)
+            return
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
                          _('Name %s already used')%(name,), show=True)
@@ -299,14 +321,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          det_msg=traceback.format_exc())
 
     def function_name_edited(self, txt):
+        txt = txt.split(' -- ')[0]
+        if txt not in self.funcs:
+            self.function_name.blockSignals(True)
+            self.function_name.setEditText(txt)
+            self.function_name.blockSignals(False)
         self.documentation.setReadOnly(False)
         self.argument_count.setReadOnly(False)
         self.create_button.setEnabled(True)
         self.replace_button.setEnabled(False)
+        self.delete_button.setEnabled(False)
         self.program.setReadOnly(False)
 
     def function_index_changed(self, idx):
-        txt = self.function_name.currentText()
+        txt = self.function_name.itemData(idx)
         self.create_button.setEnabled(False)
         if not txt:
             self.argument_count.clear()
@@ -335,7 +363,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
 
     def replace_button_clicked(self):
-        name = str(self.function_name.currentText())
+        name = str(self.function_name.itemData(self.function_name.currentIndex()))
         self.delete_button_clicked()
         self.create_button_clicked(use_name=name)
 
