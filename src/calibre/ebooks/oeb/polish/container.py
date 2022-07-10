@@ -938,7 +938,7 @@ class Container(ContainerBase):  # {{{
         name. Ensures uniqueness of href and id automatically. Returns
         generated item.'''
         id_prefix = id_prefix or 'id'
-        media_type = media_type or guess_type(name)
+        media_type = media_type or self.guess_type(name)
         if unique_href:
             name = self.make_name_unique(name)
         href = self.name_to_href(name, self.opf_name)
