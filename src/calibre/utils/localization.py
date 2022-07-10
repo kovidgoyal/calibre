@@ -341,6 +341,7 @@ _extra_lang_codes = {
         'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (Austria)'),
         'fr_BE' : _('French (Belgium)'),
+        'fr_CA' : _('French (Canadian)'),
         'nl'    : _('Dutch (Netherlands)'),
         'nl_BE' : _('Dutch (Belgium)'),
         'und'   : _('Unknown')
