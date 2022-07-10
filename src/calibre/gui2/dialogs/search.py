@@ -31,8 +31,8 @@ def init_dateop(cb):
             ('>', _('after')),
             ('<=', _('before or equal to')),
             ('>=', _('after or equal to')),
-            ('s', _('set')),
-            ('u', _('unset')),
+            ('s', _('is set')),
+            ('u', _('is unset')),
     ]:
         cb.addItem(desc, op)
 
