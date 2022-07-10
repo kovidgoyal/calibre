@@ -355,10 +355,10 @@ class Preferences(QDialog):
                 getattr(self.showing_widget, sig).disconnect(getattr(self, sig))
             except Exception:
                 pass
+        self.stack.setCurrentIndex(0)
         self.showing_widget = QWidget(self.scroll_area)
         self.scroll_area.setWidget(self.showing_widget)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
-        self.stack.setCurrentIndex(0)
         self.title_bar.show_plugin()
         self.setWindowIcon(QIcon.ic('config.png'))
 
