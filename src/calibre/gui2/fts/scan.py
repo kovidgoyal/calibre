@@ -202,6 +202,9 @@ class ScanStatus(QWidget):
         if not self.enable_fts.isChecked() and not confirm(_(
             'Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'
         ), 'disable-fts-indexing', self):
+            self.enable_fts.blockSignals(True)
+            self.enable_fts.setChecked(True)
+            self.enable_fts.blockSignals(False)
             return
         self.db.enable_fts(enabled=self.enable_fts.isChecked())
         self.apply_fts_state()
