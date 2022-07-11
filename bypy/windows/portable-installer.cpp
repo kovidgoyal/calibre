@@ -16,6 +16,7 @@
 #include <io.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <VersionHelpers.h>
 
 #include <easylzma/decompress.h>
 #include "XUnzip.h"
@@ -525,6 +526,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     WCHAR buf[4*MAX_PATH] = {0}, mb_msg[4*MAX_PATH] = {0}, fdest[4*MAX_PATH] = {0};
 
     if (!load_data(&cdata, &csz)) return ret;
+    if (!IsWindows10OrGreater()) { show_error(L"Your version of Windows is tool old. calibre requires Windows 10 or greater."); return ret; }
 
     hr = CoInitialize(NULL);
     if (FAILED(hr)) { show_error(L"Failed to initialize COM"); return ret; }

@@ -76,9 +76,6 @@ EXE_MANIFEST = '''\
     </trustInfo>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
         <application xmlns="urn:schemas-microsoft-com:asm.v3">
-            <supportedOS Id="{w7}"/>
-            <supportedOS Id="{w8}"/>
-            <supportedOS Id="{w81}"/>
             <supportedOS Id="{w10}"/>
             <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
                 <ws2:longPathAware>true</ws2:longPathAware>
