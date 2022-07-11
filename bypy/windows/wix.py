@@ -37,10 +37,6 @@ def create_installer(env):
         upgrade_code=UPGRADE_CODE,
         ProgramFilesFolder='ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
         x64=' 64bit' if is64bit else '',
-        minverhuman='Windows 10',
-        # We cant actually check for windows 10 because of
-        # https://community.flexera.com/t5/InstallShield-Knowledge-Base/Identifying-Windows-10-with-MSI/ta-p/4166
-        minver='603',
         fix_wix='<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
         compression='high',
         app_components=components,
