@@ -56,34 +56,26 @@ DESCRIPTIONS = {
     'calibre-file-dialog': 'Helper program to show file open/save dialogs',
 }
 
-# https://msdn.microsoft.com/en-us/library/windows/desktop/dn481241(v=vs.85).aspx
-SUPPORTED_OS = {
-    'w7': '{35138b9a-5d96-4fbd-8e2d-a2440225f93a}',
-    'w8': '{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}',
-    'w81': '{1f676c76-80e1-4239-95bb-83d0f6d0da78}',
-    'w10': '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}',
-}
-
 EXE_MANIFEST = '''\
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-    <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
-        <security>
-            <requestedPrivileges>
-                <requestedExecutionLevel level="asInvoker" uiAccess="false" />
-            </requestedPrivileges>
-        </security>
-    </trustInfo>
-    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
-        <application xmlns="urn:schemas-microsoft-com:asm.v3">
-            <supportedOS Id="{w10}"/>
-            <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
-                <ws2:longPathAware>true</ws2:longPathAware>
-            </windowsSettings>
-        </application>
-    </compatibility>
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+     <windowsSettings> <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware> </windowsSettings>
+  </application>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+    </application>
+  </compatibility>
 </assembly>
-'''.format(**SUPPORTED_OS)
+'''
 
 
 def printf(*args, **kw):
