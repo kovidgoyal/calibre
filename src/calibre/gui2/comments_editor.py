@@ -252,7 +252,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
         if delta:
-            font.setPixelSize(f.pixelSize() + delta)
+            font.setPixelSize(int(f.pixelSize() + delta))
             self.setFont(font)
         f = QFontMetrics(self.font())
         self.em_size = f.horizontalAdvance('m')
