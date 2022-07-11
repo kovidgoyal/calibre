@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 5.x.0 2022-xx-xx
+# {{{ 6.x.0 2022-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,23 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 6.0.0 2022-07-11
+:: new features
+
+- [major] For details on the major changes in calibre between 6.0 and 5.0, see https://calibre-ebook.com/new-in/fifteen
+
+- [major] Full text search: You can now search the entire text of all books in your calibre library
+
+- [major] Support for new CPU architectures: Apple Silicon and ARM64 on Linux. Support for 32bit CPUs has been dropped because Qt 6 does not support them
+
+- Dark mode in calibre is now controlled via a setting in Preferences->Look & feel rather than an environment variable
+
+- Allow choosing different icon themes for light and dark mode in Preferences->Look & feel
+
+- Upgrade calibre to use Qt 6. This means that some no longer maintained third party plugins may not work, though most plugins have already been ported
+
+}}}
 
 {{{ 5.44.0 2022-06-17
 
