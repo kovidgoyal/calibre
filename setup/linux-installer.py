@@ -681,12 +681,6 @@ def download_and_extract(destdir, version):
     extract_tarball(raw, destdir)
 
 
-def check_version():
-    global calibre_version
-    if calibre_version == '%version':
-        calibre_version = urlopen('http://code.calibre-ebook.com/latest').read()
-
-
 def run_installer(install_dir, isolated, bin_dir, share_dir, version):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
@@ -774,7 +768,14 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             'You are running on a 32-bit system. The calibre binaries are only'
             ' available for 64-bit systems. You will have to compile from'
             ' source.')
-    check_glibc_version()
+    glibc_versions = {
+        (6, 0, 0) : {'min_required': (2, 31), 'release_date': '2020-02-01'}
+    }
+    q = tuple(map(int, version.split('.'))) if version else (999999999999, 99, 99)
+    for key in sorted(glibc_versions, reverse=True):
+        if q >= key:
+            check_glibc_version(**glibc_versions[key])
+            break
     run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
