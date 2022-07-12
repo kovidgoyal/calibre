@@ -475,6 +475,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def cell_changed(self, row, col):
         id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
+        self.table.cellChanged.disconnect(self.cell_changed)
         if col == 0:
             item = self.table.item(row, 0)
             aut  = str(item.text()).strip()
@@ -497,5 +498,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item.set_sort_key()
             self.set_icon(item, id_)
             self.authors[id_][self.get_column_name(col)] = str(item.text())
+        self.table.cellChanged.connect(self.cell_changed)
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)
