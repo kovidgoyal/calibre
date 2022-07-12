@@ -2,13 +2,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import sys, gc, weakref
+import gc
+import sys
+import weakref
+from qt.core import (
+    QAction, QIcon, QKeySequence, QMainWindow, QMenu, QMenuBar, QObject, Qt, QTimer,
+    pyqtSignal
+)
 
-from qt.core import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
-                      QObject, QKeySequence)
-from calibre.utils.config import OptionParser
+from calibre import as_unicode, prepare_string_for_xml, prints
 from calibre.gui2 import error_dialog
-from calibre import prints, as_unicode, prepare_string_for_xml
+from calibre.utils.config import OptionParser
 from polyglot.io import PolyglotStringIO
 
 
@@ -77,7 +81,7 @@ class ExceptionHandler:
     def __call__(self, type, value, tb):
         mw = self.wref()
         if mw is not None:
-            mw.unhandled_exception(type, value, tb)
+            mw.display_unhandled_exception.emit(type, value, tb)
         else:
             sys.__excepthook__(type, value, tb)
 
@@ -87,6 +91,7 @@ class MainWindow(QMainWindow):
     ___menu_bar = None
     ___menu     = None
     __actions   = []
+    display_unhandled_exception = pyqtSignal(object, object, object)
 
     @classmethod
     def create_application_menubar(cls):
@@ -115,6 +120,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, opts, parent=None, disable_automatic_gc=False):
         QMainWindow.__init__(self, parent)
+        self.display_unhandled_exception.connect(self.unhandled_exception, type=Qt.ConnectionType.QueuedConnection)
         if disable_automatic_gc:
             self._gc = GarbageCollector(self, debug=False)
 
