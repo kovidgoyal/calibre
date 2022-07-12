@@ -188,7 +188,7 @@ class LibraryDatabase:
                     read_only=read_only, restore_all_prefs=restore_all_prefs,
                     progress_callback=progress_callback,
                     load_user_formatter_functions=not is_second_db)
-        cache = self.new_api = Cache(backend)
+        cache = self.new_api = Cache(backend, library_database_instance=self)
         cache.init()
         self.data = View(cache)
         self.id = self.data.index_to_id

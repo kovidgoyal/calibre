@@ -12,10 +12,10 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
+from contextlib import contextmanager, suppress
 from datetime import datetime, timedelta
 from functools import partial
 from math import trunc, floor, ceil, modf
-from contextlib import suppress
 
 from calibre import human_readable, prints, prepare_string_for_xml
 from calibre.constants import DEBUG
@@ -77,6 +77,8 @@ class FormatterFunctions:
                         # Change the body of the template function to one that will
                         # return an error message. Also change the arg count to
                         # -1 (variable) to avoid template compilation errors
+                        if DEBUG:
+                            print(f'attempt to replace formatter function {f.name} with a different body')
                         replace = True
                         func = [cls.name, '', -1, self.error_function_body.format(cls.name)]
                         cls = compile_user_function(*func)
@@ -141,6 +143,28 @@ class FormatterFunction:
             return ','.join(ret)
         if isinstance(ret, (numbers.Number, bool)):
             return str(ret)
+
+    def only_in_gui_error(self):
+        raise ValueError(_('The function {} can be used only in the GUI').format(self.name))
+
+    @contextmanager
+    def get_database(self, mi):
+        proxy = mi.get('_proxy_metadata', None)
+        if proxy is None:
+            self.only_in_gui_error()
+        wr = proxy.get('_db', None)
+        if wr is None:
+            raise ValueError(_('In function {}: The database has been closed').format(self.name))
+        cache = wr()
+        if cache is None:
+            raise ValueError(_('In function {}: The database has been closed').format(self.name))
+        wr = getattr(cache, 'library_database_instance', None)
+        if wr is None:
+            self.only_in_gui_error()
+        db = wr()
+        if db is None:
+            raise ValueError(_('In function {}: The database has been closed').format(self.name))
+        yield db
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -928,7 +952,7 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
                 return ''
             data = sorted(fmt_data)
             return ','.join(v.upper() for v in data)
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
@@ -1236,7 +1260,7 @@ class BuiltinBooksize(BuiltinFormatterFunction):
             except:
                 pass
             return ''
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinOndevice(BuiltinFormatterFunction):
@@ -1255,7 +1279,7 @@ class BuiltinOndevice(BuiltinFormatterFunction):
             if mi._proxy_metadata.ondevice_col:
                 return _('Yes')
             return ''
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinAnnotationCount(BuiltinFormatterFunction):
@@ -1267,11 +1291,9 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
                       'This function works only in the GUI.')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with suppress(Exception):
-            from calibre.gui2.ui import get_gui
-            c = get_gui().current_db.new_api.annotation_count_for_book(mi.id)
+        with self.get_database(mi) as db:
+            c = db.new_api.annotation_count_for_book(mi.id)
             return '' if c == 0 else str(c)
-        return _('This function can be used only in the GUI')
 
 
 class BuiltinIsMarked(BuiltinFormatterFunction):
@@ -1284,11 +1306,9 @@ class BuiltinIsMarked(BuiltinFormatterFunction):
                       "marks. Returns '' if the book is not marked.")
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with suppress(Exception):
-            from calibre.gui2.ui import get_gui
-            c = get_gui().current_db.data.get_marked(mi.id)
+        with self.get_database(mi) as db:
+            c = db.data.get_marked(mi.id)
             return c if c else ''
-        return _('This function can be used only in the GUI')
 
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
@@ -1850,14 +1870,12 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
                       'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
-        with suppress(Exception):
+        with self.get_database(mi) as db:
             try:
-                from calibre.gui2.ui import get_gui
-                a = get_gui().current_db.data.get_virtual_libraries_for_books((mi.id,))
+                a = db.data.get_virtual_libraries_for_books((mi.id,))
                 return ', '.join(a[mi.id])
             except ValueError as v:
                 return str(v)
-        return _('This function can be used only in the GUI')
 
 
 class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
@@ -1870,10 +1888,8 @@ class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
             'Example: "program: current_virtual_library_name()".')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with suppress(Exception):
-            from calibre.gui2.ui import get_gui
-            return get_gui().current_db.data.get_base_restriction_name()
-        return _('This function can be used only in the GUI')
+        with self.get_database(mi) as db:
+            return db.data.get_base_restriction_name()
 
 
 class BuiltinUserCategories(BuiltinFormatterFunction):
@@ -1893,7 +1909,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
             cats = {k for k, v in iteritems(mi._proxy_metadata.user_categories) if v}
             cats = sorted(cats, key=sort_key)
             return ', '.join(cats)
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinTransliterate(BuiltinFormatterFunction):
@@ -1934,7 +1950,7 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
                 return ''
             names = sorted(link_data.keys(), key=sort_key)
             return pair_sep.join(n + val_sep + link_data[n] for n in names)
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinAuthorSorts(BuiltinFormatterFunction):
@@ -1970,6 +1986,8 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
                       "'carda' and 'cardb'. This function works only in the GUI.")
 
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
+        # We can't use get_database() here because we need the device manager.
+        # In other words, the function really does need the GUI
         with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
@@ -1989,7 +2007,7 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
             except Exception:
                 traceback.print_exc()
                 raise
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
@@ -2004,6 +2022,8 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
                       "the GUI.")
 
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
+        # We can't use get_database() here because we need the device manager.
+        # In other words, the function really does need the GUI
         with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
@@ -2023,7 +2043,7 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
             except Exception:
                 traceback.print_exc()
                 raise
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinCheckYesNo(BuiltinFormatterFunction):
@@ -2044,6 +2064,10 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
                       'is usually used by the test() or is_empty() functions.')
 
     def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
+        # 'field' is a lookup name, not a value
+        with self.get_database(mi) as db:
+            if field not in db.field_metadata:
+                raise ValueError(_("The column {} doesn't exist").format(field))
         res = getattr(mi, field, None)
         if res is None:
             if is_undefined == '1':
@@ -2239,15 +2263,13 @@ class BuiltinBookCount(BuiltinFormatterFunction):
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_count() function cannot be used in a composite column'))
-        with suppress(Exception):
+        with self.get_database(mi) as db:
             try:
-                from calibre.gui2.ui import get_gui
-                ids = get_gui().current_db.search_getting_ids(query, None,
-                                                              use_virtual_library=use_vl != '0')
+                ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
                 return len(ids)
             except Exception:
                 traceback.print_exc()
-        return _('This function can be used only in the GUI')
+        self.only_in_gui_error()
 
 
 class BuiltinBookValues(BuiltinFormatterFunction):
@@ -2265,25 +2287,21 @@ class BuiltinBookValues(BuiltinFormatterFunction):
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_values() function cannot be used in a composite column'))
-        try:
-            from calibre.gui2.ui import get_gui
-            db = get_gui().current_db
-        except:
-            return _('This function can be used only in the GUI')
-        if column not in db.field_metadata:
-            raise ValueError(_("The column {} doesn't exist").format(column))
-        try:
-            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
-            s = set()
-            for id_ in ids:
-                f = db.new_api.get_proxy_metadata(id_).get(column, None)
-                if isinstance(f, (tuple, list)):
-                    s.update(f)
-                elif f:
-                    s.add(str(f))
-            return sep.join(s)
-        except Exception as e:
-            raise ValueError(e)
+        with self.get_database(mi) as db:
+            if column not in db.field_metadata:
+                raise ValueError(_("The column {} doesn't exist").format(column))
+            try:
+                ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
+                s = set()
+                for id_ in ids:
+                    f = db.new_api.get_proxy_metadata(id_).get(column, None)
+                    if isinstance(f, (tuple, list)):
+                        s.update(f)
+                    elif f:
+                        s.add(str(f))
+                return sep.join(s)
+            except Exception as e:
+                raise ValueError(e)
 
 
 _formatter_builtins = [

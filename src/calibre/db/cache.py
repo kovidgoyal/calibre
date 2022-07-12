@@ -140,9 +140,11 @@ class Cache:
     EventType = EventType
     fts_indexing_sleep_time = 4  # seconds
 
-    def __init__(self, backend):
+    def __init__(self, backend, library_database_instance=None):
         self.shutting_down = False
         self.backend = backend
+        self.library_database_instance = (None if library_database_instance is None else
+                                          weakref.ref(library_database_instance))
         self.event_dispatcher = EventDispatcher()
         self.fields = {}
         self.composites = {}
