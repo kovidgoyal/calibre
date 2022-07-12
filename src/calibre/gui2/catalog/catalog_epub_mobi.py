@@ -616,7 +616,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Update catalog options from current preset
         '''
-        if idx < 0:
+        if idx <= 0:
             return
 
         current_preset = self.preset_field.currentText()
