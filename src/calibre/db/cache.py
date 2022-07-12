@@ -1831,7 +1831,7 @@ class Cache:
         index_map = {book_id:self._fast_field_for(idf, book_id, default_value=1.0) for book_id in books}
         if current_indices:
             return index_map
-        series_indices = sorted(itervalues(index_map))
+        series_indices = sorted(index_map.values(), key=lambda s: s or 0)
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
