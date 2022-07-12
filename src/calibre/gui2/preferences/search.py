@@ -253,12 +253,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for key in (
             'bulk_edit_search_for', 'bulk_edit_replace_with',
             'viewer-highlights-search-panel-expression',
-            'viewer-search-panel-expression',
+            'viewer-search-panel-expression', 'library-fts-search-box',
         ):
             history.set('lineedit_history_' + key, [])
         from calibre.gui2.viewer.config import vprefs
         for k in ('search', 'highlights'):
             vprefs.set(f'saved-{k}-settings', {})
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        if gui is not None:
+            gui.iactions['Full Text Search'].clear_search_history()
 
 
 if __name__ == '__main__':

@@ -497,6 +497,9 @@ class SearchInputPanel(QWidget):
 
         self.layout().addLayout(v2)
 
+    def clear_history(self):
+        self.search_box.clear_history()
+
     def start(self):
         self.pi.start()
 
@@ -776,6 +779,9 @@ class ResultsPanel(QWidget):
         st = gprefs.get('fts_search_splitter_state')
         if st is not None:
             s.restoreState(st)
+
+    def clear_history(self):
+        self.sip.clear_history()
 
     def remove_book_from_results(self, book_id):
         self.results_view.m.remove_book(book_id)

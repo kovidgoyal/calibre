@@ -31,3 +31,7 @@ class FullTextSearchAction(InterfaceAction):
     def library_changed(self, db):
         if self._dialog is not None:
             self._dialog.library_changed()
+
+    def clear_search_history(self):
+        if self._dialog is not None:
+            self._dialog.clear_search_history()
