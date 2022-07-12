@@ -147,7 +147,6 @@ class FormatterFunction:
     def only_in_gui_error(self):
         raise ValueError(_('The function {} can be used only in the GUI').format(self.name))
 
-    @contextmanager
     def get_database(self, mi):
         proxy = mi.get('_proxy_metadata', None)
         if proxy is None:
@@ -164,7 +163,7 @@ class FormatterFunction:
         db = wr()
         if db is None:
             raise ValueError(_('In function {}: The database has been closed').format(self.name))
-        yield db
+        return db
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -1291,9 +1290,8 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
                       'This function works only in the GUI.')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with self.get_database(mi) as db:
-            c = db.new_api.annotation_count_for_book(mi.id)
-            return '' if c == 0 else str(c)
+        c = self.get_database(mi).new_api.annotation_count_for_book(mi.id)
+        return '' if c == 0 else str(c)
 
 
 class BuiltinIsMarked(BuiltinFormatterFunction):
@@ -1306,9 +1304,8 @@ class BuiltinIsMarked(BuiltinFormatterFunction):
                       "marks. Returns '' if the book is not marked.")
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with self.get_database(mi) as db:
-            c = db.data.get_marked(mi.id)
-            return c if c else ''
+        c = self.get_database(mi).data.get_marked(mi.id)
+        return c if c else ''
 
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
@@ -1870,12 +1867,12 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
                       'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
-        with self.get_database(mi) as db:
-            try:
-                a = db.data.get_virtual_libraries_for_books((mi.id,))
-                return ', '.join(a[mi.id])
-            except ValueError as v:
-                return str(v)
+        db = self.get_database(mi)
+        try:
+            a = db.data.get_virtual_libraries_for_books((mi.id,))
+            return ', '.join(a[mi.id])
+        except ValueError as v:
+            return str(v)
 
 
 class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
@@ -1888,8 +1885,7 @@ class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
             'Example: "program: current_virtual_library_name()".')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        with self.get_database(mi) as db:
-            return db.data.get_base_restriction_name()
+        return self.get_database(mi).data.get_base_restriction_name()
 
 
 class BuiltinUserCategories(BuiltinFormatterFunction):
@@ -2065,9 +2061,8 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
         # 'field' is a lookup name, not a value
-        with self.get_database(mi) as db:
-            if field not in db.field_metadata:
-                raise ValueError(_("The column {} doesn't exist").format(field))
+        if field not in self.get_database(mi).field_metadata:
+            raise ValueError(_("The column {} doesn't exist").format(field))
         res = getattr(mi, field, None)
         if res is None:
             if is_undefined == '1':
@@ -2263,13 +2258,12 @@ class BuiltinBookCount(BuiltinFormatterFunction):
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_count() function cannot be used in a composite column'))
-        with self.get_database(mi) as db:
-            try:
-                ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
-                return len(ids)
-            except Exception:
-                traceback.print_exc()
-        self.only_in_gui_error()
+        db = self.get_database(mi)
+        try:
+            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
+            return len(ids)
+        except Exception:
+            traceback.print_exc()
 
 
 class BuiltinBookValues(BuiltinFormatterFunction):
@@ -2287,21 +2281,21 @@ class BuiltinBookValues(BuiltinFormatterFunction):
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_values() function cannot be used in a composite column'))
-        with self.get_database(mi) as db:
-            if column not in db.field_metadata:
-                raise ValueError(_("The column {} doesn't exist").format(column))
-            try:
-                ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
-                s = set()
-                for id_ in ids:
-                    f = db.new_api.get_proxy_metadata(id_).get(column, None)
-                    if isinstance(f, (tuple, list)):
-                        s.update(f)
-                    elif f:
-                        s.add(str(f))
-                return sep.join(s)
-            except Exception as e:
-                raise ValueError(e)
+        db = self.get_database(mi)
+        if column not in db.field_metadata:
+            raise ValueError(_("The column {} doesn't exist").format(column))
+        try:
+            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
+            s = set()
+            for id_ in ids:
+                f = db.new_api.get_proxy_metadata(id_).get(column, None)
+                if isinstance(f, (tuple, list)):
+                    s.update(f)
+                elif f:
+                    s.add(str(f))
+            return sep.join(s)
+        except Exception as e:
+            raise ValueError(e)
 
 
 _formatter_builtins = [
