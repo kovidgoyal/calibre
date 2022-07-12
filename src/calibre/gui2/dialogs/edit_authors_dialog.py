@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from functools import partial
+from contextlib import contextmanager
 
 from qt.core import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
@@ -97,6 +98,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setColumnWidth(2, 200)
 
         # set up the cellChanged signal only after the table is filled
+        self.ignore_cell_changed = False
         self.table.cellChanged.connect(self.cell_changed)
 
         self.recalc_author_sort.clicked.connect(self.do_recalc_author_sort)
@@ -169,6 +171,15 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.author_sort_order = 0
         self.link_order = 1
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
+
+    @contextmanager
+    def no_cell_changed(self):
+        orig = self.ignore_cell_changed
+        self.ignore_cell_changed = True
+        try:
+            yield
+        finally:
+            self.ignore_cell_changed = orig
 
     def use_vl_changed(self, x):
         self.show_table(None, None, None, False)
@@ -440,31 +451,29 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.result.append((id_, orig['name'], v['name'], v['sort'], v['link']))
 
     def do_recalc_author_sort(self):
-        self.table.cellChanged.disconnect()
-        for row in range(0,self.table.rowCount()):
-            item_aut = self.table.item(row, 0)
-            id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
-            aut  = str(item_aut.text()).strip()
-            item_aus = self.table.item(row, 1)
-            # Sometimes trailing commas are left by changing between copy algs
-            aus = str(author_to_author_sort(aut)).rstrip(',')
-            item_aus.setText(aus)
-            self.authors[id_]['sort'] = aus
-            self.set_icon(item_aus, id_)
-        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.table.cellChanged.connect(self.cell_changed)
+        with self.no_cell_changed():
+            for row in range(0,self.table.rowCount()):
+                item_aut = self.table.item(row, 0)
+                id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
+                aut  = str(item_aut.text()).strip()
+                item_aus = self.table.item(row, 1)
+                # Sometimes trailing commas are left by changing between copy algs
+                aus = str(author_to_author_sort(aut)).rstrip(',')
+                item_aus.setText(aus)
+                self.authors[id_]['sort'] = aus
+                self.set_icon(item_aus, id_)
+            self.table.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def do_auth_sort_to_author(self):
-        self.table.cellChanged.disconnect()
-        for row in range(0,self.table.rowCount()):
-            aus  = str(self.table.item(row, 1).text()).strip()
-            item_aut = self.table.item(row, 0)
-            id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
-            item_aut.setText(aus)
-            self.authors[id_]['name'] = aus
-            self.set_icon(item_aut, id_)
-        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.table.cellChanged.connect(self.cell_changed)
+        with self.no_cell_changed():
+            for row in range(0,self.table.rowCount()):
+                aus  = str(self.table.item(row, 1).text()).strip()
+                item_aut = self.table.item(row, 0)
+                id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
+                item_aut.setText(aus)
+                self.authors[id_]['name'] = aus
+                self.set_icon(item_aut, id_)
+            self.table.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def set_icon(self, item, id_):
         col_name = self.get_column_name(item.column())
@@ -474,30 +483,31 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item.setIcon(self.empty_icon)
 
     def cell_changed(self, row, col):
-        id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
-        self.table.cellChanged.disconnect(self.cell_changed)
-        if col == 0:
-            item = self.table.item(row, 0)
-            aut  = str(item.text()).strip()
-            aut_list = string_to_authors(aut)
-            if len(aut_list) != 1:
-                error_dialog(self.parent(), _('Invalid author name'),
-                        _('You cannot change an author to multiple authors.')).exec()
-                aut = ' % '.join(aut_list)
-                self.table.item(row, 0).setText(aut)
-            item.set_sort_key()
-            self.authors[id_]['name'] = aut
-            self.set_icon(item, id_)
-            c = self.table.item(row, 1)
-            txt = author_to_author_sort(aut)
-            self.authors[id_]['sort'] = txt
-            c.setText(txt)  # This triggers another cellChanged event
-            item = c
-        else:
-            item  = self.table.item(row, col)
-            item.set_sort_key()
-            self.set_icon(item, id_)
-            self.authors[id_][self.get_column_name(col)] = str(item.text())
-        self.table.cellChanged.connect(self.cell_changed)
+        if self.ignore_cell_changed:
+            return
+        with self.no_cell_changed():
+            id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
+            if col == 0:
+                item = self.table.item(row, 0)
+                aut  = str(item.text()).strip()
+                aut_list = string_to_authors(aut)
+                if len(aut_list) != 1:
+                    error_dialog(self.parent(), _('Invalid author name'),
+                            _('You cannot change an author to multiple authors.')).exec()
+                    aut = ' % '.join(aut_list)
+                    self.table.item(row, 0).setText(aut)
+                item.set_sort_key()
+                self.authors[id_]['name'] = aut
+                self.set_icon(item, id_)
+                c = self.table.item(row, 1)
+                txt = author_to_author_sort(aut)
+                self.authors[id_]['sort'] = txt
+                c.setText(txt)  # This triggers another cellChanged event
+                item = c
+            else:
+                item  = self.table.item(row, col)
+                item.set_sort_key()
+                self.set_icon(item, id_)
+                self.authors[id_][self.get_column_name(col)] = str(item.text())
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)
