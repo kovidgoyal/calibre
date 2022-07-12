@@ -15,7 +15,7 @@ import os, re, sys,  errno as gerrno
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
-from calibre import unicode_path, as_unicode, replace_entities
+from calibre import unicode_path, replace_entities
 from polyglot.urllib import urlparse, urlunparse
 
 
@@ -121,7 +121,7 @@ class HTMLFile:
                 if not self.is_binary:
                     src += f.read()
         except OSError as err:
-            msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
+            msg = f'Could not read from file: {self.path} with error: {err}'
             if level == 0:
                 raise OSError(msg)
             raise IgnoreFile(msg, err.errno)
