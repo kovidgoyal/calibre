@@ -175,25 +175,67 @@ class HTMLFile:
         return Link(url, self.base)
 
 
-def depth_first(root, flat, visited=None):
+def depth_first(root, flat):
     yield root
-    if visited is None:
-        visited = set()
+    visited = set()
     visited.add(root)
-    for link in root.links:
-        if link.path is not None and link not in visited:
-            try:
-                index = flat.index(link)
-            except ValueError:  # Can happen if max_levels is used
-                continue
-            hf = flat[index]
-            if hf not in visited:
-                yield hf
-                visited.add(hf)
-                for hf in depth_first(hf, flat, visited):
-                    if hf not in visited:
-                        yield hf
-                        visited.add(hf)
+    from collections import deque
+    stack = deque()
+
+    def add_links_from(item):
+        for link in reversed(item.links):
+            if link.path is not None and link not in visited:
+                stack.appendleft(link)
+
+    add_links_from(root)
+    while stack:
+        link = stack.popleft()
+        try:
+            index = flat.index(link)
+        except ValueError:  # Can happen if max_levels is used
+            continue
+        hf = flat[index]
+        if hf not in visited:
+            yield hf
+            visited.add(hf)
+            add_links_from(hf)
+
+
+def find_tests():
+    import unittest
+
+    class HF:
+        def __init__(self, path):
+            self.path = path
+            self.links = []
+
+        def a(self, hf):
+            self.links.append(hf)
+            return hf
+
+        def __eq__(self, other):
+            return self.path == getattr(other, 'path', other)
+
+        def __hash__(self):
+            return hash(self.path)
+
+        def __repr__(self):
+            return self.path
+
+    class TestHTMLInput(unittest.TestCase):
+
+        def test_depth_first(self):
+            root = HF('root')
+            a = root.a(HF('a'))
+            a1 = a.a(HF('a1'))
+            x = a1.a(HF('x'))
+            a2 = a.a(HF('a2'))
+            b = root.a(HF('b'))
+            b1 = b.a(HF('b1'))
+            flat = root, a, b, a1, a2, b1, x
+            self.assertEqual(tuple(depth_first(flat[0], flat)), (root, a, a1, x, a2, b, b1))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLInput)
 
 
 def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None):
@@ -233,12 +275,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
                 hf.links.remove(link)
 
         next_level = list(nl)
-    orec = sys.getrecursionlimit()
-    sys.setrecursionlimit(500000)
-    try:
-        return flat, list(depth_first(flat[0], flat))
-    finally:
-        sys.setrecursionlimit(orec)
+    return flat, list(depth_first(flat[0], flat))
 
 
 def get_filelist(htmlfile, dir, opts, log):
