@@ -3,17 +3,134 @@
 
 
 import json
+import os
+import sys
+import weakref
+from functools import lru_cache
 from qt.core import (
-    QFrame, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QPushButton, QSize,
-    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QByteArray, QFrame, QGridLayout, QIcon, QLabel, QLineEdit,
+    QListWidget, QPushButton, QSize, QSplitter, Qt, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal
 )
-from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView
+from qt.webengine import (
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript,
+    QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
+    QWebEngineUrlSchemeHandler, QWebEngineView
+)
 
+from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
-from calibre.utils.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
+from calibre.utils.webengine import secure_webengine, send_reply
+from polyglot.builtins import as_bytes
+
+
+class RequestInterceptor(QWebEngineUrlRequestInterceptor):
+
+    def interceptRequest(self, request_info):
+        method = bytes(request_info.requestMethod())
+        if method not in (b'GET', b'HEAD'):
+            default_log.warn(f'Blocking URL request with method: {method}')
+            request_info.block(True)
+            return
+        qurl = request_info.requestUrl()
+        if qurl.scheme() not in (FAKE_PROTOCOL,):
+            default_log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
+            request_info.block(True)
+            return
+
+
+def current_container():
+    return getattr(current_container, 'ans', lambda: None)()
+
+
+@lru_cache(maxsize=2)
+def mathjax_dir():
+    return P('mathjax', allow_user_override=False)
+
+
+class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
+
+    def __init__(self, parent=None):
+        QWebEngineUrlSchemeHandler.__init__(self, parent)
+        self.allowed_hosts = (FAKE_HOST,)
+
+    def requestStarted(self, rq):
+        if bytes(rq.requestMethod()) != b'GET':
+            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
+        c = current_container()
+        if c is None:
+            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = rq.requestUrl()
+        host = url.host()
+        if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
+            return self.fail_request(rq)
+        path = url.path()
+        if path.startswith('/book/'):
+            name = path[len('/book/'):]
+            try:
+                mime_type = c.mime_map.get(name) or guess_type(name)
+                try:
+                    with c.open(name) as f:
+                        q = os.path.abspath(f.name)
+                        if not q.startswith(c.root):
+                            raise FileNotFoundError('Attempt to leave sandbox')
+                        data = f.read()
+                except FileNotFoundError:
+                    print(f'Could not find file {name} in book', file=sys.stderr)
+                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    return
+                data = as_bytes(data)
+                mime_type = {
+                    # Prevent warning in console about mimetype of fonts
+                    'application/vnd.ms-opentype':'application/x-font-ttf',
+                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/font-sfnt': 'application/x-font-ttf',
+                }.get(mime_type, mime_type)
+                send_reply(rq, mime_type, data)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+        elif path.startswith('/mathjax/'):
+            try:
+                ignore, ignore, base, rest = path.split('/', 3)
+            except ValueError:
+                print(f'Could not find file {path} in mathjax', file=sys.stderr)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                return
+            try:
+                mime_type = guess_type(rest)
+                if base == 'loader' and '/' not in rest and '\\' not in rest:
+                    data = P(rest, allow_user_override=False, data=True)
+                elif base == 'data':
+                    q = os.path.abspath(os.path.join(mathjax_dir(), rest))
+                    if not q.startswith(mathjax_dir()):
+                        raise FileNotFoundError('')
+                    with open(q, 'rb') as f:
+                        data = f.read()
+                else:
+                    raise FileNotFoundError('')
+                send_reply(rq, mime_type, data)
+            except FileNotFoundError:
+                print(f'Could not find file {path} in mathjax', file=sys.stderr)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                return
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+        else:
+            return self.fail_request(rq)
+
+    def fail_request(self, rq, fail_code=None):
+        if fail_code is None:
+            fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
+        rq.fail(fail_code)
+        print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}", file=sys.stderr)
 
 
 class Page(QWebEnginePage):  # {{{
@@ -21,12 +138,21 @@ class Page(QWebEnginePage):  # {{{
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
-    def __init__(self, prefs):
+    def __init__(self, parent, prefs):
         self.log = default_log
         self.current_frag = None
         self.com_id = str(uuid4())
-        QWebEnginePage.__init__(self)
-        secure_webengine(self.settings(), for_viewer=True)
+        profile = QWebEngineProfile(QApplication.instance())
+        # store these globally as they need to be destructed after the QWebEnginePage
+        current_container.url_handler = UrlSchemeHandler(parent=profile)
+        current_container.interceptor = RequestInterceptor(profile)
+        current_container.profile_memory = profile
+        profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), current_container.url_handler)
+        s = profile.settings()
+        s.setDefaultTextEncoding('utf-8')
+        profile.setUrlRequestInterceptor(current_container.interceptor)
+        QWebEnginePage.__init__(self, profile, parent)
+        secure_webengine(self, for_viewer=True)
         self.titleChanged.connect(self.title_changed)
         self.loadFinished.connect(self.show_frag)
         s = QWebEngineScript()
@@ -92,14 +218,16 @@ class WebView(QWebEngineView):  # {{{
 
     def __init__(self, parent, prefs):
         QWebEngineView.__init__(self, parent)
-        self._page = Page(prefs)
+        self._page = Page(self, prefs)
         self._page.elem_clicked.connect(self.elem_clicked)
         self._page.frag_shown.connect(self.frag_shown)
         self.setPage(self._page)
 
-    def load_path(self, path, frag=None):
+    def load_name(self, name, frag=None):
         self._page.current_frag = frag
-        self.setUrl(QUrl.fromLocalFile(path))
+        url = QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/')
+        url.setPath(f'/book/{name}')
+        self.setUrl(url)
 
     def sizeHint(self):
         return QSize(300, 300)
@@ -239,6 +367,7 @@ class ItemEdit(QWidget):
 
     def load(self, container):
         self.container = container
+        current_container.ans = weakref.ref(container)
         spine_names = [container.abspath_to_name(p) for p in
                        container.spine_items]
         spine_names = [n for n in spine_names if container.has_name(n)]
@@ -246,7 +375,6 @@ class ItemEdit(QWidget):
 
     def current_changed(self, item):
         name = self.current_name = str(item.data(Qt.ItemDataRole.DisplayRole) or '')
-        path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
         root = self.container.parsed(name)
         nasty = root.xpath('//*[local-name()="head"]/*[local-name()="p"]')
@@ -258,7 +386,7 @@ class ItemEdit(QWidget):
             for x in reversed(nasty):
                 body[0].insert(0, x)
             self.container.commit_item(name, keep_parsed=True)
-        self.view.load_path(path, self.current_frag)
+        self.view.load_name(name, self.current_frag)
         self.current_frag = None
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' +
                                 name + '<br>' + _('Top of the file'))
