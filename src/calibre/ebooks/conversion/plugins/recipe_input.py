@@ -58,6 +58,7 @@ class RecipeInput(InputFormatPlugin):
             accelerators):
         from calibre.web.feeds.recipes import compile_recipe
         opts.output_profile.flow_size = 0
+        orig_no_inline_navbars = opts.no_inline_navbars
         if file_ext == 'downloaded_recipe':
             from calibre.utils.zipfile import ZipFile
             zf = ZipFile(recipe_or_file, 'r')
@@ -139,6 +140,7 @@ class RecipeInput(InputFormatPlugin):
 
         for key, val in self.recipe_object.conversion_options.items():
             setattr(opts, key, val)
+        opts.no_inline_navbars = orig_no_inline_navbars
 
         for f in os.listdir('.'):
             if f.endswith('.opf'):
