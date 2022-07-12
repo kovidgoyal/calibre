@@ -15,6 +15,7 @@ from math import modf
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
+from calibre.utils.config import tweaks
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import strcmp
 from polyglot.builtins import error_message
@@ -1697,8 +1698,9 @@ class TemplateFormatter(string.Formatter):
             except StopException as e:
                 ans = error_message(e)
             except Exception as e:
-                if DEBUG:  # and getattr(e, 'is_locking_error', False):
-                    traceback.print_exc()
+                if DEBUG:
+                    if tweaks.get('show_stack_traces_in_formatter', True):
+                        traceback.print_exc()
                     if column_name:
                         prints('Error evaluating column named:', column_name)
                 ans = error_value + ' ' + error_message(e)
