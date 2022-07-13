@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import math
 import os
 import re
 import time
@@ -572,11 +571,8 @@ class ResultDetails(QWidget):
         d = self.book_info.document()
         d.setDocumentMargin(0)
         d.setTextWidth(float(w))
-        h = min(int(math.ceil(d.size().height())), self.pixmap_label.height())
-        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, h))
-        if self.book_info.horizontalScrollBar().isVisible():
-            h += self.book_info.horizontalScrollBar().height() + 1
-            self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, h))
+        ph = self.pixmap_label.height()
+        self.book_info.setGeometry(QRect(self.pixmap_label.geometry().right() + 8, 0, w, ph))
         top = max(self.book_info.geometry().bottom(), self.pixmap_label.geometry().bottom())
         self.results.setGeometry(QRect(0, top, g.width(), g.height() - top))
 
