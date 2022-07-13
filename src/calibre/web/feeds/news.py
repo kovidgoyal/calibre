@@ -975,6 +975,7 @@ class BasicNewsRecipe(Recipe):
                       templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
+        self.aborted_articles = []
 
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
@@ -1476,6 +1477,10 @@ class BasicNewsRecipe(Recipe):
             mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         article_titles, aseen = [], set()
+        for (af, aa) in self.aborted_articles:
+            aseen.add(aa.title)
+        for (ff, fa, tb) in self.failed_downloads:
+            aseen.add(fa.title)
         for f in feeds:
             for a in f:
                 if a.title and a.title not in aseen:
@@ -1653,6 +1658,7 @@ class BasicNewsRecipe(Recipe):
                           'from', request.article.url)
             self.report_progress(float(self.jobs_done)/len(self.jobs),
                 _('Article download aborted: %s')%force_unicode(request.article.title))
+            self.aborted_articles.append((request.feed, request.article))
         else:
             self.log.error('Failed to download article:', request.article.title,
             'from', request.article.url)
