@@ -181,7 +181,7 @@ class CodeEditor(QPlainTextEdit):
                 txt = blk.text()
                 pos = blk.position()
                 curs.setPosition(pos)
-                curs.setPosition(pos+len(txt), QTextCursor.KeepAnchor)
+                curs.setPosition(pos+len(txt), QTextCursor.MoveMode.KeepAnchor)
                 return txt
 
             # Check if there is a selection. If not then only Shift-Tab is valid
@@ -213,7 +213,7 @@ class CodeEditor(QPlainTextEdit):
                     end_position += 1
             # Restore the selection, adjusted for the added or deleted tabs
             cursor.setPosition(start_position)
-            cursor.setPosition(end_position, QTextCursor.KeepAnchor)
+            cursor.setPosition(end_position, QTextCursor.MoveMode.KeepAnchor)
             self.setTextCursor(cursor)
             ev.accept()
             return
