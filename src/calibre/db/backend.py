@@ -982,6 +982,9 @@ class DB:
     def fts_unindex(self, book_id, fmt=None):
         self.fts.unindex(book_id, fmt=fmt)
 
+    def reindex_fts_book(self, book_id, *fmts):
+        return self.fts.dirty_book(book_id, *fmts)
+
     def fts_search(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text,
     ):

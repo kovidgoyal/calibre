@@ -85,6 +85,11 @@ class FTS:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
 
+    def dirty_book(self, book_id, *fmts):
+        conn = self.get_connection()
+        for fmt in fmts:
+            conn.execute('INSERT OR IGNORE INTO fts_db.dirtied_formats (book, format) VALUES (?, ?)', (book_id, fmt.upper()))
+
     def unindex(self, book_id, fmt=None):
         conn = self.get_connection()
         if fmt is None:

@@ -551,6 +551,15 @@ class Cache:
         self._update_fts_indexing_numbers()
         return ans
 
+    @write_api
+    def reindex_fts_book(self, book_id, *fmts):
+        if not self.is_fts_enabled():
+            return
+        if not fmts:
+            fmts = self._formats(book_id)
+        self.backend.reindex_fts_book(book_id, *fmts)
+        self._queue_next_fts_job()
+
     @api
     def reindex_fts(self):
         if not self.is_fts_enabled():
