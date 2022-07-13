@@ -4,6 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, string
 from operator import attrgetter
+from gettext import pgettext
 
 from qt.core import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
                       pyqtSignal, QIcon, QApplication)
@@ -34,7 +35,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('Download'), _('Affiliate')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), pgettext('book store in the Get books calibre feature', 'Store'), _('Download'), _('Affiliate')]
     HTML_COLS = (1, 4)
     IMG_COLS = (0, 3, 5, 6)
 
