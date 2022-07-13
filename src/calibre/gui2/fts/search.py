@@ -21,12 +21,14 @@ from threading import Event, Thread
 from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import config, error_dialog, gprefs, question_dialog, safe_open_url
+from calibre.gui2 import (
+    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
+)
 from calibre.gui2.fts.utils import get_db
-from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HTMLDisplay
 
 ROOT = QModelIndex()
@@ -551,6 +553,14 @@ class ResultDetails(QWidget):
                 db = get_db()
                 db.fts_unindex(self.current_book_id)
                 self.remove_book_from_results.emit(self.current_book_id)
+            elif url.host() == 'reindex':
+                db = get_db()
+                db.reindex_fts_book(self.current_book_id)
+                info_dialog(self, _('Scheduled for re-indexing'), _(
+                    'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
+                    ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
+                    ' to see updated results.'), show=True)
+                self.remove_book_from_results.emit(self.current_book_id)
 
     def results_anchor_clicked(self, url):
         if self.current_book_id > 0 and url.scheme() == 'book':
@@ -610,16 +620,21 @@ class ResultDetails(QWidget):
                 series = series[:59] + '…'
             series = prepare_string_for_xml(series)
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
-        text += '<p><a href="calibre://jump" title="{1}"><img valign="bottom" src="calibre-icon:///lt.png" width=16 height=16>\xa0{0}</a>\xa0\xa0\xa0 '.format(
-            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'))
-        text += '<a href="calibre://mark" title="{1}"><img valign="bottom" src="calibre-icon:///marked.png" width=16 height=16>\xa0{0}</a></p>'.format(
+        ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
+        text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
+            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'), ict.format('lt.png'))
+        text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
-                ' You can search for marked books using the search term: {0}').format('<p>marked:true'))
-        if not get_db().has_id(results.book_id):
-            text += '<p><a href="calibre://unindex" title="{1}"><img valign="bottom" src="calibre-icon:///trash.png" width=16 height=16>\xa0{0}</a>'.format(
-                _('Remove from index'), _('This book has been deleted from the library but is still present in the'
-                                          ' full text search index. Remove it.'))
+                ' You can search for marked books using the search term: {0}').format('<p>marked:true'), ict.format('marked.png'))
+        if get_db().has_id(results.book_id):
+            text += '<p><a href="calibre://reindex" title="{1}">{2}\xa0{0}</a>'.format(
+                _('Re-index'), _('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
+                ict.format('view-refresh.png'))
+        else:
+            text += '<p><a href="calibre://unindex" title="{1}">{2}\xa0{0}</a>'.format(
+                _('Un-index'), _('This book has been deleted from the library but is still present in the'
+                                          ' full text search index. Remove it.'), ict.format('trash.png'))
         self.book_info.setHtml(text)
 
     def render_results(self, results, individual_match=None):
