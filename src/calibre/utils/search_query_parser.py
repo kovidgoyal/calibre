@@ -194,7 +194,8 @@ class Parser:
         # convert docstrings to base64 to avoid all processing. Change the docstring
         # indicator to something unique with no characters special to the parser.
         expr = re.sub('(""")(..*?)(""")',
-                  lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep, expr)
+                  lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep,
+                  expr, flags=re.DOTALL)
 
         # Strip out escaped backslashes, quotes and parens so that the
         # lex scanner doesn't get confused. We put them back later.
