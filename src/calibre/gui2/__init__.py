@@ -11,20 +11,21 @@ import threading
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from qt.core import (
-    QApplication, QBuffer, QByteArray, QColor, QDateTime,
-    QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFile, QFileDialog,
-    QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
-    QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
-    QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, QStyle, Qt,
-    QThread, QTimer, QTranslator, QUrl, pyqtSignal, pyqtSlot
+    QApplication, QBuffer, QByteArray, QColor, QDateTime, QDesktopServices, QDialog,
+    QDialogButtonBox, QEvent, QFile, QFileDialog, QFileIconProvider, QFileInfo,
+    QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon, QIODevice,
+    QLocale, QNetworkProxyFactory, QObject, QPalette, QResource, QSettings,
+    QSocketNotifier, QStringListModel, QStyle, Qt, QThread, QTimer, QTranslator,
+    QUrl, pyqtSignal, pyqtSlot
 )
 from threading import Lock, RLock
 
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
-    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, cache_dir, config_dir,
+    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
+    plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -33,8 +34,8 @@ from calibre.gui2.linux_file_dialogs import (
 from calibre.gui2.palette import dark_palette, fix_palette_colors
 from calibre.gui2.qt_file_dialogs import FileDialog
 from calibre.ptempfile import base_dir
-from calibre.utils.config_base import tweaks
 from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
+from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
@@ -1048,6 +1049,8 @@ class Application(QApplication):
             if gprefs['color_palette'] != 'system':
                 set_appearance(gprefs['color_palette'])
         self.ignore_palette_changes = False
+        if iswindows:
+            os.environ['CALIBRE_QT_CACHE_LOCATION'] = cache_dir()
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         # Allow import of webengine after construction of QApplication on new
         # enough PyQt
