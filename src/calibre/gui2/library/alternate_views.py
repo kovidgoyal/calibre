@@ -734,13 +734,11 @@ class GridView(QListView):
         t.timeout.connect(self.update_memory_cover_cache_size)
 
     def viewportEvent(self, ev):
-        try:
+        if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(ev)
-        except AttributeError:
-            ret = None
-        if ret is not None:
-            return ret
-        return QListView.viewportEvent(self, ev)
+            if ret is not None:
+                return ret
+        return super().viewportEvent(ev)
 
     @property
     def device_pixel_ratio(self):

@@ -215,13 +215,11 @@ class BooksView(QTableView):  # {{{
     def viewportEvent(self, event):
         if (event.type() == QEvent.Type.ToolTip and not gprefs['book_list_tooltips']):
             return False
-        try:
+        if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(event)
-        except AttributeError:
-            ret = None
-        if ret is not None:
-            return ret
-        return QTableView.viewportEvent(self, event)
+            if ret is not None:
+                return ret
+        return super().viewportEvent(event)
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)

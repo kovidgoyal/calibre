@@ -34,18 +34,18 @@ class TouchPoint:
 
     def __init__(self, tp):
         self.creation_time = self.last_update_time = self.time_of_last_move = monotonic()
-        self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.screenPos())
+        self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.globalPosition())
         self.time_since_last_update = -1
         self.total_movement = 0
-        self.start_position = self.current_position = tp.pos()
+        self.start_position = self.current_position = tp.position()
         self.extra_data = None
 
     def update(self, tp):
-        self.current_position = tp.pos()
+        self.current_position = tp.position()
         now = monotonic()
         self.time_since_last_update = now - self.last_update_time
         self.last_update_time = now
-        self.previous_screen_position, self.current_screen_position = self.current_screen_position, QPointF(tp.screenPos())
+        self.previous_screen_position, self.current_screen_position = self.current_screen_position, QPointF(tp.globalPosition())
         movement = (self.current_screen_position - self.previous_screen_position).manhattanLength()
         self.total_movement += movement
         if movement > 5:
@@ -81,7 +81,7 @@ class State(QObject):
         if boundary == 'start':
             self.start()
 
-        for tp in ev.touchPoints():
+        for tp in ev.points():
             tpid = tp.id()
             if tpid not in self.touch_points:
                 self.touch_points[tpid] = TouchPoint(tp)

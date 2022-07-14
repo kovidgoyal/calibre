@@ -37,12 +37,10 @@ class BookmarksList(QListWidget):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
     def viewportEvent(self, ev):
-        try:
+        if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(ev)
-        except AttributeError:
-            ret = None
-        if ret is not None:
-            return ret
+            if ret is not None:
+                return ret
         return super().viewportEvent(ev)
 
     @property
