@@ -1305,8 +1305,7 @@ class Application(QApplication):
     @lru_cache(maxsize=256)
     def cached_qpixmap(self, name):
         ic = QIcon.ic(name)
-        pmap = ic.pixmap(ic.availableSizes()[0])
-        return pmap
+        return ic.pixmap((ic.availableSizes() or (256,))[0])
 
     def on_palette_change(self):
         self.cached_qimage.cache_clear()
