@@ -791,6 +791,16 @@ def check_umask():
             raise SystemExit('The system umask is unsuitable, aborting')
 
 
+def check_for_libEGL():
+    import ctypes
+    try:
+        ctypes.CDLL('libEGL.so.1')
+        return
+    except Exception:
+        pass
+    raise SystemExit('You are missing the system library libEGL.so.1. Try installing packages such as libegl1 and libopengl1')
+
+
 def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
     # See https://sourceware.org/glibc/wiki/Glibc%20Timeline
     import ctypes
@@ -825,6 +835,8 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
         if q >= key:
             check_glibc_version(**glibc_versions[key])
             break
+    if q[0] >= 6:
+        check_for_libEGL()
     run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
