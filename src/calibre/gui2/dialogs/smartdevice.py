@@ -99,7 +99,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.resize(self.sizeHint())
 
     def use_fixed_port_changed(self, state):
-        self.fixed_port.setEnabled(state == Qt.CheckState.Checked)
+        self.fixed_port.setEnabled(Qt.CheckState(state) == Qt.CheckState.Checked)
 
     def toggle_password(self, state):
         self.password_box.setEchoMode(QLineEdit.EchoMode.Password if state ==

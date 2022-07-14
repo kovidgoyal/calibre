@@ -89,8 +89,7 @@ class ChooseMultiSort(Dialog):
         self.column_list.sortItems()
 
     def item_double_clicked(self, item):
-        cs = item.checkState()
-        item.setCheckState(Qt.CheckState.Checked if cs == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
+        item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
 
     def current_changed(self):
         self.update_order_label()

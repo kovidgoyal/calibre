@@ -377,7 +377,7 @@ class SchedulerDialog(QDialog):
 
     def set_pw_echo_mode(self, state):
         self.password.setEchoMode(QLineEdit.EchoMode.Normal
-                if state == Qt.CheckState.Checked else QLineEdit.EchoMode.Password)
+                if Qt.CheckState(state) == Qt.CheckState.Checked else QLineEdit.EchoMode.Password)
 
     def schedule_type_selected(self, *args):
         for i, st in enumerate(self.SCHEDULE_TYPES):

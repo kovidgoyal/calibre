@@ -1166,7 +1166,7 @@ class AddCover(Dialog):
         p.setVisible(self.container.book_type != 'azw3')
 
         def on_state_change(s):
-            tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.CheckState.Checked)
+            tprefs.set('add_cover_preserve_aspect_ratio', Qt.CheckState(s) == Qt.CheckState.Checked)
 
         p.stateChanged.connect(on_state_change)
         self.info_label = il = QLabel('\xa0')
