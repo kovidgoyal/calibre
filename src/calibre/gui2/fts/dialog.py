@@ -8,6 +8,7 @@ from qt.core import (
     QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, QVBoxLayout, Qt
 )
 
+from calibre.gui2 import warning_dialog
 from calibre.gui2.fts.scan import ScanStatus
 from calibre.gui2.fts.search import ResultsPanel
 from calibre.gui2.fts.utils import get_db
@@ -24,6 +25,13 @@ class FTSDialog(Dialog):
 
     def setup_ui(self):
         l = QVBoxLayout(self)
+        self.fat_warning = fw = QLabel(
+            f'<span style="color:red; font-weight: bold">{_("WARNING")}:</span> ' +
+            _('The calibre library is on a FAT drive, indexing more than a few hundred books wont work.') +
+            f' <a href="xxx" style="text-decoration: none">{_("Learn more")}</a>')
+        # fw.setVisible(False)
+        fw.linkActivated.connect(self.show_fat_details)
+        l.addWidget(self.fat_warning)
         self.stack = s = QStackedWidget(self)
         l.addWidget(s)
         h = QHBoxLayout()
@@ -42,6 +50,16 @@ class FTSDialog(Dialog):
         self.show_appropriate_panel()
         self.update_indexing_label()
         self.scan_status.indexing_progress_changed.connect(self.update_indexing_label)
+
+    def show_fat_details(self):
+        warning_dialog(self, _('Library on a FAT drive'), _(
+            'The calibre library {} is on a FAT drive. These drives have a limit on the maximum file size. Therefore'
+            ' indexing of more than a few hundred books will fail. You should move your calibre library to an NTFS'
+            ' or exFAT drive.').format(get_db().backend.library_path), show=True)
+
+    def update_fat_warning(self):
+        db = get_db()
+        self.fat_warning.setVisible(db.is_fat_filesystem)
 
     def show_appropriate_panel(self):
         ss = self.scan_status
@@ -87,6 +105,7 @@ class FTSDialog(Dialog):
         self.results_panel.clear_results()
         self.scan_status.reset_indexing_state_for_current_db()
         self.show_appropriate_panel()
+        self.update_fat_warning()
 
     def sizeHint(self):
         return QSize(1000, 680)
@@ -95,6 +114,7 @@ class FTSDialog(Dialog):
         super().show()
         self.scan_status.startup()
         self.results_panel.on_show()
+        self.update_fat_warning()
 
     def clear_search_history(self):
         self.results_panel.clear_history()
