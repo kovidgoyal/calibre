@@ -11,15 +11,15 @@ import sys
 
 from calibre import force_unicode
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__, builtin_colors_dark,
-    builtin_colors_light, builtin_decorations, dark_link_color
+    FAKE_HOST, FAKE_PROTOCOL, SPECIAL_TITLE_FOR_WEBENGINE_COMMS, __appname__,
+    __version__, builtin_colors_dark, builtin_colors_light, builtin_decorations,
+    dark_link_color
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
 from polyglot.builtins import as_bytes, as_unicode, exec_path
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
-special_title = '__webengine_messages_pending__'
 
 
 def abspath(x):
@@ -59,8 +59,9 @@ def compiler():
 
     from calibre import walk
     from calibre.gui2 import must_use_qt
-    from calibre.utils.webengine import secure_webengine
+    from calibre.utils.webengine import secure_webengine, setup_default_profile
     must_use_qt()
+    setup_default_profile()
 
     with lzma.open(P(COMPILER_PATH, allow_user_override=False)) as lzf:
         compiler_script = lzf.read().decode('utf-8')
@@ -124,7 +125,7 @@ document.title = 'compiler initialized';
     class Compiler(QWebEnginePage):
 
         def __init__(self):
-            QWebEnginePage.__init__(self)
+            super().__init__()
             self.errors = []
             secure_webengine(self)
             script = compiler_script
@@ -330,17 +331,19 @@ def atomic_write(base, name, content):
 
 
 def run_rapydscript_tests():
-    from urllib.parse import parse_qs
     from qt.core import QApplication, QByteArray, QEventLoop, QUrl
     from qt.webengine import (
         QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineUrlRequestJob,
         QWebEngineUrlScheme, QWebEngineUrlSchemeHandler
     )
+    from urllib.parse import parse_qs
 
     from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
     from calibre.gui2 import must_use_qt
     from calibre.gui2.viewer.web_view import send_reply
-    from calibre.utils.webengine import secure_webengine, insert_scripts, create_script
+    from calibre.utils.webengine import (
+        create_script, insert_scripts, secure_webengine
+    )
     must_use_qt()
     scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
@@ -418,7 +421,7 @@ def run_rapydscript_tests():
 
 def set_data(src, **kw):
     for k, v in {
-        '__SPECIAL_TITLE__': special_title,
+        '__SPECIAL_TITLE__': SPECIAL_TITLE_FOR_WEBENGINE_COMMS,
         '__FAKE_PROTOCOL__': FAKE_PROTOCOL,
         '__FAKE_HOST__': FAKE_HOST,
         '__CALIBRE_VERSION__': __version__,

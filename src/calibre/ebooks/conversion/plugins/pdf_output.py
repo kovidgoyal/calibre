@@ -155,6 +155,8 @@ class PDFOutput(OutputFormatPlugin):
         scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
         QWebEngineUrlScheme.registerScheme(scheme)
         must_use_qt()
+        from calibre.utils.webengine import setup_default_profile
+        setup_default_profile()
         self.input_fmt = input_fmt
 
         if opts.pdf_use_document_margins:

@@ -99,6 +99,8 @@ def main(path_to_html, tdir, image_format='jpeg'):
     if image_format not in ('jpeg', 'png'):
         raise ValueError('Image format must be either jpeg or png')
     must_use_qt()
+    from calibre.utils.webengine import setup_default_profile
+    setup_default_profile()
     path_to_html = os.path.abspath(path_to_html)
     os.chdir(tdir)
     renderer = Render()

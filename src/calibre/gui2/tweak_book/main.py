@@ -71,6 +71,8 @@ def _run(args, notify=None):
     decouple('edit-book-'), set_gui_prefs(tprefs)
     override = 'calibre-ebook-edit' if islinux else None
     app = Application(args, override_program_name=override, color_prefs=tprefs, windows_app_uid=EDITOR_APP_UID)
+    from calibre.utils.webengine import setup_default_profile
+    setup_default_profile()
     app.file_event_hook = EventAccumulator()
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon.ic('tweak.png'))

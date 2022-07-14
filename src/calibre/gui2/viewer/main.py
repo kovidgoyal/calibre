@@ -5,15 +5,15 @@
 import json
 import os
 import sys
+from contextlib import closing
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
 from qt.webengine import QWebEngineUrlScheme
-from contextlib import closing
 
 from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
+from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.viewer.config import get_session_pref, vprefs
 from calibre.gui2.viewer.ui import EbookViewer, is_float
-from calibre.gui2.listener import send_message_in_process
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import viewer_socket_address
@@ -194,6 +194,8 @@ def main(args=sys.argv):
                 pass
     args = processed_args
     app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)
+    from calibre.utils.webengine import setup_default_profile
+    setup_default_profile()
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
@@ -204,8 +206,8 @@ def main(args=sys.argv):
         raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
     if get_session_pref('singleinstance', False):
-        from calibre.utils.lock import SingleInstance
         from calibre.gui2.listener import Listener
+        from calibre.utils.lock import SingleInstance
         with SingleInstance(singleinstance_name) as si:
             if si:
                 try:

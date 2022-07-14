@@ -3,11 +3,18 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import json
+import json, os
 from qt.core import QBuffer, QIODevice, QObject, pyqtSignal, sip
-from qt.webengine import QWebEngineScript, QWebEngineSettings
+from qt.webengine import QWebEngineScript, QWebEngineSettings, QWebEngineProfile
 
-from calibre.utils.rapydscript import special_title
+from calibre.constants import cache_dir, SPECIAL_TITLE_FOR_WEBENGINE_COMMS
+
+
+def setup_default_profile():
+    p = QWebEngineProfile.defaultProfile()
+    q = os.path.join(cache_dir(), 'qt-webeng')
+    if p.cachePath() != q:
+        p.setCachePath(q)
 
 
 def send_reply(rq, mime_type, data):
@@ -112,7 +119,7 @@ class Bridge(QObject):
         return self._signals_registered
 
     def _title_changed(self, title):
-        if title.startswith(special_title):
+        if title.startswith(SPECIAL_TITLE_FOR_WEBENGINE_COMMS):
             self._poll_for_messages()
 
     def _register_signals(self):

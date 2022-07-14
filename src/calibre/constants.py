@@ -39,6 +39,7 @@ isworker = hasenv('CALIBRE_WORKER') or hasenv('CALIBRE_SIMPLE_WORKER')
 if isworker:
     os.environ.pop(environ_item('CALIBRE_FORCE_ANSI'), None)
 FAKE_PROTOCOL, FAKE_HOST = 'clbr', 'internal.invalid'
+SPECIAL_TITLE_FOR_WEBENGINE_COMMS = '__webengine_messages_pending__'
 VIEWER_APP_UID = 'com.calibre-ebook.viewer'
 EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
 MAIN_APP_UID = 'com.calibre-ebook.main-gui'
