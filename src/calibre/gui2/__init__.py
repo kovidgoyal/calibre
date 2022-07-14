@@ -11,7 +11,7 @@ import threading
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from qt.core import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QColor, QDateTime,
+    QApplication, QBuffer, QByteArray, QColor, QDateTime,
     QDesktopServices, QDialog, QDialogButtonBox, QEvent, QFile, QFileDialog,
     QFileIconProvider, QFileInfo, QFont, QFontDatabase, QFontInfo, QFontMetrics,
     QGuiApplication, QIcon, QIODevice, QLocale, QNetworkProxyFactory, QObject,
@@ -1067,9 +1067,6 @@ class Application(QApplication):
             # native window decorations. There have been reports of left clicks
             # not working in GNOME though I cannot reproduce. So force use of
             # XWayland.
-            os.environ['QT_QPA_PLATFORM'] = 'xcb'
-
-        if isfrozen and QT_VERSION <= 0x050700 and 'wayland' in os.environ.get('QT_QPA_PLATFORM', ''):
             os.environ['QT_QPA_PLATFORM'] = 'xcb'
         if override_program_name:
             args = [override_program_name] + args[1:]
