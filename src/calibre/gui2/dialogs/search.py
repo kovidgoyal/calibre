@@ -324,6 +324,14 @@ class SearchDialog(QDialog):
         QDialog.__init__(self, parent)
         setup_ui(self, db)
 
+        # Get metadata of some of the selected books to give to the template
+        # dialog to help test the template
+        from calibre.gui2.ui import get_gui
+        view = get_gui().library_view
+        rows = view.selectionModel().selectedRows()[0:10] # Maximum of 10 books
+        mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
+        self.template_program_box.set_mi(mi)
+
         current_tab = gprefs.get('advanced search dialog current tab', 0)
         self.tab_widget.setCurrentIndex(current_tab)
         if current_tab == 1:
@@ -393,12 +401,13 @@ class SearchDialog(QDialog):
 
     def template_search_string(self):
         template = str(self.template_program_box.text())
-        value = str(self.template_value_box.text()).replace('"', '\\"')
+        value = str(self.template_value_box.text())
         if template and value:
             cb = self.template_test_type_box
             op =  str(cb.itemData(cb.currentIndex()))
             l = f'{template}#@#:{op}:{value}'
-            return 'template:"' + l + '"'
+            # Use docstring quoting (super-quoting) to avoid problems with escaping
+            return 'template:"""' + l + '"""'
         return ''
 
     def date_search_string(self):

@@ -22,6 +22,7 @@ import weakref, re
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.builtins import codepoint_to_chr
 
 
@@ -150,6 +151,9 @@ class Parser:
     EOF = 4
     REPLACEMENTS = tuple(('\\' + x, codepoint_to_chr(i + 1)) for i, x in enumerate('\\"()'))
 
+    # the sep must be a printable character sequence that won't actually appear naturally
+    docstring_sep = '□ༀ؆' # Unicode white square, Tibetian Om, Arabic-Indic Cube Root
+
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
             (r'[()]', lambda x,t: (Parser.OPCODE, t)),
@@ -187,6 +191,11 @@ class Parser:
         self.current_token += 1
 
     def tokenize(self, expr):
+        # convert docstrings to base64 to avoid all processing. Change the docstring
+        # indicator to something unique with no characters special to the parser.
+        expr = re.sub('(""")(..*?)(""")',
+                  lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep, expr)
+
         # Strip out escaped backslashes, quotes and parens so that the
         # lex scanner doesn't get confused. We put them back later.
         for k, v in self.REPLACEMENTS:
@@ -194,14 +203,14 @@ class Parser:
         tokens = self.lex_scanner.scan(expr)[0]
 
         def unescape(x):
+            # recover the docstrings
+            x = re.sub(f'({self.docstring_sep})(..*?)({self.docstring_sep})',
+                       lambda mo: from_hex_unicode(mo.group(2)), x)
             for k, v in self.REPLACEMENTS:
                 x = x.replace(v, k[1:])
             return x
 
-        return [
-            (tt, unescape(tv) if tt in (self.WORD, self.QUOTED_WORD) else tv)
-            for tt, tv in tokens
-        ]
+        return [(tt, unescape(tv)) for tt, tv in tokens]
 
     def parse(self, expr, locations):
         self.locations = locations
