@@ -75,6 +75,9 @@ class State(QObject):
         self.possible_gestures = {Tap, TapAndHold, Flick}
 
     def update(self, ev, boundary='update'):
+        if boundary == 'cancel':
+            self.clear()
+            return
         if boundary == 'start':
             self.start()
 
@@ -164,7 +167,7 @@ class GestureManager(QObject):
         connect_lambda(self.state.tap_hold_started, self, lambda self, tp: self.handle_tap_hold('start', tp))
         connect_lambda(self.state.tap_hold_updated, self, lambda self, tp: self.handle_tap_hold('update', tp))
         connect_lambda(self.state.tap_hold_finished, self, lambda self, tp: self.handle_tap_hold('end', tp))
-        self.evmap = {QEvent.Type.TouchBegin: 'start', QEvent.Type.TouchUpdate: 'update', QEvent.Type.TouchEnd: 'end'}
+        self.evmap = {QEvent.Type.TouchBegin: 'start', QEvent.Type.TouchUpdate: 'update', QEvent.Type.TouchEnd: 'end', QEvent.Type.TouchCancel: 'cancel'}
         self.last_tap_at = 0
         if touch_supported():
             self.scroller = QScroller.scroller(view.viewport())
@@ -183,7 +186,7 @@ class GestureManager(QObject):
         if etype == QEvent.Type.Wheel and self.scroller.state() != QScroller.State.Inactive:
             ev.ignore()
             return False
-        boundary = self.evmap.get(etype, None)
+        boundary = self.evmap.get(etype)
         if boundary is None or ev.deviceType() != QInputDevice.DeviceType.TouchScreen:
             return
         self.state.update(ev, boundary=boundary)
