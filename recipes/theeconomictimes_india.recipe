@@ -32,7 +32,10 @@ class TheEconomicTimes(BasicNewsRecipe):
         classes('artByline artSyn artImg artText publisher publish_on slideshowPackage'),
     ]
     remove_tags = [
-        classes('story_title storyCollection shareBar'),
+        classes(
+            'story_title storyCollection shareBar sr_widget_free jsSrWidgetFree srwidgetfree_3'
+            ' sr_paid jsSrWidgetPaid ar_wrp arwd_ld_chk adBox custom_ad mgid orn_free_r bold'
+        ),
     ]
 
     feeds = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
@@ -50,6 +53,8 @@ class TheEconomicTimes(BasicNewsRecipe):
              ]
 
     def preprocess_html(self, soup):
+        for image in soup.findAll('img', attrs={'src': True}):
+            image['src'] = image['src'].replace("width-300", "width-640")
         for img in soup.findAll('img', attrs={'data-original': True}):
-            img['src'] = img['data-original']
+            img['src'] = img['data-original'].replace('photo', 'thumb').replace('quality-100', 'quality-100,width-600,resizemode-4')
         return soup
