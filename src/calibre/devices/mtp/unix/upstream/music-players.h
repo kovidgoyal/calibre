@@ -644,6 +644,9 @@
   /* https://sourceforge.net/p/libmtp/feature-requests/298/ */
   { "Acer", 0x0502, "A3-A40", 0x387a,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/support-requests/298/ */
+  { "Acer", 0x0502, "Zest T06", 0x3886,
+      DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1733/ */
   { "Acer", 0x0502, "Liquid Zest 4G", 0x38a5,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -1057,6 +1060,8 @@
   { "Archos", 0x0e79, "101 G4", 0x4002, DEVICE_FLAGS_ANDROID_BUGS },
   { "Archos (for Tesco)", 0x0e79, "Hudl (ID1)", 0x5008, DEVICE_FLAGS_ANDROID_BUGS },
   { "Archos (for Tesco)", 0x0e79, "Hudl (ID2)", 0x5009, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/bugs/1919/ */
+  { "Archos", 0x0e79, "101d Neon", 0x51c6, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1404/ */
   { "Archos", 0x0e79, "AC40DTI", 0x5217, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/feature-requests/221/ */
@@ -2015,6 +2020,9 @@
   /* https://sourceforge.net/p/libmtp/bugs/1849/ */
   { "SONY", 0x0fce, "Xperia I4312", 0x0207,
       DEVICE_FLAG_NONE },
+  /* https://github.com/libmtp/libmtp/issues/113 */
+  { "SONY", 0x0fce, "Xperia 5", 0x020a,
+      DEVICE_FLAG_NONE },
   /* https://sourceforge.net/p/libmtp/feature-requests/303/ */
   { "SONY", 0x0fce, "Xperia 5 II Phone", 0x020d,
       DEVICE_FLAG_NONE },
@@ -2169,6 +2177,8 @@
   { "SONY", 0x0fce, "Xperia 1 (J9110) MTP+CDROM", 0x4205,
       DEVICE_FLAG_NONE },
   { "SONY", 0x0fce, "Xperia I4312 MTP+CDROM", 0x4207,
+      DEVICE_FLAG_NONE },
+  { "SONY", 0x0fce, "Xperia 5 MTP+CDROM", 0x420a,
       DEVICE_FLAG_NONE },
   { "SONY", 0x0fce, "Xperia 5 II Phone MTP+CDROM", 0x420d,
       DEVICE_FLAG_NONE },
@@ -2343,6 +2353,8 @@
   { "SONY", 0x0fce, "Xperia 1 (J9110) MTP+ADB", 0x5205,
       DEVICE_FLAG_NONE },
   { "SONY", 0x0fce, "Xperia I4312 MTP+ADB", 0x5207,
+      DEVICE_FLAG_NONE },
+  { "SONY", 0x0fce, "Xperia 5 MTP+ADB", 0x520a,
       DEVICE_FLAG_NONE },
   { "SONY", 0x0fce, "Xperia 5 II Phone MTP+ADB", 0x520d,
       DEVICE_FLAG_NONE },
@@ -3118,6 +3130,9 @@
   /* https://sourceforge.net/p/libmtp/support-requests/262/ */
   { "Lenovo", 0x17ef, "Tab4 10", 0x7ac5,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/support-requests/297/ */
+  { "Lenovo", 0x17ef, "Tab TB-X704A", 0x7b25,
+      DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/feature-requests/296/ */
   { "Lenovo", 0x17ef, "TB-7304I", 0x7b3c,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3137,6 +3152,9 @@
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/74 */
   { "Lenovo", 0x17ef, "TB-X606F (Lenovo Tab M10 FHD Plus)", 0x7c46,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /*https://github.com/libmtp/libmtp/issues/111  */
+  { "Lenovo", 0x17ef, "TAB M7 Gen 3", 0x7cb3,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1736/ */
   { "Lenovo", 0x17ef, "P1060X", 0x9039,
@@ -3720,6 +3738,9 @@
   /* https://sourceforge.net/p/libmtp/bugs/1883/ */
   { "SHARP Corporation", 0x04dd, "AndroidOne S5", 0x9c90,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/bugs/1914/ */
+  { "SHARP Corporation", 0x04dd, "S7-SH", 0x9d6e,
+      DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * T & A Mobile phones Alcatel and TCT
@@ -3883,6 +3904,10 @@
   { "Garmin", 0x091e, "Venu Mercedes-Benz Collection", 0x4e9C, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/95 */
   { "Garmin", 0x091e, "Fenix 7 Sapphire Solar", 0x4f42, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/support-requests/299/ */
+  { "Garmin", 0x091e, "EPIX 2", 0x4f67, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/bugs/1920/ */
+  { "Garmin", 0x091e, "Tactix 7", 0x5027, DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * Wacom
@@ -4041,6 +4066,9 @@
   { "Fly", 0x2970, "iq4415 era style 3", 0x0c02, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1082/ */
   { "Fly", 0x1782, "iq449", 0x4001, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/libmtp/libmtp/issues/109 */
+  { "Alldocube", 0x1782, "Smile X", 0x4003, DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
   * YU Yureka.
