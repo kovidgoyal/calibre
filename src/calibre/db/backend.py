@@ -16,7 +16,7 @@ import shutil
 import sys
 import time
 import uuid
-from contextlib import suppress, closing
+from contextlib import closing, suppress
 from functools import partial
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -40,8 +40,8 @@ from calibre.utils.config import from_json, prefs, to_json, tweaks
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
-    copytree_using_links, hardlink_file, is_case_sensitive, remove_dir_if_empty,
-    samefile
+    copytree_using_links, hardlink_file, is_case_sensitive, is_fat_filesystem,
+    remove_dir_if_empty, samefile
 )
 from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions,
@@ -470,6 +470,7 @@ class DB:
         if not os.path.exists(self.library_path):
             os.makedirs(self.library_path)
         self.is_case_sensitive = is_case_sensitive(self.library_path)
+        self.is_fat_filesystem = is_fat_filesystem(self.library_path)
 
         SchemaUpgrade(self, self.library_path, self.field_metadata)
 

@@ -604,6 +604,25 @@ if iswindows:
         if len(path) > 200 and os.path.isabs(path) and not path.startswith(long_path_prefix):
             path = long_path_prefix + os.path.normpath(path)
         return path
+
+    def is_fat_filesystem(path):
+        try:
+            from calibre_extensions.winutil import filesystem_type_name
+        except ImportError:
+            return False
+        if not path:
+            return False
+        drive = os.path.abspath(path)[0].upper()
+        try:
+            tn = filesystem_type_name(f'{drive}:\\')
+        except OSError:
+            return False
+        # Values I have seen: FAT32, exFAT, NTFS
+        return tn.upper().startswith('FAT')
 else:
     def make_long_path_useable(path):
         return path
+
+    def is_fat_filesystem(path):
+        # TODO: Implement for Linux and macOS
+        return False
