@@ -23,9 +23,8 @@ from threading import Lock, RLock
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, cache_dir, config_dir,
-    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
-    plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
+    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -1052,8 +1051,6 @@ class Application(QApplication):
             if gprefs['color_palette'] != 'system':
                 set_appearance(gprefs['color_palette'])
         self.ignore_palette_changes = False
-        if iswindows:
-            os.environ['CALIBRE_QT_CACHE_LOCATION'] = cache_dir()
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         # Allow import of webengine after construction of QApplication on new
         # enough PyQt

@@ -411,6 +411,9 @@ if getattr(sys, 'frozen', False):
         is_running_from_develop = running_in_develop_mode()
 
 in_develop_mode = os.getenv('CALIBRE_ENABLE_DEVELOP_MODE') == '1'
+if iswindows:
+    # Needed to get Qt to use the correct cache dir, relies on a patched Qt
+    os.environ['CALIBRE_QT_CACHE_LOCATION'] = cache_dir()
 
 
 def get_version():

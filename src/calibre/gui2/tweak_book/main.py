@@ -7,7 +7,6 @@ import sys
 import time
 
 from qt.core import QIcon
-from qt.webengine import QWebEngineUrlScheme
 
 from calibre.constants import EDITOR_APP_UID, FAKE_PROTOCOL, islinux
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
@@ -51,6 +50,7 @@ def gui_main(path=None, notify=None):
 
 
 def _run(args, notify=None):
+    from qt.webengine import QWebEngineUrlScheme
     # Ensure we can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()

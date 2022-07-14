@@ -7,7 +7,6 @@ import os
 import sys
 from contextlib import closing
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
-from qt.webengine import QWebEngineUrlScheme
 
 from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
@@ -168,6 +167,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
 
 
 def main(args=sys.argv):
+    from qt.webengine import QWebEngineUrlScheme
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
