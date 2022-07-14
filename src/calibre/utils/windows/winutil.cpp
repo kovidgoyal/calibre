@@ -528,6 +528,16 @@ supports_hardlinks(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
+filesystem_type_name(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+	DWORD max_component_length, flags;
+    wchar_t fsname[128];
+	if (!GetVolumeInformationW(path.ptr(), NULL, 0, NULL, &max_component_length, &flags, fsname, sizeof(fsname)/sizeof(fsname[0]))) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    return PyUnicode_FromWideChar(fsname, -1);
+}
+
+static PyObject*
 winutil_create_hard_link(PyObject *self, PyObject *args) {
 	wchar_raii path, existing_path;
 	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar_no_none, &path, py_to_wchar_no_none, &existing_path)) return NULL;
@@ -1134,6 +1144,7 @@ static PyMethodDef winutil_methods[] = {
     M(get_dll_directory, METH_NOARGS),
     M(create_mutex, METH_VARARGS),
     M(supports_hardlinks, METH_VARARGS),
+    M(filesystem_type_name, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
     M(connect_named_pipe, METH_VARARGS),
