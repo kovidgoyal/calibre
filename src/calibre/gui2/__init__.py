@@ -1106,6 +1106,7 @@ class Application(QApplication):
                 show_temp_dir_error(err)
             raise SystemExit('Failed to create temporary folder')
         if DEBUG and not headless:
+            prints('QPA platform:', self.platformName())
             prints('devicePixelRatio:', self.devicePixelRatio())
             s = self.primaryScreen()
             if s:
