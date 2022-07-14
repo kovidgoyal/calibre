@@ -76,7 +76,7 @@ Overriding icons, templates, et cetera
 
 .. note::
    calibre has direct support for icon themes, there are several icon themes
-   available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change Icon theme`.
+   available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change icon theme`.
    It is preferable to use icon themes over overriding individual icons.
 
 
