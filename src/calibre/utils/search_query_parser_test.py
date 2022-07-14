@@ -391,6 +391,7 @@ class TestSQP(unittest.TestCase):
         t(r'("""a\1b""" AND """c""" OR d)',
           'O', '(', 'W', r'a\1b', 'W', 'AND', 'W', 'c',  'W', 'OR', 'W', 'd', 'O', ')')
         t(r'template:="""a\1b"""', 'W', r'template:=a\1b')
+        t('template:="""a\nb"""', 'W', 'template:=a\nb')
         t(r'template:"""=a\1b"""', 'W', r'template:=a\1b')
         t(r'template:"""program: return ("\"1\"")#@#n:1"""', 'W',
           r'template:program: return ("\"1\"")#@#n:1')
