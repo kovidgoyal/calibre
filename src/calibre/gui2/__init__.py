@@ -1043,7 +1043,10 @@ class Application(QApplication):
     shutdown_signal_received = pyqtSignal()
     palette_changed = pyqtSignal()
 
-    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+    def __init__(self, args=(), force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+        if not args:
+            args = sys.argv[:1]
+        args = [args[0]]
         if ismacos and not headless:
             from calibre_extensions.cocoa import set_appearance
             if gprefs['color_palette'] != 'system':
@@ -1074,11 +1077,18 @@ class Application(QApplication):
         if override_program_name:
             args = [override_program_name] + args[1:]
         if headless:
-            if not args:
-                args = sys.argv[:1]
             args.extend(['-platformpluginpath', plugins_loc, '-platform', 'headless'])
+        else:
+            if iswindows:
+                # passing darkmode=1 turns on dark window frames when windows
+                # is dark and darkmode=2 makes everything dark, but we have our
+                # own dark mode implementation when using calibre style so
+                # prefer that and use darkmode=1
+                if gprefs['ui_style'] == 'system' and not force_calibre_style:
+                    args.extend(['-platform', 'windows:darkmode=2'])
+                else:
+                    args.extend(['-platform', 'windows:darkmode=1'])
         self.headless = headless
-        qargs = [i.encode('utf-8') if isinstance(i, str) else i for i in args]
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
         QApplication.setOrganizationName('calibre-ebook.com')
@@ -1088,7 +1098,7 @@ class Application(QApplication):
         if override_program_name and hasattr(QApplication, 'setDesktopFileName'):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
-        QApplication.__init__(self, qargs)
+        QApplication.__init__(self, args)
         self.original_palette = self.palette()
         self.original_palette_modified = fix_palette_colors(self.original_palette)
         if iswindows:
