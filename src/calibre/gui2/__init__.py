@@ -1059,6 +1059,16 @@ class Application(QApplication):
                 if set_app_uid(windows_app_uid):
                     self.windows_app_uid = windows_app_uid
         self.file_event_hook = None
+        if not iswindows and not ismacos and not os.environ.get('QT_QPA_PLATFORM') and not headless:
+            # Various issues in Wayland make it unuseable so prevent Qt from
+            # using Wayland unless the user asks for it explicitly.
+            # In KDE right clicking on the book list causes left clicks on it
+            # to stop working till kwin is restarted. On GNOME there are no
+            # native window decorations. There have been reports of left clicks
+            # not working in GNOME though I cannot reproduce. So force use of
+            # XWayland.
+            os.environ['QT_QPA_PLATFORM'] = 'xcb'
+
         if isfrozen and QT_VERSION <= 0x050700 and 'wayland' in os.environ.get('QT_QPA_PLATFORM', ''):
             os.environ['QT_QPA_PLATFORM'] = 'xcb'
         if override_program_name:
