@@ -41,8 +41,11 @@ You can also use %prog to run standalone scripts. To do that use it like this:
 
     {1}
 
-Everything after the -- is passed to the script.
-''').format(_('%prog [options]'), '%prog myscript.py -- --option1 --option2 file1 file2 ...'))
+Everything after the -- is passed to the script. You can also use calibre-debug
+as a shebang in scripts, like this:
+
+    {2}
+''').format(_('%prog [options]'), '%prog -e myscript.py -- --option1 --option2 file1 file2 ...', '#!/usr/bin/env -S calibre-debug -e -- --'))
     parser.add_option('-c', '--command', help=_('Run Python code.'))
     parser.add_option('-e', '--exec-file', help=_('Run the Python code in file.'))
     parser.add_option('-f', '--subset-font', action='store_true', default=False,
@@ -260,7 +263,10 @@ def main(args=sys.argv):
         from calibre.utils.fonts.sfnt.subset import main
         main(['subset-font'] + args[1:])
     elif opts.exec_file:
-        run_script(opts.exec_file, args[1:])
+        if opts.exec_file == '--':
+            run_script(args[1], args[2:])
+        else:
+            run_script(opts.exec_file, args[1:])
     elif opts.run_plugin:
         from calibre.customize.ui import find_plugin
         plugin = find_plugin(opts.run_plugin)
