@@ -776,25 +776,27 @@ class FileIconProvider(QFileIconProvider):
     ICONS = EXT_MAP
 
     def __init__(self):
-        QFileIconProvider.__init__(self)
+        super().__init__()
         self.icons = {k:f'mimetypes/{v}.png' for k, v in self.ICONS.items()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon.ic(self.icons[i])
 
     def key_from_ext(self, ext):
-        key = ext if ext in list(self.icons.keys()) else 'default'
+        key = ext if ext in self.icons else 'default'
         if key == 'default' and ext.count('.') > 0:
             ext = ext.rpartition('.')[2]
-            key = ext if ext in list(self.icons.keys()) else 'default'
+            key = ext if ext in self.icons else 'default'
+        if key == 'default':
+            key = ext
         return key
 
     def cached_icon(self, key):
-        candidate = self.icons[key]
+        candidate = self.icons.get(key)
         if isinstance(candidate, QIcon):
             return candidate
-        icon = QIcon.ic(candidate)
-        self.icons[key] = icon
+        candidate = candidate or f'mimetypes/{key}.png'
+        self.icons[key] = icon = QIcon.ic(candidate)
         return icon
 
     def icon_from_ext(self, ext):
@@ -803,10 +805,9 @@ class FileIconProvider(QFileIconProvider):
 
     def load_icon(self, fileinfo):
         key = 'default'
-        icons = self.icons
         if fileinfo.isSymLink():
             if not fileinfo.exists():
-                return icons['zero']
+                return self.icons['zero']
             fileinfo = QFileInfo(fileinfo.readLink())
         if fileinfo.isDir():
             key = 'dir'
