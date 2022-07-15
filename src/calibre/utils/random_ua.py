@@ -60,9 +60,10 @@ def all_chrome_versions(limit=10):
 
 
 def accept_header_for_ua(ua):
+    # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation/List_of_default_Accept_values
     if 'Firefox/' in ua:
-        return 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    return 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        return 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+    return 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
 
 
 def common_english_word_ua():
