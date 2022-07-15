@@ -121,6 +121,11 @@ icons. You can upload that to the calibre forum at `Mobileread
 <https://www.mobileread.com/forums/forumdisplay.php?f=166>`__ and then I will
 make your theme available via calibre's builtin icon theme system.
 
+As of calibre 6, you can have custom icons for light and dark mode. Simply
+create two versions of the icon and name the files with the suffix
+``-for-dark-theme`` and ``-for-light-theme``. For example,
+``modified-for-dark-theme.png`` and ``modified-for-light-theme.png``. Then
+calibre will automatically use the appropriate icon based on the current theme.
 
 Customizing calibre with plugins
 --------------------------------
