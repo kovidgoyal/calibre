@@ -1280,10 +1280,10 @@ class BulkSeries(BulkBase):
 
     def getter(self):
         n = str(self.main_widget.currentText()).strip()
-        autonumber = self.idx_widget.checkState()
-        force = self.force_number.checkState()
+        autonumber = self.idx_widget.isChecked()
+        force = self.force_number.isChecked()
         start = self.series_start_number.value()
-        remove = self.remove_series.checkState()
+        remove = self.remove_series.isChecked()
         increment = self.series_increment.value()
         return n, autonumber, force, start, remove, increment
 
