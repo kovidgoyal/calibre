@@ -798,7 +798,7 @@ def check_for_libEGL():
         return
     except Exception:
         pass
-    raise SystemExit('You are missing the system library libEGL.so.1. Try installing packages such as libegl1 and libopengl1')
+    raise SystemExit('You are missing the system library libEGL.so.1. Try installing packages such as libegl1 and libopengl0')
 
 
 def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
