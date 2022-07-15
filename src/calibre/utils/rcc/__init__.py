@@ -99,7 +99,11 @@ def compile_icon_dir_as_themes(
                     return
                 dest_name = dest_name.replace('-for-light-theme', '')
             dest = theme_dir, 'images', (rp + dest_name)
-            os.link(image_path, os.path.join(tdir, *dest))
+            try:
+                os.link(image_path, os.path.join(tdir, *dest))
+            except FileExistsError:
+                os.remove(os.path.join(tdir, *dest))
+                os.link(image_path, os.path.join(tdir, *dest))
             file('/'.join(dest))
 
         for dirpath, dirnames, filenames in os.walk(path_to_dir):
