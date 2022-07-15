@@ -747,7 +747,6 @@ class ReadingTest(BaseTest):
     # }}}
 
     def test_template_db_functions(self):  # {{{
-        from calibre.ebooks.metadata.book.base import Metadata
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
 

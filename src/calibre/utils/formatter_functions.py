@@ -12,7 +12,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
-from contextlib import contextmanager, suppress
+from contextlib import suppress
 from datetime import datetime, timedelta
 from functools import partial
 from math import trunc, floor, ceil, modf

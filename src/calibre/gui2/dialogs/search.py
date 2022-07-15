@@ -328,7 +328,7 @@ class SearchDialog(QDialog):
         # dialog to help test the template
         from calibre.gui2.ui import get_gui
         view = get_gui().library_view
-        rows = view.selectionModel().selectedRows()[0:10] # Maximum of 10 books
+        rows = view.selectionModel().selectedRows()[0:10]  # Maximum of 10 books
         mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
         self.template_program_box.set_mi(mi)
 
