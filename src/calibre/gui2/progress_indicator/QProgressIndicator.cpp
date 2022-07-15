@@ -158,6 +158,8 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
 
 QIcon CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption * option, const QWidget * widget) const {
     if (icon_map.contains(standardIcon)) {
+        QString q = icon_map.value(standardIcon);
+        if (q.contains('.')) return QIcon(q);
         QIcon ans = QIcon::fromTheme(icon_map.value(standardIcon));
         if (ans.isNull() && QIcon::themeName().contains("user-any")) {
             const bool is_dark_theme = QApplication::instance()->property("is_dark_theme").toBool();

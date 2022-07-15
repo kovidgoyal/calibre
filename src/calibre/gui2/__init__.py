@@ -1332,7 +1332,20 @@ class Application(QApplication):
             '#FF2400' if is_error else '#50c878')
 
     def load_calibre_style(self):
+        from calibre.utils.resources import get_user_path
         icon_map = self.__icon_map_memory_ = {}
+        user_path = get_user_path()
+        if user_path:
+            user_path = os.path.join(user_path, 'images')
+
+        @lru_cache(maxsize=64)
+        def check_for_custom_icon(v):
+            if user_path:
+                q = os.path.join(user_path, v)
+                if os.path.exists(q):
+                    return q
+            return v.rpartition('.')[0]
+
         for k, v in {
             'DialogYesButton': 'ok.png',
             'DialogNoButton': 'window-close.png',
@@ -1353,7 +1366,7 @@ class Application(QApplication):
             'ToolBarHorizontalExtensionButton': 'v-ellipsis.png',
             'ToolBarVerticalExtensionButton': 'h-ellipsis.png',
         }.items():
-            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = v.rpartition('.')[0]
+            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = check_for_custom_icon(v)
         transient_scroller = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller

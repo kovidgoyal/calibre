@@ -101,5 +101,9 @@ def set_data(path, data=None):
     return _resolver.set_data(path, data)
 
 
+def get_user_path():
+    return _resolver.user_path
+
+
 builtins.__dict__['P'] = get_path
 builtins.__dict__['I'] = get_image_path
