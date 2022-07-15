@@ -163,8 +163,9 @@ class IconResourceManager:
             return QIcon(name)
         if self.override_icon_path:
             q = os.path.join(self.override_icon_path, name)
-            if os.path.exists(q):
-                return QIcon(q)
+            qi = QIcon(q)
+            if qi.is_ok():
+                return qi
         icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
         ans = QIcon.fromTheme(icon_name)
         if not ans.is_ok():
