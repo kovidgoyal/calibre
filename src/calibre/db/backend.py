@@ -2119,7 +2119,7 @@ class DB:
     def get_top_level_move_items(self, all_paths):
         items = set(os.listdir(self.library_path))
         paths = set(all_paths)
-        paths.update({'metadata.db', 'metadata_db_prefs_backup.json'})
+        paths.update({'metadata.db', 'full-text-search.db', 'metadata_db_prefs_backup.json'})
         path_map = {x:x for x in paths}
         if not self.is_case_sensitive:
             for x in items:
