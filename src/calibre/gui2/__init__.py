@@ -796,7 +796,10 @@ class FileIconProvider(QFileIconProvider):
         if isinstance(candidate, QIcon):
             return candidate
         candidate = candidate or f'mimetypes/{key}.png'
-        self.icons[key] = icon = QIcon.ic(candidate)
+        icon = QIcon.ic(candidate)
+        if not icon.is_ok():
+            icon = self.icons['default']
+        self.icons[key] = icon
         return icon
 
     def icon_from_ext(self, ext):
