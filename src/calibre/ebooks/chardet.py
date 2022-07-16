@@ -103,7 +103,7 @@ _CHARSET_ALIASES = {"macintosh" : "mac-roman", "x-sjis" : "shift-jis"}
 
 
 def detect(bytestring):
-    from cchardet import detect as implementation
+    from charset_normalizer import detect as implementation
     ans = implementation(bytestring)
     enc = ans.get('encoding')
     if enc:

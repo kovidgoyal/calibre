@@ -73,7 +73,7 @@ class BuildTest(unittest.TestCase):
         del CHMFile, chmlib
 
     def test_chardet(self):
-        from cchardet import detect
+        from charset_normalizer import detect
         raw = 'mūsi Füße'.encode()
         data = detect(raw)
         self.assertEqual(data['encoding'].lower(), 'utf-8')
