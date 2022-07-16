@@ -49,7 +49,7 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from calibre.utils.webengine import secure_webengine, send_reply
+from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import urlparse
 
@@ -352,6 +352,7 @@ class RenderManager(QObject):
         self.has_maths = {}
         self.interceptor.log = self.log = log
         ans = QWebEngineProfile(QApplication.instance())
+        setup_profile(ans)
         self.url_handler = UrlSchemeHandler(container, parent=ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), self.url_handler)
         ua = 'calibre-pdf-output ' + __version__

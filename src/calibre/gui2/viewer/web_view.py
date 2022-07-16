@@ -34,7 +34,7 @@ from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import (
     Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply,
-    to_js
+    to_js, setup_profile
 )
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.functools import lru_cache
@@ -183,7 +183,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 def create_profile():
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
-        ans = QWebEngineProfile(QApplication.instance())
+        ans = setup_profile(QWebEngineProfile(QApplication.instance()))
         osname = 'windows' if iswindows else ('macos' if ismacos else 'linux')
         # DO NOT change the user agent as it is used to workaround
         # Qt bugs see workaround_qt_bug() in ajax.pyj
@@ -399,6 +399,7 @@ class Inspector(QWidget):
     def visibility_changed(self, visible):
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
+            setup_profile(self.view.page().profile())
             self.view_to_debug.page().setDevToolsPage(self.view.page())
             self.layout.addWidget(self.view)
 

@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
-from calibre.utils.webengine import secure_webengine, send_reply
+from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes
 
 
@@ -143,6 +143,7 @@ class Page(QWebEnginePage):  # {{{
         self.current_frag = None
         self.com_id = str(uuid4())
         profile = QWebEngineProfile(QApplication.instance())
+        setup_profile(profile)
         # store these globally as they need to be destructed after the QWebEnginePage
         current_container.url_handler = UrlSchemeHandler(parent=profile)
         current_container.interceptor = RequestInterceptor(profile)

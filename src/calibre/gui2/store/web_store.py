@@ -9,10 +9,12 @@ from qt.core import (
     QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from qt.webengine import QWebEngineDownloadRequest, QWebEngineView
+from qt.webengine import (
+    QWebEngineDownloadRequest, QWebEnginePage, QWebEngineProfile, QWebEngineView
+)
 
 from calibre import random_user_agent, url_slash_cleaner
-from calibre.constants import STORE_DIALOG_APP_UID, cache_dir, islinux, iswindows
+from calibre.constants import STORE_DIALOG_APP_UID, islinux, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import (
     Application, choose_save_file, error_dialog, gprefs, info_dialog, set_app_uid
@@ -21,6 +23,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import MainWindow
 from calibre.ptempfile import PersistentTemporaryDirectory, reset_base_dir
+from calibre.utils.webengine import setup_profile
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 from polyglot.builtins import string_or_bytes
 
@@ -75,6 +78,14 @@ class DownloadProgress(QWidget):
             self.setVisible(False)
 
 
+def create_profile():
+    ans = getattr(create_profile, 'ans', None)
+    if ans is None:
+        ans = create_profile.ans = setup_profile(QWebEngineProfile('web_store', QApplication.instance()))
+        ans.setHttpUserAgent(random_user_agent(allow_ie=False))
+    return ans
+
+
 class Central(QWidget):
 
     home = pyqtSignal()
@@ -83,10 +94,8 @@ class Central(QWidget):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.view = v = QWebEngineView(self)
-        profile = v.page().profile()
-        profile.setCachePath(os.path.join(cache_dir(), 'web_store', 'hc'))
-        profile.setPersistentStoragePath(os.path.join(cache_dir(), 'web_store', 'ps'))
-        profile.setHttpUserAgent(random_user_agent(allow_ie=False))
+        self._page = QWebEnginePage(create_profile(), v)
+        v.setPage(self._page)
         v.loadStarted.connect(self.load_started)
         v.loadProgress.connect(self.load_progress)
         v.loadFinished.connect(self.load_finished)

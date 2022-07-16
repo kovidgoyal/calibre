@@ -320,6 +320,7 @@ class BuildTest(unittest.TestCase):
         test()
 
         from calibre.gui2 import ensure_app, destroy_app
+        from calibre.utils.webengine import setup_profile
         display_env_var = os.environ.pop('DISPLAY', None)
         try:
             ensure_app()
@@ -333,6 +334,7 @@ class BuildTest(unittest.TestCase):
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
             p = QWebEnginePage()
+            setup_profile(p.profile())
 
             def callback(result):
                 callback.result = result

@@ -59,7 +59,7 @@ def compiler():
 
     from calibre import walk
     from calibre.gui2 import must_use_qt
-    from calibre.utils.webengine import secure_webengine, setup_default_profile
+    from calibre.utils.webengine import secure_webengine, setup_default_profile, setup_profile
     must_use_qt()
     setup_default_profile()
 
@@ -126,6 +126,7 @@ document.title = 'compiler initialized';
 
         def __init__(self):
             super().__init__()
+            setup_profile(self.profile())
             self.errors = []
             secure_webengine(self)
             script = compiler_script
@@ -342,9 +343,10 @@ def run_rapydscript_tests():
     from calibre.gui2 import must_use_qt
     from calibre.gui2.viewer.web_view import send_reply
     from calibre.utils.webengine import (
-        create_script, insert_scripts, secure_webengine
+        create_script, insert_scripts, secure_webengine, setup_default_profile, setup_profile
     )
     must_use_qt()
+    setup_default_profile()
     scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
     scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
@@ -388,6 +390,7 @@ def run_rapydscript_tests():
         def __init__(self):
             profile = QWebEngineProfile(QApplication.instance())
             profile.setHttpUserAgent('calibre-tester')
+            setup_profile(profile)
             insert_scripts(profile, create_script('test-rapydscript.js', js, on_subframes=False))
             url_handler = UrlSchemeHandler(profile)
             profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)

@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
-import os
 import secrets
 import sys
 import time
@@ -11,8 +10,7 @@ from functools import lru_cache
 from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 
-from calibre.constants import cache_dir
-from calibre.utils.webengine import create_script, insert_scripts
+from calibre.utils.webengine import create_script, insert_scripts, setup_profile
 
 
 def canonicalize_qurl(qurl):
@@ -29,9 +27,9 @@ def create_profile(cache_name='', allow_js=False):
     from calibre.utils.random_ua import random_common_chrome_user_agent
     if cache_name:
         ans = QWebEngineProfile(cache_name, QApplication.instance())
-        ans.setCachePath(os.path.join(cache_dir(), 'scraper', cache_name))
     else:
         ans = QWebEngineProfile(QApplication.instance())
+    setup_profile(ans)
     ans.setHttpUserAgent(random_common_chrome_user_agent())
     ans.setHttpCacheMaximumSize(0)  # managed by webengine
     s = ans.settings()

@@ -10,11 +10,20 @@ from qt.webengine import QWebEngineScript, QWebEngineSettings, QWebEngineProfile
 from calibre.constants import cache_dir, SPECIAL_TITLE_FOR_WEBENGINE_COMMS
 
 
+def setup_profile(profile):
+    # Qt uses persistent storage path to store cached GPU data even for OTR profiles
+    base = os.path.abspath(os.path.join(cache_dir(), 'qwe', profile.storageName() or 'dp'))
+    cp = os.path.join(base, 'c')
+    if profile.cachePath() != cp:
+        profile.setCachePath(cp)
+    sp = os.path.join(base, 'sp')
+    if profile.persistentStoragePath() != sp:
+        profile.setPersistentStoragePath(sp)
+    return profile
+
+
 def setup_default_profile():
-    p = QWebEngineProfile.defaultProfile()
-    q = os.path.join(cache_dir(), 'qt-webeng')
-    if p.cachePath() != q:
-        p.setCachePath(q)
+    return setup_profile(QWebEngineProfile.defaultProfile())
 
 
 def send_reply(rq, mime_type, data):

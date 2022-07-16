@@ -16,7 +16,7 @@ from qt.webengine import (
 from calibre import detect_ncpus as cpu_count, prints
 from calibre.ebooks.oeb.polish.check.base import ERROR, WARN, BaseError
 from calibre.gui2 import must_use_qt
-from calibre.utils.webengine import secure_webengine
+from calibre.utils.webengine import secure_webengine, setup_profile
 
 
 class CSSParseError(BaseError):
@@ -116,6 +116,7 @@ def create_profile():
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
         ans = create_profile.ans = QWebEngineProfile(QApplication.instance())
+        setup_profile(ans)
         s = QWebEngineScript()
         s.setName('csslint.js')
         s.setSourceCode(csslint_js())

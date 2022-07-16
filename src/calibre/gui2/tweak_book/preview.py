@@ -37,7 +37,8 @@ from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from calibre.utils.webengine import (
-    Bridge, create_script, from_js, insert_scripts, secure_webengine, to_js
+    Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile,
+    to_js
 )
 from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Queue
@@ -294,6 +295,7 @@ def create_profile():
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
         ans = QWebEngineProfile(QApplication.instance())
+        setup_profile(ans)
         ua = 'calibre-editor-preview ' + __version__
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
@@ -391,6 +393,7 @@ class Inspector(QWidget):
     def visibility_changed(self, visible):
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
+            setup_profile(self.view.page().profile())
             self.view_to_debug.page().setDevToolsPage(self.view.page())
             self.layout.addWidget(self.view)
 
