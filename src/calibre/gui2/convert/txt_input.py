@@ -47,7 +47,7 @@ class PluginWidget(Widget, Ui_Form):
     def get_value_handler(self, g):
         if g is not self.opt_markdown_extensions:
             return Widget.get_value_handler(self, g)
-        return ', '.join(str(i.data(Qt.ItemDataRole.UserRole) or '') for i in itervalues(self.md_map) if i.checkState())
+        return ', '.join(str(i.data(Qt.ItemDataRole.UserRole) or '') for i in self.md_map.values() if i.checkState() == Qt.CheckState.Checked)
 
     def connect_gui_obj_handler(self, g, f):
         if g is not self.opt_markdown_extensions:
