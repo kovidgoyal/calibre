@@ -455,7 +455,7 @@ class CheckLibraryDialog(QDialog):
             attr = check[0]
             fixable = check[3]
             tl = self.top_level_items[attr]
-            if fixable and tl.checkState(1):
+            if fixable and tl.checkState(1) == Qt.CheckState.Checked:
                 func = getattr(self, 'fix_' + attr, None)
                 if func is not None and callable(func):
                     func()
