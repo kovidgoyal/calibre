@@ -55,11 +55,9 @@ class EditColumnDelegate(QItemDelegate):
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
-            else:
-                from calibre.gui2.widgets import EnLineEdit
-                editor = EnLineEdit(parent)
-            return editor
-        return QItemDelegate.createEditor(self, parent, option, index)
+                return editor
+        from calibre.gui2.widgets import EnLineEdit
+        return EnLineEdit(parent)
 
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
