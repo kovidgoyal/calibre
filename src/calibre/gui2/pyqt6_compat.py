@@ -33,8 +33,8 @@ QHoverEvent.posF = lambda self: self.position()
 
 # Restore the removed exec_ method
 
-def exec_(self):
-    return self.exec()
+def exec_(self, *args, **kwargs):
+    return self.exec(*args, **kwargs)
 
 
 QDialog.exec_ = exec_
