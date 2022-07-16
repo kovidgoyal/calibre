@@ -45,7 +45,7 @@ def binary_includes():
             get_dll_path,
             ('usb-1.0 mtp expat sqlite3 ffi z lzma openjp2 poppler dbus-1 iconv xml2 xslt jpeg png16'
              ' webp webpmux webpdemux exslt ncursesw readline chm hunspell-1.7 hyphen'
-             ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error'
+             ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error uchardet'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1').split()
         )) + [
             # debian/ubuntu for for some typical stupid reason use libpcre.so.3

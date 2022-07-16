@@ -73,11 +73,10 @@ class BuildTest(unittest.TestCase):
         del CHMFile, chmlib
 
     def test_chardet(self):
-        from cchardet import detect
+        from calibre_extensions.uchardet import detect
         raw = 'mūsi Füße'.encode()
-        data = detect(raw)
-        self.assertEqual(data['encoding'].lower(), 'utf-8')
-        self.assertGreater(data['confidence'], 0.5)
+        enc = detect(raw).lower()
+        self.assertEqual(enc, 'utf-8')
         # The following is used by html5lib
         from chardet.universaldetector import UniversalDetector
         detector = UniversalDetector()

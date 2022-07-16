@@ -266,6 +266,7 @@ class ExtensionsImporter:
             'tokenizer',
             'certgen',
             'sqlite_extension',
+            'uchardet',
         )
         if iswindows:
             extra = ('winutil', 'wpd', 'winfonts', 'winsapi')

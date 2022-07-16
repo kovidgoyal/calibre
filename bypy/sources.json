@@ -700,11 +700,11 @@
     },
 
     {
-        "name": "cchardet",
+        "name": "uchardet",
         "unix": {
-            "filename": "cchardet-2.1.7.tar.gz",
-            "hash": "sha256:c428b6336545053c2589f6caf24ea32276c6664cb86db817e03a94c60afa0eaf",
-            "urls": ["pypi"]
+            "filename": "uchardet-0.0.7.tar.xz",
+            "hash": "sha256:3fc79408ae1d84b406922fa9319ce005631c95ca0f34b205fad867e8b30e45b1",
+            "urls": ["https://www.freedesktop.org/software/uchardet/releases/{filename}"]
         }
     },
 

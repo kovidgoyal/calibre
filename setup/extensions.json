@@ -17,6 +17,13 @@
 		"needs_c99": true
     },
     {
+        "name": "uchardet",
+        "sources": "calibre/ebooks/uchardet.c",
+        "libraries": "!uchardet_libs",
+        "inc_dirs": "!uchardet_inc_dirs",
+        "lib_dirs": "!uchardet_lib_dirs"
+    },
+    {
         "name": "unicode_names",
         "headers": "unicode_names/names.h unicode_names/data-types.h",
         "sources": "unicode_names/unicode_names.c",

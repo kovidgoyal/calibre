@@ -130,6 +130,7 @@ hunspell_inc_dirs = []
 hunspell_lib_dirs = []
 hyphen_inc_dirs = []
 hyphen_lib_dirs = []
+uchardet_inc_dirs, uchardet_lib_dirs, uchardet_libs = [], [], ['uchardet']
 openssl_inc_dirs, openssl_lib_dirs = [], []
 ICU = sw = ''
 
@@ -143,6 +144,8 @@ if iswindows:
     hyphen_lib_dirs = [sw_lib_dir]
     openssl_inc_dirs = [sw_inc_dir]
     openssl_lib_dirs = [sw_lib_dir]
+    uchardet_inc_dirs = [sw_inc_dir]
+    uchardet_lib_dirs = [sw_lib_dir]
     sqlite_inc_dirs = [sw_inc_dir]
     chmlib_inc_dirs = [sw_inc_dir]
     chmlib_lib_dirs = [sw_lib_dir]
@@ -165,6 +168,7 @@ elif ismacos:
     podofo_lib = sw_lib_dir
     ft_libs = ['freetype']
     ft_inc_dirs = [sw + '/include/freetype2']
+    uchardet_inc_dirs = [sw + '/include/uchardet']
     SSL = os.environ.get('OPENSSL_DIR', os.path.join(sw, 'private', 'ssl'))
     openssl_inc_dirs = [os.path.join(SSL, 'include')]
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
@@ -183,6 +187,9 @@ else:
     if not os.path.exists(podofo_inc + '/podofo.h'):
         podofo_inc = os.path.join(sw, 'include', 'podofo')
         podofo_lib = os.path.join(sw, 'lib')
+    uchardet_inc_dirs = pkgconfig_include_dirs('uchardet', '', '/usr/include/uchardet')
+    uchardet_lib_dirs = pkgconfig_lib_dirs('uchardet', '', '/usr/lib')
+    uchardet_libs = pkgconfig_libs('uchardet', '', '')
 
 
 podofo_lib = os.environ.get('PODOFO_LIB_DIR', podofo_lib)

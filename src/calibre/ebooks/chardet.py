@@ -103,16 +103,18 @@ _CHARSET_ALIASES = {"macintosh" : "mac-roman", "x-sjis" : "shift-jis"}
 
 
 def detect(bytestring):
-    from cchardet import detect as implementation
-    ans = implementation(bytestring)
-    enc = ans.get('encoding')
-    if enc:
-        ans['encoding'] = enc.lower()
-    elif enc is None:
-        ans['encoding'] = ''
-    if ans.get('confidence') is None:
-        ans['confidence'] = 0
-    return ans
+    if isinstance(bytestring, str):
+        bytestring = bytestring.encode('utf-8', 'replace')
+    try:
+        from calibre_extensions.uchardet import detect as implementation
+    except ImportError:
+        # People running from source without updated binaries
+        from cchardet import detect as cdi
+
+        def implementation(x):
+            return cdi(x).get('encoding') or ''
+    enc = implementation(bytestring).lower()
+    return {'encoding': enc, 'confidence': 1 if enc else 0}
 
 
 def force_encoding(raw, verbose, assume_utf8=False):
