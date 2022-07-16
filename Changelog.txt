@@ -31,7 +31,7 @@
 
 - Search queries now support quoting using "docstrings" for easier escaping
 
-- Linux installer: Check for libEGL as the QtGui module in Qt 6 links against it and many Linux servers dont have it installed
+- Linux installer: Check for libEGL as the QtGui module in Qt 6 links against it and many Linux servers don't have it installed
 
 :: bug fixes
 
@@ -108,9 +108,9 @@
 
 - Workaround for Apple bug in macOS 13 that prevents device detection
 
-- Dont use commas in filenames when sending to pbsync and kindle email addresses
+- Don't use commas in filenames when sending to pbsync and kindle email addresses
 
-- Edit book: When quitting while a save is in progress and the save completes while the confirmation popup is visible, dont abort the quit.
+- Edit book: When quitting while a save is in progress and the save completes while the confirmation popup is visible, don't abort the quit.
 
 :: improved recipes
 - Harvard Business Review
@@ -390,7 +390,7 @@
 
 :: bug fixes
 
-- [1960686] Textile output: Dont fail if input document has invalid padding or margin specifications
+- [1960686] Textile output: Don't fail if input document has invalid padding or margin specifications
 
 - [1960446] E-book viewer: Fix image display window not remembering its size and settings when run from within calibre
 
@@ -483,7 +483,7 @@
 
 - [1958115] LRF Input: Fix a regression in calibre 5 that broke parsing of some LRF files
 
-- [1956097] MOBI output: Dont fail if input document contains invalid % based lengths
+- [1956097] MOBI output: Don't fail if input document contains invalid % based lengths
 
 - [1955308] AZW3 Input: Handle AZW3 files with incorrect TAGX Offset INDX header fields
 
