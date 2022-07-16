@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 6.1.0 2022-07-16
+
+:: new features
+
+- Full text search: Add a button to re-index a book, useful if the book's contents have been changed outside calibre
+
+- Search queries now support quoting using "docstrings" for easier escaping
+
+- Linux installer: Check for libEGL as the QtGui module in Qt 6 links against it and many Linux servers dont have it installed
+
+:: bug fixes
+
+- macOS: Blacklist older versions of the DeDRM plugin as they caused crashes and failures to add books.
+
+- [1981453] Fix a regression in 6.0 that caused crashes in the Manage authors dialog
+
+- Fix a regression in 6.0 that broke touch screen interaction
+
+- [1981627] Fix a regression in 6.0 that caused a few checkboxes to stop working
+
+- [1981629] Linux: Fix a regression in 6.0 that broke handling of mouse clicks on some Wayland systems with a touchpad
+
+- ToC Editor: Fix a regression in 6.0 that broke styling/images in the preview panel
+
+- Windows: Fix window titlebars not dark in dark mode
+
+- Full text search: Show a warning when indexing/searching a library on an FAT drive
+
+- News download: Do not add aborted/failed article titles to the comments metadata
+
+- Full text search: Fix books edited with the Edit book tool not being automatically re-indexed
+
+- [1981438] HTML Input: Fix handling of deeply nested files on Windows
+
+- [1981188] Fix a regression preventing using a non-integer value for the tweak to change book details font size
+
+- Fix moving library not moving the full text search index
+
+- Fix some custom icons in the calibre config directory not overriding the theme/builtin icons
+
+- Linux installer: Fix glibc version check also being done when installing older versions
+
+- Windows installer: Refuse to install on Windows 8 as thanks to Qt 6 calibre 6 does not work on Windows 8
+
+- Update the BigBookSearch metadata plugin for website changes
+
+:: improved recipes
+- The Economic Times India
+}}}
+
 {{{ 6.0.0 2022-07-11
 :: new features
 
