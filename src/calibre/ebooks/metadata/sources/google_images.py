@@ -46,7 +46,7 @@ def imgurl_from_id(raw, tbnid):
 class GoogleImages(Source):
 
     name = 'Google Images'
-    version = (1, 0, 2)
+    version = (1, 0, 3)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
@@ -105,6 +105,7 @@ class GoogleImages(Source):
         # URL scheme
         url = 'https://www.google.com/search?as_st=y&tbm=isch&{}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
         log('Search URL: ' + url)
+        br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
         raw = clean_ascii_chars(br.open(url).read().decode('utf-8'))
         root = parse_html(raw)
         results = root.xpath('//div/@data-tbnid')  # could also use data-id
