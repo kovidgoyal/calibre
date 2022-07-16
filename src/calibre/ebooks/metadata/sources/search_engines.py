@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 10)
+current_version = (1, 0, 11)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -284,9 +284,22 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     url = 'https://www.google.com/search?q={q}'.format(q=q)
     log('Making google query: ' + url)
     br = br or browser()
+    br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
     r = []
     root = query(br, url, 'google', dump_raw, timeout=timeout, save_raw=r.append)
     return google_parse_results(root, r[0], log=log), url
+
+
+def gt():
+    url = 'https://www.google.com/search?q=%289780525509998+or+978-0525509998%29+site%3Awww.amazon.com'
+    raw = browser().open_novisit(url).read()
+    with open('/t/raw.html', 'wb') as f:
+        f.write(raw)
+    root = parse_html(raw)
+    for result in google_parse_results(root, raw):
+        print(result.title)
+        print(' ', result.url)
+        print(' ', result.cached_url)
 
 
 def google_develop(search_terms='1423146786', raw_from=''):
