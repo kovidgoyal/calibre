@@ -1480,8 +1480,8 @@ class BuiltinRange(BuiltinFormatterFunction):
                       "with a maximum length of limit. The first value produced "
                       "is 'start'. Subsequent values next_v are "
                       "current_v+step. The loop continues while "
-                      "next_v<stop assuming step is positive, otherwise "
-                      "while next_v>stop. An empty list is produced if "
+                      "next_v < stop assuming step is positive, otherwise "
+                      "while next_v > stop. An empty list is produced if "
                       "start fails the test: start>=stop if step "
                       "is positive. The limit sets the maximum length of "
                       "the list and has a default of 1000. The parameters "
@@ -1490,10 +1490,10 @@ class BuiltinRange(BuiltinFormatterFunction):
                       "Two arguments specify start and stop. Three arguments "
                       "specify start, stop, and step. Four "
                       "arguments specify start, stop, step and limit. "
-                      "Examples: range(5)->'0,1,2,3,4'. range(0,5)->'0,1,2,3,4'. "
-                      "range(-1,5)->'-1,0,1,2,3,4'. range(1,5)->'1,2,3,4'. "
-                      "range(1,5,2)->'1,3'. range(1,5,2,5)->'1,3'. "
-                      "range(1,5,2,1)->error(limit exceeded).")
+                      "Examples: range(5) -> '0,1,2,3,4'. range(0,5) -> '0,1,2,3,4'. "
+                      "range(-1,5) -> '-1,0,1,2,3,4'. range(1,5) -> '1,2,3,4'. "
+                      "range(1,5,2) -> '1,3'. range(1,5,2,5) -> '1,3'. "
+                      "range(1,5,2,1) -> error(limit exceeded).")
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         limit_val = 1000
