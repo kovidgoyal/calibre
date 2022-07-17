@@ -32,7 +32,7 @@
 # Note that the use_series_auto_increment_tweak_when_importing tweak is used
 # only when a value is not provided during import. If the importing regular
 # expression produces a value for series_index, or if you are reading metadata
-# from books and the import plugin produces a value, than that value will
+# from books and the import plugin produces a value, then that value will
 # be used irrespective of the setting of the tweak.
 series_index_auto_increment = 'next'
 use_series_auto_increment_tweak_when_importing = False
