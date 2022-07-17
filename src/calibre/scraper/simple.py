@@ -7,7 +7,6 @@ import json
 import os
 import sys
 import weakref
-from qt.core import QLoggingCategory, QUrl
 from threading import Lock, Thread, get_ident
 
 from calibre.constants import iswindows
@@ -17,6 +16,7 @@ from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 
 def worker_main(source):
+    from qt.core import QLoggingCategory, QUrl
     QLoggingCategory.setFilterRules('''\
 qt.webenginecontext.info=false
 ''')
@@ -75,6 +75,7 @@ class Overseer:
         return ans
 
     def fetch_url(self, url_or_qurl, source='', timeout=60):
+        from qt.core import QUrl
         w = self.worker_for_source(source)
         if isinstance(url_or_qurl, str):
             url_or_qurl = QUrl(url_or_qurl)
@@ -148,6 +149,7 @@ def find_tests():
     class TestSimpleWebEngineScraper(unittest.TestCase):
 
         def test_dom_load(self):
+            from qt.core import QUrl
             overseer = Overseer()
             for f in ('book', 'nav'):
                 path = P(f'templates/new_{f}.html', allow_user_override=False)
