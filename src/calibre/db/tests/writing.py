@@ -845,7 +845,14 @@ class WritingTest(BaseTest):
         def ae(l, r):
             # We need to sleep a bit to allow events to happen on its thread
             import time
-            time.sleep(.001)
+            st = time.monotonic()
+            while time.monotonic() - st < 1:
+                time.sleep(0.01)
+                try:
+                    self.assertEqual(l, r)
+                    return
+                except Exception:
+                    pass
             self.assertEqual(l, r)
 
         cache = self.init_cache(self.cloned_library)
