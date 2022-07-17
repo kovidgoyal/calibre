@@ -76,7 +76,8 @@ class ModalContainer:
         div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_current_modal(event);)
 
         # Content container style
-        set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto')
+        # need padding: 1px to avoid scrollbar in modal on Qt WebEngine 6.3
+        set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto', padding='1px')
 
         self.modals = v'[]'
         self.current_modal = None
