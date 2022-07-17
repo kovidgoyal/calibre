@@ -295,6 +295,8 @@ class SchedulerDialog(QDialog):
         self.last_downloaded = la = QLabel(f)
         la.setWordWrap(True)
         vf.addWidget(la)
+        self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
+        vf.addWidget(la)
         self.account = acc = QGroupBox(self.tab)
         acc.setTitle(_("&Account"))
         vt.addWidget(acc)
@@ -310,8 +312,6 @@ class SchedulerDialog(QDialog):
         self.show_password = spw = QCheckBox(_("&Show password"), self.account)
         spw.stateChanged[int].connect(self.set_pw_echo_mode)
         g.addWidget(spw, 2, 0, 1, 2)
-        self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
-        vt.addWidget(la)
         for b, c in iteritems(self.SCHEDULE_TYPES):
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
