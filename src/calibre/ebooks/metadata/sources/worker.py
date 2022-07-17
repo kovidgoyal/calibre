@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 from collections import Counter
 from io import BytesIO
+from functools import wraps
 from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins
@@ -17,8 +16,8 @@ from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.date import as_utc
 from calibre.utils.logging import GUILog
-from polyglot.queue import Empty, Queue
 from polyglot.builtins import iteritems
+from polyglot.queue import Empty, Queue
 
 
 def merge_result(oldmi, newmi, ensure_fields=None):
@@ -51,6 +50,18 @@ def merge_result(oldmi, newmi, ensure_fields=None):
     return newmi
 
 
+def shutdown_webengine_workers(func):
+    @wraps(func)
+    def wrapper(*a, **k):
+        from calibre.scraper.simple import cleanup_overseers
+        try:
+            return func(*a, **k)
+        finally:
+            cleanup_overseers()()
+    return wrapper
+
+
+@shutdown_webengine_workers
 def main(do_identify, covers, metadata, ensure_fields, tdir):
     failed_ids = set()
     failed_covers = set()
@@ -101,6 +112,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
     return failed_ids, failed_covers, all_failed
 
 
+@shutdown_webengine_workers
 def single_identify(title, authors, identifiers):
     log = GUILog()
     patch_plugins()
@@ -110,6 +122,7 @@ def single_identify(title, authors, identifiers):
         r in results], dump_caches(), log.dump()
 
 
+@shutdown_webengine_workers
 def single_covers(title, authors, identifiers, caches, tdir):
     patch_plugins()
     load_caches(caches)
