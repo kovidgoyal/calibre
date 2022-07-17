@@ -1333,9 +1333,8 @@ class Application(QApplication):
             '#FF2400' if is_error else '#50c878')
 
     def load_calibre_style(self):
-        from calibre.utils.resources import get_user_path
         icon_map = self.__icon_map_memory_ = {}
-        user_path = get_user_path()
+        user_path = icon_resource_manager.override_icon_path
         if user_path:
             user_path = os.path.join(user_path, 'images')
 
