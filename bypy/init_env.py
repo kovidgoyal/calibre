@@ -56,6 +56,7 @@ QT_DLLS = frozenset(
 QT_PLUGINS = [
     'imageformats',
     'iconengines',
+    'tls',
     # 'mediaservice',
     'platforms',
     # 'playlistformats',

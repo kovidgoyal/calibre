@@ -9,9 +9,15 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import os, ctypes, sys, unittest, time, shutil, builtins
+import builtins
+import ctypes
+import os
+import shutil
+import sys
+import time
+import unittest
 
-from calibre.constants import iswindows, islinux, ismacos, plugins_loc
+from calibre.constants import islinux, ismacos, iswindows, plugins_loc
 from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -98,7 +104,8 @@ class BuildTest(unittest.TestCase):
         parse('<p>xxx')
 
     def test_bs4(self):
-        import soupsieve, bs4
+        import bs4
+        import soupsieve
         del soupsieve, bs4
 
     @unittest.skipUnless(islinux, 'Speech dispatcher only used on Linux')
@@ -107,7 +114,9 @@ class BuildTest(unittest.TestCase):
         del SSIPClient
 
     def test_zeroconf(self):
-        import zeroconf as z, ifaddr
+        import ifaddr
+        import zeroconf as z
+
         from calibre.devices.smart_device_app.driver import monkeypatch_zeroconf
         monkeypatch_zeroconf()
         del z
@@ -143,8 +152,8 @@ class BuildTest(unittest.TestCase):
         create_key_pair()
 
     def test_msgpack(self):
-        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
         from calibre.utils.date import utcnow
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
         for obj in ({1:1}, utcnow()):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
@@ -161,6 +170,7 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(iswindows, 'winutil is windows only')
     def test_winutil(self):
         import tempfile
+
         from calibre import strftime
         from calibre_extensions import winutil
         self.assertEqual(winutil.special_folder_path(winutil.CSIDL_APPDATA), winutil.known_folder_path(winutil.FOLDERID_RoamingAppData))
@@ -242,7 +252,7 @@ class BuildTest(unittest.TestCase):
         dh = winutil.create_file(
             dpath, winutil.FILE_LIST_DIRECTORY, winutil.FILE_SHARE_READ, winutil.OPEN_EXISTING, winutil.FILE_FLAG_BACKUP_SEMANTICS,
         )
-        from threading import Thread, Event
+        from threading import Event, Thread
         started = Event()
         events = []
 
@@ -293,12 +303,13 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
-        from qt.core import QTimer
-        from qt.core import QApplication
+        from qt.core import (
+            QApplication, QFontDatabase, QImageReader, QNetworkAccessManager, QTimer, QSslSocket
+        )
         from qt.webengine import QWebEnginePage
-        from qt.core import QImageReader, QFontDatabase
-        from qt.core import QNetworkAccessManager
+
         from calibre.utils.img import image_from_data, image_to_data, test
+
         # Ensure that images can be read before QApplication is constructed.
         # Note that this requires QCoreApplication.libraryPaths() to return the
         # path to the Qt plugins which it always does in the frozen build,
@@ -318,7 +329,7 @@ class BuildTest(unittest.TestCase):
         # Run the imaging tests
         test()
 
-        from calibre.gui2 import ensure_app, destroy_app
+        from calibre.gui2 import destroy_app, ensure_app
         from calibre.utils.webengine import setup_profile
         display_env_var = os.environ.pop('DISPLAY', None)
         try:
@@ -332,6 +343,7 @@ class BuildTest(unittest.TestCase):
             create_cover('xxx', ['yyy'])
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+            self.assertTrue(QSslSocket.availableBackends(), 'Qt tls plugins missings')
             p = QWebEnginePage()
             setup_profile(p.profile())
 
@@ -370,10 +382,12 @@ class BuildTest(unittest.TestCase):
     def test_imaging(self):
         from PIL import Image
         try:
-            import _imaging, _imagingmath, _imagingft
+            import _imaging
+            import _imagingft
+            import _imagingmath
             _imaging, _imagingmath, _imagingft
         except ImportError:
-            from PIL import _imaging, _imagingmath, _imagingft
+            from PIL import _imaging, _imagingft, _imagingmath
         _imaging, _imagingmath, _imagingft
         i = Image.open(I('lt.png', allow_user_override=False))
         self.assertGreaterEqual(i.size, (20, 20))
@@ -409,8 +423,8 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
     def test_executables(self):
-        from calibre.utils.ipc.launch import Worker
         from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, PDFTOTEXT
+        from calibre.utils.ipc.launch import Worker
         w = Worker({})
         self.assertTrue(os.path.exists(w.executable), 'calibre-parallel (%s) does not exist' % w.executable)
         self.assertTrue(os.path.exists(w.gui_executable), 'calibre-parallel-gui (%s) does not exist' % w.gui_executable)
@@ -442,18 +456,19 @@ class BuildTest(unittest.TestCase):
         del html2text
 
     def test_markdown(self):
-        from calibre.ebooks.txt.processor import create_markdown_object
         from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+        from calibre.ebooks.txt.processor import create_markdown_object
         create_markdown_object(sorted(MD_EXTENSIONS))
         from calibre.library.comments import sanitize_comments_html
         sanitize_comments_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
 
     def test_feedparser(self):
-        from calibre.web.feeds.feedparser import parse
         # sgmllib is needed for feedparser parsing malformed feeds
         # on python3 you can get it by taking it from python2 stdlib and
         # running 2to3 on it
         import sgmllib
+
+        from calibre.web.feeds.feedparser import parse
         sgmllib, parse
 
     def test_openssl(self):
@@ -466,7 +481,7 @@ class BuildTest(unittest.TestCase):
 
 
 def test_multiprocessing():
-    from multiprocessing import get_context, get_all_start_methods
+    from multiprocessing import get_all_start_methods, get_context
     for stype in get_all_start_methods():
         if stype == 'fork':
             continue
