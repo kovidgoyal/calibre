@@ -290,18 +290,6 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     return google_parse_results(root, r[0], log=log), url
 
 
-def gt():
-    url = 'https://www.google.com/search?q=%289780525509998+or+978-0525509998%29+site%3Awww.amazon.com'
-    raw = browser().open_novisit(url).read()
-    with open('/t/raw.html', 'wb') as f:
-        f.write(raw)
-    root = parse_html(raw)
-    for result in google_parse_results(root, raw):
-        print(result.title)
-        print(' ', result.url)
-        print(' ', result.cached_url)
-
-
 def google_develop(search_terms='1423146786', raw_from=''):
     if raw_from:
         with open(raw_from, 'rb') as f:
