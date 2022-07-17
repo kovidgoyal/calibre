@@ -95,28 +95,22 @@ class FileDialog(QObject):
             initial_dir = select_initial_dir(initial_dir)
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
-        with sanitize_env_vars():
+        with sanitize_env_vars(), adapt_menubar:
             opts = QFileDialog.Option(0)
             if not use_native_dialog:
                 opts |= QFileDialog.Option.DontUseNativeDialog
             if has_long_filter:
                 opts |= QFileDialog.Option.HideNameFilterDetails
             if mode == QFileDialog.FileMode.AnyFile:
-                with adapt_menubar:
-                    f = QFileDialog.getSaveFileName(parent, title,
-                        initial_dir, ftext, "", opts)
+                f = QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, "", opts)
                 if f and f[0]:
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.FileMode.ExistingFile:
-                with adapt_menubar:
-                    f = QFileDialog.getOpenFileName(parent, title,
-                        initial_dir, ftext, "", opts)
+                f = QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, "", opts)
                 if f and f[0] and os.path.exists(f[0]):
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.FileMode.ExistingFiles:
-                with adapt_menubar:
-                    fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
-                            ftext, "", opts)
+                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "", opts)
                 if fs and fs[0]:
                     for f in fs[0]:
                         f = str(f)
@@ -131,8 +125,7 @@ class FileDialog(QObject):
             else:
                 if mode == QFileDialog.FileMode.Directory:
                     opts |= QFileDialog.Option.ShowDirsOnly
-                with adapt_menubar:
-                    f = str(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                f = str(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
                     self.selected_files.append(f)
         if self.selected_files:
