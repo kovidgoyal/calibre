@@ -296,7 +296,7 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QLabel" name="label_20">
+        <widget class="QLabel" name="opt_color_palette_label">
          <property name="text">
           <string>Color &amp;palette (needs restart):</string>
          </property>
@@ -308,7 +308,9 @@
        <item row="2" column="1">
         <widget class="QComboBox" name="opt_color_palette">
          <property name="toolTip">
-          <string>The colors to use for the calibre interface. By default the system colors are used. You can change this to force a light or dark color scheme. Note that if this is not set to system default then if the system wide color scheme is changed calibre will not follow it.</string>
+          <string>&lt;p&gt;The colors to use for the calibre interface. By default the system colors are used. You can change this to force a light or dark color scheme. Note that if this is not set to system default then if the system wide color scheme is changed calibre will not follow it.
+
+&lt;p&gt;Also, if you set the calibre &lt;i&gt;User interface style&lt;/i&gt; to &lt;i&gt;System default&lt;/i&gt;, then this setting will not take effect and system colors will always be used.</string>
          </property>
         </widget>
        </item>

@@ -632,6 +632,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setSpacing(4)
         self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
+        self.opt_ui_style.currentIndexChanged.connect(self.update_color_palette_state)
+        self.update_color_palette_state()
+
+    def update_color_palette_state(self):
+        if self.opt_ui_style.isVisible():
+            enabled = self.opt_ui_style.currentData() == 'calibre'
+            self.opt_color_palette.setEnabled(enabled)
+            self.opt_color_palette_label.setEnabled(enabled)
 
     def em_export_layout(self):
         filename = choose_save_file(self, 'em_import_export_field_list',
