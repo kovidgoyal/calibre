@@ -7,9 +7,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import re
 import time
+from threading import Lock
 from collections import defaultdict, namedtuple
+
 try:
-    from urllib.parse import parse_qs, quote_plus, urlencode, unquote
+    from urllib.parse import parse_qs, quote_plus, unquote, urlencode
 except ImportError:
     from urlparse import parse_qs
     from urllib import quote_plus, urlencode, unquote
@@ -17,10 +19,11 @@ except ImportError:
 from lxml import etree
 
 from calibre import browser as _browser, prints, random_user_agent
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.monotonic import monotonic
-from calibre.utils.random_ua import accept_header_for_ua
+from calibre.utils.random_ua import accept_header_for_ua, random_common_chrome_user_agent
 
-current_version = (1, 0, 12)
+current_version = (1, 0, 13)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -60,16 +63,26 @@ def parse_html(raw):
         return parse(raw)
 
 
-def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60, save_raw=None):
-    delta = monotonic() - last_visited[key]
+last_visited_lock = Lock()
+
+
+def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60, save_raw=None, simple_scraper=None):
+    with last_visited_lock:
+        lv = last_visited[key]
+    delta = monotonic() - lv
     if delta < limit and delta > 0:
         time.sleep(delta)
     try:
-        raw = br.open_novisit(url, timeout=timeout).read()
+        if simple_scraper is None:
+            raw = br.open_novisit(url, timeout=timeout).read()
+            raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
+        else:
+            raw = simple_scraper(url, timeout=timeout)
     finally:
-        last_visited[key] = monotonic()
+        with last_visited_lock:
+            last_visited[key] = monotonic()
     if dump_raw is not None:
-        with open(dump_raw, 'wb') as f:
+        with open(dump_raw, 'w') as f:
             f.write(raw)
     if save_raw is not None:
         save_raw(raw)
@@ -169,7 +182,7 @@ def bing_url_processor(url):
     return url
 
 
-def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60, show_user_agent=False):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
     terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
@@ -178,6 +191,14 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     url = 'https://www.bing.com/search?q={q}'.format(q=q)
     log('Making bing query: ' + url)
     br = br or browser()
+    br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
+    ua = ''
+    while not ua or 'Edg/' in ua:
+        ua = random_common_chrome_user_agent()
+    if show_user_agent:
+        print('User-agent:', ua)
+    br.addheaders.append(('User-agent', ua))
+
     root = query(br, url, 'bing', dump_raw, timeout=timeout)
     ans = []
     for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
@@ -200,8 +221,7 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
 
 
 def bing_develop():
-    br = browser()
-    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
+    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', show_user_agent=True)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
@@ -314,3 +334,9 @@ def resolve_url(url):
     if prefix == 'wayback':
         return wayback_url_processor(rest)
     return url
+
+
+# if __name__ == '__main__':
+#     import sys
+#     func = sys.argv[-1]
+#     globals()[func]()
