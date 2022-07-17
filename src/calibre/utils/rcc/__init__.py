@@ -43,10 +43,23 @@ def index_theme(name, inherits=''):
     return '\n'.join(lines)
 
 
+def safe_link(src, dest):
+    try:
+        os.link(src, dest)
+    except FileExistsError:
+        os.remove(dest)
+        os.link(src, dest)
+
+
 def compile_icon_dir_as_themes(
     path_to_dir, output_path, theme_name='calibre-default', inherits='',
     for_theme='any', prefix='/icons',
 ):
+    aliases = {
+        # these names are use by Qt commonstyle for line edit clear icons. The
+        # windows system style inherits it from commonstyle
+        'clear_left.png': ('edit-clear-locationbar-ltr.png', 'edit-clear-locationbar-rtl.png')
+    }
     with tempfile.TemporaryDirectory(dir=path_to_dir) as tdir, open(os.path.join(tdir, 'icons.qrc'), 'w') as qrc:
         print('<RCC>', file=qrc)
         print(f'  <qresource prefix="{prefix}">', file=qrc)
@@ -99,12 +112,12 @@ def compile_icon_dir_as_themes(
                     return
                 dest_name = dest_name.replace('-for-light-theme', '')
             dest = theme_dir, 'images', (rp + dest_name)
-            try:
-                os.link(image_path, os.path.join(tdir, *dest))
-            except FileExistsError:
-                os.remove(os.path.join(tdir, *dest))
-                os.link(image_path, os.path.join(tdir, *dest))
+            safe_link(image_path, os.path.join(tdir, *dest))
             file('/'.join(dest))
+            for alias in aliases.get(image_name, ()):
+                dest = theme_dir, 'images', (rp + alias)
+                safe_link(image_path, os.path.join(tdir, *dest))
+                file('/'.join(dest))
 
         for dirpath, dirnames, filenames in os.walk(path_to_dir):
             if 'textures' in dirnames:
