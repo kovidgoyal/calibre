@@ -52,7 +52,7 @@ authors_completer_append_separator = False
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags
-# panel, selecting 'manage authors', and pressing
+# panel, selecting 'Manage Authors', and pressing
 # 'Recalculate all author sort values'.
 #
 # The author_name_suffixes are words that are ignored when they occur at the
@@ -63,7 +63,7 @@ authors_completer_append_separator = False
 #
 # The author_name_copywords are a set of words which, if they occur in an
 # author name, cause the automatically generated author sort string to be
-# identical to the author name. This means that the sort for a string like
+# identical to the author's name. This means that the sort for a string like
 # "Acme Inc." will be "Acme Inc." instead of "Inc., Acme".
 #
 # If author_use_surname_prefixes is enabled, any of the words in
