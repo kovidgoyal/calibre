@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 11)
+current_version = (1, 0, 12)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -252,7 +252,7 @@ def google_parse_results(root, raw, log=prints):
     cache_url_map = google_extract_cache_urls(raw)
     # print('\n'.join(cache_url_map))
     ans = []
-    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="kWxLod" or @class="hlcw0c"]'):
+    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
         try:
             a = div.xpath('descendant::a[@href]')[0]
         except IndexError:
