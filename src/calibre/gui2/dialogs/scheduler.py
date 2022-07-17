@@ -296,6 +296,7 @@ class SchedulerDialog(QDialog):
         la.setWordWrap(True)
         vf.addWidget(la)
         self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
+        la.setWordWrap(True)
         vf.addWidget(la)
         self.account = acc = QGroupBox(self.tab)
         acc.setTitle(_("&Account"))
