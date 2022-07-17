@@ -252,7 +252,7 @@ def google_parse_results(root, raw, log=prints):
     cache_url_map = google_extract_cache_urls(raw)
     # print('\n'.join(cache_url_map))
     ans = []
-    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="kWxLod" or @class="hlcw0c"]'):
+    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
         try:
             a = div.xpath('descendant::a[@href]')[0]
         except IndexError:
