@@ -581,6 +581,10 @@ the examples in the search popup window. Note that this search tool will find on
 occurrence of the search query in a particular book, not list every occurrence,
 for that it is best to search inside the book using the calibre :guilabel:`E-book viewer`.
 
+You can re-index an individual book by right clicking on the :guilabel:`Book
+details panel` in calibre and choose :guilabel:`Re-index this book for full
+text searching`.
+
 Virtual libraries
 -------------------
 

@@ -304,6 +304,11 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
         ac.current_url = path
         ac.setText(_('Path to file'))
         copy_menu.addAction(ac)
+    if db.is_fts_enabled():
+        menu.addSeparator()
+        menu.addAction(
+            _('Re-index the {} format for full text searching').format(fmt.upper()), partial(book_info.reindex_fmt, book_id, fmt)).setIcon(
+                QIcon.ic('fts.png'))
 
 
 def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
@@ -317,6 +322,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
 
     if dt == 'format':
         add_format_entries(menu, data, book_info, copy_menu, search_menu)
+        data['reindex_fmt_added'] = True
     elif dt == 'author':
         author = data['name']
         if data['url'] != 'calibre':
@@ -435,11 +441,13 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     search_internet_added = False
     search_menu = QMenu(_('Search'), menu)
     search_menu.setIcon(QIcon.ic('search.png'))
+    reindex_fmt_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
         search_internet_added = add_item_specific_entries(menu, data, book_info, copy_menu, search_menu)
         create_copy_links(copy_menu, data)
         copy_links_added = True
+        reindex_fmt_added = 'reindex_fmt_added' in data
     elif url and not url.startswith('#'):
         ac = book_info.copy_link_action
         ac.current_url = url
@@ -470,6 +478,12 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     else:
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
+    if not reindex_fmt_added:
+        menu.addSeparator()
+        menu.addAction(_(
+            'Re-index this book for full text searching'), partial(book_info.reindex_fmt, get_gui().library_view.current_id, '')).setIcon(
+                QIcon.ic('fts.png'))
+
     if len(menu.actions()) > 0:
         menu.exec(ev.globalPos())
 # }}}
@@ -882,8 +896,12 @@ class BookInfo(HTMLDisplay):
     def edit_fmt(self, book_id, fmt):
         self.edit_book.emit(book_id, fmt)
 
-
+    def reindex_fmt(self, book_id, fmt):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        db.reindex_fts_book(book_id, fmt)
 # }}}
+
 
 class DetailsLayout(QLayout):  # {{{
 
