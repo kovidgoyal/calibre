@@ -914,7 +914,7 @@
 
 - News download: Fix URLs with spaces in them not being downloaded since calibre 5.0
 
-- [1933989] When searching for books by an author from the manage authors dialog, use exact matches
+- [1933989] When searching for books by an author from the Manage authors dialog, use exact matches
 
 - [1933797] MOBI Output: Fix invalid color specification as plain numbers causing conversion to fail
 

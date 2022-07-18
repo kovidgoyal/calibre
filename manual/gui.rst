@@ -582,7 +582,7 @@ occurrence of the search query in a particular book, not list every occurrence,
 for that it is best to search inside the book using the calibre :guilabel:`E-book viewer`.
 
 You can re-index an individual book by right clicking on the :guilabel:`Book
-details panel` in calibre and choose :guilabel:`Re-index this book for full
+details panel` in calibre and choosing :guilabel:`Re-index this book for full
 text searching`.
 
 Virtual libraries
@@ -696,7 +696,7 @@ Hierarchical items (items with children) use the same four 'click-on' searches a
 
 You can drag and drop items in the Tag browser onto User categories to add them to that category. If the source is a User category, holding the :kbd:`Shift` key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
 
-You can easily find any item in the Tag browser by clicking the search button at the lower-right corner. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
+You can easily find any item in the Tag browser by clicking the search button at the lower-right corner. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the :guilabel:`Manage authors` dialog allows you to rename authors and control how their names are sorted.
 
 You can control how items are sorted in the Tag browser via the :guilabel:`Configure` button at the lower-left of the Tag browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 

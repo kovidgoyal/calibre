@@ -52,7 +52,7 @@ authors_completer_append_separator = False
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags
-# panel, selecting 'Manage Authors', and pressing
+# panel, selecting 'Manage authors', and pressing
 # 'Recalculate all author sort values'.
 #
 # The author_name_suffixes are words that are ignored when they occur at the
