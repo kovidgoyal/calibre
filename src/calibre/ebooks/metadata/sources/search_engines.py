@@ -21,9 +21,9 @@ from lxml import etree
 from calibre import browser as _browser, prints, random_user_agent
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.monotonic import monotonic
-from calibre.utils.random_ua import accept_header_for_ua, random_common_chrome_user_agent
+from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 13)
+current_version = (1, 0, 14)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -193,6 +193,7 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     br = br or browser()
     br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
     ua = ''
+    from calibre.utils.random_ua import random_common_chrome_user_agent
     while not ua or 'Edg/' in ua:
         ua = random_common_chrome_user_agent()
     if show_user_agent:
