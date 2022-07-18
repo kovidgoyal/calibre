@@ -181,6 +181,17 @@ class Client:
                     import traceback
                     traceback.print_exc()
 
+    def speak_implementation(self, *args):
+        try:
+            return self.sp_voice.speak(*args)
+        except OSError as err:
+            # see https://docs.microsoft.com/en-us/previous-versions/office/developer/speech-technologies/jj127491(v=msdn.10)
+            import re
+            hr = int(re.search(r'\[hr=(0x\S+)', str(err)).group(1), 16)
+            if hr == 0x8004503a:
+                raise OSError(_('No active audio output devices found. Connect headphones or speakers.')) from err
+            raise
+
     def speak(self, text, is_xml=False, want_events=True, purge=True):
         from calibre_extensions.winsapi import (
             SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK, SPF_IS_XML
@@ -188,11 +199,11 @@ class Client:
         flags = SPF_IS_XML if is_xml else SPF_IS_NOT_XML
         if purge:
             flags |= SPF_PURGEBEFORESPEAK
-        return self.sp_voice.speak(text, flags | SPF_ASYNC, want_events)
+        return self.speak_implementation(text, flags | SPF_ASYNC, want_events)
 
     def purge(self):
         from calibre_extensions.winsapi import SPF_PURGEBEFORESPEAK
-        self.sp_voice.speak('', SPF_PURGEBEFORESPEAK, False)
+        self.speak_implementation('', SPF_PURGEBEFORESPEAK, False)
         self.synthesizing = False
 
     def speak_simple_text(self, text):
