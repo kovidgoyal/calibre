@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
     QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
-    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal, QAction, QKeySequence
+    Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal, QAction, QKeySequence
 )
 
 from calibre import fit_image
@@ -18,6 +18,7 @@ from calibre.gui2 import (
 
 
 def render_svg(widget, path):
+    from qt.core import QSvgRenderer
     img = QPixmap()
     rend = QSvgRenderer()
     if rend.load(path):
