@@ -8,7 +8,7 @@ import sys
 from contextlib import closing
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
 
-from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
+from calibre.constants import VIEWER_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.viewer.config import get_session_pref, vprefs
@@ -167,14 +167,11 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
 
 
 def main(args=sys.argv):
-    from qt.webengine import QWebEngineUrlScheme
+    from calibre.utils.webengine import setup_fake_protocol
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
-    scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
-    scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-    scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
-    QWebEngineUrlScheme.registerScheme(scheme)
+    setup_fake_protocol()
     override = 'calibre-ebook-viewer' if islinux else None
     processed_args = []
     internal_book_data = internal_book_data_path = None

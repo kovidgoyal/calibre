@@ -193,7 +193,7 @@ def render_cover(cpage, zf, reader=None):
             cpage = os.path.join(tdir, cpage)
             if not os.path.exists(cpage):
                 return
-            return render_html_svg_workaround(cpage, default_log)
+            return render_html_svg_workaround(cpage, default_log, root=tdir)
 
 
 def get_cover(raster_cover, first_spine_item, reader):

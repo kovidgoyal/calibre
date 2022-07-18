@@ -146,16 +146,11 @@ class PDFOutput(OutputFormatPlugin):
         # Ensure Qt is setup to be used with WebEngine
         # specialize_options is called early enough in the pipeline
         # that hopefully no Qt application has been constructed as yet
-        from qt.webengine import QWebEngineUrlScheme
         from qt.webengine import QWebEnginePage  # noqa
         from calibre.gui2 import must_use_qt
-        from calibre.constants import FAKE_PROTOCOL
-        scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
-        scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-        scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
-        QWebEngineUrlScheme.registerScheme(scheme)
+        from calibre.utils.webengine import setup_fake_protocol, setup_default_profile
+        setup_fake_protocol()
         must_use_qt()
-        from calibre.utils.webengine import setup_default_profile
         setup_default_profile()
         self.input_fmt = input_fmt
 

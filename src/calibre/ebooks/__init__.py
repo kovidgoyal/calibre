@@ -89,7 +89,7 @@ def extract_calibre_cover(raw, base, log):
                 return return_raster_image(img)
 
 
-def render_html_svg_workaround(path_to_html, log, width=590, height=750):
+def render_html_svg_workaround(path_to_html, log, width=590, height=750, root=''):
     from calibre.ebooks.oeb.base import SVG_NS
     with open(path_to_html, 'rb') as f:
         raw = f.read()
@@ -108,11 +108,11 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
             pass
 
     if data is None:
-        data = render_html_data(path_to_html, width, height)
+        data = render_html_data(path_to_html, width, height, root=root)
     return data
 
 
-def render_html_data(path_to_html, width, height):
+def render_html_data(path_to_html, width, height, root=''):
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.ipc.simple_worker import fork_job, WorkerError
     result = {}
@@ -127,7 +127,7 @@ def render_html_data(path_to_html, width, height):
 
     with TemporaryDirectory('-render-html') as tdir:
         try:
-            result = fork_job('calibre.ebooks.render_html', 'main', args=(path_to_html, tdir, 'jpeg'))
+            result = fork_job('calibre.ebooks.render_html', 'main', args=(path_to_html, tdir, 'jpeg', root))
         except WorkerError as e:
             report_error(e.orig_tb)
         else:

@@ -1188,8 +1188,9 @@ def main(shm_name=None):
 
         override = 'calibre-gui' if islinux else None
         app = Application([], override_program_name=override)
-        from calibre.utils.webengine import setup_default_profile
+        from calibre.utils.webengine import setup_default_profile, setup_fake_protocol
         setup_default_profile()
+        setup_fake_protocol()
         d = TOCEditor(path, title=title, write_result_to=path + '.result')
         d.start()
         ok = 0

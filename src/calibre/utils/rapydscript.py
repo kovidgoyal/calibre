@@ -59,7 +59,9 @@ def compiler():
 
     from calibre import walk
     from calibre.gui2 import must_use_qt
-    from calibre.utils.webengine import secure_webengine, setup_default_profile, setup_profile
+    from calibre.utils.webengine import (
+        secure_webengine, setup_default_profile, setup_profile
+    )
     must_use_qt()
     setup_default_profile()
 
@@ -335,7 +337,7 @@ def run_rapydscript_tests():
     from qt.core import QApplication, QByteArray, QEventLoop, QUrl
     from qt.webengine import (
         QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineUrlRequestJob,
-        QWebEngineUrlScheme, QWebEngineUrlSchemeHandler
+        QWebEngineUrlSchemeHandler
     )
     from urllib.parse import parse_qs
 
@@ -343,14 +345,12 @@ def run_rapydscript_tests():
     from calibre.gui2 import must_use_qt
     from calibre.gui2.viewer.web_view import send_reply
     from calibre.utils.webengine import (
-        create_script, insert_scripts, secure_webengine, setup_default_profile, setup_profile
+        create_script, insert_scripts, secure_webengine, setup_default_profile,
+        setup_fake_protocol, setup_profile
     )
     must_use_qt()
     setup_default_profile()
-    scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
-    scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-    scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
-    QWebEngineUrlScheme.registerScheme(scheme)
+    setup_fake_protocol()
 
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')

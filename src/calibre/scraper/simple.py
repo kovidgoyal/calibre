@@ -16,11 +16,11 @@ from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 
 def worker_main(source):
-    from qt.core import QLoggingCategory, QUrl
-    QLoggingCategory.setFilterRules('''\
-qt.webenginecontext.info=false
-''')
+    from qt.core import QUrl
+
     from calibre.gui2 import must_use_qt
+    from calibre.gui_launch import setup_qt_logging
+    setup_qt_logging()
 
     from .simple_backend import SimpleScraper
     must_use_qt()
