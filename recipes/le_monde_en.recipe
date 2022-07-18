@@ -25,7 +25,7 @@ class LeMonde(BasicNewsRecipe):
     publisher = 'Société Editrice du Monde'
     publication_type = 'newspaper'
     needs_subscription = 'optional'
-    language = 'en_FR'
+    language = 'en'
 
     oldest_article = 2
     max_articles_per_feed = 15
