@@ -812,7 +812,7 @@ class FileIconProvider(QFileIconProvider):
         if fileinfo.isSymLink():
             if not fileinfo.exists():
                 return self.icons['zero']
-            fileinfo = QFileInfo(fileinfo.readLink())
+            fileinfo = QFileInfo(fileinfo.symLinkTarget())
         if fileinfo.isDir():
             key = 'dir'
         else:
