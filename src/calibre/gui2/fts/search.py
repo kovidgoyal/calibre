@@ -379,6 +379,14 @@ class ResultsView(QTreeView):
         self.setModel(self.m)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
+        self.setUniformRowHeights(True)
+
+    def keyPressEvent(self, ev):
+        i = self.currentIndex()
+        ret = super().keyPressEvent(ev)
+        if self.currentIndex() != i:
+            self.scrollTo(self.currentIndex())
+        return ret
 
     def currentChanged(self, current, previous):
         results, individual_match = self.m.data_for_index(current)
