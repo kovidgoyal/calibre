@@ -81,7 +81,10 @@ class FileDialog(QObject):
                 if os.path.isfile(prev):
                     prev = os.path.dirname(prev)
             else:
-                prev = os.path.expanduser('~')
+                if os.path.exists(os.path.dirname(prev)):
+                    prev = os.path.dirname(prev)
+                else:
+                    prev = os.path.expanduser('~')
             initial_dir = os.path.join(prev, bn)
         elif no_save_dir:
             initial_dir = os.path.expanduser(default_dir)
