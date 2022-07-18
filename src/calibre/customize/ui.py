@@ -137,6 +137,9 @@ def reread_filetype_plugins():
 
     for plugin in _initialized_plugins:
         if isinstance(plugin, FileTypePlugin):
+            if ismacos and plugin.name == 'DeDRM' and plugin.version < (10, 0, 3):
+                print(f'Blacklisting the {plugin.name} plugin as it is too old and causes crashes', file=sys.stderr)
+                continue
             for ft in plugin.file_types:
                 if plugin.on_import:
                     _on_import[ft].append(plugin)
@@ -667,10 +670,6 @@ _initialized_plugins = []
 
 
 def initialize_plugin(plugin, path_to_zip_file, installation_type):
-    if ismacos and plugin.name == 'DeDRM' and plugin.version < (10, 0, 3):
-        raise InvalidPlugin(_(
-            'Blacklisting the {0} version {1} plugin as it is too old and causes crashes. Update it to the latest version to use it.'
-        ).format(plugin.name, plugin.version))
     try:
         p = plugin(path_to_zip_file)
         p.installation_type = installation_type
