@@ -68,7 +68,10 @@ class Client:
         if self.system_default_output_module is None:
             self.system_default_output_module = self.ssip_client.get_output_module()
             if self.system_default_output_module == '(null)':
-                raise ValueError(_('Speech dispatcher on this system is not configured with any available voices. Install some voices first.'))
+                mods = self.ssip_client.list_output_modules()
+                if not mods:
+                    raise ValueError(_('Speech dispatcher on this system is not configured with any available voices. Install some voices first.'))
+                self.system_default_output_module = mods[0]
         if not self.settings_applied:
             self.apply_settings()
         self.set_use_ssml(use_ssml)
