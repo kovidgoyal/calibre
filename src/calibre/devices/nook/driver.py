@@ -87,6 +87,7 @@ class NOOK_COLOR(NOOK):
         0xb,    # Glowlight from 2017
         0xc,    # Glowlight from 2019
         0xd,    # Glowlight from 2021
+        0xe,    # Glowlight from 2021
     ]
     BCD         = [0x216, 0x9999, 0x409]
 
