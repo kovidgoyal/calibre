@@ -15,8 +15,8 @@ from qt.core import (
     QDialogButtonBox, QEvent, QFile, QFileDialog, QFileIconProvider, QFileInfo,
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon, QIODevice,
     QLocale, QNetworkProxyFactory, QObject, QPalette, QResource, QSettings,
-    QSocketNotifier, QStringListModel, QStyle, Qt, QThread, QTimer, QTranslator,
-    QUrl, pyqtSignal, pyqtSlot
+    QSocketNotifier, QStringListModel, Qt, QThread, QTimer, QTranslator,
+    QUrl, pyqtSignal
 )
 from threading import Lock, RLock
 
@@ -30,7 +30,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
     check_for_linux_native_dialogs, linux_native_dialog
 )
-from calibre.gui2.palette import dark_palette, fix_palette_colors
+from calibre.gui2.palette import PaletteManager
 from calibre.gui2.qt_file_dialogs import FileDialog
 from calibre.ptempfile import base_dir
 from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
@@ -44,8 +44,6 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 del pqc
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
-if islinux:
-    from qt.dbus import QDBusConnection, QDBusMessage, QDBusVariant
 
 
 class IconResourceManager:
@@ -1050,11 +1048,6 @@ class Application(QApplication):
         if not args:
             args = sys.argv[:1]
         args = [args[0]]
-        if ismacos and not headless:
-            from calibre_extensions.cocoa import set_appearance
-            if gprefs['color_palette'] != 'system':
-                set_appearance(gprefs['color_palette'])
-        self.ignore_palette_changes = False
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         # Allow import of webengine after construction of QApplication on new
         # enough PyQt
@@ -1068,18 +1061,11 @@ class Application(QApplication):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
+        self.palette_manager = PaletteManager(gprefs['color_palette'], gprefs['ui_style'], force_calibre_style, headless)
         if headless:
             args.extend(['-platformpluginpath', plugins_loc, '-platform', 'headless'])
         else:
-            if iswindows:
-                # passing darkmode=1 turns on dark window frames when windows
-                # is dark and darkmode=2 makes everything dark, but we have our
-                # own dark mode implementation when using calibre style so
-                # prefer that and use darkmode=1
-                if gprefs['ui_style'] == 'system' and not force_calibre_style:
-                    args.extend(['-platform', 'windows:darkmode=2'])
-                else:
-                    args.extend(['-platform', 'windows:darkmode=1'])
+            args.extend(self.palette_manager.args_to_qt)
 
         self.headless = headless
         from calibre_extensions import progress_indicator
@@ -1092,11 +1078,7 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, args)
-        self.original_palette = self.palette()
-        self.original_palette_modified = fix_palette_colors(self.original_palette)
-        if iswindows:
-            self.win_event_filter = WinEventFilter()
-            self.installNativeEventFilter(self.win_event_filter)
+        self.palette_manager.initialize()
         icon_resource_manager.initialize()
         sh = self.styleHints()
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
@@ -1122,11 +1104,8 @@ class Application(QApplication):
             self.setup_unix_signals()
         if islinux or isbsd:
             self.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeMenuBar, 'CALIBRE_NO_NATIVE_MENUBAR' in os.environ)
-        self.setup_styles(force_calibre_style)
+        self.palette_manager.setup_styles()
         self.setup_ui_font()
-        if not self.using_calibre_style and self.style().objectName() == 'fusion':
-            # Since Qt is using the fusion style anyway, specialize it
-            self.load_calibre_style()
         fi = gprefs['font']
         if fi is not None:
             font = QFont(*(fi[:4]))
@@ -1177,6 +1156,10 @@ class Application(QApplication):
             cft = cursor_blink_time()
             if cft >= 0:
                 self.setCursorFlashTime(int(cft))
+
+    @property
+    def is_dark_theme(self):
+        return self.palette_manager.is_dark_theme
 
     def safe_restore_geometry(self, widget, geom):
         # See https://bugreports.qt.io/browse/QTBUG-77385
@@ -1234,74 +1217,6 @@ class Application(QApplication):
 
         load_builtin_fonts()
 
-    def set_dark_mode_palette(self):
-        self.set_palette(dark_palette())
-
-    def setup_styles(self, force_calibre_style):
-        if iswindows or ismacos:
-            using_calibre_style = gprefs['ui_style'] != 'system'
-        else:
-            using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
-        if force_calibre_style:
-            using_calibre_style = True
-        if using_calibre_style:
-            if iswindows:
-                use_dark_palette = gprefs['color_palette'] == 'dark' or (gprefs['color_palette'] == 'system' and windows_is_system_dark_mode_enabled())
-            elif ismacos:
-                use_dark_palette = gprefs['color_palette'] == 'dark'
-            else:
-                use_dark_palette = gprefs['color_palette'] == 'dark' or (gprefs['color_palette'] == 'system' and linux_is_system_dark_mode_enabled())
-                bus = QDBusConnection.sessionBus()
-                bus.connect(
-                    'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-                    'org.freedesktop.portal.Settings', 'SettingChanged', 'ssv', self.linux_desktop_setting_changed)
-            if use_dark_palette:
-                self.set_dark_mode_palette()
-            elif self.original_palette_modified:
-                self.set_palette(self.original_palette)
-
-        self.using_calibre_style = using_calibre_style
-        if DEBUG:
-            prints('Using calibre Qt style:', self.using_calibre_style)
-        if self.using_calibre_style:
-            self.load_calibre_style()
-        self.on_palette_change()
-
-    if islinux:
-        @pyqtSlot(str, str, QDBusVariant)
-        def linux_desktop_setting_changed(self, namespace, key, val):
-            if (namespace, key) == ('org.freedesktop.appearance', 'color-scheme'):
-                if gprefs['color_palette'] != 'system':
-                    return
-                use_dark_palette = val.variant() == 1
-                if use_dark_palette != bool(self.is_dark_theme):
-                    if use_dark_palette:
-                        self.set_dark_mode_palette()
-                    else:
-                        self.set_palette(self.original_palette)
-                self.on_palette_change()
-
-    def check_for_windows_palette_change(self):
-        if gprefs['color_palette'] != 'system':
-            return
-        use_dark_palette = bool(windows_is_system_dark_mode_enabled())
-        if bool(self.is_dark_theme) != use_dark_palette:
-            if use_dark_palette:
-                self.set_dark_mode_palette()
-            else:
-                self.set_palette(self.original_palette)
-            self.on_palette_change()
-
-    def set_palette(self, pal):
-        self.ignore_palette_changes = True
-        self.setPalette(pal)
-        # Needed otherwise Qt does not emit the paletteChanged signal when
-        # appearance is changed. And it has to be after current event
-        # processing finishes as of Qt 5.14 otherwise the palette change is
-        # ignored.
-        QTimer.singleShot(1000, lambda: QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, False))
-        self.ignore_palette_changes = False
-
     @lru_cache(maxsize=256)
     def cached_qimage(self, name):
         return self.cached_qpixmap(name).toImage()
@@ -1311,79 +1226,9 @@ class Application(QApplication):
         ic = QIcon.ic(name)
         return ic.pixmap((ic.availableSizes() or (256,))[0])
 
-    def on_palette_change(self):
-        self.cached_qimage.cache_clear()
-        self.cached_qpixmap.cache_clear()
-        self.is_dark_theme = is_dark_theme()
-        self.update_icon_theme()
-        self.setProperty('is_dark_theme', self.is_dark_theme)
-        if self.using_calibre_style:
-            ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
-            if self.is_dark_theme:
-                ss += 'QMenu { border: 1px solid palette(shadow); }'
-            self.setStyleSheet(ss)
-        self.palette_changed.emit()
-
-    def update_icon_theme(self):
-        icon_resource_manager.set_theme()
-
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (
             '#FF2400' if is_error else '#50c878')
-
-    def load_calibre_style(self):
-        icon_map = self.__icon_map_memory_ = {}
-        user_path = icon_resource_manager.override_icon_path
-        if user_path:
-            user_path = os.path.join(user_path, 'images')
-
-        @lru_cache(maxsize=64)
-        def check_for_custom_icon(v):
-            if user_path:
-                q = os.path.join(user_path, v)
-                if os.path.exists(q):
-                    return q
-            return v.rpartition('.')[0]
-
-        for k, v in {
-            'DialogYesButton': 'ok.png',
-            'DialogNoButton': 'window-close.png',
-            'DialogCloseButton': 'close.png',
-            'DialogOkButton': 'ok.png',
-            'DialogCancelButton': 'window-close.png',
-            'DialogHelpButton': 'help.png',
-            'DialogOpenButton': 'document_open.png',
-            'DialogSaveButton': 'save.png',
-            'DialogApplyButton': 'ok.png',
-            'DialogDiscardButton': 'trash.png',
-            'MessageBoxInformation': 'dialog_information.png',
-            'MessageBoxWarning': 'dialog_warning.png',
-            'MessageBoxCritical': 'dialog_error.png',
-            'MessageBoxQuestion': 'dialog_question.png',
-            'BrowserReload': 'view-refresh.png',
-            'LineEditClearButton': 'clear_left.png',
-            'ToolBarHorizontalExtensionButton': 'v-ellipsis.png',
-            'ToolBarVerticalExtensionButton': 'h-ellipsis.png',
-            'FileDialogBack': 'back.png',
-            'ArrowRight': 'forward.png',
-            'ArrowLeft': 'back.png',
-            'ArrowBack': 'back.png',
-            'ArrowForward': 'forward.png',
-            'ArrowUp': 'arrow-up.png',
-            'ArrowDown': 'arrow-down.png',
-            'FileDialogToParent': 'arrow-up.png',
-            'FileDialogNewFolder': 'tb_folder.png',
-            'FileDialogListView': 'format-list-unordered.png',
-            'FileDialogDetailedView': 'format-list-ordered.png',
-        }.items():
-            icon_map[getattr(QStyle.StandardPixmap, 'SP_'+k).value] = check_for_custom_icon(v)
-        transient_scroller = 0
-        if ismacos:
-            from calibre_extensions.cocoa import transient_scroller
-            transient_scroller = transient_scroller()
-        self.calibre_style = style = self.pi.CalibreStyle(transient_scroller)
-        style.set_icon_map(icon_map)
-        self.setStyle(style)
 
     def _send_file_open_events(self):
         with self._file_open_lock:
@@ -1414,19 +1259,7 @@ class Application(QApplication):
             return True
         else:
             if etype == QEvent.Type.ApplicationPaletteChange:
-                if DEBUG:
-                    if self.ignore_palette_changes:
-                        print('ApplicationPaletteChange event ignored', file=sys.stderr)
-                    else:
-                        print('ApplicationPaletteChange event received', file=sys.stderr)
-                if not self.ignore_palette_changes:
-                    if gprefs['color_palette'] != 'system':
-                        pal = dark_palette() if gprefs['color_palette'] == 'dark' else self.original_palette
-                        if self.palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
-                            if DEBUG:
-                                print('Detected a spontaneous palette change in windows, reverting it', file=sys.stderr)
-                            self.set_palette(pal)
-                    self.on_palette_change()
+                self.palette_manager.on_qt_palette_change()
             return QApplication.event(self, e)
 
     @property
@@ -1703,48 +1536,6 @@ def add_to_recent_docs(path):
     from calibre_extensions import winutil
     app = QApplication.instance()
     winutil.add_to_recent_docs(str(path), app.windows_app_uid)
-
-
-if iswindows:
-    import ctypes
-    from qt.core import QAbstractNativeEventFilter
-
-    class WinEventFilter(QAbstractNativeEventFilter):
-
-        def nativeEventFilter(self, eventType, message):
-            if eventType == b"windows_generic_MSG":
-                msg = ctypes.wintypes.MSG.from_address(message.__int__())
-                # https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
-                if msg.message == 0x001A and msg.lParam:  # WM_SETTINGCHANGE
-                    try:
-                        s = ctypes.wstring_at(msg.lParam)
-                    except OSError:
-                        pass
-                    else:
-                        if s == 'ImmersiveColorSet':
-                            QApplication.instance().check_for_windows_palette_change()
-                            # prevent Qt from handling this event
-                            return True, 0
-            return False, 0
-
-
-def windows_is_system_dark_mode_enabled():
-    s = QSettings(r"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", QSettings.Format.NativeFormat)
-    if s.status() == QSettings.Status.NoError:
-        return s.value("AppsUseLightTheme") == 0
-    return False
-
-
-def linux_is_system_dark_mode_enabled():
-    bus = QDBusConnection.sessionBus()
-    m = QDBusMessage.createMethodCall(
-        'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-        'org.freedesktop.portal.Settings', 'Read'
-    )
-    m.setArguments(['org.freedesktop.appearance', 'color-scheme'])
-    reply = bus.call(m, timeout=1000)
-    a = reply.arguments()
-    return len(a) and isinstance(a[0], int) and a[0] == 1
 
 
 def make_view_use_window_background(view):
