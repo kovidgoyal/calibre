@@ -10,7 +10,7 @@ than Dropbook. Dropbook is a GUI application that only runs on Windows and
 Apple’s OS X.
 
 
-PDB Identiy
+PDB Identity
 -------
 
 PNRdPPrs
@@ -29,7 +29,7 @@ Record 0, eReader header (202)
 ------------------
 
 Note all values are in 2 byte increments. Like values are condensed into a
-range. The range can be borken into 2 byte sections which represent the actual
+range. The range can be broken into 2 byte sections which represent the actual
 stored values.
 
 bytes       content             comments
@@ -48,7 +48,7 @@ bytes       content             comments
 114-116     Garbage
 116-202     Unknown
 
-* Garbage: Intentially random values.
+* Garbage: Intentionally random values.
 
 
 Text Records (202)
@@ -98,7 +98,7 @@ bytes   content                     comments
                                     contained in the file
 20-22   Number of images            The number of images contained in the file
 22-24   Number of links             The number of links contained in the file
-24-26   Metadata avaliable          Is there a metadata record in the file?
+24-26   Metadata available          Is there a metadata record in the file?
                                     0 = None, 1 = There is a metadata record
 26-28   Unknown                     Value of 0 is used
 28-30   Number of Footnotes         The number of footnote records in the file
@@ -286,7 +286,7 @@ E.G.
 
 Gibraltar Earth\x00Michael McCollum\x001999\x00Sci Fi Arizona\x001929381255\x00
 
-The metdata record is always followed by a record which contains 'MeTaInFo\x00'
+The metadata record is always followed by a record which contains 'MeTaInFo\x00'
 
 Note: Starting with DropBook 1.5.2 'MeTaInFo\x00' is not following Metadata
 Record. It is a separate record that ends the file and there are some more

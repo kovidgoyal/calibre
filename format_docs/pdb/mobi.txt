@@ -145,7 +145,7 @@ The following records are only present if the mobi header is long enough.
 174     4       DRM Size                Number of bytes in DRM info.
 176     4       DRM Flags               Some flags concerning the DRM info.
 180     6       ?
-186     2       Last Image record       Possible vaule with the last image
+186     2       Last Image record       Possible value with the last image
                                         record. If there are no images in the
                                         book this will be 0xffff.
 188     4       ?

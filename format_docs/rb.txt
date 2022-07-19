@@ -23,7 +23,7 @@ Details
 -------
 
 The first 4 bytes of the file seem to be a magic number (in hex): B0 0C
-B0 0C. I like to think of this as a hexidecimal pun on the word "book"
+B0 0C. I like to think of this as a hexadecimal pun on the word "book"
 (repeated). [Matt Greenwood has reported seeing a magic number of "B0 0C
 F0 0D" in another type of ReB-related file -- i.e. "book food".]
 

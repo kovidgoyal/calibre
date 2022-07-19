@@ -123,7 +123,7 @@ UInt16        recordSize;
 recordSize is the size in bytes of a text record. This field is important, as
 the size of text and decompression buffers is based on this value. It is used
 by Weasel to navigate though the text so it can map absolute offsets to record
-numberss. 8192 is the default. With compression mode 1, this is the amount of
+numbers. 8192 is the default. With compression mode 1, this is the amount of
 data inside each compressed record (except maybe the last one), but the actual
 compressed records will likely have varying sizes. In mode 2, both compressed
 records and the resulting text records are all of this size (except, again, the

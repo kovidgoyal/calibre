@@ -1,10 +1,10 @@
-// BEGINING OF FILE
+// BEGINNING OF FILE
 //   NOTES:
 //   1* Numeric data stored as big endian, 32 bits.
 //   2* Data padded to 16 bits limits. (Sometimes to 32 bits limits?)
 //   3* Text stored seems to be an 8 bit encoding padded to 16 bits
 //    (may be "ISO-8859-1"?, or may be just a local machine character set?)
-//   4* I initially used the term "MARK" where I should have used "HIGHLIGTH", 
+//   4* I initially used the term "MARK" where I should have used "HIGHLIGHT", 
 //     bear that in mind (it was a bad name election when I started reversing)
 
 <0x 31 bytes = book_title_PAR + 0x00 PAD if (book_title_PAR < 31) >
@@ -31,7 +31,7 @@ MOBI
 // Order of Indexes: from the beginning of this MBP file, 
 // forward to the end of the file.
 // Nevertheless, see these comments for order relative to: 
-//   "BEGINING OF USER DATA": order of Data marks.
+//   "BEGINNING OF USER DATA": order of Data marks.
 //   "FINAL GROUP OF MARKS": order of final marks.
 [for each {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK,
 		AUTHOR,TITLE,CATEGORY,GENRE,ABSTRACT,COVER,PUBLISHER,
@@ -95,10 +95,10 @@ BPAR
 <0x FF FF FF FF>
 [fi]
 
-// BEGINING OF USER DATA:
+// BEGINNING OF USER DATA:
 // Order of {NOTE,MARK,CORRECTION,DRAWING} : 
 // starts with user data at the end of the file, 
-// going backwards to the begining of the file:
+// going backwards to the beginning of the file:
 //--------------------------------------------------------------------
 [for each {NOTE,MARK,CORRECTION,DRAWING}]
 //-------------------------------
@@ -193,7 +193,7 @@ DATA
 DATA
 <0x 4 bytes = size of raw data>
 ADQM
-	// NOTE: bakground color is stored in corresponding BKMK.
+	// NOTE: background color is stored in corresponding BKMK.
 	[begin DRAWING format]
 		...4 = <0x 00 00 00 01> ???
 		<0x 4 bytes = X POSITION OF UPPER LEFT CORNER??? > 
@@ -339,7 +339,7 @@ PUBL
 
 // FINAL GROUP OF MARKS
 // Order of {NOTE,MARK,CORRECTION} : 
-// starts with user data at the begining of the file, 
+// starts with user data at the beginning of the file, 
 // going forwards to the end:
 //--------------------------------------------------------------------
 [for each {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK}]
