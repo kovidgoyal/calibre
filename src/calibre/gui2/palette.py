@@ -10,6 +10,13 @@ dark_color = QColor(45,45,45)
 dark_text_color = QColor('#ddd')
 
 
+def palette_is_dark(self):
+    return self.color(QPalette.ColorRole.Window).lightnessF() < self.color(QPalette.ColorRole.WindowText).lightnessF()
+
+
+QPalette.is_dark_theme = palette_is_dark
+
+
 def fix_palette_colors(p):
     if iswindows:
         # On Windows the highlighted colors for inactive widgets are the

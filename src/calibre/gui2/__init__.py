@@ -889,8 +889,7 @@ def choose_files_and_remember_all_files(
 
 def is_dark_theme():
     pal = QApplication.instance().palette()
-    col = pal.color(QPalette.ColorRole.Window)
-    return max(col.getRgb()[:3]) < 115
+    return pal.is_dark_theme()
 
 
 def choose_osx_app(window, name, title, default_dir='/Applications'):
