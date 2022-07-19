@@ -73,7 +73,7 @@ class Selector:
         #: +-------------------------+----------------+--------------------------------+
         #: | Invalid pseudo-class    | ``li:marker``  | ``None``                       |
         #: +-------------------------+----------------+--------------------------------+
-        #: | Functinal               | ``a::foo(2)``  | ``FunctionalPseudoElement(…)`` |
+        #: | Functional              | ``a::foo(2)``  | ``FunctionalPseudoElement(…)`` |
         #: +-------------------------+----------------+--------------------------------+
         #:
         # : .. _Lists3: http://www.w3.org/TR/2011/WD-css3-lists-20110524/#marker-pseudoelement

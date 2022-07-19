@@ -650,7 +650,7 @@ def decoded_range_to_document_position(decoded):
     # character, which would be in the inline direction.
     #  Unless the flag is set to use the end of the range:
     #  (because ranges indices may not exceed the range,
-    #   but CFI offets are allowed to be one past the end.)
+    #   but CFI offsets are allowed to be one past the end.)
     if decoded.use_range_end_pos:
         inline_vs_pos = scroll_viewport.rect_inline_end(rect)
     else:

@@ -481,7 +481,7 @@ def get_umask():
     return mask
 
 
-# call this at startup as it changed process global state, which doesnt work
+# call this at startup as it changed process global state, which doesn't work
 # with multi-threading. It's absurd there is no way to safely read the current
 # umask of a process.
 get_umask()

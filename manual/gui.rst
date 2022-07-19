@@ -421,7 +421,7 @@ A `search expression` is a sequence of `search terms` optionally separated by th
   * ``not tag:foo`` finds all books that don't contain the tag ``foo``
   * ``not (author:Asimov or author:Weber)`` finds all books not written by either Asimov or Weber.
 
-The above examples show examples of `search terms`. A basic `search term` is a sequence of characters not including spaces, quotes (``"``), backslashes (``\``), or parentheses (``( )``). It can be optionally preceeded by a column name specifier: the `lookup name` of a column followed by a colon (``:``), for example ``author:Asimov``. If a search term must contain a space then the entire term must be enclosed in quotes, as in ``title:"The Ring"``. If the search term must contain quotes then they must be `escaped` with backslashes. For example, to search for a series named `The "Ball" and The "Chain"`, use::
+The above examples show examples of `search terms`. A basic `search term` is a sequence of characters not including spaces, quotes (``"``), backslashes (``\``), or parentheses (``( )``). It can be optionally preceded by a column name specifier: the `lookup name` of a column followed by a colon (``:``), for example ``author:Asimov``. If a search term must contain a space then the entire term must be enclosed in quotes, as in ``title:"The Ring"``. If the search term must contain quotes then they must be `escaped` with backslashes. For example, to search for a series named `The "Ball" and The "Chain"`, use::
 
   series:"The \"Ball\" and The \"Chain\"
 
