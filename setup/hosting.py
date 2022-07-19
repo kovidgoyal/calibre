@@ -341,7 +341,6 @@ def generate_index():  # {{{
                     windows = [
                         '<li><a href="{0}" title="{1}">{1}</a></li>'.format(
                             x, 'Windows 64-bit Installer'
-                            if '64bit' in x else 'Windows 32-bit Installer'
                         ) for x in windows
                     ]
                     body.append(
@@ -368,7 +367,7 @@ def generate_index():  # {{{
                     linux = [
                         '<li><a href="{0}" title="{1}">{1}</a></li>'.format(
                             x, 'Linux 64-bit binary'
-                            if 'x86_64' in x else 'Linux 32-bit binary'
+                            if 'x86_64' in x else 'Linux ARM 64-bit binary'
                         ) for x in linux
                     ]
                     body.append(
