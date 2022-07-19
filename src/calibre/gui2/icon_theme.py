@@ -241,6 +241,12 @@ class ThemeCreateDialog(Dialog):
         v.setMinimum(1), v.setMaximum(1000000)
         l.addRow(_('&Version:'), v)
         self.license = lc = QLineEdit(self)
+        self.color_palette = cp = QComboBox(self)
+        cp.addItem(_('Light and Dark'), 'any')
+        cp.addItem(_('Light only'), 'light')
+        cp.addItem(_('Dark only'), 'dark')
+        cp.setToolTip(_('Specify the color palette this icon theme is suited for'))
+        l.addRow(_('&Color palette:'), cp)
         l.addRow(_('&License:'), lc)
         self.url = QLineEdit(self)
         l.addRow(_('&URL:'), self.url)
@@ -264,6 +270,7 @@ class ThemeCreateDialog(Dialog):
         return {
             'title': self.title.text().strip(),
             'author': self.author.text().strip(),
+            'color_palette': self.color_palette.data(),
             'version': self.version.value(),
             'description': self.description.toPlainText().strip(),
             'number': len(self.report.name_map) - len(self.report.extra),
@@ -444,8 +451,8 @@ def create_theme(folder=None, parent=None):
         f.write(raw)
 
     if use_in_calibre:
-        path = icon_resource_manager.user_theme_resource_file('any')
-        install_icon_theme(theme, d.icon_zip_data, path, 'any')
+        path = icon_resource_manager.user_theme_resource_file(theme['color_palette'])
+        install_icon_theme(theme, d.icon_zip_data, path, theme['color_palette'])
         icon_resource_manager.register_user_resource_files()
         icon_resource_manager.set_theme()
 # }}}
@@ -603,7 +610,7 @@ def default_theme():
     p = QPixmap()
     p.loadFromData(create_cover())
     return {
-        'name': 'default', 'title': _('Default icons'),
+        'name': 'default', 'title': _('Default icons'), 'color_palette': 'any',
         'user_msg': _('Use the calibre default icons'),
         'usage': 3_000_000, 'author': 'Kovid Goyal', 'number': dc,
         'cover-pixmap': p, 'compressed-size': os.path.getsize(P('icons.rcc', allow_user_override=False))
@@ -633,7 +640,8 @@ class ChooseThemeWidget(QWidget):
         elif self.for_theme == 'dark':
             msg = _('Choose an icon theme below. It will be used preferentially for dark color themes.'
                     ' If the default is chosen then the theme for "light and dark" will be used.')
-        self.currently_installed_theme_name = icon_resource_manager.user_icon_theme_metadata(for_theme).get('name')
+        self.currently_installed_theme_metadata = icon_resource_manager.user_icon_theme_metadata(for_theme)
+        self.currently_installed_theme_name = self.currently_installed_theme_metadata.get('name')
         self.msg = la = QLabel(msg)
         la.setWordWrap(True)
         vl.addWidget(la)
@@ -691,7 +699,7 @@ class ChooseThemeWidget(QWidget):
             item.setData(Qt.ItemDataRole.DecorationRole, pixmap)
 
     def show_themes(self, themes):
-        self.themes = [default_theme()] + list(themes)
+        self.themes = [default_theme()] + [t for t in themes if t.get('color_palette', 'any') in (self.for_theme, 'any')]
         self.re_sort()
         self.set_current_theme(self.currently_installed_theme_name)
 
@@ -932,6 +940,7 @@ class CommitChanges:
                 icon_resource_manager.remove_user_theme(x)
                 path = icon_resource_manager.user_theme_resource_file(x)
                 t = {k: theme[k] for k in 'name title version'.split()}
+                t['color_palette'] = theme.get('color_palette', 'any')
                 install_icon_theme(t, theme['buf'], path, x)
         icon_resource_manager.register_user_resource_files()
         icon_resource_manager.set_theme()
