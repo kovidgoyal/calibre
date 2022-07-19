@@ -50,7 +50,7 @@ class JASN(BasicNewsRecipe):
     def jasn_get_index(self):
         return self.index_to_soup('http://jasn.asnjournals.org/current.shtml')
 
-    # To parse artice toc
+    # To parse article toc
     def parse_index(self):
         parse_soup = self.jasn_get_index()
 

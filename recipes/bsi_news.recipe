@@ -7,17 +7,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class germanyBSI(BasicNewsRecipe):
-    # Titel of the Recipe
+    # Title of the Recipe
     # title = 'News des Bundesamt für Sicherheit in der Informationstechnik'
     title = 'BSI News - DE'
     cover_url = 'https://www.bsi.bund.de/SiteGlobals/Frontend/Images/BSI/logo.png'
     # Author
     __author__ = 'Volker Heggemann, VoHe'
-    # oldes article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days) 									---- can be edit by user
     oldest_article = 7
     # describes itself, 						 							---- can be edit by user
     max_articles_per_feed = 100
-    # speed up the download on fast computers be carefull (I test max.20)
+    # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage

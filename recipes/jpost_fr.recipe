@@ -59,7 +59,7 @@ class JerusalemPost(BasicNewsRecipe):
         # ------------------------------------------
         return print_url
 
-    # example of how links should be formated
+    # example of how links should be formatted
     # -------------------------------------------------------------------------
     # org   version =  http://fr.jpost.com/servlet/Satellite?pagename=JFrench/JPArticle/ShowFull&cid=1282804806075
     # print version =  http://fr.jpost.com/servlet/Satellite?cid=1282804806075&pagename=JFrench%2FJPArticle%2FPrinter

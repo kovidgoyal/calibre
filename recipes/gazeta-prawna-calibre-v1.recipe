@@ -64,7 +64,7 @@ class gazetaprawna(BasicNewsRecipe):
     ]
 
     def parse_feeds(self):
-        self.log(_('Gazeta Prawna overrided parse_feeds()'))
+        self.log(_('Gazeta Prawna overrode parse_feeds()'))
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
         for n, feed in enumerate(parsed_feeds):
             for a, article in enumerate(feed):

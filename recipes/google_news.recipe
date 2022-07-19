@@ -13,16 +13,16 @@ terms_to_search_for = (
 
 
 class google_news_de(BasicNewsRecipe):
-    # Titel of the Recipe - this is a sample
+    # Title of the Recipe - this is a sample
     title = 'Google News'
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Google_News_icon.svg/500px-Google_News_icon.svg.png'
     # Author
     __author__ = 'Volker Heggemann, VoHe'
-    # oldes article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days) 									---- can be edit by user
     oldest_article = 2
     # describes itself, 						 							---- can be edit by user
     max_articles_per_feed = 200
-    # speed up the download on fast computers be carefull (I test max.20)
+    # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
@@ -64,7 +64,7 @@ class google_news_de(BasicNewsRecipe):
             )
         for searchfor in terms_to_search_for:
             self.feeds.append(
-                ('Google news intrested in ' + searchfor,
+                ('Google news interested in ' + searchfor,
                  'https://news.google.com/news?cf=all&hl=' + country_code +
                  '+&pz=1&ned=' + country_code + '&q=' + searchfor + '&output=rss'))
         return BasicNewsRecipe.get_feeds(self)

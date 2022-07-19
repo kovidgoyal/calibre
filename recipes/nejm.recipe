@@ -41,7 +41,7 @@ class NEJM(BasicNewsRecipe):
     def nejm_get_index(self):
         return self.index_to_soup('https://www.nejm.org/toc/nejm/medical-journal')
 
-    # To parse artice toc
+    # To parse article toc
     def parse_index(self):
         soup = self.nejm_get_index()
         feeds = []

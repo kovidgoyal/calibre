@@ -19,7 +19,7 @@ class AdvancedUserRecipe1277305250(BasicNewsRecipe):
     __author__ = 'rty'
     __version__ = '1.0'
     language = 'zh'
-    pubisher = 'http://www.infzm.com'
+    publisher = 'http://www.infzm.com'
     description = 'Chinese Weekly Tabloid'
     category = 'News, China'
     remove_javascript = True

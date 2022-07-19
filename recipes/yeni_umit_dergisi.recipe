@@ -27,5 +27,5 @@ class YeniUmit(BasicNewsRecipe):
         (u'Yeni Umit', u'http://open.dapper.net/services/yeniumit'),
     ]
 
-    def print_version(self, url):  # there is a probem caused by table format
+    def print_version(self, url):  # there is a problem caused by table format
         return url.replace('http://www.yeniumit.com.tr/konular', 'http://www.yeniumit.com.tr/yazdir')

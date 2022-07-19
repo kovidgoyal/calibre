@@ -19,7 +19,7 @@ class TheBudgetFashionista(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
     publisher = 'TBF GROUP, LLC.'
-    category = 'news, fashion, comsetics, women'
+    category = 'news, fashion, cosmetics, women'
     lang = 'en-US'
     language = 'en'
     auto_cleanup = True

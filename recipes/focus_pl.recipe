@@ -21,7 +21,7 @@ class NYTimes(BasicNewsRecipe):
     def nejm_get_index(self):
         return self.index_to_soup('http://www.focus.pl/')
 
-    # To parse artice toc
+    # To parse article toc
     def parse_index(self):
         soup = self.nejm_get_index()
 

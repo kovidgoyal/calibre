@@ -90,7 +90,7 @@ class Clarin(BasicNewsRecipe):
 
     remove_attributes = ['lang']
 
-    # Images on hightlights view
+    # Images on highlights view
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
             picdiv = soup.find('img')

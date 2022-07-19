@@ -5,7 +5,7 @@
 #   1) Summary of the article are noow available
 #   2) Additional sections  International, France, Economie and Culture have
 # been added through custom entries in the function my_parse_index.
-#   3) Fix the cover image so it doesnt disappear from the Kindle menu
+#   3) Fix the cover image so it doesn't disappear from the Kindle menu
 # ( cover image format is changed to .jpeg)
 # 14 Jan 2021 - Add Mediapart Logo url as masthead_url and change cover
 #   by overlaying the date on top of the Mediapart cover
@@ -69,7 +69,7 @@ class Mediapart(BasicNewsRecipe):
     # The feed at 'http://www.mediapart.fr/articles/feed' only displayed the 10
     # last elements so the articles are indexed on specific pages
     # in the function my_parse_index. In this function the article are parsed
-    # using the funtion get_articles and the dict values dict_article_sources
+    # using the function get_articles and the dict values dict_article_sources
 
     def parse_feeds(self):
         feeds = super(Mediapart, self).parse_feeds()

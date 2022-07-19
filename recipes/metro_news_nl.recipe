@@ -33,7 +33,7 @@ from calibre.utils.magick import Image
     Changed a lot of custom code into calibre code as the default code of calibre has become much faster since the first version fo this recipe
     Added new feeds
     Updated css
-    Changed order of regex to speedup proces
+    Changed order of regex to speedup process
  Version 1.9.3 23-05-2012
     Updated Cover image
  Version 1.9.4 19-04-2013

@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1278773519(BasicNewsRecipe):
     title = u'Waco Tribune Herald'
     __author__ = 'rty'
-    pubisher = 'A Robinson Media Company'
+    publisher = 'A Robinson Media Company'
     description = 'Waco, Texas, Newspaper'
     category = 'News, Texas, Waco'
     oldest_article = 7

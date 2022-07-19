@@ -6,13 +6,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1591780224(BasicNewsRecipe):
     title          = 'Linux News'
-    # Titel of the Recipe
+    # Title of the Recipe
     cover_url = 'https://linuxnews.de/wp-content/themes/linuxnews/images/linuxnews-logo.png'
     # Author
     __author__ = 'Volker Heggemann, VoHe'
-    # oldes article to download (in days)
+    # oldest article to download (in days)
     oldest_article = 4
-    # speed up the download on fast computers be carefull (I test max.20)
+    # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage

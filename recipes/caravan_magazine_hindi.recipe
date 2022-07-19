@@ -68,7 +68,7 @@ class CaravanMagazineHindi(BasicNewsRecipe):
             raise ValueError('Login failed, check your username and password')
         return br
 
-    # To parse artice toc
+    # To parse article toc
     def parse_index(self):
         base_url = 'https://www.caravanmagazine.in/'
         soup = self.index_to_soup('{0}magazine'.format(base_url))

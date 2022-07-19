@@ -28,5 +28,5 @@ class Yagmur(BasicNewsRecipe):
         (u'Yagmur', u'http://open.dapper.net/services/yagmur'),
     ]
 
-    def print_version(self, url):  # there is a probem caused by table format
+    def print_version(self, url):  # there is a problem caused by table format
         return url.replace('http://www.yagmurdergisi.com.tr/konu_goster.php?konu_id=', 'http://www.yagmurdergisi.com.tr/yazformati.php?konu_id=')

@@ -324,7 +324,7 @@ class NewYorkTimes(BasicNewsRecipe):
             return self.parse_web_sections()
         return self.parse_todays_page()
 
-    # The NYT occassionally returns bogus articles for some reason just in case
+    # The NYT occasionally returns bogus articles for some reason just in case
     # it is because of cookies, dont store cookies
     def get_browser(self, *args, **kwargs):
         return self

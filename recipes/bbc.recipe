@@ -234,8 +234,8 @@ class BBCNews(BasicNewsRecipe):
     #
     oldest_article = 1.5
 
-    # Number of simultaneous downloads. 20 is consistantly working fine on the
-    # BBC News feeds with no problems. Speeds things up from the defualt of 5.
+    # Number of simultaneous downloads. 20 is consistently working fine on the
+    # BBC News feeds with no problems. Speeds things up from the default of 5.
     # If you have a lot of feeds and/or have increased oldest_article above 2
     # then you may wish to try increasing simultaneous_downloads to 25-30,
     # Or, of course, if you are in a hurry. [I've not tried beyond 20.]

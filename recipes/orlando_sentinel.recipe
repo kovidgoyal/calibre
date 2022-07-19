@@ -22,7 +22,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
          u'http://feeds.feedburner.com/orlandosentinel/features/lifestyle'),
     ]
     __author__ = 'rty'
-    pubisher = 'OrlandoSentinel.com'
+    publisher = 'OrlandoSentinel.com'
     description = 'Orlando, Florida, Newspaper'
     category = 'News, Orlando, Florida'
 

@@ -31,7 +31,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
     def johm_get_index(self):
         return self.index_to_soup('https://shmpublications.onlinelibrary.wiley.com/toc/15535606/current')
 
-    # To parse artice toc
+    # To parse article toc
     def parse_index(self):
         soup = self.johm_get_index()
         toc = soup.find(id='issueTocGroups')

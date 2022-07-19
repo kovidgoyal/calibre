@@ -49,7 +49,7 @@ class KANewsRecipe(BasicNewsRecipe):
                    dict(name=['span'], attrs={'class': 'comm_info'}),
                    dict(name=['h3'], attrs={'id': 'artdetail_unterzeile'})]
 
-    # removing style attribute _after_ removing specifig tags above
+    # removing style attribute _after_ removing specific tags above
     remove_attributes = ['width', 'height', 'style']
 
     extra_css = '''

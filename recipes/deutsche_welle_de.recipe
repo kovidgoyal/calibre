@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 # 1: Base Version
 # 2: Added rules for wdr.de, ndr.de, br-online.de
 # 3: Added rules for rbb-online.de, boerse.ard.de, sportschau.de
-# 4: New design of tagesschau.de implemented. Simplyfied.
+# 4: New design of tagesschau.de implemented. Simplified.
 # 5: Taken out the pictures.
 
 
