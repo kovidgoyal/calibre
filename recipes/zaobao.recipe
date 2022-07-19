@@ -134,9 +134,9 @@ class ZAOBAO(BasicNewsRecipe):
                 self.log(_('added feed %s') % (feed.title))
 
         for i, feed in enumerate(parsed_feeds):
-            # workaorund a strange problem: Somethimes the xml encoding is not
-            # apllied correctly by parse()
-            weired_encoding_detected = False
+            # workaround a strange problem: Sometimes the xml encoding is not
+            # applied correctly by parse()
+            weird_encoding_detected = False
             if not isinstance(feed.description, type(u'')) and self.encoding and feed.description:
                 self.log(
                     _('Feed %s is not encoded correctly, manually replace it') % (feed.title))
@@ -144,10 +144,10 @@ class ZAOBAO(BasicNewsRecipe):
                     self.encoding, 'replace')
             elif feed.description.find(self.DESC_SENSE) == -1 and self.encoding and feed.description:
                 self.log(
-                    _('Feed %s is weired encoded, manually redo all') % (feed.title))
+                    _('Feed %s is weirdly encoded, manually redo all') % (feed.title))
                 feed.description = feed.description.encode(
                     'cp1252', 'replace').decode(self.encoding, 'replace')
-                weired_encoding_detected = True
+                weird_encoding_detected = True
 
             for a, article in enumerate(feed):
                 if not isinstance(article.title, type(u'')) and self.encoding:
@@ -161,7 +161,7 @@ class ZAOBAO(BasicNewsRecipe):
                     article.text_summary = article.text_summary.decode(
                         self.encoding, 'replace')
                     article.summary = article.text_summary
-                if weired_encoding_detected:
+                if weird_encoding_detected:
                     if article.title:
                         article.title = article.title.encode(
                             'cp1252', 'replace').decode(self.encoding, 'replace')
