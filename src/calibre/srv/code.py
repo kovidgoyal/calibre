@@ -35,7 +35,7 @@ from polyglot.builtins import iteritems, itervalues
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
-@endpoint('', auth_required=False)
+@endpoint('', auth_required=True)  # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
 def index(ctx, rd):
     ans_file = lopen(P('content-server/index-generated.html'), 'rb')
     if not in_develop_mode:
