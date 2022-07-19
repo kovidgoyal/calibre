@@ -95,7 +95,7 @@ class JetBook(Device):
 
     output_profile = 'jetbook5'
     output_format  = 'EPUB'
-    name = 'JetBook'
+    untranslated_name = name = 'JetBook'
     manufacturer = 'Ectaco'
     id = 'jetbook'
 
@@ -104,7 +104,7 @@ class JetBookMini(Device):
 
     output_profile = 'jetbook5'
     output_format  = 'FB2'
-    name = 'JetBook Mini'
+    untranslated_name = name = 'JetBook Mini'
     manufacturer = 'Ectaco'
     id = 'jetbookmini'
 
@@ -113,7 +113,7 @@ class KindleDX(Kindle):
 
     output_profile = 'kindle_dx'
     output_format  = 'MOBI'
-    name = 'Kindle DX'
+    untranslated_name = name = 'Kindle DX'
     id = 'kindledx'
 
 
@@ -125,13 +125,13 @@ class KindleFire(KindleDX):
 
 
 class KindlePW(Kindle):
-    name = 'Kindle PaperWhite'
+    untranslated_name = name = 'Kindle PaperWhite'
     id = 'kindle_pw'
     output_profile = 'kindle_pw3'
 
 
 class KindleVoyage(Kindle):
-    name = 'Kindle Voyage/Oasis'
+    untranslated_name = name = 'Kindle Voyage/Oasis'
     id = 'kindle_voyage'
     output_profile = 'kindle_voyage'
 
@@ -160,7 +160,7 @@ class KoboVox(Kobo):
 
 
 class Booq(Device):
-    name = 'bq Classic'
+    untranslated_name = name = 'bq Classic'
     manufacturer = 'Booq'
     output_profile = 'sony'
     output_format = 'EPUB'
@@ -168,7 +168,7 @@ class Booq(Device):
 
 
 class TheBook(Device):
-    name = 'The Book'
+    untranslated_name = name = 'The Book'
     manufacturer = 'Augen'
     output_profile = 'sony'
     output_format = 'EPUB'
@@ -176,21 +176,21 @@ class TheBook(Device):
 
 
 class Avant(Booq):
-    name = 'bq Avant'
+    untranslated_name = name = 'bq Avant'
 
 
 class AvantXL(Booq):
-    name = 'bq Avant XL'
+    untranslated_name = name = 'bq Avant XL'
     output_profile = 'ipad'
 
 
 class BooqPocketPlus(Booq):
-    name = 'bq Pocket Plus'
+    untranslated_name = name = 'bq Pocket Plus'
     output_profile = 'sony300'
 
 
 class BooqCervantes(Booq):
-    name = 'bq Cervantes'
+    untranslated_name = name = 'bq Cervantes'
 
 
 class BOOX(Device):
@@ -203,21 +203,21 @@ class BOOX(Device):
 
 class Sony300(Sony505):
 
-    name = 'SONY Reader Pocket Edition'
+    untranslated_name = name = 'SONY Reader Pocket Edition'
     id = 'prs300'
     output_profile = 'sony300'
 
 
 class Sony900(Sony505):
 
-    name = 'SONY Reader Daily Edition'
+    untranslated_name = name = 'SONY Reader Daily Edition'
     id = 'prs900'
     output_profile = 'sony900'
 
 
 class SonyT3(Sony505):
 
-    name = 'SONY Reader T3'
+    untranslated_name = name = 'SONY Reader T3'
     id = 'prst3'
     output_profile = 'sonyt3'
 
@@ -231,20 +231,20 @@ class Nook(Sony505):
 
 class NookColor(Nook):
     id = 'nook_color'
-    name = 'Nook Color'
+    untranslated_name = name = 'Nook Color'
     output_profile = 'nook_color'
     supports_color = True
 
 
 class NookTablet(NookColor):
     id = 'nook_tablet'
-    name = 'Nook Tablet/HD'
+    untranslated_name = name = 'Nook Tablet/HD'
     output_profile = 'nook_hd_plus'
 
 
 class CybookG3(Device):
 
-    name = 'Cybook Gen 3'
+    untranslated_name = name = 'Cybook Gen 3'
     output_format = 'MOBI'
     output_profile = 'cybookg3'
     manufacturer = 'Bookeen'
@@ -253,7 +253,7 @@ class CybookG3(Device):
 
 class CybookOpus(CybookG3):
 
-    name = 'Cybook Opus'
+    untranslated_name = name = 'Cybook Opus'
     output_format = 'EPUB'
     output_profile = 'cybook_opus'
     id = 'cybook_opus'
@@ -261,26 +261,26 @@ class CybookOpus(CybookG3):
 
 class CybookOrizon(CybookOpus):
 
-    name = 'Cybook Orizon'
+    untranslated_name = name = 'Cybook Orizon'
     id = 'cybook_orizon'
 
 
 class CybookOdyssey(CybookOpus):
 
-    name = 'Cybook Odyssey'
+    untranslated_name = name = 'Cybook Odyssey'
     id = 'cybook_odyssey'
 
 
 class CybookMuse(CybookOpus):
 
-    name = 'Cybook Muse'
+    untranslated_name = name = 'Cybook Muse'
     id = 'cybook_muse'
     output_profile = 'tablet'
 
 
 class BookeenDiva(CybookOpus):
 
-    name = 'Bookeen Diva HD'
+    untranslated_name = name = 'Bookeen Diva HD'
     id = 'bookeen_diva'
     output_profile = 'tablet'
 
@@ -288,7 +288,7 @@ class BookeenDiva(CybookOpus):
 class PocketBook360(CybookOpus):
 
     manufacturer = 'PocketBook'
-    name = _('PocketBook 360 and newer models')
+    untranslated_name, name = gettext('PocketBook 360 and newer models')
     id = 'pocketbook360'
     output_profile = 'cybook_opus'
 
@@ -296,21 +296,21 @@ class PocketBook360(CybookOpus):
 class PocketBook(CybookG3):
 
     manufacturer = 'PocketBook'
-    name = 'PocketBook 301/302'
+    untranslated_name = name = 'PocketBook 301/302'
     id = 'pocketbook'
     output_profile = 'cybookg3'
 
 
 class PocketBook900(PocketBook):
 
-    name = 'PocketBook 900'
+    untranslated_name = name = 'PocketBook 900'
     id = 'pocketbook900'
     output_profile = 'pocketbook_900'
 
 
 class PocketBookPro912(PocketBook):
 
-    name = 'PocketBook Pro 912'
+    untranslated_name = name = 'PocketBook Pro 912'
     id = 'pocketbookpro912'
     output_profile = 'pocketbook_pro_912'
 
@@ -324,7 +324,7 @@ class PocketBookLux(PocketBook):
 
 class PocketBookHD(PocketBook):
 
-    name = 'PocketBook PocketBook HD Touch (1-3)'
+    untranslated_name = name = 'PocketBook PocketBook HD Touch (1-3)'
     id = 'pocketbookhd'
     short_name = 'pocketbook_hd'
 
@@ -338,7 +338,7 @@ class PocketBookInkpad3(PocketBook):
 
 class iPhone(Device):
 
-    name = 'iPhone/iPad/iPod Touch'
+    untranslated_name = name = 'iPhone/iPad/iPod Touch'
     output_format = 'EPUB'
     manufacturer = 'Apple'
     id = 'iphone'
@@ -395,7 +395,7 @@ class AndroidTabletWithKindle(AndroidPhoneWithKindle):
 
 class HanlinV3(Device):
 
-    name = 'Hanlin V3'
+    untranslated_name = name = 'Hanlin V3'
     output_format = 'EPUB'
     output_profile = 'hanlinv3'
     manufacturer = 'Jinke'
@@ -404,35 +404,35 @@ class HanlinV3(Device):
 
 class HanlinV5(HanlinV3):
 
-    name = 'Hanlin V5'
+    untranslated_name = name = 'Hanlin V5'
     output_profile = 'hanlinv5'
     id = 'hanlinv5'
 
 
 class BeBook(HanlinV3):
 
-    name = 'BeBook'
+    untranslated_name = name = 'BeBook'
     manufacturer = 'BeBook'
     id = 'bebook'
 
 
 class BeBookMini(HanlinV5):
 
-    name = 'BeBook Mini'
+    untranslated_name = name = 'BeBook Mini'
     manufacturer = 'BeBook'
     id = 'bebook_mini'
 
 
 class EZReader(HanlinV3):
 
-    name = 'EZReader'
+    untranslated_name = name = 'EZReader'
     manufacturer = 'Astak'
     id = 'ezreader'
 
 
 class EZReaderPP(HanlinV5):
 
-    name = 'EZReader Pocket Pro'
+    untranslated_name = name = 'EZReader Pocket Pro'
     manufacturer = 'Astak'
     id = 'ezreader_pp'
 
