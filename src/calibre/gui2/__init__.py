@@ -1415,7 +1415,18 @@ class Application(QApplication):
             return True
         else:
             if etype == QEvent.Type.ApplicationPaletteChange:
+                if DEBUG:
+                    if self.ignore_palette_changes:
+                        print('ApplicationPaletteChange event ignored', file=sys.stderr)
+                    else:
+                        print('ApplicationPaletteChange event received', file=sys.stderr)
                 if not self.ignore_palette_changes:
+                    if gprefs['color_palette'] != 'system':
+                        pal = dark_palette() if gprefs['color_palette'] == 'dark' else self.original_palette
+                        if self.palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
+                            if DEBUG:
+                                print('Detected a spontaneous palette change in windows, reverting it', file=sys.stderr)
+                            self.set_palette(pal)
                     self.on_palette_change()
             return QApplication.event(self, e)
 
