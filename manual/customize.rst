@@ -29,6 +29,9 @@ calibre has a highly modular design. Various parts of it can be customized.  Her
 
    plugins
 
+
+.. _customize_env_vars:
+
 Environment variables
 -----------------------
 

@@ -928,6 +928,16 @@ solve it, look for a corrupted font file on your system, in ~/Library/Fonts or t
 check for corrupted fonts in macOS is to start the "Font Book" application, select all fonts and then in the File
 menu, choose "Validate fonts".
 
+I get only a black or white screen when running the calibre E-book viewer?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This will be because of an incompatibility between Qt WebEngine, which the
+viewer uses to render and the GPU drivers on your system. First try
+upgrading the GPU drivers. If that does not help, you can try turning off
+hardware acceleration in Qt WebEngine by setting the environment variable
+``QTWEBENGINE_CHROMIUM_FLAGS`` to the value ``--disable-gpu``.
+See :ref:`customize_env_vars` for how to change environment variables.
+
 
 I downloaded the installer, but it is not working?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1074,8 +1084,8 @@ a modern Linux distribution, you should have no problems installing calibre onto
     do require the X server libraries to be installed on your system. This is
     because of Qt, which is used for various image processing tasks, and links
     against these libraries. If you get an ImportError about some Qt modules,
-    you are likely missing some X libraries. Typicall candidates are:
-   ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
+    you are likely missing some X libraries. Typical candidates are:
+    ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
 
 You can run the calibre server via the command::
 
@@ -1085,7 +1095,7 @@ You can download news and convert it into an e-book with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead and use ``--output-profile kindle``.
+If you want to generate MOBI, use :file:`outputfile.mobi` instead and use ``--output-profile kindle``.
 
 You can email downloaded news with the command::
 
