@@ -170,10 +170,10 @@ def default_cover_icons(cols=5):
         count += 1
 
 
-def create_cover(report=None, icons=(), cols=5, size=120, padding=16):
+def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=False):
     icons = icons or tuple(default_cover_icons(cols))
     rows = int(math.ceil(len(icons) / cols))
-    with Canvas(cols * (size + padding), rows * (size + padding), bgcolor='#eee') as canvas:
+    with Canvas(cols * (size + padding), rows * (size + padding), bgcolor='#444' if darkbg else '#eee') as canvas:
         y = -size - padding // 2
         x = 0
         for i, icon in enumerate(icons):
@@ -270,7 +270,7 @@ class ThemeCreateDialog(Dialog):
         return {
             'title': self.title.text().strip(),
             'author': self.author.text().strip(),
-            'color_palette': self.color_palette.data(),
+            'color_palette': self.color_palette.currentData(),
             'version': self.version.value(),
             'description': self.description.toPlainText().strip(),
             'number': len(self.report.name_map) - len(self.report.extra),
@@ -325,8 +325,9 @@ class Compress(QProgressDialog):
 
     update_signal = pyqtSignal(object, object)
 
-    def __init__(self, report, parent=None):
+    def __init__(self, report, theme_metadata, parent=None):
         total = 2 + len(report.name_map)
+        self.theme_metadata = theme_metadata
         QProgressDialog.__init__(self, _('Losslessly optimizing images, please wait...'), _('&Abort'), 0, total, parent)
         self.setWindowTitle(self.labelText())
         self.setWindowIcon(QIcon.ic('lt.png'))
@@ -355,15 +356,16 @@ class Compress(QProgressDialog):
 
     def run_compress(self, report):
         try:
-            self.raw, self.prefix, self.icon_zip_data = create_themeball(report, self.onprogress, self.abort)
+            self.raw, self.prefix, self.icon_zip_data = create_themeball(report, self.theme_metadata, self.onprogress, self.abort)
         except Exception:
             import traceback
+            traceback.print_exc()
             self.update_signal.emit(-1, traceback.format_exc())
         else:
             self.update_signal.emit(self.maximum(), '')
 
 
-def create_themeball(report, progress=None, abort=None):
+def create_themeball(report, theme_metadata, progress=None, abort=None):
     pool = ThreadPool(processes=cpu_count())
     buf = BytesIO()
     num = count()
@@ -390,7 +392,7 @@ def create_themeball(report, progress=None, abort=None):
     errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map))))
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
-        return
+        return None, None, None
     if errors:
         e = errors[0]
         reraise(*e)
@@ -405,7 +407,7 @@ def create_themeball(report, progress=None, abort=None):
     buf.seek(0)
     icon_zip_data = buf
     if abort is not None and abort.is_set():
-        return None, None
+        return None, None, None
     if progress is not None:
         progress(next(num), _('Compressing theme file'))
     import lzma
@@ -413,11 +415,11 @@ def create_themeball(report, progress=None, abort=None):
     buf = BytesIO()
     prefix = report.name
     if abort is not None and abort.is_set():
-        return None, None
+        return None, None, None
     with ZipFile(buf, 'w') as zf:
         with lopen(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
-        zf.writestr(prefix + '/' + THEME_COVER, create_cover(report))
+        zf.writestr(prefix + '/' + THEME_COVER, create_cover(report, darkbg=theme_metadata.get('color_palette') == 'dark'))
         zf.writestr(prefix + '/' + 'icons.zip.xz', compressed, compression=ZIP_STORED)
     if progress is not None:
         progress(next(num), _('Finished'))
@@ -437,7 +439,7 @@ def create_theme(folder=None, parent=None):
     use_in_calibre = d.use_in_calibre.isChecked()
     theme = d.metadata
     d.save_metadata()
-    d = Compress(d.report, parent=parent)
+    d = Compress(d.report, theme, parent=parent)
     d.exec()
     if d.wasCanceled() or d.raw is None:
         return
