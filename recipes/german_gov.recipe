@@ -3,7 +3,7 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class GermanGovermentPress(BasicNewsRecipe):
+class GermanGovernmentPress(BasicNewsRecipe):
     title = u'Pressemitteilungen der Bundesregierung'
     oldest_article = 14
     __author__ = 'malfi'

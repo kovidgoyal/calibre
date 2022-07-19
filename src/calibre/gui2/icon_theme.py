@@ -228,7 +228,7 @@ class ThemeCreateDialog(Dialog):
         l = w.l = QFormLayout(w)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
-        self.mising_icons = mi = QListWidget(mg)
+        self.missing_icons = mi = QListWidget(mg)
         mi.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         mg.l = QVBoxLayout(mg)
         mg.l.addWidget(mi)
@@ -305,7 +305,7 @@ class ThemeCreateDialog(Dialog):
         else:
             title = _('No missing icons')
         self.missing_icons_group.setTitle(title)
-        mi = self.mising_icons
+        mi = self.missing_icons
         mi.clear()
         for name in sorted(self.report.missing):
             QListWidgetItem(QIcon(I(name, allow_user_override=False)), name, mi)

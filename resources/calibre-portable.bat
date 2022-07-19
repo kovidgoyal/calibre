@@ -196,7 +196,7 @@ REM responsive while calibre is running.  Within calibre itself
 REM the background processes should be set to run with 'low' priority.
 
 REM Using the START command starts up Calibre in a separate process.
-REM If used without /WAIT option it launches calibre and contines batch file.
+REM If used without /WAIT option it launches calibre and continues batch file.
 REM normally this would simply run off the end and close the Command window.
 REM Use with /WAIT to wait until calibre completes to run a task on exit
 REM --------------------------------------------------------

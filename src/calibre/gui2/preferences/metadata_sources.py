@@ -352,7 +352,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def pc_finished(self):
         try:
-            self.pc.finished.diconnect()
+            self.pc.finished.disconnect()
         except:
             pass
         self.stack.setCurrentIndex(0)

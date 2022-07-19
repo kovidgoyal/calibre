@@ -99,7 +99,7 @@
         <xsl:value-of select="fb:last-name"/>
         <br/>
     </xsl:template>
-    <!-- secuence template -->
+    <!-- sequence template -->
     <xsl:template name="sequence">
         <li/>
         <xsl:value-of select="@name"/>
