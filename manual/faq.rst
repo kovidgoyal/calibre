@@ -1066,7 +1066,7 @@ First, you must install calibre onto your Linux server. If your server is using
 a modern Linux distribution, you should have no problems installing calibre onto it.
 
 .. note::
-    calibre needs GLIBC >= 2.18 and libstdc++ >= 6.0.21. If you have an older
+    calibre needs GLIBC >= 2.31 and libstdc++ >= 6.0.28. If you have an older
     server, you will either need to compile these from source, or use calibre
     3.48 which requires GLIBC >= 2.17 or 2.85.1 which requires GLIBC >= 2.13 or
     calibre 1.48 which requires only GLIBC >= 2.10. In addition, although the
@@ -1074,7 +1074,8 @@ a modern Linux distribution, you should have no problems installing calibre onto
     do require the X server libraries to be installed on your system. This is
     because of Qt, which is used for various image processing tasks, and links
     against these libraries. If you get an ImportError about some Qt modules,
-    you are likely missing some X libraries.
+    you are likely missing some X libraries. Typicall candidates are:
+   ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
 
 You can run the calibre server via the command::
 
