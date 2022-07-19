@@ -1551,9 +1551,18 @@ def get_container(path, log=None, tdir=None, tweak_mode=False):
         isdir = os.path.isdir(path)
     except Exception:
         isdir = False
-    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
-            else EpubContainer)(path, log, tdir=tdir)
-    ebook.tweak_mode = tweak_mode
+    own_tdir = not tdir
+    ebook_cls = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
+            else EpubContainer)
+    if own_tdir:
+        tdir = PersistentTemporaryDirectory(f'_{ebook_cls.book_type}_container')
+    try:
+        ebook = ebook_cls(path, log, tdir=tdir)
+        ebook.tweak_mode = tweak_mode
+    except BaseException:
+        if own_tdir:
+            shutil.rmtree(tdir, ignore_errors=True)
+        raise
     return ebook
 
 
