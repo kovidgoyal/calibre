@@ -117,12 +117,15 @@ If you have created a beautiful set of icons and wish to share them with other
 calibre users via calibre's builtin icon theme support, you can easily package
 up your icons into a theme. To do so, go to
 :guilabel:`Preferences->Miscellaneous->Create icon theme`, select the folder
-where you have put your icons (usually the :file:`resources/images` folder in
-the calibre config folder, as described above). Then fill up the theme
-metadata and click OK.  This will result in a ZIP file containing the theme
+where you have put your icons. Then fill up the theme
+metadata and click OK. This will result in a ZIP file containing the theme
 icons. You can upload that to the calibre forum at `Mobileread
 <https://www.mobileread.com/forums/forumdisplay.php?f=166>`__ and then I will
 make your theme available via calibre's builtin icon theme system.
+By default, the icon theme you just created will also be installed as the
+current theme in calibre. If you are testing your theme, remember to remove
+the images from the :file:`resources/images` folder so that the icons from the
+theme are used.
 
 As of calibre 6, you can have custom icons for light and dark mode. Simply
 create two versions of the icon and name the files with the suffix
