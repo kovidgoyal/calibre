@@ -118,16 +118,12 @@ dpiScaled(qreal value) {
 #endif
 }
 
-CalibreStyle::CalibreStyle(int transient_scroller) : QProxyStyle(QString::fromUtf8("Fusion")), icon_map(), transient_scroller(transient_scroller) {
+CalibreStyle::CalibreStyle(int transient_scroller) : QProxyStyle(QString::fromUtf8("Fusion")), transient_scroller(transient_scroller) {
     setObjectName(QString("calibre"));
     desktop_environment = detectDesktopEnvironment();
     button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
     if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment || QLatin1String("CINNAMON") == desktop_environment || QLatin1String("X-CINNAMON") == desktop_environment)
         button_layout = QDialogButtonBox::GnomeLayout;
-}
-
-void CalibreStyle::set_icon_map(QHash<unsigned long, QString> &ic) {
-    icon_map = ic;
 }
 
 int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const {
@@ -157,17 +153,9 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
 }
 
 QIcon CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption * option, const QWidget * widget) const {
-    if (icon_map.contains(standardIcon)) {
-        QString q = icon_map.value(standardIcon);
-        if (q.contains('.')) return QIcon(q);
-        QIcon ans = QIcon::fromTheme(icon_map.value(standardIcon));
-        if (ans.isNull() && QIcon::themeName().contains("user-any")) {
-            const bool is_dark_theme = QApplication::instance()->property("is_dark_theme").toBool();
-            QIcon q(QString(":/icons/calibre-default-%1/images/%2.png").arg(is_dark_theme ? "dark" : "light").arg(icon_map.value(standardIcon)));
-            if (!q.isNull()) ans = q;
-        }
-        return ans;
-    }
+    QIcon ret;
+    QMetaObject::invokeMethod(QApplication::instance(), "get_qt_standard_icon", Q_RETURN_ARG(QIcon, ret), Q_ARG(int, standardIcon));
+    if (!ret.isNull()) return ret;
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 

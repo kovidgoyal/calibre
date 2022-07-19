@@ -18,19 +18,6 @@ class CalibreStyle : QProxyStyle {
 
 public:
     CalibreStyle(int transient_scroller);
-
-    void set_icon_map(SIP_PYDICT icon_map_);
-%MethodCode
-        QHash<unsigned long, QString> icon_map; 
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(a0, &pos, &key, &value)) {
-            icon_map.insert(PyLong_AsUnsignedLong(key), QString::fromUtf8(PyUnicode_AsUTF8(value)));
-        }
-        sipCpp->set_icon_map(icon_map);
-%End
-
-
 };
 
 

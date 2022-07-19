@@ -91,14 +91,12 @@ private:
 
 class CalibreStyle : public QProxyStyle {
     protected:
-        QHash<unsigned long, QString> icon_map;
         QByteArray desktop_environment;
         QDialogButtonBox::ButtonLayout button_layout;
         int transient_scroller;
 
     public:
         CalibreStyle(int transient_scroller);
-        void set_icon_map(QHash<unsigned long, QString> &icon_map);
         virtual int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const;
         virtual QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0, const QWidget * widget = 0) const;
         virtual int pixelMetric(PixelMetric metric, const QStyleOption * option = 0, const QWidget * widget = 0) const;

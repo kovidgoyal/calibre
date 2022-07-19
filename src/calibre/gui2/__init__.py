@@ -16,7 +16,7 @@ from qt.core import (
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon, QIODevice,
     QLocale, QNetworkProxyFactory, QObject, QPalette, QResource, QSettings,
     QSocketNotifier, QStringListModel, Qt, QThread, QTimer, QTranslator,
-    QUrl, pyqtSignal
+    QUrl, pyqtSignal, pyqtSlot
 )
 from threading import Lock, RLock
 
@@ -1160,6 +1160,10 @@ class Application(QApplication):
     @property
     def is_dark_theme(self):
         return self.palette_manager.is_dark_theme
+
+    @pyqtSlot(int, result=QIcon)
+    def get_qt_standard_icon(self, standard_pixmap):
+        return self.palette_manager.get_qt_standard_icon(standard_pixmap)
 
     def safe_restore_geometry(self, widget, geom):
         # See https://bugreports.qt.io/browse/QTBUG-77385
