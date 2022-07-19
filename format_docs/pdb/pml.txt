@@ -86,7 +86,7 @@ they do.
                                 code is decimal XXX. See the PML character
                                 table for details.
 \UXXXX                          Insert non-ASCII character whose Unicode code
-                                is hexidecimal XXXX. See the Extended PML
+                                is hexadecimal XXXX. See the Extended PML
                                 character table for details.
 \m="imagename.png"              Insert the named image. See the section on
                                 Images below.
@@ -590,7 +590,7 @@ In addition to the special characters supported by earlier versions of eReader
 (which can be accessed using the \a### tag), all versions of eReader Pro and
 eReader version 2.4 and later include support for additional special characters
 and symbols. These symbols can be accessed using the \U#### tag, where #### are
-four hexidecimal digits giving the Unicode encoding of the special character.
+four hexadecimal digits giving the Unicode encoding of the special character.
 
 Only the limited subset of Unicode characters given in the table below are
 supported. In addition, some of the characters that are included in the table
@@ -700,30 +700,30 @@ Spacing Modifier Letters
 ˘   &#728;     \U02D8     BREVE
 ˙   &#729;     \U02D9     DOT ABOVE
 Greek and Coptic
-Α     &#913;     \U0391     GREEK CAPTIAL LETTER ALPHA
-Β     &#914;     \U0392     GREEK CAPTIAL LETTER BETA
-Γ     &#915;     \U0393     GREEK CAPTIAL LETTER GAMMA
-Δ     &#917;     \U0394     GREEK CAPTIAL LETTER DELTA
-Ε     &#917;     \U0395     GREEK CAPTIAL LETTER EPSILON
-Ζ     &#918;     \U0396     GREEK CAPTIAL LETTER ZETA
-Η     &#919;     \U0397     GREEK CAPTIAL LETTER ETA
-Θ     &#920;     \U0398     GREEK CAPTIAL LETTER THETA
-Ι     &#921;     \U0399     GREEK CAPTIAL LETTER IOTA
-Κ     &#922;     \U039A     GREEK CAPTIAL LETTER KAPPA
-Λ     &#923;     \U039B     GREEK CAPTIAL LETTER LAMBDA
-Μ     &#924;     \U039C     GREEK CAPTIAL LETTER MU
-Ν     &#925;     \U039D     GREEK CAPTIAL LETTER NU
-Ξ     &#926;     \U039E     GREEK CAPTIAL LETTER XI
-Ο     &#927;     \U039F     GREEK CAPTIAL LETTER OMICRON
-Π     &#928;     \U03A0     GREEK CAPTIAL LETTER PI
-Ρ     &#929;     \U03A1     GREEK CAPTIAL LETTER RHO
-Σ     &#931;     \U03A3     GREEK CAPTIAL LETTER SIGMA
-Τ     &#932;     \U03A4     GREEK CAPTIAL LETTER TAU
-Υ     &#933;     \U03A5     GREEK CAPTIAL LETTER UPSILON
-Φ     &#934;     \U03A6     GREEK CAPTIAL LETTER PHI
-Χ     &#935;     \U03A7     GREEK CAPTIAL LETTER CHI
-Ψ     &#936;     \U03A8     GREEK CAPTIAL LETTER PSI
-Ω     &#937;     \U03A9     GREEK CAPTIAL LETTER OMEGA
+Α     &#913;     \U0391     GREEK CAPITAL LETTER ALPHA
+Β     &#914;     \U0392     GREEK CAPITAL LETTER BETA
+Γ     &#915;     \U0393     GREEK CAPITAL LETTER GAMMA
+Δ     &#917;     \U0394     GREEK CAPITAL LETTER DELTA
+Ε     &#917;     \U0395     GREEK CAPITAL LETTER EPSILON
+Ζ     &#918;     \U0396     GREEK CAPITAL LETTER ZETA
+Η     &#919;     \U0397     GREEK CAPITAL LETTER ETA
+Θ     &#920;     \U0398     GREEK CAPITAL LETTER THETA
+Ι     &#921;     \U0399     GREEK CAPITAL LETTER IOTA
+Κ     &#922;     \U039A     GREEK CAPITAL LETTER KAPPA
+Λ     &#923;     \U039B     GREEK CAPITAL LETTER LAMBDA
+Μ     &#924;     \U039C     GREEK CAPITAL LETTER MU
+Ν     &#925;     \U039D     GREEK CAPITAL LETTER NU
+Ξ     &#926;     \U039E     GREEK CAPITAL LETTER XI
+Ο     &#927;     \U039F     GREEK CAPITAL LETTER OMICRON
+Π     &#928;     \U03A0     GREEK CAPITAL LETTER PI
+Ρ     &#929;     \U03A1     GREEK CAPITAL LETTER RHO
+Σ     &#931;     \U03A3     GREEK CAPITAL LETTER SIGMA
+Τ     &#932;     \U03A4     GREEK CAPITAL LETTER TAU
+Υ     &#933;     \U03A5     GREEK CAPITAL LETTER UPSILON
+Φ     &#934;     \U03A6     GREEK CAPITAL LETTER PHI
+Χ     &#935;     \U03A7     GREEK CAPITAL LETTER CHI
+Ψ     &#936;     \U03A8     GREEK CAPITAL LETTER PSI
+Ω     &#937;     \U03A9     GREEK CAPITAL LETTER OMEGA
 α     &#945;     \U03B1     GREEK SMALL LETTER ALPHA
 β     &#946;     \U03B2     GREEK SMALL LETTER BETA
 γ     &#947;     \U03B3     GREEK SMALL LETTER GAMMA
@@ -877,13 +877,13 @@ Private Use Area
     -     \UE019     LATIN SMALL LETTER M WITH MACRON
     -     \UE01A     LATIN SMALL LETTER M WITH TILDE
     -     \UE01B     LATIN SMALL LETTER O WITH CEDILLA
-    -     \UE01C     LATIN SMALL LETTER O WITH MACRON AND CIRUMFLEX
+    -     \UE01C     LATIN SMALL LETTER O WITH MACRON AND CIRCUMFLEX
     -     \UE01E     LATIN SMALL LIGATURE OI
     -     \UE01F     LATIN SMALL LIGATURE OO
     -     \UE020     LATIN SMALL LIGATURE OO WITH MACRON
     -     \UE021     LATIN SMALL LIGATURE OU
     -     \UE022     LATIN SMALL LETTER OPEN O WITH ACUTE
-    -     \UE023     LATIN SMALL LETTER R WITH DIARESIS
+    -     \UE023     LATIN SMALL LETTER R WITH DIAERESIS
     -     \UE024     LATIN SMALL LETTER R WITH CIRCUMFLEX
     -     \UE025     LATIN SMALL LETTER R WITH RING BELOW
     -     \UE026     LATIN SMALL LETTER S WITH VERTICAL LINE ABOVE

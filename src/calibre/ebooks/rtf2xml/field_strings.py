@@ -139,7 +139,7 @@ class FieldStrings:
             'Ordinal'       :   'ordinal',
             'CardText'      :   'cardinal-text',
             'OrdText'       :   'ordinal-text',
-            'Hex'           :   'hexidecimal',
+            'Hex'           :   'hexadecimal',
             'DollarText'    :   'dollar-text',
             'Upper'         :   'upper-case',
             'Lower'         :   'lower-case',

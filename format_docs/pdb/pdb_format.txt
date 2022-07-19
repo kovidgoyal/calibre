@@ -1,10 +1,10 @@
 Format
 ------
 
-A PDB file can be borken into multiple parts. The header, record 0 and data.
+A PDB file can be broken into multiple parts. The header, record 0 and data.
 values stored within the various parts are big-endian byte order. The data
 part is is broken down into multiple sections. The section count and offsets
-are referened in the PDB header. Sections can be no more than 65505 bytes in
+are referenced in the PDB header. Sections can be no more than 65505 bytes in
 length.
 
 
@@ -17,7 +17,7 @@ contained format specific iformation followed by data.
     DB Header
 0   Record 0
 .
-.   Data (borken down into sections)
+.   Data (broken down into sections)
 .
 
 
