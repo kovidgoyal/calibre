@@ -5,7 +5,7 @@ import os
 import sys
 from contextlib import contextmanager
 from qt.core import (
-    QAbstractNativeEventFilter, QApplication, QColor, QIcon, QPalette, QSettings,
+    QAbstractNativeEventFilter, QApplication, QColor, QIcon, QPalette, QSettings, QProxyStyle,
     QStyle, Qt, QTimer, pyqtSlot, QObject, QDataStream, QByteArray, QIODeviceBase
 )
 
@@ -17,6 +17,15 @@ dark_text_color = QColor('#ddd')
 light_color = QColor(0xef, 0xef, 0xef)
 light_text_color = QColor(0,0,0)
 light_link_color = QColor(0, 0, 255)
+
+
+class UseCalibreIcons(QProxyStyle):
+
+    def standardIcon(self, standard_pixmap, option=None, widget=None):
+        ic = QApplication.instance().get_qt_standard_icon(standard_pixmap)
+        if ic.isNull():
+            return super().standardIcon(standard_pixmap, option, widget)
+        return ic
 
 
 if iswindows:
@@ -288,7 +297,7 @@ class PaletteManager(QObject):
             # own dark mode implementation when using calibre style so
             # prefer that and use darkmode=1
             args.append('-platform')
-            args.append('windows:darkmode=' + '1' if self.using_calibre_style else '2')
+            args.append('windows:darkmode=' + ('1' if self.using_calibre_style else '2'))
         self.args_to_qt = tuple(args)
         if ismacos and not headless and self.has_fixed_palette:
             from calibre_extensions.cocoa import set_appearance
@@ -297,7 +306,7 @@ class PaletteManager(QObject):
     def initialize(self):
         app = QApplication.instance()
         self.setParent(app)
-        if not self.using_calibre_style and self.style().objectName() == 'fusion':
+        if not self.using_calibre_style and app.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.using_calibre_style = True
         self.original_palette = QPalette(app.palette())
@@ -332,6 +341,10 @@ class PaletteManager(QObject):
             print('Using calibre Qt style:', self.using_calibre_style, file=sys.stderr)
         if self.using_calibre_style:
             self.load_calibre_style()
+        else:
+            app = QApplication.instance()
+            self.native_proxy_style = UseCalibreIcons(app.style())
+            app.setStyle(self.native_proxy_style)
         self.on_palette_change()
 
     def get_qt_standard_icon(self, standard_pixmap):
