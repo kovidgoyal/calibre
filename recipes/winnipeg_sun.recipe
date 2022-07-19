@@ -6,7 +6,7 @@ class AdvancedUserRecipe1277647803(BasicNewsRecipe):
     __author__ = 'rty'
     __version__ = '1.0'
     oldest_article = 2
-    pubisher = 'www.winnipegsun.com'
+    publisher = 'www.winnipegsun.com'
     description = 'Winnipeg Newspaper'
     category = 'News, Winnipeg, Canada'
     max_articles_per_feed = 100

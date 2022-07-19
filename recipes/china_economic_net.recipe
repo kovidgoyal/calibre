@@ -7,7 +7,7 @@ class AdvancedUserRecipe1278162597(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
 
-    pubisher = 'www.ce.cn - China Economic net - Beijing'
+    publisher = 'www.ce.cn - China Economic net - Beijing'
     description = 'China Economic Net Magazine'
     category = 'Economic News Magazine, Chinese, China'
     feeds = [

@@ -7,7 +7,7 @@ class LondonFreePress(BasicNewsRecipe):
     oldest_article = 4
     max_articles_per_feed = 100
 
-    pubisher = 'lfpress.com'
+    publisher = 'lfpress.com'
     description = 'Ontario Canada Newspaper'
     category = 'News, Ontario, Canada'
     remove_javascript = True

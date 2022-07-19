@@ -47,7 +47,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     masthead_url = 'http://gawand.org/wp-content/uploads/2010/06/ajc-logo.gif'
 
     # Pick your poison. Business seems to be mostly cross-linked articles. Premium and cross-linked
-    # articels will be dropped.
+    # articles will be dropped.
     feeds = [
         ('Breaking News', 'http://www.ajc.com/list/rss/online/ajc-auto-list-iphone-topnews/aFKq/'),
         ('Metro and Georgia',

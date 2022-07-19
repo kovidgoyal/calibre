@@ -170,8 +170,8 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
                 p.append(img)
             div.replaceWith(p)
 
-        # youtube embeded normalization
-        # this block finds the cover image for each embeded youtube video then
+        # youtube embedded normalization
+        # this block finds the cover image for each embedded youtube video then
         # changes it to "a href" and "img"
         for iframe in soup.findAll('iframe'):
             a = new_tag(soup, 'a')
@@ -189,7 +189,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
                 a_href = 'https://www.youtube.com/watch?v=' + m.group('vid')
             else:
                 # not youtube
-                # default cover image for non-youtube embeded pages
+                # default cover image for non-youtube embedded pages
                 img_src = 'http://www.warnerclassics.com/img_style/default_video_m.jpg'
                 a_href = iframe['src']
 

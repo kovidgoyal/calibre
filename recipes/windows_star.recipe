@@ -53,7 +53,7 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='li', attrs={'class': 'print'}), dict(name='li', attrs={'class': 'share'}), dict(name='ul', attrs={'class': 'bullet'})]
 
     def preprocess_html(self, soup):
-        # delete iempty id attributes--they screw up the TOC for unknow reasons
+        # delete iempty id attributes--they screw up the TOC for unknown reasons
         divtags = soup.findAll('div', attrs={'id': ''})
         if divtags:
             for div in divtags:

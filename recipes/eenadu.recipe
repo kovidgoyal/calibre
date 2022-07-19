@@ -162,6 +162,6 @@ class eenadu(BasicNewsRecipe):
             today = datetime.now()
             if (today - date) > timedelta(1.5):
                 self.abort_article('Skipping old article')
-        else:  # may not be an artilce.
+        else:  # may not be an article.
             self.abort_article()
         return soup

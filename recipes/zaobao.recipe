@@ -95,7 +95,7 @@ class ZAOBAO(BasicNewsRecipe):
         return soup
 
     def parse_feeds(self):
-        self.log(_('ZAOBAO overrided parse_feeds()'))
+        self.log(_('ZAOBAO overrode parse_feeds()'))
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
 
         for id, obj in enumerate(self.INDEXES):

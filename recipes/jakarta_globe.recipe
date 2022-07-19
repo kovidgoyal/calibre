@@ -15,7 +15,7 @@ class JakartaGlobe(BasicNewsRecipe):
         (u'Sports', u'http://www.thejakartaglobe.com/sports/feed/'),
     ]
     __author__ = 'rty'
-    pubisher = 'JakartaGlobe.com'
+    publisher = 'JakartaGlobe.com'
     description = 'JakartaGlobe, Indonesia, Newspaper'
     category = 'News, Indonesia'
 

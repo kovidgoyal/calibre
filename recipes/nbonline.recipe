@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NBOnline(BasicNewsRecipe):
     title = u'Nikkei Business Online'
     language = 'ja'
-    description = u'Nikkei Business Online.\u6CE8\uFF1A\u30E6\u30FC\u30B6\u30FC\u540D\u306Bemail\u30A2\u30C9\u30EC\u30B9\u3068\u30E6\u30FC\u30B6\u30FC\u540D\u3092\u30BB\u30DF\u30B3\u30ED\u30F3\u3067\u533A\u5207\u3063\u3066\u5165\u308C\u3066\u304F\u3060\u3055\u3044\u3002\u4F8B\uFF1Aemail@address.jp;username . PLEASE NOTE: You need to put your email address and username into username filed separeted by ; (semi-colon).'  # noqa
+    description = u'Nikkei Business Online.\u6CE8\uFF1A\u30E6\u30FC\u30B6\u30FC\u540D\u306Bemail\u30A2\u30C9\u30EC\u30B9\u3068\u30E6\u30FC\u30B6\u30FC\u540D\u3092\u30BB\u30DF\u30B3\u30ED\u30F3\u3067\u533A\u5207\u3063\u3066\u5165\u308C\u3066\u304F\u3060\u3055\u3044\u3002\u4F8B\uFF1Aemail@address.jp;username . PLEASE NOTE: You need to put your email address and username into username field separated by ; (semi-colon).'  # noqa
     __author__ = 'Ado Nishimura'
     needs_subscription = True
     oldest_article = 7

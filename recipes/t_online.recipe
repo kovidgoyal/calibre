@@ -24,7 +24,7 @@ class T_Online_Recipe(BasicNewsRecipe):
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/T-online.de.svg/1280px-T-online.de.svg.png'
     # all possible feeds look at:
     # https://www.t-online.de/themen/rss-feed/
-    # there are tons of feeds, may you just type the words of intrest after the http://feeds.t-online.de/rss/ link.
+    # there are tons of feeds, just type the words of interest after the http://feeds.t-online.de/rss/ link.
     feeds = [
         ('Germany', 'http://feeds.t-online.de/rss/deutschland'),
         ('NEWS', 'http://feeds.t-online.de/rss/nachrichten'),

@@ -11,7 +11,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     max_articles_per_feed = 100
     __author__ = 'ceapas'
 
-    pubisher = 'people.com.cn'
+    publisher = 'people.com.cn'
     description = 'People Daily Newspaper'
     language = 'zh'
     category = 'News, China'

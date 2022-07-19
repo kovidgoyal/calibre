@@ -25,7 +25,7 @@ class TodaysZaman_en(BasicNewsRecipe):
 
     # def preprocess_html(self, soup):
     #   return self.adeify_images(soup)
-    # def print_version(self, url):       #there is a probem caused by table format
+    # def print_version(self, url):       #there is a problem caused by table format
     # return
     # url.replace('http://www.todayszaman.com/newsDetail_getNewsById.action?load=detay&',
     # 'http://www.todayszaman.com/newsDetail_openPrintPage.action?')

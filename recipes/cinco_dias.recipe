@@ -17,7 +17,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     publisher = u'Grupo Prisa'
 
     __author__ = 'Luis Hernandez'
-    description = 'spanish web about money and bussiness, free edition'
+    description = 'spanish web about money and business, free edition'
 
     cover_url = 'http://www.prisa.com/images/logos/logo_cinco_dias.gif'
     oldest_article = 2

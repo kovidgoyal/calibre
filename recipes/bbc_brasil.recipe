@@ -42,7 +42,7 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     #
     # There are 68 feeds below which constitute the bulk of the available rss
     # feeds on the BBC web site. These include 5 blogs by editors and
-    # correspondants, 16 sports feeds, 15 'sub' regional feeds (Eg. North West
+    # correspondents, 16 sports feeds, 15 'sub' regional feeds (Eg. North West
     # Wales, Scotland Business), and 7 Welsh language feeds.
     #
     # Some of the feeds are low volume (Eg. blogs), or very low volume (Eg. Click)
@@ -108,8 +108,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     #
     oldest_article = 1.5
 
-    # Number of simultaneous downloads. 20 is consistantly working fine on the
-    # BBC News feeds with no problems. Speeds things up from the defualt of 5.
+    # Number of simultaneous downloads. 20 is consistently working fine on the
+    # BBC News feeds with no problems. Speeds things up from the default of 5.
     # If you have a lot of feeds and/or have increased oldest_article above 2
     # then you may wish to try increasing simultaneous_downloads to 25-30,
     # Or, of course, if you are in a hurry. [I've not tried beyond 20.]
@@ -383,7 +383,7 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     skip_reg_exp = '^.*skip.*$'
 
     # Extra things to remove due to the addition of 'storycontent' in keep_only_tags,
-    # which are the alterative table design based pages. The purpose of some of these
+    # which are the alternative table design based pages. The purpose of some of these
     # is not entirely clear from the pages (which are a total mess!).
 
     # Remove mapping based tags, Eg. <map id="world_map">
