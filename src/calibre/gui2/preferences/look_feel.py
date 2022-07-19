@@ -396,9 +396,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
+        self.ui_style_available = True
         if not ismacos and not iswindows:
             self.label_widget_style.setVisible(False)
             self.opt_ui_style.setVisible(False)
+            self.ui_style_available = False
 
         db = gui.library_view.model().db
 
@@ -636,7 +638,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_color_palette_state()
 
     def update_color_palette_state(self):
-        if self.opt_ui_style.isVisible():
+        if self.ui_style_available:
             enabled = self.opt_ui_style.currentData() == 'calibre'
             self.opt_color_palette.setEnabled(enabled)
             self.opt_color_palette_label.setEnabled(enabled)
