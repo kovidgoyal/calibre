@@ -18,7 +18,7 @@ from io import BytesIO
 from itertools import count
 from multiprocessing.pool import ThreadPool
 from qt.core import (
-    QAbstractItemView, QApplication, QComboBox, QDialog, QDialogButtonBox,
+    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader,
     QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen,
     QPixmap, QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout,
@@ -216,7 +216,13 @@ class ThemeCreateDialog(Dialog):
         self.splitter = QSplitter(self)
         self.l = l = QVBoxLayout(self)
         l.addWidget(self.splitter)
-        l.addWidget(self.bb)
+        self.h = h = QHBoxLayout()
+        self.use_in_calibre = uic = QCheckBox(_('Use this theme in calibre'))
+        uic.setToolTip(_('Change the current calibre icon theme to this theme'))
+        uic.setChecked(bool(gprefs.get('use_created_icon_theme_in_calibre', True)))
+        uic.toggled.connect(lambda checked: gprefs.set('use_created_icon_theme_in_calibre', bool(checked)))
+        h.addWidget(uic), h.addStretch(), h.addWidget(self.bb)
+        l.addLayout(h)
         self.w = w = QGroupBox(_('Theme Metadata'), self)
         self.splitter.addWidget(w)
         l = w.l = QFormLayout(w)
@@ -342,7 +348,7 @@ class Compress(QProgressDialog):
 
     def run_compress(self, report):
         try:
-            self.raw, self.prefix = create_themeball(report, self.onprogress, self.abort)
+            self.raw, self.prefix, self.icon_zip_data = create_themeball(report, self.onprogress, self.abort)
         except Exception:
             import traceback
             self.update_signal.emit(-1, traceback.format_exc())
@@ -390,12 +396,13 @@ def create_themeball(report, progress=None, abort=None):
             with lopen(srcpath, 'rb') as f:
                 zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
+    icon_zip_data = buf
     if abort is not None and abort.is_set():
         return None, None
     if progress is not None:
         progress(next(num), _('Compressing theme file'))
     import lzma
-    compressed = lzma.compress(buf.getvalue(), format=lzma.FORMAT_XZ, preset=9)
+    compressed = lzma.compress(icon_zip_data.getvalue(), format=lzma.FORMAT_XZ, preset=9)
     buf = BytesIO()
     prefix = report.name
     if abort is not None and abort.is_set():
@@ -407,7 +414,7 @@ def create_themeball(report, progress=None, abort=None):
         zf.writestr(prefix + '/' + 'icons.zip.xz', compressed, compression=ZIP_STORED)
     if progress is not None:
         progress(next(num), _('Finished'))
-    return buf.getvalue(), prefix
+    return buf.getvalue(), prefix, icon_zip_data
 
 
 def create_theme(folder=None, parent=None):
@@ -420,6 +427,8 @@ def create_theme(folder=None, parent=None):
     d = ThemeCreateDialog(parent, report)
     if d.exec() != QDialog.DialogCode.Accepted:
         return
+    use_in_calibre = d.use_in_calibre.isChecked()
+    theme = d.metadata
     d.save_metadata()
     d = Compress(d.report, parent=parent)
     d.exec()
@@ -429,10 +438,16 @@ def create_theme(folder=None, parent=None):
     dest = choose_save_file(parent, 'create-icon-theme-dest', _(
         'Choose destination for icon theme'),
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
-    if dest:
-        with lopen(dest, 'wb') as f:
-            f.write(raw)
+    if not dest:
+        return
+    with lopen(dest, 'wb') as f:
+        f.write(raw)
 
+    if use_in_calibre:
+        path = icon_resource_manager.user_theme_resource_file('any')
+        install_icon_theme(theme, d.icon_zip_data, path, 'any')
+        icon_resource_manager.register_user_resource_files()
+        icon_resource_manager.set_theme()
 # }}}
 
 # Choose Theme  {{{
@@ -936,8 +951,8 @@ def install_icon_theme(theme, f, rcc_path, for_theme):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    # create_theme('.')
-    d = ChooseTheme()
-    if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
-        d.commit_changes()
+    create_theme(sys.argv[-1])
+    # d = ChooseTheme()
+    # if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
+    #     d.commit_changes()
     del app
