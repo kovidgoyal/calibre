@@ -51,7 +51,7 @@
    <item row="1" column="1">
     <widget class="QLabel" name="ip_addresses">
      <property name="text">
-      <string>Possibe IP addresses:</string>
+      <string>Possible IP addresses:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

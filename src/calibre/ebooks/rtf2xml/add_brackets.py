@@ -132,7 +132,7 @@ class AddBrackets:
     def __after_control_word_func(self, line):
         """
         After a cw either add next allowed cw to temporary list or
-        change groupe and write it.
+        change group and write it.
         If the token leading to an exit is an open bracket go to
         ignore otherwise goto in body
         """

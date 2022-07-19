@@ -41,7 +41,7 @@ class Sections:
     should be nested inside one section tag. After the index is complete, a new
     section should begin.
     In order to write the sections outside of the field blocks, I have to store
-    all of the field block as a string. When I ecounter the \\sect tag, add one to
+    all of the field block as a string. When I encounter the \\sect tag, add one to
     the section counter, but store this number in a list. Likewise, store the
     information describing the section in another list.
     When I reach the end of the field block, choose the first item from the
