@@ -55,6 +55,7 @@ class IconResourceManager:
         self.light_theme_name = self.default_light_theme_name = 'calibre-default-light'
         self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
         self.registered_user_resource_files = ()
+        self.color_palette = 'light'
 
     def user_theme_resource_file(self, which):
         return os.path.join(config_dir, f'icons-{which}.rcc')
@@ -135,6 +136,13 @@ class IconResourceManager:
             legacy_theme_metadata = os.path.join(q, 'icon-theme.json')
             if os.path.exists(legacy_theme_metadata):
                 self.migrate_legacy_icon_theme(legacy_theme_metadata)
+                items = os.listdir(q)
+            self.override_items = {'': frozenset(items)}
+            for k in ('devices', 'mimetypes', 'plugins'):
+                items = frozenset()
+                with suppress(OSError):
+                    items = frozenset(os.listdir(os.path.join(self.override_icon_path, k)))
+                self.override_items[k] = items
         self.register_user_resource_files()
 
     def migrate_legacy_icon_theme(self, legacy_theme_metadata):
@@ -152,6 +160,23 @@ class IconResourceManager:
             else:
                 os.remove(q)
 
+    def overriden_icon_path(self, name):
+        parts = name.replace(os.sep, '/').split('/')
+        ans = os.path.join(self.override_icon_path, name)
+        if len(parts) == 1:
+            sq, ext = os.path.splitext(parts[0])
+            sq = f'{sq}-for-{self.color_palette}-theme{ext}'
+            if sq in self.override_items['']:
+                ans = os.path.join(self.override_icon_path, sq)
+        elif len(parts) == 2:
+            entries = self.override_items.get(parts[0], ())
+            if entries:
+                sq, ext = os.path.splitext(parts[1])
+                sq = f'{sq}-for-{self.color_palette}-theme{ext}'
+                if sq in entries:
+                    ans = os.path.join(self.override_icon_path, parts[0], sq)
+        return ans
+
     def __call__(self, name):
         if isinstance(name, QIcon):
             return name
@@ -160,16 +185,14 @@ class IconResourceManager:
         if os.path.isabs(name):
             return QIcon(name)
         if self.override_icon_path:
-            q = os.path.join(self.override_icon_path, name)
-            qi = QIcon(q)
+            qi = QIcon(self.overriden_icon_path(name))
             if qi.is_ok():
                 return qi
         icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
         ans = QIcon.fromTheme(icon_name)
         if not ans.is_ok():
             if 'user-any' in QIcon.themeName():
-                tc = 'dark' if QApplication.instance().is_dark_theme else 'light'
-                q = QIcon(f':/icons/calibre-default-{tc}/images/{name}')
+                q = QIcon(f':/icons/calibre-default-{self.color_palette}/images/{name}')
                 if q.is_ok():
                     ans = q
         return ans
@@ -191,7 +214,9 @@ class IconResourceManager:
 
     def set_theme(self):
         current = QIcon.themeName()
-        new = self.dark_theme_name if QApplication.instance().is_dark_theme else self.light_theme_name
+        is_dark = QApplication.instance().is_dark_theme
+        self.color_palette = 'dark' if is_dark else 'light'
+        new = self.dark_theme_name if is_dark else self.light_theme_name
         if current == new and current not in (self.default_dark_theme_name, self.default_light_theme_name):
             # force reload of user icons by first changing theme to default and
             # then to user
