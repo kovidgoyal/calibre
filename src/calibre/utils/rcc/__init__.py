@@ -96,7 +96,7 @@ def compile_icon_dir_as_themes(
             if ext.lower() not in ('.png',):
                 if image_name == 'metadata.json':
                     dest = theme_dir, dest_name
-                    os.link(image_path, os.path.join(tdir, *dest))
+                    safe_link(image_path, os.path.join(tdir, *dest))
                     file('/'.join(dest))
                 return
             if base.endswith('-for-dark-theme'):
