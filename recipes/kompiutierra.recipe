@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim:fileencoding=utf-8
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, lcd1232, malexey1984@gmail.com'
@@ -10,27 +10,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Computerra(BasicNewsRecipe):
     title = u'\u041a\u043e\u043c\u043f\u044c\u044e\u0442\u0435\u0440\u0440\u0430'
+    __author__ = 'lcd1232 (with fixes by bugmen00t)'
+    description = 'Компьютерра: все новости про компьютеры, железо, новые технологии, информационные технологии'
+    cover_url = 'https://yt3.ggpht.com/ytc/AKedOLRCMA71rKaP4HfL2W26A-VdvsBj9BcOo7S6poTR=s900-c-k-c0x00ffffff-no-rj'
+    language = 'ru'
     oldest_article = 100
-    __author__ = 'lcd1232'
     max_articles_per_feed = 50
     use_embedded_content = False
     remove_javascript = True
-    no_stylesheets = True
+    no_stylesheets = False
     conversion_options = {'linearize_tables': True}
     simultaneous_downloads = 5
-    language = 'ru'
-    description = u'Компьютерра: все новости про компьютеры, железо, новые технологии, информационные технологии'
 
-    feeds = [(u'Компьютерра-Онлайн', 'http://feeds.feedburner.com/ct_news/'), ]
+    remove_tags_before = dict(name='div', attrs={'id': 'article'})
 
-    remove_tags = [
-        dict(name='div', attrs={'class': [
-             'article-soc', 'article-tags', 'also', 'item-article item-article-also', 'item-ban-700']}),
-        dict(name='div', attrs={'id': 'form'})
-    ]
+    remove_tags_after = dict(name='div', attrs={'class': 'article-body'})
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'main-column main-column-article'}),
-        dict(name='div', attrs={'id': 'posts'})
-    ]
-    cover_url = 'https://pp.vk.me/c628429/v628429830/19a22/mlm_LC_ZEa4.jpg'
+    remove_tags = [dict(name='div', attrs={'class': 'cta-row'})]
+
+    feeds = [(
+        u'\u041A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0440\u0430',
+        'https://www.computerra.ru/feed/'
+    )]

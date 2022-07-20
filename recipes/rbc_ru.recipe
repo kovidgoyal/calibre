@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class RBC_ru(BasicNewsRecipe):
     title = u'RBC.ru'
-    __author__ = 'A. Chewi'
-    description = u'Российское информационное агентство «РосБизнесКонсалтинг» (РБК) - ленты новостей политики, экономики и финансов, аналитические материалы, комментарии и прогнозы, тематические статьи'  # noqa
+    __author__ = 'A. Chewi (with fixes by bugmen00t)'
+    description = 'Российское информационное агентство «РосБизнесКонсалтинг» (РБК) - ленты новостей политики, экономики и финансов, аналитические материалы, комментарии и прогнозы, тематические статьи'  # noqa
     needs_subscription = False
-    cover_url = 'http://pics.rbc.ru/img/fp_v4/skin/img/logo.gif'
+    cover_url = 'https://pics.rbc.ru/img/fp_v4/skin/img/logo.gif'
     cover_margins = (80, 160, '#ffffff')
-    oldest_article = 10
+    oldest_article = 20
     max_articles_per_feed = 50
     summary_length = 200
     remove_empty_feeds = True
@@ -18,44 +16,17 @@ class RBC_ru(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     conversion_options = {'linearize_tables': True}
+    auto_cleanup = True
     language = 'ru'
     timefmt = ' [%a, %d %b, %Y]'
 
-    feeds = [(u'Главные новости', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/mainnews.rss'),
-             (u'Политика', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/politics.rss'),
-             (u'Экономика', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/economics.rss'),
-             (u'Общество', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/society.rss'),
-             (u'Происшествия', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/incidents.rss'),
-             (u'Финансовые новости Quote.rbc.ru', u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/quote.ru/mainnews.rss')]
-
-    keep_only_tags = [dict(name='h2', attrs={}),
-                      dict(name='div', attrs={'class': 'box _ga1_on_'}),
-                      dict(name='h1', attrs={'class': 'news_section'}),
-                      dict(name='div', attrs={
-                           'class': 'news_body dotted_border_bottom'}),
-                      dict(name='table', attrs={'class': 'newsBody'}),
-                      dict(name='h2', attrs={'class': 'black'})]
-
-    remove_tags = [dict(name='div', attrs={'class': "video-frame"}),
-                   dict(name='div', attrs={
-                        'class': "photo-container videoContainer videoSWFLinks videoPreviewSlideContainer notes"}),
-                   dict(name='div', attrs={'class': "notes"}),
-                   dict(name='div', attrs={'class': "publinks"}),
-                   dict(name='a', attrs={'class': "print"}),
-                   dict(name='div', attrs={
-                        'class': "photo-report_new notes newslider"}),
-                   dict(name='div', attrs={'class': "videoContainer"}),
-                   dict(name='div', attrs={
-                        'class': "videoPreviewSlideContainer"}),
-                   dict(name='a', attrs={'class': "videoPreviewContainer"}),
-                   dict(name='a', attrs={'class': "red"}), ]
-
-    def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-                tstr = alink.string
-                alink.replaceWith(tstr)
-        return soup
-
-    def print_version(self, url):
-        return url + '?print=true'
+    feeds = [
+        (
+            u'RSS \u043D\u043E\u0432\u043E\u0441\u0442\u0438',
+            u'https://rssexport.rbc.ru/rbcnews/news/30/full.rss'
+        ),
+        (
+            u'\u0413\u043B\u0430\u0432\u043D\u044B\u0435\u0020\u043D\u043E\u0432\u043E\u0441\u0442\u0438',
+            u'http://static.feed.rbc.ru/rbc/internal/rss.rbc.ru/rbc.ru/news.rss'
+        ),
+    ]

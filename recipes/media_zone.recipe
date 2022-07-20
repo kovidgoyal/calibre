@@ -1,32 +1,47 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1467719487(BasicNewsRecipe):
-    title = '\u041c\u0435\u0434\u0438\u0430\u0417\u043e\u043d\u0430'
+class MediaZona(BasicNewsRecipe):
+    title = '!!!\u041c\u0435\u0434\u0438\u0430\u0417\u043e\u043d\u0430'
     __author__ = 'bugmen00t'
-    description = '\u041E\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E-\u043F\u043E\u043B\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0434\u0430\u043D\u0438\u0435, \u0441\u0434\u0435\u043B\u0430\u0432\u0448\u0435\u0435 \u0430\u043A\u0446\u0435\u043D\u0442 \u043D\u0430 \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438 \u0437\u0430\u043A\u043E\u043D\u0430 \u0432 \u0420\u043E\u0441\u0441\u0438\u0438. \u041F\u043E \u043C\u043D\u0435\u043D\u0438\u044E \u0430\u0432\u0442\u043E\u0440\u0438\u0442\u0435\u0442\u043D\u044B\u0445 \u043C\u0435\u0434\u0438\u0430\u044D\u043A\u0441\u043F\u0435\u0440\u0442\u043E\u0432, \u043F\u043E \u0446\u0438\u0442\u0438\u0440\u0443\u0435\u043C\u043E\u0441\u0442\u0438 \u0438 \u043F\u043E\u0441\u0435\u0449\u0430\u0435\u043C\u043E\u0441\u0442\u0438 \u0444\u043E\u0440\u043C\u0430\u0442 \u00AB\u041C\u0435\u0434\u0438\u0430\u0437\u043E\u043D\u044B\u00BB \u043E\u043A\u0430\u0437\u0430\u043B\u0441\u044F \u0432\u0435\u0434\u0443\u0449\u0438\u043C \u0444\u043E\u0440\u043C\u0430\u0442\u043E\u043C \u043D\u043E\u0432\u043E\u0441\u0442\u043D\u043E\u0433\u043E \u0438\u0437\u0434\u0430\u043D\u0438\u044F \u0432 \u0420\u043E\u0441\u0441\u0438\u0438 2015 \u0433\u043E\u0434\u0430. \u00AB\u041C\u0435\u0434\u0438\u0430\u0437\u043E\u043D\u0430\u00BB \u043F\u0438\u0448\u0435\u0442 \u043E \u0440\u0435\u0430\u043B\u044C\u043D\u043E \u043F\u0440\u043E\u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0435\u043C \u0432 \u0420\u043E\u0441\u0441\u0438\u0438, \u043F\u0435\u0440\u0432\u043E\u0439 \u0443\u043B\u0430\u0432\u043B\u0438\u0432\u0430\u044F \u0432\u0435\u043A\u0442\u043E\u0440\u044B \u0440\u0430\u0437\u0432\u0438\u0442\u0438\u044F \u043E\u0431\u0449\u0435\u0441\u0442\u0432\u0430.'  # noqa
+    description = 'Общественно-политическое издание, сделавшее акцент на функционировании закона в России. По мнению авторитетных медиаэкспертов, по цитируемости и посещаемости формат «Медиазоны» оказался ведущим форматом новостного издания в России 2015 года. «Медиазона» пишет о реально происходящем в России, первой улавливая векторы развития общества.'  # noqa
     publisher = 'zona.media'
     category = 'news'
-    cover_url = u'https://zona.media//s/favicon/mstile-310x310.png'
+    cover_url = u'https://zona.media/s/share/default_mz.png'
     language = 'ru'
     no_stylesheets = False
     remove_javascript = True
-    auto_cleanup = False
+    auto_cleanup = True
 
-    oldest_article = 200
+    oldest_article = 30
     max_articles_per_feed = 100
 
-    feeds = [
-        ('\u041d\u043e\u0432\u043e\u0441\u0442\u0438',
-         'https://zona.media/rss/news.php'),
+    remove_tags_before = dict(
+        name='section', attrs={'class': 'mz-layout-content__row pt0 clearfix'}
+    )
+
+    remove_tags_after = dict(name='div', attrs={'class': 'mz-publish__wrapper'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'mz-agent-banner'}),
+        dict(name='section', attrs={'data-share-id': 'post'})
     ]
 
-    remove_tags_before = dict(name='header', attrs={
-                              'class': 'mz-publish__title'})
-    remove_tags_after = dict(name='section', attrs={
-                             'class': 'mz-publish__text'})
-    remove_tags = [dict(name='div', attrs={'class': 'mz-publish-share__item'}),
-                   dict(name='section', attrs={'class': 'mz-layout-content__col-main'})]
+    feeds = [
+        (
+            '\u041C\u0435\u0434\u0438\u0430\u0437\u043E\u043D\u0430 ',
+            'https://zona.media/rss'
+        ),
+        (
+            '\u0411\u0435\u043B\u0430\u0440\u0443\u0441\u044C',
+            'https://mediazona.by/rss'
+        ),
+        (
+            '\u0426\u0435\u043D\u0442\u0440\u0430\u043B\u044C\u043D\u0430\u044F \u0410\u0437\u0438\u044F',
+            'https://mediazona.ca/rss'
+        ),
+    ]

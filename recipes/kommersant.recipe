@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
 __license__ = 'GPL v3'
 __copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -9,39 +12,172 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Kommersant_ru(BasicNewsRecipe):
     title = 'Kommersant'
-    __author__ = 'Darko Miletic'
+    __author__ = 'Darko Miletic (with fixes by bugmen00t)'
     description = 'News from Russia'
     publisher = 'Kommersant'
     category = 'news, politics, Russia'
-    oldest_article = 5
-    max_articles_per_feed = 100
+    oldest_article = 7
+    max_articles_per_feed = 50
     no_stylesheets = True
     use_embedded_content = False
-    encoding = 'cp1251'
     language = 'ru'
     publication_type = 'newspaper'
-    masthead_url = 'http://www.kommersant.ru/CorpPics/logo_daily_1.gif'
-    extra_css             = """
-                            @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-                            body{font-family: Tahoma, Arial, Helvetica, sans1, sans-serif}
-                            .title{font-size: x-large; font-weight: bold; margin-bottom: 1em}
-                            .subtitle{font-size: large; margin-bottom: 1em}
-                            .document_vvodka{font-weight: bold; margin-bottom: 1em}
-                            """
+    cover_url = 'https://iv.kommersant.ru/ContentFlex/images/logo.png'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    remove_tags_before = dict(name='header', attrs={'class': 'doc_header'})
 
-    keep_only_tags = [dict(attrs={'class': 'b-article'})]
+    remove_tags_after = dict(
+        name='div', attrs={'class': 'doc__text document_authors'}
+    )
+
     remove_tags = [
-        dict(name=['iframe', 'object', 'link', 'img', 'base', 'meta'])]
-    remo_tags_after = dict(attrs={'class': 'hide1 hide2'})
+        dict(name='ul', attrs={'class': 'crumbs'}),
+        dict(name='div', attrs={'class': 'hide_desktop'}),
+        dict(name='div', attrs={'class': 'incut incut--right'}),
+        dict(name='div', attrs={'class': 'incut incut--left'}),
+        dict(name='div', attrs={'class': 'incut incut--center'}),
+        dict(name='div', attrs={'class': 'ba'}),
+        dict(name='div', attrs={'id': 'lenta'}),
+        dict(name='div', attrs={'class': 'layout basement_news__body'}),
+        dict(name='footer', attrs={'class': 'footer'}),
+        dict(name='div', attrs={'class': 'ui-modal'}),
+        dict(name='section', attrs={'class': 'potd'}),
+        dict(name='footer', attrs={'class': 'doc_footer'}),
+        dict(name='div', attrs={'class': 'adv_interscroll hide_desktop'})
+    ]
 
-    feeds = [(u'Articles', u'http://dynamic.feedsportal.com/pf/438800/http://feeds.kommersant.ru/RSS_Export/RU/daily.xml')]
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-
-    def print_version(self, url):
-        return url.replace('/doc-rss/', '/Doc/') + '/Print'
+    feeds = [
+        (
+            '\u0413\u043B\u0430\u0432\u043D\u043E\u0435',
+            'https://www.kommersant.ru/rss/main.xml'
+        ),
+        (
+            '\u0413\u0430\u0437\u0435\u0442\u0430 "\u041A\u043E\u043C\u043C\u0435\u0440\u0441\u0430\u043D\u0442"',
+            'https://www.kommersant.ru/rss/daily.xml'
+        ),
+        (
+            '\u041B\u0435\u043D\u0442\u0430 \u043D\u043E\u0432\u043E\u0441\u0442\u0435\u0439',
+            'https://www.kommersant.ru/RSS/news.xml'
+        ),
+        (
+            '\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B \u0441 \u0441\u0430\u0439\u0442\u0430',
+            'https://www.kommersant.ru/RSS/corp.xml'
+        ),
+        (
+            '\u0420\u0430\u0434\u0438\u043E \u041A\u043E\u043C\u043C\u0435\u0440\u0441\u0430\u043D\u0442\u044A-FM',
+            'https://www.kommersant.ru/RSS/radio.xml'
+        ),
+        (
+            '\u0422\u0435\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F',
+            'https://www.kommersant.ru/RSS/tema.xml'
+        ),
+        (
+            '\u0416\u0443\u0440\u043D\u0430\u043B \u00AB\u041E\u0413\u041E\u041D\u0401\u041A\u00BB',
+            'https://www.kommersant.ru/RSS/ogoniok.xml'
+        ),
+        (
+            '\u0416\u0443\u0440\u043D\u0430\u043B \u00AB\u041A\u043E\u043C\u043C\u0435\u0440\u0441\u0430\u043D\u0442\u044A WEEKEND\u00BB',
+            'https://www.kommersant.ru/RSS/weekend.xml'
+        ),
+        (
+            'Журнал «Коммерсантъ АВТОПИЛОТ»',
+            'https://www.kommersant.ru/RSS/auto.xml'
+        ),
+        (
+            '\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430',
+            'https://www.kommersant.ru/rss/section-politics.xml'
+        ),
+        (
+            '\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u043A\u0430',
+            'https://www.kommersant.ru/RSS/section-economics.xml'
+        ),
+        (
+            '\u0411\u0438\u0437\u043D\u0435\u0441',
+            'https://www.kommersant.ru/rss/section-business.xml'
+        ),
+        (
+            '\u0412 \u043C\u0438\u0440\u0435',
+            'https://www.kommersant.ru/rss/section-world.xml'
+        ),
+        (
+            '\u041F\u0440\u043E\u0438\u0441\u0448\u0435\u0441\u0442\u0432\u0438\u044F',
+            'https://www.kommersant.ru/rss/section-accidents.xml'
+        ),
+        (
+            '\u041E\u0431\u0449\u0435\u0441\u0442\u0432\u043E',
+            'https://www.kommersant.ru/rss/section-society.xml'
+        ),
+        (
+            '\u041A\u0443\u043B\u044C\u0442\u0443\u0440\u0430',
+            'https://www.kommersant.ru/rss/section-culture.xml'
+        ),
+        (
+            '\u0421\u043F\u043E\u0440\u0442',
+            'https://www.kommersant.ru/rss/section-sport.xml'
+        ), ('Hi-Tech', 'https://www.kommersant.ru/RSS/section-hitech.xml'),
+        (
+            '\u0410\u0432\u0442\u043E',
+            'https://www.kommersant.ru/RSS/Autopilot_on.xml'
+        ),
+        (
+            '\u0421\u0442\u0438\u043B\u044C',
+            'https://www.kommersant.ru/RSS/section-style.xml'
+        ),
+        (
+            '\u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433',
+            'https://www.kommersant.ru/rss/regions/piter_all.xml'
+        ),
+        (
+            '\u0412\u043E\u0440\u043E\u043D\u0435\u0436',
+            'https://www.kommersant.ru/rss/regions/vrn_all.xml'
+        ),
+        (
+            '\u0415\u043A\u0430\u0442\u0435\u0440\u0438\u043D\u0431\u0443\u0440\u0433',
+            'https://www.kommersant.ru/rss/regions/ekaterinburg_all.xml'
+        ),
+        (
+            '\u0418\u0436\u0435\u0432\u0441\u043A',
+            'https://www.kommersant.ru/rss/regions/izhevsk_all.xml'
+        ),
+        (
+            '\u041A\u0430\u0437\u0430\u043D\u044C',
+            'https://www.kommersant.ru/rss/regions/kazan_all.xml'
+        ),
+        (
+            '\u041A\u0440\u0430\u0441\u043D\u043E\u0434\u0430\u0440',
+            'https://www.kommersant.ru/rss/regions/krasnodar_all.xml'
+        ),
+        (
+            '\u041A\u0440\u0430\u0441\u043D\u043E\u044F\u0440\u0441\u043A',
+            'https://www.kommersant.ru/rss/regions/krasnoyarsk_all.xml'
+        ),
+        (
+            '\u041D\u0438\u0436\u043D\u0438\u0439 \u041D\u043E\u0432\u0433\u043E\u0440\u043E\u0434',
+            'https://www.kommersant.ru/rss/regions/nnov_all.xml'
+        ),
+        (
+            '\u041D\u043E\u0432\u043E\u0441\u0438\u0431\u0438\u0440\u0441\u043A',
+            'https://www.kommersant.ru/rss/regions/novosibirsk_all.xml'
+        ),
+        (
+            '\u041F\u0435\u0440\u043C\u044C',
+            'https://www.kommersant.ru/rss/regions/perm_all.xml'
+        ),
+        (
+            '\u0420\u043E\u0441\u0442\u043E\u0432-\u043D\u0430-\u0414\u043E\u043D\u0443',
+            'https://www.kommersant.ru/rss/regions/rostov_all.xml'
+        ),
+        (
+            '\u0421\u0430\u043C\u0430\u0440\u0430',
+            'https://www.kommersant.ru/rss/regions/samara_all.xml'
+        ),
+        (
+            '\u0421\u0430\u0440\u0430\u0442\u043E\u0432',
+            'https://www.kommersant.ru/rss/regions/saratov_all.xml'
+        ),
+        ('\u0423\u0444\u0430', 'https://www.kommersant.ru/rss/regions/ufa_all.xml'),
+        (
+            '\u0427\u0435\u043B\u044F\u0431\u0438\u043D\u0441\u043A',
+            'https://www.kommersant.ru/rss/regions/chelyabinsk_all.xml'
+        )
+    ]
