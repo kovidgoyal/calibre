@@ -13,10 +13,10 @@ from functools import lru_cache
 from qt.core import (
     QApplication, QBuffer, QByteArray, QColor, QDateTime, QDesktopServices, QDialog,
     QDialogButtonBox, QEvent, QFile, QFileDialog, QFileIconProvider, QFileInfo,
-    QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon, QIODevice,
-    QLocale, QNetworkProxyFactory, QObject, QPalette, QResource, QSettings,
-    QSocketNotifier, QStringListModel, Qt, QThread, QTimer, QTranslator,
-    QUrl, pyqtSignal, pyqtSlot
+    QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon,
+    QImageReader, QImageWriter, QIODevice, QLocale, QNetworkProxyFactory, QObject,
+    QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, Qt, QThread,
+    QTimer, QTranslator, QUrl, pyqtSignal, pyqtSlot
 )
 from threading import Lock, RLock
 
@@ -201,7 +201,6 @@ class IconResourceManager:
         ans = self(name)
         ba = QByteArray()
         if ans.availableSizes():
-            from qt.core import QImageWriter
             pmap = ans.pixmap(ans.availableSizes()[0])
             buf = QBuffer(ba)
             buf.open(QIODevice.OpenModeFlag.WriteOnly)
@@ -1247,13 +1246,19 @@ class Application(QApplication):
         load_builtin_fonts()
 
     @lru_cache(maxsize=256)
-    def cached_qimage(self, name):
-        return self.cached_qpixmap(name).toImage()
+    def cached_qimage(self, name, device_pixel_ratio=0):
+        return self.cached_qpixmap(name, device_pixel_ratio).toImage()
 
     @lru_cache(maxsize=256)
-    def cached_qpixmap(self, name):
+    def cached_qpixmap(self, name, device_pixel_ratio=0):
+        # get the actual size of the image since QIcon does not tell us this for
+        # icons loaded from a theme
+        path = I(name, allow_user_override=False)
+        r = QImageReader(path)
         ic = QIcon.ic(name)
-        return ic.pixmap((ic.availableSizes() or (256,))[0])
+        if not device_pixel_ratio:
+            device_pixel_ratio = self.devicePixelRatio()
+        return ic.pixmap(r.size(), device_pixel_ratio)
 
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (

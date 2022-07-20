@@ -106,12 +106,12 @@ class MetadataWidget(Widget, Ui_Form):
             pm = QPixmap()
             pm.loadFromData(cover)
             if not pm.isNull():
-                pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+                pm.setDevicePixelRatio(self.devicePixelRatio())
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
                 self.set_cover_tooltip(pm)
         else:
-            pm = QApplication.instance().cached_qpixmap('default_cover.png')
+            pm = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
             self.cover.setPixmap(pm)
             self.cover.setToolTip(_('This book has no cover'))
         for x in ('author', 'series', 'publisher'):

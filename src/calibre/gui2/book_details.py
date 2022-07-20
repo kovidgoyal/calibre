@@ -530,7 +530,7 @@ class CoverView(QWidget):  # {{{
                 QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Policy.Minimum,
                 QSizePolicy.Policy.Expanding)
 
-        self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png')
+        self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
         self.data = {}

@@ -268,7 +268,10 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     @property
     def default_image(self):
-        return QApplication.instance().cached_qimage('default_cover.png')
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        dpr = gui.devicePixelRatio() if gui else 0
+        return QApplication.instance().cached_qimage('default_cover.png', device_pixel_ratio=dpr)
 
     def _clear_caches(self):
         self.color_cache = defaultdict(dict)

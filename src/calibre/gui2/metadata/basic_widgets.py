@@ -1285,7 +1285,7 @@ class Cover(ImageView):  # {{{
         if cdata:
             pm.loadFromData(cdata)
         if pm.isNull():
-            pm = QApplication.instance().cached_qpixmap('default_cover.png')
+            pm = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         else:
             self._cdata = cdata
         pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
