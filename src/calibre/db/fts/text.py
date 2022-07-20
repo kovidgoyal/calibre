@@ -83,19 +83,20 @@ def extract_text(pathtoebook):
         return ans
     input_plugin = plugin_for_input_format(input_fmt)
     if input_fmt == 'PDF':
-        return pdftotext(pathtoebook)
-    with TemporaryDirectory() as tdir:
-        texts = []
-        book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)
-        input_plugin = plugin_for_input_format(input_fmt)
-        is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
-        if is_comic:
-            return ''
-        container = SimpleContainer(tdir, opfpath, default_log)
-        for name, is_linear in container.spine_names:
-            texts.extend(to_text(container, name))
-        ans = '\n\n\n'.join(texts)
-    return unicodedata.normalize('NFC', ans)
+        ans = pdftotext(pathtoebook)
+    else:
+        with TemporaryDirectory() as tdir:
+            texts = []
+            book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)
+            input_plugin = plugin_for_input_format(input_fmt)
+            is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
+            if is_comic:
+                return ''
+            container = SimpleContainer(tdir, opfpath, default_log)
+            for name, is_linear in container.spine_names:
+                texts.extend(to_text(container, name))
+            ans = '\n\n\n'.join(texts)
+    return unicodedata.normalize('NFC', ans).replace('\u00ad', '')
 
 
 def main(pathtoebook):
