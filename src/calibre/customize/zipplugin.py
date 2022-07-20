@@ -35,6 +35,8 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
     :param name_or_list_of_names: List of paths to resources in the zip file using / as
                 separator, or a single path
 
+    :param print_tracebacks_for_missing_resources: When True missing resources are reported to STDERR
+
     :return: A dictionary of the form ``{name : file_contents}``. Any names
                 that were not found in the zip file will not be present in the
                 dictionary. If a single path is passed in the return value will
@@ -67,6 +69,8 @@ def get_icons(zfp, name_or_list_of_names, plugin_name='', print_tracebacks_for_m
 
     :param plugin_name: The human friendly name of the plugin, used to load icons from
                 the current theme, if present.
+
+    :param print_tracebacks_for_missing_resources: When True missing resources are reported to STDERR
 
     :return: A dictionary of the form ``{name : QIcon}``. Any names
                 that were not found in the zip file will be null QIcons.
