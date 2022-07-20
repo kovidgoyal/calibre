@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import unicode_literals
 import json
 from xml.sax.saxutils import escape, quoteattr
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes as prefix_classes, classes
 
 web_version = True
 test_article = None
@@ -65,26 +64,6 @@ def extract_html(soup):
     return json_to_html(raw)
 
 # }}}
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
-
-
-def prefix_classes(classes):
-    q = classes.split()
-
-    def test(x):
-        if x:
-            for cls in x.split():
-                for c in q:
-                    if cls.startswith(c):
-                        return True
-        return False
-    return dict(attrs={'class': test})
 
 
 class TheAtlantic(BasicNewsRecipe):
@@ -214,55 +193,25 @@ class TheAtlantic(BasicNewsRecipe):
             if test_article:
                 return [('Articles', [{'title': 'Test article', 'url': test_article}])]
             soup = self.index_to_soup(self.INDEX)
-            figure = soup.find('figure', id='cover-image')
-            if figure is not None:
-                img = figure.find('img', src=True)
-                if img:
-                    self.cover_url = img['src']
+            img = soup.find(**prefix_classes('IssueDescription_cover__'))
+            if img is not None:
+                self.cover_url = img['src']
             current_section, current_articles = 'Cover Story', []
             feeds = []
-            for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
-                for h2 in div.findAll('h2', attrs={'class': True}):
-                    cls = h2['class']
-                    if hasattr(cls, 'split'):
-                        cls = cls.split()
-                    if 'section-name' in cls:
-                        if current_articles:
-                            feeds.append((current_section, current_articles))
-                        current_articles = []
-                        current_section = self.tag_to_string(h2)
-                        self.log('\nFound section:', current_section)
-                    elif 'hed' in cls:
-                        title = self.tag_to_string(h2)
-                        a = h2.findParent('a', href=True)
-                        if a is None:
-                            continue
-                        url = a['href']
-                        if url.startswith('/'):
-                            url = 'https://www.theatlantic.com' + url
-                        li = a.findParent(
-                            'li',
-                            attrs={'class': lambda x: x and 'article' in x.split()}
-                        )
-                        desc = ''
-                        dek = li.find(
-                            attrs={'class': lambda x: x and 'dek' in x.split()}
-                        )
-                        if dek is not None:
-                            desc += self.tag_to_string(dek)
-                        byline = li.find(
-                            attrs={'class': lambda x: x and 'byline' in x.split()}
-                        )
-                        if byline is not None:
-                            desc += ' -- ' + self.tag_to_string(byline)
-                        self.log('\t', title, 'at', url)
-                        if desc:
-                            self.log('\t\t', desc)
-                        current_articles.append({
-                            'title': title,
-                            'url': url,
-                            'description': desc
-                        })
+            for x in soup.findAll(**prefix_classes('TocFeaturedSection_heading__ TocSection_heading__ TocHeroGridItem_hedLink___ TocGridItem_hedLink__')):
+                cls = x['class']
+                if not isinstance(cls, str):
+                    cls = ' '.join(cls)
+                title = self.tag_to_string(x).strip()
+                if 'Section' in cls:
+                    if current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_section, current_articles = title, []
+                    self.log(current_section)
+                    continue
+                url = x['href']
+                current_articles.append({'title': title, 'url': url})
+                self.log('\t', title, url)
             if current_articles:
                 feeds.append((current_section, current_articles))
             return feeds
