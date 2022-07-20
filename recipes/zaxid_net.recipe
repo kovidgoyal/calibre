@@ -1,31 +1,56 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1434046032(BasicNewsRecipe):
+class Zaxid(BasicNewsRecipe):
     title = 'Zaxid.net'
-    __author__ = 'rpalyvoda'
-    oldest_article = 7
+    __author__ = 'rpalyvoda (with fixes by bugmen00t)'
+    oldest_article = 14
     max_articles_per_feed = 100
     language = 'uk'
-    cover_url = 'http://upload.wikimedia.org/wikipedia/uk/b/bc/Zaxid-net.jpg'
-    masthead_url = 'http://upload.wikimedia.org/wikipedia/uk/b/bc/Zaxid-net.jpg'
+    cover_url = 'https://zaxid.net/images/logo.png'
+    masthead_url = 'https://zaxid.net/images/logo.png'
     auto_cleanup = True
 
     feeds = [
-        ('\u0421\u0442\u0440\u0456\u0447\u043a\u0430 \u043d\u043e\u0432\u0438\u043d',
-         'http://zaxid.net/rss/all.xml'),
-        ('\u0421\u0442\u0430\u0442\u0442\u0456', 'http://zaxid.net/rss/2.xml'),
-        ('\u0411\u043b\u043e\u0433\u0438', 'http://zaxid.net/rss/3.xml'),
-        ('\u0410\u043d\u043e\u043d\u0441\u0438', 'http://zaxid.net/rss/13.xml'),
-        ('\u041b\u044c\u0432\u0456\u0432', 'http://zaxid.net/rss/16.xml'),
-        ('\u0415\u043a\u043e\u043d\u043e\u043c\u0456\u043a\u0430',
-         'http://zaxid.net/rss/5.xml'),
-        ('IQ', 'http://zaxid.net/rss/9.xml'),
-        ('\u041a\u0443\u043b\u044c\u0442\u0443\u0440\u0430',
-         'http://zaxid.net/rss/6.xml'),
-        ('\u0421\u0432\u0456\u0442', 'http://zaxid.net/rss/8.xml'),
-        ('\u0421\u043f\u043e\u0440\u0442', 'http://zaxid.net/rss/7.xml'),
+        ('\u0417\u0430\u0433\u0430\u043B\u044C\u043D\u0438\u0439 RSS', 'http://zaxid.net/rss/all.xml'),
+        ('\u041D\u043E\u0432\u0438\u043D\u0438', 'https://zaxid.net/rss/1.xml'),
+        ('\u0421\u0442\u0430\u0442\u0442\u0456', 'https://zaxid.net/rss/2.xml'),
+        ('\u0411\u043B\u043E\u0433\u0438', 'https://zaxid.net/rss/3.xml'),
+        ('\u0421\u0443\u0441\u043F\u0456\u043B\u044C\u0441\u0442\u0432\u043E', 'https://zaxid.net/rss/4.xml'),
+        ('\u0415\u043A\u043E\u043D\u043E\u043C\u0456\u043A\u0430', 'https://zaxid.net/rss/5.xml'),
+        ('\u041A\u0443\u043B\u044C\u0442\u0443\u0440\u0430', 'https://zaxid.net/rss/6.xml'),
+        ('\u0421\u043F\u043E\u0440\u0442', 'https://zaxid.net/rss/7.xml'),
+        ('\u0421\u0432\u0456\u0442', 'https://zaxid.net/rss/8.xml'),
+        ('IQ', 'https://zaxid.net/rss/9.xml'),
+        ('\u0410\u043D\u043E\u043D\u0441\u0438', 'https://zaxid.net/rss/13.xml'),
+        ('ZAXID.NET TV', 'https://zaxid.net/rss/zaxid_tv.xml'),
+        ('\u041D\u043E\u0432\u0438\u043D\u0438 \u041B\u044C\u0432\u043E\u0432\u0430', 'https://zaxid.net/rss/lviv_news.xml'),
+        ('\u0424\u043E\u0442\u043E', 'https://zaxid.net/rss/19.xml'),
+        ('\u0414\u0456\u043C', 'https://zaxid.net/rss/26.xml'),
+        ('\u0417\u0434\u043E\u0440\u043E\u0432\u0027\u044F', 'https://zaxid.net/rss/28.xml'),
+        ('\u0410\u0432\u0442\u043E', 'https://zaxid.net/rss/29.xml'),
+        ('\u041B\u044C\u0432\u0456\u0432', 'https://zaxid.net/rss/16.xml'),
+        ('\u041F\u0440\u0438\u043A\u0430\u0440\u043F\u0430\u0442\u0442\u044F', 'https://zaxid.net/rss/59.xml'),
+        ('\u0422\u0435\u0440\u043D\u043E\u043F\u0456\u043B\u044C', 'https://zaxid.net/rss/60.xml'),
+        ('\u0412\u043E\u043B\u0438\u043D\u044C', 'https://zaxid.net/rss/61.xml'),
+        ('\u0417\u0430\u043A\u0430\u0440\u043F\u0430\u0442\u0442\u044F', 'https://zaxid.net/rss/62.xml'),
+        ('\u0427\u0435\u0440\u043D\u0456\u0432\u0446\u0456', 'https://zaxid.net/rss/63.xml'),
+        ('\u0420\u0456\u0432\u043D\u0435', 'https://zaxid.net/rss/65.xml'),
+        ('\u0425\u043C\u0435\u043B\u044C\u043D\u0438\u0446\u044C\u043A\u0438\u0439', 'https://zaxid.net/rss/68.xml'),
+        ('\u041D\u0435\u0440\u0443\u0445\u043E\u043C\u0456\u0441\u0442\u044C', 'https://zaxid.net/rss/37.xml'),
+        ('\u0427\u0435\u0440\u0432\u043E\u043D\u043E\u0433\u0440\u0430\u0434', 'https://zaxid.net/rss/40.xml'),
+        ('\u0421\u0442\u0440\u0438\u0439', 'https://zaxid.net/rss/41.xml'),
+        ('\u0414\u0440\u043E\u0433\u043E\u0431\u0438\u0447', 'https://zaxid.net/rss/42.xml'),
+        ('\u0412\u0456\u043D\u043D\u0438\u0446\u044F', 'https://zaxid.net/rss/44.xml'),
+        ('\u041F\u043E\u0434\u043E\u0440\u043E\u0436\u0456', 'https://zaxid.net/rss/46.xml'),
+        ('\u0414\u0456\u0442\u0438', 'https://zaxid.net/rss/53.xml'),
+        ('Громадський транспорт', 'https://zaxid.net/rss/54.xml'),
+        ('\u0420\u0435\u0446\u0435\u043F\u0442\u0438', 'https://zaxid.net/rss/55.xml'),
+        ('\u0421\u043F\u043E\u0440\u0442', 'https://zaxid.net/rss/56.xml'),
+        ('\u041A\u0443\u0440\u0439\u043E\u0437\u0438', 'https://zaxid.net/rss/57.xml'),
+        ('\u0414\u043E\u0437\u0432\u0456\u043B\u043B\u044F', 'https://zaxid.net/rss/58.xml')
     ]
