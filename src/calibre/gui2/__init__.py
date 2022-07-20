@@ -1258,7 +1258,9 @@ class Application(QApplication):
         ic = QIcon.ic(name)
         if not device_pixel_ratio:
             device_pixel_ratio = self.devicePixelRatio()
-        return ic.pixmap(r.size(), device_pixel_ratio)
+        ans = ic.pixmap(r.size())
+        ans.setDevicePixelRatio(device_pixel_ratio)
+        return ans
 
     def stylesheet_for_line_edit(self, is_error=False):
         return 'QLineEdit { border: 2px solid %s; border-radius: 3px }' % (
