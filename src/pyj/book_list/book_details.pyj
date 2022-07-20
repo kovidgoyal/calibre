@@ -95,10 +95,15 @@ def on_fmt_click(ev):
             close_modal()
             which(book_id, fmt)
 
+        if fmt.lower() is 'pdf':
+            read_button = download_url(book_id, fmt, 'inline')
+        else:
+            read_button = action.bind(None, read_format)
+
         parent.appendChild(E.div(
             E.div(_('What would you like to do with the {} format?').format(fmt)),
             E.div(class_='button-box',
-                create_button(_('Read'), 'book', action.bind(None, read_format)),
+                create_button(_('Read'), 'book', read_button),
                 '\xa0',
                 create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
                               _('File size: {}').format(human_readable(sz)),
@@ -475,7 +480,11 @@ def read_format(book_id, fmt):
 
 def read_book(book_id):
     fmt = preferred_format(book_id)
-    read_format(book_id, fmt)
+    fmt = 'PDF'
+    if fmt and fmt.lower() is 'pdf':
+        window.open(download_url(book_id, fmt, 'inline'), '_blank')
+    else:
+        read_format(book_id, fmt)
 
 
 def download_format(book_id, fmt):

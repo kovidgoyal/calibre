@@ -206,8 +206,9 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
             set_metadata(dest, mi, fmt)
             dest.seek(0)
 
-    rd.outheaders['Content-Disposition'] = '''attachment; filename="{}"; filename*=utf-8''{}'''.format(
-        book_filename(rd, book_id, mi, fmt), book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True))
+    cd = rd.query.get('content_disposition', 'attachment')
+    rd.outheaders['Content-Disposition'] = '''{}; filename="{}"; filename*=utf-8''{}'''.format(
+        cd, book_filename(rd, book_id, mi, fmt), book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True))
 
     return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
 # }}}

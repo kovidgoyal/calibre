@@ -215,9 +215,12 @@ def cover_url(book_id):
     return absolute_path(f'get/cover/{book_id}/{lid}')
 
 
-def download_url(book_id, fmt):
+def download_url(book_id, fmt, content_disposition):
     lid = current_library_id()
-    return absolute_path(f'get/{fmt}/{book_id}/{lid}')
+    ans = absolute_path(f'get/{fmt}/{book_id}/{lid}')
+    if content_disposition:
+        ans += f'?content_disposition={content_disposition}'
+    return ans
 
 
 def book_metadata(book_id):
