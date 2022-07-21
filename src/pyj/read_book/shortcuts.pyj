@@ -20,7 +20,7 @@ def parse_key_repr(sc):
             ans.ctrlKey = True
         elif q is 'alt':
             ans.altKey = True
-        elif q is 'meta':
+        elif q is 'meta' or q is 'cmd':
             ans.metaKey = True
         elif q is 'shift':
             ans.shiftKey = True
@@ -219,7 +219,7 @@ def common_shortcuts():  # {{{
     ),
 
     'start_search': desc(
-        v"['/', 'Ctrl+f']",
+        v"['/', 'Ctrl+f', 'Cmd+f']",
         'ui',
         _('Start search'),
     ),
