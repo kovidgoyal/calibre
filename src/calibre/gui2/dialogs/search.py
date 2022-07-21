@@ -7,7 +7,7 @@ from datetime import date
 from qt.core import (
     QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
     QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
-    QSpinBox, QRadioButton
+    QSpinBox, QRadioButton, QPushButton, QToolButton
 )
 
 from calibre import strftime
@@ -293,7 +293,18 @@ def create_template_tab(self):
     le.setObjectName('template_program_box')
     le.setPlaceholderText(_('The template that generates the value'))
     le.setToolTip(_('Right click to open a template editor'))
-    l.addRow(_('Tem&plate:'), le)
+    lo = QHBoxLayout()
+    lo.addWidget(le)
+    self.edit_template_button = tb = QToolButton()
+    tb.setIcon(QIcon.ic("edit_input.png"))
+    tb.setToolTip(_('Open template editor'))
+    lo.addWidget(tb)
+    l.addRow(QLabel(_('&Template:')), lo) # QLabel is needed to make the & work
+
+    self.copy_current_template_search_button = le = QPushButton(_('Copy the current search into the boxes'))
+    le.setObjectName('copy_current_template_search_button')
+    le.setToolTip(_('Use this button to retrieve and edit the current search'))
+    l.addRow('', le)
 
 
 def setup_ui(self, db):
@@ -347,7 +358,33 @@ class SearchDialog(QDialog):
                       gprefs.get('advanced_search_template_tab_value_field', ''))
             self.template_test_type_box.setCurrentIndex(
                       int(gprefs.get('advanced_search_template_tab_test_field', '0')))
+        self.current_search_text = get_gui().search.current_text
+        if self.current_search_text.startswith('template:'):
+            self.current_search_text = self.current_search_text[len('template:'):]
+            if self.current_search_text.startswith('"""'):
+                self.current_search_text = self.current_search_text[3:-3]
+            elif self.current_search_text.startswith('"'):
+                # This is a hack to try to compensate for template searches
+                # that were surrounded with quotes not docstrings. If there is
+                # escaping in the quoted string it won't be right because the
+                # final output will be docstring encoded.
+                self.current_search_text = self.current_search_text[1:-1]
+            self.copy_current_template_search_button.setEnabled(True)
+        else:
+            self.copy_current_template_search_button.setEnabled(False)
+        self.copy_current_template_search_button.clicked.connect(self.retrieve_template_search)
+        self.edit_template_button.clicked.connect(lambda:self.template_program_box.open_editor())
         self.resize(self.sizeHint())
+
+    def retrieve_template_search(self):
+        template, sep, query = re.split('#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)
+        self.template_value_box.setText(query)
+        cb = self.template_test_type_box
+        for idx in range(0, cb.count()):
+            if sep == str(cb.itemData(idx)):
+                cb.setCurrentIndex(idx)
+                break;
+        self.template_program_box.setText(template)
 
     def save_state(self):
         gprefs['advanced search dialog current tab'] = \
