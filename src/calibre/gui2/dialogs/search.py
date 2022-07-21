@@ -299,9 +299,11 @@ def create_template_tab(self):
     tb.setIcon(QIcon.ic("edit_input.png"))
     tb.setToolTip(_('Open template editor'))
     lo.addWidget(tb)
-    l.addRow(QLabel(_('&Template:')), lo) # QLabel is needed to make the & work
+    self.template_layout_label = tll = QLabel(_('&Template:'))
+    tll.setBuddy(le)
+    l.addRow(tll, lo)
 
-    self.copy_current_template_search_button = le = QPushButton(_('Copy the current search into the boxes'))
+    self.copy_current_template_search_button = le = QPushButton(_('&Copy the current search into the boxes'))
     le.setObjectName('copy_current_template_search_button')
     le.setToolTip(_('Use this button to retrieve and edit the current search'))
     l.addRow('', le)
@@ -383,7 +385,7 @@ class SearchDialog(QDialog):
         for idx in range(0, cb.count()):
             if sep == str(cb.itemData(idx)):
                 cb.setCurrentIndex(idx)
-                break;
+                break
         self.template_program_box.setText(template)
 
     def save_state(self):
