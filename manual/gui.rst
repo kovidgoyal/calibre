@@ -798,7 +798,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
 
     * - Keyboard shortcut
       - Action
-    * - :kbd:`F2 (Enter in macOS)`
+    * - :kbd:`F2 (Enter for macOS)`
       - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A`
       - Add books
@@ -834,7 +834,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - View
     * - :kbd:`Shift+V`
       - View last read book
-    * - :kbd:`Alt+V/Cmd+V in macOS`
+    * - :kbd:`Alt+V/Cmd+V for macOS`
       - View specific format
     * - :kbd:`Alt+Shift+J`
       - Toggle jobs list
