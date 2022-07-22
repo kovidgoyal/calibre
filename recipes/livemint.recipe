@@ -11,16 +11,20 @@ class LiveMint(BasicNewsRecipe):
     description = 'Financial News from India.'
     language = 'en_IN'
     __author__ = 'Krittika Goyal'
-    oldest_article = 1  # days
+    oldest_article = 1.15  # days
     max_articles_per_feed = 50
     encoding = 'utf-8'
     use_embedded_content = False
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://images.livemint.com/static/livemint-logo-v1.svg'
-    cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/06/Delhi/Delhi/5_01/9376f23b_01_mr.jpg'
+
+    remove_empty_feeds =  True
 
     if is_saturday:
+
+        cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/16/Delhi/Delhi/5_01/bf867ea1_01_mr.jpg'
+
         keep_only_tags = [
             dict(name='h1'),
             dict(name='h2', attrs={'id':'story-summary-0'}),
@@ -42,15 +46,22 @@ class LiveMint(BasicNewsRecipe):
             ('Smart Living','https://lifestyle.livemint.com/rss/smart-living'),
         ]
     else:
+        extra_css = '''
+            #img-cap {font-size:small; text-align:center;}
+            #auth-info {font-size:small; text-align:center;}
+            .highlights {font-style:italic;}
+        '''
+        cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/05/Delhi/Delhi/5_01/1ec7ad14_01_mr.jpg'
+
         keep_only_tags = [
             dict(name='h1'),
-            dict(name='picture'),
-            dict(name='figcaption'),
+            dict(name='figure', attrs={'data-vars-mediatype':'image'}),
             classes('articleInfo FirstEle summary highlights paywall'),
         ]
         remove_tags = [
             classes(
-                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk'
+                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
+                ' socialHolder imgbig disclamerText disqus-comment-count'
             )
         ]
 
@@ -58,7 +69,7 @@ class LiveMint(BasicNewsRecipe):
             ('Companies', 'https://www.livemint.com/rss/companies'),
             ('Opinion', 'https://www.livemint.com/rss/opinion'),
             ('Money', 'https://www.livemint.com/rss/money'),
-            ('Economy', 'https://www.livemint.com/rss/economy/'),
+            ('Economy', 'https://www.livemint.com/rss/economy'),
             ('Politics', 'https://www.livemint.com/rss/politics'),
             ('Science', 'https://www.livemint.com/rss/science'),
             ('Industry', 'https://www.livemint.com/rss/industry'),
@@ -75,6 +86,13 @@ class LiveMint(BasicNewsRecipe):
         ]
 
     def preprocess_html(self, soup):
+        for span in soup.findAll('figcaption'):
+            span['id'] = 'img-cap'
+        for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
+            auth['id'] = 'auth-info'
+            auth.name = 'div'
+        for span in soup.findAll('span', attrs={'class':'exclusive'}):
+            span.extract()
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         if is_saturday:
