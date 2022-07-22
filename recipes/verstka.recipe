@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Verstka(BasicNewsRecipe):
+    title = u'\u0412\u0451\u0440\u0441\u0442\u043A\u0430'
+    description = u'\u041E\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E-\u043F\u043E\u043B\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0434\u0430\u043D\u0438\u0435, \u043A\u043E\u0442\u043E\u0440\u043E\u0435 \u0438\u0441\u0441\u043B\u0435\u0434\u0443\u0435\u0442 \u0438 \u043E\u043F\u0438\u0441\u044B\u0432\u0430\u0435\u0442, \u043A\u0430\u043A \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0438\u0440\u0443\u0435\u0442 \u043E\u0431\u0449\u0435\u0441\u0442\u0432\u043E \u0432 \u0420\u043E\u0441\u0441\u0438\u0438.'  # noqa
+    __author__ = 'bugmen00t'
+    publication_type = 'newspaper'
+    oldest_article = 21
+    max_articles_per_feed = 20
+    language = 'ru'
+    cover_url = 'https://secureservercdn.net/160.153.137.128/yji.7dd.myftpupload.com/wp-content/uploads/2022/04/Screenshot-2022-04-26-at-22.19.30-300x68.png'
+    auto_cleanup = False
+    no_stylesheets = False
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'wp-block-spacer'})
+
+    feeds = [
+        (u'\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://verstka.media/category/news/feed/'),
+        (u'\u0421\u0442\u0430\u0442\u044C\u0438', 'https://verstka.media/category/article/feed/'),
+        (u'\u041A\u043E\u043B\u043E\u043D\u043A\u0438', 'https://verstka.media/category/column/feed/'),
+        (u'\u0418\u043D\u0442\u0435\u0440\u0432\u044C\u044E', 'https://verstka.media/category/interview/feed/')
+    ]

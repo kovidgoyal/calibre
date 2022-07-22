@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class OGRU(BasicNewsRecipe):
+    title = u'Old-Games.RU'
+    __author__ = 'bugmen00t'
+    description = u'Old-Games.RU \u2014 \u043A\u0440\u0443\u043F\u043D\u0435\u0439\u0448\u0438\u0439 \u0440\u043E\u0441\u0441\u0438\u0439\u0441\u043A\u0438\u0439 \u0430\u0440\u0445\u0438\u0432 \u0441\u0442\u0430\u0440\u044B\u0445 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u043D\u044B\u0445 \u0438\u0433\u0440. \u041C\u044B \u043D\u0435 \u0441\u0442\u0430\u0432\u0438\u043C \u043F\u0435\u0440\u0435\u0434 \u0441\u043E\u0431\u043E\u0439 \u0446\u0435\u043B\u0438 \u0441\u043E\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0435 \u0438\u0433\u0440\u044B, \u0447\u0442\u043E \u0435\u0441\u0442\u044C \u0432 \u043C\u0438\u0440\u0435, \u043D\u043E \u043C\u044B \u0441\u0442\u0430\u0440\u0430\u0435\u043C\u0441\u044F, \u0447\u0442\u043E\u0431\u044B \u043D\u0430 \u0441\u0430\u0439\u0442\u0435 \u0431\u044B\u043B\u043E \u043F\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043E \u0431\u043E\u043B\u044C\u0448\u0438\u043D\u0441\u0442\u0432\u043E \u0448\u0435\u0434\u0435\u0432\u0440\u043E\u0432, \u0440\u0435\u0434\u043A\u043E\u0441\u0442\u0435\u0439 \u0438 \u043F\u0440\u043E\u0441\u0442\u043E \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043D\u044B\u0445 \u043F\u0440\u043E\u0435\u043A\u0442\u043E\u0432 \u043F\u0440\u043E\u0448\u043B\u044B\u0445 \u043B\u0435\u0442. \u0421 \u0442\u0435\u0447\u0435\u043D\u0438\u0435\u043C \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0433\u0440\u0430\u0444\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438 \u0437\u0432\u0443\u043A\u043E\u0432\u043E\u0435 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u0435 \u0438\u0433\u0440 \u043D\u0430\u0448\u0435\u0433\u043E \u0430\u0440\u0445\u0438\u0432\u0430 \u0437\u0430\u043C\u0435\u0442\u043D\u043E \u0443\u0441\u0442\u0430\u0440\u0435\u043B\u043E, \u043D\u043E \u0438\u0433\u0440\u043E\u0432\u043E\u0439 \u043F\u0440\u043E\u0446\u0435\u0441\u0441 \u043E\u0441\u0442\u0430\u043B\u0441\u044F \u043F\u0440\u0435\u0436\u043D\u0438\u043C, \u0438 \u043F\u043E\u0440\u043E\u0439 \u043E\u043D \u0433\u043E\u0440\u0430\u0437\u0434\u043E \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043D\u0435\u0435, \u0447\u0435\u043C \u0432\u043E \u043C\u043D\u043E\u0433\u0438\u0445 \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u00AB\u0445\u0438\u0442\u0430\u0445\u00BB.'  # noqa
+    publisher = 'Old-Games.RU'
+    publication_type = 'blog'
+    category = 'news, games, retro'
+    language = 'ru'
+    cover_url = 'https://www.old-games.ru/forum/styles/default/old-games/logo.og.png'
+    oldest_article = 50
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    auto_cleanup = False
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_attributes = ['style']
+
+    remove_tags =   [
+        dict(name='p', attrs={'id': 'pageDescription'}),
+        dict(name='div', attrs={'class': 'pageNavLinkGroup'}),
+        dict(name='div', attrs={'class': 'tagBlock TagContainer'}),
+        dict(name='div', attrs={'class': 'NoAutoHeader PollContainer'}),
+        dict(name='div', attrs={'class': 'likesSummary secondaryContent'}),
+        dict(name='div', attrs={'class': 'editDate'}),
+        dict(name='div', attrs={'class': 'attachedFiles'}),
+        dict(name='div', attrs={'class': 'item muted postNumber hashPermalink OverlayTrigger'}),
+        dict(name='div', attrs={'class': 'messageUserInfo'})
+        ]
+
+    feeds = [
+        (u'\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://feeds.feedburner.com/Old-games-ru-news'),
+        (u'\u0421\u0442\u0430\u0442\u044C\u0438', 'https://feeds.feedburner.com/Old-games-ru-articles')
+        ]

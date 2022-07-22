@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Cedar(BasicNewsRecipe):
+    title = u'\u041A\u0435\u0434\u0440'
+    description = u'\u041D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u043E\u0435 \u043C\u0435\u0434\u0438\u0430 \u043E\u0431 \u043E\u043A\u0440\u0443\u0436\u0430\u044E\u0449\u0435\u0439 \u0441\u0440\u0435\u0434\u0435'  # noqa
+    __author__ = 'bugmen00t'
+    publication_type = 'blog'
+    oldest_article = 30
+    max_articles_per_feed = 20
+    language = 'ru'
+    cover_url = 'https://kedr.media/wp-content/themes/kedrmedia_gutenberg/assets/img/logo-bg.svg'
+    auto_cleanup = True
+    no_stylesheets = False
+
+    remove_tags_before = dict(name='div', attrs={'class': 'post-header'})
+
+    remove_tags_after = dict(name='div', attrs={'class': 'post-content'})
+
+    feeds = [(
+        u'\u0418\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F',
+        'https://kedr.media/category/research/feed'
+    ),
+             (
+                 u'\u0418\u0441\u0442\u043E\u0440\u0438\u0438',
+                 'https://kedr.media/category/stories/feed'
+             ),
+             (
+                 u'\u041C\u043D\u0435\u043D\u0438\u044F',
+                 'https://kedr.media/category/opinions/feed'
+             ),
+             (
+                 u'\u0418\u043D\u0442\u0435\u0440\u0432\u044C\u044E',
+                 'https://kedr.media/category/interview/feed'
+             ),
+             (
+                 u'\u041E\u0431\u044A\u044F\u0441\u043D\u044F\u0435\u043C',
+                 'https://kedr.media/category/explain/feed'
+             )]
