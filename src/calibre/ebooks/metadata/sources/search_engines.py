@@ -23,7 +23,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 14)
+current_version = (1, 0, 15)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -297,6 +297,11 @@ def google_parse_results(root, raw, log=prints):
     return ans
 
 
+def google_specialize_broswer(br):
+    br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+    return br
+
+
 def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
@@ -304,8 +309,7 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     q = '+'.join(terms)
     url = 'https://www.google.com/search?q={q}'.format(q=q)
     log('Making google query: ' + url)
-    br = br or browser()
-    br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+    br = google_specialize_broswer(br or browser())
     r = []
     root = query(br, url, 'google', dump_raw, timeout=timeout, save_raw=r.append)
     return google_parse_results(root, r[0], log=log), url
