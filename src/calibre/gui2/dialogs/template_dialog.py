@@ -276,6 +276,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
         elif self.iconing or self.embleming:
             self.icon_layout.setVisible(True)
+            self.icon_select_layout.setContentsMargins(0, 0, 0, 0)
             if self.embleming:
                 self.icon_kind_label.setVisible(False)
                 self.icon_kind.setVisible(False)
