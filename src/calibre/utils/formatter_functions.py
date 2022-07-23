@@ -2135,7 +2135,7 @@ class BuiltinArguments(BuiltinFormatterFunction):
                       '-- Used in a stored template to retrieve the arguments '
                       'passed in the call. It both declares and initializes '
                       'local variables, effectively parameters. The variables '
-                      'are positional; they get the value of the value given '
+                      'are positional; they get the value of the parameter given '
                       'in the call in the same position. If the corresponding '
                       'parameter is not provided in the call then arguments '
                       'assigns that variable the provided default value. If '
