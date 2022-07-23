@@ -1,0 +1,61 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class Athletic(BasicNewsRecipe):
+    title = u'The Athletic'
+    __author__ = 'unkn0wn'
+    description = 'The Athletic delivers powerful stories and smart analysis that bring sports fans closer to the heart of the game. From breaking news and live commentary, to deeply-reported long reads and exclusive interviews, subscribers rely on The Athletic for every sports story that matters.'  # noqa
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/The_Athletic_wordmark_black_2020.svg/640px-The_Athletic_wordmark_black_2020.svg.png'  # noqa
+    language = 'en'
+    oldest_article = 1.15  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    remove_empty_feeds = True
+    extra_css = '''
+        #articleByLineString{font-size:small;}
+        .credits-text{font-size:small; text-align:center;}
+        .sc-66df40a5-3{font-size:small;}
+    '''
+    keep_only_tags = [dict(name='div', attrs={'id': 'body-container'})]
+
+    remove_tags_after = [
+        dict(name='div', attrs={'id': 'newsLede'}),
+        classes('article-content-container')
+    ]
+
+    feeds = [
+        ('The Athletic Ink', 'https://theathletic.com/ink/?rss'),
+        ('Football', 'https://theathletic.com/football/?rss'),
+        ('Boxing', 'https://theathletic.com/boxing/?rss'),
+        ('MMA', 'https://theathletic.com/mma/?rss'),
+        ('Motorsports', 'https://theathletic.com/motorsports/?rss'),
+        ('NBA', 'https://theathletic.com/nba/?rss'),
+        ('NHL', 'https://theathletic.com/nhl/?rss'),
+        ('Olympics', 'https://theathletic.com/olympics/?rss'),
+        ('Culture', 'https://theathletic.com/culture/?rss'),
+        ('Others', 'https://theathletic.com/rss-feed/'),  # All Articles
+        # just add '/?rss' to the sections you'd like to get.. there's too many
+    ]
+
+    def preprocess_html(self, soup):
+        for block in soup.findAll(
+            'img', attrs={'style': lambda x: x and x.startswith('display:block')}
+        ):
+            block.extract()
+        for space in soup.findAll(
+            **classes('MuiGrid-justify-content-xs-space-between')
+        ):
+            space.extract()
+        for img in soup.findAll('img', attrs={'src': True}):
+            if img['src'].startswith('/_next/image/'):
+                img['src'] = 'https://theathletic.com' + img['src'].split('&')[
+                    0] + '&w=828&q=75'
+        return soup
+
+    def print_version(self, url):
+        reset = url.split('?')[0]
+        return reset
