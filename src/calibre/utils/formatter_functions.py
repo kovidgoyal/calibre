@@ -611,7 +611,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if (len(args) % 2) != 1:
-            raise ValueError(_('switch requires an odd number of arguments'))
+            raise ValueError(_('switch requires an even number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
