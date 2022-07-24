@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TrvScience(BasicNewsRecipe):
 
-    title = u'!!!\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442'
+    title = u'\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442'
     language = 'ru'
     __author__ = 'Vadim Dyadkin (with fixes by bugmen00t)'
     oldest_article = 30
