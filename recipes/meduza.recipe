@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Meduza(BasicNewsRecipe):
+    title = u'Meduza'
+    description = u'Russian- and English-language independent news website, based in Latvia. It was founded in 2014 by a group of former employees of the then independent Lenta.ru news website. Every day we bring you the most important news and feature stories from hundreds of sources in Russia and across the former Soviet Union.'  # noqa
+    __author__ = 'bugmen00t'
+    publisher = 'Medusa Project SIA'
+    publication_type = 'blog'
+    oldest_article = 21
+    max_articles_per_feed = 100
+    language = 'en_RU'
+    cover_url = 'https://meduza.io/impro/E_cJMv0IQxOC45z-YXeGuzuPB2kQ_A1XsZYrdByOCnk/fill/1200/0/ce/0/aHR0cHM6Ly9tZWR1/emEuaW8vaW1hZ2Uv/YXR0YWNobWVudHMv/aW1hZ2VzLzAwNi83/MTgvODcyL29yaWdp/bmFsLzVPSmRDdWc1/bC1JVG9lTXBqSHFH/ZXcucG5n.png'  # noqa
+    auto_cleanup = False
+    no_stylesheets = False
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'GeneralMaterial-article'})
+
+    remove_tags = [
+        dict(name='div', attrs={'id': 'div-gpt-ad'}),
+    ]
+
+    feeds = [
+        (u'News', 'https://meduza.io/rss2/en/news'),
+        (u'Feature stories', 'https://meduza.io/rss2/en/stories'),
+    ]
