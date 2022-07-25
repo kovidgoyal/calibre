@@ -118,7 +118,10 @@ def href_to_name(href, root, base=None):
         # assume all such paths are invalid/absolute paths.
         return None
     fullpath = os.path.join(base, *href.split('/'))
-    return unicodedata.normalize('NFC', abspath_to_name(fullpath, root))
+    try:
+        return unicodedata.normalize('NFC', abspath_to_name(fullpath, root))
+    except ValueError:
+        return None
 
 
 class ContainerBase:  # {{{
