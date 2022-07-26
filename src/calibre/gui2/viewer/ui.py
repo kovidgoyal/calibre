@@ -362,6 +362,11 @@ class EbookViewer(MainWindow):
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
         self.web_view.goto_toc_node(item.node_id)
+        self.force_focus_on_web_view()
+
+    def force_focus_on_web_view(self):
+        self.activateWindow()
+        self.web_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def toc_searched(self, index):
         item = self.toc_model.itemFromIndex(index)
