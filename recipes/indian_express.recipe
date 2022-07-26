@@ -62,7 +62,7 @@ class IndianExpress(BasicNewsRecipe):
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
             ' storytags pdsc-related-modify news-guard premium-story append_social_share'
-            ' digital-subscriber-only h-text-widget'
+            ' digital-subscriber-only h-text-widget ie-premium'
         )
     ]
 
@@ -107,7 +107,7 @@ class IndianExpress(BasicNewsRecipe):
     def preprocess_html(self, soup):
         h2 = soup.findAll('h2')
         for sub in h2:
-            sub.name = 'h4'
+            sub.name = 'h5'
         for span in soup.findAll(
             'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
         ):

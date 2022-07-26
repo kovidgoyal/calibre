@@ -9,7 +9,6 @@ class IndiaToday(BasicNewsRecipe):
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
-    extra_css = '[itemprop^="description"] {font-size: small; font-style: italic;}'
     description = (
         'India’s Most Reputed, Credible and Popular news magazine.'
         ' Read the most preferred magazine of 9.5 million Indians to access highly researched and unbiased content.'
@@ -19,6 +18,7 @@ class IndiaToday(BasicNewsRecipe):
     extra_css = '''
         .body_caption{font-size:small;}
         .image-alt{font-size:small;}
+        [itemprop^="description"] {font-size: small; font-style: italic;}
     '''
 
     def get_cover_url(self):
@@ -63,11 +63,19 @@ class IndiaToday(BasicNewsRecipe):
                 else:
                     url = 'https://www.indiatoday.in' + url
                 title = self.tag_to_string(a).strip()
+                try:
+                    desc = self.tag_to_string(a.findParent(
+                        'span', attrs={'class':'field-content'}).findNext(
+                            'div', attrs={'class':'views-field'})).strip()
+                except Exception:
+                    desc = self.tag_to_string(a.findParent(
+                        ('h3','p')).findNext('span', attrs={'class':'kicket-text'})).strip()
                 if not url or not title:
                     continue
                 self.log('\t', title)
+                self.log('\t', desc)
                 self.log('\t\t', url)
-                sections[section].append({'title': title, 'url': url})
+                sections[section].append({'title': title, 'url': url, 'description': desc})
 
         def sort_key(x):
             section = x[0]
@@ -99,4 +107,6 @@ class IndiaToday(BasicNewsRecipe):
             style.extract()
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h5'
         return str(soup)
