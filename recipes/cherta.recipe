@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Cherta(BasicNewsRecipe):
+    title          		  = '\u0427\u0435\u0440\u0442\u0430'
+    __author__            = 'bugmen00t'
+    description           = ' \u0418\u043D\u0442\u0435\u0440\u0435\u0441\u043D\u044B\u0435, \u0432\u0430\u0436\u043D\u044B\u0435 \u0438 \u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0435 \u0442\u0435\u043A\u0441\u0442\u044B \u043F\u0440\u043E \u043D\u0430\u0441\u0438\u043B\u0438\u0435 \u0438 \u043D\u0435\u0440\u0430\u0432\u0435\u043D\u0441\u0442\u0432\u043E \u0432 \u0420\u043E\u0441\u0441\u0438\u0438.'  # noqa
+    publisher             = 'cherta.media'
+    category              = 'blog'
+    cover_url = u'https://cherta.media/wp-content/uploads/2022/01/cherta_snippet2.png'
+    language              = 'ru'
+    no_stylesheets        = False
+    remove_javascript = False
+    auto_cleanup   = False
+    oldest_article = 30
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='div', attrs={'class':'single-story'})
+
+    remove_tags_after = dict(name='div', attrs={'class':'single-page__footer-info'})
+
+    remove_tags =   [
+        dict(name='div', attrs={'class': 'single-content-link'}),
+        dict(name='div', attrs={'class': 'single-page__footer-info_links clearfix'}),
+        dict(name='div', attrs={'class': 'single-article-tags-wrapper'})
+        ]
+
+    feeds = [
+        ('\u0418\u0441\u0442\u043E\u0440\u0438\u0438', 'https://cherta.media/story/feed/'),
+        ('\u0418\u043D\u0442\u0435\u0440\u0432\u044C\u044E', 'https://cherta.media/interview/feed/')
+    ]

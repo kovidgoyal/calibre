@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class StopGame(BasicNewsRecipe):
+    title = 'StopGame'
+    __author__ = 'bugmen00t'
+    description = ' \u0420\u043E\u0441\u0441\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u0433\u0440\u043E\u0432\u043E\u0439 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442-\u043F\u043E\u0440\u0442\u0430\u043B, \u043D\u0430 \u043A\u043E\u0442\u043E\u0440\u043E\u043C \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432 \u0430\u0432\u0442\u043E\u0440\u043E\u0432 \u0440\u0430\u0441\u0441\u043A\u0430\u0437\u044B\u0432\u0430\u0435\u0442 \u0432\u0441\u0435\u043C \u0436\u0435\u043B\u0430\u044E\u0449\u0438\u043C \u043E \u0432\u0438\u0434\u0435\u043E\u0438\u0433\u0440\u0430\u0445. '  # noqa
+    publisher = 'StopGame.ru'
+    category = 'blog'
+    cover_url = u'https://images.stopgame.ru/blogs/2020/01/29/U7R7t5rQ.jpg'
+    language = 'ru'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 50
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': '_end-info_zp673_1113'})
+
+    remove_tags = [
+        dict(name='section', attrs={'id': 'comments'}),
+        dict(name='footer'),
+        dict(
+            name='section',
+            attrs={'class': '_page-section_xdzdd_387 _additional-reads_zp673_1348'}
+        )
+    ]
+
+    feeds = [
+        (
+            '\u0412\u0441\u0435 \u0440\u0430\u0437\u0434\u0435\u043B\u044B',
+            'https://rss.stopgame.ru/rss_all.xml'
+        ),
+        (
+            '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
+            'https://rss.stopgame.ru/rss_news.xml'
+        ),
+        (
+            '\u0421\u0442\u0430\u0442\u044C\u0438',
+            'https://rss.stopgame.ru/articles.xml'
+        ), ('\u0412\u0438\u0434\u0435\u043E', 'https://rss.stopgame.ru/videos.xml'),
+        ('\u0411\u043B\u043E\u0433\u0438', 'https://rss.stopgame.ru/all_topics.xml')
+    ]

@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Sova(BasicNewsRecipe):
+    title = 'SOVA'
+    __author__ = 'bugmen00t'
+    description = ' \u0420\u0443\u0441\u0441\u043A\u043E\u044F\u0437\u044B\u0447\u043D\u043E\u0435 \u043D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u043E\u0435 \u043E\u043D\u043B\u0430\u0439\u043D-\u0438\u0437\u0434\u0430\u043D\u0438\u0435, \u043E\u0441\u043D\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u0432 \u0422\u0431\u0438\u043B\u0438\u0441\u0438 \u0432 2016 \u0433\u043E\u0434\u0443 \u0433\u0440\u0443\u043F\u043F\u043E\u0439 \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0436\u0443\u0440\u043D\u0430\u043B\u0438\u0441\u0442\u043E\u0432, \u043F\u0440\u0435\u0434\u043E\u0441\u0442\u0430\u0432\u043B\u044F\u044E\u0449\u0435\u0435 \u043A\u0430\u0447\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u0443\u044E \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044E \u043E \u043F\u043E\u043B\u0438\u0442\u0438\u043A\u0435, \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u043A\u0435 \u0438 \u0434\u0440\u0443\u0433\u0438\u0445 \u043D\u0435\u043E\u0442\u044A\u0435\u043C\u043B\u0435\u043C\u044B\u0445 \u0430\u0441\u043F\u0435\u043A\u0442\u0430\u0445 \u0436\u0438\u0437\u043D\u0438 \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0433\u043E \u0447\u0435\u043B\u043E\u0432\u0435\u043A\u0430 \u0432 \u0413\u0440\u0443\u0437\u0438\u0438 \u0438 \u0440\u0435\u0433\u0438\u043E\u043D\u0435 \u0432 \u0446\u0435\u043B\u043E\u043C.'  # noqa
+    publisher = '\u041D\u0435\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435\u043D\u043D\u0430\u044F \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u0430\u0446\u0438\u044F Sova News'  # noqa
+    category = 'blog'
+    cover_url = u'https://i0.wp.com/sova.news/wp-content/uploads/2021/08/sova@512.png'
+    language = 'ru'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 60
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='div', attrs={'class': 'site-wrapper header-7'})
+
+    remove_tags_after = dict(
+        name='div', attrs={'class': 'single-body entry-content typography-copy'}
+    )
+
+    remove_tags = [
+        dict(name='nav', attrs={'aria-label': 'breadcrumbs'}),
+        dict(name='header', attrs={'class': 'site-header site-header--skin-5'}),
+        dict(name='footer'),
+        dict(name='ins'),
+        dict(name='div', attrs={'class': 'entry-interaction__left'}),
+        dict(name='div', attrs={'class': 'entry-interaction__right'}),
+        dict(name='div', attrs={'id': 'mnmd-sticky-header'}),
+        dict(name='div', attrs={'id': 'mnmd-offcanvas-primary'}),
+        dict(name='div', attrs={'id': 'mnmd-offcanvas-mobile'}),
+        dict(name='div', attrs={'class': 'entry-interaction__right'}),
+        dict(name='blockquote', attrs={'class': 'wp-embedded-content'})
+    ]
+
+    feeds = [
+        (
+            '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
+            'https://sova.news/news/feed/'
+        ),
+        (
+            '\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430',
+            'https://sova.news/analytics/politics/feed/'
+        ),
+        (
+            '\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u043A\u0430',
+            'https://sova.news/analytics/economy/feed/'
+        ),
+        (
+            '\u041E\u0431\u0449\u0435\u0441\u0442\u0432\u043E',
+            'https://sova.news/analytics/society/feed/'
+        ),
+        (
+            '\u0418\u043D\u0442\u0435\u0440\u0432\u044C\u044E',
+            'https://sova.news/interview/feed/'
+        ), ('Unfake', 'https://sova.news/unfake/feed/'),
+        (
+            '\u0414\u0440\u0443\u0433\u0430\u044F \u0421\u043E\u0432\u0430',
+            'https://sova.news/sova-other/feed/'
+        ),
+        (
+            '\u0418\u0441\u043A\u0443\u0441\u0441\u0442\u0432\u043E',
+            'https://sova.news/sova-other/art/feed/'
+        ),
+        (
+            '\u0422\u0443\u0440\u0438\u0437\u043C',
+            'https://sova.news/sova-other/tourism/feed/'
+        ), ('#weekendnavigator', 'https://sova.news/weekendnavigator/feed/'),
+        (
+            '\u0421\u043E\u0441\u0435\u0434\u0438',
+            'https://sova.news/sova-other/neighbours/feed/'
+        ),
+        (
+            '\u041D\u0435\u0434\u0435\u043B\u044F \u0432 \u0433\u043E\u0440\u043E\u0434\u0435',
+            'https://sova.news/week-in-the-city/feed/'
+        ),
+        (
+            '\u0424\u043E\u0442\u043E\u043F\u0440\u043E\u0433\u0443\u043B\u043A\u0438',
+            'https://sova.news/photowalks/feed/'
+        ), ('\u0424\u043E\u0442\u043E', 'https://sova.news/photo/feed/')
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup
