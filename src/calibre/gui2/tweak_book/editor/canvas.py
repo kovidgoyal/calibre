@@ -534,7 +534,9 @@ class Canvas(QWidget):
             if ev.buttons() & Qt.MouseButton.LeftButton:
                 if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
                     if self.selection_state.current_mode == 'select':
-                        self.selection_state.rect = QRectF(self.selection_state.last_press_point, pos).normalized()
+                        r = QRectF(self.selection_state.last_press_point, pos).normalized()
+                        r = r.intersected(self.target)
+                        self.selection_state.rect = r
                         changed = True
                     elif self.selection_state.last_drag_pos is not None:
                         self.selection_state.in_selection = True
