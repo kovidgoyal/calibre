@@ -23,7 +23,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 15)
+current_version = (1, 0, 16)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -269,7 +269,7 @@ def google_extract_cache_urls(raw):
     return ans
 
 
-def google_parse_results(root, raw, log=prints):
+def google_parse_results(root, raw, log=prints, ignore_uncached=True):
     cache_url_map = google_extract_cache_urls(raw)
     # print('\n'.join(cache_url_map))
     ans = []
@@ -287,8 +287,10 @@ def google_parse_results(root, raw, log=prints):
             try:
                 c = div.xpath('descendant::*[@role="menuitem"]//a[@class="fl"]')[0]
             except IndexError:
-                log('Ignoring {!r} as it has no cached page'.format(title))
-                continue
+                if ignore_uncached:
+                    log('Ignoring {!r} as it has no cached page'.format(title))
+                    continue
+                c = {'href': ''}
             cached_url = c.get('href')
         ans.append(Result(a.get('href'), title, cached_url))
     if not ans:
@@ -297,19 +299,26 @@ def google_parse_results(root, raw, log=prints):
     return ans
 
 
-def google_specialize_broswer(br):
+def google_specialize_browser(br):
     br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
     return br
 
 
-def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+def google_format_query(terms, site=None, tbm=None):
     terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
     url = 'https://www.google.com/search?q={q}'.format(q=q)
+    if tbm:
+        url += '&tbm=' + tbm
+    return url
+
+
+def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+    url = google_format_query(terms, site)
     log('Making google query: ' + url)
-    br = google_specialize_broswer(br or browser())
+    br = google_specialize_browser(br or browser())
     r = []
     root = query(br, url, 'google', dump_raw, timeout=timeout, save_raw=r.append)
     return google_parse_results(root, r[0], log=log), url
