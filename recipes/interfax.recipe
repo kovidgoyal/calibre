@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class InterfaxUAEN(BasicNewsRecipe):
+    title = 'Interfax-Ukraine'
+    __author__ = 'bugmen00t'
+    description = 'The Interfax-Ukraine News Agency, founded in 1992, is subsidiary of Interfax Information Services.'
+    publisher = 'Interfax-Ukraine News Agency'
+    category = 'newspaper'
+    cover_url = u'https://interfax.com.ua/static/articles/images/interfax_ukraine_logo_eng.svg'
+    language = 'en_UK'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 3
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(
+        name='article', attrs={'class': 'article article-content-view'}
+    )
+
+    remove_tags_after = dict(
+        name='article', attrs={'class': 'article article-content-view'}
+    )
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'grid article-content-secondary-header'}),
+        dict(name='div', attrs={'class': 'article-tags'}),
+    ]
+
+    feeds = [('Latest news', 'https://en.interfax.com.ua/news/last.rss')]

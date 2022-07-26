@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Habr(BasicNewsRecipe):
+    title = 'Habr'
+    __author__ = 'bugmen00t'
+    description = 'Russian collaborative blog about IT, computer science and anything related to the Internet'
+    publisher = 'Habr Blockchain Publishing LTD'
+    category = 'blog'
+    cover_url = u'https://hsto.org/webt/f1/lq/ka/f1lqkaveikdfqkb_rip_4vq4s_8.png'
+    language = 'en_RU'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 30
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'tm-misprint-area'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'tm-article-presenter__meta'}),
+        dict(name='div', attrs={'class': 'tm-article-poll'})
+    ]
+
+    feeds = [('News', 'https://habr.com/en/rss/news/?fl=en'),
+             ('All materials', 'https://habr.com/en/rss/all?fl=en')]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup
