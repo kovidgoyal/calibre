@@ -257,7 +257,7 @@ def mi_to_html(
             val = mi.format_field(field)[-1]
             ans.append((field, row % (name, val)))
         else:
-            val = mi.format_field(field)[-1]
+            val = unescaped_val = mi.format_field(field)[-1]
             if val is None:
                 continue
             val = p(val)
@@ -311,8 +311,8 @@ def mi_to_html(
                 except Exception:
                     st = field
                 val = '<a href="{}" title="{}">{}</a>'.format(
-                    search_action_with_data(st, val, book_id, field), a(
-                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), p(val))
+                    search_action_with_data(st, unescaped_val, book_id, field), a(
+                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
             elif metadata['datatype'] == 'bool':
                 val = '<a href="{}" title="{}">{}</a>'.format(
                     search_action_with_data(field, val, book_id, None), a(
