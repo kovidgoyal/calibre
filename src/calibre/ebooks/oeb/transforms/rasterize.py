@@ -34,8 +34,8 @@ def rasterize_svg(data=TEST_SVG, sizes=(), width=0, height=0, print=None, fmt='P
     svg = QSvgRenderer(QByteArray(data))
     size = svg.defaultSize()
     if size.width() == 100 and size.height() == 100 and sizes:
-        size.setWidth(sizes[0])
-        size.setHeight(sizes[1])
+        size.setWidth(int(sizes[0]))
+        size.setHeight(int(sizes[1]))
     if width or height:
         size.scale(int(width), int(height), Qt.AspectRatioMode.KeepAspectRatio)
     if print is not None:
