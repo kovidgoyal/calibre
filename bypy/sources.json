@@ -291,18 +291,18 @@
     {
         "name": "libxml2",
         "unix": {
-            "filename": "libxml2-2.9.12.tar.gz",
-            "hash": "sha256:c8d6681e38c56f172892c85ddc0852e1fd4b53b4209e7f4ebf17f7e2eae71d92",
-            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+            "filename": "libxml2-2.9.14.tar.xz",
+            "hash": "sha256:60d74a257d1ccec0475e749cba2f21559e48139efba6ff28224357c7c798dfee",
+            "urls": ["https://download.gnome.org/sources/libxml2/2.9/{filename}"]
         }
     },
 
     {
         "name": "libxslt",
         "unix": {
-            "filename": "libxslt-1.1.34.tar.gz",
-            "hash": "sha256:98b1bd46d6792925ad2dfe9a87452ea2adebf69dcb9919ffd55bf926a7f93f7f",
-            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+            "filename": "libxslt-1.1.35.tar.xz",
+            "hash": "sha256:8247f33e9a872c6ac859aa45018bc4c4d00b97e2feac9eebc10c93ce1f34dd79",
+            "urls": ["https://download.gnome.org/sources/libxslt/1.1/{filename}"]
         }
     },
 
@@ -578,8 +578,8 @@
     {
         "name": "lxml",
         "unix": {
-            "filename": "lxml-4.6.4.tar.gz",
-            "hash": "sha256:daf9bd1fee31f1c7a5928b3e1059e09a8d683ea58fb3ffc773b6c88cb8d1399c",
+            "filename": "lxml-4.9.1.tar.gz",
+            "hash": "sha256:fe749b052bb7233fe5d072fcb549221a8cb1a16725c47c37e42b0b9cb3ff2c3f",
             "urls": ["pypi"]
         }
     },
