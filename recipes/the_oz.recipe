@@ -56,6 +56,9 @@ class DailyTelegraph(BasicNewsRecipe):
         (u'Travel', u'https://www.news.com.au/content-feeds/latest-news-travel/'),
     ]
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     def get_article_url(self, article):
         ans = article.link
         if '/video/' in ans:
