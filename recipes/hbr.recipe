@@ -25,11 +25,21 @@ class HBR(BasicNewsRecipe):
         article-sidebar{font-family:Georgia,"Times New Roman",Times,serif; border:ridge; text-align:left;}
         [close-caption]{ border:ridge; font-size:small; text-align:center;}
         article-ideainbrief{font-family:Georgia,"Times New Roman",Times,serif; text-align:left; font-style:italic; }
+        .article-byline-list{font-size:small;}
+        .credits--hero-image{font-size:small;}
+        .credits--inline-image{font-size:small;}
+        .caption--inline-image{font-size:small;}
+        .description-text{font-size:small; color:gray;}
+        .right-rail--container{font-size:small; color:#4c4c4c;}
+        .link--black{font-size:small;}
+        .article-callout{color:#4c4c4c; text-align:center;}
+        .slug-content{color:gray;}
         '''
 
     keep_only_tags = [
         classes(
-            'headline-container pub-date hero-image-content article-summary article-body standard-content'
+            'headline-container hero-image-content article-summary article-body standard-content'
+            ' article-dek-group article-dek slug-container'
         ),
         dict(name='article-sidebar'),
     ]
@@ -86,6 +96,18 @@ class HBR(BasicNewsRecipe):
                 feeds[section_title] += articles
         ans = [(key, val) for key, val in feeds.items()]
         return ans
+
+    def preprocess_html(self, soup):
+        for slug in soup.findAll(**classes('slug-content')):
+            del slug['href']
+        for dek in soup.findAll(**classes('article-byline')):
+            for by in dek.findAll('span', attrs={'class':'by-prefix'}):
+                by.extract()
+            for li in dek.findAll('li'):
+                li.name = 'span'
+        for h2 in soup.findAll(('h2','h3')):
+            h2.name = 'h5'
+        return soup
 
     # HBR changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
