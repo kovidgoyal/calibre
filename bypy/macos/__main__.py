@@ -73,7 +73,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
     # crashes if the system libxml2 is loaded. Loading plugins like the Qt
     # ones or usbobserver causes it to be loaded. So pre-load our libxml2
     # to avoid it.
-    cmd += ['-L', f'{PREFIX}/lib', '-l', 'xml2'] + \
+    cmd += ['-L', f'{PREFIX}/lib', '-l', 'xml2', '-l', 'xslt',] + \
         ['-install_name',
          '@executable_path/../Frameworks/' + os.path.basename(dest)] + \
         [('-F%s/python' % PREFIX), '-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
