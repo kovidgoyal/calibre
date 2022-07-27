@@ -4,21 +4,15 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
-import re
-
-from mechanize import Request
-
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+import time
+from calibre import random_user_agent
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 def absolutize(url):
-    return 'https://spectator.co.uk' + url
+    if url.startswith('/'):
+        url =  'https://spectator.co.uk' + url
+    return url
 
 
 class Spectator(BasicNewsRecipe):
@@ -27,100 +21,50 @@ class Spectator(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'Magazine'
     language = 'en'
-
     no_stylesheets = True
-    use_embedded_content = True
+
+    keep_only_tags = [
+        prefixed_classes('ContentPageHeader_main__ ContentPageHeader_metadata__ ContentPageHero_container__ ContentPageBody_body__container__'),
+        dict(name='noscript'),
+    ]
+    remove_attributes = ['style']
 
     def parse_index(self):
-        br = self.get_browser()
-        main_js = br.open_novisit('https://spectator.co.uk/main.js').read().decode('utf-8')
-        data = {}
-        fields = ('apiKey', 'apiSecret', 'contentEnvironment', 'siteUrl', 'magazineIssueContentUrl', 'contentUrl')
-        pat = r'this.({})\s*=\s*"(.+?)"'.format('|'.join(fields))
-        for m in re.finditer(pat, main_js):
-            data[m.group(1)] = m.group(2)
-        self.log('Got Spectator data:', data)
-        headers = {
-            'api_key': data['apiKey'],
-            'origin': data['siteUrl'],
-            'access_token': data['apiSecret'],
-            'Accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            'Accept-encoding': 'gzip, deflate',
-            'Accept': '*/*',
-        }
-
-        def make_url(utype, query, includes=(), limit=None):
-            ans = data[utype] + '/entries?environment=' + data['contentEnvironment']
-            if limit is not None:
-                ans += '&limit={}'.format(limit)
-            for inc in includes:
-                ans += '&include[]=' + inc
-            ans += '&query=' + quote(json.dumps(query))
-            return ans
-
-        def get_result(url):
-            self.log('Fetching:', url)
-            req = Request(url, headers=headers)
-            raw = br.open_novisit(req).read().decode('utf-8')
-            return json.loads(raw)['entries']
-
-        # Get current issue
-        url = data['magazineIssueContentUrl'] + '/entries?environment=' + data['contentEnvironment'] + "&desc=issue_date&limit=1&only[BASE][]=url"
-        result = get_result(url)
-        slug = result[0]['url']
-        uid = result[0]['uid']  # noqa
-        date = slug.split('/')[-1]
-        self.log('Downloading issue:', date)
-
-        # Cover information
-        url = make_url(
-            'magazineIssueContentUrl',
-            {'url': slug},
-            limit=1
-        )
-        self.cover_url = get_result(url)[0]['magazine_cover']['url']
-        self.log('Found cover:', self.cover_url)
-
-        # List of articles
-        url = make_url(
-            'contentUrl',
-            {
-                "magazine_content_production_only.magazine_issue": {
-                    "$in_query": {"url": slug},
-                    "_content_type_uid": "magazine_issue"
-                },
-                "_content_type_uid": "article"
-            },
-            includes=(
-                'topic', 'magazine_content_production_only.magazine_issue',
-                'magazine_content_production_only.magazine_subsection', 'author'
-            )
-        )
-        result = get_result(url)
-        articles = {}
-        for entry in result:
-            title = entry['title']
-            url = absolutize(entry['url'])
-            blocks = []
-            a = blocks.append
-            byline = entry.get('byline') or ''
-            if byline:
-                a('<h3>{}</h3>'.format(byline))
-            if entry.get('author'):
-                for au in reversed(entry['author']):
-                    cac = ''
-                    if au.get('caricature'):
-                        cac = '<div><img style="max-width: 80px" src="{}"></div>'.format(au['caricature']['url'])
-                    a('<div>{} <a href="{}">{}</a></div>'.format(cac, absolutize(au['url']), au['title']))
-
-            if entry.get('hero_image'):
-                hi = entry['hero_image'][0]
-                a('<div style="text-align: center"><img src="{}"></div>'.format(hi['url']))
-            a(entry['text_body'])
-            section = 'Unknown'
-            if entry.get('topic'):
-                topic = entry['topic'][0]
-                section = topic['title']
-            articles.setdefault(section, []).append({
-                'title': title, 'url': url, 'description': byline, 'content': '\n\n'.join(blocks)})
-        return [(sec, articles[sec]) for sec in sorted(articles)]
+        soup = self.index_to_soup('https://www.spectator.co.uk/magazine/latest')
+        raw = str(soup)
+        # open('/t/raw.html', 'w').write(raw)
+        section, articles = 'Featured', []
+        feeds = []
+        for art in soup.findAll(**prefixed_classes(
+                'MagazineContent_spectator-magazine__section-title__ MagazineContent_spectator-magazine-content__article-card__')):
+            cls = art['class']
+            if not isinstance(cls, str):
+                cls = ' '.join(cls)
+            if 'section-title' in cls:
+                if articles:
+                    feeds.append((section, articles))
+                section = self.tag_to_string(art).strip()
+                articles = []
+                self.log(section)
+                continue
+            a = art.find('a', href=True)
+            url = absolutize(a['href'])
+            title = self.tag_to_string(a).strip()
+            hd = art.find(**prefixed_classes('ArticleCard_spectator-article-card__headline__'))
+            if hd:
+                title = self.tag_to_string(hd).strip()
+            desc = ''
+            dd = art.find(**prefixed_classes('ArticleCard_spectator-article-card__media-teaser__'))
+            if dd:
+                desc = self.tag_to_string(dd).strip()
+            self.log('\t', title, url)
+            if desc:
+                self.log('\t\t', desc)
+            articles.append({'title': title, 'url': url, 'description': desc})
+        if not feeds and '<script src="/main.js' in raw:
+            ua = random_user_agent(allow_ie=False)
+            self.log('Got old style main.js page, retrying with user agent:', ua)
+            self.browser.set_user_agent(ua)
+            time.sleep(1)
+            return self.parse_index()
+        return feeds
