@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Mel(BasicNewsRecipe):
+    title = '\u041C\u0435\u043B'
+    __author__ = 'bugmen00t'
+    description = '\u041C\u0435\u0434\u0438\u0430 \u043F\u0440\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0432\u043E\u0441\u043F\u0438\u0442\u0430\u043D\u0438\u0435 \u0434\u0435\u0442\u0435\u0439'  # noqa
+    publisher = '\u0418\u043D\u0442\u0435\u0440\u043D\u0435\u0442-\u0438\u0437\u0434\u0430\u043D\u0438\u0435 \u00AB\u041C\u0435\u043B\u00BB'
+    category = 'blog'
+    cover_url = u'https://static.mel.fm/images/project/site/dummyLogo.png'
+    language = 'ru'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 50
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'b-pb-article__body'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'b-ad-space__horizontal-centering'}),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'subscriptionBlock b-pb-publication-body__publication-newsletter-form'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'subscriptionBlock b-pb-article__publication-newsletter-form b-pb-article__publication-newsletter-form-post'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class': 'newsletter-form b-pb-article__publication-newsletter-form'
+            }
+        ),
+        dict(name='div', attrs={'class': 'bottom-wrapper'}),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'b-pb-article__right-column b-pb-article__right-column_without-cover b-pb-article__right-column_on-post-page'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'b-pb-article__right-column b-pb-article__right-column_with-cover'
+            }
+        ),
+        dict(name='div', attrs={'class': 'main-tag'}),
+        dict(name='div', attrs={'class': 'main-tag_mobile'}),
+        dict(name='div', attrs={'class': 'publication-header__counter'}),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'smi2-news-container smi2-news-container_desktop smi2-news-container_desktop-news'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={'class': 'smi2-news-container smi2-news-container_desktop'}
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'smi2-news-container smi2-news-container_mobile smi2-news-container_mobile-news'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={'class': 'smi2-news-container smi2-news-container_mobile'}
+        )
+    ]
+
+    feeds = [(
+        '\u0412\u0441\u0435 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B',
+        'https://mel.fm/rss/default-all'
+    ),
+             (
+                 '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
+                 'https://mel.fm/rss/default-news'
+             )]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup
