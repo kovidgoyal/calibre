@@ -3,12 +3,12 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
+import os
 import re
 import time
-from threading import Lock
-from collections import defaultdict, namedtuple
+from collections import namedtuple
+from contextlib import contextmanager
 
 try:
     from urllib.parse import parse_qs, quote_plus, unquote, urlencode
@@ -19,16 +19,35 @@ except ImportError:
 from lxml import etree
 
 from calibre import browser as _browser, prints, random_user_agent
+from calibre.constants import cache_dir
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.monotonic import monotonic
+from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 16)
+current_version = (1, 0, 17)
 minimum_calibre_version = (2, 80, 0)
 
 
-last_visited = defaultdict(lambda: 0)
 Result = namedtuple('Result', 'url title cached_url')
+
+
+@contextmanager
+def rate_limit(name='test', time_between_visits=1, max_wait_seconds=5 * 60, sleep_time=0.2):
+    lock_file = os.path.join(cache_dir(), 'search-engines.' + name + '.lock')
+    with ExclusiveFile(lock_file, timeout=max_wait_seconds, sleep_time=sleep_time) as f:
+        try:
+            lv = float(f.read().decode('utf-8').strip())
+        except Exception:
+            lv = 0
+        delta = time.time() - lv
+        if delta < time_between_visits:
+            time.sleep(time_between_visits - delta)
+        try:
+            yield
+        finally:
+            f.seek(0)
+            f.truncate()
+            f.write(repr(time.time()).encode('utf-8'))
 
 
 def tostring(elem):
@@ -63,24 +82,13 @@ def parse_html(raw):
         return parse(raw)
 
 
-last_visited_lock = Lock()
-
-
 def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60, save_raw=None, simple_scraper=None):
-    with last_visited_lock:
-        lv = last_visited[key]
-    delta = monotonic() - lv
-    if delta < limit and delta > 0:
-        time.sleep(delta)
-    try:
+    with rate_limit(key):
         if simple_scraper is None:
             raw = br.open_novisit(url, timeout=timeout).read()
             raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
         else:
             raw = simple_scraper(url, timeout=timeout)
-    finally:
-        with last_visited_lock:
-            last_visited[key] = monotonic()
     if dump_raw is not None:
         with open(dump_raw, 'w') as f:
             f.write(raw)
