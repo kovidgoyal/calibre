@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import re
 import time
+import regex
 try:
     from queue import Empty, Queue
 except ImportError:
@@ -185,7 +186,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 5)
+    version = (1, 0, 6)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -376,6 +377,7 @@ class GoogleBooks(Source):
     ):
         isbn = check_isbn(identifiers.get('isbn', None))
         q = []
+        strip_punc_pat = regex.compile(r'[\p{C}|\p{M}|\p{P}|\p{S}|\p{Z}]+', regex.UNICODE)
 
         def to_check_tokens(*tokens):
             for t in tokens:
@@ -384,7 +386,7 @@ class GoogleBooks(Source):
                 t = t.lower()
                 if t in ('and', 'not', 'the'):
                     continue
-                yield t.strip(':')
+                yield strip_punc_pat.sub('', t)
 
         check_tokens = set()
         if isbn is not None:
