@@ -454,6 +454,7 @@ class GoogleBooks(Source):
                 break
             if not found and isbn and (title or authors):
                 return self.identify_via_web_search(log, result_queue, abort, title, authors, {}, timeout)
+    # }}}
 
     def identify(  # {{{
         self,
