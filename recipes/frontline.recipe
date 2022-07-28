@@ -21,17 +21,16 @@ class Frontline(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup(
             'https://frontline.thehindu.com/current-issue/')
-        tag = soup.find(attrs={'class': 'imgWrapper'})
+        tag = soup.find(attrs={'class': 'sptar-image'})
         if tag:
-            self.cover_url = tag.find('img')['data-proxy-image'].replace(
-                "FREE_100", "FREE_810")
+            self.cover_url = tag.find('img')['data-original']
         return super().get_cover_url()
 
     # https://fl.thgim.com/incoming/b5zy2g/article38454943.ece/alternates/FREE_100/coverpng
 
     keep_only_tags = [
         classes(
-            'overline mainart-title marginBottom10px articleBottomLine swiper-slide slide-caption artlead-text body-main'
+            'overline mainart-title marginBottom10px articleBottomLine swiper-slide slide-caption artlead-text body-main article-container'
         )
     ]
     remove_tags = [classes('dispatche-middle bigtitle')]
@@ -60,8 +59,9 @@ class Frontline(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-proxy-image': True}):
-            # replace FREE_810 with FREE_615 FREE_1200.. FREE_300.
-            img['src'] = img['data-proxy-image'].replace(
-                "FREE_100", "FREE_810")
+        for source in soup.findAll('source', srcset=True, attrs={'media':'(min-width: 1600px)'}):
+            source.name = 'img'
+            source['src'] = source['srcset']
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            img['src'] = img['data-original']
         return soup
