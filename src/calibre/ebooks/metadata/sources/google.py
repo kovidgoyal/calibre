@@ -185,7 +185,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 4)
+    version = (1, 0, 5)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -439,8 +439,8 @@ class GoogleBooks(Source):
                             continue
                     ans.source_relevance = relevance
                     goog = ans.identifiers['google']
-                    for isbn in getattr(ans, 'all_isbns', []):
-                        self.cache_isbn_to_identifier(isbn, goog)
+                    for isbnx in getattr(ans, 'all_isbns', []):
+                        self.cache_isbn_to_identifier(isbnx, goog)
                     if getattr(ans, 'has_google_cover', False):
                         self.cache_identifier_to_cover_url(
                             goog, self.GOOGLE_COVER % goog
