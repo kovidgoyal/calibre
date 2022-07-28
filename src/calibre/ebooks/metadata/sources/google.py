@@ -411,7 +411,7 @@ class GoogleBooks(Source):
         google_ids = []
         for q in se.google_parse_results(root, r[0], log=log, ignore_uncached=False):
             m = pat.search(q.url)
-            if m is None:
+            if m is None or not q.url.startswith('https://books.google'):
                 continue
             google_ids.append(m.group(1))
 
