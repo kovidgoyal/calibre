@@ -44,7 +44,7 @@ class DBCheck(QDialog):  # {{{
         self.rejected = False
 
     def start(self):
-        t = self.thread = Thread(target=self.vacuum, daemon=True)
+        t = self.thread = Thread(target=self.vacuum, daemon=True, name='VacuumDB')
         t.start()
 
     def vacuum(self):

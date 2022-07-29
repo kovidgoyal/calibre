@@ -312,7 +312,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if font_type != 'normal':
                 self.styled_columns[colname] = getattr(self, f'{font_type}_font')
                 old[colname] = font_type
-            self.db.new_api.set_pref('styled_columns', old)
+            db.set_pref('styled_columns', old)
             col = self.column_map.index(colname)
             for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
