@@ -79,7 +79,7 @@ class FTS:
 
     def vacuum(self):
         conn = self.get_connection()
-        conn.execute('VACUUM')
+        conn.execute('VACUUM fts_db')
 
     def remove_dirty(self, book_id, fmt):
         conn = self.get_connection()
