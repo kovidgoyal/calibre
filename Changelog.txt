@@ -39,7 +39,7 @@
 
 :: bug fixes
 
-- [1982060] Content server: Workaround for chrome bug causing multiple sign in prompts when connecting to the server after restarting Chrome
+- [1982060] Content server: Workaround for Chrome bug causing multiple sign in prompts when connecting to the server after restarting Chrome
 
 - Fix a regression in 6.0 that broke rendering of first page of EPUB as cover when the EPUB has no actual cover
 
