@@ -23,6 +23,77 @@
 # - title by author
 # }}}
 
+{{{ 6.2.0 2022-07-29
+
+:: new features
+
+- Full text search: Ignore soft hyphens when extracting searchable text from books. Note that you will have to re-index your library to take advantage of this.
+
+- Content server: Have the Read button open PDF files in the browsers builtin PDF viewer rather than the calibre viewer since the calibre viewer is not well suited to PDF
+
+- Kobo driver: Add support for new firmware
+
+- Create icon theme dialog: Add a checkbox to install the newly created theme into calibre
+
+- Allow re-indexing a book for FTS by right clicking the Book details panel
+
+:: bug fixes
+
+- [1982060] Content server: Workaround for chrome bug causing multiple sign in prompts when connecting to the server after restarting Chrome
+
+- Fix a regression in 6.0 that broke rendering of first page of EPUB as cover when the EPUB has no actual cover
+
+- [1981886] Content server: Fix a regression in 6.0 that caused incorrect rendering of comments metadata in the book details panel in dark mode
+
+- [1982743] FB2 Input: Fix a regression in 6.0 that broke conversion of FB2 on macOS
+
+- [1982502] Metadata download from Google: Switch to making the queries via a Google web search as this finds some books that searching via the API does not
+
+- [1982651] Book details panel: Fix clicking on items from an enumerated column containing ampersands not searching correctly
+
+- Image editor: Do not allow initial mouse drag to create selection rect outside the image bounds
+
+- E-book viewer: Fix clicking on ToC entries moving keyboard focus to the ToC search box when the ToC window is floating
+
+- Fix a regression in 6.0 that caused the default cover to be rendered small in some contexts
+
+- [1981882] Various bug fixes related to the new dark/light icon theme switching. Make the icons more consistent even when using the system theme. Use calibre specific file type icons when using the non native file dialogs. Allow creating dark/light override icons manually in the configuration folder.
+
+- [1981909] Disable the color theme setting when using system style
+
+- When using a fixed color palette and the system colors are of different type enforce the color palette
+
+- [1982050] Ignore Qt generated application palette changes when using a fixed palette
+
+- In the icon theme chooser dialog show themes show light and dark themes only in the light and dark tabs
+
+- [1982035] Welcome wizard: Fix device names not being translated correctly leading to the same name being repeated for some devices
+
+- Read aloud: Fix spurious error message on Linux about voices not being installed
+
+- Linux binaries: Bundle brotli and graphite2 as well as Qt links against them
+
+- FTS dialog: When keyboard navigation changes the current item ensure it stays visible
+
+- [1981887] Binary builds: Fix Qt TLS backends not included
+
+- Fix Qt WebEngine creating cache folders outside of the calibre cache directory
+
+:: improved recipes
+- Frontline
+- HBR
+- The Australian
+- India Today
+- Indian Express
+- India Today
+- Live Mint
+- The Atlantic
+
+:: new recipes
+- The Athletic by unkn0wn
+- Various Russian and Ukranian news sources by bugmen00t
+}}}
+
 {{{ 6.1.0 2022-07-16
 
 :: new features
