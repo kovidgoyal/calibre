@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.2.0 2022-07-29
+{{{ 6.2.1 2022-07-29
 
 :: new features
 
@@ -78,6 +78,8 @@
 - [1981887] Binary builds: Fix Qt TLS backends not included
 
 - Fix Qt WebEngine creating cache folders outside of the calibre cache directory
+
+- Version 6.2.1 fixes a regression in 6.2.0 that caused the Read button in the Content server to only work for PDF books
 
 :: improved recipes
 - Frontline
