@@ -572,7 +572,7 @@ class Scheduler(QObject):
     delete_old_news = pyqtSignal(object)
     start_recipe_fetch = pyqtSignal(object)
 
-    def __init__(self, parent, db):
+    def __init__(self, parent):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
         self._parent = parent
@@ -584,7 +584,6 @@ class Scheduler(QObject):
         d.setModal(False)
 
         self.recipe_model = RecipeModel()
-        self.db = db
         self.lock = QRecursiveMutex()
         self.download_queue = set()
 
@@ -608,14 +607,22 @@ class Scheduler(QObject):
         self.oldest = gconf['oldest_news']
         QTimer.singleShot(5 * 1000, self.oldest_check)
 
-    def database_changed(self, db):
-        self.db = db
+    @property
+    def db(self):
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        if gui is not None:
+            return gui.current_db
 
     def oldest_check(self):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
+            db = self.db
+            if db is None:
+                QTimer.singleShot(5 * 1000, self.oldest_check)
+                return
             try:
-                ids = list(self.db.tags_older_than(_('News'),
+                ids = list(db.tags_older_than(_('News'),
                     delta, must_have_authors=['calibre']))
             except:
                 # Happens if library is being switched

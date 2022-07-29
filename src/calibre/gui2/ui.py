@@ -232,7 +232,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
-        MainWindowMixin.init_main_window_mixin(self, db)
+        MainWindowMixin.init_main_window_mixin(self)
 
         # Jobs Button {{{
         self.job_manager = JobManager()

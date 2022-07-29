@@ -326,7 +326,7 @@ class MainWindowMixin:  # {{{
     def __init__(self, *args, **kwargs):
         pass
 
-    def init_main_window_mixin(self, db):
+    def init_main_window_mixin(self):
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon.ic('lt.png'))
         self.setWindowTitle(__appname__)
@@ -340,7 +340,7 @@ class MainWindowMixin:  # {{{
         self.resize(1012, 740)
         self.location_manager = LocationManager(self)
 
-        self.iactions['Fetch News'].init_scheduler(db)
+        self.iactions['Fetch News'].init_scheduler()
 
         self.search_bar = SearchBar(self)
         self.bars_manager = BarsManager(self.donate_action,
