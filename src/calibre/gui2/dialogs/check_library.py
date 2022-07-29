@@ -11,7 +11,7 @@ from threading import Thread
 from qt.core import (
     QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, QPushButton,
     QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
-    QTimer, QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)
+    QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -22,6 +22,7 @@ from calibre import prints, as_unicode
 class DBCheck(QDialog):  # {{{
 
     update_msg = pyqtSignal(object)
+    finished_vacuum = pyqtSignal()
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -34,6 +35,7 @@ class DBCheck(QDialog):  # {{{
         self.l.addWidget(self.l1)
         self.msg = QLabel('')
         self.update_msg.connect(self.msg.setText, type=Qt.ConnectionType.QueuedConnection)
+        self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.l.addWidget(self.msg)
         self.msg.setWordWrap(True)
         self.resize(self.sizeHint() + QSize(100, 50))
@@ -42,11 +44,8 @@ class DBCheck(QDialog):  # {{{
         self.rejected = False
 
     def start(self):
-        t = self.thread = Thread(target=self.vacuum)
-        t.daemon = True
+        t = self.thread = Thread(target=self.vacuum, daemon=True)
         t.start()
-        QTimer.singleShot(100, self.check)
-        self.exec()
 
     def vacuum(self):
         try:
@@ -54,18 +53,11 @@ class DBCheck(QDialog):  # {{{
         except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
+        self.finished_vacuum.emit()
 
     def reject(self):
         self.rejected = True
         return QDialog.reject(self)
-
-    def check(self):
-        if self.rejected:
-            return
-        if self.thread.is_alive():
-            QTimer.singleShot(100, self.check)
-        else:
-            self.accept()
 
     def break_cycles(self):
         self.db = self.thread = None
