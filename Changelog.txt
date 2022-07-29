@@ -65,7 +65,7 @@
 
 - [1982050] Ignore Qt generated application palette changes when using a fixed palette
 
-- In the icon theme chooser dialog show themes show light and dark themes only in the light and dark tabs
+- In the icon theme chooser dialog show light and dark themes only in the light and dark tabs
 
 - [1982035] Welcome wizard: Fix device names not being translated correctly leading to the same name being repeated for some devices
 
