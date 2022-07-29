@@ -612,7 +612,9 @@ class Scheduler(QObject):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         if gui is not None:
-            return gui.current_db
+            ans = gui.current_db
+            if not ans.new_api.is_doing_rebuild_or_vacuum:
+                return ans
 
     def oldest_check(self):
         if self.oldest > 0:

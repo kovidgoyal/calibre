@@ -142,6 +142,7 @@ class Cache:
 
     def __init__(self, backend, library_database_instance=None):
         self.shutting_down = False
+        self.is_doing_rebuild_or_vacuum = False
         self.backend = backend
         self.library_database_instance = (None if library_database_instance is None else
                                           weakref.ref(library_database_instance))
@@ -2429,7 +2430,11 @@ class Cache:
 
     @write_api
     def vacuum(self):
-        self.backend.vacuum()
+        self.is_doing_rebuild_or_vacuum = True
+        try:
+            self.backend.vacuum()
+        finally:
+            self.is_doing_rebuild_or_vacuum = False
 
     def __del__(self):
         self.close()

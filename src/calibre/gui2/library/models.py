@@ -966,6 +966,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
     def data(self, index, role):
+        if self.db.new_api.is_doing_rebuild_or_vacuum:
+            return None
         col = index.column()
         # in obscure cases where custom columns are both edited and added, for a time
         # the column map does not accurately represent the screen. In these cases,
