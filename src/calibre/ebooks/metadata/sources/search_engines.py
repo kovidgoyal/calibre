@@ -9,12 +9,13 @@ import re
 import time
 from collections import namedtuple
 from contextlib import contextmanager
+from threading import Lock
 
 try:
-    from urllib.parse import parse_qs, quote_plus, unquote, urlencode
+    from urllib.parse import parse_qs, quote_plus, unquote, urlencode, quote
 except ImportError:
     from urlparse import parse_qs
-    from urllib import quote_plus, urlencode, unquote
+    from urllib import quote_plus, urlencode, unquote, quote
 
 from lxml import etree
 
@@ -24,8 +25,10 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 18)
+current_version = (1, 1, 0)
 minimum_calibre_version = (2, 80, 0)
+webcache = {}
+webcache_lock = Lock()
 
 
 Result = namedtuple('Result', 'url title cached_url')
@@ -106,6 +109,11 @@ def quote_term(x):
 
 # DDG + Wayback machine {{{
 
+
+def ddg_url_processor(url):
+    return url
+
+
 def ddg_term(t):
     t = t.replace('"', '')
     if t.lower() in {'map', 'news'}:
@@ -172,7 +180,7 @@ def ddg_develop():
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
-            print(' ', wayback_machine_cached_url(result.url, br))
+            print(' ', get_cached_url(result.url, br))
             print()
 # }}}
 
@@ -250,6 +258,25 @@ def google_term(t):
 
 def google_url_processor(url):
     return url
+
+
+def google_get_cached_url(url, br=None, log=prints, timeout=60):
+    ourl = url
+    if not isinstance(url, bytes):
+        url = url.encode('utf-8')
+    cu = quote(url, safe='')
+    if isinstance(cu, bytes):
+        cu = cu.decode('utf-8')
+    cached_url = 'https://webcache.googleusercontent.com/search?q=cache:' + cu
+    br = google_specialize_browser(br or browser())
+    try:
+        raw = query(br, cached_url, 'google-cache', parser=lambda x: x, timeout=timeout)
+    except Exception as err:
+        log('Failed to get cached URL from google for URL: {} with error: {}'.format(ourl, err))
+    else:
+        with webcache_lock:
+            webcache[cached_url] = raw
+        return cached_url
 
 
 def google_extract_cache_urls(raw):
@@ -349,6 +376,15 @@ def google_develop(search_terms='1423146786', raw_from=''):
             print(' ', result.cached_url)
             print()
 # }}}
+
+
+def get_cached_url(url, br=None, log=prints, timeout=60):
+    return google_get_cached_url(url, br, log, timeout) or wayback_machine_cached_url(url, br, log, timeout)
+
+
+def get_data_for_cached_url(url):
+    with webcache_lock:
+        return webcache.get(url)
 
 
 def resolve_url(url):
