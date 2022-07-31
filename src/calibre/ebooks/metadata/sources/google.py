@@ -15,7 +15,7 @@ try:
 except ImportError:
     from Queue import Empty, Queue
 
-from calibre import as_unicode
+from calibre import as_unicode, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -29,6 +29,15 @@ NAMESPACES = {
     'dc': 'http://purl.org/dc/terms',
     'gd': 'http://schemas.google.com/g/2005'
 }
+
+
+def pretty_google_books_comments(raw):
+    raw = replace_entities(raw)
+    # Paragraphs in the comments are removed but whatever software googl uses
+    # to do this does not insert a space so we often find the pattern
+    # word.Capital in the comments which can be used to find paragraph markers.
+    raw = re.sub(r'([a-z])\.([A-Z])', '\\1.\n\n\\2', raw)
+    return raw
 
 
 def get_details(browser, url, timeout):  # {{{
@@ -187,7 +196,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 7)
+    version = (1, 0, 8)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -342,6 +351,8 @@ class GoogleBooks(Source):
             self.cache_isbn_to_identifier(isbn, goog)
         if getattr(ans, 'has_google_cover', False):
             self.cache_identifier_to_cover_url(goog, self.GOOGLE_COVER % goog)
+        if ans.comments:
+            ans.comments = pretty_google_books_comments(ans.comments)
         self.clean_downloaded_metadata(ans)
         return ans
     # }}}
