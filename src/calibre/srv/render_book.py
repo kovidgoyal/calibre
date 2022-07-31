@@ -26,7 +26,6 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import (
     find_cover_image, find_cover_image_in_page, find_cover_page
 )
-from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -334,7 +333,6 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
             if nraw != style.text:
                 changed = True
                 style.text = nraw
-                pretty_script_or_style(container, style)
     for elem in root.xpath('//*[@style]'):
         text = elem.get('style', None)
         if text:
