@@ -426,6 +426,8 @@ def serialize(data, media_type, pretty_print=False):
     if isinstance(data, str):
         return data.encode('utf-8')
     if hasattr(data, 'cssText'):
+        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
+        setup_css_parser_serialization()
         data = data.cssText
         if isinstance(data, str):
             data = data.encode('utf-8')
