@@ -5,11 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, traceback
+import weakref, traceback, sys
 from threading import Thread, Event
 
-from calibre import prints
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+
+
+def prints(*a, **kw):
+    kw['file'] = sys.stderr
+    return print(*a, **kw)
 
 
 class Abort(Exception):
