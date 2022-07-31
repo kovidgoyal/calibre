@@ -24,7 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 17)
+current_version = (1, 0, 18)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -308,7 +308,9 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
 
 
 def google_specialize_browser(br):
-    br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+    if not hasattr(br, 'google_consent_cookie_added'):
+        br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+        br.google_consent_cookie_added = True
     return br
 
 
