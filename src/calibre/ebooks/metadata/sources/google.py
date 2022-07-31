@@ -559,14 +559,15 @@ if __name__ == '__main__':  # tests {{{
     }, [title_test('Flatland', exact=False)]),
 
     ({
-        'title':
-        'The Blood Red Indian Summer: A Berger and Mitry Mystery',
+        'title': 'The Blood Red Indian Summer: A Berger and Mitry Mystery',
         'authors': ['David Handler'],
     }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')
     ]),
 
     ({
-        'identifiers': {'isbn': '9781618246509'},
+        # requires using web search to find the book
+        'title': 'Dragon Done It',
+        'authors': ['Eric Flint'],
     }, [
         title_test('The dragon done it', exact=True),
         authors_test(['Eric Flint', 'Mike Resnick'])
