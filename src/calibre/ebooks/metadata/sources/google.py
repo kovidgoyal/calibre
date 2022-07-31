@@ -36,7 +36,7 @@ def pretty_google_books_comments(raw):
     # Paragraphs in the comments are removed but whatever software googl uses
     # to do this does not insert a space so we often find the pattern
     # word.Capital in the comments which can be used to find paragraph markers.
-    raw = re.sub(r'([a-z])\.([A-Z])', '\\1.\n\n\\2', raw)
+    raw = re.sub(r'([a-z)"”])\.([A-Z("“])', '\\1.\n\n\\2', raw)
     return raw
 
 
