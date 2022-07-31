@@ -25,7 +25,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 1, 0)
+current_version = (1, 1, 1)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -170,7 +170,10 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     root = query(br, url, 'ddg', dump_raw, timeout=timeout)
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
-        ans.append(Result(ddg_href(a.get('href')), tostring(a), None))
+        try:
+            ans.append(Result(ddg_href(a.get('href')), tostring(a), None))
+        except KeyError:
+            log('Failed to find ddg href in:', a.get('href'))
     return ans, url
 
 
@@ -270,7 +273,7 @@ def google_get_cached_url(url, br=None, log=prints, timeout=60):
     cached_url = 'https://webcache.googleusercontent.com/search?q=cache:' + cu
     br = google_specialize_browser(br or browser())
     try:
-        raw = query(br, cached_url, 'google-cache', parser=lambda x: x, timeout=timeout)
+        raw = query(br, cached_url, 'google-cache', parser=lambda x: x.encode('utf-8'), timeout=timeout)
     except Exception as err:
         log('Failed to get cached URL from google for URL: {} with error: {}'.format(ourl, err))
     else:
