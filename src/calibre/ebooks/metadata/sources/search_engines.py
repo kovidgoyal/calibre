@@ -42,7 +42,7 @@ def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, slee
             lv = float(f.read().decode('utf-8').strip())
         except Exception:
             lv = 0
-        delta = time.time() - lv
+        delta = time.monotonic() - lv
         if delta < time_between_visits:
             time.sleep(time_between_visits - delta)
         try:
@@ -50,7 +50,7 @@ def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, slee
         finally:
             f.seek(0)
             f.truncate()
-            f.write(repr(time.time()).encode('utf-8'))
+            f.write(repr(time.monotonic()).encode('utf-8'))
 
 
 def tostring(elem):
