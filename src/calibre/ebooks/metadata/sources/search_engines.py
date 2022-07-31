@@ -335,9 +335,10 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
 
 
 def google_specialize_browser(br):
-    if not hasattr(br, 'google_consent_cookie_added'):
-        br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
-        br.google_consent_cookie_added = True
+    with webcache_lock:
+        if not hasattr(br, 'google_consent_cookie_added'):
+            br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+            br.google_consent_cookie_added = True
     return br
 
 
