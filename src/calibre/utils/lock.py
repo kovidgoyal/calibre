@@ -203,7 +203,7 @@ class SingleInstance:
 
 
 def singleinstance(name):
-    ' Ensure that only a single process holding exists with the specified mutex key '
+    ' Ensure that only a single process exists with the specified mutex key '
     release_mutex = create_single_instance_mutex(name)
     if release_mutex is None:
         return False
