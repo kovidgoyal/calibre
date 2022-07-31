@@ -77,6 +77,7 @@ def setup_css_parser_serialization(tab_width=2):
     prefs.indent = tab_width * ' '
     prefs.indentClosingBrace = False
     prefs.omitLastSemicolon = False
+    prefs.formatUnknownAtRules = False  # True breaks @supports rules
 
 
 def actual_case_for_name(container, name):
