@@ -31,7 +31,7 @@ def book_cache_dir():
 
 
 def cache_lock():
-    return ExclusiveFile(os.path.join(book_cache_dir(), 'metadata.json'))
+    return ExclusiveFile(os.path.join(book_cache_dir(), 'metadata.json'), timeout=600)
 
 
 def book_hash(path, size, mtime):
