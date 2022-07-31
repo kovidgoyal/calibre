@@ -32,7 +32,7 @@ Result = namedtuple('Result', 'url title cached_url')
 
 
 @contextmanager
-def rate_limit(name='test', time_between_visits=1, max_wait_seconds=5 * 60, sleep_time=0.2):
+def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, sleep_time=0.2):
     lock_file = os.path.join(cache_dir(), 'search-engines.' + name + '.lock')
     with ExclusiveFile(lock_file, timeout=max_wait_seconds, sleep_time=sleep_time) as f:
         try:
