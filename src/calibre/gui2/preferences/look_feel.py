@@ -885,6 +885,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def refresh_gui(self, gui):
         gui.book_details.book_info.refresh_css()
         m = gui.library_view.model()
+        m.update_db_prefs_cache()
         m.beginResetModel(), m.endResetModel()
         self.update_font_display()
         gui.tags_view.set_look_and_feel()
