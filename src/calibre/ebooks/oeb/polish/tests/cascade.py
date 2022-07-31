@@ -212,7 +212,7 @@ class CascadeTest(BaseTest):
         style = parseStyle('background-image: url(b.png); background: black url(a.png) fixed')
         for prop in style.getProperties(all=True):
             remove_property_value(prop, lambda val:'png' in val.cssText)
-        self.assertEqual('background: black fixed', style.cssText)
+        self.assertEqual('background: black fixed', style.cssText.rstrip(';'))
 
     def test_fallback_font_matching(self):
         def cf(id, weight='normal', style='normal', stretch='normal'):

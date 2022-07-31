@@ -378,7 +378,7 @@ def test(return_tests=False):  # {{{
         r = Rule(**rule)
         decl = StyleDeclaration(safe_parser().parseStyle(style))
         r.process_declaration(decl)
-        return str(decl)
+        return str(decl).rstrip(';')
 
     class TestTransforms(unittest.TestCase):
         longMessage = True

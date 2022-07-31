@@ -416,7 +416,7 @@ def test_normalization(return_tests=False):  # {{{
             css = '; '.join(f'border-{edge}-{p}: {v}' for edge in ('top',) for p, v in zip(BORDER_PROPS, vals.split()))
             style = parseStyle(css)
             condense_rule(style)
-            self.assertEqual(css_text(style), 'border-top: %s' % vals)
+            self.assertEqual(css_text(style).rstrip(';'), 'border-top: %s' % vals)
             css += ';' + '; '.join(f'border-{edge}-{p}: {v}' for edge in ('right', 'left', 'bottom') for p, v in
                              zip(BORDER_PROPS, vals.replace('red', 'green').split()))
             style = parseStyle(css)
