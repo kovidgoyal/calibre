@@ -130,12 +130,17 @@ class Mediapart(BasicNewsRecipe):
             webpage_article = []
             soup = self.index_to_soup(webpage)
             page = soup.find('main', {'class': 'global-wrapper'})
+            if page is None:
+                page = soup.find('section', {'class': 'news__body-wrapper mb-800'})
             fils = page.find(separador_page, {'class': 'post-list universe-journal'})
+            if fils is None:
+                fils = page.find(separador_page, {'class': 'news__list__content _hasNewsletter'})
 
             all_articles = fils.findAll(separador_thread)
             for article in all_articles:
                 try:
-                    title = article.find('h3', recursive=False)
+                    # title = article.find('h3', recursive=False)
+                    title = article.find('h3', recursive=True)
                     if title is None or ''.join(title['class']) == 'title-specific':
                         # print(f"[BAD title entry] Print value of title:\n {title}")
                         continue
@@ -173,8 +178,13 @@ class Mediapart(BasicNewsRecipe):
 
                     # print("-------- Recent article added to the list ------- \n")
                     all_authors = article.findAll(
-                        'a', {'class': re.compile(r'\bjournalist\b')}
+                        # 'a', {'class': re.compile(r'\bjournalist\b')}
+                        'div', {'class': 'teaser__signature'}
                     )
+                    if not all_authors:
+                        all_authors = article.findAll(
+                            'a', {'class': re.compile(r'\bjournalist\b')}
+                        )
                     authors = [self.tag_to_string(a) for a in all_authors]
                     # print(f"Authors in tag <a>: {authors}")
 
@@ -202,8 +212,11 @@ class Mediapart(BasicNewsRecipe):
                         'mot_cle': article_mot_cle.capitalize(),
                         'url': 'https://www.mediapart.fr' + url,
                     }
-
-                    webpage_article.append(summary)
+                    if webpage_article:
+                        if summary['url'] != webpage_article[-1]['url']:
+                            webpage_article.append(summary)
+                    else:
+                        webpage_article.append(summary)
                 except Exception:
                     pass
 
