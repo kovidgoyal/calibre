@@ -531,6 +531,13 @@ many_libraries = 10
 # all available output formats to be present.
 restrict_output_formats = None
 
+#: Choose formats for Full Text Search Indexing
+# Restrict the list of available formats used for Full Text Search indexing.
+# For example, if you only want to index EPUB and AZW3, change this to
+# restrict_fts_formats = ['EPUB', 'AZW3']. The default value of None causes
+# all available formats to be indexed.
+restrict_fts_formats = None
+
 #: Set the thumbnail image quality used by the Content server
 # The quality of a thumbnail is largely controlled by the compression quality
 # used when creating it. Set this to a larger number to improve the quality.

@@ -7,6 +7,7 @@ import os
 import re
 import unicodedata
 
+from calibre.utils.config import tweaks
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.oeb.base import XPNSMAP, barename
 from calibre.ebooks.oeb.iterator.book import extract_book
@@ -53,8 +54,15 @@ def to_text(container, name):
         yield from html_to_text(root)
 
 
+def is_in_restrict_fts_formats(input_fmt):
+    restrict = tweaks['restrict_fts_formats']
+    return not restrict or input_fmt in [x.upper() for x in restrict]
+
+
 def is_fmt_ok(input_fmt):
     input_fmt = input_fmt.upper()
+    if not is_in_restrict_fts_formats(input_fmt):
+        return False
     input_plugin = plugin_for_input_format(input_fmt)
     is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
     if not input_plugin or is_comic:
