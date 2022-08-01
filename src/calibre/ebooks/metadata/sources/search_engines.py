@@ -25,7 +25,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 1, 1)
+current_version = (1, 2, 0)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -36,13 +36,15 @@ Result = namedtuple('Result', 'url title cached_url')
 
 @contextmanager
 def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, sleep_time=0.2):
-    lock_file = os.path.join(cache_dir(), 'search-engines.' + name + '.lock')
+    lock_file = os.path.join(cache_dir(), 'search-engine.' + name + '.lock')
     with ExclusiveFile(lock_file, timeout=max_wait_seconds, sleep_time=sleep_time) as f:
         try:
             lv = float(f.read().decode('utf-8').strip())
         except Exception:
             lv = 0
-        delta = time.monotonic() - lv
+        # we cannot use monotonic() as this is cross process and historical
+        # data as well
+        delta = time.time() - lv
         if delta < time_between_visits:
             time.sleep(time_between_visits - delta)
         try:
@@ -50,7 +52,7 @@ def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, slee
         finally:
             f.seek(0)
             f.truncate()
-            f.write(repr(time.monotonic()).encode('utf-8'))
+            f.write(repr(time.time()).encode('utf-8'))
 
 
 def tostring(elem):
