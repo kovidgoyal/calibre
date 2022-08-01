@@ -15,7 +15,7 @@ try:
 except ImportError:
     from Queue import Empty, Queue
 
-from calibre import as_unicode, replace_entities
+from calibre import as_unicode, replace_entities, prepare_string_for_xml
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -36,7 +36,13 @@ def pretty_google_books_comments(raw):
     # Paragraphs in the comments are removed but whatever software googl uses
     # to do this does not insert a space so we often find the pattern
     # word.Capital in the comments which can be used to find paragraph markers.
-    raw = re.sub(r'([a-z)"”])\.([A-Z("“])', '\\1.\n\n\\2', raw)
+    parts = []
+    for x in re.split(r'([a-z)"”])(\.)([A-Z("“])', raw):
+        if x == '.':
+            parts.append('.</p>\n\n<p>')
+        else:
+            parts.append(prepare_string_for_xml(x))
+    raw = '<p>' + ''.join(parts) + '</p>'
     return raw
 
 
@@ -196,7 +202,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 8)
+    version = (1, 1, 0)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -492,7 +498,7 @@ class GoogleBooks(Source):
                     result_queue.put(ans)
                     return
             except Exception:
-                self.log.exception('Failed to get metadata for Google identifier:', identifiers['google'])
+                log.exception('Failed to get metadata for Google identifier:', identifiers['google'])
             del identifiers['google']
 
         query = self.create_query(
