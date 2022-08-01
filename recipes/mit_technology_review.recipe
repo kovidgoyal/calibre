@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 from __future__ import unicode_literals
+
 __license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 # Written April 2015
-# Last edited 4/18/15
+# Last edited 08/2022
 '''
 technologyreview.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+from collections import OrderedDict
 
 
 def absurl(x):
@@ -20,55 +22,156 @@ def absurl(x):
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
 
 
 class MitTechnologyReview(BasicNewsRecipe):
 
     title = 'MIT Technology Review Magazine'
-    __author__ = 'Michael Marotta'
-    description = ('Bi-monthly magazine version of MIT Technology Review.'
-                   ' This is different than the recipe named simply "Technology Review"'
-                   ' which downloads the rss feed with daily articles from the website.')
+    __author__ = 'Michael Marotta, revised by unkn0wn'
+    description = (
+        'Bi-monthly magazine version of MIT Technology Review.'
+        ' This is different than the recipe named simply "Technology Review"'
+        ' which downloads the rss feed with daily articles from the website.'
+    )
     INDEX = 'http://www.technologyreview.com/magazine/'
     language = 'en'
     encoding = 'utf-8'
-    simultaneous_downloads = 20
     tags = 'news, technology, science'
     no_stylesheets = True
-
+    remove_empty_feeds = True
+    remove_attributes = ['height', 'width', 'style', 'padding', 'padding-top']
+    masthead_url = 'https://wp-preprod.technologyreview.com/wp-content/uploads/2021/08/Screen-Shot-2021-08-20-at-11.11.12-AM-e1629473232355.png'
+    extra_css = '''
+        #pub-d{font-size:small;}
+        #cre-d{font-size:xx-small; text-align:center; color:gray;}
+        #cap-d{font-size:small; text-align:center;}
+        blockquote{text-align:center; color:#404040;}
+    '''
     keep_only_tags = [
         prefixed_classes('contentHeader contentArticleHeader contentBody')
     ]
     remove_tags = [
         dict(name="aside"),
         dict(name="svg"),
-        dict(name="blockquote"),
-        prefixed_classes('image__placeholder sliderAd__wrapper'),
+        prefixed_classes(
+            'image__placeholder sliderAd__wrapper eyebrow__wrap-- screen-reader-text'
+        ),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
+        self.timefmt = ' [{}]'.format(
+            self.tag_to_string(
+                soup.find(
+                    attrs={
+                        'class': lambda x: x and x.startswith('magazineHero__date')
+                    }
+                )
+            )
+        )
         # find cover
         self.cover_url = soup.find(
-            "div", attrs={"class":lambda name: name.startswith("magazineHero__image") if name else False}).find(
-                "img",
-                src=True, attrs={"class":lambda x: x.startswith('image__img') if x else False}
-                )['src']
+            "div",
+            attrs={
+                "class":
+                lambda name: name.startswith("magazineHero__image")
+                if name else False
+            }
+        ).find(
+            "img",
+            srcset=True,
+            attrs={"class": lambda x: x.startswith('image__img') if x else False}
+        )['srcset'].split()[0]
         # parse articles
-        current_articles = []
-        classNamePrefixes = ["magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"]
-        for div in soup.findAll(attrs={'class': lambda x: any(x.startswith(prefix) for prefix in classNamePrefixes) if x else False}):
+        feeds = OrderedDict()
+
+        classNamePrefixes = [
+            "magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"
+        ]
+        for div in soup.findAll(
+            attrs={
+                'class':
+                lambda x: any(x.startswith(prefix) for prefix in classNamePrefixes)
+                if x else False
+            }
+        ):
+            articles = []
             a = div.find('a', href=True)
             title = self.tag_to_string(a).strip()
             href = absurl(a['href'])
-            if href and title:
-                current_articles.append({'title': title, 'url': href})
-                self.log(title, '[%s]' % href)
-        return [('Articles', current_articles)]
+
+            d = div.findParent(
+                attrs={
+                    'class':
+                    lambda z: z and z.
+                    startswith(('teaserItem__wrapper', 'teaserItem--aside__wrapper'))
+                }
+            )
+            desc = self.tag_to_string(
+                d.find(
+                    attrs={
+                        'class':
+                        lambda x: x and x.startswith(
+                            ('teaserItem__excerpt', 'teaserItem--aside__excerpt')
+                        )
+                    }
+                )
+            ).strip()
+
+            sec = d.find(
+                attrs={
+                    'class': lambda x: x and x.startswith('teaserItem__eyebrowText')
+                }
+            )
+
+            section_title = self.tag_to_string(sec).replace('Categorized in ',
+                                                            '').strip()
+
+            if not href or not title:
+                continue
+
+            self.log(section_title)
+            self.log('\t', title)
+            self.log('\t', desc)
+            self.log('\t\t', href)
+
+            articles.append({'title': title, 'url': href, 'description': desc})
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.items()]
+        return ans
 
     def preprocess_html(self, soup):
+        for bq in soup.findAll('blockquote'):
+            for strong in bq.findAll('strong'):
+                strong.name = 'div'
+        for date in soup.findAll(
+            attrs={
+                'class':
+                lambda x: x and x.
+                startswith(('contentArticleHeader__publishDate', 'byline__wrapper'))
+            }
+        ):
+            date['id'] = 'pub-d'
+            for li in date.findAll(('li', 'ul')):
+                li.name = 'span'
+        for cap in soup.findAll('figcaption'):
+            cap['id'] = 'cap-d'
+        for credit in soup.findAll(
+            attrs={
+                'class':
+                lambda x: x and x.startswith(('image__credit', 'image-credit'))
+            }
+        ):
+            credit['id'] = 'cre-d'
         for img in soup.findAll(srcset=True):
             img['src'] = absurl(img['srcset'].split()[0])
             del img['srcset']
+        for img in soup.findAll('img', attrs={'src': True}):
+            img['src'] = img['src'].split('?')[0] + '?w=800'
         return soup
