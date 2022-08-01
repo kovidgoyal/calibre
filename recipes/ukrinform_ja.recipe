@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class UkrInform(BasicNewsRecipe):
+    title = '\u30A6\u30AF\u30EB\u30A4\u30F3\u30D5\u30A9\u30EB\u30E0\uFF08UkrInform\uFF09'
+    __author__ = 'bugmen00t'
+    description = '\u30A6\u30AF\u30E9\u30A4\u30CA\u3067\u552F\u4E00\u306E\u56FD\u55B6\u901A\u4FE1\u793E\u3067\u3059\u3001\u56FD\u5185\u6700\u5927\u306E\u5730\u65B9\u652F\u90E8\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u3068\u8907\u6570\u306E\u5916\u56FD\u652F\u5C40\u3092\u6709\u3057\u3066\u3044\u307E\u3059\u3002'  # noqa
+    publisher = '\u30A6\u30AF\u30E9\u30A4\u30CA\u6587\u5316\u30FB\u60C5\u5831\u653F\u7B56\u7701'
+    category = 'newspaper'
+    cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
+    language = 'ja'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='aside'),
+        dict(name='img', attrs={'class': 'pixel'}),
+        dict(name='section', attrs={'class': 'read'}),
+        dict(name='div', attrs={'data-name': 'int_hidden'})
+    ]
+
+    feeds = [
+        (
+            '\u65B0\u7740\u30CB\u30E5\u30FC\u30B9',
+            'https://www.ukrinform.jp/rss/block-lastnews'
+        ), ('\u6226\u4E89', 'https://www.ukrinform.jp/rss/rubric-ato'),
+        ('\u653F\u6CBB', 'https://www.ukrinform.jp/rss/rubric-polytics'),
+        ('\u7D4C\u6E08', 'https://www.ukrinform.jp/rss/rubric-economy'),
+        ('\u9632\u885B', 'https://www.ukrinform.jp/rss/rubric-defense'),
+        (
+            '\u793E\u4F1A\u30FB\u6587\u5316',
+            'https://www.ukrinform.jp/rss/rubric-society'
+        ),
+        ('\u30B9\u30DD\u30FC\u30C4', 'https://www.ukrinform.jp/rss/rubric-sports'),
+        ('\u72AF\u7F6A', 'https://www.ukrinform.jp/rss/rubric-crime'),
+        (
+            '\u4E8B\u6545\u30FB\u7DCA\u6025\u4E8B\u614B',
+            'https://www.ukrinform.jp/rss/rubric-emergencies'
+        )
+    ]

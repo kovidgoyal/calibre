@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class UkrInform(BasicNewsRecipe):
+    title = 'UkrInform (polska)'
+    __author__ = 'bugmen00t'
+    description = 'Krajowa agencja informacyjna Ukrainy, \u017Ar\u00F3d\u0142o informacji o \u017Cyciu politycznym, gospodarczym, spo\u0142ecznym, naukowym, kulturalnym i spo\u0142ecznym na Ukrainie i za granic\u0105.'  # noqa
+    publisher = 'Ministerstwo Kultury i Polityki Informacyjnej Ukrainy'
+    category = 'newspaper'
+    cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
+    language = 'pl'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='aside'),
+        dict(name='img', attrs={'class': 'pixel'}),
+        dict(name='section', attrs={'class': 'read'}),
+        dict(name='div', attrs={'data-name': 'int_hidden'})
+    ]
+
+    feeds = [
+        ('Najnowsze wiadomo\u015Bci', 'https://www.ukrinform.pl/rss/block-lastnews'),
+        ('Wojna', 'https://www.ukrinform.pl/rss/rubric-ato'),
+        ('Polityka', 'https://www.ukrinform.pl/rss/rubric-polytics'),
+        ('Gospodarka', 'https://www.ukrinform.pl/rss/rubric-economy'),
+        ('Obrona', 'https://www.ukrinform.pl/rss/rubric-defense'),
+        (
+            'Spo\u0142ecze\u0144stwo i kultura',
+            'https://www.ukrinform.pl/rss/rubric-society'
+        ), ('Sport', 'https://www.ukrinform.pl/rss/rubric-sports'),
+        ('Wydarzenia kryminalne', 'https://www.ukrinform.pl/rss/rubric-crime'),
+        (
+            'Zdarzenia i bezpiecze\u0144stwo',
+            'https://www.ukrinform.pl/rss/rubric-emergencies'
+        )
+    ]

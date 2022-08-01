@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class UkrInform(BasicNewsRecipe):
+    title = 'UkrInform (Fran\u00E7ais)'
+    __author__ = 'bugmen00t'
+    description = 'Agence de presse nationale de l\u0027Ukraine. C\u2019est une source d\u0027informations sur la vie politique, \u00E9conomique, scientifique, culturelle et sociale en Ukraine et \u00E0 l\u0027\u00E9tranger.'  # noqa
+    publisher = 'Minist\u00E8re de la culture et de la politique d\u0027information de l\u0027Ukraine'
+    category = 'newspaper'
+    cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
+    language = 'fr'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='aside'),
+        dict(name='img', attrs={'class': 'pixel'}),
+        dict(name='section', attrs={'class': 'read'}),
+        dict(name='div', attrs={'data-name': 'int_hidden'})
+    ]
+
+    feeds = [('Derni\u00E8res infos', 'https://www.ukrinform.fr/rss/block-lastnews'),
+             ('Guerre', 'https://www.ukrinform.fr/rss/rubric-ato'),
+             ('Politique', 'https://www.ukrinform.fr/rss/rubric-polytics'),
+             ('\u00C9conomie', 'https://www.ukrinform.fr/rss/rubric-economy'),
+             ('D\u00E9fense', 'https://www.ukrinform.fr/rss/rubric-defense'),
+             (
+                 'Soci\u00E9t\u00E9 et culture',
+                 'https://www.ukrinform.fr/rss/rubric-society'
+             ), ('Sport', 'https://www.ukrinform.fr/rss/rubric-sports'),
+             ('Criminalit\u00E9', 'https://www.ukrinform.fr/rss/rubric-crime'),
+             ('Accidents', 'https://www.ukrinform.fr/rss/rubric-emergencies')]

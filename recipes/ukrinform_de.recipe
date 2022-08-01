@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class UkrInform(BasicNewsRecipe):
+    title = 'UkrInform (Deutsch)'
+    __author__ = 'bugmen00t'
+    description = 'Nationale Nachrichtenagentur der Ukraine, eine Informationsquelle \u00FCber das politische, wirtschaftliche, soziale, wissenschaftliche, kulturelle und \u00F6ffentliche Leben in der Ukraine und der Welt.'  # noqa
+    publisher = 'Ministerium f\u00FCr Kultur und Informationspolitik der Ukraine'
+    category = 'newspaper'
+    cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
+    language = 'de_UK'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 30
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='aside'),
+        dict(name='img', attrs={'class': 'pixel'}),
+        dict(name='section', attrs={'class': 'read'}),
+        dict(name='div', attrs={'data-name': 'int_hidden'})
+    ]
+
+    feeds = [
+        ('Aktuelle Nachrichten', 'https://www.ukrinform.de/rss/block-lastnews'),
+        ('Krieg', 'https://www.ukrinform.de/rss/rubric-ato'),
+        ('Politik', 'https://www.ukrinform.de/rss/rubric-polytics'),
+        ('Wirtschaft', 'https://www.ukrinform.de/rss/rubric-economy'),
+        ('Milit\u00E4r', 'https://www.ukrinform.de/rss/rubric-defense'),
+        ('Gesellschaft und Kultur', 'https://www.ukrinform.de/rss/rubric-society'),
+        ('Sport', 'https://www.ukrinform.de/rss/rubric-sports'),
+        ('Kriminalit\u00E4t', 'https://www.ukrinform.de/rss/rubric-crime'),
+        (
+            'Notstand und Notf\u00E4lle',
+            'https://www.ukrinform.de/rss/rubric-emergencies'
+        )
+    ]
