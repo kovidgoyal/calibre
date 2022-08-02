@@ -10,6 +10,7 @@ import os
 import sys
 from contextlib import suppress
 from threading import Lock
+from itertools import count
 
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize
@@ -30,6 +31,7 @@ class FTS:
         self.dbref = dbref
         self.pool = Pool(dbref)
         self.init_lock = Lock()
+        self.temp_table_counter = count()
 
     def initialize(self, conn):
         needs_dirty = False
@@ -169,13 +171,17 @@ class FTS:
         query += ' WHERE '
         data = []
         conn = self.get_connection()
+        temp_table_name = ''
         if restrict_to_book_ids:
-            conn.execute('CREATE TABLE IF NOT EXISTS temp.restrict_fts_items(x INTEGER); DELETE FROM temp.restrict_fts_items;')
-            conn.executemany('INSERT INTO temp.restrict_fts_items VALUES (?)', tuple((x,) for x in restrict_to_book_ids))
-            query += ' fts_db.books_text.book IN temp.restrict_fts_items AND '
+            temp_table_name = f'fts_restrict_search_{next(self.temp_table_counter)}'
+            conn.execute(f'CREATE TABLE temp.{temp_table_name}(x INTEGER)')
+            conn.executemany(f'INSERT INTO temp.{temp_table_name} VALUES (?)', tuple((x,) for x in restrict_to_book_ids))
+            query += f' fts_db.books_text.book IN temp.{temp_table_name} AND '
         query += f' "{fts_table}" MATCH ?'
         data.append(fts_engine_query)
         query += f' ORDER BY {fts_table}.rank '
+        if temp_table_name:
+            query += f'; DROP TABLE temp.{temp_table_name}'
         try:
             for record in conn.execute(query, tuple(data)):
                 ret = yield {
