@@ -9,6 +9,7 @@ Scheduler for automated recipe downloads
 from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
+from contextlib import suppress
 
 from qt.core import (
     QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QRecursiveMutex, QApplication,
@@ -611,7 +612,7 @@ class Scheduler(QObject):
     def db(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        if gui is not None:
+        with suppress(AttributeError):
             ans = gui.current_db
             if not ans.new_api.is_doing_rebuild_or_vacuum:
                 return ans
