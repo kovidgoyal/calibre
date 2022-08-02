@@ -9,7 +9,6 @@ import hashlib
 import os
 import sys
 from contextlib import suppress
-from itertools import repeat
 from threading import Lock
 
 from calibre.db import FTSQueryError
@@ -169,14 +168,14 @@ class FTS:
         query += f' JOIN {fts_table} ON fts_db.books_text.id = {fts_table}.rowid'
         query += ' WHERE '
         data = []
+        conn = self.get_connection()
         if restrict_to_book_ids:
-            pl = ','.join(repeat('?', len(restrict_to_book_ids)))
-            query += f' fts_db.books_text.book IN ({pl}) AND '
-            data.extend(restrict_to_book_ids)
+            conn.execute('CREATE TABLE IF NOT EXISTS temp.restrict_fts_items(x INTEGER); DELETE FROM temp.restrict_fts_items;')
+            conn.executemany('INSERT INTO temp.restrict_fts_items VALUES (?)', tuple((x,) for x in restrict_to_book_ids))
+            query += ' fts_db.books_text.book IN temp.restrict_fts_items AND '
         query += f' "{fts_table}" MATCH ?'
         data.append(fts_engine_query)
         query += f' ORDER BY {fts_table}.rank '
-        conn = self.get_connection()
         try:
             for record in conn.execute(query, tuple(data)):
                 ret = yield {
