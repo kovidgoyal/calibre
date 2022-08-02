@@ -899,7 +899,10 @@ class BookInfo(HTMLDisplay):
     def reindex_fmt(self, book_id, fmt):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
-        db.reindex_fts_book(book_id, fmt)
+        if fmt:
+            db.reindex_fts_book(book_id, fmt)
+        else:
+            db.reindex_fts_book(book_id)
 # }}}
 
 
