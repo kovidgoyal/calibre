@@ -407,6 +407,8 @@ class RecursiveFetcher:
             else:
                 if callable(self.image_url_processor):
                     iurl = self.image_url_processor(baseurl, iurl)
+                    if not iurl:
+                        continue
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
                 found_in_cache = False
