@@ -56,6 +56,7 @@ class Guardian(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'modern-visible' in x.split()}),
         classes('badge-slot reveal-caption__checkbox mobile-only element-rich-link'),
         dict(name=['link', 'meta', 'style', 'svg', 'input', 'source', 'noscript', 'button']),
+        dict(name='img', src=lambda x: x and 'https://sb.scorecardresearch.com/' in x),
     ]
     remove_tags_after = [
         classes('content__article-body js-bottom-marker article-body-commercial-selector'),
