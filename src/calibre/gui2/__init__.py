@@ -37,6 +37,7 @@ from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
+from calibre.utils.img import set_image_allocation_limit
 from calibre.utils.localization import get_lang
 from calibre.utils.resources import user_dir
 from polyglot import queue
@@ -1102,6 +1103,7 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, args)
+        set_image_allocation_limit()
         self.palette_manager.initialize()
         icon_resource_manager.initialize()
         sh = self.styleHints()
@@ -1446,6 +1448,7 @@ def ensure_app(headless=True):
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
             QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
             _store_app = QApplication(args)
+            set_image_allocation_limit()
             if headless and has_headless:
                 _store_app.headless = True
             import traceback

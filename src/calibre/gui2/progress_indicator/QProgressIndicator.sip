@@ -87,3 +87,5 @@ void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) /ReleaseGIL/;
 void set_menu_on_action(QAction* ac, QMenu* menu);
 QMenu* menu_for_action(const QAction *ac);
+void set_image_allocation_limit(int megabytes);
+int get_image_allocation_limit();

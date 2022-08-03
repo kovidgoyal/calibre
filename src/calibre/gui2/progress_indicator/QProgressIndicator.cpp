@@ -8,6 +8,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QPainterPath>
+#include <QImageReader>
 #include <algorithm>
 #include <qdrawutil.h>
 
@@ -422,4 +423,14 @@ set_menu_on_action(QAction* ac, QMenu* menu) {
 QMenu*
 menu_for_action(const QAction *ac) {
     return ac->menu<QMenu*>();
+}
+
+void
+set_image_allocation_limit(int megabytes) {
+    QImageReader::setAllocationLimit(megabytes);
+}
+
+int
+get_image_allocation_limit() {
+    return QImageReader::allocationLimit();
 }
