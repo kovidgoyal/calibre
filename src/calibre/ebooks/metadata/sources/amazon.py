@@ -1828,9 +1828,13 @@ def manual_tests(domain, **kw):  # {{{
 
     all_tests['br'] = [  # {{{
         (
+            {'title': 'A Ascensão da Sombra'},
+            [title_test('A Ascensão da Sombra'), authors_test(['Robert Jordan'])]
+        ),
+
+        (
             {'title': 'Guerra dos Tronos'},
-            [title_test('A Guerra dos Tronos - As Crônicas de Gelo e Fogo',
-                        exact=True), authors_test(['George R. R. Martin'])
+            [title_test('A Guerra dos Tronos. As Crônicas de Gelo e Fogo - Livro 1'), authors_test(['George R. R. Martin'])
              ]
 
         ),
