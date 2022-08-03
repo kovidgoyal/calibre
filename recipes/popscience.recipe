@@ -27,14 +27,16 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     ]
 
     def parse_section_index(self, slug):
-        soup = self.index_to_soup('https://www.popsci.com/{}/'.format(slug))
-        main = soup.find(**classes('main-content'))
-        for div in main.findAll(**classes('Post')):
-            a = div.find('a', href=True, **classes('Post-link'))
+        url = 'https://www.popsci.com/{}/'.format(slug)
+        self.log('Section:', url)
+        soup = self.index_to_soup(url)
+        main = soup.find(**classes('PostsContainer'))
+        for div in main.findAll(**classes('PostItem')):
+            a = div.find('a', href=True, **classes('PostItem-link'))
             url = a['href']
-            title = self.tag_to_string(div.find(**classes('Post-title')))
+            title = self.tag_to_string(div.find(**classes('PostItem-title')))
             desc = ''
-            dek = div.find(**classes('Post-excerpt'))
+            dek = div.find(**classes('PostItem-excerpt'))
             if dek is not None:
                 desc = self.tag_to_string(dek)
             self.log(' ', title, url)
@@ -48,7 +50,6 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
             'diy': 'DIY',
             'reviews': 'Reviews',
         }.items():
-            self.log('Section:', title)
             articles = list(self.parse_section_index(slug))
             if articles:
                 sections.append((title, articles))
