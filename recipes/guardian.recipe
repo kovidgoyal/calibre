@@ -113,6 +113,4 @@ class Guardian(BasicNewsRecipe):
         feeds = self.parse_section(self.base_url)
         feeds += self.parse_section(
             'https://www.theguardian.com/uk/sport', 'Sport - ')
-        if date.today().weekday() in (5, 6):
-            feeds += self.parse_section('https://www.theguardian.com/theguardian/weekend', 'Weekend - ')
         return feeds
