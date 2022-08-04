@@ -65,6 +65,18 @@ class SearchFailed(ValueError):
     pass
 
 
+class UrlNotFound(ValueError):
+
+    def __init__(self, url):
+        ValueError.__init__(self, 'The URL {} was not found (HTTP 404)'.format(url))
+
+
+class UrlTimedOut(ValueError):
+
+    def __init__(self, url):
+        ValueError.__init__(self, 'Timed out fetching {} try again later'.format(url))
+
+
 def parse_html(raw):
     try:
         from html5_parser import parse
@@ -93,19 +105,19 @@ def parse_details_page(url, log, timeout, browser, domain):
         try:
             raw = browser.open_novisit(url, timeout=timeout).read().strip()
         except Exception as e:
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                log.error('URL malformed: %r' % url)
-                return
+            if callable(getattr(e, 'getcode', None)) and e.getcode() == 404:
+                log.error('URL not found: %r' % url)
+                raise UrlNotFound(url)
             attr = getattr(e, 'args', [None])
             attr = attr if attr else [None]
             if isinstance(attr[0], socket.timeout):
                 msg = 'Details page timed out. Try again later.'
                 log.error(msg)
+                raise UrlTimedOut(url)
             else:
                 msg = 'Failed to make details query: %r' % url
                 log.exception(msg)
-            return
+                raise ValueError('Could not make details query for {}'.format(url))
 
     oraw = raw
     if 'amazon.com.br' in url:
@@ -114,7 +126,7 @@ def parse_details_page(url, log, timeout, browser, domain):
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
                          resolve_entities=True)[0]
     if '<title>404 - ' in raw:
-        raise ValueError('URL malformed: %r' % url)
+        raise ValueError('Got a 404 page for: %r' % url)
     if '>Could not find the requested document in the cache.<' in raw:
         raise ValueError('No cached entry for %s found' % url)
 
@@ -123,7 +135,7 @@ def parse_details_page(url, log, timeout, browser, domain):
     except Exception:
         msg = 'Failed to parse amazon details page: %r' % url
         log.exception(msg)
-        return
+        raise ValueError(msg)
     if domain == 'jp':
         for a in root.xpath('//a[@href]'):
             if ('black-curtain-redirect.html' in a.get('href')) or ('/black-curtain/save-eligibility/black-curtain' in a.get('href')):
@@ -139,7 +151,7 @@ def parse_details_page(url, log, timeout, browser, domain):
         msg = 'Failed to parse amazon details page: %r' % url
         msg += tostring(errmsg, method='text', encoding='unicode').strip()
         log.error(msg)
-        return
+        raise ValueError(msg)
 
     from css_selectors import Select
     selector = Select(root)
@@ -1003,7 +1015,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 0)
+    version = (1, 3, 1)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
