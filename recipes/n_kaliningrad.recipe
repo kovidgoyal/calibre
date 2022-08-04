@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class NewKaliningrad(BasicNewsRecipe):
+    title = '\u041D\u043E\u0432\u044B\u0439 \u041A\u0430\u043B\u0438\u043D\u0438\u043D\u0433\u0440\u0430\u0434'
+    __author__ = 'bugmen00t'
+    description = '\u0420\u0435\u0433\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442-\u043F\u043E\u0440\u0442\u0430\u043B \u041A\u0430\u043B\u0438\u043D\u0438\u043D\u0433\u0440\u0430\u0434\u0441\u043A\u043E\u0439 \u043E\u0431\u043B\u0430\u0441\u0442\u0438 \u0438 \u0433\u043E\u0440\u043E\u0434\u0430 \u041A\u0430\u043B\u0438\u043D\u0438\u043D\u0433\u0440\u0430\u0434\u0430.'  # noqa
+    publisher = '\u0417\u0410\u041E "\u0422\u0432\u0438\u043A \u041C\u0430\u0440\u043A\u0435\u0442\u0438\u043D\u0433"'
+    category = 'news'
+    cover_url = u'https://www.newkaliningrad.ru/images/logo.gif'
+    language = 'ru'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 3
+    max_articles_per_feed = 100
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'content'})
+
+    remove_tags = [dict(name='div', attrs={'class': 'continue-box'})]
+
+    feeds = [(
+        '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
+        'https://www.newkaliningrad.ru/news/rss.xml'
+    )]

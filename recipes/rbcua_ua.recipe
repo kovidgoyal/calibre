@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class RBCUA(BasicNewsRecipe):
+    title = '\u0420\u0411\u041A-\u0423\u043A\u0440\u0430\u0457\u043D\u0430'
+    __author__ = 'bugmen00t'
+    description = '\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0435 \u0456\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0456\u0439\u043D\u0435 \u0430\u0433\u0435\u043D\u0442\u0441\u0442\u0432\u043E.'  # noqa
+    publisher = '\u0422\u041E\u0412 \u00AB\u042E\u0431\u0456\u0442\u0456 \u041C\u0435\u0434\u0456\u0430\u00BB'
+    category = 'news'
+    cover_url = u'https://www.rbc.ua/static/img/r/b/rbc_pic_best_news_650x410_2_650x410_1_650x410_1_480x270.jpg'
+    language = 'uk'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 3
+    max_articles_per_feed = 20
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='span', attrs={'class': 'lang-publication'}),
+        dict(name='div', attrs={'class': 'share'}),
+        dict(name='ins'),
+        dict(name='div', attrs={'class': 'read-in-google'}),
+        dict(name='div', attrs={'class': 'intext-tags'})
+    ]
+
+    feeds = [('\u0420\u0411\u041A', 'https://www.rbc.ua/static/rss/all.ukr.rss.xml')]

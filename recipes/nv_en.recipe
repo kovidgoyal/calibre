@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class NV(BasicNewsRecipe):
+    title = 'NV (The New Voice of Ukraine)'
+    __author__ = 'bugmen00t'
+    description = 'Independent Ukrainian socio-political magazine and news resource.'
+    publisher = 'Vydavnychyy Dim Media-DK LLC'
+    category = 'magazine'
+    cover_url = u'https://static.nv.ua/shared/system/Article/posters/002/439/752/600x300/65730a3918ebad6c86167b53f2b3e98a.jpg'
+    language = 'en_UK'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 30
+    max_articles_per_feed = 40
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'article__content__footer'}),
+        dict(name='div', attrs={'class': 'article__head__additional_views'}),
+        dict(name='div', attrs={'class': 'show_two_positions '}),
+        dict(name='div', attrs={'class': 'media__also__news'}),
+        dict(name='div', attrs={'class': 'media__also__news_link'}),
+        dict(name='blockquote', attrs={'class': 'code'}),
+        dict(name='section', attrs={'class': 'article-share'}),
+        dict(name='div', attrs={'class': 'nts-video-wrapper'}),
+        dict(name='footer'),
+        dict(name='div', attrs={'class': 'longread_tags'}),
+        dict(name='div', attrs={'class': 'top_donate'}),
+        dict(name='div', attrs={'class': 'col-md-6 col-lg-3'}),
+        dict(name='div', attrs={'class': 'copyright'}),
+        dict(name='div', attrs={'class': 'media__video'}),
+        dict(name='div', attrs={'class': 'media__embed'})
+    ]
+
+    feeds = [('All News', 'https://english.nv.ua/rss/all_english.xml'),
+             ('Life', 'https://english.nv.ua/rss/239.xml'),
+             ('Business', 'https://english.nv.ua/rss/238.xml'),
+             ('Nation', 'https://english.nv.ua/rss/237.xml'),
+             ('Opinion', 'https://english.nv.ua/rss/240.xml')]
