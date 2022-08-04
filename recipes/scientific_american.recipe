@@ -22,6 +22,18 @@ class ScientificAmerican(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     timefmt = ' [%B %Y]'
+    remove_attributes = ['height','width']
+    masthead_url = 'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
+    extra_css = '''
+        .image-captioned{font-size:small;}
+        .feature-article__byline-authors{font-size:small;}
+        .article-header__inner__category{font-size:small; color:gray;}
+        .t_caption{font-size:small; text-align:center;}
+        .author-bio{font-size:small;}
+        .opinion-article__byline-authors{font-size:small;}
+        .article-author{font-size:small;}
+        [role="presentation"]{font-size:small;}
+    '''
 
     needs_subscription = 'optional'
 
@@ -31,7 +43,7 @@ class ScientificAmerican(BasicNewsRecipe):
             ' feature-article--header-title opinion-article__header-title author-bio'),
     ]
     remove_tags = [
-        classes('aside-banner moreToExplore article-footer flex-column--25 article-author__suggested'),
+        classes('aside-banner moreToExplore article-footer flex-column--25 article-author__suggested medium-up-hide'),
         dict(id=['seeAlsoLinks']),
     ]
 
