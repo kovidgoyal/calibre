@@ -594,6 +594,8 @@ class BooksView(QTableView):  # {{{
             self.intelligent_sort(field, order == Qt.SortOrder.AscendingOrder)
 
     def intelligent_sort(self, field, ascending):
+        if isinstance(ascending, Qt.SortOrder):
+            ascending = ascending == Qt.SortOrder.AscendingOrder
         m = self.model()
         pname = 'previous_sort_order_' + self.__class__.__name__
         previous = gprefs.get(pname, {})
@@ -602,9 +604,9 @@ class BooksView(QTableView):  # {{{
             previous[field] = ascending
             gprefs[pname] = previous
             return
-        previous[m.sorted_on[0]] = Qt.SortOrder(m.sorted_on[1]).value
+        previous[m.sorted_on[0]] = m.sorted_on[1]
         gprefs[pname] = previous
-        self.sort_by_named_field(field, Qt.SortOrder(previous[field]))
+        self.sort_by_named_field(field, previous[field])
 
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
@@ -618,6 +620,8 @@ class BooksView(QTableView):  # {{{
         self.horizontalScrollBar().setValue(pos)
 
     def sort_by_named_field(self, field, order, reset=True):
+        if isinstance(order, Qt.SortOrder):
+            order = order == Qt.SortOrder.AscendingOrder
         if field in self.column_map:
             idx = self.column_map.index(field)
             self.sort_by_column_and_order(idx, order)

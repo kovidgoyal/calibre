@@ -1604,7 +1604,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         else:
             self.sorted_map = list(range(len(self.db)))
             self.sorted_map.sort(key=keygen, reverse=descending)
-        self.sorted_on = (self.column_map[col], order)
+        self.sorted_on = (self.column_map[col], not descending)
         self.sort_history.insert(0, self.sorted_on)
         if hasattr(keygen, 'db'):
             keygen.db = None
