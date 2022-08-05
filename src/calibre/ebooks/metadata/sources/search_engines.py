@@ -25,7 +25,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 0)
+current_version = (1, 2, 1)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -289,6 +289,7 @@ def google_extract_cache_urls(raw):
         raw = raw.decode('utf-8', 'replace')
     pat = re.compile(r'\\x22(https://webcache\.googleusercontent\.com/.+?)\\x22')
     upat = re.compile(r'\\\\u([0-9a-fA-F]{4})')
+    xpat = re.compile(r'\\x([0-9a-fA-F]{2})')
     cache_pat = re.compile('cache:([^:]+):(.+)')
 
     def urepl(m):
@@ -298,6 +299,10 @@ def google_extract_cache_urls(raw):
     ans = {}
     for m in pat.finditer(raw):
         cache_url = upat.sub(urepl, m.group(1))
+        # the following two are necessary for results from Portugal
+        cache_url = xpat.sub(urepl, cache_url)
+        cache_url = cache_url.replace('&amp;', '&')
+
         m = cache_pat.search(cache_url)
         cache_id, src_url = m.group(1), m.group(2)
         if cache_id in seen:
