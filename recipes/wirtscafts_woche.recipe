@@ -3,19 +3,20 @@ __copyright__ = '2013, Armin Geller'
 
 ##
 # Written:      May 2013 (new coding)
-# Version:      4.4
-# Last update:  2020-12-29
+# Version:      5.0
+# Last update:  2022-08-05
+##
 ##
 '''
 Fetch WirtschaftsWoche Online
 '''
-import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class WirtschaftsWocheOnline(BasicNewsRecipe):
     title = u'WirtschaftsWoche Online'
-    __author__ = 'Armin Geller'  # Update AGE 2013-01-05; 2018-03-01
+    __author__ = 'Armin Geller'  # Update AGE 2013-01-05, 2018-03-01, 2022-08-05
     description = u'German Online Portal of WirtschaftsWoche'
     publisher = 'Verlagsgruppe Handelsblatt GmbH Redaktion WirtschaftsWoche Online'
     category = 'business, economy, news, Germany'
@@ -47,14 +48,12 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
                       '''
 
     keep_only_tags = [
+        dict(name='div', attrs={'data-macro': [
+            'lead-media',
+        ]}),
         dict(
             name='div',
-            attrs={
-                'class': [
-                    'o-article__element', 'o-article__content c-richText',
-                    'o-article__content-element o-article__content-element--richtext'
-                ]
-            }
+            attrs={'class': ['o-article__element', 'o-article__content c-richText']}
         )
     ]
 
@@ -63,11 +62,18 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
             name='div',
             attrs={
                 'class': [
-                    'c-pagination u-flex',
-                    'c-standard-article-teaser',
-                    'c-pagination u-flex ajaxify',
-                    'c-socialshare u-margin-xxl ',
-                    'c-list',  # AGe 2020-12-29
+                    'c-list', 'o-article__element u-margin-xxl u-font-s-md',
+                    'c-advertisment__fullWidth c-advertisment--P4_desktop',
+                    'c-advertisment__fullWidth c-advertisment--P3_mobile',
+                    'c-advertisment__fullWidth c-advertisment--P2_mobile',
+                    'c-advertisment__fullWidth c-advertisment--CT_contentteaser_mobile_1',
+                    'c-teaser c-teaser-inline',
+                    'c-teaser c-teaser-inline isPremiumTeaser',
+                    'c-teaser c-teaser-inline c-teaser-inline--column',
+                    'c-teaser c-teaser-inline c-teaser-inline--xl isPremiumTeaser',
+                    'u-flex', 'o-article__content-element u-margin-xxl',
+                    'o-article__content-element u-margin-xxl ajaxify',
+                    'o-article__element o-article__element-block'
                 ]
             }
         )
@@ -81,28 +87,16 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
         (u'Finanzen', u'http://www.wiwo.de/contentexport/feed/rss/finanzen'),
         (u'Politik', u'http://www.wiwo.de/contentexport/feed/rss/politik'),
         (u'Erfolg', u'http://www.wiwo.de/contentexport/feed/rss/erfolg'),
-        (u'Technologie', u'http://www.wiwo.de/contentexport/feed/rss/technologie'),
-        #              (u'Green-WiWo', u'http://green.wiwo.de/feed/rss/') # AGE offline
+        (u'Technologie', u'http://www.wiwo.de/contentexport/feed/rss/technologie')
     ]
 
-    # For hegi # AGE new 2018-03-21
-
-    # Add ': ' between headline part one and two
-    # Wandel kostet Milliarden + ': ' + SUV und China sollen Audi wieder nach vorne bringen
-    # https://www.wiwo.de/unternehmen/auto/wandel-kostet-milliarden-suv-und-china-sollen-audi-wieder-nach-vorne-bringen/21069566.html
-
-    preprocess_regexps = [
-        (
-            re.compile(
-                r'(c-overline--article">[^>]*)(</span>)', re.DOTALL | re.IGNORECASE
-            ), lambda match: match.group(1) + ': ' + match.group(2)
-        ),
-    ]
-
-    # /For hegi
-
-    # one page n times url: https://www.wiwo.de/finanzen/geldanlage/bla-bla/21020646.html
-    # all in one page article url: https://www.wiwo.de/finanzen/geldanlage/bla-bla/21020646-all.html
+    def image_url_processor(self, baseurl, url):
+        #        print('****** AGE Baseurl *****',baseurl)
+        #        print('****** AGE url *****',url)
+        if url.startswith('/images/'):
+            #            print('****** AGE url /images/ *****','https://www.wiwo.de' + url)
+            return 'https://www.wiwo.de' + url
+        return url
 
     def print_version(self, url):
         main, sep, rest = url.rpartition('.')
