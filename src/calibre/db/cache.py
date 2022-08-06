@@ -445,8 +445,10 @@ class Cache:
         return fts
 
     def start_fts_pool(self):
-        from threading import Thread
-        self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(self.fts_job_queue, weakref.ref(self)), daemon=True)
+        from threading import Thread, Event
+        self.fts_dispatch_stop_event = Event()
+        self.fts_queue_thread = Thread(name='FTSQueue', target=Cache.dispatch_fts_jobs, args=(
+            self.fts_job_queue, self.fts_dispatch_stop_event, weakref.ref(self)), daemon=True)
         self.fts_queue_thread.start()
         self.backend.fts.pool.initialize()
         self.backend.fts.pool.initialized.wait()
@@ -489,7 +491,7 @@ class Cache:
         self.backend.fts_unindex(book_id, fmt=fmt)
 
     @staticmethod
-    def dispatch_fts_jobs(queue, dbref):
+    def dispatch_fts_jobs(queue, stop_dispatch, dbref):
         from .fts.text import is_fmt_ok
 
         def do_one():
@@ -521,7 +523,7 @@ class Cache:
                     pt.write(chunk)
             with self.write_lock:
                 queued = self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest())
-                if not queued:  # means a dirtied book was removed
+                if not queued:  # means a dirtied book was removed from the dirty list because the text has not changed
                     self._update_fts_indexing_numbers()
                 return self.backend.fts_has_idle_workers
 
@@ -530,7 +532,7 @@ class Cache:
             if not self or not self.backend.fts_enabled:
                 return
             has_more = True
-            while has_more and not self.shutting_down and self.backend.fts_enabled:
+            while has_more and not self.shutting_down and self.backend.fts_enabled and not stop_dispatch.is_set():
                 try:
                     has_more = do_one()
                 except Exception:
@@ -2446,6 +2448,8 @@ class Cache:
             self.backend.shutdown_fts()
             if self.fts_queue_thread is not None:
                 self.fts_job_queue.put(None)
+            if hasattr(self, 'fts_dispatch_stop_event'):
+                self.fts_dispatch_stop_event.set()
             return
         # the fts supervisor thread could be in the middle of committing a
         # result to the db, so holding a lock here will cause a deadlock
