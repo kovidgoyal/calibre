@@ -455,8 +455,7 @@ def human_readable_interval(secs):
 class IndexingProgress:
 
     def __init__(self):
-        self.left = self.total = -1
-        self.clear_rate_information()
+        self.reset()
 
     def __repr__(self):
         return f'IndexingProgress(left={self.left}, total={self.total})'
@@ -464,6 +463,10 @@ class IndexingProgress:
     def clear_rate_information(self):
         from collections import deque
         self.done_events = deque()
+
+    def reset(self):
+        self.left = self.total = -1
+        self.clear_rate_information()
 
     def update(self, left, total):
         changed = (left, total) != (self.left, self.total)
@@ -486,6 +489,8 @@ class IndexingProgress:
 
     @property
     def time_left(self):
+        if self.left < 0:
+            return _('calculating time left')
         if self.left < 2:
             return _('almost done')
         if len(self.done_events) < 5:

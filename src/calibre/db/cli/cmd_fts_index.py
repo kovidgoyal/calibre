@@ -2,8 +2,36 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from functools import lru_cache
 
 version = 0  # change this if you change signature of implementation()
+
+
+@lru_cache
+def indexing_progress():
+    from threading import Lock
+    from calibre.db.utils import IndexingProgress
+    ans = IndexingProgress()
+    ans.lock = Lock()
+    return ans
+
+
+def update_indexing_progress(left, total):
+    ip = indexing_progress()
+    with ip.lock:
+        ip.update(left, total)
+
+
+def reset_indexing_progress():
+    ip = indexing_progress()
+    with ip.lock:
+        ip.reset()
+
+
+def indexing_progress_time_left():
+    ip = indexing_progress()
+    with ip.lock:
+        return ip.time_left
 
 
 def implementation(db, notify_changes, action, adata=None):
@@ -21,6 +49,7 @@ def implementation(db, notify_changes, action, adata=None):
 
     if action == 'disable':
         if db.is_fts_enabled():
+            reset_indexing_progress()
             db.enable_fts(enabled=False)
         return
 
@@ -60,10 +89,11 @@ def local_wait_for_completion(db):
 
     def listen(event_type, library_id, event_data):
         if event_type is EventType.indexing_progress_changed:
+            update_indexing_progress(*event_data)
             q.put(event_data)
 
     def show_progress(left, total):
-        print('\r' + _('{} of {} book files left to index').format(left, total), flush=True, end=' ' * 10)
+        print('\r\x1b[K' + _('{} of {} book files indexed, {}').format(total-left, total, indexing_progress_time_left()), flush=True, end=' ...')
 
     db.add_listener(listen)
     l, t = db.fts_indexing_progress()
@@ -88,7 +118,7 @@ def main(opts, args, dbctx):
         s = run_job(dbctx, 'status')
         if s['enabled']:
             print(_('FTS Indexing is enabled'))
-            print(_('{0} of {1} books files remain to be indexed').format(s['left'], s['total']))
+            print(_('{0} of {1} books files indexed').format(s['total'] - s['left'], s['total']))
         else:
             print(_('FTS Indexing is disabled'))
             raise SystemExit(2)
@@ -96,7 +126,7 @@ def main(opts, args, dbctx):
     if action == 'enable':
         s = run_job(dbctx, 'enable')
         print(_('FTS indexing has been enabled'))
-        print(_('{0} of {1} books files remain to be indexed').format(s['left'], s['total']))
+        print(_('{0} of {1} books files indexed').format(s['total'] - s['left'], s['total']))
 
     if action == 'disable':
         print(_('Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'))
