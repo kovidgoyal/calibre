@@ -171,7 +171,7 @@ class Pool:
 
     @property
     def num_of_idle_workers(self):
-        return sum(1 if w.working else 0 for w in self.workers)
+        return sum(0 if w.working else 1 for w in self.workers)
 
     def check_for_work(self):
         self.initialize()

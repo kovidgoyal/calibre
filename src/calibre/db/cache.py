@@ -520,7 +520,9 @@ class Cache:
                     h.update(chunk)
                     pt.write(chunk)
             with self.write_lock:
-                self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest())
+                queued = self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest())
+                if not queued:  # means a dirtied book was removed
+                    self._update_fts_indexing_numbers()
                 return self.backend.fts_has_idle_workers
 
         def loop_while_more_available():
