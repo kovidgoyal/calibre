@@ -8,8 +8,6 @@ from qt.core import (
     QRadioButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre import detect_ncpus
-from calibre.db.cache import Cache
 from calibre.db.listeners import EventType
 from calibre.db.utils import IndexingProgress
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -71,12 +69,7 @@ class ScanProgress(QWidget):
 
     def change_speed(self):
         db = get_db()
-        if self.fast_button.isChecked():
-            db.fts_indexing_sleep_time = 0.1
-            db.set_fts_num_of_workers(max(1, detect_ncpus()))
-        else:
-            db.fts_indexing_sleep_time = Cache.fts_indexing_sleep_time
-            db.set_fts_num_of_workers(1)
+        db.set_fts_speed(slow=not self.fast_button.isChecked())
         self.indexing_progress.clear_rate_information()
 
     def update(self, complete, left, total):

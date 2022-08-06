@@ -21,7 +21,7 @@ from queue import Queue
 from threading import Lock
 from time import sleep, time
 
-from calibre import as_unicode, isbytestring
+from calibre import as_unicode, isbytestring, detect_ncpus
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import (
     run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postimport
@@ -591,6 +591,15 @@ class Cache:
             if num > existing:
                 self.queue_next_fts_job()
         return existing
+
+    @api
+    def set_fts_speed(self, slow=True):
+        if slow:
+            self.fts_indexing_sleep_time = Cache.fts_indexing_sleep_time
+            self.set_fts_num_of_workers(1)
+        else:
+            self.fts_indexing_sleep_time = 0.1
+            self.set_fts_num_of_workers(max(1, detect_ncpus()))
 
     @read_api
     def fts_search(
