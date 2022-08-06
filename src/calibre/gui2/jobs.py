@@ -30,6 +30,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from calibre.db.utils import human_readable_interval
 from calibre.utils.icu import lower
 from polyglot.queue import Empty, Queue
 
@@ -38,30 +39,6 @@ class AdaptSQP(SearchQueryParser):
 
     def __init__(self, *args, **kwargs):
         pass
-
-
-def human_readable_interval(secs):
-    secs = int(secs)
-    days = secs // 86400
-    hours = secs // 3600 % 24
-    minutes = secs // 60 % 60
-    seconds = secs % 60
-    parts = []
-    if days > 0:
-        parts.append(_('{} days').format(days))
-        if hours > 0:
-            parts.append(_('{} hours').format(hours))
-    elif hours > 0:
-        parts.append(_('{} hours').format(hours))
-        if minutes > 0:
-            parts.append(_('{} minutes').format(minutes))
-    elif minutes > 0:
-        parts.append(_('{} minutes').format(minutes))
-        if secs > 0:
-            parts.append(_('{} seconds').format(seconds))
-    elif secs > 0:
-        parts.append(_('{} seconds').format(seconds))
-    return ' '.join(parts)
 
 
 class JobManager(QAbstractTableModel, AdaptSQP):  # {{{

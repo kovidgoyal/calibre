@@ -3,8 +3,6 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-import time
-from collections import deque
 from qt.core import (
     QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QPushButton,
     QRadioButton, QVBoxLayout, QWidget, pyqtSignal
@@ -13,58 +11,10 @@ from qt.core import (
 from calibre import detect_ncpus
 from calibre.db.cache import Cache
 from calibre.db.listeners import EventType
+from calibre.db.utils import IndexingProgress
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
-from calibre.gui2.jobs import human_readable_interval
 from calibre.gui2.ui import get_gui
-
-
-class IndexingProgress:
-
-    def __init__(self):
-        self.left = self.total = -1
-        self.clear_rate_information()
-
-    def __repr__(self):
-        return f'IndexingProgress(left={self.left}, total={self.total})'
-
-    def clear_rate_information(self):
-        self.done_events = deque()
-
-    def update(self, left, total):
-        changed = (left, total) != (self.left, self.total)
-        if changed:
-            done_num = self.left - left
-            if done_num > 0 and self.left > -1:  # initial event will have self.left == -1
-                self.done_events.append((done_num, time.monotonic()))
-                if len(self.done_events) > 50:
-                    self.done_events.popleft()
-        self.left, self.total = left, total
-        return changed
-
-    @property
-    def complete(self):
-        return not self.left or not self.total
-
-    @property
-    def almost_complete(self):
-        return self.complete or (self.left / self.total) < 0.1
-
-    @property
-    def time_left(self):
-        if self.left < 2:
-            return _('almost done')
-        if len(self.done_events) < 5:
-            return _('calculating time left')
-        try:
-            start_time = self.done_events[0][1]
-            end_time = self.done_events[-1][1]
-            num_done = sum(x[0] for x in self.done_events) - self.done_events[0][0]
-            rate = num_done / max(0.1, end_time - start_time)
-            seconds_left = self.left / rate
-            return _('~{} left').format(human_readable_interval(seconds_left))
-        except Exception:
-            return _('calculating time left')
 
 
 class ScanProgress(QWidget):
