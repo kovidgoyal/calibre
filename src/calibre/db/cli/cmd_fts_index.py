@@ -53,15 +53,38 @@ def implementation(db, notify_changes, action, adata=None):
             db.enable_fts(enabled=False)
         return
 
+    if action == 'reindex':
+        if not db.is_fts_enabled():
+            a = Exception(_('Full text indexing is not enabled on this library'))
+            a.suppress_traceback = True
+            raise a
+        items = adata.get('items')
+        if items:
+            for item in items:
+                db.reindex_fts_book(*item)
+        else:
+            db.reindex_fts()
+        l, t = db.fts_indexing_progress()
+        return {'enabled': True, 'left': l, 'total': t}
+
 
 def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog fts_index [options] enable/disable/status/reindex
+%prog fts_index [options] {enable}/{disable}/{status}/{reindex}
 
-Control the fts indexing process.
-'''
+Control the Full text search indexing process.
+
+  {enable}  - Turns on FTS indexing for this library
+  {disable} - Turns off FTS indexing for this library
+  {status}  - Shows the current indexing status
+  {reindex} - Can be used to re-index either particular books or
+            the entire library. To re-index particular books
+            specify the book ids as additional arguments after the
+            {reindex} command. If no book ids are specified the
+            entire library is re-indexed.
+'''.format(enable='enable', disable='disable', status='status', reindex='reindex')
     ))
     parser.add_option(
         '--wait-for-completion',
@@ -104,6 +127,7 @@ def local_wait_for_completion(db, indexing_speed):
     while True:
         l, t = q.get()
         if l < 1:
+            print()
             return
         show_progress(l, t)
 
@@ -134,12 +158,39 @@ def main(opts, args, dbctx):
             print(_('FTS Indexing is disabled'))
             raise SystemExit(2)
 
-    if action == 'enable':
+    elif action == 'enable':
         s = run_job(dbctx, 'enable')
         print(_('FTS indexing has been enabled'))
         print(_('{0} of {1} books files indexed').format(s['total'] - s['left'], s['total']))
 
-    if action == 'disable':
+    elif action == 'reindex':
+        items = args[1:]
+        if not items:
+            print(_('Re-indexing the entire library can take a long time. Are you sure?'))
+            while True:
+                try:
+                    q = input(_('Type {} to proceed, anything else to abort').format('"reindex"') + ': ')
+                except KeyboardInterrupt:
+                    sys.excepthook = lambda *a: None
+                    raise
+                if q.strip('"') == 'reindex':
+                    break
+                else:
+                    return 0
+
+        def to_spec(x):
+            parts = x.split(':', 1)
+            book_id = int(parts[0])
+            if len(parts) == 1:
+                return book_id,
+            fmts = tuple(x.upper() for x in parts[1].split(','))
+            return (book_id,) + fmts
+
+        specs = tuple(map(to_spec, items))
+        s = run_job(dbctx, 'reindex', items=specs)
+        print(_('{0} of {1} books files indexed').format(s['total'] - s['left'], s['total']))
+
+    elif action == 'disable':
         print(_('Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'))
         while True:
             try:
@@ -154,9 +205,12 @@ def main(opts, args, dbctx):
         run_job(dbctx, 'disable')
         print(_('FTS indexing has been disabled'))
         return 0
+    else:
+        dbctx.option_parser.print_help()
+        raise SystemExit(f'{action} is not a known action')
 
     if opts.wait_for_completion:
-        print(_('Waiting for FTS indexing to complete...'))
+        print(_('Waiting for FTS indexing to complete, press Ctrl-C to abort...'))
         try:
             if dbctx.is_remote:
                 raise NotImplementedError('TODO: Implement waiting for completion via polling')
