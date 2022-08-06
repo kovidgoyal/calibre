@@ -56,16 +56,14 @@ def local_wait_for_completion(db):
     from calibre.db.listeners import EventType
     from queue import Queue
 
-    db.fts_indexing_sleep_time = 0.1
     q = Queue()
 
     def listen(event_type, library_id, event_data):
         if event_type is EventType.indexing_progress_changed:
-            print(1111111, event_data)
             q.put(event_data)
 
     def show_progress(left, total):
-        print('\r' + _('{} of {} book files left to index').format(left, total), flush=True, end='')
+        print('\r' + _('{} of {} book files left to index').format(left, total), flush=True, end=' ' * 10)
 
     db.add_listener(listen)
     l, t = db.fts_indexing_progress()
