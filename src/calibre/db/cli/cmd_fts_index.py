@@ -69,19 +69,17 @@ Control the fts indexing process.
         action='store_true',
         help=_('Wait till all books are indexed, showing indexing progress periodically')
     )
+    parser.add_option(
+        '--indexing-speed',
+        default='',
+        choices=('fast', 'slow', ''),
+        help=_('The speed of indexing. Use fast for fast indexing using all your computers resources'
+               ' and slow for less resource intensive indexing. Note that the speed is reset to slow on every invocation.')
+    )
     return parser
 
 
-def run_job(dbctx, which, adata=None):
-    try:
-        return dbctx.run('fts_index', which, adata)
-    except Exception as e:
-        if getattr(e, 'suppress_traceback', False):
-            raise SystemExit(str(e))
-        raise
-
-
-def local_wait_for_completion(db):
+def local_wait_for_completion(db, indexing_speed):
     from calibre.db.listeners import EventType
     from queue import Queue
 
@@ -96,6 +94,8 @@ def local_wait_for_completion(db):
         print('\r\x1b[K' + _('{} of {} book files indexed, {}').format(total-left, total, indexing_progress_time_left()), flush=True, end=' ...')
 
     db.add_listener(listen)
+    if indexing_speed:
+        db.set_fts_speed(slow=indexing_speed == 'slow')
     l, t = db.fts_indexing_progress()
     if l < 1:
         return
@@ -113,6 +113,17 @@ def main(opts, args, dbctx):
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the indexing action'))
     action = args[0]
+    adata = {}
+
+    def run_job(dbctx, which, **kw):
+        data = adata.copy()
+        data.update(kw)
+        try:
+            return dbctx.run('fts_index', which, data)
+        except Exception as e:
+            if getattr(e, 'suppress_traceback', False):
+                raise SystemExit(str(e))
+            raise
 
     if action == 'status':
         s = run_job(dbctx, 'status')
@@ -150,7 +161,7 @@ def main(opts, args, dbctx):
             if dbctx.is_remote:
                 raise NotImplementedError('TODO: Implement waiting for completion via polling')
             else:
-                local_wait_for_completion(dbctx.db.new_api)
+                local_wait_for_completion(dbctx.db.new_api, opts.indexing_speed)
         except KeyboardInterrupt:
             sys.excepthook = lambda *a: None
             raise
