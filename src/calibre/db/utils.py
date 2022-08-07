@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, sys, re, time
+import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
@@ -458,24 +458,15 @@ class IndexingProgress:
         self.reset()
 
     def __repr__(self):
-        return f'IndexingProgress(left={self.left}, total={self.total})'
-
-    def clear_rate_information(self):
-        from collections import deque
-        self.done_events = deque()
+        return f'IndexingProgress(left={self.left}, total={self.total}, rate={self.indexing_rate})'
 
     def reset(self):
         self.left = self.total = -1
-        self.clear_rate_information()
+        self.indexing_rate = None
 
-    def update(self, left, total):
-        changed = (left, total) != (self.left, self.total)
-        if changed:
-            done_num = self.left - left
-            if done_num > 0 and self.left > -1:  # initial event will have self.left == -1
-                self.done_events.append((done_num, time.monotonic()))
-                if len(self.done_events) > 50:
-                    self.done_events.popleft()
+    def update(self, left, total, indexing_rate):
+        changed = (left, total, indexing_rate) != (self.left, self.total, self.indexing_rate)
+        self.indexing_rate = indexing_rate
         self.left, self.total = left, total
         return changed
 
@@ -493,14 +484,10 @@ class IndexingProgress:
             return _('calculating time left')
         if self.left < 2:
             return _('almost done')
-        if len(self.done_events) < 5:
+        if self.indexing_rate is None:
             return _('calculating time left')
         try:
-            start_time = self.done_events[0][1]
-            end_time = self.done_events[-1][1]
-            num_done = sum(x[0] for x in self.done_events) - self.done_events[0][0]
-            rate = num_done / max(0.1, end_time - start_time)
-            seconds_left = self.left / rate
+            seconds_left = self.left / self.indexing_rate
             return _('~{} left').format(human_readable_interval(seconds_left))
         except Exception:
             return _('calculating time left')

@@ -973,8 +973,8 @@ class DB:
     def remove_dirty_fts(self, book_id, fmt):
         return self.fts.remove_dirty(book_id, fmt)
 
-    def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash):
-        return self.fts.queue_job(book_id, fmt, path, fmt_size, fmt_hash)
+    def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+        return self.fts.queue_job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
 
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
         if self.fts is not None:

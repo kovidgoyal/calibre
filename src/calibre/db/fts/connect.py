@@ -133,14 +133,14 @@ class FTS:
                 break
         self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash, err_msg)
 
-    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
         conn = self.get_connection()
         fmt = fmt.upper()
         for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND format_size=? AND format_hash=?', (
                 book_id, fmt, fmt_size, fmt_hash)):
             break
         else:
-            self.pool.add_job(book_id, fmt, path, fmt_size, fmt_hash)
+            self.pool.add_job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
             conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=TRUE WHERE book=? AND format=?', (book_id, fmt))
             return True
         self.remove_dirty(book_id, fmt)

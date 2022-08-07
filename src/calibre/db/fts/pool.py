@@ -21,12 +21,13 @@ quit = object()
 
 class Job:
 
-    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash):
+    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
         self.book_id = book_id
         self.fmt = fmt
         self.fmt_size = fmt_size
         self.fmt_hash = fmt_hash
         self.path = path
+        self.start_time = start_time
 
 
 class Result:
@@ -37,6 +38,7 @@ class Result:
         self.fmt_size = job.fmt_size
         self.fmt_hash = job.fmt_hash
         self.ok = not bool(err_msg)
+        self.start_time = job.start_time
         if self.ok:
             with open(job.path + '.txt', 'rb') as src:
                 try:
@@ -177,9 +179,9 @@ class Pool:
         self.initialize()
         self.supervise_queue.put(check_for_work)
 
-    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash):
+    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
         self.initialize()
-        job = Job(book_id, fmt, path, fmt_size, fmt_hash)
+        job = Job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
         self.jobs_queue.put(job)
 
     def commit_result(self, result):
@@ -192,7 +194,7 @@ class Pool:
             text = ''
         db = self.dbref()
         if db is not None:
-            db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text, err_msg)
+            db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text, err_msg, result.start_time)
 
     def shutdown(self):
         if self.initialized.is_set():

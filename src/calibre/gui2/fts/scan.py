@@ -70,7 +70,6 @@ class ScanProgress(QWidget):
     def change_speed(self):
         db = get_db()
         db.set_fts_speed(slow=not self.fast_button.isChecked())
-        self.indexing_progress.clear_rate_information()
 
     def update(self, complete, left, total):
         if complete:
@@ -130,14 +129,15 @@ class ScanStatus(QWidget):
 
     def gui_update_event(self, db, event_type, event_data):
         if event_type is EventType.indexing_progress_changed:
-            self.update_stats()
+            self.update_stats(event_data)
 
     def __call__(self, event_type, library_id, event_data):
         if event_type is EventType.indexing_progress_changed:
-            self.update_stats()
+            self.update_stats(event_data)
 
-    def update_stats(self):
-        changed = self.indexing_progress.update(*self.db.fts_indexing_progress())
+    def update_stats(self, event_data=None):
+        event_data = event_data or self.db.fts_indexing_progress()
+        changed = self.indexing_progress.update(*event_data)
         if changed:
             self.indexing_progress_changed.emit(self.indexing_progress.complete, self.indexing_progress.left, self.indexing_progress.total)
 
@@ -194,12 +194,12 @@ class ScanStatus(QWidget):
         self.apply_fts_state()
 
     def startup(self):
-        self.indexing_progress.clear_rate_information()
+        self.db.fts_start_measuring_rate(measure=True)
 
     def shutdown(self):
         self.scan_progress.slow_button.setChecked(True)
         self.reset_indexing_state_for_current_db()
-        self.indexing_progress.clear_rate_information()
+        self.db.fts_start_measuring_rate(measure=False)
 
 
 if __name__ == '__main__':
