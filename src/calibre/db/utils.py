@@ -488,6 +488,8 @@ class IndexingProgress:
             return _('calculating time left')
         try:
             seconds_left = self.left / self.indexing_rate
+            if seconds_left < 2:
+                return _('almost done')
             return _('~{} left').format(human_readable_interval(seconds_left))
         except Exception:
             return _('calculating time left')
