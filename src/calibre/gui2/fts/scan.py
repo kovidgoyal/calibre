@@ -194,12 +194,16 @@ class ScanStatus(QWidget):
         self.apply_fts_state()
 
     def startup(self):
-        self.db.fts_start_measuring_rate(measure=True)
+        db = self.db
+        if db:
+            db.fts_start_measuring_rate(measure=True)
 
     def shutdown(self):
         self.scan_progress.slow_button.setChecked(True)
         self.reset_indexing_state_for_current_db()
-        self.db.fts_start_measuring_rate(measure=False)
+        db = self.db
+        if db:
+            db.fts_start_measuring_rate(measure=False)
 
 
 if __name__ == '__main__':
