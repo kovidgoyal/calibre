@@ -628,14 +628,17 @@ class Cache:
     # Cache Layer API {{{
 
     @write_api
-    def add_listener(self, event_callback_function):
+    def add_listener(self, event_callback_function, check_already_added=False):
         '''
         Register a callback function that will be called after certain actions are
         taken on this database. The function must take three arguments:
         (:class:`EventType`, library_id, event_type_specific_data)
         '''
         self.event_dispatcher.library_id = getattr(self, 'server_library_id', self.library_id)
+        if check_already_added and event_callback_function in self.event_dispatcher:
+            return False
         self.event_dispatcher.add_listener(event_callback_function)
+        return True
 
     @write_api
     def remove_listener(self, event_callback_function):

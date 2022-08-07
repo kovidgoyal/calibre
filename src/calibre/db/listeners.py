@@ -70,6 +70,10 @@ class EventDispatcher(Thread):
         with suppress(ValueError):
             self.refs.remove(ref)
 
+    def __contains__(self, callback):
+        ref = weakref.ref(callback)
+        return ref in self.refs
+
     def __call__(self, event_name, *args):
         if self.activated:
             self.queue.put((event_name, self.library_id, args))
