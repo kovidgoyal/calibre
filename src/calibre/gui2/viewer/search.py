@@ -82,13 +82,26 @@ def text_to_regex(text):
     return ''.join(ans)
 
 
+def words_and_interval_for_near(expr, default_interval=60):
+    parts = expr.split()
+    words = []
+    interval = default_interval
+
+    for q in parts:
+        if q is parts[-1] and q.isdigit():
+            interval = int(q)
+        else:
+            words.append(text_to_regex(q))
+    return words, interval
+
+
 class Search:
 
     def __init__(self, text, mode, case_sensitive, backwards):
         self.text, self.mode = text, mode
         self.case_sensitive = case_sensitive
         self.backwards = backwards
-        self._regex = None
+        self._regex = self._nsd = None
 
     def __eq__(self, other):
         if not isinstance(other, Search):
@@ -96,12 +109,16 @@ class Search:
         return self.text == other.text and self.mode == other.mode and self.case_sensitive == other.case_sensitive
 
     @property
+    def regex_flags(self):
+        flags = REGEX_FLAGS
+        if not self.case_sensitive:
+            flags |= regex.IGNORECASE
+        return flags
+
+    @property
     def regex(self):
         if self._regex is None:
             expr = self.text
-            flags = REGEX_FLAGS
-            if not self.case_sensitive:
-                flags = regex.IGNORECASE
             if self.mode != 'regex':
                 if self.mode == 'word':
                     words = []
@@ -110,8 +127,22 @@ class Search:
                     expr = r'\s+'.join(words)
                 else:
                     expr = text_to_regex(expr)
-            self._regex = regex.compile(expr, flags)
+            self._regex = regex.compile(expr, self.regex_flags)
         return self._regex
+
+    @property
+    def near_search_data(self):
+        if self._nsd is None:
+            words, interval = words_and_interval_for_near(self.text)
+            interval = max(1, interval)
+            flags = self.regex_flags
+            flags |= regex.DOTALL
+            match_any_word = r'(?:\b(?:' + '|'.join(words) + r')\b)'
+            joiner = '.{1,%d}' % interval
+            full_pat = regex.compile(joiner.join(match_any_word for x in words), flags=flags)
+            word_pats = tuple(regex.compile(rf'\b{x}\b', flags) for x in words)
+            self._nsd = word_pats, full_pat
+        return self._nsd
 
     def __str__(self):
         from collections import namedtuple
@@ -313,10 +344,23 @@ def toc_nodes_for_search_result(sr):
 def search_in_name(name, search_query, ctx_size=75):
     raw = searchable_text_for_name(name)[0]
 
-    if search_query.mode == 'regex' or search_query.case_sensitive:
+    if search_query.mode == 'near':
+        word_pats, full_pat = search_query.near_search_data
+
+        def miter():
+            for match in full_pat.finditer(raw):
+                text = match.group()
+                for word_pat in word_pats:
+                    if not word_pat.search(text):
+                        break
+                else:
+                    yield match.span()
+
+    elif search_query.mode == 'regex' or search_query.case_sensitive:
         def miter():
             for match in search_query.regex.finditer(raw):
                 yield match.span()
+
     else:
         spans = []
         miter = lambda: spans
@@ -376,6 +420,7 @@ class SearchInput(QWidget):  # {{{
         qt.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         qt.addItem(_('Contains'), 'normal')
         qt.addItem(_('Whole words'), 'word')
+        qt.addItem(_('Nearby words'), 'near')
         qt.addItem(_('Regex'), 'regex')
         qt.setToolTip('<p>' + _(
             'Choose the type of search: <ul>'
@@ -383,6 +428,11 @@ class SearchInput(QWidget):  # {{{
             ' spaces and accents, unless Case sensitive searching is enabled.'
             '<li><b>Whole words</b> will search for whole words that equal the entered text. As with'
             ' "Contains" searches punctuation and accents are ignored.'
+            '<li><b>Nearby words</b> will search for whole words that are near each other in the text.'
+            ' For example: <i>calibre cool</i> will find places in the text where the words <i>calibre</i> and <i>cool</i>'
+            ' occur within 60 characters of each other. To change the number of characters add the number to the end of'
+            ' the list of words, for example: <i>calibre cool awesome 120</i> will search for <i>calibre</i>, <i>cool</i>'
+            ' and <i>awesome</i> within 120 characters of each other.'
             '<li><b>Regex</b> will interpret the text as a regular expression.'
         ))
         qt.setCurrentIndex(qt.findData(vprefs.get(f'viewer-{self.panel_name}-mode', 'normal') or 'normal'))
