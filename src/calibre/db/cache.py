@@ -633,6 +633,7 @@ class Cache:
         restrict_to_book_ids=None,
         return_text=True,
         result_type=tuple,
+        process_each_result=None,
     ):
         return result_type(self.backend.fts_search(
             fts_engine_query,
@@ -642,6 +643,7 @@ class Cache:
             snippet_size=snippet_size,
             return_text=return_text,
             restrict_to_book_ids=restrict_to_book_ids,
+            process_each_result=process_each_result,
         ))
 
     # }}}

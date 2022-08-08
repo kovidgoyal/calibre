@@ -150,7 +150,7 @@ class FTS:
 
     def search(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
-        return_text=True,
+        return_text=True, process_each_result=None
     ):
         if restrict_to_book_ids is not None and not restrict_to_book_ids:
             return
@@ -184,12 +184,15 @@ class FTS:
             query += f'; DROP TABLE temp.{temp_table_name}'
         try:
             for record in conn.execute(query, tuple(data)):
-                ret = yield {
+                result = {
                     'id': record[0],
                     'book_id': record[1],
                     'format': record[2],
                     'text': record[3] if return_text else '',
                 }
+                if process_each_result is not None:
+                    result = process_each_result(result)
+                ret = yield result
                 if ret is True:
                     break
         except apsw.SQLError as e:
