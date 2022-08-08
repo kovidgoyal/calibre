@@ -10,6 +10,15 @@ version = 0  # change this if you change signature of implementation()
 def implementation(db, notify_changes, query, adata):
     rto = adata['restrict_to']
     restrict_to = None
+    if not db.is_fts_enabled():
+        err = Exception(_('Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it'))
+        err.suppress_traceback = True
+        raise err
+    l, t = db.fts_indexing_progress()[:2]
+    if l/t > (1 - adata['threshold']):
+        err = Exception(_('{0} files out of {1} are not yet indexed, searching is disabled').format(l, t))
+        err.suppress_traceback = True
+        raise err
     if rto:
         if isinstance(rto, str):
             restrict_to = db.search(rto)
@@ -84,6 +93,11 @@ Do a full text search on the entire library or a subset of it.
         '--output-format', default='text', choices=('text', 'json'),
         help=_('The format to output the search results in. Either "text" for plain text or "json" for JSON output.')
     )
+
+    parser.add_option(
+        '--indexing-threshold', type=float, default=90.,
+        help=_('How much of the library must be indexed before searching is allowed, as a percentage. Defaults to 90')
+    )
     return parser
 
 
@@ -146,7 +160,8 @@ def main(opts, args, dbctx):
     try:
         results, metadata_cache = dbctx.run('fts_search', search_expression, {
             'start_marker': opts.match_start_marker, 'end_marker': opts.match_end_marker, 'use_stemming': opts.use_stemming,
-            'include_snippets': opts.include_snippets, 'restrict_to': restrict_to, 'as_tuple': dbctx.is_remote
+            'include_snippets': opts.include_snippets, 'restrict_to': restrict_to, 'as_tuple': dbctx.is_remote,
+            'threshold': max(0, min(opts.indexing_threshold, 100)) / 100
         })
         if opts.output_format == 'json':
             if not dbctx.is_remote:
