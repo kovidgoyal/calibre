@@ -61,16 +61,20 @@ def option_parser(get_parser, args):
 
 Control the Full text search indexing process.
 
-  {enable}  - Turns on FTS indexing for this library
-  {disable} - Turns off FTS indexing for this library
-  {status}  - Shows the current indexing status
-  {reindex} - Can be used to re-index either particular books or
-            the entire library. To re-index particular books
-            specify the book ids as additional arguments after the
-            {reindex} command. If no book ids are specified the
-            entire library is re-indexed.
-'''.format(enable='enable', disable='disable', status='status', reindex='reindex')
-    ))
+{enable}
+    Turns on FTS indexing for this library
+{disable}
+    Turns off FTS indexing for this library
+{status}
+    Shows the current indexing status
+{reindex}
+    Can be used to re-index either particular books or
+    the entire library. To re-index particular books
+    specify the book ids as additional arguments after the
+    {reindex} command. If no book ids are specified the
+    entire library is re-indexed.
+''').format(enable='enable', disable='disable', status='status', reindex='reindex')
+    )
     parser.add_option(
         '--wait-for-completion',
         default=False,
