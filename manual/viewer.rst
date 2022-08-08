@@ -175,7 +175,7 @@ Available modes are:
    then accents, spaces and punctuation are no longer ignored.
 
 #. :guilabel:`Whole words` - Searches for whole words. So for example, the search
-   ``pena`` will patch the word ``Peña`` but not the word ``Penal``. As with,
+   ``pena`` will patch the word ``Peña`` but not the word ``Penal``. As with
    :guilabel:`Contains` searches above, accents and punctuation are ignored
    unless the :guilabel:`Case sensitive` box is checked.
 
