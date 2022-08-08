@@ -184,8 +184,8 @@ Available modes are:
    and ``cool`` occur within sixty characters of each other. To change the
    number of charcters add the new number to the end of the list of words. For
    instance, ``calibre cool awesome 120`` will match places where the three
-   words occur within 120 characters of each other.
-
+   words occur within 120 characters of each other. Note that punctuation and
+   accents are *not* ignored for these searches.
 
 #. :guilabel:`Regex` - Interprets the search text as a *regular expression*.
    To learn more about using regular expressions, see :doc:`the tutorial
