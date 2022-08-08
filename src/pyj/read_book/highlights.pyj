@@ -353,11 +353,15 @@ class EditNotesAndColors:  # {{{
             True
         )
         apply_button.style.marginLeft = apply_button.style.marginTop = 'auto'
+        stop_propagation = def(ev):
+            ev.stopPropagation()
 
         c = E.div(
             style=f'background: {get_color("window-background")}; margin: auto; text-align: center; padding: 1ex;',
-            onclick=def(ev): ev.stopPropagation();,
+            onclick=stop_propagation,
             id=unique_id(), E.div(
+            ontouchstart=stop_propagation, ontouchmove=stop_propagation, ontouchend=stop_propagation, ontouchcancel=stop_propagation,
+            oncontextmenu=stop_propagation,
             E.textarea(
                 placeholder=_('Add notes for this highlight. Double click or long tap on a highlight to read its notes.'),
                 rows='10', spellcheck='true', style='width: 90%;',
