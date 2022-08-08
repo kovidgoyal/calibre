@@ -3,8 +3,8 @@ __copyright__ = '2013, Armin Geller'
 
 ##
 # Written:      May 2013 (new coding)
-# Version:      5.0
-# Last update:  2022-08-05
+# Version:      5.1
+# Last update:  2022-08-07
 ##
 ##
 '''
@@ -53,16 +53,26 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
         ]}),
         dict(
             name='div',
-            attrs={'class': ['o-article__element', 'o-article__content c-richText']}
-        )
+            attrs={
+                'class': [
+                    'o-article__element',
+                    'o-article__content c-richText',
+                ]
+            }
+        ),
+        dict(name='div', attrs={'id': [
+            'biga_wrapper',
+        ]})
     ]
 
     remove_tags = [
+        dict(name='source'),
         dict(
             name='div',
             attrs={
                 'class': [
-                    'c-list', 'o-article__element u-margin-xxl u-font-s-md',
+                    'c-list',
+                    'o-article__element u-margin-xxl u-font-s-md',
                     'c-advertisment__fullWidth c-advertisment--P4_desktop',
                     'c-advertisment__fullWidth c-advertisment--P3_mobile',
                     'c-advertisment__fullWidth c-advertisment--P2_mobile',
@@ -71,9 +81,10 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
                     'c-teaser c-teaser-inline isPremiumTeaser',
                     'c-teaser c-teaser-inline c-teaser-inline--column',
                     'c-teaser c-teaser-inline c-teaser-inline--xl isPremiumTeaser',
-                    'u-flex', 'o-article__content-element u-margin-xxl',
+                    'o-teaser-list js-tt o-artbox o-artbox--articleboxplus',
+                    'o-article__content-element u-margin-xxl',
                     'o-article__content-element u-margin-xxl ajaxify',
-                    'o-article__element o-article__element-block'
+                    'o-article__element o-article__element-block',
                 ]
             }
         )
@@ -91,12 +102,16 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     ]
 
     def image_url_processor(self, baseurl, url):
-        #        print('****** AGE Baseurl *****',baseurl)
-        #        print('****** AGE url *****',url)
         if url.startswith('/images/'):
-            #            print('****** AGE url /images/ *****','https://www.wiwo.de' + url)
             return 'https://www.wiwo.de' + url
         return url
+
+    def preprocess_raw_html(self, raw, url):
+        # Slideshow image source need some help to find all images
+        soup = self.index_to_soup(raw)
+        for img in soup.findAll('img', attrs={'data-lazy': True}):
+            img['src'] = 'https://www.wiwo.de' + img['data-lazy']
+        return str(soup)
 
     def print_version(self, url):
         main, sep, rest = url.rpartition('.')
