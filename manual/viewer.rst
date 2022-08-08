@@ -159,6 +159,38 @@ behavior`.
    make all voices visible
    <https://www.mobileread.com/forums/showpost.php?p=4084051&postcount=108>`_.
 
+Searching the text
+--------------------------
+
+The viewer has very powerful search capabilities. Press the :kbd:`Ctrl+F` key
+or access the viewer controls and click search. The simplest form of searching is
+to just search for whatever text you enter in the text box. The different forms
+of searching are chosen by the search mode box below the search input.
+Available modes are:
+
+#. :guilabel:`Contains` - The simplest default mode. The text entered in the search box
+   is searched for anywhere. All punctuation, accents and spaces are ignored.
+   For example, the search: ``Pena`` will match all of the following:
+   ``penal, pen a, pen.a and Peña``. If you select the :guilabel:`Case sensitive` box
+   then accents, spaces and punctuation are no longer ignored.
+
+#. :guilabel:`Whole words` - Searches for whole words. So for example, the search
+   ``pena`` will patch the word ``Peña`` but not the word ``Penal``. As with,
+   :guilabel:`Contains` searches above, accents and punctuation are ignored
+   unless the :guilabel:`Case sensitive` box is checked.
+
+#. :guilabel:`Nearby words` - Searches for whole words that are near each other. So for example,
+   the search ``calibre cool`` will match places where the words ``calibre``
+   and ``cool`` occur within sixty characters of each other. To change the
+   number of charcters add the new number to the end of the list of words. For
+   instance, ``calibre cool awesome 120`` will match places where the three
+   words occur within 120 characters of each other.
+
+
+#. :guilabel:`Regex` - Interprets the search text as a *regular expression*.
+   To learn more about using regular expressions, see :doc:`the tutorial
+   <regexp>`.
+
 
 Following links using only the keyboard
 -----------------------------------------------
