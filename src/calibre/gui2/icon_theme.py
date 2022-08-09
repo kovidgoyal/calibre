@@ -730,6 +730,8 @@ class ChooseThemeWidget(QWidget):
         return default_theme()
 
     def set_current_theme(self, name):
+        if not hasattr(self, "themes"):
+            return False
         for i, t in enumerate(self.themes):
             if t.get('name') == name:
                 self.theme_list.setCurrentRow(i, QItemSelectionModel.SelectionFlag.SelectCurrent | QItemSelectionModel.SelectionFlag.Clear)
