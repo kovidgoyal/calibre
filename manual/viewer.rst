@@ -175,14 +175,14 @@ Available modes are:
    then accents, spaces and punctuation are no longer ignored.
 
 #. :guilabel:`Whole words` - Searches for whole words. So for example, the search
-   ``pena`` will patch the word ``Peña`` but not the word ``Penal``. As with
+   ``pena`` will match the word ``Peña`` but not the word ``Penal``. As with
    :guilabel:`Contains` searches above, accents and punctuation are ignored
    unless the :guilabel:`Case sensitive` box is checked.
 
 #. :guilabel:`Nearby words` - Searches for whole words that are near each other. So for example,
    the search ``calibre cool`` will match places where the words ``calibre``
    and ``cool`` occur within sixty characters of each other. To change the
-   number of charcters add the new number to the end of the list of words. For
+   number of characters add the new number to the end of the list of words. For
    instance, ``calibre cool awesome 120`` will match places where the three
    words occur within 120 characters of each other. Note that punctuation and
    accents are *not* ignored for these searches.
