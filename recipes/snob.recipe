@@ -31,4 +31,5 @@ class Snob(BasicNewsRecipe):
 
     def get_article_url(self, article):
         link = article.get('link', None)
-        return link.split('?utm')[0]
+        if 'utm_source' in link:
+            return link.split('?utm')[0]
