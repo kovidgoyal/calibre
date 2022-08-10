@@ -24,7 +24,7 @@ import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
-    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, plugins_loc
+    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, numeric_version, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -1064,6 +1064,21 @@ def setup_unix_signals(self):
     return original_handlers
 
 
+def setup_to_run_webengine():
+    # Allow import of webengine after construction of QApplication on new enough PyQt
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+    try:
+        # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
+        from qt.core import QOpenGLWidget
+        del QOpenGLWidget
+        from PyQt6.QtQuick import QQuickWindow, QSGRendererInterface
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
+    except ImportError:
+        # for people running from source
+        if numeric_version >= (6, 3):
+            raise
+
+
 class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
@@ -1074,16 +1089,7 @@ class Application(QApplication):
             args = sys.argv[:1]
         args = [args[0]]
         QNetworkProxyFactory.setUseSystemConfiguration(True)
-        # Allow import of webengine after construction of QApplication on new
-        # enough PyQt
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-        # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
-        try:
-            from qt.core import QOpenGLWidget
-            del QOpenGLWidget
-        except ImportError:
-            if not is_running_from_develop:
-                raise
+        setup_to_run_webengine()
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
