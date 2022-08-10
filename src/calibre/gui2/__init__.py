@@ -1077,6 +1077,9 @@ class Application(QApplication):
         # Allow import of webengine after construction of QApplication on new
         # enough PyQt
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+        # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
+        from qt.core import QOpenGLWidget
+        del QOpenGLWidget
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
