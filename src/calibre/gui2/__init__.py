@@ -1078,8 +1078,12 @@ class Application(QApplication):
         # enough PyQt
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
         # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
-        from qt.core import QOpenGLWidget
-        del QOpenGLWidget
+        try:
+            from qt.core import QOpenGLWidget
+            del QOpenGLWidget
+        except ImportError:
+            if not is_running_from_develop:
+                raise
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
