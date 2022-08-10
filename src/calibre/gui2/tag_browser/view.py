@@ -882,15 +882,15 @@ class TagsView(QTreeView):  # {{{
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:
                         self.context_menu.addAction(self.rename_icon,
-                            _('Rename %s')%item.py_name,
+                            _('Rename %s')%item.py_name.replace('&', '&&'),
                             partial(self.context_menu_handler, action='edit_item_no_vl',
                                     index=index, ignore_vl=True))
                     self.context_menu.addAction(self.user_category_icon,
-                            _('Add sub-category to %s')%item.py_name,
+                            _('Add sub-category to %s')%item.py_name.replace('&', '&&'),
                             partial(self.context_menu_handler,
                                     action='add_subcategory', key=key))
                     self.context_menu.addAction(self.delete_icon,
-                            _('Delete User category %s')%item.py_name,
+                            _('Delete User category %s')%item.py_name.replace('&', '&&'),
                             partial(self.context_menu_handler,
                                     action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
@@ -976,7 +976,7 @@ class TagsView(QTreeView):  # {{{
 
                 # Hide/Show/Restore categories
                 self.context_menu.addSeparator()
-                self.context_menu.addAction(_('Hide category %s') % category,
+                self.context_menu.addAction(_('Hide category %s') % category.replace('&', '&&'),
                     partial(self.context_menu_handler, action='hide',
                             category=key)).setIcon(QIcon.ic('minus.png'))
                 add_show_hidden_categories()
