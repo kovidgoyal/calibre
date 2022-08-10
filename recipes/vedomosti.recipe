@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Vedomosti(BasicNewsRecipe):
+    title = '\u0412\u0435\u0434\u043E\u043C\u043E\u0441\u0442\u0438'
+    __author__ = 'bugmen00t'
+    description = '\u0415\u0436\u0435\u0434\u043D\u0435\u0432\u043D\u0430\u044F \u0434\u0435\u043B\u043E\u0432\u0430\u044F \u0433\u0430\u0437\u0435\u0442\u0430.'  # noqa
+    publisher = '\u0410\u041E \u00AB\u0411\u0438\u0437\u043D\u0435\u0441 \u041D\u044C\u044E\u0441 \u041C\u0435\u0434\u0438\u0430\u00BB'
+    category = 'newspaper'
+    cover_url = u'https://id.vedomosti.ru/assets/chopick-13077eee55066e639f3a037834ecf11279d3f402e9f5cac7162d13183dfd9d20.jpg'
+    language = 'ru'
+    no_stylesheets = True
+    remove_javascript = False
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 200
+
+    remove_tags_before = dict(name='header', attrs={'class': 'article__header'})
+
+    remove_tags_after = dict(name='div', attrs={'class': 'article__main'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'article__tools'}),
+        dict(name='div', attrs={'class': 'box-inset-link box-inset-link--card'}),
+        dict(
+            name='div',
+            attrs={
+                'class': 'box-inset-link box-inset-link--card box-inset-link--link'
+            }
+        )
+    ]
+
+    feeds = [(
+        '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
+        'https://www.vedomosti.ru/rss/news'
+    )]
