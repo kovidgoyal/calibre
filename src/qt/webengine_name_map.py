@@ -31,6 +31,9 @@ name_map = {'PYQT_WEBENGINE_VERSION': 'PyQt6.QtWebEngineCore',
  'QWebEngineUrlSchemeHandler': 'PyQt6.QtWebEngineCore',
  'QWebEngineView': 'PyQt6.QtWebEngineWidgets',
  'QtWebEngineCore': 'PyQt6.QtWebEngineCore',
- 'QtWebEngineWidgets': 'PyQt6.QtWebEngineWidgets'}
+ 'QtWebEngineWidgets': 'PyQt6.QtWebEngineWidgets',
+ 'qWebEngineChromiumSecurityPatchVersion': 'PyQt6.QtWebEngineCore',
+ 'qWebEngineChromiumVersion': 'PyQt6.QtWebEngineCore',
+ 'qWebEngineVersion': 'PyQt6.QtWebEngineCore'}
 module_names = frozenset(('QtWebEngineCore', 'QtWebEngineWidgets')
 )

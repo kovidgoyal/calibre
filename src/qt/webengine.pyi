@@ -30,5 +30,8 @@ QWebEngineUrlRequestInterceptor = PyQt6.QtWebEngineCore.QWebEngineUrlRequestInte
 QWebEngineUrlRequestJob = PyQt6.QtWebEngineCore.QWebEngineUrlRequestJob
 QWebEngineUrlScheme = PyQt6.QtWebEngineCore.QWebEngineUrlScheme
 QWebEngineUrlSchemeHandler = PyQt6.QtWebEngineCore.QWebEngineUrlSchemeHandler
+qWebEngineChromiumSecurityPatchVersion = PyQt6.QtWebEngineCore.qWebEngineChromiumSecurityPatchVersion
+qWebEngineChromiumVersion = PyQt6.QtWebEngineCore.qWebEngineChromiumVersion
+qWebEngineVersion = PyQt6.QtWebEngineCore.qWebEngineVersion
 import PyQt6.QtWebEngineWidgets
 QWebEngineView = PyQt6.QtWebEngineWidgets.QWebEngineView
