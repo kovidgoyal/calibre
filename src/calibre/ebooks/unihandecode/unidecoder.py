@@ -74,6 +74,10 @@ class Unidecoder:
         # Replace characters larger than 127 with their ASCII equivalent.
         return re.sub('[^\x00-\x7f]',lambda x: self.replace_point(x.group()), text)
 
+    def format(self, text):
+        # Replace characters larger than 127 with their ASCII equivalent.
+        return re.sub('[^\x00-\x7f]',lambda x: self.formatted_point(x.group()), text)
+
     def replace_point(self, codepoint):
         '''
         Returns the replacement character or ? if none can be found.
@@ -86,6 +90,20 @@ class Unidecoder:
                 codepoint)]
         except:
             return '?'
+
+    def formatted_point(self, codepoint):
+        '''
+        Returns character or ? if none can be found.
+        '''
+        try:
+            # Split the unicode character xABCD into parts 0xAB and 0xCD.
+            # 0xAB represents the group within CODEPOINTS to query and 0xCD
+            # represents the position in the list of characters for the group.
+            if self.codepoints[self.code_group(codepoint)][self.grouped_point(codepoint)]:
+                return codepoint
+        except:
+            pass
+        return '?'
 
     def code_group(self, character):
         '''

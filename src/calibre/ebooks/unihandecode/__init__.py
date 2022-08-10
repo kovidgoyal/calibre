@@ -38,7 +38,7 @@ class Unihandecoder:
             from calibre.ebooks.unihandecode.unidecoder import Unidecoder
             self.decoder = Unidecoder()
 
-    def decode(self, text):
+    def decode(self, text, is_localized=False):
         if isinstance(text, bytes):
             try:
                 text = text.decode(self.preferred_encoding)
@@ -46,4 +46,7 @@ class Unihandecoder:
                 text = text.decode('utf-8', 'replace')
         # at first unicode normalize it. (see Unicode standards)
         ntext = unicodedata.normalize('NFKC', text)
-        return self.decoder.decode(ntext)
+        if is_localized:
+            return self.decoder.format(ntext)
+        else:
+            return self.decoder.decode(ntext)

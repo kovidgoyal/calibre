@@ -16,6 +16,7 @@ from calibre.constants import (
 )
 from calibre.utils.localization import get_udc
 from polyglot.builtins import iteritems, itervalues
+from calibre.utils.config_base import tweaks
 
 
 def ascii_text(orig):
@@ -35,6 +36,19 @@ def ascii_filename(orig, substitute='_'):
     if isinstance(substitute, bytes):
         substitute = substitute.decode(filesystem_encoding)
     orig = ascii_text(orig).replace('?', '_')
+    ans = ''.join(x if ord(x) >= 32 else substitute for x in orig)
+    return sanitize_file_name(ans, substitute=substitute)
+
+
+def format_filename(orig, substitute='_'):
+    if isinstance(substitute, bytes):
+        substitute = substitute.decode(filesystem_encoding)
+    udc = get_udc()
+    try:
+        is_localized = tweaks.get("allow_import_ebook_path_using_localized_name") or False
+        orig = udc.decode(orig, is_localized=is_localized)
+    except Exception:
+        pass
     ans = ''.join(x if ord(x) >= 32 else substitute for x in orig)
     return sanitize_file_name(ans, substitute=substitute)
 

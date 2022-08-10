@@ -592,3 +592,7 @@ value_for_undefined_numbers_when_sorting = 0
 # using these functions in composites can be very slow.
 # Default: False
 allow_template_database_functions_in_composites = False
+
+#: Allow import ebook path using localized name
+# Default: False
+allow_import_ebook_path_using_localized_name = False

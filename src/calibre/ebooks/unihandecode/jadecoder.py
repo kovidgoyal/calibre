@@ -38,3 +38,10 @@ class Jadecoder(Unidecoder):
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
         except:
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
+
+    def format(self, text):
+        try:
+            result=self.kakasi.do(text)
+            return re.sub('[^\x00-\x7f]', lambda x: self.formatted_point(x.group()),result)
+        except:
+            return re.sub('[^\x00-\x7f]', lambda x: self.formatted_point(x.group()),text)
