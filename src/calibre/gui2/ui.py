@@ -110,6 +110,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     book_converted = pyqtSignal(object, object)
     enter_key_pressed_in_book_list = pyqtSignal(object)  # used by action chains plugin
     event_in_db = pyqtSignal(object, object, object)  # (db, event_type, event_data)
+    shutdown_started = pyqtSignal()
+    shutdown_completed = pyqtSignal()
     shutting_down = False
 
     def __init__(self, opts, parent=None, gui_debug=None):
@@ -1122,6 +1124,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def shutdown(self, write_settings=True):
         self.shutting_down = True
+        self.shutdown_started.emit()
         self.show_shutdown_message()
         self.server_change_notification_timer.stop()
         try:
@@ -1205,6 +1208,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
+        self.shutdown_completed.emit()
         return True
 
     def run_wizard(self, *args):
