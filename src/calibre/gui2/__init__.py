@@ -1071,7 +1071,7 @@ def setup_to_run_webengine():
         # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
         from qt.core import QOpenGLWidget
         del QOpenGLWidget
-        from PyQt6.QtQuick import QQuickWindow, QSGRendererInterface
+        from qt.core import QQuickWindow, QSGRendererInterface
         QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
     except ImportError:
         # for people running from source
