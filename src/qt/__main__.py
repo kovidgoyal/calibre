@@ -19,6 +19,7 @@ module_lists = {
         'QtPrintSupport',
         'QtOpenGL',
         'QtOpenGLWidgets',
+        'QtQuick',
     ),
     'webengine': (
         'QtWebEngineCore',
