@@ -124,6 +124,14 @@ class ImageView(QDialog):
         self.current_url = current_url
         self.factor = 1.0
         self.geom_name = geom_name
+        self.zoom_in_action = ac = QAction(self)
+        ac.triggered.connect(self.zoom_in)
+        ac.setShortcut(QKeySequence(QKeySequence.StandardKey.ZoomIn))
+        self.addAction(ac)
+        self.zoom_out_action = ac = QAction(self)
+        ac.triggered.connect(self.zoom_out)
+        ac.setShortcut(QKeySequence(QKeySequence.StandardKey.ZoomOut))
+        self.addAction(ac)
 
         self.scrollarea = sa = ScrollArea()
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
