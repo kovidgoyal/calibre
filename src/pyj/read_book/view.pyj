@@ -798,8 +798,12 @@ class View:
 
     def apply_color_scheme(self):
         self.current_color_scheme = ans = resolve_color_scheme()
+        iframe = self.iframe
         if runtime.is_standalone_viewer:
             set_ui_colors(self.current_color_scheme.is_dark_theme)
+        else:
+            iframe.style.colorScheme = 'dark' if self.current_color_scheme.is_dark_theme else 'light'
+
         is_dark_theme(self.current_color_scheme.is_dark_theme)
         for which in 'left top right bottom'.split(' '):
             m = document.getElementById('book-{}-margin'.format(which))
@@ -811,7 +815,6 @@ class View:
                 s.color = ans.foreground
                 s.backgroundColor = ans.background
         sd = get_session_data()
-        iframe = self.iframe
         iframe.style.backgroundColor = ans.background or 'white'
         bg_image = sd.get('background_image')
         if bg_image:
