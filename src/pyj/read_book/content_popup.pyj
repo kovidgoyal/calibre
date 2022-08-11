@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
 from iframe_comm import create_wrapped_iframe
-from read_book.globals import runtime, ui_operations
+from read_book.globals import runtime, ui_operations, is_dark_theme
 from read_book.resources import load_resources
 
 CLASS_NAME = 'book-content-popup-container'
@@ -71,6 +71,7 @@ class ContentPopupOverlay:
         iframe, self.iframe_wrapper = create_wrapped_iframe(
             handlers, _('Loading data, please wait...'), entry_point, iframe_kw
         )
+        iframe.style.colorScheme = 'dark' if is_dark_theme() else 'light'
         c = self.container
         c.firstChild.appendChild(iframe)
 
@@ -107,6 +108,10 @@ class ContentPopupOverlay:
         c = self.container.firstChild
         c.style.backgroundColor = bg
         c.style.color = fg
+        try:
+            self.iframe.style.colorScheme = 'dark' if is_dark_theme() else 'light'
+        except:
+            pass
 
     def create_footnote_header(self, header):
         clear(header)
