@@ -126,11 +126,11 @@ class ImageView(QDialog):
         self.geom_name = geom_name
         self.zoom_in_action = ac = QAction(self)
         ac.triggered.connect(self.zoom_in)
-        ac.setShortcut(QKeySequence(QKeySequence.StandardKey.ZoomIn))
+        ac.setShortcuts([QKeySequence(QKeySequence.StandardKey.ZoomIn), QKeySequence('+', QKeySequence.SequenceFormat.PortableText)])
         self.addAction(ac)
         self.zoom_out_action = ac = QAction(self)
         ac.triggered.connect(self.zoom_out)
-        ac.setShortcut(QKeySequence(QKeySequence.StandardKey.ZoomOut))
+        ac.setShortcuts([QKeySequence(QKeySequence.StandardKey.ZoomOut), QKeySequence('-', QKeySequence.SequenceFormat.PortableText)])
         self.addAction(ac)
 
         self.scrollarea = sa = ScrollArea()
