@@ -4,8 +4,8 @@ from calibre.utils.date import parse_date
 import re
 
 
-class eenadu_ts(BasicNewsRecipe):
-    title = 'ఈనాడు - తెలంగాణ'
+class eenadu_ap(BasicNewsRecipe):
+    title = 'ఈనాడు - ఆంధ్రప్రదేశ్'
     __author__ = 'unkn0wn'
     description = 'THE LARGEST CIRCULATED TELUGU DAILY'
     language = 'te'
@@ -15,7 +15,7 @@ class eenadu_ts(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url', 'title'}
     masthead_url = 'https://dxxd96tbpm203.cloudfront.net//img/logo.png'
-    cover_url = 'https://d66zsp32hue2v.cloudfront.net/Eenadu/2022/08/08/GTH/5_01/d5041804_01_mr.jpg'
+    cover_url = 'https://d66zsp32hue2v.cloudfront.net/Eenadu/2022/08/03/CAN/5_01/bfff5654_01_mr.jpg'
     encoding = 'utf-8'
     remove_empty_feeds = True
     extra_css = '.pub-t{font-size:small; font-style:italic;}'
@@ -43,10 +43,10 @@ class eenadu_ts(BasicNewsRecipe):
 
     def parse_index(self):
         section_list = [
-            ('తెలంగాణ తాజా వార్తలు', 'telangana'),
-            ('సంపాదకీయం', 'telangana/editorial'),
-            ('తెలంగాణ ప్రధానాంశాలు', 'telangana/top-news'),
-            ('తెలంగాణ జిల్లా వార్తలు', 'telangana/districts'),
+            ('ఆంధ్రప్రదేశ్ తాజా వార్తలు', 'andhra-pradesh'),
+            ('సంపాదకీయం', 'andhra-pradesh/editorial'),
+            ('ఆంధ్రప్రదేశ్ ప్రధానాంశాలు', 'andhra-pradesh/top-news'),
+            ('ఆంధ్రప్రదేశ్ జిల్లా వార్తలు', 'andhra-pradesh/districts'),
             # ('క్రైమ్', 'crime'),
             ('పాలిటిక్స్', 'politics'),
             ('జాతీయం', 'india'),
