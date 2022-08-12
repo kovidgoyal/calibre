@@ -543,7 +543,7 @@ class Editor(QMainWindow):
             c.setPosition(orig_pos - utf16_length(word))
             found = False
             self.editor.setTextCursor(c)
-            if self.editor.find_spell_word([word], locale.langcode, center_on_cursor=False):
+            if locale and self.editor.find_spell_word([word], locale.langcode, center_on_cursor=False):
                 found = True
                 fc = self.editor.textCursor()
                 if fc.position() < c.position():
