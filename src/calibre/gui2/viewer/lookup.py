@@ -13,6 +13,7 @@ from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 
+from gettext import pgettext
 from calibre import prints, random_user_agent
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
@@ -377,7 +378,7 @@ class Lookup(QWidget):
             return
         self.current_source = self.url_template
         url = self.current_source.format(word=query)
-        _('meaning')  # to be used later
+        pgettext('The meaning of a word, intended to be added to a google web search to lookup word meanings', 'meaning')
         self.view.load(QUrl(url))
         self.current_query = query
         self.update_refresh_button_status()
