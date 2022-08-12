@@ -377,6 +377,7 @@ class Lookup(QWidget):
             return
         self.current_source = self.url_template
         url = self.current_source.format(word=query)
+        _('meaning')  # to be used later
         self.view.load(QUrl(url))
         self.current_query = query
         self.update_refresh_button_status()
