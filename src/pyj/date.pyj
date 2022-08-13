@@ -132,6 +132,20 @@ def am_pm_pat():
     return ans
 
 
+def as_iso(date):
+    tzo = -date.getTimezoneOffset()
+    dif = '+' if tzo >= 0 else '-'
+
+    def pad(num):
+          return ('0' if num < 10 else '') + num
+
+    return (
+        date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) +
+        ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds()) + dif + pad(Math.floor(Math.abs(tzo) / 60)) +
+        ':' + pad(Math.abs(tzo) % 60)
+    )
+
+
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
     ampm = am_pm_pat().test(fmt)
@@ -140,6 +154,8 @@ def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     date = date or Date()
     if is_date_undefined(date):
         return ''
+    if fmt is 'iso':
+        return as_iso(date)
     return fmt.replace(fmt_date_pat(), def(match):
         if not match:
             return ''
