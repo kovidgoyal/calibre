@@ -4,39 +4,42 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, textwrap, os
-from threading import Thread
-from contextlib import suppress
-from operator import itemgetter
-from functools import partial, lru_cache
-from collections import defaultdict
-from csv import writer as csv_writer
-from io import StringIO
-
+import os
 import regex
+import textwrap
+import time
+from collections import defaultdict
+from contextlib import suppress
+from csv import writer as csv_writer
+from functools import lru_cache, partial
+from io import StringIO
+from operator import itemgetter
 from qt.core import (
-    QSize, QStackedLayout, QLabel, QVBoxLayout, Qt, QWidget, pyqtSignal,
-    QAbstractTableModel, QTableView, QSortFilterProxyModel, QIcon, QListWidget,
-    QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
-    QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
-    QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QAbstractItemView, QDialogButtonBox, QTextCursor)
+    QAbstractItemModel, QAbstractItemView, QAbstractTableModel, QApplication,
+    QByteArray, QComboBox, QDialogButtonBox, QFont, QFontDatabase, QHBoxLayout,
+    QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMenu, QModelIndex,
+    QPalette, QPixmap, QRadioButton, QRect, QSize, QSortFilterProxyModel, QSplitter,
+    QStackedLayout, QStackedWidget, QStyle, QStyledItemDelegate, Qt, QTableView,
+    QTextCursor, QTimer, QTreeView, QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
+from threading import Thread
 
-from calibre import human_readable, fit_image
+from calibre import fit_image, human_readable
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
-    gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
-    ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
-from calibre.utils.webengine import secure_webengine
-from calibre.gui2.webengine import RestartingWebEngineView
-from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
-from calibre.gui2.tweak_book.widgets import Dialog
+    ClassElement, ClassEntry, ClassFileMatch, CSSEntry, CSSFileMatch, CSSRule,
+    LinkLocation, MatchLocation, gather_data
+)
+from calibre.gui2 import choose_save_file, error_dialog, open_url, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, numeric_sort_key
-from calibre.utils.unicode_names import character_name_from_code
+from calibre.gui2.tweak_book import current_container, dictionaries, tprefs
+from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.webengine import RestartingWebEngineView
+from calibre.utils.icu import numeric_sort_key, primary_contains
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
-from polyglot.builtins import iteritems, as_bytes
+from calibre.utils.unicode_names import character_name_from_code
+from calibre.utils.webengine import secure_webengine
+from polyglot.builtins import as_bytes, iteritems
 
 # Utils {{{
 
@@ -379,26 +382,31 @@ class ImagesDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, *args)
 
     def sizeHint(self, option, index):
-        ans = QStyledItemDelegate.sizeHint(self, option, index)
+        style = (option.styleObject or self.parent() or QApplication.instance()).style()
+        self.initStyleOption(option, index)
+        ans = style.sizeFromContents(QStyle.ContentsType.CT_ItemViewItem, option, QSize(), option.styleObject or self.parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
         if entry is None:
             return ans
-        th = self.parent().thumbnail_height
+        th = int(self.parent().thumbnail_height * self.parent().devicePixelRatio())
         pmap = self.pixmap(th, entry._replace(usage=()), self.parent().devicePixelRatioF())
         if pmap.isNull():
             width = height = 0
         else:
-            width, height = pmap.width(), pmap.height()
+            width, height = int(pmap.width() / pmap.devicePixelRatio()), int(pmap.height() / pmap.devicePixelRatio())
         m = self.MARGIN * 2
         return QSize(max(width + m, ans.width()), height + m + self.MARGIN + ans.height())
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, ROOT)
+        style = (option.styleObject or self.parent() or QApplication.instance()).style()
+        self.initStyleOption(option, index)
+        option.text = ''
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.styleObject or self.parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
         if entry is None:
             return
         painter.save()
-        th = self.parent().thumbnail_height
+        th = int(self.parent().thumbnail_height * self.parent().devicePixelRatio())
         pmap = self.pixmap(th, entry._replace(usage=()), painter.device().devicePixelRatioF())
         if pmap.isNull():
             bottom = option.rect.top()
@@ -1477,8 +1485,9 @@ class Reports(Dialog):
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application
     import sys
+
+    from calibre.gui2 import Application
     app = Application([])
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
