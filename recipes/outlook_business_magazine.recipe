@@ -18,53 +18,61 @@ class outlook(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://imgnew.outlookindia.com/uploadimage/library/free_files/jpg/logo_2022_04_30_092331.jpg'
-    resolve_internal_links = True
-
-    keep_only_tags = [classes('__story_detail')]
-    remove_tags = [
-        classes(
-            'social_sharing_article left_trending left-sticky __tag_links next_prev_stories	downarrow uparrow more_from_author_links next prev'
-        )
-    ]
+    extra_css = '.author{font-size:small;}'
 
     def parse_index(self):
-        soup = self.index_to_soup('https://business.outlookindia.com')
-        a = soup.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
-        url = a['href']
-        self.log('Downloading issue:', url)
-        soup = self.index_to_soup('https://business.outlookindia.com' + url)
-        cover = soup.find(**classes('listingPage_lead_story'))
-        self.cover_url = cover.find('img', attrs={'src': True})['src']
+        soup = self.index_to_soup('https://www.outlookbusiness.com/magazine/')
+        div = soup.find('div', attrs={'class': 'SplWapper'})
+        url = div.find('a', href=True)['href']
+        self.cover_url = div.find('img', srcset=True)['srcset']
+        self.timefmt = '[' + self.tag_to_string(div.find('h6')) + ']'
+        soup = self.index_to_soup('https://www.outlookbusiness.com' + url)
         ans = []
 
-        for h3 in soup.findAll(['h3', 'h4'],
-                               attrs={'class': 'tk-kepler-std-condensed-subhead'}):
-            a = h3.find('a', href=lambda x: x)
-            url = a['href']
-            title = self.tag_to_string(a)
-            desc = ''
-            p = h3.find_next_sibling('p')
-            if p:
-                desc = self.tag_to_string(p)
-            self.log('\t', title)
-            self.log('\t', desc)
-            self.log('\t\t', url)
-            ans.append({'title': title, 'url': url, 'description': desc})
+        for section in soup.findAll(**classes('category-banner-content')):
+            p = section.find(
+                'p',
+                attrs={'class': lambda x: x and x.startswith('styled__Content')}
+            )
+            desc = self.tag_to_string(p)
+            head = section.find(
+                'p',
+                attrs={'class': lambda x: x and x.startswith('styled__Heading')}
+            )
+            title = self.tag_to_string(head)
+            a = p.findParent('a', href=True)['href']
+            if a.startswith('/'):
+                url = 'https://www.outlookbusiness.com' + a
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'description': desc, 'url': url})
         return [('Articles', ans)]
 
     def preprocess_raw_html(self, raw, *a):
-        return raw
-        m = re.search('<!-- NewsArticle Schema -->.*?script.*?>', raw, flags=re.DOTALL)
-        raw = raw[m.end():].lstrip()
+        m = re.search('id="__NEXT_DATA__" type="application/json">', raw)
+        raw = raw[m.start():]
+        raw = raw.split('>', 1)[1]
         data = json.JSONDecoder().raw_decode(raw)[0]
-        title = data['headline']
-        body = data['articleBody']
-        body = body.replace('\r\n', '<p>')
-        author = ' and '.join(x['name'] for x in data['author'])
-        image = desc = ''
-        if data.get('image'):
-            image = '<p><img src="{}">'.format(data['image']['url'])
-        if data.get('description'):
-            desc = '<h2>' + data['description'] + '</h2>'
-        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        data = data['props']['initialState']['dashboard']['ARTICLE_POST_DETAIL_API'][
+            'data']['article_data']
+        title = data['title']
+        body = data['description']
+        cat = desc = image = author = ''
+        if 'category_name' in data:
+            try:
+                cat = data['category_name']
+            except Exception:
+                cat = ''
+        if 'excerpt' in data:
+            desc = '<h4>' + data['excerpt'] + '</h4>'
+        if 'author' in data:
+            try:
+                author = data['author'][0]['name']
+            except Exception:
+                author = ''
+        if 'images' in data:
+            try:
+                image = '<p><img src="{}">'.format(data['images'][0]['image'])
+            except Exception:
+                image = ''
+        html = '<html><body>' + cat + '<h1>' + title + '</h1>' + desc + '<div class="author">' + author + '</div>' + image + body
         return html
