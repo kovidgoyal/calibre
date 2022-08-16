@@ -33,6 +33,19 @@ except ImportError:
 needs_subscription = False
 
 
+def substring_classes(classes):
+    q = frozenset(classes.split(' '))
+
+    def matcher(x):
+        if x:
+            for candidate in frozenset(x.split()):
+                for x in q:
+                    if x in candidate:
+                        return True
+        return False
+    return {'attrs': {'class': matcher}}
+
+
 class WSJ(BasicNewsRecipe):
 
     if needs_subscription:
@@ -54,10 +67,11 @@ class WSJ(BasicNewsRecipe):
     WSJ_ITP = 'https://www.wsj.com/print-edition/today'
 
     keep_only_tags = [
+        dict(substring_classes('StyledHeadline wsj-mosdo-Dek-Dek -Figure -Figcaption ArticleBodyContent__ -Paragraph')),
         dict(classes('wsj-article-headline-wrap article_header bigTop__hed bigTop__dek bigTop__captioncredit')),
         dict(name='span', itemprop='author', rel='author'),
         dict(name='article', id='article-contents articleBody'.split()),
-        dict(name='div', id='article_story_body ncTitleArea snipper-ad-login'.split()),
+        dict(name='div', id='article_story_body ncTitleArea snipper-ad-login cx-snippet-overlay'.split()),
         classes('nc-exp-artbody errorNotFound'),
         dict(attrs={'data-module-zone': 'article_snippet'}),
         prefixed_classes(
@@ -199,9 +213,11 @@ class WSJ(BasicNewsRecipe):
             return br
     # }}}
 
-    def abs_wsj_url(self, href):
+    def abs_wsj_url(self, href, modify_query=True):
         if not href.startswith('http'):
             href = 'https://www.wsj.com' + href
+        if modify_query:
+            href = href.split('?')[0] + '?mod=djemalertNEWS'
         return href
 
     def wsj_find_articles(self, url, ahed=False):
@@ -224,7 +240,7 @@ class WSJ(BasicNewsRecipe):
             articles.append({'title': title, 'url': url,
                              'description': desc, 'date': ''})
             self.log('\tFound article:', title)
-            self.log('\t\t', desc)
+            self.log('\t\t', desc + " " + url)
             if self.test and len(articles) >= self.test[1]:
                 break
 
@@ -250,7 +266,7 @@ class WSJ(BasicNewsRecipe):
                                 'description': desc, 'date': ''})
 
             self.log('\tFound WN article:', title)
-            self.log('\t\t', desc)
+            self.log('\t\t', desc + " " + url)
 
         return articles
 
@@ -290,7 +306,7 @@ class WSJ(BasicNewsRecipe):
                 title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
                 if not title:
                     continue
-                url = self.abs_wsj_url(a.get('href'))
+                url = self.abs_wsj_url(a.get('href'), modify_query=False)
                 self.log('Found section:', title, 'at', url)
                 self.wsj_add_feed(feeds, title, url)
                 if frontpage:
@@ -304,7 +320,7 @@ class WSJ(BasicNewsRecipe):
     def test_wsj_index(self):
         return [
             ('Testing', [
-                {'title': 'Article One',
-                 'url': 'https://www.wsj.com/articles/egg-prices-jump-as-bird-flu-hits-poultry-flocks-11648900800'},  # noqa
+                {'title': 'Subscriber Article',
+                 'url': self.abs_wsj_url('https://www.wsj.com/articles/egg-prices-jump-as-bird-flu-hits-poultry-flocks-11648900800')},
             ]),
         ]
