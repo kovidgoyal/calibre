@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class MoscowTimes(BasicNewsRecipe):
+    title           	  = 'The Moscow Times'
+    __author__            = 'bugmen00t'
+    description           = 'The Moscow Times is Russia’s leading, independent English-language media outlet. Our team of Russian and English journalists provide readers across the world with breaking news, engaging stories and balanced reporting about the largest country on Earth.'  # noqa
+    publisher             = 'Tiamti LLC'
+    category              = 'newspaper'
+    cover_url = u'https://static.themoscowtimes.com/img/share_default.jpg'
+    language              = 'en_RU'
+    no_stylesheets        = False
+    remove_javascript = True
+    auto_cleanup   = False
+    oldest_article = 14
+    max_articles_per_feed = 50
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'article__tags'})
+
+    remove_tags =   [
+        dict(name='aside'),
+        dict(name='footer'),
+        dict(name='section', attrs={'class': 'cluster'}),
+        dict(name='div', attrs={'class': 'article__tags'}),
+        dict(name='div', attrs={'class': 'social'}),
+        dict(name='div', attrs={'class': 'related-article__content'})
+        ]
+
+    feeds = [
+        ('News', 'https://www.themoscowtimes.com/rss/news'),
+        ('Opinion', 'https://www.themoscowtimes.com/rss/opinion'),
+        ('Arts and Life', 'https://www.themoscowtimes.com/rss/city'),
+        ('Meanwhile', 'https://www.themoscowtimes.com/rss/meanwhile')
+        ]

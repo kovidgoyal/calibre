@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class KyivPost(BasicNewsRecipe):
+    title = 'Kyiv Post'
+    __author__ = 'bugmen00t'
+    description = 'The Kyiv Post is Ukraine\u2019s English-language newspaper. The newspaper\u2019s first print edition came out on Oct. 18, 1995, and went online in 1997. The newspaper\u2019s motto is \u201CUkraine\u2019s Global Voice,\u201D which in 2018 replaced the previous motto of \u201CIndependence. Community. Trust.\u201D Both slogans reflect the newspaper\u2019s commitment to the highest journalistic and ethical standards.'  # noqa
+    publisher = 'BIZNESGRUPP TOV'
+    category = 'newspaper'
+    cover_url = u'https://www.kyivpost.com/wp-content/themes/kyivpost/assets/img/svg/logo-foot.svg'
+    language = 'en_UK'
+    no_stylesheets = False
+    remove_javascript = True
+    auto_cleanup = False
+    oldest_article = 7
+    max_articles_per_feed = 10
+
+    remove_tags_before = dict(name='article', attrs={'class': 'article'})
+
+    remove_tags_after = dict(name='article', attrs={'class': 'article'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'entry-footer hide_post_header'})
+    ]
+
+    feeds = [('News', 'https://www.kyivpost.com/feed')]
