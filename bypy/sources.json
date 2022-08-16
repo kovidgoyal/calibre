@@ -982,9 +982,9 @@
         "name": "speech-dispatcher-client",
         "os": "linux",
         "unix": {
-            "filename": "speech-dispatcher-0.10.2.tar.gz",
-            "hash": "sha256:b06319f201e15e56c6296653af5bcfc300cb348e972d517df8b06eac77eae2dc",
-            "urls": ["https://github.com/brailcom/speechd/releases/download/0.10.2/{filename}"]
+            "filename": "speech-dispatcher-0.11.1.tar.gz",
+            "hash": "sha256:d1da12ed3dac84f13799b6a2ec39ba2d3ca21a8493f44dc1855bd0ba96c2ddc6",
+            "urls": ["https://github.com/brailcom/speechd/releases/download/0.11.1/{filename}"]
         }
     },
 
