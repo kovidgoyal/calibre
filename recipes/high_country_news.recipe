@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-##
-# Written:      2012-01-28
-# Last Edited:  2014-09-18
-# Remark:       Version 2.0 first check
-# Update cleanup for new web article design and extra css
-##
+
 __license__ = 'GPL v3'
 __copyright__ = '2013, Armin Geller'
-
 '''
 Fetch High Country News
 '''
@@ -15,17 +9,40 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class HighCountryNews(BasicNewsRecipe):
+    ##
+    # Written:      2012-01-28
+    # Last Edited:  2022-08-17
+    #
+    # Remark:       Version 2.2
+    #               Update RSS feeds to hcn.org and keep the old feedburner feeds still in place
+    #               as there are some old articles available only at feedburner adress
+    #               2019-07-04
+    #               Version 2.3
+    #               New Page design at HighCountryNews
+    #               2020-12-29
+    #               Version 2.4
+    #               Page design updates at HighCountryNews
+    #               2021-01-11
+    #               Version 2.5a
+    #               Again changes in page design
+    #               2021-01-12
+    #               Version 2.5b
+    #               test old feeds availability and check for new feeds
+    #               2022-08-17
+    #               Version 2.6
+    #               css changes, some cleanup
+    #
 
     title = u'High Country News'
     description = u'High Country News (RSS Version)'
     __author__ = 'Armin Geller'
     publisher = 'High Country News'
-    category = 'news, politics'
+    category = 'News, Politics, Social, Nature, Environmental, Western United States, Native American'
     timefmt = ' [%a, %d %b %Y]'
-    language = 'en'
+    language = 'en-Us'
     encoding = 'UTF-8'
     publication_type = 'newspaper'
-    oldest_article = 14
+    oldest_article = 30
     max_articles_per_feed = 100
     no_stylesheets = True
     auto_cleanup = False
@@ -34,57 +51,94 @@ class HighCountryNews(BasicNewsRecipe):
     use_embedded_content = False
 
     masthead_url = 'http://www.hcn.org/logo.jpg'
-    cover_source = 'http://www.hcn.org/issues'  # AGE 2014-09-18 new
+    cover_source = 'http://www.hcn.org/issues'
 
     def get_cover_url(self):
         cover_source_soup = self.index_to_soup(self.cover_source)
         preview_image_div = cover_source_soup.find(
-            attrs={'class': 'articles'})  # AGE 2014-09-18 new
-        # AGE 2014-09-18 newm take always the first one (hopefully)
-        return preview_image_div.div.a.figure.img['src']
+            attrs={'class': 'articles'}
+        )  # AGE 2014-09-18 new
+        return preview_image_div.div.a.figure.img[
+            'src']  # AGE 2014-09-18 newm take always the first one (hopefully)
 
     # AGe new extra css to get rid of ugly style
     # li for delete disc style,
     # caption and credit for description & author of pictures
+    # main-topic
 
-    extra_css      =  '''
+    remove_attributes = ['style']
+
+    extra_css = '''
                       h1 {font-size: 1.6em; text-align: left}
                       h2 {font-size: 1em; font-style: italic; font-weight: normal}
                       h3 {font-size: 1.3em;text-align: left}
                       h4, h5, h6, {font-size: 1em;text-align: left}
-                      li {list-style-type: none}
+                      li {list-style-type: none; Font-size: 1.0em}
                       .caption, .credit {font-size: 0.9em; font-style: italic}
+                      .pullquote {font-size: 1.1em; font-weight: bold; font-style: italic}
+                      .main-topic {font-size: 0.85em; font-weight: bold}
                       '''
 
     feeds = [
-        (u'Most recent', u'http://feeds.feedburner.com/hcn/most-recent?format=xml'),
-        (u'Current Issue', u'http://feeds.feedburner.com/hcn/current-issue?format=xml'),
-
-        (u'From the Blogs',
-         u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'),
-        (u'Heard around the West',
-         u'http://feeds.feedburner.com/hcn/heard?format=xml'),
+        (u'Most Recent',
+         u'https://www.hcn.org/rss/most-recent/rss.xml'),  # AGE 2019-07-04 new
+        (u'Current Issue',
+         u'https://www.hcn.org/rss/current-issue/rss.xml'),  # AGE 2019-07-04 new
+        (u'The Range blog', u'http://cdn.hcn.org/rss/range/RSS'
+         ),  # AGE 2021-01-13 still available with old entries
+        (u'Features', u'https://www.hcn.org/rss/features/rss.xml'),  # AGE 2021-01-13
+        (u'Ranch Diaries',
+         u'https://www.hcn.org/voices/ranchdiaries/RSS'),  # AGE 2021-01-13
+        (u'Writers on the Range',
+         u'https://www.hcn.org/rss/wotr/rss.xml'),  # AGE 2019-07-04 new
+        (
+            u'West Obsessed',
+            u'https://feeds.soundcloud.com/users/soundcloud:users:299947441/sounds.rss'
+        ),  # AGE 2016-12-04 new
+        #            (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'), # AGE 2016-12-04 old feedburner
+        (
+            u'From the Blogs',
+            u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'
+        ),
+        (
+            u'Heard around the West',
+            u'http://feeds.feedburner.com/hcn/heard?format=xml'
+        ),
         (u'The GOAT Blog', u'http://feeds.feedburner.com/hcn/goat?format=xml'),
-        (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'),
-
-        (u'Writers on the Range', u'http://feeds.feedburner.com/hcn/wotr'),
-        (u'High Country Views',
-         u'http://feeds.feedburner.com/hcn/HighCountryViews'),
+        (u'High Country Views', u'http://feeds.feedburner.com/hcn/HighCountryViews'),
     ]
-
-    # 2014-09-18 AGe New coding related to design changes
 
     keep_only_tags = [
         dict(name='div', attrs={'id': 'content'}),
         dict(name='div', attrs={'class': 'opaque'}),
+        dict(name='div', attrs={'id': 'main'}),
+        dict(
+            name='div',
+            attrs={
+                'class': ['row feature-row', 'small-12 columns', 'intro', 'dropcap']
+            }
+        ),
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': [
-            'large-4 columns right-portlets', 'small-12 columns',
-            'pagination-share', 'tiny content f-dropdown', 'image-viewer-controls', ]}),
-        dict(name='ul', attrs={'class': ['document-actions', 'topics', ]}),
-        dict(name='a', attrs={'name': ['body', ]}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'large-4 columns right-portlets',
+                    'pagination-share',
+                    'large highlight newsletter-signup button',
+                    'newsletter-signup portlet',
+                    'document-actions',
+                ]
+            }
+        ),
+        dict(name='ul', attrs={'class': [
+            'topics',
+        ]}),
+        dict(name='dl', attrs={'id': [
+            'kssPortalMessage',
+        ]}),
     ]
 
     # AGE 2014-09-18 this will stay for a while
@@ -105,8 +159,7 @@ class HighCountryNews(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
-        pager = soup.find(
-            'div', attrs={'class': 'listingBar listingBar-article'})
+        pager = soup.find('div', attrs={'class': 'listingBar listingBar-article'})
         if pager:
             pager.extract()
         return self.adeify_images(soup)
