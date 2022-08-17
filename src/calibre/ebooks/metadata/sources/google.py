@@ -202,7 +202,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 1, 0)
+    version = (1, 1, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -397,6 +397,7 @@ class GoogleBooks(Source):
         identifiers={},
         timeout=30
     ):
+        from calibre.utils.filenames import ascii_text
         isbn = check_isbn(identifiers.get('isbn', None))
         q = []
         strip_punc_pat = regex.compile(r'[\p{C}|\p{M}|\p{P}|\p{S}|\p{Z}]+', regex.UNICODE)
@@ -411,7 +412,7 @@ class GoogleBooks(Source):
                 t = t.lower()
                 if t in ('and', 'not', 'the'):
                     continue
-                yield strip_punc_pat.sub('', t)
+                yield ascii_text(strip_punc_pat.sub('', t))
 
         if has_google_id:
             google_ids.append(identifiers['google'])
