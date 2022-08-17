@@ -1,0 +1,227 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class TakieDela(BasicNewsRecipe):
+    title = '\u0422\u0430\u043A\u0438\u0435 \u0434\u0435\u043B\u0430'
+    __author__ = 'bugmen00t'
+    description = '\u0418\u0437\u0434\u0430\u043D\u0438\u0435 \u00AB\u0422\u0430\u043A\u0438\u0435 \u0434\u0435\u043B\u0430\u00BB \u043E\u0441\u0432\u0435\u0449\u0430\u0435\u0442 \u0441\u043E\u0446\u0438\u0430\u043B\u044C\u043D\u044B\u0435 \u043F\u0440\u043E\u0431\u043B\u0435\u043C\u044B, \u043F\u0438\u0448\u0435\u0442 \u043E \u043F\u0440\u043E\u0431\u043B\u0435\u043C\u0430\u0445 \u043B\u044E\u0434\u0435\u0439 \u0441 \u0440\u0435\u0434\u043A\u0438\u043C\u0438 \u0437\u0430\u0431\u043E\u043B\u0435\u0432\u0430\u043D\u0438\u044F\u043C\u0438 \u0438 \u0438\u043D\u0432\u0430\u043B\u0438\u0434\u043D\u043E\u0441\u0442\u044C\u044E, \u043E \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0438 \u0440\u043E\u0441\u0441\u0438\u0439\u0441\u043A\u043E\u0439 \u043C\u0435\u0434\u0438\u0446\u0438\u043D\u044B, \u0430 \u0442\u0430\u043A\u0436\u0435 \u043E \u0431\u043B\u0430\u0433\u043E\u0442\u0432\u043E\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0438 \u0441\u043E\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0439 \u043E\u0431\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0435 \u0432 \u0420\u043E\u0441\u0441\u0438\u0438. \u0422\u0430\u043A\u0436\u0435 \u0438\u0437\u0434\u0430\u043D\u0438\u0435 \u0432\u0437\u0430\u0438\u043C\u043E\u0434\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 \u0441 \u043D\u0435\u043A\u043E\u043C\u043C\u0435\u0440\u0447\u0435\u0441\u043A\u0438\u043C\u0438 \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u0430\u0446\u0438\u044F\u043C\u0438, \u0441\u043E\u0431\u0438\u0440\u0430\u044F \u0438\u0441\u0442\u043E\u0440\u0438\u0438 \u043E \u0431\u043B\u0430\u0433\u043E\u0442\u0432\u043E\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u043F\u0440\u043E\u0435\u043A\u0442\u0430\u0445, \u0438 \u0437\u0430\u043D\u0438\u043C\u0430\u0435\u0442\u0441\u044F \u0441\u0431\u043E\u0440\u043E\u043C \u0441\u0440\u0435\u0434\u0441\u0442\u0432 (\u043A\u0440\u0430\u0443\u0434\u0444\u0430\u043D\u0434\u0438\u043D\u0433\u043E\u043C) \u0434\u043B\u044F \u0444\u043E\u043D\u0434\u0430 \u00AB\u041D\u0443\u0436\u043D\u0430 \u043F\u043E\u043C\u043E\u0449\u044C\u00BB.'  # noqa
+    publisher = '\u0411\u043B\u0430\u0433\u043E\u0442\u0432\u043E\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0444\u043E\u043D\u0434 \u00AB\u041D\u0443\u0436\u043D\u0430 \u041F\u043E\u043C\u043E\u0449\u044C\u00BB'  # noqa
+    category = 'blog'
+    cover_url = u'https://takiedela.ru/wp-content/themes/takiedela/assets/image/share/td.jpg'
+    language = 'ru'
+    no_stylesheets = False
+    remove_javascript = False
+    auto_cleanup = False
+    remove_empty_feeds = True
+    oldest_article = 30
+    max_articles_per_feed = 10
+
+    remove_tags_before = dict(name='header')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags = [
+        dict(
+            name='section',
+            attrs={
+                'class':
+                'b-post__materials b-line b-line_p-60 b-line_grey b-line_nomb'
+            }
+        ),
+        dict(
+            name='section',
+            attrs={
+                'class':
+                'b-post-material__other b-line b-line_p-60 b-line_bg b-line_nomb'
+            }
+        ),
+        dict(name='div', attrs={'class': 'b-single__case-closed'}),
+        dict(name='div', attrs={'class': 'b-line b-total-sum'}),
+        dict(
+            name='section',
+            attrs={
+                'class':
+                'b-post-material__help b-line b-line_p-60 b-line_grey b-line_nomb'
+            }
+        ),
+        dict(
+            name='section',
+            attrs={'class': 'b-line b-line_p-60 b-line_bg b-line_nopb b-line_nomb '}
+        ),
+        dict(name='header', attrs={'class': 'np-header js-np-header'}),
+        dict(
+            name='div',
+            attrs={
+                'class':
+                'b-post__head-info__block b-post__head-info__block_views in-tablet'
+            }
+        ),
+        dict(
+            name='div',
+            attrs={'class': 'np-donate-form__bg np-donate-form__bg_border'}
+        ),
+        dict(name='div', attrs={'class': 'b-photostory-help i-photostory-help'}),
+        dict(name='div', attrs={'class': 'mistape_caption'}),
+        dict(name='div', attrs={'class': 'b-photostory__inner'}),
+        dict(name='div', attrs={'class': 'b-single__extra i-single__extra'}),
+        dict(name='div', attrs={'class': 'b-post__help'}),
+        dict(name='div', attrs={'class': 'b-post__other b-post__other_right'}),
+        dict(name='div', attrs={'class': 'b-soc i-soc b-soc_blog b-soc_noscroll'}),
+        dict(
+            name='div', attrs={'class': 'np-socials np-socials_grid js-np-socials'}
+        ),
+        dict(name='ul', attrs={'class': 'b-post__head-tags in-tablet-sm'}),
+        dict(name='ul', attrs={'class': 'b-single__text__categories'}),
+        dict(name='div', attrs={'class': 'b-donate-info js-donate-info'}),
+        dict(name='div', attrs={'class': 'b-404__materials b-line b-line_grey'}),
+        dict(name='div', attrs={'class': 'b-404__funds b-line'}),
+        dict(name='div', attrs={'class': 'overlay'}),
+        dict(name='div', attrs={'class': 'b-help-info-sticky'}),
+        dict(name='div', attrs={'id': 'mistape_dialog'}),
+        dict(name='footer'),
+        dict(name='form', attrs={'id': 'help'}),
+        dict(name='form', attrs={'id': 'form-3dsecure'})
+    ]
+
+    feeds = [
+        (
+            '\u0412\u0441\u0435 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B',
+            'https://takiedela.ru/feed/'
+        ),
+        (
+            '\u041F\u043E\u043C\u043E\u0433\u0430\u0435\u043C',
+            'https://takiedela.ru/topics/feed/'
+        ),
+        (
+            '\u041A\u043E\u043B\u043E\u043D\u043A\u0438',
+            'https://takiedela.ru/rubrics/columns/feed/'
+        ),
+        (
+            '\u041E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u044F',
+            'https://takiedela.ru/rubrics/explanations/feed/'
+        ),
+        (
+            '\u0424\u043E\u0442\u043E\u0438\u0441\u0442\u043E\u0440\u0438\u0438',
+            'https://takiedela.ru/rubrics/photo/feed/'
+        ),
+        (
+            '\u041F\u043E\u0440\u0442\u0440\u0435\u0442\u044B',
+            'https://takiedela.ru/rubrics/portret/feed/'
+        ),
+        (
+            '\u0420\u0430\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F',
+            'https://takiedela.ru/rubrics/rassledovaniya/feed/'
+        ),
+        (
+            '\u0421\u043B\u0443\u0447\u0430\u0438',
+            'https://takiedela.ru/genre/cases/feed/'
+        ),
+        (
+            '\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442',
+            'https://takiedela.ru/genre/context/feed/'
+        ),
+        ('\u0414\u0440\u0430\u043C\u044B', 'https://takiedela.ru/genre/drama/feed/'),
+        (
+            '\u0413\u0435\u0440\u043E\u0438',
+            'https://takiedela.ru/genre/heroes/feed/'
+        ),
+        (
+            '\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043D\u0430\u0441\u043B\u0435\u0434\u0438\u044F \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u043F\u0430\u043C\u044F\u0442\u0438',  # noqa
+            'https://takiedela.ru/category/cultural/feed/'
+        ),
+        (
+            '\u0414\u0435\u0442\u0441\u0442\u0432\u043E',
+            'https://takiedela.ru/category/deti/feed/'
+        ),
+        (
+            '\u0414\u0435\u0442\u0438 \u0441 \u043E\u0441\u043E\u0431\u0435\u043D\u043D\u043E\u0441\u0442\u044F\u043C\u0438 \u0440\u0430\u0437\u0432\u0438\u0442\u0438\u044F',  # noqa
+            'https://takiedela.ru/category/deti-s-osobennostyami-razvitiya/feed/'
+        ),
+        (
+            '\u0414\u0435\u0442\u0441\u043A\u0438\u0439 \u0434\u043E\u043C',
+            'https://takiedela.ru/category/detskiy-dom/feed/'
+        ),
+        (
+            '\u041A\u0430\u0442\u0430\u0441\u0442\u0440\u043E\u0444\u044B \u0438 \u0441\u0442\u0438\u0445\u0438\u0439\u043D\u044B\u0435 \u0431\u0435\u0434\u0441\u0442\u0432\u0438\u044F',  # noqa
+            'https://takiedela.ru/category/disaster/feed/'
+        ),
+        (
+            '\u0425\u0440\u043E\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0438 \u043D\u0435\u0438\u0437\u043B\u0435\u0447\u0438\u043C\u044B\u0435 \u0437\u0430\u0431\u043E\u043B\u0435\u0432\u0430\u043D\u0438\u044F',  # noqa
+            'https://takiedela.ru/category/illness/feed/'
+        ),
+        (
+            '\u0420\u0430\u0437\u0432\u0438\u0442\u0438\u0435 \u043A\u0443\u043B\u044C\u0442\u0443\u0440\u044B \u0438 \u0438\u0441\u043A\u0443\u0441\u0441\u0442\u0432\u0430',  # noqa
+            'https://takiedela.ru/category/kultura/feed/'
+        ),
+        (
+            '\u041C\u0430\u0442\u0435\u0440\u0438 \u0438 \u0434\u0435\u0442\u0438',
+            'https://takiedela.ru/category/materi-i-deti/feed/'
+        ),
+        (
+            '\u041C\u0435\u0434\u0438\u0446\u0438\u043D\u0441\u043A\u0430\u044F \u043F\u043E\u043C\u043E\u0449\u044C',
+            'https://takiedela.ru/category/medical/feed/'
+        ),
+        (
+            '\u041C\u0435\u0434\u0438\u0446\u0438\u043D\u0430',
+            'https://takiedela.ru/category/medicina/feed/'
+        ),
+        (
+            '\u041B\u0413\u0411\u0422+',
+            'https://takiedela.ru/category/minorities/feed/'
+        ),
+        (
+            '\u041E\u0431\u0449\u0435\u0441\u0442\u0432\u043E',
+            'https://takiedela.ru/category/obshhestvo/feed/'
+        ),
+        (
+            '\u041E\u043D\u043A\u043E\u043B\u043E\u0433\u0438\u044F',
+            'https://takiedela.ru/category/onkologiya/feed/'
+        ),
+        (
+            '\u0421\u0438\u0440\u043E\u0442\u0441\u0442\u0432\u043E',
+            'https://takiedela.ru/category/orphan/feed/'
+        ),
+        (
+            '\u0414\u0440\u0443\u0433\u043E\u0435',
+            'https://takiedela.ru/category/other/feed/'
+        ),
+        (
+            '\u041F\u043E\u043B\u0438\u0446\u0438\u044F',
+            'https://takiedela.ru/category/policiya/feed/'
+        ),
+        (
+            '\u041F\u0440\u0430\u0432\u043E\u0437\u0430\u0449\u0438\u0442\u0430',
+            'https://takiedela.ru/category/pravozashhita/feed/'
+        ),
+        (
+            '\u041F\u0441\u0438\u0445\u043E\u043B\u043E\u0433\u0438\u044F',
+            'https://takiedela.ru/category/psikhologiya/feed/'
+        ),
+        (
+            '\u0416\u0435\u0440\u0442\u0432\u044B \u043D\u0430\u0441\u0438\u043B\u0438\u044F',
+            'https://takiedela.ru/category/rape/feed/'
+        ),
+        (
+            '\u0416\u0435\u0440\u0442\u0432\u044B \u0432\u043E\u0435\u043D\u043D\u044B\u0445 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0439',
+            'https://takiedela.ru/category/victims-of-war/feed/'
+        ),
+        (
+            '\u042D\u043A\u043E\u043B\u043E\u0433\u0438\u044F',
+            'https://takiedela.ru/category/yekologiya/feed/'
+        ),
+        (
+            '\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043F\u043E\u043C\u043E\u0449\u044C',
+            'https://takiedela.ru/category/yuridicheskaya-pomoshh/feed/'
+        ),
+        (
+            '\u0416\u0435\u043D\u0449\u0438\u043D\u044B',
+            'https://takiedela.ru/category/zhenshhiny/feed/'
+        ),
+        (
+            '\u0416\u0438\u0432\u043E\u0442\u043D\u044B\u0435',
+            'https://takiedela.ru/category/zhivotnye/feed/'
+        )
+    ]
