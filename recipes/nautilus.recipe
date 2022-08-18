@@ -20,12 +20,20 @@ class Nautilus(BasicNewsRecipe):
     remove_attributes = ['height', 'width']
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
-
+    extra_css = '''
+        .article-list_item-byline{font-size:small;}
+        blockquote{color:#404040; text-align:center;}
+        #fig-c{font-size:small;}
+        em{color:#202020;}
+        .breadcrumb{color:gray; font-size:small;}
+        .article-author{font-size:small;}
+    '''
     keep_only_tags = [classes('article-left-col feature-image article-content')]
 
     remove_tags = [
         classes(
-            'article-action-list article-bottom-newsletter_box main-post-comments-toggle-wrap main-post-comments-wrapper social-share supported-one'
+            'article-action-list article-bottom-newsletter_box main-post-comments-toggle-wrap main-post-comments-wrapper'
+            ' social-share supported-one article-collection_box'
         )
     ]
 
@@ -64,4 +72,11 @@ class Nautilus(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0]
+        for figcaption in soup.findAll('figcaption'):
+            figcaption['id']='fig-c'
+        for ul in soup.findAll('ul', attrs={'class':
+            ['breadcrumb', 'article-list_item-byline', 'channel-article-author', 'article-author']}):
+            ul.name = 'span'
+            for li in ul.findAll('li'):
+                li.name = 'p'
         return soup
