@@ -1,7 +1,10 @@
 #!/usr/bin/env  python
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+import json
+import re
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 is_saturday = date.today().weekday() == 5
 
@@ -46,10 +49,12 @@ class LiveMint(BasicNewsRecipe):
             ('Smart Living','https://lifestyle.livemint.com/rss/smart-living'),
         ]
     else:
+        # some wsj articles wont load
         extra_css = '''
             #img-cap {font-size:small; text-align:center;}
             #auth-info {font-size:small; text-align:center;}
             .highlights {font-style:italic;}
+            .summary{font-style:italic; color:#404040;}
         '''
         cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/05/Delhi/Delhi/5_01/1ec7ad14_01_mr.jpg'
 
@@ -84,6 +89,20 @@ class LiveMint(BasicNewsRecipe):
             ('Budget', 'https://www.livemint.com/rss/budget'),
             ('Elections', 'https://www.livemint.com/rss/elections'),
         ]
+
+    def preprocess_raw_html(self, raw, *a):
+        if '<script>var wsjFlag=true;</script>' in raw:
+            m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
+            raw1 = raw[m.start():]
+            raw1 = raw1.split('>', 1)[1].strip()
+            data = json.JSONDecoder().raw_decode(raw1)[0]
+            value = data['hasPart']['value']
+            body = data['articleBody'] + '</p> <p>' + re.sub(r'([a-z]\.|[0-9]\.)([A-Z])', r'\1 <p> \2', value)
+            body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
+            raw = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
+            return raw
+        else:
+            return raw
 
     def preprocess_html(self, soup):
         for span in soup.findAll('figcaption'):
