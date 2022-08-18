@@ -73,14 +73,56 @@ def calibre(args=sys.argv):
         main(args)
 
 
+def is_possible_media_pack_error(e):
+    from calibre.constants import iswindows
+    from ctypes.util import find_library
+    if iswindows and 'QtWebEngine' in str(e):
+        if not find_library('MFTranscode.dll'):
+            return True
+    return False
+
+
+def show_media_pack_error():
+    import traceback
+    from calibre.gui2 import error_dialog, Application
+    app = Application([])
+    error_dialog(None, _('Required component missing'), '<p>' + _(
+        'This computer is missing the Windows MediaPack, which is needed for calibre. Instructions'
+        ' for installing it are <a href="{0}">available here</a>.').format(
+            'https://support.medal.tv/support/solutions/articles/48001157311-windows-is-missing-media-pack'),
+                 det_msg=traceback.format_exc()).exec()
+    del app
+
+
+def media_pack_error_check(func):
+
+    def wrapper(*a, **kw):
+        try:
+            return func(*a, **kw)
+        except ImportError as e:
+            if is_possible_media_pack_error(e):
+                show_media_pack_error()
+            else:
+                raise
+    return wrapper
+
+
+@media_pack_error_check
 def ebook_viewer(args=sys.argv):
     detach_gui()
     setup_qt_logging()
     with register_with_default_programs():
-        from calibre.gui2.viewer.main import main
-        main(args)
+        try:
+            from calibre.gui2.viewer.main import main
+            main(args)
+        except ImportError as e:
+            if is_possible_media_pack_error(e):
+                show_media_pack_error()
+            else:
+                raise
 
 
+@media_pack_error_check
 def store_dialog(args=sys.argv):
     detach_gui()
     setup_qt_logging()
@@ -88,6 +130,7 @@ def store_dialog(args=sys.argv):
     main(args)
 
 
+@media_pack_error_check
 def webengine_dialog(**kw):
     detach_gui()
     setup_qt_logging()
@@ -98,6 +141,7 @@ def webengine_dialog(**kw):
     getattr(m, kw.pop('entry_func', 'main'))(**kw)
 
 
+@media_pack_error_check
 def toc_dialog(**kw):
     detach_gui()
     setup_qt_logging()
@@ -105,6 +149,7 @@ def toc_dialog(**kw):
     main(**kw)
 
 
+@media_pack_error_check
 def gui_ebook_edit(path=None, notify=None):
     ' For launching the editor from inside calibre '
     from calibre.gui2.tweak_book.main import gui_main
@@ -112,6 +157,7 @@ def gui_ebook_edit(path=None, notify=None):
     gui_main(path, notify)
 
 
+@media_pack_error_check
 def ebook_edit(args=sys.argv):
     detach_gui()
     setup_qt_logging()
