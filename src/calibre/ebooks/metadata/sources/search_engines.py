@@ -12,9 +12,9 @@ from contextlib import contextmanager
 from threading import Lock
 
 try:
-    from urllib.parse import parse_qs, quote_plus, unquote, urlencode, quote
+    from urllib.parse import parse_qs, quote_plus, unquote, urlencode, quote, urlparse
 except ImportError:
-    from urlparse import parse_qs
+    from urlparse import parse_qs, urlparse
     from urllib import quote_plus, urlencode, unquote, quote
 
 from lxml import etree
@@ -25,7 +25,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 1)
+current_version = (1, 2, 2)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -284,6 +284,16 @@ def google_get_cached_url(url, br=None, log=prints, timeout=60):
         return cached_url
 
 
+def canonicalize_url_for_cache_map(url):
+    try:
+        purl = urlparse(url)
+    except Exception:
+        return url
+    if '.amazon.' in purl.netloc:
+        url = url.split('&', 1)[0]
+    return url
+
+
 def google_extract_cache_urls(raw):
     if isinstance(raw, bytes):
         raw = raw.decode('utf-8', 'replace')
@@ -299,6 +309,7 @@ def google_extract_cache_urls(raw):
     ans = {}
     for m in pat.finditer(raw):
         cache_url = upat.sub(urepl, m.group(1))
+        # print(1111111, cache_url)
         # the following two are necessary for results from Portugal
         cache_url = xpat.sub(urepl, cache_url)
         cache_url = cache_url.replace('&amp;', '&')
@@ -310,7 +321,9 @@ def google_extract_cache_urls(raw):
         seen.add(cache_id)
         src_url = src_url.split('+')[0]
         src_url = unquote(src_url)
-        ans[src_url] = cache_url
+        curl = canonicalize_url_for_cache_map(src_url)
+        # print(22222, cache_id, src_url, curl)
+        ans[curl] = cache_url
     return ans
 
 
@@ -326,8 +339,10 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
             continue
         title = tostring(a)
         src_url = a.get('href')
-        if src_url in cache_url_map:
-            cached_url = cache_url_map[src_url]
+        # print(f'{src_url=}')
+        curl = canonicalize_url_for_cache_map(src_url)
+        if curl in cache_url_map:
+            cached_url = cache_url_map[curl]
         else:
             try:
                 c = div.xpath('descendant::*[@role="menuitem"]//a[@class="fl"]')[0]
