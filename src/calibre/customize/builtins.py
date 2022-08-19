@@ -1063,6 +1063,13 @@ class ActionMarkBooks(InterfaceActionBase):
     description = _('Temporarily mark books')
 
 
+class ActionManageCategories(InterfaceActionBase):
+    name = 'Manage categories'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.manage_categories:ManageCategoriesAction'
+    description = _('Manage tag browser categories')
+
+
 class ActionVirtualLibrary(InterfaceActionBase):
     name = 'Virtual Library'
     actual_plugin = 'calibre.gui2.actions.virtual_library:VirtualLibraryAction'
@@ -1104,7 +1111,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch,]
+        ActionFullTextSearch, ActionManageCategories]
 
 # }}}
 

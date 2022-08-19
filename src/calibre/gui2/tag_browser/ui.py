@@ -30,8 +30,11 @@ class TagBrowserMixin:  # {{{
         pass
 
     def populate_tb_manage_menu(self, db):
+        self.populate_manage_categories_menu(db, self.alter_tb.manage_menu)
+
+    def populate_manage_categories_menu(self, db, menu):
         from calibre.db.categories import find_categories
-        m = self.alter_tb.manage_menu
+        m = menu
         m.clear()
         for text, func, args, cat_name in (
              (_('Authors'),
