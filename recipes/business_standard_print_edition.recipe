@@ -2,15 +2,7 @@
 www.business-standard.com
 '''
 
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class BusinessStandard(BasicNewsRecipe):
@@ -23,6 +15,13 @@ class BusinessStandard(BasicNewsRecipe):
     publisher = 'Business Standard Limited'
     category = 'news, business, money, india, world'
     language = 'en_IN'
+    extra_css = '''
+        .article__desc{font-size:small;}
+        .article_image{font-size:small; font-style:italic;}
+        .article__dateline{font-size:small;}
+        .full-img{font-size:small; font-style:italic; text-align:center;}
+        .pubDate{font-size:small; text-align:center;}
+    '''
 
     masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
 
@@ -39,12 +38,15 @@ class BusinessStandard(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'headline alternativeHeadline full-img article-content__img pubDate'
+            'article__title article__content article_content article_image article__dateline headline'
+            ' alternativeHeadline full-img article-content__img pubDate'
         ),
-        dict(name='span', attrs={'class': 'p-content'}),
+        dict(name='section', attrs={'subscriptions-section': 'content'}),
+        dict(name='span', attrs={'class': 'p-content'})
     ]
     remove_tags = [
-        classes('also-read-panel related-keyword more-stories-pagination')
+        classes('also-read-panel related-keyword more-stories-pagination'),
+        dict(name='br')
     ]
 
     def parse_index(self):
@@ -54,7 +56,8 @@ class BusinessStandard(BasicNewsRecipe):
 
     def bs_parse_index(self, soup):
         feeds = []
-        for section in soup.findAll('div', attrs={'class': 'row-inner'}):
+        div = soup.find('div', attrs={'class': 'main-cont-left'})
+        for section in div.findAll('div', attrs={'class': 'row-inner'}):
             h2 = section.find('h2')
             secname = self.tag_to_string(h2)
             self.log(secname)
@@ -62,16 +65,28 @@ class BusinessStandard(BasicNewsRecipe):
             for a in section.findAll(
                 'a', href=lambda x: x and x.startswith('/article/')
             ):
-                url = a['href']
-                url = 'https://www.business-standard.com' + url
-                ti = self.tag_to_string(a)
-                title = re.sub('Premium Content', 'Premium Content : ', ti)
+                url = a['href'].replace('article', 'article-amp')
+                url = 'https://wap.business-standard.com' + url
+                title = self.tag_to_string(a).strip().replace('Premium Content', '')
                 articles.append({'title': title, 'url': url})
-                self.log('\t', title)
-                self.log('\t\t', url)
+                self.log('\t', title, '\n\t\t', url)
             if articles:
                 feeds.append((secname, articles))
         return feeds
 
-
-calibre_most_common_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/	537.36'
+    def preprocess_html(self, soup):
+        subs = soup.find('section', attrs={'subscriptions-section': 'content'})
+        if subs:
+            art = soup.find(**classes('article_image'))
+            if art:
+                art.extract()
+            div = soup.find(**classes('article_content'))
+            if div:
+                div.extract()
+        h2 = soup.find('h2')
+        if h2:
+            h2.name = 'h4'
+        for img in soup.findAll('amp-img', src=True):
+            img.name = 'img'
+            img['src'] = img['src'].replace('\\', '').split('?')[0]
+        return soup
