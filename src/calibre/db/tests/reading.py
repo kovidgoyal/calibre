@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import datetime
+import datetime, os
 from io import BytesIO
 from time import time
 
@@ -455,6 +455,12 @@ class ReadingTest(BaseTest):
         buf = BytesIO()
         self.assertRaises(NoSuchFormat, cache.copy_format_to, 99999, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent book')
         self.assertRaises(NoSuchFormat, cache.copy_format_to, 1, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent format')
+        fmt = cache.formats(1)[0]
+        path = cache.format_abspath(1, fmt)
+        changed_path = os.path.join(os.path.dirname(path), 'x' + os.path.basename(path))
+        os.rename(path, changed_path)
+        self.assertEqual(cache.format_abspath(1, fmt), path)
+        self.assertFalse(os.path.exists(changed_path))
 
     # }}}
 

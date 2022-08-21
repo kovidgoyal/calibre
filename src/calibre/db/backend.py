@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 # Imports {{{
 import apsw
 import errno
-import glob
 import hashlib
 import json
 import os
@@ -1435,18 +1434,25 @@ class DB:
         fmt_path = os.path.join(path, fname+fmt)
         if os.path.exists(fmt_path):
             return fmt_path
-        try:
-            candidates = glob.glob(os.path.join(path, '*'+fmt))
-        except:  # If path contains strange characters this throws an exc
-            candidates = []
-        if fmt and candidates and os.path.exists(candidates[0]):
-            try:
-                shutil.copyfile(candidates[0], fmt_path)
-            except shutil.SameFileError:
-                # some other process synced in the file since the last
-                # os.path.exists()
-                return candidates[0]
-            return fmt_path
+        if not fmt:
+            return
+        candidates = ()
+        with suppress(OSError):
+            candidates = os.listdir(path)
+        q = fmt.lower()
+        for x in candidates:
+            if x.lower().endswith(q):
+                x = os.path.join(path, x)
+                with suppress(OSError):
+                    atomic_rename(x, fmt_path)
+                    return fmt_path
+                try:
+                    shutil.move(x, fmt_path)
+                except (shutil.SameFileError, OSError):
+                    # some other process synced in the file since the last
+                    # os.path.exists()
+                    return x
+                return fmt_path
 
     def cover_abspath(self, book_id, path):
         path = os.path.join(self.library_path, path)
