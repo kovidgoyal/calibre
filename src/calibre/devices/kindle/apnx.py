@@ -1,5 +1,5 @@
 __license__ = 'GPL v3'
-__copyright__ = '2011, John Schember <john at nachtimwald.com>'
+__copyright__ = '2011, John Schember <john at nachtimwald.com>, refactored: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
 '''
