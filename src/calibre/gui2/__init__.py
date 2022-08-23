@@ -23,8 +23,9 @@ from threading import Lock, RLock
 import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__ as APP_UID, __version__, config_dir, is_running_from_develop,
-    isbsd, isfrozen, islinux, ismacos, iswindows, isxp, numeric_version, plugins_loc
+    DEBUG, __appname__ as APP_UID, __version__, builtin_colors_dark,
+    builtin_colors_light, config_dir, is_running_from_develop, isbsd, isfrozen,
+    islinux, ismacos, iswindows, isxp, numeric_version, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -1199,6 +1200,10 @@ class Application(QApplication):
     @property
     def is_dark_theme(self):
         return self.palette_manager.is_dark_theme
+
+    @property
+    def emphasis_window_background_color(self):
+        return (builtin_colors_dark if self.is_dark_theme else builtin_colors_light)['yellow']
 
     @pyqtSlot(int, result=QIcon)
     def get_qt_standard_icon(self, standard_pixmap):

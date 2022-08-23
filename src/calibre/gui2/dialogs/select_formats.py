@@ -62,11 +62,7 @@ class SelectFormats(QDialog):
         self.fview.doubleClicked.connect(self.double_clicked,
                 type=Qt.ConnectionType.QueuedConnection)
         if exclude:
-            if QApplication.instance().is_dark_theme:
-                sheet = 'background-color: #DAA520; color: black'
-            else:
-                sheet = 'background-color: #fae7b5'
-            self.fview.setStyleSheet('QListView { %s }' % sheet)
+            self.fview.setStyleSheet(f'QListView {{ background-color: {QApplication.instance().emphasis_window_background_color} }}')
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
         self.fview.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection if single else
