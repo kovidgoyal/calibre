@@ -2,6 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from calibre.devices.kindle.apnx import APNXBuilder
+
 '''
 Device driver for Amazon's Kindle
 '''
@@ -409,7 +411,7 @@ class KINDLE2(KINDLE):
     OPT_APNX_CUST_COL        = 2
     OPT_APNX_METHOD_COL      = 3
     OPT_APNX_OVERWRITE       = 4
-    EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD:{'fast', 'accurate', 'pagebreak'}}
+    EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD: APNXBuilder.generators.keys()}
 
     # x330 on the PaperWhite
     # x262 on the Touch. Doesn't choke on x330, though.
