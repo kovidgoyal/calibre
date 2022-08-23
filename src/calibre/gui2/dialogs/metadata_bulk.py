@@ -1272,12 +1272,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.db.clean()
         if args.do_compress_cover:
             total_old, total_new = bb.cover_sizes['old'], bb.cover_sizes['new']
-            percent = (total_old - total_new) / total_old
-            info_dialog(self, _('Covers compressed'), _(
-                'Covers were compressed by {percent:.1%} from a total size of'
-                ' {old} to {new}.').format(
-                    percent=percent, old=human_readable(total_old), new=human_readable(total_new))
-                ).exec()
+            if total_old > 0:
+                percent = (total_old - total_new) / total_old
+                info_dialog(self, _('Covers compressed'), _(
+                    'Covers were compressed by {percent:.1%} from a total size of'
+                    ' {old} to {new}.').format(
+                        percent=percent, old=human_readable(total_old), new=human_readable(total_new))
+                    ).exec()
         return QDialog.accept(self)
 
     def series_changed(self, *args):
