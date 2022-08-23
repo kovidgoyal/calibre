@@ -303,8 +303,12 @@ class Translations(POT):  # {{{
         with open(self.j(self.cache_dir, cname), 'wb') as f:
             f.write(h), f.write(data)
 
+    def is_po_file_ok(self, x):
+        # sr@latin.po is identical to sr.po
+        return os.path.splitext(os.path.basename(x))[0] != 'sr@latin'
+
     def po_files(self):
-        return glob.glob(os.path.join(self.TRANSLATIONS, __appname__, '*.po'))
+        return [x for x in glob.glob(os.path.join(self.TRANSLATIONS, __appname__, '*.po')) if self.is_po_file_ok(x)]
 
     def mo_file(self, po_file):
         locale = os.path.splitext(os.path.basename(po_file))[0]
@@ -494,6 +498,8 @@ class Translations(POT):  # {{{
         from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo, ZIP_STORED
         with ZipFile(self.j(self.RESOURCES, 'content-server', 'locales.zip'), 'w', ZIP_DEFLATED) as zf:
             for src in glob.glob(os.path.join(self.TRANSLATIONS, 'content-server', '*.po')):
+                if not self.is_po_file_ok(src):
+                    continue
                 data, h = self.hash_and_data(src)
                 current_hash = h.digest()
                 saved_hash, saved_data = self.read_cache(src)
@@ -579,6 +585,8 @@ class Translations(POT):  # {{{
         with TemporaryDirectory() as tdir, ZipFile(self.j(srcbase, 'locales.zip'), 'w', ZIP_STORED) as zf:
             for f in os.listdir(srcbase):
                 if f.endswith('.po'):
+                    if not self.is_po_file_ok(f):
+                        continue
                     l = f.partition('.')[0]
                     pf = l.split('_')[0]
                     if pf in {'en'}:
@@ -631,7 +639,7 @@ class Translations(POT):  # {{{
         files = []
         for x in os.listdir(srcbase):
             q = self.j(srcbase, x)
-            if not os.path.isdir(q):
+            if not os.path.isdir(q) or not self.is_po_file_ok(q):
                 continue
             dest = self.j(destbase, x, 'LC_MESSAGES')
             if os.path.exists(dest):
