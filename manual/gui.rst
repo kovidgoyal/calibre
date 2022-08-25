@@ -386,7 +386,7 @@ Two variants of equality searches are used for hierarchical items (e.g., A.B.C):
 
 *'Regular expression' searches*
 
-Regular expression searches are indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`__ can be used. Backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(`` or alternatively use `super quotes` (see below). Regular expression searches are 'contains' searches unless the expression is anchored. Character variants are significant: ``~e`` doesn't match ``é``.
+Regular expression searches are indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/library/re.html>`__ can be used. Backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(`` or alternatively use `super-quotes` (see below). Regular expression searches are 'contains' searches unless the expression is anchored. Character variants are significant: ``~e`` doesn't match ``é``.
 
 *'Character variant' searches*
 
