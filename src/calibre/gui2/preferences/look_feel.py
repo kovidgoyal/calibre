@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import json
 from collections import defaultdict
 from threading import Thread
+from functools import partial
 
 from qt.core import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
@@ -23,7 +24,7 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2 import default_author_link, icon_resource_manager, choose_save_file, choose_files
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog, error_dialog
 from calibre.utils.localization import (available_translations,
@@ -377,24 +378,101 @@ class TBDisplayedFields(DisplayedFields):  # {{{
                                                     pref_data_override=pref_data_override)
         if use_defaults:
             hc = []
+            self.changed = True
         elif pref_data_override:
             hc = [k for k,v in pref_data_override if not v]
+            self.changed = True
         else:
             hc = tv.hidden_categories
 
         self.beginResetModel()
         self.fields = [[x, x not in hc] for x in cat_ord]
         self.endResetModel()
-        self.changed = True
 
     def is_standard_category(self, key):
         return self.gui.tags_view.model().is_standard_category(key)
 
     def commit(self):
         if self.changed:
-            self.db.new_api.set_pref('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
-            self.db.new_api.set_pref('tag_browser_category_order', [k for k,v in self.fields])
-            self.gui.tags_view.model().set_hidden_categories({k for k,v in self.fields if not v})
+            self.db.prefs.set('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
+            self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
+            self.gui.tags_view.model().reset_tag_browser_categories()
+# }}}
+
+
+class TBPartitionedFields(DisplayedFields):  # {{{
+    # The code in this class depends on the fact that the tag browser is
+    # initialized before this class is instantiated.
+
+    def __init__(self, db, parent=None, category_icons=None):
+        DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
+        from calibre.gui2.ui import get_gui
+        self.gui = get_gui()
+
+    def initialize(self, use_defaults=False, pref_data_override=None):
+        tv = self.gui.tags_view
+        cats = tv.model().categories
+        ans = []
+        if use_defaults:
+            ans = [[k, True] for k in cats.keys()]
+            self.changed = True
+        elif pref_data_override:
+            po = {k:v for k,v in pref_data_override}
+            ans = [[k, po.get(k, True)] for k in cats.keys()]
+            self.changed = True
+        else:
+            # Check if setting not migrated yet
+            cats_to_partition =  self.db.prefs.get('tag_browser_dont_collapse',
+                                                   gprefs.get('tag_browser_dont_collapse'))
+            for key in cats:
+                ans.append([key, not key in cats_to_partition])
+        self.beginResetModel()
+        self.fields = ans
+        self.endResetModel()
+
+    def commit(self):
+        if self.changed:
+            # Migrate to a per-library setting
+            self.db.prefs.set('tag_browser_dont_collapse', [k for k,v in self.fields if not v])
+            self.gui.tags_view.model().reset_tag_browser_categories()
+# }}}
+
+
+class TBHierarchicalFields(DisplayedFields):  # {{{
+    # The code in this class depends on the fact that the tag browser is
+    # initialized before this class is instantiated.
+
+    cant_make_hierarical = {'authors', 'publisher', 'formats', 'news',
+                            'identifiers', 'languages', 'rating'}
+
+    def __init__(self, db, parent=None, category_icons=None):
+        DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
+        from calibre.gui2.ui import get_gui
+        self.gui = get_gui()
+
+    def initialize(self, use_defaults=False, pref_data_override=None):
+        tv = self.gui.tags_view
+        cats = [k for k in tv.model().categories.keys() if k not in self.cant_make_hierarical]
+        ans = []
+        if use_defaults:
+            ans = [[k, False] for k in cats]
+            self.changed = True
+        elif pref_data_override:
+            ph = {k:v for k,v in pref_data_override}
+            ans = [[k, ph.get(k, False)] for k in cats]
+            self.changed = True
+        else:
+            hier_cats =  self.db.prefs.get('categories_using_hierarchy')
+            for key in cats:
+                ans.append([key, key in hier_cats])
+        self.beginResetModel()
+        self.fields = ans
+        self.endResetModel()
+
+    def commit(self):
+        if self.changed:
+            self.db.prefs.set('categories_using_hierarchy', [k for k,v in self.fields if v])
+            self.gui.tags_view.model().reset_tag_browser_categories()
 # }}}
 
 
@@ -547,20 +625,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_collapse_at', gprefs)
         r('tags_browser_collapse_fl_at', gprefs)
 
-        choices = {k for k in db.field_metadata.all_field_keys()
-                if (db.field_metadata[k]['is_category'] and (
-                    db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration'
-                    ]) and not db.field_metadata[k]['display'].get('is_names', False)) or (
-                    db.field_metadata[k]['datatype'] in ['composite'
-                    ] and db.field_metadata[k]['display'].get('make_category', False))}
-        choices |= {'search'}
-        r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList,
-          choices=sorted(choices, key=sort_key))
-
-        choices -= {'authors', 'publisher', 'formats', 'news', 'identifiers'}
-        r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
-          choices=sorted(choices, key=sort_key))
-
         fm = db.field_metadata
         choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
                          key=lambda x:sort_key(x[0]))
@@ -601,9 +665,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 lambda self: move_field_up(self.em_display_order, self.em_display_model))
         connect_lambda(self.em_down_button.clicked, self,
                 lambda self: move_field_down(self.em_display_order, self.em_display_model))
-        self.em_export_layout_button.clicked.connect(self.em_export_layout)
-        self.em_import_layout_button.clicked.connect(self.em_import_layout)
-        self.em_reset_layout_button.clicked.connect(self.em_reset_layout)
+        self.em_export_layout_button.clicked.connect(partial(self.export_layout,
+                                                             model=self.em_display_model))
+        self.em_import_layout_button.clicked.connect(partial(self.import_layout,
+                                                             model=self.em_display_model))
+        self.em_reset_layout_button.clicked.connect(partial(self.reset_layout,
+                                                            model=self.em_display_model))
 
         self.qv_display_model = QVDisplayedFields(self.gui.current_db,
                 self.qv_display_order)
@@ -615,15 +682,42 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 lambda self: move_field_down(self.qv_display_order, self.qv_display_model))
 
         self.tb_display_model = TBDisplayedFields(self.gui.current_db,
-                self.tb_display_order,
-                category_icons=self.gui.tags_view.model().category_custom_icons)
+                                                  self.tb_display_order,
+                                                  category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_display_model.dataChanged.connect(self.changed_signal)
         self.tb_display_order.setModel(self.tb_display_model)
-        self.tb_reset_layout_button.clicked.connect(self.tb_reset_layout)
-        self.tb_export_layout_button.clicked.connect(self.tb_export_layout)
-        self.tb_import_layout_button.clicked.connect(self.tb_import_layout)
+        self.tb_reset_layout_button.clicked.connect(partial(self.reset_layout,
+                                                            model=self.tb_display_model))
+        self.tb_export_layout_button.clicked.connect(partial(self.export_layout,
+                                                             model=self.tb_display_model))
+        self.tb_import_layout_button.clicked.connect(partial(self.import_layout,
+                                                             model=self.tb_display_model))
         self.tb_up_button.clicked.connect(self.tb_up_button_clicked)
         self.tb_down_button.clicked.connect(self.tb_down_button_clicked)
+
+        self.tb_categories_to_part_model = TBPartitionedFields(self.gui.current_db,
+                                                               self.tb_cats_to_partition,
+                                                               category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_categories_to_part_model.dataChanged.connect(self.changed_signal)
+        self.tb_cats_to_partition.setModel(self.tb_categories_to_part_model)
+        self.tb_partition_reset_button.clicked.connect(partial(self.reset_layout,
+                                                               model=self.tb_categories_to_part_model))
+        self.tb_partition_export_layout_button.clicked.connect(partial(self.export_layout,
+                                                                       model=self.tb_categories_to_part_model))
+        self.tb_partition_import_layout_button.clicked.connect(partial(self.import_layout,
+                                                                       model=self.tb_categories_to_part_model))
+
+        self.tb_hierarchical_cats_model = TBHierarchicalFields(self.gui.current_db,
+                                                              self.tb_hierarchical_cats,
+                                                              category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_hierarchical_cats_model.dataChanged.connect(self.changed_signal)
+        self.tb_hierarchical_cats.setModel(self.tb_hierarchical_cats_model)
+        self.tb_hierarchy_reset_layout_button.clicked.connect(partial(self.reset_layout,
+                                                           model=self.tb_hierarchical_cats_model))
+        self.tb_hierarchy_export_layout_button.clicked.connect(partial(self.export_layout,
+                                                           model=self.tb_hierarchical_cats_model))
+        self.tb_hierarchy_import_layout_button.clicked.connect(partial(self.import_layout,
+                                                           model=self.tb_hierarchical_cats_model))
 
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
@@ -695,19 +789,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_color_palette.setEnabled(enabled)
             self.opt_color_palette_label.setEnabled(enabled)
 
-    def em_export_layout(self):
+    def export_layout(self, model=None):
         filename = choose_save_file(self, 'em_import_export_field_list',
                 _('Save column list to file'),
                 filters=[(_('Column list'), ['json'])])
         if filename:
             try:
                 with open(filename, 'w') as f:
-                    json.dump(self.em_display_model.fields, f, indent=1)
+                    json.dump(model.fields, f, indent=1)
             except Exception as err:
                 error_dialog(self, _('Export field layout'),
                              _('<p>Could not write field list. Error:<br>%s')%err, show=True)
 
-    def em_import_layout(self):
+    def import_layout(self, model=None):
         filename = choose_files(self, 'em_import_export_field_list',
                 _('Load column list from file'),
                 filters=[(_('Column list'), ['json'])])
@@ -715,44 +809,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             try:
                 with open(filename[0]) as f:
                     fields = json.load(f)
-                self.em_display_model.initialize(pref_data_override=fields)
+                model.initialize(pref_data_override=fields)
                 self.changed_signal.emit()
             except Exception as err:
                 error_dialog(self, _('Import layout'),
                              _('<p>Could not read field list. Error:<br>%s')%err, show=True)
 
-    def em_reset_layout(self):
-        self.em_display_model.initialize(use_defaults=True)
-        self.changed_signal.emit()
-
-    def tb_export_layout(self):
-        filename = choose_save_file(self, 'em_import_export_field_list',
-                _('Save column list to file'),
-                filters=[(_('Column list'), ['json'])])
-        if filename:
-            try:
-                with open(filename, 'w') as f:
-                    json.dump(self.tb_display_model.fields, f, indent=1)
-            except Exception as err:
-                error_dialog(self, _('Export field layout'),
-                             _('<p>Could not write field list. Error:<br>%s')%err, show=True)
-
-    def tb_import_layout(self):
-        filename = choose_files(self, 'em_import_export_field_list',
-                _('Load column list from file'),
-                filters=[(_('Column list'), ['json'])])
-        if filename:
-            try:
-                with open(filename[0]) as f:
-                    fields = json.load(f)
-                self.tb_display_model.initialize(pref_data_override=fields)
-                self.changed_signal.emit()
-            except Exception as err:
-                error_dialog(self, _('Import layout'),
-                             _('<p>Could not read field list. Error:<br>%s')%err, show=True)
-
-    def tb_reset_layout(self):
-        self.tb_display_model.initialize(use_defaults=True)
+    def reset_layout(self, model=None):
+        model.initialize(use_defaults=True)
         self.changed_signal.emit()
 
     def tb_down_button_clicked(self):
@@ -839,6 +903,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.em_display_model.initialize()
         self.qv_display_model.initialize()
         self.tb_display_model.initialize()
+        self.tb_categories_to_part_model.initialize()
+        self.tb_hierarchical_cats_model.initialize()
         db = self.gui.current_db
         mi = []
         try:
@@ -974,6 +1040,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.em_display_model.commit()
             self.qv_display_model.commit()
             self.tb_display_model.commit()
+            self.tb_categories_to_part_model.commit()
+            self.tb_hierarchical_cats_model.commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
             self.grid_rules.commit(self.gui.current_db.prefs)
