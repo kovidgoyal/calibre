@@ -2207,5 +2207,4 @@ class DB:
                 while not b.done:
                     with suppress(apsw.BusyError):
                         b.step(128)
-            dest_db.cursor().execute('VACUUM;')
     # }}}
