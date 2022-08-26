@@ -2,6 +2,7 @@ import json
 import re
 from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from urllib.parse import quote
 
 
 class ft(BasicNewsRecipe):
@@ -71,9 +72,9 @@ class ft(BasicNewsRecipe):
                         'url': url,
                         'description': desc
                     })
-                    self.log('\t\t', desc)
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
+                    self.log('\t', desc)
+                    self.log('\t', title)
+                    self.log('\t\t', url)
             if articles:
                 feeds.append((secname, articles))
         return feeds
@@ -101,16 +102,26 @@ class ft(BasicNewsRecipe):
                 author = ' and '.join(x['name'] for x in data['author'])
 
         image = desc = title_image_url = ''
-        if data.get('image'):
-            title_image_url = data['image']['url']
-            image = '<p><img src="{}">'.format(title_image_url)
 
+        def resize_img(img):
+            a = 'https://www.ft.com/__origami/service/image/v2/images/raw/'
+            b = quote(img, safe='')
+            c = '?dpr=2&fit=scale-down&quality=medium&source=next&width=300'
+            # use width = 200, 300, 400,.. 700...
+            return a + b + c
+
+        if data.get('image'):
+            image_url = data['image']['url']
+            if body.__contains__(image_url) is False:
+                title_image_url = resize_img(image_url)
+                image = '<p><img src="{}">'.format(title_image_url)
         # embedded image links
+
         def insert_image(m):
             url = m.group()[1:-1]
-            if url == title_image_url:
-                return ''
-            return '<p><img src="{}">'.format(url)
+            if url.__contains__('studio') is False:
+                url = resize_img(url)
+            return '<p>	<img src="{}">'.format(url)
 
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
 
