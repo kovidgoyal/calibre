@@ -1228,6 +1228,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                     order = {'*': 1000}
                 defvalue = order.get('*', 1000)
                 self.row_map.sort(key=lambda x: order.get(x, defvalue))
+            # Migrate the tweak to the new pref. First, make sure the order is valid
+            self.row_map = self.get_ordered_categories(pref_data_override=[[k,None] for k in self.row_map])
+            self.db.new_api.set_pref('tag_browser_category_order', self.row_map)
         return data
 
     def set_categories_filter(self, txt):
