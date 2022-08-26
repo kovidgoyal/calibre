@@ -216,13 +216,13 @@ def categories_settings(query, db, gst_container=GroupedSearchTerms):
         hidden_categories, query.get('hide_empty_categories') == 'yes')
 
 
-def create_toplevel_tree(category_data, items, field_metadata, opts):
+def create_toplevel_tree(category_data, items, field_metadata, opts, db):
     # Create the basic tree, containing all top level categories , user
     # categories and grouped search terms
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
     category_nodes, recount_nodes = [], []
-    order = tweaks['tag_browser_category_order']
+    order = db.pref('tag_browser_category_order') or {}
     defvalue = order.get('*', 100)
     categories = [category for category in field_metadata if category in category_data]
     scats = sorted(categories, key=lambda x: order.get(x, defvalue))
@@ -522,7 +522,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
 def render_categories(opts, db, category_data):
     items = {}
     with db.safe_read_lock:
-        root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, db.field_metadata, opts)
+        root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, db.field_metadata, opts, db)
         fillout_tree(root, items, node_id_map, category_nodes, category_data, db.field_metadata, opts, db.fields['rating'].book_value_map)
     for node in recount_nodes:
         item = items[node['id']]
