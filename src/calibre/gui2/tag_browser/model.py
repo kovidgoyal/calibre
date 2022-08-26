@@ -402,9 +402,14 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._run_rebuild()
         self.endResetModel()
 
-    def set_hidden_categories(self, cats):
+    def reset_tag_browser_categories(self):
         self.beginResetModel()
-        self.hidden_categories = cats
+        hidden_cats = self.db.new_api.pref('tag_browser_hidden_categories', {})
+        self.hidden_categories = set()
+        # strip out any non-existent field keys
+        for cat in hidden_cats:
+            if cat in self.db.field_metadata:
+                self.hidden_categories.add(cat)
         self._run_rebuild()
         self.endResetModel()
 
@@ -541,7 +546,9 @@ class TagsModel(QAbstractItemModel):  # {{{
             is_gst = category.is_gst
             if key not in data:
                 return
-            if key in self.prefs['tag_browser_dont_collapse']:
+            # Use old pref if new one doesn't exist
+            if key in self.db.prefs.get('tag_browser_dont_collapse',
+                                       self.prefs['tag_browser_dont_collapse']):
                 collapse_model = 'disable'
             cat_len = len(data[key])
             if cat_len <= 0:
