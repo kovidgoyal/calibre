@@ -422,10 +422,9 @@ class TBPartitionedFields(DisplayedFields):  # {{{
             self.changed = True
         else:
             # Check if setting not migrated yet
-            cats_to_partition =  self.db.prefs.get('tag_browser_dont_collapse',
-                                                   gprefs.get('tag_browser_dont_collapse'))
+            cats_to_partition = frozenset(self.db.prefs.get('tag_browser_dont_collapse', gprefs.get('tag_browser_dont_collapse')) or ())
             for key in cats:
-                ans.append([key, not key in cats_to_partition])
+                ans.append([key, key not in cats_to_partition])
         self.beginResetModel()
         self.fields = ans
         self.endResetModel()
@@ -462,7 +461,7 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:
-            hier_cats =  self.db.prefs.get('categories_using_hierarchy')
+            hier_cats =  self.db.prefs.get('categories_using_hierarchy') or ()
             for key in cats:
                 ans.append([key, key in hier_cats])
         self.beginResetModel()
