@@ -397,12 +397,6 @@
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0" colspan="5">
             <widget class="QLabel" name="cover_size_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>10</verstretch>
-              </sizepolicy>
-             </property>
              <property name="text">
               <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
              </property>
@@ -914,7 +908,7 @@ A value of zero means calculate automatically.</string>
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Select the custom columns (for this library) to display in the edit metadata dialogs and their order</string>
+          <string>Select the custom columns (for this library) to display in the edit metadata dialogs and their order:</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="3" column="1">
@@ -1141,7 +1135,7 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tag_browser_tab">
+     <widget class="QTabWidget" name="tag_browser_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
@@ -1149,50 +1143,450 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
       <attribute name="title">
        <string>&amp;Tag browser</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Select the categories to display in the Tag browser and their order</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="4" column="1">
-           <widget class="QToolButton" name="tb_down_button">
+      <widget class="QWidget" name="tb_tab1">
+       <attribute name="title">
+        <string>Di&amp;splay</string>
+       </attribute>
+       <layout class="QGridLayout" name="verticalLayout_42">
+        <item row="0" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Select the categories to display and their &amp;order</string>
+          </property>
+          <property name="buddy">
+           <cstring>tb_display_order</cstring>
+          </property>
+          <property name="toolTip">
+           <string>User categories and Saved searches cannot be moved</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="3">
+         <widget class="QListView" name="tb_display_order">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QToolButton" name="tb_up_button">
+          <property name="toolTip">
+           <string>Move up. User categories and Saved searches cannot be moved</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="1">
+         <widget class="QToolButton" name="tb_down_button">
+          <property name="toolTip">
+           <string>Move down. User categories and Saved searches cannot be moved</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="tb_reset_layout_button">
             <property name="toolTip">
-             <string>Move down. User categories and Saved searches cannot be moved</string>
+             <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            <property name="text">
+             <string>Reset list</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QToolButton" name="tb_up_button">
+          <item>
+           <widget class="QPushButton" name="tb_import_layout_button">
             <property name="toolTip">
-             <string>Move up. User categories and Saved searches cannot be moved</string>
+             <string>&lt;p&gt;Click this button to set the list to one
+previously exported. This could be useful if you have several libraries with
+similar structure and you want to use the same column order for each one. Columns
+in the imported list that aren't in the current library are ignored. Columns in
+the library that are not in the imported list are put at the end and marked
+as displayable.&lt;/p&gt;</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+            <property name="text">
+             <string>Import list</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <spacer name="verticalSpacer_5">
+          <item>
+           <widget class="QPushButton" name="tb_export_layout_button">
+            <property name="toolTip">
+             <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same column order for each one.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Export list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
            </spacer>
           </item>
-          <item row="2" column="0" rowspan="3">
-           <widget class="QListView" name="tb_display_order">
+         </layout>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Select categories with &amp;hierarchical items:</string>
+          </property>
+          <property name="buddy">
+           <cstring>tb_hierarchical_cats</cstring>
+          </property>
+          <property name="toolTip">
+           <string>&lt;p&gt;Check the box for an item if it is to be displayed as a
+hierarchical tree in the Tag browser. For example, if you check
+'tags' then tags of the form 'Mystery.English'
+and 'Mystery.Thriller' will be displayed with English and Thriller
+both under 'Mystery'. If 'tags' is not checked
+then the tags will be displayed each on their own line.&lt;/p&gt;
+&lt;p&gt;Some categories such as authors cannot be hierarchical.&lt;/p&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" rowspan="3">
+         <widget class="QListView" name="tb_hierarchical_cats">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="tb_hierarchy_reset_layout_button">
+            <property name="toolTip">
+             <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Reset list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="tb_hierarchy_import_layout_button">
+            <property name="toolTip">
+             <string>&lt;p&gt;Click this button to set the list to one
+previously exported. This could be useful if you have several libraries with
+similar structure and you want to use the same for each one.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Import list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="tb_hierarchy_export_layout_button">
+            <property name="toolTip">
+             <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same for each one.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Export list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="opt_show_avg_rating">
+          <property name="text">
+           <string>Show &amp;average ratings</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
+          <property name="text">
+           <string>Show &amp;tooltips</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QCheckBox" name="opt_tag_browser_show_counts">
+          <property name="toolTip">
+           <string>&lt;p&gt;Show counts for items in the Tag browser. Such as the number of books
+by each author, the number of authors, etc. If you turn it off, you can still
+see the counts by hovering your mouse over any item.&lt;/p&gt;</string>
+          </property>
+          <property name="text">
+           <string>Show &amp;counts</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QCheckBox" name="opt_tag_browser_old_look">
+          <property name="text">
+           <string>Use &amp;alternating row colors</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
+          <property name="toolTip">
+           <string>&lt;p&gt;When checked, calibre will automatically hide any category
+(a column, custom or standard) that has no items to show. For example, some
+categories might not have values when using Virtual libraries. Checking this
+box will cause these empty categories to be hidden.&lt;/p&gt;</string>
+          </property>
+          <property name="text">
+           <string>Hide empt&amp;y categories (columns)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2">
+         <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
+          <property name="toolTip">
+           <string>&lt;p&gt;When checked, Find in the Tag browser will show all items
+that match the search instead of the first one. If Hide empty categories is
+also checked then only categories containing a matched item will be shown.&lt;/p&gt;</string>
+          </property>
+          <property name="text">
+           <string>Find &amp;shows all items that match</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="3">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QCheckBox" name="opt_tag_browser_allow_keyboard_focus">
+            <property name="toolTip">
+             <string>&lt;p&gt;When checked, the Tag browser can get keyboard focus, allowing
+use of the keyboard to navigate the tree using the arrow keys. The Enter key simulates
+a click on the selected item. The keyboard shortcut 'Tag browser /
+Give the Tag browser keyboard focus' changes the keyboard focus without
+using the mouse.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Allow the Tag browser to have keyboard &amp;focus</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="tb_focus_label">
+            <property name="styleSheet">
+             <string notr="true">margin-left: 1.5em</string>
+            </property>
+            <property name="text">
+             <string>&lt;p style=&quot;text-indent: 2em; font-size:smaller&quot;&gt;
+If you enable this option then you should set a keyboard shortcut to
+focus the Tag browser under
+&lt;code&gt;Preferences-&amp;gt;Shortcuts-&amp;gt;Tag browser-&amp;gt;Give
+the Tag browser keyboard focus&lt;/code&gt;&lt;/p&gt;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="10" column="0" colspan="3">
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::ExpandingFieldsGrow</enum>
+          </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Spacing between &amp;items:</string>
+            </property>
+            <property name="buddy">
+             <cstring>opt_tag_browser_item_padding</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="opt_tag_browser_item_padding">
+            <property name="toolTip">
+             <string>&lt;p&gt;The spacing between consecutive items in the Tag browser.
+In units of (ex) which is the approximate height of the letter 'x' in the
+currently used font.&lt;/p&gt;</string>
+            </property>
+            <property name="suffix">
+             <string>ex</string>
+            </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>-1.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>2.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tb_tab2">
+       <attribute name="title">
+        <string>&amp;Partitioning and collapsing</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="formLayout">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>&amp;Category partitioning method:</string>
+              </property>
+              <property name="buddy">
+               <cstring>opt_tags_browser_partition_method</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="opt_tags_browser_partition_method">
+              <property name="toolTip">
+               <string>&lt;p&gt;Choose how Tag browser subcategories are displayed when
+there are more items than the limit. Select by first
+letter to see an A, B, C list. Choose partitioned to
+have a list of fixed-sized groups. Set to disabled
+if you never want subcategories&lt;/p&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Combine letters &amp;when fewer items than:</string>
+              </property>
+              <property name="buddy">
+               <cstring>opt_tags_browser_collapse_fl_at</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="opt_tags_browser_collapse_fl_at">
+              <property name="toolTip">
+               <string>&lt;p&gt;If collapsing by first letter, combine adjacent letters together if
+there are fewer items under a letter than specified here. If the partition method is
+not set to first letter, this value is ignored. Set to zero to disable.&lt;/p&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Co&amp;llapse when more items than:</string>
+              </property>
+              <property name="buddy">
+               <cstring>opt_tags_browser_collapse_at</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
+              <property name="toolTip">
+               <string>&lt;p&gt;If a Tag browser category has more than this number of items, it is divided
+up into subcategories. If the partition method is set to disable, this value is ignored.&lt;/p&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel">
+            <property name="text">
+             <string>Select categories to &amp;partition:</string>
+            </property>
+            <property name="buddy">
+             <cstring>tb_cats_to_partition</cstring>
+            </property>
+            <property name="toolTip">
+             <string>&lt;p&gt;Check the box for categories that are to
+be partitioned using the criteria above. Uncheck the box if you don't want to
+partition a category even if the number of items is larger than
+the value shown above. This option can be used to
+avoid collapsing hierarchical categories that have only
+a few top-level elements.&lt;/p&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QListView" name="tb_cats_to_partition">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -1204,10 +1598,10 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item row="3" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_41">
             <item>
-             <widget class="QPushButton" name="tb_reset_layout_button">
+             <widget class="QPushButton" name="tb_partition_reset_button">
               <property name="toolTip">
                <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
               </property>
@@ -1217,14 +1611,11 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="tb_import_layout_button">
+             <widget class="QPushButton" name="tb_partition_import_layout_button">
               <property name="toolTip">
                <string>&lt;p&gt;Click this button to set the list to one
 previously exported. This could be useful if you have several libraries with
-similar structure and you want to use the same column order for each one. Columns
-in the imported list that aren't in the current library are ignored. Columns in
-the library that are not in the imported list are put at the end and marked
-as displayable.&lt;/p&gt;</string>
+similar structure and you want to use the same for each one.&lt;/p&gt;</string>
               </property>
               <property name="text">
                <string>Import list</string>
@@ -1232,11 +1623,11 @@ as displayable.&lt;/p&gt;</string>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="tb_export_layout_button">
+             <widget class="QPushButton" name="tb_partition_export_layout_button">
               <property name="toolTip">
                <string>&lt;p&gt;Click this button to write the current display
 settings to a file. This could be useful if you have several libraries with similar
-structure and you want to use the same column order for each one.&lt;/p&gt;</string>
+structure and you want to use the same for each one.&lt;/p&gt;</string>
               </property>
               <property name="text">
                <string>Export list</string>
@@ -1259,376 +1650,9 @@ structure and you want to use the same column order for each one.&lt;/p&gt;</str
            </layout>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_10">
-         <item row="0" column="0">
-          <layout class="QFormLayout" name="formLayout">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::ExpandingFieldsGrow</enum>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>&amp;Category partitioning method:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_tags_browser_partition_method</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="opt_tags_browser_partition_method">
-             <property name="toolTip">
-              <string>Choose how Tag browser subcategories are displayed when
-there are more items than the limit. Select by first
-letter to see an A, B, C list. Choose partitioned to
-have a list of fixed-sized groups. Set to disabled
-if you never want subcategories</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Spacing between &amp;items:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_tag_browser_item_padding</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="opt_tag_browser_item_padding">
-             <property name="toolTip">
-              <string>The spacing between consecutive items in the Tag browser. In units of (ex) which is the approximate height of the letter 'x' in the currently used font. </string>
-             </property>
-             <property name="suffix">
-              <string> ex</string>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="minimum">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>2.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="1">
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Combine letters &amp;when fewer items than:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_tags_browser_collapse_fl_at</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="opt_tags_browser_collapse_fl_at">
-             <property name="toolTip">
-              <string>If collapsing by first letter, combine adjacent letters together if
-there are fewer items under a letter than specified here. If the partition method is
-not set to first letter, this value is ignored. Set to zero to disable.</string>
-             </property>
-             <property name="maximum">
-              <number>10000</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Co&amp;llapse when more items than:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_tags_browser_collapse_at</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
-             <property name="toolTip">
-              <string>If a Tag browser category has more than this number of items, it is divided
-up into subcategories. If the partition method is set to disable, this value is ignored.</string>
-             </property>
-             <property name="maximum">
-              <number>10000</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel">
-           <property name="text">
-            <string>Select categories to &amp;partition:</string>
-           </property>
-           <property name="buddy">
-            <cstring>tb_cats_to_partition</cstring>
-           </property>
-           <property name="toolTip">
-            <string>&lt;p&gt;Check the box for categories that are to
-be partitioned using the criteria above. Uncheck the box if you don't want to
-partition a category even if the number of items is larger than
-the value shown above. This option can be used to
-avoid collapsing hierarchical categories that have only
-a few top-level elements.&lt;/p&gt;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QListView" name="tb_cats_to_partition">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>200</height>
-            </size>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_41">
-           <item>
-            <widget class="QPushButton" name="tb_partition_reset_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reset list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="tb_partition_import_layout_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to set the list to one
-previously exported. This could be useful if you have several libraries with
-similar structure and you want to use the same for each one.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Import list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="tb_partition_export_layout_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to write the current display
-settings to a file. This could be useful if you have several libraries with similar
-structure and you want to use the same for each one.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Export list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel">
-           <property name="text">
-            <string>Select categories with &amp;hierarchical items:</string>
-           </property>
-           <property name="buddy">
-            <cstring>tb_hierarchical_cats</cstring>
-           </property>
-           <property name="toolTip">
-            <string>&lt;p&gt;Check the box for an item if it is to be displayed as a
-hierarchical tree in the Tag browser. For example, if you check
-'tags' then tags of the form 'Mystery.English'
-and 'Mystery.Thriller' will be displayed with English and Thriller
-both under 'Mystery'. If 'tags' is not checked
-then the tags will be displayed each on their own line.&lt;/p&gt;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QListView" name="tb_hierarchical_cats">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>200</height>
-            </size>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QPushButton" name="tb_hierarchy_reset_layout_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to reset the list to its default order.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reset list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="tb_hierarchy_import_layout_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to set the list to one
-previously exported. This could be useful if you have several libraries with
-similar structure and you want to use the same for each one.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Import list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="tb_hierarchy_export_layout_button">
-             <property name="toolTip">
-              <string>&lt;p&gt;Click this button to write the current display
-settings to a file. This could be useful if you have several libraries with similar
-structure and you want to use the same for each one.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Export list</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item row="5" column="0">
-          <widget class="QCheckBox" name="opt_show_avg_rating">
-           <property name="text">
-            <string>Show &amp;average ratings</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
-           <property name="text">
-            <string>Show &amp;tooltips</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QCheckBox" name="opt_tag_browser_show_counts">
-           <property name="toolTip">
-            <string>Show counts for items in the Tag browser. Such as the number of books
-by each author, the number of authors, etc. If you turn it off, you can still
-see the counts by hovering your mouse over any item.</string>
-           </property>
-           <property name="text">
-            <string>Show &amp;counts</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QCheckBox" name="opt_tag_browser_old_look">
-           <property name="text">
-            <string>Use &amp;alternating row colors</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
-           <property name="toolTip">
-            <string>When checked, calibre will automatically hide any category
- (a column, custom or standard) that has no items to show. For example, some
- categories might not have values when using Virtual libraries. Checking this
- box will cause these empty categories to be hidden.</string>
-           </property>
-           <property name="text">
-            <string>Hi&amp;de empty categories (columns)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
-           <property name="toolTip">
-            <string>When checked, Find in the Tag browser will show all items
- that match the search instead of the first one. If Hide empty categories is
- also checked then only categories containing a matched item will be shown.</string>
-           </property>
-           <property name="text">
-            <string>Find &amp;shows all items that match</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0" colspan="2">
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QCheckBox" name="opt_tag_browser_allow_keyboard_focus">
-             <property name="toolTip">
-              <string>&lt;p&gt;When checked, the Tag browser can get keyboard focus, allowing
-use of the keyboard to navigate the tree using the arrow keys. The Enter key simulates
-a click on the selected item. The keyboard shortcut 'Tag browser /
-Give the Tag browser keyboard focus' changes the keyboard focus without
-using the mouse.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Allow the Tag browser to have keyboard &amp;focus</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="tb_focus_label">
-             <property name="styleSheet">
-              <string notr="true">margin-left: 1.5em</string>
-             </property>
-             <property name="text">
-              <string>&lt;p style=&quot;text-indent: 2em; font-size:smaller&quot;&gt;If you enable this option then you should set a keyboard shortcut to focus the Tag browser under &lt;code&gt;Preferences-&amp;gt;Shortcuts-&amp;gt;Tag browser-&amp;gt;Give the Tag browser keyboard focus&lt;/code&gt;</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
      <widget class="QWidget" name="cover_browser_tab">
       <attribute name="icon">
@@ -1689,7 +1713,11 @@ using the mouse.&lt;/p&gt;</string>
        <item row="7" column="1">
         <widget class="QLineEdit" name="opt_cover_browser_title_template">
          <property name="toolTip">
-          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use. Use an empty template for no text.</string>
+          <string>&lt;p&gt;The template used to generate the text below the covers. Uses
+the same syntax as save templates. Defaults to just the book title.
+Note that this setting is per-library, which means that you have to
+set it again for every different calibre library you use. Use an
+empty template for no text.&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
@@ -1760,7 +1788,7 @@ them to all have the same width and height</string>
        <item row="9" column="1">
         <widget class="QDoubleSpinBox" name="opt_books_autoscroll_time">
          <property name="suffix">
-          <string> seconds</string>
+          <string>seconds</string>
          </property>
          <property name="decimals">
           <number>1</number>
@@ -1796,9 +1824,9 @@ them to all have the same width and height</string>
          <item row="2" column="0">
           <widget class="QCheckBox" name="opt_qv_respects_vls">
            <property name="toolTip">
-            <string>Check this box to make Quickview show books only in the
+            <string>&lt;p&gt;Check this box to make Quickview show books only in the
 current Virtual library. If unchecked, Quickview ignores Virtual libraries. If
-unchecked then only row changes are taken into account.</string>
+unchecked then only row changes are taken into account.&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Apply Virtual libraries</string>
@@ -1808,8 +1836,8 @@ unchecked then only row changes are taken into account.</string>
          <item row="2" column="1">
           <widget class="QCheckBox" name="opt_qv_follows_column">
            <property name="toolTip">
-            <string>Check this box to make Quickview change the column being examined
-when the column in the book list is changed using the cursor arrow keys</string>
+            <string>&lt;p&gt;Check this box to make Quickview change the column being examined
+when the column in the book list is changed using the cursor arrow keys&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Change Quickview item when book list column changes</string>
@@ -1819,8 +1847,8 @@ when the column in the book list is changed using the cursor arrow keys</string>
          <item row="1" column="0">
           <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
            <property name="toolTip">
-            <string>Pressing Enter in a cell changes both the book and the
-column being examined (the left-hand pane)</string>
+            <string>&lt;p&gt;Pressing Enter in a cell changes both the book and the
+column being examined (the left-hand pane)&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Pressing Enter changes the examined column</string>
@@ -1830,8 +1858,8 @@ column being examined (the left-hand pane)</string>
          <item row="1" column="1">
           <widget class="QCheckBox" name="opt_qv_dclick_changes_column">
            <property name="toolTip">
-            <string>Double-clicking in a cell changes both the book and the
-column being examined (the left-hand pane)</string>
+            <string>&lt;p&gt;Double-clicking in a cell changes both the book and the
+column being examined (the left-hand pane)&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Double click changes examined column</string>
