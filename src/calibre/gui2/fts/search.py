@@ -25,6 +25,7 @@ from calibre.gui2 import (
     config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
 )
 from calibre.gui2.fts.utils import get_db
+from calibre.gui2.library.models import render_pin
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -829,6 +830,9 @@ class ResultsPanel(QWidget):
         m = QMenu(b)
         m.addAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), partial(self.mark_books, 'mark'))
         m.addAction(QIcon.ic('edit-select-all.png'), _('Select all matched books in the library'), partial(self.mark_books, 'select'))
+        if not hasattr(self, 'colored_pin'):
+            self.colored_pin = QIcon(render_pin())
+        m.addAction(QIcon(self.colored_pin), _('Mark and select all matched books'), partial(self.mark_books, 'mark-select'))
         b.setMenu(m)
 
     def mark_books(self, which):
@@ -838,6 +842,9 @@ class ResultsPanel(QWidget):
             if which == 'mark':
                 gui.iactions['Mark Books'].add_ids(book_ids)
             elif which == 'select':
+                gui.library_view.select_rows(book_ids)
+            elif which == 'mark-select':
+                gui.iactions['Mark Books'].add_ids(book_ids)
                 gui.library_view.select_rows(book_ids)
 
     def clear_results(self):
