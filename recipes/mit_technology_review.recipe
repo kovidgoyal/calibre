@@ -61,6 +61,12 @@ class MitTechnologyReview(BasicNewsRecipe):
         ),
     ]
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.technologyreview.com/')
+        div = soup.find('div', attrs={'class':lambda s: s and s.startswith('magazineSidebar__imageWrap')})
+        img = div.find('img', src=True)
+        return img['src']
+
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         self.timefmt = ' [{}]'.format(
@@ -72,19 +78,7 @@ class MitTechnologyReview(BasicNewsRecipe):
                 )
             )
         )
-        # find cover
-        self.cover_url = soup.find(
-            "div",
-            attrs={
-                "class":
-                lambda name: name.startswith("magazineHero__image")
-                if name else False
-            }
-        ).find(
-            "img",
-            srcset=True,
-            attrs={"class": lambda x: x.startswith('image__img') if x else False}
-        )['srcset'].split()[0]
+
         # parse articles
         feeds = OrderedDict()
 

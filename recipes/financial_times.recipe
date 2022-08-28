@@ -1,5 +1,6 @@
 import json
 import re
+from urllib.parse import quote
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -9,7 +10,7 @@ class ft(BasicNewsRecipe):
     language = 'en'
     __author__ = "Kovid Goyal"
     description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
-    oldest_article = 1.5
+    oldest_article = 1.15
     max_articles_per_feed = 50
     no_stylesheets = True
     remove_javascript = True
@@ -17,6 +18,7 @@ class ft(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
+    extra_css = '#fig-cap{font-style:italic; text-align:left; font-size:small;}'
 
     def get_cover_url(self):
         soup = self.index_to_soup(
@@ -58,19 +60,36 @@ class ft(BasicNewsRecipe):
             except TypeError:
                 author = ' and '.join(x['name'] for x in data['author'])
         image = desc = title_image_url = ''
-        if data.get('image'):
-            title_image_url = data['image']['url']
-            image = '<p><img src="{}">'.format(title_image_url)
 
+        def resize_img(img):
+            a = 'https://www.ft.com/__origami/service/image/v2/images/raw/'
+            b = quote(img, safe='')
+            c = '?dpr=2&fit=scale-down&quality=medium&source=next&width=400'
+            # use width = 200, 300, 400,.. 700...
+            return a + b + c
+
+        if data.get('image'):
+            image_url = data['image']['url']
+            if body.__contains__(image_url) is False:
+                title_image_url = resize_img(image_url)
+                image = '<p><img src="{}">'.format(title_image_url)
         # embedded image links
+
         def insert_image(m):
             url = m.group()[1:-1]
-            if url == title_image_url:
-                return ''
-            return '<p><img src="{}">'.format(url)
+            if url.__contains__('studio') is False:
+                url = resize_img(url)
+            return '<span><img src="{}"></span></p><p>'.format(url)
 
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
         html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
         return html
+
+    def preprocess_html(self, soup):
+        for span in soup.findAll('span'):
+            p = span.findParent('p')
+            if p:
+                p['id'] = 'fig-cap'
+        return soup
