@@ -52,16 +52,21 @@ class BackupProgress:
             self.total = book_id
         else:
             self.count += 1
-            prints(
-                '{:.1f}% {} - {}'.format((self.count * 100) / float(self.total), book_id,
-                                     getattr(mi, 'title', 'Unknown'))
-            )
+            if ok:
+                prints(
+                    '{:.1f}% {} - {}'.format((self.count * 100) / float(self.total), book_id,
+                                        getattr(mi, 'title', 'Unknown'))
+                )
+            else:
+                prints(
+                    '{:.1f}% {} failed'.format((self.count * 100) / float(self.total), book_id))
 
 
 def main(opts, args, dbctx):
     db = dbctx.db
     book_ids = None
     if opts.all:
-        book_ids = db.all_ids()
+        book_ids = db.new_api.all_book_ids()
+        db.new_api.mark_as_dirty(book_ids)
     db.dump_metadata(book_ids=book_ids, callback=BackupProgress())
     return 0
