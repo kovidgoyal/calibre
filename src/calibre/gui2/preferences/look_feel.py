@@ -18,8 +18,9 @@ from qt.core import (
 )
 
 from calibre import human_readable
-from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.constants import ismacos, iswindows
+from calibre.db.categories import is_standard_category
+from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2 import default_author_link, icon_resource_manager, choose_save_file, choose_files
@@ -388,9 +389,6 @@ class TBDisplayedFields(DisplayedFields):  # {{{
         self.beginResetModel()
         self.fields = [[x, x not in hc] for x in cat_ord]
         self.endResetModel()
-
-    def is_standard_category(self, key):
-        return self.gui.tags_view.model().is_standard_category(key)
 
     def commit(self):
         if self.changed:
@@ -825,9 +823,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             model = self.tb_display_model
             fields = model.fields
             key = fields[row][0]
-            if not model.is_standard_category(key):
+            if not is_standard_category(key):
                 return
-            if row < len(fields) and model.is_standard_category(fields[row+1][0]):
+            if row < len(fields) and is_standard_category(fields[row+1][0]):
                 move_field_down(self.tb_display_order, model)
 
     def tb_up_button_clicked(self):
@@ -837,7 +835,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             model = self.tb_display_model
             fields = model.fields
             key = fields[row][0]
-            if not model.is_standard_category(key):
+            if not is_standard_category(key):
                 return
             move_field_up(self.tb_display_order, model)
 

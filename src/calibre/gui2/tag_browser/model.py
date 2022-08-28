@@ -15,7 +15,7 @@ from qt.core import (
 )
 
 from calibre.constants import config_dir
-from calibre.db.categories import Tag
+from calibre.db.categories import Tag, category_display_order
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -1131,9 +1131,6 @@ class TagsModel(QAbstractItemModel):  # {{{
             return self.db.search('', return_matches=True, sort_results=False)
         return None
 
-    def is_standard_category(self, key):
-        return not (key.startswith('@') or key == 'search')
-
     def get_ordered_categories(self, use_defaults=False, pref_data_override=None):
         if use_defaults:
             tbo = []
@@ -1141,22 +1138,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             tbo = [k for k,_ in pref_data_override]
         else:
             tbo = self.db.new_api.pref('tag_browser_category_order', [])
-        disp_cats = self.categories.keys()
-        cat_ord = []
-        # Do the standard categories first
-        # Verify all the columns in the pref are actually in the tag browser
-        for key in tbo:
-            if self.is_standard_category(key) and key in disp_cats:
-                cat_ord.append(key)
-        # Add any new standard cats to the order pref at the end of the list
-        for key in disp_cats:
-            if key not in cat_ord and self.is_standard_category(key):
-                cat_ord.append(key)
-        # Now add the non-standard cats (user cats and search)
-        for key in disp_cats:
-            if not self.is_standard_category(key):
-                cat_ord.append(key)
-        return cat_ord
+        return category_display_order(tbo, list(self.categories.keys()))
 
     def _get_category_nodes(self, sort):
         '''

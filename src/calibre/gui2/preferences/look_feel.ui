@@ -1192,7 +1192,7 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>50</width>
             <height>40</height>
            </size>
           </property>
@@ -1278,7 +1278,8 @@ hierarchical tree in the Tag browser. For example, if you check
 and 'Mystery.Thriller' will be displayed with English and Thriller
 both under 'Mystery'. If 'tags' is not checked
 then the tags will be displayed each on their own line.&lt;/p&gt;
-&lt;p&gt;Some categories such as authors cannot be hierarchical.&lt;/p&gt;</string>
+&lt;p&gt;The categories 'authors', 'publisher', 'news', 'formats', and 'rating'
+cannot be hierarchical.&lt;/p&gt;</string>
           </property>
          </widget>
         </item>

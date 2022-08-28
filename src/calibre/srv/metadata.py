@@ -10,7 +10,7 @@ from functools import partial
 from threading import Lock
 
 from calibre.constants import config_dir
-from calibre.db.categories import Tag
+from calibre.db.categories import Tag, category_display_order
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
 from calibre.utils.config import tweaks
@@ -222,8 +222,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
     category_nodes, recount_nodes = [], []
-    scats = db.pref('tag_browser_category_order', [k for k in category_data])
-    scats = [k for k in scats if k in field_metadata]
+    scats = category_display_order(db.pref('tag_browser_category_order', []), list(category_data.keys()))
 
     for category in scats:
         is_user_category = category.startswith('@')
