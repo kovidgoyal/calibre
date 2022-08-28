@@ -434,6 +434,8 @@ def run_gui_(opts, args, app, gui_debug=None):
         debugfile = runner.main.gui_debug
         from calibre.gui2 import open_local_file
         if iswindows:
+            # detach the stdout/stderr/stdin handles
+            winutil.prepare_for_restart()
             with open(debugfile, 'r+b') as f:
                 raw = f.read()
                 raw = re.sub(b'(?<!\r)\n', b'\r\n', raw)
