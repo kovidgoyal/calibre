@@ -658,10 +658,7 @@ class ChooseLibraryAction(InterfaceAction):
 
         d = DBCheck(self.gui, db)
         try:
-            d.start()
-            from calibre.gui2.widgets import BusyCursor
-            with BusyCursor():
-                d.exec()
+            d.exec()
             try:
                 m.close()
             except Exception:

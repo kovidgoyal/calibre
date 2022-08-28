@@ -1286,9 +1286,9 @@ class DB:
                 finally:
                     self.reopen()
 
-    def vacuum(self):
+    def vacuum(self, include_fts_db):
         self.execute('VACUUM')
-        if self.fts_enabled:
+        if self.fts_enabled and include_fts_db:
             self.fts.vacuum()
 
     @property

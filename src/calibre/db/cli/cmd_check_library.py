@@ -60,6 +60,13 @@ Perform some checks on the filesystem representing a library. Reports are {0}
         help=_("Comma-separated list of names to ignore.\n"
                "Default: all")
     )
+    parser.add_option(
+        '--vacuum-fts-db',
+        default=False,
+        action='store_true',
+        help=_('Vacuum the full text search database. This can be very slow and memory intensive, depending on the size of the database.')
+    )
+
     return parser
 
 
@@ -113,7 +120,7 @@ def main(opts, args, dbctx):
 
     db = LibraryDatabase(dbctx.library_path)
     prints(_('Vacuuming database...'))
-    db.new_api.vacuum()
+    db.new_api.vacuum(opts.vacuum_fts_db)
     checker = CheckLibrary(dbctx.library_path, db)
     checker.scan_library(names, exts)
     for check in checks:

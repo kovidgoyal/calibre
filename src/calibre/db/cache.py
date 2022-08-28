@@ -2468,10 +2468,10 @@ class Cache:
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
     @write_api
-    def vacuum(self):
+    def vacuum(self, include_fts_db=False):
         self.is_doing_rebuild_or_vacuum = True
         try:
-            self.backend.vacuum()
+            self.backend.vacuum(include_fts_db)
         finally:
             self.is_doing_rebuild_or_vacuum = False
 

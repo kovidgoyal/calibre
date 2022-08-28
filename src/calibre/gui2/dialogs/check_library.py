@@ -6,50 +6,82 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 import os
+import weakref
+from qt.core import (
+    QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QGridLayout,
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QProgressBar, QPushButton, QSplitter,
+    QStackedLayout, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
+)
 from threading import Thread
 
-from qt.core import (
-    QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, QPushButton,
-    QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
-    QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)
-
+from calibre import as_unicode, prints
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.library.check_library import CheckLibrary, CHECKS
+from calibre.library.check_library import CHECKS, CheckLibrary
 from calibre.utils.recycle_bin import delete_file, delete_tree
-from calibre import prints, as_unicode
 
 
 class DBCheck(QDialog):  # {{{
 
-    update_msg = pyqtSignal(object)
     finished_vacuum = pyqtSignal()
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
-        self.l = QVBoxLayout()
-        self.setLayout(self.l)
-        self.l1 = QLabel(_('Vacuuming database to improve performance.') + ' ' +
-                         _('This will take a while, please wait...'))
-        self.setWindowTitle(_('Vacuuming...'))
-        self.l1.setWordWrap(True)
-        self.l.addWidget(self.l1)
-        self.msg = QLabel('')
-        self.update_msg.connect(self.msg.setText, type=Qt.ConnectionType.QueuedConnection)
+        self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
-        self.l.addWidget(self.msg)
-        self.msg.setWordWrap(True)
-        self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
-        self.db = db.new_api
         self.rejected = False
 
+        s = QStackedLayout(self)
+        s.setContentsMargins(0, 0, 0, 0)
+        one = QWidget(self)
+        s.addWidget(one)
+        two = QWidget(self)
+        s.addWidget(two)
+
+        l = QVBoxLayout(one)
+        la = QLabel(_('Check database integrity and compact it for improved performance.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        self.fts = f = QCheckBox(_('Also compact the Full text search database'))
+        l.addWidget(f)
+        la = QLabel('<p style="margin-left: 20px; font-style: italic">' + _(
+            'This can be a very slow and memory intensive operation,'
+            ' depending on the size of the Full text database.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        l.addStretch(10)
+        self.bb1 = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        l.addWidget(bb)
+        bb.accepted.connect(self.start)
+        bb.rejected.connect(self.reject)
+        self.setWindowTitle(_('Check the database file'))
+
+        l = QVBoxLayout(two)
+        la = QLabel(_('Vacuuming database to improve performance.') + ' ' +
+                         _('This will take a while, please wait...'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        pb = QProgressBar(self)
+        l.addWidget(pb)
+        pb.setMinimum(0), pb.setMaximum(0)
+        l.addStretch(10)
+        self.resize(self.sizeHint())
+        self.db = weakref.ref(db.new_api)
+
     def start(self):
-        t = self.thread = Thread(target=self.vacuum, daemon=True, name='VacuumDB')
+        self.setWindowTitle(_('Vacuuming...'))
+        self.layout().setCurrentIndex(1)
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+        self.vacuum_started = True
+        db = self.db()
+        t = self.thread = Thread(target=self.vacuum, args=(db, self.fts.isChecked()), daemon=True, name='VacuumDB')
         t.start()
 
-    def vacuum(self):
+    def vacuum(self, db, include_fts_db):
         try:
-            self.db.vacuum()
+            db.vacuum(include_fts_db)
         except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
@@ -57,10 +89,20 @@ class DBCheck(QDialog):  # {{{
 
     def reject(self):
         self.rejected = True
+        if self.vacuum_started:
+            return
         return QDialog.reject(self)
 
+    def closeEvent(self, ev):
+        if self.vacuum_started:
+            ev.ignore()
+            return
+        return super().closeEvent(ev)
+
     def break_cycles(self):
-        self.db = self.thread = None
+        if self.vacuum_started:
+            QApplication.restoreOverrideCursor()
+        self.thread = None
 
 # }}}
 
@@ -458,7 +500,8 @@ class CheckLibraryDialog(QDialog):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
-    from calibre.library import db
-    d = CheckLibraryDialog(None, db())
+    from calibre.gui2 import Application
+    app = Application([])
+    from calibre.library import db as dbconn
+    d = DBCheck(None, dbconn())
     d.exec()
