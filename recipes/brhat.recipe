@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Brhat(BasicNewsRecipe):
+    title          = 'Brhat'
+    __author__     = 'Vishvas Vasuki'
+    language       = 'en_IN'
+    oldest_article = 365
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Main', 'https://brhat.in/feed/'),
+    ]
