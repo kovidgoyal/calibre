@@ -4,6 +4,7 @@
 
 import sys
 import textwrap
+from functools import lru_cache
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
@@ -23,12 +24,19 @@ from calibre.utils.webengine import (
 )
 
 
+@lru_cache
+def lookup_lang():
+    ans = canonicalize_lang(get_lang())
+    if ans:
+        ans = lang_as_iso639_1(ans) or ans
+    return ans
+
+
 def google_dictionary(word):
     ans = f'https://www.google.com/search?q=define:{word}'
-    l = canonicalize_lang(get_lang())
-    if l:
-        l = lang_as_iso639_1(l) or l
-        ans += f'#dobc={l}'
+    lang = lookup_lang()
+    if lang:
+        ans += f'#dobc={lang}'
     return ans
 
 
