@@ -100,6 +100,13 @@ def test_media_ok():
     assert not media_ok('screen and (device-width:10px)')
 
 
+class style_map(dict):
+
+    def __init__(self):
+        super().__init__()
+        self.important_properties = set()
+
+
 class StylizerRules:
 
     def __init__(self, opts, profile, stylesheets):
@@ -144,16 +151,24 @@ class StylizerRules:
         return results
 
     def flatten_style(self, cssstyle):
-        style = {}
+        style = style_map()
         for prop in cssstyle:
             name = prop.name
             normalizer = normalizers.get(name, None)
+            is_important = prop.priority == 'important'
             if normalizer is not None:
-                style.update(normalizer(name, prop.propertyValue))
+                for name, val in normalizer(name, prop.propertyValue).items():
+                    style[name] = val
+                    if is_important:
+                        style.important_properties.add(name)
             elif name == 'text-align':
                 style['text-align'] = self._apply_text_align(prop.value)
+                if is_important:
+                    style.important_properties.add(name)
             else:
                 style[name] = prop.value
+                if is_important:
+                    style.important_properties.add(name)
         if 'font-size' in style:
             size = style['font-size']
             if size == 'normal':
@@ -404,6 +419,9 @@ class Stylizer:
         return '\n'.join(rules)
 
 
+no_important_properties = frozenset()
+
+
 class Style:
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
 
@@ -411,7 +429,7 @@ class Style:
         self._element = element
         self._profile = stylizer.profile
         self._stylizer = stylizer
-        self._style = {}
+        self._style = style_map()
         self._fontSize = None
         self._width = None
         self._height = None
@@ -428,7 +446,25 @@ class Style:
         return self._style.pop(prop, default)
 
     def _update_cssdict(self, cssdict):
-        self._style.update(cssdict)
+        self._update_style(cssdict)
+
+    def _update_style(self, cssdict):
+        current_ip = getattr(self._style, 'important_properties', no_important_properties)
+        if current_ip is no_important_properties:
+            s = style_map()
+            s.update(self._style)
+            self._style = s
+            current_ip = self._style.important_properties
+        update_ip = getattr(cssdict, 'important_properties', no_important_properties)
+        for name, val in cssdict.items():
+            override = False
+            if name in update_ip:
+                current_ip.add(name)
+                override = True
+            elif name not in current_ip:
+                override = True
+            if override:
+                self._style[name] = val
 
     def _update_pseudo_class(self, name, cssdict):
         orig = self._pseudo_classes.get(name, {})
@@ -450,7 +486,7 @@ class Style:
             return
         if url_replacer is not None:
             replaceUrls(style, url_replacer, ignoreImportRules=True)
-        self._style.update(self._stylizer.flatten_style(style))
+        self._update_style(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
         try:
