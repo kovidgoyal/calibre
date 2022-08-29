@@ -174,8 +174,8 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         if verify_server_cert:
             import ssl
             context = ssl.create_default_context(cafile=cafile)
-        s.starttls(context=context)
         s.ehlo()
+        s.starttls(context=context)
     if username is not None and password is not None:
         s.login(username, password)
     ret = None
