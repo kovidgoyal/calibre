@@ -34,7 +34,6 @@ class APNXBuilder:
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
         AccuratePageGenerator.instance.name(): AccuratePageGenerator.instance,
         PagebreakPageGenerator.instance.name(): PagebreakPageGenerator.instance,
-        AriaPagebreakPageGenerator.instance.name(): AriaPagebreakPageGenerator.instance,
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }
 
