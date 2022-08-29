@@ -13,19 +13,30 @@ from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 
-from gettext import pgettext
 from calibre import prints, random_user_agent
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.webengine import (
     create_script, insert_scripts, secure_webengine, setup_profile
 )
+
+
+def google_dictionary(word):
+    ans = f'https://www.google.com/search?q=define:{word}'
+    l = canonicalize_lang(get_lang())
+    if l:
+        l = lang_as_iso639_1(l) or l
+        ans += f'#dobc={l}'
+    return ans
+
 
 vprefs.defaults['lookup_locations'] = [
     {
         'name': 'Google dictionary',
         'url': 'https://www.google.com/search?q=define:{word}',
+        'special_processor': google_dictionary,
         'langs': [],
     },
 
@@ -360,6 +371,12 @@ class Lookup(QWidget):
             return self.source_box.itemData(idx)['url']
 
     @property
+    def special_processor(self):
+        idx = self.source_box.currentIndex()
+        if idx > -1:
+            return self.source_box.itemData(idx).get('special_processor')
+
+    @property
     def query_is_up_to_date(self):
         query = self.selected_text or self.current_query
         return self.current_query == query and self.current_source == self.url_template
@@ -377,8 +394,12 @@ class Lookup(QWidget):
         if not self.is_visible or not query:
             return
         self.current_source = self.url_template
-        url = self.current_source.format(word=query)
-        pgettext('The meaning of a word, intended to be added to a google web search to lookup word meanings', 'meaning')
+        sp = self.special_processor
+        if sp is None:
+            url = self.current_source.format(word=query)
+        else:
+            url = sp(query)
+
         self.view.load(QUrl(url))
         self.current_query = query
         self.update_refresh_button_status()
