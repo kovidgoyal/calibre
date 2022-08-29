@@ -394,7 +394,6 @@ class TBDisplayedFields(DisplayedFields):  # {{{
         if self.changed:
             self.db.prefs.set('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
             self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
-            self.gui.tags_view.model().reset_tag_browser_categories()
 # }}}
 
 
@@ -431,7 +430,6 @@ class TBPartitionedFields(DisplayedFields):  # {{{
         if self.changed:
             # Migrate to a per-library setting
             self.db.prefs.set('tag_browser_dont_collapse', [k for k,v in self.fields if not v])
-            self.gui.tags_view.model().reset_tag_browser_categories()
 # }}}
 
 
@@ -469,7 +467,6 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.prefs.set('categories_using_hierarchy', [k for k,v in self.fields if v])
-            self.gui.tags_view.model().reset_tag_browser_categories()
 # }}}
 
 
@@ -716,6 +713,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tb_hierarchy_import_layout_button.clicked.connect(partial(self.import_layout,
                                                            model=self.tb_hierarchical_cats_model))
 
+        self.fill_tb_search_order_box()
+        self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
+        self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
+        self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
+
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.edit_rules,
@@ -779,6 +781,66 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
         self.opt_ui_style.currentIndexChanged.connect(self.update_color_palette_state)
+
+    def fill_tb_search_order_box(self):
+        # The tb_search_order is a directed graph of nodes with an arc to the next
+        # node in the sequence. Node 0 (zero) is the start node with the last node
+        # arcing back to node 0. This code linearizes the graph
+
+        choices = [(1, _('Search for books containing the current item')),
+                   (2, _('Search for books containing the current item or its children')),
+                   (3, _('Search for books not containing the current item')),
+                   (4, _('Search for books not containing the current item or its children'))]
+        icon_map = self.gui.tags_view.model().icon_state_map
+
+        order = gprefs.get('tb_search_order')
+        self.tb_search_order.clear()
+        node = 0
+        while True:
+            v = order[str(node)]
+            if v == 0:
+                break
+            item = QListWidgetItem(icon_map[v], choices[v-1][1])
+            item.setData(Qt.UserRole, choices[v-1][0])
+            self.tb_search_order.addItem(item)
+            node = v
+
+    def move_tb_search_up(self):
+        idx = self.tb_search_order.currentRow()
+        if idx <= 0:
+            return
+        item = self.tb_search_order.takeItem(idx)
+        self.tb_search_order.insertItem(idx-1, item)
+        self.tb_search_order.setCurrentRow(idx-1)
+        self.changed_signal.emit()
+
+    def move_tb_search_down(self):
+        idx = self.tb_search_order.currentRow()
+        if idx < 0 or idx == 3:
+            return
+        item = self.tb_search_order.takeItem(idx)
+        self.tb_search_order.insertItem(idx+1, item)
+        self.tb_search_order.setCurrentRow(idx+1)
+        self.changed_signal.emit()
+
+    def tb_search_order_commit(self):
+        t = {}
+        # Walk the items in the list box building the (node -> node) graph of
+        # the option order
+        node = 0
+        for i in range(0, 4):
+            v = self.tb_search_order.item(i).data(Qt.UserRole)
+            # JSON dumps converts integer keys to strings, so do it explicitly
+            t[str(node)] = v
+            node = v
+        # Add the arc from the last node back to node 0
+        t[str(node)] = 0
+        gprefs.set('tb_search_order', t)
+
+    def reset_tb_search_order(self):
+        gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
+        self.fill_tb_search_order_box()
+        self.changed_signal.emit()
 
     def update_color_palette_state(self):
         if self.ui_style_available:
@@ -965,6 +1027,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.restore_defaults()
         self.em_display_model.restore_defaults()
         self.qv_display_model.restore_defaults()
+        gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
         self.edit_rules.clear()
         self.icon_rules.clear()
         self.grid_rules.clear()
@@ -1039,6 +1102,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.tb_display_model.commit()
             self.tb_categories_to_part_model.commit()
             self.tb_hierarchical_cats_model.commit()
+            self.tb_search_order_commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
             self.grid_rules.commit(self.gui.current_db.prefs)
@@ -1063,6 +1127,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.set_look_and_feel()
         gui.tags_view.reread_collapse_parameters()
+        gui.tags_view.model().reset_tag_browser()
         gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_grid()
         gui.library_view.refresh_composite_edit()

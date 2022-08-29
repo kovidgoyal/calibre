@@ -264,7 +264,9 @@ class TagTreeItem:  # {{{
         '''
         if set_to is None:
             while True:
-                self.tag.state = (self.tag.state + 1)%5
+                tag_search_order_graph = gprefs.get('tb_search_order')
+                # JSON dumps converts integer keys to strings, so do it explicitly
+                self.tag.state = tag_search_order_graph[str(self.tag.state)]
                 if self.tag.state == TAG_SEARCH_STATES['mark_plus'] or \
                         self.tag.state == TAG_SEARCH_STATES['mark_minus']:
                     if self.tag.is_searchable:
@@ -402,7 +404,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._run_rebuild()
         self.endResetModel()
 
-    def reset_tag_browser_categories(self):
+    def reset_tag_browser(self):
         self.beginResetModel()
         hidden_cats = self.db.new_api.pref('tag_browser_hidden_categories', {})
         self.hidden_categories = set()
