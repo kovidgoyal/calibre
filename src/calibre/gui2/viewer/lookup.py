@@ -8,7 +8,7 @@ from functools import lru_cache
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QPushButton, QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QPalette, QPushButton, QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
@@ -264,6 +264,18 @@ def set_sync_override(allowed):
         li.set_sync_override(allowed)
 
 
+def blank_html():
+    msg = _('Double click on a word in the book\'s text to look it up.')
+    html = '<p>' + msg
+    app = QApplication.instance()
+    if app.is_dark_theme:
+        pal = app.palette()
+        bg = pal.color(QPalette.ColorRole.Base).name()
+        fg = pal.color(QPalette.ColorRole.Text).name()
+        html = f'<style> * {{ color: {fg}; background-color: {bg} }} </style>' + html
+    return html
+
+
 class Lookup(QWidget):
 
     def __init__(self, parent):
@@ -289,8 +301,7 @@ class Lookup(QWidget):
         l.addWidget(self.view)
         self.populate_sources()
         self.source_box.currentIndexChanged.connect(self.source_changed)
-        self.view.setHtml('<p>' + _('Double click on a word in the book\'s text'
-            ' to look it up.'))
+        self.view.setHtml(blank_html())
         self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('Add sources'))
         b.setToolTip(_('Add more sources at which to lookup words'))
         b.clicked.connect(self.add_sources)
