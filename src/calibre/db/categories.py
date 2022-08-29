@@ -141,7 +141,6 @@ def category_display_order(ordered_cats, all_cats):
     return cat_ord
 
 
-
 numeric_collation = prefs['numeric_collation']
 
 
