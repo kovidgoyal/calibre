@@ -32,6 +32,8 @@
             cc.style.position = 'absolute';
             cc.style.top = '0';
             cc.style.left = '0';
+            cc.style.paddingLeft = '6px';
+            cc.style.paddingRight = '6px';
             var remove = ['sfcnt', 'top_nav', 'before-appbar', 'appbar', 'searchform', 'easter-egg', 'topstuff'];
             remove.forEach(function(id) {
                 var elem = document.getElementById(id);
