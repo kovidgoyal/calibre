@@ -9,7 +9,7 @@ import textwrap
 
 from qt.core import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, QApplication,
     QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout,
-    QDialogButtonBox)
+    QDialogButtonBox, QListView, QEvent, QListWidget, QTableWidget)
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
@@ -400,6 +400,58 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     if mygui and not never_shutdown:
         gui.shutdown()
     return rr
+
+
+class ListViewWithMoveByKeyPress(QListView):
+
+    def set_movement_functions(self, up_function, down_function):
+        self.up_function = up_function
+        self.down_function = down_function
+
+    def event(self, event):
+        if (event.type() == QEvent.KeyPress and
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+            if event.key() == Qt.Key.Key_Up:
+                self.up_function()
+            elif event.key() == Qt.Key.Key_Down:
+                self.down_function()
+            return True
+        return QListView.event(self, event)
+
+
+class ListWidgetWithMoveByKeyPress(QListWidget):
+
+    def set_movement_functions(self, up_function, down_function):
+        self.up_function = up_function
+        self.down_function = down_function
+
+    def event(self, event):
+        if (event.type() == QEvent.KeyPress and
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+            if event.key() == Qt.Key.Key_Up:
+                self.up_function()
+            elif event.key() == Qt.Key.Key_Down:
+                self.down_function()
+            return True
+        return QListWidget.event(self, event)
+
+
+class TableWidgetWithMoveByKeyPress(QTableWidget):
+
+    def set_movement_functions(self, up_function, down_function):
+        self.up_function = up_function
+        self.down_function = down_function
+
+    def event(self, event):
+        if (event.type() == QEvent.KeyPress and
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+            if event.key() == Qt.Key.Key_Up:
+                self.up_function()
+            elif event.key() == Qt.Key.Key_Down:
+                self.down_function()
+            return True
+        return QTableWidget.event(self, event)
+
 
 # Testing {{{
 

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import copy, sys
 from contextlib import suppress
 
-from qt.core import Qt, QTableWidgetItem, QIcon
+from qt.core import Qt, QTableWidgetItem, QIcon, QAbstractItemView
 
 from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -34,6 +34,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.column_up.clicked.connect(self.up_column)
         self.column_down.clicked.connect(self.down_column)
+        self.opt_columns.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.opt_columns.set_movement_functions(self.up_column, self.down_column)
         self.del_custcol_button.clicked.connect(self.del_custcol)
         self.add_custcol_button.clicked.connect(self.add_custcol)
         self.add_col_button.clicked.connect(self.add_custcol)

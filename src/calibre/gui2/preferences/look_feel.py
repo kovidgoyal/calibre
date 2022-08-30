@@ -642,56 +642,50 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
-        self.display_model = DisplayedFields(self.gui.current_db,
-                self.field_display_order)
+        self.display_model = DisplayedFields(self.gui.current_db, self.field_display_order)
         self.display_model.dataChanged.connect(self.changed_signal)
         self.field_display_order.setModel(self.display_model)
-        connect_lambda(self.df_up_button.clicked, self,
-                lambda self: move_field_up(self.field_display_order, self.display_model))
-        connect_lambda(self.df_down_button.clicked, self,
-                lambda self: move_field_down(self.field_display_order, self.display_model))
+        mu = partial(move_field_up, self.field_display_order, self.display_model)
+        md = partial(move_field_down, self.field_display_order, self.display_model)
+        self.df_up_button.clicked.connect(mu)
+        self.df_down_button.clicked.connect(md)
+        self.field_display_order.set_movement_functions(mu, md)
 
-        self.em_display_model = EMDisplayedFields(self.gui.current_db,
-                self.em_display_order)
+        self.em_display_model = EMDisplayedFields(self.gui.current_db, self.em_display_order)
         self.em_display_model.dataChanged.connect(self.changed_signal)
         self.em_display_order.setModel(self.em_display_model)
-        connect_lambda(self.em_up_button.clicked, self,
-                lambda self: move_field_up(self.em_display_order, self.em_display_model))
-        connect_lambda(self.em_down_button.clicked, self,
-                lambda self: move_field_down(self.em_display_order, self.em_display_model))
-        self.em_export_layout_button.clicked.connect(partial(self.export_layout,
-                                                             model=self.em_display_model))
-        self.em_import_layout_button.clicked.connect(partial(self.import_layout,
-                                                             model=self.em_display_model))
-        self.em_reset_layout_button.clicked.connect(partial(self.reset_layout,
-                                                            model=self.em_display_model))
+        mu = partial(move_field_up, self.em_display_order, self.em_display_model)
+        md = partial(move_field_down, self.em_display_order, self.em_display_model)
+        self.em_display_order.set_movement_functions(mu, md)
+        self.em_up_button.clicked.connect(mu)
+        self.em_down_button.clicked.connect(md)
+        self.em_export_layout_button.clicked.connect(partial(self.export_layout, model=self.em_display_model))
+        self.em_import_layout_button.clicked.connect(partial(self.import_layout, model=self.em_display_model))
+        self.em_reset_layout_button.clicked.connect(partial(self.reset_layout, model=self.em_display_model))
 
-        self.qv_display_model = QVDisplayedFields(self.gui.current_db,
-                self.qv_display_order)
+        self.qv_display_model = QVDisplayedFields(self.gui.current_db, self.qv_display_order)
         self.qv_display_model.dataChanged.connect(self.changed_signal)
         self.qv_display_order.setModel(self.qv_display_model)
-        connect_lambda(self.qv_up_button.clicked, self,
-                lambda self: move_field_up(self.qv_display_order, self.qv_display_model))
-        connect_lambda(self.qv_down_button.clicked, self,
-                lambda self: move_field_down(self.qv_display_order, self.qv_display_model))
+        mu = partial(move_field_up, self.qv_display_order, self.qv_display_model)
+        md = partial(move_field_down, self.qv_display_order, self.qv_display_model)
+        self.qv_display_order.set_movement_functions(mu, md)
+        self.qv_up_button.clicked.connect(mu)
+        self.qv_down_button.clicked.connect(md)
 
-        self.tb_display_model = TBDisplayedFields(self.gui.current_db,
-                                                  self.tb_display_order,
-                                                  category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_display_model = TBDisplayedFields(self.gui.current_db, self.tb_display_order,
+                                  category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_display_model.dataChanged.connect(self.changed_signal)
         self.tb_display_order.setModel(self.tb_display_model)
-        self.tb_reset_layout_button.clicked.connect(partial(self.reset_layout,
-                                                            model=self.tb_display_model))
-        self.tb_export_layout_button.clicked.connect(partial(self.export_layout,
-                                                             model=self.tb_display_model))
-        self.tb_import_layout_button.clicked.connect(partial(self.import_layout,
-                                                             model=self.tb_display_model))
+        self.tb_reset_layout_button.clicked.connect(partial(self.reset_layout, model=self.tb_display_model))
+        self.tb_export_layout_button.clicked.connect(partial(self.export_layout, model=self.tb_display_model))
+        self.tb_import_layout_button.clicked.connect(partial(self.import_layout, model=self.tb_display_model))
         self.tb_up_button.clicked.connect(self.tb_up_button_clicked)
         self.tb_down_button.clicked.connect(self.tb_down_button_clicked)
+        self.tb_display_order.set_movement_functions(self.tb_up_button_clicked, self.tb_down_button_clicked)
 
         self.tb_categories_to_part_model = TBPartitionedFields(self.gui.current_db,
-                                                               self.tb_cats_to_partition,
-                                                               category_icons=self.gui.tags_view.model().category_custom_icons)
+                                   self.tb_cats_to_partition,
+                                   category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_categories_to_part_model.dataChanged.connect(self.changed_signal)
         self.tb_cats_to_partition.setModel(self.tb_categories_to_part_model)
         self.tb_partition_reset_button.clicked.connect(partial(self.reset_layout,
@@ -701,9 +695,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tb_partition_import_layout_button.clicked.connect(partial(self.import_layout,
                                                                        model=self.tb_categories_to_part_model))
 
-        self.tb_hierarchical_cats_model = TBHierarchicalFields(self.gui.current_db,
-                                                              self.tb_hierarchical_cats,
-                                                              category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_hierarchical_cats_model = TBHierarchicalFields(self.gui.current_db, self.tb_hierarchical_cats,
+                                              category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_hierarchical_cats_model.dataChanged.connect(self.changed_signal)
         self.tb_hierarchical_cats.setModel(self.tb_hierarchical_cats_model)
         self.tb_hierarchy_reset_layout_button.clicked.connect(partial(self.reset_layout,
@@ -716,17 +709,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fill_tb_search_order_box()
         self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
         self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
+        self.tb_search_order.set_movement_functions(self.move_tb_search_up, self.move_tb_search_down)
         self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
 
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
-        self.tabWidget.addTab(self.edit_rules,
-                QIcon.ic('format-fill-color.png'), _('Column &coloring'))
+        self.tabWidget.addTab(self.edit_rules, QIcon.ic('format-fill-color.png'), _('Column &coloring'))
 
         self.icon_rules = EditRules(self.tabWidget)
         self.icon_rules.changed.connect(self.changed_signal)
-        self.tabWidget.addTab(self.icon_rules,
-                QIcon.ic('icon_choose.png'), _('Column &icons'))
+        self.tabWidget.addTab(self.icon_rules, QIcon.ic('icon_choose.png'), _('Column &icons'))
 
         self.grid_rules = EditRules(self.emblems_tab)
         self.grid_rules.changed.connect(self.changed_signal)

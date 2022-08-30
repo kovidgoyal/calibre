@@ -69,6 +69,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.input_up_button.clicked.connect(self.up_input)
         self.input_down_button.clicked.connect(self.down_input)
+        self.opt_input_order.set_movement_functions(self.up_input, self.down_input)
         self.opt_input_order.dropEvent = partial(input_order_drop_event, self)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
