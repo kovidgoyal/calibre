@@ -793,7 +793,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if v == 0:
                 break
             item = QListWidgetItem(icon_map[v], choices[v-1][1])
-            item.setData(Qt.UserRole, choices[v-1][0])
+            item.setData(Qt.ItemDataRole.UserRole, choices[v-1][0])
             self.tb_search_order.addItem(item)
             node = v
 
@@ -821,7 +821,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         # the option order
         node = 0
         for i in range(0, 4):
-            v = self.tb_search_order.item(i).data(Qt.UserRole)
+            v = self.tb_search_order.item(i).data(Qt.ItemDataRole.UserRole)
             # JSON dumps converts integer keys to strings, so do it explicitly
             t[str(node)] = v
             node = v
