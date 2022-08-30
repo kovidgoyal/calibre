@@ -25,7 +25,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QTableWidget" name="opt_columns">
+    <widget class="TableWidgetWithMoveByKeyPress" name="opt_columns">
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
@@ -203,6 +203,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TableWidgetWithMoveByKeyPress</class>
+   <extends>QTableWidget</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>

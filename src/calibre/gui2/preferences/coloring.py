@@ -26,6 +26,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
+from calibre.gui2.preferences import ListViewWithMoveByKeyPress
 from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import (
     Rule, color_row_key, conditionable_columns, displayable_columns,
@@ -956,10 +957,10 @@ class RulesModel(QAbstractListModel):  # {{{
 # }}}
 
 
-class RulesView(QListView):  # {{{
+class RulesView(ListViewWithMoveByKeyPress):  # {{{
 
     def __init__(self, parent, enable_convert_buttons_function):
-        QListView.__init__(self, parent)
+        ListViewWithMoveByKeyPress.__init__(self, parent)
         self.enable_convert_buttons_function = enable_convert_buttons_function
 
     def currentChanged(self, new, prev):
@@ -1016,6 +1017,8 @@ class EditRules(QWidget):  # {{{
         b.setIcon(QIcon.ic('arrow-down.png'))
         b.setToolTip(_('Move the selected rule down'))
         b.clicked.connect(partial(self.move_rows, moving_up=False))
+        self.rules_view.set_movement_functions(partial(self.move_rows, moving_up=True),
+                                               partial(self.move_rows, moving_up=False))
         g.addWidget(b, 1, 1, 1, 1, Qt.AlignmentFlag.AlignBottom)
 
         l.addLayout(g, l.rowCount(), 0, 1, 2)

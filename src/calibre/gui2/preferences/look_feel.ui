@@ -753,7 +753,7 @@ A value of zero means calculate automatically.</string>
           <item row="3" column="1">
            <widget class="QToolButton" name="df_down_button">
             <property name="toolTip">
-             <string>Move down</string>
+             <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -764,7 +764,7 @@ A value of zero means calculate automatically.</string>
           <item row="1" column="1">
            <widget class="QToolButton" name="df_up_button">
             <property name="toolTip">
-             <string>Move up</string>
+             <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -786,7 +786,7 @@ A value of zero means calculate automatically.</string>
            </spacer>
           </item>
           <item row="1" column="0" rowspan="3">
-           <widget class="QListView" name="field_display_order">
+           <widget class="ListViewWithMoveByKeyPress" name="field_display_order">
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -914,7 +914,7 @@ A value of zero means calculate automatically.</string>
           <item row="3" column="1">
            <widget class="QToolButton" name="em_down_button">
             <property name="toolTip">
-             <string>Move down</string>
+             <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -925,7 +925,7 @@ A value of zero means calculate automatically.</string>
           <item row="1" column="1">
            <widget class="QToolButton" name="em_up_button">
             <property name="toolTip">
-             <string>Move up</string>
+             <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -947,7 +947,7 @@ A value of zero means calculate automatically.</string>
            </spacer>
           </item>
           <item row="1" column="0" rowspan="3">
-           <widget class="QListView" name="em_display_order">
+           <widget class="ListViewWithMoveByKeyPress" name="em_display_order">
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -1162,7 +1162,7 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
          </widget>
         </item>
         <item row="1" column="0" rowspan="3">
-         <widget class="QListView" name="tb_display_order">
+         <widget class="ListViewWithMoveByKeyPress" name="tb_display_order">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -1177,7 +1177,7 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
         <item row="1" column="1">
          <widget class="QToolButton" name="tb_up_button">
           <property name="toolTip">
-           <string>Move up. User categories and Saved searches cannot be moved</string>
+           <string>Move up. User categories and Saved searches cannot be moved. Keyboard shortcut: Ctrl-Up arrow</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
@@ -1201,7 +1201,7 @@ using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&
         <item row="3" column="1">
          <widget class="QToolButton" name="tb_down_button">
           <property name="toolTip">
-           <string>Move down. User categories and Saved searches cannot be moved</string>
+           <string>Move down. User categories and Saved searches cannot be moved. Keyboard shortcut: Ctrl-Down arrow</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
@@ -1691,7 +1691,7 @@ that don't have children.&lt;/p&gt;</string>
          </widget>
         </item>
         <item row="12" column="0" rowspan="3">
-         <widget class="QListWidget" name="tb_search_order">
+         <widget class="ListWidgetWithMoveByKeyPress" name="tb_search_order">
           <property name="sizeAdjustPolicy">
            <enum>QAbstractScrollArea::AdjustToContents</enum>
           </property>
@@ -1700,7 +1700,7 @@ that don't have children.&lt;/p&gt;</string>
         <item row="12" column="1">
          <widget class="QToolButton" name="tb_search_order_up_button">
           <property name="toolTip">
-           <string>Move up.</string>
+           <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
@@ -1724,7 +1724,7 @@ that don't have children.&lt;/p&gt;</string>
         <item row="14" column="1">
          <widget class="QToolButton" name="tb_search_order_down_button">
           <property name="toolTip">
-           <string>Move down.</string>
+           <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
@@ -1985,7 +1985,7 @@ column being examined (the left-hand pane)&lt;/p&gt;</string>
           <item row="0" column="1">
            <widget class="QToolButton" name="qv_up_button">
             <property name="toolTip">
-             <string>Move up</string>
+             <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -1996,7 +1996,7 @@ column being examined (the left-hand pane)&lt;/p&gt;</string>
           <item row="2" column="1">
            <widget class="QToolButton" name="qv_down_button">
             <property name="toolTip">
-             <string>Move down</string>
+             <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -2005,7 +2005,7 @@ column being examined (the left-hand pane)&lt;/p&gt;</string>
            </widget>
           </item>
           <item row="0" column="0" rowspan="3">
-           <widget class="QListView" name="qv_display_order">
+           <widget class="ListViewWithMoveByKeyPress" name="qv_display_order">
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -2043,7 +2043,17 @@ column being examined (the left-hand pane)&lt;/p&gt;</string>
    </item>
   </layout>
  </widget>
- <customwidgets>
+ <customwidgets>ListWidgetWithMoveByKeyPress
+  <customwidget>
+   <class>ListViewWithMoveByKeyPress</class>
+   <extends>QListView</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListWidgetWithMoveByKeyPress</class>
+   <extends>QListWidget</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
   <customwidget>
    <class>EditWithComplete</class>
    <extends>QComboBox</extends>

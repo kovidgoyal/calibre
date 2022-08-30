@@ -90,7 +90,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QListWidget" name="opt_input_order">
+           <widget class="ListWidgetWithMoveByKeyPress" name="opt_input_order">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -311,6 +311,13 @@ per library.&lt;/p&gt;</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListWidgetWithMoveByKeyPress</class>
+   <extends>QListWidget</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>
