@@ -94,7 +94,7 @@ class TableItem(QTableWidgetItem):
 
     def data(self, role):
         self.get_data()
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.val
         return QTableWidgetItem.data(self, role)
 
