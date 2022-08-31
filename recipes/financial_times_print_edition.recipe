@@ -19,13 +19,23 @@ class ft(BasicNewsRecipe):
     extra_css = '#fig-cap{font-style:italic; text-align:left; font-size:small;}'
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.todayspapers.co.uk/the-financial-times-front-page-today/'
-        )
-        tag = soup.find('div', attrs={'class': 'elementor-image'})
-        if tag:
-            self.cover_url = tag.find('img')['src']
-        return getattr(self, 'cover_url', self.cover_url)
+        from datetime import date
+        cover = 'http://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/uk/ft_uk.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/uk/np/ft_uk.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.ft.com/todaysnewspaper/uk')
