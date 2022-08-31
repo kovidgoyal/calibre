@@ -13,7 +13,7 @@ class LiveMint(BasicNewsRecipe):
     title = u'Live Mint'
     description = 'Financial News from India.'
     language = 'en_IN'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'Krittika Goyal, revised by unkn0wn'
     oldest_article = 1.15  # days
     max_articles_per_feed = 50
     encoding = 'utf-8'
@@ -48,6 +48,11 @@ class LiveMint(BasicNewsRecipe):
             ('How to Lounge','https://lifestyle.livemint.com/rss/how-to-lounge'),
             ('Smart Living','https://lifestyle.livemint.com/rss/smart-living'),
         ]
+
+        def preprocess_html(self, soup):
+            for img in soup.findAll('img', attrs={'data-img': True}):
+                img['src'] = img['data-img']
+            return soup
     else:
         # some wsj articles wont load
         extra_css = '''
@@ -90,31 +95,29 @@ class LiveMint(BasicNewsRecipe):
             ('Elections', 'https://www.livemint.com/rss/elections'),
         ]
 
-    def preprocess_raw_html(self, raw, *a):
-        if '<script>var wsjFlag=true;</script>' in raw:
-            m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
-            raw1 = raw[m.start():]
-            raw1 = raw1.split('>', 1)[1].strip()
-            data = json.JSONDecoder().raw_decode(raw1)[0]
-            value = data['hasPart']['value']
-            body = data['articleBody'] + '</p> <p>' + re.sub(r'([a-z]\.|[0-9]\.)([A-Z])', r'\1 <p> \2', value)
-            body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
-            raw = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
-            return raw
-        else:
-            return raw
+        def preprocess_raw_html(self, raw, *a):
+            if '<script>var wsjFlag=true;</script>' in raw:
+                m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
+                raw1 = raw[m.start():]
+                raw1 = raw1.split('>', 1)[1].strip()
+                data = json.JSONDecoder().raw_decode(raw1)[0]
+                value = data['hasPart']['value']
+                body = data['articleBody'] + '</p> <p>'\
+                        + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
+                body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
+                raw = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
+                return raw
+            else:
+                return raw
 
-    def preprocess_html(self, soup):
-        for span in soup.findAll('figcaption'):
-            span['id'] = 'img-cap'
-        for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
-            auth['id'] = 'auth-info'
-            auth.name = 'div'
-        for span in soup.findAll('span', attrs={'class':'exclusive'}):
-            span.extract()
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        if is_saturday:
-            for img in soup.findAll('img', attrs={'data-img': True}):
-                img['src'] = img['data-img']
-        return soup
+        def preprocess_html(self, soup):
+            for span in soup.findAll('figcaption'):
+                span['id'] = 'img-cap'
+            for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
+                auth['id'] = 'auth-info'
+                auth.name = 'div'
+            for span in soup.findAll('span', attrs={'class':'exclusive'}):
+                span.extract()
+            for img in soup.findAll('img', attrs={'data-src': True}):
+                img['src'] = img['data-src']
+            return soup
