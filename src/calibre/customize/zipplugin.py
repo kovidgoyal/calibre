@@ -23,10 +23,6 @@ from calibre.customize import (
 )
 from polyglot.builtins import itervalues, reload, string_or_bytes
 
-# PEP 302 based plugin loading mechanism, works around the bug in zipimport in
-# python 2.x that prevents importing from zip files in locations whose paths
-# have non ASCII characters
-
 
 def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
     '''
