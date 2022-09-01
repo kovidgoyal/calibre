@@ -108,7 +108,7 @@ def get_current_toc_nodes():
     return r
 
 
-def get_highlighted_toc_nodes(toc, parent_map, id_map):
+def get_highlighted_toc_nodes(toc, parent_map, id_map, skip_parents):
     data = update_visible_toc_nodes.data
     ans = {}
     if data.has_visible:
@@ -120,11 +120,12 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map):
             before = get_border_nodes(toc, id_map)[0]
             if before:
                 ans[before.id] = True
-    for node_id in Object.keys(ans):
-        p = parent_map[node_id]
-        while p and p.title:
-            ans[p.id] = True
-            p = parent_map[p.id]
+    if not skip_parents:
+        for node_id in Object.keys(ans):
+            p = parent_map[node_id]
+            while p and p.title:
+                ans[p.id] = True
+                p = parent_map[p.id]
     return ans
 
 def get_toc_maps(toc):
@@ -140,6 +141,17 @@ def get_toc_maps(toc):
 
     process_node(toc)
     return parent_map, id_map
+
+def get_book_mark_title():
+    toc = current_book().manifest.toc
+    parent_map, id_map = get_toc_maps(toc)
+    highlighted_toc_nodes = get_highlighted_toc_nodes(toc, parent_map, id_map, True)
+    for node_id in Object.keys(highlighted_toc_nodes):
+        node = id_map[node_id]
+        if node.title:
+            return node.title
+    return ''
+
 
 def create_toc_tree(toc, onclick):
     parent_map, id_map = get_toc_maps(toc)

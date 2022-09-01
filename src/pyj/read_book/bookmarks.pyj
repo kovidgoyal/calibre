@@ -9,6 +9,7 @@ from book_list.item_list import build_list, create_item, create_side_action
 from dom import ensure_id, set_css
 from modals import question_dialog
 from widgets import create_button
+from read_book.toc import get_book_mark_title
 
 
 def goto_cfi(cfi, view):
@@ -49,7 +50,8 @@ def create_bookmarks_list(annotations_manager, onclick):
 
 
 def create_new_bookmark(annotations_manager, data):
-    title = window.prompt(_('Enter title for bookmark:'), data.selected_text or annotations_manager.default_bookmark_title())
+    base_default_title = get_book_mark_title() or _('Bookmark')
+    title = window.prompt(_('Enter title for bookmark:'), data.selected_text or annotations_manager.default_bookmark_title(base_default_title))
     if not title:
         return False
     cfi = data.cfi
