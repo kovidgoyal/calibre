@@ -1956,7 +1956,7 @@ when the column in the book list is changed using the cursor arrow keys&lt;/p&gt
           <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
            <property name="toolTip">
             <string>&lt;p&gt;Pressing Enter in a cell changes both the book and the
-column being examined (the left-hand pane)&lt;/p&gt;</string>
+column being examined (the left-hand panel)&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Pressing Enter changes the examined column</string>
@@ -1967,7 +1967,7 @@ column being examined (the left-hand pane)&lt;/p&gt;</string>
           <widget class="QCheckBox" name="opt_qv_dclick_changes_column">
            <property name="toolTip">
             <string>&lt;p&gt;Double-clicking in a cell changes both the book and the
-column being examined (the left-hand pane)&lt;/p&gt;</string>
+column being examined (the left-hand panel)&lt;/p&gt;</string>
            </property>
            <property name="text">
             <string>&amp;Double click changes examined column</string>
