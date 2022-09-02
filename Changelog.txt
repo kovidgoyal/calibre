@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 6.4.0 2022-09-02
+
+:: new features
+
+- [1987011] Conversion pipeline: Add support for !important when flattening CSS rules
+
+- [1986786] Content server: Use the chapter title as the base bookmark name when creating new bookmarks
+
+- Allow changing the search order when clicking on items in the Tag browser (Preferences->Look & feel->Tag browser->Hierarchy and searching)
+
+- [1986500] Check library: Make vacuuming the full text database optional as it is very slow and memory intensive
+
+- [1987235] Tag browser: Move the preferences for controlling the order and display of categories in the Tag browser from Preferences->Tweaks to Preferences->Look & feel->Tag browser
+
+- [1984121] User category editor: Hide items not visible in the Tag browser
+
+- Allow adding a button to show the Manage categories window to the toolbars via Preferences->Toolbars & menus
+
+- Google metadata download: When excluding results from a web search because they don't match the specified title/author ignore diacritics, accents, etc.
+
+:: bug fixes
+
+- [1986963] E-book viewer: Lookup: Google dictionary: Add some padding at the left and right margins
+
+- [1985855] E-book viewer: Lookup word in Google dictionary: Fix meanings of some words not being shown in the user's preferred language
+
+- [1987390] Fix calibredb backup_metadata --all operating only on dirty books not all books
+
+- [1987557] Do not VACUUM FTS db when exporting library as it can be very slow
+
+- Windows: Nicer error message when attempting to run viewer/editor on machine without MediaPack installed
+
+- Edit book: Reports: Fix rendering of images in the images report table
+
+- [1986412] Content server: Fix formatting of dates for custom columns using ISO format
+
+:: improved recipes
+- Live Law and Live Mint
+- Financial Times and MIT Technology Review
+- Business Standard and Indian Express
+- Nautilus
+- High Country News
+- Outlook Business Magazine
+
+:: new recipes
+- Brhat by Vishwas Vasuki
+- Cachys Blog by Volker Heggemann
+- Various Russian and Ukranian news sources by bugmen00t
+}}}
+
 {{{ 6.3.0 2022-08-12
 
 :: new features
