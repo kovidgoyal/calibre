@@ -1,68 +1,85 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
-import re
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class TheBaffler(BasicNewsRecipe):
-
     title = 'The Baffler'
-    __author__ = 'Jose Ortiz'
+    __author__ = 'unkn0wn'
     description = ('This magazine contains left-wing criticism, cultural analysis, shorts'
                    ' stories, poems and art.  They publish six print issues annually.')
     language = 'en'
     encoding = 'UTF-8'
     no_javascript = True
     no_stylesheets = True
+    remove_attributes = ['style','height','width']
+
+    extra_css = '''
+        .entry-subtitle{color:#202020; font-style:italic; text:align:left;}
+        blockquote{color:gray;}
+        em{color:#404040;}
+        .wp-caption-text{font-size:small; text-align:center;}
+        .lg:text-xs{color:gray; font-size:small; text-align:center;}
+        .author-meta{font-size:small; color:gray;}
+    '''
 
     keep_only_tags = [
-        classes('header-contain entry-content')
+        dict(name='main', attrs={'id':'main'})
     ]
 
+    remove_tags = [
+        classes('entry-date issue-number-segment single-article-vertical donation-footer'),
+        dict(name='footer')
+    ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://shop.exacteditions.com/us/the-baffler')
+        tag = soup.find('div', attrs={'class': 'row'})
+        if tag:
+            self.cover_url = tag.find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
     def parse_index(self):
-        soup = self.index_to_soup('https://thebaffler.com/issues').main.article
-        self.timefmt = ' [%s]' % self.tag_to_string(soup.find(**classes('date'))).strip()
-        try:
-            self.cover_url = re.sub(
-                r'.*?url\((.*?)\).*', r'\1',
-                soup.find(**classes('image-fill'))['style']).strip()
-            self.log('cover_url at ', self.cover_url)
-        except:
-            self.log.error('Failed to download cover_url')
+        soup = self.index_to_soup('https://thebaffler.com/issues')
+        issue = soup.find('article')
+        edition = self.tag_to_string(issue.find('h3')).strip().split('—')[1]
+        if edition:
+            self.log('Downloading Issue: ', edition)
+            self.title = 'The Baffler : ' + edition
+        self.timefmt = ' [' + self.tag_to_string(issue.find('div', **classes('font-lion'))).strip() + ']'
+        a = issue.find('a')
 
-        soup = self.index_to_soup(soup.a['href'])
-
-        # Extract comments from `.entry-content' and prepend to self.description
         self.description = (
-            u'\n\n' + self.tag_to_string(soup.find(**classes('entry-content'))) +
+            u'\n\n' + self.tag_to_string(a).strip() +
             u'\n\n' + self.description
         )
 
+        soup = self.index_to_soup(a['href'])
         ans = []
-
-        # Articles at `.contents section .meta'
-        for section in soup.find(**classes('contents'))('section'):
-            current_section = self.tag_to_string(section.h2)
+        main = soup.find('main', attrs={'id':'main'})
+        for section in main.findAll('section'):
+            current_section = self.tag_to_string(section.h1).strip()
             self.log(current_section)
             articles = []
-            for div in section(**classes('meta')):
-                # Getting articles
-                a = div.find(**classes('title')).a
-                title = self.tag_to_string(a)
-                url = a['href']
-                self.log('\t', title, ' at ', url)
+            for h3 in section.findAll('h3'):
+                title = self.tag_to_string(h3)
+                url = h3.a['href']
                 desc = ''
-                r = div.find(**classes('deck'))
-                if r is not None:
-                    desc = self.tag_to_string(r)
+                span = h3.findNext('span')
+                if span:
+                    desc = self.tag_to_string(span).strip()
+                span2 = span.findNext('span')
+                if span2:
+                    desc = self.tag_to_string(span2).strip() + ' | ' + desc
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                 articles.append(
                     {'title': title, 'url': url, 'description': desc})
-            if current_section and articles:
+            if articles:
                 ans.append((current_section,articles))
-
         return ans
+
+    def preprocess_html(self, soup):
+        div = soup.find('div', **classes('entry-title'))
+        if div:
+            div.name = 'h1'
+        for p in soup.findAll('p', attrs={'class':'parasectionhed'}):
+            p.name = 'h4'
+        return soup
