@@ -16,7 +16,7 @@ class DarkReading(BasicNewsRecipe):
     description = u'Dark Reading is the premier online resource helping information security professionals manage the balance between protection and access. It offers breaking news and analysis on attacks, breaches and vulnerabilities, as well as strategies for protecting enterprise data. It also offers guidance on setting risk management and compliance policies.'  # noqa
     oldest_article = 7
     max_articles_per_feed = 100
-    keep_only_tags = [dict(id=['article-main', 'header-full'])]
+    keep_only_tags = [dict(attrs=['article-content', 'heading'])]
     masthead_url = u'http://img.deusm.com/darkreading/DR-logo.png'
     cover_url = u'http://img.deusm.com/darkreading/DR-logo.png'
     remove_tags = [
