@@ -2,17 +2,18 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from collections import OrderedDict
 import textwrap
-
+from collections import OrderedDict
 from qt.core import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon, QDialog,
-    QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
-    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal, QPalette, QItemSelectionModel, QDialogButtonBox
+    QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
+    QInputDialog, QItemSelectionModel, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QMenu, QPalette, QPushButton, QSize, QStaticText, QStyle,
+    QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
-from calibre.gui2 import error_dialog, Application, question_dialog
+from calibre.ebooks.metadata.tag_mapper import compile_pat, map_tags
+from calibre.gui2 import Application, error_dialog, question_dialog
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
@@ -35,6 +36,16 @@ class QueryEdit(QLineEdit):
         menu = self.createStandardContextMenu()
         self.parent().specialise_context_menu(menu)
         menu.exec(ev.globalPos())
+
+
+class SingleTagEdit(EditWithComplete):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.set_separator(None)
+        gui = get_gui()
+        if gui:
+            self.update_items_cache(gui.current_db.new_api.all_field_names('tags'))
 
 
 class RuleEdit(QWidget):
@@ -106,7 +117,7 @@ class RuleEdit(QWidget):
         l.addLayout(h)
         self.la3 = la = QLabel(self.REPLACE_TEXT + '\xa0')
         h.addWidget(la)
-        self.replace = r = QLineEdit(self)
+        self.replace = r = SingleTagEdit(self)
         h.addWidget(r)
         self.regex_help = la = QLabel('<p>' + self.REGEXP_HELP_TEXT % localize_user_manual_link(
         'https://manual.calibre-ebook.com/regexp.html'))

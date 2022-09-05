@@ -513,7 +513,7 @@ class EditWithComplete(EnComboBox):
     # }}}
 
     def text(self):
-        return str(self.lineEdit().text())
+        return self.lineEdit().text()
 
     def selectAll(self):
         self.lineEdit().selectAll()
