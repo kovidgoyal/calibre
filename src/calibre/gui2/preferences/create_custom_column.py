@@ -333,6 +333,7 @@ class CreateCustomColumn(QDialog):
             h1.addWidget(b)
             return b
         self.bool_show_icon_button = add_bool_radio_button(_('&Icon'))
+        self.bool_show_icon_button.setChecked(True)
         self.bool_show_text_button = add_bool_radio_button(_('&Text'))
         self.bool_show_both_button = add_bool_radio_button(_('&Both'))
         self.bool_button_group = QGroupBox()
