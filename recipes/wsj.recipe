@@ -10,16 +10,9 @@ from base64 import standard_b64encode
 from datetime import date, timedelta
 from mechanize import Request
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 from css_selectors import Select
 
-# WSJ has started delivering the paywalled content encrypted even for logged in subscribers.
-# The content is then decrypted via javascript and displayed.
-# I could in theory reverse engineer their javascript and decrypt the content in the recipe,
-# but this is too much effort, at least for me. If anybody wants to have a stab at it, feel free,
-# the decryption code is in https://www.wsj.com/_next/static/chunks/fec483df-86515f08f3742e3f.js
-# You can get the encrypted data from any wsj paywalled article page by searching for encryptedDataHash in the HTML.
-#
 try:
     import urllib.parse as urlparse
 except ImportError:
@@ -62,46 +55,37 @@ class WSJ(BasicNewsRecipe):
     timefmt = ' [%a, %b %d, %Y]'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
-    remove_attributes = ['style', 'data-scrim']
+    remove_attributes = ['style','height','width']
     needs_subscription = needs_subscription
     WSJ_ITP = 'https://www.wsj.com/print-edition/today'
 
+    extra_css = '''
+        .imageCaption{font-size:small; text-align:center;}
+        .sub-head{font-style:italic; color:#404040;}
+        .bylineWrap{font-size:small; text-align:left;}
+    '''
+
     keep_only_tags = [
-        dict(substring_classes('StyledHeadline wsj-mosdo-Dek-Dek -Figure -Figcaption ArticleBodyContent__ -Paragraph')),
-        dict(classes('wsj-article-headline-wrap article_header bigTop__hed bigTop__dek bigTop__captioncredit')),
-        dict(name='span', itemprop='author', rel='author'),
-        dict(name='article', id='article-contents articleBody'.split()),
-        dict(name='div', id='article_story_body ncTitleArea snipper-ad-login cx-snippet-overlay'.split()),
-        classes('nc-exp-artbody errorNotFound'),
-        dict(attrs={'data-module-zone': 'article_snippet'}),
-        prefixed_classes(
-            'Headline__StyledHeadline- MediaLayout__Layout- ArticleByline__Container-'
-            ' ArticleTimestamp__Timestamp- ArticleBody__Container- PaywalledContent__PaywalledContentContainer- ArticleRoadblock__Container-'),
+        classes('wsj-article-headline-wrap articleLead bylineWrap bigTop-hero'),
+        dict(name='section', attrs={'subscriptions-section':'content'})
     ]
 
     remove_tags = [
-        dict(id='right-rail'),
-        dict(id='narrator-nav'),
-        dict(name='div', id='ad_and_popular'),
-        classes('strap-container right-rail comments-count-container insetButton insettipBox author-info'
-            ' media-object-video article_tools nc-exp-artmeta category type-InsetArticlesRelatedByType media-object-rich-text'),
-        dict(name='span', attrs={
-             'data-country-code': True, 'data-ticker-code': True}),
-        dict(name='meta link button'.split()),
+        classes('wsj-ad newsletter-inset media-object-video media-object-podcast podcast--iframe dynamic-inset-overflow-button'),
+        dict(name='amp-iframe')  # interactive graphics
     ]
 
-    def preprocess_soup(self, soup):
-        # Slideshow and expandable images need to be processed here to
-        # set the src attribute correctly
-        found = 0
-        for img in soup.findAll('img', attrs={'data-in-base-data-lazy': True}):
-            img['src'] = img['data-in-base-data-lazy']
-            found += 1
-        for img in soup.findAll('img', attrs={'data-enlarge': True}):
-            img['src'] = img['data-enlarge']
-            found += 1
-        if found:
-            self.log.debug('Found %d dynamic images in:' % found)
+    def preprocess_html(self, soup):
+        for by in soup.findAll(**classes('bylineWrap')):
+            for p in by.findAll('p'):
+                p.name = 'span'
+        for img in soup.findAll('amp-img'):
+            img.name = 'img'
+            if img['src'] == 'https://s.wsj.net/img/meta/wsj-social-share.png':
+                img.extract()
+        h2 = soup.find('h2', attrs={'class':'sub-head'})
+        if h2:
+            h2.name = 'p'
         return soup
 
     def get_cover_url(self):
@@ -215,9 +199,9 @@ class WSJ(BasicNewsRecipe):
 
     def abs_wsj_url(self, href, modify_query=True):
         if not href.startswith('http'):
-            href = 'https://www.wsj.com' + href
+            href = 'https://www.wsj.com' + href.replace('/articles/', '/amp/articles/')
         if modify_query:
-            href = href.split('?')[0] + '?mod=djemalertNEWS'
+            href = href.replace('/articles/', '/amp/articles/')
         return href
 
     def wsj_find_articles(self, url, ahed=False):
@@ -289,7 +273,7 @@ class WSJ(BasicNewsRecipe):
             self.log.warn('No articles found in', url)
 
     def parse_index(self):
-        # return self.test_wsj_index()
+        return self.test_wsj_index()
         root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
         CSSSelect = Select(root)
         # from calibre.utils.ipython import ipython
