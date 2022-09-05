@@ -273,7 +273,7 @@ class WSJ(BasicNewsRecipe):
             self.log.warn('No articles found in', url)
 
     def parse_index(self):
-        return self.test_wsj_index()
+        # return self.test_wsj_index()
         root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
         CSSSelect = Select(root)
         # from calibre.utils.ipython import ipython
