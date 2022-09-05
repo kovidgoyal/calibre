@@ -158,6 +158,11 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # Dont know if amazon's service chokes or not, but since filenames
             # arent visible on Kindles anyway, might as well be safe
             aname = ascii_filename(aname).replace(',', ' ')
+            if '@pbsync.com' in to:
+                # pbsync chokes on filenames longer than 64 chars apparently
+                if len(aname) > 64:
+                    b, ext = os.path.splitext(aname)
+                    aname = b[:64 - len(aname) - 1] + ext
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
