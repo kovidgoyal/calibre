@@ -222,7 +222,7 @@ per_language_title_sort_articles = {
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra'  : (r'Le\s+', r'La\s+', r"L'", u'L´', u'L’', r'Les\s+', r'Un\s+', r'Une\s+',
-                  r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", u'D´', u'L’'),
+                  r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", r'D´', r'D’'),
         # Polish
         'pol': (),
         # Italian
