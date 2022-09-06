@@ -72,15 +72,6 @@ def get_issue_data(br, log, node_id='1126213', year='2020', volnum='99', issue_v
         return data['hits']['hits']
 
     feeds = []
-    issue_data = get_data(make_query(
-        fa_node_type_or_subtype='Issue',
-        field_issue_volume=issue_vol, field_issue_year=year,
-        field_issue_volume_number=volnum
-    ))[0]['_source']
-    main_sec_title = issue_data['title'][0]
-    main_sec_nids = issue_data['field_issue_sspecial_articles__nid']
-    articles_data = get_data(make_query(nid=main_sec_nids, filter=True, size=len(main_sec_nids)))
-    articles = []
 
     def as_article(source):
         title = source['title'][0]
@@ -94,12 +85,23 @@ def get_issue_data(br, log, node_id='1126213', year='2020', volnum='99', issue_v
         url = 'https://www.foreignaffairs.com' + source['path'][0]
         return {'title': title, 'description': desc, 'url': url}
 
-    log(main_sec_title)
-    for entry in articles_data:
-        source = entry['_source']
-        articles.append(as_article(source))
-        log('\t', articles[-1]['title'], articles[-1]['url'])
-    feeds.append((main_sec_title, articles))
+    issue_data = get_data(make_query(
+        fa_node_type_or_subtype='Issue',
+        field_issue_volume=issue_vol, field_issue_year=year,
+        field_issue_volume_number=volnum
+    ))[0]['_source']
+
+    if 'field_issue_sspecial_articles__nid' in issue_data:
+        main_sec_title = issue_data['title'][0]
+        main_sec_nids = issue_data['field_issue_sspecial_articles__nid']
+        articles_data = get_data(make_query(nid=main_sec_nids, filter=True, size=len(main_sec_nids)))
+        articles = []
+        log(main_sec_title)
+        for entry in articles_data:
+            source = entry['_source']
+            articles.append(as_article(source))
+            log('\t', articles[-1]['title'], articles[-1]['url'])
+        feeds.append((main_sec_title, articles))
 
     articles_data = get_data(make_query(field_issue__nid=node_id, size=50))
     ans = {}
