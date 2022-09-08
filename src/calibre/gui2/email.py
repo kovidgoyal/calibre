@@ -159,10 +159,12 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # arent visible on Kindles anyway, might as well be safe
             aname = ascii_filename(aname).replace(',', ' ')
             if '@pbsync.com' in to:
-                # pbsync chokes on filenames longer than 64 chars apparently
-                if len(aname) > 64:
+                # pbsync chokes on filenames that need to be encoded on
+                # multiple lines in the SMTP header
+                limit = 58
+                if len(aname) > limit:
                     b, ext = os.path.splitext(aname)
-                    aname = b[:64 - len(aname) - 1] + ext
+                    aname = b[:limit - len(aname) - 1] + ext
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
