@@ -285,10 +285,10 @@ typical User Interface plugin you would call it at the top of ``ui.py`` but not
 ``__init__.py``.
 
 You can test the translations of your plugins by changing the user interface
-language in calibre under :guilabel:`Preferences->Interface->Look & feel` or by running calibre like
-this::
+language in calibre under :guilabel:`Preferences->Interface->Look & feel` or by running calibre
+with the ``CALIBRE_OVERRIDE_LANG`` environment variable set. For example::
 
-    CALIBRE_OVERRIDE_LANG=de calibre
+    CALIBRE_OVERRIDE_LANG=de
 
 Replace ``de`` with the language code of the language you want to test.
 
