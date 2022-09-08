@@ -153,18 +153,16 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
-        if isinstance(to, str) and ('@pbsync.com' in to or '@kindle.com' in to):
-            # The pbsync service chokes on non-ascii filenames and commas
-            # Dont know if amazon's service chokes or not, but since filenames
-            # arent visible on Kindles anyway, might as well be safe
-            aname = ascii_filename(aname).replace(',', ' ')
-            if '@pbsync.com' in to:
-                # pbsync chokes on filenames that need to be encoded on
-                # multiple lines in the SMTP header
-                limit = 58
-                if len(aname) > limit:
-                    b, ext = os.path.splitext(aname)
-                    aname = b[:limit - len(aname) - 1] + ext
+        if isinstance(to, str):
+            if '@kindle.com' in to:
+                aname = ascii_filename(aname)
+            elif '@pbsync.com' in to:
+                # The PocketBook service is a total joke. It cant handle
+                # non-ascii, filenames that are long enough to be split up, commas, and
+                # the good lord alone knows what else. So use a random filename
+                # containing only 22 English letters and numbers
+                from calibre.utils.short_uuid import uuid4
+                aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
