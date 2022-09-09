@@ -119,13 +119,15 @@ def load_translations(namespace, zfp):
             _translations_cache[zfp] = None
             return
         with zipfile.ZipFile(zfp) as zf:
-            try:
-                mo = zf.read('translations/%s.mo' % lang)
-            except KeyError:
-                mo = None  # No translations for this language present
-        if mo is None:
-            _translations_cache[zfp] = None
-            return
+            mo_path = zipfile.Path(zf, f"translations/{lang}.mo")
+            if not mo_path.exists() and "_" in lang:
+                mo_path = zipfile.Path(zf, f"translations/{lang.split('_')[0]}.mo")
+            if mo_path.exists():
+                mo = mo_path.read_bytes()
+            else:
+                _translations_cache[zfp] = None
+                return
+
         from gettext import GNUTranslations
         from io import BytesIO
         trans = _translations_cache[zfp] = GNUTranslations(BytesIO(mo))
