@@ -197,6 +197,24 @@ class BuiltinStrcmp(BuiltinFormatterFunction):
         return gt
 
 
+class BuiltinStrcase(BuiltinFormatterFunction):
+    name = 'strcase'
+    arg_count = 5
+    category = 'Relational'
+    __doc__ = doc = _('strcase(x, y, lt, eq, gt) -- does a case-sensitive comparison of x '
+            'and y as strings. Returns lt if x < y. Returns eq if x == y. '
+            'Otherwise returns gt.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
+        from calibre.utils.icu import case_sensitive_strcmp as strcmp
+        v = strcmp(x, y)
+        if v < 0:
+            return lt
+        if v == 0:
+            return eq
+        return gt
+
+
 class BuiltinCmp(BuiltinFormatterFunction):
     name = 'cmp'
     category = 'Relational'
