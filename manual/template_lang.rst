@@ -600,7 +600,6 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
 * ``round(x)`` -- returns the nearest integer to ``x``. Throws an exception if ``x`` is not a number.
 * ``series_sort()`` -- returns the series sort value.
-
 * ``strcat(a [, b]*)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
 * ``strcat_max(max, string1 [, prefix2, string2]*)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to ``string1``. Strings made from ``prefix, string`` pairs are added to the end of the value as long as the resulting string length is less than ``max``. Prefixes can be empty. Returns ``string1`` even if ``string1`` is longer than ``max``. You can pass as many ``prefix, string`` pairs as you wish.
 * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive lexical comparison of ``x`` and ``y``. Returns ``lt`` if ``x < y``, ``eq`` if ``x == y``, otherwise ``gt``. This function can often be replaced by one of the lexical comparison operators (``==``, ``>``, ``<``, etc.)
