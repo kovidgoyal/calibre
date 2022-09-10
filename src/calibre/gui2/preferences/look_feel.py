@@ -774,6 +774,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
         self.opt_ui_style.currentIndexChanged.connect(self.update_color_palette_state)
 
+    def initial_tab_changed(self):
+        self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
+
     def fill_tb_search_order_box(self):
         # The tb_search_order is a directed graph of nodes with an arc to the next
         # node in the sequence. Node 0 (zero) is the start node with the last node

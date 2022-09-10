@@ -282,6 +282,10 @@ class Preferences(QDialog):
                                 idx = c.indexOf(w)
                                 if idx > -1:
                                     c.setCurrentIndex(idx)
+                                    try:
+                                        self.showing_widget.initial_tab_changed()
+                                    except Exception:
+                                        pass
                                     break
         else:
             self.hide_plugin()

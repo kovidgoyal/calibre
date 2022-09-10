@@ -91,6 +91,12 @@ class ConfigWidgetInterface:
         '''
         pass
 
+    def initial_tab_changed(self):
+        '''
+        Called if the initially displayed tab is changed before the widget is shown, but after it is initialized.
+        '''
+        pass
+
 
 class Setting:
 
