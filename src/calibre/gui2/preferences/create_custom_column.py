@@ -863,7 +863,7 @@ class CreateNewCustomColumn:
         suffix_number = 1
         if lookup_name in self.custcols:
             if not generate_unused_lookup_name:
-                return(self.Result.DUPLICATE_KEY, _("The custom column %s already exists") % lookup_name)
+                return (self.Result.DUPLICATE_KEY, _("The custom column %s already exists") % lookup_name)
             for suffix_number in range(suffix_number, 100000):
                 nk = '%s_%d'%(lookup_name, suffix_number)
                 if nk not in self.custcols:
@@ -873,7 +873,7 @@ class CreateNewCustomColumn:
             headings = {v['name'] for v in self.custcols.values()}
             if column_heading in headings:
                 if not generate_unused_lookup_name:
-                    return(self.Result.DUPLICATE_HEADING,
+                    return (self.Result.DUPLICATE_HEADING,
                            _("The column heading %s already exists") % column_heading)
                 for i in range(suffix_number, 100000):
                     nh = '%s_%d'%(column_heading, i)
@@ -883,13 +883,13 @@ class CreateNewCustomColumn:
         else:
             column_heading = lookup_name
         if datatype not in CreateCustomColumn.column_types_map:
-            return(self.Result.INVALID_TYPE,
+            return (self.Result.INVALID_TYPE,
                    _("The custom column type %s doesn't exist") % datatype)
         if is_multiple and '*' + datatype not in CreateCustomColumn.column_types_map:
-            return(self.Result.INVALID_IS_MULTIPLE,
+            return (self.Result.INVALID_IS_MULTIPLE,
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
         if not isinstance(display, dict):
-            return(self.Result.INVALID_DISPLAY,
+            return (self.Result.INVALID_DISPLAY,
                    _("The display parameter must be a Python dict"))
         self.created_count += 1
         self.custcols[lookup_name] = {
