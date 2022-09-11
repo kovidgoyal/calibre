@@ -151,9 +151,8 @@ def render_field(field, mi, book_id):  # {{{
 
     name = fm.name or field
     datatype = fm.datatype
-    if field is 'comments' or datatype is 'comments':
+    if field is 'comments':
         return
-    func = None
     if datatype is 'composite':
         func = process_composite
     elif field is 'formats':
@@ -172,6 +171,11 @@ def render_field(field, mi, book_id):  # {{{
         func = process_datetime
     elif datatype is 'series':
         func = process_series
+    elif datatype is 'comments':
+        if fm.display?.interpret_as is 'short-text':
+            return add_val(val)
+        else:
+            return
     elif field.endswith('_index'):
         func = process_series_index
     elif field is 'size':
