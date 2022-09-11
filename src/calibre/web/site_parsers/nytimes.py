@@ -9,6 +9,9 @@ from xml.sax.saxutils import escape, quoteattr
 from calibre.utils.iso8601 import parse_iso8601
 
 
+module_version = 1  # needed for live updates
+
+
 def is_heading(tn):
     return tn in ('Heading1Block', 'Heading2Block', 'Heading3Block', 'Heading4Block')
 
@@ -116,3 +119,18 @@ def extract_html(soup):
     script = type(u'')(script)
     raw = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
     return json_to_html(raw)
+
+
+def download_url(url, br):
+    # NYT has implemented captcha protection for its article pages, so get
+    # them from the wayback machine instead. However, wayback machine is
+    # flaky so god knows how well it will work under load
+    from calibre.ebooks.metadata.sources.update import search_engines_module
+    m = search_engines_module()
+    cu = m.wayback_machine_cached_url(url, br)
+    raw = m.get_data_for_cached_url(cu)
+    if raw is None:
+        raw = br.open_novisit(cu).read()
+    if not isinstance(raw, bytes):
+        raw = raw.encode('utf-8')
+    return raw

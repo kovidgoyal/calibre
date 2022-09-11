@@ -28,6 +28,19 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     no_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
+    articles_are_obfuscated = True
+    delay = 1
+
+    def get_obfuscated_article(self, url):
+        if not hasattr(self, 'nyt_parser'):
+            from calibre.live import load_module
+            m = load_module('calibre.web.site_parsers.nytimes')
+            self.nyt_parser = m
+        raw = self.nyt_parser.download_url(url, self.cloned_browser)
+        from calibre.ptempfile import PersistentTemporaryFile
+        with PersistentTemporaryFile(suffix='.html') as pt:
+            pt.write(raw)
+        return pt.name
 
     def preprocess_raw_html(self, raw_html, url):
         if not hasattr(self, 'nyt_parser'):
