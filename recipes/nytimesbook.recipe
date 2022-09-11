@@ -147,7 +147,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         return html
 
     def parse_index(self):
-        return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
+        # return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
         soup = self.index_to_soup(
             'https://www.nytimes.com/pages/books/review/index.html')
 
