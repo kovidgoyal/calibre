@@ -25,7 +25,6 @@ from calibre.gui2 import Dispatcher, config, error_dialog, gprefs, warning_dialo
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.library.save_to_disk import get_components
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import (
     compose_mail, config as email_config, extract_email_address, sendmail
