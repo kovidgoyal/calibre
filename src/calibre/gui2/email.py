@@ -153,16 +153,20 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
-        if isinstance(to, str):
-            if '@kindle.com' in to:
-                aname = ascii_filename(aname)
-            elif '@pbsync.com' in to:
-                # The PocketBook service is a total joke. It cant handle
-                # non-ascii, filenames that are long enough to be split up, commas, and
-                # the good lord alone knows what else. So use a random filename
-                # containing only 22 English letters and numbers
-                from calibre.utils.short_uuid import uuid4
-                aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
+        if isinstance(to, str) and ('@kindle.com' in to or '@pbsync.com' in to):
+            # The PocketBook service is a total joke. It cant handle
+            # non-ascii, filenames that are long enough to be split up, commas, and
+            # the good lord alone knows what else. So use a random filename
+            # containing only 22 English letters and numbers
+            #
+            # And since this email is only going to be processed by automated
+            # services, make the subject random too as at least the amazon
+            # service cant handle non-ascii subjects. I dont know what baboons
+            # these companies employ to write their code. It's the height of
+            # irony that they are called "tech" companies.
+            from calibre.utils.short_uuid import uuid4
+            aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
+            subject = uuid4()
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
