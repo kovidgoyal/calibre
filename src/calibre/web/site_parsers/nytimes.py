@@ -5,11 +5,13 @@
 import json
 import re
 from xml.sax.saxutils import escape, quoteattr
+from pprint import pprint
 
 from calibre.utils.iso8601 import parse_iso8601
 
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
+pprint
 
 
 def is_heading(tn):
@@ -99,7 +101,11 @@ def process_image_block(lines, block):
 def json_to_html(raw):
     data = json.loads(raw.replace(':undefined', ':null'))
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
-    data = data['initialData']['data']
+    try:
+        data = data['initialData']['data']
+    except TypeError:
+        data = data['initialState']
+        return live_json_to_html(data)
     article = next(iter(data.values()))
     body = article['sprinkledBody']['content']
     lines = []
@@ -111,6 +117,65 @@ def json_to_html(raw):
             process_paragraph(lines, item)
         elif tn == 'ImageBlock':
             process_image_block(lines, item)
+    return '<html><body>' + '\n'.join(lines) + '</body></html>'
+
+
+def add_live_item(item, item_type, lines):
+    a = lines.append
+    if item_type == 'text':
+        a('<p>' + item['value'] + '</p>')
+    elif item_type == 'list':
+        a('<li>' + item['value'] + '</li>')
+    elif item_type == 'bulletedList':
+        a('<ul>')
+        for x in item['value']:
+            a('<li>' + x + '</li>')
+        a('</ul>')
+    elif item_type == 'items':
+        for x in item['value']:
+            a('<h5>' + x['subtitle'] + '</h5>')
+            add_live_item({'value': x['text']}, 'text', lines)
+    elif item_type == 'section':
+        for item in item['value']:
+            add_live_item(item, item['type'], lines)
+    elif item_type == '':
+        b = item
+        if b.get('title'):
+            a('<h3>' + b['title'] + '</h3>')
+        if b.get('imageUrl'):
+            a('<div><img src=' + quoteattr(b['imageUrl']) + '/></div>')
+        if b.get('leadIn'):
+            a('<p>' + b['leadIn'] + '</p>')
+        if 'items' in b:
+            add_live_item({'value': b['items']}, 'items', lines)
+            return
+        if 'bulletedList' in b:
+            add_live_item({'value': b['bulletedList']}, 'bulletedList', lines)
+            return
+        if 'sections' in b:
+            for section in b['sections']:
+                add_live_item({'value': section['section']}, 'section', lines)
+            return
+        raise Exception('Unknown item: %s' % b)
+    else:
+        raise Exception('Unknown item: %s' % b)
+
+
+def live_json_to_html(data):
+    for k, v in data["ROOT_QUERY"].items():
+        if isinstance(v, dict) and 'id' in v:
+            root = data[v['id']]
+    s = data[root['storylines'][0]['id']]
+    s = data[s['storyline']['id']]
+    title = s['displayName']
+    lines = ['<h1>' + escape(title) + '</h1>']
+    for b in json.loads(s['experimentalJsonBlob'])['data'][0]['data']:
+        b = b['data']
+        if isinstance(b, list):
+            for x in b:
+                add_live_item(x, x['type'], lines)
+        else:
+            add_live_item(b, '', lines)
     return '<html><body>' + '\n'.join(lines) + '</body></html>'
 
 
@@ -134,3 +199,15 @@ def download_url(url, br):
     if not isinstance(raw, bytes):
         raw = raw.encode('utf-8')
     return raw
+
+
+if __name__ == '__main__':
+    import sys
+    f = sys.argv[-1]
+    raw = open(f).read()
+    if f.endswith('.html'):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        soup = BeautifulSoup(raw)
+        print(extract_html(soup))
+    else:
+        print(json_to_html(raw))

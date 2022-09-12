@@ -93,8 +93,6 @@ class NewYorkTimes(BasicNewsRecipe):
     conversion_options = {'flow_size': 0}
 
     def preprocess_raw_html(self, raw_html, url):
-        if '/live/' in url:
-            self.abort_article('Cant be bothered decoding the JSON for NYT live articles')
         if not hasattr(self, 'nyt_parser'):
             from calibre.live import load_module
             m = load_module('calibre.web.site_parsers.nytimes')
