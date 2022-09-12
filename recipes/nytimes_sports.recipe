@@ -32,22 +32,21 @@ class NYTimesSports(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     language = 'en'
-    auto_cleanup = True
-    auto_cleanup_keep = '//div[@class="articleSpanImage"]'
     feeds = [
-        (u'The Fifth Down', u'http://fifthdown.blogs.nytimes.com/feed/'),
-        (u'Off The Dribble', u'http://offthedribble.blogs.nytimes.com/feed/'),
-        (u'The Quad', u'http://thequad.blogs.nytimes.com/feed/'),
-        (u'Slap Shot', u'http://slapshot.blogs.nytimes.com/feed/'),
-        (u'Goal', u'http://goal.blogs.nytimes.com/feed/'),
-        (u'Bats', u'http://bats.blogs.nytimes.com/feed/'),
-        (u'Straight Sets', u'http://straightsets.blogs.nytimes.com/feed/'),
-        (u'Formula One', u'http://formulaone.blogs.nytimes.com/feed/'),
-        (u'On Par', u'http://onpar.blogs.nytimes.com/feed/'),
+        (u'The Fifth Down', u'https://fifthdown.blogs.nytimes.com/feed/'),
+        (u'The Quad', u'https://thequad.blogs.nytimes.com/feed/'),
+        (u'Slap Shot', u'https://slapshot.blogs.nytimes.com/feed/'),
+        (u'Goal', u'https://goal.blogs.nytimes.com/feed/'),
+        (u'Bats', u'https://bats.blogs.nytimes.com/feed/'),
+        (u'Straight Sets', u'https://straightsets.blogs.nytimes.com/feed/'),
+        (u'Formula One', u'https://formulaone.blogs.nytimes.com/feed/'),
+        (u'On Par', u'https://onpar.blogs.nytimes.com/feed/'),
     ]
-    extra_css =    '''
-           h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-           h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-           p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-           body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-                   '''
+
+    def preprocess_raw_html(self, raw_html, url):
+        if not hasattr(self, 'nyt_parser'):
+            from calibre.live import load_module
+            m = load_module('calibre.web.site_parsers.nytimes')
+            self.nyt_parser = m
+        html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
+        return html
