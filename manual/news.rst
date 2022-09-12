@@ -175,7 +175,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
        extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
 
        def get_browser(self):
-           br = BasicNewsRecipe.get_browser()
+           br = BasicNewsRecipe.get_browser(self)
            if self.username is not None and self.password is not None:
                br.open('https://www.nytimes.com/auth/login')
                br.select_form(name='login')
