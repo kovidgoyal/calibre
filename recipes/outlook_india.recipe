@@ -27,8 +27,9 @@ class outlook(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.outlookindia.com/')
-        a = soup.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
+        soup = self.index_to_soup('https://www.outlookindia.com/magazine')
+        div = soup.find('div', attrs={'class':'wrapper'})
+        a = div.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
         url = a['href']
         self.log('Downloading issue:', url)
         soup = self.index_to_soup('https://www.outlookindia.com' + url)
