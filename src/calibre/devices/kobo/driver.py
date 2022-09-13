@@ -1381,7 +1381,7 @@ class KOBOTOUCH(KOBO):
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
         ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
-        ' Sage ,Libra 2 and Clara 2E eReaders.'
+        ' Sage, Libra 2 and Clara 2E eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = 'devices/kobotouch.jpg'
 
