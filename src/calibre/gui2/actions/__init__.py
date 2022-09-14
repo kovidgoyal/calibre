@@ -71,9 +71,9 @@ class InterfaceAction(QObject):
     #: key is held down.
     auto_repeat = False
 
-    #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
-    #: icon, tooltip and keyboard shortcut can be None
-    #: shortcut must be a string, None or tuple of shortcuts.
+    #: Of the form: (text, icon_path, tooltip, keyboard shortcut).
+    #: icon, tooltip and keyboard shortcut can be None.
+    #: keyboard shortcut must be either a string, None or tuple of shortcuts.
     #: If None, a keyboard shortcut corresponding to the action is not
     #: registered. If you pass an empty tuple, then the shortcut is registered
     #: with no default key binding.
