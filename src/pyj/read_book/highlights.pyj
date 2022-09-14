@@ -473,6 +473,13 @@ class EditNotesAndColors:  # {{{
         return item
 
     def remove_custom_color(self):
+        question_dialog(_('Are you sure?'), _(
+            'Do you want to permanently delete this highlighting style?'), def (yes):
+                if yes:
+                    self.do_remove_custom_color()
+        )
+
+    def do_remove_custom_color(self):
         item = self.container.getElementsByClassName('current-swatch')[0]
         cct = JSON.parse(item.dataset.style)
         p = item.parentNode
