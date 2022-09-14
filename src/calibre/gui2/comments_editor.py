@@ -103,7 +103,7 @@ def remove_heading_font_styles(tag, style):
     expected_size = (None, 'xx-large', 'x-large', 'large', None, 'small', 'x-small')[lvl]
     if style.get('font-size', 1) == expected_size:
         del style['font-size']
-    if style.get('font-weight') in ('600', '700', 'bold'):
+    if style.get('font-weight') in ('0', '600', '700', 'bold'):
         del style['font-weight']
 
 
