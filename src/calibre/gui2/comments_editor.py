@@ -537,7 +537,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             cf = QTextCharFormat()
             bcf = c.blockCharFormat()
             lvl = self.level_for_block_type(name)
-            wt = QFont.Weight.Bold if lvl else None
+            wt = QFont.Weight.Bold if lvl else QFont.Weight.Normal
             adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
             pos = None
             if not c.hasSelection():
@@ -562,12 +562,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             bf.setLeftMargin(hmargin), bf.setRightMargin(hmargin)
             bf.setTopMargin(tmargin), bf.setBottomMargin(bmargin)
             bf.setHeadingLevel(lvl)
-            if adjust:
-                bcf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
-                cf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
-            if wt:
-                bcf.setProperty(QTextFormat.Property.FontWeight, wt)
-                cf.setProperty(QTextFormat.Property.FontWeight, wt)
+            bcf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
+            cf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
+            bcf.setFontWeight(wt)
+            cf.setFontWeight(wt)
             c.setBlockCharFormat(bcf)
             c.mergeCharFormat(cf)
             c.mergeBlockFormat(bf)
