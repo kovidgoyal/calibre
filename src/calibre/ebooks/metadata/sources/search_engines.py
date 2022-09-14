@@ -140,7 +140,10 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     try:
         closest = data['archived_snapshots']['closest']
         if closest['available']:
-            return closest['url'].replace('http:', 'https:')
+            ans = closest['url'].replace('http:', 'https:', 1)
+            # get unmodified HTML
+            ans = ans.replace(closest['timestamp'], closest['timestamp'] + 'id_', 1)
+            return ans
     except Exception:
         pass
     from pprint import pformat
