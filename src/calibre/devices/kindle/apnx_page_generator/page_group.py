@@ -18,21 +18,21 @@ class PageGroup:
         self.__page_number_type: PageNumberTypes = page_number_type
         self.__first_value = first_value
         if page_number_type == PageNumberTypes.Custom:
-            assert(page_labels is not None)
+            assert page_labels is not None
             if page_labels.__class__ == str:
-                assert (1 == len(self.page_locations) and len(page_labels) > 0)
+                assert 1 == len(self.page_locations) and len(page_labels) > 0
                 self.__page_number_labels: List[str] = [page_labels]
             else:
-                assert (len(page_labels) == len(self.page_locations))
-                assert(all(len(label) > 0 for label in page_labels))
+                assert len(page_labels) == len(self.page_locations)
+                assert all(len(label) > 0 for label in page_labels)
                 self.__page_number_labels: List[str] = page_labels
 
     def append(self, page_location: Union[int, Tuple[int, str]]) -> None:
         if page_location.__class__ == int:
-            assert (self.__page_number_type != PageNumberTypes.Custom)
+            assert self.__page_number_type != PageNumberTypes.Custom
             self.page_locations.append(page_location)
         else:
-            assert (self.__page_number_type == PageNumberTypes.Custom)
+            assert self.__page_number_type == PageNumberTypes.Custom
             self.page_locations.append(page_location[0])
             self.__page_number_labels.append(page_location[1])
         return
