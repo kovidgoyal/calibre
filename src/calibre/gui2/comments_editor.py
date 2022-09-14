@@ -55,10 +55,12 @@ def lift_styles(tag, style_map):
     has_text = bool(tag.text)
     child_styles = []
     for child in tag.iterchildren('*'):
-        if child.tail:
+        if child.tail and child.tail.strip():
             has_text = True
         style = style_map[child]
         child_styles.append(style)
+        if not child.text and len(child) == 0:
+            continue
         if common_props is None:
             common_props = style.copy()
         else:
@@ -75,7 +77,7 @@ def lift_styles(tag, style_map):
         if lifted_props:
             for style in child_styles:
                 for k in lifted_props:
-                    del style[k]
+                    style.pop(k, None)
 
 
 def filter_qt_styles(style):
@@ -183,6 +185,7 @@ def cleanup_qt_markup(root):
     style_map = defaultdict(dict)
     for tag in root.xpath('//*[@style]'):
         style_map[tag] = parse_style(tag.get('style'))
+    convert_anchors_to_ids(root)
     block_tags = root.xpath('//body/*')
     for tag in block_tags:
         lift_styles(tag, style_map)
@@ -218,7 +221,6 @@ def cleanup_qt_markup(root):
         lift(span)
 
     merge_contiguous_links(root)
-    convert_anchors_to_ids(root)
 # }}}
 
 
