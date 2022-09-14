@@ -400,7 +400,7 @@ class VLTabs(QTabBar):  # {{{
         self.currentChanged.connect(self.tab_changed)
         self.tabMoved.connect(self.tab_moved, type=Qt.ConnectionType.QueuedConnection)
         self.tabCloseRequested.connect(self.tab_close)
-        self.setVisible(gprefs['show_vl_tabs'])
+        self.update_visibility()
         self.next_action = a = QAction(self)
         a.triggered.connect(partial(self.next_tab, delta=1)), self.gui.addAction(a)
         self.previous_action = a = QAction(self)
@@ -421,14 +421,17 @@ class VLTabs(QTabBar):  # {{{
             idx = (self.currentIndex() + delta) % self.count()
             self.setCurrentIndex(idx)
 
+    def update_visibility(self):
+        self.setVisible(gprefs['show_vl_tabs'] and self.count() > 1)
+
     def enable_bar(self):
         gprefs['show_vl_tabs'] = True
-        self.setVisible(True)
+        self.update_visibility()
         self.gui.set_number_of_books_shown()
 
     def disable_bar(self):
         gprefs['show_vl_tabs'] = False
-        self.setVisible(False)
+        self.update_visibility()
         self.gui.set_number_of_books_shown()
 
     def lock_tab(self):
@@ -515,6 +518,7 @@ class VLTabs(QTabBar):  # {{{
                 # On some OS X machines (using native style) the tab button is
                 # on the left
                 pass
+        self.update_visibility()
 
     def update_current(self):
         self.rebuild()

@@ -397,11 +397,11 @@ class SearchRestrictionMixin:
             m.addMenu(a).setIcon(QIcon.ic('minus.png'))
             m.addAction(QIcon.ic('toc.png'), _('Quick select Virtual library'), self.choose_vl_triggerred)
 
-        if add_tabs_action:
-            if gprefs['show_vl_tabs']:
-                m.addAction(_('Hide Virtual library tabs'), self.vl_tabs.disable_bar)
-            else:
-                m.addAction(_('Show Virtual libraries as tabs'), self.vl_tabs.enable_bar)
+            if add_tabs_action:
+                if gprefs['show_vl_tabs']:
+                    m.addAction(_('Hide Virtual library tabs'), self.vl_tabs.disable_bar)
+                else:
+                    m.addAction(_('Show Virtual libraries as tabs'), self.vl_tabs.enable_bar)
 
         m.addSeparator()
 
