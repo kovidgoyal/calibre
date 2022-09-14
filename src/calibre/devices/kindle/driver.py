@@ -411,7 +411,7 @@ class KINDLE2(KINDLE):
     OPT_APNX_CUST_COL        = 2
     OPT_APNX_METHOD_COL      = 3
     OPT_APNX_OVERWRITE       = 4
-    EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD: APNXBuilder.generators.keys()}
+    EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD: set(APNXBuilder.generators.keys())}
 
     # x330 on the PaperWhite
     # x262 on the Touch. Doesn't choke on x330, though.

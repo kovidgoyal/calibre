@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 import enum
 
 
-class PageNumberTypes(str, enum.Enum):
+class PageNumberTypes(enum.Enum):
     Arabic = "a"
     Roman = "r"
-    Custom = 'c'
+    Custom = "c"
