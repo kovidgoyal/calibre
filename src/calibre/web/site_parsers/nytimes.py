@@ -10,7 +10,7 @@ from pprint import pprint
 from calibre.utils.iso8601 import parse_iso8601
 
 
-module_version = 3  # needed for live updates
+module_version = 4  # needed for live updates
 pprint
 
 
@@ -93,9 +93,9 @@ def process_image_block(lines, block):
     if 'web.archive.org' in img:
         img = img.partition('/')[-1]
         img = img[img.find('https://'):]
-    lines.append('<div style="text-align: center"><img src={}/>'.format(quoteattr(img)))
+    lines.append('<div style="text-align: center"><div style="text-align: center"><img src={}/></div><div style="font-size: smaller">'.format(quoteattr(img)))
     lines.extend(caption_lines)
-    lines.append('</div>')
+    lines.append('</div></div>')
 
 
 def json_to_html(raw):
