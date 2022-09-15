@@ -1469,9 +1469,10 @@ class TagsModel(QAbstractItemModel):  # {{{
                 datatype = cache.field_metadata.get(key, {}).get('datatype', '*****')
                 if datatype != 'composite':
                     id_ = cache.get_item_id(key, val)
-                    v = cache.books_for_field(key, id_)
-                    if v:
-                        new_cat.append([val, key, 0])
+                    if id_ is not None:
+                        v = cache.books_for_field(key, id_)
+                        if v:
+                            new_cat.append([val, key, 0])
             if new_cat:
                 all_cats[cat] = new_cat
         self.db.new_api.set_pref('user_categories', all_cats)
