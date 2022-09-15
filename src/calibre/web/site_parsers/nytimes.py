@@ -10,7 +10,7 @@ from pprint import pprint
 from calibre.utils.iso8601 import parse_iso8601
 
 
-module_version = 2  # needed for live updates
+module_version = 3  # needed for live updates
 pprint
 
 
@@ -187,18 +187,15 @@ def extract_html(soup):
 
 
 def download_url(url, br):
-    # NYT has implemented captcha protection for its article pages, so get
-    # them from the wayback machine instead. However, wayback machine is
-    # flaky so god knows how well it will work under load
-    from calibre.ebooks.metadata.sources.update import search_engines_module
-    m = search_engines_module()
-    cu = m.wayback_machine_cached_url(url, br)
-    raw = m.get_data_for_cached_url(cu)
-    if raw is None:
-        raw = br.open_novisit(cu).read()
-    if not isinstance(raw, bytes):
-        raw = raw.encode('utf-8')
-    return raw
+    # Get the URL from the Wayback machine
+    from mechanize import Request
+    rq = Request(
+        'http://localhost:8090/nytimes',
+        data=json.dumps({"url": url}),
+        headers={'User-Agent': 'calibre', 'Content-Type': 'application/json'}
+    )
+    br.set_handle_gzip(True)
+    return br.open_novisit(rq, timeout=3 * 60).read()
 
 
 if __name__ == '__main__':

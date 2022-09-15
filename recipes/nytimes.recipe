@@ -13,8 +13,9 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-is_web_edition = True
+is_web_edition = False
 oldest_web_edition_article = 7  # days
+use_wayback_machine = False
 
 
 # The sections to download when downloading the web edition, comment out
@@ -92,32 +93,37 @@ class NewYorkTimes(BasicNewsRecipe):
     remove_attributes = ['style']
     conversion_options = {'flow_size': 0}
 
-    def preprocess_raw_html(self, raw_html, url):
-        if not hasattr(self, 'nyt_parser'):
+    @property
+    def nyt_parser(self):
+        ans = getattr(self, '_nyt_parser', None)
+        if ans is None:
             from calibre.live import load_module
-            m = load_module('calibre.web.site_parsers.nytimes')
-            self.nyt_parser = m
+            self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
+        return ans
+
+    def get_nyt_page(self, url):
+        if use_wayback_machine:
+            from calibre import browser
+            return self.nyt_parser.download_url(url, browser())
+        return self.browser.open_novisit(url).read()
+
+    def preprocess_raw_html(self, raw_html, url):
         html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
         return html
+
+    articles_are_obfuscated = use_wayback_machine
+
+    if use_wayback_machine:
+        def get_obfuscated_article(self, url):
+            from calibre.ptempfile import PersistentTemporaryFile
+            with PersistentTemporaryFile() as tf:
+                tf.write(self.get_nyt_page(url))
+            return tf.name
 
     def read_todays_paper(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
-        try:
-            soup = self.index_to_soup(INDEX)
-        except Exception as err:
-            if getattr(err, 'code', None) == 404:
-                try:
-                    soup = self.index_to_soup(strftime('https://www.nytimes.com/issue/todayspaper/%Y/%m/%d/todays-new-york-times'))
-                except Exception as err:
-                    if getattr(err, 'code', None) == 404:
-                        dt = datetime.datetime.today() - datetime.timedelta(days=1)
-                        soup = self.index_to_soup(dt.strftime('https://www.nytimes.com/issue/todayspaper/%Y/%m/%d/todays-new-york-times'))
-                    else:
-                        raise
-            else:
-                raise
-        return soup
+        return self.index_to_soup(self.get_nyt_page(INDEX))
 
     def read_nyt_metadata(self):
         soup = self.read_todays_paper()
@@ -241,7 +247,7 @@ class NewYorkTimes(BasicNewsRecipe):
         for section_title, slug in web_sections:
             url = 'https://www.nytimes.com/section/' + slug
             try:
-                soup = self.index_to_soup(url)
+                soup = self.index_to_soup(self.get_nyt_page(url))
             except Exception:
                 self.log.error('Failed to download section:', url)
                 continue

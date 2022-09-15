@@ -2,14 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import unicode_literals
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+use_wayback_machine = False
 
 
 def absolutize(url):
@@ -28,32 +23,38 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     no_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
-    articles_are_obfuscated = True
-    delay = 1
 
-    def get_obfuscated_article(self, url):
-        if not hasattr(self, 'nyt_parser'):
+    articles_are_obfuscated = use_wayback_machine
+
+    if use_wayback_machine:
+        def get_obfuscated_article(self, url):
+            from calibre.ptempfile import PersistentTemporaryFile
+            with PersistentTemporaryFile() as tf:
+                tf.write(self.get_nyt_page(url))
+            return tf.name
+
+    @property
+    def nyt_parser(self):
+        ans = getattr(self, '_nyt_parser', None)
+        if ans is None:
             from calibre.live import load_module
-            m = load_module('calibre.web.site_parsers.nytimes')
-            self.nyt_parser = m
-        raw = self.nyt_parser.download_url(url, self.cloned_browser)
-        from calibre.ptempfile import PersistentTemporaryFile
-        with PersistentTemporaryFile(suffix='.html') as pt:
-            pt.write(raw)
-        return pt.name
+            self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
+        return ans
+
+    def get_nyt_page(self, url):
+        if use_wayback_machine:
+            from calibre import browser
+            return self.nyt_parser.download_url(url, browser())
+        return self.browser.open_novisit(url).read()
 
     def preprocess_raw_html(self, raw_html, url):
-        if not hasattr(self, 'nyt_parser'):
-            from calibre.live import load_module
-            m = load_module('calibre.web.site_parsers.nytimes')
-            self.nyt_parser = m
         html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
         return html
 
     def parse_index(self):
         # return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
         soup = self.index_to_soup(
-            'https://www.nytimes.com/pages/books/review/index.html')
+            self.get_nyt_page('https://www.nytimes.com/pages/books/review/index.html'))
 
         # Find TOC
         toc = soup.find('section', id='collection-book-review').find('section').find('ol')
