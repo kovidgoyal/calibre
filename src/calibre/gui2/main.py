@@ -492,6 +492,9 @@ def communicate(opts, args, retry_communicate=False):
     else:
         if len(args) > 1:
             args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
+        if opts.with_library and os.path.isdir(os.path.expanduser(opts.with_library)):
+            library_id = os.path.basename(opts.with_library).replace(' ', '_').encode('utf-8').hex()
+            args.insert(1, 'calibre://switch-library/_hex_-' + library_id)
         import json
         if not send_message(b'launched:'+as_bytes(json.dumps(args)), retry_communicate=retry_communicate):
             raise SystemExit(_('Failed to contact running instance of calibre'))
