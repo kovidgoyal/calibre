@@ -220,35 +220,53 @@ class Highlights(QTreeWidget):
         self.clear()
         self.uuid_map = {}
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
-        section_map = defaultdict(list)
-        section_tt_map = {}
-        for h in self.sorted_highlights(highlights):
-            tfam = h.get('toc_family_titles') or ()
-            if tfam:
-                tsec = tfam[0]
-                lsec = tfam[-1]
-            else:
-                tsec = h.get('top_level_section_title')
-                lsec = h.get('lowest_level_section_title')
-            sec = lsec or tsec or _('Unknown')
+        smap = {}
+        title_counts = defaultdict(lambda : 0)
+
+        @lru_cache
+        def tooltip_for(tfam):
+            tooltip = ''
             if len(tfam) > 1:
                 lines = []
                 for i, node in enumerate(tfam):
                     lines.append('\xa0\xa0' * i + '➤ ' + node)
-                tt = ngettext('Table of Contents section:', 'Table of Contents sections:', len(lines))
-                tt += '\n' + '\n'.join(lines)
-                section_tt_map[sec] = tt
-            section_map[sec].append(h)
-        for secnum, (sec, items) in enumerate(section_map.items()):
-            section = QTreeWidgetItem([sec], 1)
+                tooltip = ngettext('Table of Contents section:', 'Table of Contents sections:', len(lines))
+                tooltip += '\n' + '\n'.join(lines)
+            return tooltip
+
+        for h in self.sorted_highlights(highlights):
+            tfam = tuple(h.get('toc_family_titles') or ())
+            if tfam:
+                tsec = tfam[0]
+                lsec = tfam[-1]
+                key = tfam
+            else:
+                tsec = h.get('top_level_section_title')
+                lsec = h.get('lowest_level_section_title')
+                key = (tsec or '', lsec or '')
+            short_title = lsec or tsec or _('Unknown')
+            title_counts[short_title] += 1
+            section = {
+                'title': short_title, 'tfam': tfam, 'tsec': tsec, 'lsec': lsec, 'items': [], 'tooltip': tooltip_for(tfam), 'key': key,
+            }
+            smap.setdefault(key, section)['items'].append(h)
+
+        for section in smap.values():
+            if title_counts[section['title']] > 1:
+                if section['tfam']:
+                    section['title'] = ' ➤ '.join(section['tfam'])
+                elif section['tsec'] and section['lsec']:
+                    section['title'] = ' ➤ '.join((section['tsec'], section['lsec']))
+
+        for secnum, (sec_key, sec) in enumerate(smap.items()):
+            section = QTreeWidgetItem([sec['title']], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
-            tt = section_tt_map.get(sec)
-            if tt:
-                section.setToolTip(0, tt)
+            if sec['tooltip']:
+                section.setToolTip(0, sec['tooltip'])
             self.addTopLevelItem(section)
-            section.setExpanded(not preserve_state or sec in expanded_chapters)
-            for itemnum, h in enumerate(items):
+            section.setExpanded(not preserve_state or sec['title'] in expanded_chapters)
+            for itemnum, h in enumerate(sec['items']):
                 txt = h.get('highlighted_text')
                 txt = txt.replace('\n', ' ')
                 if h.get('notes'):
