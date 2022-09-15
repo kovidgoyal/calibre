@@ -31,6 +31,8 @@ from calibre.gui2.widgets2 import Dialog
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 decoration_cache = {}
+highlight_role = Qt.ItemDataRole.UserRole
+section_role = highlight_role + 1
 
 
 @lru_cache(maxsize=8)
@@ -188,7 +190,7 @@ class Highlights(QTreeWidget):
 
     def show_context_menu(self, point):
         index = self.indexAt(point)
-        h = index.data(Qt.ItemDataRole.UserRole)
+        h = index.data(highlight_role)
         self.context_menu = m = QMenu(self)
         if h is not None:
             m.addAction(QIcon.ic('edit_input.png'), _('Modify this highlight'), self.edit_requested.emit)
@@ -203,7 +205,7 @@ class Highlights(QTreeWidget):
         return True
 
     def current_item_changed(self, current, previous):
-        self.current_highlight_changed.emit(current.data(0, Qt.ItemDataRole.UserRole) if current is not None else None)
+        self.current_highlight_changed.emit(current.data(0, highlight_role) if current is not None else None)
 
     def load(self, highlights, preserve_state=False):
         s = self.style()
@@ -213,7 +215,7 @@ class Highlights(QTreeWidget):
             for i in range(root.childCount()):
                 chapter = root.child(i)
                 if chapter.isExpanded():
-                    expanded_chapters.add(chapter.data(0, Qt.ItemDataRole.DisplayRole))
+                    expanded_chapters.add(chapter.data(0, section_role))
         icon_size = s.pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, self)
         dpr = self.devicePixelRatioF()
         is_dark = is_dark_theme()
@@ -262,10 +264,11 @@ class Highlights(QTreeWidget):
             section = QTreeWidgetItem([sec['title']], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
+            section.setData(0, section_role, sec['key'])
             if sec['tooltip']:
                 section.setToolTip(0, sec['tooltip'])
             self.addTopLevelItem(section)
-            section.setExpanded(not preserve_state or sec['title'] in expanded_chapters)
+            section.setExpanded(not preserve_state or sec['key'] in expanded_chapters)
             for itemnum, h in enumerate(sec['items']):
                 txt = h.get('highlighted_text')
                 txt = txt.replace('\n', ' ')
@@ -275,7 +278,7 @@ class Highlights(QTreeWidget):
                     txt = txt[:100] + '…'
                 item = QTreeWidgetItem(section, [txt], 2)
                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
-                item.setData(0, Qt.ItemDataRole.UserRole, h)
+                item.setData(0, highlight_role, h)
                 try:
                     dec = decoration_for_style(self.palette(), h.get('style') or {}, icon_size, dpr, is_dark)
                 except Exception:
@@ -327,7 +330,7 @@ class Highlights(QTreeWidget):
         if ch:
             q = ch['uuid']
             for i, item in enumerate(items):
-                h = item.data(0, Qt.ItemDataRole.UserRole)
+                h = item.data(0, highlight_role)
                 if h['uuid'] == q:
                     cr = i
         if query.backwards:
@@ -339,7 +342,7 @@ class Highlights(QTreeWidget):
                 cr = -1
             indices = chain(range(cr + 1, count), range(0, cr + 1))
         for i in indices:
-            h = items[i].data(0, Qt.ItemDataRole.UserRole)
+            h = items[i].data(0, highlight_role)
             if pat.search(h['highlighted_text']) is not None or pat.search(h.get('notes') or '') is not None:
                 self.set_current_row(*self.uuid_map[h['uuid']])
                 return True
@@ -362,7 +365,7 @@ class Highlights(QTreeWidget):
         return False
 
     def item_activated(self, item):
-        h = item.data(0, Qt.ItemDataRole.UserRole)
+        h = item.data(0, highlight_role)
         if h is not None:
             self.jump_to_highlight.emit(h)
 
@@ -370,17 +373,17 @@ class Highlights(QTreeWidget):
     def current_highlight(self):
         i = self.currentItem()
         if i is not None:
-            return i.data(0, Qt.ItemDataRole.UserRole)
+            return i.data(0, highlight_role)
 
     @property
     def all_highlights(self):
         for item in self.iteritems():
-            yield item.data(0, Qt.ItemDataRole.UserRole)
+            yield item.data(0, highlight_role)
 
     @property
     def selected_highlights(self):
         for item in self.selectedItems():
-            yield item.data(0, Qt.ItemDataRole.UserRole)
+            yield item.data(0, highlight_role)
 
     def keyPressEvent(self, ev):
         if ev.matches(QKeySequence.StandardKey.Delete):
