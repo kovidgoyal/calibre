@@ -612,6 +612,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``subtract(x, y)`` -- returns ``x - y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``-`` operator.
 * ``today()`` -- return a date+time string for today (now). This value is designed for use in `format_date` or `days_between`, but can be manipulated like any other string. The date is in `ISO <https://en.wikipedia.org/wiki/ISO_8601>`_ date/time format.
 * ``template(x)`` -- evaluates ``x`` as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation.
+* ``to_hex(val)`` -- returns the string ``val`` encoded in hex. This is useful when constructing calibre URLs.
 * ``urls_from_identifiers(identifiers, sort_results)`` -- given a comma-separated list of ``identifiers``, where an `identifier` is a colon-separated pair of values (``id_name:id_value``), returns a comma-separated list of HTML URLs generated from the identifiers. The list not sorted if sort_results is ``0`` (character or number), otherwise it is sorted alphabetically by the identifier name. The URLs are generated in the same way as the built-in identifiers column when shown in :guilabel:`Book details`.
 
 .. _template_mode:
