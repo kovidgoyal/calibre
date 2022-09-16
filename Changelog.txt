@@ -23,6 +23,45 @@
 # - title by author
 # }}}
 
+{{{ 6.5.0 2022-09-16
+
+:: new features
+
+- Kobo driver: support the new Kobo Clara 2e
+
+- [1989631] When running calibre with the --with-library command line flag and calibre is already running, switch to the specified library in calibre
+
+- [1988443] E-book viewer: Ask for confirmation when deleting a custom highlight style
+
+- [1988609] Do not show the virtual libraries tab bar when no virtual libraries are present
+
+- Tag mapper: When specifying the replacement tag allow completion from the tags in the currently open library
+
+- Template language: New functions strcasecmp() and to_hex()
+
+:: bug fixes
+
+- [1989177] Comments editor: Workaround for Qt inserting invalid font-weight when converting a paragraph to a heading
+
+- [1988590] E-book viewer: When displaying highlights dont group highlights from different chapters when the chapter titles are identical
+
+- Tag browser: Fix error if a User category contains a reference to a deleted custom column
+
+- [1989282] When sending books by email to the Kindle and PocketBook email delivery services use random subject and filenames consisting of simple English letters to try to workaround various bugs in their email processing code
+
+:: improved recipes
+- The Wall Street Journal
+- Open Magazine
+- The Baffler
+- Dark Reading
+- New York Times
+- NYTimes Cooking
+- NYTimes Sports Beat
+- Outlook Magazine
+- Foreign Affairs
+
+}}}
+
 {{{ 6.4.0 2022-09-02
 
 :: new features
