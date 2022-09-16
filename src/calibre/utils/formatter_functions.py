@@ -2245,7 +2245,7 @@ class BuiltinToUrl(BuiltinFormatterFunction):
     name = 'to_url'
     arg_count = 1
     category = 'String manipulation'
-    __doc__ = doc = _('to_url(val) -- returns the string encoded in URI Syntax URI Syntax (Percent-Encoding). '
+    __doc__ = doc = _('to_url(val) -- returns the string encoded in URI Syntax (Percent-Encoding). '
                       'This is useful when constructing calibre URLs.')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
