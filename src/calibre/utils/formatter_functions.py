@@ -2241,6 +2241,18 @@ class BuiltinToHex(BuiltinFormatterFunction):
         return val.encode().hex()
 
 
+class BuiltinToUrl(BuiltinFormatterFunction):
+    name = 'to_url'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('to_url(val) -- returns the string encoded in URI Syntax URI Syntax (Percent-Encoding). '
+                      'This is useful when constructing calibre URLs.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        from urllib.parse import quote
+        return quote(str(val))
+
+
 class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
     name = 'urls_from_identifiers'
     arg_count = 2
@@ -2361,7 +2373,7 @@ _formatter_builtins = [
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(), BuiltinToday(),
-    BuiltinToHex(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
+    BuiltinToHex(), BuiltinToUrl(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
     BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
 ]
 
