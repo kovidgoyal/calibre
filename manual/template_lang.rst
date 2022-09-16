@@ -613,7 +613,13 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``today()`` -- return a date+time string for today (now). This value is designed for use in `format_date` or `days_between`, but can be manipulated like any other string. The date is in `ISO <https://en.wikipedia.org/wiki/ISO_8601>`_ date/time format.
 * ``template(x)`` -- evaluates ``x`` as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation.
 * ``to_hex(val)`` -- returns the string ``val`` encoded in hex. This is useful when constructing calibre URLs.
-* ``to_url(val)`` -- returns the string ``val`` encoded in URI Syntax (Percent-Encoding). This is useful when constructing calibre URLs.
+<<<<<<< HEAD
+* ``quote_url_path(val)`` -- returns the string ``val`` encoded in URI Syntax (Percent-Encoding). This is useful when constructing calibre URLs.
+* ``quote_url_query(val)`` -- returns the string ``val`` encoded in URI Syntax (Percent-Encoding) for the query section. This is useful when constructing calibre URLs.
+=======
+* ``url_quote_path(val)`` -- returns the string ``val`` encoded in URI Syntax (Percent-Encoding). This is useful when constructing calibre URLs.
+* ``url_quote_query(val)`` -- returns the string ``val`` encoded in URI Syntax (Percent-Encoding) for the query section. This is useful when constructing calibre URLs.
+>>>>>>> 86165cc0a72d97ef0a07a615aece6a51c5994366
 * ``urls_from_identifiers(identifiers, sort_results)`` -- given a comma-separated list of ``identifiers``, where an `identifier` is a colon-separated pair of values (``id_name:id_value``), returns a comma-separated list of HTML URLs generated from the identifiers. The list not sorted if sort_results is ``0`` (character or number), otherwise it is sorted alphabetically by the identifier name. The URLs are generated in the same way as the built-in identifiers column when shown in :guilabel:`Book details`.
 
 .. _template_mode:

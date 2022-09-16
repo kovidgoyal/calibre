@@ -2241,16 +2241,44 @@ class BuiltinToHex(BuiltinFormatterFunction):
         return val.encode().hex()
 
 
-class BuiltinToUrl(BuiltinFormatterFunction):
-    name = 'to_url'
+<<<<<<< HEAD
+class BuiltinQuoteUrlPath(BuiltinFormatterFunction):
+    name = 'quote_url_path'
     arg_count = 1
     category = 'String manipulation'
-    __doc__ = doc = _('to_url(val) -- returns the string encoded in URI Syntax (Percent-Encoding). '
+    __doc__ = doc = _('quote_url_path(val) -- returns the string encoded in URI Syntax (Percent-Encoding). '
+=======
+class BuiltinUrlQuotePath(BuiltinFormatterFunction):
+    name = 'url_quote_path'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('url_quote_path(val) -- returns the string encoded in URI Syntax (Percent-Encoding). '
+>>>>>>> 86165cc0a72d97ef0a07a615aece6a51c5994366
                       'This is useful when constructing calibre URLs.')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         from urllib.parse import quote
         return quote(str(val))
+
+
+<<<<<<< HEAD
+class BuiltinQuoteUrlQuery(BuiltinFormatterFunction):
+    name = 'quote_url_query'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('quote_url_query(val) -- returns the string encoded in URI Syntax (Percent-Encoding) for the query section. '
+=======
+class BuiltinUrlQuoteQuery(BuiltinFormatterFunction):
+    name = 'url_quote_query'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('url_quote_query(val) -- returns the string encoded in URI Syntax (Percent-Encoding) for the query section. '
+>>>>>>> 86165cc0a72d97ef0a07a615aece6a51c5994366
+                      'This is useful when constructing calibre URLs.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        from urllib.parse import quote_plus
+        return quote_plus(str(val))
 
 
 class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
@@ -2373,7 +2401,12 @@ _formatter_builtins = [
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(), BuiltinToday(),
-    BuiltinToHex(), BuiltinToUrl(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
+    BuiltinToHex(), BuiltinTransliterate(), BuiltinUppercase(),
+<<<<<<< HEAD
+    BuiltinQuoteUrlPath(), BuiltinQuoteUrlQuery(), BuiltinUrlsFromIdentifiers(),
+=======
+    BuiltinUrlQuotePath(), BuiltinUrlQuoteQuery(),  BuiltinUrlsFromIdentifiers(),
+>>>>>>> 86165cc0a72d97ef0a07a615aece6a51c5994366
     BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
 ]
 
