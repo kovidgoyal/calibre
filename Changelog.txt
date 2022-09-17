@@ -43,7 +43,7 @@
 
 - [1989177] Comments editor: Workaround for Qt inserting invalid font-weight when converting a paragraph to a heading
 
-- [1988590] E-book viewer: When displaying highlights dont group highlights from different chapters when the chapter titles are identical
+- [1988590] E-book viewer: When displaying highlights do not group highlights from different chapters when the chapter titles are identical
 
 - Tag browser: Fix error if a User category contains a reference to a deleted custom column
 
