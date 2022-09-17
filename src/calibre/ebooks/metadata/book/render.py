@@ -89,7 +89,7 @@ def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
         rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
-        for_qt=False,
+        for_qt=False, vertical_fields=()
     ):
     if field_list is None:
         field_list = get_field_list(mi)
@@ -108,6 +108,12 @@ def mi_to_html(
             continue
         if not metadata:
             continue
+
+        def value_list(sep, vals):
+            if field in vertical_fields:
+                return '<br/>'.join(vals)
+            return sep.join(vals)
+
         if field == 'sort':
             field = 'title_sort'
         if metadata['is_custom'] and metadata['datatype'] in {'bool', 'int', 'float'}:
@@ -162,11 +168,11 @@ def mi_to_html(
                               _('Click to see books with {0}: {1}').format(metadata['name'], a(val)), p(val))
                     else:
                         all_vals = [v.strip()
-                            for v in val.split(metadata['is_multiple']['list_to_ui']) if v.strip()]
+                            for v in val.split(metadata['is_multiple']['cache_to_list']) if v.strip()]
                         links = ['<a href="{}" title="{}">{}</a>'.format(
                             search_action(field, x), _('Click to see books with {0}: {1}').format(
                                      metadata['name'], a(x)), p(x)) for x in all_vals]
-                        val = metadata['is_multiple']['list_to_ui'].join(links)
+                        val = value_list(metadata['is_multiple']['list_to_ui'], links)
                     ans.append((field, row % (name, val)))
         elif field == 'path':
             if mi.path:
@@ -199,7 +205,7 @@ def mi_to_html(
             } for x in mi.formats)
             fmts = ['<a title="{bpath}{sep}{fname}.{ext}" href="{action}">{fmt}</a>'.format(**x)
                     for x in data]
-            ans.append((field, row % (name, ', '.join(fmts))))
+            ans.append((field, row % (name, value_list(', ', fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers, sort_results=True)
             links = [
@@ -207,7 +213,7 @@ def mi_to_html(
                     action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
                     a(id_typ), a(id_val), p(namel))
                 for namel, id_typ, id_val, url in urls]
-            links = ', '.join(links)
+            links = value_list(', ', links)
             if links:
                 ans.append((field, row % (_('Ids')+':', links)))
         elif field == 'authors':
@@ -233,14 +239,14 @@ def mi_to_html(
                     authors.append('<a title="%s" href="%s">%s</a>'%(a(lt), action('author', url=link, name=aut, title=lt), aut))
                 else:
                     authors.append(aut)
-            ans.append((field, row % (name, ' & '.join(authors))))
+            ans.append((field, row % (name, value_list(' & ', authors))))
         elif field == 'languages':
             if not mi.languages:
                 continue
             names = filter(None, map(calibre_langcode_to_name, mi.languages))
             names = ['<a href="{}" title="{}">{}</a>'.format(search_action_with_data('languages', n, book_id), _(
                 'Search calibre for books with the language: {}').format(n), n) for n in names]
-            ans.append((field, row % (name, ', '.join(names))))
+            ans.append((field, row % (name, value_list(', ', names))))
         elif field == 'publisher':
             if not mi.publisher:
                 continue
@@ -303,7 +309,7 @@ def mi_to_html(
                     search_action_with_data(st, x, book_id, field), _('Click to see books with {0}: {1}').format(
                         metadata['name'] or field, a(x)), p(x))
                          for x in all_vals]
-                val = metadata['is_multiple']['list_to_ui'].join(links)
+                val = value_list(metadata['is_multiple']['list_to_ui'], links)
             elif metadata['datatype'] == 'text' or metadata['datatype'] == 'enumeration':
                 # text/is_multiple handled above so no need to add the test to the if
                 try:

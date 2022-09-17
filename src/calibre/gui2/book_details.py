@@ -176,7 +176,9 @@ def init_find_in_grouped_search(menu, field, value, book_info):
 
 
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
-    func = render_data_func or render_data
+    from calibre.gui2.ui import get_gui
+    func = render_data_func or partial(render_data,
+                   vertical_fields=get_gui().current_db.prefs.get('book_details_vertical_categories') or ())
     try:
         table, comment_fields = func(mi, all_fields=all_fields,
                 use_roman_numbers=config['use_roman_numerals_for_series_number'], pref_name=pref_name)
@@ -233,13 +235,15 @@ def get_field_list(fm, use_defaults=False, pref_name='book_display_fields'):
     return [(f, d) for f, d in fieldlist if f in available]
 
 
-def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_display_fields'):
+def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_display_fields',
+                vertical_fields=()):
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata), pref_name=pref_name)
     field_list = [(x, all_fields or display) for x, display in field_list]
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
-        comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True
+        comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
+        vertical_fields=vertical_fields
     )
 
 # }}}

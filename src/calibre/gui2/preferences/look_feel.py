@@ -470,6 +470,38 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
 # }}}
 
 
+class BDVerticalCats(DisplayedFields):  # {{{
+
+    def __init__(self, db, parent=None, category_icons=None):
+        DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
+        from calibre.gui2.ui import get_gui
+        self.gui = get_gui()
+
+    def initialize(self, use_defaults=False, pref_data_override=None):
+        fm = self.db.field_metadata
+        cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple']]
+        ans = []
+        if use_defaults:
+            ans = [[k, False] for k in cats]
+            self.changed = True
+        elif pref_data_override:
+            ph = {k:v for k,v in pref_data_override}
+            ans = [[k, ph.get(k, False)] for k in cats]
+            self.changed = True
+        else:
+            vertical_cats =  self.db.prefs.get('book_details_vertical_categories') or ()
+            for key in cats:
+                ans.append([key, key in vertical_cats])
+        self.beginResetModel()
+        self.fields = ans
+        self.endResetModel()
+
+    def commit(self):
+        if self.changed:
+            self.db.prefs.set('book_details_vertical_categories', [k for k,v in self.fields if v])
+# }}}
+
+
 class Background(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -705,6 +737,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                                            model=self.tb_hierarchical_cats_model))
         self.tb_hierarchy_import_layout_button.clicked.connect(partial(self.import_layout,
                                                            model=self.tb_hierarchical_cats_model))
+
+        self.bd_vertical_cats_model = BDVerticalCats(self.gui.current_db, self.tb_hierarchical_cats)
+        self.bd_vertical_cats_model.dataChanged.connect(self.changed_signal)
+        self.bd_vertical_cats.setModel(self.bd_vertical_cats_model)
 
         self.fill_tb_search_order_box()
         self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
@@ -959,6 +995,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tb_display_model.initialize()
         self.tb_categories_to_part_model.initialize()
         self.tb_hierarchical_cats_model.initialize()
+        self.bd_vertical_cats_model.initialize()
         db = self.gui.current_db
         mi = []
         try:
@@ -1022,6 +1059,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.restore_defaults()
         self.em_display_model.restore_defaults()
         self.qv_display_model.restore_defaults()
+        self.bd_vertical_cats_model.restore_defaults()
         gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
         self.edit_rules.clear()
         self.icon_rules.clear()
@@ -1097,6 +1135,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.tb_display_model.commit()
             self.tb_categories_to_part_model.commit()
             self.tb_hierarchical_cats_model.commit()
+            self.bd_vertical_cats_model.commit()
             self.tb_search_order_commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
