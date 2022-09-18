@@ -1,6 +1,3 @@
-
-__license__ = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 spiegel.de
 '''
@@ -10,39 +7,61 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Spiegel_int(BasicNewsRecipe):
     title = 'Spiegel Online International'
-    __author__ = 'Darko Miletic and Sujata Raman'
+    __author__ = 'unkn0wn'
     description = "Daily news, analysis and opinion from Europe's leading newsmagazine and Germany's top news Web site"
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'en_DE'
     no_stylesheets = True
     use_embedded_content = False
-    auto_cleanup = True
-    auto_cleanup_keep = '//*[@id="spArticleTopAsset"]'
-    encoding = 'cp1252'
+    encoding = 'utf-8'
     publisher = 'SPIEGEL ONLINE GmbH'
     category = 'news, politics, Germany'
-    masthead_url = 'http://www.spiegel.de/static/sys/v9/spiegelonline_logo.png'
     publication_type = 'magazine'
+    remove_empty_feeds = True
+    remove_attributes = ['style','height','width']
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/0/06/Logo-Der-Spiegel-de.png'
 
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher
     }
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.spiegel.de/spiegel/print/')
+        div = soup.find('div', attrs={'data-component':'MagazineImage'})
+        citem = div.find('img', attrs={'data-src':True})['data-src'].replace('260', '800')
+        return citem
+
+    keep_only_tags = [dict(name='article')]
+
+    remove_tags = [
+        dict(name='section', attrs={'data-app-hidden':True}),
+        dict(name='div', attrs={'data-issue-context-hidden':True}),
+        dict(name='div', attrs={'data-area':'related_articles'}),
+        dict(name='div', attrs={'data-component':'HTMLEmbed'}),
+        dict(name=['footer', 'button', 'svg'])
+    ]
+
     extra_css = '''
-                   #spArticleContent{font-family: Verdana,Arial,Helvetica,Geneva,sans-serif}
-                   h1{color:#666666; font-weight:bold;}
-                   h2{color:#990000;}
-                   h3{color:#990000;}
-                   h4 {color:#990000;}
-                   a{color:#990000;}
-                   .spAuthor{font-style:italic;}
-                   #spIntroTeaser{font-weight:bold}
-                   .spCredit{color:#666666; font-size:x-small;}
-                   .spShortDate{font-size:x-small;}
-                   .spArticleImageBox {font-size:x-small;}
-                   .spPhotoGallery{font-size:x-small; color:#990000 ;}
-                '''
+        time{font-size:small;}
+        [data-area="quote"]{text-align:center; color:#404040;}
+        #fig-c{font-size:small; text-align:center;}
+    '''
 
-    feeds = [(u'Spiegel Online', u'http://www.spiegel.de/international/index.rss')]
+    feeds = [
+        ('World', 'https://www.spiegel.de/international/world/index.rss'),
+        ('Europe', 'https://www.spiegel.de/international/europe/index.rss'),
+        ('Germany', 'https://www.spiegel.de/international/germany/index.rss'),
+        ('Business', 'https://www.spiegel.de/international/business/index.rss'),
+        ('Zeitgeist', 'https://www.spiegel.de/international/zeitgeist/index.rss'),
+        ('Tomorrow', 'https://www.spiegel.de/international/tomorrow/index.rss'),
+        ('Others', 'http://www.spiegel.de/international/index.rss')
+    ]
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        for fig in soup.findAll('figcaption'):
+            fig['id'] = 'fig-c'
+        return soup
