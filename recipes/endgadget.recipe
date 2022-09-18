@@ -6,14 +6,14 @@ __copyright__ = 'Copyright 2011 Starson17'
 engadget.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Engadget(BasicNewsRecipe):
     title = u'Engadget'
     __author__ = 'Starson17, modified by epubli'
-    __version__ = 'v1.00'
-    __date__ = '08, Feb 2021'
+    __version__ = 'v2.0'
+    __date__ = '14, Sep 2022'
     description = 'Tech news'
     language = 'en'
     oldest_article = 7
@@ -24,36 +24,39 @@ class Engadget(BasicNewsRecipe):
     remove_empty_feeds = True
     compress_news_images = True
     scale_news_images_to_device = True
-    remove_attributes = ['class']
+    cover_url = 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Engadget-logo.svg'
 
     keep_only_tags = [
-        dict(name='figure'),
+        dict(name='figure', attrs={'data-component': 'DefaultLede'}),
         dict(name='div', attrs={'data-component': 'ArticleHeader'}),
         dict(
             name='div',
             attrs={'class': ['article-text', 'article-text c-gray-1 no-review']}
-        )
+        ),
+        dict(name='figure')
     ]
     remove_tags = [
         dict(name='div', attrs={'data-component': 'ArticleAuthorInfo'}),
-        dict(name='span', attrs={'class': 'c-gray-7'})
+        classes('notification-upsell-push article-slideshow D(f) rapid-with-clickid athena-button')
     ]
 
     feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]
 
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:small;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-    '''
-
-    def preprocess_raw_html(self, raw, url):
-        # remove sponsored articles and daily article with summaries of previous articles
-        unwanted_article_keywords = [
-            'made possible by our sponsor', 'The Morning After'
-        ]
-        for keyword in unwanted_article_keywords:
-            if keyword in raw:
-                self.abort_article('Skipping unwanted article')
-        return raw
+    def parse_feeds(self):
+        # Call parent's method.
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        # Loop through all feeds.
+        for feed in feeds:
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+                # Remove articles with '...' in the title.
+                if 'best tech deals' in article.title:
+                    print('Removing:', article.title)
+                    feed.articles.remove(article)
+                elif 'Podcast' in article.title:
+                    print('Removing:', article.title)
+                    feed.articles.remove(article)
+                elif 'The Morning After' in article.title:
+                    print('Removing:', article.title)
+                    feed.articles.remove(article)
+        return feeds
