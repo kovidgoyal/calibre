@@ -185,15 +185,18 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         return True
 
     fields = library_data.book_display_fields
+    vertical_categories = {x: True for x in (library_data.book_details_vertical_categories or v'[]')}
     if not fields or not fields.length or get_session_data().get('show_all_metadata'):
         fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     else:
         fields = filter(allowed_fields, fields)
     comments = v'[]'
 
-    def add_row(name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
+    def add_row(field, name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
             return
+        is_vertical = vertical_categories[field]
+
         def add_val(v):
             if not v.appendChild:
                 v += ''
@@ -220,24 +223,27 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 for v in val:
                     add_val(v)
                     if v is not val[-1]:
-                        table.lastChild.lastChild.appendChild(document.createTextNode(join))
+                        if is_vertical:
+                            table.lastChild.lastChild.appendChild(E.br())
+                        else:
+                            table.lastChild.lastChild.appendChild(document.createTextNode(join))
         return table.lastChild.lastChild
 
     def process_composite(field, fm, name, val):
         if fm.display and fm.display.contains_html:
-            add_row(name, val, is_html=True)
+            add_row(field, name, val, is_html=True)
             return
         if fm.is_multiple and fm.is_multiple.list_to_ui:
             all_vals = filter(None, map(str.strip, val.split(fm.is_multiple.list_to_ui)))
-            add_row(name, all_vals, is_searchable=field, join=fm.is_multiple.list_to_ui)
+            add_row(field, name, all_vals, is_searchable=field, join=fm.is_multiple.list_to_ui)
         else:
-            add_row(name, val, is_searchable=field)
+            add_row(field, name, val, is_searchable=field)
 
     def process_authors(field, fm, name, val):
-        add_row(name, val, is_searchable=field, join=' & ')
+        add_row(field, name, val, is_searchable=field, join=' & ')
 
     def process_publisher(field, fm, name, val):
-        add_row(name, val, is_searchable=field)
+        add_row(field, name, val, is_searchable=field)
 
     def process_formats(field, fm, name, val):
         if val.length and book_id?:
@@ -258,7 +264,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         val = int(val or 0)
         if val > 0:
             add_stars_to(stars, val, fm.display?.allow_half_stars)
-            add_row(name, stars, is_searchable=field, search_text=val/2 + '')
+            add_row(field, name, stars, is_searchable=field, search_text=val/2 + '')
 
     def process_identifiers(field, fm, name, val):
 
@@ -286,9 +292,9 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     def process_size(field, fm, name, val):
         if val:
             try:
-                add_row(name, human_readable(int(val)))
+                add_row(field, name, human_readable(int(val)))
             except:
-                add_row(name, val+'')
+                add_row(field, name, val+'')
 
     def process_languages(field, fm, name, val):
         if val and val.length:
@@ -312,7 +318,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
             formatted_val = format_date(val, fmt)
             if formatted_val:
-                add_row(name, formatted_val, is_searchable=field, search_text=val)
+                add_row(field, name, formatted_val, is_searchable=field, search_text=val)
 
     def process_series(field, fm, name, val):
         if val:
@@ -345,19 +351,19 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             hp = fm.display?.heading_position or 'hide'
             if ias is 'long-text':
                 if hp is 'side':
-                    add_row(name, val).style.whiteSpace = 'pre-wrap'
+                    add_row(field, name, val).style.whiteSpace = 'pre-wrap'
                     return
                 val = E.pre(val, style='white-space:pre-wrap').outerHTML
             elif ias is 'short-text':
                 if hp is 'side':
-                    add_row(name, val)
+                    add_row(field, name, val)
                     return
                 val = E.span(val).outerHTML
             else:
                 if field is 'comments' and '<' not in val:
                     val = '\n'.join(['<p class="description">{}</p>'.format(x.replace(/\n/g, '<br>')) for x in val.split('\n\n')])
             if hp is 'side':
-                add_row(name, val, is_html=True)
+                add_row(field, name, val, is_html=True)
                 return
             comments.push(v'[field, val]')
             return
@@ -388,14 +394,14 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             if datatype is 'text' or datatype is 'enumeration':
                 if val is not undefined and val is not None:
                     join = fm.is_multiple.list_to_ui if fm.is_multiple else None
-                    add_row(name, val, join=join, is_searchable=field)
+                    add_row(field, name, val, join=join, is_searchable=field)
             elif datatype is 'bool':
                 if library_data.bools_are_tristate:
                     v =  _('Yes') if val else ('' if val is undefined or val is None else _('No'))
                 else:
                     v = _('Yes') if val else _('No')
                 if v:
-                    add_row(name, v, is_searchable=field, use_quotes=False)
+                    add_row(field, name, v, is_searchable=field, use_quotes=False)
             elif datatype is 'int' or datatype is 'float':
                 if val is not undefined and val is not None:
                     fmt = (fm.display or {}).number_format
@@ -403,10 +409,10 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                         formatted_val = fmt.format(val)
                         if formatted_val:
                             val += ''
-                            add_row(name, formatted_val, is_searchable=field, search_text=val)
+                            add_row(field, name, formatted_val, is_searchable=field, search_text=val)
                     else:
                         val += ''
-                        add_row(name, val, is_searchable=field, search_text=val)
+                        add_row(field, name, val, is_searchable=field, search_text=val)
 
     for field in fields:
         fm = field_metadata[field]
