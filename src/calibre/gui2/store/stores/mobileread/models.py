@@ -104,9 +104,7 @@ class BooksModel(QAbstractItemModel):
         if not self.books:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.books.sort(None,
-            lambda x: sort_key(type(u'')(self.data_as_text(x, col))),
-            descending)
+        self.books.sort(key=lambda x: sort_key(type(u'')(self.data_as_text(x, col))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 
