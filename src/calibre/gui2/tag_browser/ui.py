@@ -97,6 +97,12 @@ class TagBrowserMixin:  # {{{
         self.tags_view.model().user_category_added.connect(self.user_categories_edited,
                 type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.edit_enum_values.connect(self.edit_enum_values)
+        self.tags_view.model().research_required.connect(self.do_gui_research, type=Qt.ConnectionType.QueuedConnection)
+
+    def do_gui_research(self):
+        self.library_view.model().research()
+        # The count can change if the current search uses in_tag_browser, perhaps in a VL
+        self.library_view.model().count_changed()
 
     def user_categories_edited(self):
         self.library_view.model().refresh()
@@ -728,6 +734,14 @@ class TagBrowserWidget(QFrame):  # {{{
         mt.m = l.manage_menu = QMenu(l.m)
         mt.setMenu(mt.m)
 
+        l.m.filter_action = ac = l.m.addAction(QIcon.ic('filter.png'), _('Filter book list (search %s)') % 'in_tag_browser:true')
+        # Give it a (complicated) shortcut so people can discover a shortcut
+        # is possible, I hope without creating collisions.
+        parent.keyboard.register_shortcut('tag browser filter booklist',
+                _('Filter book list'), default_keys=('Ctrl+Alt+Shift+F',),
+                action=ac, group=_('Tag browser'))
+        ac.triggered.connect(self.filter_book_list)
+
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser toggle item',
@@ -753,6 +767,10 @@ class TagBrowserWidget(QFrame):  # {{{
         ac = self.alter_tb.m.show_avg_rating_action
         ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
         ac.setIcon(QIcon.ic('minus.png' if config['show_avg_rating'] else 'plus.png'))
+
+    def filter_book_list(self):
+        self.tags_view.model().set_in_tag_browser()
+        self._parent.search.set_search_string('in_tag_browser:true')
 
     def toggle_counts(self):
         gprefs['tag_browser_show_counts'] ^= True
