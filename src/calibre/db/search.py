@@ -472,6 +472,8 @@ class Parser(SearchQueryParser):  # {{{
         self.virtual_fields = virtual_fields or {}
         if 'marked' not in self.virtual_fields:
             self.virtual_fields['marked'] = self
+        if 'in_tag_browser' not in self.virtual_fields:
+            self.virtual_fields['in_tag_browser'] = self
         SearchQueryParser.__init__(self, locations, optimize=True, lookup_saved_search=lookup_saved_search, parse_cache=parse_cache)
 
     @property
