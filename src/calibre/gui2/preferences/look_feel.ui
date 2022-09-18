@@ -733,14 +733,14 @@ A value of zero means calculate automatically.</string>
          </layout>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
+       <item row="5" column="0" colspan="3">
         <widget class="QPushButton" name="id_links_button">
          <property name="text">
           <string>Create rules to convert &amp;identifiers into links</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="3" column="0" colspan="3">
         <widget class="QWidget" name="default_author_link_container" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -748,6 +748,25 @@ A value of zero means calculate automatically.</string>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QGroupBox" name="groupBox3">
+         <property name="title">
+          <string>Categories on separate lines</string>
+         </property>
+         <property name="toolTip">
+          <string>&lt;p&gt;Check the box if you want the category's values displayed on separate lines instead of separated by commas&lt;/p&gt;</string>
+         </property>
+         <layout class="QVBoxLayout" name="vblayout_3">
+          <item>
+           <widget class="QListView" name="bd_vertical_cats">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="6" column="1">
@@ -811,7 +830,7 @@ A value of zero means calculate automatically.</string>
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0" colspan="3">
         <layout class="QHBoxLayout">
          <item>
           <widget class="QCheckBox" name="opt_bd_show_cover">
@@ -855,7 +874,7 @@ A value of zero means calculate automatically.</string>
          </item>
         </layout>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLabel" name="label_25">
