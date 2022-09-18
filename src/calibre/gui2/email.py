@@ -159,13 +159,15 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # containing only 22 English letters and numbers
             #
             # And since this email is only going to be processed by automated
-            # services, make the subject random too as at least the amazon
-            # service cant handle non-ascii subjects. I dont know what baboons
+            # services, make the subject+text random too as at least the amazon
+            # service cant handle non-ascii text. I dont know what baboons
             # these companies employ to write their code. It's the height of
             # irony that they are called "tech" companies.
+            # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
             aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
             subject = uuid4()
+            text = uuid4()
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)
