@@ -299,7 +299,7 @@ def main(args=sys.argv):
     elif opts.export_all_calibre_data:
         args = args[1:]
         from calibre.utils.exim import run_exporter
-        run_exporter(args=args)
+        run_exporter(args=args, check_known_libraries=False)
     elif opts.import_calibre_data:
         from calibre.utils.exim import run_importer
         run_importer()

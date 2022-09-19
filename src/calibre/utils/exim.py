@@ -394,7 +394,7 @@ def input_unicode(prompt):
     return ans
 
 
-def run_exporter(export_dir=None, args=None):
+def run_exporter(export_dir=None, args=None, check_known_libraries=True):
     if args:
         if len(args) < 2:
             raise SystemExit('You must specify the export folder and libraries to export')
@@ -408,8 +408,8 @@ def run_exporter(export_dir=None, args=None):
             libraries = set(all_libraries)
         else:
             libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
-        if libraries - set(all_libraries):
-            raise SystemExit('Unknown library: ' + tuple(libraries - all_libraries)[0])
+        if check_known_libraries and libraries - set(all_libraries):
+            raise SystemExit('Unknown library: ' + tuple(libraries - set(all_libraries))[0])
         libraries = {p: all_libraries[p] for p in libraries}
         print('Exporting libraries:', ', '.join(sorted(libraries)), 'to:', export_dir)
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=libraries)
