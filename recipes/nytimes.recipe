@@ -13,7 +13,7 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-is_web_edition = False
+is_web_edition = True
 oldest_web_edition_article = 7  # days
 use_wayback_machine = False
 
