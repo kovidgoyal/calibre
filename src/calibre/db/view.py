@@ -41,8 +41,11 @@ class InTagBrowserVirtualField:
         self._ids = _ids
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        # The returned value can be any string. For example it could be book_id
+        # as a string, but there is little point in spending the cpu cycles for
+        # that as no one will do a search like in_tag_browser:1544 (a book id)
         for book_id in candidates:
-            yield str(book_id) if self._ids is None or book_id in self._ids else default_value, {book_id}
+            yield 'A' if self._ids is None or book_id in self._ids else default_value, {book_id}
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         null = sys.maxsize
