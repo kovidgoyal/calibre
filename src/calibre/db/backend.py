@@ -924,6 +924,8 @@ class DB:
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
         self.FIELD_MAP['series_sort'] = base = base+1
         self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
+        self.FIELD_MAP['in_tag_browser'] = base = base+1
+        self.field_metadata.set_field_record_index('in_tag_browser', base, prefer_custom=False)
 
     # }}}
 

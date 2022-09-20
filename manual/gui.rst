@@ -526,6 +526,10 @@ Identifiers (e.g., ISBN, DOI, LCCN, etc.) use an extended syntax. An identifier 
     * ``identifiers:=isbn:=123456789`` will find books with a type equal to ISBN having a value equal to `123456789`.
     * ``identifiers:i:1`` will find books with a type containing an `i` having a value containing a `1`.
 
+*Categories in the Tag browser*
+
+The search ``in_tag_browser:true`` finds all books with items (values in categories) currently shown in the :guilabel:`Tag browser`. This is useful if you set the preferences :guilabel:`Preferences . Look & feel . Tag browser . Hide empty categories` and :guilabel:`. Find shows all items that match`. With those two preferences set, doing a ``find`` in the :guilabel:`Tag browser` shows only categories containing items matched by the ``find``. The search ``in_tag_browser:true`` finds books with these categories / items.
+
 *Search using templates*
 
 You can search using a template in :ref:`templatelangcalibre` instead of a metadata field. To do so you enter a template, a search type, and the value to search for. The syntax is::

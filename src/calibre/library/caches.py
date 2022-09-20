@@ -938,6 +938,10 @@ class ResultCache(SearchQueryParser):  # {{{
             except:
                 pass
 
+        in_tag_browser_col = self.FIELD_MAP['in_tag_browser']
+        for r in self.iterall():
+            r[in_tag_browser_col] = None
+
     def get_marked(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self[idx][0]
         return self.marked_ids_dict.get(id_, default_value)
@@ -1056,7 +1060,7 @@ class ResultCache(SearchQueryParser):  # {{{
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
                 # Temp mark and series_sort columns
-                item.extend((None, None))
+                item.extend((None, None, None))
 
         marked_col = self.FIELD_MAP['marked']
         for id_,val in iteritems(self.marked_ids_dict):
@@ -1064,6 +1068,10 @@ class ResultCache(SearchQueryParser):  # {{{
                 self._data[id_][marked_col] = val
             except:
                 pass
+
+        in_tag_browser_col = self.FIELD_MAP['in_tag_browser']
+        for r in self.iterall():
+            r[in_tag_browser_col] = None
 
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:

@@ -35,6 +35,21 @@ class MarkedVirtualField:
         return lambda book_id:g(book_id, '')
 
 
+class InTagBrowserVirtualField:
+
+    def __init__(self, _ids):
+        self._ids = _ids
+
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        for book_id in candidates:
+            yield str(book_id) if self._ids is None or book_id in self._ids else default_value, {book_id}
+
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        def key(_id):
+            return _id if self._ids is not None and _id in self._ids else ''
+        return key
+
+
 class TableRow:
 
     def __init__(self, book_id, view):
@@ -80,6 +95,7 @@ class View:
     def __init__(self, cache):
         self.cache = cache
         self.marked_ids = {}
+        self.tag_browser_ids = None;
         self.marked_listeners = {}
         self.search_restriction_book_count = 0
         self.search_restriction = self.base_restriction = ''
@@ -235,7 +251,8 @@ class View:
 
     def get_virtual_libraries_for_books(self, ids):
         return self.cache.virtual_libraries_for_books(
-            ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+            ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
+                                 'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
 
     def _do_sort(self, ids_to_sort, fields=(), subsort=False):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
@@ -248,7 +265,8 @@ class View:
 
         return self.cache.multisort(
             fields, ids_to_sort=ids_to_sort,
-            virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+            virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
+                            'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
 
     def multisort(self, fields=[], subsort=False, only_ids=None):
         sorted_book_ids = self._do_sort(self._map if only_ids is None else only_ids, fields=fields, subsort=subsort)
@@ -309,7 +327,8 @@ class View:
                 self.full_map_is_sorted = True
             return rv
         matches = self.cache.search(
-            query, search_restriction, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+            query, search_restriction, virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
+                                           'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
         if len(matches) == len(self._map):
             rv = list(self._map)
         else:
@@ -360,6 +379,12 @@ class View:
 
     def change_search_locations(self, newlocs):
         self.cache.change_search_locations(newlocs)
+
+    def set_in_tag_browser(self, id_set):
+        self.tag_browser_ids = id_set
+
+    def get_in_tag_browser(self):
+        return self.tag_browser_ids
 
     def set_marked_ids(self, id_dict):
         '''

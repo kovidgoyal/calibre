@@ -323,6 +323,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     search_item_renamed = pyqtSignal()
     tag_item_renamed = pyqtSignal()
     refresh_required = pyqtSignal()
+    research_required = pyqtSignal()
     restriction_error = pyqtSignal(object)
     drag_drop_finished = pyqtSignal(object)
     user_categories_edited = pyqtSignal(object, object)
@@ -806,6 +807,24 @@ class TagsModel(QAbstractItemModel):  # {{{
                 new_children.append(node)
         self.root_item.children = new_children
         self.root_item.children.sort(key=lambda x: self.row_map.index(x.category_key))
+        if self.set_in_tag_browser():
+            self.research_required.emit()
+
+    def set_in_tag_browser(self):
+        # rebuild the list even if there is no filter. This lets us support
+        # in_tag_browser:true or :false based on the displayed categories. It is
+        # a form of shorthand for searching for all the visible categories with
+        # category1:true OR category2:true etc. The cost: walking the tree and
+        # building the set for a case that will certainly rarely be different
+        # from all books because all books have authors.
+        id_set = set()
+        for x in [a for a in self.root_item.children if a.category_key != 'search' and not a.is_gst]:
+            for t in x.child_tags():
+                id_set |= t.tag.id_set
+        changed = self.db.data.get_in_tag_browser() != id_set
+        self.db.data.set_in_tag_browser(id_set)
+        return changed
+
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:
@@ -1151,9 +1170,15 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         # Get the categories
         try:
+            # We must disable the in_tag_browser ids because we want all the
+            # categories that will be filtered later. They might be restricted
+            # by a VL or extra restriction.
+            old_in_tb = self.db.data.get_in_tag_browser()
+            self.db.data.set_in_tag_browser(None)
             data = self.db.new_api.get_categories(sort=sort,
                     book_ids=self.get_book_ids_to_use(),
                     first_letter_sort=self.collapse_model == 'first letter')
+            self.db.data.set_in_tag_browser(old_in_tb)
         except Exception as e:
             traceback.print_exc()
             data = self.db.new_api.get_categories(sort=sort,
