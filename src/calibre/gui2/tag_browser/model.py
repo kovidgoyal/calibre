@@ -811,16 +811,21 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.research_required.emit()
 
     def set_in_tag_browser(self):
-        # rebuild the list even if there is no filter. This lets us support
-        # in_tag_browser:true or :false based on the displayed categories. It is
-        # a form of shorthand for searching for all the visible categories with
-        # category1:true OR category2:true etc. The cost: walking the tree and
-        # building the set for a case that will certainly rarely be different
-        # from all books because all books have authors.
-        id_set = set()
-        for x in (a for a in self.root_item.children if a.category_key != 'search' and not a.is_gst):
-            for t in x.child_tags():
-                id_set |= t.tag.id_set
+        # If the filter isn't set then don't build the list, improving
+        # performance significantly for large libraries or libraries with lots
+        # of categories. This means that in_tag_browser:true with no filter will
+        # return all books. This is incorrect in the rare case where the
+        # category list in the tag browser doesn't contain a category like
+        # authors that by definition matches all books because all books have an
+        # author. If really needed the user can work around this 'error' by
+        # clicking on the categories of interest with the connector set to 'or'.
+        if self.filter_categories_by:
+            id_set = set()
+            for x in (a for a in self.root_item.children if a.category_key != 'search' and not a.is_gst):
+                for t in x.child_tags():
+                    id_set |= t.tag.id_set
+        else:
+            id_set = None
         changed = self.db.data.get_in_tag_browser() != id_set
         self.db.data.set_in_tag_browser(id_set)
         return changed
