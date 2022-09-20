@@ -818,13 +818,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         # building the set for a case that will certainly rarely be different
         # from all books because all books have authors.
         id_set = set()
-        for x in [a for a in self.root_item.children if a.category_key != 'search' and not a.is_gst]:
+        for x in (a for a in self.root_item.children if a.category_key != 'search' and not a.is_gst):
             for t in x.child_tags():
                 id_set |= t.tag.id_set
         changed = self.db.data.get_in_tag_browser() != id_set
         self.db.data.set_in_tag_browser(id_set)
         return changed
-
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:

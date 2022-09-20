@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, operator, numbers
+import weakref, operator, numbers, sys
 from functools import partial
 from polyglot.builtins import iteritems, itervalues
 
@@ -45,8 +45,13 @@ class InTagBrowserVirtualField:
             yield str(book_id) if self._ids is None or book_id in self._ids else default_value, {book_id}
 
     def sort_keys_for_books(self, get_metadata, lang_map):
-        def key(_id):
-            return _id if self._ids is not None and _id in self._ids else ''
+        null = sys.maxsize
+        if self._ids is None:
+            def key(_id):
+                return null
+        else:
+            def key(_id):
+                return _id if _id in self._ids else null
         return key
 
 
@@ -95,7 +100,7 @@ class View:
     def __init__(self, cache):
         self.cache = cache
         self.marked_ids = {}
-        self.tag_browser_ids = None;
+        self.tag_browser_ids = None
         self.marked_listeners = {}
         self.search_restriction_book_count = 0
         self.search_restriction = self.base_restriction = ''

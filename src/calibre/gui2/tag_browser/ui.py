@@ -734,7 +734,7 @@ class TagBrowserWidget(QFrame):  # {{{
         mt.m = l.manage_menu = QMenu(l.m)
         mt.setMenu(mt.m)
 
-        l.m.filter_action = ac = l.m.addAction(QIcon.ic('filter.png'), _('Filter book list (search %s)') % 'in_tag_browser:true')
+        l.m.filter_action = ac = l.m.addAction(QIcon.ic('filter.png'), _('Show only books that have visible categories'))
         # Give it a (complicated) shortcut so people can discover a shortcut
         # is possible, I hope without creating collisions.
         parent.keyboard.register_shortcut('tag browser filter booklist',
