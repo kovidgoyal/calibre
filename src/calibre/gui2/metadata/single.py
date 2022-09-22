@@ -10,10 +10,10 @@ import os
 from datetime import datetime
 from functools import partial
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox,
-    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea,
-    QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
+    QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea, QShortcut, QSize,
+    QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget, QToolButton, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
 from calibre.constants import ismacos
@@ -120,9 +120,11 @@ class MetadataSingleDialogBase(QDialog):
         self.comments_edit_state_at_apply = {self.comments:None}
 
         self.do_layout()
-        geom = gprefs.get('metasingle_window_geometry3', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, bytes(geom))
+        try:
+            w, h = gprefs.get('metasingle_window_size')
+            self.resize(QSize(w, h))
+        except Exception:
+            pass
         else:
             self.resize(self.sizeHint())
         self.restore_widget_settings()
@@ -650,7 +652,8 @@ class MetadataSingleDialogBase(QDialog):
 
     def save_state(self):
         try:
-            gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+            sz = self.size()
+            gprefs['metasingle_window_size'] = sz.width(), sz.height()
             self.save_widget_settings()
         except:
             # Weird failure, see https://bugs.launchpad.net/bugs/995271
