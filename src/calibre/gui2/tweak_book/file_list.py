@@ -286,21 +286,23 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.itemActivated.connect(self.item_double_clicked)
 
     def possible_rename_requested(self, index, old, new):
-        self.pending_renames[old] = new
-        QTimer.singleShot(10, self.dispatch_pending_renames)
-        item = self.itemFromIndex(index)
-        item.setText(0, new)
+        if old != new:
+            self.pending_renames[old] = new
+            QTimer.singleShot(10, self.dispatch_pending_renames)
+            item = self.itemFromIndex(index)
+            item.setText(0, new)
 
     def dispatch_pending_renames(self):
-        if self.state() != QAbstractItemView.State.EditingState:
-            pr, self.pending_renames = self.pending_renames, {}
-            if len(pr) == 1:
-                old, new = tuple(pr.items())[0]
-                self.rename_requested.emit(old, new)
+        if self.pending_renames:
+            if self.state() != QAbstractItemView.State.EditingState:
+                pr, self.pending_renames = self.pending_renames, {}
+                if len(pr) == 1:
+                    old, new = tuple(pr.items())[0]
+                    self.rename_requested.emit(old, new)
+                else:
+                    self.bulk_rename_requested.emit(pr)
             else:
-                self.bulk_rename_requested.emit(pr)
-        else:
-            QTimer.singleShot(10, self.dispatch_pending_renames)
+                QTimer.singleShot(10, self.dispatch_pending_renames)
 
     def mimeTypes(self):
         ans = QTreeWidget.mimeTypes(self)
