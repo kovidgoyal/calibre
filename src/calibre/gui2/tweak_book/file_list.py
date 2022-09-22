@@ -300,7 +300,13 @@ class FileList(QTreeWidget, OpenWithHandler):
                     old, new = tuple(pr.items())[0]
                     self.rename_requested.emit(old, new)
                 else:
-                    self.bulk_rename_requested.emit(pr)
+                    ur = {}
+                    seen_vals = set()
+                    for k, v in pr.items():
+                        if v not in seen_vals:
+                            seen_vals.add(v)
+                            ur[k] = v
+                    self.bulk_rename_requested.emit(ur)
             else:
                 QTimer.singleShot(10, self.dispatch_pending_renames)
 
