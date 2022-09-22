@@ -792,6 +792,7 @@ class Boss(QObject):
 
     def rename_done(self, name_map, job, from_filelist=None):
         if job.traceback is not None:
+            self.gui.file_list.restore_temp_names()
             return error_dialog(self.gui, _('Failed to rename files'),
                     _('Failed to rename files, click "Show details" for more information.'),
                                 det_msg=job.traceback, show=True)

@@ -48,6 +48,7 @@ NAME_ROLE = Qt.ItemDataRole.UserRole
 CATEGORY_ROLE = NAME_ROLE + 1
 LINEAR_ROLE = CATEGORY_ROLE + 1
 MIME_ROLE = LINEAR_ROLE + 1
+TEMP_NAME_ROLE = MIME_ROLE + 1
 NBSP = '\xa0'
 
 
@@ -290,7 +291,15 @@ class FileList(QTreeWidget, OpenWithHandler):
             self.pending_renames[old] = new
             QTimer.singleShot(10, self.dispatch_pending_renames)
             item = self.itemFromIndex(index)
+            item.setData(0, TEMP_NAME_ROLE, item.text(0))
             item.setText(0, new)
+
+    def restore_temp_names(self):
+        for item in self.all_files:
+            q = item.data(0, TEMP_NAME_ROLE)
+            if q:
+                item.setText(0, q)
+                item.setData(0, TEMP_NAME_ROLE, None)
 
     def dispatch_pending_renames(self):
         if self.pending_renames:
@@ -301,7 +310,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                     self.rename_requested.emit(old, new)
                 else:
                     ur = {}
-                    seen_vals = set()
+                    seen_vals = {c.data(0, NAME_ROLE) or '' for c in self.all_files}
                     for k, v in pr.items():
                         if v not in seen_vals:
                             seen_vals.add(v)
@@ -409,24 +418,22 @@ class FileList(QTreeWidget, OpenWithHandler):
                     return c
 
     def select_name(self, name, set_as_current_index=False):
-        for parent in self.categories.values():
-            for c in (parent.child(i) for i in range(parent.childCount())):
-                q = str(c.data(0, NAME_ROLE) or '')
-                c.setSelected(q == name)
-                if q == name:
-                    self.scrollToItem(c)
-                    if set_as_current_index:
-                        self.setCurrentItem(c)
+        for c in self.all_files:
+            q = str(c.data(0, NAME_ROLE) or '')
+            c.setSelected(q == name)
+            if q == name:
+                self.scrollToItem(c)
+                if set_as_current_index:
+                    self.setCurrentItem(c)
 
     def select_names(self, names, current_name=None):
-        for parent in self.categories.values():
-            for c in (parent.child(i) for i in range(parent.childCount())):
-                q = str(c.data(0, NAME_ROLE) or '')
-                c.setSelected(q in names)
-                if q == current_name:
-                    self.scrollToItem(c)
-                    s = self.selectionModel()
-                    s.setCurrentIndex(self.indexFromItem(c), QItemSelectionModel.SelectionFlag.NoUpdate)
+        for c in self.all_files:
+            q = str(c.data(0, NAME_ROLE) or '')
+            c.setSelected(q in names)
+            if q == current_name:
+                self.scrollToItem(c)
+                s = self.selectionModel()
+                s.setCurrentIndex(self.indexFromItem(c), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def mark_name_as_current(self, name):
         current = self.item_from_name(name)
@@ -1194,6 +1201,9 @@ class FileListWidget(QWidget):
 
     def build(self, container, preserve_state=True):
         self.file_list.build(container, preserve_state=preserve_state)
+
+    def restore_temp_names(self):
+        self.file_list.restore_temp_names()
 
     @property
     def searchable_names(self):
