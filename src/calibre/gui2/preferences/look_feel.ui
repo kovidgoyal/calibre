@@ -752,11 +752,11 @@ A value of zero means calculate automatically.</string>
        </item>
        <item row="6" column="2">
         <widget class="QGroupBox" name="groupBox3">
-         <property name="title">
-          <string>Categories on separate lines</string>
-         </property>
          <property name="toolTip">
           <string>&lt;p&gt;Check the box if you want the category's values displayed on separate lines instead of separated by commas&lt;/p&gt;</string>
+         </property>
+         <property name="title">
+          <string>Categories on separate lines</string>
          </property>
          <layout class="QVBoxLayout" name="vblayout_3">
           <item>
@@ -1921,7 +1921,7 @@ them to all have the same width and height</string>
        <item row="9" column="1">
         <widget class="QDoubleSpinBox" name="opt_books_autoscroll_time">
          <property name="suffix">
-          <string>seconds</string>
+          <string> seconds</string>
          </property>
          <property name="decimals">
           <number>1</number>
