@@ -151,7 +151,15 @@ def flow_onwheel(evt):
     if Math.abs(di) >= 1:
         scroll_viewport.scroll_by_in_inline_direction(di)
     if Math.abs(db) >= 1:
-        scroll_by_and_check_next_page(db)
+        # Scroll in the direction of the block.
+        # The sign of db determines whether to scroll up or down, however
+        # scroll_animator expects a separate argument to specify this. This
+        # argument is also used for determining whether to go to the next or
+        # previous spine item at the ends, so it's important to set them correctly.
+        if db < 0:
+            scroll_animator.start(DIRECTION.Up, False, -db)
+        else:
+            scroll_animator.start(DIRECTION.Down, False, db)
 
 @check_for_scroll_end
 def goto_boundary(dir):
@@ -189,7 +197,7 @@ def is_auto_scroll_active():
 
 
 def start_autoscroll():
-    scroll_animator.start(DIRECTION.Down, True)
+    scroll_animator.start(DIRECTION.Down, True, line_height())
 
 
 def toggle_autoscroll():
@@ -204,10 +212,10 @@ def toggle_autoscroll():
 
 def handle_shortcut(sc_name, evt):
     if sc_name is 'down':
-        scroll_animator.start(DIRECTION.Down, False)
+        scroll_animator.start(DIRECTION.Down, False, line_height())
         return True
     if sc_name is 'up':
-        scroll_animator.start(DIRECTION.Up, False)
+        scroll_animator.start(DIRECTION.Up, False, line_height())
         return True
     if sc_name is 'start_of_file':
         goto_boundary(DIRECTION.Up)
@@ -290,6 +298,7 @@ class ScrollAnimator:
         self.animation_id = None
         self.auto = False
         self.auto_timer = None
+        self.amount = 0
         self.paused = False
 
     def is_running(self):
@@ -298,7 +307,7 @@ class ScrollAnimator:
     def is_active(self):
         return self.is_running() and (self.auto or self.auto_timer is not None)
 
-    def start(self, direction, auto):
+    def start(self, direction, auto, amount):
         cancel_drag_scroll()
         if self.wait:
             return
@@ -312,6 +321,7 @@ class ScrollAnimator:
                 self.pause()
             self.stop()
             self.auto = auto
+            self.amount = amount
             self.direction = direction
             self.start_time = now
             self.start_offset = scroll_viewport.block_pos()
@@ -325,7 +335,7 @@ class ScrollAnimator:
             return
         progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
         scroll_target = self.start_offset
-        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth) / 1000
+        scroll_target += Math.trunc(self.direction * progress * duration * self.amount * opts.lines_per_sec_smooth) / 1000
 
         scroll_viewport.scroll_to_in_block_direction(scroll_target)
         amt = scroll_viewport.block_pos() - self.start_offset
@@ -348,7 +358,7 @@ class ScrollAnimator:
     def auto_scroll(self, ts):
         elapsed = max(0, ts - self.start_time) # max to account for jitter
         scroll_target = self.start_offset
-        scroll_target += Math.trunc(self.direction * elapsed * line_height() * opts.lines_per_sec_auto) / 1000
+        scroll_target += Math.trunc(self.direction * elapsed * self.amount * opts.lines_per_sec_auto) / 1000
 
         scroll_viewport.scroll_to_in_block_direction(scroll_target)
         scroll_finished = is_scroll_end(scroll_target)
@@ -406,7 +416,7 @@ class ScrollAnimator:
     # Resume auto-scroll
     def resume(self):
         if self.paused:
-            self.start(self.paused, True)
+            self.start(self.paused, True, self.amount)
             self.paused = False
 
 scroll_animator = ScrollAnimator()
