@@ -165,7 +165,12 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
-            aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
+            if '@kindle.com' in to:
+                # https://www.mobileread.com/forums/showthread.php?t=349290
+                from calibre.utils.filenames import ascii_filename
+                aname = ascii_filename(aname)
+            else:
+                aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
             subject = uuid4()
             text = uuid4()
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
