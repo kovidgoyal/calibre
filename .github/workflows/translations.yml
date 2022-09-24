@@ -2,7 +2,8 @@ name: Transifex
 on:
   push:
     branches: [master, ]
-
+permissions:
+    contents: read # to fetch code (actions/checkout)
 
 jobs:
     Push-To-Transifex:
