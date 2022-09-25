@@ -345,9 +345,16 @@ class CompositeField(OneToOneField):
         for book_id in candidates:
             vals = self.get_value_with_cache(book_id, get_metadata)
             vals = (vv.strip() for vv in vals.split(splitter)) if splitter else (vals,)
+            found = False
             for v in vals:
                 if v:
                     val_map[v].add(book_id)
+                    found = True
+            if not found:
+                # Convert columns with no value to None to ensure #x:false
+                # searches work. We do it outside the loop to avoid generating
+                # None for is_multiple columns containing text like "a,,,b".
+                val_map[None].add(book_id)
         yield from iteritems(val_map)
 
     def iter_counts(self, candidates, get_metadata=None):
