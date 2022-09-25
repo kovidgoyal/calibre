@@ -1,70 +1,105 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import time
-from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
-def absolutize(url):
+def absurl(url):
     if url.startswith('/'):
-        url =  'https://spectator.co.uk' + url
+        url =  'https://www.spectator.co.uk' + url
     return url
 
 
-class Spectator(BasicNewsRecipe):
-
+class spectator(BasicNewsRecipe):
     title = 'Spectator Magazine'
-    __author__ = 'Kovid Goyal'
-    description = 'Magazine'
+    __author__ = 'unkn0wn'
+    description = 'The Spectator was established in 1828, and is the best-written and most influential weekly in the English language.'
     language = 'en'
     no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/The_Spectator_logo.svg/320px-The_Spectator_logo.svg.png'
+    encoding = 'utf-8'
+    remove_empty_feeds = True
+    resolve_internal_links = True
+
+    extra_css = '''
+        [class^="ContentPageFooterAuthor_author"] {font-size:small;}
+        #fig-c {text-align:center; font-size:small;}
+        blockquote, em {color:#404040;}
+    '''
 
     keep_only_tags = [
-        prefixed_classes('ContentPageHeader_main__ ContentPageHeader_metadata__ ContentPageHero_container__ ContentPageBody_body__container__'),
-        dict(name='noscript'),
+        prefixed_classes(
+            'ContentPageHeader_main ContentPageHero_container ContentPageBody_body__container__'
+            ' ContentPageFooterAuthor_author__'),
+        ]
+
+    remove_tags = [
+        dict(name=('aside', 'iframe')),
+        prefixed_classes('ContentPageBody_measure__ ContentPageAuthor_author__pic')
     ]
-    remove_attributes = ['style']
+
+    def preprocess_html(self, soup):
+        h2 = soup.find('h2')
+        if h2:
+            h2.name = 'h4'
+        for fc in soup.findAll('figcaption'):
+            fc['id'] = 'fig-c'
+        for fig in soup.findAll('figure'):
+            for nos in fig.findAll('noscript'):
+                nos.name = 'span'
+        return soup
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.spectator.co.uk/magazine/latest')
-        raw = str(soup)
-        # open('/t/raw.html', 'w').write(raw)
-        section, articles = 'Featured', []
+        soup = self.index_to_soup('https://www.spectator.co.uk/magazine')
+        self.cover_url = soup.find(**prefixed_classes(
+            'MagazinePage_spectator-magazine__image-and-subsections__')).img['src']
+        issue = self.tag_to_string(soup.find(**prefixed_classes(
+            'MagazinePage_spectator-magazine-issue__title__'))).strip()
+        self.timefmt = ' (' + issue + ') [' + self.tag_to_string(soup.find(**prefixed_classes(
+            'MagazinePage_spectator-magazine-issue__date__'))).strip() + ']'
+        self.log('Downloading Issue: ', self.timefmt)
+        nav_div = soup.find('ul', **prefixed_classes('Tabs_spectator-table-of-contents__'))
+        section_list = []
+
+        for x in nav_div.findAll(['a']):
+            section_list.append((
+                self.tag_to_string(x).strip(), absurl(x['href'])))
         feeds = []
-        for art in soup.findAll(**prefixed_classes(
-                'MagazineContent_spectator-magazine__section-title__ MagazineContent_spectator-magazine-content__article-card__')):
-            cls = art['class']
-            if not isinstance(cls, str):
-                cls = ' '.join(cls)
-            if 'section-title' in cls:
-                if articles:
-                    feeds.append((section, articles))
-                section = self.tag_to_string(art).strip()
-                articles = []
-                self.log(section)
-                continue
-            a = art.find('a', href=True)
-            url = absolutize(a['href'])
-            title = self.tag_to_string(a).strip()
-            hd = art.find(**prefixed_classes('ArticleCard_spectator-article-card__headline__'))
-            if hd:
-                title = self.tag_to_string(hd).strip()
-            desc = ''
-            dd = art.find(**prefixed_classes('ArticleCard_spectator-article-card__media-teaser__'))
-            if dd:
-                desc = self.tag_to_string(dd).strip()
-            self.log('\t', title, url)
-            if desc:
-                self.log('\t\t', desc)
-            articles.append({'title': title, 'url': url, 'description': desc})
-        if not feeds and '<script src="/main.js' in raw:
-            ua = random_user_agent(allow_ie=False)
-            self.log('Got old style main.js page, retrying with user agent:', ua)
-            self.browser.set_user_agent(ua)
-            time.sleep(1)
-            return self.parse_index()
+
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
         return feeds
+
+    def articles_from_soup(self, soup):
+        ans = []
+        for div in soup.findAll('div', **prefixed_classes(
+            'MagazineContent_spectator-magazine-content__article-card___'
+        )):
+            a = div.find('a', attrs={
+                'href': lambda x: x and x.startswith(('/article/', '/illustration/'))})
+            url = absurl(a['href'])
+            title = self.tag_to_string(div.find('div', **prefixed_classes(
+                'ArticleCard_spectator-article-card__headline__'))).strip()
+            teaser = div.find('p', **prefixed_classes('ArticleCard_spectator-article-card__media-teaser__'))
+            desc = ''
+            if teaser:
+                desc = self.tag_to_string(teaser).strip()
+            obj = div.find('object')
+            if obj:
+                desc = self.tag_to_string(obj).strip() + ' | ' + desc
+            sec = div.findParent('div').find('a', attrs={'href': lambda x: x and x.startswith('/magazines/')})
+            if sec:
+                desc = self.tag_to_string(sec).strip() + ' | ' + desc
+
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({
+                'title': title,
+                'description':desc,
+                'url': url})
+        return ans
