@@ -4,14 +4,19 @@
 
 import sys
 
+from calibre.ebooks.conversion.plugins.epub_input import (
+    ADOBE_OBFUSCATION, IDPF_OBFUSCATION
+)
+from calibre.ebooks.metadata.opf3 import XPath
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
-from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, xpath
+from calibre.ebooks.oeb.base import DC, EPUB_NS, OEB_DOCS, xpath
 from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
-from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import (
     commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
 )
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS
+from calibre.utils.short_uuid import uuid4
 
 
 def add_properties(item, *props):
@@ -29,6 +34,38 @@ def fix_font_mime_types(container):
             item.set('media-type', container.guess_type(name))
             changed = True
     return changed
+
+
+def migrate_obfuscated_fonts(container):
+    if not container.obfuscated_fonts:
+        return
+    name_to_elem_map = {}
+    for em, cr in container.iter_encryption_entries():
+        alg = em.get('Algorithm')
+        if cr is None or alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
+            continue
+        name = container.href_to_name(cr.get('URI'))
+        name_to_elem_map[name] = em, cr
+    package_id, raw_unique_identifier, idpf_key = container.read_raw_unique_identifier()
+    if not idpf_key:
+        if not package_id:
+            package_id = uuid4()
+            container.opf.set('unique-identifier', package_id)
+        metadata = XPath('./opf:metadata')(container.opf)[0]
+        ident = metadata.makeelement(DC('identifier'))
+        ident.text = uuid4()
+        metadata.append(ident)
+        package_id, raw_unique_identifier, idpf_key = container.read_raw_unique_identifier()
+    for name in tuple(container.obfuscated_fonts):
+        try:
+            em, cr = name_to_elem_map[name]
+        except KeyError:
+            container.obfuscated_fonts.pop(name)
+            continue
+        em.set('Algorithm', IDPF_OBFUSCATION)
+        cr.set('URI', container.name_to_href(name))
+        container.obfuscated_fonts[name] = (IDPF_OBFUSCATION, idpf_key)
+    container.commit_item('META-INF/encryption.xml')
 
 
 def collect_properties(container):
@@ -128,6 +165,7 @@ def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
     container.opf.set('version', '3.0')
     if fix_font_mime_types(container):
         container.refresh_mime_map()
+    migrate_obfuscated_fonts(container)
     container.dirty(container.opf_name)
 
 

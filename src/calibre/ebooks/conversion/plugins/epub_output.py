@@ -257,11 +257,11 @@ class EPUBOutput(OutputFormatPlugin):
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)
                     if x.endswith('.ncx')][0])
-            if self.opts.epub_version == '3':
-                self.upgrade_to_epub3(tdir, opf)
             encryption = None
             if encrypted_fonts:
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
+            if self.opts.epub_version == '3':
+                encryption = self.upgrade_to_epub3(tdir, opf, encryption)
 
             from calibre.ebooks.epub import initialize_container
             with initialize_container(output_path, os.path.basename(opf),
@@ -284,7 +284,7 @@ class EPUBOutput(OutputFormatPlugin):
                     zf.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
 
-    def upgrade_to_epub3(self, tdir, opf):
+    def upgrade_to_epub3(self, tdir, opf, encryption=None):
         self.log.info('Upgrading to EPUB 3...')
         from calibre.ebooks.epub import simple_container_xml
         from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
@@ -294,6 +294,9 @@ class EPUBOutput(OutputFormatPlugin):
             pass
         with open(os.path.join(tdir, 'META-INF', 'container.xml'), 'wb') as f:
             f.write(simple_container_xml(os.path.basename(opf)).encode('utf-8'))
+        if encryption is not None:
+            with open(os.path.join(tdir, 'META-INF', 'encryption.xml'), 'wb') as ef:
+                ef.write(as_bytes(encryption))
         from calibre.ebooks.oeb.polish.container import EpubContainer
         container = EpubContainer(tdir, self.log)
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
@@ -304,10 +307,14 @@ class EPUBOutput(OutputFormatPlugin):
         fix_conversion_titlepage_links_in_nav(container)
         container.commit()
         os.remove(f.name)
+        if encryption is not None:
+            encryption = open(ef.name, 'rb').read()
+            os.remove(ef.name)
         try:
             os.rmdir(os.path.join(tdir, 'META-INF'))
         except OSError:
             pass
+        return encryption
 
     def encrypt_fonts(self, uris, tdir, uuid):  # {{{
         from polyglot.binary import from_hex_bytes

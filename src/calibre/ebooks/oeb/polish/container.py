@@ -1283,24 +1283,7 @@ class EpubContainer(Container):
                     self.dirty('META-INF/encryption.xml')
         super().remove_item(name, remove_from_guide=remove_from_guide)
 
-    def process_encryption(self):
-        fonts = {}
-        enc = self.parsed('META-INF/encryption.xml')
-        for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
-            alg = em.get('Algorithm')
-            if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
-                raise DRMError()
-            try:
-                cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
-            except (IndexError, ValueError, KeyError):
-                continue
-            name = self.href_to_name(cr.get('URI'))
-            path = self.name_path_map.get(name, None)
-            if path is not None:
-                fonts[name] = alg
-        if not fonts:
-            return
-
+    def read_raw_unique_identifier(self):
         package_id = raw_unique_identifier = idpf_key = None
         for attrib, val in iteritems(self.opf.attrib):
             if attrib.endswith('unique-identifier'):
@@ -1315,6 +1298,32 @@ class EpubContainer(Container):
             idpf_key = raw_unique_identifier
             idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
+        return package_id, raw_unique_identifier, idpf_key
+
+    def iter_encryption_entries(self):
+        if 'META-INF/encryption.xml' in self.name_path_map:
+            enc = self.parsed('META-INF/encryption.xml')
+            for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
+                try:
+                    cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+                except Exception:
+                    cr = None
+                yield em, cr
+
+    def process_encryption(self):
+        fonts = {}
+        for em, cr in self.iter_encryption_entries():
+            alg = em.get('Algorithm')
+            if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
+                raise DRMError()
+            if cr is None:
+                continue
+            name = self.href_to_name(cr.get('URI'))
+            path = self.name_path_map.get(name, None)
+            if path is not None:
+                fonts[name] = alg
+
+        package_id, raw_unique_identifier, idpf_key = self.read_raw_unique_identifier()
         key = None
         for item in self.opf_xpath('//*[local-name()="metadata"]/*'
                                    '[local-name()="identifier"]'):
