@@ -975,18 +975,26 @@ def read_raster_cover(root, prefixes, refines):
                     return href
 
 
-def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href):
-    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
-        remove_element(item, refines)
-    for item in items_with_property(root, 'cover-image', prefixes):
-        prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
+def set_unique_property(property_name, root, prefixes, href):
+    changed = False
+    for item in items_with_property(root, property_name, prefixes):
+        prop = normalize_whitespace(item.get('properties').replace(property_name, ''))
+        changed = True
         if prop:
             item.set('properties', prop)
         else:
             del item.attrib['properties']
     for item in XPath('./opf:manifest/opf:item')(root):
-        if item.get('href') == raster_cover_item_href:
-            item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
+        if item.get('href') == href:
+            changed = True
+            item.set('properties', normalize_whitespace((item.get('properties') or '') + f' {property_name}'))
+    return changed
+
+
+def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href):
+    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
+        remove_element(item, refines)
+    set_unique_property('cover-image', root, prefixes, raster_cover_item_href)
 
 # }}}
 

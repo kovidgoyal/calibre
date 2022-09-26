@@ -705,6 +705,8 @@ class FileList(QTreeWidget, OpenWithHandler):
                 m.addAction(QIcon.ic('default_cover.png'), _('Mark %s as cover image') % n, partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
                 m.addAction(QIcon.ic('default_cover.png'), _('Mark %s as cover page') % n, partial(self.mark_as_titlepage, cn))
+            if mt in OEB_DOCS and cat in ('text', 'misc') and current_container().opf_version_parsed.major > 2:
+                m.addAction(QIcon.ic('toc.png'), _('Mark %s as Table of Contents') % n, partial(self.mark_as_nav, cn))
             m.addSeparator()
 
         if num > 0:
@@ -790,6 +792,9 @@ class FileList(QTreeWidget, OpenWithHandler):
                 skip_dialog_skip_precheck=False
             )
         self.mark_requested.emit(name, 'titlepage:%r' % move_to_start)
+
+    def mark_as_nav(self, name):
+        self.mark_requested.emit(name, 'nav')
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):

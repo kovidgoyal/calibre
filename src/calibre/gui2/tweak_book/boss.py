@@ -8,7 +8,6 @@ import shutil
 import sys
 import tempfile
 from functools import partial, wraps
-
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
     QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QTimer, QUrl, QVBoxLayout,
@@ -31,7 +30,9 @@ from calibre.ebooks.oeb.polish.replace import (
     get_recommended_folders, rationalize_folders, rename_files, replace_file
 )
 from calibre.ebooks.oeb.polish.split import AbortError, merge, multisplit, split
-from calibre.ebooks.oeb.polish.toc import create_inline_toc, remove_names_from_toc
+from calibre.ebooks.oeb.polish.toc import (
+    create_inline_toc, mark_as_nav, remove_names_from_toc
+)
 from calibre.ebooks.oeb.polish.utils import (
     link_stylesheets, setup_css_parser_serialization as scs
 )
@@ -60,12 +61,12 @@ from calibre.gui2.tweak_book.spell import (
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.widgets import (
-    AddCover, FilterCSS, ImportForeign, InsertLink, InsertSemantics,
-    InsertTag, MultiSplit, QuickOpen, RationalizeFolders
+    AddCover, FilterCSS, ImportForeign, InsertLink, InsertSemantics, InsertTag,
+    MultiSplit, QuickOpen, RationalizeFolders
 )
+from calibre.gui2.widgets import BusyCursor
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.utils.config import JSONConfig
-from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
@@ -213,7 +214,9 @@ class Boss(QObject):
             for ed in itervalues(editors):
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
         if orig_spell != tprefs['inline_spell_check']:
-            from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
+            from calibre.gui2.tweak_book.editor.syntax.html import (
+                refresh_spell_check_status
+            )
             refresh_spell_check_status()
             for ed in itervalues(editors):
                 try:
@@ -230,6 +233,8 @@ class Boss(QObject):
             action, move_to_start = action.partition(':')[0::2]
             move_to_start = move_to_start == 'True'
             mark_as_titlepage(current_container(), name, move_to_start=move_to_start)
+        elif action == 'nav':
+            mark_as_nav(current_container(), name)
 
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
@@ -490,7 +495,9 @@ class Boss(QObject):
             return
         added_name = self.do_add_file(d.file_name, d.file_data, using_template=d.using_template, edit_file=True)
         if d.file_name.rpartition('.')[2].lower() in ('ttf', 'otf', 'woff'):
-            from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_file
+            from calibre.gui2.tweak_book.manage_fonts import (
+                show_font_face_rule_for_font_file
+            )
             show_font_face_rule_for_font_file(d.file_data, added_name, self.gui)
 
     def do_add_file(self, file_name, data, using_template=False, edit_file=False):
@@ -553,7 +560,9 @@ class Boss(QObject):
             self.set_modified()
             completion_worker().clear_caches('names')
             if added_fonts:
-                from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_files
+                from calibre.gui2.tweak_book.manage_fonts import (
+                    show_font_face_rule_for_font_files
+                )
                 show_font_face_rule_for_font_files(c, added_fonts, self.gui)
 
     def add_cover(self):
@@ -633,8 +642,8 @@ class Boss(QObject):
         global last_used_html_transform_rules
         if not self.ensure_book(_('You must first open a book in order to transform styles.')):
             return
-        from calibre.gui2.html_transform_rules import RulesDialog
         from calibre.ebooks.html_transform_rules import transform_container
+        from calibre.gui2.html_transform_rules import RulesDialog
         d = RulesDialog(self.gui)
         d.rules = last_used_html_transform_rules
         d.transform_scope = tprefs['html_transform_scope']
@@ -677,8 +686,8 @@ class Boss(QObject):
         global last_used_transform_rules
         if not self.ensure_book(_('You must first open a book in order to transform styles.')):
             return
-        from calibre.gui2.css_transform_rules import RulesDialog
         from calibre.ebooks.css_transform_rules import transform_container
+        from calibre.gui2.css_transform_rules import RulesDialog
         d = RulesDialog(self.gui)
         d.rules = last_used_transform_rules
         ret = d.exec()
@@ -1203,7 +1212,9 @@ class Boss(QObject):
                     'No file with the name %s was found in the book') % target, show=True)
 
     def editor_class_clicked(self, class_data):
-        from calibre.gui2.tweak_book.jump_to_class import find_first_matching_rule, NoMatchingTagFound, NoMatchingRuleFound
+        from calibre.gui2.tweak_book.jump_to_class import (
+            NoMatchingRuleFound, NoMatchingTagFound, find_first_matching_rule
+        )
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         try:
@@ -1594,7 +1605,9 @@ class Boss(QObject):
     def compress_images(self):
         if not self.ensure_book(_('You must first open a book in order to compress images.')):
             return
-        from calibre.gui2.tweak_book.polish import show_report, CompressImages, CompressImagesProgress
+        from calibre.gui2.tweak_book.polish import (
+            CompressImages, CompressImagesProgress, show_report
+        )
         d = CompressImages(self.gui)
         if d.exec() == QDialog.DialogCode.Accepted:
             with BusyCursor():
@@ -1650,8 +1663,8 @@ class Boss(QObject):
         editor = self.edit_file(name, 'html')
         if not editor or not editor.has_line_numbers:
             return False
-        from calibre.ebooks.oeb.polish.parsing import parse
         from calibre.ebooks.epub.cfi.parse import decode_cfi
+        from calibre.ebooks.oeb.polish.parsing import parse
         root = parse(
             editor.get_raw_data(), decoder=lambda x: x.decode('utf-8'),
             line_numbers=True, linenumber_attribute='data-lnum')

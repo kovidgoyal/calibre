@@ -280,6 +280,15 @@ def find_existing_nav_toc(container):
         return name
 
 
+def mark_as_nav(container, name):
+    from calibre.ebooks.metadata.opf3 import read_prefixes, set_unique_property
+    if container.opf_version_parsed.major > 2:
+        prefixes = read_prefixes(container.opf)
+        href = container.href_to_name(name, container.opf_name)
+        if set_unique_property('nav', container.opf, prefixes, href):
+            container.dirty(container.opf_name)
+
+
 def get_x_toc(container, find_toc, parse_toc, verify_destinations=True):
     def empty_toc():
         ans = TOC()
