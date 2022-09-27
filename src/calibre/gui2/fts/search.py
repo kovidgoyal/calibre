@@ -697,11 +697,12 @@ class DetailsPanel(QStackedWidget):
         hp.setDefaultStyleSheet('a { text-decoration: none; }')
         hp.setHtml('''
 <style>
+.wrapper { margin-left: 4px }
 div { margin-top: 0.5ex }
 .h { font-weight: bold; }
 .bq { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }
 p { margin: 0; }
-</style>
+</style><div class="wrapper">
                    ''' + _('''
 <div class="h">Search for single words</div>
 <p>Simply type the word:</p>
@@ -719,7 +720,7 @@ p { margin: 0; }
 <p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
 
 <div style="margin-top: 1em"><a href="{fts_url}">Full syntax reference</a></div>
-''').format(fts_url=fts_url))
+''' + '</div>').format(fts_url=fts_url))
         hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         hp.document().setDocumentMargin(0)
         hp.anchor_clicked.connect(safe_open_url)
