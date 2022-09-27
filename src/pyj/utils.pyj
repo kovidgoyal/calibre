@@ -8,9 +8,14 @@ from book_list.theme import get_font_family
 
 
 is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
+ios_major_version = 0
 if !is_ios and v'!!navigator.platform' and window? and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
     # iPad Safari in desktop mode https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
     is_ios = True
+if is_ios:
+    v = v'navigator.appVersion.match(/OS (\d+)/)'
+    if v and v[1]:
+        ios_major_version = parseInt(v[1], 10) or 0
 
 
 def default_context_menu_should_be_allowed(evt):

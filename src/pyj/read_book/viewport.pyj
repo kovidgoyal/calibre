@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms window_scroll_pos content_size'.split(' ')
 
 from read_book.globals import get_boss, viewport_mode_changer
-from utils import document_height, document_width, is_ios
+from utils import document_height, document_width, ios_major_version
 
 class ScrollViewport:
 
@@ -321,7 +321,7 @@ class IOSScrollViewport(ScrollViewport):
         self.__reset_transforms()
 
 
-if is_ios:
+if 1 < ios_major_version < 15:
     scroll_viewport = IOSScrollViewport()
 else:
     scroll_viewport = ScrollViewport()
