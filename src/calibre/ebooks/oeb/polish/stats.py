@@ -184,7 +184,7 @@ class StatsCollector:
     def __init__(self, container, do_embed=False):
         if self.first_letter_pat is None:
             StatsCollector.first_letter_pat = self.first_letter_pat = regex.compile(
-                r'^[\p{Ps}\p{Ps}\p{Pe}\p{Pi}\p{Pf}\p{Po}]+', regex.VERSION1 | regex.UNICODE)
+                r'^[\p{P}]*[\p{L}\p{N}]', regex.VERSION1 | regex.UNICODE)
             StatsCollector.capitalize_pat = self.capitalize_pat = regex.compile(
                 r'[\p{L}\p{N}]', regex.VERSION1 | regex.UNICODE)
 
@@ -261,7 +261,7 @@ class StatsCollector:
                     self.font_stats[rule['src']] |= chars
         q = resolve_pseudo_property(elem, 'first-line', 'font-family', abort_on_missing=True)
         if q is not None:
-            font = get_font_dict(elem, resolve_pseudo_property, pseudo='first-letter')
+            font = get_font_dict(elem, resolve_pseudo_property, pseudo='first-line')
             text = get_element_text(elem, resolve_property, resolve_pseudo_property, self.capitalize_pat, for_pseudo='first-line')
             chars = frozenset(ord_string(text)) - exclude_chars
             update_usage_for_embed(font, chars)
