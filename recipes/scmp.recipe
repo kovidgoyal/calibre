@@ -72,6 +72,27 @@ class SCMP(BasicNewsRecipe):
         ("Style", "https://www.scmp.com/rss/72/feed"),
     ]
 
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/c/c3/SCMP_logo.svg'
+
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/cn/scmp.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'https://es.kiosko.net/cn/np/scmp.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return 'https:' + image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
     def _extract_child_nodes(self, children, ele, soup, level=1):
         if not children:
             return
@@ -167,6 +188,10 @@ class SCMP(BasicNewsRecipe):
         date_published_loc = date_published.astimezone(
             timezone(offset=timedelta(hours=8))  # HK time
         )
+        try:
+            df = date_published_loc.strftime('%-I:%M%p, %-d %b, %Y')
+        except Exception:
+            df = ''
 
         html_output = f"""<html><head><title>{content["headline"]}</title></head>
         <body>
@@ -175,9 +200,7 @@ class SCMP(BasicNewsRecipe):
             <div class="sub-headline"></div>
             <div class="article-meta">
                 <span class="author">{", ".join(authors)}</span>
-                <span class="published-dt">
-                    {date_published_loc:%-I:%M%p, %-d %b, %Y}
-                </span>
+                <span class="published-dt">{df}</span>
             </div>
             </article>
         </body></html>
