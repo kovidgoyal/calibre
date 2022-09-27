@@ -106,10 +106,11 @@ class SCMP(BasicNewsRecipe):
                     caption_text = child.get("attribs", {}).get("alt") or child.get(
                         "attribs", {}
                     ).get("title")
-                    caption_tag = soup.new_tag("span")
-                    caption_tag.string = caption_text
-                    caption_tag["class"] = "caption"
-                    child_html += str(caption_tag)
+                    if caption_text:
+                        new_ele = soup.new_tag("span")
+                        new_ele.append(caption_text)
+                        new_ele["class"] = "caption"
+                        child_html += str(new_ele)
                     ele["class"] = "article-img"
         ele.append(BeautifulSoup(child_html))
 
@@ -118,15 +119,20 @@ class SCMP(BasicNewsRecipe):
         soup = BeautifulSoup(raw_html)
 
         for script in soup.find_all("script"):
-            if not script.text.startswith("window.__APOLLO_STATE__"):
+            if not script.contents:
+                continue
+            if not script.contents[0].startswith("window.__APOLLO_STATE__"):
                 continue
             article_js = re.sub(
-                r"window.__APOLLO_STATE__\s*=\s*", "", script.text.strip()
+                r"window.__APOLLO_STATE__\s*=\s*", "", script.contents[0].strip()
             )
             if article_js.endswith(";"):
                 article_js = article_js[:-1]
-            article = json.loads(article_js)
-            break
+            try:
+                article = json.loads(article_js)
+                break
+            except json.JSONDecodeError:
+                self.log.exception("Unable to parse __APOLLO_STATE__")
 
         if not (article and article.get("contentService")):
             # Sometimes the page does not have article content in the <script>
