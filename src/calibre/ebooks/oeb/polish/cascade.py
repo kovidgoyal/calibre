@@ -253,7 +253,17 @@ def resolve_property(style_map, elem, name):
     return defvals().get(name)
 
 
-def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name, abort_on_missing=False):
+def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name, abort_on_missing=False, check_if_pseudo_applies=False, check_ancestors=False):
+    if check_if_pseudo_applies:
+        q = elem
+        while q is not None:
+            val = pseudo_style_map.get(q, {}).get(prop, {}).get(name)
+            if val is not None:
+                return True
+            if not check_ancestors:
+                break
+            q = q.getparent()
+        return False
     sub_map = pseudo_style_map.get(elem)
     if abort_on_missing and sub_map is None:
         return None
@@ -266,5 +276,14 @@ def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name, abort
             if val is not None:
                 return val
     if name in INHERITED:
+        if check_ancestors:
+            q = elem.getparent()
+            while q is not None:
+                val = pseudo_style_map.get(q, {}).get(prop, {}).get(name)
+                if val is not None:
+                    return val
+                if not check_ancestors:
+                    break
+                q = q.getparent()
         return resolve_property(style_map, elem, name)
     return defvals().get(name)

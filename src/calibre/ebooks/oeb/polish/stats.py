@@ -249,8 +249,7 @@ class StatsCollector:
         update_usage_for_embed(font, chars)
         for rule in get_matching_rules(font_face_rules, font):
             self.font_stats[rule['src']] |= chars
-        q = resolve_pseudo_property(elem, 'first-letter', 'font-family', abort_on_missing=True)
-        if q is not None:
+        if resolve_pseudo_property(elem, 'first-letter', 'font-family', check_if_pseudo_applies=True):
             font = get_font_dict(elem, resolve_pseudo_property, pseudo='first-letter')
             text = get_element_text(elem, resolve_property, resolve_pseudo_property, self.capitalize_pat, for_pseudo='first-letter')
             m = self.first_letter_pat.search(text.lstrip())
@@ -259,9 +258,8 @@ class StatsCollector:
                 update_usage_for_embed(font, chars)
                 for rule in get_matching_rules(font_face_rules, font):
                     self.font_stats[rule['src']] |= chars
-        q = resolve_pseudo_property(elem, 'first-line', 'font-family', abort_on_missing=True)
-        if q is not None:
-            font = get_font_dict(elem, resolve_pseudo_property, pseudo='first-line')
+        if resolve_pseudo_property(elem, 'first-line', 'font-family', check_if_pseudo_applies=True, check_ancestors=True):
+            font = get_font_dict(elem, partial(resolve_pseudo_property, check_ancestors=True), pseudo='first-line')
             text = get_element_text(elem, resolve_property, resolve_pseudo_property, self.capitalize_pat, for_pseudo='first-line')
             chars = frozenset(ord_string(text)) - exclude_chars
             update_usage_for_embed(font, chars)

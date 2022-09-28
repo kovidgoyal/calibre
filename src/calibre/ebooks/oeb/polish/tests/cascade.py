@@ -160,7 +160,6 @@ class CascadeTest(BaseTest):
                         v = 'url(%s)' % v
                     styles.append(f'{k} : {v};')
                 styles.append('}\n')
-            html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
             files['styles.css'] = embeds + '\n'.join(styles)
             c = VirtualContainer(files)
             return StatsCollector(c, do_embed=True)
@@ -207,6 +206,9 @@ class CascadeTest(BaseTest):
 
         s = get_stats('<p style="font-family: X; text-transform:uppercase">abc</p><b style="font-family: X; font-variant: small-caps">d\nef</b>')
         self.assertEqual(s.font_stats, {'XB.otf':set('defDEF'), 'X.otf':set('ABC')})
+        s = get_stats('<style>.fl::first-line { font-family: X }</style><p class="fl">abc<b>def</b></p>')
+        # Technically def should not be needed in X but that is hard to achieve
+        self.assertEqual(s.font_stats, {'XB.otf':set('def'), 'X.otf':set('abcdef')})
 
     def test_remove_property_value(self):
         style = parseStyle('background-image: url(b.png); background: black url(a.png) fixed')
