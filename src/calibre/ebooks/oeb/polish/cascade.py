@@ -253,7 +253,10 @@ def resolve_property(style_map, elem, name):
     return defvals().get(name)
 
 
-def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name, abort_on_missing=False, check_if_pseudo_applies=False, check_ancestors=False):
+def resolve_pseudo_property(
+    style_map, pseudo_style_map, elem, prop, name,
+    abort_on_missing=False, check_if_pseudo_applies=False, check_ancestors=False
+):
     if check_if_pseudo_applies:
         q = elem
         while q is not None:
