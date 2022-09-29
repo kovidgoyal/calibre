@@ -1559,7 +1559,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
 
 if is_running_from_develop:
     from calibre.build_forms import build_forms
-    build_forms(os.environ['CALIBRE_DEVELOP_FROM'], check_for_migration=True)
+    build_forms(os.path.abspath(os.environ['CALIBRE_DEVELOP_FROM']), check_for_migration=True)
 
 
 def event_type_name(ev_or_etype):
