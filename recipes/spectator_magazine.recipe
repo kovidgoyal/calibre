@@ -83,6 +83,8 @@ class spectator(BasicNewsRecipe):
         )):
             a = div.find('a', attrs={
                 'href': lambda x: x and x.startswith(('/article/', '/illustration/'))})
+            if a is None:
+                continue
             url = absurl(a['href'])
             title = self.tag_to_string(div.find('div', **prefixed_classes(
                 'ArticleCard_spectator-article-card__headline__'))).strip()
