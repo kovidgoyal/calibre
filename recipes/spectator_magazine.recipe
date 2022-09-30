@@ -82,7 +82,7 @@ class spectator(BasicNewsRecipe):
             'MagazineContent_spectator-magazine-content__article-card___'
         )):
             a = div.find('a', attrs={
-                'href': lambda x: x and x.startswith(('/article/', '/illustration/'))})
+                'href': lambda x: x and x.startswith(('/article/', '/illustration/', '/poem/'))})
             if a is None:
                 continue
             url = absurl(a['href'])
