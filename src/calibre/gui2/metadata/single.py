@@ -120,11 +120,16 @@ class MetadataSingleDialogBase(QDialog):
         self.comments_edit_state_at_apply = {self.comments:None}
 
         self.do_layout()
+        max_size = self.screen().availableSize()
+
         try:
             w, h = gprefs.get('metasingle_window_size')
-            self.resize(QSize(w, h))
+            sz = QSize(w, h)
         except Exception:
-            self.resize(self.sizeHint())
+            sz = self.sizeHint()
+        sz.setWidth(min(max_size.width(), sz.width()))
+        sz.setHeight(min(sz.height(), max_size.height()))
+        self.resize(sz)
         self.restore_widget_settings()
     # }}}
 
