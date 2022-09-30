@@ -23,6 +23,40 @@
 # - title by author
 # }}}
 
+{{{ 6.6.0 2022-09-30
+
+:: new features
+
+- Book details: allow displaying multi-valued categories such as tags on separate lines via Preferences->Look & feel->Book details
+
+- [1989813] Tag browser: When searching the Tag browser allow also filtering the book list to show only books that match one of the categories currently shown in the Tag browser.
+
+To use enable the two Preferences: "Preferences->Look & feel->Tag browser->Hide empty categories" and "Find shows all items that match".
+Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the displayed books.
+
+- [1990507] Edit book: When right clicking on HTML files in EPUB 3 books, allow marking them as the Table of Contents (NAV document)
+
+:: bug fixes
+
+- [1990185] EPUB Output: Fix converting a document with obfuscated fonts to EPUB 3 not working
+
+- [1990660] Edit book: Fix an error when processing books that contain comments inside unknown CSS @ rules
+
+- [1989722] Content server: Fix jumping to locations such as bookmarks not working on iPhone/iPad running iOS >= 15
+
+- [1990766] Font subsetting: Fix :first-line and :first-letter pseudo classes not being handled correctly
+
+- Workaround for Amazon's email delivery service not reading metadata from inside ebook files
+
+- Edit book: File list: Fix pressing Tab key while renaming a file not starting the rename of the next file
+
+:: improved recipes
+- SCMP
+- Spectator Magazine
+- Spiegel Online International
+- Engadget
+}}}
+
 {{{ 6.5.0 2022-09-16
 
 :: new features
