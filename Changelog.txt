@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.6.0 2022-09-30
+{{{ 6.6.1 2022-09-30
 
 :: new features
 
@@ -49,6 +49,9 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 - Workaround for Amazon's email delivery service not reading metadata from inside ebook files
 
 - Edit book: File list: Fix pressing Tab key while renaming a file not starting the rename of the next file
+
+- Version 6.6.1 fixes a regression that caused the Edit metadata window to not remember its last used size.
+  Note that you will have to resize it once after updating to 6.6.1, after which the size will be remembered.
 
 :: improved recipes
 - SCMP
