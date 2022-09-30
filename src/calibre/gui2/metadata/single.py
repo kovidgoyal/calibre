@@ -124,8 +124,6 @@ class MetadataSingleDialogBase(QDialog):
             w, h = gprefs.get('metasingle_window_size')
             self.resize(QSize(w, h))
         except Exception:
-            pass
-        else:
             self.resize(self.sizeHint())
         self.restore_widget_settings()
     # }}}
