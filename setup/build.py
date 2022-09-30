@@ -565,6 +565,8 @@ sip-file = "{os.path.basename(sipf)}"
             self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]))
             e = 'pyd' if iswindows else 'so'
             m = glob.glob(f'{ext.name}/{ext.name}.*{e}')
+            if not m:
+                raise SystemExit(f'No built PyQt extension file in {os.path.join(os.getcwd(), ext.name)}')
             if len(m) != 1:
                 raise SystemExit(f'Found extra PyQt extension files: {m}')
             shutil.copy2(m[0], dest)
