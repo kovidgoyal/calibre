@@ -541,6 +541,16 @@ class BooksView(QTableView):  # {{{
         gprefs['row_numbers_in_book_list'] = show
         self.set_row_header_visibility()
 
+    def show_column_header_context_menu_from_action(self):
+        if self.is_library_view:
+            if self.hasFocus():
+                p = QPoint(self.column_header.sectionViewportPosition(self.currentIndex().column()), 10)
+                self.show_column_header_context_menu(p, view=self)
+            elif self.pin_view.hasFocus():
+                p = QPoint(self.pin_view.horizontalHeader().sectionViewportPosition(self.pin_view.currentIndex().column()), 10)
+                self.show_column_header_context_menu(p, view=self.pin_view)
+            # else some other widget has the focus, such as the tag browser or quickview
+
     def show_column_header_context_menu(self, pos, view=None):
         view = view or self
         idx = view.column_header.logicalIndexAt(pos)

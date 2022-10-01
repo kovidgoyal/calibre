@@ -1070,6 +1070,13 @@ class ActionManageCategories(InterfaceActionBase):
     description = _('Manage tag browser categories')
 
 
+class ActionBooklistContextMenu(InterfaceActionBase):
+    name = 'Booklist context menu'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.booklist_context_menu:BooklistContextMenuAction'
+    description = _('Open the context menu for the column')
+
+
 class ActionVirtualLibrary(InterfaceActionBase):
     name = 'Virtual Library'
     actual_plugin = 'calibre.gui2.actions.virtual_library:VirtualLibraryAction'
@@ -1111,7 +1118,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch, ActionManageCategories]
+        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu]
 
 # }}}
 
