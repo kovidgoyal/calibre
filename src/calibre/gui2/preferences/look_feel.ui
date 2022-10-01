@@ -167,7 +167,7 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="20" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -191,6 +191,13 @@
         </widget>
        </item>
        <item row="13" column="0">
+        <widget class="QCheckBox" name="opt_up_arrow_context_menu">
+         <property name="text">
+          <string>Alt+&amp;Up arrow on the book list opens the context menu</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
         <widget class="QCheckBox" name="opt_dnd_merge">
          <property name="text">
           <string>Allow using &amp;drag and drop to merge books</string>

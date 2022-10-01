@@ -1266,10 +1266,16 @@ class BooksView(QTableView):  # {{{
         return super().selectionCommand(index, event)
 
     def keyPressEvent(self, ev):
+        ci = self.currentIndex()
+        if (gprefs['up_arrow_context_menu'] and ev.key() == Qt.Key.Key_Up and
+                ev.modifiers() == Qt.KeyboardModifier.AltModifier):
+            p = QPoint(self.column_header.sectionViewportPosition(ci.column()), 10)
+            self.show_column_header_context_menu(p)
+            return
         if handle_enter_press(self, ev):
             return
         if ev.key() == Qt.Key.Key_F2:
-            key = self.column_map[self.currentIndex().column()]
+            key = self.column_map[ci.column()]
             if self._model.db.field_metadata[key]['datatype'] == 'composite':
                 self.cc_template_delegate.allow_one_edit()
         return QTableView.keyPressEvent(self, ev)

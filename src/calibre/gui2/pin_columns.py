@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QSplitter, QTableView
+from qt.core import QSplitter, QTableView, Qt, QPoint
 
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2 import gprefs
@@ -20,6 +20,16 @@ class PinTableView(QTableView):
     @property
     def column_map(self):
         return self.books_view.column_map
+
+    def keyPressEvent(self, ev):
+        ci = self.currentIndex()
+        if (gprefs['up_arrow_context_menu'] and ev.key() == Qt.Key.Key_Up and
+                ev.modifiers() == Qt.KeyboardModifier.AltModifier):
+            p = QPoint(self.horizontalHeader().sectionViewportPosition(ci.column()) +
+                       self.books_view.pin_view.splitter.sizes()[0] + 1, 10)
+            self.books_view.show_column_header_context_menu(p)
+            return
+        return QTableView.keyPressEvent(self, ev)
 
     def set_context_menu(self, menu):
         self.context_menu = menu

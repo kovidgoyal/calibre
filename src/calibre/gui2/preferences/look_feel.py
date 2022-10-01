@@ -566,6 +566,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('color_palette', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Light'), 'light'), (_('Dark'), 'dark')])
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
+        r('up_arrow_context_menu', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
         r('show_layout_buttons', gprefs, restart_required=True)
         r('row_numbers_in_book_list', gprefs)

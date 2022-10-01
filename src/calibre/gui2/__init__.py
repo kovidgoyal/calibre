@@ -394,6 +394,7 @@ def create_defs():
     defs['edit_metadata_templates_only_F2_on_booklist'] = False
     # JSON dumps converts integer keys to strings, so do it explicitly
     defs['tb_search_order'] = {'0': 1, '1': 2, '2': 3, '3': 4, '4': 0}
+    defs['up_arrow_context_menu'] = False
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
