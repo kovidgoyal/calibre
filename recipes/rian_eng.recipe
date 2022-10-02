@@ -12,7 +12,7 @@ class Ria_eng(BasicNewsRecipe):
     title = 'Ria Novosti'
     __author__ = 'Darko Miletic'
     description = 'News from Russia in English'
-    language = 'en'
+    language = 'en_RU'
     publisher = 'en.rian.ru'
     category = 'news, politics, Russia'
     oldest_article = 3

@@ -12,7 +12,6 @@ class Dingoo(BasicNewsRecipe):
     publisher = 'Emulate.SU'
     category = 'console'
     cover_url = u'http://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Dingoo_A320_White.jpg/300px-Dingoo_A320_White.jpg'
-    language = 'en'
     no_stylesheets = False
     remove_javascript = True
 

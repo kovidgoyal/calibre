@@ -25,6 +25,7 @@ class Kholod(BasicNewsRecipe):
 
     remove_tags = [dict(name='div', attrs={'class': 'inlinemore'})]
 
-    feeds = [(u'Spotlight', 'https://holod.media/en/sections/spotlight/feed/'),
+    feeds = [(u'Holod Media', 'https://holod.media/en/feed/'),
              (u'Opinion', 'https://holod.media/en/sections/opinion/feed/'),
-             (u'Interview', 'https://holod.media/en/sections/interview/feed/')]
+             (u'Q&A', 'https://holod.media/en/sections/qa/feed/'),
+             (u'Magazine', 'https://holod.media/en/sections/magazine/feed/')]
