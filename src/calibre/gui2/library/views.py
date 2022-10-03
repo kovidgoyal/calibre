@@ -579,7 +579,7 @@ class BooksView(QTableView):  # {{{
                     if f is col_font:
                         a.setCheckable(True)
                         a.setChecked(True)
-                ans.addAction(QIcon.ic('split.png'), _('Adjust width of column {0}').format(name),
+                ans.addAction(QIcon.ic('width.png'), _('Adjust width of column {0}').format(name),
                           partial(self.manually_adjust_column_size, view, col, name))
 
         if self.is_library_view:
