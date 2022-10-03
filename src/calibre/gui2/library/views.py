@@ -13,7 +13,7 @@ from qt.core import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication,
-    QDialog, QFormLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
+    QDialog, QGridLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
 
 from calibre.constants import islinux
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
@@ -215,7 +215,20 @@ class AdjustColumnSize(QDialog):  # {{{
         self.setWindowTitle(_('Adjust width of {0}').format(name))
         self.view = view
         self.column = column
-        l = QFormLayout(self)
+        l = QGridLayout(self)
+
+        def add_row(a, b=None):
+            r = l.rowCount()
+            if b is None:
+                l.addWidget(a, r, 0, 1, 2)
+            else:
+                if isinstance(a, str):
+                    a = QLabel(a)
+                l.addWidget(a, r, 0, 1, 1)
+                l.addWidget(b, r, 1, 1, 1)
+                if isinstance(a, QLabel):
+                    a.setBuddy(b)
+        l.addRow = add_row
 
         original_size = self.original_size = view.horizontalHeader().sectionSize(column)
         l.addRow(_('Original size:'), QLabel(_('{0} pixels').format(str(original_size))))
