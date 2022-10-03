@@ -13,7 +13,7 @@ from qt.core import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication,
-    QDialog, QGridLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
+    QDialog, QFormLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
 
 from calibre.constants import islinux
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
@@ -208,51 +208,46 @@ class PreserveViewState:  # {{{
 # }}}
 
 
-class AdjustColumnSize(QDialog): # {{{
+class AdjustColumnSize(QDialog):  # {{{
 
     def __init__(self, view, column, name):
         QDialog.__init__(self)
-        self.setWindowTitle(_('Adjust column size of {0}').format(name))
+        self.setWindowTitle(_('Adjust width of {0}').format(name))
         self.view = view
         self.column = column
-        l = QGridLayout()
-        self.setLayout(l)
+        l = QFormLayout(self)
 
         original_size = self.original_size = view.horizontalHeader().sectionSize(column)
-        l.addWidget(QLabel(_('Original size:')), 0, 0)
-        l.addWidget(QLabel(_('{0} pixels').format(str(original_size))), 0, 1)
+        l.addRow(_('Original size:'), QLabel(_('{0} pixels').format(str(original_size))))
 
         self.minimum_size = self.view.horizontalHeader().minimumSectionSize()
-        l.addWidget(QLabel(_('Minimum size:')), 1, 0)
-        l.addWidget(QLabel(_('{0} pixels').format(str(self.minimum_size))), 1, 1)
+        l.addRow(_('Minimum size:'), QLabel(_('{0} pixels').format(str(self.minimum_size))))
 
         self.maximum_size = max_permitted_column_width(self.view, self.column)
-        l.addWidget(QLabel(_('Maximum size:')), 2, 0)
-        l.addWidget(QLabel(_('{0} pixels').format(str(self.maximum_size))), 2, 1)
+        l.addRow(_('Maximum size:'), QLabel(_('{0} pixels').format(str(self.maximum_size))))
 
-        b = self.shrink_button = QPushButton('&Shrink 10%')
-        l.addWidget(b, 5, 0)
-        b = self.expand_button = QPushButton('&Expand 10%')
-        l.addWidget(b, 5, 1)
+        la = QLabel(_('You can also adjust column widths by dragging the divider between column headers'))
+        la.setWordWrap(True)
+        l.addRow(la)
 
-        b = self.set_minimum_button = QPushButton('Set to mi&nimum')
-        l.addWidget(b, 6, 0)
-        b = self.set_maximum_button = QPushButton('Set to ma&ximum')
-        l.addWidget(b, 6, 1)
+        self.shrink_button = QPushButton(_('&Shrink 10%'))
+        b = self.expand_button = QPushButton(_('&Expand 10%'))
+        l.addRow(self.shrink_button, b)
+
+        b = self.set_minimum_button = QPushButton(_('Set to mi&nimum'))
+        b = self.set_maximum_button = QPushButton(_('Set to ma&ximum'))
+        l.addRow(self.set_minimum_button, b)
 
         sb = self.spin_box = QSpinBox()
         sb.setMinimum(self.view.horizontalHeader().minimumSectionSize())
         sb.setMaximum(self.maximum_size)
         sb.setValue(original_size)
         sb.setSuffix(' ' + _('pixels'))
-        l.addWidget(sb, 7, 1)
-        sb_label = QLabel('Set &to')
-        l.addWidget(sb_label, 7, 0)
-        sb_label.setBuddy(sb)
+        l.addRow(_('Set &to:'), sb)
 
         bb = self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                                 QDialogButtonBox.StandardButton.Cancel)
-        l.addWidget(bb, 10, 0, 1, 2)
+        l.addRow(bb)
 
         self.shrink_button.clicked.connect(self.shrink_button_clicked)
         self.expand_button.clicked.connect(self.expand_button_clicked)
@@ -593,7 +588,7 @@ class BooksView(QTableView):  # {{{
                 partial(self.resize_column_to_fit, view, col))
         ans.addAction(_('Resize column to fit contents'),
                 partial(self.fit_column_to_contents, view, col))
-        ans.addAction(_('Manually adjust column size'),
+        ans.addAction(_('Adjust width of column'),
                 partial(self.manually_adjust_column_size, view, col, name))
         ans.addAction(_('Restore default layout'), partial(handler, action='defaults'))
         if self.can_add_columns:
