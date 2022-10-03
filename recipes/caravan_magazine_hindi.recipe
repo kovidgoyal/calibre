@@ -35,8 +35,9 @@ class CaravanMagazineHindi(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='meta'),
-        dict(attrs={'class': ['share-with']}),
+        dict(attrs={'class': ['share-with', 'img-wrap abs']}),
     ]
+    remove_attributes = ['style']
 
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
@@ -111,4 +112,6 @@ class CaravanMagazineHindi(BasicNewsRecipe):
         for div in soup.findAll(itemprop='image'):
             for img in div.findAll('img'):
                 img['src'] = div['content']
+        for img in soup.findAll(attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
