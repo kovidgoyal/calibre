@@ -89,6 +89,21 @@ class Guardian(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         return br
 
+    def get_cover_url(self):
+        coverdate = date.today()
+        if 'observer' in self.base_url:
+            cover = (
+                    'https://www.thepaperboy.com/frontpages/archive/The_Observer_'
+                    + str(coverdate.day) + '_' + str(coverdate.month) + '_'
+                    + str(coverdate.year) + '_400.jpg')
+        else:
+            cover = (
+                    'https://www.thepaperboy.com/frontpages/archive/The_Guardian_'
+                    + str(coverdate.day) + '_' + str(coverdate.month) + '_'
+                    + str(coverdate.year) + '_400.jpg')
+
+        return cover
+
     def parse_section(self, url, title_prefix=''):
         feeds = []
         soup = self.index_to_soup(url)
