@@ -138,10 +138,11 @@ class Base:
 class SimpleText(Base):
 
     def setup_ui(self, parent):
-        self.editor = QLineEdit(parent)
-        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent),
-                        self.editor]
-        self.editor.setClearButtonEnabled(True)
+        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent),]
+        self.finish_ui_setup(parent, QLineEdit)
+
+    def set_to_undefined(self):
+        self.editor.setText('')
 
     def setter(self, val):
         self.editor.setText(str(val or ''))
