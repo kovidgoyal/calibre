@@ -231,7 +231,9 @@ class AdjustColumnSize(QDialog):  # {{{
         l.addRow = add_row
 
         original_size = self.original_size = view.horizontalHeader().sectionSize(column)
-        l.addRow(_('Original size:'), QLabel(_('{0} pixels').format(str(original_size))))
+        label = QLabel(_('{0} pixels').format(str(original_size)))
+        label.setToolTip('<p>' + _('The original size can be larger than the maximum if the window has been resized') + '</p>')
+        l.addRow(_('Original size:'), label)
 
         self.minimum_size = self.view.horizontalHeader().minimumSectionSize()
         l.addRow(_('Minimum size:'), QLabel(_('{0} pixels').format(str(self.minimum_size))))
@@ -251,12 +253,17 @@ class AdjustColumnSize(QDialog):  # {{{
         b = self.set_maximum_button = QPushButton(_('Set to ma&ximum'))
         l.addRow(self.set_minimum_button, b)
 
+        b = self.resize_to_fit_button = QPushButton(_('&Resize column to fit contents'))
+        b.setToolTip('<p>' + _('The width will be set to the size of the widest entry or the maximum size, whichever is smaller') + '</p>')
+        l.addRow(b)
+
         sb = self.spin_box = QSpinBox()
         sb.setMinimum(self.view.horizontalHeader().minimumSectionSize())
         sb.setMaximum(self.maximum_size)
         sb.setValue(original_size)
         sb.setSuffix(' ' + _('pixels'))
-        l.addRow(_('Set &to:'), sb)
+        sb.setToolTip(_('This box shows the current width after using the above buttons'))
+        l.addRow(_('Set width &to:'), sb)
 
         bb = self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                                 QDialogButtonBox.StandardButton.Cancel)
@@ -267,12 +274,19 @@ class AdjustColumnSize(QDialog):  # {{{
         self.spin_box.valueChanged.connect(self.spin_box_changed)
         self.set_minimum_button.clicked.connect(self.set_minimum_button_clicked)
         self.set_maximum_button.clicked.connect(self.set_maximum_button_clicked)
+        self.resize_to_fit_button.clicked.connect(self.resize_to_fit_button_clicked)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
 
     def reject(self):
         self.view.setColumnWidth(self.column, self.original_size)
         QDialog.reject(self)
+
+    def resize_to_fit_button_clicked(self):
+        self.view.resizeColumnToContents(self.column)
+        w = self.view.horizontalHeader().sectionSize(self.column)
+        w = w if w <= self.maximum_size else self.maximum_size
+        self.spin_box.setValue(w)
 
     def set_maximum_button_clicked(self):
         # Do this dance in case the current width exceeds the maximum, which can
@@ -531,8 +545,6 @@ class BooksView(QTableView):  # {{{
     def create_context_menu(self, col, name, view):
         ans = QMenu(view)
         handler = partial(self.column_header_context_handler, view=view, column=col)
-        if col not in ('ondevice', 'inlibrary'):
-            ans.addAction(QIcon.ic('minus.png'), _('Hide column %s') % name, partial(handler, action='hide'))
         m = ans.addMenu(_('Sort on %s')  % name)
         m.setIcon(QIcon.ic('sort.png'))
         a = m.addAction(_('Ascending'), partial(handler, action='ascending'))
@@ -567,6 +579,8 @@ class BooksView(QTableView):  # {{{
                     if f is col_font:
                         a.setCheckable(True)
                         a.setChecked(True)
+                ans.addAction(QIcon.ic('width.png'), _('Adjust width of column {0}').format(name),
+                          partial(self.manually_adjust_column_size, view, col, name))
 
         if self.is_library_view:
             if self._model.db.field_metadata[col]['is_category']:
@@ -583,6 +597,8 @@ class BooksView(QTableView):  # {{{
                        if view.column_header.isSectionHidden(i) and self.column_map[i] not in ('ondevice', 'inlibrary')}
 
         ans.addSeparator()
+        if col not in ('ondevice', 'inlibrary'):
+            ans.addAction(QIcon.ic('minus.png'), _('Hide column %s') % name, partial(handler, action='hide'))
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
             m.setIcon(QIcon.ic('plus.png'))
@@ -597,12 +613,6 @@ class BooksView(QTableView):  # {{{
                 partial(handler, action='remember_ondevice_width'))
             ans.addAction(_('Reset On Device column width to default'),
                 partial(handler, action='reset_ondevice_width'))
-        ans.addAction(_('Shrink column if it is too wide to fit'),
-                partial(self.resize_column_to_fit, view, col))
-        ans.addAction(_('Resize column to fit contents'),
-                partial(self.fit_column_to_contents, view, col))
-        ans.addAction(_('Adjust width of column'),
-                partial(self.manually_adjust_column_size, view, col, name))
         ans.addAction(_('Restore default layout'), partial(handler, action='defaults'))
         if self.can_add_columns:
             ans.addAction(
@@ -1025,15 +1035,6 @@ class BooksView(QTableView):  # {{{
                 self.pin_view.verticalHeader().setDefaultSectionSize(h)
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
-
-    def resize_column_to_fit(self, view, column):
-        col = self.column_map.index(column)
-        w = view.columnWidth(col)
-        restrict_column_width(view, col, w, w)
-
-    def fit_column_to_contents(self, view, column):
-        col = self.column_map.index(column)
-        view.resizeColumnToContents(col)
 
     def manually_adjust_column_size(self, view, column, name):
         col = self.column_map.index(column)
