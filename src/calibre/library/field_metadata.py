@@ -470,7 +470,7 @@ class FieldMetadata:
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    self._tb_cats[k]['datatype'] is not None and
-                   k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort') and
+                   k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort', 'in_tag_browser') and
                    not self.is_series_index(k)]
 
     def standard_field_keys(self):

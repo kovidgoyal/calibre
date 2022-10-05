@@ -39,7 +39,7 @@ def displayable_field_keys(mi):
             continue
         if (
                 m is not None and m.get('kind') == 'field' and m.get('datatype') is not None and
-                k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort') and
+                k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort', 'in_tag_browser') and
                 not k.endswith('_index')
         ):
             yield k
