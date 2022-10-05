@@ -976,8 +976,12 @@ class TagsView(QTreeView):  # {{{
 
                 # Hide/Show/Restore categories
                 self.context_menu.addSeparator()
-                self.context_menu.addAction(_('Hide category %s') % category.replace('&', '&&'),
-                    partial(self.context_menu_handler, action='hide',
+                # Because of the strange way hierarchy works in user categories
+                # where child nodes actually exist we must limit hiding to top-
+                # level categories, which will hide that category and children
+                if not key.startswith('@') or '.' not in key:
+                    self.context_menu.addAction(_('Hide category %s') % category.replace('&', '&&'),
+                        partial(self.context_menu_handler, action='hide',
                             category=key)).setIcon(QIcon.ic('minus.png'))
                 add_show_hidden_categories()
 

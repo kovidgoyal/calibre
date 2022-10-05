@@ -1204,10 +1204,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                     data[category] = [t for t in data[category]
                         if lower(t.name).find(filter_by) >= 0]
 
-        # Build a dict of the keys that have data
+        # Build a dict of the keys that have data.
+        # Always add user categories so that the constructed hierarchy works.
+        # This means that empty categories will be displayed unless the 'hide
+        # empty categories' box is checked.
         tb_categories = self.db.field_metadata
         for category in tb_categories:
-            if category in data:  # The search category can come and go
+            if category in data or category.startswith('@'):
                 self.categories[category] = tb_categories[category]['name']
 
         # Now build the list of fields in display order. A lot of this is to
