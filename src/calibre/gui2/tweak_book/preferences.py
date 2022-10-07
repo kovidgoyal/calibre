@@ -407,7 +407,9 @@ class PreviewSettings(BasicSettings):  # {{{
             ans.setObjectName(name)
             return ans
 
-        b('unset', _('No change'), _('Use the colors from the book styles, defaulting to black-on-white'))
+        b('unset', _('No change'), _('Use the colors from the book styles, defaulting to black-on-white.'
+                                     ' Note that in dark mode, you must set all three colors to "No change"'
+                                     ' otherwise the book is rendered with dark colors.'))
         b('auto', _('Theme based'), _('When using a dark theme force dark colors, otherwise same as "No change"'))
         b('manual', _('Custom'), _('Choose a custom color'))
 

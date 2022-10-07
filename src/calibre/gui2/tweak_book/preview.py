@@ -277,7 +277,9 @@ def create_dark_mode_script():
         function apply_css() {
             var css = '';
             if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }';
-            if (settings.is_dark_theme) { css = ':root { color-scheme: dark; }' + css; }
+            var using_custom_colors = false;
+            if (settings.bg || settings.fg || settings.link) using_custom_colors = true;
+            if (settings.is_dark_theme && using_custom_colors) { css = ':root { color-scheme: dark; }' + css; }
             var style = document.createElement('style');
             style.textContent = css;
             document.documentElement.appendChild(style);
