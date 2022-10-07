@@ -59,14 +59,14 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''
-%prog set_metadata [options] id [/path/to/metadata.opf]
+%prog set_metadata [options] book_id [/path/to/metadata.opf]
 
-Set the metadata stored in the calibre database for the book identified by id
-from the OPF file metadata.opf. id is an id number from the search command. You
-can get a quick feel for the OPF format by using the --as-opf switch to the
-show_metadata command. You can also set the metadata of individual fields with
-the --field option. If you use the --field option, there is no need to specify
-an OPF file.
+Set the metadata stored in the calibre database for the book identified by
+book_id from the OPF file metadata.opf. book_id is a book id number from the
+search command. You can get a quick feel for the OPF format by using the
+--as-opf switch to the show_metadata command. You can also set the metadata of
+individual fields with the --field option. If you use the --field option, there
+is no need to specify an OPF file.
 '''
         )
     )
