@@ -951,12 +951,11 @@ class IframeBoss:
             select_crw(crw)
 
     def copy_selection(self):
-        if not runtime.is_standalone_viewer:
-            try:
-                if document.execCommand('copy'):
-                    return
-            except:
-                pass
+        try:
+            if document.execCommand('copy'):
+                return
+        except:
+            pass
 
         s = window.getSelection()
         text = s.toString()
