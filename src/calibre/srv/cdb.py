@@ -3,6 +3,8 @@
 
 
 import os
+import shutil
+import time
 from functools import partial
 from io import BytesIO
 
@@ -91,11 +93,15 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
         raise HTTPBadRequest('A request body containing the file data must be specified')
     add_duplicates = add_duplicates in ('y', '1')
     path = os.path.join(rd.tdir, sfilename)
-    rd.request_body_file.name = path
     rd.request_body_file.seek(0)
-    mi = get_metadata(rd.request_body_file, stream_type=fmt, use_libprs_metadata=True)
-    rd.request_body_file.seek(0)
-    ids, duplicates = db.add_books([(mi, {fmt: rd.request_body_file})], add_duplicates=add_duplicates)
+    with open(path, 'wb') as f:
+        shutil.copyfileobj(rd.request_body_file, f)
+    from calibre.ebooks.metadata.worker import run_import_plugins
+    path = run_import_plugins((path,), time.monotonic_ns(), rd.tdir)[0]
+    with open(path, 'rb') as f:
+        mi = get_metadata(f, stream_type=os.path.splitext(path)[1][1:], use_libprs_metadata=True)
+        f.seek(0)
+        ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=add_duplicates)
     ans = {'title': mi.title, 'authors': mi.authors, 'languages': mi.languages, 'filename': filename, 'id': job_id}
     if ids:
         ans['book_id'] = ids[0]
