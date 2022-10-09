@@ -53,11 +53,12 @@ def get_download_filename(response):
 
 def download_file(url, cookie_file=None, filename=None, create_browser=None):
     if url.startswith('//'):
-        url = 'http:' + url
+        url = 'https:' + url
     try:
         br = browser() if create_browser is None else create_browser()
     except NotImplementedError:
         br = browser()
+    br.set_debug_http(True)
     if cookie_file:
         cj = MozillaCookieJar()
         cj.load(cookie_file)
