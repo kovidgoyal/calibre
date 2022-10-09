@@ -6,8 +6,8 @@ import traceback
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
-    highlight_associated_with_selection, last_span_for_crw, reset_highlight_counter,
-    select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
+    all_annots_in_selection, highlight_associated_with_selection, last_span_for_crw,
+    reset_highlight_counter, select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
@@ -35,9 +35,9 @@ from read_book.highlights import highlight_style_as_css
 from read_book.hints import apply_prefix_to_hints, hint_visible_links, unhint_links
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    anchor_funcs as paged_anchor_funcs,
-    auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    cancel_drag_scroll as cancel_drag_scroll_paged, current_cfi,
+    anchor_funcs as paged_anchor_funcs, auto_scroll_action as paged_auto_scroll_action,
+    calc_columns_per_screen, cancel_drag_scroll as cancel_drag_scroll_paged,
+    current_cfi,
     ensure_selection_boundary_visible as ensure_selection_boundary_visible_paged,
     get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
     handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
@@ -49,9 +49,7 @@ from read_book.paged_mode import (
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection,
     start_drag_scroll as start_drag_scroll_paged, will_columns_per_screen_change
 )
-from read_book.referencing import (
-    elem_for_ref, end_reference_mode, start_reference_mode
-)
+from read_book.referencing import elem_for_ref, end_reference_mode, start_reference_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
@@ -808,6 +806,44 @@ class IframeBoss:
         else:
             end_reference_mode()
 
+    def apply_highlight(self, uuid, existing, has_notes, style):
+        sel = window.getSelection()
+        if not sel.rangeCount:
+            return
+        anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
+        text = sel.toString()
+        bounds = cfi_for_selection()
+        style = highlight_style_as_css(style, opts.is_dark_theme, opts.color_scheme.foreground)
+        cls = 'crw-has-dot' if has_notes else None
+        annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
+        removed_highlights = v'[]'
+        if annot_id is not None:
+            intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
+            if existing and intersecting_uuids[existing]:
+                uuid = existing
+            elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
+                uuid = annot_id_uuid_map[intersecting_wrappers[0]]
+                intersecting_wrappers = v'[]'
+            removed_highlights = {}
+            for crw in intersecting_wrappers:
+                unwrap_crw(crw)
+                if annot_id_uuid_map[crw] and annot_id_uuid_map[crw] is not uuid:
+                    removed_highlights[annot_id_uuid_map[crw]] = True
+                    v'delete annot_id_uuid_map[crw]'
+            removed_highlights = Object.keys(removed_highlights)
+            sel.removeAllRanges()
+            annot_id_uuid_map[annot_id] = uuid
+        self.send_message(
+            'annotations',
+            type='highlight-applied',
+            uuid=uuid, ok=annot_id is not None,
+            bounds=bounds,
+            removed_highlights=removed_highlights,
+            highlighted_text=text,
+            anchor_before=anchor_before
+        )
+        reset_find_caches()
+
     def annotations_msg_received(self, data):
         dtype = data?.type
         if dtype is 'move-end-of-selection':
@@ -863,48 +899,20 @@ class IframeBoss:
                 # not hide itself on multiline selections
                 window.getSelection().removeAllRanges()
         elif dtype is 'apply-highlight':
-            sel = window.getSelection()
-            if not sel.rangeCount:
-                return
-            anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
-            text = sel.toString()
-            bounds = cfi_for_selection()
-            style = highlight_style_as_css(data.style, opts.is_dark_theme, opts.color_scheme.foreground)
-            cls = 'crw-has-dot' if data.has_notes else None
-            annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
-            removed_highlights = v'[]'
-            if annot_id is not None:
-                intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
-                if data.existing and intersecting_uuids[data.existing]:
-                    data.uuid = data.existing
-                elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
-                    data.uuid = annot_id_uuid_map[intersecting_wrappers[0]]
-                    intersecting_wrappers = v'[]'
-                removed_highlights = {}
-                for crw in intersecting_wrappers:
-                    unwrap_crw(crw)
-                    if annot_id_uuid_map[crw] and annot_id_uuid_map[crw] is not data.uuid:
-                        removed_highlights[annot_id_uuid_map[crw]] = True
-                        v'delete annot_id_uuid_map[crw]'
-                removed_highlights = Object.keys(removed_highlights)
-                sel.removeAllRanges()
-                annot_id_uuid_map[annot_id] = data.uuid
-            self.send_message(
-                'annotations',
-                type='highlight-applied',
-                uuid=data.uuid, ok=annot_id is not None,
-                bounds=bounds,
-                removed_highlights=removed_highlights,
-                highlighted_text=text,
-                anchor_before=anchor_before
-            )
-            reset_find_caches()
+            existing = all_annots_in_selection(window.getSelection(), annot_id_uuid_map)
+            if existing.length is 0 or (existing.length is 1 and existing[0] is data.existing):
+                self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style)
+            else:
+                self.send_message(
+                    'annotations', type='highlight-overlapped',
+                    uuid=data.uuid, existing=data.existing, has_notes=data.has_notes, style=data.style)
+        elif dtype is 'apply-highlight-overwrite':
+            self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style)
         elif dtype is 'cite-current-selection':
             sel = window.getSelection()
             if not sel.rangeCount:
                 return
             bounds = cfi_for_selection()
-            anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
             text = sel.toString()
             self.send_message('annotations', type='cite-data', bounds=bounds, highlighted_text=text)
         else:

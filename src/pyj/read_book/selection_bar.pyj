@@ -1117,6 +1117,19 @@ class SelectionBar:
                     toc_family = family_for_toc_node(before.id)
             self.annotations_manager.add_highlight(
                 msg, self.current_highlight_style.style, notes, toc_family)
+        elif msg.type is 'highlight-overlapped':
+            question_dialog(
+                _('Are you sure?'), _('This highlight overlaps existing highlights. Creating it will cause notes'
+                                      ' in the existing highlights to be lost. Create it anyway?'),
+                def (yes):
+                    if yes:
+                        self.send_message(
+                            'apply-highlight-overwrite', style=msg.style, uuid=msg.uuid, existing=msg.existing, has_notes=msg.has_notes)
+                    else:
+                        if self.current_notes:
+                            self.show_editor(self.current_highlight_style, self.current_notes)
+                ,
+            )
         elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()
