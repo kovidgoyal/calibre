@@ -747,6 +747,15 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
                             else 1 if not val else 0
         editor.setCurrentIndex(val)
 
+    def paint(self, painter, option, index):
+        text, icon = index.data(Qt.ItemDataRole.DisplayRole), index.data(Qt.ItemDataRole.DecorationRole)
+        if (not text and not icon) or text or not icon:
+            return super().paint(painter, option, index)
+        dummy = index.model().index(-1, -1)
+        super().paint(painter, option, dummy)
+        style = QApplication.style()
+        style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignCenter, icon)
+
 # }}}
 
 

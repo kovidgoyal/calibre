@@ -927,7 +927,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return (None if v is None else (_('Yes') if v else _('No')))
                 else:
                     def func(idx):
-                        return(None)
+                        return None
             else:
                 def func(idx):
                     return None
