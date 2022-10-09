@@ -32,6 +32,15 @@ def lookup_lang():
     return ans
 
 
+special_processors = {}
+
+
+def special_processor(func):
+    special_processors[func.__name__] = func
+    return func
+
+
+@special_processor
 def google_dictionary(word):
     ans = f'https://www.google.com/search?q=define:{word}'
     lang = lookup_lang()
@@ -44,7 +53,7 @@ vprefs.defaults['lookup_locations'] = [
     {
         'name': 'Google dictionary',
         'url': 'https://www.google.com/search?q=define:{word}',
-        'special_processor': google_dictionary,
+        'special_processor': 'google_dictionary',
         'langs': [],
     },
 
@@ -393,7 +402,7 @@ class Lookup(QWidget):
     def special_processor(self):
         idx = self.source_box.currentIndex()
         if idx > -1:
-            return self.source_box.itemData(idx).get('special_processor')
+            return special_processors.get(self.source_box.itemData(idx).get('special_processor'))
 
     @property
     def query_is_up_to_date(self):
