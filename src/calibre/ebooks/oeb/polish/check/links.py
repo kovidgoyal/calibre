@@ -14,7 +14,7 @@ from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name, OEB_FONTS
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
+from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO, ERROR
 from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import urlparse
 from polyglot.queue import Queue, Empty
@@ -31,6 +31,12 @@ class InvalidCharInLink(BadLink):
 
     HELP = _('Windows computers do not allow the : character in filenames. For maximum'
              ' compatibility it is best to not use these in filenames/links to files.')
+
+
+class MalformedURL(BadLink):
+
+    HELP = _('This URL could not be parsed.')
+    level = ERROR
 
 
 class CaseMismatch(BadLink):
@@ -341,13 +347,18 @@ def check_links(container):
                         else:
                             a(DanglingLink(_('The linked resource %s does not exist') % fl(href), tname, name, lnum, col))
                 else:
-                    purl = urlparse(href)
-                    if purl.scheme == 'file':
-                        a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
-                    elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
-                        a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
-                    elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
-                        a(InvalidCharInLink(_('The link %s contains a : character, this will cause errors on Windows computers') % fl(href), name, lnum, col))
+                    try:
+                        purl = urlparse(href)
+                    except ValueError:
+                        a(MalformedURL(_('The URL {} could not be parsed').format(href), name, lnum, col))
+                    else:
+                        if purl.scheme == 'file':
+                            a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
+                        elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
+                            a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
+                        elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
+                            a(InvalidCharInLink(
+                                _('The link %s contains a : character, this will cause errors on Windows computers') % fl(href), name, lnum, col))
 
     spine_docs = {name for name, linear in container.spine_names}
     spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
