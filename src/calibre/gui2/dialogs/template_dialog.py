@@ -216,7 +216,14 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     pp = self.find_paren(bn, i)
                     if pp and pp.highlight:
                         self.setFormat(i, length, self.Formats[format_])
+                elif format_ == 'keyword':
+                    if bn > 0 and i == 0:
+                        if text[i:i+length] == ('python:' if self.for_python else 'program:'):
+                            continue
+                    print('bn', bn, format_, text[i:i+length])
+                    self.setFormat(i, length, self.Formats[format_])
                 else:
+                    print('bn', bn, format_, text[i:i+length])
                     self.setFormat(i, length, self.Formats[format_])
 
         self.setCurrentBlockState(NORMAL)
@@ -796,7 +803,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             w = tv.cellWidget(r, 0)
             w.setText(mi.title)
             w.setCursorPosition(0)
-            v = SafeFormat().safe_format(txt, mi, _('EXCEPTION: '),
+            v = SafeFormat().safe_format(txt, mi, _('EXCEPTION:'),
                              mi, global_vars=self.global_vars,
                              template_functions=self.all_functions,
                              break_reporter=self.break_reporter if r == break_on_mi else None)

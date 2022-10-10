@@ -1591,7 +1591,7 @@ class TemplateFormatter(string.Formatter):
             raise(ValueError(
                 _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text)))
         except KeyError:
-            raise(ValueError(_("Error: the {0} function is not defined in the template").format('evaluate')))
+            raise(ValueError(_("The {0} function is not defined in the template").format('evaluate')))
 
     # ################# Override parent classes methods #####################
 
