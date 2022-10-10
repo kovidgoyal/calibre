@@ -11,12 +11,14 @@ __docformat__ = 'restructuredtext en'
 import re, string, traceback, numbers
 from functools import partial
 from math import modf
+from sys import exc_info
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
-from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.formatter_functions import (
+    formatter_functions, get_database, function_object_type, StoredObjectType)
 from calibre.utils.icu import strcmp
 from polyglot.builtins import error_message
 
@@ -137,7 +139,8 @@ class StoredTemplateCallNode(Node):
     def __init__(self, line_number, name, function, expression_list):
         Node.__init__(self, line_number, 'call template: ' + name + '()')
         self.node_type = self.NODE_CALL_STORED_TEMPLATE
-        self.function = function
+        self.name = name
+        self.function = function # instance of the definition class
         self.expression_list = expression_list
 
 
@@ -579,16 +582,20 @@ class _Parser:
         return LocalFunctionCallNode(self.line_number, name, arguments)
 
     def call_expression(self, name, arguments):
-        subprog = self.funcs[name].cached_parse_tree
-        if subprog is None:
+        compiled_func = self.funcs[name].cached_compiled_text
+        if compiled_func is None:
             text = self.funcs[name].program_text
-            if not text.startswith('program:'):
-                self.error(_("A stored template must begin with '{0}'").format('program:'))
-            text = text[len('program:'):]
-            subprog = _Parser().program(self.parent, self.funcs,
-                                        self.parent.lex_scanner.scan(text))
-            self.funcs[name].cached_parse_tree = subprog
-        return StoredTemplateCallNode(self.line_number, name, subprog, arguments)
+            if function_object_type(text) is StoredObjectType.StoredGPMTemplate:
+                text = text[len('program:'):]
+                compiled_func = _Parser().program(self.parent, self.funcs,
+                                            self.parent.lex_scanner.scan(text))
+            elif function_object_type(text) is StoredObjectType.StoredPythonTemplate:
+                text = text[len('python:'):]
+                compiled_func = self.parent.compile_python_template(text)
+            else:
+                self.error(_("A stored template must begin with '{0}' or {1}").format('program:', 'python:'))
+            self.funcs[name].cached_compiled_text = compiled_func
+        return StoredTemplateCallNode(self.line_number, name, self.funcs[name], arguments)
 
     def top_expr(self):
         return self.or_expr()
@@ -775,7 +782,7 @@ class _Parser:
             if id_ in self.local_functions:
                 return self.local_call_expression(id_, arguments)
             # Check for calling a stored template
-            if id_ in self.func_names and not self.funcs[id_].is_python:
+            if id_ in self.func_names and self.funcs[id_].object_type is not StoredObjectType.PythonFunction:
                 return self.call_expression(id_, arguments)
             # We must have a reference to a formatter function. Check if
             # the right number of arguments were supplied
@@ -846,7 +853,8 @@ class _Interpreter:
 
         try:
             if is_call:
-                ret =  self.do_node_stored_template_call(StoredTemplateCallNode(1, prog, None), args=args)
+                # prog is an instance of the function definition class
+                ret =  self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)
             else:
                 ret = self.expression_list(prog)
         except ReturnExecuted as e:
@@ -1014,7 +1022,10 @@ class _Interpreter:
         else:
             saved_line_number = None
         try:
-            val = self.expression_list(prog.function)
+            if function_object_type(prog.function.program_text) is StoredObjectType.StoredGPMTemplate:
+                val = self.expression_list(prog.function.cached_compiled_text)
+            else:
+                val = self.parent._run_python_template(prog.function.cached_compiled_text, args)
         except ReturnExecuted as e:
             val = e.get_value()
         self.override_line_number = saved_line_number
@@ -1526,14 +1537,62 @@ class TemplateFormatter(string.Formatter):
 
     def _eval_sfm_call(self, template_name, args, global_vars):
         func = self.funcs[template_name]
-        tree = func.cached_parse_tree
-        if tree is None:
-            tree = self.gpm_parser.program(self, self.funcs,
-                           self.lex_scanner.scan(func.program_text[len('program:'):]))
-            func.cached_parse_tree = tree
-        return self.gpm_interpreter.program(self.funcs, self, tree, None,
-                                            is_call=True, args=args,
-                                            global_vars=global_vars)
+        compiled_text = func.cached_compiled_text
+        if func.object_type is StoredObjectType.StoredGPMTemplate:
+            if compiled_text is None:
+                compiled_text = self.gpm_parser.program(self, self.funcs,
+                               self.lex_scanner.scan(func.program_text[len('program:'):]))
+                func.cached_compiled_text = compiled_text
+            return self.gpm_interpreter.program(self.funcs, self, func, None,
+                                                is_call=True, args=args,
+                                                global_vars=global_vars)
+        elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:
+            if compiled_text is None:
+                compiled_text = self.compile_python_template(func.program_text[len('python:'):])
+                func.cached_compiled_text = compiled_text
+            print(args)
+            return self._run_python_template(compiled_text, args)
+
+    def _eval_python_template(self, template, column_name):
+        if column_name is not None and self.template_cache is not None:
+            func = self.template_cache.get(column_name + '::python', None)
+            if not func:
+                func = self.compile_python_template(template)
+                self.template_cache[column_name + '::python'] = func
+        else:
+            func = self.compile_python_template(template)
+        return self._run_python_template(func, arguments=None)
+
+    def _run_python_template(self, compiled_template, arguments):
+        try:
+            return compiled_template(book=self.book,
+                                     db=get_database(self.book, get_database(self.book, None)),
+                                     globals=self.global_vars,
+                                     arguments=arguments)
+        except Exception as e:
+            ss = traceback.extract_tb(exc_info()[2])[-1]
+            raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
+                            ss.name, ss.lineno, type(e).__name__, str(e)))
+
+    def compile_python_template(self, template):
+        def replace_func(mo):
+            return mo.group().replace('\t', '    ')
+
+        prog ='\n'.join([re.sub(r'^\t*', replace_func, line)
+                                           for line in template.splitlines()])
+        locals_ = {}
+        if DEBUG and tweaks.get('enable_template_debug_printing', False):
+            print(prog)
+        try:
+            exec(prog, locals_)
+            func = locals_['evaluate']
+            return func
+        except SyntaxError as e:
+            raise(ValueError(
+                _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text)))
+        except KeyError:
+            raise(ValueError(_("Error: the {0} function is not defined in the template").format('evaluate')))
+
     # ################# Override parent classes methods #####################
 
     def get_value(self, key, args, kwargs):
@@ -1587,7 +1646,7 @@ class TemplateFormatter(string.Formatter):
                     else:
                         args = self.arg_parser.scan(fmt[p+1:])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
-                    if not func.is_python:
+                    if func.object_type is not StoredObjectType.PythonFunction:
                         args.insert(0, val)
                         val = self._eval_sfm_call(fname, args, self.global_vars)
                     else:
@@ -1615,6 +1674,8 @@ class TemplateFormatter(string.Formatter):
         if fmt.startswith('program:'):
             ans = self._eval_program(kwargs.get('$', None), fmt[8:],
                                      self.column_name, global_vars, break_reporter)
+        elif fmt.startswith('python:'):
+            ans = self._eval_python_template(fmt[7:], self.column_name)
         else:
             ans = self.vformat(fmt, args, kwargs)
             if self.strip_results:
@@ -1728,7 +1789,7 @@ class TemplateFormatter(string.Formatter):
                         traceback.print_exc()
                     if column_name:
                         prints('Error evaluating column named:', column_name)
-                ans = error_value + ' ' + error_message(e)
+                ans = str(e)
             return ans
         finally:
             self.restore_state(state)

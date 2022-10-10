@@ -14,6 +14,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback, numbers
 from contextlib import suppress
 from datetime import datetime, timedelta
+from enum import Enum
 from functools import partial
 from math import trunc, floor, ceil, modf
 
@@ -26,6 +27,12 @@ from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 from polyglot.builtins import iteritems, itervalues
+
+
+class StoredObjectType(Enum):
+    PythonFunction = 1
+    StoredGPMTemplate = 2
+    StoredPythonTemplate = 3
 
 
 class FormatterFunctions:
@@ -123,6 +130,39 @@ def formatter_functions():
     return _ff
 
 
+def only_in_gui_error(name):
+    raise ValueError(_('The function {} can be used only in the GUI').format(name))
+
+
+def get_database(mi, name):
+    proxy = mi.get('_proxy_metadata', None)
+    if proxy is None:
+        if name is not None:
+            only_in_gui_error(name)
+        return None
+    wr = proxy.get('_db', None)
+    if wr is None:
+        if name is not None:
+            raise ValueError(_('In function {}: The database has been closed').format(name))
+        return None
+    cache = wr()
+    if cache is None:
+        if name is not None:
+            raise ValueError(_('In function {}: The database has been closed').format(name))
+        return None
+    wr = getattr(cache, 'library_database_instance', None)
+    if wr is None:
+        if name is not None:
+            only_in_gui_error()
+        return None
+    db = wr()
+    if db is None:
+        if name is not None:
+            raise ValueError(_('In function {}: The database has been closed').format(name))
+        return None
+    return db
+
+
 class FormatterFunction:
 
     doc = _('No documentation provided')
@@ -130,7 +170,7 @@ class FormatterFunction:
     category = 'Unknown'
     arg_count = 0
     aliases = []
-    is_python = True
+    object_type = StoredObjectType.PythonFunction
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -145,25 +185,10 @@ class FormatterFunction:
             return str(ret)
 
     def only_in_gui_error(self):
-        raise ValueError(_('The function {} can be used only in the GUI').format(self.name))
+        only_in_gui_error(self.name)
 
     def get_database(self, mi):
-        proxy = mi.get('_proxy_metadata', None)
-        if proxy is None:
-            self.only_in_gui_error()
-        wr = proxy.get('_db', None)
-        if wr is None:
-            raise ValueError(_('In function {}: The database has been closed').format(self.name))
-        cache = wr()
-        if cache is None:
-            raise ValueError(_('In function {}: The database has been closed').format(self.name))
-        wr = getattr(cache, 'library_database_instance', None)
-        if wr is None:
-            self.only_in_gui_error()
-        db = wr()
-        if db is None:
-            raise ValueError(_('In function {}: The database has been closed').format(self.name))
-        return db
+        return get_database(mi, self.name)
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -2368,13 +2393,17 @@ _formatter_builtins = [
 
 class FormatterUserFunction(FormatterFunction):
 
-    def __init__(self, name, doc, arg_count, program_text, is_python):
-        self.is_python = is_python
+    def __init__(self, name, doc, arg_count, program_text, object_type):
+        self.object_type = object_type
         self.name = name
         self.doc = doc
         self.arg_count = arg_count
         self.program_text = program_text
-        self.cached_parse_tree = None
+        self.cached_compiled_text = None
+        # Keep this for external code compatibility. Set it to True if we have a
+        # python template function, otherwise false. This might break something
+        # if the code depends on stored templates being in GPM.
+        self.is_python = True if object_type is StoredObjectType.PythonFunction else False
 
     def to_pref(self):
         return [self.name, self.doc, self.arg_count, self.program_text]
@@ -2383,13 +2412,20 @@ class FormatterUserFunction(FormatterFunction):
 tabs = re.compile(r'^\t*')
 
 
-def function_pref_is_python(pref):
-    if isinstance(pref, list):
-        pref = pref[3]
-    if pref.startswith('def'):
-        return True
-    if pref.startswith('program'):
-        return False
+def function_object_type(thing):
+    # 'thing' can be a preference instance, program text, or an already-compiled function
+    if isinstance(thing, FormatterUserFunction):
+        return thing.object_type
+    if isinstance(thing, list):
+        text = thing[3]
+    else:
+        text = thing
+    if text.startswith('def'):
+        return StoredObjectType.PythonFunction
+    if text.startswith('program'):
+        return StoredObjectType.StoredGPMTemplate
+    if text.startswith('python'):
+        return StoredObjectType.StoredPythonTemplate
     raise ValueError('Unknown program type in formatter function pref')
 
 
@@ -2398,8 +2434,9 @@ def function_pref_name(pref):
 
 
 def compile_user_function(name, doc, arg_count, eval_func):
-    if not function_pref_is_python(eval_func):
-        return FormatterUserFunction(name, doc, arg_count, eval_func, False)
+    typ = function_object_type(eval_func)
+    if typ is not StoredObjectType.PythonFunction:
+        return FormatterUserFunction(name, doc, arg_count, eval_func, typ)
 
     def replace_func(mo):
         return mo.group().replace('\t', '    ')
@@ -2415,7 +2452,7 @@ class UserFunction(FormatterUserFunction):
     if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print(prog)
     exec(prog, locals_)
-    cls = locals_['UserFunction'](name, doc, arg_count, eval_func, True)
+    cls = locals_['UserFunction'](name, doc, arg_count, eval_func, typ)
     return cls
 
 
@@ -2432,7 +2469,7 @@ def compile_user_template_functions(funcs):
             # then white space differences don't cause them to compare differently
 
             cls = compile_user_function(*func)
-            cls.is_python = function_pref_is_python(func)
+            cls.object_type = function_object_type(func)
             compiled_funcs[cls.name] = cls
         except Exception:
             try:

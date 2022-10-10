@@ -13,7 +13,8 @@ from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import (
     compile_user_function, compile_user_template_functions, formatter_functions,
-    function_pref_is_python, function_pref_name, load_user_template_functions
+    function_object_type, function_pref_name, load_user_template_functions,
+    StoredObjectType
 )
 from polyglot.builtins import iteritems
 
@@ -48,9 +49,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         <li><b>your parameters</b>: you must supply one or more formal
         parameters. The number must match the arg count box, unless arg count is
         -1 (variable number or arguments), in which case the last argument must
-        be *args. At least one argument is required, and is usually the value of
-        the field being operated upon. Note that when writing in basic template
-        mode, the user does not provide this first argument. Instead it is
+        be *args. Note that when a function is called in basic template
+        mode at least one argument is always passed. It is
         supplied by the formatter.</li>
         </ul></p>
         <p>
@@ -87,10 +87,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         in template processing. You use a stored template in another template as
         if it were a template function, for example 'some_name(arg1, arg2...)'.</p>
 
-        <p>Stored templates must use General Program Mode -- they must begin with
-        the text '{0}'. You retrieve arguments passed to a stored template using
-        the '{1}()' template function, as in '{1}(var1, var2, ...)'. The passed
-        arguments are copied to the named variables.</p>
+        <p>Stored templates must use either General Program Mode -- they must
+        either begin with the text '{0}' or be {1}. You retrieve arguments
+        passed to a GPM stored template using the '{2}()' template function, as
+        in '{2}(var1, var2, ...)'. The passed arguments are copied to the named
+        variables. Arguments passed to a python template are in the '{2}'
+        parameter. Arguments are always strings.</p>
 
         <p>For example, this stored template checks if any items are in a
         list, returning '1' if any are found and '' if not.</p>
@@ -112,7 +114,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         See the template language tutorial for more information.</p>
         </p>
         ''')
-        self.st_textBrowser.setHtml(help_text.format('program:', 'arguments'))
+        self.st_textBrowser.setHtml(help_text.format('program:', 'python templates', 'arguments'))
         self.st_textBrowser.adjustSize()
         self.st_show_hide_help_button.clicked.connect(self.st_show_hide_help)
         self.st_textBrowser_height = self.st_textBrowser.height()
@@ -150,14 +152,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.builtin_source_dict = {}
 
         self.funcs = {k:v for k,v in formatter_functions().get_functions().items()
-                                if v.is_python}
+                                if v.object_type is StoredObjectType.PythonFunction}
 
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
         self.st_funcs = {}
         try:
             for v in self.db.prefs.get('user_template_functions', []):
-                if not function_pref_is_python(v):
+                if function_object_type(v) is not StoredObjectType.PythonFunction:
                     self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
         except:
             if question_dialog(self, _('Template functions'),
@@ -281,34 +283,53 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             error_dialog(self.gui, _('Template functions'),
                          _('Function not defined'), show=True)
 
-    def create_button_clicked(self, use_name=None):
-        self.changed_signal.emit()
-        name = use_name if use_name else str(self.function_name.currentText())
-        name = name.split(' -- ')[0]
+    def check_errors_before_save(self, name, for_replace=False):
+        # Returns True if there is an error
         if not name:
             error_dialog(self.gui, _('Template functions'),
                          _('Name cannot be empty'), show=True)
-            return
-        if name in self.funcs:
+            return True
+        if not for_replace and name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
                          _('Name %s already used')%(name,), show=True)
-            return
+            return True
         if name in {function_pref_name(v) for v in
                         self.db.prefs.get('user_template_functions', [])
-                        if not function_pref_is_python(v)}:
+                        if function_object_type(v) is not StoredObjectType.PythonFunction}:
             error_dialog(self.gui, _('Template functions'),
                          _('The name {} is already used for stored template').format(name), show=True)
-            return
+            return True
         if self.argument_count.value() == 0:
-            box = warning_dialog(self.gui, _('Template functions'),
-                         _('Argument count should be -1 or greater than zero. '
-                           'Setting it to zero means that this function cannot '
-                           'be used in single function mode.'), det_msg='',
-                         show=False, show_copy_button=False)
-            box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.StandardButton.Cancel)
-            box.det_msg_toggle.setVisible(False)
-            if not box.exec():
-                return
+            if not question_dialog(self.gui, _('Template functions'),
+                         _('Setting argument count to to zero means that this '
+                           'function cannot be used in single function mode. '
+                           'Is this OK?'),
+                         det_msg='',
+                         show_copy_button=False,
+                         default_yes=False,
+                         skip_dialog_name='template_functions_zero_args_warning',
+                         skip_dialog_msg='Ask this question again',
+                         yes_text=_('Save the function'),
+                         no_text=_('Cancel the save')):
+                print('cancelled')
+                return True
+        try:
+            prog = str(self.program.toPlainText())
+            cls = compile_user_function(name, str(self.documentation.toPlainText()),
+                                        self.argument_count.value(), prog)
+        except:
+            error_dialog(self.gui, _('Template functions'),
+                         _('Exception while compiling function'), show=True,
+                         det_msg=traceback.format_exc())
+            return True
+        return False
+
+    def create_button_clicked(self, use_name=None, need_error_checks=True):
+        name = use_name if use_name else str(self.function_name.currentText())
+        name = name.split(' -- ')[0]
+        if need_error_checks and self.check_errors_before_save(name, for_replace=False):
+            return
+        self.changed_signal.emit()
         try:
             prog = str(self.program.toPlainText())
             cls = compile_user_function(name, str(self.documentation.toPlainText()),
@@ -364,8 +385,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def replace_button_clicked(self):
         name = str(self.function_name.itemData(self.function_name.currentIndex()))
+        if self.check_errors_before_save(name, for_replace=True):
+            return
         self.delete_button_clicked()
-        self.create_button_clicked(use_name=name)
+        self.create_button_clicked(use_name=name, need_error_checks=False)
 
     def refresh_gui(self, gui):
         pass
@@ -428,14 +451,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         name = use_name if use_name else str(self.te_name.currentText())
         for k,v in formatter_functions().get_functions().items():
-            if k == name and v.is_python:
+            if k == name and v.object_type is StoredObjectType.PythonFunction:
                 error_dialog(self.gui, _('Stored templates'),
-                         _('The name {} is already used for template function').format(name), show=True)
+                         _('The name {} is already used by a template function').format(name), show=True)
         try:
             prog = str(self.te_textbox.toPlainText())
-            if not prog.startswith('program:'):
+            if not prog.startswith(('program:', 'python:')):
                 error_dialog(self.gui, _('Stored templates'),
-                         _('The stored template must begin with "program:"'), show=True)
+                     _("The stored template must begin with '{0}' or '{1}'").format('program:', 'python:'), show=True)
 
             cls = compile_user_function(name, str(self.template_editor.new_doc.toPlainText()),
                                         0, prog)

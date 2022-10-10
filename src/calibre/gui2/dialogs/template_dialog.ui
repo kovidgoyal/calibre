@@ -344,8 +344,10 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           <widget class="CodeEditor" name="textbox">
            <property name="toolTip">
             <string>&lt;p&gt;The text of the template program goes in this box.
-            Don't forget that a General Program Mode template must begin with
-            the word "program:".&lt;/p&gt;</string>
+            A General Program Mode template must begin with the word "program:".
+            A python template must begin with the word "python:" followed by a
+            function definition line. There is a context menu item you can use
+            to enter the first lines of a python template.&lt;/p&gt;</string>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
