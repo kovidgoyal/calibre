@@ -46,7 +46,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     BN_FACTOR = 1000
 
-    KEYWORDS_GPM = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
+    KEYWORDS_GPM = ['if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
                     'separator', 'break', 'continue', 'return', 'in', 'inlist',
                     'def', 'fed', 'limit']
 
@@ -89,6 +89,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 r"|\$+#?[a-zA-Z]\w*",
                 "identifier")
 
+            a(r"^\bprogram\b", "keyword")
             a(
                 "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_GPM]),
                 "keyword")
@@ -101,22 +102,25 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
             a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
         else:
-            a(re.compile(
-                    "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON])),
-                    "keyword")
-            a(re.compile(
-                    "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS_PYTHON])),
-                    "builtin")
-            a(re.compile(
-                    "|".join([r"\b%s\b" % constant
-                    for constant in self.CONSTANTS_PYTHON])), "constant")
-            a(re.compile(
-                    r"\bPyQt6\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt")
-            a(re.compile(r"\b@\w+\b"), "decorator")
-            stringRe = re.compile(r"""(?:'[^']*?'|"[^"]*?")""")
+            a(r"^\bpython\b", "keyword")
+
+            a(
+                "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON]),
+                "keyword")
+            a(
+                "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS_PYTHON]),
+                "builtin")
+            a(
+                "|".join([r"\b%s\b" % constant
+                for constant in self.CONSTANTS_PYTHON]), "constant")
+
+            a(r"\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b", "pyqt")
+            a(r"@\w+(\.\w+)?\b", "decorator")
+
+            a(r"""(?:'[^']*?'|"[^"]*?")""", "string")
+            stringRe = r"""((:?"|'){3}).*?\1"""
             a(stringRe, "string")
-            self.stringRe = re.compile(r"""(:?"["]".*?"["]"|'''.*?''')""")
-            a(self.stringRe, "string")
+            self.stringRe = re.compile(stringRe)
             self.tripleSingleRe = re.compile(r"""'''(?!")""")
             self.tripleDoubleRe = re.compile(r'''"""(?!')''')
         a(
@@ -140,17 +144,23 @@ class TemplateHighlighter(QSyntaxHighlighter):
         config = self.Config = {}
         config["fontfamily"] = font_name
         app_palette = QApplication.instance().palette()
-        for name, color, bold, italic in (
-                ("normal", None, False, False),
-                ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
-                ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
-                ("constant", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
-                ("identifier", None, False, True),
-                ("comment", "#007F00", False, True),
-                ("string", "#808000", False, False),
-                ("number", "#924900", False, False),
-                ("lparen", None, True, True),
-                ("rparen", None, True, True)):
+        
+        all_formats = (
+            # name, color, bold, italic
+            ("normal", None, False, False),
+            ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
+            ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ("constant", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ("identifier", None, False, True),
+            ("comment", "#007F00", False, True),
+            ("string", "#808000", False, False),
+            ("number", "#924900", False, False),
+            ("decorator", "#FF8000", False, True),
+            ("pyqt", None, False, False),
+            ("lparen", None, True, True),
+            ("rparen", None, True, True))
+        
+        for name, color, bold, italic in all_formats:
             config["%sfontcolor" % name] = color
             config["%sfontbold" % name] = bold
             config["%sfontitalic" % name] = italic
@@ -160,8 +170,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         base_format.setFontPointSize(config["fontsize"])
 
         self.Formats = {}
-        for name in ("normal", "keyword", "builtin", "comment", "identifier",
-                     "string", "number", "lparen", "rparen", "constant"):
+        for name, color, bold, italic in all_formats:
             format_ = QTextCharFormat(base_format)
             color = config["%sfontcolor" % name]
             if color:
@@ -768,7 +777,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.highlighting_gpm = False
                 self.break_box.setChecked(False)
                 self.break_box.setEnabled(False)
-                print(self.break_box.isEnabled())
         elif not self.highlighting_gpm:
             self.highlighter.initialize_rules(self.builtins, False)
             self.highlighting_gpm = True
