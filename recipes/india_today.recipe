@@ -1,4 +1,19 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class IndiaToday(BasicNewsRecipe):
@@ -16,10 +31,18 @@ class IndiaToday(BasicNewsRecipe):
     masthead_url = 'https://akm-img-a-in.tosshub.com/sites/all/themes/itg/logo.png'
 
     extra_css = '''
-        .body_caption{font-size:small;}
-        .image-alt{font-size:small;}
-        [itemprop^="description"] {font-size: small; font-style: italic;}
+        #sub-d {font-style:italic; color:#202020;}
+        .story__byline {font-size:small; text-align:left;}
+        .body_caption, .mos__alt {font-size:small; text-align:center;}
+        blockquote{color:#404040;}
     '''
+
+    remove_tags = [
+            classes('checkout__section sharing align-center-button amp-izooto-sub ads__container inline-story-add amp-ad'),
+            dict(name=(('amp-web-push-widget', 'amp-ad'))),
+            dict(attrs={'id':'tab-link-wrapper-plugin'}),
+            dict(name='div', attrs={'amp-access':'NOT granted'})
+        ]
 
     def get_cover_url(self):
         soup = self.index_to_soup(
@@ -30,58 +53,40 @@ class IndiaToday(BasicNewsRecipe):
         ):
             return citem['content'].replace('300', '600')
 
-    keep_only_tags = [
-        dict(name='h1'),
-        classes('story-kicker story-right'),
-        dict(itemProp='articleBody'),
-    ]
-
     def parse_index(self):
         soup = self.index_to_soup('https://www.indiatoday.in/magazine')
 
         section = None
         sections = {}
 
-        for tag in soup.findAll(
-            'div', attrs={'class': ['magazin-top-left', 'section-ordering']}
-        ):
-            sec = tag.find('span')
-            section = self.tag_to_string(sec)
+        date = soup.find(attrs={'class':lambda x: x and x.startswith('MagazineEdition_edition__date')})
+        edition = soup.find(attrs={'class':lambda x: x and x.startswith('MagazineEdition_magazineprime')})
+        self.timefmt =' (' + self.tag_to_string(edition) + ') [' + self.tag_to_string(date).strip() + ']'
+        p = edition.findNext('p')
+        if p:
+            self.description = self.tag_to_string(p).strip()
+        self.log('Downloading Issue: ', self.timefmt)
+
+        for tag in soup.findAll('div', attrs={'class': lambda x: x and 'NoCard_story__grid__' in x}):
+            sec = tag.find('div', attrs={'class': lambda x: x and 'NoCard_header__nav__' in x})
+            section = self.tag_to_string(sec).strip()
             self.log(section)
             sections[section] = []
 
-            for a in tag.findAll(
-                'a',
-                href=lambda x: x and x.startswith((
-                    "/magazine/cover-story/story/",
-                    "https://www.indiatoday.in/magazine/"
-                ))
-            ):
-                url = a['href']
-                if url.startswith('https'):
-                    url = url
-                else:
+            for art in tag.findAll('article'):
+                title = self.tag_to_string(art.find(attrs={'class':lambda x: x and 'NoCard_articletitle__' in x})).strip()
+                url = art.find('a', href=True, title=True)['href']
+                if url.startswith('/'):
                     url = 'https://www.indiatoday.in' + url
-                title = self.tag_to_string(a).strip()
-                try:
-                    desc = self.tag_to_string(a.findParent(
-                        'span', attrs={'class':'field-content'}).findNext(
-                            'div', attrs={'class':'views-field'})).strip()
-                except Exception:
-                    desc = self.tag_to_string(a.findParent(
-                        ('h3','p')).findNext('span', attrs={'class':'kicket-text'})).strip()
-                if not url or not title:
-                    continue
-                self.log('\t', title)
-                self.log('\t', desc)
-                self.log('\t\t', url)
+                desc = self.tag_to_string(art.find(attrs={'class':lambda x: x and 'NoCard_story__shortcont__' in x})).strip()
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                 sections[section].append({'title': title, 'url': url, 'description': desc})
 
         def sort_key(x):
             section = x[0]
             try:
                 return (
-                    'EDITOR\'S NOTE', 'Cover Story', 'The Big Story', 'Upfront',
+                    'Editor\'s Note', 'Cover Story', 'The Big Story', 'Upfront',
                     'NATION', 'INTERVIEW'
                 ).index(section)
             except Exception:
@@ -89,24 +94,39 @@ class IndiaToday(BasicNewsRecipe):
 
         return sorted(sections.items(), key=sort_key)
 
-    def preprocess_raw_html(self, raw_html, url):
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup
-        soup = BeautifulSoup(raw_html)
-        for div in soup.findAll('div', attrs={'id': 'premium_content_data'}):
-            div.extract()
-        for tv in soup.findAll(
-            'div',
-            attrs={
-                'class': ['live-tv-ico', 'sendros', 'live-tv-ico-st', 'sendros-st']
-            }
-        ):
-            tv.extract()
-        for script in soup.findAll('script'):
-            script.extract()
-        for style in soup.findAll('style'):
-            style.extract()
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        for h2 in soup.findAll('h2'):
-            h2.name = 'h5'
-        return str(soup)
+    def preprocess_html(self, soup):
+        if soup.find('div', attrs={'amp-access':'granted'}) is not None:
+            keep_only_tags = [
+                classes('strytitle strykicker story__byline srtymos'),
+                dict(name='div', attrs={'amp-access':'granted'}),
+            ]
+        else:
+            keep_only_tags = [
+                classes('strytitle strykicker story__byline srtymos'),
+                dict(name='div', attrs={'class':'description'}),
+            ]
+        body = new_tag(soup, 'body')
+        for spec in keep_only_tags:
+            for tag in soup.find('body').findAll(**spec):
+                body.insert(len(body.contents), tag)
+        soup.find('body').replaceWith(body)
+
+        for img in soup.findAll('amp-img'):
+            if not img.find('img'):
+                img.name = 'img'
+        h2 = soup.find('h2')
+        if h2:
+            h2.name = 'p'
+            h2['id'] = 'sub-d'
+        for quo in soup.findAll(attrs={'class':'quotes'}):
+            quo.name = 'blockquote'
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            image = soup.find('img', src=True, attrs={'class':'i-amphtml-fill-content'})
+            if image is not None:
+                self.add_toc_thumbnail(article, image['src'])
+
+    def print_version(self, url):
+        return url.replace('.in/','.in/amp/')
