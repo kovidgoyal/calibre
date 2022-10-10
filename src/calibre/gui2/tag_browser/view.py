@@ -507,6 +507,7 @@ class TagsView(QTreeView):  # {{{
                              is_first_letter=False, ignore_vl=False):
         if not action:
             return
+        from calibre.gui2.ui import get_gui
         try:
             if action == 'set_icon':
                 try:
@@ -585,7 +586,6 @@ class TagsView(QTreeView):  # {{{
                 self._toggle(index, set_to=search_state)
                 return
             if action == "raw_search":
-                from calibre.gui2.ui import get_gui
                 get_gui().get_saved_search_text(search_name='search:' + key)
                 return
             if action == 'add_to_category':
@@ -637,6 +637,10 @@ class TagsView(QTreeView):  # {{{
                 return
             if action == 'edit_author_link':
                 self.author_sort_edit.emit(self, index, False, True, False)
+                return
+            if action == 'remove_format':
+                gui = get_gui()
+                gui.iactions['Remove Books'].remove_format_from_selected_books(key)
                 return
 
             reset_filter_categories = True
@@ -973,6 +977,9 @@ class TagsView(QTreeView):  # {{{
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
+                elif key == 'formats':
+                    self.context_menu.addAction(_('Remove the {} format from selected books').format(tag.name), partial(
+                        self.context_menu_handler, action='remove_format', key=tag.name))
 
                 # Hide/Show/Restore categories
                 self.context_menu.addSeparator()

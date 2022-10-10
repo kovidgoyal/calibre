@@ -173,6 +173,12 @@ class DeleteAction(InterfaceAction):
             return set()
         return set(map(self.gui.library_view.model().id, rows))
 
+    def _remove_formats_from_ids(self, fmts, ids):
+        self.gui.library_view.model().db.new_api.remove_formats({bid: fmts for bid in ids})
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+
     def remove_format_by_id(self, book_id, fmt):
         title = self.gui.current_db.title(book_id, index_is_id=True)
         if not confirm('<p>'+(_(
@@ -180,13 +186,28 @@ class DeleteAction(InterfaceAction):
             '%(title)s. Are you sure?')%dict(fmt=fmt, title=title)) +
                        '</p>', 'library_delete_specific_format', self.gui):
             return
+        self._remove_format_from_ids((fmt,), (book_id,))
 
-        self.gui.library_view.model().db.remove_format(book_id, fmt,
-                index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids([book_id])
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
-                self.gui.library_view.currentIndex())
-        self.gui.tags_view.recount_with_position_based_index()
+    def remove_format_from_selected_books(self, fmt):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        db = self.gui.current_db.new_api
+        fmt = fmt.upper()
+        for bid in ids:
+            if fmt in db.formats(bid):
+                break
+        else:
+            return error_dialog(self.gui, _('Format not found'), _('The {} format is not present in the selected books.').format(fmt), show=True)
+        if not confirm(
+            '<p>'+ ngettext(
+                _('The {fmt} format will be <b>permanently deleted</b> from {title}.'),
+                _('The {fmt} format will be <b>permanently deleted</b> from all {num} selected books.'),
+                len(ids)).format(fmt=fmt.upper(), num=len(ids), title=self.gui.current_db.title(next(iter(ids)), index_is_id=True)
+                                 ) + ' ' + _('Are you sure?'), 'library_delete_specific_format_from_selected', self.gui
+        ):
+            return
+        self._remove_formats_from_ids((fmt,), ids)
 
     def restore_format(self, book_id, original_fmt):
         self.gui.current_db.restore_original_format(book_id, original_fmt)
