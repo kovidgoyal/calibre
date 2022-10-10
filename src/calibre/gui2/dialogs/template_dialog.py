@@ -89,7 +89,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 r"|\$+#?[a-zA-Z]\w*",
                 "identifier")
 
-            a(r"^\bprogram\b", "keyword")
+            a(r"^\bprogram\b:", "keyword")
             a(
                 "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_GPM]),
                 "keyword")
@@ -102,7 +102,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
             a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
         else:
-            a(r"^\bpython\b", "keyword")
+            a(r"^\bpython\b:", "keyword")
 
             a(
                 "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON]),
@@ -144,7 +144,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         config = self.Config = {}
         config["fontfamily"] = font_name
         app_palette = QApplication.instance().palette()
-        
+
         all_formats = (
             # name, color, bold, italic
             ("normal", None, False, False),
@@ -159,7 +159,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             ("pyqt", None, False, False),
             ("lparen", None, True, True),
             ("rparen", None, True, True))
-        
+
         for name, color, bold, italic in all_formats:
             config["%sfontcolor" % name] = color
             config["%sfontbold" % name] = bold
