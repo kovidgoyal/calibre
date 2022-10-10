@@ -472,7 +472,7 @@ class ReadUI:
             self.downloads_in_progress.append(xhr)
 
         if raster_cover_name:
-            start_download(raster_cover_name, 'get/cover/' + book_id + '/' + encodeURIComponent(library_id))
+            start_download(raster_cover_name, 'cover/' + book_id + '/' + encodeURIComponent(library_id))
 
         count = 0
         queued = set()

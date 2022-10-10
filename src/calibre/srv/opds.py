@@ -218,6 +218,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
+    cover = partial(request_context.ctx.url_for, '/cover', book_id=book_id, library_id=request_context.library_id)
     if mi.formats:
         fm = mi.format_metadata
         for fmt in mi.formats:
@@ -230,7 +231,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                     link.set('length', str(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
-    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
+    ans.append(E.link(type='image/jpeg', href=cover(), rel="http://opds-spec.org/cover"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/image"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/image/thumbnail"))

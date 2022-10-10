@@ -288,6 +288,21 @@ def icon(ctx, rd, which):
         ans.seek(0)
         return ans
 
+@endpoint('/cover/{book_id}/{library_id=None}', auth_required=False, android_workaround=True)
+def getCover(ctx, rd, book_id, library_id):
+    book_id, rest = book_id.partition('_')[::2]
+    try:
+        book_id = int(book_id)
+    except Exception:
+        raise HTTPNotFound('Book with id %r does not exist' % book_id)
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound('Library %r not found' % library_id)
+    with db.safe_read_lock:
+        if not ctx.has_id(rd, db, book_id):
+            raise BookNotFound(book_id, db)
+        library_id = db.server_library_id  # in case library_id was None
+        return cover(ctx, rd, library_id, db, book_id)
 
 @endpoint('/get/{what}/{book_id}/{library_id=None}', android_workaround=True)
 def get(ctx, rd, what, book_id, library_id):
@@ -325,8 +340,6 @@ def get(ctx, rd, what, book_id, library_id):
                 except Exception:
                     pass
             return cover(ctx, rd, library_id, db, book_id, width=w, height=h)
-        elif what == 'cover':
-            return cover(ctx, rd, library_id, db, book_id)
         elif what == 'opf':
             mi = db.get_metadata(book_id, get_cover=False)
             rd.outheaders['Content-Type'] = 'application/oebps-package+xml; charset=UTF-8'
