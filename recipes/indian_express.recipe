@@ -27,6 +27,7 @@ class IndianExpress(BasicNewsRecipe):
         blockquote{text-align:center; color:#404040;}
         em{font-style:italic; color:#808080;}
         #sub-d{color:#202020; font-style:italic;}
+        .ie-authorbox{font-size:small;}
     '''
     resolve_internal_links = True
     remove_empty_feeds = True
@@ -66,7 +67,9 @@ class IndianExpress(BasicNewsRecipe):
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
             ' storytags pdsc-related-modify news-guard premium-story append_social_share'
-            ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes related-widget immigrationimg'
+            ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg'
+            'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare'
+            ' custom-share o-story-paper-quite'
         )
     ]
 
