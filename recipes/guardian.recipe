@@ -93,14 +93,12 @@ class Guardian(BasicNewsRecipe):
         coverdate = date.today()
         if 'observer' in self.base_url:
             cover = (
-                    'https://www.thepaperboy.com/frontpages/archive/The_Observer_'
-                    + str(coverdate.day) + '_' + str(coverdate.month) + '_'
-                    + str(coverdate.year) + '_400.jpg')
+                    'https://www.thepaperboy.com/frontpages/archive/The_Observer_' + str(coverdate.day) + '_' +
+                    str(coverdate.month) + '_' + str(coverdate.year) + '_400.jpg')
         else:
             cover = (
-                    'https://www.thepaperboy.com/frontpages/archive/The_Guardian_'
-                    + str(coverdate.day) + '_' + str(coverdate.month) + '_'
-                    + str(coverdate.year) + '_400.jpg')
+                    'https://www.thepaperboy.com/frontpages/archive/The_Guardian_' + str(coverdate.day) + '_' +
+                    str(coverdate.month) + '_' + str(coverdate.year) + '_400.jpg')
 
         return cover
 
