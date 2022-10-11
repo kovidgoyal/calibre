@@ -649,7 +649,9 @@ Python Template Mode
 
 Python Template Mode (PTM) lets you write templates using native python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in python using the calibre API.
 
-A PTM template begins with::
+A PTM template begins with:
+
+.. code-block:: python
 
  python:
  def evaluate(book, db, globals, arguments, **kwargs):
@@ -664,7 +666,7 @@ A PTM template begins with::
 
 You can add the above text to your template using the context menu, usually accessed with a right click. The comments are not significant and can be removed. You must use python indenting.
 
-Here is an example of a PTM template that produces a list of all the authors for a series. The list is stored in a `Column built from other columns, behaves like tags`. It shows in :guilabel:`Book details` and has the `on separate lines` checked (in :guilabel:`Preferences->Look & feel->Book details`). That option requires the list to be comma-separated. To satisfy that requirement the template converts commas in author names to semicolons then builds a comma-separated list of authors. The authors are then sorted, which is why the template uses author_sort.::
+Here is an example of a PTM template that produces a list of all the authors for a series. The list is stored in a `Column built from other columns, behaves like tags`. It shows in :guilabel:`Book details` and has the :guilabel:`on separate lines` checked (in :guilabel:`Preferences->Look & feel->Book details`). That option requires the list to be comma-separated. To satisfy that requirement the template converts commas in author names to semicolons then builds a comma-separated list of authors. The authors are then sorted, which is why the template uses author_sort.::
 
     python:
     def evaluate(book, db, globals, arguments, **kwargs):
@@ -672,7 +674,7 @@ Here is an example of a PTM template that produces a list of all the authors for
             return ''
         ans = set()
         for id_ in db.search_getting_ids(f'series:"={book.series}"', ''):
-            ans.update([v.strip() for v in db.new_api.field_for('author_sort', id_).split('&')])
+            ans.update(v.strip() for v in db.new_api.field_for('author_sort', id_).split('&'))
         return ', '.join(v.replace(',', ';') for v in sorted(ans))
 
 The output in :guilabel:`Book details` looks like this:

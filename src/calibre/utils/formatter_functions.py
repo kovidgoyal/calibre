@@ -14,7 +14,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback, numbers
 from contextlib import suppress
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, auto
 from functools import partial
 from math import trunc, floor, ceil, modf
 
@@ -30,9 +30,9 @@ from polyglot.builtins import iteritems, itervalues
 
 
 class StoredObjectType(Enum):
-    PythonFunction = 1
-    StoredGPMTemplate = 2
-    StoredPythonTemplate = 3
+    PythonFunction = auto()
+    StoredGPMTemplate = auto()
+    StoredPythonTemplate = auto()
 
 
 class FormatterFunctions:

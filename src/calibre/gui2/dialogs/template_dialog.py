@@ -776,7 +776,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def textbox_changed(self):
         cur_text = str(self.textbox.toPlainText())
         if cur_text.startswith('python:'):
-            if self.highlighting_gpm == True:
+            if self.highlighting_gpm is True:
                 self.highlighter.initialize_rules(self.builtins, True)
                 self.highlighting_gpm = False
                 self.break_box.setChecked(False)

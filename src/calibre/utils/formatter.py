@@ -140,7 +140,7 @@ class StoredTemplateCallNode(Node):
         Node.__init__(self, line_number, 'call template: ' + name + '()')
         self.node_type = self.NODE_CALL_STORED_TEMPLATE
         self.name = name
-        self.function = function # instance of the definition class
+        self.function = function  # instance of the definition class
         self.expression_list = expression_list
 
 
@@ -1550,7 +1550,6 @@ class TemplateFormatter(string.Formatter):
             if compiled_text is None:
                 compiled_text = self.compile_python_template(func.program_text[len('python:'):])
                 func.cached_compiled_text = compiled_text
-            print(args)
             return self._run_python_template(compiled_text, args)
 
     def _eval_python_template(self, template, column_name):
@@ -1588,10 +1587,10 @@ class TemplateFormatter(string.Formatter):
             func = locals_['evaluate']
             return func
         except SyntaxError as e:
-            raise(ValueError(
-                _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text)))
+            raise ValueError(
+                _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text))
         except KeyError:
-            raise(ValueError(_("The {0} function is not defined in the template").format('evaluate')))
+            raise ValueError(_("The {0} function is not defined in the template").format('evaluate'))
 
     # ################# Override parent classes methods #####################
 

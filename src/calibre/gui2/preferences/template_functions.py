@@ -315,7 +315,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 return True
         try:
             prog = str(self.program.toPlainText())
-            cls = compile_user_function(name, str(self.documentation.toPlainText()),
+            compile_user_function(name, str(self.documentation.toPlainText()),
                                         self.argument_count.value(), prog)
         except:
             error_dialog(self.gui, _('Template functions'),

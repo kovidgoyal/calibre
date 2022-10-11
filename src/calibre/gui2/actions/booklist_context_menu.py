@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
-from qt.core import QPoint
 
 from calibre.gui2.actions import InterfaceAction
 
