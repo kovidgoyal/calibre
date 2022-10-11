@@ -630,7 +630,7 @@ the value of a custom field #genre. You cannot do this in the :ref:`Single Funct
 
 The example shows several things:
 
-* `TPM` is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
+* `TPM` is used if the expression begins with ``:'`` and ends with ``'}``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
 * the variable ``$`` stands for the field named in the template: the expression is operating upon, ``#series`` in this case.
 * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field.
 * white space is ignored and can be used anywhere within the expression.
@@ -642,16 +642,56 @@ In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors
 
 As with `General Program Mode`, for functions documented under :ref:`Single Function Mode <single_mode>` you must supply the value the function is to act upon as the first parameter in addition to the documented parameters. In `TPM` you can use ``$`` to access the value specified by the ``lookup name`` for the template expression.
 
-Stored general program mode templates
+.. _python_mode:
+
+Python Template Mode
+-----------------------------------
+
+Python Template Mode (PTM) lets you write templates using native python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in python using the calibre API.
+
+A PTM template begins with::
+
+ python:
+ def evaluate(book, db, globals, arguments, **kwargs):
+     # book is a calibre metadata object
+     # db is a calibre legacy database object
+     # globals is the template global variable dictionary
+     # arguments is a list of arguments if the template is called by a GPM template, otherwise None
+     # kwargs is a dictionary provided for future use
+
+     # Python code goes here
+	 return 'a string'
+
+You can add the above text to your template using the context menu, usually accessed with a right click. The comments are not significant and can be removed. You must use python indenting.
+
+Here is an example of a PTM template that produces a list of all the authors for a series. The list is stored in a `Column built from other columns, behaves like tags`. It shows in :guilabel:`Book details` and has the `on separate lines` checked (in :guilabel:`Preferences->Look & feel->Book details`). That option requires the list to be comma-separated. To satisfy that requirement the template converts commas in author names to semicolons then builds a comma-separated list of authors. The authors are then sorted, which is why the template uses author_sort.::
+
+    python:
+    def evaluate(book, db, globals, arguments, **kwargs):
+        if book.series is None:
+            return ''
+        ans = set()
+        for id_ in db.search_getting_ids(f'series:"={book.series}"', ''):
+            ans.update([v.strip() for v in db.new_api.field_for('author_sort', id_).split('&')])
+        return ', '.join(v.replace(',', ';') for v in sorted(ans))
+
+The output in :guilabel:`Book details` looks like this:
+
+.. image:: images/python_template_example.png
+    :align: center
+    :alt: E-book conversion dialog
+    :class: half-width-img
+
+Stored templates
 ----------------------------------------
 
-:ref:`General Program Mode <general_mode>` supports saving templates and calling those templates from another template, much like calling stored functions. You save templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call a template the same way you call a function, passing positional arguments if desired. An argument can be any expression. Examples of calling a template, assuming the stored template is named ``foo``:
+Both :ref:`General Program Mode <general_mode>` and :ref:`Python Template Mode <python_mode>` support saving templates and calling those templates from another template, much like calling stored functions. You save templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call a template the same way you call a function, passing positional arguments if desired. An argument can be any expression. Examples of calling a template, assuming the stored template is named ``foo``:
 
 * ``foo()`` -- call the template passing no arguments.
 * ``foo(a, b)`` call the template passing the values of the two variables ``a`` and ``b``.
 * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the ``series_index``, otherwise pass the value ``0``.
 
-You retrieve the arguments passed in the call to the stored template using the ``arguments`` function. It both declares and initializes local variables, effectively parameters. The variables are positional; they get the value of the parameter given in the call in the same position. If the corresponding parameter is not provided in the call then ``arguments`` assigns that variable the provided default value. If there is no default value then the variable is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
+In GPM you retrieve the arguments passed in the call to the stored template using the ``arguments`` function. It both declares and initializes local variables, effectively parameters. The variables are positional; they get the value of the parameter given in the call in the same position. If the corresponding parameter is not provided in the call then ``arguments`` assigns that variable the provided default value. If there is no default value then the variable is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
 
   arguments(key, alternate='series')
 
@@ -660,6 +700,8 @@ Examples, again assuming the stored template is named ``foo``:
 * ``foo('#myseries')`` -- argument ``key`` is assigned the value ``'myseries'`` and the argument ``alternate`` is assigned the default value ``'series'``.
 * ``foo('series', '#genre')`` the variable ``key`` is assigned the value ``'series'`` and the variable ``alternate`` is assigned the value ``'#genre'``.
 * ``foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``'series'``.
+
+In PTM the arguments are passed in the ``arguments`` parameter, which is a list of strings. There isn't any way to specify default values. You must check the length of the ``arguments`` list to be sure that the number of arguments is what you expect.
 
 An easy way to test stored templates is using the ``Template tester`` dialog. For ease of access give it a keyboard shortcut in :guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a shortcut will help switching more rapidly between the tester and editing the stored template's source code.
 

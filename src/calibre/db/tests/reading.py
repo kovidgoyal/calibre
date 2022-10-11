@@ -811,3 +811,58 @@ class ReadingTest(BaseTest):
         v = formatter.safe_format('program: book_values("rating", "title:true", ",", 0)', {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(set(v.split(',')), {'4', '6'})
     # }}}
+
+    def test_python_templates(self):  # {{{
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
+        formatter = SafeFormat()
+
+        # need an empty metadata object to pass to the formatter
+        db = self.init_legacy(self.library_path)
+        mi = db.get_metadata(1)
+
+        # test counting books matching a search
+        template = '''python:
+def evaluate(book, db, **kwargs):
+    ids = db.new_api.search("series:true")
+    return str(len(ids))
+'''
+        v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, '2')
+
+        # test counting books when none match the search
+        template = '''python:
+def evaluate(book, db, **kwargs):
+    ids = db.new_api.search("series:afafaf")
+    return str(len(ids))
+'''
+        v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, '0')
+
+        # test is_multiple values
+        template = '''python:
+def evaluate(book, db, **kwargs):
+    tags = db.new_api.all_field_names('tags')
+    return ','.join(list(tags))
+'''
+        v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
+
+        # test calling a python stored template from a GPM template
+        from calibre.utils.formatter_functions import (
+                load_user_template_functions, unload_user_template_functions)
+        load_user_template_functions('aaaaa',
+                                     [['python_stored_template',
+                                      "",
+                                      0,
+                                      '''python:
+def evaluate(book, db, globals, arguments):
+    tags = set(db.new_api.all_field_names('tags'))
+    tags.add(arguments[0])
+    return ','.join(list(tags))
+'''
+                                      ]], None)
+        v = formatter.safe_format('program: python_stored_template("one argument")', {},
+                                  'TEMPLATE ERROR', mi)
+        unload_user_template_functions('aaaaa')
+        self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two', 'one argument'})
+    # }}}

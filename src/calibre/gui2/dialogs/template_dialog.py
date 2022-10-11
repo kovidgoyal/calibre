@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
-from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.formatter_functions import formatter_functions, StoredObjectType
 from calibre.utils.formatter import StopException
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
@@ -42,48 +42,92 @@ class ParenPosition:
 
 
 class TemplateHighlighter(QSyntaxHighlighter):
+    # Code in this class is liberally borrowed from gui2.widgets.PythonHighlighter
 
     BN_FACTOR = 1000
 
-    KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
-                'separator', 'break', 'continue', 'return', 'in', 'inlist',
-                'def', 'fed', 'limit']
+    KEYWORDS_GPM = ['if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
+                    'separator', 'break', 'continue', 'return', 'in', 'inlist',
+                    'def', 'fed', 'limit']
+
+    KEYWORDS_PYTHON = ["and", "as", "assert", "break", "class", "continue", "def",
+                       "del", "elif", "else", "except", "exec", "finally", "for", "from",
+                       "global", "if", "import", "in", "is", "lambda", "not", "or",
+                       "pass", "print", "raise", "return", "try", "while", "with",
+                       "yield"]
+
+    BUILTINS_PYTHON = ["abs", "all", "any", "basestring", "bool", "callable", "chr",
+                       "classmethod", "cmp", "compile", "complex", "delattr", "dict",
+                       "dir", "divmod", "enumerate", "eval", "execfile", "exit", "file",
+                       "filter", "float", "frozenset", "getattr", "globals", "hasattr",
+                       "hex", "id", "int", "isinstance", "issubclass", "iter", "len",
+                       "list", "locals", "long", "map", "max", "min", "object", "oct",
+                       "open", "ord", "pow", "property", "range", "reduce", "repr",
+                       "reversed", "round", "set", "setattr", "slice", "sorted",
+                       "staticmethod", "str", "sum", "super", "tuple", "type", "unichr",
+                       "unicode", "vars", "xrange", "zip"]
+
+    CONSTANTS_PYTHON = ["False", "True", "None", "NotImplemented", "Ellipsis"]
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
         self.initialize_formats()
-        self.initialize_rules(builtin_functions)
+        self.initialize_rules(builtin_functions, for_python=False)
         self.regenerate_paren_positions()
         self.highlighted_paren = False
 
-    def initialize_rules(self, builtin_functions):
+    def initialize_rules(self, builtin_functions, for_python=False):
+        self.for_python = for_python
         r = []
 
         def a(a, b):
             r.append((re.compile(a), b))
 
-        a(
-            r"\b[a-zA-Z]\w*\b(?!\(|\s+\()"
-            r"|\$+#?[a-zA-Z]\w*",
-            "identifier")
+        if not for_python:
+            a(
+                r"\b[a-zA-Z]\w*\b(?!\(|\s+\()"
+                r"|\$+#?[a-zA-Z]\w*",
+                "identifier")
 
-        a(
-            "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS]),
-            "keyword")
+            a(r"^program:", "keymode")
+            a(
+                "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_GPM]),
+                "keyword")
 
-        a(
-            "|".join([r"\b%s\b" % builtin for builtin in
-                        (builtin_functions if builtin_functions else
-                                            formatter_functions().get_builtins())]),
-            "builtin")
+            a(
+                "|".join([r"\b%s\b" % builtin for builtin in
+                            (builtin_functions if builtin_functions else
+                                                formatter_functions().get_builtins())]),
+                "builtin")
 
+            a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
+        else:
+            a(r"^python:", "keymode")
+
+            a(
+                "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON]),
+                "keyword")
+            a(
+                "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS_PYTHON]),
+                "builtin")
+            a(
+                "|".join([r"\b%s\b" % constant for constant in self.CONSTANTS_PYTHON]),
+                "constant")
+
+            a(r"\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b", "pyqt")
+            a(r"@\w+(\.\w+)?\b", "decorator")
+
+            a(r"""('|").*?\1""", "string")
+            stringRe = r"""((?:"|'){3}).*?\1"""
+            a(stringRe, "string")
+            self.stringRe = re.compile(stringRe)
+            self.tripleSingleRe = re.compile(r"""'''(?!")""")
+            self.tripleDoubleRe = re.compile(r'''"""(?!')''')
         a(
             r"\b[+-]?[0-9]+[lL]?\b"
             r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
             r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b",
             "number")
-
-        a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
 
         a(r'\(', "lparen")
         a(r'\)', "rparen")
@@ -100,16 +144,23 @@ class TemplateHighlighter(QSyntaxHighlighter):
         config = self.Config = {}
         config["fontfamily"] = font_name
         app_palette = QApplication.instance().palette()
-        for name, color, bold, italic in (
-                ("normal", None, False, False),
-                ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
-                ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
-                ("identifier", None, False, True),
-                ("comment", "#007F00", False, True),
-                ("string", "#808000", False, False),
-                ("number", "#924900", False, False),
-                ("lparen", None, True, True),
-                ("rparen", None, True, True)):
+
+        all_formats = (
+            # name, color, bold, italic
+            ("normal", None, False, False),
+            ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
+            ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ("constant", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ("identifier", None, False, True),
+            ("comment", "#007F00", False, True),
+            ("string", "#808000", False, False),
+            ("number", "#924900", False, False),
+            ("decorator", "#FF8000", False, True),
+            ("pyqt", None, False, False),
+            ("lparen", None, True, True),
+            ("rparen", None, True, True))
+
+        for name, color, bold, italic in all_formats:
             config["%sfontcolor" % name] = color
             config["%sfontbold" % name] = bold
             config["%sfontitalic" % name] = italic
@@ -119,8 +170,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         base_format.setFontPointSize(config["fontsize"])
 
         self.Formats = {}
-        for name in ("normal", "keyword", "builtin", "comment", "identifier",
-                     "string", "number", "lparen", "rparen"):
+        for name, color, bold, italic in all_formats:
             format_ = QTextCharFormat(base_format)
             color = config["%sfontcolor" % name]
             if color:
@@ -135,6 +185,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
         return self.paren_pos_map.get(dex, None)
 
     def highlightBlock(self, text):
+        NORMAL, TRIPLESINGLE, TRIPLEDOUBLE = range(3)
+
         bn = self.currentBlock().blockNumber()
         textLength = len(text)
 
@@ -145,6 +197,17 @@ class TemplateHighlighter(QSyntaxHighlighter):
         elif text[0] == "#":
             self.setFormat(0, textLength, self.Formats["comment"])
             return
+        elif self.for_python:
+            stack = []
+            for i, c in enumerate(text):
+                if c in ('"', "'"):
+                    if stack and stack[-1] == c:
+                        stack.pop()
+                    else:
+                        stack.append(c)
+                elif c == "#" and len(stack) == 0:
+                    self.setFormat(i, len(text), self.Formats["comment"])
+                    return
 
         for regex, format_ in self.Rules:
             for m in regex.finditer(text):
@@ -153,8 +216,30 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     pp = self.find_paren(bn, i)
                     if pp and pp.highlight:
                         self.setFormat(i, length, self.Formats[format_])
+                elif format_ == 'keymode':
+                    if bn > 0 and i == 0:
+                        continue
+                    self.setFormat(i, length, self.Formats['keyword'])
                 else:
                     self.setFormat(i, length, self.Formats[format_])
+
+        self.setCurrentBlockState(NORMAL)
+
+        if self.for_python and self.stringRe.search(text) is None:
+            # This is fooled by triple quotes inside single quoted strings
+            for m, state in (
+                (self.tripleSingleRe.search(text), TRIPLESINGLE),
+                (self.tripleDoubleRe.search(text), TRIPLEDOUBLE)
+            ):
+                i = -1 if m is None else m.start()
+                if self.previousBlockState() == state:
+                    if i == -1:
+                        i = len(text)
+                        self.setCurrentBlockState(state)
+                    self.setFormat(0, i + 3, self.Formats["string"])
+                elif i > -1:
+                    self.setCurrentBlockState(state)
+                    self.setFormat(i, len(text), self.Formats["string"])
 
         if self.generate_paren_positions:
             t = str(text)
@@ -327,6 +412,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.set_mi(mi, fm)
 
         self.last_text = ''
+        self.highlighting_gpm = True
         self.highlighter = TemplateHighlighter(self.textbox.document(), builtin_functions=self.builtins)
         self.textbox.cursorPositionChanged.connect(self.text_cursor_changed)
         self.textbox.textChanged.connect(self.textbox_changed)
@@ -494,9 +580,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             ca.setIcon(QIcon.ic('ok.png'))
         ca.triggered.connect(partial(self.set_word_wrap, not word_wrapping))
         m.addSeparator()
-        ca = m.addAction(_('Load template from the Template tester'))
-        ca.triggered.connect(self.load_last_template_text)
+        ca = m.addAction(_('Add python template definition text'))
+        ca.triggered.connect(self.add_python_template_header_text)
         m.addSeparator()
+        ca = m.addAction(_('Load template from the Template tester'))
+        m.addSeparator()
+        ca.triggered.connect(self.load_last_template_text)
         ca = m.addAction(_('Load template from file'))
         ca.setIcon(QIcon.ic('document_open.png'))
         ca.triggered.connect(self.load_template_from_file)
@@ -504,6 +593,19 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         ca.setIcon(QIcon.ic('save.png'))
         ca.triggered.connect(self.save_template)
         m.exec(self.textbox.mapToGlobal(point))
+
+    def add_python_template_header_text(self):
+        self.textbox.setPlainText('python:\n'
+                                  'def evaluate(book, db, globals, arguments, **kwargs):\n'
+                                  '\t# book is a calibre metadata object\n'
+                                  '\t# db is a calibre legacy database object\n'
+                                  '\t# globals is the template global variable dictionary\n'
+                                  '\t# arguments is a list of arguments if the template is '
+                                        'called by a GPM template, otherwise None\n'
+                                  '\t# kwargs is a dictionary provided for future use'
+                                  '\n\n\t# Python code goes here\n'
+                                  "\treturn 'a string'" +
+                                  self.textbox.toPlainText())
 
     def set_word_wrap(self, to_what):
         gprefs['gpm_template_editor_word_wrap_mode'] = to_what
@@ -673,6 +775,16 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def textbox_changed(self):
         cur_text = str(self.textbox.toPlainText())
+        if cur_text.startswith('python:'):
+            if self.highlighting_gpm == True:
+                self.highlighter.initialize_rules(self.builtins, True)
+                self.highlighting_gpm = False
+                self.break_box.setChecked(False)
+                self.break_box.setEnabled(False)
+        elif not self.highlighting_gpm:
+            self.highlighter.initialize_rules(self.builtins, False)
+            self.highlighting_gpm = True
+            self.break_box.setEnabled(True)
         if self.last_text != cur_text:
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
@@ -688,7 +800,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             w = tv.cellWidget(r, 0)
             w.setText(mi.title)
             w.setCursorPosition(0)
-            v = SafeFormat().safe_format(txt, mi, _('EXCEPTION: '),
+            v = SafeFormat().safe_format(txt, mi, _('EXCEPTION:'),
                              mi, global_vars=self.global_vars,
                              template_functions=self.all_functions,
                              break_reporter=self.break_reporter if r == break_on_mi else None)
@@ -707,14 +819,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                                               pos_in_block)
 
     def function_type_string(self, name, longform=True):
-        if self.all_functions[name].is_python:
+        if self.all_functions[name].object_type is StoredObjectType.PythonFunction:
             if name in self.builtins:
                 return (_('Built-in template function') if longform else
                             _('Built-in function'))
             return (_('User defined Python template function') if longform else
                             _('User function'))
-        else:
-            return (_('Stored user defined template') if longform else _('Stored template'))
+        elif self.all_functions[name].object_type is StoredObjectType.StoredPythonTemplate:
+            return (_('Stored user defined python template') if longform else _('Stored template'))
+        return (_('Stored user defined GPM template') if longform else _('Stored template'))
 
     def function_changed(self, toWhat):
         name = str(self.function.itemData(toWhat))
