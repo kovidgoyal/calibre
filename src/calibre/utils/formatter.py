@@ -3,12 +3,12 @@ Created on 23 Sep 2010
 
 @author: charles
 '''
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, string, traceback, numbers
+from collections import OrderedDict
 from functools import partial
 from math import modf
 from sys import exc_info
@@ -830,6 +830,40 @@ class StopException(Exception):
         super().__init__('Template evaluation stopped')
 
 
+class PythonTemplateContext(object):
+
+    def __init__(self, **kwargs):
+        # Set attributes we already know must exist.
+        self.db = None
+        self.arguments = None
+        self.globals = None
+
+        attrs_set = {'db', 'arguments', 'globals'}
+
+        # Create/set attributes from the named parameters. Doing it this way we
+        # aren't required to change the signature of __init__ if/when we add
+        # attributes in the future. However, if a user depends upon the
+        # existence of some attribute and the context creator doesn't supply it
+        # then the user will get an AttributeError exception.
+        for k,v in kwargs.items():
+            attrs_set.add(k)
+            setattr(self, k, v)
+        self.attrs_set = attrs_set
+
+    @property
+    def attributes(self):
+        # return a list of attributes in the context object
+        return sorted(list(self.attrs_set))
+
+    def __str__(self):
+        # return a string of the attribute with values separated by newlines
+        attrs = sorted(list(self.attrs_set))
+        ans = OrderedDict()
+        for k in attrs:
+            ans[k] = getattr(self, k, None)
+        return '\n'.join(f'{k}:{v}' for k,v in ans.items())
+
+
 class _Interpreter:
     def error(self, message, line_number):
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
@@ -1564,10 +1598,11 @@ class TemplateFormatter(string.Formatter):
 
     def _run_python_template(self, compiled_template, arguments):
         try:
-            return compiled_template(book=self.book,
-                                     db=get_database(self.book, get_database(self.book, None)),
-                                     globals=self.global_vars,
-                                     arguments=arguments)
+            return compiled_template(self.book,
+                                     PythonTemplateContext(
+                                         db=get_database(self.book, get_database(self.book, None)),
+                                         globals=self.global_vars,
+                                         arguments=arguments))
         except Exception as e:
             ss = traceback.extract_tb(exc_info()[2])[-1]
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
