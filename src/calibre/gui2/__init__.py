@@ -28,6 +28,7 @@ from calibre.constants import (
     islinux, ismacos, iswindows, isxp, numeric_version, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
+from calibre.gui2.geometry import geometry_for_restore_as_dict
 from calibre.gui2.linux_file_dialogs import (
     check_for_linux_native_dialogs, linux_native_dialog
 )
@@ -44,7 +45,7 @@ from calibre.utils.resources import user_dir
 from polyglot import queue
 from polyglot.builtins import iteritems, string_or_bytes
 
-del pqc
+del pqc, geometry_for_restore_as_dict
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 
 
