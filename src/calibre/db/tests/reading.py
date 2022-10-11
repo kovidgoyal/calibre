@@ -846,4 +846,23 @@ def evaluate(book, db, **kwargs):
 '''
         v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
+
+        # test calling a python stored template from a GPM template
+        from calibre.utils.formatter_functions import (
+                load_user_template_functions, unload_user_template_functions)
+        load_user_template_functions('aaaaa',
+                                     [['python_stored_template',
+                                      "",
+                                      0,
+                                      '''python:
+def evaluate(book, db, globals, arguments):
+    tags = set(db.new_api.all_field_names('tags'))
+    tags.add(arguments[0])
+    return ','.join(list(tags))
+'''
+                                      ]], None)
+        v = formatter.safe_format('program: python_stored_template("one argument")', {},
+                                  'TEMPLATE ERROR', mi)
+        unload_user_template_functions('aaaaa')
+        self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two', 'one argument'})
     # }}}
