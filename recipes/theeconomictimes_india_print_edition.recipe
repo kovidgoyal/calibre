@@ -1,3 +1,4 @@
+
 '''
 economictimes.indiatimes.com
 '''
@@ -19,12 +20,27 @@ class TheEconomicTimes(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/98/The_Economic_Times_logo.svg'
-    cover_url = 'https://www.readwhere.com/read/imageapi/coverforissue/3034969/magazine/600'
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = '''
     .summary {font-weight:normal; font-size:normal; font-style:italic;}
     time{font-size:small;}
     '''
+
+    def get_cover_url(self):
+        from datetime import date
+        yr = str(date.today().year)
+        mn = date.today().strftime('%m')
+        dy = date.today().strftime('%d')
+        cover = 'https://asset.harnscloud.com/PublicationData/ET/etbg/'\
+         + yr + '/' + mn + '/' + dy + '/Page/' + dy + '_' + mn + '_' + yr + '_001_etbg.jpg'
+        self.log('cover_url ', cover)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     keep_only_tags = [
         dict(name='h1'),
