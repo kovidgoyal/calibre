@@ -89,7 +89,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 r"|\$+#?[a-zA-Z]\w*",
                 "identifier")
 
-            a(r"^\bprogram\b:", "keyword")
+            a(r"^program:", "keymode")
             a(
                 "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_GPM]),
                 "keyword")
@@ -102,7 +102,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
             a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
         else:
-            a(r"^\bpython\b:", "keyword")
+            a(r"^python:", "keymode")
 
             a(
                 "|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON]),
@@ -111,14 +111,14 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS_PYTHON]),
                 "builtin")
             a(
-                "|".join([r"\b%s\b" % constant
-                for constant in self.CONSTANTS_PYTHON]), "constant")
+                "|".join([r"\b%s\b" % constant for constant in self.CONSTANTS_PYTHON]),
+                "constant")
 
             a(r"\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b", "pyqt")
             a(r"@\w+(\.\w+)?\b", "decorator")
 
-            a(r"""(?:'[^']*?'|"[^"]*?")""", "string")
-            stringRe = r"""((:?"|'){3}).*?\1"""
+            a(r"""('|").*?\1""", "string")
+            stringRe = r"""((?:"|'){3}).*?\1"""
             a(stringRe, "string")
             self.stringRe = re.compile(stringRe)
             self.tripleSingleRe = re.compile(r"""'''(?!")""")
@@ -216,14 +216,11 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     pp = self.find_paren(bn, i)
                     if pp and pp.highlight:
                         self.setFormat(i, length, self.Formats[format_])
-                elif format_ == 'keyword':
+                elif format_ == 'keymode':
                     if bn > 0 and i == 0:
-                        if text[i:i+length] == ('python:' if self.for_python else 'program:'):
-                            continue
-                    print('bn', bn, format_, text[i:i+length])
-                    self.setFormat(i, length, self.Formats[format_])
+                        continue
+                    self.setFormat(i, length, self.Formats['keyword'])
                 else:
-                    print('bn', bn, format_, text[i:i+length])
                     self.setFormat(i, length, self.Formats[format_])
 
         self.setCurrentBlockState(NORMAL)
