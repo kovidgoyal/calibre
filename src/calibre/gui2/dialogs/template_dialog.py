@@ -595,17 +595,18 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         m.exec(self.textbox.mapToGlobal(point))
 
     def add_python_template_header_text(self):
-        self.textbox.setPlainText('python:\n'
-                                  'def evaluate(book, db, globals, arguments, **kwargs):\n'
-                                  '\t# book is a calibre metadata object\n'
-                                  '\t# db is a calibre legacy database object\n'
-                                  '\t# globals is the template global variable dictionary\n'
-                                  '\t# arguments is a list of arguments if the template is '
-                                        'called by a GPM template, otherwise None\n'
-                                  '\t# kwargs is a dictionary provided for future use'
-                                  '\n\n\t# Python code goes here\n'
-                                  "\treturn 'a string'" +
-                                  self.textbox.toPlainText())
+        self.textbox.setPlainText('''python:
+def evaluate(book, context):
+    # book is a calibre metadata object
+    # context is an instance of calibre.utils.formatter.PythonTemplateContext,
+    # which currently contains the following attributes:
+    # db: a calibre legacy database object
+    # globals: the template global variable dictionary
+    # arguments: is a list of arguments if the template is called by a GPM template, otherwise None
+
+    # your Python code goes here
+    return 'a string'
+''')
 
     def set_word_wrap(self, to_what):
         gprefs['gpm_template_editor_word_wrap_mode'] = to_what

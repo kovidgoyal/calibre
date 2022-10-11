@@ -822,8 +822,8 @@ class ReadingTest(BaseTest):
 
         # test counting books matching a search
         template = '''python:
-def evaluate(book, db, **kwargs):
-    ids = db.new_api.search("series:true")
+def evaluate(book, ctx):
+    ids = ctx.db.new_api.search("series:true")
     return str(len(ids))
 '''
         v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
@@ -831,8 +831,8 @@ def evaluate(book, db, **kwargs):
 
         # test counting books when none match the search
         template = '''python:
-def evaluate(book, db, **kwargs):
-    ids = db.new_api.search("series:afafaf")
+def evaluate(book, ctx):
+    ids = ctx.db.new_api.search("series:afafaf")
     return str(len(ids))
 '''
         v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
@@ -840,8 +840,8 @@ def evaluate(book, db, **kwargs):
 
         # test is_multiple values
         template = '''python:
-def evaluate(book, db, **kwargs):
-    tags = db.new_api.all_field_names('tags')
+def evaluate(book, ctx):
+    tags = ctx.db.new_api.all_field_names('tags')
     return ','.join(list(tags))
 '''
         v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
@@ -855,9 +855,9 @@ def evaluate(book, db, **kwargs):
                                       "",
                                       0,
                                       '''python:
-def evaluate(book, db, globals, arguments):
-    tags = set(db.new_api.all_field_names('tags'))
-    tags.add(arguments[0])
+def evaluate(book, ctx):
+    tags = set(ctx.db.new_api.all_field_names('tags'))
+    tags.add(ctx.arguments[0])
     return ','.join(list(tags))
 '''
                                       ]], None)
