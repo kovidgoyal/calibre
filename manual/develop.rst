@@ -33,7 +33,7 @@ fetching news. For more examples of plugins designed to add features to calibre,
 Code layout
 ^^^^^^^^^^^^^^
 
-All the calibre python code is in the ``calibre`` package. This package contains the following main sub-packages
+All the calibre Python code is in the ``calibre`` package. This package contains the following main sub-packages
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
 

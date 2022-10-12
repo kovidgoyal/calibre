@@ -827,7 +827,7 @@ def evaluate(book, context):
             return (_('User defined Python template function') if longform else
                             _('User function'))
         elif self.all_functions[name].object_type is StoredObjectType.StoredPythonTemplate:
-            return (_('Stored user defined python template') if longform else _('Stored template'))
+            return (_('Stored user defined Python template') if longform else _('Stored template'))
         return (_('Stored user defined GPM template') if longform else _('Stored template'))
 
     def function_changed(self, toWhat):

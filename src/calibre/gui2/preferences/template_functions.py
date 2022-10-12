@@ -91,7 +91,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         either begin with the text '{0}' or be {1}. You retrieve arguments
         passed to a GPM stored template using the '{2}()' template function, as
         in '{2}(var1, var2, ...)'. The passed arguments are copied to the named
-        variables. Arguments passed to a python template are in the '{2}'
+        variables. Arguments passed to a Python template are in the '{2}'
         parameter. Arguments are always strings.</p>
 
         <p>For example, this stored template checks if any items are in a
