@@ -677,10 +677,17 @@ Here is an example of a PTM template that produces a list of all the authors for
     def evaluate(book, context):
         if book.series is None:
             return ''
+        db = context.db.new_api
         ans = set()
-        db = context.db
-        for id_ in db.search_getting_ids(f'series:"={book.series}"', ''):
-            ans.update(v.strip() for v in db.new_api.field_for('author_sort', id_).split('&'))
+        # Get the list of books in the series
+        ids = db.search(f'series:"={book.series}"', '')
+        if ids:
+            # Get all the author_sort values for the books in the series
+            author_sorts = (v for v in db.all_field_for('author_sort', ids).values())
+            # Add the names to the result set, removing duplicates
+            for aus in author_sorts:
+                ans.update(v.strip() for v in aus.split('&'))
+        # Make a sorted comma-separated string from the result set
         return ', '.join(v.replace(',', ';') for v in sorted(ans))
 
 The output in :guilabel:`Book details` looks like this:
