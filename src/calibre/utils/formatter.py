@@ -1602,11 +1602,16 @@ class TemplateFormatter(string.Formatter):
                          db=get_database(self.book, get_database(self.book, None)),
                          globals=self.global_vars,
                          arguments=arguments)
-            return compiled_template(self.book, self.python_context_object)
+            rslt = compiled_template(self.book, self.python_context_object)
         except Exception as e:
             ss = traceback.extract_tb(exc_info()[2])[-1]
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
                             ss.name, ss.lineno, type(e).__name__, str(e)))
+        
+        if not isinstance(rslt, str):
+            raise ValueError(_('The Python template does not return a string'))
+        
+        return rslt
 
     def compile_python_template(self, template):
         def replace_func(mo):
