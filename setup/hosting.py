@@ -364,11 +364,14 @@ def generate_index():  # {{{
                     x for x in files if x.endswith('.txz') or x.endswith('tar.bz2')
                 ]
                 if linux:
+                    if 'i686' in x:
+                        itype = 'Linux Intel 32-bit binary'
+                    elif 'arm64' in x:
+                        itype = 'Linux ARM 64-bit binary'
+                    else:
+                        itype = 'Linux Intel 64-bit binary'
                     linux = [
-                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(
-                            x, 'Linux 64-bit binary'
-                            if 'x86_64' in x else 'Linux ARM 64-bit binary'
-                        ) for x in linux
+                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(x, itype) for x in linux
                     ]
                     body.append(
                         '<dt>Linux</dt><dd><ul>{}</ul></dd>'.format(
