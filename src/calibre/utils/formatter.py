@@ -838,7 +838,9 @@ class PythonTemplateContext(object):
         self.db = None
         self.arguments = None
         self.globals = None
-        self.attrs_set = {'db', 'arguments', 'globals'}
+        self.formatter = None
+        self.funcs = None
+        self.attrs_set = {'db', 'arguments', 'globals', 'formatter', 'funcs'}
 
     def set_values(self, **kwargs):
         # Create/set attributes from the named parameters. Doing it this way we
@@ -862,6 +864,40 @@ class PythonTemplateContext(object):
         for k in attrs:
             ans[k] = getattr(self, k, None)
         return '\n'.join(f'{k}:{v}' for k,v in ans.items())
+
+
+class FormatterFuncsCaller():
+    '''
+    Provides a convenient solution for call the funcs loaded in a TemplateFormatter
+    The funcs can be called by their name as attribut of this class, plus a _ 'underscore' a the end (Python keyword conflicts)
+    If the name contain a illegal character for a attribut (like .:-), use getattr()
+    '''
+
+    def __init__(self, formatter):
+        from functools import partial
+        object.__init__(self)
+
+        def call(name, *args):
+            func = formatter.funcs[name]
+            args = [str(a) for a in args]
+            try:
+                if func.object_type == StoredObjectType.PythonFunction:
+                    rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
+                else:
+                    rslt = formatter._eval_sfm_call(name, args, formatter.global_vars)
+
+            except Exception as e:
+                # Change the error message to return this used name on the template
+                e = e.__class__('Error in the function {0} :: {1}'.format(
+                        name+'_',
+                        re.sub(r'\w+\.evaluate\(\)', name+'_()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
+                e.is_internal = True
+                raise e
+            
+            return rslt
+
+        for name in formatter.funcs.keys():
+            setattr(self, name+'_', partial(call, name)) # _ at the end to avoid conflicts with the Python keyword
 
 
 class _Interpreter:
@@ -1601,10 +1637,20 @@ class TemplateFormatter(string.Formatter):
             self.python_context_object.set_values(
                          db=get_database(self.book, get_database(self.book, None)),
                          globals=self.global_vars,
-                         arguments=arguments)
+                         arguments=arguments,
+                         formatter=self,
+                         funcs=self._caller)
             rslt = compiled_template(self.book, self.python_context_object)
         except Exception as e:
-            ss = traceback.extract_tb(exc_info()[2])[-1]
+            stack = traceback.extract_tb(exc_info()[2])
+            ss = stack[-1]
+            if getattr(e, 'is_internal', False):
+                # Exception raised by FormatterFuncsCaller
+                # get the line inside the current template instead of the FormatterFuncsCaller
+                for ss in reversed(traceback.extract_tb(exc_info()[2])):
+                    if ss.filename == '<string>':
+                        break
+            
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
                             ss.name, ss.lineno, type(e).__name__, str(e)))
         if not isinstance(rslt, str):
@@ -1794,6 +1840,7 @@ class TemplateFormatter(string.Formatter):
                 self.python_context_object = python_context_object
             else:
                 self.python_context_object = PythonTemplateContext()
+            self._caller = FormatterFuncsCaller(self)
             return self.evaluate(fmt, [], kwargs, self.global_vars)
         finally:
             self.restore_state(state)
@@ -1826,6 +1873,7 @@ class TemplateFormatter(string.Formatter):
             else:
                 self.funcs = formatter_functions().get_functions()
             self.locals = {}
+            self._caller = FormatterFuncsCaller(self)
             try:
                 ans = self.evaluate(fmt, [], kwargs, self.global_vars, break_reporter=break_reporter)
             except StopException as e:
