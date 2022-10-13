@@ -832,23 +832,23 @@ class StopException(Exception):
 
 class PythonTemplateContext(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         # Set attributes we already know must exist.
+        object.__init__(self)
         self.db = None
         self.arguments = None
         self.globals = None
+        self.attrs_set = {'db', 'arguments', 'globals'}
 
-        attrs_set = {'db', 'arguments', 'globals'}
-
+    def set_values(self, **kwargs):
         # Create/set attributes from the named parameters. Doing it this way we
-        # aren't required to change the signature of __init__ if/when we add
+        # aren't required to change the signature of this method if/when we add
         # attributes in the future. However, if a user depends upon the
         # existence of some attribute and the context creator doesn't supply it
         # then the user will get an AttributeError exception.
         for k,v in kwargs.items():
-            attrs_set.add(k)
+            self.attrs_set.add(k)
             setattr(self, k, v)
-        self.attrs_set = attrs_set
 
     @property
     def attributes(self):
@@ -1598,11 +1598,11 @@ class TemplateFormatter(string.Formatter):
 
     def _run_python_template(self, compiled_template, arguments):
         try:
-            return compiled_template(self.book,
-                                     PythonTemplateContext(
-                                         db=get_database(self.book, get_database(self.book, None)),
-                                         globals=self.global_vars,
-                                         arguments=arguments))
+            self.python_context_object.set_values(
+                         db=get_database(self.book, get_database(self.book, None)),
+                         globals=self.global_vars,
+                         arguments=arguments)
+            return compiled_template(self.book, self.python_context_object)
         except Exception as e:
             ss = traceback.extract_tb(exc_info()[2])[-1]
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
@@ -1776,7 +1776,8 @@ class TemplateFormatter(string.Formatter):
 
     # ######### a formatter that throws exceptions ############
 
-    def unsafe_format(self, fmt, kwargs, book, strip_results=True, global_vars=None):
+    def unsafe_format(self, fmt, kwargs, book, strip_results=True, global_vars=None,
+                      python_context_object=None):
         state = self.save_state()
         try:
             self.strip_results = strip_results
@@ -1786,6 +1787,10 @@ class TemplateFormatter(string.Formatter):
             self.composite_values = {}
             self.locals = {}
             self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+            if isinstance(python_context_object, PythonTemplateContext):
+                self.python_context_object = python_context_object
+            else:
+                self.python_context_object = PythonTemplateContext()
             return self.evaluate(fmt, [], kwargs, self.global_vars)
         finally:
             self.restore_state(state)
@@ -1795,7 +1800,8 @@ class TemplateFormatter(string.Formatter):
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
-                    global_vars=None, break_reporter=None):
+                    global_vars=None, break_reporter=None,
+                    python_context_object=None):
         state = self.save_state()
         if self.recursion_level == 0:
             # Initialize the composite values dict if this is the base-level
@@ -1808,6 +1814,10 @@ class TemplateFormatter(string.Formatter):
             self.kwargs = kwargs
             self.book = book
             self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+            if isinstance(python_context_object, PythonTemplateContext):
+                self.python_context_object = python_context_object
+            else:
+                self.python_context_object = PythonTemplateContext()
             if template_functions:
                 self.funcs = template_functions
             else:
