@@ -1607,10 +1607,8 @@ class TemplateFormatter(string.Formatter):
             ss = traceback.extract_tb(exc_info()[2])[-1]
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
                             ss.name, ss.lineno, type(e).__name__, str(e)))
-        
         if not isinstance(rslt, str):
-            raise ValueError(_('The Python template does not return a string'))
-        
+            raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))
         return rslt
 
     def compile_python_template(self, template):
