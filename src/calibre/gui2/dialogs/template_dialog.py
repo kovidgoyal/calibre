@@ -208,7 +208,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             # we avoid thinking a # inside a string starts a comment.
             t = re.sub(self.stringRe, self.replace_strings_with_dash, text)
             sharp_pos = t.find('#')
-            if sharp_pos >= 0: # Do we still have a #?
+            if sharp_pos >= 0:  # Do we still have a #?
                 self.setFormat(sharp_pos, len(text), self.Formats["comment"])
 
         self.setCurrentBlockState(NORMAL)

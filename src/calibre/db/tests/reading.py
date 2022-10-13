@@ -854,6 +854,7 @@ def evaluate(book, ctx):
     return ','.join(list(ctx.helper_function(tags)))
 '''
         from calibre.utils.formatter import PythonTemplateContext
+
         class CustomContext(PythonTemplateContext):
             def helper_function(self, arg):
                 s = set(arg)
