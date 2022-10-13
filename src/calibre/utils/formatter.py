@@ -1647,8 +1647,9 @@ class TemplateFormatter(string.Formatter):
             if getattr(e, 'is_internal', False):
                 # Exception raised by FormatterFuncsCaller
                 # get the line inside the current template instead of the FormatterFuncsCaller
-                for ss in reversed(traceback.extract_tb(exc_info()[2])):
-                    if ss.filename == '<string>':
+                for s in reversed(traceback.extract_tb(exc_info()[2])):
+                    if s.filename == '<string>':
+                        ss = s
                         break
             
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
