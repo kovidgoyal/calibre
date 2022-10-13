@@ -102,13 +102,13 @@ class TemplateHighlighter(QSyntaxHighlighter):
             a("|".join([r"\b%s\b" % constant for constant in self.CONSTANTS_PYTHON]), "constant")
             a(r"\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b", "pyqt")
             a(r"@\w+(\.\w+)?\b", "decorator")
-            a(r"""('|").*?\1""", "string")
-            stringRe = r"""((?:"|'){3}).*?\1"""
+
+            stringRe = r'''(["'])(?:(?!\1)[^\\]|\\.)*\1'''
             a(stringRe, "string")
             self.stringRe = re.compile(stringRe)
+            self.checkTripleInStringRe = re.compile(r"""((?:"|'){3}).*?\1""")
             self.tripleSingleRe = re.compile(r"""'''(?!")""")
             self.tripleDoubleRe = re.compile(r'''"""(?!')''')
-            a(r'#[^\n]*', "comment")
         a(
             r"\b[+-]?[0-9]+[lL]?\b"
             r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
@@ -170,6 +170,10 @@ class TemplateHighlighter(QSyntaxHighlighter):
         dex = bn * self.BN_FACTOR + pos
         return self.paren_pos_map.get(dex, None)
 
+    def replace_strings_with_dash(self, mo):
+        found = mo.group(0)
+        return '-' * len(found)
+
     def highlightBlock(self, text):
         NORMAL, TRIPLESINGLE, TRIPLEDOUBLE = range(3)
 
@@ -198,9 +202,18 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 else:
                     self.setFormat(i, length, self.Formats[format_])
 
+        # Deal with comments not at the beginning of the line.
+        if self.for_python and '#' in text:
+            # Remove any strings from the text before we check for '#'. This way
+            # we avoid thinking a # inside a string starts a comment.
+            t = re.sub(self.stringRe, self.replace_strings_with_dash, text)
+            sharp_pos = t.find('#')
+            if sharp_pos >= 0: # Do we still have a #?
+                self.setFormat(sharp_pos, len(text), self.Formats["comment"])
+
         self.setCurrentBlockState(NORMAL)
 
-        if self.for_python and self.stringRe.search(text) is None:
+        if self.for_python and self.checkTripleInStringRe.search(text) is None:
             # This is fooled by triple quotes inside single quoted strings
             for m, state in (
                 (self.tripleSingleRe.search(text), TRIPLESINGLE),

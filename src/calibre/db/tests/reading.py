@@ -847,6 +847,32 @@ def evaluate(book, ctx):
         v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
 
+        # test using a custom context class
+        template = '''python:
+def evaluate(book, ctx):
+    tags = ctx.db.new_api.all_field_names('tags')
+    return ','.join(list(ctx.helper_function(tags)))
+'''
+        from calibre.utils.formatter import PythonTemplateContext
+        class CustomContext(PythonTemplateContext):
+            def helper_function(self, arg):
+                s = set(arg)
+                s.add('helper called')
+                return s
+
+        v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi,
+                                  python_context_object=CustomContext())
+        self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two','helper called'})
+
+        # test is_multiple values
+        template = '''python:
+def evaluate(book, ctx):
+    tags = ctx.db.new_api.all_field_names('tags')
+    return ','.join(list(tags))
+'''
+        v = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
+
         # test calling a python stored template from a GPM template
         from calibre.utils.formatter_functions import (
                 load_user_template_functions, unload_user_template_functions)
