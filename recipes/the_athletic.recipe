@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Athletic(BasicNewsRecipe):
@@ -17,14 +17,14 @@ class Athletic(BasicNewsRecipe):
     remove_empty_feeds = True
     extra_css = '''
         #articleByLineString{font-size:small;}
-        .credits-text{font-size:small; text-align:center;}
-        .sc-66df40a5-3{font-size:small;}
+        .inline-credits{font-size:small; text-align:center;}
     '''
-    keep_only_tags = [dict(name='div', attrs={'id': 'body-container'})]
-
-    remove_tags_after = [
-        dict(name='div', attrs={'id': 'newsLede'}),
-        classes('article-content-container')
+    keep_only_tags = [
+        dict(name='amp-img', attrs={'class': 'i-amphtml-layout-fill'}),
+        dict(name='div', attrs={'class': ['the-lead-article', 'article-container']})
+    ]
+    remove_tags = [
+        dict(name='i-amphtml-sizer')
     ]
 
     feeds = [
@@ -42,20 +42,11 @@ class Athletic(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
-        for block in soup.findAll(
-            'img', attrs={'style': lambda x: x and x.startswith('display:block')}
-        ):
-            block.extract()
-        for space in soup.findAll(
-            **classes('MuiGrid-justify-content-xs-space-between')
-        ):
-            space.extract()
-        for img in soup.findAll('img', attrs={'src': True}):
-            if img['src'].startswith('/_next/image/'):
-                img['src'] = 'https://theathletic.com' + img['src'].split('&')[
-                    0] + '&w=828&q=75'
+        for img in soup.findAll('amp-img'):
+            if not img.find('img'):
+                img.name = 'img'
         return soup
 
     def print_version(self, url):
-        reset = url.split('?')[0]
+        reset = url.split('?')[0] + '?amp=1'
         return reset
