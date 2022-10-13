@@ -557,7 +557,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             ca.setIcon(QIcon.ic('ok.png'))
         ca.triggered.connect(partial(self.set_word_wrap, not word_wrapping))
         m.addSeparator()
-        ca = m.addAction(_('Add python template definition text'))
+        ca = m.addAction(_('Add Python template definition text'))
         ca.triggered.connect(self.add_python_template_header_text)
         m.addSeparator()
         ca = m.addAction(_('Load template from the Template tester'))
