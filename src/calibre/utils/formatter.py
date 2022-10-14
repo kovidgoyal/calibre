@@ -840,7 +840,7 @@ class PythonTemplateContext(object):
         self.globals = None
         self.formatter = None
         self.funcs = None
-        self.attrs_set = {'db', 'arguments', 'globals', 'formatter', 'funcs'}
+        self.attrs_set = {'db', 'arguments', 'globals', 'funcs'}
 
     def set_values(self, **kwargs):
         # Create/set attributes from the named parameters. Doing it this way we
@@ -881,7 +881,7 @@ class FormatterFuncsCaller():
         self.__formatter__ = formatter
 
     def __getattribute__(self, name):
-        if name.startswith('__') and name.endswith('__'): # return internal special attribut
+        if name.startswith('__') and name.endswith('__'):  # return internal special attribut
             try:
                 return object.__getattribute__(self, name)
             except:
@@ -890,7 +890,7 @@ class FormatterFuncsCaller():
         formatter = self.__formatter__
         func_name = None
         undersore = None
-        if name.endswith('_') and name[:-1] in formatter.funcs:
+        if name.endswith('_') and name[:-1] in formatter.funcs:  #given the priority to the backup name
             func_name = name[:-1]
             undersore = True
         if not func_name and name in formatter.funcs:
@@ -908,7 +908,7 @@ class FormatterFuncsCaller():
                     raise ValueError(msg)
                 def raise_mixed(args, kargs):
                     if args and kargs:
-                        raise_error(_('You cannot mix keyword arguments and positional arguments in function {0}').format(func_name+u()+'()'))
+                        raise_error(_('Invalid mixing keyword arguments and positional arguments'))
                 
                 try:
                     # special function
@@ -934,7 +934,7 @@ class FormatterFuncsCaller():
                     
                     else:
                         if kargs:
-                            raise_error(_('You cannot use keyword arguments in function {0}').format(func_name+u()+'()'))
+                            raise_error(_('Cannot support keyword arguments'))
                         
                         if func_name == 'character':
                             if _Parser.inlined_function_nodes['character'][0](args):
@@ -942,7 +942,7 @@ class FormatterFuncsCaller():
                                 if rslt is None:
                                     raise_error(_("Invalid character name '{0}'").format(args[0]))
                             else:
-                                raise_error(_('Incorrect number of arguments for function {0}').format(func_name+u()+'()'))
+                                raise_error(_('Incorrect number of arguments'))
                         
                         # buildin/user function and Stored GPM/Python template
                         func = formatter.funcs[func_name]
@@ -955,7 +955,7 @@ class FormatterFuncsCaller():
                     # Change the error message to return this used name on the template
                     e = e.__class__(_('Error in the function {0} :: {1}').format(
                             func_name+u(),
-                            re.sub(r'\w+\.evaluate\(\)', func_name+u()+'()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
+                            re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))) # remove UserFunction.evaluate() | Builtin*.evaluate()
                     e.is_internal = True
                     raise e
                 return rslt
@@ -967,7 +967,9 @@ class FormatterFuncsCaller():
         raise e
 
     def __dir__(self):
-        return list(set(object.__dir__(self) + list(self.__formatter__.funcs.keys()) + [f+'_' for f in self.__formatter__.funcs.keys()]))
+        return list(set(object.__dir__(self) +
+                        list(self.__formatter__.funcs.keys()) +
+                        [f+'_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
