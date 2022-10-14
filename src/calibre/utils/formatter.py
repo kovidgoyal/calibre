@@ -878,45 +878,96 @@ class FormatterFuncsCaller():
         if not isinstance(formatter, TemplateFormatter):
             raise ValueError('Class {} is not an instance of TemplateFormatter'
                             .format(formatter.__class__.__name__))
-        object.__setattr__(self, 'formatter', formatter)
+        self.__formatter__ = formatter
 
     def __getattribute__(self, name):
-        if name.endswith('_'): # _ at the end to avoid conflicts with the Python keyword
-            func_name = name[:-1]
-            if func_name in self.formatter.funcs:
-                def call(*args):
-                    return self.call(func_name, *args)
-                return call
+        if name.startswith('__') and name.endswith('__'): # return internal special attribut
+            try:
+                return object.__getattribute__(self, name)
+            except:
+                pass
 
-        try:
-            return object.__getattribute__(self, name)
-        except Exception as e:
-            e.is_internal = True
-            raise e
+        formatter = self.__formatter__
+        func_name = None
+        undersore = None
+        if name.endswith('_') and name[:-1] in formatter.funcs:
+            func_name = name[:-1]
+            undersore = True
+        if not func_name and name in formatter.funcs:
+            func_name = name
+            undersore = False
+
+        if func_name:
+            def call(*args, **kargs):
+                args = [str(a) for a in args]
+                kargs = {k:str(v) for k,v in kargs.items()}
+                
+                def u():
+                    return '_' if undersore else ''
+                def raise_error(msg):
+                    raise ValueError(msg)
+                def raise_mixed(args, kargs):
+                    if args and kargs:
+                        raise_error(_('You cannot mix keyword arguments and positional arguments in function {0}').format(func_name+u()+'()'))
+                
+                try:
+                    # special function
+                    if func_name == 'set_globals':
+                        raise_mixed(args, kargs)
+                        kargs.update({a:'' for a in args})
+                        formatter.global_vars.update(kargs)
+                        rslt = kargs
+                    
+                    elif func_name == 'globals':
+                        raise_mixed(args, kargs)
+                        kargs.update({a:'' for a in args})
+                        rslt = {k:formatter.global_vars.get(k, d) for k,d in kargs.items()}
+                    
+                    elif func_name == 'arguments':
+                        raise_mixed(args, kargs)
+                        kargs.update({a:'' for a in args})
+                        args = formatter.python_context_object.arguments if formatter.python_context_object.arguments else []
+                        for i,k in enumerate(kargs.keys()):
+                            if i == len(args): break
+                            kargs[k] = str(args[i])
+                        rslt = kargs
+                    
+                    else:
+                        if kargs:
+                            raise_error(_('You cannot use keyword arguments in function {0}').format(func_name+u()+'()'))
+                        
+                        if func_name == 'character':
+                            if _Parser.inlined_function_nodes['character'][0](args):
+                                rslt = _Interpreter.characters.get(args[0], None)
+                                if rslt is None:
+                                    raise_error(_("Invalid character name '{0}'").format(args[0]))
+                            else:
+                                raise_error(_('Incorrect number of arguments for function {0}').format(func_name+u()+'()'))
+                        
+                        # buildin/user function and Stored GPM/Python template
+                        func = formatter.funcs[func_name]
+                        if func.object_type == StoredObjectType.PythonFunction:
+                            rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
+                        else:
+                            rslt = formatter._eval_sfm_call(func_name, args, formatter.global_vars)
+                
+                except Exception as e:
+                    # Change the error message to return this used name on the template
+                    e = e.__class__(_('Error in the function {0} :: {1}').format(
+                            func_name+u(),
+                            re.sub(r'\w+\.evaluate\(\)', func_name+u()+'()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
+                    e.is_internal = True
+                    raise e
+                return rslt
+            
+            return call
+
+        e = AttributeError(_("no function '{}' exists").format(name))
+        e.is_internal = True
+        raise e
 
     def __dir__(self):
-        return list(set(object.__dir__(self) + [f+'_' for f in self.formatter.funcs.keys()]))
-
-    def call(self, name, *args):
-        formatter = self.formatter
-        args = [str(a) for a in args]
-
-        try:
-            func = formatter.funcs[name]
-            if func.object_type == StoredObjectType.PythonFunction:
-                rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
-            else:
-                rslt = formatter._eval_sfm_call(name, args, formatter.global_vars)
-
-        except Exception as e:
-            # Change the error message to return this used name on the template
-            e = e.__class__(_('Error in the function {0} :: {1}').format(
-                    name+'_',
-                    re.sub(r'\w+\.evaluate\(\)', name+'_()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
-            e.is_internal = True
-            raise e
-        return rslt
-
+        return list(set(object.__dir__(self) + list(self.__formatter__.funcs.keys()) + [f+'_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
