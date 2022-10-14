@@ -874,30 +874,46 @@ class FormatterFuncsCaller():
     '''
 
     def __init__(self, formatter):
-        from functools import partial
         object.__init__(self)
+        if not isinstance(formatter, TemplateFormatter):
+            raise ValueError('Class {} is not an instance of TemplateFormatter'
+                            .format(formatter.__class__.__name__))
+        object.__setattr__(self, 'formatter', formatter)
 
-        def call(name, *args):
+    def __getattribute__(self, name):
+        if name.endswith('_'): # _ at the end to avoid conflicts with the Python keyword
+            func_name = name[:-1]
+            if func_name in self.formatter.funcs:
+                def call(*args):
+                    return self.call(func_name, *args)
+                return call
+
+        try:
+            return object.__getattribute__(self, name)
+        except Exception as e:
+            e.is_internal = True
+            raise e
+
+    def call(self, name, *args):
+        formatter = self.formatter
+        args = [str(a) for a in args]
+
+        try:
             func = formatter.funcs[name]
-            args = [str(a) for a in args]
-            try:
-                if func.object_type == StoredObjectType.PythonFunction:
-                    rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
-                else:
-                    rslt = formatter._eval_sfm_call(name, args, formatter.global_vars)
+            if func.object_type == StoredObjectType.PythonFunction:
+                rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
+            else:
+                rslt = formatter._eval_sfm_call(name, args, formatter.global_vars)
 
-            except Exception as e:
-                # Change the error message to return this used name on the template
-                e = e.__class__('Error in the function {0} :: {1}'.format(
-                        name+'_',
-                        re.sub(r'\w+\.evaluate\(\)', name+'_()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
-                e.is_internal = True
-                raise e
-            
-            return rslt
+        except Exception as e:
+            # Change the error message to return this used name on the template
+            e = e.__class__(_('Error in the function {0} :: {1}').format(
+                    name+'_',
+                    re.sub(r'\w+\.evaluate\(\)', name+'_()', str(e), 1))) # replace UserFunction.evaluate() | Builtin*.evaluate() by the func name
+            e.is_internal = True
+            raise e
+        return rslt
 
-        for name in formatter.funcs.keys():
-            setattr(self, name+'_', partial(call, name)) # _ at the end to avoid conflicts with the Python keyword
 
 
 class _Interpreter:
