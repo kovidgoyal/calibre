@@ -894,6 +894,9 @@ class FormatterFuncsCaller():
             e.is_internal = True
             raise e
 
+    def __dir__(self):
+        return list(set(object.__dir__(self) + [f+'_' for f in self.formatter.funcs.keys()]))
+
     def call(self, name, *args):
         formatter = self.formatter
         args = [str(a) for a in args]
