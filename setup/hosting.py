@@ -338,10 +338,10 @@ def generate_index():  # {{{
                 files = os.listdir('.')
                 windows = [x for x in files if x.endswith('.msi')]
                 if windows:
+                    def wdesc(x):
+                        return 'Windows ' + ('64-bit' if '-64bit-' in x else '32-bit') + ' Installer'
                     windows = [
-                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(
-                            x, 'Windows 64-bit Installer'
-                        ) for x in windows
+                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(x, wdesc(x)) for x in windows
                     ]
                     body.append(
                         '<dt>Windows</dt><dd><ul>{}</ul></dd>'.format(
@@ -364,14 +364,14 @@ def generate_index():  # {{{
                     x for x in files if x.endswith('.txz') or x.endswith('tar.bz2')
                 ]
                 if linux:
-                    if 'i686' in x:
-                        itype = 'Linux Intel 32-bit binary'
-                    elif 'arm64' in x:
-                        itype = 'Linux ARM 64-bit binary'
-                    else:
-                        itype = 'Linux Intel 64-bit binary'
+                    def ldesc(x):
+                        if 'i686' in x:
+                            return 'Linux Intel 32-bit binary'
+                        if 'arm64' in x:
+                            return 'Linux ARM 64-bit binary'
+                        return 'Linux Intel 64-bit binary'
                     linux = [
-                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(x, itype) for x in linux
+                        '<li><a href="{0}" title="{1}">{1}</a></li>'.format(x, ldesc(x)) for x in linux
                     ]
                     body.append(
                         '<dt>Linux</dt><dd><ul>{}</ul></dd>'.format(
