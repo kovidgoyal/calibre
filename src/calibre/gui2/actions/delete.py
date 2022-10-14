@@ -186,7 +186,7 @@ class DeleteAction(InterfaceAction):
             '%(title)s. Are you sure?')%dict(fmt=fmt, title=title)) +
                        '</p>', 'library_delete_specific_format', self.gui):
             return
-        self._remove_format_from_ids((fmt,), (book_id,))
+        self._remove_formats_from_ids((fmt,), (book_id,))
 
     def remove_format_from_selected_books(self, fmt):
         ids = self._get_selected_ids()
