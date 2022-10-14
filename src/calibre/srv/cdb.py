@@ -101,6 +101,8 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     with open(path, 'rb') as f:
         mi = get_metadata(f, stream_type=os.path.splitext(path)[1][1:], use_libprs_metadata=True)
         f.seek(0)
+        nfmt = os.path.splitext(path)[1]
+        fmt = nfmt[1:] if nfmt else fmt
         ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=add_duplicates)
     ans = {'title': mi.title, 'authors': mi.authors, 'languages': mi.languages, 'filename': filename, 'id': job_id}
     if ids:
