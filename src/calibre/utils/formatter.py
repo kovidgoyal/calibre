@@ -1542,6 +1542,7 @@ class TemplateFormatter(string.Formatter):
         self.funcs = formatter_functions().get_functions()
         self._interpreters = []
         self._template_parser = None
+        self._caller = FormatterFuncsCaller(self)
         self.recursion_stack = []
         self.recursion_level = -1
 
@@ -1857,7 +1858,6 @@ class TemplateFormatter(string.Formatter):
                 self.python_context_object = python_context_object
             else:
                 self.python_context_object = PythonTemplateContext()
-            self._caller = FormatterFuncsCaller(self)
             return self.evaluate(fmt, [], kwargs, self.global_vars)
         finally:
             self.restore_state(state)
@@ -1890,7 +1890,6 @@ class TemplateFormatter(string.Formatter):
             else:
                 self.funcs = formatter_functions().get_functions()
             self.locals = {}
-            self._caller = FormatterFuncsCaller(self)
             try:
                 ans = self.evaluate(fmt, [], kwargs, self.global_vars, break_reporter=break_reporter)
             except StopException as e:
