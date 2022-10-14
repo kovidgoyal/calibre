@@ -295,7 +295,7 @@ def create_tarfile(env, compression_level='9'):
     print('Compressing archive...')
     ans = dist.rpartition('.')[0] + '.txz'
     start_time = time.time()
-    subprocess.check_call(['xz', '--threads=0', '-f', '-' + compression_level, dist])
+    subprocess.check_call(['xz', '--verbose', '--threads=0', '-f', '-' + compression_level, dist])
     secs = time.time() - start_time
     print('Compressed in %d minutes %d seconds' % (secs // 60, secs % 60))
     os.rename(dist + '.xz', ans)
