@@ -45,6 +45,8 @@
 
 - Edit book: Preview panel: In dark mode when all of the background/foreground/link colors are set to "No change" do not render the book using dark colors
 
+- Version 6.7.1 fixes a regression in the previous release that broke the delete specific format from book function
+
 :: improved recipes
 - The Athletic
 - der Standard
