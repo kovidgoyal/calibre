@@ -154,6 +154,11 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
             encoding = encoding.decode('ascii', 'replace')
             break
     if encoding is None:
+        if assume_utf8:
+            try:
+                return raw.decode('utf-8'), 'utf-8'
+            except UnicodeDecodeError:
+                pass
         encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
     if encoding.lower().strip() == 'macintosh':
         encoding = 'mac-roman'
