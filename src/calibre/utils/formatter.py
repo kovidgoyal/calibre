@@ -889,21 +889,16 @@ class FormatterFuncsCaller():
 
         formatter = self.__formatter__
         func_name = None
-        undersore = None
         if name.endswith('_') and name[:-1] in formatter.funcs:  #given the priority to the backup name
             func_name = name[:-1]
-            undersore = True
         if not func_name and name in formatter.funcs:
             func_name = name
-            undersore = False
 
         if func_name:
             def call(*args, **kargs):
                 args = [str(a) for a in args]
-                kargs = {k:str(v) for k,v in kargs.items()}
+                kargs = {k:str(v if v else '') for k,v in kargs.items()}
                 
-                def u():
-                    return '_' if undersore else ''
                 def raise_error(msg):
                     raise ValueError(msg)
                 def raise_mixed(args, kargs):
@@ -954,7 +949,7 @@ class FormatterFuncsCaller():
                 except Exception as e:
                     # Change the error message to return this used name on the template
                     e = e.__class__(_('Error in the function {0} :: {1}').format(
-                            func_name+u(),
+                            name,
                             re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))) # remove UserFunction.evaluate() | Builtin*.evaluate()
                     e.is_internal = True
                     raise e
