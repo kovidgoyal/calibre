@@ -593,6 +593,7 @@ def evaluate(book, context):
     # db: a calibre legacy database object
     # globals: the template global variable dictionary
     # arguments: is a list of arguments if the template is called by a GPM template, otherwise None
+    # funcs: allows to use the Builtin/User functions and Stored GPM/Python templates
 
     # your Python code goes here
     return 'a string'
