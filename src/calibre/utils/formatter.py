@@ -896,36 +896,34 @@ class FormatterFuncsCaller():
 
         if func_name:
             def call(*args, **kargs):
-                args = [str('' if a is None else a) for a in args]
-                kargs = {k:str('' if v is None else v) for k,v in kargs.items()}
+                def n(d):
+                    return str('' if d is None else d)
+                args = [n(a) for a in args]
+                kargs = {n(k):v for k,v in kargs.items()}
 
-                
                 def raise_error(msg):
                     raise ValueError(msg)
-                def raise_mixed(args, kargs):
-                    if args and kargs:
-                        raise_error(_('Invalid mixing keyword arguments and positional arguments'))
                 
                 try:
                     # special function
-                    if func_name == 'set_globals':
-                        raise_mixed(args, kargs)
+                    if func_name in ['arguments', 'globals', 'set_globals']:
+                        if args and kargs:
+                            raise_error(_('Invalid mixing keyword arguments and positional arguments'))
+                        
                         kargs.update({a:'' for a in args})
-                        formatter.global_vars.update(kargs)
-                        rslt = kargs
-                    
-                    elif func_name == 'globals':
-                        raise_mixed(args, kargs)
-                        kargs.update({a:'' for a in args})
-                        rslt = {k:formatter.global_vars.get(k, d) for k,d in kargs.items()}
-                    
-                    elif func_name == 'arguments':
-                        raise_mixed(args, kargs)
-                        kargs.update({a:'' for a in args})
-                        args = formatter.python_context_object.arguments if formatter.python_context_object.arguments else []
-                        for i,k in enumerate(kargs.keys()):
-                            if i == len(args): break
-                            kargs[k] = str(args[i])
+                        
+                        if func_name == 'arguments':
+                            args = formatter.python_context_object.arguments or []
+                            for i,k in enumerate(kargs.keys()):
+                                if i == len(args): break
+                                kargs[k] = str(args[i])
+                        
+                        elif func_name == 'globals':
+                            kargs = {k:formatter.global_vars.get(k, d) for k,d in kargs.items()}
+                        
+                        elif func_name == 'set_globals':
+                            formatter.global_vars.update(kargs)
+                        
                         rslt = kargs
                     
                     else:
