@@ -440,19 +440,19 @@ class VLTabs(QTabBar):  # {{{
 
     def unlock_tab(self):
         gprefs['vl_tabs_closable'] = True
-        for idx in range(self.count()):
-            if not str(self.tabData(idx) or '').strip():
-                break
         self.setTabsClosable(True)
-        try:
-            self.tabButton(idx, QTabBar.ButtonPosition.RightSide).setVisible(False)
-        except AttributeError:
-            try:
-                self.tabButton(idx, QTabBar.ButtonPosition.LeftSide).setVisible(False)
-            except AttributeError:
-                # On some OS X machines (using native style) the tab button is
-                # on the left
-                pass
+        for idx in range(self.count()):
+            if not self.tabData(idx):
+                try:
+                    self.tabButton(idx, QTabBar.ButtonPosition.RightSide).setVisible(False)
+                except AttributeError:
+                    try:
+                        self.tabButton(idx, QTabBar.ButtonPosition.LeftSide).setVisible(False)
+                    except AttributeError:
+                        # On some OS X machines (using native style) the tab button is
+                        # on the left
+                        pass
+                break
 
     def tab_changed(self, idx):
         if self.ignore_tab_changed:
