@@ -896,8 +896,9 @@ class FormatterFuncsCaller():
 
         if func_name:
             def call(*args, **kargs):
-                args = [str(a) for a in args]
-                kargs = {k:str(v if v else '') for k,v in kargs.items()}
+                args = [str('' if a is None else a) for a in args]
+                kargs = {k:str('' if v is None else v) for k,v in kargs.items()}
+
                 
                 def raise_error(msg):
                     raise ValueError(msg)
@@ -1715,7 +1716,7 @@ class TemplateFormatter(string.Formatter):
             if getattr(e, 'is_internal', False):
                 # Exception raised by FormatterFuncsCaller
                 # get the line inside the current template instead of the FormatterFuncsCaller
-                for s in reversed(traceback.extract_tb(exc_info()[2])):
+                for s in reversed(stack):
                     if s.filename == '<string>':
                         ss = s
                         break
