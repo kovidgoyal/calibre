@@ -104,7 +104,7 @@ class NOOK_COLOR(NOOK):
         product_id = self.device_being_opened[1]
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
-        if product_id in (0xb, 0xc, 0xd):
+        if product_id in (0xb, 0xc, 0xd, 0xe):
             if DEBUG:
                 prints('Setting Nook upload directory to NOOK/My Files')
             self.EBOOK_DIR_MAIN = 'NOOK/My Files'
