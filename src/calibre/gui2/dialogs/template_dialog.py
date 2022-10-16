@@ -25,7 +25,7 @@ from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
 from calibre.utils.formatter_functions import formatter_functions, StoredObjectType
-from calibre.utils.formatter import StopException
+from calibre.utils.formatter import StopException, PythonTemplateContext
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
 
@@ -312,7 +312,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
-                 global_vars=None, all_functions=None, builtin_functions=None):
+                 global_vars=None, all_functions=None, builtin_functions=None,
+                 python_context_object=None):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -321,10 +322,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
         self.dialog_is_st_editor = dialog_is_st_editor
-        if global_vars is None:
-            self.global_vars = {}
-        else:
-            self.global_vars = global_vars
+        self.global_vars = global_vars or {}
+        self.python_context_object = python_context_object or PythonTemplateContext()
 
         cols = []
         self.fm = fm
@@ -593,6 +592,7 @@ def evaluate(book, context):
     # db: a calibre legacy database object
     # globals: the template global variable dictionary
     # arguments: is a list of arguments if the template is called by a GPM template, otherwise None
+    # funcs: allows to use the Builtin/User functions and Stored GPM/Python templates
 
     # your Python code goes here
     return 'a string'
@@ -794,7 +794,8 @@ def evaluate(book, context):
             v = SafeFormat().safe_format(txt, mi, _('EXCEPTION:'),
                              mi, global_vars=self.global_vars,
                              template_functions=self.all_functions,
-                             break_reporter=self.break_reporter if r == break_on_mi else None)
+                             break_reporter=self.break_reporter if r == break_on_mi else None,
+                             python_context_object=self.python_context_object)
             w = tv.cellWidget(r, 1)
             w.setText(v.translate(translate_table))
             w.setCursorPosition(0)
