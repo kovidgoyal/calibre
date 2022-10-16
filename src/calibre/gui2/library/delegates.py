@@ -711,6 +711,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         '''
         Delegate for custom_column bool data.
         '''
+        self.nuke_option_data = False
         QStyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
 
@@ -735,7 +736,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setModelData(self, editor, model, index):
         val = {0:True, 1:False, 2:None}[editor.currentIndex()]
-        model.setData(index, (val), Qt.ItemDataRole.EditRole)
+        model.setData(index, val, Qt.ItemDataRole.EditRole)
 
     def setEditorData(self, editor, index):
         m = index.model()
@@ -747,12 +748,21 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
                             else 1 if not val else 0
         editor.setCurrentIndex(val)
 
+    def initStyleOption(self, option, index):
+        ret = super().initStyleOption(option, index)
+        if self.nuke_option_data:
+            option.icon = QIcon()
+            option.text = ''
+            option.features &= ~QStyleOptionViewItem.ViewItemFeature.HasDisplay & ~QStyleOptionViewItem.ViewItemFeature.HasDecoration
+        return ret
+
     def paint(self, painter, option, index):
         text, icon = index.data(Qt.ItemDataRole.DisplayRole), index.data(Qt.ItemDataRole.DecorationRole)
         if (not text and not icon) or text or not icon:
             return super().paint(painter, option, index)
-        dummy = index.model().index(-1, -1)
-        super().paint(painter, option, dummy)
+        self.nuke_option_data = True
+        super().paint(painter, option, index)
+        self.nuke_option_data = False
         style = QApplication.style()
         style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignCenter, icon)
 
