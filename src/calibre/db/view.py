@@ -149,6 +149,8 @@ class View:
                 fmt = partial(format_is_multiple, sep=sep)
             self._field_getters[idx] = partial(func, label, fmt=fmt) if func == self._get else func
 
+        self._real_map_filtered = tuple()
+        self._real_map_filtered_dict = dict()
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         self.full_map_is_sorted = True
@@ -170,6 +172,15 @@ class View:
 
     def sanitize_sort_field_name(self, field):
         return sanitize_sort_field_name(self.field_metadata, field)
+
+    @property
+    def _map_filtered(self):
+        return self._real_map_filtered
+
+    @_map_filtered.setter
+    def _map_filtered(self, v):
+        self._real_map_filtered = v
+        self._real_map_filtered_dict = {id_:row for row, id_ in enumerate(self._map_filtered)}
 
     @property
     def field_metadata(self):
@@ -215,12 +226,16 @@ class View:
         return self._map_filtered[idx]
 
     def id_to_index(self, book_id):
-        return self._map_filtered.index(book_id)
+        try:
+            return self._real_map_filtered_dict[book_id]
+        except KeyError:
+            raise ValueError(f'No such book_id {book_id}')
     row = index_to_id
 
     def index(self, book_id, cache=False):
-        x = self._map if cache else self._map_filtered
-        return x.index(book_id)
+        if cache:
+            return self._map.index(book_id)
+        return self.id_to_index(book_id)
 
     def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
@@ -452,12 +467,7 @@ class View:
 
         # The ids list can contain invalid ids (deleted etc). We want to filter
         # those out while keeping the valid ones.
-        def f(id_):
-            try:
-                return self.id_to_index(id_)
-            except ValueError:
-                return None
-        res = [i for i in map(f, ids) if i is not None]
+        res = [self._real_map_filtered_dict[id_] for id_ in ids if id_ in self._real_map_filtered_dict]
         return res if res else None
 
     def remove(self, book_id):
