@@ -36,8 +36,8 @@ class Handelsblatt(BasicNewsRecipe):
     # compress_news_images          = True
     # compress_news_images_max_size = 16
 
-    login_url = 'https://id.handelsblatt.com/login/credentials?service=https://www.handelsblatt.com'
-    cover_source = 'https://kaufhaus.handelsblatt.com/downloads/handelsblatt-epaper-p1951.html'
+    login_url = 'https://id.handelsblatt.com/login?service=https://www.handelsblatt.com'
+    cover_source = 'https://www.ikiosk.de/shop/epaper/handelsblatt.html'
     masthead_url = 'https://www.handelsblatt.com/images/logo_handelsblatt/11002806/8-formatOriginal.png'
 
     feeds = [
@@ -62,7 +62,6 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='article', attrs={'class': ['vhb-imagegallery vhb-teaser',
                                               'vhb-teaser vhb-type-video']}),
         dict(name='small', attrs={'class': ['vhb-credit']}),
-        dict(name='ul', attrs={'class': ['hcf-redaktion']}),
         dict(name='div', attrs={'class': ['dg_health', 'fb-post', 'header-bar',
                                           'lb_consent--placeholder',
                                           'lb-item embed', 'lb-post-actions',
@@ -76,9 +75,8 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='div', attrs={'id': re.compile('dax-sentiment')}),
         dict(name=['div', 'section'], attrs={'class': re.compile('slider')}),
         dict(name='a', attrs={'class': ['twitter-follow-button']}),
-        dict(name='img', attrs={'class': ['highlight-icon', 'lb-author__avatar']}),
+        dict(name='img', attrs={'class': ['highlight-icon', 'lb-author__avatar', 'pin-icon']}),
         dict(name='img', attrs={'alt': re.compile('Handelsblatt Morning Briefing')}),
-        dict(name='img', attrs={'alt': re.compile('Kolumnenkabinet')}),
         dict(name=['blockquote', 'button', 'link'])
     ]
 
@@ -108,23 +106,27 @@ class Handelsblatt(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open(self.login_url)
-            br.select_form(nr=0)
-            br['username'] = self.username
-            br['password'] = self.password
-            br.submit()
+            try:
+                br.open(self.login_url)
+                br.select_form(nr=0)
+                br['login'] = self.username
+                br['password'] = self.password
+                br.submit()
+            except Exception as e:
+                self.log('Login failed with error:', str(e))
         return br
 
     def get_cover_url(self):
+        cover_url = ''
         soup = self.index_to_soup(self.cover_source)
-        style = soup.find('img', alt='Handelsblatt ePaper',
-                          style=True)['style']
-        self.cover_url = style.partition('(')[-1].rpartition(')')[0]
-        return self.cover_url
+        img = soup.find('img', {'alt': 'Handelsblatt - ePaper;', 'src': True})
+        if img and img['src']:
+            cover_url = img['src']
+        return cover_url
 
     def print_version(self, url):
-        main, sep, id = url.rpartition('/')
-        return main + '/v_detail_tab_print/' + id
+        main, sep, name = url.rpartition('/')
+        return main + '/v_detail_tab_print/' + name
 
     def preprocess_html(self, soup):
         # remove all articles without relevant content (e.g., videos)
@@ -135,35 +137,34 @@ class Handelsblatt(BasicNewsRecipe):
 
     def postprocess_html(self, soup, first_fetch):
         # convert lists of author(s) and date(s) into simple text
-        for cap in soup.findAll('div', {'class': re.compile('vhb-article-caption')}):
-            cap.replaceWith(cap.renderContents().decode('utf-8').strip() + ' ')
-        for row in soup.findAll('div', {'class': 'vhb-article-author-row'}):
-            for ul in row.findAll('ul'):
+        for cap in soup.find_all('div', {'class': re.compile('vhb-article-caption')}):
+            cap.replace_with(cap.encode_contents().decode('utf-8').strip() + ' ')
+        for row in soup.find_all('div', {'class': 'vhb-article-author-row'}):
+            for ul in row.find_all('ul'):
                 entry = ''
-                for li in ul.findAll(lambda tag: tag.name == 'li' and not tag.attrs):
+                for li in ul.find_all(lambda tag: tag.name == 'li' and not tag.attrs):
                     entry += self.tag_to_string(li).strip() + ', '
-                for li in ul.findAll(lambda tag: tag.name == 'li' and tag.attrs):
+                for li in ul.find_all(lambda tag: tag.name == 'li' and tag.attrs):
                     entry += self.tag_to_string(li)
-                ul.parent.replaceWith(entry)
+                ul.parent.replace_with(entry)
         # remove all local hyperlinks
-        for a in soup.findAll('a', {'href': True}):
+        for a in soup.find_all('a', {'href': True}):
             if '.handelsblatt.com/' in a['href']:
-                a.replaceWith(a.renderContents().decode('utf-8'))
+                a.replace_with(a.encode_contents().decode('utf-8'))
         # make sure that all figure captions (including the source) are shown
         # without linebreaks by using the alternative text given within <img/>
         # instead of the original text (which is oddly formatted)
-        for fig in soup.findAll('figcaption', {'class': 'vhb-inline-picture'}):
+        for fig in soup.find_all('figcaption', {'class': 'vhb-inline-picture'}):
             cap = fig.find('img')['alt']
-            fig.find('div', {'class': 'vhb-caption'}).replaceWith(cap)
+            fig.find('div', {'class': 'vhb-caption'}).replace_with(cap)
         # remove references to related articles
-        for strong in soup.findAll('strong'):
-            if strong.string and re.match('^Mehr:? ?', strong.string):
+        for strong in soup.find_all('strong'):
+            if strong.string and (re.match('^Mehr:? ?', strong.string) or re.match('^>>.*', strong.string)):
                 p_parent = strong.find_parent('p')
                 if p_parent:
                     p_parent.decompose()
-                    break
         # clean up remainders of embedded content
-        for div in soup.findAll('div', {'style': True}):
+        for div in soup.find_all('div', {'style': True}):
             if len(div.attrs) == 1:
                 del div['style']
         return soup
