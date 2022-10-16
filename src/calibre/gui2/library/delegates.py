@@ -763,7 +763,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         self.nuke_option_data = True
         super().paint(painter, option, index)
         self.nuke_option_data = False
-        style = QApplication.style()
+        style = option.styleObject.style() if option.styleObject else QApplication.instance().style()
         style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignCenter, icon)
 
 # }}}
