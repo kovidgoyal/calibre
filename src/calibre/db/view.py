@@ -149,8 +149,8 @@ class View:
                 fmt = partial(format_is_multiple, sep=sep)
             self._field_getters[idx] = partial(func, label, fmt=fmt) if func == self._get else func
 
-        self._real_map_filtered = tuple()
-        self._real_map_filtered_dict = dict()
+        self._real_map_filtered = ()
+        self._real_map_filtered_id_to_row = {}
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         self.full_map_is_sorted = True
@@ -180,7 +180,7 @@ class View:
     @_map_filtered.setter
     def _map_filtered(self, v):
         self._real_map_filtered = v
-        self._real_map_filtered_dict = {id_:row for row, id_ in enumerate(self._map_filtered)}
+        self._real_map_filtered_id_to_row = {id_:row for row, id_ in enumerate(self._map_filtered)}
 
     @property
     def field_metadata(self):
@@ -227,7 +227,7 @@ class View:
 
     def id_to_index(self, book_id):
         try:
-            return self._real_map_filtered_dict[book_id]
+            return self._real_map_filtered_id_to_row[book_id]
         except KeyError:
             raise ValueError(f'No such book_id {book_id}')
     row = index_to_id
@@ -464,11 +464,9 @@ class View:
 
     def refresh_ids(self, ids):
         self.cache.clear_caches(book_ids=ids)
-
         # The ids list can contain invalid ids (deleted etc). We want to filter
         # those out while keeping the valid ones.
-        res = [self._real_map_filtered_dict[id_] for id_ in ids if id_ in self._real_map_filtered_dict]
-        return res if res else None
+        return [self._real_map_filtered_id_to_row[id_] for id_ in ids if id_ in self._real_map_filtered_id_to_row] or None
 
     def remove(self, book_id):
         try:
