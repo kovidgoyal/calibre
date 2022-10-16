@@ -110,8 +110,9 @@ def event_has_mods(self, event=None):
 
 def mousePressEvent(self, event):
     ep = event.pos()
-    if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-            event.button() == Qt.MouseButton.LeftButton and not self.event_has_mods():
+    # for performance, check the selection only once we know we need it
+    if event.button() == Qt.MouseButton.LeftButton and not self.event_has_mods() \
+                and self.indexAt(ep) in self.selectionModel().selectedIndexes():
         self.drag_start_pos = ep
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
