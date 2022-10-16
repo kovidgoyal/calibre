@@ -16,7 +16,7 @@ class HelloWorld(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
     author              = 'Acme Inc.' # The author of this plugin
     version             = (1, 0, 0)   # The version number of this plugin
-    file_types          = set(['epub', 'mobi']) # The file types that this plugin will be applied to
+    file_types          = {'epub', 'mobi'} # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
     minimum_calibre_version = (0, 7, 53)
 
@@ -28,5 +28,3 @@ class HelloWorld(FileTypePlugin):
             mi.publisher = 'Hello World'
             set_metadata(file, mi, ext)
         return path_to_ebook
-
-
