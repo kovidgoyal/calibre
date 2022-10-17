@@ -1070,6 +1070,13 @@ class ActionManageCategories(InterfaceActionBase):
     description = _('Manage tag browser categories')
 
 
+class ActionSavedSearches(InterfaceActionBase):
+    name = 'Saved searches'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.saved_searches:SavedSearchesAction'
+    description = _('Show a menu of saved searches')
+
+
 class ActionBooklistContextMenu(InterfaceActionBase):
     name = 'Booklist context menu'
     author = 'Charles Haley'
@@ -1118,7 +1125,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu]
+        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches]
 
 # }}}
 
