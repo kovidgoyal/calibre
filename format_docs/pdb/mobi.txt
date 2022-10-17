@@ -316,7 +316,7 @@ In the PalmDoc format, a length-distance pair is always encoded by a two-byte
 sequence. Of the 16 bits that make up these two bytes, 11 bits go to encoding
 the distance, 3 go to encoding the length, and the remaining two are used to
 make sure the decoder can identify the first byte as the beginning of such a
-two-byte sequence. The exact alforithm needed to decode the compressed text can
+two-byte sequence. The exact algorithm needed to decode the compressed text can
 be found on the PalmDOC page.
 
 PalmDOC data is always divided into 4096 byte blocks and the blocks are acted

@@ -138,7 +138,7 @@ class Client:
 
         for x in text_segments:
             if jstype(x) is 'number':
-                # Currently the sad sack brosers dont support SSML
+                # Currently the sad sack browsers dont support SSML
                 # https://github.com/WICG/speech-api/issues/37
                 # buf.push()
                 # markup = '<mark name="' + x + '"/>'

@@ -164,7 +164,7 @@ class PMLMLizer:
 
     def prepare_string_for_pml(self, text):
         text = self.remove_newlines(text)
-        # Replace \ with \\ so \ in the text is not interperted as
+        # Replace \ with \\ so \ in the text is not interpreted as
         # a pml code.
         text = text.replace('\\', '\\\\')
         # Replace sequences of \\c \\c with pml sequences denoting
