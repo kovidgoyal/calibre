@@ -838,7 +838,9 @@ class PythonTemplateContext(object):
         self.db = None
         self.arguments = None
         self.globals = None
-        self.attrs_set = {'db', 'arguments', 'globals'}
+        self.formatter = None
+        self.funcs = None
+        self.attrs_set = {'db', 'arguments', 'globals', 'funcs'}
 
     def set_values(self, **kwargs):
         # Create/set attributes from the named parameters. Doing it this way we
@@ -862,6 +864,89 @@ class PythonTemplateContext(object):
         for k in attrs:
             ans[k] = getattr(self, k, None)
         return '\n'.join(f'{k}:{v}' for k,v in ans.items())
+
+
+class FormatterFuncsCaller():
+    '''
+    Provides a convenient solution for call the funcs loaded in a TemplateFormatter
+    The funcs can be called by their name as attribut of this class, plus a _ 'underscore' a the end (Python keyword conflicts)
+    If the name contain a illegal character for a attribut (like .:-), use getattr()
+    '''
+
+    def __init__(self, formatter):
+        object.__init__(self)
+        if not isinstance(formatter, TemplateFormatter):
+            raise ValueError('Class {} is not an instance of TemplateFormatter'
+                            .format(formatter.__class__.__name__))
+        self.__formatter__ = formatter
+
+    def __getattribute__(self, name):
+        if name.startswith('__') and name.endswith('__'):  # return internal special attribut
+            try:
+                return object.__getattribute__(self, name)
+            except:
+                pass
+
+        formatter = self.__formatter__
+        func_name = None
+        if name.endswith('_') and name[:-1] in formatter.funcs:  #given the priority to the backup name
+            func_name = name[:-1]
+        elif name in formatter.funcs:
+            func_name = name
+
+        if func_name:
+            def call(*args, **kargs):
+                def n(d):
+                    return str('' if d is None else d)
+                args = [n(a) for a in args]
+
+                try:
+                    def raise_error(msg):
+                        raise ValueError(msg)
+                    if kargs:
+                        raise_error(_('Got an unsupported keyword argument'))
+                    
+                    # special function
+                    if func_name == 'arguments':
+                        raise_error(_('Get the arguments from context.arguments instead of calling arguments()'))
+                    elif func_name == 'globals':
+                        raise_error(_('Get the globals from context.globals instead of calling globals()'))
+                    elif func_name == 'set_globals':
+                        raise_error(_("Set globals using context.globals['name'] = val instead of calling set_globals()"))
+                    elif func_name == 'character':
+                        if _Parser.inlined_function_nodes['character'][0](args):
+                            rslt = _Interpreter.characters.get(args[0], None)
+                            if rslt is None:
+                                raise_error(_("Invalid character name '{0}'").format(args[0]))
+                        else:
+                            raise_error(_('Incorrect number of arguments'))
+                    else:
+                        # builtin/user function and Stored GPM/Python template
+                        func = formatter.funcs[func_name]
+                        if func.object_type == StoredObjectType.PythonFunction:
+                            rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
+                        else:
+                            rslt = formatter._eval_sfm_call(func_name, args, formatter.global_vars)
+                
+                except Exception as e:
+                    # Change the error message to return this used name on the template
+                    e = e.__class__(_('Error in the function {0} :: {1}').format(
+                            name,
+                            re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))) # remove UserFunction.evaluate() | Builtin*.evaluate()
+                    e.is_internal = True
+                    raise e
+                return rslt
+            
+            return call
+
+        e = AttributeError(_("no function '{}' exists").format(name))
+        e.is_internal = True
+        raise e
+
+    def __dir__(self):
+        return list(set(object.__dir__(self) +
+                        list(self.__formatter__.funcs.keys()) +
+                        [f+'_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
@@ -1490,6 +1575,7 @@ class TemplateFormatter(string.Formatter):
         self.funcs = formatter_functions().get_functions()
         self._interpreters = []
         self._template_parser = None
+        self._caller = FormatterFuncsCaller(self)
         self.recursion_stack = []
         self.recursion_level = -1
 
@@ -1601,10 +1687,21 @@ class TemplateFormatter(string.Formatter):
             self.python_context_object.set_values(
                          db=get_database(self.book, get_database(self.book, None)),
                          globals=self.global_vars,
-                         arguments=arguments)
+                         arguments=arguments,
+                         formatter=self,
+                         funcs=self._caller)
             rslt = compiled_template(self.book, self.python_context_object)
         except Exception as e:
-            ss = traceback.extract_tb(exc_info()[2])[-1]
+            stack = traceback.extract_tb(exc_info()[2])
+            ss = stack[-1]
+            if getattr(e, 'is_internal', False):
+                # Exception raised by FormatterFuncsCaller
+                # get the line inside the current template instead of the FormatterFuncsCaller
+                for s in reversed(stack):
+                    if s.filename == '<string>':
+                        ss = s
+                        break
+            
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
                             ss.name, ss.lineno, type(e).__name__, str(e)))
         if not isinstance(rslt, str):
