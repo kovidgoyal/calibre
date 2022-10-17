@@ -891,7 +891,7 @@ class FormatterFuncsCaller():
         func_name = None
         if name.endswith('_') and name[:-1] in formatter.funcs:  #given the priority to the backup name
             func_name = name[:-1]
-        if not func_name and name in formatter.funcs:
+        elif name in formatter.funcs:
             func_name = name
 
         if func_name:
@@ -899,46 +899,29 @@ class FormatterFuncsCaller():
                 def n(d):
                     return str('' if d is None else d)
                 args = [n(a) for a in args]
-                kargs = {n(k):v for k,v in kargs.items()}
 
-                def raise_error(msg):
-                    raise ValueError(msg)
-                
                 try:
-                    # special function
-                    if func_name in ['arguments', 'globals', 'set_globals']:
-                        if args and kargs:
-                            raise_error(_('Invalid mixing keyword arguments and positional arguments'))
-                        
-                        kargs.update({a:'' for a in args})
-                        
-                        if func_name == 'arguments':
-                            args = formatter.python_context_object.arguments or []
-                            for i,k in enumerate(kargs.keys()):
-                                if i == len(args): break
-                                kargs[k] = str(args[i])
-                        
-                        elif func_name == 'globals':
-                            kargs = {k:formatter.global_vars.get(k, d) for k,d in kargs.items()}
-                        
-                        elif func_name == 'set_globals':
-                            formatter.global_vars.update(kargs)
-                        
-                        rslt = kargs
+                    def raise_error(msg):
+                        raise ValueError(msg)
+                    if kargs:
+                        raise_error(_('Got an unsupported keyword argument'))
                     
+                    # special function
+                    if func_name == 'arguments':
+                        raise_error(_('Get the arguments from context.arguments instead of calling arguments()'))
+                    elif func_name == 'globals':
+                        raise_error(_('Get the globals from context.globals instead of calling globals()'))
+                    elif func_name == 'set_globals':
+                        raise_error(_("Set globals using context.globals['name'] = val instead of calling set_globals()"))
+                    elif func_name == 'character':
+                        if _Parser.inlined_function_nodes['character'][0](args):
+                            rslt = _Interpreter.characters.get(args[0], None)
+                            if rslt is None:
+                                raise_error(_("Invalid character name '{0}'").format(args[0]))
+                        else:
+                            raise_error(_('Incorrect number of arguments'))
                     else:
-                        if kargs:
-                            raise_error(_('Cannot support keyword arguments'))
-                        
-                        if func_name == 'character':
-                            if _Parser.inlined_function_nodes['character'][0](args):
-                                rslt = _Interpreter.characters.get(args[0], None)
-                                if rslt is None:
-                                    raise_error(_("Invalid character name '{0}'").format(args[0]))
-                            else:
-                                raise_error(_('Incorrect number of arguments'))
-                        
-                        # buildin/user function and Stored GPM/Python template
+                        # builtin/user function and Stored GPM/Python template
                         func = formatter.funcs[func_name]
                         if func.object_type == StoredObjectType.PythonFunction:
                             rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
