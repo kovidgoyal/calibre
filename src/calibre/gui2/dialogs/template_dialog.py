@@ -589,10 +589,11 @@ def evaluate(book, context):
     # book is a calibre metadata object
     # context is an instance of calibre.utils.formatter.PythonTemplateContext,
     # which currently contains the following attributes:
-    # db: a calibre legacy database object
-    # globals: the template global variable dictionary
-    # arguments: is a list of arguments if the template is called by a GPM template, otherwise None
-    # funcs: allows to use the Builtin/User functions and Stored GPM/Python templates
+    # db: a calibre legacy database object.
+    # globals: the template global variable dictionary.
+    # arguments: is a list of arguments if the template is called by a GPM template, otherwise None.
+    # funcs: used to call Built-in/User functions and Stored GPM/Python templates.
+    # Example: context.funcs.list_re_group()
 
     # your Python code goes here
     return 'a string'

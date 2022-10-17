@@ -657,11 +657,12 @@ A PTM template begins with:
  def evaluate(book, context):
      # book is a calibre metadata object
      # context is an instance of calibre.utils.formatter.PythonTemplateContext,
-     # which (currently) contains the following attributes:
-     # db: a calibre legacy database object
-     # globals: the template global variable dictionary
-     # arguments: is a list of arguments if the template is called by a GPM template, otherwise None
-     # funcs: allows using the Builtin/User functions and Stored GPM/Python templates
+     # which currently contains the following attributes:
+     # db: a calibre legacy database object.
+     # globals: the template global variable dictionary.
+     # arguments: is a list of arguments if the template is called by a GPM template, otherwise None.
+     # funcs: used to call Built-in/User functions and Stored GPM/Python templates.
+     # Example: context.funcs.list_re_group()
 
      # your Python code goes here
      return 'a string'
@@ -670,7 +671,12 @@ You can add the above text to your template using the context menu, usually acce
 
 The context object supports ``str(context)`` that returns a string of the context's contents, and ``context.attributes`` that returns a list of the attribute names in the context.
 
-The ``context.funcs`` attribute allows using the Builtin and User functions, and also the Stored GPM/Python templates, so that you can execute them directly in your code. The functions can be retrieve by their names. If the name conflicts with a Python keyword, add an underscore to the end of the name.
+The ``context.funcs`` attribute allows calling Built-in and User template functions, and Stored GPM/Python templates, so that you can execute them directly in your code. The functions are retrieved using their names. If the name conflicts with a Python keyword, add an underscore to the end of the name. Examples:
+
+.. code-block:: python
+
+ context.funcs.list_re_group()
+ context.funcs.assert_()
 
 Here is an example of a PTM template that produces a list of all the authors for a series. The list is stored in a `Column built from other columns, behaves like tags`. It shows in :guilabel:`Book details` and has the :guilabel:`on separate lines` checked (in :guilabel:`Preferences->Look & feel->Book details`). That option requires the list to be comma-separated. To satisfy that requirement the template converts commas in author names to semicolons then builds a comma-separated list of authors. The authors are then sorted, which is why the template uses author_sort.
 

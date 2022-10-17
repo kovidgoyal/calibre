@@ -868,9 +868,11 @@ class PythonTemplateContext(object):
 
 class FormatterFuncsCaller:
     '''
-    Provides a convenient solution to call the functions loaded in a TemplateFormatter.
-    The funcs can be called by their name as attributes of this class, with a underscore at the end if the name conflicts with a Python keyword.
-    If the name contain a illegal character for a attribute (like .:-), use getattr()
+    Provides a convenient solution to call functions loaded in the
+    TemplateFormatter. The functions are called using their name as an attribute
+    of this class, with an underscore at the end if the name conflicts with a
+    Python keyword. If the name contain a illegal character for a attribute
+    (like .:-), use getattr(). Example: context.funcs.list_re_group()
     '''
 
     def __init__(self, formatter):
@@ -905,11 +907,11 @@ class FormatterFuncsCaller:
 
                     # special function
                     if func_name == 'arguments':
-                        raise ValueError(_('Get the arguments from context.arguments instead of calling arguments()'))
+                        raise ValueError(_("Don't call {0}. Instead use {1}").format('arguments()', 'context.arguments'))
                     if func_name == 'globals':
-                        raise ValueError(_('Get the globals from context.globals instead of calling globals()'))
+                        raise ValueError(_("Don't call {0}. Instead use {1}").format('globals()', 'context.globals'))
                     if func_name == 'set_globals':
-                        raise ValueError(_("Set globals using context.globals['name'] = val instead of calling set_globals()"))
+                        raise ValueError(_("Don't call {0}. Instead use {1}").format('set_globals()', "context.globals['name'] = val"))
                     if func_name == 'character':
                         if _Parser.inlined_function_nodes['character'][0](args):
                             rslt = _Interpreter.characters.get(args[0])
@@ -918,7 +920,7 @@ class FormatterFuncsCaller:
                         else:
                             raise ValueError(_('Incorrect number of arguments'))
                     else:
-                        # builtin/user function and Stored GPM/Python template
+                        # built-in/user template functions and Stored GPM/Python templates
                         func = formatter.funcs[func_name]
                         if func.object_type == StoredObjectType.PythonFunction:
                             rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
@@ -926,8 +928,8 @@ class FormatterFuncsCaller:
                             rslt = formatter._eval_sfm_call(func_name, args, formatter.global_vars)
 
                 except Exception as e:
-                    # Change the error message to return this used name on the template
-                    e = e.__class__(_('Error in the function {0} :: {1}').format(
+                    # Change the error message to return the name used in the template
+                    e = e.__class__(_('Error in function {0} :: {1}').format(
                             name,
                             re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1)))  # remove UserFunction.evaluate() | Builtin*.evaluate()
                     e.is_internal = True
@@ -936,7 +938,7 @@ class FormatterFuncsCaller:
 
             return call
 
-        e = AttributeError(_("no function named {!r} exists").format(name))
+        e = AttributeError(_("No function named {!r} exists").format(name))
         e.is_internal = True
         raise e
 
