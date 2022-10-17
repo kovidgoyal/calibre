@@ -406,8 +406,8 @@ cw<ci<font-style<nu<0
 
     def __margin_func(self, line):
         """
-        Handles lines that describe page info. Add the apporpriate info in the
-        token to the self.__margin_dict dicitonary.
+        Handles lines that describe page info. Add the appropriate info in the
+        token to the self.__margin_dict dictionary.
         """
         info = line[6:16]
         changed = self.__margin_dict.get(info)
