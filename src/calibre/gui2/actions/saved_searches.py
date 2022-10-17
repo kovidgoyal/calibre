@@ -16,7 +16,7 @@ class SavedSearchesAction(InterfaceAction):
                    _('Show a menu of saved searches'), '')
     action_type = 'current'
     action_add_menu = True
-    dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
+    dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
     def genesis(self):
         self.menu = m = self.qaction.menu()
