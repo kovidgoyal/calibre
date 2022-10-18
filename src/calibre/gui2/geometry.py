@@ -159,8 +159,17 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
     return _restore_to_new_screen(self, s, x)
 
 
+screen_debug_has_been_output = False
+
+
 def restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
-    if restore_geometry(self, prefs, name):
+    global screen_debug_has_been_output
+    if not screen_debug_has_been_output:
+        screen_debug_has_been_output = True
+        debug('Screens currently in system:')
+        for screen in QApplication.instance().screens():
+            debug(screen_as_dict(screen))
+    if _restore_geometry(self, prefs, name):
         return True
     sz = self.sizeHint()
     if sz.isValid():
