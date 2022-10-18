@@ -15,7 +15,7 @@ def show_menu_under_widget(gui, menu, action, name):
             # It seems that multiple copies of the action can exist, such as
             # when the device-connected menu is changed while the device is
             # connected. Use the one that has an actual position.
-            if w.pos().x() == 0:
+            if w is None or w.pos().x() == 0:
                 continue
             # The button might be hidden
             if not w.isVisible():
@@ -23,7 +23,7 @@ def show_menu_under_widget(gui, menu, action, name):
             # The w.height() assures that the menu opens below the button.
             menu.exec(w.mapToGlobal(QPoint(0, w.height())))
             return
-        except:
+        except Exception:
             continue
     # Now try the menu bar
     for x in gui.bars_manager.menu_bar.added_actions:
@@ -46,7 +46,7 @@ def show_menu_under_widget(gui, menu, action, name):
                 # Show the menu under the name in the menu bar
                 menu.exec(p.mapToGlobal(QPoint(r.x()+2, r.height()-2)))
                 return
-            except:
+            except Exception:
                 continue
     # No visible button found. Fall back to displaying in upper left corner
     # of the library view.
