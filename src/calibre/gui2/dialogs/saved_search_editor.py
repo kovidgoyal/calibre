@@ -100,11 +100,11 @@ class SavedSearchEditor(Dialog):
         db = get_gui().current_db
         self.l = l = QVBoxLayout(self)
         b = self.bb.addButton(_('&Add search'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon.ic('plus.png'))
+        b.setIcon(QIcon.ic('search_add_saved.png'))
         b.clicked.connect(self.add_search)
 
         b = self.bb.addButton(_('&Remove search'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setIcon(QIcon.ic('minus.png'))
+        b.setIcon(QIcon.ic('search_delete_saved.png'))
         b.clicked.connect(self.del_search)
 
         b = self.bb.addButton(_('&Edit search'), QDialogButtonBox.ButtonRole.ActionRole)
