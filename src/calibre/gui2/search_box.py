@@ -576,27 +576,45 @@ class SavedSearchBoxMixin:  # {{{
            "Press and hold for a pop-up options menu.") + '</p>')
         self.save_search_button.setMenu(QMenu(self.save_search_button))
         self.save_search_button.menu().addAction(
-                            QIcon.ic('plus.png'),
+                            QIcon.ic('search_add_saved.png'),
                             _('Create Saved search'),
                             self.saved_search.save_search_button_clicked)
         self.save_search_button.menu().addAction(
-            QIcon.ic('trash.png'), _('Delete Saved search'), self.saved_search.delete_current_search)
+            QIcon.ic('search_delete_saved.png'), _('Delete Saved search'), self.saved_search.delete_current_search)
         self.save_search_button.menu().addAction(
             QIcon.ic('search.png'), _('Manage Saved searches'), partial(self.do_saved_search_edit, None))
         self.add_saved_search_button.setMenu(QMenu(self.add_saved_search_button))
         self.add_saved_search_button.menu().aboutToShow.connect(self.populate_add_saved_search_menu)
 
-    def populate_add_saved_search_menu(self):
-        m = self.add_saved_search_button.menu()
+
+    def populate_add_saved_search_menu(self, to_menu=None):
+        m = to_menu if to_menu is not None else self.add_saved_search_button.menu()
         m.clear()
-        m.addAction(QIcon.ic('plus.png'), _('Add Saved search'), self.add_saved_search)
-        m.addAction(QIcon.ic("search_copy_saved.png"), _('Get Saved search expression'),
-                    self.get_saved_search_text)
-        m.addActions(list(self.save_search_button.menu().actions())[-1:])
+        m.clear()
+        m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
+        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
+                     self.get_saved_search_text)
+        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
+                     partial(self.do_saved_search_edit, None))
         m.addSeparator()
         db = self.current_db
+        submenus = {}
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
-            m.addAction(name.strip(), partial(self.saved_search.saved_search_selected, name))
+            components = tuple(n.strip() for n in name.split('.'))
+            hierarchy = components[:-1]
+            last = components[-1]
+            current_menu = m
+            # Walk the hierarchy, creating submenus as needed
+            for i,c in enumerate(hierarchy, start=1):
+                hierarchical_prefix = '.'.join(hierarchy[:i])
+                if hierarchical_prefix not in submenus:
+                    current_menu = current_menu.addMenu(c)
+                    current_menu.setIcon(QIcon.ic('folder_saved_search.png'))
+                    submenus[hierarchical_prefix] = current_menu
+                else:
+                    current_menu = submenus[hierarchical_prefix]
+            ac = current_menu.addAction(last, partial(self.search.set_search_string, 'search:"='+name+'"'))
+            ac.setIcon(QIcon.ic('search.png'))
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()

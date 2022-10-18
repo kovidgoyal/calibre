@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
-from qt.core import QPoint
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -29,25 +28,8 @@ class ManageCategoriesAction(InterfaceAction):
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
     def show_menu(self):
-        for x in self.gui.bars_manager.main_bars + self.gui.bars_manager.child_bars:
-            try:
-                w = x.widgetForAction(self.qaction)
-                # It seems that multiple copies of the action can exist, such as
-                # when the device-connected menu is changed while the device is
-                # connected. Use the one that has an actual position.
-                if w.pos().x() == 0:
-                    continue
-                # The button might be hidden
-                if not w.isVisible():
-                    continue
-                # The w.height() assures that the menu opens below the button.
-                self.menu.exec(w.mapToGlobal(QPoint(0, w.height())))
-                return
-            except:
-                continue
-        # No visible button found. Fall back to displaying in upper left corner
-        # of the library view.
-        self.menu.exec(self.gui.library_view.mapToGlobal(QPoint(10, 10)))
+        from calibre.gui2.actions.saved_searches import show_menu_under_widget
+        show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
     def about_to_show_menu(self):
         db = self.gui.current_db
