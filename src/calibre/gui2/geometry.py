@@ -148,6 +148,9 @@ def _restore_to_new_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
 def _restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
     x = prefs.get(f'geometry-of-{name}')
     if not x:
+        old = prefs.get(name)
+        if old is not None:
+            return self.restoreGeometry(old)
         return False
     if DEBUG:
         debug('Restoring geometry for:', name)
