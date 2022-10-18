@@ -57,7 +57,7 @@ class SavedSearchesAction(InterfaceAction):
 
     name = 'Saved searches'
     action_spec = (_('Saved searches'), 'folder_saved_search.png',
-                   _('Show a menu of saved searches'), None)
+                   _('Show a menu of saved searches'), ())
     action_type = 'current'
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))

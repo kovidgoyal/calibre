@@ -9,7 +9,7 @@ class ManageCategoriesAction(InterfaceAction):
 
     name = 'Manage categories'
     action_spec = (_('Manage categories'), 'tags.png',
-                   _('Manage categories: authors, tags, series, etc.'), '')
+                   _('Manage categories: authors, tags, series, etc.'), ())
     action_type = 'current'
     action_add_menu = True
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
