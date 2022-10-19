@@ -4,7 +4,7 @@
 import os
 from contextlib import suppress
 from qt.core import (
-    QApplication, QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor,
+    QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor,
     QTextEdit, pyqtSignal
 )
 
