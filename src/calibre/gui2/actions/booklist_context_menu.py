@@ -2,6 +2,8 @@
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
 
+from qt.core import QToolButton
+
 from calibre.gui2.actions import InterfaceAction
 
 
@@ -11,6 +13,7 @@ class BooklistContextMenuAction(InterfaceAction):
     action_spec = (_('Book list header menu'), 'context_menu.png',
                    _('Show the book list header context menu'), None)
     action_type = 'current'
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = False
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
 
