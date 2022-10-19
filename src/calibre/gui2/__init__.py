@@ -284,6 +284,8 @@ def create_defs():
 
     defs['action-layout-toolbar-child'] = ()
 
+    defs['action-layout-searchbar'] = ('Saved searches',)
+
     defs['action-layout-context-menu'] = (
             'Edit Metadata', 'Send To Device', 'Save To Disk',
             'Connect Share', 'Copy To Library', None,
@@ -395,6 +397,7 @@ def create_defs():
     defs['edit_metadata_templates_only_F2_on_booklist'] = False
     # JSON dumps converts integer keys to strings, so do it explicitly
     defs['tb_search_order'] = {'0': 1, '1': 2, '2': 3, '3': 4, '4': 0}
+    defs['search_tool_bar_shows_text'] = True
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so

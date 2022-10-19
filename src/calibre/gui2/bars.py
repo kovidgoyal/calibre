@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from qt.core import (
     Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QKeySequence, QMenuBar,
-    QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget, QPalette, sip)
+    QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget, QPalette, sip,
+    QHBoxLayout)
 
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
@@ -628,6 +629,7 @@ class BarsManager(QObject):
         self.main_bars = tuple(bars[:2])
         self.child_bars = tuple(bars[2:])
         self.reveal_bar = RevealBar(parent)
+        self.search_tool_bar = QHBoxLayout()
 
         self.menu_bar = MenuBar(self.location_manager, self.parent())
         is_native_menubar = self.menu_bar.is_native_menubar
@@ -636,6 +638,7 @@ class BarsManager(QObject):
         self.menubar_device_fallback = native_menubar_defaults['action-layout-menubar-device'] if is_native_menubar else ()
 
         self.apply_settings()
+        self.search_tool_bar_actions = []
         self.init_bars()
 
     def database_changed(self, db):
@@ -669,6 +672,29 @@ class BarsManager(QObject):
         for bar, actions in zip(self.bars, self.bar_actions[:3]):
             bar.init_bar(actions)
 
+        # Build the layout containing the buttons to go into the search bar
+        self.build_search_tool_bar()
+
+    def build_search_tool_bar(self):
+        for ac in self.search_tool_bar_actions:
+            self.search_tool_bar.removeWidget(ac)
+
+        self.search_tool_bar_actions = []
+        for what in gprefs['action-layout-searchbar']:
+            if what in self.parent().iactions:
+                qact = self.parent().iactions[what].qaction
+                tb = QToolButton()
+                tb.setDefaultAction(qact)
+                if not gprefs['search_tool_bar_shows_text']:
+                    tb.setText(None)
+                else:
+                    tb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+                tb.setCursor(Qt.CursorShape.PointingHandCursor)
+                tb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+                tb.setAutoRaise(True)
+                self.search_tool_bar.addWidget(tb)
+                self.search_tool_bar_actions.append(tb)
+
     def update_bars(self, reveal_bar=False):
         '''
         This shows the correct main toolbar and rebuilds the menubar based on
@@ -693,6 +719,9 @@ class BarsManager(QObject):
         self.menu_bar.init_bar(self.bar_actions[4 if showing_device else 3])
         self.menu_bar.update_lm_actions()
         self.menu_bar.setVisible(bool(self.menu_bar.added_actions))
+        self.build_search_tool_bar()
+        from calibre.gui2.ui import get_gui
+        get_gui().search_bar.update()
 
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
