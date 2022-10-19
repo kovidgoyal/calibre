@@ -14,8 +14,7 @@ from qt.core import (
 from calibre import human_readable
 from calibre.constants import __appname__
 from calibre.gui2.bars import BarsManager
-from calibre.gui2.search_box import SavedSearchBox, SearchBox2
-from calibre.gui2.widgets2 import RightClickButton
+from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
 
 
@@ -265,40 +264,8 @@ class SearchBar(QFrame):  # {{{
         x.setIcon(QIcon.ic('arrow-down.png'))
         l.addWidget(x)
 
-        x = parent.saved_search = SavedSearchBox(self)
-        x.setObjectName("saved_search")
-        l.addWidget(x)
-        x.setVisible(tweaks['show_saved_search_box'])
-
-        x = parent.copy_search_button = QToolButton(self)
-        x.setAutoRaise(True)
-        x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setIcon(QIcon.ic("search_copy_saved.png"))
-        x.setObjectName("copy_search_button")
-        l.addWidget(x)
-        x.setToolTip(_("Copy current search text (instead of search name)"))
-        x.setVisible(tweaks['show_saved_search_box'])
-
-        x = parent.save_search_button = RightClickButton(self)
-        x.setAutoRaise(True)
-        x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setIcon(QIcon.ic("search_add_saved.png"))
-        x.setObjectName("save_search_button")
-        l.addWidget(x)
-        x.setVisible(tweaks['show_saved_search_box'])
-
-        x = parent.add_saved_search_button = RightClickButton(self)
-        x.setToolTip(_(
-            'Use an existing Saved search or create a new one'
-        ))
-        x.setText(_('Saved search'))
-        x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        x.setAutoRaise(True)
-        x.setIcon(QIcon.ic("folder_saved_search.png"))
-        l.addWidget(x)
-        x.setVisible(not tweaks['show_saved_search_box'])
+        # Add the searchbar tool buttons to the bar
+        l.addLayout(self.parent().bars_manager.search_tool_bar)
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
@@ -342,9 +309,10 @@ class MainWindowMixin:  # {{{
 
         self.iactions['Fetch News'].init_scheduler()
 
-        self.search_bar = SearchBar(self)
         self.bars_manager = BarsManager(self.donate_action,
                 self.location_manager, self)
+        # instantiating SearchBar must happen after setting bars manager
+        self.search_bar = SearchBar(self)
         for bar in self.bars_manager.main_bars:
             self.addToolBar(Qt.ToolBarArea.TopToolBarArea, bar)
             bar.setStyleSheet('QToolBar { border: 0px }')

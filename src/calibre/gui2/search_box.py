@@ -12,10 +12,9 @@ from functools import partial
 from qt.core import (
     QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, QEvent,
     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
-    QIcon, QMenu, QApplication, QKeyEvent)
+    QIcon, QApplication, QKeyEvent)
 
-from calibre.gui2 import config, error_dialog, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
-from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2 import config, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
@@ -320,147 +319,6 @@ class SearchBox2(QComboBox):  # {{{
     # }}}
 
 
-class SavedSearchBox(QComboBox):  # {{{
-
-    '''
-    To use this class:
-        * Call initialize()
-        * Connect to the changed() signal from this widget
-          if you care about changes to the list of saved searches.
-    '''
-
-    changed = pyqtSignal()
-
-    def __init__(self, parent=None):
-        QComboBox.__init__(self, parent)
-
-        self.line_edit = SearchLineEdit(self)
-        self.setLineEdit(self.line_edit)
-        self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.ConnectionType.DirectConnection)
-        self.textActivated.connect(self.saved_search_selected)
-
-        # Turn off auto-completion so that it doesn't interfere with typing
-        # names of new searches.
-        completer = QCompleter(self)
-        self.setCompleter(completer)
-
-        self.setEditable(True)
-        self.setMaxVisibleItems(25)
-        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
-        self.setMinimumContentsLength(25)
-        self.tool_tip_text = self.toolTip()
-
-    def initialize(self, _search_box, colorize=False, help_text=_('Search')):
-        self.search_box = _search_box
-        try:
-            self.line_edit.setPlaceholderText(help_text)
-        except:
-            # Using Qt < 4.7
-            pass
-        self.colorize = colorize
-        self.clear()
-
-    def normalize_state(self):
-        # need this because line_edit will call it in some cases such as paste
-        pass
-
-    def clear(self):
-        QComboBox.clear(self)
-        self.initialize_saved_search_names()
-        self.setEditText('')
-        self.setToolTip(self.tool_tip_text)
-        self.line_edit.home(False)
-
-    def key_pressed(self, event):
-        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            self.saved_search_selected(self.currentText())
-
-    def saved_search_selected(self, qname):
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
-        qname = str(qname)
-        if qname is None or not qname.strip():
-            self.search_box.clear()
-            return
-        if not db.saved_search_lookup(qname):
-            self.search_box.clear()
-            self.setEditText(qname)
-            return
-        self.search_box.set_search_string('search:"%s"' % qname, emit_changed=False)
-        self.setEditText(qname)
-        self.setToolTip(db.saved_search_lookup(qname))
-
-    def initialize_saved_search_names(self):
-        from calibre.gui2.ui import get_gui
-        gui = get_gui()
-        try:
-            names = gui.current_db.saved_search_names()
-        except AttributeError:
-            # Happens during gui initialization
-            names = []
-        self.addItems(names)
-        self.setCurrentIndex(-1)
-
-    # SIGNALed from the main UI
-    def save_search_button_clicked(self):
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
-        name = str(self.currentText())
-        if not name.strip():
-            name = str(self.search_box.text()).replace('"', '')
-        name = name.replace('\\', '')
-        if not name:
-            error_dialog(self, _('Create saved search'),
-                         _('Invalid saved search name. '
-                           'It must contain at least one letter or number'), show=True)
-            return
-        if not self.search_box.text():
-            error_dialog(self, _('Create saved search'),
-                         _('There is no search to save'), show=True)
-            return
-        db.saved_search_delete(name)
-        db.saved_search_add(name, str(self.search_box.text()))
-        # now go through an initialization cycle to ensure that the combobox has
-        # the new search in it, that it is selected, and that the search box
-        # references the new search instead of the text in the search.
-        self.clear()
-        self.setCurrentIndex(self.findText(name))
-        self.saved_search_selected(name)
-        self.changed.emit()
-
-    def delete_current_search(self):
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
-        idx = self.currentIndex()
-        if idx <= 0:
-            error_dialog(self, _('Delete current search'),
-                         _('No search is selected'), show=True)
-            return
-        if not confirm('<p>'+_('The selected search will be '
-                       '<b>permanently deleted</b>. Are you sure?') +
-                       '</p>', 'saved_search_delete', self):
-            return
-        ss = db.saved_search_lookup(str(self.currentText()))
-        if ss is None:
-            return
-        db.saved_search_delete(str(self.currentText()))
-        self.clear()
-        self.search_box.clear()
-        self.changed.emit()
-
-    # SIGNALed from the main UI
-    def copy_search_button_clicked(self):
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
-        idx = self.currentIndex()
-        if idx < 0:
-            return
-        self.search_box.set_search_string(db.saved_search_lookup(str(self.currentText())))
-
-    # }}}
-
-
 class SearchBoxMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -497,6 +355,16 @@ class SearchBoxMixin:  # {{{
         self.highlight_only_action = ac = QAction(self)
         self.addAction(ac), ac.triggered.connect(self.highlight_only_clicked)
         self.keyboard.register_shortcut('highlight search results', _('Highlight search results'), action=self.highlight_only_action)
+        self.refresh_search_bar_widgets()
+
+    def refresh_search_bar_widgets(self):
+        self.set_highlight_only_button_icon()
+        if gprefs['search_tool_bar_shows_text']:
+            self.search_bar.search_button.setText(_('Search'))
+            self.search_bar.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        else:
+            self.search_bar.search_button.setText(None)
+            self.search_bar.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
     def highlight_only_clicked(self, state):
         if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
@@ -513,10 +381,20 @@ class SearchBoxMixin:  # {{{
         b = self.highlight_only_button
         if config['highlight_search_matches']:
             b.setIcon(QIcon.ic('highlight_only_on.png'))
-            b.setText(_('Filter'))
+            if gprefs['search_tool_bar_shows_text']:
+                b.setText(_('Filter'))
+                b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            else:
+                b.setText(None)
+                b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         else:
             b.setIcon(QIcon.ic('highlight_only_off.png'))
-            b.setText(_('Highlight'))
+            if gprefs['search_tool_bar_shows_text']:
+                b.setText(_('Highlight'))
+                b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            else:
+                b.setText(None)
+                b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.highlight_only_button.setVisible(gprefs['show_highlight_toggle_button'])
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
@@ -526,11 +404,9 @@ class SearchBoxMixin:  # {{{
 
     def search_box_cleared(self):
         self.tags_view.clear()
-        self.saved_search.clear()
         self.set_number_of_books_shown()
 
     def search_box_changed(self):
-        self.saved_search.clear()
         self.tags_view.conditional_clear(self.search.current_text)
 
     def do_advanced_search(self, *args):
@@ -554,41 +430,10 @@ class SavedSearchBoxMixin:  # {{{
         pass
 
     def init_saved_seach_box_mixin(self):
-        self.saved_search.changed.connect(self.saved_searches_changed)
-        ac = self.search.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
-        if ac is not None:
-            ac.triggered.connect(self.saved_search.clear)
-        self.save_search_button.clicked.connect(
-                                self.saved_search.save_search_button_clicked)
-        self.copy_search_button.clicked.connect(
-                                self.saved_search.copy_search_button_clicked)
-        # self.saved_searches_changed()
-        self.saved_search.initialize(self.search, colorize=True,
-                help_text=_('Saved searches'))
-        self.saved_search.tool_tip_text=_('Choose saved search or enter name for new saved search')
-        self.saved_search.setToolTip(self.saved_search.tool_tip_text)
-        self.saved_search.setStatusTip(self.saved_search.tool_tip_text)
-        for x in ('copy', 'save'):
-            b = getattr(self, x+'_search_button')
-            b.setStatusTip(b.toolTip())
-        self.save_search_button.setToolTip('<p>' +
-         _("Save current search under the name shown in the box. "
-           "Press and hold for a pop-up options menu.") + '</p>')
-        self.save_search_button.setMenu(QMenu(self.save_search_button))
-        self.save_search_button.menu().addAction(
-                            QIcon.ic('search_add_saved.png'),
-                            _('Create Saved search'),
-                            self.saved_search.save_search_button_clicked)
-        self.save_search_button.menu().addAction(
-            QIcon.ic('search_delete_saved.png'), _('Delete Saved search'), self.saved_search.delete_current_search)
-        self.save_search_button.menu().addAction(
-            QIcon.ic('search.png'), _('Manage Saved searches'), partial(self.do_saved_search_edit, None))
-        self.add_saved_search_button.setMenu(QMenu(self.add_saved_search_button))
-        self.add_saved_search_button.menu().aboutToShow.connect(self.populate_add_saved_search_menu)
+        pass
 
-
-    def populate_add_saved_search_menu(self, to_menu=None):
-        m = to_menu if to_menu is not None else self.add_saved_search_button.menu()
+    def populate_add_saved_search_menu(self, to_menu):
+        m = to_menu
         m.clear()
         m.clear()
         m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
@@ -631,7 +476,6 @@ class SavedSearchBoxMixin:  # {{{
 
     def do_rebuild_saved_searches(self):
         self.saved_searches_changed()
-        self.saved_search.clear()
 
     def add_saved_search(self):
         from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch

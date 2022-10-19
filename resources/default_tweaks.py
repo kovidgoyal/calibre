@@ -522,12 +522,6 @@ content_server_thumbnail_compression_quality = 75
 #    cover_drop_exclude = {'tiff', 'webp'}
 cover_drop_exclude = ()
 
-#: Show the Saved searches box in the Search bar
-# In newer versions of calibre, only a single button that allows you to add a
-# new Saved search is shown in the Search bar. If you would like to have the
-# old Saved searches box with its two buttons back, set this tweak to True.
-show_saved_search_box = False
-
 #: Exclude fields when copy/pasting metadata
 # You can ask calibre to not paste some metadata fields when using the
 # Edit metadata->Copy metadata/Paste metadata actions. For example,

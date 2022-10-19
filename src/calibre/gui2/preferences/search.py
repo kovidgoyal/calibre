@@ -32,6 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('show_highlight_toggle_button', gprefs)
         r('limit_search_columns', prefs)
         r('use_primary_find_in_search', prefs)
+        r('search_tool_bar_shows_text', gprefs)
         r('case_sensitive', prefs)
         fl = db.field_metadata.get_search_terms()
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList, choices=fl)
@@ -236,6 +237,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
+        gui.refresh_search_bar_widgets()
         gui.current_db.new_api.clear_caches()
         set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
