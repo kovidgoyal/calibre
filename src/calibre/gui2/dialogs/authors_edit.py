@@ -155,20 +155,15 @@ class AuthorsEdit(QDialog):
 
         l.setColumnStretch(0, 10)
         self.resize(self.sizeHint() + QSize(150, 100))
-        geom = gprefs.get('authors-edit-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'authors-edit-geometry')
         self.author.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def save_geometry(self):
-        gprefs.set('authors-edit-geometry', bytearray(self.saveGeometry()))
-
     def accept(self):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'authors-edit-geometry')
         return QDialog.accept(self)
 
     def reject(self):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'authors-edit-geometry')
         return QDialog.reject(self)
 
     @property

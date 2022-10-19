@@ -2,8 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from qt.core import (
-    QAbstractItemView, QApplication, QDialog, QSortFilterProxyModel,
-    QStringListModel, Qt
+    QAbstractItemView, QDialog, QSortFilterProxyModel, QStringListModel, Qt,
 )
 
 from calibre.constants import islinux
@@ -112,9 +111,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.available_tags.activated.connect(self.apply_tags)
             self.applied_tags.activated.connect(self.unapply_tags)
 
-        geom = gprefs.get('tag_editor_geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'tag_editor_geometry')
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
@@ -227,7 +224,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         return QDialog.reject(self)
 
     def save_state(self):
-        gprefs['tag_editor_geometry'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'tag_editor_geometry')
 
 
 if __name__ == '__main__':

@@ -59,9 +59,7 @@ class DuplicatesQuestion(QDialog):
         cb.clicked.connect(self.copy_to_clipboard)
 
         self.resize(self.sizeHint())
-        geom = gprefs.get('duplicates-question-dialog-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'duplicates-question-dialog-geometry')
         self.exec()
 
     def copy_to_clipboard(self):
@@ -87,7 +85,7 @@ class DuplicatesQuestion(QDialog):
         QDialog.accept(self)
 
     def save_geometry(self):
-        gprefs.set('duplicates-question-dialog-geometry', bytearray(self.saveGeometry()))
+        super().save_geometry(gprefs, 'duplicates-question-dialog-geometry')
 
     def process_duplicates(self, db, duplicates):
         ta = _('%(title)s by %(author)s [%(formats)s]')

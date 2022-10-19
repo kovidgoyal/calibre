@@ -755,14 +755,11 @@ class EbookViewer(MainWindow):
     def save_state(self):
         with vprefs:
             vprefs['main_window_state'] = bytearray(self.saveState(self.MAIN_WINDOW_STATE_VERSION))
-            vprefs['main_window_geometry'] = bytearray(self.saveGeometry())
+            self.save_geometry(vprefs, 'main_window_geometry')
 
     def restore_state(self):
         state = vprefs['main_window_state']
-        geom = vprefs['main_window_geometry']
-        if geom and get_session_pref('remember_window_geometry', default=False):
-            QApplication.instance().safe_restore_geometry(self, geom)
-        else:
+        if not get_session_pref('remember_window_geometry', default=False) or not self.restore_geometry(vprefs, 'main_window_geometry'):
             QApplication.instance().ensure_window_on_screen(self)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)

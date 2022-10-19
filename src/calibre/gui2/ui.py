@@ -1060,14 +1060,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     det_msg=job.details, retry_func=retry_func)
 
     def read_settings(self):
-        geometry = config['main_window_geometry']
-        if geometry is not None:
-            QApplication.instance().safe_restore_geometry(self, geometry)
+        self.restore_geometry(gprefs, 'calibre_main_window_geometry', get_legacy_saved_geometry=lambda: config['main_window_geometry'])
         self.read_layout_settings()
 
     def write_settings(self):
         with gprefs:  # Only write to gprefs once
-            config.set('main_window_geometry', self.saveGeometry())
+            self.save_geometry(gprefs, 'calibre_main_window_geometry')
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
             self.stack.tb_widget.save_state()

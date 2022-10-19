@@ -10,7 +10,7 @@ from functools import partial
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
+                      QIcon, QSize, QPalette, QLineEdit, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
                       QComboBox, QAbstractItemView, QTextOption, QFontMetrics)
 
@@ -474,12 +474,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
-        try:
-            geom = gprefs.get('template_editor_dialog_geometry', None)
-            if geom is not None:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
-        except Exception:
-            pass
+        self.restore_geometry(gprefs, 'template_editor_dialog_geometry')
 
     def setup_saved_template_editor(self, show_buttonbox, show_doc_and_name):
         self.buttonBox.setVisible(show_buttonbox)
@@ -842,7 +837,7 @@ def evaluate(book, context):
 
     def save_geometry(self):
         gprefs['template_editor_table_widths'] = self.table_column_widths
-        gprefs['template_editor_dialog_geometry'] = bytearray(self.saveGeometry())
+        super().save_geometry(gprefs, 'template_editor_dialog_geometry')
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key.Key_Escape:
@@ -964,12 +959,7 @@ class BreakReporter(QDialog):
             itm.setToolTip(_('The value of the variable'))
             self.table.setItem(i+2, 1, itm)
 
-        try:
-            geom = gprefs.get('template_editor_break_geometry', None)
-            if geom is not None:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
-        except Exception:
-            pass
+        self.restore_geometry(gprefs, 'template_editor_break_geometry')
 
     def get_field_value(self, field):
         val = self.mi.format_field('timestamp' if field == 'date' else field)[1]
@@ -990,7 +980,7 @@ class BreakReporter(QDialog):
         return sorted(keys)
 
     def save_geometry(self):
-        gprefs['template_editor_break_geometry'] = bytearray(self.saveGeometry())
+        super().save_geometry(gprefs, 'template_editor_break_geometry')
         gprefs['template_editor_break_table_widths'] = self.table_column_widths
 
     def reject(self):

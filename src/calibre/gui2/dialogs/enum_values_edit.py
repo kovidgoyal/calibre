@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2020, Charles Haley
 
 from qt.core import (QDialog, QColor, QDialogButtonBox, QHeaderView,
-                      QApplication, QGridLayout, QTableWidget,
+                      QGridLayout, QTableWidget,
                       QTableWidgetItem, QVBoxLayout, QToolButton, QIcon,
                       QAbstractItemView, QComboBox)
 
@@ -77,9 +77,7 @@ class EnumValuesEdit(QDialog):
         self.ins_button.clicked.connect(self.ins_button_clicked)
         self.move_down_button.clicked.connect(self.move_down_clicked)
         self.move_up_button.clicked.connect(self.move_up_clicked)
-        geom = gprefs.get('enum-values-edit-geometry')
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'enum-values-edit-geometry')
 
     def sizeHint(self):
         sz = QDialog.sizeHint(self)
@@ -144,7 +142,7 @@ class EnumValuesEdit(QDialog):
         self.table.setCellWidget(row, 1, c)
 
     def save_geometry(self):
-        gprefs.set('enum-values-edit-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'enum-values-edit-geometry')
 
     def accept(self):
         disp = self.fm['display']

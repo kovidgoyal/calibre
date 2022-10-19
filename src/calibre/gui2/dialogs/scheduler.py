@@ -12,7 +12,7 @@ from collections import OrderedDict
 from contextlib import suppress
 
 from qt.core import (
-    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QRecursiveMutex, QApplication,
+    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QRecursiveMutex,
     QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
     QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
     QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
@@ -370,9 +370,7 @@ class SchedulerDialog(QDialog):
         b.clicked.connect(self.download_clicked)
         self.l.addWidget(bb, 3, 1, 1, 1)
 
-        geom = gprefs.get('scheduler_dialog_geometry')
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'scheduler_dialog_geometry')
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -425,15 +423,12 @@ class SchedulerDialog(QDialog):
     def accept(self):
         if not self.commit():
             return False
-        self.save_geometry()
+        self.save_geometry(gprefs, 'scheduler_dialog_geometry')
         return QDialog.accept(self)
 
     def reject(self):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'scheduler_dialog_geometry')
         return QDialog.reject(self)
-
-    def save_geometry(self):
-        gprefs.set('scheduler_dialog_geometry', bytearray(self.saveGeometry()))
 
     def download_clicked(self, *args):
         self.commit()

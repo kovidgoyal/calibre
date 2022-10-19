@@ -884,7 +884,7 @@ class Main(MainWindow):
             e.ignore()
 
     def save_state(self):
-        tprefs.set('main_window_geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(tprefs, 'main_window_geometry')
         tprefs.set('main_window_state', bytearray(self.saveState(self.STATE_VERSION)))
         self.central.save_state()
         self.saved_searches.save_state()
@@ -892,9 +892,7 @@ class Main(MainWindow):
         self.text_search.save_state()
 
     def restore_state(self):
-        geom = tprefs.get('main_window_geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(tprefs, 'main_window_geometry')
         state = tprefs.get('main_window_state', None)
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)

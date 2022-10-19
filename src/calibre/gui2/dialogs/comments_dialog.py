@@ -6,8 +6,8 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt,
-    QVBoxLayout, QLabel, QHBoxLayout, pyqtSignal
+    QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPlainTextEdit, QSize, Qt,
+    QVBoxLayout, pyqtSignal,
 )
 
 from calibre.gui2 import Application, gprefs
@@ -40,29 +40,21 @@ class CommentsDialog(QDialog):
 
         if column_name:
             self.setWindowTitle(_('Edit "{0}"').format(column_name))
-
-        geom = gprefs.get('comments_dialog_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
-        else:
-            self.resize(self.sizeHint())
+        self.restore_geometry(gprefs, 'comments_dialog_geom')
 
     def sizeHint(self):
         return QSize(650, 600)
 
-    def save_geometry(self):
-        gprefs.set('comments_dialog_geom', bytearray(self.saveGeometry()))
-
     def accept(self):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.accept(self)
 
     def reject(self):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.reject(self)
 
     def closeEvent(self, ev):
-        self.save_geometry()
+        self.save_geometry(gprefs, 'comments_dialog_geom')
         return QDialog.closeEvent(self, ev)
 
 

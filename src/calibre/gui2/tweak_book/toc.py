@@ -53,11 +53,10 @@ class TOCEditor(QDialog):
         b.clicked.connect(self.toc_view.undo)
 
         self.read_toc()
+        self.restore_geometry(tprefs, 'toc_editor_window_geom')
 
-        self.resize(950, 630)
-        geom = tprefs.get('toc_editor_window_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, bytes(geom))
+    def sizeHint(self):
+        return QSize(950, 630)
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -73,11 +72,11 @@ class TOCEditor(QDialog):
             self.stacks.setCurrentIndex(0)
         elif self.stacks.currentIndex() == 0:
             self.write_toc()
-            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            self.save_geometry(tprefs, 'toc_editor_window_geom')
             super().accept()
 
     def really_accept(self, tb):
-        tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+        self.save_geometry(tprefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
@@ -97,7 +96,7 @@ class TOCEditor(QDialog):
             tprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(0)
         else:
-            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            self.save_geometry(tprefs, 'toc_editor_window_geom')
             super().reject()
 
     def read_toc(self):

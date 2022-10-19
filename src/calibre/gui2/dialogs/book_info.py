@@ -198,17 +198,11 @@ class BookInfo(QDialog):
         self.previous_button.setToolTip(_('Previous [%s]')%
                 str(self.ps.key().toString(QKeySequence.SequenceFormat.NativeText)))
 
-        geom = self.screen().availableSize()
-        screen_height = geom.height() - 100
-        screen_width = geom.width() - 100
-        self.resize(max(int(screen_width/2), 700), screen_height)
-        saved_layout = gprefs.get('book_info_dialog_layout', None)
-        if saved_layout is not None:
-            try:
-                QApplication.instance().safe_restore_geometry(self, saved_layout[0])
-                self.splitter.restoreState(saved_layout[1])
-            except Exception:
-                pass
+        self.restore_geometry(gprefs, 'book_info_dialog_geometry')
+        try:
+            self.splitter.restoreState(gprefs.get('book_info_dialog_splitter_state'))
+        except Exception:
+            pass
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         a = self.ema = QAction('edit metadata', self)
         a.setShortcut(ema.shortcut())
@@ -219,6 +213,15 @@ class BookInfo(QDialog):
         a.setShortcut(vb.shortcut())
         a.triggered.connect(self.view_book)
         self.addAction(a)
+
+    def sizeHint(self):
+        try:
+            geom = self.screen().availableSize()
+            screen_height = geom.height() - 100
+            screen_width = geom.width() - 100
+            return QSize(max(int(screen_width/2), 700), screen_height)
+        except Exception:
+            return QSize(800, 600)
 
     def view_book(self):
         if self.current_row is not None:
@@ -243,8 +246,8 @@ class BookInfo(QDialog):
         self.link_delegate(link)
 
     def done(self, r):
-        saved_layout = (bytearray(self.saveGeometry()), bytearray(self.splitter.saveState()))
-        gprefs.set('book_info_dialog_layout', saved_layout)
+        self.save_geometry(gprefs, 'book_info_dialog_geometry')
+        gprefs['book_info_dialog_splitter_state'] = bytearray(self.splitter.saveState())
         ret = QDialog.done(self, r)
         self.view.model().new_bookdisplay_data.disconnect(self.slave)
         self.view = self.link_delegate = self.gui = None

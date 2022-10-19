@@ -6,7 +6,7 @@ from collections import OrderedDict
 from contextlib import suppress
 from copy import deepcopy
 from qt.core import (
-    QApplication, QCheckBox, QColor, QColorDialog, QDialog, QDialogButtonBox,
+    QCheckBox, QColor, QColorDialog, QDialog, QDialogButtonBox,
     QFormLayout, QFrame, QGridLayout, QHBoxLayout, QIcon, QInputDialog, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QMenu, QPixmap, QPushButton, QSize,
     QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QToolButton, QVBoxLayout, QWidget,
@@ -554,9 +554,7 @@ class CoverSettingsDialog(QDialog):
             ' the list of checked styles/colors.'))
 
         self.resize(self.sizeHint())
-        geom = gprefs.get('cover_settings_dialog_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'cover_settings_dialog_geom')
         self.prefs_for_rendering = None
 
     def restore_defaults(self):
@@ -592,7 +590,7 @@ class CoverSettingsDialog(QDialog):
 
     def _save_settings(self):
         gprefs.set('cover_generation_save_settings_for_future', self.save_settings.isChecked())
-        gprefs.set('cover_settings_dialog_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'cover_settings_dialog_geom')
         self.settings.save_state()
 
     def accept(self):

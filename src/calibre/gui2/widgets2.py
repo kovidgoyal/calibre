@@ -221,23 +221,20 @@ class Dialog(QDialog):
 
         self.setup_ui()
 
-        self.resize(self.sizeHint())
-        geom = self.prefs_for_persistence.get(name + '-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(self.prefs_for_persistence, self.name + '-geometry')
         if hasattr(self, 'splitter'):
-            state = self.prefs_for_persistence.get(name + '-splitter-state', None)
+            state = self.prefs_for_persistence.get(self.name + '-splitter-state', None)
             if state is not None:
                 self.splitter.restoreState(state)
 
     def accept(self):
-        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(self.prefs_for_persistence, self.name + '-geometry')
         if hasattr(self, 'splitter'):
             self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
         QDialog.accept(self)
 
     def reject(self):
-        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(self.prefs_for_persistence, self.name + '-geometry')
         if hasattr(self, 'splitter'):
             self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
         QDialog.reject(self)

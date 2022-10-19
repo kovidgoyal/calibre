@@ -1057,11 +1057,8 @@ class FullFetch(QDialog):  # {{{
         self.covers_widget.chosen.connect(self.ok_clicked)
         self.stack.addWidget(self.covers_widget)
 
-        self.resize(850, 600)
-        geom = gprefs.get('metadata_single_gui_geom', None)
-        if geom is not None and geom:
-            QApplication.instance().safe_restore_geometry(self, geom)
-
+        if not self.restore_geometry(gprefs, 'metadata_single_gui_geom'):
+            self.resize(850, 600)
         self.finished.connect(self.cleanup)
 
     def view_log(self):
@@ -1084,7 +1081,7 @@ class FullFetch(QDialog):  # {{{
 
     def accept(self):
         # Prevent the usual dialog accept mechanisms from working
-        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.save_state()
         if DEBUG_DIALOG:
             if self.stack.currentIndex() == 2:
@@ -1094,7 +1091,7 @@ class FullFetch(QDialog):  # {{{
                 return QDialog.accept(self)
 
     def reject(self):
-        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.cancel()
         self.covers_widget.cancel()
         return QDialog.reject(self)
@@ -1106,7 +1103,7 @@ class FullFetch(QDialog):  # {{{
         self.ok_button.setEnabled(True)
 
     def next_clicked(self, *args):
-        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.get_result()
 
     def ok_clicked(self, *args):
@@ -1160,21 +1157,18 @@ class CoverFetch(QDialog):  # {{{
         self.log_button.setIcon(QIcon.ic('debug.png'))
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
-
-        geom = gprefs.get('single-cover-fetch-dialog-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'single-cover-fetch-dialog-geometry')
 
     def cleanup(self):
         self.covers_widget.cleanup()
 
     def reject(self):
-        gprefs.set('single-cover-fetch-dialog-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'single-cover-fetch-dialog-geometry')
         self.covers_widget.cancel()
         return QDialog.reject(self)
 
     def accept(self, *args):
-        gprefs.set('single-cover-fetch-dialog-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'single-cover-fetch-dialog-geometry')
         self.cover_pixmap = self.covers_widget.cover_pixmap()
         QDialog.accept(self)
 

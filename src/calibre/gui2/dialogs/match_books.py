@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from qt.core import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
-                      QByteArray, QApplication, QCursor, QTimer)
+                      QApplication, QCursor, QTimer)
 
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
@@ -56,9 +56,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         try:
             self.books_table_column_widths = \
                         gprefs.get('match_books_dialog_books_table_widths', None)
-            geom = gprefs.get('match_books_dialog_geometry', None)
-            if geom:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
+            self.restore_geometry(gprefs, 'match_books_dialog_geometry')
         except:
             pass
 
@@ -189,7 +187,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         for c in range(0, self.books_table.columnCount()):
             self.books_table_column_widths.append(self.books_table.columnWidth(c))
         gprefs['match_books_dialog_books_table_widths'] = self.books_table_column_widths
-        gprefs['match_books_dialog_geometry'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'match_books_dialog_geometry')
         self.search_text.save_history()
 
     def close(self):

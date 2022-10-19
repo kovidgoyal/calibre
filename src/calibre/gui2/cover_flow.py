@@ -257,11 +257,7 @@ class CBDialog(QDialog):
         self.setWindowTitle(_('Browse by covers'))
         self.layout().addWidget(cover_flow)
 
-        geom = gprefs.get('cover_browser_dialog_geometry', None)
-        if not geom or not QApplication.instance().safe_restore_geometry(self, geom):
-            sz = self.screen().availableSize()
-            h, w = sz.height()-60, int(sz.width()/1.5)
-            self.resize(w, h)
+        self.restore_geometry(gprefs, 'cover_browser_dialog_geometry')
         self.action_fs_toggle = a = QAction(self)
         self.addAction(a)
         a.setShortcuts([QKeySequence(QKeySequence.StandardKey.FullScreen)])
@@ -291,10 +287,15 @@ class CBDialog(QDialog):
             menuless_qaction.shortcuts()))
         a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
+    def sizeHint(self):
+        sz = self.screen().availableSize()
+        sz.setHeight(sz.height()-60)
+        sz.setWidth(int(sz.width()/1.5))
+        return sz
+
     def closeEvent(self, *args):
         if not self.isFullScreen():
-            geom = bytearray(self.saveGeometry())
-            gprefs['cover_browser_dialog_geometry'] = geom
+            self.save_geometry(gprefs, 'cover_browser_dialog_geometry')
         self.closed.emit()
 
     def show_normal(self):

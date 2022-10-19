@@ -628,9 +628,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def restore_state(self):
         try:
-            geom = gprefs.get('jobs_dialog_geometry', None)
-            if geom:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
+            self.restore_geometry(gprefs, 'jobs_dialog_geometry')
             state = gprefs.get('jobs view column layout3', None)
             if state is not None:
                 self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
@@ -647,8 +645,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             with gprefs:
                 state = bytearray(self.jobs_view.horizontalHeader().saveState())
                 gprefs['jobs view column layout3'] = state
-                geom = bytearray(self.saveGeometry())
-                gprefs['jobs_dialog_geometry'] = geom
+                self.save_geometry(gprefs, 'jobs_dialog_geometry')
         except Exception:
             import traceback
             traceback.print_exc()

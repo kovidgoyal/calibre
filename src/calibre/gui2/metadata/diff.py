@@ -691,9 +691,7 @@ class CompareMany(QDialog):
         width = max(700, min(950, geom.width()-50))
         height = max(650, min(1000, geom.height()-100))
         self.resize(QSize(width, height))
-        geom = gprefs.get('diff_dialog_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'diff_dialog_geom')
         b.setFocus(Qt.FocusReason.OtherFocusReason)
         self.next_called = False
 
@@ -709,7 +707,7 @@ class CompareMany(QDialog):
         self.action_button_action(self.ids[0])
 
     def accept(self):
-        gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'diff_dialog_geom')
         self.compare_widget.save_comments_controls_state()
         super().accept()
 
@@ -721,7 +719,7 @@ class CompareMany(QDialog):
             'All reviewed changes will be lost! Are you sure you want to Cancel?'),
             'confirm-metadata-diff-dialog-cancel'):
             return
-        gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'diff_dialog_geom')
         self.compare_widget.save_comments_controls_state()
         super().reject()
 

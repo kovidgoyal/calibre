@@ -9,7 +9,7 @@ import datetime
 import re
 import traceback
 from qt.core import (
-    QAbstractItemView, QAbstractTableModel, QAction, QApplication, QBrush, QComboBox,
+    QAbstractItemView, QAbstractTableModel, QAction, QBrush, QComboBox,
     QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
     QModelIndex, QSize, QSortFilterProxyModel, Qt, QTableView, QUrl, QVBoxLayout
 )
@@ -155,18 +155,17 @@ class SizePersistedDialog(QDialog):
     def __init__(self, parent, unique_pref_name):
         QDialog.__init__(self, parent)
         self.unique_pref_name = unique_pref_name
-        self.geom = gprefs.get(unique_pref_name, None)
         self.finished.connect(self.dialog_closing)
 
+    def sizeHint(self):
+        ans = super().sizeHint()
+        return ans + self.initial_extra_size
+
     def resize_dialog(self):
-        if self.geom is None:
-            self.resize(self.sizeHint()+self.initial_extra_size)
-        else:
-            QApplication.instance().safe_restore_geometry(self, self.geom)
+        self.restore_geometry(gprefs, self.unique_pref_name)
 
     def dialog_closing(self, result):
-        geom = bytearray(self.saveGeometry())
-        gprefs[self.unique_pref_name] = geom
+        self.save_geometry(gprefs, self.unique_pref_name)
 
 
 class PluginFilterComboBox(QComboBox):

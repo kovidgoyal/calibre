@@ -8,7 +8,7 @@ from qt.core import (
     QAbstractListModel, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
     QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,
-    Qt, QTextEdit, QWidget, QApplication
+    Qt, QTextEdit, QWidget
 )
 
 from calibre.customize.conversion import OptionRecommendation
@@ -88,11 +88,7 @@ class Config(QDialog):
         rb.setIcon(QIcon.ic('clear_left.png'))
         rb.clicked.connect(self.restore_defaults)
         self.groups.setMouseTracking(True)
-        geom = gprefs.get('convert_single_dialog_geom', None)
-        if geom:
-            QApplication.instance().safe_restore_geometry(self, geom)
-        else:
-            self.resize(self.sizeHint())
+        self.restore_geometry(gprefs, 'convert_single_dialog_geom')
 
     def current_group_changed(self, cur, prev):
         self.show_pane(cur)
@@ -303,8 +299,7 @@ class Config(QDialog):
 
     def done(self, r):
         if self.isVisible():
-            gprefs['convert_single_dialog_geom'] = \
-                bytearray(self.saveGeometry())
+            self.save_geometry(gprefs, 'convert_single_dialog_geom')
         return QDialog.done(self, r)
 
     def break_cycles(self):

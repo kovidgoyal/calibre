@@ -10,7 +10,7 @@ import os
 import sys
 import weakref
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QScrollArea, QSize
+    QDialog, QDialogButtonBox, QScrollArea, QSize
 )
 
 from calibre.customize import PluginInstallationType
@@ -132,11 +132,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.buttonBox.button(QDialogButtonBox.StandardButton.Help).clicked.connect(self.help)
         self.show_plugin_tab(None)
 
-        geom = dynamic.get('catalog_window_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, bytes(geom))
-        else:
-            self.resize(self.sizeHint())
+        self.restore_geometry(dynamic, 'catalog_window_geom')
         g = self.screen().availableSize()
         self.setMaximumWidth(g.width() - 50)
         self.setMaximumHeight(g.height() - 50)
@@ -202,7 +198,7 @@ class Catalog(QDialog, Ui_Dialog):
         dynamic.set('catalog_last_used_title', self.catalog_title)
         self.catalog_sync = bool(self.sync.isChecked())
         dynamic.set('catalog_sync_to_device', self.catalog_sync)
-        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(dynamic, 'catalog_window_geom')
         dynamic.set('catalog_add_to_library', self.add_to_library.isChecked())
 
     def apply(self, *args):
@@ -239,5 +235,5 @@ class Catalog(QDialog, Ui_Dialog):
                     show=True)
 
     def reject(self):
-        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(dynamic, 'catalog_window_geom')
         QDialog.reject(self)

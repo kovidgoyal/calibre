@@ -227,22 +227,22 @@ class ViewLog(QDialog):  # {{{
 
         self.unique_name = unique_name or 'view-log-dialog'
         self.finished.connect(self.dialog_closing)
-        self.resize(QSize(700, 500))
-        geom = gprefs.get(self.unique_name, None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, self.unique_name)
 
         self.setModal(False)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon.ic('debug.png'))
         self.show()
 
+    def sizeHint(self):
+        return QSize(700, 500)
+
     def copy_to_clipboard(self):
         txt = self.tb.toPlainText()
         QApplication.clipboard().setText(txt)
 
     def dialog_closing(self, result):
-        gprefs[self.unique_name] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, self.unique_name)
 # }}}
 
 

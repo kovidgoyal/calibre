@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import sys
 from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QKeySequence,
+    QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QKeySequence,
     QLabel, QSize, Qt, QToolBar, QVBoxLayout
 )
 
@@ -66,12 +66,12 @@ class TrimImage(QDialog):
         h.addStretch(10)
         h.addWidget(bb)
 
-        self.resize(QSize(900, 600))
-        geom = gprefs.get('image-trim-dialog-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'image-trim-dialog-geometry')
         self.setWindowIcon(self.trim_action.icon())
         self.image_data = None
+
+    def sizeHint(self):
+        return QSize(900, 600)
 
     def do_trim(self):
         self.canvas.trim_image()
@@ -95,7 +95,7 @@ class TrimImage(QDialog):
 
     def cleanup(self):
         self.canvas.break_cycles()
-        gprefs.set('image-trim-dialog-geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'image-trim-dialog-geometry')
 
     def accept(self):
         if self.trim_action.isEnabled():

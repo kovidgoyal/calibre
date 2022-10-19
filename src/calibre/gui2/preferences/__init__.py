@@ -363,7 +363,6 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     d = ConfigDialog(parent)
     d.resize(750, 550)
     conf_name = 'config_widget_dialog_geometry_%s_%s'%(category, name)
-    geom = gprefs.get(conf_name, None)
     d.setWindowTitle(_('Configure ') + pl.gui_name)
     d.setWindowIcon(QIcon.ic('config.png'))
     bb = QDialogButtonBox(d)
@@ -394,11 +393,9 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
         mygui = True
     w.genesis(gui)
     w.initialize()
-    if geom is not None:
-        QApplication.instance().safe_restore_geometry(d, geom)
+    d.restore_geometry(gprefs, conf_name)
     d.exec()
-    geom = bytearray(d.saveGeometry())
-    gprefs[conf_name] = geom
+    d.save_geometry(gprefs, conf_name)
     rr = getattr(d, 'restart_required', False)
     if show_restart_msg and rr:
         from calibre.gui2 import warning_dialog

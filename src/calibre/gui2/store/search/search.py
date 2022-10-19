@@ -6,7 +6,7 @@ import re
 from random import shuffle
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QApplication, QStyle)
+                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QSize, QStyle)
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -249,7 +249,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         return query.encode('utf-8')
 
     def save_state(self):
-        self.config['geometry'] = bytearray(self.saveGeometry())
+        self.save_geometry(self.config, 'geometry')
         self.config['store_splitter_state'] = bytearray(self.store_splitter.saveState())
         self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
         self.config['sort_col'] = self.results_view.model().sort_col
@@ -262,10 +262,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_checked'] = store_check
 
     def restore_state(self):
-        geometry = self.config.get('geometry', None)
-        if geometry:
-            QApplication.instance().safe_restore_geometry(self, geometry)
-
+        self.restore_geometry(self.config, 'geometry')
         splitter_state = self.config.get('store_splitter_state', None)
         if splitter_state:
             self.store_splitter.restoreState(splitter_state)
@@ -334,11 +331,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_widget.addTab(search_config_widget, _('Configure s&earch'))
 
         # Restore dialog state.
-        geometry = self.config.get('config_dialog_geometry', None)
-        if geometry:
-            QApplication.instance().safe_restore_geometry(d, geometry)
-        else:
-            d.resize(800, 600)
+        self.restore_geometry(self.config, 'config_dialog_geometry')
         tab_index = self.config.get('config_dialog_tab_index', 0)
         tab_index = min(tab_index, tab_widget.count() - 1)
         tab_widget.setCurrentIndex(tab_index)
@@ -346,13 +339,16 @@ class SearchDialog(QDialog, Ui_Dialog):
         d.exec()
 
         # Save dialog state.
-        self.config['config_dialog_geometry'] = bytearray(d.saveGeometry())
+        self.save_geometry(self.config, 'config_dialog_geometry')
         self.config['config_dialog_tab_index'] = tab_widget.currentIndex()
 
         search_config_widget.save_settings()
         self.config_changed()
         self.gui.load_store_plugins()
         self.setup_store_checks()
+
+    def sizeHint(self):
+        return QSize(800, 600)
 
     def config_changed(self):
         self.load_settings()

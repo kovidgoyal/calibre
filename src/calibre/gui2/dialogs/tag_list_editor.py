@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from qt.core import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize, QAbstractItemView,
+from qt.core import (Qt, QDialog, QTableWidgetItem, QIcon, QSize, QAbstractItemView,
                       QDialogButtonBox, QItemDelegate, QApplication,
                       pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
 
@@ -240,15 +240,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
 
-        try:
-            geom = gprefs.get('tag_list_editor_dialog_geometry', None)
-            if geom is not None:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
-            else:
-                self.resize(self.sizeHint()+QSize(150, 100))
-        except:
-            pass
-
+        self.restore_geometry(gprefs, 'tag_list_editor_dialog_geometry')
         self.is_enumerated = False
         if fm:
             if fm['datatype'] == 'enumeration':
@@ -260,6 +252,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+
+    def sizeHint(self):
+        return super().sizeHint() + QSize(150, 100)
 
     def show_context_menu(self, point):
         idx = self.table.indexAt(point)
@@ -510,7 +505,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def save_geometry(self):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
-        gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
+        super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
 
     def start_editing(self, on_row):
         items = self.table.selectedItems()

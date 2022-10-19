@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from qt.core import QModelIndex, QDialog, QApplication, QDialogButtonBox
+from qt.core import QModelIndex, QDialog, QDialogButtonBox
 
 from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -61,11 +61,7 @@ class BulkConfig(Config):
                 'settings.'))
             o.setChecked(False)
 
-        geom = gprefs.get('convert_bulk_dialog_geom', None)
-        if geom:
-            QApplication.instance().safe_restore_geometry(self, geom)
-        else:
-            self.resize(self.sizeHint())
+        self.restore_geometry(gprefs, 'convert_bulk_dialog_geom')
 
     def setup_pipeline(self, *args):
         oidx = self.groups.currentIndex().row()
@@ -140,6 +136,5 @@ class BulkConfig(Config):
 
     def done(self, r):
         if self.isVisible():
-            gprefs['convert_bulk_dialog_geom'] = \
-                bytearray(self.saveGeometry())
+            self.save_geometry(gprefs, 'convert_bulk_dialog_geom')
         return QDialog.done(self, r)

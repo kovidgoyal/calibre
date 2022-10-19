@@ -8,7 +8,7 @@ import tempfile
 import textwrap
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox,
+    QAbstractItemView, QCheckBox, QCursor, QDialog, QDialogButtonBox,
     QEvent, QFrame, QGridLayout, QIcon, QInputDialog, QItemSelectionModel,
     QKeySequence, QLabel, QMenu, QPushButton, QScrollArea, QSize, QSizePolicy,
     QStackedWidget, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
@@ -1052,13 +1052,12 @@ class TOCEditor(QDialog):  # {{{
         self.explode_done.connect(self.read_toc, type=Qt.ConnectionType.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.ConnectionType.QueuedConnection)
 
-        r = self.screen().availableSize()
-        self.resize(r.width() - 100, r.height() - 100)
-        geom = self.prefs.get('toc_editor_window_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, bytes(geom))
+        self.restore_geometry(self.prefs, 'toc_editor_window_geom')
         self.stacks.currentChanged.connect(self.update_history_buttons)
         self.update_history_buttons()
+
+    def sizeHint(self):
+        return QSize(900, 600)
 
     def update_history_buttons(self):
         self.undo_button.setVisible(self.stacks.currentIndex() == 1)
@@ -1086,7 +1085,7 @@ class TOCEditor(QDialog):  # {{{
             self.bb.setEnabled(False)
 
     def really_accept(self, tb):
-        self.prefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+        self.save_geometry(self.prefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
@@ -1107,7 +1106,7 @@ class TOCEditor(QDialog):  # {{{
             self.stacks.setCurrentIndex(1)
         else:
             self.working = False
-            self.prefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            self.save_geometry(self.prefs, 'toc_editor_window_geom')
             self.write_result(1)
             super().reject()
 

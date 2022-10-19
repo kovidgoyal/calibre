@@ -120,16 +120,7 @@ class MetadataSingleDialogBase(QDialog):
         self.comments_edit_state_at_apply = {self.comments:None}
 
         self.do_layout()
-        max_size = self.screen().availableSize()
-
-        try:
-            w, h = gprefs.get('metasingle_window_size')
-            sz = QSize(w, h)
-        except Exception:
-            sz = self.sizeHint()
-        sz.setWidth(min(max_size.width(), sz.width()))
-        sz.setHeight(min(sz.height(), max_size.height()))
-        self.resize(sz)
+        self.restore_geometry(gprefs, 'metasingle_window_geometry3')
         self.restore_widget_settings()
     # }}}
 
@@ -655,8 +646,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def save_state(self):
         try:
-            sz = self.size()
-            gprefs['metasingle_window_size'] = sz.width(), sz.height()
+            self.save_geometry(gprefs, 'metasingle_window_geometry3')
             self.save_widget_settings()
         except:
             # Weird failure, see https://bugs.launchpad.net/bugs/995271

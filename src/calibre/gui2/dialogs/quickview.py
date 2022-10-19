@@ -11,7 +11,7 @@ from functools import partial
 
 from qt.core import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
-    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu,
+    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QMenu,
     QShortcut, QTimer, QStyle)
 
 from calibre.customize.ui import find_plugin
@@ -175,9 +175,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.books_table_column_widths = \
                         gprefs.get('quickview_dialog_books_table_widths', None)
             if not self.is_pane:
-                geom = gprefs.get('quickview_dialog_geometry', None)
-                if geom:
-                    QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
+                self.restore_geometry(gprefs, 'quickview_dialog_geometry')
         except:
             pass
 
@@ -824,7 +822,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.books_table_column_widths.append(self.books_table.columnWidth(c))
         gprefs['quickview_dialog_books_table_widths'] = self.books_table_column_widths
         if not self.is_pane:
-            gprefs['quickview_dialog_geometry'] = bytearray(self.saveGeometry())
+            self.save_geometry(gprefs, 'quickview_dialog_geometry')
 
     def _close(self):
         self.save_state()

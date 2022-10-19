@@ -146,19 +146,9 @@ class Plugin:  # {{{
         from calibre.gui2 import gprefs
 
         prefname = 'plugin config dialog:'+self.type + ':' + self.name
-        geom = gprefs.get(prefname, None)
-
         config_dialog = QDialog(parent)
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         v = QVBoxLayout(config_dialog)
-
-        def size_dialog():
-            if geom is None:
-                config_dialog.resize(config_dialog.sizeHint())
-            else:
-                from qt.core import QApplication
-                QApplication.instance().safe_restore_geometry(config_dialog, geom)
-
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)
         config_dialog.setWindowTitle(_('Customize') + ' ' + self.name)
@@ -176,7 +166,7 @@ class Plugin:  # {{{
         if config_widget is not None:
             v.addWidget(config_widget)
             v.addWidget(button_box)
-            size_dialog()
+            config_dialog.restore_geometry(gprefs, prefname)
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
@@ -201,16 +191,14 @@ class Plugin:  # {{{
             sc = QLineEdit(sc, config_dialog)
             v.addWidget(sc)
             v.addWidget(button_box)
-            size_dialog()
+            config_dialog.restore_geometry(gprefs, prefname)
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
                 sc = str(sc.text()).strip()
                 customize_plugin(self, sc)
 
-        geom = bytearray(config_dialog.saveGeometry())
-        gprefs[prefname] = geom
-
+        config_dialog.save_geometry(gprefs, prefname)
         return config_dialog.result()
 
     def load_resources(self, names):

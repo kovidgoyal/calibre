@@ -10,7 +10,7 @@ from contextlib import contextmanager
 
 from qt.core import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
-                  QByteArray, QItemDelegate, QAction)
+                  QItemDelegate, QAction)
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
@@ -78,9 +78,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         try:
             self.table_column_widths = \
                         gprefs.get('manage_authors_table_widths', None)
-            geom = gprefs.get('manage_authors_dialog_geometry', None)
-            if geom:
-                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
+            self.restore_geometry(gprefs, 'manage_authors_dialog_geometry')
         except Exception:
             pass
 
@@ -275,7 +273,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         for c in range(0, self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
         gprefs['manage_authors_table_widths'] = self.table_column_widths
-        gprefs['manage_authors_dialog_geometry'] = bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'manage_authors_dialog_geometry')
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []

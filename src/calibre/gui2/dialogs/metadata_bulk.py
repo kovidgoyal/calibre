@@ -567,11 +567,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             'This operation cannot be canceled or undone'))
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
-        geom = gprefs.get('bulk_metadata_window_geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, bytes(geom))
-        else:
-            self.resize(self.sizeHint())
+        self.restore_geometry(gprefs, 'bulk_metadata_window_geometry')
         ct = gprefs.get('bulk_metadata_window_tab', 0)
         self.central_widget.setCurrentIndex(ct)
         self.languages.init_langs(self.db)
@@ -606,8 +602,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
 
     def save_state(self, *args):
-        gprefs['bulk_metadata_window_geometry'] = \
-            bytearray(self.saveGeometry())
+        self.save_geometry(gprefs, 'bulk_metadata_window_geometry')
         gprefs['bulk_metadata_window_tab'] = self.central_widget.currentIndex()
 
     def do_apply_pubdate(self, *args):
@@ -1303,7 +1298,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.query_field.setCurrentIndex(0)
 
         if item_name in list(self.queries.keys()):
-            del(self.queries[item_name])
+            del self.queries[item_name]
             self.queries.commit()
 
     def s_r_save_query(self, *args):

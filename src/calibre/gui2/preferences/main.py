@@ -19,7 +19,7 @@ from qt.core import (
 from calibre.constants import __appname__, __version__, islinux
 from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import (
-    available_width, gprefs, min_available_height, show_restart_warning
+    gprefs, show_restart_warning
 )
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.gui2.preferences import (
@@ -214,19 +214,7 @@ class Preferences(QDialog):
         self.committed = False
         self.close_after_initial = close_after_initial
 
-        self.resize(930, 720)
-        nh, nw = min_available_height()-25, available_width()-10
-        if nh < 0:
-            nh = 800
-        if nw < 0:
-            nw = 600
-        nh = min(self.height(), nh)
-        nw = min(self.width(), nw)
-        self.resize(nw, nh)
-
-        geom = gprefs.get('preferences dialog geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(gprefs, 'preferences dialog geometry')
 
         # Center
         if islinux:
@@ -289,6 +277,9 @@ class Preferences(QDialog):
                                     break
         else:
             self.hide_plugin()
+
+    def sizeHint(self):
+        return QSize(930, 720)
 
     def event(self, ev):
         if isinstance(ev, QStatusTipEvent):
@@ -409,7 +400,7 @@ class Preferences(QDialog):
         self.showing_widget.restore_defaults()
 
     def on_shutdown(self):
-        gprefs.set('preferences dialog geometry', bytearray(self.saveGeometry()))
+        self.save_geometry(gprefs, 'preferences dialog geometry')
         if self.committed:
             self.gui.must_restart_before_config = self.must_restart
             self.gui.tags_view.recount()

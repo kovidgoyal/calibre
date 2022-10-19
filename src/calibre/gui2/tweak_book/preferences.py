@@ -15,7 +15,7 @@ from copy import copy, deepcopy
 from qt.core import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox, QListView,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox, QAbstractItemView,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer, QRadioButton)
 
@@ -782,10 +782,7 @@ class Preferences(QDialog):
 
         l.addWidget(bb, 1, 0, 1, 2)
 
-        self.resize(800, 600)
-        geom = tprefs.get('preferences_geom', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
+        self.restore_geometry(tprefs, 'preferences_geom')
 
         self.keyboard_panel = ShortcutConfig(self)
         self.keyboard_panel.initialize(gui.keyboard)
@@ -818,6 +815,9 @@ class Preferences(QDialog):
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
         cl.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         cl.setMinimumWidth(min(cl.maximumWidth(), cl.sizeHint().width()))
+
+    def sizeHint(self):
+        return QSize(800, 600)
 
     @property
     def dictionaries_changed(self):
@@ -859,14 +859,14 @@ class Preferences(QDialog):
         info_dialog(self, _('Disabled confirmations restored'), msg, show=True)
 
     def accept(self):
-        tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(tprefs, 'preferences_geom')
         for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
             w.commit()
         QDialog.accept(self)
 
     def reject(self):
-        tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
+        self.save_geometry(tprefs, 'preferences_geom')
         QDialog.reject(self)
 
 
