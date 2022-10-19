@@ -101,6 +101,8 @@ def find_matching_screen(screen_as_dict):
     for q in screens_of_matching_size:
         if match('name', q.name()) and match('manufacturer', q.manufacturer()) and match('model', q.model()):
             return q
+    if len(screens_of_matching_size) == 1:
+        return screens_of_matching_size[0]
 
 
 def _do_restore(self: QWidget, s: QScreen, geometry: QRect, saved_data: dict):
