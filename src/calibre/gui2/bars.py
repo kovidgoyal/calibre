@@ -9,7 +9,7 @@ from functools import partial
 from qt.core import (
     Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QKeySequence, QMenuBar,
     QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget, QPalette, sip,
-    QHBoxLayout)
+    QHBoxLayout, QFrame)
 
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
@@ -679,11 +679,23 @@ class BarsManager(QObject):
         for ac in self.search_tool_bar_actions:
             self.search_tool_bar.removeWidget(ac)
 
+        self.search_tool_bar.setContentsMargins(0, 0, 0, 0)
+        self.search_tool_bar.setSpacing(0)
+
         self.search_tool_bar_actions = []
         for what in gprefs['action-layout-searchbar']:
-            if what in self.parent().iactions:
+            if what is None:
+                frame = QFrame()
+                frame.setFrameShape(QFrame.Shape.VLine)
+                frame.setFrameShadow(QFrame.Shadow.Sunken)
+                frame.setLineWidth(1)
+                frame.setContentsMargins(0, 5, 0, 5)
+                self.search_tool_bar.addWidget(frame)
+                self.search_tool_bar_actions.append(frame)
+            elif what in self.parent().iactions:
                 qact = self.parent().iactions[what].qaction
                 tb = QToolButton()
+                tb.setContentsMargins(0, 0, 0, 0)
                 tb.setDefaultAction(qact)
                 if not gprefs['search_tool_bar_shows_text']:
                     tb.setText(None)
