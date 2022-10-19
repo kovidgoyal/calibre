@@ -238,6 +238,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def refresh_gui(self, gui):
         gui.refresh_search_bar_widgets()
+        self.gui.bars_manager.update_bars()
         gui.current_db.new_api.clear_caches()
         set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
