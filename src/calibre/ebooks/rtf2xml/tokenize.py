@@ -62,7 +62,8 @@ class Tokenize:
             return token
         # change scope out
         elif token == r'\}':
-            self.__uc_value.pop()
+            if self.__uc_value:
+                self.__uc_value.pop()
             self.__reini_utf8_counters()
             return token
         # add a uc control
