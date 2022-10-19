@@ -145,10 +145,10 @@ def _restore_to_new_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
     return _do_restore(self, s, geometry, saved_data)
 
 
-def _restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
+def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: callable = None) -> bool:
     x = prefs.get(f'geometry-of-{name}')
     if not x:
-        old = prefs.get(name)
+        old = get_legacy_saved_geometry() if get_legacy_saved_geometry else prefs.get(name)
         if old is not None:
             return self.restoreGeometry(old)
         return False
@@ -179,14 +179,14 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
 screen_debug_has_been_output = False
 
 
-def restore_geometry(self: QWidget, prefs: dict, name: str) -> bool:
+def restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: callable = None) -> bool:
     global screen_debug_has_been_output
     if not screen_debug_has_been_output:
         screen_debug_has_been_output = True
         debug('Screens currently in system:')
         for screen in QApplication.instance().screens():
             debug(screen_as_dict(screen))
-    if _restore_geometry(self, prefs, name):
+    if _restore_geometry(self, prefs, name, get_legacy_saved_geometry):
         return True
     sz = self.sizeHint()
     if sz.isValid():
