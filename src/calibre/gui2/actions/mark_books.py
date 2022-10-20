@@ -146,7 +146,7 @@ class MarkBooksAction(InterfaceAction):
         connect_lambda(a.triggered, self, lambda self: self.mark_field('series', False))
 
     def gui_layout_complete(self):
-        for x in self.gui.bars_manager.main_bars + self.gui.bars_manager.child_bars:
+        for x in self.gui.bars_manager.bars:
             try:
                 w = x.widgetForAction(self.qaction)
                 w.installEventFilter(self)

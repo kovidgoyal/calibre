@@ -39,12 +39,12 @@ class BaseModel(QAbstractListModel):
         if name == 'Donate':
             return FakeAction(
                 'Donate', _('Donate'), 'donate.png', tooltip=_('Donate to support the development of calibre'),
-                dont_add_to=frozenset(['context-menu', 'context-menu-device']))
+                dont_add_to=frozenset(['context-menu', 'context-menu-device', 'searchbar']))
         if name == 'Location Manager':
             return FakeAction('Location Manager', _('Location Manager'), 'reader.png',
                     _('Switch between library and device views'),
                     dont_add_to=frozenset(['menubar', 'toolbar',
-                        'toolbar-child', 'context-menu',
+                        'toolbar-child', 'context-menu', 'searchbar',
                         'context-menu-device']))
         if name is None:
             return FakeAction('--- '+('Separator')+' ---',
