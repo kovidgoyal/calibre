@@ -667,10 +667,11 @@ class SearchToolBar(QHBoxLayout):
                 self.setup_tool_button(self, qact, act.popup_type)
 
     def widgetForAction(self, action):
-        dex = self.search_tool_bar_actions.index(action)
-        if dex < 0:
+        try:
+            dex = self.search_tool_bar_actions.index(action)
+            return self.search_tool_bar_widgets[dex]
+        except Exception:
             return None
-        return self.search_tool_bar_widgets[dex]
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         widget = self.widgetForAction(ac)
