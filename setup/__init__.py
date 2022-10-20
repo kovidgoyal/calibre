@@ -69,6 +69,10 @@ def download_securely(url):
     # We use curl here as on some OSes (OS X) when bootstrapping calibre,
     # python will be unable to validate certificates until after cacerts is
     # installed
+    if os.environ.get('CI') and iswindows:
+        # curl is failing for wikipedia urls on CI (used for browser_data)
+        from urllib.request import urlopen
+        return urlopen(url).read()
     if not curl_supports_etags():
         return subprocess.check_output(['curl', '-fsSL', url])
     url_hash = hashlib.sha1(url.encode('utf-8')).hexdigest()
