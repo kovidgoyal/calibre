@@ -653,7 +653,7 @@ class SearchToolBar(QHBoxLayout):
             elif what in self.gui.iactions:
                 act = self.gui.iactions[what]
                 qact = act.qaction
-                tb = RightClickButton() # Do we really need to support right-click?
+                tb = RightClickButton()
                 tb.menu = qact.menu
                 tb.setContentsMargins(0, 0, 0, 0)
                 tb.setDefaultAction(qact)
@@ -707,6 +707,7 @@ class SearchToolBar(QHBoxLayout):
     @property
     def added_actions(self):
         return self.search_tool_bar_actions
+
 
 class BarsManager(QObject):
 
