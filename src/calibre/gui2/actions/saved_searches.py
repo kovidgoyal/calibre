@@ -9,7 +9,7 @@ from calibre.gui2.actions import InterfaceAction
 
 def show_menu_under_widget(gui, menu, action, name):
     # First try the tool bar
-    for x in gui.bars_manager.main_bars + gui.bars_manager.child_bars:
+    for x in gui.bars_manager.bars:
         try:
             w = x.widgetForAction(action)
             # It seems that multiple copies of the action can exist, such as

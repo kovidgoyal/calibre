@@ -97,7 +97,7 @@ class InterfaceAction(QObject):
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
         'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',
-        'context-menu-cover-browser', 'context-menu-split'])
+        'context-menu-cover-browser', 'context-menu-split', 'searchbar'])
 
     #: Type of action
     #: 'current' means acts on the current view
