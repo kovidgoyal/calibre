@@ -25,11 +25,10 @@ class ManageCategoriesAction(InterfaceAction):
         self.hidden_menu = QMenu()
         self.shortcut_action = self.create_menu_action(
                         menu=self.hidden_menu,
-                        unique_name=_('Manage categories'),
+                        unique_name='Manage categories',
                         text=_('Manage categories: authors, tags, series, etc.'),
                         icon='tags.png',
                         triggered=self.show_menu)
-
 
     # We want to show the menu when a shortcut is used. Apparently the only way
     # to do that is to scan the toolbar(s) for the action button then exec the

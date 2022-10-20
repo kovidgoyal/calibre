@@ -71,7 +71,7 @@ class SavedSearchesAction(InterfaceAction):
         self.hidden_menu = QMenu()
         self.shortcut_action = self.create_menu_action(
                         menu=self.hidden_menu,
-                        unique_name=_('Saved searches'),
+                        unique_name='Saved searches',
                         text=_('Show a menu of saved searches'),
                         icon='folder_saved_search.png',
                         triggered=self.show_menu)

@@ -17,6 +17,7 @@ from calibre.gui2.throbber import ThrobbingButton
 from polyglot.builtins import itervalues
 from calibre.gui2.widgets2 import RightClickButton
 
+
 class RevealBar(QWidget):  # {{{
 
     def __init__(self, parent):
