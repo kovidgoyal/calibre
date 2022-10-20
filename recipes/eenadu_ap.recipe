@@ -41,6 +41,25 @@ class eenadu_ap(BasicNewsRecipe):
         classes('sshare-c tags andbeyond_ad fnt20 arti more2 offset-tb1 msb-list')
     ]
 
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/in/eenadu.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'https://es.kiosko.net/in/np/eenadu.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return 'https:' + image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
     def parse_index(self):
         section_list = [
             ('ఆంధ్రప్రదేశ్ తాజా వార్తలు', 'andhra-pradesh'),
