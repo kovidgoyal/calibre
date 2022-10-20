@@ -490,6 +490,8 @@ class LineEditECM:  # {{{
         menu = self.createStandardContextMenu()
         menu.addSeparator()
         self.create_change_case_menu(menu)
+        if callable(getattr(self, 'add_items_to_context_menu', None)):
+            menu = self.add_items_to_context_menu(self, menu)
         menu.exec(event.globalPos())
 
     def modify_case_operation(self, func):

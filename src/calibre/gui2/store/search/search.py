@@ -21,6 +21,13 @@ from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
 
 
+def add_items_to_context_menu(self, menu):
+    menu.addSeparator()
+    ac = menu.addAction(_('Clear search &history'))
+    ac.triggered.connect(self.clear_history)
+    return menu
+
+
 class SearchDialog(QDialog, Ui_Dialog):
 
     SEARCH_TEXT = _('&Search')
@@ -36,6 +43,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search_title.initialize('store_search_search_title')
         self.search_author.initialize('store_search_search_author')
         self.search_edit.initialize('store_search_search')
+        self.search_title.add_items_to_context_menu = add_items_to_context_menu
+        self.search_author.add_items_to_context_menu = add_items_to_context_menu
+        self.search_edit.add_items_to_context_menu = add_items_to_context_menu
 
         # Loads variables that store various settings.
         # This needs to be called soon in __init__ because
