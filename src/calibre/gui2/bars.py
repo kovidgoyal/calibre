@@ -15,7 +15,7 @@ from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
 from polyglot.builtins import itervalues
-
+from calibre.gui2.widgets2 import RightClickButton
 
 class RevealBar(QWidget):  # {{{
 
@@ -679,7 +679,7 @@ class BarsManager(QObject):
         for ac in self.search_tool_bar_actions:
             self.search_tool_bar.removeWidget(ac)
 
-        self.search_tool_bar.setContentsMargins(0, 0, 0, 0)
+        self.search_tool_bar.setContentsMargins(0, 0, 10, 0)
         self.search_tool_bar.setSpacing(0)
 
         self.search_tool_bar_actions = []
@@ -693,8 +693,10 @@ class BarsManager(QObject):
                 self.search_tool_bar.addWidget(frame)
                 self.search_tool_bar_actions.append(frame)
             elif what in self.parent().iactions:
-                qact = self.parent().iactions[what].qaction
-                tb = QToolButton()
+                act = self.parent().iactions[what]
+                qact = act.qaction
+                tb = RightClickButton()
+                tb.menu = qact.menu
                 tb.setContentsMargins(0, 0, 0, 0)
                 tb.setDefaultAction(qact)
                 if not gprefs['search_tool_bar_shows_text']:
@@ -702,7 +704,7 @@ class BarsManager(QObject):
                 else:
                     tb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
                 tb.setCursor(Qt.CursorShape.PointingHandCursor)
-                tb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+                tb.setPopupMode(act.popup_type)
                 tb.setAutoRaise(True)
                 self.search_tool_bar.addWidget(tb)
                 self.search_tool_bar_actions.append(tb)

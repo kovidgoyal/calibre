@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
 
-from qt.core import QPoint
+from qt.core import QPoint, QMenu, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -57,20 +57,29 @@ class SavedSearchesAction(InterfaceAction):
 
     name = 'Saved searches'
     action_spec = (_('Saved searches'), 'folder_saved_search.png',
-                   _('Show a menu of saved searches'), ())
+                   _('Show a menu of saved searches'), None)
     action_type = 'current'
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
     def genesis(self):
         self.menu = m = self.qaction.menu()
-        self.qaction.triggered.connect(self.show_menu)
         m.aboutToShow.connect(self.about_to_show_menu)
 
-    # We want to show the menu when a toolbar button is clicked. Apparently
-    # the only way to do that is to scan the toolbar(s) for the action button
-    # then exec the associated menu. The search is done here to take adding and
-    # removing the action from toolbars into account.
+        # Create a "hidden" menu that can have a shortcut.
+        self.hidden_menu = QMenu()
+        self.shortcut_action = self.create_menu_action(
+                        menu=self.hidden_menu,
+                        unique_name=_('Saved searches'),
+                        text=_('Show a menu of saved searches'),
+                        icon='folder_saved_search.png',
+                        triggered=self.show_menu)
+
+    # We want to show the menu when a shortcut is used. Apparently the only way
+    # to do that is to scan the toolbar(s) for the action button then exec the
+    # associated menu. The search is done here to take adding and removing the
+    # action from toolbars into account.
     #
     # If a shortcut is triggered and there isn't a toolbar button visible then
     # show the menu in the upper left corner of the library view pane. Yes, this

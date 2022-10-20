@@ -641,7 +641,6 @@ class SearchRestrictionMixin:
         self._apply_search_restriction('', '')
 
     def _apply_search_restriction(self, restriction, name):
-        self.saved_search.clear()
         # The order below is important. Set the restriction, force a '' search
         # to apply it, reset the tag browser to take it into account, then set
         # the book count.
