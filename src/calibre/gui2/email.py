@@ -152,7 +152,7 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
-        if isinstance(to, str) and ('@kindle.com' in to or '@pbsync.com' in to):
+        if isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to or '@pbsync.com' in to):
             # The PocketBook service is a total joke. It cant handle
             # non-ascii, filenames that are long enough to be split up, commas, and
             # the good lord alone knows what else. So use a random filename
@@ -165,7 +165,7 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
-            if '@kindle.com' in to:
+            if '@kindle.com' in to or '@kindle.cn' in to:
                 # https://www.mobileread.com/forums/showthread.php?t=349290
                 from calibre.utils.filenames import ascii_filename
                 aname = ascii_filename(aname)
