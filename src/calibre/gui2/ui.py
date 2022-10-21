@@ -890,7 +890,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.library_view.model().set_book_on_device_func(self.book_on_device)
             self.status_bar.clear_message()
             self.search.clear()
-            self.saved_search.clear()
             self.book_details.reset_info()
             # self.library_view.model().count_changed()
             db = self.library_view.model().db
