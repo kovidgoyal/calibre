@@ -27,7 +27,11 @@ def local_url_for_content_server():
     from calibre.srv.opts import server_config
     opts = server_config()
     interface = opts.listen_on or '0.0.0.0'
-    interface = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(interface)
+
+    addr_map = {'0.0.0.0': '127.0.0.1',
+                '::':      '::1'}
+    if interface in addr_map:
+        interface = addr_map[interface]
 
     if is_ipv6_addr(interface):
         interface = f'[{interface}]'

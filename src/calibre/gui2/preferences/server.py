@@ -1310,7 +1310,11 @@ class ConfigWidget(ConfigWidgetBase):
         prefix = self.advanced_tab.get('url_prefix') or ''
         protocol = 'https' if self.advanced_tab.has_ssl else 'http'
         lo = self.advanced_tab.get('listen_on') or '0.0.0.0'
-        lo = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(lo)
+
+        addr_map = {'0.0.0.0': '127.0.0.1',
+                    '::':      '::1'}
+        if lo in addr_map:
+            lo = addr_map[lo]
 
         if is_ipv6_addr(lo):
             lo = f'[{lo}]'
