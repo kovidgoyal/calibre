@@ -77,6 +77,9 @@ def _get_external_ip():
 
 
 def verify_ipV4_address(ip_address):
+    if ip_address == None:
+        return None
+
     result = None
     if ip_address != '0.0.0.0' and ip_address != '::':
         # do some more sanity checks on the address
