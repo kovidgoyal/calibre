@@ -16,10 +16,22 @@ from calibre.utils.smtp import config as email_config
 
 
 def local_url_for_content_server():
+    def is_ipv6_addr(addr):
+        import socket
+        try:
+            socket.inet_pton(socket.AF_INET6, addr)
+            return True
+        except OSError:
+            return False
+
     from calibre.srv.opts import server_config
     opts = server_config()
     interface = opts.listen_on or '0.0.0.0'
     interface = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(interface)
+
+    if is_ipv6_addr(interface):
+        interface = f'[{interface}]'
+
     protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
     prefix = opts.url_prefix or ''
     port = opts.port

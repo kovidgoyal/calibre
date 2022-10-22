@@ -1299,10 +1299,22 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
+        def is_ipv6_addr(addr):
+            import socket
+            try:
+                socket.inet_pton(socket.AF_INET6, addr)
+                return True
+            except OSError:
+                return False
+
         prefix = self.advanced_tab.get('url_prefix') or ''
         protocol = 'https' if self.advanced_tab.has_ssl else 'http'
         lo = self.advanced_tab.get('listen_on') or '0.0.0.0'
         lo = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(lo)
+
+        if is_ipv6_addr(lo):
+            lo = f'[{lo}]'
+
         url = '{protocol}://{interface}:{port}{prefix}'.format(
             protocol=protocol, interface=lo,
             port=self.main_tab.opt_port.value(), prefix=prefix)
