@@ -508,17 +508,29 @@ class ServerLoop:
             self.setup_socket()
 
     def serve(self):
+        def is_ipv6_addr(addr):
+            import socket
+            try:
+                socket.inet_pton(socket.AF_INET6, addr)
+                return True
+            except OSError:
+                return False
+
         self.connection_map = {}
         if not self.socket_was_preactivated:
             self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            ba = ':'.join(map(str, ba))
+            if is_ipv6_addr(ba[0]):
+                addr = f'[{ba[0]}]'
+            else:
+                addr = f'{ba[0]}'
+            ba_str = f'{addr}:' + ':'.join(map(str, ba[1:]))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
             if self.LISTENING_MSG:
-                self.log(self.LISTENING_MSG, ba)
+                self.log(self.LISTENING_MSG, ba_str)
             self.plugin_pool.start()
             self.ready = True
 
