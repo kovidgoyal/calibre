@@ -93,6 +93,7 @@ class CreateCustomColumn(QDialog):
 
     def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
         QDialog.__init__(self, gui)
+        self.orig_column_number = -1
         self.gui = gui
         self.setup_ui()
         self.setWindowTitle(_('Create a custom column'))
