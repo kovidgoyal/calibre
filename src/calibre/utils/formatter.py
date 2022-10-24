@@ -1231,10 +1231,12 @@ class _Interpreter:
                 if (self.break_reporter):
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
+            except StopException:
+                raise
             except:
                 self.error(_("Unknown field '{0}'").format(name), prog.line_number)
-        except (StopException, ValueError) as e:
-            raise e
+        except (StopException, ValueError):
+            raise
         except:
             self.error(_("Unknown field '{0}'").format('internal parse error'),
                        prog.line_number)
@@ -1690,6 +1692,8 @@ class TemplateFormatter(string.Formatter):
                          formatter=self,
                          funcs=self._caller)
             rslt = compiled_template(self.book, self.python_context_object)
+        except StopException:
+            raise
         except Exception as e:
             stack = traceback.extract_tb(exc_info()[2])
             ss = stack[-1]
