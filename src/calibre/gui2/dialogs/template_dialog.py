@@ -1076,7 +1076,8 @@ class PythonBreakReporter(BreakReporterBase):
         self.table.setRowCount(rows+1)
 
         for i,k in enumerate(local_names, start=1):
-            if k in ('book', 'context'): continue
+            if k in ('book', 'context'):
+                continue
             self.add_local_line(locals, i, k)
 
     def displayable_field_value(self, mi, field):
