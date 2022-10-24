@@ -16,7 +16,7 @@ from qt.core import (
     QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre.constants import __appname__, __version__, islinux
+from calibre.constants import __appname__, __version__
 from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import (
     gprefs, show_restart_warning
@@ -215,10 +215,6 @@ class Preferences(QDialog):
         self.close_after_initial = close_after_initial
 
         self.restore_geometry(gprefs, 'preferences dialog geometry')
-
-        # Center
-        if islinux:
-            self.move(gui.rect().center() - self.rect().center())
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(__appname__ + ' — ' + _('Preferences'))
