@@ -24,13 +24,15 @@ class NavyTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('Pentagon and Congress',   'http://feeds.feedburner.com/navy-times/news/pentagon-congress'),
-        ('Your Air Force',   'http://feeds.feedburner.com/air-force-times/news/your-air-force'),
-        ('Your Army',   'http://feeds.feedburner.com/army-times/news/your-army'),
-        ('Your Marine Core',   'http://feeds.feedburner.com/marine-corps-times/news/your-marine-corps'),
-        ('Your Navy',   'http://feeds.feedburner.com/navy-times/news/your-navy'),
-        ('Pay and Benefits',   'http://feeds.feedburner.com/navy-times/pay-benefits'),
-        ('Veterans',   'http://feeds.feedburner.com/navy-times/veterans'),
-        ('Education and Trnasition',   'http://feeds.feedburner.com/navy-times/education-transition'),
-        ('Flashpoints',   'http://feeds.feedburner.com/navy-times/flashpoints'),
+        ('Home page', 'https://www.navytimes.com/arc/outboundfeeds/rss/?outputType=xml'),
+        ('News', 'https://www.navytimes.com/arc/outboundfeeds/rss/category/news/?outputType=xml'),
+        ('Your Navy', 'https://www.navytimes.com/arc/outboundfeeds/rss/category/news/your-navy/?outputType=xml'),
+        ('Your Army',   'https://www.armytimes.com/arc/outboundfeeds/rss/category/news/your-army/?outputType=xml'),
+        ('Your Air Force', 'https://www.airforcetimes.com/arc/outboundfeeds/rss/category/news/your-air-force?outputType=xml'),
+        ('Your Marine Core',   'https://www.marinecorpstimes.com/arc/outboundfeeds/rss/category/news/your-marine-corps/?outputType=xml'),
+        ('Pentagon and Congress',   'https://www.navytimes.com/arc/outboundfeeds/rss/category/news/pentagon-congress/?outputType=xml'),
+        ('Pay and Benefits',   'https://www.navytimes.com/arc/outboundfeeds/rss/category/pay-benefits/?outputType=xml'),
+        ('Veterans',   'https://www.navytimes.com/arc/outboundfeeds/rss/category/veterans/?outputType=xml'),
+        ('Education and Transition',   'https://www.navytimes.com/arc/outboundfeeds/rss/category/education-transition/?outputType=xml'),
+        ('Flashpoints',   'https://www.navytimes.com/arc/outboundfeeds/rss/category/flashpoints/?outputType=xml'),
     ]
