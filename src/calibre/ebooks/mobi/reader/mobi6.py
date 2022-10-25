@@ -782,7 +782,7 @@ class MobiReader:
             if flags & 1:
                 try:
                     num += sizeof_trailing_entry(data, size - num)
-                except IndexError:
+                except (IndexError, TypeError):
                     self.warn_about_trailing_entry_corruption()
                     return 0
             flags >>= 1
