@@ -19,7 +19,7 @@ from qt.core import (
     QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu, QItemSelectionModel,
-    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QSplitter, QAbstractItemView)
+    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QAbstractItemView)
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
@@ -29,6 +29,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, rating_font, gprefs
 from calibre.gui2.progress_indicator import SpinAnimator
+from calibre.gui2.widgets import BasicSplitter
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
@@ -445,7 +446,7 @@ class IdentifyWidget(QWidget):  # {{{
         self.top.setWordWrap(True)
         l.addWidget(self.top)
 
-        self.splitter = s = QSplitter(self)
+        self.splitter = s = BasicSplitter(self)
         s.setChildrenCollapsible(False)
         l.addWidget(s, 100)
         self.results_view = ResultsView(self)

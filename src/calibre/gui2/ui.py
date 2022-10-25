@@ -434,6 +434,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # layout button. We need to let a book be selected in the book list
         # before initializing quickview, so run it after an event loop tick
         QTimer.singleShot(0, self.start_quickview)
+        # Force repaint of the book details splitter because it otherwise ends
+        # up with the wrong size. I don't know why.
+        QTimer.singleShot(0, self.bd_splitter.repaint)
 
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
