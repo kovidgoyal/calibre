@@ -64,6 +64,9 @@ class BarronsMagazine(BasicNewsRecipe):
             '_intstate': 'deprecated',
             'connection': 'DJldap',
         }
+        for cookie in br.cookiejar:
+            if cookie.name in ('_csrf', 'csrf'):
+                request_query['_csrf'] = cookie.value
         for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
             if k in query:
                 request_query[k] = query[k]

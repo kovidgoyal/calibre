@@ -134,8 +134,8 @@ class WSJ(BasicNewsRecipe):
                 },
             }
             for cookie in br.cookiejar:
-                if cookie.name == '_csrf':
-                    request_query[cookie.name] = cookie.value
+                if cookie.name in ('_csrf', 'csrf'):
+                    request_query['_csrf'] = cookie.value
             for k in 'scope connection nonce state ui_locales ns mars protocol redirect_uri'.split():
                 if k in query:
                     request_query[k] = query[k]
