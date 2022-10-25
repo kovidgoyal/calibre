@@ -147,12 +147,16 @@ class Sendmail:
 gui_sendmail = Sendmail()
 
 
+def is_for_kindle(to):
+    return isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to)
+
+
 def send_mails(jobnames, callback, attachments, to_s, subjects,
                 texts, attachment_names, job_manager):
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
-        if isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to or '@pbsync.com' in to):
+        if isinstance(to, str) and (is_for_kindle(to) or '@pbsync.com' in to):
             # The PocketBook service is a total joke. It cant handle
             # non-ascii, filenames that are long enough to be split up, commas, and
             # the good lord alone knows what else. So use a random filename
@@ -165,7 +169,7 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
-            if '@kindle.com' in to or '@kindle.cn' in to:
+            if is_for_kindle(to):
                 # https://www.mobileread.com/forums/showthread.php?t=349290
                 from calibre.utils.filenames import ascii_filename
                 aname = ascii_filename(aname)
@@ -440,7 +444,10 @@ class EmailMixin:  # {{{
                 if mi.comments and gprefs['add_comments_to_email']:
                     from calibre.utils.html2text import html2text
                     texts[-1] += '\n\n' + _('About this book:') + '\n\n' + textwrap.fill(html2text(mi.comments))
-                prefix = f'{t} - {a}'
+                if is_for_kindle(to):
+                    prefix = str(t)
+                else:
+                    prefix = f'{t} - {a}'
                 if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 attachment_names.append(prefix + os.path.splitext(f)[1])
