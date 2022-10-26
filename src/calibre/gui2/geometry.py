@@ -8,11 +8,16 @@
 
 
 from qt.core import QRect, QScreen, QSize, QWidget, QApplication, Qt
-from calibre.constants import DEBUG
+from calibre.constants import is_debugging as _is_debugging
+from calibre.utils.config_base import tweaks
+
+
+def is_debugging():
+    return _is_debugging() and not tweaks.get('suppress_geometry_debug_output')
 
 
 def debug(*a, **kw):
-    if DEBUG:
+    if is_debugging():
         from pprint import pformat
         items = []
         for x in a:
@@ -75,7 +80,7 @@ def geometry_for_restore_as_dict(self: QWidget):
 def save_geometry(self: QWidget, prefs: dict, name: str):
     x = geometry_for_restore_as_dict(self)
     if x:
-        if DEBUG:
+        if is_debugging():
             debug('Saving geometry for:', name)
             debug(x)
         x['qt'] = bytearray(self.saveGeometry())
@@ -154,7 +159,7 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_ge
         if old is not None:
             return self.restoreGeometry(old)
         return False
-    if DEBUG:
+    if is_debugging():
         debug('Restoring geometry for:', name)
         dx =  x.copy()
         del dx['qt']
@@ -162,7 +167,7 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_ge
     s = find_matching_screen(x['screen'])
     debug('Matching screen:', screen_as_dict(s) if s else None)
     if s is None:
-        if DEBUG:
+        if is_debugging():
             debug('No screens matched saved screen. Available screens:', tuple(map(screen_as_dict, QApplication.instance().screens())))
         p = self.nativeParentWidget()
         if p is not None:
