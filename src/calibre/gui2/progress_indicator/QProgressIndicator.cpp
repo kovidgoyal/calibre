@@ -346,10 +346,14 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
             painter->setBrush(option->palette.color(QPalette::ColorGroup::Normal, QPalette::ColorRole::Shadow));
             bool horizontal = (option->state & QStyle::State_Horizontal) ? true : false;
             static const int dot_count = 4;
-            int handle_width = horizontal ? option->rect.width() : option->rect.height();
-            int dot_size = std::max(1, handle_width);
-            int start_point = (horizontal ? option->rect.height()/2 : option->rect.width()/2) - (dot_count*dot_size/2);
+            const int handle_width = pixelMetric(PM_SplitterWidth, option, widget);
+            const int available_diameter = horizontal ? option->rect.width() : option->rect.height();
+            const int dot_size = std::max(1, std::min(handle_width, available_diameter));
+            const int start_point = (horizontal ? option->rect.height()/2 : option->rect.width()/2) - (dot_count*dot_size/2);
+            const int offset = (available_diameter - dot_size) / 2;
             QRect dot_rect = QRect(option->rect.left(), option->rect.top(), dot_size, dot_size);
+            if (horizontal) dot_rect.moveLeft(dot_rect.left() + offset);
+            else dot_rect.moveTop(dot_rect.top() + offset);
             for (int i = 0; i < dot_count; i++) {
                 // Move the rect to leave spaces between the dots
                 if (horizontal) dot_rect.moveTop(option->rect.top() + start_point + i*dot_size*2);
