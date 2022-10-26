@@ -9,7 +9,7 @@ import os
 import weakref
 from qt.core import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QGridLayout,
-    QHBoxLayout, QIcon, QLabel, QLineEdit, QProgressBar, QPushButton, QSplitter,
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QProgressBar, QPushButton,
     QStackedLayout, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget, pyqtSignal
 )
@@ -17,6 +17,7 @@ from threading import Thread
 
 from calibre import as_unicode, prints
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.widgets import BasicSplitter
 from calibre.library.check_library import CHECKS, CheckLibrary
 from calibre.utils.recycle_bin import delete_file, delete_tree
 
@@ -125,13 +126,14 @@ class CheckLibraryDialog(QDialog):
 
         self._tl = QHBoxLayout()
         self.setLayout(self._tl)
-        self.splitter = QSplitter(self)
+        self.splitter = BasicSplitter(self)
         self.left = QWidget(self)
         self.splitter.addWidget(self.left)
         self.helpw = QTextEdit(self)
         self.splitter.addWidget(self.helpw)
         self._tl.addWidget(self.splitter)
         self._layout = QVBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
         self.left.setLayout(self._layout)
         self.helpw.setReadOnly(True)
         self.helpw.setText(_('''\

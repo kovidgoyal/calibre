@@ -980,13 +980,48 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
 # Splitter {{{
 
+class BasicSplitterHandle(QSplitterHandle):
 
-class SplitterHandle(QSplitterHandle):
+    def __init__(self, orientation, splitter):
+        QSplitterHandle.__init__(self, orientation, splitter)
+        self.handle_width = splitter.handleWidth()
+
+    def paintEvent(self, event):
+        rect = event.rect()
+        painter = QPainter(self)
+        # draw the separator bar.
+        painter.setPen(Qt.NoPen)
+        palette = QApplication.palette()
+        painter.setBrush(palette.color(QPalette.ColorGroup.Normal, QPalette.ColorRole.AlternateBase))
+        painter.drawRect(rect)
+        # draw the dots
+        painter.setBrush(palette.color(QPalette.ColorGroup.Normal, QPalette.ColorRole.Shadow))
+        horizontal = self.orientation() == Qt.Orientation.Horizontal
+        dot_count = 6
+        dot_size = int(max(1, self.handle_width/2))
+        start_point = max(0, int((rect.height()/2 if horizontal else rect.width()/2) - (dot_count*dot_size/2)))
+        for i in range(dot_count):
+            # Move the rect to leave 2 dot spaces between the dots
+            if horizontal:
+                dot_rect = QRect(1, start_point + i*dot_size*3, dot_size, dot_size)
+            else:
+                dot_rect = QRect(start_point + i*dot_size*3, 1, dot_size, dot_size)
+            painter.drawRect(dot_rect)
+        painter.end()
+
+
+class BasicSplitter(QSplitter):
+
+    def createHandle(self):
+        return BasicSplitterHandle(self.orientation(), self)
+
+
+class SplitterHandle(BasicSplitterHandle):
 
     double_clicked = pyqtSignal(object)
 
     def __init__(self, orientation, splitter):
-        QSplitterHandle.__init__(self, orientation, splitter)
+        BasicSplitterHandle.__init__(self, orientation, splitter)
         splitter.splitterMoved.connect(self.splitter_moved,
                 type=Qt.ConnectionType.QueuedConnection)
         self.double_clicked.connect(splitter.double_clicked,
@@ -1066,7 +1101,7 @@ class LayoutButton(QToolButton):
         return QToolButton.mouseReleaseEvent(self, ev)
 
 
-class Splitter(QSplitter):
+class Splitter(BasicSplitter):
 
     state_changed = pyqtSignal(object)
     reapply_sizes = pyqtSignal(object)
@@ -1075,7 +1110,7 @@ class Splitter(QSplitter):
             initial_side_size=120, connect_button=True,
             orientation=Qt.Orientation.Horizontal, side_index=0, parent=None,
             shortcut=None, hide_handle_on_single_panel=True):
-        QSplitter.__init__(self, parent)
+        BasicSplitter.__init__(self, parent)
         self.reapply_sizes.connect(self.setSizes, type=Qt.ConnectionType.QueuedConnection)
         self.hide_handle_on_single_panel = hide_handle_on_single_panel
         if hide_handle_on_single_panel:
@@ -1189,7 +1224,7 @@ class Splitter(QSplitter):
 
     def do_resize(self, *args):
         orig = self.desired_side_size
-        QSplitter.resizeEvent(self, self._resize_ev)
+        BasicSplitter.resizeEvent(self, self._resize_ev)
         if orig > 20 and self.desired_show:
             c = 0
             while abs(self.side_index_size - orig) > 10 and c < 5:

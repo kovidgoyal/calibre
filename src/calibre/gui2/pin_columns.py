@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QSplitter, QTableView
+from qt.core import QTableView
 
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2 import gprefs
+from calibre.gui2.widgets import BasicSplitter
 
 
 class PinTableView(QTableView):
@@ -124,10 +125,10 @@ class PinTableView(QTableView):
                 self.apply_state(state)
 
 
-class PinContainer(QSplitter):
+class PinContainer(BasicSplitter):
 
     def __init__(self, books_view, parent=None):
-        QSplitter.__init__(self, parent)
+        BasicSplitter.__init__(self, parent)
         self.setChildrenCollapsible(False)
         self.books_view = books_view
         self.addWidget(books_view)
