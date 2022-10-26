@@ -982,10 +982,6 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
 class BasicSplitterHandle(QSplitterHandle):
 
-    def __init__(self, orientation, splitter):
-        QSplitterHandle.__init__(self, orientation, splitter)
-        self.handle_width = splitter.handleWidth()
-
     def paintEvent(self, event):
         rect = event.rect()
         painter = QPainter(self)
@@ -997,16 +993,18 @@ class BasicSplitterHandle(QSplitterHandle):
         # draw the dots
         painter.setBrush(palette.color(QPalette.ColorGroup.Normal, QPalette.ColorRole.Shadow))
         horizontal = self.orientation() == Qt.Orientation.Horizontal
-        dot_count = 6
-        dot_size = int(max(1, self.handle_width/2))
+        dot_count = 4
+        cr = self.contentsRect()
+        handle_width = cr.width() if horizontal else cr.height()
+        dot_size = int(max(1, handle_width))
         start_point = max(0, int((rect.height()/2 if horizontal else rect.width()/2) - (dot_count*dot_size/2)))
         for i in range(dot_count):
-            # Move the rect to leave 2 dot spaces between the dots
+            # Move the rect to leave spaces between the dots
             if horizontal:
-                dot_rect = QRect(1, start_point + i*dot_size*3, dot_size, dot_size)
+                dot_rect = QRect(0, start_point + i*dot_size*2, dot_size, dot_size)
             else:
-                dot_rect = QRect(start_point + i*dot_size*3, 1, dot_size, dot_size)
-            painter.drawRect(dot_rect)
+                dot_rect = QRect(start_point + i*dot_size*2, 0, dot_size, dot_size)
+            painter.drawEllipse(dot_rect)
         painter.end()
 
 

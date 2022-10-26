@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 from qt.core import (
     QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QUrl,
-    QSizePolicy, QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption,
+    QSizePolicy, QStackedWidget, QStatusBar, QStyle, QStyleOption,
     QStylePainter, Qt, QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
 )
 

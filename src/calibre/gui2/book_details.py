@@ -10,7 +10,7 @@ from qt.core import (
     QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
     QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap,
     QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl, QWidget, pyqtProperty,
-    QTimer, pyqtSignal
+    pyqtSignal
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -920,13 +920,9 @@ class DetailsLayout(BasicSplitter):  # {{{
         orientation = Qt.Orientation.Vertical if vertical else Qt.Orientation.Horizontal
         BasicSplitter.__init__(self, orientation, parent)
         self.vertical = vertical
-        self.setCollapsible(0, True)
-
         self._children = []
-
         self.min_size = QSize(190, 200) if vertical else QSize(120, 120)
         self.setContentsMargins(0, 0, 0, 0)
-        self.restore_geometry(gprefs, 'book_details_splitter')
         self.splitterMoved.connect(self.do_splitter_moved)
 
     def minimumSize(self):
@@ -945,14 +941,16 @@ class DetailsLayout(BasicSplitter):  # {{{
 
     def restore_splitter_state(self):
         s = gprefs.get('book_details_widget_splitter_state')
-        if s is not None:
+        if s is None:
+            # Without this on first start the splitter is rendered over the cover
+            self.setSizes([20, 80])
+        else:
             self.restoreState(s)
         self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
 
     def setGeometry(self, r):
-        BasicSplitter.setGeometry(self, r)
+        super().setGeometry(r)
         self.do_layout(r)
-        self.restore_splitter_state()
 
     def do_splitter_moved(self, *args):
         gprefs['book_details_widget_splitter_state'] = bytearray(self.saveState())
@@ -1004,8 +1002,7 @@ class DetailsLayout(BasicSplitter):  # {{{
             cover.setGeometry(QRect(x, y, cw, r.height()))
             x += cw + 5
             details.setGeometry(QRect(x, y, r.width() - cw - 5, r.height()))
-        self.restore_splitter_state() # only required on first call to do_layout, but ...
-        self.save_geometry(gprefs, 'book_details_splitter')
+        self.restore_splitter_state()  # only required on first call to do_layout, but ...
         cover.do_layout()
 # }}}
 
