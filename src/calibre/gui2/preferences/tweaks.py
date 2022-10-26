@@ -11,7 +11,7 @@ from calibre import isbytestring, prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
-from calibre.gui2.widgets import PythonHighlighter, BasicSplitter
+from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.config_base import (default_tweaks_raw, exec_tweaks,
                                        normalize_tweak, read_custom_tweaks,
                                        write_custom_tweaks)
@@ -22,7 +22,7 @@ from qt.core import (QAbstractItemView, QAbstractListModel, QApplication,
                      QComboBox, QDialog, QDialogButtonBox, QFont, QGridLayout,
                      QGroupBox, QIcon, QItemSelectionModel, QLabel, QListView,
                      QMenu, QModelIndex, QPlainTextEdit, QPushButton,
-                     QSizePolicy, Qt, QVBoxLayout, QWidget,
+                     QSizePolicy, Qt, QVBoxLayout, QWidget, QSplitter,
                      pyqtSignal)
 
 ROOT = QModelIndex()
@@ -371,7 +371,7 @@ class ConfigWidget(ConfigWidgetBase):
             _("Values for the tweaks are shown below. Edit them to change the behavior of calibre."
               " Your changes will only take effect <b>after a restart</b> of calibre."))
         l.addWidget(la), la.setWordWrap(True)
-        self.splitter = s = BasicSplitter(self)
+        self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
         l.addWidget(s, 10)
 

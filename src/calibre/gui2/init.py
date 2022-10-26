@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 from qt.core import (
     QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QUrl,
-    QSizePolicy, QStackedWidget, QStatusBar, QStyle, QStyleOption,
+    QSizePolicy, QStackedWidget, QStatusBar, QStyle, QStyleOption, QSplitter,
     QStylePainter, Qt, QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
 )
 
@@ -23,7 +23,7 @@ from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
-from calibre.gui2.widgets import LayoutButton, Splitter, BasicSplitter
+from calibre.gui2.widgets import LayoutButton, Splitter
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_website_link
@@ -112,10 +112,10 @@ class LibraryViewMixin:  # {{{
     # }}}
 
 
-class QuickviewSplitter(BasicSplitter):  # {{{
+class QuickviewSplitter(QSplitter):  # {{{
 
     def __init__(self, parent=None, orientation=Qt.Orientation.Vertical, qv_widget=None):
-        BasicSplitter.__init__(self, parent=parent, orientation=orientation)
+        super().__init__(parent=parent, orientation=orientation)
         self.splitterMoved.connect(self.splitter_moved)
         self.setChildrenCollapsible(False)
         self.qv_widget = qv_widget
@@ -124,7 +124,7 @@ class QuickviewSplitter(BasicSplitter):  # {{{
         gprefs['quickview_dialog_heights'] = self.sizes()
 
     def resizeEvent(self, *args):
-        BasicSplitter.resizeEvent(self, *args)
+        super().resizeEvent(*args)
         if self.sizes()[1] != 0:
             gprefs['quickview_dialog_heights'] = self.sizes()
 

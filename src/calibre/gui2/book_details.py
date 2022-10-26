@@ -8,7 +8,7 @@ from collections import namedtuple
 from functools import partial
 from qt.core import (
     QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
-    QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap,
+    QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QSplitter,
     QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl, QWidget, pyqtProperty,
     pyqtSignal
 )
@@ -30,7 +30,6 @@ from calibre.gui2.dialogs.confirm_delete import confirm, confirm as confirm_dele
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 )
-from calibre.gui2.widgets import BasicSplitter
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
@@ -914,11 +913,11 @@ class BookInfo(HTMLDisplay):
 # }}}
 
 
-class DetailsLayout(BasicSplitter):  # {{{
+class DetailsLayout(QSplitter):  # {{{
 
     def __init__(self, vertical, parent):
         orientation = Qt.Orientation.Vertical if vertical else Qt.Orientation.Horizontal
-        BasicSplitter.__init__(self, orientation, parent)
+        super().__init__(orientation, parent)
         self.vertical = vertical
         self._children = []
         self.min_size = QSize(190, 200) if vertical else QSize(120, 120)

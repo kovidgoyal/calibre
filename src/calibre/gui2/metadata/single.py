@@ -12,8 +12,8 @@ from functools import partial
 from qt.core import (
     QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
     QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea, QShortcut, QSize,
-    QSizePolicy, QSpacerItem, Qt, QTabWidget, QToolButton, QVBoxLayout,
-    QWidget, pyqtSignal
+    QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget, QToolButton, QVBoxLayout,
+    QWidget, pyqtSignal,
 )
 
 from calibre.constants import ismacos
@@ -26,10 +26,9 @@ from calibre.gui2.metadata.basic_widgets import (
     AuthorsEdit, AuthorSortEdit, BuddyLabel, CommentsEdit, Cover, DateEdit,
     FormatsManager, IdentifiersEdit, LanguagesEdit, PubdateEdit, PublisherEdit,
     RatingEdit, RightClickButton, SeriesEdit, SeriesIndexEdit, TagsEdit, TitleEdit,
-    TitleSortEdit, show_locked_file_error
+    TitleSortEdit, show_locked_file_error,
 )
 from calibre.gui2.metadata.single_download import FullFetch
-from calibre.gui2.widgets import BasicSplitter
 from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.date import local_tz
@@ -732,13 +731,13 @@ class MetadataSingleDialogBase(QDialog):
     # }}}
 
 
-class Splitter(BasicSplitter):
+class Splitter(QSplitter):
 
     frame_resized = pyqtSignal(object)
 
     def resizeEvent(self, ev):
         self.frame_resized.emit(ev)
-        return BasicSplitter.resizeEvent(self, ev)
+        return super().resizeEvent(ev)
 
 
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
@@ -1040,7 +1039,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
             QSizePolicy.Policy.Expanding))
         wgl.addWidget(self.formats_manager)
 
-        self.splitter = BasicSplitter(Qt.Orientation.Horizontal, tab1)
+        self.splitter = Splitter(Qt.Orientation.Horizontal, tab1)
         tab1.l.addWidget(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.addWidget(wsp)
@@ -1208,7 +1207,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         cover_layout.addLayout(hl)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
         # Splitter for both cover & formats boxes
-        self.cover_and_formats = cover_and_formats = BasicSplitter(Qt.Orientation.Vertical)
+        self.cover_and_formats = cover_and_formats = Splitter(Qt.Orientation.Vertical)
         # Put a very small margin on the left so that the word "Cover" doesn't
         # touch the splitter
         cover_and_formats.setContentsMargins(1, 0, 0, 0)

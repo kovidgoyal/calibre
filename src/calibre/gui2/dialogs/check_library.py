@@ -11,13 +11,12 @@ from qt.core import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QGridLayout,
     QHBoxLayout, QIcon, QLabel, QLineEdit, QProgressBar, QPushButton,
     QStackedLayout, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, QSplitter
 )
 from threading import Thread
 
 from calibre import as_unicode, prints
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.widgets import BasicSplitter
 from calibre.library.check_library import CHECKS, CheckLibrary
 from calibre.utils.recycle_bin import delete_file, delete_tree
 
@@ -126,7 +125,7 @@ class CheckLibraryDialog(QDialog):
 
         self._tl = QHBoxLayout()
         self.setLayout(self._tl)
-        self.splitter = BasicSplitter(self)
+        self.splitter = QSplitter(self)
         self.left = QWidget(self)
         self.splitter.addWidget(self.left)
         self.helpw = QTextEdit(self)

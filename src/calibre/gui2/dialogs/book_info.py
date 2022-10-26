@@ -7,7 +7,7 @@ from qt.core import (
     QAction, QApplication, QBrush, QCheckBox, QDialog, QGridLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
     QPixmap, QPushButton, QShortcut, QSize, Qt, QTimer, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
+    QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox, QSplitter
 )
 
 from calibre import fit_image
@@ -17,7 +17,7 @@ from calibre.gui2.book_details import (
     set_html
 )
 from calibre.gui2.ui import get_gui
-from calibre.gui2.widgets import CoverView, BasicSplitter
+from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
 
@@ -136,7 +136,7 @@ class BookInfo(QDialog):
         QDialog.__init__(self, parent)
         self.marked = None
         self.gui = parent
-        self.splitter = BasicSplitter(self)
+        self.splitter = QSplitter(self)
         self._l = l = QVBoxLayout(self)
         self.setLayout(l)
         l.addWidget(self.splitter)
