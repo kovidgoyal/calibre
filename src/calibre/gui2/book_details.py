@@ -10,7 +10,7 @@ from qt.core import (
     QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
     QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QSplitter,
     QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl, QWidget, pyqtProperty,
-    pyqtSignal
+    QTimer, pyqtSignal
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -922,7 +922,22 @@ class DetailsLayout(QSplitter):  # {{{
         self._children = []
         self.min_size = QSize(190, 200) if vertical else QSize(120, 120)
         self.setContentsMargins(0, 0, 0, 0)
-        self.splitterMoved.connect(self.do_splitter_moved)
+        self.splitterMoved.connect(self.do_splitter_moved,
+                                   type=Qt.ConnectionType.QueuedConnection)
+        self.resize_timer = QTimer()
+        self.resize_timer.setSingleShot(True)
+        self.resize_timer.setInterval(5)
+        self.resize_timer.timeout.connect(self.do_resize)
+
+    def do_resize(self, *args):
+        super().resizeEvent(self._resize_ev)
+        self.do_layout(self.rect())
+
+    def resizeEvent(self, ev):
+        if self.resize_timer.isActive():
+            self.resize_timer.stop()
+        self._resize_ev = ev
+        self.resize_timer.start()
 
     def minimumSize(self):
         return QSize(self.min_size)
