@@ -97,6 +97,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>When multiple formats are present in a book being converted, this list determines which format will be used as the &quot;source&quot; for the conversion.</string>
+            </property>
             <property name="dragEnabled">
              <bool>true</bool>
             </property>
@@ -192,15 +195,15 @@ If not checked, the values can be Yes or No.</string>
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="opt_numeric_collation">
-       <property name="text">
-        <string>Recognize numbers inside text when sorting (needs restart)</string>
-       </property>
        <property name="toolTip">
         <string>&lt;p&gt;Setting this means that when sorting on text fields
-like title the text "Book 2" will sort before the text "Book 100".
+like title the text &quot;Book 2&quot; will sort before the text &quot;Book 100&quot;.
 Note that setting this can cause problems with text that starts
 with numbers and is a little slower. This setting is per user, not
 per library.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Recognize numbers inside text when sorting (needs restart)</string>
        </property>
       </widget>
      </item>
@@ -286,6 +289,9 @@ per library.&lt;/p&gt;</string>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
          <widget class="QListWidget" name="opt_internally_viewed_formats">
+          <property name="toolTip">
+           <string>File types that are unchecked in this list will be opened with the default program configured in the operating system, for that file type.</string>
+          </property>
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
