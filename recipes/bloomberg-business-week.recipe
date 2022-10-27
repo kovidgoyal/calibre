@@ -1,0 +1,113 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre import browser
+import json
+import re
+
+
+class Bloomberg(BasicNewsRecipe):
+    title = u'Bloomberg Businessweek'
+    language = 'en'
+    __author__ = 'unkn0wn'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
+    delay = 1.5
+    extra_css = '''
+        #auth {font-size:small; font-weight:bold;}
+        #time {font-size:small;}
+        #subhead {font-style:italic; color:#404040;}
+        .news-figure-caption-text, #cap {font-size:small; text-align:center;}
+        .news-figure-credit {font-size:small; text-align:center; color:#202020;}
+    '''
+
+    def get_browser(self):
+        br = browser()
+        br.set_handle_redirect(False)
+        return br
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.bloomberg.com/businessweek')
+        bw = soup.find('a', href=lambda x: x and x.startswith('/magazine/businessweek/'))
+        edition = 'https://www.bloomberg.com' + bw['href']
+        self.log('Downloading ', edition)
+        self.cover_url = bw.find('img')['src'].replace('25x19', '600x800')
+        soup = self.index_to_soup(edition)
+        timefmt = soup.find(**classes('section-front-header-module__title'))
+        if timefmt:
+            self.timefmt = ' [' + (self.tag_to_string(timefmt).replace('Issue', '')).strip() + ']'
+
+        feeds = []
+        for div in soup.findAll('div', attrs={'class':'story-list-module__info'}):
+            h3 = div.find('h3', attrs={'class':'story-list-module__title'})
+            sec = self.tag_to_string(h3)
+            self.log(sec)
+            articles = []
+            for art in div.findAll('article'):
+                a = art.find('a', **classes('story-list-story__info__headline-link'))
+                url = 'https://www.bloomberg.com' + a['href']
+                title = self.tag_to_string(a)
+                desc = ''
+                sum = art.find(**classes('story-list-story__info__summary'))
+                if sum:
+                    desc = self.tag_to_string(sum).strip()
+                by = art.find(**classes('story-list-story__info__byline'))
+                if by:
+                    desc = self.tag_to_string(by).strip() + ' | ' + desc
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            if articles:
+                feeds.append((sec, articles))
+        return feeds
+
+    def preprocess_raw_html(self, raw, *a):
+        m = re.search('data-component-props="ArticleBody">', raw)
+        if not m:
+            m = re.search('data-component-props="FeatureBody">', raw)
+
+        raw = raw[m.start():]
+        raw = raw.split('>', 1)[1]
+        data = json.JSONDecoder().raw_decode(raw)[0]
+        data = data['story']
+
+        title = '<h1>' + data['headline'] + '</h1>'
+
+        cat = subhead = lede = auth = caption = ''
+
+        if 'primaryCategory' in data:
+            if data['primaryCategory'] is not None:
+                cat = '<p id="cat">' + data['primaryCategory'] + '</p>'
+
+        if len(data['abstract']) != 0:
+            if len(data['abstract']) == 2:
+                subhead = '<div id="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
+        else:
+            if 'summary' in data:
+                subhead = '<div id="subhead">' + data['summary'] + '</div>'
+
+        if 'byline' in data:
+            if data['byline'] is not None:
+                auth = '<div><span id="auth">' + data['byline']\
+                 + '</span> | <span id="time">' + data['publishedAt'][:-14] + '</span></div>'
+
+        if 'ledeImageUrl' in data:
+            if data['ledeImageUrl'] is not None:
+                lede = '<p><img src="{}">'.format(data['ledeImageUrl'].replace('\\', ''))
+
+        if data['ledeDescription'] is not None:
+            caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
+
+        body = data['body'].replace('\\n', '').replace('\\','')
+
+        html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
+        return html
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-native-src':True}):
+            if img['data-native-src'].__contains__('videos') is False:
+                img['src'] = img['data-native-src']
+            else:
+                img['src'] = ''
+        return soup

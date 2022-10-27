@@ -1,0 +1,103 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import browser
+from calibre.ptempfile import PersistentTemporaryFile
+import json
+import re
+
+
+class Bloomberg(BasicNewsRecipe):
+    title = u'Bloomberg'
+    language = 'en'
+    __author__ = 'unkn0wn'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    oldest_article = 2  # days
+
+    delay = 1.5
+
+    masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
+    extra_css = '''
+        #auth {font-size:small; font-weight:bold;}
+        #time {font-size:small;}
+        #subhead {font-style:italic; color:#404040;}
+        #cat {font-size:small; color:gray;}
+        .news-figure-caption-text, #cap {font-size:small; text-align:center;}
+        .news-figure-credit {font-size:small; text-align:center; color:#202020;}
+    '''
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        html = br.open(url).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    def get_browser(self):
+        br = browser()
+        br.set_handle_redirect(False)
+        return br
+
+    feeds = [
+        ('Articles', 'https://news.google.com/rss/search?q=when:24h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en'),
+    ]
+
+    def preprocess_raw_html(self, raw, *a):
+        m = re.search('data-component-props="ArticleBody">', raw)
+        if not m:
+            m = re.search('data-component-props="FeatureBody">', raw)
+
+        raw = raw[m.start():]
+        raw = raw.split('>', 1)[1]
+        data = json.JSONDecoder().raw_decode(raw)[0]
+        data = data['story']
+
+        title = '<h1>' + data['headline'] + '</h1>'
+
+        cat = subhead = lede = auth = caption = ''
+
+        if 'primaryCategory' in data:
+            if data['primaryCategory'] is not None:
+                cat = '<p id="cat">' + data['primaryCategory'] + '</p>'
+
+        if len(data['abstract']) != 0:
+            if len(data['abstract']) == 2:
+                subhead = '<div id="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
+        else:
+            if 'summary' in data:
+                subhead = '<div id="subhead">' + data['summary'] + '</div>'
+
+        if 'byline' in data:
+            if data['byline'] is not None:
+                auth = '<div><span id="auth">' + data['byline']\
+                 + '</span> | <span id="time">' + data['publishedAt'][:-14] + '</span></div>'
+
+        if 'ledeImageUrl' in data:
+            if data['ledeImageUrl'] is not None:
+                lede = '<p><img src="{}">'.format(data['ledeImageUrl'].replace('\\', ''))
+
+        if data['ledeDescription'] is not None:
+            caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
+
+        body = data['body'].replace('\\n', '').replace('\\','')
+
+        html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
+        return html
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-native-src':True}):
+            if img['data-native-src'].__contains__('videos') is False:
+                img['src'] = img['data-native-src']
+            else:
+                img['src'] = ''
+        return soup
