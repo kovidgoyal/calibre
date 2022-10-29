@@ -1576,9 +1576,10 @@ class TemplateFormatter(string.Formatter):
         self.funcs = formatter_functions().get_functions()
         self._interpreters = []
         self._template_parser = None
-        self._caller = FormatterFuncsCaller(self)
         self.recursion_stack = []
         self.recursion_level = -1
+        self._caller = None
+        self.python_context_object = None
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -1840,7 +1841,9 @@ class TemplateFormatter(string.Formatter):
                  self.book,
                  self.global_vars,
                  self.funcs,
-                 self.locals))
+                 self.locals,
+                 self._caller,
+                 self.python_context_object))
         else:
             return None
 
@@ -1854,7 +1857,9 @@ class TemplateFormatter(string.Formatter):
              self.book,
              self.global_vars,
              self.funcs,
-             self.locals) = state
+             self.locals,
+             self._caller,
+             self.python_context_object) = state
 
     # Allocate an interpreter if the formatter encounters a GPM or TPM template.
     # We need to allocate additional interpreters if there is composite recursion
@@ -1883,6 +1888,7 @@ class TemplateFormatter(string.Formatter):
                       python_context_object=None):
         state = self.save_state()
         try:
+            self._caller = FormatterFuncsCaller(self)
             self.strip_results = strip_results
             self.column_name = self.template_cache = None
             self.kwargs = kwargs
@@ -1911,6 +1917,7 @@ class TemplateFormatter(string.Formatter):
             # call. Recursive calls will use the same dict.
             self.composite_values = {}
         try:
+            self._caller = FormatterFuncsCaller(self)
             self.strip_results = strip_results
             self.column_name = column_name
             self.template_cache = template_cache
