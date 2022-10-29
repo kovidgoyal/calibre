@@ -1827,29 +1827,12 @@ class TemplateFormatter(string.Formatter):
     # reference can use different parameters when calling safe_format(). Because
     # the parameters are saved as instance variables they can possibly affect
     # the 'calling' template. To avoid this problem, save the current formatter
-    # state when recursion is detected. There is no point in saving the level
-    # 0 state.
+    # state when recursion is detected. Save state at level zero to be sure that
+    # all class instance variables are restored to their base settings.
 
     def save_state(self):
         self.recursion_level += 1
-        if self.recursion_level > 0:
-            return (
-                (self.strip_results,
-                 self.column_name,
-                 self.template_cache,
-                 self.kwargs,
-                 self.book,
-                 self.global_vars,
-                 self.funcs,
-                 self.locals,
-                 self._caller,
-                 self.python_context_object))
-        else:
-            return None
-
-    def restore_state(self, state):
-        self.recursion_level -= 1
-        if state is not None:
+        return (
             (self.strip_results,
              self.column_name,
              self.template_cache,
@@ -1859,7 +1842,22 @@ class TemplateFormatter(string.Formatter):
              self.funcs,
              self.locals,
              self._caller,
-             self.python_context_object) = state
+             self.python_context_object))
+
+    def restore_state(self, state):
+        self.recursion_level -= 1
+        if state is None:
+            raise ValueError(_('Formatter state restored before saved'))
+        (self.strip_results,
+         self.column_name,
+         self.template_cache,
+         self.kwargs,
+         self.book,
+         self.global_vars,
+         self.funcs,
+         self.locals,
+         self._caller,
+         self.python_context_object) = state
 
     # Allocate an interpreter if the formatter encounters a GPM or TPM template.
     # We need to allocate additional interpreters if there is composite recursion
