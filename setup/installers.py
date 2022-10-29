@@ -52,6 +52,13 @@ def get_dist(base, which, bitness):
     return dist
 
 
+def shutdown_allowed(which, bitness):
+    # The ARM64 VM is extremely flakey often booting up to a non-functional
+    # state so dont shut it down as it seems to be more stable once bootup is
+    # done.
+    return bitness != 'arm64'
+
+
 def build_only(which, bitness, spec, shutdown=False):
     base, bypy = get_paths()
     exe = get_exe()
@@ -62,7 +69,7 @@ def build_only(which, bitness, spec, shutdown=False):
         raise SystemExit(ret)
     dist = get_dist(base, which, bitness)
     dist = os.path.join(dist, 'c-extensions')
-    if shutdown:
+    if shutdown and shutdown_allowed(which, bitness):
         cmd = get_cmd(exe, bypy, which, bitness, action='shutdown')
         subprocess.Popen(cmd).wait()
     return dist
@@ -87,7 +94,7 @@ def build_single(which='windows', bitness='64', shutdown=True, sign_installers=T
         except OSError:
             pass
         os.link(src, dest)
-    if shutdown:
+    if shutdown and shutdown_allowed(which, bitness):
         cmd = get_cmd(exe, bypy, which, bitness, action='shutdown')
         subprocess.Popen(cmd).wait()
 
