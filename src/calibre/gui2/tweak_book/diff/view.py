@@ -179,7 +179,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             m.exec(self.mapToGlobal(pos))
 
     def mouseDoubleClickEvent(self, ev):
-        if ev.button() == 1:
+        if ev.button() == Qt.MouseButton.LeftButton:
             b = self.cursorForPosition(ev.pos()).block()
             if b.isValid():
                 self.generate_sync_request(b.blockNumber())
