@@ -81,6 +81,10 @@ def browser_in_dark_mode():
     return window.matchMedia('(prefers-color-scheme: dark)').matches
 
 
+def color_scheme():
+    return 'dark' if browser_in_dark_mode() or document.documentElement.style.colorScheme is 'dark' else 'light'
+
+
 def css_for_variables():
     input_css = '''
         input, textarea {

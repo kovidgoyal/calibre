@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from book_list.theme import browser_in_dark_mode, get_color, get_color_as_rgba
+from book_list.theme import color_scheme, get_color, get_color_as_rgba
 from dom import add_extra_css, build_rule, clear, svgicon
 from gettext import gettext as _
 from iframe_comm import IframeClient, create_wrapped_iframe
@@ -396,8 +396,7 @@ class Editor:
             self.pending_set_html = html
             return
         rgba = get_color_as_rgba('window-foreground')
-        cs = 'dark' if browser_in_dark_mode() else 'light'
-        self.iframe_wrapper.send_message('set_html', html=html, color_scheme=cs, color=f'rgba({rgba[0]},{rgba[1]},{rgba[2]},{rgba[3]})')
+        self.iframe_wrapper.send_message('set_html', html=html, color_scheme=color_scheme(), color=f'rgba({rgba[0]},{rgba[1]},{rgba[2]},{rgba[3]})')
 
     def get_html(self, proceed):
         self.get_html_callbacks.push(proceed)

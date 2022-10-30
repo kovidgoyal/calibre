@@ -16,7 +16,7 @@ from book_list.library_data import (
 )
 from book_list.router import back, home, open_book, report_a_load_failure
 from book_list.theme import (
-    browser_in_dark_mode, get_color, get_color_as_rgba, get_font_size
+    color_scheme, get_color, get_color_as_rgba, get_font_size
 )
 from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
@@ -155,8 +155,7 @@ if window?:
 
 def adjusting_sandboxed_html(html, extra_css):
     color = get_color_as_rgba('window-foreground')
-    cs = 'dark' if browser_in_dark_mode() else 'light'
-    css =  f'\n\n:root {{ color-scheme: {cs} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
+    css =  f'\n\n:root {{ color-scheme: {color_scheme()} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
     if extra_css:
         css += '\n\n' + extra_css
     # allow-same-origin is needed for resizing and allow-popups is needed for
