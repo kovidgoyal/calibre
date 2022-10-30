@@ -14,7 +14,7 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
-    delay = 1.5
+    delay = 2
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
         #time {font-size:small;}
@@ -22,6 +22,11 @@ class Bloomberg(BasicNewsRecipe):
         .news-figure-caption-text, #cap {font-size:small; text-align:center;}
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
+
+    remove_tags = [
+        dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
+        classes('twitter-logo bb-global-footer')
+    ]
 
     def get_browser(self):
         br = browser()
@@ -47,7 +52,9 @@ class Bloomberg(BasicNewsRecipe):
             articles = []
             for art in div.findAll('article'):
                 a = art.find('a', **classes('story-list-story__info__headline-link'))
-                url = 'https://www.bloomberg.com' + a['href']
+                url = a['href']
+                if url.startswith('http') is False:
+                    url = 'https://www.bloomberg.com' + a['href']
                 title = self.tag_to_string(a)
                 desc = ''
                 sum = art.find(**classes('story-list-story__info__summary'))
@@ -66,7 +73,8 @@ class Bloomberg(BasicNewsRecipe):
         m = re.search('data-component-props="ArticleBody">', raw)
         if not m:
             m = re.search('data-component-props="FeatureBody">', raw)
-
+            if not m:
+                return raw
         raw = raw[m.start():]
         raw = raw.split('>', 1)[1]
         data = json.JSONDecoder().raw_decode(raw)[0]
