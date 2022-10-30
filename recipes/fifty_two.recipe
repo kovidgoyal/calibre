@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class fiftytwo(BasicNewsRecipe):
+    title = u'Fifty Two'
+    description = ('Every week, 52 publishes an essay that dives deep into an aspect of India’s history,'
+        ' politics and culture. Each story will explain, recall or establish something interesting '
+        'about life on our subcontinent, and tell readers why it matters to them.')
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    oldest_article = 30  # days
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://fiftytwo.in//img/52-logo.png'
+    # https://fiftytwo.in/img/favicon.png
+    ignore_duplicate_articles = {'url'}
+    extra_css = '.story-info, .story-notes, .story-intro {font-size:small; font-style:italic;}'
+
+    keep_only_tags = [
+        classes(
+            'story-banner__container story-info story-slices story-notes'
+        ),
+    ]
+
+    feeds = [
+        ('Articles', 'https://fiftytwo.in/feed.xml'),
+    ]
