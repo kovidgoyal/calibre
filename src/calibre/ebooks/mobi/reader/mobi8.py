@@ -260,13 +260,14 @@ class Mobi8Reader:
                 # svg
                 typ = 'svg'
                 start = m.start()
-                m2 = image_tag_pattern.search(flowpart)
+                # strip off anything before <svg if inlining
+                from_svg = flowpart[start:]
+                m2 = image_tag_pattern.search(from_svg)
                 if m2 is not None:
                     format = 'inline'
                     dir = None
                     fname = None
-                    # strip off anything before <svg if inlining
-                    flowpart = re.sub(br'(</?)svg:', r'\1', flowpart[start:])
+                    flowpart = from_svg
                 else:
                     format = 'file'
                     dir = "images"
