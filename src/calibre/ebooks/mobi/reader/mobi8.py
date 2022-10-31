@@ -506,9 +506,16 @@ class Mobi8Reader:
                 pass
 
         opf.create_manifest_from_files_in([os.getcwd()], exclude=exclude)
+        mime_map = {
+            'text/html': 'application/xhtml+xml',
+            'font/ttf': 'application/x-font-truetype',
+            'font/otf': 'application/vnd.ms-opentype',
+            'font/woff': 'application/font-woff',
+        }
         for entry in opf.manifest:
-            if entry.mime_type == 'text/html':
-                entry.mime_type = 'application/xhtml+xml'
+            n = mime_map.get(entry.mime_type)
+            if n is not None:
+                entry.mime_type = n
         opf.create_spine(spine)
         opf.set_toc(toc)
         ppd = getattr(self.header.exth, 'page_progression_direction', None)
