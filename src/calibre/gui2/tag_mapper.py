@@ -45,7 +45,7 @@ class SingleTagEdit(EditWithComplete):
         self.set_separator(None)
         gui = get_gui()
         if gui:
-            self.update_items_cache(gui.current_db.new_api.all_field_names('tags'))
+            self.update_items_cache(gui.current_db.new_api.all_field_names(getattr(parent, 'SINGLE_EDIT_FIELD_NAME', 'tags')))
 
 
 class RuleEdit(QWidget):
@@ -82,6 +82,7 @@ class RuleEdit(QWidget):
         ' tags, you can replace with parts of the matched pattern. See '
         ' the User Manual on how to use regular expressions for details.')
     REGEXP_HELP_TEXT = _('For help with regex pattern matching, see the <a href="%s">User Manual</a>')
+    SINGLE_EDIT_FIELD_NAME = 'tags'
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)

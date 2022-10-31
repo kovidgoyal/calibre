@@ -38,6 +38,7 @@ class RuleEdit(RuleEditBase):
     SUBJECT = _('the author, if the author name')
     VALUE_ERROR = _('You must provide a value for the author name to match')
     REPLACE_TEXT = _('with the name:')
+    SINGLE_EDIT_FIELD_NAME = 'authors'
 
     @property
     def can_use_tag_editor(self):
