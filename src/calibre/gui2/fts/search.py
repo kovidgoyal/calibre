@@ -43,10 +43,19 @@ def mark_books(*book_ids):
         gui.iactions['Mark Books'].add_ids(book_ids)
 
 
-def jump_to_book(book_id):
+def jump_to_book(book_id, parent=None):
     gui = get_gui()
     if gui is not None:
-        gui.library_view.select_rows((book_id,))
+        parent = parent or gui
+        if not gui.library_view.select_rows((book_id,)):
+            if gprefs['fts_library_restrict_books']:
+                error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
+            else:
+                error_dialog(parent, _('Not found'), _(
+                    'This book is not currently visible in the calibre library.'
+                    ' If you have a search or Virtual library active, try clearing that.'
+                    ' Or click the "Restrict searched books" checkbox in this window to'
+                    ' only search currently visible books.'), show=True)
 
 
 class SearchDelegate(ResultsDelegate):
@@ -419,7 +428,7 @@ class ResultsView(QTreeView):
         results, match = self.m.data_for_index(index)
         m = QMenu(self)
         if results:
-            m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id))
+            m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
