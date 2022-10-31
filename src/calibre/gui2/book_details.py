@@ -69,8 +69,28 @@ def copy_all(text_browser):
     mf = getattr(text_browser, 'details', text_browser)
     c = QApplication.clipboard()
     md = QMimeData()
-    md.setText(mf.toPlainText())
-    md.setHtml(mf.toHtml())
+    html = mf.toHtml()
+    md.setHtml(html)
+    from html5_parser import parse
+    from lxml import etree
+    root = parse(html)
+    for x in ('table', 'tr', 'tbody'):
+        for tag in root.iterdescendants(x):
+            tag.tag = 'div'
+    for tag in root.iterdescendants('td'):
+        tt = etree.tostring(tag, method='text', encoding='unicode')
+        tag.tag = 'span'
+        for child in tuple(tag):
+            tag.remove(child)
+        tag.text = tt.strip()
+    for tag in root.iterdescendants('a'):
+        tag.attrib.pop('href', None)
+    from calibre.utils.html2text import html2text
+    simplified_html = etree.tostring(root, encoding='unicode')
+    txt = html2text(simplified_html, single_line_break=True).strip()
+    # print(simplified_html)
+    # print(txt)
+    md.setText(txt)
     c.setMimeData(md)
 
 
