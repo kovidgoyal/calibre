@@ -680,13 +680,15 @@ class BooksModel(QAbstractTableModel):  # {{{
         else:
             return metadata
 
-    def get_preferred_formats_from_ids(self, ids, formats,
-                              set_metadata=False, specific_format=None,
-                              exclude_auto=False, mode='r+b',
-                              use_plugboard=None, plugboard_formats=None):
+    def get_preferred_formats_from_ids(
+        self, ids, formats,
+        set_metadata=False, specific_format=None, exclude_auto=False, mode='r+b',
+        use_plugboard=None, plugboard_formats=None, modified_metadata=None,
+    ):
         from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
+        modified_metadata = [] if modified_metadata is None else modified_metadata
         if specific_format is not None:
             formats = [specific_format.lower()]
         for id in ids:
@@ -705,12 +707,12 @@ class BooksModel(QAbstractTableModel):  # {{{
                 pt = PersistentTemporaryFile(suffix='caltmpfmt.'+format)
                 self.db.copy_format_to(id, format, pt, index_is_id=True)
                 pt.seek(0)
+                newmi = None
                 if set_metadata:
                     try:
                         mi = self.db.get_metadata(id, get_cover=True,
                                                   index_is_id=True,
                                                   cover_as_data=True)
-                        newmi = None
                         if use_plugboard and format.lower() in plugboard_formats:
                             plugboards = self.db.new_api.pref('plugboards', {})
                             cpb = find_plugboard(use_plugboard, format.lower(),
@@ -731,10 +733,12 @@ class BooksModel(QAbstractTableModel):  # {{{
                         x = x.decode(filesystem_encoding)
                     return x
                 ans.append(to_uni(os.path.abspath(pt.name)))
+                modified_metadata.append(newmi)
             else:
                 need_auto.append(id)
                 if not exclude_auto:
                     ans.append(None)
+                    modified_metadata.append(None)
         return ans, need_auto
 
     def get_preferred_formats(self, rows, formats, paths=False,
