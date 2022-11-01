@@ -8,8 +8,10 @@ import os
 import sys
 import weakref
 from threading import Lock, Thread, get_ident
+from time import perf_counter
 
-from calibre.constants import iswindows
+from calibre import prints
+from calibre.constants import iswindows, DEBUG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import retry_on_fail
 from calibre.utils.ipc.simple_worker import start_pipe_worker
@@ -76,6 +78,7 @@ class Overseer:
 
     def fetch_url(self, url_or_qurl, source='', timeout=60):
         from qt.core import QUrl
+        start_time = perf_counter()
         w = self.worker_for_source(source)
         if isinstance(url_or_qurl, str):
             url_or_qurl = QUrl(url_or_qurl)
@@ -89,6 +92,9 @@ class Overseer:
         with open(output['html_file'], 'rb') as f:
             html = f.read().decode('utf-8')
         retry_on_fail(os.remove, output['html_file'])
+        if DEBUG:
+            duration = perf_counter() - start_time
+            prints(f"Overseer.fetch_url took {duration:.2f}s for URL {url_or_qurl.toString()}")
         return html
 
     def __del__(self):

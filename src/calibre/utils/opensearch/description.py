@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 
-from calibre import browser
+from calibre import browser, prints
+from calibre.constants import DEBUG
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.opensearch.url import URL
 
@@ -32,8 +33,13 @@ class Description:
         you'll probably just want to pass a URL into the constructor.
         '''
         br = browser()
-        with closing(br.open(url, timeout=15)) as f:
-            doc = safe_xml_fromstring(f.read())
+        try:
+            with closing(br.open(url, timeout=15)) as f:
+                doc = safe_xml_fromstring(f.read())
+        except:
+            if DEBUG:
+                prints(f'While loading OpenSearch description, could not fetch URL {url}')
+                raise
 
         # version 1.1 has repeating Url elements.
         self.urls = []

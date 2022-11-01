@@ -132,7 +132,7 @@ class SimpleScraper(QWebEnginePage):
             if ans is None:
                 eurl = fetching_url.toString()
                 if self.current_fetch['working']:
-                    raise TimeoutError(f'Timed out loading HTML from: {eurl}')
+                    raise TimeoutError(f'Timed out loading HTML from: {eurl} - {timeout}s elapsed')
                 raise ValueError(f'Failed to load HTML from: {eurl}')
             return ans
         finally:
