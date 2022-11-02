@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QUrl
 from threading import Lock
 from time import monotonic
 
@@ -45,7 +44,7 @@ class AmazonStore:
 
     def open(self, parent=None, detail_item=None, external=False):
         store_link = get_method('get_store_link_amazon')(self, detail_item)
-        open_url(QUrl(store_link))
+        open_url(store_link)
 
     def search(self, query, max_results=10, timeout=60):
         for result in get_method('search_amazon')(self, query, max_results=max_results, timeout=timeout):

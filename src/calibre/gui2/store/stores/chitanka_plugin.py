@@ -7,18 +7,13 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
-from contextlib import closing
 try:
     from urllib.parse import quote
     from urllib.error import HTTPError
 except ImportError:
     from urllib2 import quote, HTTPError
 
-from lxml import html
-
-from qt.core import QUrl
-
-from calibre import browser, url_slash_cleaner
+from calibre import url_slash_cleaner
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -73,7 +68,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
         if external or self.config.get('open_external', False):
             if detail_item:
                 url = url + detail_item
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(url_slash_cleaner(url))
         else:
             detail_url = None
             if detail_item:
@@ -95,28 +90,22 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
         counter = max_results
 
         # search for book title
-        br = browser()
         try:
-            with closing(br.open(url, timeout=timeout)) as f:
-                f = f.read().decode('utf-8')
-                doc = html.fromstring(f)
-                counter = yield from parse_book_page(doc, base_url, counter)
+            doc = browser_get_url(url, timeout)
+            counter = yield from parse_book_page(doc, base_url, counter)
+            if counter <= 0:
+                return
+
+            # search for author names
+            for data in doc.xpath('//ul[@class="superlist"][1]/li/dl/dt'):
+                author_url = ''.join(data.xpath('.//a[contains(@href,"/person/")]/@href'))
+                if author_url == '':
+                    continue
+
+                person_doc = browser_get_url(base_url + author_url, timeout)
+                counter = yield from parse_book_page(person_doc, base_url, counter)
                 if counter <= 0:
-                    return
-
-                # search for author names
-                for data in doc.xpath('//ul[@class="superlist"][1]/li/dl/dt'):
-                    author_url = ''.join(data.xpath('.//a[contains(@href,"/person/")]/@href'))
-                    if author_url == '':
-                        continue
-
-                    br2 = browser()
-                    with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
-                        f = f.read().decode('utf-8')
-                        doc = html.fromstring(f)
-                        counter = yield from parse_book_page(doc, base_url, counter)
-                        if counter <= 0:
-                            break
+                    break
 
         except HTTPError as e:
             if e.code == 404:

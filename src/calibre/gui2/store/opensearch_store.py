@@ -4,8 +4,6 @@ __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 
-from qt.core import QUrl
-
 from calibre import (browser, guess_extension)
 from calibre.gui2 import open_url
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -88,7 +86,7 @@ class OpenSearchOPDSStore(StorePlugin):
             return
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else self.web_url))
+            open_url(detail_item if detail_item else self.web_url)
         else:
             d = WebStoreDialog(self.gui, self.web_url, parent, detail_item, create_browser=self.create_browser)
             d.setWindowTitle(self.name)

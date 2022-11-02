@@ -26,8 +26,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
-    from calibre.scraper.simple import read_url as ru
-    return ru(read_url.storage, url, timeout=timeout)
+    from calibre.gui2.store import http_get_url
+    return http_get_url(read_url.storage, url, timeout=timeout)
 
 
 read_url.storage = []

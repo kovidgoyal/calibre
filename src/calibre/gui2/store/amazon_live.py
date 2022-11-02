@@ -6,7 +6,7 @@
 from lxml import etree, html
 from urllib.parse import urlencode
 
-from calibre.scraper.simple import read_url
+from calibre.gui2.store import http_get_url
 from calibre.gui2.store.search_result import SearchResult
 
 
@@ -26,7 +26,7 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
     url = self.SEARCH_BASE_URL + '?' + urlencode(uquery)
 
     counter = max_results
-    raw = read_url(self.scraper_storage, url, timeout=timeout)
+    raw = http_get_url(self.scraper_storage, url, timeout=timeout)
     if write_html_to is not None:
         with open(write_html_to, 'w') as f:
             f.write(raw)
@@ -85,7 +85,7 @@ def parse_details_amazon(self, idata, search_result):
 
 def get_details_amazon(self, search_result, timeout):
     url = self.DETAILS_URL + search_result.detail_item
-    raw = read_url(self.scraper_storage, url, timeout=timeout)
+    raw = http_get_url(self.scraper_storage, url, timeout=timeout)
     idata = html.fromstring(raw)
     return parse_details_amazon(self, idata, search_result)
 

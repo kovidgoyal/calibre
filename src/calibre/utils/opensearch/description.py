@@ -39,7 +39,7 @@ class Description:
         except:
             if DEBUG:
                 prints(f'While loading OpenSearch description, could not fetch URL {url}')
-                raise
+            raise
 
         # version 1.1 has repeating Url elements.
         self.urls = []

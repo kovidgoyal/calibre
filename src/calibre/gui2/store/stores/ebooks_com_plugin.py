@@ -8,19 +8,14 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from contextlib import closing
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
-from lxml import html
-
-from qt.core import QUrl
-
-from calibre import browser, url_slash_cleaner
+from calibre import url_slash_cleaner
 from calibre.gui2 import open_url
-from calibre.gui2.store import StorePlugin
+from calibre.gui2.store import browser_get_url, StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
@@ -39,7 +34,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             detail_url = m_url + d_click + detail_item
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(url_slash_cleaner(detail_url if detail_url else url))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
@@ -49,45 +44,43 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + quote_plus(query)
 
-        br = browser()
+        doc = browser_get_url(url, timeout)
 
         counter = max_results
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="results"]//li'):
-                if counter <= 0:
-                    break
+        for data in doc.xpath('//div[@id="results"]//li'):
+            if counter <= 0:
+                break
 
-                id = ''.join(data.xpath('.//a[1]/@href'))
-                mo = re.search(r'\d+', id)
-                if not mo:
-                    continue
-                id = mo.group()
+            id = ''.join(data.xpath('.//a[1]/@href'))
+            mo = re.search(r'\d+', id)
+            if not mo:
+                continue
+            id = mo.group()
 
-                cover_url = ''.join(data.xpath('.//div[contains(@class, "img")]//img/@src'))
+            cover_url = ''.join(data.xpath('.//div[contains(@class, "img")]//img/@src'))
 
-                title = ''.join(data.xpath(
-                    'descendant::span[@class="book-title"]/a/text()')).strip()
-                author = ', '.join(data.xpath(
-                    'descendant::span[@class="author"]/a/text()')).strip()
-                if not title or not author:
-                    continue
+            title = ''.join(data.xpath(
+                'descendant::span[@class="book-title"]/a/text()')).strip()
+            author = ', '.join(data.xpath(
+                'descendant::span[@class="author"]/a/text()')).strip()
+            if not title or not author:
+                continue
 
-                price = ''.join(data.xpath(
-                    './/span[starts-with(text(), "US$") or'
-                    ' starts-with(text(), "€") or starts-with(text(), "CA$") or'
-                    ' starts-with(text(), "AU$") or starts-with(text(), "£")]/text()')).strip()
+            price = ''.join(data.xpath(
+                './/span[starts-with(text(), "US$") or'
+                ' starts-with(text(), "€") or starts-with(text(), "CA$") or'
+                ' starts-with(text(), "AU$") or starts-with(text(), "£")]/text()')).strip()
 
-                counter -= 1
+            counter -= 1
 
-                s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = price.strip()
-                s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
+            s = SearchResult()
+            s.cover_url = cover_url
+            s.title = title.strip()
+            s.author = author.strip()
+            s.price = price.strip()
+            s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
 
-                yield s
+            yield s
 
     def get_details(self, search_result, timeout):
         url = 'http://www.ebooks.com/ebooks/book_display.asp?IID='
@@ -98,17 +91,14 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         if not id:
             return
 
-        br = browser()
-        with closing(br.open(url + id, timeout=timeout)) as nf:
-            pdoc = html.fromstring(nf.read())
+        pdoc = browser_get_url(url + id, timeout)
+        search_result.drm = SearchResult.DRM_UNLOCKED
+        permissions = ' '.join(pdoc.xpath('//div[@class="permissions-items"]//text()'))
+        if 'off' in permissions:
+            search_result.drm = SearchResult.DRM_LOCKED
 
-            search_result.drm = SearchResult.DRM_UNLOCKED
-            permissions = ' '.join(pdoc.xpath('//div[@class="permissions-items"]//text()'))
-            if 'off' in permissions:
-                search_result.drm = SearchResult.DRM_LOCKED
-
-            fdata = pdoc.xpath('//div[contains(@class, "more-links") and contains(@class, "more-links-info")]/div//span/text()')
-            if len(fdata) > 1:
-                search_result.formats = ', '.join(fdata[1:])
+        fdata = pdoc.xpath('//div[contains(@class, "more-links") and contains(@class, "more-links-info")]/div//span/text()')
+        if len(fdata) > 1:
+            search_result.formats = ', '.join(fdata[1:])
 
         return True

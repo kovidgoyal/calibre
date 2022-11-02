@@ -7,14 +7,11 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from contextlib import closing
 from threading import Thread
 
-from lxml import html
+from qt.core import pyqtSignal, QObject
 
-from qt.core import (pyqtSignal, QObject)
-
-from calibre import browser
+from calibre.gui2.store import browser_get_url
 from calibre.gui2.store.search_result import SearchResult
 
 
@@ -48,22 +45,15 @@ class CacheUpdateThread(Thread, QObject):
 
         self.update_details.emit(_('Downloading book list from MobileRead.'))
         # Download the book list HTML file from MobileRead.
-        br = browser()
-        raw_data = None
-        try:
-            with closing(br.open(url, timeout=self.timeout)) as f:
-                raw_data = f.read()
-        except:
-            return
+        data = browser_get_url(url, timeout)
 
-        if not raw_data or not self._run:
+        if not data or not self._run:
             return
 
         self.update_details.emit(_('Processing books.'))
         # Turn books listed in the HTML file into SearchResults's.
         books = []
         try:
-            data = html.fromstring(raw_data)
             raw_books = data.xpath('//ul/li')
             self.total_changed.emit(len(raw_books))
 

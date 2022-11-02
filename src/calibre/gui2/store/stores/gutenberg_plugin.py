@@ -11,12 +11,17 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-from html5_parser import parse
+try:
+    from html5_parser import parse as parse_html
+except ImportError:  # Old versions of calibre
+    import html5lib
+    def parse_html(raw):
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+
 from lxml import etree
 
-from calibre import browser
 from calibre.gui2 import open_url
-from calibre.gui2.store import StorePlugin
+from calibre.gui2.store import browser_get_url, StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from css_selectors import Select
@@ -33,16 +38,9 @@ def absurl(href):
 def search(query, max_results=10, timeout=60, write_raw_to=None):
     url = 'https://www.gutenberg.org/ebooks/search/?query={}&submit_search=Search'.format(quote_plus(query))
 
-    counter = max_results
-    br = browser()
-    raw = br.open(url).read()
-
-    if write_raw_to is not None:
-        with open(write_raw_to, 'wb') as f:
-            f.write(raw)
-
-    root = parse(raw)
+    root = browser_get_url(url, timeout, save_html_to=write_raw_to, html_parser=parse_html)
     CSSSelect = Select(root)
+    counter = max_results
     for li in CSSSelect('li.booklink'):
         if counter <= 0:
             break
@@ -61,7 +59,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
             break
 
         # Get the formats and direct download links.
-        details_doc = parse(br.open_novisit(s.detail_item).read())
+        details_doc = browser_get_url(s.detail_item, timeout, novisit=True, html_parser=parse_html)
         doc_select = Select(details_doc)
         for tr in doc_select('table.files tr[typeof="pgterms:file"]'):
             for a in doc_select('a.link', tr):
