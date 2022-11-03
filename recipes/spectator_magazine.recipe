@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def absurl(url):
@@ -21,20 +21,18 @@ class spectator(BasicNewsRecipe):
     resolve_internal_links = True
 
     extra_css = '''
-        [class^="ContentPageFooterAuthor_author"] {font-size:small;}
+        .author-bio {font-size:small;}
         #fig-c {text-align:center; font-size:small;}
         blockquote, em {color:#404040;}
     '''
 
     keep_only_tags = [
-        prefixed_classes(
-            'ContentPageHeader_main ContentPageHero_container ContentPageBody_body__container__'
-            ' ContentPageFooterAuthor_author__'),
+        classes(
+            'entry-header__heading entry-header__thumbnail entry-content__wrapper author-bio'),
         ]
 
     remove_tags = [
-        dict(name=('aside', 'iframe')),
-        prefixed_classes('ContentPageBody_measure__ ContentPageAuthor_author__pic')
+        classes('entry-header__author entry-header__meta entry-meta insert--most-popular')
     ]
 
     def preprocess_html(self, soup):
@@ -43,21 +41,18 @@ class spectator(BasicNewsRecipe):
             h2.name = 'h4'
         for fc in soup.findAll('figcaption'):
             fc['id'] = 'fig-c'
-        for fig in soup.findAll('figure'):
-            for nos in fig.findAll('noscript'):
-                nos.name = 'span'
         return soup
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.spectator.co.uk/magazine')
-        self.cover_url = soup.find(**prefixed_classes(
-            'MagazinePage_spectator-magazine__image-and-subsections__')).img['src']
-        issue = self.tag_to_string(soup.find(**prefixed_classes(
-            'MagazinePage_spectator-magazine-issue__title__'))).strip()
-        self.timefmt = ' (' + issue + ') [' + self.tag_to_string(soup.find(**prefixed_classes(
-            'MagazinePage_spectator-magazine-issue__date__'))).strip() + ']'
+        self.cover_url = soup.find(**classes(
+            'magazine-header__container')).img['src'].split('?')[0]
+        issue = self.tag_to_string(soup.find(**classes(
+            'magazine-header__title'))).strip()
+        self.timefmt = ' (' + issue + ') [' + self.tag_to_string(soup.find(**classes(
+            'magazine-header__date'))).strip() + ']'
         self.log('Downloading Issue: ', self.timefmt)
-        nav_div = soup.find('ul', **prefixed_classes('Tabs_spectator-table-of-contents__'))
+        nav_div = soup.find('ul', **classes('archive-entry__nav-list'))
         section_list = []
 
         for x in nav_div.findAll(['a']):
@@ -78,30 +73,23 @@ class spectator(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        for div in soup.findAll('div', **prefixed_classes(
-            'MagazineContent_spectator-magazine-content__article-card___'
+        for div in soup.findAll('div', **classes(
+            'mosaic__tile mosaic__tile--lead-up'
         )):
-            a = div.find('a', attrs={
-                'href': lambda x: x and x.startswith(('/article/', '/illustration/', '/poem/'))})
-            if a is None:
-                continue
+            a = div.find('a', href=True, attrs={'class':'article__title-link'})
             url = absurl(a['href'])
-            title = self.tag_to_string(div.find('div', **prefixed_classes(
-                'ArticleCard_spectator-article-card__headline__'))).strip()
-            teaser = div.find('p', **prefixed_classes('ArticleCard_spectator-article-card__media-teaser__'))
+            title = self.tag_to_string(a).strip()
+            teaser = div.find('p', **classes('article__excerpt-text'))
             desc = ''
             if teaser:
                 desc = self.tag_to_string(teaser).strip()
-            obj = div.find('object')
+            obj = div.find('a', **classes('article__author article__author--link'))
             if obj:
                 desc = self.tag_to_string(obj).strip() + ' | ' + desc
-            sec = div.findParent('div').find('a', attrs={'href': lambda x: x and x.startswith('/magazines/')})
+            sec = div.findParent('div').find('a', attrs={'class': 'magazine-issue__entry-link'})
             if sec:
                 desc = self.tag_to_string(sec).strip() + ' | ' + desc
 
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-            ans.append({
-                'title': title,
-                'description':desc,
-                'url': url})
+            ans.append({'title': title, 'description':desc, 'url': url})
         return ans
