@@ -682,6 +682,10 @@ class Worker(Thread):  # Get details {{{
         for a in desc.xpath('descendant::a[@href]'):
             del a.attrib['href']
             a.tag = 'span'
+        for a in desc.xpath('descendant::span[@class="a-text-italic"]'):
+            a.tag = 'i'
+        for a in desc.xpath('descendant::span[@class="a-text-bold"]'):
+            a.tag = 'b'
         desc = self.tostring(desc, method='html', encoding='unicode').strip()
         desc = xml_replace_entities(desc, 'utf-8')
 
@@ -705,25 +709,36 @@ class Worker(Thread):  # Get details {{{
         except ImportError:
             from urllib import unquote
         ans = ''
-        ns = tuple(self.selector('#bookDescription_feature_div noscript'))
-        if ns:
-            ns = ns[0]
-            if len(ns) == 0 and ns.text:
-                import html5lib
-                # html5lib parsed noscript as CDATA
-                ns = html5lib.parseFragment(
-                    '<div>%s</div>' % (ns.text), treebuilder='lxml', namespaceHTMLElements=False)[0]
-            else:
-                ns.tag = 'div'
-            ans = self._render_comments(ns)
+        ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div'))
+        if ovr:
+            ovr = ovr[0]
+            ovr.tag = 'div'
+            ans = self._render_comments(ovr)
+            ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionEditorialsContent_feature_div'))
+            if ovr:
+                ovr = ovr[0]
+                ovr.tag = 'div'
+                ans += self._render_comments(ovr)
         else:
-            desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
-            if desc:
-                ans = self._render_comments(desc[0])
+            ns = tuple(self.selector('#bookDescription_feature_div noscript'))
+            if ns:
+                ns = ns[0]
+                if len(ns) == 0 and ns.text:
+                    import html5lib
+                    # html5lib parsed noscript as CDATA
+                    ns = html5lib.parseFragment(
+                        '<div>%s</div>' % (ns.text), treebuilder='lxml', namespaceHTMLElements=False)[0]
+                else:
+                    ns.tag = 'div'
+                ans = self._render_comments(ns)
             else:
-                ns = tuple(self.selector('#bookDescription_feature_div .a-expander-content'))
-                if ns:
-                    ans = self._render_comments(ns[0])
+                desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
+                if desc:
+                    ans = self._render_comments(desc[0])
+                else:
+                    ns = tuple(self.selector('#bookDescription_feature_div .a-expander-content'))
+                    if ns:
+                        ans = self._render_comments(ns[0])
 
         desc = root.xpath(
             '//div[@id="productDescription"]/*[@class="content"]')
@@ -933,10 +948,11 @@ class Worker(Thread):  # Get details {{{
     def parse_detail_cells(self, mi, c1, c2):
         name = self.totext(c1, only_printable=True).strip().strip(':').strip()
         val = self.totext(c2).strip()
+        val = val.replace('\u200e', '').replace('\u200f', '')
         if not val:
             return
         if name in self.language_names:
-            ans = self.lang_map.get(val, None)
+            ans = self.lang_map.get(val)
             if not ans:
                 ans = canonicalize_lang(val)
             if ans:
@@ -1015,7 +1031,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 1)
+    version = (1, 3, 2)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
