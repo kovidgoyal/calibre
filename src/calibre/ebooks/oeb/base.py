@@ -432,7 +432,7 @@ def serialize(data, media_type, pretty_print=False):
         if isinstance(data, str):
             data = data.encode('utf-8')
         return data + b'\n'
-    return bytes(data)
+    return b'' if data is None else bytes(data)
 
 
 ASCII_CHARS   = frozenset(codepoint_to_chr(x) for x in range(128))
