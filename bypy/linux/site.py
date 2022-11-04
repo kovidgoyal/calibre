@@ -8,6 +8,8 @@ import sys
 
 import _sitebuiltins
 
+USER_SITE = None
+
 
 def set_quit():
     eof = 'Ctrl-D (i.e. EOF)'

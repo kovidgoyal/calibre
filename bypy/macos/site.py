@@ -3,6 +3,8 @@ import os
 import sys
 import _sitebuiltins
 
+USER_SITE = None
+
 
 def nuke_stdout():
     # Redirect stdout, stdin and stderr to /dev/null
