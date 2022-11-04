@@ -13,6 +13,7 @@ import _sitebuiltins
 
 pyd_items = None
 extension_suffixes = sorted(EXTENSION_SUFFIXES, key=len, reverse=True)
+USER_SITE = None
 
 
 def remove_extension_suffix(name):
