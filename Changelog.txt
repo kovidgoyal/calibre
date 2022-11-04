@@ -23,6 +23,52 @@
 # - title by author
 # }}}
 
+{{{ 6.8.0 2022-11-04
+
+:: new features
+
+- Allow customizing the buttons available to the right of the search bar in the main calibre window via Preferences->Toolbars & menus->The buttons on the searchbar
+
+- [1994065] Book details panel: Allow adjusting the space used by the cover with a splitter
+
+- Make splitter handles more visible in the calibre UI style
+
+- [1994136] When sending by email to kindle dont include the author in the filename as amazon is currently reading the author from the file metadata but not the title
+
+:: bug fixes
+
+- [1993051] Book list: Fix incorrect rendering of yes/no icons when they are configured to have only two values
+
+- [1990730] Nook driver: Send books to the NOOK folder for the 2021 Nook model as well
+
+- Improve performance in very large libraries of various UI operations such as right clicking, marking books, etc.
+
+- Fix edit metadata dialog not remembering its position and improve how calibre restores window position and size on multi-monitor systems
+
+- Conversion: Fix CSS styles applied to SVG elements being discarded
+
+- [1995551] EPUB Input: Fix empty adobe page number template file causing conversion to fail
+
+- [1995214] E-book viewer: Fix rendering of comments in metadata display when using a dark color scheme
+
+- [1994988] AZW3 Input: Fix svg images that use a prefix for the SVG namespace not being recognized
+
+- Edit book: Fix double clicking in the see what changed dialog not opening the file in the editor since calibre 6.0
+
+- Edit book: Fix modified indicator on images not working correctly when replacing the image
+
+- Amazon metadata download: Adapt the plugin for website changes
+
+:: improved recipes
+- Army and Navy Times
+- eenadu_ap
+- Handelsblatt
+
+:: new recipes
+- Fifty Two by unkn0wn
+- Bloomberg and Bloomberg Business Week by unkn0wn
+}}}
+
 {{{ 6.7.0 2022-10-14
 
 :: new features
