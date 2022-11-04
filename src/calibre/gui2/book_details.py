@@ -88,6 +88,8 @@ def copy_all(text_browser):
     from calibre.utils.html2text import html2text
     simplified_html = etree.tostring(root, encoding='unicode')
     txt = html2text(simplified_html, single_line_break=True).strip()
+    if iswindows:
+        txt = '\r\n'.join(txt.splitlines())
     # print(simplified_html)
     # print(txt)
     md.setText(txt)
