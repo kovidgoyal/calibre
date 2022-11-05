@@ -977,7 +977,7 @@ class TagsView(QTreeView):  # {{{
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
-                elif key == 'formats':
+                elif key == 'formats' and tag is not None:
                     self.context_menu.addAction(_('Remove the {} format from selected books').format(tag.name), partial(
                         self.context_menu_handler, action='remove_format', key=tag.name))
 
