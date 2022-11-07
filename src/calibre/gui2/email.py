@@ -148,7 +148,7 @@ gui_sendmail = Sendmail()
 
 
 def is_for_kindle(to):
-    return isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to)
+    return isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to or '@free.kindle.com' in to or '@free.kindle.cn' in to)
 
 
 def send_mails(jobnames, callback, attachments, to_s, subjects,
