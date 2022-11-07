@@ -335,7 +335,7 @@ class CoverSettingsWidget(QWidget):
 
     @property
     def current_colors(self):
-        for name, li in iteritems(self.colors_map):
+        for name, li in self.colors_map.items():
             if li.isSelected():
                 return name
 
@@ -397,7 +397,10 @@ class CoverSettingsWidget(QWidget):
                 self.colors_list.item(i).setSelected(False)
 
     def create_color_scheme(self):
-        scheme = self.colors_map[self.current_colors].data(Qt.ItemDataRole.UserRole)
+        cs = self.current_colors
+        if cs is None:
+            cs = tuple(self.colors_map.keys())[0]
+        scheme = self.colors_map[cs].data(Qt.ItemDataRole.UserRole)
         d = CreateColorScheme('#' + _('My Color Scheme'), scheme, set(self.colors_map), parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             name, scheme = d.data
