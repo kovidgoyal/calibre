@@ -163,9 +163,7 @@ class Editor(QMainWindow):
         self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
 
     def replace_data(self, raw, only_if_different=True):
-        # We ignore only_if_different as it is useless in our case, and
-        # there is no easy way to check two images for equality
-        self.canvas.load_image(raw)
+        self.canvas.load_image(raw, only_if_different=only_if_different)
 
     def apply_settings(self, prefs=None, dictionaries_changed=False):
         pass

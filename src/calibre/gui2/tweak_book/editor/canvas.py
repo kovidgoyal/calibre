@@ -293,7 +293,9 @@ class Canvas(QWidget):
         self.redo_action = a = self.undo_stack.createRedoAction(self, _('Redo') + ' ')
         a.setIcon(QIcon.ic('edit-redo.png'))
 
-    def load_image(self, data):
+    def load_image(self, data, only_if_different=False):
+        if only_if_different and self.original_image_data and not self.is_modified and self.original_image_data == data:
+            return
         self.is_valid = False
         try:
             fmt = identify(data)[0].encode('ascii')
