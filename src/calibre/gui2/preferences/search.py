@@ -33,6 +33,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('limit_search_columns', prefs)
         r('use_primary_find_in_search', prefs)
         r('search_tool_bar_shows_text', gprefs)
+        ossm = self.opt_saved_search_menu_is_hierarchical
+        ossm.setChecked('search' in db.new_api.pref('categories_using_hierarchy', []))
+        ossm.stateChanged.connect(self.changed_signal)
         r('case_sensitive', prefs)
         fl = db.field_metadata.get_search_terms()
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList, choices=fl)
@@ -234,6 +237,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                           str(self.similar_series_search_key.currentText()))
         self.db.new_api.set_pref('similar_publisher_search_key',
                           str(self.similar_publisher_search_key.currentText()))
+
+        cats = set(self.db.new_api.pref('categories_using_hierarchy', []))
+        if self.opt_saved_search_menu_is_hierarchical.isChecked():
+            cats.add('search')
+        else:
+            cats.discard('search')
+        self.db.new_api.set_pref('categories_using_hierarchy', list(cats))
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):

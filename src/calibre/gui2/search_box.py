@@ -443,23 +443,29 @@ class SavedSearchBoxMixin:  # {{{
                      partial(self.do_saved_search_edit, None))
         m.addSeparator()
         db = self.current_db
+        folder_icon = QIcon.ic('folder_saved_search.png')
+        search_icon = QIcon.ic('search.png')
+        use_hierarchy = 'search' in db.new_api.pref('categories_using_hierarchy', [])
         submenus = {}
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
-            components = tuple(n.strip() for n in name.split('.'))
-            hierarchy = components[:-1]
-            last = components[-1]
-            current_menu = m
-            # Walk the hierarchy, creating submenus as needed
-            for i,c in enumerate(hierarchy, start=1):
-                hierarchical_prefix = '.'.join(hierarchy[:i])
-                if hierarchical_prefix not in submenus:
-                    current_menu = current_menu.addMenu(c)
-                    current_menu.setIcon(QIcon.ic('folder_saved_search.png'))
-                    submenus[hierarchical_prefix] = current_menu
-                else:
-                    current_menu = submenus[hierarchical_prefix]
-            ac = current_menu.addAction(last, partial(self.search.set_search_string, 'search:"='+name+'"'))
-            ac.setIcon(QIcon.ic('search.png'))
+            if use_hierarchy:
+                components = tuple(n.strip() for n in name.split('.'))
+                hierarchy = components[:-1]
+                last = components[-1]
+                current_menu = m
+                # Walk the hierarchy, creating submenus as needed
+                for i,c in enumerate(hierarchy, start=1):
+                    hierarchical_prefix = '.'.join(hierarchy[:i])
+                    if hierarchical_prefix not in submenus:
+                        current_menu = current_menu.addMenu(c)
+                        current_menu.setIcon(folder_icon)
+                        submenus[hierarchical_prefix] = current_menu
+                    else:
+                        current_menu = submenus[hierarchical_prefix]
+                ac = current_menu.addAction(last, partial(self.search.set_search_string, 'search:"='+name+'"'))
+            else:
+                ac = m.addAction(name, partial(self.search.set_search_string, 'search:"='+name+'"'))
+            ac.setIcon(search_icon)
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()

@@ -147,6 +147,19 @@
          </property>
         </widget>
        </item>
+       <item row="6" column="0">
+        <widget class="QCheckBox" name="opt_saved_search_menu_is_hierarchical">
+         <property name="text">
+          <string>Show saved searches as a hierarchy</string>
+         </property>
+         <property name="toolTip">
+          <string>&lt;p&gt;Hierarchical items are separated by periods.
+                  Changing this box will also change the 'Saved Searches' box
+                  in Preferences / Look &amp; feel / Tag browser /
+                  Hierarchy and searching&lt;/p&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
