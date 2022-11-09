@@ -33,7 +33,7 @@
 
 - Make splitter handles more visible in the calibre UI style
 
-- [1994136] When sending by email to kindle dont include the author in the filename as amazon is currently reading the author from the file metadata but not the title
+- [1994136] When sending by email to Kindle do not include the author in the filename as Amazon is currently reading the author from the file metadata but not the title
 
 :: bug fixes
 
@@ -47,7 +47,7 @@
 
 - Conversion: Fix CSS styles applied to SVG elements being discarded
 
-- [1995551] EPUB Input: Fix empty adobe page number template file causing conversion to fail
+- [1995551] EPUB Input: Fix empty Adobe page number template file causing conversion to fail
 
 - [1995214] E-book viewer: Fix rendering of comments in metadata display when using a dark color scheme
 
