@@ -327,7 +327,6 @@ class DateTimeEdit(DateTimeEditBase):
         self.setDateTime(now())
 
     def set_to_clear(self):
-        self.setDateTime(now())
         self.setDateTime(UNDEFINED_QDATETIME)
 
 
