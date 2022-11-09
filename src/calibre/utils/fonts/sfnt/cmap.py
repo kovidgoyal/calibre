@@ -95,7 +95,7 @@ def split_range(start_code, end_code, cmap):  # {{{
 # }}}
 
 
-def set_id_delta(id_delta):  # {{{
+def set_id_delta(index, start_code):  # {{{
     # The lowest gid in glyphIndexArray, after subtracting id_delta, must be 1.
     # id_delta is a short, and must be between -32K and 32K
     # startCode can be between 0 and 64K-1, and the first glyph index can be between 1 and 64K-1
@@ -109,10 +109,11 @@ def set_id_delta(id_delta):  # {{{
     # Similarly , we can get from a startCode of 64K-1 to a final GID of 1 by adding 2, because of
     # the modulo arithmetic.
 
+    id_delta = index - start_code
     if id_delta > 0x7FFF:
-        id_delta = id_delta - 0x10000
-    elif id_delta <  -0x7FFF:
-        id_delta = id_delta + 0x10000
+        id_delta -= 0x10000
+    elif id_delta < -0x7FFF:
+        id_delta += 0x10000
 
     return id_delta
 # }}}
@@ -256,9 +257,14 @@ class CmapTable(UnknownTable):
             indices = tuple(cmap[char_code] for char_code in range(start_code[i], end_code[i] + 1))
             if indices == tuple(range(indices[0], indices[0] + len(indices))):
                 # indices is a contiguous list
-                id_delta_temp = set_id_delta(indices[0] - start_code[i])
-                id_delta.append(id_delta_temp)
-                id_range_offset.append(0)
+                id_delta_temp = set_id_delta(indices[0], start_code[i])
+                if id_delta_temp > 0x7FFF or id_delta_temp < -0x7FFF:
+                    id_delta.append(0)
+                    id_range_offset.append(2 * (len(end_code) + len(glyph_index_array) - i))
+                    glyph_index_array.extend(indices)
+                else:
+                    id_delta.append(id_delta_temp)
+                    id_range_offset.append(0)
             else:
                 id_delta.append(0)
                 id_range_offset.append(2 * (len(end_code) + len(glyph_index_array) - i))
