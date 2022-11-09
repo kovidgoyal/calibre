@@ -25,7 +25,7 @@ def split_range(start_code, end_code, cmap):  # {{{
 
     last_id = cmap[start_code]
     last_code = start_code
-    in_order = None
+    in_order = False
     ordered_begin = None
     sub_ranges = []
 
@@ -34,12 +34,12 @@ def split_range(start_code, end_code, cmap):  # {{{
         glyph_id = cmap[code]
 
         if glyph_id - 1 == last_id:
-            if in_order is None or not in_order:
-                in_order = 1
+            if not in_order:
+                in_order = True
                 ordered_begin = last_code
         else:
             if in_order:
-                in_order = 0
+                in_order = False
                 sub_ranges.append((ordered_begin, last_code))
                 ordered_begin = None
 
@@ -253,8 +253,8 @@ class CmapTable(UnknownTable):
         id_range_offset = []
         glyph_index_array = []
         for i in range(len(end_code)-1):  # skip the closing codes (0xffff)
-            indices = list(cmap[char_code] for char_code in range(start_code[i], end_code[i] + 1))
-            if indices == list(range(indices[0], indices[0] + len(indices))):
+            indices = tuple(cmap[char_code] for char_code in range(start_code[i], end_code[i] + 1))
+            if indices == tuple(range(indices[0], indices[0] + len(indices))):
                 # indices is a contiguous list
                 id_delta_temp = set_id_delta(indices[0] - start_code[i])
                 id_delta.append(id_delta_temp)
