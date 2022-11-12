@@ -275,7 +275,7 @@ def group_sort(locations):
     for loc in locations:
         if loc.file_name not in order:
             order[loc.file_name] = len(order)
-    return sorted(locations, key=lambda l:(order[l.file_name], l.sourceline))
+    return sorted(locations, key=lambda l:(order[l.file_name], l.sourceline or 0))
 
 
 def get_checkable_file_names(container):
