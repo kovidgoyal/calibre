@@ -504,11 +504,24 @@ class TagsView(QTreeView):  # {{{
 
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None, search_state=None,
-                             is_first_letter=False, ignore_vl=False):
+                             is_first_letter=False, ignore_vl=False,
+                             extra=None):
         if not action:
             return
         from calibre.gui2.ui import get_gui
         try:
+            if action == 'dont_collapse_category':
+                if key not in extra:
+                    extra.append(key)
+                self.db.prefs.set('tag_browser_dont_collapse', extra)
+                self.recount()
+                return
+            if action == 'collapse_category':
+                if key in extra:
+                    extra.remove(key)
+                self.db.prefs.set('tag_browser_dont_collapse', extra)
+                self.recount()
+                return
             if action == 'set_icon':
                 try:
                     path = choose_files(self, 'choose_category_icon',
@@ -1017,6 +1030,21 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
             add_show_hidden_categories()
 
+        # partioning. If partitioning is active, provide a way to turn it on or
+        # off for this category.
+        if gprefs['tags_browser_partition_method'] != 'disable':
+            m = self.context_menu
+            p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
+            if key in p:
+                a = m.addAction(_('Sub-categorize {}').format(category),
+                                partial(self.context_menu_handler, action='collapse_category',
+                                        category=category, key=key, extra=p))
+            else:
+                a = m.addAction(_("Don't sub-categorize {}").format(category),
+                                partial(self.context_menu_handler, action='dont_collapse_category',
+                                        category=category, key=key, extra=p))
+            a.setIcon(QIcon.ic('config.png'))
+        # Set the partitioning scheme
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
         m.setIcon(QIcon.ic('config.png'))
         da = m.addAction(_('Disable'),
