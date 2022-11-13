@@ -286,7 +286,9 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
             painter->setBrush(option->palette.color(QPalette::ColorGroup::Normal, QPalette::ColorRole::AlternateBase));
             painter->drawRect(option->rect);
             // draw the dots
-            painter->setBrush(option->palette.color(QPalette::ColorGroup::Normal, QPalette::ColorRole::Shadow));
+            QColor dot_color = option->palette.color(QPalette::ColorGroup::Normal, QPalette::ColorRole::Text);
+            dot_color.setAlphaF(0.5);
+            painter->setBrush(dot_color);
             painter->setRenderHint(QPainter::Antialiasing, true);
             const bool horizontal = (option->state & QStyle::State_Horizontal) ? true : false;
             static const int dot_count = 4;
