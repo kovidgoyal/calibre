@@ -287,6 +287,7 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
             painter->drawRect(option->rect);
             // draw the dots
             painter->setBrush(option->palette.color(QPalette::ColorGroup::Normal, QPalette::ColorRole::Shadow));
+            painter->setRenderHint(QPainter::Antialiasing, true);
             const bool horizontal = (option->state & QStyle::State_Horizontal) ? true : false;
             static const int dot_count = 4;
             const int handle_width = pixelMetric(PM_SplitterWidth, option, widget);
