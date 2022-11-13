@@ -671,6 +671,9 @@ class Smarts(NullSmarts):
         is_xml = editor.syntax == 'xml'
         mods = ev.modifiers() & (
             Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier | Qt.KeyboardModifier.KeypadModifier)
+        shifted_mods = ev.modifiers() & (
+            Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier |
+            Qt.KeyboardModifier.KeypadModifier | Qt.KeyboardModifier.ShiftModifier)
 
         if tprefs['replace_entities_as_typed'] and (
                 ';' in ev_text or
@@ -728,7 +731,8 @@ class Smarts(NullSmarts):
             if mods == Qt.KeyboardModifier.ControlModifier:
                 if self.jump_to_enclosing_tag(editor, key == Qt.Key.Key_BraceLeft):
                     return True
-        if key == Qt.Key.Key_T and mods == (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier):
+        if key == Qt.Key.Key_T and shifted_mods in (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier, Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier):
             return self.select_tag_contents(editor)
 
         return False

@@ -814,7 +814,8 @@ The HTML editor has very sophisticated syntax highlighting. Features include:
     * As you move your cursor through the HTML, the matching HTML tags are
       highlighted, and you can jump to the opening or closing tag with the
       keyboard shortcuts :kbd:`Ctrl+{` and :kbd:`Ctrl+}`. Similarly, you
-      can select the contents of a tag with :kbd:`Ctrl+Alt+T`.
+      can select the contents of a tag with :kbd:`Ctrl+Alt+T` or
+      :kbd:`Ctrl+Shift+T`.
     * Invalid HTML is highlighted with a red underline
     * Spelling errors in the text inside HTML tags and attributes such as title
       are highlighted. The spell checking is language aware, based on the value
