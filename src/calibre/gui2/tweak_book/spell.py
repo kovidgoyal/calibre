@@ -1147,7 +1147,7 @@ class SpellCheck(Dialog):
     def initialize_user_dictionaries(self):
         ct = str(self.user_dictionaries.currentText())
         self.user_dictionaries.clear()
-        self.user_dictionaries.addItems([d.name for d in dictionaries.active_user_dictionaries])
+        self.user_dictionaries.addItems(sorted((d.name for d in dictionaries.active_user_dictionaries), key=primary_sort_key))
         if ct:
             idx = self.user_dictionaries.findText(ct)
             if idx > -1:
