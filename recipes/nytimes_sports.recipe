@@ -32,6 +32,8 @@ class NYTimesSports(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     language = 'en'
+    delay = 1
+
     feeds = [
         (u'The Fifth Down', u'https://fifthdown.blogs.nytimes.com/feed/'),
         (u'The Quad', u'https://thequad.blogs.nytimes.com/feed/'),

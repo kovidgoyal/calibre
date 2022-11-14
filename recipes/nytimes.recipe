@@ -91,6 +91,7 @@ class NewYorkTimes(BasicNewsRecipe):
     compress_news_images = True
     compress_news_images_auto_size = 5
     conversion_options = {'flow_size': 0}
+    delay = 0 if use_wayback_machine else 1
 
     @property
     def nyt_parser(self):
