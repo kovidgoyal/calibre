@@ -1,141 +1,99 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
-
-import string
-
-from calibre import entity_to_unicode
-from calibre.web.feeds.news import BasicNewsRecipe
+import json
+import re
+from collections import defaultdict
+from datetime import date
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://www.thehindu.com' + url
+    return url
+
+
+local_edition = None
+# Chennai is default edition, for other editions use 'th_hyderabad', 'th_bangalore', 'th_delhi', 'th_kolkata' etc
 
 
 class TheHindu(BasicNewsRecipe):
-    title = u'The Hindu'
+    title = 'The Hindu'
+    __author__ = 'unkn0wn'
     language = 'en_IN'
-    epaper_url = 'https://epaper.thehindu.com'
-
-    oldest_article = 1
-    __author__ = 'Kovid Goyal'
-    max_articles_per_feed = 100
     no_stylesheets = True
+    masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
     remove_attributes = ['style', 'height', 'width']
-    extra_css = '.lead-img-cont { text-align: center; } ' \
-                '.lead-img-caption { font-size: small; font-style: italic; } ' \
-                '.mobile-author-cont { font-size: small; text-transform: uppercase; } ' \
-                '.intro ~ .intro, .update-time, .ksl-time-stamp * { display: none; } '
+    extra_css = '.caption{font-size:small; text-align:center;}'\
+        '.author{font-size:small;}'
 
-    ignore_duplicate_articles = {'title', 'url'}
+    ignore_duplicate_articles = {'url'}
+
     keep_only_tags = [
-        dict(name='h1', attrs={'class': ['title', 'special-article-heading']}),
-        classes('lead-img-cont mobile-author-cont photo-collage intro'),
-        dict(id=lambda x: x and x.startswith('content-body-')),
+        classes('article-section ')
     ]
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
-        br.addheaders += [('Referer', self.epaper_url)]     # needed for fetching cover
-        # br.set_debug_http(True)
-        return br
-
-    def get_cover_url(self):
-        url = self.index_to_soup(self.epaper_url + '/Login/DefaultImage', raw=True)
-        return url.replace(br'\\', b'/').decode('utf-8')[1:-1]
+    remove_tags = [
+        classes('hide-mobile comments-shares share-page editiondetails')
+    ]
 
     def preprocess_html(self, soup):
-        img = soup.find('img', attrs={'class': 'lead-img'})
-        try:
-            for i, source in enumerate(tuple(img.parent.findAll('source', srcset=True))):
-                if i == 0:
-                    img['src'] = source['srcset'].split()[0]
-                source.extract()
-        except Exception:
-            pass
-        # for img in soup.findAll(attrs={'data-original': True}):
-        #     img['src'] = img['data-original']
-        # Place intro beneath the title, skip duplicates
-        try:
-            soup.h1.insert_after(soup.find('h2', attrs={'class': 'intro'}))
-        except Exception:
-            pass
-        # Remove ',' from location tag
-        ts = soup.find('span', attrs={'class': 'ksl-time-stamp'})
-        if ts and ts.string:
-            ts.string = ts.string.split(',')[0]
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            img['src'] = img['data-original']
         return soup
 
-    def populate_article_metadata(self, article, soup, first):
+    def get_cover_url(self):
+        cover = 'https://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/in/hindu.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
         try:
-            desc = soup.find('meta', attrs={'name': 'description'}).get('content')
-            if not desc.startswith('Todays paper'):
-                desc += '...' if len(desc) >= 199 else ''   # indicate truncation
-                article.text_summary = article.summary = entity_to_unicode(desc)
-        except AttributeError:
-            return
-
-    def articles_from_soup(self, soup):
-        ans = []
-        div = soup.find('section', attrs={'id': 'section_1'})
-        if div is None:
-            return ans
-        for ul in div.findAll('ul', attrs={'class': 'archive-list'}):
-            for x in ul.findAll(['a']):
-                title = self.tag_to_string(x)
-                url = x.get('href', False)
-                if not url or not title:
-                    continue
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                ans.append({
-                    'title': title,
-                    'url': url,
-                    'description': '',
-                    'date': ''})
-        return ans
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/in/np/hindu.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     def parse_index(self):
-        # return [('xxx', [
-        #     {'title':'xxx', 'url':'http://www.thehindu.com/opinion/op-ed/rohingya-bangladeshs-burden-to-bear/article19694058.ece'},
-        #     {'title':'yyy', 'url':'http://www.thehindu.com/sci-tech/energy-and-environment/on-river-washed-antique-plains/article19699327.ece'}
-        # ])]
-        soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')
-        nav_div = soup.find(id='subnav-tpbar-latest')
-        section_list = []
+        if local_edition:
+            yr = str(date.today().year)
+            mn = date.today().strftime('%m')
+            dy = date.today().strftime('%d')
+            url = 'https://www.thehindu.com/todays-paper/' + yr + '-' + mn + '-' + dy + '/' + local_edition + '/'
+        else:
+            url = 'https://www.thehindu.com/todays-paper/'
+        raw = self.index_to_soup(url, raw=True)
+        soup = self.index_to_soup(raw)
+        ans = self.hindu_parse_index(soup)
+        if not ans:
+            raise ValueError(
+                    'The Hindu Newspaper is not published Today.'
+                )
+        return ans
 
-        # Finding all the section titles that are acceptable
-        for x in nav_div.findAll(['a']):
-            if self.is_accepted_entry(x):
-                section_list.append(
-                    (string.capwords(self.tag_to_string(x)), x['href']))
-        feeds = []
+    def hindu_parse_index(self, soup):
+        for script in soup.findAll('script'):
+            if not self.tag_to_string(script).strip().startswith('let grouped_articles = {}'):
+                continue
+            if script is not None:
+                art = re.search(r'grouped_articles = ({\"[^<]+?]})', self.tag_to_string(script))
+                data = json.loads(art.group(1))
 
-        # For each section title, fetch the article urls
-        for section in section_list:
-            section_title = section[0]
-            section_url = section[1]
-            self.log('Found section:', section_title, section_url)
-            soup = self.index_to_soup(section_url)
-            articles = self.articles_from_soup(soup)
-            if articles:
-                feeds.append((section_title, articles))
+                feeds_dict = defaultdict(list)
 
-        return feeds
-
-    def is_accepted_entry(self, entry):
-        # Those sections in the top nav bar that we will omit
-        omit_list = [
-            'tp-tamilnadu', 'tp-karnataka', 'tp-kerala', 'tp-andhrapradesh',
-            'tp-telangana', 'tp-newdelhi', 'tp-mumbai', 'tp-otherstates',
-            'tp-in-school', 'tp-metroplus', 'tp-youngworld', 'tp-fridayreview',
-            'tp-downtown', 'tp-bookreview', 'tp-others']
-
-        is_accepted = True
-        for omit_entry in omit_list:
-            if entry['href'][0:-1].endswith(omit_entry):
-                is_accepted = False
-                break
-        return is_accepted
+                a = json.dumps(data)
+                for sec in json.loads(a):
+                    for item in data[sec]:
+                        section = sec.replace('TH_', '')
+                        title = item['articleheadline']
+                        url = absurl(item['href'])
+                        desc = 'from page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
+                        self.log('\t', title, '\n\t\t', url)
+                        feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                return [(section, articles) for section, articles in feeds_dict.items()]
+            else:
+                return []
