@@ -605,8 +605,21 @@ def show_export_dialog(annotations_manager):
             return
         as_markdown = fmt is 'markdown'
         lines = v'[]'
+        def_chap = [_('Unknown chapter')]
+        chapter_groups = {}
+        chapters = v'[]'
         for hl in all_highlights:
-            render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=as_markdown)
+            toc_title = (hl['toc_family_titles'] or def_chap)[0]
+            if not chapter_groups[toc_title]:
+                chapter_groups[toc_title] = v'[]'
+                chapters.push(toc_title)
+            chapter_groups[toc_title].push(hl)
+        for chapter_title in chapters:
+            if chapters.length > 1:
+                lines.push('### ' + chapter_title)
+                lines.push('')
+            for hl in chapter_groups[chapter_title]:
+                render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=as_markdown)
         document.getElementById(ta_id).textContent = lines.join('\n')
 
     def fmt_item(text, val):
