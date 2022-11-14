@@ -43,6 +43,7 @@ class MitTechnologyReview(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     remove_attributes = ['height', 'width', 'style', 'padding', 'padding-top']
+    delay = 1
     masthead_url = 'https://wp-preprod.technologyreview.com/wp-content/uploads/2021/08/Screen-Shot-2021-08-20-at-11.11.12-AM-e1629473232355.png'
     extra_css = '''
         #pub-d{font-size:small;}
@@ -69,21 +70,16 @@ class MitTechnologyReview(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
-        self.timefmt = ' [{}]'.format(
-            self.tag_to_string(
-                soup.find(
-                    attrs={
-                        'class': lambda x: x and x.startswith('magazineHero__date')
-                    }
-                )
-            )
-        )
+        issue = soup.find('h1', attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
+        time = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__date')})
+        self.timefmt = ' (' + self.tag_to_string(issue) + ') [' + self.tag_to_string(time) + ']'
+        self.log('Downloading issue: ', self.timefmt)
 
         # parse articles
         feeds = OrderedDict()
 
         classNamePrefixes = [
-            "magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"
+            "teaserItem__title", "teaserItem--aside__title"
         ]
         for div in soup.findAll(
             attrs={
