@@ -36,18 +36,17 @@ def implementation(
     db, notify_changes, fields, sort_by, ascending, search_text, limit, template=None
 ):
     is_remote = notify_changes is not None
-    if 'template' in fields:
-        # Yes, this leaves formatter undefined if template isn't a field but
-        # that isn't a problem with the current implementation
-        from calibre.ebooks.metadata.book.formatter import SafeFormat
-        formatter = SafeFormat()
+    formatter = None
     with db.safe_read_lock:
         fm = db.field_metadata
         afields = set(FIELDS) | {'id'}
         for k in fm.custom_field_keys():
             afields.add('*' + k[1:])
         if 'all' in fields:
-            fields = sorted(afields)
+            if template:
+                fields = sorted(afields - {'template'})
+            else:
+                fields = sorted(afields)
         sort_by = sort_by or 'id'
         if sort_by not in afields:
             return f'Unknown sort field: {sort_by}'
@@ -71,11 +70,13 @@ def implementation(
                 continue
             if field == 'template':
                 vals = {}
-                globals = {}
+                global_vars = {}
+                if formatter is None:
+                    from calibre.ebooks.metadata.book.formatter import SafeFormat
+                    formatter = SafeFormat()
                 for book_id in book_ids:
                     mi = db.get_proxy_metadata(book_id)
-                    vals[book_id] = formatter.safe_format(template, {}, 'TEMPLATE ERROR',
-                                                          mi, global_vars=globals)
+                    vals[book_id] = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi, global_vars=global_vars)
                 data['template'] = vals
                 continue
             field = field.replace('*', '#')
@@ -161,7 +162,7 @@ def do_list(
 ):
     if sort_by is None:
         ascending = True
-    if 'template' in [f.strip() for f in fields]:
+    if 'template' in (f.strip() for f in fields):
         if template_file:
             with lopen(template_file, 'rb') as f:
                 template = f.read().decode('utf-8')
@@ -232,11 +233,11 @@ def do_list(
 
     for record in output_table:
         text = [
-            wrappers[i](record[i]) for i, _ in enumerate(fields)
+            wrappers[i](record[i]) for i in range(len(fields))
         ]
         lines = max(map(len, text))
         for l in range(lines):
-            for i, _ in enumerate(text):
+            for i in range(len(text)):
                 ft = text[i][l] if l < len(text[i]) else ''
                 stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
