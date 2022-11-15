@@ -79,7 +79,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         feeds = OrderedDict()
 
         classNamePrefixes = [
-            "teaserItem__title", "teaserItem--aside__title"
+            "magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"
         ]
         for div in soup.findAll(
             attrs={
@@ -92,7 +92,8 @@ class MitTechnologyReview(BasicNewsRecipe):
             a = div.find('a', href=True)
             title = self.tag_to_string(a).strip()
             href = absurl(a['href'])
-
+            desc = ''
+            section_title = 'Letter from the editor'
             d = div.findParent(
                 attrs={
                     'class':
@@ -100,24 +101,26 @@ class MitTechnologyReview(BasicNewsRecipe):
                     startswith(('teaserItem__wrapper', 'teaserItem--aside__wrapper'))
                 }
             )
-            desc = self.tag_to_string(
-                d.find(
+            if d:
+
+                excerpt = d.find(
+                        attrs={
+                            'class':
+                            lambda x: x and x.startswith(
+                                ('teaserItem__excerpt', 'teaserItem--aside__excerpt')
+                            )
+                        }
+                    )
+                if excerpt:
+                    desc = self.tag_to_string(excerpt).strip()
+
+                sec = d.find(
                     attrs={
-                        'class':
-                        lambda x: x and x.startswith(
-                            ('teaserItem__excerpt', 'teaserItem--aside__excerpt')
-                        )
+                        'class': lambda x: x and x.startswith('teaserItem__eyebrowText')
                     }
                 )
-            ).strip()
-
-            sec = d.find(
-                attrs={
-                    'class': lambda x: x and x.startswith('teaserItem__eyebrowText')
-                }
-            )
-
-            section_title = self.tag_to_string(sec).replace('Categorized in ',
+                if sec:
+                    section_title = self.tag_to_string(sec).replace('Categorized in ',
                                                             '').strip()
 
             if not href or not title:

@@ -11,7 +11,7 @@ def absurl(url):
     return url
 
 
-local_edition = None
+local_edition = 'th_hyderabad'
 # Chennai is default edition, for other editions use 'th_hyderabad', 'th_bangalore', 'th_delhi', 'th_kolkata' etc
 
 
@@ -23,7 +23,8 @@ class TheHindu(BasicNewsRecipe):
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
     remove_attributes = ['style', 'height', 'width']
     extra_css = '.caption{font-size:small; text-align:center;}'\
-        '.author{font-size:small;}'
+        '.author{font-size:small;}'\
+        '.subhead{font-weight:bold;}'
 
     ignore_duplicate_articles = {'url'}
 
@@ -36,27 +37,17 @@ class TheHindu(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
+        for cap in soup.findAll('p', attrs={'class':'caption'}):
+            cap.name = 'span'
         for img in soup.findAll('img', attrs={'data-original':True}):
             img['src'] = img['data-original']
         return soup
 
-    def get_cover_url(self):
-        cover = 'https://img.kiosko.net/' + str(
-            date.today().year
-        ) + '/' + date.today().strftime('%m') + '/' + date.today(
-        ).strftime('%d') + '/in/hindu.750.jpg'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/in/np/hindu.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            image = soup.find('img')
+            if image is not None:
+                self.add_toc_thumbnail(article, image['src'])
 
     def parse_index(self):
         if local_edition:
@@ -69,6 +60,9 @@ class TheHindu(BasicNewsRecipe):
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
+        cover = soup.find(attrs={'class':'hindu-ad'})
+        if cover:
+            self.cover_url = cover.img['src']
         if not ans:
             raise ValueError(
                     'The Hindu Newspaper is not published Today.'
