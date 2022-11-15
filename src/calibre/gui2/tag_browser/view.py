@@ -112,7 +112,8 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         style = QApplication.style() if widget is None else widget.style()
         self.initStyleOption(option, index)
         item = index.data(Qt.ItemDataRole.UserRole)
-        self.draw_icon(style, painter, option, widget)
+        if item.type != TagTreeItem.TAG or item.tag.category != 'search' or item.tag.search_expression:
+            self.draw_icon(style, painter, option, widget)
         painter.save()
         self.draw_text(style, painter, option, widget, index, item)
         painter.restore()

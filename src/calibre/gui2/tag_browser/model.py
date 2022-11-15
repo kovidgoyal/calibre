@@ -146,6 +146,8 @@ class TagTreeItem:  # {{{
     def average_rating(self):
         if self.type != self.TAG:
             return 0
+        if self.tag.category == 'search':
+            return None
         if not self.tag.is_hierarchical:
             return self.tag.avg_rating
         if not self.children:
@@ -217,6 +219,11 @@ class TagTreeItem:  # {{{
             return self.icon_state_map[tag.state]
         if role == Qt.ItemDataRole.ToolTipRole:
             if gprefs['tag_browser_show_tooltips']:
+                if self.type == self.TAG and tag.category == 'search':
+                    if tag.search_expression is None:
+                        return _('{} is not a saved search').format(tag.original_name)
+                    return (f'search:{tag.original_name}\n' +
+                            _('Search expression:') + ' ' + tag.search_expression)
                 tt = [self.tooltip] if self.tooltip else []
                 if tag.original_categories:
                     tt.append('{}:{}'.format(','.join(tag.original_categories), tag.original_name))
@@ -225,11 +232,9 @@ class TagTreeItem:  # {{{
                 ar = self.average_rating
                 if ar:
                     tt.append(_('Average rating for books in this category: %.1f') % ar)
-                elif self.type == self.TAG and ar is not None and self.tag.category != 'search':
+                elif self.type == self.TAG and ar is not None:
                     tt.append(_('Books in this category are unrated'))
-                if self.type == self.TAG and self.tag.category == 'search':
-                    tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
-                if self.type == self.TAG and self.tag.category != 'search':
+                if self.type == self.TAG and tag.category != 'search':
                     tt.append(_('Number of books: %s') % self.item_count)
                 return '\n'.join(tt)
             return None
@@ -262,24 +267,25 @@ class TagTreeItem:  # {{{
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
+        tag = self.tag
         if set_to is None:
             while True:
                 tag_search_order_graph = gprefs.get('tb_search_order')
                 # JSON dumps converts integer keys to strings, so do it explicitly
-                self.tag.state = tag_search_order_graph[str(self.tag.state)]
-                if self.tag.state == TAG_SEARCH_STATES['mark_plus'] or \
-                        self.tag.state == TAG_SEARCH_STATES['mark_minus']:
-                    if self.tag.is_searchable:
+                tag.state = tag_search_order_graph[str(tag.state)]
+                if tag.state == TAG_SEARCH_STATES['mark_plus'] or \
+                        tag.state == TAG_SEARCH_STATES['mark_minus']:
+                    if tag.is_searchable:
                         break
-                elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
-                        self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                    if self.tag.is_searchable and len(self.children) and \
-                                    self.tag.is_hierarchical == '5state':
+                elif tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
+                        tag.state == TAG_SEARCH_STATES['mark_minusminus']:
+                    if tag.is_searchable and len(self.children) and \
+                                    tag.is_hierarchical == '5state':
                         break
                 else:
                     break
         else:
-            self.tag.state = set_to
+            tag.state = set_to
 
     def all_children(self):
         res = []
@@ -756,6 +762,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                         t.is_editable = False
                                     else:
                                         t.is_searchable = t.is_editable = False
+                                        t.search_expression = None
                                     intermediate_nodes[original_name,child_key] = t
                             else:
                                 t = tag
@@ -1658,6 +1665,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not index.isValid():
             return False
         item = self.get_node(index)
+        tag = item.tag
+        if tag.category == 'search' and tag.search_expression is None:
+            return False
         item.toggle(set_to=set_to)
         if exclusive:
             self.reset_all_states(except_=item.tag)
