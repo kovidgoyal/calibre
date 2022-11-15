@@ -17,7 +17,7 @@ version = 0  # change this if you change signature of implementation()
 FIELDS = {
     'title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size',
     'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'uuid',
-    'pubdate', 'cover', 'last_modified', 'identifiers', 'languages'
+    'pubdate', 'cover', 'last_modified', 'identifiers', 'languages', 'template'
 }
 
 
@@ -33,9 +33,14 @@ def cover(db, book_id):
 
 
 def implementation(
-    db, notify_changes, fields, sort_by, ascending, search_text, limit
+    db, notify_changes, fields, sort_by, ascending, search_text, limit, template=None
 ):
     is_remote = notify_changes is not None
+    if 'template' in fields:
+        # Yes, this leaves formatter undefined if template isn't a field but
+        # that isn't a problem with the current implementation
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
+        formatter = SafeFormat()
     with db.safe_read_lock:
         fm = db.field_metadata
         afields = set(FIELDS) | {'id'}
@@ -63,6 +68,15 @@ def implementation(
             if field == 'isbn':
                 x = db.all_field_for('identifiers', book_ids, default_value={})
                 data[field] = {k: v.get('isbn') or '' for k, v in iteritems(x)}
+                continue
+            if field == 'template':
+                vals = {}
+                globals = {}
+                for book_id in book_ids:
+                    mi = db.get_proxy_metadata(book_id)
+                    vals[book_id] = formatter.safe_format(template, {}, 'TEMPLATE ERROR',
+                                                          mi, global_vars=globals)
+                data['template'] = vals
                 continue
             field = field.replace('*', '#')
             metadata[field] = fm[field]
@@ -140,11 +154,22 @@ def do_list(
     separator,
     prefix,
     limit,
+    template,
+    template_file,
+    template_title,
     for_machine=False
 ):
     if sort_by is None:
         ascending = True
-    ans = dbctx.run('list', fields, sort_by, ascending, search_text, limit)
+    if 'template' in [f.strip() for f in fields]:
+        if template_file:
+            with lopen(template_file, 'rb') as f:
+                template = f.read().decode('utf-8')
+        if not template:
+            raise SystemExit(_('You must provide a template'))
+        ans = dbctx.run('list', fields, sort_by, ascending, search_text, limit, template)
+    else:
+        ans = dbctx.run('list', fields, sort_by, ascending, search_text, limit)
     try:
         book_ids, data, metadata = ans['book_ids'], ans['data'], ans['metadata']
     except TypeError:
@@ -196,7 +221,7 @@ def do_list(
     widths = list(base_widths)
     titles = map(
         lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths,
-        fields
+        [template_title if v == 'template' else v for v in fields]
     )
     with ColoredStream(sys.stdout, fg='green'):
         print(''.join(titles), flush=True)
@@ -207,11 +232,11 @@ def do_list(
 
     for record in output_table:
         text = [
-            wrappers[i](record[i]) for i, field in enumerate(fields)
+            wrappers[i](record[i]) for i, _ in enumerate(fields)
         ]
         lines = max(map(len, text))
         for l in range(lines):
-            for i, field in enumerate(text):
+            for i, _ in enumerate(text):
                 ft = text[i][l] if l < len(text[i]) else ''
                 stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
@@ -262,8 +287,9 @@ List the books available in the calibre database.
         '--search',
         default=None,
         help=_(
-            'Filter the results by the search query. For the format of the search query,'
-            ' please see the search related documentation in the User Manual. Default is to do no filtering.'
+            'Filter the results by the search query. For the format of the search '
+            'query, please see the search related documentation in the User '
+            'Manual. Default is to do no filtering.'
         )
     )
     parser.add_option(
@@ -298,8 +324,27 @@ List the books available in the calibre database.
         default=False,
         action='store_true',
         help=_(
-            'Generate output in JSON format, which is more suitable for machine parsing. Causes the line width and separator options to be ignored.'
+            'Generate output in JSON format, which is more suitable for machine '
+            'parsing. Causes the line width and separator options to be ignored.'
         )
+    )
+    parser.add_option(
+        '--template',
+        default=None,
+        help=_('The template to run if "{}" is in the field list. Default: None').format('template')
+    )
+    parser.add_option(
+        '--template_file',
+        '-t',
+        default=None,
+        help=_('Path to a file containing the template to run if "{}" is in '
+               'the field list. Default: None').format('template')
+    )
+    parser.add_option(
+        '--template_heading',
+        default='template',
+        help=_('Heading for the template column. Default: %default. This option '
+               'is ignored if the option {} is set').format('--for-machine')
     )
     return parser
 
@@ -322,6 +367,9 @@ def main(opts, args, dbctx):
         opts.separator,
         opts.prefix,
         opts.limit,
+        opts.template,
+        opts.template_file,
+        opts.template_heading,
         for_machine=opts.for_machine
     )
     return 0
