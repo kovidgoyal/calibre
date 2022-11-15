@@ -43,7 +43,8 @@ class SimilarBooksAction(InterfaceAction):
         row = idx.row()
 
         # Get the parameters for this search
-        col = db.prefs['similar_' + typ + '_search_key']
+        key = 'similar_' + typ + '_search_key'
+        col = db.prefs[key]
         match = db.prefs['similar_' + typ + '_match_kind']
         if match == 'match_all':
             join = ' and '
@@ -70,7 +71,11 @@ class SimilarBooksAction(InterfaceAction):
                 else:
                     val.add(v)
         else:
-            # Get the value of the requested field. Can be a list or a simple val
+            # Get the value of the requested field. Can be a list or a simple
+            # val. It is possible that col no longer exists, in which case fall
+            # back to the default
+            if col not in mi:
+                col = db.prefs.defaults[key]
             val = mi.get(col, None)
         if not val:
             return

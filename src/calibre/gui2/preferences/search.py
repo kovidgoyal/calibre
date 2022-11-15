@@ -133,7 +133,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if dex >= 0:
             field.setCurrentIndex(dex)
         else:
-            field.setCurrentIndex(0)
+            # The field no longer exists. Try the default
+            dex = field.findText(self.db.prefs.defaults[name])
+            if dex >= 0:
+                field.setCurrentIndex(dex)
+            else:
+                # The default doesn't exist! Pick the first field in the list
+                field.setCurrentIndex(0)
+            # Emit a changed signal after all the other events have been processed
+            QTimer.singleShot(0, self.changed_signal.emit)
         field.blockSignals(False)
 
     def something_changed(self, dex):
