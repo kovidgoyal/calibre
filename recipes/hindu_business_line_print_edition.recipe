@@ -1,5 +1,13 @@
+import json
+import re
+from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-import string
+
+
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://www.thehindubusinessline.com' + url
+    return url
 
 
 class BusinessLine(BasicNewsRecipe):
@@ -10,66 +18,70 @@ class BusinessLine(BasicNewsRecipe):
         ' of business news. BusinessLine reduces the daily grind of business to relevant, readable, byte-sized stories.'
         ' The newspaper is extensively followed by the decision makers and change leaders from the world of business.'
     )
-    no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf-8'
     language = 'en_IN'
-    remove_attributes = ['height', 'width', 'padding-bottom']
+    no_stylesheets = True
     masthead_url = 'https://www.thehindubusinessline.com/theme/images/bl-online/bllogo.png'
-    ignore_duplicate_articles = {'title', 'url'}
+    remove_attributes = ['style', 'height', 'width']
+    extra_css = '.caption{font-size:small; text-align:center;}'\
+        '.author{font-size:small; font-weight:bold;}'\
+        '.subhead{font-weight:bold;}'
 
-    def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
-        )
-        for citem in soup.findAll(
-            'meta', content=lambda s: s and s.endswith('view/3.jpg')
-        ):
-            return citem['content']
+    ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes(
-            'tp-title-inf bi-line leadtext lead-img-caption slide-moadal img-container'
-        ),
-        dict(
-            name='div', attrs={'id': lambda x: x and x.startswith('content-body-')}
-        )
+        classes('articlepage')
     ]
 
     remove_tags = [
-        classes(
-            'swiper-button-prev left-arrow swiper-button-next right-arrow close cursor tagsBtm share-topic comment-rules vuukle-div paywallbox '
-        )
+        classes('hide-mobile comments-shares share-page editiondetails')
     ]
 
+    def preprocess_html(self, soup):
+        for cap in soup.findAll('p', attrs={'class':'caption'}):
+            cap.name = 'figcaption'
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            img['src'] = img['data-original']
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            image = soup.find('img')
+            if image is not None:
+                self.add_toc_thumbnail(article, image['src'])
+
     def parse_index(self):
-        soup = self.index_to_soup(
-            'https://www.thehindubusinessline.com/todays-paper/'
-        )
-        ans = self.bl_parse_index(soup)
+        url = 'https://www.thehindubusinessline.com/todays-paper/'
+        raw = self.index_to_soup(url, raw=True)
+        soup = self.index_to_soup(raw)
+        ans = self.hindu_parse_index(soup)
+        if not ans:
+            raise ValueError(
+                    'The Hindu BusinessLine Newspaper is not published Today.'
+                )
+        cover = soup.find(attrs={'class':'hindu-ad'})
+        if cover:
+            self.cover_url = cover.img['src']
         return ans
 
-    def bl_parse_index(self, soup):
-        feeds = []
-        for section in soup.findAll(**classes('section-container')):
-            div = section.find_previous_sibling('div', **classes('section-header'))
-            a = div.find('a', **classes('section-list-heading'))
-            secname = string.capwords(self.tag_to_string(a).strip())
-            self.log(secname)
-            articles = []
-            for a in section.findAll('a', href=True):
-                url = a['href']
-                title = self.tag_to_string(a)
-                articles.append({'title': title, 'url': url})
-                self.log('\t', title)
-                self.log('\t\t', url)
-            if articles:
-                feeds.append((secname, articles))
-        return feeds
+    def hindu_parse_index(self, soup):
+        for script in soup.findAll('script'):
+            if not self.tag_to_string(script).strip().startswith('let grouped_articles = {}'):
+                continue
+            if script is not None:
+                art = re.search(r'grouped_articles = ({\"[^<]+?]})', self.tag_to_string(script))
+                data = json.loads(art.group(1))
 
-    def preprocess_html(self, soup):
-        for image in soup.findAll('source', attrs={'srcset': True}):
-            image['src'] = image['srcset']
-        for img in soup.findAll('img', attrs={'data-src-template': True}):
-            img['src'] = img['data-src-template']
-        return soup
+                feeds_dict = defaultdict(list)
+
+                a = json.dumps(data)
+                for sec in json.loads(a):
+                    for item in data[sec]:
+                        section = sec.replace('BL_', '')
+                        title = item['articleheadline']
+                        url = absurl(item['href'])
+                        desc = 'Page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
+                        self.log('\t', title, '\n\t\t', url)
+                        feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                return [(section, articles) for section, articles in feeds_dict.items()]
+            else:
+                return []
