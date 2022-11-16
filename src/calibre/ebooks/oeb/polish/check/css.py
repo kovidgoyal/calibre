@@ -7,8 +7,9 @@ import numbers
 import sys
 from collections import namedtuple
 from itertools import repeat
+from threading import Lock
 
-from qt.core import QApplication, QEventLoop, pyqtSignal, sip
+from qt.core import QApplication, QEventLoop, pyqtSignal, sip,QObject
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript
 )
@@ -173,11 +174,14 @@ class Worker(QWebEnginePage):
         self.work_done.emit(self, result)
 
 
-class Pool:
+class Pool(QObject):
+    work_finish = pyqtSignal()
 
     def __init__(self):
+        QObject.__init__()
         self.workers = []
         self.max_workers = cpu_count()
+        self.lock = Lock()
 
     def add_worker(self):
         w = Worker()
@@ -185,35 +189,46 @@ class Pool:
         self.workers.append(w)
 
     def check_css(self, css_sources):
-        self.pending = list(enumerate(css_sources))
-        self.results = list(repeat(None, len(css_sources)))
-        self.working = True
-        self.assign_work()
-        app = QApplication.instance()
-        while self.working:
-            app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-        return self.results
+        with self.lock as _:
+            unfinish = len(css_sources)
+            self.unfinish = unfinish
+            self.pending = list(enumerate(css_sources))
+            self.results = list(repeat(None, unfinish))
+            self.working = True
+            self.assign_work()
+            
+            eventloop = QEventLoop()
+            self.work_finish.connect(eventloop.quit)
+            self.assign_works()
+            eventloop.exec(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            return self.results
 
-    def assign_work(self):
-        while self.pending:
-            if len(self.workers) < self.max_workers:
-                self.add_worker()
-            for w in self.workers:
-                if not w.working:
-                    idx, src = self.pending.pop()
-                    w.result_idx = idx
-                    w.check_css_when_ready(src)
-                    break
-            else:
+    def _assign_work(self,w):
+        idx, src = self.pending.pop()
+        w.result_idx = idx
+        w.check_css_when_ready(src)
+
+    def assign_works(self):
+        todo = len(self.pending)
+        if not todo:
+            return
+        for w in self.workers:
+            self._assign_work(w)
+            todo -= 1
+            if not todo:
                 break
 
     def work_done(self, worker, result):
         if not isinstance(result, dict):
             result = worker.console_messages
         self.results[worker.result_idx] = result
-        self.assign_work()
-        if not self.pending and not [w for w in self.workers if w.working]:
+        self.unfinish -= 1
+        if self.pending:
+            self._assign_work(worker)
+            return
+        if not self.unfinish:
             self.working = False
+            self.work_finish.emit()
 
     def shutdown(self):
 
