@@ -4,7 +4,7 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-use_wayback_machine = False
+use_wayback_machine = True
 
 
 def absolutize(url):

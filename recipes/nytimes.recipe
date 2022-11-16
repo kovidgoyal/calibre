@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 is_web_edition = True
 oldest_web_edition_article = 7  # days
-use_wayback_machine = False
+use_wayback_machine = True
 
 
 # The sections to download when downloading the web edition, comment out
