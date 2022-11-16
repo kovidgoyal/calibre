@@ -119,6 +119,8 @@ class TagTreeItem:  # {{{
             else:
                 if self.is_gst:
                     cc = self.category_custom_icons.get(self.root_node().category_key, None)
+                elif self.tag.category == 'search' and not self.tag.is_searchable:
+                    cc = self.category_custom_icons.get('search_folder:', None)
                 else:
                     cc = self.category_custom_icons.get(self.tag.category, None)
         elif self.type == self.CATEGORY:
@@ -451,6 +453,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         data = self._get_category_nodes(config['sort_tags_by'])
         gst = self.db.new_api.pref('grouped_search_terms', {})
 
+        if self.category_custom_icons.get('search_folder:', None) is None:
+            self.category_custom_icons['search_folder:'] = QIcon.ic('folder_saved_search')
         last_category_node = None
         category_node_map = {}
         self.user_category_node_tree = {}

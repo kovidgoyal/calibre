@@ -112,8 +112,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         style = QApplication.style() if widget is None else widget.style()
         self.initStyleOption(option, index)
         item = index.data(Qt.ItemDataRole.UserRole)
-        if item.type != TagTreeItem.TAG or item.tag.category != 'search' or item.tag.search_expression:
-            self.draw_icon(style, painter, option, widget)
+        self.draw_icon(style, painter, option, widget)
         painter.save()
         self.draw_text(style, painter, option, widget, index, item)
         painter.restore()
@@ -1007,11 +1006,25 @@ class TagsView(QTreeView):  # {{{
                 add_show_hidden_categories()
 
                 if tag is None:
-                    self.context_menu.addSeparator()
-                    self.context_menu.addAction(_('Change category icon'),
-                            partial(self.context_menu_handler, action='set_icon', key=key)).setIcon(QIcon.ic('icon_choose.png'))
-                    self.context_menu.addAction(_('Restore default icon'),
-                            partial(self.context_menu_handler, action='clear_icon', key=key)).setIcon(QIcon.ic('edit-clear.png'))
+                    cm = self.context_menu
+                    cm.addSeparator()
+                    sm = cm.addAction(_('Change {} category icon').format(category),
+                                      partial(self.context_menu_handler, action='set_icon',
+                                              key=key, category=category))
+                    sm.setIcon(QIcon.ic('icon_choose.png'))
+                    sm = cm.addAction(_('Restore {} category default icon').format(category),
+                                      partial(self.context_menu_handler, action='clear_icon',
+                                              key=key, category=category))
+                    sm.setIcon(QIcon.ic('edit-clear.png'))
+                    if key == 'search':
+                        sm = cm.addAction(_('Change Saved searches folder icon'),
+                                          partial(self.context_menu_handler, action='set_icon',
+                                                  key='search_folder:', category=_('Saved searches folder')))
+                        sm.setIcon(QIcon.ic('icon_choose.png'))
+                        sm = cm.addAction(_('Restore Saved searches folder default icon'),
+                             partial(self.context_menu_handler, action='clear_icon',
+                                     key='search_folder:', category=_('Saved searches folder')))
+                        sm.setIcon(QIcon.ic('edit-clear.png'))
 
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
