@@ -1016,7 +1016,7 @@ class TagsView(QTreeView):  # {{{
                                       partial(self.context_menu_handler, action='clear_icon',
                                               key=key, category=category))
                     sm.setIcon(QIcon.ic('edit-clear.png'))
-                    if key == 'search':
+                    if key == 'search' and 'search' in self.db.new_api.pref('categories_using_hierarchy', []):
                         sm = cm.addAction(_('Change Saved searches folder icon'),
                                           partial(self.context_menu_handler, action='set_icon',
                                                   key='search_folder:', category=_('Saved searches folder')))
