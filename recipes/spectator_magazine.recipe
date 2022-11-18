@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre import browser
 
 
 def absurl(url):
@@ -32,13 +33,13 @@ class spectator(BasicNewsRecipe):
         ]
 
     remove_tags = [
-        classes('entry-header__author entry-header__meta entry-meta insert--most-popular')
+        classes(
+            'entry-header__author entry-header__meta entry-meta insert--most-popular '
+            'subscribe-ribbon subscription-banner paywall__card'
+        )
     ]
 
     def preprocess_html(self, soup):
-        h2 = soup.find('h2')
-        if h2:
-            h2.name = 'h4'
         for fc in soup.findAll('figcaption'):
             fc['id'] = 'fig-c'
         return soup
@@ -93,3 +94,17 @@ class spectator(BasicNewsRecipe):
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
             ans.append({'title': title, 'description':desc, 'url': url})
         return ans
+
+    # Spectator changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
