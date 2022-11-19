@@ -229,12 +229,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.blockSignals(False)
 
     def commit(self):
-        restart = ConfigWidgetBase.commit(self)
         if self.opt_case_sensitive.isChecked() and self.opt_use_primary_find_in_search.isChecked():
             error_dialog(self, _('Incompatible options'), _(
                 'The option to have un-accented characters match accented characters has no effect'
                 ' if you also turn on case-sensitive searching. So only turn on one of those options'), show=True)
             raise AbortCommit()
+        restart = ConfigWidgetBase.commit(self)
         if self.gst_changed:
             self.db.new_api.set_pref('grouped_search_terms', self.gst)
             self.db.field_metadata.add_grouped_search_terms(self.gst)
