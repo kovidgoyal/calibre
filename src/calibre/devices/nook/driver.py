@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Barns and Nobel's Nook
 '''
 
-import io, os, errno
+import io, os
 
 from calibre import fsync, prints
 from calibre.constants import DEBUG
@@ -105,14 +105,13 @@ class NOOK_COLOR(NOOK):
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
         if product_id >= 0xb:
+            self.EBOOK_DIR_MAIN = 'NOOK/Books' if product_id >= 0xd else 'NOOK/My Files'
             if DEBUG:
-                prints('Setting Nook upload directory to NOOK/My Files')
-            self.EBOOK_DIR_MAIN = 'NOOK/My Files'
+                prints(f'Setting Nook upload directory to {self.EBOOK_DIR_MAIN}')
             try:
-                os.makedirs(os.path.join(self._main_prefix, *self.EBOOK_DIR_MAIN.split('/')))
-            except OSError as err:
-                if err.errno != errno.EEXIST:
-                    self.EBOOK_DIR_MAIN = 'NOOK'
+                os.makedirs(os.path.join(self._main_prefix, *self.EBOOK_DIR_MAIN.split('/')), exist_ok=True)
+            except OSError:
+                self.EBOOK_DIR_MAIN = 'NOOK'
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:
