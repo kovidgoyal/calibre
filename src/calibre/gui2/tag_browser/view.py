@@ -715,6 +715,7 @@ class TagsView(QTreeView):  # {{{
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
         added_show_hidden_categories = False
+        key = None
 
         def add_show_hidden_categories():
             nonlocal added_show_hidden_categories
@@ -1046,7 +1047,7 @@ class TagsView(QTreeView):  # {{{
 
         # partioning. If partitioning is active, provide a way to turn it on or
         # off for this category.
-        if gprefs['tags_browser_partition_method'] != 'disable':
+        if gprefs['tags_browser_partition_method'] != 'disable' and key is not None:
             m = self.context_menu
             p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
             if key in p:
