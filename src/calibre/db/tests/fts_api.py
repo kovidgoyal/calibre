@@ -42,7 +42,11 @@ class FTSAPITest(BaseTest):
 
     def new_library(self):
         if os.path.exists(self.library_path):
-            shutil.rmtree(self.library_path)
+            try:
+                shutil.rmtree(self.library_path)
+            except PermissionError:
+                time.sleep(5)
+                shutil.rmtree(self.library_path)
         os.makedirs(self.library_path)
         self.create_db(self.library_path)
         ans = self.init_cache()
