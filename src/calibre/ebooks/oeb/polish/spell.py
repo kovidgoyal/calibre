@@ -70,6 +70,9 @@ class Location:
         self.original_word = self.elided_prefix + new_word
 
 
+file_word_count = 0
+
+
 def filter_words(word):
     if not word:
         return False
@@ -80,10 +83,12 @@ def filter_words(word):
 
 
 def get_words(text, lang):
+    global file_word_count
     try:
         ans = split_into_words(str(text), lang)
     except (TypeError, ValueError):
         return ()
+    file_word_count += len(ans)
     return list(filter(filter_words, ans))
 
 
@@ -299,7 +304,10 @@ def root_is_excluded_from_spell_check(root):
     return False
 
 
-def get_all_words(container, book_locale, get_word_count=False, excluded_files=()):
+def get_all_words(container, book_locale, get_word_count=False, excluded_files=(), file_words_counts=None):
+    global file_word_count
+    if file_words_counts is None:
+        file_words_counts = {}
     words = defaultdict(list)
     words[None] = 0
     file_names, ncx_toc = get_checkable_file_names(container)
@@ -309,12 +317,15 @@ def get_all_words(container, book_locale, get_word_count=False, excluded_files=(
         root = container.parsed(file_name)
         if root_is_excluded_from_spell_check(root):
             continue
+        file_word_count = 0
         if file_name == container.opf_name:
             read_words_from_opf(root, words, file_name, book_locale)
         elif file_name == ncx_toc:
             read_words_from_ncx(root, words, file_name, book_locale)
         elif hasattr(root, 'xpath'):
             read_words_from_html(root, words, file_name, book_locale)
+        file_words_counts[file_name] = file_word_count
+        file_word_count = 0
     count = words.pop(None)
     ans = {k:group_sort(v) for k, v in iteritems(words)}
     if get_word_count:

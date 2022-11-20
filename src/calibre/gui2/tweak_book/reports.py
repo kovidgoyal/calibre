@@ -236,8 +236,8 @@ class FilesView(QTableView):
 
 class FilesModel(FileCollection):
 
-    COLUMN_HEADERS = (_('Folder'), _('Name'), _('Size (KB)'), _('Type'))
-    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignLeft
+    COLUMN_HEADERS = (_('Folder'), _('Name'), _('Size (KB)'), _('Type'), _('Word count'))
+    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight
     CATEGORY_NAMES = {
         'image':_('Image'),
         'text': _('Text'),
@@ -257,7 +257,7 @@ class FilesModel(FileCollection):
         self.total_size = sum(map(itemgetter(3), self.files))
         self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
         self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
-        self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
+        self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')), entry.word_count)
                                for entry in self.files)
         self.endResetModel()
 
@@ -282,6 +282,10 @@ class FilesModel(FileCollection):
                 return '%.2f ' % sz
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
+            if col == 4:
+                ans = entry.word_count
+                if ans > -1:
+                    return str(ans)
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             return int(Qt.AlignVCenter | self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 

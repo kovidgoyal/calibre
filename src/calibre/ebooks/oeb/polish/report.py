@@ -18,7 +18,7 @@ from calibre.utils.imghdr import identify
 from css_selectors import Select, SelectorError
 from polyglot.builtins import iteritems
 
-File = namedtuple('File', 'name dir basename size category')
+File = namedtuple('File', 'name dir basename size category word_count')
 
 
 def get_category(name, mt):
@@ -60,9 +60,10 @@ def safe_img_data(container, name, mt):
 
 
 def files_data(container, *args):
+    fwc = file_words_counts or {}
     for name, path in iteritems(container.name_path_map):
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
-                   get_category(name, container.mime_map.get(name, '')))
+                   get_category(name, container.mime_map.get(name, '')), fwc.get(name, -1))
 
 
 Image = namedtuple('Image', 'name mime_type usage size basename id width height')
@@ -198,8 +199,11 @@ def links_data(container, *args):
 Word = namedtuple('Word', 'id word locale usage')
 
 
+file_words_counts = None
+
+
 def words_data(container, book_locale, *args):
-    count, words = get_all_words(container, book_locale, get_word_count=True)
+    count, words = get_all_words(container, book_locale, get_word_count=True, file_words_counts=file_words_counts)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(iteritems(words))))
 
 
@@ -349,12 +353,15 @@ def css_data(container, book_locale, result_data, *args):
 
 
 def gather_data(container, book_locale):
+    global file_words_counts
     timing = {}
     data = {}
-    for x in 'files chars images links words css'.split():
+    file_words_counts = {}
+    for x in 'chars images links words css files'.split():
         st = time.time()
         data[x] = globals()[x + '_data'](container, book_locale, data)
         if isinstance(data[x], types.GeneratorType):
             data[x] = tuple(data[x])
         timing[x] = time.time() - st
+    file_words_counts = None
     return data, timing
