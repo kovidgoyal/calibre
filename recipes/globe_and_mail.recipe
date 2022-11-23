@@ -48,7 +48,7 @@ class GlobeMail(BasicNewsRecipe):
         return ans
 
     def parse_gm_section(self, soup):
-        for a in soup.findAll('a', href=True, attrs={'data-lt-lid': lambda x: x and x.startswith('Headline.')}):
+        for a in soup.findAll('a', href=True, attrs={'data-lt-pos': lambda x: x and x.endswith('featured')}):
             headline = a.find('div', 'c-card__hed-text')
             title = self.tag_to_string(headline)
             url = absolutize(a['href'])
