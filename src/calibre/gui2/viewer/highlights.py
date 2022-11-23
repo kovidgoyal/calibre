@@ -121,6 +121,38 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark)
     return ans
 
 
+class ChapterGroup:
+
+    def __init__(self, title='', level=0):
+        self.title = title
+        self.subgroups = {}
+        self.annotations = []
+        self.level = level
+
+    def add_annot(self, a):
+        titles = a.get('toc_family_titles', (_('Unknown chapter'),))
+        node = self
+        for title in titles:
+            node = node.group_for_title(title)
+        node.annotations.append(a)
+
+    def group_for_title(self, title):
+        ans = self.subgroups.get(title)
+        if ans is None:
+            ans = ChapterGroup(title, self.level+1)
+            self.subgroups[title] = ans
+        return ans
+
+    def render_as_text(self, lines, as_markdown, link_prefix):
+        if self.title:
+            lines.append('#' * self.level + ' ' + self.title)
+            lines.append('')
+        for hl in self.annotations:
+            render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+        for sg in self.subgroups.values():
+            sg.render_as_text(lines, as_markdown, link_prefix)
+
+
 class Export(ExportBase):
     prefs = vprefs
     pref_name = 'highlight_export_format'
@@ -142,17 +174,10 @@ class Export(ExportBase):
         lines = []
         as_markdown = fmt == 'md'
         link_prefix = link_prefix_for_location_links()
-        chapter_groups = {}
-        def_chap = (_('Unknown chapter'),)
+        root = ChapterGroup()
         for a in self.annotations:
-            toc_titles = a.get('toc_family_titles', def_chap)
-            chapter_groups.setdefault(toc_titles[0], []).append(a)
-        for chapter, group in chapter_groups.items():
-            if len(chapter_groups) > 1:
-                lines.append('### ' + chapter)
-                lines.append('')
-            for hl in group:
-                render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+            root.add_annot(a)
+        root.render_as_text(lines, as_markdown, link_prefix)
         return '\n'.join(lines).strip()
 
 

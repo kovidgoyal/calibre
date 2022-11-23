@@ -577,6 +577,43 @@ def render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=
     lines.push('')
 
 
+class ChapterGroup:
+
+    def __init__(self, title, level):
+        self.level = level or 0
+        self.title = title or ''
+        self.subgroups = v'{}'
+        self.subgroups_in_order = v'[]'
+        self.annotations = v'[]'
+
+    def add_annot(self, a):
+        titles = a['toc_family_titles']
+        if not titles:
+            titles = [_('Unknown chapter')]
+        node = self
+        for title in titles:
+            node = node.group_for_title(title)
+        node.annotations.push(a)
+
+    def group_for_title(self, title):
+        ans = self.subgroups[title]
+        if not ans:
+            ans = ChapterGroup(title, self.level+1)
+            self.subgroups[title] = ans
+            self.subgroups_in_order.push(title)
+        return ans
+
+    def render_as_text(self, lines, link_prefix, current_query, as_markdown):
+        if self.title:
+            lines.push('#' * self.level + ' ' + self.title)
+            lines.push('')
+        for hl in self.annotations:
+            render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown)
+        for title in self.subgroups_in_order:
+            sg = self.subgroups[title]
+            sg.render_as_text(lines, link_prefix, current_query, as_markdown)
+
+
 def show_export_dialog(annotations_manager):
     sd = get_session_data()
     fmt = sd.get('highlights_export_format')
@@ -605,21 +642,10 @@ def show_export_dialog(annotations_manager):
             return
         as_markdown = fmt is 'markdown'
         lines = v'[]'
-        def_chap = [_('Unknown chapter')]
-        chapter_groups = {}
-        chapters = v'[]'
-        for hl in all_highlights:
-            toc_title = (hl['toc_family_titles'] or def_chap)[0]
-            if not chapter_groups[toc_title]:
-                chapter_groups[toc_title] = v'[]'
-                chapters.push(toc_title)
-            chapter_groups[toc_title].push(hl)
-        for chapter_title in chapters:
-            if chapters.length > 1:
-                lines.push('### ' + chapter_title)
-                lines.push('')
-            for hl in chapter_groups[chapter_title]:
-                render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=as_markdown)
+        root = ChapterGroup()
+        for a in all_highlights:
+            root.add_annot(a)
+        root.render_as_text(lines, link_prefix, current_query, as_markdown)
         document.getElementById(ta_id).textContent = lines.join('\n')
 
     def fmt_item(text, val):
