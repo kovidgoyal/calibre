@@ -467,7 +467,7 @@ def create_cfi_cmp(key_map):
             diff = a.steps[i] - b.steps[i]
             if diff is not 0:
                 return diff
-        diff = a.length - b.length
+        diff = a.steps.length - b.steps.length
         if diff is not 0:
             return diff
 
