@@ -548,9 +548,9 @@ def copy_crt_and_d3d(env):
 def sign_executables(env):
     files_to_sign = []
     for path in walk(env.base):
-        if path.lower().endswith('.exe'):
+        if path.lower().endswith('.exe') or path.lower().endswith('.dll'):
             files_to_sign.append(path)
-    printf('Signing {} exe files'.format(len(files_to_sign)))
+    printf('Signing {} exe/dll files'.format(len(files_to_sign)))
     sign_files(env, files_to_sign)
 
 
