@@ -24,7 +24,7 @@ class OpenMagazine(BasicNewsRecipe):
         soup = self.index_to_soup('https://openthemagazine.com/')
         tag = soup.find(attrs={'class': 'magazine-item mr-1'})
         if tag:
-            self.cover_url = tag.find('img')['data-src']
+            self.cover_url = tag.find('img')['src']
         return getattr(self, 'cover_url', None)
 
     keep_only_tags = [
@@ -48,8 +48,3 @@ class OpenMagazine(BasicNewsRecipe):
         ('Art & Culture', 'https://openthemagazine.com/art-culture/feed'),
         ('Cinema', 'https://openthemagazine.com/cinema/feed'),
     ]
-
-    def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
-            img['src'] = img['data-src']
-        return soup

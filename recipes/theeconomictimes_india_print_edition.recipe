@@ -22,7 +22,7 @@ class TheEconomicTimes(BasicNewsRecipe):
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/98/The_Economic_Times_logo.svg'
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = '''
-    .summary {font-weight:normal; font-size:normal; font-style:italic;}
+    .summary {color:#404040; font-style:italic;}
     time{font-size:small;}
     '''
 
@@ -59,6 +59,10 @@ class TheEconomicTimes(BasicNewsRecipe):
         soup = self.index_to_soup(
             'https://economictimes.indiatimes.com/print_edition.cms'
         )
+        date = soup.find(**classes('labelDate'))
+        if date:
+            self.timefmt = ' [' + self.tag_to_string(date).strip() + ']'
+            self.log(self.timefmt)
         ans = self.et_parse_index(soup)
         return ans
 
@@ -91,6 +95,9 @@ class TheEconomicTimes(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
+        h2 = soup.find(**classes('summary'))
+        if h2:
+            h2.name = 'p'
         for image in soup.findAll('img', attrs={'src': True}):
             image['src'] = image['src'].replace("width-300", "width-640")
         for img in soup.findAll('img', attrs={'data-original': True}):

@@ -18,11 +18,13 @@ class outlook(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
+    masthead_url = 'https://www.outlookindia.com/images/home_new_v4/logo_outlook.svg'
 
     keep_only_tags = [classes('__story_detail')]
     remove_tags = [
         classes(
-            'social_sharing_article left_trending left-sticky __tag_links next_prev_stories	downarrow uparrow more_from_author_links next prev'
+            'social_sharing_article left_trending left-sticky __tag_links'
+            ' next_prev_stories	downarrow uparrow more_from_author_links next prev __related_stories_thumbs'
         )
     ]
 
@@ -32,6 +34,7 @@ class outlook(BasicNewsRecipe):
         a = div.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
         url = a['href']
         self.log('Downloading issue:', url)
+        self.timefmt = ' [' + self.tag_to_string(a) + ']'
         soup = self.index_to_soup('https://www.outlookindia.com' + url)
         cover = soup.find(**classes('listingPage_lead_story'))
         self.cover_url = cover.find('img', attrs={'src': True})['src']
