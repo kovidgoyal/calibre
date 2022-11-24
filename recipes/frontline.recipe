@@ -1,6 +1,7 @@
 from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class Frontline(BasicNewsRecipe):
     title = u'Frontline'
     __author__ = 'unkn0wn'
@@ -23,12 +24,12 @@ class Frontline(BasicNewsRecipe):
     keep_only_tags = [
         classes('article')
     ]
-    
+
     remove_tags = [
         classes('shareicon-article articleBottomLine secheader mobilesocialicons'),
         dict(name='h2', attrs={'class':'title'})
     ]
-    
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-original':True}):
             img['src'] = img['data-original']
