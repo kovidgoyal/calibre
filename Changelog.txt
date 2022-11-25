@@ -23,6 +23,48 @@
 # - title by author
 # }}}
 
+{{{ 6.9.0 2022-11-25
+
+:: new features
+
+- E-book viewer: When exporting highlights as plain text include titles from chapters at all levels not just the first level
+
+- Edit book: Reports: Show the number of words per file in the Files section of the report
+
+- Windows builds: sign DLLs in addition to EXEs to make Microsoft's new "Smart App Control" tool happy
+
+- Sending by email: When adding comments also add series
+
+- [1990730] Nook driver: Put files in NOOK/Books instead of NOOK/My Files on recent nook devices so they are all listed in one place in the NOOK UI
+
+- calibredb list: Allow using a template as one of the returned fields
+
+- Tag browser: Add context menu action to turn on/off sub-categorization for a category
+
+:: bug fixes
+
+- [1996802] Merging books: Fix title sort not being updated when the title is updated
+
+- Content server viewer: Fix incorrect sorting of highlights in the same paragraph
+
+- Content server viewer: When exporting highlights as text include chapter titles
+
+- Improve rendering of the separator handle dots introduced in the previous release
+
+- Edit book: Fix regression in previous release causing applying any container update marking all open image editors as modified
+
+- Fix a regression in the previous release that caused copying book details to clipboard to use unix line endings on windows
+
+:: improved recipes
+- Bloomberg
+- The Globe and Mail
+- Spectator Magazine
+- The New York Times
+- The Hindu
+- MIT Technology Review
+
+}}}
+
 {{{ 6.8.0 2022-11-04
 
 :: new features
