@@ -81,7 +81,7 @@ calibre uses `Git <https://www.git-scm.com/>`_, a distributed version control
 system. Git is available on all the platforms calibre supports.  After
 installing Git, you can get the calibre source code with the command::
 
-    git clone git://github.com/kovidgoyal/calibre.git
+    git clone https://github.com/kovidgoyal/calibre.git
 
 On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`.
 
