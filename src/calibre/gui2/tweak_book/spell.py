@@ -1145,13 +1145,12 @@ class SpellCheck(Dialog):
         self.find_word.emit(w, self.words_model.words[w])
 
     def initialize_user_dictionaries(self):
-        ct = str(self.user_dictionaries.currentText())
+        ct = str(self.user_dictionaries.currentText()) or _('Default')
         self.user_dictionaries.clear()
         self.user_dictionaries.addItems(sorted((d.name for d in dictionaries.active_user_dictionaries), key=primary_sort_key))
-        if ct:
-            idx = self.user_dictionaries.findText(ct)
-            if idx > -1:
-                self.user_dictionaries.setCurrentIndex(idx)
+        idx = self.user_dictionaries.findText(ct)
+        if idx > -1:
+            self.user_dictionaries.setCurrentIndex(idx)
         self.user_dictionaries.setVisible(self.user_dictionaries.count() > 0)
         self.user_dictionaries_missing_label.setVisible(not self.user_dictionaries.isVisible())
 

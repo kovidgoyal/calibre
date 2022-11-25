@@ -27,7 +27,7 @@ from calibre.gui2.tweak_book.editor import (
 )
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
-from calibre.utils.icu import utf16_length
+from calibre.utils.icu import utf16_length, primary_sort_key
 from polyglot.builtins import itervalues, string_or_bytes
 
 
@@ -572,7 +572,7 @@ class Editor(QMainWindow):
                         ac = m.addAction(_('Add this word to the dictionary'))
                         dmenu = QMenu(m)
                         ac.setMenu(dmenu)
-                        for dic in dics:
+                        for dic in sorted(dics, key=lambda x: primary_sort_key(x.name)):
                             dmenu.addAction(dic.name, partial(self._nuke_word, dic.name, word, locale))
                 m.addSeparator()
 
