@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import OrderedDict
 
@@ -8,19 +9,16 @@ from calibre import browser
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
-
 def absurl(x):
     if x.startswith('/') and not x.startswith('//'):
         x = 'https://www.newyorker.com' + x
     return x
-
 
 def new_tag(soup, name, attrs=()):
     impl = getattr(soup, 'new_tag', None)
     if impl is not None:
         return impl(name, attrs=dict(attrs))
     return Tag(soup, name, attrs=attrs or None)
-
 
 class NewYorker(BasicNewsRecipe):
 
@@ -55,6 +53,7 @@ class NewYorker(BasicNewsRecipe):
     remove_tags = [
         classes(
             'social-icons'
+            'AssetEmbedWrapper-iKrtVW eYPQkA asset-embed'
         ),
         prefixed_classes('ConsentBannerWrapper-'),
         dict(childtypes='iframe'),
