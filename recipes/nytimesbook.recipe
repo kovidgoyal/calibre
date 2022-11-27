@@ -4,7 +4,7 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-use_wayback_machine = True
+use_wayback_machine = False
 
 
 def absolutize(url):
@@ -42,8 +42,8 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
             self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
         return ans
 
-    def get_nyt_page(self, url):
-        if use_wayback_machine:
+    def get_nyt_page(self, url, skip_wayback=False):
+        if use_wayback_machine and not skip_wayback:
             from calibre import browser
             return self.nyt_parser.download_url(url, browser())
         return self.browser.open_novisit(url).read()
@@ -55,7 +55,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     def parse_index(self):
         # return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
         soup = self.index_to_soup(
-            self.get_nyt_page('https://www.nytimes.com/pages/books/review/index.html'))
+            self.get_nyt_page('https://www.nytimes.com/pages/books/review/index.html', skip_wayback=True))
 
         # Find TOC
         toc = soup.find('section', id='collection-book-review').find('section').find('ol')
