@@ -1,0 +1,46 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class PIB(BasicNewsRecipe):
+    title = u'Press Information Bureau'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style','height','width']
+    ignore_duplicate_articles = {'url'}
+    description = ('The Press Information Bureau (PIB) is the nodal agency of the Government of India'
+                    ' to disseminate information to the print and electronic media on government policies,'
+                    ' programmes, initiatives and achievements. Best downloaded at the end of the day!')
+    extra_css = '''
+        #ltrSubtitle{color:#404040;}
+        blockquote{color:#404040;}
+        .ReleaseDateSubHeaddateTime{font-style:italic; font-size:small;}
+    '''
+    masthead_url = 'https://tse3.mm.bing.net/th?id=OIP.4QE8KPl1dZ3_BoR3X92aqgHaIH'
+
+    keep_only_tags = [
+        classes('innner-page-main-about-us-content-right-part')
+    ]
+    remove_tags = [
+        classes('ReleaseLang log_oo')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://pib.gov.in/Allrel.aspx')
+        feeds = []
+        for h3 in soup.findAll('h3'):
+            secname = self.tag_to_string(h3)
+            self.log(secname)
+            articles = []
+            div = h3.findParent('li')
+            for a in div.findAll('a', href=True):
+                url = a['href']
+                if url.startswith('/'):
+                    url  = 'https://pib.gov.in' + url
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
