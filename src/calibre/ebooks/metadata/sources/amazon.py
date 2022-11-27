@@ -1031,7 +1031,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 2)
+    version = (1, 3, 3)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1321,7 +1321,8 @@ class Amazon(Source):
         if not ('field-keywords' in q or 'field-isbn' in q or
                 ('field-title' in q)):
             # Insufficient metadata to make an identify query
-            return None, None
+            log.error('Insufficient metadata to construct query, none of title, ISBN or ASIN supplied')
+            raise SearchFailed()
 
         if not for_amazon:
             return terms, domain
@@ -1445,9 +1446,6 @@ class Amazon(Source):
         matches = []
         query, domain = self.create_query(log, title=title, authors=authors,
                                           identifiers=identifiers)
-        if query is None:
-            log.error('Insufficient metadata to construct query')
-            raise SearchFailed()
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
         except Exception as e:
