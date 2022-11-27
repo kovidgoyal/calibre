@@ -11,7 +11,7 @@ def absurl(url):
     return url
 
 
-local_edition = 'th_hyderabad'
+local_edition = None
 # Chennai is default edition, for other editions use 'th_hyderabad', 'th_bangalore', 'th_delhi', 'th_kolkata' etc
 
 
@@ -23,8 +23,9 @@ class TheHindu(BasicNewsRecipe):
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
     remove_attributes = ['style', 'height', 'width']
     extra_css = '.caption{font-size:small; text-align:center;}'\
-        '.author{font-size:small;}'\
-        '.subhead{font-weight:bold;}'
+        '.author{font-size:small; font-weight:bold;}'\
+        '.subhead, .subhead_lead {font-weight:bold;}'\
+        'img {display:block; margin:0 auto;}'
 
     ignore_duplicate_articles = {'url'}
 
@@ -38,16 +39,10 @@ class TheHindu(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for cap in soup.findAll('p', attrs={'class':'caption'}):
-            cap.name = 'span'
+            cap.name = 'figcaption'
         for img in soup.findAll('img', attrs={'data-original':True}):
             img['src'] = img['data-original']
         return soup
-
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            image = soup.find('img')
-            if image is not None:
-                self.add_toc_thumbnail(article, image['src'])
 
     def parse_index(self):
         if local_edition:
@@ -85,7 +80,7 @@ class TheHindu(BasicNewsRecipe):
                         section = sec.replace('TH_', '')
                         title = item['articleheadline']
                         url = absurl(item['href'])
-                        desc = 'from page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
+                        desc = 'Page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
                         self.log('\t', title, '\n\t\t', url)
                         feeds_dict[section].append({"title": title, "url": url, "description": desc})
                 return [(section, articles) for section, articles in feeds_dict.items()]

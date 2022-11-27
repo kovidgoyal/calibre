@@ -66,7 +66,7 @@ class IndianExpressPrint(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('https://indianexpress.com/todays-paper/')
         feeds_dict = defaultdict(list)
-        for div in soup.findAll('div', attrs={'class':['lead-story', 'section']}):
+        for div in soup.findAll('div', attrs={'class':['lead-story', 'section', 'today-paper']}):
             for a in div.findAll('a', attrs={'href':lambda x: x and x.startswith('https://indianexpress.com/article/')}):
                 if not a.find('img'):
                     url = a['href']
