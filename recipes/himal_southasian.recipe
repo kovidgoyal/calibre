@@ -1,0 +1,78 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import datetime, timezone, timedelta
+from calibre.utils.date import parse_date
+
+
+class himal(BasicNewsRecipe):
+    title = 'Himal Southasian'
+    __author__ = 'unkn0wn'
+    description = ('Himal Southasian is Southasia’s first and only regional magazine of politics and culture.'
+    ' For over 30 years, Himal Southasian has challenged nationalist orthodoxies, and covered the region with '
+    'imagination, rigour and irreverence, with contributions from some of the most interesting writers in the region.')
+    language = 'en_IN'
+    no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.himalmag.com/wp-content/themes/himaltheme-child/images/logo.svg'
+    encoding = 'utf-8'
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    oldest_article = 30  # days
+
+    extra_css = '''
+        .sub-row, .img-caption, .wp-caption-text, .comments-info-box {font-size:small;}
+        em, blockquote {color:#404040;}
+    '''
+
+    remove_tags = [
+        dict(name='header'),
+        dict(name='footer'),
+        classes('skip-link single-btm share-info title-info post-categories comment-btn comment-line'),
+    ]
+
+    def parse_index(self):
+        sel = self.index_to_soup('https://www.himalmag.com/category/regions/')
+        nav_div = sel.find('div', attrs={'class':'category-sublist'})
+        section_list = []
+
+        for a in nav_div.findAll('a', href=True):
+            section_list.append(
+                (self.tag_to_string(a).strip(), a['href'])
+            )
+        feeds = []
+
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+    def articles_from_soup(self, soup):
+        ans = []
+        div = soup.find('div', attrs={'id':'loadmore-wrap'})
+        for h3 in div.findAll('h3'):
+            a = h3.find('a', href=True)
+            url = a['href']
+            title = self.tag_to_string(a)
+            desc = ''
+            exp = h3.findNext('div', attrs={'class':'content-except'})
+            if exp:
+                desc = self.tag_to_string(exp)
+            h4 = h3.findNext('h4')
+            if h4:
+                date = parse_date(self.tag_to_string(h4).split('|')[1].strip())
+                today = (datetime.now(timezone.utc)).replace(microsecond=0)
+                if (today - date) > timedelta(self.oldest_article):
+                    url = ''
+
+            if not url or not title:
+                continue
+
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'description':desc, 'url': url})
+        return ans
