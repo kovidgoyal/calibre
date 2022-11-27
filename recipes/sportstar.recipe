@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from collections import OrderedDict
 
 
 class Sportstar(BasicNewsRecipe):
@@ -15,42 +14,89 @@ class Sportstar(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     encoding = 'utf-8'
-    oldest_article = 14
-    max_articles_per_feed = 50
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
-    masthead_url = 'https://ss.thgim.com/static/theme/default/base/img/logoNew.png'
+    masthead_url = 'https://sportstar.thehindu.com/theme/images/ss-online/sslogo.png'
     remove_attributes = ['height', 'width']
-    extra_css = '#pic-img{font-size: small; font-style: italic;}'
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://sportstar.thehindu.com/magazine/ebook/')
-        tag = soup.find(attrs={'class': 'wrapImg'})
-        if tag:
-            self.cover_url = tag.find('img')['data-proxy-image'].replace(
-                "FREE_180", "FREE_1200"
-            )
-        return super().get_cover_url()
+    extra_css = '''
+        .text-secondary{font-style:italic; color:#404040;}
+        .lead-img-caption, .caption-cont{font-size:small; text-align:center;}
+        .auth-name, .datelinew {font-size:small;}
+    '''
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(name='h2'),
-        classes('sport-icon byline home-content-date blog-img-grow home-content-p')
-    ]
-    remove_tags = [classes('bylineimg')]
-
-    remove_tags_after = [
-        classes('home-content-p'),
+        dict(name='h2', attrs={'class':'text-secondary'}),
+        classes('lead-img-cont auth-name datelinew art-content')
     ]
 
-    feeds = [
-        ('Columns', 'https://sportstar.thehindu.com/columns/feeder/default.rss'),
-        ('Magazine', 'https://sportstar.thehindu.com/magazine/feeder/default.rss'),
-        ('Statsman', 'https://sportstar.thehindu.com/statsman/feeder/default.rss'),
-        # More feeds : https://sportstar.thehindu.com/rssfeeds/
+    remove_tags = [
+        classes('mbot capsletter article-body1')
     ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://sportstar.thehindu.com/magazine/')
+        url = soup.find('a', href=lambda x: x and x.startswith('https://sportstar.thehindu.com/magazine/issue/'))['href']
+        self.log('Downloading Issue: ', url)
+        soup = self.index_to_soup(url)
+
+        feeds = OrderedDict()
+
+        info = soup.find('div', attrs={'class':'sptar-cover-item'})
+        self.cover_url = info.find('div', attrs={'class':'card'}
+                                    ).find('img')['data-original'].replace('FREE_320', 'FREE_1200')
+        data = info.find('div', attrs={'class':'cover-content'})
+        self.timefmt = ' (' + self.tag_to_string(data.h3).strip() + ') [' +\
+             self.tag_to_string(data.find('span', attrs={'class':'date'})) + ']'
+        self.description = self.tag_to_string(data.p).strip()
+
+        for content in soup.findAll('div', attrs={'class':'brief-cnt-wrap'}):
+            articles = []
+            h4 = content.find('h4', attrs={'class':'brief-title'})
+            a = h4.find('a', href=True)
+            url = a['href']
+            title = self.tag_to_string(a).strip()
+            desc = self.tag_to_string(content.find('div', attrs={'class':'artbody'})).strip()
+            section_title = self.tag_to_string(content.find('span', attrs={'class':'brief-place'})).strip()
+            self.log(section_title)
+            self.log('\t', title)
+            self.log('\t', desc)
+            self.log('\t\t', url)
+            articles.append({
+                'title': title,
+                'url': url,
+                'description': desc})
+
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.items()]
+        return ans
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-proxy-image': True}):
-            img['src'] = img['data-proxy-image'].replace("FREE_180", "FREE_1200")
+        h2 = soup.findAll(**classes('text-secondary'))
+        if h2[0]:
+            h2[0].name = 'p'
+        if h2[1]:
+            h2[1].extract()
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            if img['data-original'].endswith('1x1_spacer.png'):
+                source = img.findPrevious('source', srcset=True)
+                img.extract()
+                if source:
+                    source['src'] = source['srcset']
+                    source.name = 'img'
+            else:
+                img['src'] = img['data-original']
+
+        for cap in soup.findAll('div', attrs={'class':'caption-cont'}):
+            h4 = cap.find('h4')
+            if h4:
+                h4.name='figcaption'
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for src in soup.findAll('source'):
+            src.extract()
         return soup

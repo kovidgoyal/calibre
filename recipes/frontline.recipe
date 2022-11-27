@@ -32,9 +32,21 @@ class Frontline(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-original':True}):
-            img['src'] = img['data-original']
+            if img['data-original'].endswith('1x1_spacer.png'):
+                source = img.findPrevious('source', srcset=True)
+                img.extract()
+                if source:
+                    source['src'] = source['srcset']
+                    source.name = 'img'
+            else:
+                img['src'] = img['data-original']
         for cap in soup.findAll(**classes('caption-cont')):
             cap.name = 'figcaption'
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for src in soup.findAll('source'):
+            src.extract()
         return soup
 
     def parse_index(self):
