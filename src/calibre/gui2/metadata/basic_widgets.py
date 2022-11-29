@@ -1883,8 +1883,10 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
     def current_val(self, val):
         if val is None or is_date_undefined(val):
             val = UNDEFINED_DATE
+            self.setToolTip(self.TOOLTIP)
         else:
             val = as_local_time(val)
+            self.setToolTip(self.TOOLTIP + ' ' + _('Exact time: {}').format(val))
         self.set_spinbox_value(val)
 
     def initialize(self, db, id_):
