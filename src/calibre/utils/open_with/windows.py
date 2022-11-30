@@ -6,17 +6,17 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 import sys
-from qt.core import QBuffer, QByteArray, QImage, QIODevice, QPixmap, Qt
+from qt.core import QBuffer, QByteArray, QIODevice, QPixmap, Qt
 
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
-from calibre_extensions import winutil
+from calibre_extensions import winutil, progress_indicator
 
 ICON_SIZE = 256
 
 
 def hicon_to_pixmap(hicon):
-    QPixmap.fromImage(QImage.fromHICON(int(hicon)))
+    return progress_indicator.image_from_hicon(int(hicon))
 
 
 def pixmap_to_data(pixmap):

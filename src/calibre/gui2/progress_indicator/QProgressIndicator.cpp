@@ -133,3 +133,13 @@ int
 get_image_allocation_limit() {
     return QImageReader::allocationLimit();
 }
+
+QImage
+image_from_hicon(void* hicon) {
+#ifdef Q_OS_WIN
+    return QImage::fromHICON((HICON)hicon);
+#else
+    (void)hicon;
+    return QImage();
+#endif
+}
