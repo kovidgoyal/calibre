@@ -12,7 +12,7 @@ from collections import OrderedDict
 from qt.core import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
-    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication,
+    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics,
     QDialog, QGridLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
 
 from calibre.constants import islinux
@@ -1176,7 +1176,8 @@ class BooksView(QTableView):  # {{{
     # }}}
 
     def handle_mouse_press_event(self, ev):
-        if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
+        m = ev.modifiers()
+        if m & Qt.KeyboardModifier.ShiftModifier:
             # Shift-Click in QTableView is badly behaved.
             index = self.indexAt(ev.pos())
             if not index.isValid():
@@ -1228,7 +1229,18 @@ class BooksView(QTableView):  # {{{
                 # ensure clicked row is always selected
                 index, QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
         else:
-            return QTableView.mousePressEvent(self, ev)
+            if (
+                m == Qt.KeyboardModifier.NoModifier and ev.button() == Qt.MouseButton.LeftButton and
+                self.editTriggers() & QAbstractItemView.EditTrigger.SelectedClicked
+            ):
+                # As of Qt 6 , Qt does not clear a multi-row selection when the
+                # edit triggers contain SelectedClicked and the clicked row is
+                # already selected, so do it ourselves
+                index = self.indexAt(ev.pos())
+                sm = self.selectionModel()
+                if index.isValid() and sm.isSelected(index):
+                    self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
+            QTableView.mousePressEvent(self, ev)
 
     @property
     def column_map(self):
