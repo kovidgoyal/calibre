@@ -26,6 +26,9 @@ class ALD(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf-8'
 
+    def get_browser(self, *args, **kwargs):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     def parse_index(self):
         articles_note = []
         new_books = []
