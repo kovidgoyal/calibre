@@ -97,23 +97,34 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             exth.write(data)
             nrecs += 1
 
-    # Write UUID as ASIN
+    asin = None
     uuid = None
     from calibre.ebooks.oeb.base import OPF
     for x in metadata['identifier']:
         if (x.get(OPF('scheme'), None).lower() == 'uuid' or
                 str(x).startswith('urn:uuid:')):
             uuid = str(x).split(':')[-1]
+        elif (x.get(OPF('scheme'), None).lower() in ('asin', 'mobi-asin')
+                or str(x).startswith('urn:asin:')
+                or str(x).startswith('urn:mobi-asin:')):
+            asin = str(x).encode('utf-8')
+
+        if asin and uuid:
             break
+
     if uuid is None:
         from uuid import uuid4
         uuid = str(uuid4())
 
     if isinstance(uuid, str):
         uuid = uuid.encode('utf-8')
+
     if not share_not_sync:
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
+        if asin is None:
+            asin = uuid
+
+        exth.write(pack(b'>II', 113, len(asin) + 8))
+        exth.write(asin)
         nrecs += 1
 
     # Write UUID as SOURCE
