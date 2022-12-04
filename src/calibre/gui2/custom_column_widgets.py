@@ -15,7 +15,8 @@ from qt.core import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QMessageBox, QToolButton, QPlainTextEdit, QApplication, QStyle, QDialog)
 
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
+from calibre.utils.date import (qt_to_dt, now, as_local_time, as_utc,
+                                internal_iso_format_string, is_date_undefined)
 from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, elided_text, gprefs
@@ -362,6 +363,14 @@ class DateTime(Base):
         self.clear_button.clicked.connect(dte.set_to_clear)
         self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.addWidget(self.clear_button)
+        self.connect_data_changed(self.set_tooltip)
+
+    def set_tooltip(self, val):
+        if is_date_undefined(val):
+            self.dte.setToolTip(get_tooltip(self.col_metadata, False))
+        else:
+            self.dte.setToolTip(get_tooltip(self.col_metadata, False) + '\n' +
+                                _('Exact time: {}').format(as_local_time(qt_to_dt(val))))
 
     def setter(self, val):
         if val is None:
