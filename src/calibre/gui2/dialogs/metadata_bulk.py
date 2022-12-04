@@ -636,7 +636,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments', 'rating'] and
                      fm[f].get('search_terms', None) and
-                     f not in ['formats', 'ondevice', 'series_sort']) or
+                     f not in ['formats', 'ondevice', 'series_sort', 'in_tag_browser']) or
                     (fm[f]['datatype'] in ['int', 'float', 'bool', 'datetime'] and
                      f not in ['id', 'timestamp'])):
                 self.all_fields.append(f)
