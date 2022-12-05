@@ -16,17 +16,17 @@ from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import (
-    BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound
+    BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect,
 )
 from calibre.srv.metadata import (
-    book_as_json, categories_as_json, categories_settings, icon_map
+    book_as_json, categories_as_json, categories_settings, icon_map,
 )
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import (
-    get_lang, lang_map_for_ui, localize_website_link, lang_code_for_user_manual
+    get_lang, lang_code_for_user_manual, lang_map_for_ui, localize_website_link,
 )
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
@@ -37,6 +37,14 @@ POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 @endpoint('', auth_required=True)  # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
 def index(ctx, rd):
+    if rd.opts.url_prefix and rd.request_original_uri:
+        # We need a trailing slash for relative URLs to resolve correctly, for
+        # example the link to the mobile page in index.html
+        from urllib.parse import urlparse, urlunparse
+        p = urlparse(rd.request_original_uri)
+        if not p.path.endswith(b'/'):
+            p = p._replace(path=p.path + b'/')
+            raise HTTPRedirect(urlunparse(p).decode('utf-8'))
     ans_file = lopen(P('content-server/index-generated.html'), 'rb')
     if not in_develop_mode:
         return ans_file
