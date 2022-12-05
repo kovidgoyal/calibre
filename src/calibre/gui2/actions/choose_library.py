@@ -686,9 +686,12 @@ class ChooseLibraryAction(InterfaceAction):
             d = CheckLibraryDialog(self.gui, m.db)
 
             if not d.do_exec():
-                info_dialog(self.gui, _('No problems found'),
-                        _('The files in your library match the information '
-                        'in the database.'), show=True)
+                if question_dialog(self.gui, _('No problems found'),
+                        _('The files in your library match the information in the database.\n\n'
+                          "Choose 'Open dialog' to change settings and run the check again."),
+                        yes_text=_('Open dialog'), yes_icon='gear.png',
+                        no_text=_('Finished')):
+                    d.exec()
         finally:
             self.gui.status_bar.clear_message()
 
