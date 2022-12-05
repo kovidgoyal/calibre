@@ -1,0 +1,152 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from datetime import datetime, timezone
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+WEB_SECTIONS = [
+    ('Inrikes', 'inrikes'),
+    ('Utrikes', 'utrikes'),
+    ('Aktuellt', 'aktuellt'),
+    ('Politik', 'politik'),
+    ('Ekonomi', 'ekonomi'),
+    ('Kultur', 'kultur'),
+    ('Analys', 'analys'),
+    ('Vetenskap', 'vetenskap'),
+    ('Krönikor', 'kronika'),
+    ('Opinion', 'opinion'),
+    ('Veckans Fokus', 'veckans-fokus'),
+    ('Synvinkel', 'synvinkel'),
+    ('Minnesord', 'minnesord'),
+    ('Debatt', 'debatt'),
+    ('Andra kammaren', 'andra-kammaren'),
+    ('Skuggkabinettet', 'skuggkabinettet'),
+    ('Intervju', 'intervju'),
+    ('Mötet', 'motet'),
+    ('Veckans bråk', 'veckans-brak'),
+    ('Johans Blogg', 'johans-blogg'),
+]
+
+
+class NoArticles(Exception):
+    pass
+
+
+class Fokus(BasicNewsRecipe):
+    title = 'Fokus'
+    main_url = 'https://www.fokus.se'
+    description = "The last 7 days of news and articles from the Swedish current-affairs magazine 'Fokus'"
+    encoding = 'utf-8'
+    __author__ = 'Henrik Holm (https://github.com/h-holm)'
+    language = 'se'
+    ignore_duplicate_articles = {'title', 'url'}
+    masthead_url = 'https://cdn.fokus.se/app/uploads/fokus/2022/05/12214931/fokus-logo.svg'
+    no_stylesheets = True
+    compress_news_images = True
+    needs_subscription = False
+    max_age = 7  # days
+    remove_empty_feeds = True
+    extra_css = 'img { display: block; width: 100%; height: auto }'
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'External-ad'}),
+        dict(name='header', attrs={'class': 'Header'}),
+        dict(name='div', attrs={'class': 'Header-expanded'}),
+        dict(name='div', attrs={'class': 'Overlay'}),
+        dict(name='div', attrs={'class': 'Search-expanded'}),
+        dict(name='section', attrs={'class': 'Site__footer'}),
+        dict(name='div', attrs={'class': 'Toaster'}),
+        dict(name='div', attrs={'class': 'fbc-badge'}),
+        dict(name='div', attrs={'class': 'Posts-by-related-cat'}),
+        dict(name='div', attrs={'class': 'finite-scroll'}),
+        dict(name='div', attrs={'class': 'Sidebar'}),
+        dict(name='div', attrs={'id': 'single-comments'}),
+        dict(name='footer', attrs={'class': 'Single__footer'}),
+        dict(name='div', attrs={'class': 'Social-share'}),
+        dict(name='div', attrs={'class': 'mediaconnect-paywall'}),
+        dict(name='svg', attrs={'class': 'icon'}),
+        dict(name='figure', attrs={'class': 'wp-block-audio'}),
+    ]
+
+    remove_tags_after = [
+        dict(name='div', class_='Single__content'),
+    ]
+
+    keep_only_tags = [
+        dict(name='h1', class_='Single__title'),  # Title.
+        dict(name='h1', class_='Longread__title'),  # Alt. title.
+        dict(name='p', class_='Single__lead'),  # Lead text.
+        dict(name='p', class_='Longread__lead'),  # Alt. lead text.
+        dict(name='figure', class_='Single__thumbnail'),  # Image.
+        dict(name='figure', class_='Longread__thumbnail'),  # Alt. image.
+        # dict(name='p', class_='Meta__author'),  # Author.
+        # dict(name='time', class_='Meta__updated'),  # Last updated.
+        # Main article.
+        dict(name='div', class_='mediaconnect-protected-content'),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+
+    def parse_article_blurb(self, article_blurb):
+        desc = ''
+        if a_tag := article_blurb.find('a', href=True):
+            url = a_tag['href']
+            if url.startswith('/'):
+                url = f'{self.main_url}{url}'
+            if title_tag := a_tag.find('h2', {'class': 'Blurb__title'}):
+                title = self.tag_to_string(title_tag)
+                if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
+                    swedish_date_str = self.tag_to_string(time_tag)
+                    datetime_str = time_tag['datetime']
+                    datetime_time = datetime.strptime(
+                        datetime_str, '%Y-%m-%dT%H:%M:%S%z')
+                    now = datetime.now(timezone.utc)
+                    delta = now - datetime_time
+                    if delta.days > self.max_age:
+                        self.log.debug(
+                            f"\tSkipping article '{title}' as it is too old")
+                    else:
+                        if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
+                            desc = self.tag_to_string(desc_tag)
+                            if in_cooperation_with_tag := a_tag.find('p', {'class': 'Blurb__meta'}):
+                                desc += f' ({self.tag_to_string(in_cooperation_with_tag)})'
+                        return {'title': title, 'url': url, 'description': desc, 'date': swedish_date_str}
+
+    def parse_web_section(self, soup, slug):
+        def log(article):
+            log_message = f"\t{article['title']} : {article['date']} : {article['url']}"
+            if article.get('description'):
+                log_message += f" : {article['description']}"
+            self.log(log_message)
+        try:
+            article_blurbs = soup.find_all('article', {'class': 'Blurb'})
+        except AttributeError:
+            article_blurbs = []
+        if not article_blurbs:
+            raise ValueError(f'Failed to find article blurbs for slug: {slug}')
+        for article_blurb in article_blurbs:
+            if (article := self.parse_article_blurb(article_blurb)):
+                log(article)
+                yield article
+
+    def parse_index(self):
+        feeds = []
+        for section_title, slug in WEB_SECTIONS:
+            url = f'{self.main_url}/{slug}'
+            try:
+                soup = self.index_to_soup(url)
+            except Exception:
+                self.log.error(f'Failed to download section: {url}')
+                continue
+            self.log(f'Found section: {section_title}')
+            articles = list(self.parse_web_section(soup, slug))
+            if articles:
+                feeds.append((section_title, articles))
+        if not feeds:
+            raise NoArticles(
+                'Could not find any articles. Either the fokus.se server is having issues and '
+                'you should try later or the website format has changed and the recipe needs '
+                'to be updated.'
+            )
+        return feeds
