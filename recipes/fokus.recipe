@@ -43,7 +43,7 @@ class Fokus(BasicNewsRecipe):
     masthead_url = 'https://cdn.fokus.se/app/uploads/fokus/2022/05/12214931/fokus-logo.svg'
     no_stylesheets = True
     compress_news_images = True
-    needs_subscription = False
+    needs_subscription = 'optional'
     max_age = 7  # days
     remove_empty_feeds = True
     extra_css = 'img { display: block; width: 100%; height: auto }'
@@ -87,6 +87,16 @@ class Fokus(BasicNewsRecipe):
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            br.open('https://www.fokus.se/auth/logga-in')
+            br.select_form(name='loginForm')
+            br['j_username'] = self.username
+            br['j_password'] = self.password
+            br.submit()
+        return br
 
     def parse_article_blurb(self, article_blurb):
         desc = ''
