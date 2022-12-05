@@ -243,16 +243,22 @@ class CheckLibraryDialog(QDialog):
         h.addWidget(ln)
         self.name_ignores = QLineEdit()
         self.name_ignores.setText(db.new_api.pref('check_library_ignore_names', ''))
-        self.name_ignores.setToolTip(
-            _('Enter comma-separated standard file name wildcards, such as synctoy*.dat'))
+        tt_ext = ('<br><br>' +
+                 _('Note: ignoring folders or files inside a book folder can lead to data loss. Ignored '
+                   "folders and files will be lost if you change the book's title or author(s)."))
+        self.name_ignores.setToolTip('<p>' +
+            _('Enter comma-separated standard shell file name wildcards, such as synctoy*.dat. '
+              'Used in library, author, and book folders') +
+            tt_ext + '</p>')
         ln.setBuddy(self.name_ignores)
         h.addWidget(self.name_ignores)
         le = QLabel(_('Extensions to ignore:'))
         h.addWidget(le)
         self.ext_ignores = QLineEdit()
         self.ext_ignores.setText(db.new_api.pref('check_library_ignore_extensions', ''))
-        self.ext_ignores.setToolTip(
-            _('Enter comma-separated extensions without a leading dot. Used only in book folders'))
+        self.ext_ignores.setToolTip('<p>' +
+            _('Enter comma-separated extensions without a leading dot. Used only in book folders') +
+            tt_ext + '</p>')
         le.setBuddy(self.ext_ignores)
         h.addWidget(self.ext_ignores)
         self._layout.addLayout(h)
