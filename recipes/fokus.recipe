@@ -85,9 +85,6 @@ class Fokus(BasicNewsRecipe):
         dict(name='div', class_='mediaconnect-protected-content'),
     ]
 
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
