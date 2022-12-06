@@ -450,7 +450,8 @@ class SearchWidget(QWidget):
     def paste_saved_search(self, s):
         self.case_sensitive = s.get('case_sensitive') or False
         self.dot_all = s.get('dot_all') or False
-        self.wrap = s.get('wrap') or False
+        if 'wrap' in s:
+            self.wrap = s.get('wrap') or False
         self.mode = s.get('mode') or 'normal'
         self.find = s.get('find') or ''
         self.replace = s.get('replace') or ''
