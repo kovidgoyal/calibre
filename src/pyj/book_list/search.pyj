@@ -338,7 +338,7 @@ def render_breadcrumbs():
         create_breadcrumb(i, parent.data)
 
 def render_tag_browser():
-    container = document.getElementById(state.container_id).lastChild.lastChild
+    container = component(document.getElementById(state.container_id), "tag_browser")
     clear(container)
     set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
     try:
