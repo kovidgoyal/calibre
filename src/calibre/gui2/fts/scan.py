@@ -34,7 +34,8 @@ class ScanProgress(QWidget):
             ' calibre speed up indexing. This is useful if you intend to leave your'
             ' computer running overnight to quickly finish the indexing.'
             ' Both your computer and calibre will be less responsive while'
-            ' fast indexing is active.'
+            ' fast indexing is active. Closing this window will automatically reset to'
+            ' slow indexing.'
         ))
         la.setWordWrap(True)
         l.addWidget(la)
