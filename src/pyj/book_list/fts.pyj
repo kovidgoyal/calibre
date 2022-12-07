@@ -1,0 +1,14 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+from book_list.ui import set_panel_handler
+
+
+def init(container_id):
+    c = document.getElementById(container_id)
+    c.innerText = 'TODO: Implement me'
+
+
+set_panel_handler('fts', init)
