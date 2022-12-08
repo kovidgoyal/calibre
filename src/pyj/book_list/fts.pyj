@@ -4,20 +4,24 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from book_list.globals import get_session_data
-from book_list.router import back
+from ajax import ajax
+from book_list.globals import get_session_data, get_current_query
+from book_list.router import back, push_state
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from complete import create_search_bar
 from dom import add_extra_css, clear, set_css
 from gettext import gettext as _
-from widgets import create_button
+from modals import error_dialog
+from widgets import create_button, create_spinner
 
 overall_container_id = ''
+current_fts_query = {}
+query_id_counter = 0
 
 add_extra_css(def():
     sel = '.fts-help-display '
-    style = f'{sel} ' + '{ margin-left: 1em; padding-top: 0.5ex }\n'
+    style = f'{sel} ' + '{ padding-top: 0.5ex }\n'
     style += f'{sel} div' + ' { margin-top: 0.5ex }\n'
     style += f'{sel} .h' + ' { font-weight: bold; padding-bottom: 0.25ex }\n'
     style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }\n'
@@ -26,11 +30,53 @@ add_extra_css(def():
 )
 
 def component(name):
-    return document.getElementById(overall_container_id).querySelector(f'[data-component="{name}"]')
+    return document.getElementById(overall_container_id)?.querySelector(f'[data-component="{name}"]')
+
+
+def showing_search_panel():
+    c = component('search')
+    return bool(c and c.style.display is 'block')
+
+
+def make_new_fts_query(q):
+    nonlocal current_fts_query, query_id_counter
+    query_id_counter += 1
+    current_fts_query = {'query_id': query_id_counter}
+    Object.assign(current_fts_query, q)
+    xhr = ajax('fts/search', on_initial_fts_fetched, query=current_fts_query, bypass_cache=True)
+    xhr.send()
+
+
+def on_initial_fts_fetched(end_type, xhr, ev):
+    if end_type is 'abort' or not showing_search_panel():
+        return
+    if end_type is not 'load':
+        if xhr.status is 428:
+            # TODO: Implement FTS not enabled
+            pass
+        return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
+    try:
+        results = JSON.parse(xhr.responseText)
+    except Exception as err:
+        return error_dialog(_('Server error'), _('Failed to parse search response from server.'), err + '')
+    if results.query_id is not current_fts_query.query_id:
+        return
+    current_fts_query.results = results
+    show_initial_results()
 
 
 def execute_search_interactive():
-    pass
+    nonlocal current_fts_query
+    query = component('query').querySelector('input').value
+    if not query or query.length < 1:
+        error_dialog(_('No search query specified'), _('A search word/phrase must be specified before attempting to search'))
+        return
+    q = get_current_query()
+    q.fts_panel = 'search'
+    q.fts_query = query
+    q.fts_use_stemming = 'y' if component('related_words').checked else 'n'
+    current_fts_query = {}
+    push_state(q, replace=True)
 
 
 def build_search_page():
@@ -40,23 +86,44 @@ def build_search_page():
     search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
     search_bar = create_search_bar(execute_search_interactive, 'search-books-fts', tooltip=_('Search for books'), placeholder=_('Enter words to search for'), button=search_button)
     set_css(search_bar, flex_grow='10', margin_right='0.5em')
+    search_bar.dataset.component = 'query'
     container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
     sd = get_session_data()
     related_words = E.label(E.input(
         type="checkbox", data_component="related_words", checked=bool(sd.get('fts_related_words'))),
         onchange=def():
-            get_session_data().set('fts_related_words', bool(component('related_words').checked))
+            sd = get_session_data()
+            rw = bool(component('related_words').checked)
+            if rw is not sd.get('fts_related_words'):
+                get_session_data().set('fts_related_words', rw)
         , ' ' + _('Match on related words'),
         title=_(
             'With this option searching for words will also match on any related words (supported in several languages). For'
             ' example, in the English language: {0} matches {1} and {2} as well').format(
             'correction', 'correcting', 'corrected')
     )
-    container.appendChild(E.div(style="text-align:left; padding-top: 1ex", related_words))
+    container.appendChild(E.div(style="padding-top: 1ex; border-bottom: solid 1px currentColor; width: 100%", related_words))
+
+    # Search help
+    container.appendChild(E.div(data_component='results'))
 
 
-def show_search_help():
+def clear_to_waiting_for_results(msg):
     container = component('results')
+    if not container:
+        return
+    clear(container)
+    msg = msg or (_('Searching, please wait') + '…')
+    container.appendChild(E.div(
+        style='margin: auto; width: 100%; text-align: center; margin-top: 4ex',
+        create_spinner(), '\xa0' + msg
+    ))
+
+
+def clear_to_help():
+    container = component('results')
+    if not container:
+        return
     clear(container)
     container.appendChild(E.div(class_='fts-help-display'))
     container = container.firstChild
@@ -85,19 +152,64 @@ def show_search_help():
     a.classList.add('blue-link')
 
 
+def apply_search_panel_state():
+    q = get_current_query()
+    ftsq = {'query': q.fts_query, 'use_stemming': q.fts_use_stemming}
+    component('query').querySelector('input').value = ftsq.query
+    component('related_words').checked = ftsq.use_stemming is 'y'
+    if not ftsq.query:
+        clear_to_help()
+        return
+    if current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming:
+        make_new_fts_query(ftsq)
+        clear_to_waiting_for_results(_('Searching for {}, please wait…').format(ftsq.query))
+        return
+    show_initial_results()
+
+
+def show_initial_results():
+    container = component('results')
+    if not container:
+        return
+    clear(container)
+    results = current_fts_query.results
+    results
+
+
+def show_panel(visible, hidden):
+    c = component(visible)
+    if c:
+        c.style.display = 'block'
+    c = component(hidden)
+    if c:
+        c.style.display = 'none'
+
+
+def show_search_panel():
+    show_panel('search', 'index')
+    apply_search_panel_state()
+
+
+def show_index_panel():
+    show_panel('index', 'search')
+
+
 def init(container_id):
     nonlocal overall_container_id
     overall_container_id = container_id
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Search text of books'), action=back, icon='close')
-    container.appendChild(E.div(data_component='indexing'))
+    container.appendChild(E.div(data_component='index'))
     container.appendChild(E.div(
         data_component='search',
-        style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-top: 0.5ex; padding-bottom: 1.5ex; margin-bottom: 0.5ex"
+        style="padding:1ex 1em; margin-top: 0.5ex;"
     ))
-    container.appendChild(E.div(data_component='results'))
     build_search_page()
-    show_search_help()
+    q = get_current_query()
+    if not q.fts_panel or q.fts_panel is 'search':
+        show_search_panel()
+    elif q.fts_panel is 'index':
+        show_index_panel()
 
 
 set_panel_handler('fts', init)
