@@ -2,13 +2,102 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
 
+from book_list.globals import get_session_data
+from book_list.router import back
+from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
+from complete import create_search_bar
+from dom import add_extra_css, clear, set_css
+from gettext import gettext as _
+from widgets import create_button
+
+overall_container_id = ''
+
+add_extra_css(def():
+    sel = '.fts-help-display '
+    style = f'{sel} ' + '{ margin-left: 1em; padding-top: 0.5ex }\n'
+    style += f'{sel} div' + ' { margin-top: 0.5ex }\n'
+    style += f'{sel} .h' + ' { font-weight: bold; padding-bottom: 0.25ex }\n'
+    style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }\n'
+    style += f'{sel} p' + ' { margin: 0}\n'
+    return style
+)
+
+def component(name):
+    return document.getElementById(overall_container_id).querySelector(f'[data-component="{name}"]')
+
+
+def execute_search_interactive():
+    pass
+
+
+def build_search_page():
+    # search input container
+    container = component('search')
+    clear(container)
+    search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
+    search_bar = create_search_bar(execute_search_interactive, 'search-books-fts', tooltip=_('Search for books'), placeholder=_('Enter words to search for'), button=search_button)
+    set_css(search_bar, flex_grow='10', margin_right='0.5em')
+    container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
+    sd = get_session_data()
+    related_words = E.label(E.input(
+        type="checkbox", data_component="related_words", checked=bool(sd.get('fts_related_words'))),
+        onchange=def():
+            get_session_data().set('fts_related_words', bool(component('related_words').checked))
+        , ' ' + _('Match on related words'),
+        title=_(
+            'With this option searching for words will also match on any related words (supported in several languages). For'
+            ' example, in the English language: {0} matches {1} and {2} as well').format(
+            'correction', 'correcting', 'corrected')
+    )
+    container.appendChild(E.div(style="text-align:left; padding-top: 1ex", related_words))
+
+
+def show_search_help():
+    container = component('results')
+    clear(container)
+    container.appendChild(E.div(class_='fts-help-display'))
+    container = container.firstChild
+    fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
+    html = _('''
+<div class="h">Search for single words</div>
+<p>Simply type the word:</p>
+<div class="bq">awesome<br>calibre</div>
+
+<div class="h">Search for phrases</div>
+<p>Enclose the phrase in quotes:</p>
+<div class="bq">"early run"<br>"song of love"</div>
+
+<div class="h">Boolean searches</div>
+<div class="bq">(calibre AND ebook) NOT gun<br>simple NOT ("high bar" OR hard)</div>
+
+<div class="h">Phrases near each other</div>
+<div class="bq">NEAR("people" "in Asia" "try")<br>NEAR("Kovid" "calibre", 30)</div>
+<p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
+
+<div style="margin-top: 1em"><a href="{fts_url}">Full syntax reference</a></div>
+''' + '</div>').format(fts_url=fts_url)
+    container.innerHTML = html
+    a = container.querySelector('a[href]')
+    a.setAttribute('target', '_new')
+    a.classList.add('blue-link')
 
 
 def init(container_id):
-    c = document.getElementById(container_id)
-    c.innerText = 'TODO: Implement me'
+    nonlocal overall_container_id
+    overall_container_id = container_id
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Search text of books'), action=back, icon='close')
+    container.appendChild(E.div(data_component='indexing'))
+    container.appendChild(E.div(
+        data_component='search',
+        style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-top: 0.5ex; padding-bottom: 1.5ex; margin-bottom: 0.5ex"
+    ))
+    container.appendChild(E.div(data_component='results'))
+    build_search_page()
+    show_search_help()
 
 
 set_panel_handler('fts', init)

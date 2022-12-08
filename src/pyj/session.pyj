@@ -14,6 +14,7 @@ defaults = {
     'show_all_metadata': False, # show all metadata fields in the book details panel
     'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
     'view_mode': 'cover_grid',
+    'fts_related_words': True,
 
     # Tag Browser settings
     'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser

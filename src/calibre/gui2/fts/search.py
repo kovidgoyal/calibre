@@ -500,7 +500,8 @@ class SearchInputPanel(QWidget):
         self.related = rw = QCheckBox(_('&Match on related words'))
         rw.setToolTip('<p>' + _(
             'With this option searching for words will also match on any related words (supported in several languages). For'
-            ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
+            ' example, in the English language: {0} matches {1} and {2} as well').format(
+            '<i>correction</i>', '<i>correcting</i>', '<i>corrected</i>'))
         rw.setChecked(gprefs['fts_library_use_stemmer'])
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = QLabel(self)
