@@ -182,7 +182,7 @@ class CheckLibrary:
         filenames = frozenset(f for f in os.listdir(os.path.join(lib, db_path))
                                if not self.ignore_name(f) and (
                                    os.path.splitext(f)[1] not in self.ignore_ext or
-                                   f == 'cover.jpg' ))
+                                   f == 'cover.jpg'))
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         book_formats = frozenset(x[0]+'.'+x[1].lower() for x in
