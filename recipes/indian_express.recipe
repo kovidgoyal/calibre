@@ -1,34 +1,28 @@
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IndianExpress(BasicNewsRecipe):
     title = u'Indian Express'
     language = 'en_IN'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'unkn0wn'
     oldest_article = 1.15  # days
     max_articles_per_feed = 25
     encoding = 'utf-8'
     masthead_url = 'https://indianexpress.com/wp-content/themes/indianexpress/images/indian-express-logo-n.svg'
-
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
+
     extra_css = '''
         #storycenterbyline {font-size:small;}
         #img-cap {font-size:small;}
-        blockquote{text-align:center; color:#404040;}
-        em{font-style:italic; color:#808080;}
+        blockquote{color:#404040;}
+        em{font-style:italic; color:#202020;}
         #sub-d{color:#202020; font-style:italic;}
         .ie-authorbox{font-size:small;}
     '''
+
     resolve_internal_links = True
     remove_empty_feeds = True
 
@@ -36,88 +30,84 @@ class IndianExpress(BasicNewsRecipe):
     remove_tags = [
         dict(name='div', attrs={'id': 'ie_story_comments'}),
         dict(name='div', attrs={'class': lambda x: x and 'related-widget' in x}),
-        dict(
-            name='img',
-            attrs={
-                'src':
-                'https://images.indianexpress.com/2021/06/explained-button-300-ie.jpeg'
-            }
-        ),
-        dict(
-            name='a',
-            attrs={
-                'href':
-                'https://indianexpress.com/section/explained/?utm_source=newbanner'
-            }
-        ),
-        dict(
-            name='img',
-            attrs={
-                'src':
-                'https://images.indianexpress.com/2021/06/opinion-button-300-ie.jpeg'
-            }
-        ),
-        dict(
-            name='a',
-            attrs={
-                'href':
-                'https://indianexpress.com/section/opinion/?utm_source=newbanner'
-            }
-        ),
+        dict(name='img', attrs={'src':lambda x: x and x.endswith('-button-300-ie.jpeg')}),
+        dict(name='a', attrs={'href':lambda x: x and x.endswith('/?utm_source=newbanner')}),
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
             ' storytags pdsc-related-modify news-guard premium-story append_social_share'
             ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg'
             'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare'
-            ' custom-share o-story-paper-quite'
+            ' custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec'
         )
     ]
 
-    feeds = [
-        ('Front Page', 'https://indianexpress.com/print/front-page/feed/'),
-        ('India', 'https://indianexpress.com/section/india/feed/'),
-        ('Express Network', 'https://indianexpress.com/print/express-network/feed/'),
-        (
-            'Delhi Confidential',
-            'https://indianexpress.com/section/delhi-confidential/feed/'
-        ),
-        ('Op-Ed', 'http://indianexpress.com/section/opinion/feed/'),
-        ('Explained', 'https://indianexpress.com/section/explained/feed/'),
-        (
-            'UPSC-CSE Key',
-            'https://indianexpress.com/section/upsc-current-affairs/feed/'
-        ),
-        ('Research', 'https://indianexpress.com/section/research/feed/'),
-        ('Economy', 'https://indianexpress.com/print/economy/feed/'),
-        ('Business', 'https://indianexpress.com/section/business/feed/'),
-        ('World', 'https://indianexpress.com/section/world/feed/'),
-        (
-            'Movie Reviews',
-            'https://indianexpress.com/section/entertainment/movie-review/feed/'
-        ),
-        ('Sunday Eye', 'https://indianexpress.com/print/eye/feed/'),
-        # ('Science & Technology', 'http://indianexpress.com/section/technology/feed/'),
-        # ('Political Pulse', 'https://indianexpress.com/section/political-pulse/feed'),
-        # ('Education', 'https://indianexpress.com/section/education/feed/'),
-        # Want to add more? go-to:https://indianexpress.com/syndication/
-    ]
+    def parse_index(self):
+        section_list = [
+            ('Front Page', 'https://indianexpress.com/print/front-page/'),
+            ('India', 'https://indianexpress.com/section/india/'),
+            # ('Express Network', 'https://indianexpress.com/print/express-network/'),
+            ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/'),
+            ('Opinion', 'http://indianexpress.com/section/opinion/'),
+            ('UPSC-CSE Key', 'https://indianexpress.com/section/upsc-current-affairs/'),
+            ('Business', 'https://indianexpress.com/section/business/'),
+            ('Political Pulse', 'https://indianexpress.com/section/political-pulse/'),
+            ('Sunday Eye', 'https://indianexpress.com/section/express-sunday-eye/'),
+            # ('Education', 'https://indianexpress.com/section/education/'),
+            # ('Gadgets', 'https://indianexpress.com/section/technology/gadgets/'),
+            # ('Tech Review', 'https://indianexpress.com/section/technology/tech-reviews/'),
+            ('Science', 'https://indianexpress.com/section/technology/science/'),
+            ('Movie Review', 'https://indianexpress.com/section/entertainment/movie-review/'),
+        ]
+
+        feeds = []
+
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+    def articles_from_soup(self, soup):
+        ans = []
+        div = soup.find('div', attrs={'class':['nation', 'o-opin']})
+        for art in div.findAll(attrs={'class':['articles', 'o-opin-article']}):
+            for a in art.findAll('a', href=True):
+                if not a.find('img'):
+                    url = a['href']
+                    title = self.tag_to_string(a)
+                    desc = ''
+                    if p:= art.find('p'):
+                        desc = self.tag_to_string(p)
+                    if da := art.find('div', attrs={'class':['date', 'o-opin-date']}):
+                        from datetime import datetime, timedelta
+                        from calibre.utils.date import parse_date
+                        d = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
+                        today = datetime.now()
+                        if (today - d) > timedelta(self.oldest_article):
+                            url = ''
+                        if not url or not title:
+                            continue
+                    self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                    ans.append({'title': title, 'url': url, 'description': desc})
+        return ans
 
     def get_cover_url(self):
         soup = self.index_to_soup(
             'https://www.magzter.com/IN/The-Indian-Express-Ltd./The-Indian-Express-Mumbai/Newspaper/'
         )
-        for citem in soup.findAll(
-            'meta', content=lambda s: s and s.endswith('view/3.jpg')
-        ):
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
             return citem['content']
 
     def preprocess_html(self, soup):
-        h1 = soup.find('h1')
-        if h1:
-            h2 = h1.findNext('h2')
-            if h2:
-                h2.name = 'p'
-                h2['id'] = 'sub-d'
+        h2 = soup.find('h2')
+        if h2:
+            h2.name = 'p'
+            h2['id'] = 'sub-d'
         for span in soup.findAll(
             'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
         ):
