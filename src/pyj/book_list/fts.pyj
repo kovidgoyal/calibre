@@ -185,6 +185,8 @@ def open_format(book_id, fmt):
                 break
     url = open_book_url(book_id, fmt)
     window.open(url, '_blank')
+    if text:
+        pass
 
 
 def book_result_tile_clicked(ev):
