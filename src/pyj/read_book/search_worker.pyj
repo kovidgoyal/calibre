@@ -182,7 +182,6 @@ def search_in_text_of(name):
 
 
 def queue_next_spine_item(spine_idx, allow_current_name):
-    spine_idx %= wc.current_book.spine.length
     name = wc.current_book.spine[spine_idx]
     if not name or (not allow_current_name and name is wc.current_query.current_name):
         send_search_complete()
