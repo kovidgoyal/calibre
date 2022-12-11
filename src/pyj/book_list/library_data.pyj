@@ -203,11 +203,12 @@ def field_names_for(field, proceed):
 
 
 def thumbnail_url(book_id, width, height):
-    return absolute_path(
-        'get/thumb/{}/{}?sz={}x{}'.format(
-            book_id, loaded_books_query().library_id,
-            Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio)
-        ))
+    query = f'sz={Math.ceil(width * window.devicePixelRatio)}x{Math.ceil(height * window.devicePixelRatio)}'
+    prefix = f'get/thumb/{book_id}'
+    lid = loaded_books_query().library_id or current_library_id()
+    if lid:
+        prefix += f'/{lid}'
+    return absolute_path(f'{prefix}?{query}')
 
 
 def cover_url(book_id):
@@ -269,7 +270,7 @@ class ThumbnailCache:
     # Cache to prevent browser from issuing HTTP requests when thumbnails pages
     # are destroyed/rebuilt.
 
-    def __init__(self, size=250):
+    def __init__(self, size=256):
         self.cache = LRUCache(size)
 
     def get(self, book_id, width, height, callback):
@@ -281,7 +282,7 @@ class ThumbnailCache:
             img.onerror = self.load_finished.bind(None, item, 'error')
             img.onload = self.load_finished.bind(None, item, 'load')
             img.onabort = self.load_finished.bind(None, item, 'abort')
-            img.dataset.bookId = str(book_id)
+            img.dataset.bookId = book_id + ''
             img.src = url
             self.cache.set(url, item)
             return img

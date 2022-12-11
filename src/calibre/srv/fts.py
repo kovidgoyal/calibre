@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
+import re
+
+from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.errors import (
     HTTPBadRequest, HTTPPreconditionRequired, HTTPUnprocessableEntity,
 )
@@ -22,7 +25,7 @@ def fts_search(ctx, rd):
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
     metadata_cache = {}
     l, t = db.fts_indexing_progress()[:2]
-    ans = {'metadata': metadata_cache, 'left': l, 'total': t}
+    ans = {'metadata': metadata_cache, 'indexing_status': {'left': l, 'total': t}}
 
     use_stemming = rd.query.get('use_stemming', 'y') == 'y'
     query = rd.query.get('query' '')
@@ -38,7 +41,7 @@ def fts_search(ctx, rd):
         bid = result['book_id']
         if bid not in metadata_cache:
             with db.safe_read_lock:
-                metadata_cache[bid] = {'title': db._field_for('title', bid), 'authors': db._field_for('authors', bid)}
+                metadata_cache[bid] = {'title': db._field_for('title', bid), 'authors': authors_to_string(db._field_for('authors', bid))}
         return result
 
     from calibre.db import FTSQueryError
@@ -48,4 +51,50 @@ def fts_search(ctx, rd):
         ))
     except FTSQueryError as e:
         raise HTTPUnprocessableEntity(str(e))
+    return ans
+
+
+@endpoint('/fts/snippets/{book_ids}', postprocess=json)
+def fts_snippets(ctx, rd, book_ids):
+    '''
+    Perform the specified full text query and return the results with snippets restricted to the specified book ids.
+
+    Optional: ?query=<search query>&library_id=<default library>&use_stemming=<y or n>
+    &query_id=arbitrary&snippet_size=32&highlight_start=\x1c&highlight_end=\x1e
+    '''
+    db = get_library_data(ctx, rd)[0]
+    if not db.is_fts_enabled():
+        raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
+
+    use_stemming = rd.query.get('use_stemming', 'y') == 'y'
+    query = rd.query.get('query' '')
+    if not query:
+        raise HTTPBadRequest('No search query specified')
+    try:
+        bids = frozenset(map(int, book_ids.split(',')))
+    except Exception:
+        raise HTTPBadRequest('Invalid list of book ids')
+    try:
+        ssz = int(rd.query.get('snippet_size', 32))
+    except Exception:
+        raise HTTPBadRequest('Invalid snippet size')
+    snippets = {bid:{} for bid in bids}
+    ans = {}
+    qid = rd.query.get('query_id')
+    if qid:
+        ans['query_id'] = qid
+    from calibre.db import FTSQueryError
+    sanitize_pat = re.compile(r'\s+')
+    try:
+        for x in db.fts_search(
+            query, use_stemming=use_stemming, return_text=True,
+            highlight_start=rd.query.get('highlight_start', '\x1c'), highlight_end=rd.query.get('highlight_end', '\x1e'),
+            restrict_to_book_ids=bids, snippet_size=ssz,
+        ):
+            r = snippets[x['book_id']]
+            q = sanitize_pat.sub('', x['text'])
+            r.setdefault(q, {'formats': [], 'text': x['text'],})['formats'].append(x['format'])
+    except FTSQueryError as e:
+        raise HTTPUnprocessableEntity(str(e))
+    ans['snippets'] = {bid: tuple(v.values()) for bid, v in snippets.items()}
     return ans

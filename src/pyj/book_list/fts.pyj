@@ -5,10 +5,13 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from ajax import ajax
-from book_list.globals import get_session_data, get_current_query
+from book_list.cover_grid import THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH
+from book_list.globals import get_current_query, get_session_data
 from book_list.router import back, push_state
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
+from book_list.views import create_image
+from book_list.library_data import current_library_id
 from complete import create_search_bar
 from dom import add_extra_css, clear, set_css
 from gettext import gettext as _
@@ -26,6 +29,7 @@ add_extra_css(def():
     style += f'{sel} .h' + ' { font-weight: bold; padding-bottom: 0.25ex }\n'
     style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }\n'
     style += f'{sel} p' + ' { margin: 0}\n'
+    style += '.fts-highlight-match { font-style: italic; font-weight: bold }\n'
     return style
 )
 
@@ -41,7 +45,9 @@ def showing_search_panel():
 def make_new_fts_query(q):
     nonlocal current_fts_query, query_id_counter
     query_id_counter += 1
-    current_fts_query = {'query_id': query_id_counter}
+    current_fts_query = {'query_id': query_id_counter + ''}
+    if current_library_id():
+        current_fts_query.library_id = current_library_id()
     Object.assign(current_fts_query, q)
     xhr = ajax('fts/search', on_initial_fts_fetched, query=current_fts_query, bypass_cache=True)
     xhr.send()
@@ -59,7 +65,7 @@ def on_initial_fts_fetched(end_type, xhr, ev):
         results = JSON.parse(xhr.responseText)
     except Exception as err:
         return error_dialog(_('Server error'), _('Failed to parse search response from server.'), err + '')
-    if results.query_id is not current_fts_query.query_id:
+    if results.query_id + '' is not current_fts_query.query_id:
         return
     current_fts_query.results = results
     show_initial_results()
@@ -167,31 +173,153 @@ def apply_search_panel_state():
     show_initial_results()
 
 
+def book_result_tile(book_id, title, authors):
+    tile_height, img_max_width = '16ex', '12ex'
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, def():pass;)
+    img.style.maxHeight = tile_height
+    img.style.maxWidth = img_max_width
+    tooltip = (title) + ' ' + _('by') + ' ' + (authors)
+    img.alt = _('Cover of') + ' ' + tooltip
+    return E.div(
+        title=tooltip,
+        data_book_id=book_id + '', data_snippets_needed='1',
+        style=f'cursor: pointer; margin-bottom: 1ex; display:flex; height: {tile_height}; max-height: {tile_height}; width: 100%; align-items: stretch',
+        E.div(
+            style=f'margin-right: 1ex; width: {img_max_width}',
+            img
+        ),
+
+        E.div(
+            style=f'display:flex; flex-direction: column; height: 100%; overflow-y: auto',
+            E.div(E.span(style='font-size: small; font-style: italic; opacity: 0.5;', _('loading'), '…'), class_='snippets_container'),
+        )
+    )
+
+
+def on_snippets_fetched(end_type, xhr, ev):
+    if end_type is 'abort' or not showing_search_panel():
+        return
+    if end_type is not 'load':
+        return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
+    container = component('results')
+    if not container:
+        return
+    try:
+        results = JSON.parse(xhr.responseText)
+    except Exception as err:
+        return error_dialog(_('Server error'), _('Failed to parse search response from server.'), err + '')
+    if results.query_id is not current_fts_query.query_id:
+        return
+    if not current_fts_query.results.snippets:
+        current_fts_query.results.snippets = {}
+    Object.assign(current_fts_query.results.snippets, results.snippets)
+    show_snippets(results.snippets)
+    fetch_snippets()
+
+
+def render_text(parent, text):
+    in_highlighted = False
+    while text.length > 0:
+        q = '\x1e' if in_highlighted else '\x1c'
+        idx = text.indexOf(q)
+        if idx < 0:
+            idx = text.length
+        chunk = text[:idx]
+        text = text[idx+1:]
+        if in_highlighted:
+            parent.append(E.span(class_='fts-highlight-match', chunk))
+            in_highlighted = False
+        else:
+            parent.append(E.span(chunk))
+            in_highlighted = True
+
+
+def show_snippets(snippets):
+    container = component('results')
+    for book_id in Object.keys(snippets):
+        c = container.querySelector(f'[data-book-id="{book_id}"]')
+        v'delete c.dataset.snippetsNeeded'
+        s = c.querySelector('.snippets_container')
+        clear(s)
+        for x in snippets[book_id]:
+            f = ' '.join(x.formats)
+            e = E.div(E.code(
+                style='border: solid 1px currentColor; border-radius: 6px; padding: 0 4px; font-size: smaller',
+                data_formats=f, f)
+            )
+            e.appendChild(E.span(' '))
+            render_text(e, x.text)
+            s.appendChild(e)
+
+
+def fetch_snippets():
+    container = component('results')
+    if not container:
+        return
+    ids = v'[]'
+    for x in container.querySelectorAll('[data-snippets-needed="1"]'):
+        book_id = int(x.dataset.bookId)
+        ids.push(book_id)
+        if ids.length > 1:
+            break
+    if ids.length < 1:
+        return
+    ids = ','.join(ids)
+    q = {}
+    Object.assign(q, current_fts_query)
+    q.results = v'undefined'
+    xhr = ajax(f'fts/snippets/{ids}', on_snippets_fetched, query=q, bypass_cache=True)
+    xhr.send()
+
+
 def show_initial_results():
     container = component('results')
     if not container:
         return
     clear(container)
     results = current_fts_query.results
-    results
+    left, total = results.indexing_status['left'], results.indexing_status['total']
+    if left > 0:
+        pc = int(((total-left) / total) * 100)
+        container.appendChild(E.div(
+            style='margin-top: 0.5ex',
+            E.span(_('WARNING:'), style='color: red; font-weight: bold'), '\xa0',
+            _('Indexing of library only {}% complete, search results may be incomplete.').format(pc)
+        ))
+    rc = E.div(style='margin-top: 0.5ex')
+    container.appendChild(rc)
+    mm = results.metadata
+    seen = {}
+    for r in results.results:
+        bid = r['book_id']
+        m = mm[bid]
+        if not seen[bid]:
+            rc.appendChild(book_result_tile(bid, m['title'], m['authors']))
+            seen[bid] = rc.lastChild
+            rc.appendChild(E.hr())
+    if results.results.length < 1:
+        rc.appendChild(E.div(_('No matches found')))
+    fetch_snippets()
 
 
-def show_panel(visible, hidden):
+def show_panel(visible):
     c = component(visible)
     if c:
+        x = c.parentNode.firstChild
+        while x:
+            if x.nodeType is 1 and x is not c:
+                x.style.display = 'none'
+            x = x.nextSibling
         c.style.display = 'block'
-    c = component(hidden)
-    if c:
-        c.style.display = 'none'
 
 
 def show_search_panel():
-    show_panel('search', 'index')
+    show_panel('search')
     apply_search_panel_state()
 
 
 def show_index_panel():
-    show_panel('index', 'search')
+    show_panel('index')
 
 
 def init(container_id):
