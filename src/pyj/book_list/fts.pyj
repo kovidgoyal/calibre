@@ -7,7 +7,7 @@ from elementmaker import E
 from ajax import ajax
 from book_list.cover_grid import THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH
 from book_list.globals import get_current_query, get_session_data
-from book_list.router import back, push_state
+from book_list.router import back, push_state, open_book_url
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from book_list.views import create_image
@@ -15,7 +15,7 @@ from book_list.library_data import current_library_id
 from complete import create_search_bar
 from dom import add_extra_css, clear, set_css
 from gettext import gettext as _
-from modals import error_dialog
+from modals import error_dialog, create_custom_dialog
 from widgets import create_button, create_spinner
 
 overall_container_id = ''
@@ -173,6 +173,42 @@ def apply_search_panel_state():
     show_initial_results()
 
 
+def open_format(book_id, fmt):
+    snippets = current_fts_query.results?.snippets
+    if snippets:
+        snippets = snippets[book_id]
+    text = ''
+    if snippets and fmt is not 'PDF':
+        for s in snippets:
+            if s.formats.indexOf(fmt) > -1:
+                text = s.text
+                break
+    url = open_book_url(book_id, fmt)
+    window.open(url, '_blank')
+
+
+def book_result_tile_clicked(ev):
+    result_tile = ev.currentTarget
+    bid = int(result_tile.dataset.bookId)
+    results = current_fts_query.results
+    formats = v'[]'
+    for x in results.results:
+        if x.book_id is bid:
+            formats.push(x.format)
+    create_custom_dialog(result_tile.title, def(parent, close_modal):
+        fmc = E.div(
+            style='display: flex; flex-wrap: wrap; margin-top: 1ex'
+        )
+        for fmt in formats:
+            a = E.a(fmt, class_='blue-link', style='cursor: pointer; margin: 1ex; display: block', href='javascript: void(0)', onclick=open_format.bind(None, bid, fmt))
+            fmc.appendChild(a)
+        parent.appendChild(E.div(
+            _('Click one of the formats below to open the book at this search result (except PDF which will open at the start):'),
+            fmc
+        ))
+    )
+
+
 def book_result_tile(book_id, title, authors):
     tile_height, img_max_width = '16ex', '12ex'
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, def():pass;)
@@ -181,6 +217,7 @@ def book_result_tile(book_id, title, authors):
     tooltip = (title) + ' ' + _('by') + ' ' + (authors)
     img.alt = _('Cover of') + ' ' + tooltip
     return E.div(
+        onclick=book_result_tile_clicked,
         title=tooltip,
         data_book_id=book_id + '', data_snippets_needed='1',
         style=f'cursor: pointer; margin-bottom: 1ex; display:flex; height: {tile_height}; max-height: {tile_height}; width: 100%; align-items: stretch',
