@@ -401,7 +401,7 @@ class BooksView(QTableView):  # {{{
         for wv in self, self.pin_view:
             wv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             wv.setSortingEnabled(True)
-        self.selectionModel().currentRowChanged.connect(self._model.current_changed)
+        self.selectionModel().currentRowChanged.connect(self._model.current_changed, type=Qt.ConnectionType.QueuedConnection)
         self.selectionModel().selectionChanged.connect(self.selection_changed.emit)
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
