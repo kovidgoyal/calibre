@@ -11,7 +11,7 @@ from book_list.router import back, push_state, open_book_url
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from book_list.views import create_image
-from book_list.library_data import current_library_id
+from book_list.library_data import current_library_id, download_url
 from complete import create_search_bar
 from dom import add_extra_css, clear, set_css
 from gettext import gettext as _
@@ -184,9 +184,12 @@ def open_format(book_id, fmt):
                 text = s.text
                 break
     url = open_book_url(book_id, fmt)
-    window.open(url, '_blank')
+    if fmt is 'PDF':
+        url = download_url(book_id, fmt, 'inline')
+    w = window.open(url, '_blank')
     if text:
-        pass
+        text = str.strip(text, '…').replaceAll('\x1c', '').replaceAll('\x1e', '')
+        w.read_book_initial_open_search_text = {'text': text, 'query': current_fts_query.query}
 
 
 def book_result_tile_clicked(ev):

@@ -20,6 +20,21 @@ from widgets import create_button, create_spinner
 from worker import start_worker
 
 
+def parse_error_msg(msg):
+    details = msg.msg
+    emsg = _('Unknown error')
+    if msg.code is GET_SPINE_FAILED:
+        emsg = _('Loading text from the book failed.')
+    elif msg.code is CONNECT_FAILED:
+        emsg = _('Connecting to database storing the local copy of the book failed in the worker thread.')
+    elif msg.code is UNHANDLED_ERROR:
+        emsg = _('There was an unhandled error while searching.')
+    elif msg.code is DB_ERROR:
+        emsg = msg.error.msg
+        details = msg.error.details
+    return emsg, details
+
+
 def get_toc_data(book):
     spine = book.manifest.spine
     spine_toc_map = {name: v'[]' for name in spine}
@@ -68,6 +83,7 @@ class SearchOverlay:
         c.style.userSelect = 'none'
         c.addEventListener('keydown', self.onkeydown)
         c.addEventListener('keyup', self.onkeyup)
+        self.result_handler = None
 
         create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
 
@@ -176,6 +192,37 @@ class SearchOverlay:
             self.clear_caches()
         return self._worker
 
+    def do_initial_search(self, text, query):
+        q = {'mode': 'contains', 'case_sensitive': True, 'text': text, 'only_first_match': True}
+        self.request_counter += 1
+        self.initial_search_result_counter = 0
+        self.initial_search_human_readable_query = query
+        self.search_in_flight.id = self.request_counter
+        self.result_handler = self.handle_initial_search_result
+        self.worker.postMessage({
+            'type': 'search', 'current_name': '', 'id': self.request_counter, 'query': q
+        })
+
+    def handle_initial_search_result(self, msg):
+        if msg.type is 'error':
+            emsg, details = parse_error_msg(msg)
+            error_dialog(_('Could not search'), emsg, details)
+            self.result_handler = None
+            self.initial_search_result_counter = 0
+        elif msg.id is self.search_in_flight.id:
+            if msg.type is 'search_complete':
+                self.search_in_flight.id = None
+                self.result_handler = None
+                if self.initial_search_result_counter is 0:
+                    self.view.hide_loading()
+                    window.alert(_('The full text search query {} was not found in the book, try a manual search.').format(self.initial_search_human_readable_query))
+                self.initial_search_result_counter = 0
+            elif msg.type is 'search_result':
+                self.initial_search_result_counter += 1
+                if self.initial_search_result_counter is 1:
+                    self.view.discover_search_result(msg.result)
+                    self.view.hide_loading()
+
     def queue_search(self, query, book, current_name):
         self.request_counter += 1
         self.original_position = self.view.currently_showing.bookpos
@@ -197,18 +244,10 @@ class SearchOverlay:
 
     def on_worker_message(self, evt):
         msg = evt.data
+        if self.result_handler:
+            return self.result_handler(msg)
         if msg.type is 'error':
-            details = msg.msg
-            emsg = _('Unknown error')
-            if msg.code is GET_SPINE_FAILED:
-                emsg = _('Loading text from the book failed.')
-            elif msg.code is CONNECT_FAILED:
-                emsg = _('Connecting to database storing the local copy of the book failed in the worker thread.')
-            elif msg.code is UNHANDLED_ERROR:
-                emsg = _('There was an unhandled error while searching.')
-            elif msg.code is DB_ERROR:
-                emsg = msg.error.msg
-                details = msg.error.details
+            emsg, details = parse_error_msg(msg)
             error_dialog(_('Could not search'), emsg, details)
         elif msg.id is self.search_in_flight.id:
             if msg.type is 'search_complete':
@@ -272,11 +311,6 @@ class SearchOverlay:
         if result.after:
             entry.appendChild(E.span(result.after + '…'))
         ul.appendChild(entry)
-
-    def make_query_programmatically(self, text, mode, case_sensitive):
-        self.current_query = {'text': text, 'mode': mode, 'case_sensitive': case_sensitive}
-        self.show()
-        self.run_search()
 
     @property
     def current_result_container(self):

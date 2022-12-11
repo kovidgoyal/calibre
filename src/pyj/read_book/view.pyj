@@ -856,6 +856,12 @@ class View:
         self.show_loading_callback_timer = setTimeout(self.show_loading_message.bind(None, msg), 200)
 
     def hide_loading(self):
+        if window.read_book_initial_open_search_text:
+            q = window.read_book_initial_open_search_text
+            v'delete window.read_book_initial_open_search_text'
+            self.search_overlay.do_initial_search(q.text, q.query)
+            self.show_loading_message(_('Searching for: {}').format(q.query))
+            return
         if self.show_loading_callback_timer is not None:
             clearTimeout(self.show_loading_callback_timer)
             self.show_loading_callback_timer = None

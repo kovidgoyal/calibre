@@ -178,11 +178,16 @@ def search_in_text_of(name):
         }
         result.toc_nodes = toc_nodes_for_search_result(result)
         self.postMessage({'type': 'search_result', 'id': wc.current_query_id, 'result': result})
+        if wc.current_query.query.only_first_match:
+            break
         match_counts[q] += 1
 
 
 def queue_next_spine_item(spine_idx, allow_current_name):
     name = wc.current_book.spine[spine_idx]
+    if wc.current_query.query.only_first_match and wc.result_num > 0:
+        send_search_complete()
+        return
     if not name or (not allow_current_name and name is wc.current_query.current_name):
         send_search_complete()
         return
