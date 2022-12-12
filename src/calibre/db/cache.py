@@ -622,7 +622,7 @@ class Cache:
             self._fts_start_measuring_rate()
         return changed
 
-    @read_api
+    @write_api  # we need to use write locking as SQLITE gives a locked table error is multiple FTS queries are made at the same time
     def fts_search(
         self,
         fts_engine_query,

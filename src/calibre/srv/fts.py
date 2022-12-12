@@ -47,11 +47,29 @@ def fts_search(ctx, rd):
     from calibre.db import FTSQueryError
     try:
         ans['results'] = tuple(db.fts_search(
-            query, use_stemming=use_stemming, return_text=False, result_type=lambda x: x, process_each_result=add_metadata,
+            query, use_stemming=use_stemming, return_text=False, process_each_result=add_metadata,
         ))
     except FTSQueryError as e:
         raise HTTPUnprocessableEntity(str(e))
     return ans
+
+
+@endpoint('/fts/reindex', needs_db_write=True, methods=('POST',))
+def fts_reindex(ctx, rd):
+    db = get_library_data(ctx, rd)[0]
+    if not db.is_fts_enabled():
+        raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
+    data = rd.request_body_file.read()
+    try:
+        book_ids = json.loads(data)
+    except Exception:
+        raise HTTPBadRequest('Invalid book ids')
+    if book_ids == 'all':
+        db.reindex_fts()
+    else:
+        for book_id, fmts in book_ids.items():
+            db.reindex_fts_book(int(book_id), *fmts)
+    return ''
 
 
 @endpoint('/fts/snippets/{book_ids}', postprocess=json)

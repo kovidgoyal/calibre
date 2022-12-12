@@ -4,18 +4,18 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from ajax import ajax
+from ajax import ajax, ajax_send
 from book_list.cover_grid import THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH
 from book_list.globals import get_current_query, get_session_data
-from book_list.router import back, push_state, open_book_url
+from book_list.library_data import current_library_id, download_url
+from book_list.router import back, open_book_url, push_state
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from book_list.views import create_image
-from book_list.library_data import current_library_id, download_url
 from complete import create_search_bar
-from dom import add_extra_css, clear, set_css
+from dom import add_extra_css, clear, set_css, svgicon
 from gettext import gettext as _
-from modals import error_dialog, create_custom_dialog
+from modals import create_custom_dialog, error_dialog, info_dialog, question_dialog
 from widgets import create_button, create_spinner
 
 overall_container_id = ''
@@ -93,7 +93,7 @@ def build_search_page():
     search_bar = create_search_bar(execute_search_interactive, 'search-books-fts', tooltip=_('Search for books'), placeholder=_('Enter words to search for'), button=search_button)
     set_css(search_bar, flex_grow='10', margin_right='0.5em')
     search_bar.dataset.component = 'query'
-    container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
+    container.appendChild(E.div(style="display: flex; width: 100%; align-items: center", svgicon('fts'), E.span('\xa0'), search_bar, search_button))
     sd = get_session_data()
     related_words = E.label(E.input(
         type="checkbox", data_component="related_words", checked=bool(sd.get('fts_related_words'))),
@@ -132,6 +132,10 @@ def clear_to_help():
         return
     clear(container)
     container.appendChild(E.div(class_='fts-help-display'))
+    container.appendChild(E.div(
+        style='margin-top: 1ex',
+        E.a(_('Re-index all books in this library'), class_='blue-link', href='javascript:void(0)', onclick=reindex_all),
+    ))
     container = container.firstChild
     fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
     html = _('''
@@ -160,7 +164,7 @@ def clear_to_help():
 
 def apply_search_panel_state():
     q = get_current_query()
-    ftsq = {'query': q.fts_query, 'use_stemming': q.fts_use_stemming}
+    ftsq = {'query': q.fts_query or '', 'use_stemming': q.fts_use_stemming or 'y'}
     component('query').querySelector('input').value = ftsq.query
     component('related_words').checked = ftsq.use_stemming is 'y'
     if not ftsq.query:
@@ -192,6 +196,33 @@ def open_format(book_id, fmt):
         w.read_book_initial_open_search_text = {'text': text, 'query': current_fts_query.query}
 
 
+def reindex_book(book_id):
+    def on_response(end_type, xhr, ev):
+        if end_type is 'abort' or not showing_search_panel():
+            return
+        if end_type is not 'load':
+            if xhr.status is 403:
+                return error_dialog(_('Permission denied'), _(
+                    'You do not have permission to re-index books. Only looged in users with write permission are allowed to re-index'), xhr.error_html)
+            return error_dialog(_('Failed to re-index'), _('Re-indexing the book failed. Click "Show details" for more information.'), xhr.error_html)
+        info_dialog(_('Re-indexing scheduled'), _('The book has been scheduled for re-indexing') if book_id else _(
+            'All books have been scheduled for re-indexing')
+        )
+
+    if book_id:
+        ajax_send(f'fts/reindex', {book_id: v'[]'}, on_response)
+    else:
+        ajax_send(f'fts/reindex', 'all', on_response)
+
+
+def reindex_all():
+    question_dialog(_('Are you sure?'), _('Re-indexing all books in the library can take a long time. Are you sure you want to proceed?'),
+        def (yes):
+            if yes:
+                reindex_book()
+    )
+
+
 def book_result_tile_clicked(ev):
     result_tile = ev.currentTarget
     bid = int(result_tile.dataset.bookId)
@@ -204,12 +235,25 @@ def book_result_tile_clicked(ev):
         fmc = E.div(
             style='display: flex; flex-wrap: wrap; margin-top: 1ex'
         )
+
+        def open_format_and_close(book_id, fmt):
+            open_format(book_id, fmt)
+            close_modal()
+
+        def reindex(book_id):
+            close_modal()
+            reindex_book(book_id)
+
         for fmt in formats:
-            a = E.a(fmt, class_='blue-link', style='cursor: pointer; margin: 1ex; display: block', href='javascript: void(0)', onclick=open_format.bind(None, bid, fmt))
+            a = E.a(fmt, class_='blue-link', style='cursor: pointer; margin: 1ex; display: block', href='javascript: void(0)', onclick=open_format_and_close.bind(None, bid, fmt))
             fmc.appendChild(a)
         parent.appendChild(E.div(
             _('Click one of the formats below to open the book at this search result (except PDF which will open at the start):'),
             fmc
+        ))
+        parent.appendChild(E.div(
+            style='margin-top: 1ex',
+            E.a(_('Re-index this book'), class_='blue-link', href='javascript: void(0)', onclick=reindex.bind(None, bid))
         ))
     )
 
@@ -342,6 +386,7 @@ def show_initial_results():
     if results.results.length < 1:
         rc.appendChild(E.div(_('No matches found')))
     fetch_snippets()
+
 
 
 def show_panel(visible):
