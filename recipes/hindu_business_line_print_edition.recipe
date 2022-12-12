@@ -1,6 +1,7 @@
 import json
 import re
 from collections import defaultdict
+from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -8,6 +9,10 @@ def absurl(url):
     if url.startswith('/'):
         url = 'https://www.thehindubusinessline.com' + url
     return url
+
+
+local_edition = None
+# Chennai is default edition, for other editions use 'bl_hyderabad', 'bl_bangalore', 'bl_mumbai'
 
 
 class BusinessLine(BasicNewsRecipe):
@@ -24,7 +29,8 @@ class BusinessLine(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     extra_css = '.caption{font-size:small; text-align:center;}'\
         '.author{font-size:small; font-weight:bold;}'\
-        '.subhead{font-weight:bold;}'
+        '.subhead, .subhead_lead {font-weight:bold;}'\
+        'img {display:block; margin:0 auto;}'
 
     ignore_duplicate_articles = {'url'}
 
@@ -43,14 +49,14 @@ class BusinessLine(BasicNewsRecipe):
             img['src'] = img['data-original']
         return soup
 
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            image = soup.find('img')
-            if image is not None:
-                self.add_toc_thumbnail(article, image['src'])
-
     def parse_index(self):
-        url = 'https://www.thehindubusinessline.com/todays-paper/'
+        if local_edition:
+            yr = str(date.today().year)
+            mn = date.today().strftime('%m')
+            dy = date.today().strftime('%d')
+            url = absurl('/todays-paper/' + yr + '-' + mn + '-' + dy + '/' + local_edition + '/')
+        else:
+            url = 'https://www.thehindubusinessline.com/todays-paper/'
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
