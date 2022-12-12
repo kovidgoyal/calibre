@@ -53,13 +53,35 @@ def make_new_fts_query(q):
     xhr.send()
 
 
+def enable_indexing():
+    def on_response(end_type, xhr, ev):
+        if end_type is 'abort' or not showing_search_panel():
+            return
+        if end_type is not 'load':
+            if xhr.status is 403:
+                return error_dialog(_('Permission denied'), _(
+                    'You do not have permission to enable indexing. Only logged in users with write permission are allowed.'), xhr.error_html)
+            return error_dialog(_('Failed to enable indexing'), _('Enabling indexing failed. Click "Show details" for more information.'), xhr.error_html)
+        info_dialog(_('Indexing enabled'), _('Indexing of this library has been enabled. Depending on library size it can take a long time to index all books.'))
+    ajax_send(f'fts/indexing', True, on_response)
+
+
+def report_fts_not_enabled():
+    clear_to_waiting_for_results(_('No matches found'))
+    question_dialog(_('Full text searching disabled'), _(
+        'Full text search indexing has not been enabled for this library. Once enabled, indexing'
+        ' will take some time to complete after which searching will work. Enable indexing?'),
+        def (yes):
+            if yes:
+                enable_indexing()
+    )
+
 def on_initial_fts_fetched(end_type, xhr, ev):
     if end_type is 'abort' or not showing_search_panel():
         return
     if end_type is not 'load':
         if xhr.status is 428:
-            # TODO: Implement FTS not enabled
-            pass
+            return report_fts_not_enabled()
         return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
     try:
         results = JSON.parse(xhr.responseText)

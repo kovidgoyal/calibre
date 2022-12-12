@@ -72,6 +72,20 @@ def fts_reindex(ctx, rd):
     return ''
 
 
+@endpoint('/fts/indexing', needs_db_write=True, methods=('POST',))
+def fts_indexing(ctx, rd):
+    data = rd.request_body_file.read()
+    try:
+        enable = json.loads(data)
+    except Exception:
+        raise HTTPBadRequest('Invalid boolean')
+    if not isinstance(enable, bool):
+        raise HTTPBadRequest('Invalid boolean')
+    db = get_library_data(ctx, rd)[0]
+    db.enable_fts(enable)
+    return ''
+
+
 @endpoint('/fts/snippets/{book_ids}', postprocess=json)
 def fts_snippets(ctx, rd, book_ids):
     '''

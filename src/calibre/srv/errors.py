@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from polyglot import http_client
+import http.client as http_client
 
 
 class JobQueueFull(Exception):
