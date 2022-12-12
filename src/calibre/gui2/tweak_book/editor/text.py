@@ -871,8 +871,7 @@ class TextEdit(PlainTextEdit):
             'color': ('<span style="color: %s">' % color, '</span>'),
             'background-color': ('<span style="background-color: %s">' % color, '</span>'),
         }[formatting]
-        if hasattr(self.smarts, 'surround_with_custom_tag'):
-            self.smarts.surround_with_custom_tag(self, prefix, suffix)
+        self.smarts.surround_with_custom_tag(self, prefix, suffix)
 
     def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1):
         if width <= 0:
