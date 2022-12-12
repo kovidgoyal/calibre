@@ -67,7 +67,6 @@ def enable_indexing():
 
 
 def report_fts_not_enabled():
-    clear_to_waiting_for_results(_('No matches found'))
     question_dialog(_('Full text searching disabled'), _(
         'Full text search indexing has not been enabled for this library. Once enabled, indexing'
         ' will take some time to complete after which searching will work. Enable indexing?'),
@@ -80,6 +79,7 @@ def on_initial_fts_fetched(end_type, xhr, ev):
     if end_type is 'abort' or not showing_search_panel():
         return
     if end_type is not 'load':
+        clear_to_waiting_for_results(_('No matches found'))
         if xhr.status is 428:
             return report_fts_not_enabled()
         return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
