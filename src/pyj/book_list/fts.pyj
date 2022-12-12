@@ -203,7 +203,7 @@ def reindex_book(book_id):
         if end_type is not 'load':
             if xhr.status is 403:
                 return error_dialog(_('Permission denied'), _(
-                    'You do not have permission to re-index books. Only looged in users with write permission are allowed to re-index'), xhr.error_html)
+                    'You do not have permission to re-index books. Only logged in users with write permission are allowed to re-index'), xhr.error_html)
             return error_dialog(_('Failed to re-index'), _('Re-indexing the book failed. Click "Show details" for more information.'), xhr.error_html)
         info_dialog(_('Re-indexing scheduled'), _('The book has been scheduled for re-indexing') if book_id else _(
             'All books have been scheduled for re-indexing')
