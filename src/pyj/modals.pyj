@@ -146,7 +146,7 @@ class ModalContainer:
             self.close_current_modal(event)
 
 
-def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
+def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, parent):
     details = details or ''
     show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
     show_details.addEventListener('click', def():
@@ -170,7 +170,7 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
         E.div(
             style='max-width:40em; text-align: left',
             E.h2(
-                E.span(svgicon(icon), style='color:red'), prefix, title,
+                E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title,
                 style='font-weight: bold; font-size: ' + get_font_size('title')
             ),
             E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
@@ -184,8 +184,8 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     )
 
 
-def create_simple_dialog(title, msg, details, icon, prefix, on_close=None):
-    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix), on_close=on_close)
+def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_color='red'):
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix, icon_color), on_close=on_close)
 
 
 def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown=None):
@@ -359,8 +359,14 @@ def close_all_modals():
 def error_dialog(title, msg, details=None, on_close=None):
     create_simple_dialog(title, msg, details, 'bug', _('Error:'), on_close)
 
+
 def warning_dialog(title, msg, details=None, on_close=None):
     create_simple_dialog(title, msg, details, 'warning', _('Warning:'), on_close)
+
+
+def info_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'check', '', on_close, icon_color='green')
+
 
 def progress_dialog(msg, on_close=None):
     # Show a modal dialog with a progress bar and an optional close button.
