@@ -231,7 +231,9 @@ class BookInfo(QDialog):
     def edit_metadata(self):
         if self.current_row is not None:
             book_id = self.view.model().id(self.current_row)
-            get_gui().iactions['Edit Metadata'].edit_metadata_for([self.current_row], [book_id], bulk=False)
+            em = get_gui().iactions['Edit Metadata']
+            with em.different_parent(self):
+                em.edit_metadata_for([self.current_row], [book_id], bulk=False)
 
     def configure(self):
         d = Configure(get_gui().current_db, self)

@@ -9,6 +9,7 @@ import copy
 import os
 import shutil
 from functools import partial
+from contextlib import contextmanager
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer,
@@ -486,11 +487,21 @@ class EditMetadataAction(InterfaceAction):
     def do_edit_metadata(self, row_list, current_row, editing_multiple):
         from calibre.gui2.metadata.single import edit_metadata
         db = self.gui.library_view.model().db
+        parent = getattr(self, 'override_parent', None) or self.gui
         changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
-                parent=self.gui, view_slot=self.view_format_callback,
+                parent=parent, view_slot=self.view_format_callback,
                 edit_slot=self.edit_format_callback,
                 set_current_callback=self.set_current_callback, editing_multiple=editing_multiple)
         return changed, rows_to_refresh
+
+    @contextmanager
+    def different_parent(self, parent):
+        orig = getattr(self, 'override_parent', None)
+        self.override_parent = parent
+        try:
+            yield
+        finally:
+            self.override_parent = orig
 
     def set_current_callback(self, id_):
         db = self.gui.library_view.model().db
