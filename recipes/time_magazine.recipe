@@ -15,31 +15,11 @@ class TimeMagazine(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'Weekly US magazine.'
     language = 'en'
-    needs_subscription = True
     no_stylesheets = True
     remove_javascript = True
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        # self.time_magazine_page = open('/t/raw.html').read()
-        # return br
-        base = 'http://subscription-assets.time.com/prod/assets/themes/magazines/SUBS/templates/velocity/site/td-pcslogin/'
-        url = base + 'login.html'
-        br.open(url)
-        br.select_form(nr=0)
-        br.form.action = 'https://auth.time.com/login.php?rurl={}&turl={}'.format(
-            url, 'http://time.com/magazine')
-        br['username'] = self.username
-        br['password'] = self.password
-        r = br.submit()
-        # print(111111, r.geturl())
-        self.time_magazine_page = r.read()
-        return br
-
     def parse_index(self):
-        import html5lib
-        root = html5lib.parse(
-            self.time_magazine_page, treebuilder='lxml', namespaceHTMLElements=False).getroot()
+        root = self.index_to_soup('https://time.com/magazine', as_tree=True)
         for script in root.iterdescendants('script'):
             if script.text and script.text.startswith('Time.bootstrap ='):
                 data = json.loads(script.text.partition('=')[2].lstrip())
