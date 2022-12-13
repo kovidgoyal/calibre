@@ -750,6 +750,18 @@ class KindleOasisOutput(KindlePaperWhite3Output):
     comic_screen_size = screen_size
 
 
+class KindleScribeOutput(KindlePaperWhite3Output):
+
+    name = 'Kindle Scribe'
+    short_name = 'kindle_scribe'
+    description = _('This profile is intended for the Amazon Kindle Scribe 2022 and above')
+    # Screen size is currently just the spec size, actual renderable area will
+    # depend on someone with the device doing tests.
+    screen_size               = (1860, 2480)
+    dpi                       = 300.0
+    comic_screen_size = screen_size
+
+
 class KindleFireOutput(KindleDXOutput):
 
     name = 'Kindle Fire'
@@ -901,7 +913,7 @@ output_profiles = [
     PocketBookPro912Output, PocketBookLuxOutput, PocketBookHDOutput,
     PocketBookInkpad3Output, GenericEink, GenericEinkLarge, GenericEinkHD,
     KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput,
-    KindlePaperWhite3Output, KindleOasisOutput
+    KindlePaperWhite3Output, KindleOasisOutput, KindleScribeOutput,
 ]
 
 output_profiles.sort(key=lambda x: x.name.lower())
