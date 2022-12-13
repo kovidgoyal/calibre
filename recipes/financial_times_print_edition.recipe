@@ -33,6 +33,11 @@ class ft(BasicNewsRecipe):
     #         br.submit()
     #     return br
 
+    def get_browser(self, *args, **kw):
+        br = super().get_browser(*args, **kw)
+        br.set_current_header('Referer',  'https://www.google.com/')
+        return br
+
     def get_cover_url(self):
         from datetime import date
         cover = 'http://img.kiosko.net/' + str(
