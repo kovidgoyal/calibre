@@ -1,0 +1,130 @@
+import json
+import shutil
+from datetime import datetime
+from html import unescape
+
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+# Regions
+# https://time.com/api/magazine/region/us/
+# https://time.com/api/magazine/region/europe/
+# https://time.com/api/magazine/region/asia/
+# https://time.com/api/magazine/region/south-pacific/
+region_endpoint = "https://time.com/api/magazine/region/us/"
+
+
+class TimeMagazine(BasicNewsRecipe):
+    title = "TIME Magazine (Web)"
+    __author__ = "ping"
+    description = (
+        "Online version from https://time.com/magazine/. "
+        "You can edit the recipe to select a different region."
+    )
+    language = "en"
+    masthead_url = "https://time.com/img/logo.png"
+    no_stylesheets = True
+    remove_javascript = True
+    auto_cleanup = False
+    compress_news_images = True
+    scale_news_images_to_device = True
+    reverse_article_order = False
+
+    temp_dir = None
+
+    remove_attributes = ["style"]
+    extra_css = """
+    .issue { font-weight: bold; margin-bottom: 0.2rem; }
+    .headline { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .article-meta {  margin-top: 1rem; margin-bottom: 1rem; }
+    .article-meta .author { font-weight: bold; color: #444; display: inline-block; }
+    .article-meta .published-dt { display: inline-block; margin-left: 0.5rem; }
+    .image-caption { font-size: 0.8rem; margin-top: 0.2rem; margin-bottom: 0.5rem; }
+    img { max-width: 100%; height: auto; }
+    span.credit { margin-right: 0.5rem; }
+    """
+
+    def preprocess_raw_html(self, raw_html, url):
+        # formulate the api response into html
+        article = json.loads(raw_html)
+        try:
+            authors = [a["name"] for a in article.get("authors", [])]
+        except TypeError:
+            # sometimes authors = [[]]
+            authors = []
+
+        date_published_loc = datetime.strptime(
+            article["time"]["published"], "%Y-%m-%d %H:%M:%S"
+        )
+
+        content_soup = BeautifulSoup(article["content"])
+        cover_url = self.canonicalize_internal_url(self.cover_url)
+        # clean up weirdness
+        div_gmail = content_soup.find_all(name="div", attrs={"class": "gmail_default"})
+        for div in div_gmail:
+            div.name = "p"
+        img_lazy = content_soup.find_all(name="img", attrs={"data-lazy-src": True})
+        for img in img_lazy:
+            # remove cover image
+            if cover_url == self.canonicalize_internal_url(img["data-lazy-src"]):
+                img.parent.decompose()
+                continue
+            img["src"] = img["data-lazy-src"]
+
+        soup = BeautifulSoup(
+            f"""<html>
+        <head><title>{unescape(article["friendly_title"])}</title></head>
+        <body>
+            <article data-og-link="{article["url"]}">
+            <h1 class="headline">{str(BeautifulSoup(unescape(article["title"])))}</h1>
+            <div class="article-meta">
+                <span class="author">
+                    {", ".join(authors)}
+                </span>
+                <span class="published-dt">
+                    {date_published_loc:%d %b, %Y}
+                </span>
+            </div>
+            {str(content_soup)}
+            </article>
+        </body></html>"""
+        )
+        return str(soup)
+
+    def populate_article_metadata(self, article, soup, first):
+        # pick up the og link from preprocess_raw_html() and set it as url instead of the api endpoint
+        og_link = soup.select("[data-og-link]")
+        if og_link:
+            article.url = og_link[0]["data-og-link"]
+
+    def cleanup(self):
+        if self.temp_dir:
+            self.log("Deleting temp files...")
+            shutil.rmtree(self.temp_dir)
+
+    def parse_index(self):
+        br = self.get_browser()
+        res = br.open_novisit(region_endpoint)
+        issue_json_raw = res.read().decode("utf-8")
+        issue = json.loads(issue_json_raw)[0]
+        self.cover_url = issue.get("hero", {}).get("src", {}).get("large_2x")
+        self.timefmt = f' [{issue["title"]}]'
+        articles = []
+        self.temp_dir = PersistentTemporaryDirectory()
+        for article in issue["articles"]:
+            with PersistentTemporaryFile(suffix=".json", dir=self.temp_dir) as f:
+                f.write(json.dumps(article).encode("utf-8"))
+            description = article.get("excerpt") or ""
+            section = article.get("section", {}).get("name", "")
+            if section:
+                description = section + (" | " if description else "") + description
+            articles.append(
+                {
+                    "title": article["friendly_title"],
+                    "url": "file://" + f.name,
+                    "description": description,
+                }
+            )
+        return [("Articles", articles)]
