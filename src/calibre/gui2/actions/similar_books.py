@@ -66,6 +66,7 @@ class SimilarBooksAction(InterfaceAction):
                 v = mi.get(f, None)
                 if not v:
                     continue
+                v = db.new_api.split_if_is_multiple_composite(f, v)
                 if isinstance(v, list):
                     val.update(v)
                 else:
