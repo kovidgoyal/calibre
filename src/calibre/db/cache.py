@@ -2350,6 +2350,13 @@ class Cache:
         return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
+    def split_if_is_multiple_composite(self, f, v):
+        fm = self.field_metadata.get(f, None)
+        if fm and fm['datatype'] == 'composite' and fm['is_multiple']:
+            return [v.strip() for v in v.split(',') if v.strip()]
+        return v
+
+    @read_api
     def data_for_find_identical_books(self):
         ''' Return data that can be used to implement
         :meth:`find_identical_books` in a worker process without access to the
