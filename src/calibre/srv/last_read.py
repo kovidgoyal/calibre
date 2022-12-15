@@ -11,7 +11,7 @@ from time import time_ns
 from calibre.constants import cache_dir
 
 creation_sql = '''
-CREATE TABLE IF NOT EXISTS last_read_positions ( id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS last_read_positions ( id INTEGER PRIMARY KEY AUTOINCREMENT,
     library_id TEXT NOT NULL,
     book INTEGER NOT NULL,
     format TEXT NOT NULL COLLATE NOCASE,
@@ -57,10 +57,10 @@ class LastReadCache:
                 self.execute(
                     'INSERT OR REPLACE INTO last_read_positions(library_id,book,format,user,cfi,epoch,pos_frac,tooltip) VALUES (?,?,?,?,?,?,?,?)',
                     (library_id, book_id, fmt, user, cfi, epoch, pos_frac, tooltip))
-                items = tuple(self.get('SELECT epoch FROM last_read_positions WHERE user=? ORDER BY epoch DESC', (user,), all=True))
+                items = tuple(self.get('SELECT id FROM last_read_positions WHERE user=? ORDER BY epoch DESC', (user,), all=True))
                 if len(items) > self.limit:
-                    limit_epoch = items[self.limit][0]
-                    self.execute('DELETE FROM last_read_positions WHERE user=? AND epoch <= ?', (user, limit_epoch))
+                    limit_id = items[self.limit][0]
+                    self.execute('DELETE FROM last_read_positions WHERE user=? AND id <= ?', (user, limit_id))
                 return epoch
 
     def get_recently_read(self, user):
