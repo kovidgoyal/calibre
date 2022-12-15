@@ -57,7 +57,7 @@ class LastReadCache:
                 self.execute(
                     'INSERT OR REPLACE INTO last_read_positions(library_id,book,format,user,cfi,epoch,pos_frac,tooltip) VALUES (?,?,?,?,?,?,?,?)',
                     (library_id, book_id, fmt, user, cfi, epoch, pos_frac, tooltip))
-                items = tuple(self.get('SELECT id FROM last_read_positions WHERE user=? ORDER BY epoch DESC', (user,), all=True))
+                items = tuple(self.get('SELECT id FROM last_read_positions WHERE user=? ORDER BY id DESC', (user,), all=True))
                 if len(items) > self.limit:
                     limit_id = items[self.limit][0]
                     self.execute('DELETE FROM last_read_positions WHERE user=? AND id <= ?', (user, limit_id))
