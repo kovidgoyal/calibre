@@ -34,13 +34,14 @@ class BaseTest(SimpleTest):
         for i in range(max_retries + 1):
             failures_before = len(result.failures)
             errors_before = len(result.errors)
-            super().run(result=result)
+            ret = super().run(result=result)
             if len(result.failures) == failures_before and len(result.errors) == errors_before:
-                return
+                return ret
             print(f'Retrying test {self._testMethodName} after failure/error')
-            q = result.failures if len(result.failures) > failures_before else result.errors
-            q.pop(-1)
-            time.sleep(1)
+            if i < max_retries:
+                q = result.failures if len(result.failures) > failures_before else result.errors
+                q.pop(-1)
+                time.sleep(1)
 
 
 class LibraryBaseTest(BaseTest):
