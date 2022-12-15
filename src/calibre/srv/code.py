@@ -18,6 +18,7 @@ from calibre.srv.ajax import search_result
 from calibre.srv.errors import (
     BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect,
 )
+from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import (
     book_as_json, categories_as_json, categories_settings, icon_map,
 )
@@ -167,6 +168,9 @@ def basic_interface_data(ctx, rd):
         'lang_code_for_user_manual': lang_code_for_user_manual(),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
+    if ans['username']:
+        lrc = last_read_cache()
+        ans['recently_read_by_user'] = lrc.get_recently_read(ans['username'])
     return ans
 
 

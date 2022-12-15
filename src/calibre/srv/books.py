@@ -13,7 +13,9 @@ from threading import Lock, RLock
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
@@ -220,8 +222,14 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
         device, cfi, pos_frac = data['device'], data['cfi'], data['pos_frac']
     except Exception:
         raise HTTPNotFound('Invalid data')
+    cfi = cfi or None
     db.set_last_read_position(
-        book_id, fmt, user=user, device=device, cfi=cfi or None, pos_frac=pos_frac)
+        book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
+    if user:
+        with db.safe_read_lock:
+            tt = db._field_for('title', book_id)
+            tt += ' ' + _('by') + ' ' + authors_to_string(db._field_for('authors', book_id))
+        last_read_cache().add_last_read_position(library_id, book_id, fmt, user, cfi, pos_frac, tt)
     rd.outheaders['Content-type'] = 'text/plain'
     return b''
 

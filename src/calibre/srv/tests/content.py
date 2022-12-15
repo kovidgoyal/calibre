@@ -262,3 +262,18 @@ class ContentTest(LibraryBaseTest):
         text = 'a' * (127 * 1024)
         t('<p>{0}<p>{0}'.format(text), [{"n":"p","x":text}, {'n':'p','x':text}])
     # }}}
+
+    def test_last_read_cache(self):  # {{{
+        from calibre.srv.last_read import last_read_cache, path_cache
+        path_cache.clear()
+        lrc = last_read_cache(':memory:')
+        epoch = lrc.add_last_read_position('lib', 1, 'FMT', 'user', 'epubcfi(/)', 0.1, 'tt')
+        expected = {'library_id': 'lib', 'book_id': 1, 'format': 'FMT', 'cfi': 'epubcfi(/)', 'epoch': epoch, 'pos_frac': 0.1, 'tooltip': 'tt'}
+        self.ae(lrc.get_recently_read('user'), [expected])
+        epoch = lrc.add_last_read_position('lib', 1, 'FMT', 'user', 'epubcfi(/)', 0.2, 'tt')
+        expected['epoch'], expected['pos_frac'] = epoch, 0.2
+        self.ae(lrc.get_recently_read('user'), [expected])
+        for book_id in range(2, 7):
+            lrc.add_last_read_position('lib', book_id, 'FMT', 'user', 'epubcfi(/)', 0.1, 'tt')
+        self.ae(len(lrc.get_recently_read('user')), lrc.limit)
+    # }}}
