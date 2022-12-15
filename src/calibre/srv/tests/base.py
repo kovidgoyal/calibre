@@ -80,7 +80,8 @@ class LibraryBaseTest(BaseTest):
         db.init()
         db.set_cover({1:I('lt.png', data=True), 2:I('polish.png', data=True)})
         db.add_format(1, 'FMT1', BytesIO(b'book1fmt1'), run_hooks=False)
-        db.add_format(1, 'EPUB', open(P('quick_start/eng.epub'), 'rb'), run_hooks=False)
+        with open(P('quick_start/eng.epub'), 'rb') as src:
+            db.add_format(1, 'EPUB', src, run_hooks=False)
         db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), run_hooks=False)
         db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), run_hooks=False)
         db.backend.conn.close()
