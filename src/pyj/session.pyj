@@ -243,7 +243,6 @@ default_interface_data = {
     'custom_list_template': None,
     'num_per_page': 50,
     'lang_code_for_user_manual': '',
-    'recently_read_by_user': v'[]',
 }
 
 def get_interface_data():

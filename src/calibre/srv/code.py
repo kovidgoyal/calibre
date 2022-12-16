@@ -169,8 +169,7 @@ def basic_interface_data(ctx, rd):
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
-        lrc = last_read_cache()
-        ans['recently_read_by_user'] = lrc.get_recently_read(ans['username'])
+        ans['recently_read_by_user'] = tuple(x for x in last_read_cache().get_recently_read(ans['username']) if x['library_id'] in ans['library_map'])
     return ans
 
 

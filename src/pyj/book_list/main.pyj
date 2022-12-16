@@ -13,6 +13,7 @@ from popups import install_event_filters
 from utils import safe_set_inner_html
 
 from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
+from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color, get_font_family, css_for_variables
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
@@ -83,6 +84,7 @@ def init_ui():
 def install_data_and_init_ui(raw_data):
     data = JSON.parse(raw_data)
     update_interface_data(data)
+    update_recently_read_by_user(data.recently_read_by_user)
     update_library_data(data)
     interface_data = get_interface_data()
     sd = UserSessionData(interface_data.username, interface_data.user_session_data)
@@ -132,6 +134,7 @@ def do_update_interface_data():
         if end_type is 'load':
             data = JSON.parse(xhr.responseText)
             update_interface_data(data)
+            update_recently_read_by_user(data.recently_read_by_user)
             if data.translations?:
                 get_translations(data.translations)
                 install(data.translations)

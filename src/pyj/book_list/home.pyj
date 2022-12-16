@@ -33,6 +33,13 @@ add_extra_css(def():
     return ans
 )
 
+recently_read_by_user = {'updated': False}
+
+
+def update_recently_read_by_user(items):
+    recently_read_by_user.items = items
+    recently_read_by_user.updated = True
+
 
 def show_cover(blob, name, mt, book):
     img = document.getElementById(this)
@@ -117,10 +124,10 @@ def prepare_recent_container(container):
     return cover_container
 
 
-def show_recent_for_user(container_id, interface_data):
+def show_recent_for_user(container_id):
     container = document.getElementById(container_id)
     images = prepare_recent_container(container)
-    for item in interface_data.recently_read_by_user[:3]:
+    for item in recently_read_by_user.items[:3]:
         q = {'library_id': item.library_id}
         if item.cfi:
             q.bookpos = item.cfi
@@ -158,6 +165,15 @@ def show_recent_stage2(books):
         if book.cover_name:
             db.get_file(book, book.cover_name, show_cover.bind(img_id))
     start_sync(to_sync)
+
+
+def show_recent_for_user_if_fetched():
+    container = this
+    if not recently_read_by_user.updated:
+        return conditional_timeout(container.id, 5, show_recent_for_user_if_fetched)
+    if recently_read_by_user.items and recently_read_by_user.items.length > 0:
+        return show_recent_for_user(container.id)
+    return show_recent.call(container)
 
 
 def show_recent():
@@ -265,8 +281,8 @@ def init(container_id):
     recent = E.div(style='display:none', class_='recently-read')
     recent_container_id = ensure_id(recent)
     container.appendChild(recent)
-    if interface_data.username and interface_data.recently_read_by_user and interface_data.recently_read_by_user.length > 0:
-        show_recent_for_user(recent_container_id, interface_data)
+    if interface_data.username:
+        conditional_timeout(recent_container_id, 5, show_recent_for_user_if_fetched)
     else:
         conditional_timeout(recent_container_id, 5, show_recent)
 
