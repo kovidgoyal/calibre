@@ -16,7 +16,7 @@ ICON_SIZE = 256
 
 
 def hicon_to_pixmap(hicon):
-    return progress_indicator.image_from_hicon(int(hicon))
+    return QPixmap.fromImage(progress_indicator.image_from_hicon(int(hicon)))
 
 
 def pixmap_to_data(pixmap):
