@@ -23,6 +23,51 @@
 # - title by author
 # }}}
 
+{{{ 6.10.0 2022-12-16
+
+:: new features
+
+- [major] Content server: Add support for searching the full text of books. Simply click the FTS link on the search page to start a full text search.
+
+- [1998557] Content server: When using user accounts, the homepage now shows recently read books from any device not just the current device
+
+- [1999685] Kobo driver: Bump the max supported firmware version
+
+- [1998780] Conversion: New Output profile for the Kindle Scribe
+
+- [1998705] Check library: Allow ignoring folder names as well as files names
+
+:: bug fixes
+
+- [1999349] Edit book: Fix various formatting operations not inserting the tags in the correct place in the presence of non-BMP characters
+
+- Edit book: Use <s> instead of <strike> for strikethrough
+
+- [1998899] Edit book: Fix export saved search to search panel not preserving the wrap checkbox state
+
+- [1998767] Content server: Redirect the index page to always have trailing slash when using URL prefixes
+
+- Book list: Workaround for change in Qt 6 behavior where clicking on an already selected row does not deselect other rows
+
+- [1998165] Windows: Fix a regression in calibre 6 causing Open With to not extract icons from EXE files
+
+:: improved recipes
+- Indian Express
+- Financial Times
+- TIME Magazine
+- Hindu Business Line Print Edition
+- Arts and Letters Daily
+- Frontline
+- Sportstar
+- New Yorker
+
+:: new recipes
+- Fokus by Henrik Holm
+- Press Information Bureau by unkn0wn
+- Himal Southasian by unkn0wn
+- Indian Express Print Edition by unkn0wn
+}}}
+
 {{{ 6.9.0 2022-11-25
 
 :: new features
