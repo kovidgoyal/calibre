@@ -133,11 +133,14 @@ Changing text file order
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can re-arrange the order in which text (HTML) files are opened when reading
-the book by simply dragging and dropping them in the Files browser. For the
-technically inclined, this is called re-ordering the book spine. Note that you
-have to drop the items *between* other items, not on top of them, this can be a
-little fiddly until you get used to it. Dropping on top of another file will
-cause the files to be merged.
+the book by simply dragging and dropping them in the Files browser or clicking
+on the file to move and then pressing the :kbd:`Ctrl+Shift` modifiers with the
+:kbd:`Up`, :kbd:`Down`, :kbd:`Home` or :kbd:`End` keys. For the technically
+inclined, this is called re-ordering the book spine.
+
+Note that you have to drop the items *between* other items, not on top of them,
+this can be a little fiddly until you get used to it. Dropping on top of
+another file will cause the files to be merged.
 
 Marking the cover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

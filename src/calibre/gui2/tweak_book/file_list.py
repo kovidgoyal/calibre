@@ -374,6 +374,9 @@ class FileList(QTreeWidget, OpenWithHandler):
             return
         new_names = new_names[:insertion_point] + names + new_names[insertion_point:]
         order = [[name, linear_map[name]] for name in new_names]
+        self.request_reorder(order)
+
+    def request_reorder(self, order):
         # Ensure that all non-linear items are at the end, by making any non-linear
         # items not at the end, linear
         for i, (name, linear) in tuple(enumerate(order)):
@@ -797,9 +800,20 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.mark_requested.emit(name, 'nav')
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
+        k = ev.key()
+        mods = ev.modifiers() & (
+            Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier)
+        if k in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             ev.accept()
             self.request_delete()
+        elif mods == (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier):
+            m = self.categories['text'].childCount()
+            amt = {Qt.Key.Key_Up: -1, Qt.Key.Key_Down: 1, Qt.Key.Key_Home: -m, Qt.Key.Key_End: m}.get(k, None)
+            if amt is not None:
+                ev.accept()
+                self.move_selected_text_items(amt)
+            else:
+                return QTreeWidget.keyPressEvent(self, ev)
         else:
             return QTreeWidget.keyPressEvent(self, ev)
 
@@ -860,6 +874,35 @@ class FileList(QTreeWidget, OpenWithHandler):
         ans = {str(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         ans.discard('')
         return ans
+
+    def move_selected_text_items(self, amt: int) -> bool:
+        parent = self.categories['text']
+        children = tuple(parent.child(i) for i in range(parent.childCount()))
+        selected_names = tuple(c.data(0, NAME_ROLE) for c in children if c.isSelected())
+        if not selected_names or amt == 0:
+            return False
+        current_order = tuple(c.data(0, NAME_ROLE) for c in children)
+        linear_map = {c.data(0, NAME_ROLE):c.data(0, LINEAR_ROLE) for c in children}
+        order_map = {name: i for i, name in enumerate(current_order)}
+        new_order = list(current_order)
+        changed = False
+        items = reversed(selected_names) if amt > 0 else selected_names
+        if amt < 0:
+            items = selected_names
+            delta = max(amt, -order_map[selected_names[0]])
+        else:
+            items = reversed(selected_names)
+            delta = min(amt, len(children) - 1 - order_map[selected_names[-1]])
+        for name in items:
+            i = order_map[name]
+            new_i = min(max(0, i + delta), len(current_order) - 1)
+            if new_i != i:
+                changed = True
+                del new_order[i]
+                new_order.insert(new_i, name)
+        if changed:
+            self.request_reorder([[n, linear_map[n]] for n in new_order])
+        return changed
 
     def copy_selected_files(self):
         self.initiate_file_copy.emit(self.selected_names)
