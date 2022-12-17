@@ -621,6 +621,13 @@ class BooksModel(QAbstractTableModel):  # {{{
         if current.isValid():
             idx = current.row()
             try:
+                self.db.id(idx)
+            except Exception:
+                # can happen if an out of band search is done causing the index
+                # to no longer be valid since this function is now called after
+                # an event loop tick.
+                return
+            try:
                 data = self.get_book_display_info(idx)
             except Exception:
                 import traceback
