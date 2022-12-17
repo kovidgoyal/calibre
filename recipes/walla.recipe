@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     description = 'The WallaNews.'
-    cover_url = 'https://upload.wikimedia.org/wikipedia/he/d/d5/Walla_logo.svg'
+    cover_url = 'https://images.wcdn.co.il//2/5/4/2/2542044-46.jpg'
     title = u'Walla'
     language = 'he'
     __author__ = 'marbs & barakplasma'
