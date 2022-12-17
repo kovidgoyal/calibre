@@ -2351,9 +2351,15 @@ class Cache:
 
     @read_api
     def split_if_is_multiple_composite(self, f, v):
+        '''
+        If f is a composite column lookup key and the column is is_multiple then
+        split comma-separated v into unique non-empty values. The uniqueness
+        comparison is case-insensitive. If values are case-insensitive equals
+        then the last is returned.
+        '''
         fm = self.field_metadata.get(f, None)
         if fm and fm['datatype'] == 'composite' and fm['is_multiple']:
-            return [v.strip() for v in v.split(',') if v.strip()]
+            return list({v.strip().lower() : v.strip() for v in v.split(',') if v.strip()}.values())
         return v
 
     @read_api
