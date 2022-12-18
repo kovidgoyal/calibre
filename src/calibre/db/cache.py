@@ -2360,7 +2360,7 @@ class Cache:
         fm = self.field_metadata.get(f, None)
         if fm and fm['datatype'] == 'composite' and fm['is_multiple']:
             sep = fm['is_multiple'].get('cache_to_list', ',')
-            return (list(set(v.strip() for v in val.split(sep) if v.strip())))
+            return list({v.strip() for v in val.split(sep) if v.strip()})
         return val
 
     @read_api
