@@ -773,7 +773,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         '''
-        Delegate for custom_column bool data.
+        Delegate for composite custom_columns.
         '''
         QStyledItemDelegate.__init__(self, parent)
         self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
