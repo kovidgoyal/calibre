@@ -865,7 +865,7 @@ class TextEdit(PlainTextEdit):
             'bold': ('<b>', '</b>'),
             'italic': ('<i>', '</i>'),
             'underline': ('<u>', '</u>'),
-            'strikethrough': ('<s>', '</s>'),
+            'strikethrough': ('<span style="text-decoration: line-through">', '</span>'),
             'superscript': ('<sup>', '</sup>'),
             'subscript': ('<sub>', '</sub>'),
             'color': ('<span style="color: %s">' % color, '</span>'),
