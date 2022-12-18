@@ -542,9 +542,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setRowCount(0)
 
         mi = self.db.new_api.get_proxy_metadata(book_id)
-        print('aaa', key, mi.get(key, None))
         vals = self.db.new_api.split_if_is_multiple_composite(key, mi.get(key, None))
-        print('bbb', vals)
         try:
             # Check if we are in the GridView and there are no values for the
             # selected column. In this case switch the column to 'authors'
