@@ -2350,17 +2350,18 @@ class Cache:
         return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
-    def split_if_is_multiple_composite(self, f, v):
+    def split_if_is_multiple_composite(self, f, val):
         '''
         If f is a composite column lookup key and the column is is_multiple then
-        split comma-separated v into unique non-empty values. The uniqueness
-        comparison is case-insensitive. If values are case-insensitive equals
-        then the last is returned.
+        split v into unique non-empty values. The comparison is case sensitive.
+        Order is not preserved. Return a list() for compatibility with proxy
+        metadata field getters, for example tags.
         '''
         fm = self.field_metadata.get(f, None)
         if fm and fm['datatype'] == 'composite' and fm['is_multiple']:
-            return list({v.strip().lower() : v.strip() for v in v.split(',') if v.strip()}.values())
-        return v
+            sep = fm['is_multiple'].get('cache_to_list', ',')
+            return (list(set(v.strip() for v in val.split(sep) if v.strip())))
+        return val
 
     @read_api
     def data_for_find_identical_books(self):
