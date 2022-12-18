@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class En_Globes_Recipe(BasicNewsRecipe):
     description = 'This is en.globes.co.il.'
     cover_url = 'https://www.globes.co.il/images/GlobesEN-144x40.gif'

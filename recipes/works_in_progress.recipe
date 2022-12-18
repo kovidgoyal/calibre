@@ -2,9 +2,10 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class WorksInProgress(BasicNewsRecipe):
     title          = 'Works in progress'
-    description    = 'Works in Progress is an online magazine dedicated to sharing new and underrated ideas to improve the world, and features original writing from some of the most interesting thinkers in the world'
+    description    = 'Works in Progress is an online magazine dedicated to sharing new and underrated ideas to improve the world, and features original writing from some of the most interesting thinkers in the world'  # noqa
     cover_url = "https://www.worksinprogress.co/wp-content/uploads/2020/03/logo-1.svg"
     oldest_article = 7
     max_articles_per_feed = 100
