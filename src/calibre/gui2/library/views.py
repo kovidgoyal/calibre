@@ -1229,18 +1229,21 @@ class BooksView(QTableView):  # {{{
                 # ensure clicked row is always selected
                 index, QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
         else:
-            if (
-                m == Qt.KeyboardModifier.NoModifier and ev.button() == Qt.MouseButton.LeftButton and
-                self.editTriggers() & QAbstractItemView.EditTrigger.SelectedClicked
-            ):
-                # As of Qt 6 , Qt does not clear a multi-row selection when the
-                # edit triggers contain SelectedClicked and the clicked row is
-                # already selected, so do it ourselves
-                index = self.indexAt(ev.pos())
-                sm = self.selectionModel()
-                if index.isValid() and sm.isSelected(index):
-                    self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
             QTableView.mousePressEvent(self, ev)
+
+    def handle_mouse_release_event(self, ev):
+        if (
+            ev.modifiers() == Qt.KeyboardModifier.NoModifier and ev.button() == Qt.MouseButton.LeftButton and
+            self.editTriggers() & QAbstractItemView.EditTrigger.SelectedClicked
+        ):
+            # As of Qt 6, Qt does not clear a multi-row selection when the
+            # edit triggers contain SelectedClicked and the clicked row is
+            # already selected, so do it ourselves
+            index = self.indexAt(ev.pos())
+            sm = self.selectionModel()
+            if index.isValid() and sm.isSelected(index):
+                self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
+        QTableView.mouseReleaseEvent(self, ev)
 
     @property
     def column_map(self):

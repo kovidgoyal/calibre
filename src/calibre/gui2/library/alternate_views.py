@@ -119,6 +119,12 @@ def mousePressEvent(self, event):
     return qt_item_view_base_class(self).mousePressEvent(self, event)
 
 
+def mouseReleaseEvent(self, event):
+    if hasattr(self, 'handle_mouse_press_event'):
+        return self.handle_mouse_release_event(event)
+    return qt_item_view_base_class(self).mouseReleaseEvent(self, event)
+
+
 def drag_icon(self, cover, multiple):
     cover = cover.scaledToHeight(120, Qt.TransformationMode.SmoothTransformation)
     if multiple:
@@ -263,7 +269,7 @@ def setup_dnd_interface(cls_or_self):
         cls = cls_or_self
         fmap = globals()
         for x in (
-            'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent',
+            'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent', 'mouseReleaseEvent',
             'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
             func = fmap[x]
             setattr(cls, x, func)
