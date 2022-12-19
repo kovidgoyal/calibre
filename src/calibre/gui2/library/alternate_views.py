@@ -120,7 +120,7 @@ def mousePressEvent(self, event):
 
 
 def mouseReleaseEvent(self, event):
-    if hasattr(self, 'handle_mouse_press_event'):
+    if hasattr(self, 'handle_mouse_release_event'):
         return self.handle_mouse_release_event(event)
     return qt_item_view_base_class(self).mouseReleaseEvent(self, event)
 
