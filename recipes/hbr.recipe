@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 def absurl(url):
     if url.startswith('/'):
-        url = 'https://www.hbr.org/' + url
+        url = 'https://www.hbr.org' + url
     return url
 
 
