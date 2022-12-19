@@ -122,10 +122,10 @@ def _do_restore(self: QWidget, s: QScreen, geometry: QRect, saved_data: dict):
     self.setGeometry(geometry)
     if saved_data['full_screened']:
         debug('Restoring widget to full screen')
-        self.showFullScreen()
+        self.setWindowState(Qt.WindowState.WindowFullScreen)
     elif saved_data['maximized']:
         debug('Restoring widget to maximized')
-        self.showMaximized()
+        self.setWindowState(Qt.WindowState.WindowMaximized)
     return True
 
 
