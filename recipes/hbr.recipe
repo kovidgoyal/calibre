@@ -1,8 +1,14 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
-from datetime import datetime
-from calibre import browser
-from collections import OrderedDict
 import re
+from collections import OrderedDict
+
+from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://www.hbr.org/' + url
+    return url
 
 
 class HBR(BasicNewsRecipe):
@@ -21,75 +27,66 @@ class HBR(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+
     extra_css = '''
-        article-sidebar{font-family:Georgia,"Times New Roman",Times,serif; border:ridge; text-align:left;}
-        [close-caption]{ border:ridge; font-size:small; text-align:center;}
-        article-ideainbrief{font-family:Georgia,"Times New Roman",Times,serif; text-align:left; font-style:italic; }
-        .article-byline-list{font-size:small;}
-        .credits--hero-image{font-size:small;}
-        .credits--inline-image{font-size:small;}
-        .caption--inline-image{font-size:small;}
-        .description-text{font-size:small; color:gray;}
-        .right-rail--container{font-size:small; color:#4c4c4c;}
-        .link--black{font-size:small;}
-        .article-callout{color:#4c4c4c; text-align:center;}
-        .slug-content{color:gray;}
-        '''
+        .article-summary, .article-ideainbrief, .description-text, .link--black {font-size:small; color:#202020;}
+        .credits--hero-image, .credits--inline-image, .caption--inline-image {font-size:small; text-align:center;}
+        .article-byline-list {font-size:small; font-weight:bold;}
+        .question {font-weight:bold;}
+        .right-rail--container {font-size:small; color:#404040;}
+        .article-callout, .slug-content {color:#404040;}
+        .article-sidebar {color:#202020;}
+    '''
 
     keep_only_tags = [
         classes(
-            'headline-container hero-image-content article-summary article-body standard-content'
-            ' article-dek-group article-dek slug-container'
-        ),
-        dict(name='article-sidebar'),
+            'slug-container headline-container hero-image-content article-summary article-body '
+            'standard-content article-dek-group article-dek'
+        )
     ]
 
     remove_tags = [
         classes(
-            'left-rail--container translate-message follow-topic newsletter-container '
-        ),
+            'left-rail--container translate-message follow-topic newsletter-container'
+        )
     ]
 
     def parse_index(self):
         soup = self.index_to_soup('https://hbr.org/magazine')
-        a = soup.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
-        url = a['href']
-        self.log('Downloading issue:', url)
-        cov_url = a.find('img', attrs={'src': True})['src']
-        self.cover_url = 'https://hbr.org' + cov_url
-        soup = self.index_to_soup('https://hbr.org' + url)
+        div = soup.find(**classes('backdrop-lightest'))
+        a = div.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
+        index = absurl(a['href'])
+        self.timefmt = ' [' + self.tag_to_string(div.find('h2')) + ']'
+        self.log('Downloading issue: ', index, self.timefmt)
+        cov_url = a.find('img', src=True)
+        if cov_url:
+            self.cover_url = absurl(cov_url['src'])
+        soup = self.index_to_soup(index)
 
         feeds = OrderedDict()
 
         for h3 in soup.findAll('h3', attrs={'class': 'hed'}):
             articles = []
-            d = datetime.today()
-            for a in h3.findAll(
-                'a', href=lambda x: x.startswith('/' + d.strftime('%Y') + '/')
-            ):
-
-                title = self.tag_to_string(a)
-                url = a['href']
-                url = 'https://hbr.org' + url
+            a = h3.find('a')
+            title = self.tag_to_string(a)
+            url = absurl(a['href'])
+            auth = ''
             div = h3.find_next_sibling('div', attrs={'class': 'stream-item-info'})
             if div:
                 aut = self.tag_to_string(div).replace('Magazine Article ', '')
                 auth = re.sub(r"(?<=\w)([A-Z])", r", \1", aut)
+            des = ''
             dek = h3.find_next_sibling('div', attrs={'class': 'dek'})
             if dek:
                 des = self.tag_to_string(dek)
             desc = des + ' |' + auth.title()
+            section_title = 'Articles'
             sec = h3.findParent('li').find_previous_sibling('div', **classes('stream-section-label')).find('h4')
-            section_title = self.tag_to_string(sec).title()
-            self.log(section_title)
-            self.log('\t', title)
-            self.log('\t', desc)
-            self.log('\t\t', url)
-
-            articles.append({
-                'title': title,
-                'url': url,
-                'description': desc})
+            if sec:
+                section_title = self.tag_to_string(sec).title()
+            self.log(section_title, '\n\t', title, '\n\t', desc, '\n\t\t', url)
+            articles.append({'title': title, 'url': url, 'description': desc})
             if articles:
                 if section_title not in feeds:
                     feeds[section_title] = []
@@ -105,8 +102,10 @@ class HBR(BasicNewsRecipe):
                 by.extract()
             for li in dek.findAll('li'):
                 li.name = 'span'
-        for h2 in soup.findAll(('h2','h3')):
-            h2.name = 'h5'
+        for div in soup.findAll('div', attrs={'class':['article-summary', 'article-callout']}):
+            div.name = 'blockquote'
+        for sidebar in soup.findAll(('article-sidebar', 'article-ideainbrief')):
+            sidebar.name = 'blockquote'
         return soup
 
     # HBR changes the content it delivers based on cookies, so the
