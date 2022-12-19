@@ -216,7 +216,7 @@ General Program Mode
     top_expression  ::= or_expression
     or_expression   ::= and_expression [ '||' and_expression ]*
     and_expression  ::= not_expression [ '&&' not_expression ]*
-    not_expression  ::= [ '!' not_expression ]* | compare_exp
+    not_expression  ::= [ '!' not_expression ]* | concatenate_expr
     concatenate_expr::= compare_expr [ '&' compare_expr ]*
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | 'inlist' |
