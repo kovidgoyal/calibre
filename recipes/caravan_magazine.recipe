@@ -7,6 +7,7 @@ import json
 from mechanize import Request
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 
 def classes(classes):
@@ -15,10 +16,17 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class CaravanMagazine(BasicNewsRecipe):
 
     title = 'Caravan Magazine'
-    __author__ = 'Kovid Goyal, Gobelinus'
+    __author__ = 'Kovid Goyal, Gobelinus, unkn0wn'
     description = 'An Indian Journal of politics and culture'
     language = 'en_IN'
     timefmt = ' [%b, %Y]'
@@ -27,16 +35,24 @@ class CaravanMagazine(BasicNewsRecipe):
 
     no_stylesheets = True
 
-    keep_only_tags = [
-        classes('post-title short-desc author-details cover'),
-        dict(itemprop='articleBody'),
-    ]
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+
+    extra_css = '''
+        blockquote {color:#202020;}
+        #fig-c {text-align:center; font-size:small;}
+        em {color:#202020;}
+        .article-footer {font-size:small;}
+        .date, .pre-title {font-size:small; color:#404040;}
+        .authors {font-size:small; font-weight:bold;}
+    '''
 
     remove_tags = [
+        classes('related-articles'),
         dict(name='meta'),
         dict(attrs={'class': ['share-with', 'img-wrap abs']}),
     ]
-    remove_attributes = ['style']
 
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
@@ -68,6 +84,8 @@ class CaravanMagazine(BasicNewsRecipe):
     def parse_index(self):
         base_url = 'https://www.caravanmagazine.in/'
         soup = self.index_to_soup('{0}magazine'.format(base_url))
+        if magdate := soup.find('h6', attrs={'class':'magazine-date'}):
+            self.timefmt = ' [' + self.tag_to_string(magdate).strip() + ']'
 
         # find current issue cover
         feeds = []
@@ -94,10 +112,43 @@ class CaravanMagazine(BasicNewsRecipe):
 
         return feeds
 
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.readwhere.com/magazine/delhi-press/The-Caravan/5326'
+        )
+        for citem in soup.findAll(
+            'meta', content=lambda s: s and s.endswith('/magazine/300/new')
+        ):
+            return citem['content'].replace('300', '600')
+
+    def print_version(self, url):
+        if not self.username or not self.password:
+            return url.replace('.in/','.in/amp/')
+        return url
+
     def preprocess_html(self, soup):
-        for div in soup.findAll(itemprop='image'):
-            for img in div.findAll('img'):
-                img['src'] = div['content']
-        for img in soup.findAll(attrs={'data-src': True}):
-            img['src'] = img['data-src']
+        if not self.username or not self.password:
+            keep_only_tags = [classes('main-content')]
+            for fc in soup.findAll('figcaption'):
+                fc['id'] = 'fig-c'
+            for img in soup.findAll('amp-img'):
+                img.name = 'img'
+            if h6 := soup.find('h6'):
+                h6.name = 'h4'
+        else:
+            keep_only_tags = [
+                classes('post-title short-desc author-details cover'),
+                dict(itemprop='articleBody'),
+            ]
+            for div in soup.findAll(itemprop='image'):
+                for img in div.findAll('img'):
+                    img['src'] = div['content']
+            for img in soup.findAll(attrs={'data-src': True}):
+                img['src'] = img['data-src']
+
+        body = new_tag(soup, 'body')
+        for spec in keep_only_tags:
+            for tag in soup.find('body').findAll(**spec):
+                body.insert(len(body.contents), tag)
+        soup.find('body').replaceWith(body)
         return soup
