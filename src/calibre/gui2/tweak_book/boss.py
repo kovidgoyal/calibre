@@ -37,7 +37,7 @@ from calibre.ebooks.oeb.polish.utils import (
     link_stylesheets, setup_css_parser_serialization as scs
 )
 from calibre.gui2 import (
-    add_to_recent_docs, choose_dir, choose_files, choose_save_file, error_dialog,
+    add_to_recent_docs, choose_dir, choose_files, choose_save_file, error_dialog, warning_dialog,
     info_dialog, open_url, question_dialog
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -318,6 +318,9 @@ class Boss(QObject):
         if not os.path.exists(path):
             return error_dialog(self.gui, _('File not found'), _(
                 'The file %s does not exist.') % path, show=True)
+        if not os.access(path, os.W_OK):
+            warning_dialog(self.gui, _('Readonly file'), _(
+                'The file {} is readon-only. Saving changes to it will either fail or cause its permissions to be reset.').format(path), show=True)
         isdir = os.path.isdir(path)
         ext = path.rpartition('.')[-1].upper()
         if ext not in SUPPORTED and not isdir:
