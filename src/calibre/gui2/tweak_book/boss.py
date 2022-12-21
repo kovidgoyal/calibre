@@ -319,8 +319,8 @@ class Boss(QObject):
             return error_dialog(self.gui, _('File not found'), _(
                 'The file %s does not exist.') % path, show=True)
         if not os.access(path, os.W_OK):
-            warning_dialog(self.gui, _('Readonly file'), _(
-                'The file {} is readon-only. Saving changes to it will either fail or cause its permissions to be reset.').format(path), show=True)
+            warning_dialog(self.gui, _('Read-only file'), _(
+                'The file {} is read-only. Saving changes to it will either fail or cause its permissions to be reset.').format(path), show=True)
         isdir = os.path.isdir(path)
         ext = path.rpartition('.')[-1].upper()
         if ext not in SUPPORTED and not isdir:
