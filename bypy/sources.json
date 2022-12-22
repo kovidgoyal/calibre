@@ -62,9 +62,9 @@
     {
         "name": "zlib",
         "unix": {
-            "filename": "zlib-1.2.11.tar.xz",
-            "hash": "sha256:4ff941449631ace0d4d203e3483be9dbc9da454084111f97ea0a2114e19bf066",
-            "urls": ["https://zlib.net/{filename}"]
+            "filename": "zlib-1.2.11.tar.gz",
+            "hash": "sha256:c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+            "urls": ["https://zlib.net/fossils/{filename}"]
         }
     },
 
