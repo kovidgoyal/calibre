@@ -307,6 +307,9 @@ class Economist(BasicNewsRecipe):
                 sub = safe_dict(part, "print", "subheadline") or ''
                 if sub and section != sub:
                     desc = sub + ' :: ' + desc
+                if '/interactive/' in url:
+                    self.log('Skipping interactive article:', title, url)
+                    continue
                 feeds_dict[section].append({"title": title, "url": url, "description": desc})
                 self.log(' ', title, url, '\n   ', desc)
             return [(section, articles) for section, articles in feeds_dict.items()]
