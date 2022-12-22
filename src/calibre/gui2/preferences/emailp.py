@@ -147,7 +147,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         elif col == 1:
             self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', as_unicode(value or '').upper()))
         elif col == 0:
-            na = as_unicode(value or '')
+            na = as_unicode(value or '').strip()
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
             if not addr or '@' not in na:
