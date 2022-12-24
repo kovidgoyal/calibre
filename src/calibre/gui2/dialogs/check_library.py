@@ -116,14 +116,18 @@ class TextWithButtonWidget(QWidget):
         QWidget.__init__(self)
         if self.button_icon is None:
             self.button_icon = QIcon.ic('document_open.png')
-        self.library_path = library_path
-        self.item_path = item_path
+
+        self.path = os.path.join(library_path, item_path)
+        if not os.path.isdir(self.path):
+            self.path = os.path.dirname(self.path)
+
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         b = QToolButton()
         b.setContentsMargins(0, 0, 0, 0)
         b.clicked.connect(self.button_clicked)
         b.setIcon(self.button_icon)
+        b.setToolTip(_('Open folder {}').format(self.path))
         l.addWidget(b)
         t = QLabel(text)
         t.setContentsMargins(0, 0, 0, 0)
@@ -132,10 +136,7 @@ class TextWithButtonWidget(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
     def button_clicked(self):
-        p = os.path.join(self.library_path, self.item_path)
-        if not os.path.isdir(p):
-            p = os.path.dirname(p)
-        open_local_file(p)
+        open_local_file(self.path)
 
 
 class CheckLibraryDialog(QDialog):
