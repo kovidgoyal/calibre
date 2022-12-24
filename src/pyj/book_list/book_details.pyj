@@ -267,26 +267,17 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_identifiers(field, fm, name, val):
 
-        def ids_sorter(url_map, k):
-            x = url_map[k]
-            if not x:
-                return ''
+        def ids_sorter(x):
             return (x[0] or '').toLowerCase()
 
-        if val:
-            keys = Object.keys(val)
-            if keys.length:
-                td = E.td()
-                url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-                for k in sorted(keys, key=ids_sorter.bind(None, url_map)):
-                    idval = val[k]
-                    x = url_map[k]
-                    if x:
-                        if td.childNodes.length:
-                            td.appendChild(document.createTextNode(', '))
-                        td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+        if val and mi.urls_from_identifiers and mi.urls_from_identifiers.length > 0:
+            td = E.td()
+            for text, k, idval, url in sorted(mi.urls_from_identifiers or v'[]', key=ids_sorter):
                 if td.childNodes.length:
-                    table.appendChild(E.tr(E.td(name + ':'), td))
+                    td.appendChild(document.createTextNode(', '))
+                td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=url, text))
+            if td.childNodes.length:
+                table.appendChild(E.tr(E.td(name + ':'), td))
 
     def process_size(field, fm, name, val):
         if val:
