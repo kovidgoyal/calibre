@@ -633,9 +633,8 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
 # }}}
 
 
-if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug -e
-    # src/calibre/ebooks/metadata/sources/identify.py
+def tests(start=0, limit=256):  # tests {{{
+    # To run these test use: calibre-debug -c "from calibre.ebooks.metadata.sources.identify import tests; tests()"
     from calibre.ebooks.metadata.sources.test import (
         authors_test, test_identify, title_test
     )
@@ -678,5 +677,5 @@ if __name__ == '__main__':  # tests {{{
 
         ]
     # test_identify(tests[1:2])
-    test_identify(tests)
+    test_identify(tests[start:limit])
 # }}}
