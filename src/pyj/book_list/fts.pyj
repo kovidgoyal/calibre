@@ -416,10 +416,9 @@ def show_panel(visible):
     if c:
         x = c.parentNode.firstChild
         while x:
-            if x.nodeType is 1 and x is not c:
-                x.style.display = 'none'
+            if x.nodeType is 1 and x.dataset.component:
+                x.style.display = 'block' if x is c else 'none'
             x = x.nextSibling
-        c.style.display = 'block'
 
 
 def show_search_panel():
