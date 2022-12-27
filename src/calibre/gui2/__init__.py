@@ -815,8 +815,11 @@ class FileIconProvider(QFileIconProvider):
 
     def key_from_ext(self, ext):
         key = ext if ext in self.icons else 'default'
-        if key == 'default' and ext.count('.') > 0:
+        if key == 'default' and '.' in ext:
             ext = ext.rpartition('.')[2]
+            key = ext if ext in self.icons else 'default'
+        if key == 'default' and ext.startswith('original_'):
+            ext = ext.partition('_')[2]
             key = ext if ext in self.icons else 'default'
         if key == 'default':
             key = ext
