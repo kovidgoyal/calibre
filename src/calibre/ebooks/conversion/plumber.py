@@ -1199,7 +1199,7 @@ OptionRecommendation(name='search_replace',
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             with open(self.opts.extra_css, 'rb') as f:
-                self.opts.extra_css = f.read()
+                self.opts.extra_css = f.read().decode('utf-8')
 
         oibl = self.opts.insert_blank_line
         orps  = self.opts.remove_paragraph_spacing
