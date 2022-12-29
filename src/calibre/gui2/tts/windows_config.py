@@ -20,7 +20,7 @@ class VoicesModel(QAbstractTableModel):
         self.voice_data = voice_data
 
         def language(x):
-            return x.get('language_display_name') or x['language'] or ''
+            return x.get('language_display_name') or x.get('language') or ''
 
         self.current_voices = tuple((x['name'], language(x), x.get('age', ''), x.get('gender', ''), x['id']) for x in voice_data)
         self.column_headers = _('Name'), _('Language'), _('Age'), _('Gender')
