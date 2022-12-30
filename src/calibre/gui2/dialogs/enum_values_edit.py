@@ -142,7 +142,7 @@ class EnumValuesEdit(QDialog):
         self.table.setCellWidget(row, 1, c)
 
     def save_geometry(self):
-        self.save_geometry(gprefs, 'enum-values-edit-geometry')
+        super().save_geometry(gprefs, 'enum-values-edit-geometry')
 
     def accept(self):
         disp = self.fm['display']
