@@ -132,12 +132,12 @@ def show_recent_for_user(container_id):
         if item.cfi:
             q.bookpos = item.cfi
         url_to_read = open_book_url(item.book_id, item.format, q)
+        img = E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
         images.appendChild(E.div(style='margin: 0 1em',
-            E.a(
-                title=item.tooltip,
-                href=url_to_read,
-                E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
-        )))
+            E.a(title=item.tooltip, href=url_to_read, img)))
+        img.onerror = def(err):
+            failed = err.target
+            failed.parentNode.parentNode.style.display = 'none'
 
 
 def show_recent_stage2(books):
