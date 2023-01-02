@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+# feed source: https://www.nhk.or.jp/toppage/rss/index.html
+
+
+class ReutersJa(BasicNewsRecipe):
+
+    title = 'NHK News'
+    description = 'NHK News in Japanese'
+    __author__ = 'Richard A. Steps'
+    use_embedded_content = False
+    language = 'ja'
+    max_articles_per_feed = 30
+    remove_javascript = True
+    auto_cleanup = True
+
+    # This line added to deal with bots on site
+    def get_browser(self, *a, **kw):
+        kw['user_agent'] = 'common_words/based'
+        return super().get_browser(*a, **kw)
+
+    feeds = [
+        ('主要ニュース', 'https://www.nhk.or.jp/rss/news/cat0.xml?format=xml'),
+        ('社会', 'https://www.nhk.or.jp/rss/news/cat1.xml?format=xml'),
+        ('科学・医療', 'https://www.nhk.or.jp/rss/news/cat3.xml?format=xml'),
+        ('政治', 'https://www.nhk.or.jp/rss/news/cat4.xml?format=xml'),
+        ('経済', 'https://www.nhk.or.jp/rss/news/cat5.xml?format=xml'),
+        ('国際', 'https://www.nhk.or.jp/rss/news/cat6.xml?format=xml'),
+        ('スポーツ', 'https://www.nhk.or.jp/rss/news/cat7.xml?format=xml'),
+        ('文化・エンタメ', 'https://www.nhk.or.jp/rss/news/cat2.xml?format=xml')
+    ]
