@@ -1,75 +1,98 @@
 #!/usr/bin/env python
-__license__ = 'GPL v3'
-__author__ = 'Lorenzo Vigentini'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-__version__ = 'v1.01'
-__date__ = '14, January 2010'
-__description__ = 'PC World and Macworld consistently deliver editorial excellence through award-winning content and trusted product reviews.'
 
 '''
 http://www.pcworld.com/
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
-
-temp_files = []
-articles_are_obfuscated = True
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class pcWorld(BasicNewsRecipe):
-    __author__ = 'Lorenzo Vigentini'
-    description = 'PC World and Macworld consistently deliver editorial excellence through award-winning content and trusted product reviews.'
-    cover_url = 'http://images.pcworld.com/images/common/header/header-logo.gif'
-
-    title = 'PCWorld '
+    __author__ = 'unkn0wn'
+    description = 'PCWorld helps you navigate the PC ecosystem to find the products you want and the advice you need to get the job done.'
+    title = 'PCWorld'
     publisher = 'IDG Communication'
-    category = 'PC, video, computing, product reviews, editing, cameras, production'
-
     language = 'en'
-    timefmt = '[%a, %d %b, %Y]'
-
-    oldest_article = 7
-    max_articles_per_feed = 20
-    use_embedded_content = False
-    recursion = 10
-
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
     remove_javascript = True
-    no_stylesheets = True
-    auto_cleanup = True
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    remove_attributes = ['height', 'width']
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url + '&print')
+    extra_css = '''
+        .entry-meta, .imageCredit {font-size:small;}
+        .entry-eyebrow, .article_author_box_bio {font-size:small; color:#404040;}
+        .subheadline {font-style:italic; color:#202020;}
+    '''
 
-        response = br.follow_link(url, nr=0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-
-    feeds = [
-        (u'All Stories', u'http://www.pcworld.com/index.rss'),
-        (u'Reviews', u'http://www.pcworld.com/reviews/index.rss'),
-        (u'How-To', u'http://www.pcworld.com/howto/index.rss'),
-        (u'Video', u'http://www.pcworld.com/video/index.rss'),
-        (u'Game On', u'http://www.pcworld.com/column/game-on/index.rss'),
-        (u'Hassle free PC', u'http://www.pcworld.com/column/hassle-free-pc/index.rss'),
-        (u'Go Social', u'http://www.pcworld.com/column/go-social/index.rss'),
-        (u'Linux Line', u'http://www.pcworld.com/column/linux-line/index.rss'),
-        (u'Net Work', u'http://www.pcworld.com/column/net-work/index.rss'),
-        (u'Security Alert', u'http://www.pcworld.com/column/security-alert/index.rss'),
-        (u'Simply Business', u'http://www.pcworld.com/column/simply-business/index.rss'),
-        (u'Business', u'http://www.pcworld.com/category/business/index.rss'),
-        (u'Security & Privacy', u'http://www.pcworld.com/category/privacy/index.rss'),
-        (u'Windows', u'http://www.pcworld.com/category/windows/index.rss'),
-        (u'Laptops', u'http://www.pcworld.com/category/laptop-computers/index.rss'),
-        (u'Software', u'http://www.pcworld.com/category/software/index.rss'),
-        (u'Desktops', u'http://www.pcworld.com/category/desktop-computers/index.rss'),
-        (u'Printers', u'http://www.pcworld.com/category/printers/index.rss'),
-        (u'Phones', u'http://www.pcworld.com/category/phones/index.rss'),
-        (u'Tablets', u'http://www.pcworld.com/category/tablets/index.rss')
+    keep_only_tags = [
+        classes('entry-header post-thumbnail'),
+        dict(name='div', attrs={'id':'link_wrapped_content'}),
+        classes('article_author_box_bio')
     ]
 
+    def parse_index(self):
+
+        section_list = [
+            ('PC & Components', 'pc-components'),
+            ('Laptops', 'laptops'),
+            ('Mobile', 'mobile'),
+            ('How-To', 'howto'),
+            ('Gaming', 'gaming'),
+            ('Windows', 'windows'),
+            ('Best-Picks','best-picks'),
+            ('Reviews', 'reviews'),
+            ('Security', 'security'),
+            ('Smart Tech', 'smart-tech'),
+            ('Software', 'software'),
+            ('WiFi & Networks', 'wifi-networks'),
+            ('Deals', 'deals'),
+            ('Business', 'business'),
+            ('Entertainment', 'entertainment'),
+        ]
+
+        feeds = []
+
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = 'https://www.pcworld.com/' + section[1]
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+    def articles_from_soup(self, soup):
+        ans = []
+        feed = soup.find('div', attrs={'class':lambda x: x and 'articleFeed-inner' in x.split()})
+        for item in feed.findAll('div', attrs={'class':'item-text-inner'}):
+            a = item.find('h3').find('a', href=True)
+            title = self.tag_to_string(a)
+            url = a['href']
+            desc = ''
+            if span := item.find(attrs={'class':'item-excerpt'}):
+                desc = self.tag_to_string(span)
+            if byline := item.find(attrs={'class':'item-byline'}):
+                desc = self.tag_to_string(byline) + ' | ' + desc
+            if eye := item.find(attrs={'class':lambda x: x and 'item-eyebrow' in x.split()}):
+                desc = self.tag_to_string(eye) + ' | ' + desc
+            if itdate := item.find(attrs={'class':'item-date'}):
+                date = self.tag_to_string(itdate)
+                check = 'hours', 'day', 'days'  # skipping articles older than a week
+                if not any(x in date for x in check):
+                    continue
+            if not url or not title:
+                continue
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return ans
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.magzter.com/US/IDG-Consumer-and-SMB,-Inc./PCWorld/Computer-&-Mobile/'
+        )
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
