@@ -42,7 +42,10 @@ class KF8Writer:
 
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
-        self.compress = not self.opts.dont_compress
+        try:
+            self.compress = not self.opts.dont_compress
+        except Exception:
+            self.compress = True
         self.has_tbs = False
         self.log.info('Creating KF8 output')
 
