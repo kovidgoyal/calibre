@@ -29,7 +29,7 @@ class HistoryToday(BasicNewsRecipe):
             br['pass'] = self.password
             res = br.submit()
             raw = res.read()
-            if 'Session limit exceeded' in raw:
+            if b'Session limit exceeded' in raw:
                 br.select_form(nr=1)
             control = br.find_control('sid').items[1]
             sid = []
