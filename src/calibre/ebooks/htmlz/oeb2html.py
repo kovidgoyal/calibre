@@ -8,16 +8,18 @@ Transform OEB content into a single (more or less) HTML file.
 
 import os
 import re
-
+from css_parser import replaceUrls
 from functools import partial
 from lxml import html
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import (
-    XHTML, XHTML_NS, SVG_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
+    OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, barename, namespace, rewrite_links,
+    urlnormalize,
+)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
-from polyglot.builtins import string_or_bytes, as_unicode
+from polyglot.builtins import as_unicode, string_or_bytes
 from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
@@ -130,7 +132,8 @@ class OEB2HTML:
     def get_css(self, oeb_book):
         css = ''
         for item in oeb_book.manifest:
-            if item.media_type == 'text/css':
+            if hasattr(item.data, 'cssText'):
+                replaceUrls(item.data, partial(self.rewrite_link, page=item))
                 css += as_unicode(item.data.cssText) + '\n\n'
         return css
 
