@@ -37,7 +37,8 @@ recently_read_by_user = {'updated': False}
 
 
 def update_recently_read_by_user(items):
-    recently_read_by_user.items = items
+    if items:
+        recently_read_by_user.items = items
     recently_read_by_user.updated = True
 
 

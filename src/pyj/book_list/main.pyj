@@ -138,6 +138,8 @@ def do_update_interface_data():
             if data.translations?:
                 get_translations(data.translations)
                 install(data.translations)
+        else:
+            update_recently_read_by_user()
     ).send()
 
 
