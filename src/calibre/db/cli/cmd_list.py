@@ -48,15 +48,17 @@ def implementation(
             else:
                 fields = sorted(afields)
         sort_by = sort_by or 'id'
-        if sort_by not in afields:
-            return f'Unknown sort field: {sort_by}'
+        sort_fields = sort_by.split(',')
+        for sf in sort_fields:
+            if sf not in afields:
+                return f'Unknown sort field: {sf}'
+        sort_spec = [(sf, ascending) for sf in sort_fields]
         if not set(fields).issubset(afields):
             return 'Unknown fields: {}'.format(', '.join(set(fields) - afields))
         if search_text:
-            book_ids = db.multisort([(sort_by, ascending)],
-                                    ids_to_sort=db.search(search_text))
+            book_ids = db.multisort(sort_spec, ids_to_sort=db.search(search_text))
         else:
-            book_ids = db.multisort([(sort_by, ascending)])
+            book_ids = db.multisort(sort_spec)
         if limit > -1:
             book_ids = book_ids[:limit]
         data = {}
@@ -274,7 +276,7 @@ List the books available in the calibre database.
         '--sort-by',
         default=None,
         help=_(
-            'The field by which to sort the results.\nAvailable fields: {0}\nDefault: {1}'
+            'The field by which to sort the results. You can specify multiple fields by separating them with commas.\nAvailable fields: {0}\nDefault: {1}'
         ).format(', '.join(sorted(FIELDS)), 'id')
     )
     parser.add_option(
