@@ -5,7 +5,7 @@
 import os
 import re
 from collections import namedtuple
-from functools import partial
+from functools import partial, lru_cache
 from qt.core import (
     QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
     QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QSplitter,
@@ -197,6 +197,11 @@ def init_find_in_grouped_search(menu, field, value, book_info):
                     '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
 
 
+@lru_cache(maxsize=2)
+def comments_pat():
+    return re.compile(r'<!--.*?-->', re.DOTALL)
+
+
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     from calibre.gui2.ui import get_gui
     func = render_data_func or partial(render_data,
@@ -227,6 +232,8 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, p
     comments = ''
     if comment_fields:
         comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
+        # Comments cause issues with rendering in QTextBrowser
+        comments = comments_pat().sub('', comments)
     right_pane = comments
 
     if vertical:
