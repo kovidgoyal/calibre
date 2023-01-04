@@ -1111,7 +1111,8 @@ get_icon_at_index(int shilsize, int index) {
 	IImageListPtr spiml;
 	HRESULT hr = SHGetImageList(shilsize, IID_PPV_ARGS(&spiml));
 	HICON hico = NULL;
-	if (SUCCEEDED(hr)) spiml->GetIcon(index, ILD_TRANSPARENT, &hico);
+	if (SUCCEEDED(hr)) spiml->GetIcon(index, ILD_TRANSPARENT | ILD_IMAGE, &hico);
+    spiml->Release();
 	return hico;
 }
 
@@ -1130,14 +1131,14 @@ get_icon_for_file(PyObject *self, PyObject *args) {
 	HICON icon;
 #define R(shil) { \
 	Py_BEGIN_ALLOW_THREADS \
-	icon = get_icon_at_index(SHIL_JUMBO, fi.iIcon); \
+	icon = get_icon_at_index(shil, fi.iIcon); \
 	Py_END_ALLOW_THREADS \
 	if (icon) return (PyObject*)Handle_create(icon, IconHandle); \
 }
 	R(SHIL_JUMBO); R(SHIL_EXTRALARGE); R(SHIL_LARGE); R(SHIL_SYSSMALL); R(SHIL_SMALL);
 #undef R
 	return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
-} // }}}
+}
 
 
 static PyObject*
@@ -1165,7 +1166,7 @@ get_bitmap_for_file(PyObject *self, PyObject *args) {
         return error_from_hresult(hr, "Failed to get image from shell item");
     }
 	return (PyObject*)Handle_create(hbmp, BitmapHandle);
-}
+} // }}}
 
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
