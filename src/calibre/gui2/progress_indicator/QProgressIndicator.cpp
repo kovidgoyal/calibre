@@ -143,3 +143,13 @@ image_from_hicon(void* hicon) {
     return QImage();
 #endif
 }
+
+QImage
+image_from_hbitmap(void* hbitmap) {
+#ifdef Q_OS_WIN
+    return QImage::fromHBITMAP((HBITMAP)hbitmap);
+#else
+    (void)hibitmap;
+    return QImage();
+#endif
+}
