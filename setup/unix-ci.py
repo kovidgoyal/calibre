@@ -4,7 +4,6 @@
 
 import glob
 import io
-import json
 import os
 import shlex
 import subprocess
@@ -110,16 +109,8 @@ def install_linux_deps():
     run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev', 'libxkbcommon-dev', 'libxkbcommon-x11-dev')
 
 
-def get_tx_tarball_url():
-    data = json.load(urlopen(
-        'https://api.github.com/repos/transifex/cli/releases/latest'))
-    for asset in data['assets']:
-        if asset['name'] == 'tx-linux-amd64.tar.gz':
-            return asset['browser_download_url']
-
-
 def get_tx():
-    url = get_tx_tarball_url()
+    url = 'https://github.com/transifex/cli/releases/latest/download/tx-linux-amd64.tar.gz'
     print('Downloading:', url)
     with urlopen(url) as f:
         raw = f.read()
