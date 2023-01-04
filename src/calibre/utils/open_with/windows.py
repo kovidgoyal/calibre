@@ -4,13 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 import re
 import sys
 from qt.core import QBuffer, QByteArray, QIODevice, QPixmap, Qt
 
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
-from calibre_extensions import winutil, progress_indicator
+from calibre_extensions import progress_indicator, winutil
 
 ICON_SIZE = 256
 
@@ -76,6 +77,7 @@ def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
 
 
 def load_icon_for_file(path: str, as_data=False, size=ICON_SIZE):
+    path = os.path.abspath(path)
     try:
         hicon = winutil.get_icon_for_file(path)
     except Exception:

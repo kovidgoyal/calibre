@@ -1104,45 +1104,8 @@ load_icons(PyObject *self, PyObject *args) {
 	return ans;
 }
 
-_COM_SMARTPTR_TYPEDEF(IImageList, __uuidof(IImageList));
-
-static HICON
-get_icon_at_index(int shilsize, int index) {
-	IImageListPtr spiml;
-	HRESULT hr = SHGetImageList(shilsize, IID_PPV_ARGS(&spiml));
-	HICON hico = NULL;
-	if (SUCCEEDED(hr)) spiml->GetIcon(index, ILD_TRANSPARENT | ILD_IMAGE, &hico);
-    spiml->Release();
-	return hico;
-}
-
 static PyObject*
 get_icon_for_file(PyObject *self, PyObject *args) {
-	wchar_raii path;
-	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
-	scoped_com_initializer com;
-	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
-	SHFILEINFO fi = {0};
-	DWORD_PTR res;
-	Py_BEGIN_ALLOW_THREADS
-	res = SHGetFileInfoW(path.ptr(), 0, &fi, sizeof(fi), SHGFI_SYSICONINDEX);
-	Py_END_ALLOW_THREADS
-	if (!res) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
-	HICON icon;
-#define R(shil) { \
-	Py_BEGIN_ALLOW_THREADS \
-	icon = get_icon_at_index(shil, fi.iIcon); \
-	Py_END_ALLOW_THREADS \
-	if (icon) return (PyObject*)Handle_create(icon, IconHandle); \
-}
-	R(SHIL_JUMBO); R(SHIL_EXTRALARGE); R(SHIL_LARGE); R(SHIL_SYSSMALL); R(SHIL_SMALL);
-#undef R
-	return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
-}
-
-
-static PyObject*
-get_bitmap_for_file(PyObject *self, PyObject *args) {
 	wchar_raii path;
     long width = 256, height = 256;
 	if (!PyArg_ParseTuple(args, "O&|ll", py_to_wchar_no_none, &path, &width, &height)) return NULL;
@@ -1159,13 +1122,30 @@ get_bitmap_for_file(PyObject *self, PyObject *args) {
     SIZE size = { width, height };
     HBITMAP hbmp;
     Py_BEGIN_ALLOW_THREADS
-    hr = pImageFactory->GetImage(size, SIIGBF_BIGGERSIZEOK, &hbmp);
+    hr = pImageFactory->GetImage(size, SIIGBF_BIGGERSIZEOK | SIIGBF_SCALEUP, &hbmp);
     pImageFactory->Release();
     Py_END_ALLOW_THREADS
     if (!SUCCEEDED(hr)) {
         return error_from_hresult(hr, "Failed to get image from shell item");
     }
-	return (PyObject*)Handle_create(hbmp, BitmapHandle);
+    BITMAP bmp;
+    if (GetObject(hbmp, sizeof( BITMAP ), &bmp) == 0) {
+        DeleteObject(hbmp);
+        PyErr_SetString(PyExc_OSError, "Failed to load bitmap data from HBITMAP");
+        return NULL;
+    }
+    HBITMAP hbmMask = CreateCompatibleBitmap(GetDC(NULL), bmp.bmWidth, bmp.bmHeight);
+    ICONINFO ii = {0};
+    ii.fIcon    = TRUE;
+    ii.hbmColor = hbmp;
+    ii.hbmMask  = hbmMask;
+    HICON hIcon = CreateIconIndirect(&ii);
+    DeleteObject(hbmp); DeleteObject(hbmMask);
+    if (hIcon == NULL) {
+        PyErr_SetFromWindowsErr(GetLastError());
+        return NULL;
+    }
+	return (PyObject*)Handle_create(hIcon, IconHandle);
 } // }}}
 
 // Boilerplate  {{{
@@ -1190,7 +1170,6 @@ static PyMethodDef winutil_methods[] = {
 	M(load_library, METH_VARARGS),
 	M(load_icons, METH_VARARGS),
 	M(get_icon_for_file, METH_VARARGS),
-	M(get_bitmap_for_file, METH_VARARGS),
 	M(parse_cmdline, METH_VARARGS),
 	M(write_file, METH_VARARGS),
 	M(wait_named_pipe, METH_VARARGS),
