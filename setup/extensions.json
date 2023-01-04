@@ -173,7 +173,7 @@
         "only": "windows",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winutil.cpp",
-        "libraries": "shell32 wininet advapi32",
+        "libraries": "shell32 wininet advapi32 gdi32",
         "cflags": "/X"
     },
     {

@@ -149,7 +149,7 @@ image_from_hbitmap(void* hbitmap) {
 #ifdef Q_OS_WIN
     return QImage::fromHBITMAP((HBITMAP)hbitmap);
 #else
-    (void)hibitmap;
+    (void)hbitmap;
     return QImage();
 #endif
 }

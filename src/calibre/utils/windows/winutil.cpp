@@ -75,7 +75,7 @@ static PyMethodDef PyGUID_methods[] = {
 // }}}
 
 // Handle {{{
-typedef enum { NormalHandle, ModuleHandle, IconHandle } WinHandleType;
+typedef enum { NormalHandle, ModuleHandle, IconHandle, BitmapHandle } WinHandleType;
 
 typedef struct {
     PyObject_HEAD
@@ -94,6 +94,8 @@ Handle_close_(Handle *self) {
 				FreeLibrary((HMODULE)self->handle); break;
 			case IconHandle:
 				DestroyIcon((HICON)self->handle); break;
+            case BitmapHandle:
+                DeleteObject((HBITMAP)self->handle); break;
 		}
 		self->handle = NULL;
 	}
@@ -132,6 +134,8 @@ Handle_repr(Handle * self) {
 			name = "HMODULE"; break;
 		case IconHandle:
 			name = "HICON"; break;
+        case BitmapHandle:
+            name = "HBITMAP"; break;
 	}
 	return PyUnicode_FromFormat("<Win32 handle of type %s at: %p %V>", name, self->handle, self->associated_name, "");
 }
@@ -162,6 +166,7 @@ Handle_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 		case NormalHandle:
 		case IconHandle:
 		case ModuleHandle:
+        case BitmapHandle:
 			break;
 		default:
 			PyErr_Format(PyExc_TypeError, "unknown handle type: %d", type);
@@ -978,7 +983,7 @@ write_file(PyObject *self, PyObject *args) {
     DWORD written = 0;
     BOOL ok;
     Py_BEGIN_ALLOW_THREADS
-    ok = WriteFile(handle, data + offset, size - offset, &written, NULL);
+    ok = WriteFile(handle, data + offset, (DWORD)(size - offset), &written, NULL);
     Py_END_ALLOW_THREADS
     if (!ok) return set_error_from_handle(args);
     return PyLong_FromUnsignedLong(written);
@@ -1134,6 +1139,34 @@ get_icon_for_file(PyObject *self, PyObject *args) {
 	return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
 } // }}}
 
+
+static PyObject*
+get_bitmap_for_file(PyObject *self, PyObject *args) {
+	wchar_raii path;
+    long width = 256, height = 256;
+	if (!PyArg_ParseTuple(args, "O&|ll", py_to_wchar_no_none, &path, &width, &height)) return NULL;
+	scoped_com_initializer com;
+	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+    IShellItemImageFactory *pImageFactory;
+    HRESULT hr;
+    Py_BEGIN_ALLOW_THREADS
+    hr = SHCreateItemFromParsingName(path.ptr(), NULL, IID_PPV_ARGS(&pImageFactory));
+    Py_END_ALLOW_THREADS
+    if (!SUCCEEDED(hr)) {
+        return error_from_hresult(hr, "Failed to create Shell Item from path");
+    }
+    SIZE size = { width, height };
+    HBITMAP hbmp;
+    Py_BEGIN_ALLOW_THREADS
+    hr = pImageFactory->GetImage(size, SIIGBF_BIGGERSIZEOK, &hbmp);
+    pImageFactory->Release();
+    Py_END_ALLOW_THREADS
+    if (!SUCCEEDED(hr)) {
+        return error_from_hresult(hr, "Failed to get image from shell item");
+    }
+	return (PyObject*)Handle_create(hbmp, BitmapHandle);
+}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
@@ -1156,6 +1189,7 @@ static PyMethodDef winutil_methods[] = {
 	M(load_library, METH_VARARGS),
 	M(load_icons, METH_VARARGS),
 	M(get_icon_for_file, METH_VARARGS),
+	M(get_bitmap_for_file, METH_VARARGS),
 	M(parse_cmdline, METH_VARARGS),
 	M(write_file, METH_VARARGS),
 	M(wait_named_pipe, METH_VARARGS),
@@ -1463,6 +1497,7 @@ exec_module(PyObject *m) {
     A(NormalHandle);
     A(ModuleHandle);
     A(IconHandle);
+    A(BitmapHandle);
 
 	A(KF_FLAG_DEFAULT);
 	A(KF_FLAG_FORCE_APP_DATA_REDIRECTION);
