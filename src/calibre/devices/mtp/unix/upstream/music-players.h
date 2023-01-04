@@ -662,7 +662,7 @@
 
   /*
    * SanDisk
-   * several devices (c150 for sure) are definitely dual-mode and must
+   * several devices (c150 for sure) are definately dual-mode and must
    * have the USB mass storage driver that hooks them unloaded first.
    * They all have problematic dual-mode making the device unload effect
    * uncertain on these devices.
@@ -1558,9 +1558,11 @@
   { "LG Electronics Inc.", 0x1004, "Android phone (ID2)", 0x61f9,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1007/ */
-  { "LG Electronics Inc.", 0x1004, "LG VS980", 0x621c,
+  /* https://sourceforge.net/p/libmtp/bugs/1924/ */
+  { "LG Electronics Inc.", 0x1004, "G2 (VS980)", 0x621c,
       DEVICE_FLAGS_ANDROID_BUGS },
-  { "LG Electronics Inc.", 0x1004, "LG2 Optimus", 0x6225,
+  /* https://sourceforge.net/p/libmtp/bugs/1924/ */
+  { "LG Electronics Inc.", 0x1004, "G2", 0x6225,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1386/ */
   { "LG Electronics Inc.", 0x1004, "LG VS950", 0x622a,
@@ -1711,6 +1713,9 @@
       DEVICE_FLAGS_SONY_NWZ_BUGS },
   /* hartmut001@users.sourceforge.net */
   { "Sony", 0x054c, "NW-A45 Walkman", 0x0c71,
+      DEVICE_FLAGS_SONY_NWZ_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/130 */
+  { "Sony", 0x054c, "NW-A105", 0x0d00,
       DEVICE_FLAGS_SONY_NWZ_BUGS },
   /* https://github.com/libmtp/libmtp/issues/81 */
   { "Sony", 0x054c, "NW-ZX500", 0x0d01,
@@ -2504,7 +2509,7 @@
   /*
    * Motorola Xoom (Wingray) variants
    *
-   * These devices seem to use these product IDs simultaneously
+   * These devices seem to use these product IDs simulatenously
    * https://code.google.com/p/android-source-browsing/source/browse/init.stingray.usb.rc?repo=device--moto--wingray
    *
    * 0x70a3 - Factory test - reported as early MTP ID
@@ -2691,14 +2696,17 @@
       DEVICE_FLAG_SWITCH_MODE_BLACKBERRY | DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
 
   /* https://sourceforge.net/p/libmtp/bugs/1551/ */
-  { "RIM", 0x0fca, "BlackBerry Priv", 0x8031, DEVICE_FLAG_UNLOAD_DRIVER |
+  /* https://sourceforge.net/p/libmtp/bugs/1925/ */
+  { "BlackBerry", 0x0fca, "Priv", 0x8031, DEVICE_FLAG_UNLOAD_DRIVER |
       DEVICE_FLAG_SWITCH_MODE_BLACKBERRY | DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
 
   /* https://sourceforge.net/p/libmtp/bugs/1658/ */
-  { "RIM", 0x0fca, "BlackBerry Dtek 60", 0x8041, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/bugs/1925/ */
+  { "BlackBerry", 0x0fca, "DTEK60", 0x8041, DEVICE_FLAGS_ANDROID_BUGS },
 
   /* https://sourceforge.net/p/libmtp/feature-requests/264/ */
-  { "RIM", 0x0fca, "BlackBerry Keyone", 0x8042, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://sourceforge.net/p/libmtp/bugs/1925/ */
+  { "BlackBerry", 0x0fca, "KEYone", 0x8042, DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * Nextar
@@ -3153,6 +3161,12 @@
   /* https://github.com/libmtp/libmtp/issues/74 */
   { "Lenovo", 0x17ef, "TB-X606F (Lenovo Tab M10 FHD Plus)", 0x7c46,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/127 */
+  { "Lenovo", 0x17ef, "Lenovo Tab P11", 0x7c6f,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/116 */
+  { "Lenovo", 0x17ef, "TB-X306F (3rd id)", 0x7c97,
+      DEVICE_FLAGS_ANDROID_BUGS },
   /*https://github.com/libmtp/libmtp/issues/111  */
   { "Lenovo", 0x17ef, "TAB M7 Gen 3", 0x7cb3,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3311,7 +3325,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
+   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -3406,7 +3420,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
+   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -3616,6 +3630,9 @@
   /* https://sourceforge.net/p/libmtp/bugs/1900/ */
   { "Onyx", 0x2207, "Boox Nova Pro", 0x0015,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/125 */
+  { "iBasso", 0x2207, "DX170 DAP", 0x0017,
+      DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/82 */
   { "Supernote", 0x2207, "A5X", 0x0031,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3822,13 +3839,13 @@
   { "Bravis", 0x0e8d, "A401 Neo", 0x0c03,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1422/ */
+  /* https://sourceforge.net/p/libmtp/bugs/1467/ */
+  /* https://sourceforge.net/p/libmtp/bugs/1922/ */
   { "MediaTek Inc", 0x0e8d, "MT65xx", 0x2008,
       DEVICE_FLAGS_ANDROID_BUGS },
-  /* https://sourceforge.net/p/libmtp/bugs/1467/ */
-  { "elephone", 0x0e8d, "p6000", 0x2008,
-      DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/feature-requests/234/ */
-  { "DOODGE", 0x0e8d, "X6pro", 0x200a,
+  /* https://sourceforge.net/p/libmtp/bugs/1923/ */
+  { "MediaTek Inc", 0x0e8d, "MT67xx", 0x200a,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/support-requests/289/ */
   { "Jinga", 0x0e8d, "PassPluss", 0x2012, DEVICE_FLAGS_ANDROID_BUGS },
@@ -3848,7 +3865,7 @@
       DEVICE_FLAGS_ANDROID_BUGS },
 
   /* In update 4 the order of devices was changed for
-     better OS X / Windows support and another device-id
+     better OS X / Windows suport and another device-id
      got assigned for the MTP */
   { "Jolla", 0x2931, "Sailfish (ID2)", 0x0a05,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3906,6 +3923,7 @@
   { "Garmin", 0x091e, "Fenix 7 Sapphire Solar", 0x4f42, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/support-requests/299/ */
   { "Garmin", 0x091e, "EPIX 2", 0x4f67, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Forerunner 955 Solar", 0x4fb8, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1920/ */
   { "Garmin", 0x091e, "Tactix 7", 0x5027, DEVICE_FLAGS_ANDROID_BUGS },
 
@@ -3986,6 +4004,8 @@
   /* https://sourceforge.net/p/libmtp/bugs/1287/ */
   { "Gensis", 0x040d, "GT-7305 ", 0x885c, DEVICE_FLAGS_ANDROID_BUGS },
 
+  /* https://sourceforge.net/p/libmtp/support-requests/300/ */
+  { "realme", 0x22d9, "Phone", 0x202a, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/support-requests/182/ */
   { "Oppo", 0x22d9, "Find 5", 0x2764, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1207/ */
@@ -4125,6 +4145,7 @@
   { "GoPro" , 0x2672, "HERO8 Black", 0x0049, DEVICE_FLAG_NONE },
   { "GoPro" , 0x2672, "HERO9 Black", 0x004d, DEVICE_FLAG_NONE },
   { "GoPro" , 0x2672, "HERO10 Black", 0x0056, DEVICE_FLAG_NONE },
+  { "GoPro" , 0x2672, "HERO11 Black", 0x0059, DEVICE_FLAG_NONE },
 #endif
 
   /* These Ricoh Theta cameras run Android but seem to work
@@ -4258,6 +4279,15 @@
 
   /* https://sourceforge.net/p/libmtp/bugs/1911/ */
   { "Oculus", 0x2833, "Quest", 0x0183, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://sourceforge.net/p/libmtp/bugs/1921/ */
+  { "Tolino", 0x4173, "Tolino Vision 6", 0x8000, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/libmtp/libmtp/issues/122 */
+  { "FLIR", 0x09cb, "C5", 0x100b, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/libmtp/libmtp/issues/135 */
+  { "Honor", 0x339b, "Any-NX1", 0x107d, DEVICE_FLAGS_ANDROID_BUGS },
 
   /* qemu 3.0.0 hw/usb/dev-mtp.c */
   { "QEMU", 0x46f4, "Virtual MTP", 0x0004, DEVICE_FLAG_NONE }
