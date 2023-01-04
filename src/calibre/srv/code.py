@@ -146,6 +146,16 @@ def custom_list_template():
     return ans
 
 
+def book_exists(x, ctx, rd):
+    try:
+        db = ctx.get_library(rd, x['library_id'])
+        if db is None:
+            raise Exception('')
+    except Exception:
+        return False
+    return bool(db.new_api.has_format(x['book_id'], x['format']))
+
+
 def basic_interface_data(ctx, rd):
     ans = {
         'username': rd.username,
@@ -169,7 +179,9 @@ def basic_interface_data(ctx, rd):
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
-        ans['recently_read_by_user'] = tuple(x for x in last_read_cache().get_recently_read(ans['username']) if x['library_id'] in ans['library_map'])
+        ans['recently_read_by_user'] = tuple(
+            x for x in last_read_cache().get_recently_read(ans['username'])
+            if x['library_id'] in ans['library_map'] and book_exists(x, ctx, rd))
     return ans
 
 
