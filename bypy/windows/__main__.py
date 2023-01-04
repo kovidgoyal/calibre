@@ -496,6 +496,7 @@ def build_launchers(env, incdir, debug=False):
                 '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:' + subsys,
                 '/LIBPATH:%s/libs' % env.python_base, '/RELEASE',
                 '/MANIFEST:EMBED', '/MANIFESTINPUT:' + mf,
+                '/STACK:2097152',  # Set stack size to 2MB which is what python expects. Default on windows is 1MB
                 'user32.lib', 'kernel32.lib',
                 '/OUT:' + exe] + u32 + dlflags + [embed_resources(env, exe), dest, lib]
             run(*cmd)
