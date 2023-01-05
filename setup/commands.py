@@ -20,7 +20,7 @@ __all__ = [
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
     'linux', 'linux64', 'linuxarm64', 'win', 'win64', 'osx', 'build_dep',
-    'export_packages', 'hyphenation', 'liberation_fonts', 'csslint'
+    'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint'
 ]
 
 from setup.installers import Linux, Win, OSX, Linux64, LinuxArm64, Win64, ExtDev, BuildDep, ExportPackages
@@ -39,7 +39,7 @@ iso639 = ISO639()
 iso3166 = ISO3166()
 
 from setup.csslint import CSSLint
-csslint = CSSLint()
+stylelint = CSSLint()
 
 from setup.build import Build
 build = Build()

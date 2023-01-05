@@ -9,12 +9,9 @@ from setup import Command
 
 
 class CSSLint(Command):
-    # We can't use the released copy since it has not had a release in years and
-    # there are several critical bug fixes we need
-
-    description = 'Update the bundled copy of csslint'
-    NAME = 'csslint.js'
-    DOWNLOAD_URL = 'https://github.com/CSSLint/csslint.git'
+    description = 'Update the bundled copy of stylelint'
+    NAME = 'stylelint-bundle.min.js'
+    DOWNLOAD_URL = 'https://github.com/openstyles/stylelint-bundle.git'
 
     @property
     def vendored_file(self):
@@ -25,8 +22,9 @@ class CSSLint(Command):
 
         with self.temp_dir() as dl_src:
             subprocess.check_call(['git', 'clone', '--depth=1', self.DOWNLOAD_URL], cwd=dl_src)
-            src = self.j(dl_src, 'csslint')
+            src = self.j(dl_src, 'stylelint-bundle')
             subprocess.check_call(['npm', 'install'], cwd=src)
+            subprocess.check_call(['npm', 'run', 'build'], cwd=src)
             shutil.copyfile(self.j(src, 'dist', self.NAME), self.vendored_file)
 
     def clean(self):
