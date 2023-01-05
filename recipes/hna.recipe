@@ -7,6 +7,7 @@ Fetch Hessisch Niedersachsische Allgemeine.
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class hnaDe(BasicNewsRecipe):
 
     title = 'HNA'
