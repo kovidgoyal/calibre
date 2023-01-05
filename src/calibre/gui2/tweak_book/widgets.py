@@ -986,7 +986,12 @@ class InsertSemantics(Dialog):
             return title
 
         for item_type, (name, frag) in self.changes.items():
-            set_guide_item(container, self.epubtype_guide_map[item_type], title_for_type(item_type), name, frag=frag)
+            guide_type = self.epubtype_guide_map.get(item_type)
+            if not guide_type:
+                if container.opf_version_parsed.major < 3:
+                    raise KeyError(_('Cannot set {} type semantics in EPUB 2 or AZW3 books').format(name))
+                continue
+            set_guide_item(container, guide_type, title_for_type(item_type), name, frag=frag)
 
         if container.opf_version_parsed.major > 2:
             final = self.original_nav_map.copy()
