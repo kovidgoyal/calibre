@@ -10,7 +10,7 @@ from book_list.globals import get_db
 from book_list.library_data import (
     all_libraries, last_virtual_library_for, sync_library_books
 )
-from book_list.router import open_book, open_book_url, update_window_title
+from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
@@ -51,8 +51,8 @@ def show_cover(blob, name, mt, book):
     img.src = window.URL.createObjectURL(blob)
 
 
-def read_book(library_id, book_id, fmt):
-    open_book(book_id, fmt, library_id)
+def read_book(library_id, book_id, fmt, extra_query):
+    open_book(book_id, fmt, library_id, extra_query=extra_query)
 
 
 def get_last_read_position(last_read_positions, prev_last_read):
@@ -129,13 +129,15 @@ def show_recent_for_user(container_id):
     container = document.getElementById(container_id)
     images = prepare_recent_container(container)
     for item in recently_read_by_user.items[:3]:
-        q = {'library_id': item.library_id}
+        q = {}
         if item.cfi:
             q.bookpos = item.cfi
-        url_to_read = open_book_url(item.book_id, item.format, q)
+        rb = read_book.bind(None, item.library_id, item.book_id, item.format, q)
         img = E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
-        images.appendChild(E.div(style='margin: 0 1em',
-            E.a(title=item.tooltip, href=url_to_read, img)))
+        images.appendChild(E.div(
+            style='margin: 0 1em',
+            E.a(title=item.tooltip, href='javascript:void(0)', img, onclick=rb)
+        ))
         img.onerror = def(err):
             failed = err.target
             failed.parentNode.parentNode.style.display = 'none'
@@ -160,7 +162,7 @@ def show_recent_stage2(books):
         img_id = ensure_id(img)
         images.appendChild(E.div(style='margin: 0 1em',
             E.a(img, href='javascript: void(0)', title=img.alt,
-                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2])
+                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2], None)
             ),
         ))
         if book.cover_name:
