@@ -44,6 +44,10 @@ class ReadAloud:
             style='border: solid 1px currentColor; border-radius: 5px;'
             'display: flex; flex-direction: column; margin: 1rem;'
         ))
+        container.appendChild(E.style(
+            f'#{self.bar_id}.speaking '+'{ opacity: 0.5 }\n\n',
+            f'#{self.bar_id}.speaking:hover '+'{ opacity: 1.0 }\n\n',
+        ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
         container.addEventListener('contextmenu', self.toggle, {'passive': False})
@@ -99,6 +103,10 @@ class ReadAloud:
             return
         self.container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
         bar_container = self.bar
+        if self.state is PLAYING:
+            bar_container.classList.add('speaking')
+        else:
+            bar_container.classList.remove('speaking')
         clear(bar_container)
         bar_container.style.maxWidth = 'min(40rem, 80vw)' if self.supports_css_min_max else '40rem'
         bar_container.style.backgroundColor = get_color("window-background")
