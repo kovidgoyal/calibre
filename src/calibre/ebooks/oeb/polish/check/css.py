@@ -22,14 +22,17 @@ from calibre.utils.webengine import secure_webengine, setup_profile
 class CSSParseError(BaseError):
     level = ERROR
     is_parsing_error = True
+    FIXABLE_CSS_ERROR = False
 
 
 class CSSError(BaseError):
     level = ERROR
+    FIXABLE_CSS_ERROR = False
 
 
 class CSSWarning(BaseError):
     level = WARN
+    FIXABLE_CSS_ERROR = False
 
 
 def as_int_or_none(x):
@@ -57,10 +60,15 @@ def message_to_error(message, name, line_offset, rule_metadata):
         line += line_offset
     ans = cls(title, name, line, col)
     ans.HELP = message.get('text') or ''
+    if ans.HELP:
+        ans.HELP += '. '
     ans.css_rule_id = rule_id
-    m = rule_metadata.get(rule_id)
-    if m and 'url' in m:
-        ans.HELP += '. ' + _('See <a href="{}">detailed description</a>.').format(m['url'])
+    m = rule_metadata.get(rule_id) or {}
+    if 'url' in m:
+        ans.HELP += _('See <a href="{}">detailed description</a>.').format(m['url']) + ' '
+    if m.get('fixable'):
+        ans.FIXABLE_CSS_ERROR = True
+        ans.HELP += _('This error will be automatically fixed if you click "Try to correct all fixable errors" below.')
     return ans
 
 
@@ -107,7 +115,7 @@ class Worker(QWebEnginePage):
         if new_title == 'ready':
             self.ready = True
             if self.pending is not None:
-                self.check_css(self.pending)
+                self.check_css(*self.pending)
                 self.pending = None
         elif new_title == 'checked':
             self.runJavaScript('window.get_css_results()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
@@ -119,17 +127,17 @@ class Worker(QWebEnginePage):
         except Exception:
             pass
 
-    def check_css(self, src):
+    def check_css(self, src, fix=False):
         self.working = True
         self.runJavaScript(
-            f'window.check_css({json.dumps(src)})', QWebEngineScript.ScriptWorldId.ApplicationWorld)
+            f'window.check_css({json.dumps(src)}, {"true" if fix else "false"})', QWebEngineScript.ScriptWorldId.ApplicationWorld)
 
-    def check_css_when_ready(self, src):
+    def check_css_when_ready(self, src, fix=False):
         if self.ready:
-            self.check_css(src)
+            self.check_css(src, fix)
         else:
             self.working = True
-            self.pending = src
+            self.pending = src, fix
 
     def check_done(self, results):
         self.working = False
@@ -148,7 +156,8 @@ class Pool:
         w.work_done.connect(self.work_done)
         self.workers.append(w)
 
-    def check_css(self, css_sources):
+    def check_css(self, css_sources, fix=False):
+        self.doing_fix = fix
         self.pending = list(enumerate(css_sources))
         self.results = list(repeat(None, len(css_sources)))
         self.working = True
@@ -166,7 +175,7 @@ class Pool:
                 if not w.working:
                     idx, src = self.pending.pop()
                     w.result_idx = idx
-                    w.check_css_when_ready(src)
+                    w.check_css_when_ready(src, self.doing_fix)
                     break
             else:
                 break
@@ -191,14 +200,14 @@ class Pool:
 pool = Pool()
 shutdown = pool.shutdown
 atexit.register(shutdown)
-Job = namedtuple('Job', 'name css line_offset')
+Job = namedtuple('Job', 'name css line_offset fix_data')
 
 
-def create_job(name, css, line_offset=0, is_declaration=False):
+def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):
     if is_declaration:
         css = 'div{\n' + css + '\n}'
         line_offset -= 1
-    return Job(name, css, line_offset)
+    return Job(name, css, line_offset, fix_data)
 
 
 def check_css(jobs):

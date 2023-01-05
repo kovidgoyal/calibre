@@ -10,9 +10,10 @@
 
 window.stylelint_results = [];
 
-window.check_css =  function(src) {
+window.check_css =  function(src, fix) {
     stylelint.lint({
         code: src,
+        fix: fix,
         config: {
             rules: {
                 'annotation-no-unknown': true,
