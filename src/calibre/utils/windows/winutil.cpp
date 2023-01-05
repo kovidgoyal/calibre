@@ -1122,7 +1122,7 @@ get_icon_for_file(PyObject *self, PyObject *args) {
     SIZE size = { width, height };
     HBITMAP hbmp;
     Py_BEGIN_ALLOW_THREADS
-    hr = pImageFactory->GetImage(size, SIIGBF_BIGGERSIZEOK | SIIGBF_SCALEUP, &hbmp);
+    hr = pImageFactory->GetImage(size, SIIGBF_BIGGERSIZEOK | SIIGBF_SCALEUP | SIIGBF_ICONONLY, &hbmp);
     pImageFactory->Release();
     Py_END_ALLOW_THREADS
     if (!SUCCEEDED(hr)) {
