@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 6.x.0 2022-xx-xx
+# {{{ 6.x.0 2023-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,68 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 6.11.0 2023-01-06
+
+:: new features
+
+- Edit book: Check book: Allow automatic fixing of various simple CSS errors
+
+- E-book viewer: When Read aloud is speaking, make the control bar translucent so that words under the bar are visible
+
+- Edit book: Switch to a new library (stylelint) for find problems in CSS as the old library was no longer maintained.
+
+- Edit book: File browser: Allow using keyboard shortcuts to re-order the spine
+
+- [1982532] calibredb list: Allow specifying multiple fields for --sort-by
+
+- [2000037] Check library: Allow opening the book folder easily
+
+:: bug fixes
+
+- Fix windows not being moved onto the current monitor when they were previously visible on a removed monitor that was to the left of the current monitor
+
+- [1999995] Book list: Fix a regression in the previous release that broke drag and drop of multiple books
+
+- [2000877] Fix detection of Tolino Vision 6 on macOS/Linux
+
+- [2001880] Content server: Fix auto full screen not working when continuing to read books with user account enabled
+
+- Edit book: Set semantics: Fix error when setting the "Notes" semantic
+
+- [1999956] HTMLZ output: Fix images referred to in CSS stylesheets not being converted
+
+- [2000881] Book details panel: Fix HTML comment tags in the comments breaking display of book details
+
+- Content server home page: When showing recently read books from across devices hide the entries for which loading the cover fails
+
+- Windows Text-to-speech: Dont fail to configure if one of the voices has no defined language
+
+- Fix a regression in calibre 5 that broke using a file for the --extra-css option of ebook-convert
+
+- Content server FTS: Fix page header bar not visible
+
+- Content server: Fix identifiers from third party metadata download plugins not becoming clickable links on the book details page
+
+- Edit book: Warn when saving will overwrite a read-only file
+
+- Fix restoring geometry of maximized/fullscreen dialogs forcing them visible
+
+- [1999936] Fix a regression in the previous release that caused spurious error message when doing some out of band searches
+
+- Fix a regression in the previous release that broke choosing new programs for the Open with function
+
+:: improved recipes
+- PC World
+- HNA
+- Caravan Magazine
+- Harvard Business Review
+- Various Israeli news sources
+
+:: new recipes
+- NHK News - by Richard A. Steps
+- Globes in English by barakplasma
+}}}
 
 {{{ 6.10.0 2022-12-16
 
