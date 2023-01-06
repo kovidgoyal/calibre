@@ -667,6 +667,30 @@ class BuiltinSwitch(BuiltinFormatterFunction):
             i += 2
 
 
+class BuiltinSwitchIf(BuiltinFormatterFunction):
+    name = 'switch_if'
+    arg_count = -1
+    category = 'Iterating over values'
+    __doc__ = doc = _('switch_if([test_expression, value_expression,]+ else_expression) -- '
+        'for each "test_expression, value_expression" pair, checks if test_expression '
+        'is True (non-empty) and if so returns the result of value_expression. '
+        'If no test_expression is True then the result of else_expression is returned. '
+        'You can have as many "test_expression, value_expression" pairs as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if (len(args) % 2) != 1:
+            raise ValueError(_('switch_if requires an odd number of arguments'))
+        # We shouldn't get here because the function is inlined. However, someone
+        # might call it directly.
+        i = 0
+        while i < len(args):
+            if i + 1 >= len(args):
+                return args[i]
+            if args[i]:
+                return args[i+1]
+            i += 2
+
+
 class BuiltinStrcatMax(BuiltinFormatterFunction):
     name = 'strcat_max'
     arg_count = -1
@@ -2384,7 +2408,7 @@ _formatter_builtins = [
     BuiltinSetGlobals(), BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
-    BuiltinSwapAroundComma(), BuiltinSwitch(),
+    BuiltinSwapAroundComma(), BuiltinSwitch(), BuiltinSwitchIf(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(), BuiltinToday(),
     BuiltinToHex(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
     BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
