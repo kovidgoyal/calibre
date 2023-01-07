@@ -320,6 +320,7 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
      */
     CComPtr<IEnumPortableDeviceObjectIDs> children;
     HRESULT hr = S_OK, hr2 = S_OK;
+    *enum_failed = false;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->EnumObjects(0, parent_id, NULL, &children);
@@ -338,7 +339,6 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
             return false;
         }
     }
-    *enum_failed = false;
 
     hr = S_OK;
 
@@ -464,7 +464,11 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
 
     bool enum_failed = false;
     if (!find_objects_in(content, object_ids, parent_id, &enum_failed)) {
-        return false;
+        // There are quite a few devices where EnumObjects fails for some folders, so unless it is the root folder ignore the failure.
+        if (!enum_failed || !level) return false;
+        PyErr_Print();
+        fwprintf(stderr, L"Ignoring failure of EnumObjects() at level %u\n", level); fflush(stderr);
+        return true;
     }
 
     if (bulk_properties != NULL) {
