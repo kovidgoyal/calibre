@@ -4,7 +4,7 @@ __copyright__ = '2009 Neil Grogan'
 # Irish Independent Recipe
 #
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IrishIndependent(BasicNewsRecipe):
@@ -17,13 +17,16 @@ class IrishIndependent(BasicNewsRecipe):
     remove_tags_before = dict(id='article')
     remove_tags_after = [dict(name='div', attrs={'class': 'toolsBottom'})]
     no_stylesheets = True
+    keep_only_tags = [
+        classes('n-content1 n-content2 n-content3'),
+    ]
+    remove_tags_after = classes('quick-subscribe')
     remove_tags = [
-        dict(name='div', attrs={'class': 'toolsBottom'}),
-        dict(name='div', attrs={'class': 'toolsTop'}),
-        dict(name='div', attrs={'class': 'boxRelated'}),
-        dict(name='div', attrs={'class': 'section first'}),
-        dict(name='div', attrs={'class': 'tabIt'}),
-        dict(name='div', attrs={'class': 'inner'})
+        classes('icon1 icon-close c-lightbox1-side c-socials1 social-embed-consent-wall n-split1-side c-footer1'),
+        dict(attrs={'data-ad-slot': True}),
+        dict(attrs={'data-lightbox': True}),
+        dict(name='form'),
+        dict(attrs={'data-urn': lambda x: x and ':video:' in x}),
     ]
 
     feeds = [
@@ -40,6 +43,7 @@ class IrishIndependent(BasicNewsRecipe):
         (u'Weather', u'http://www.independent.ie/weather/rss')
     ]
 
-# If text only articles are desired
-# def print_version(self, url):
-#    return '%s?service=Print' % url
+    def preprocess_html(self, soup):
+        for img in soup.findAll(attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup

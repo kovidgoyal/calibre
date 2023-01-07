@@ -36,7 +36,8 @@ class IrishTimes(BasicNewsRecipe):
         classes('lead-art-wrapper article-body-wrapper'),
     ]
     remove_tags = [
-        dict(name='button')
+        dict(name='button'),
+        classes('sm-promo-headline'),
     ]
     remove_attributes = ['width', 'height']
 
