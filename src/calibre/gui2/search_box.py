@@ -142,6 +142,7 @@ class SearchBox2(QComboBox):  # {{{
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
+        self.parse_error_action = None
 
     def add_action(self, icon, position=QLineEdit.ActionPosition.TrailingPosition):
         if not isinstance(icon, QIcon):
@@ -180,6 +181,7 @@ class SearchBox2(QComboBox):  # {{{
         return self.currentText()
 
     def clear(self, emit_search=True):
+        self.show_parse_error_action(False)
         self.normalize_state()
         self.setEditText('')
         if emit_search:
@@ -191,9 +193,17 @@ class SearchBox2(QComboBox):  # {{{
         self.clear()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def show_parse_error_action(self, to_show, tooltip=''):
+        try:
+            self.parse_error_action.setVisible(to_show)
+            self.parse_error_action.setToolTip(tooltip)
+        except Exception:
+            pass
+
     def search_done(self, ok):
         if isinstance(ok, string_or_bytes):
             self.setToolTip(ok)
+            self.show_parse_error_action(True, tooltip=ok)
             ok = False
         if not str(self.currentText()).strip():
             self.clear(emit_search=False)
@@ -223,6 +233,7 @@ class SearchBox2(QComboBox):  # {{{
 
     # Comes from the combobox itself
     def keyPressEvent(self, event):
+        self.show_parse_error_action(False)
         k = event.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             return self.do_search()

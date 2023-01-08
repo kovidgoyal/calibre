@@ -56,36 +56,36 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
     else:
         internal_match_ok = False
     for t in value:
-        try:  # ignore regexp exceptions, required because search-ahead tries before typing is finished
-            if not case_sensitive:
-                t = icu_lower(t)
-            if (matchkind == EQUALS_MATCH):
-                if internal_match_ok:
-                    if query == t:
-                        return True
-                    return sq in [c.strip() for c in t.split('.') if c.strip()]
-                elif query[0] == '.':
-                    if t.startswith(query[1:]):
-                        ql = len(query) - 1
-                        if (len(t) == ql) or (t[ql:ql+1] == '.'):
-                            return True
-                elif query == t:
+        if not case_sensitive:
+            t = icu_lower(t)
+        if matchkind == EQUALS_MATCH:
+            if internal_match_ok:
+                if query == t:
                     return True
-            elif matchkind == REGEXP_MATCH:
-                flags = regex.UNICODE | regex.VERSION1 | regex.FULLCASE | (0 if case_sensitive else regex.IGNORECASE)
+                return sq in (c.strip() for c in t.split('.') if c.strip())
+            elif query[0] == '.':
+                if t.startswith(query[1:]):
+                    ql = len(query) - 1
+                    if len(t) == ql or t[ql:ql+1] == '.':
+                        return True
+            elif query == t:
+                return True
+        elif matchkind == REGEXP_MATCH:
+            flags = regex.UNICODE | regex.VERSION1 | regex.FULLCASE | (0 if case_sensitive else regex.IGNORECASE)
+            try:
                 if regex.search(query, t, flags) is not None:
                     return True
-            elif matchkind == ACCENT_MATCH:
-                if primary_contains(query, t):
+            except regex.error as e:
+                raise ParseException(_('Invalid regular expression: {}').format(str(e)))
+        elif matchkind == ACCENT_MATCH:
+            if primary_contains(query, t):
+                return True
+        elif matchkind == CONTAINS_MATCH:
+            if not case_sensitive and use_primary_find_in_search:
+                if primary_no_punc_contains(query, t):
                     return True
-            elif matchkind == CONTAINS_MATCH:
-                if not case_sensitive and use_primary_find_in_search:
-                    if primary_no_punc_contains(query, t):
-                        return True
-                elif query in t:
-                    return True
-        except regex.error:
-            pass
+            elif query in t:
+                return True
     return False
 # }}}
 
@@ -298,7 +298,8 @@ class NumericSearch:  # {{{
             try:
                 v = cast(val)
             except Exception:
-                v = None
+                raise ParseException(
+                        _('Non-numeric value in column {0}: {1}').format(location, val))
             if v:
                 v = adjust(v)
             if relop(v, q):

@@ -242,6 +242,11 @@ class SearchBar(QFrame):  # {{{
                 _('Advanced search'), default_keys=("Shift+Ctrl+F",),
                 action=ac)
 
+        # This error icon will be placed after the clear button icon
+        parent.search.parse_error_action = ac = parent.search.add_action('dialog_error.png', QLineEdit.ActionPosition.TrailingPosition)
+        parent.addAction(ac)
+        ac.setVisible(False)
+
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
         self.search_button.setIcon(QIcon.ic('search.png'))
