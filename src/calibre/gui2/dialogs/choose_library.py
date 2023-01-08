@@ -5,17 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, errno
-from threading import Thread, Event
+import errno
+import os
+from qt.core import QDialog, Qt, QTimer, pyqtSignal
+from threading import Event, Thread
 
-from qt.core import QDialog, QTimer, Qt, pyqtSignal
-
+from calibre import force_unicode, isbytestring, patheq
+from calibre.constants import filesystem_encoding, get_portable_base, iswindows
+from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2.dialogs.progress import ProgressDialog as PD
-from calibre.gui2 import error_dialog, choose_dir
-from calibre.constants import (filesystem_encoding, iswindows,
-        get_portable_base)
-from calibre import isbytestring, patheq, force_unicode
+from calibre.utils.localization import localize_user_manual_link
 
 
 class ProgressDialog(PD):
@@ -43,8 +43,11 @@ class ProgressDialog(PD):
 class ChooseLibrary(QDialog, Ui_Dialog):
 
     def __init__(self, db, callback, parent):
-        QDialog.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
+        self.nas_warning.setText(self.nas_warning.text().format(localize_user_manual_link(
+            'https://manual.calibre-ebook.com/faq.html#i-am-getting-errors-with-my-calibre-library-on-a-networked-drive-nas')))
+        self.nas_warning.setOpenExternalLinks(True)
         self.db = db
         self.new_db = None
         self.callback = callback
