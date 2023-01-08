@@ -38,6 +38,16 @@
      </property>
     </widget>
    </item>
+      <item row="3" column="0" colspan="4">
+    <widget class="QLabel" name="network_warning">
+     <property name="text">
+      <string>Putting your library on a networked drive?</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="4">
     <widget class="QRadioButton" name="existing_library">
      <property name="text">
