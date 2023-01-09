@@ -64,9 +64,11 @@ class SimpleUserData(QTextBlockUserData):
 
 class SyntaxHighlighter:
 
-    create_formats_func = lambda highlighter: {}
+    def create_formats_func(highlighter):
+        return {}
     spell_attributes = ()
-    tag_ok_for_spell = lambda x: False
+    def tag_ok_for_spell(x):
+        return False
     user_data_factory = SimpleUserData
 
     def __init__(self):

@@ -811,7 +811,8 @@ class HTMLConverter:
             for x, y in [('\xad', ''), ('\xa0', ' '), ('\ufb00', 'ff'), ('\ufb01', 'fi'), ('\ufb02', 'fl'), ('\ufb03', 'ffi'), ('\ufb04', 'ffl')]:
                 src = src.replace(x, y)
 
-            valigner = lambda x: x
+            def valigner(x):
+                return x
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):

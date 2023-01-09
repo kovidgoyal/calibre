@@ -186,7 +186,8 @@ class FilesystemTest(BaseTest):
 
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule
-        strip = lambda files: frozenset({os.path.basename(x) for x in files})
+        def strip(files):
+            return frozenset({os.path.basename(x) for x in files})
 
         def q(one, two):
             one, two = {strip(a) for a in one}, {strip(b) for b in two}

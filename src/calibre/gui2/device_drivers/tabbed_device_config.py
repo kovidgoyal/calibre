@@ -274,11 +274,15 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
-                    row_func = lambda x, y: ((x//2) * 2) + y
-                    col_func = lambda x: x%2
+                    def row_func(x, y):
+                        return (x // 2 * 2 + y)
+                    def col_func(x):
+                        return (x % 2)
                 else:
-                    row_func = lambda x, y: x*2 + y
-                    col_func = lambda x: 0
+                    def row_func(x, y):
+                        return (x * 2 + y)
+                    def col_func(x):
+                        return 0
 
                 for i, m in enumerate(extra_customization_message):
                     label_text, tt = parse_msg(m)

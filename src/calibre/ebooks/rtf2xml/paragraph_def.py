@@ -116,8 +116,6 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'sect-note_'    : 'endnotes-in-section',
         # list=> ls
         'list-text_'    : 'list-text',
-        # this line must be wrong because it duplicates an earlier one
-        'list-text_'    : 'list-text',
         'list______'    : 'list',
         'list-lev-d'    : 'list-level-definition',
         'list-cardi'    : 'list-cardinal-numbering',

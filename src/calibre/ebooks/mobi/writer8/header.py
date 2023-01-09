@@ -14,9 +14,12 @@ from calibre.ebooks.mobi.utils import align_block
 from polyglot.builtins import iteritems, as_bytes
 
 NULL = 0xffffffff
-zeroes = lambda x: b'\0'*x
-nulls = lambda x: b'\xff'*x
-short = lambda x: pack(b'>H', x)
+def zeroes(x):
+    return (b'\x00' * x)
+def nulls(x):
+    return (b'\xff' * x)
+def short(x):
+    return pack(b'>H', x)
 
 
 class Header(OrderedDict):

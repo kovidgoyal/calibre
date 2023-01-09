@@ -567,7 +567,8 @@ class CustomRecipes(Dialog):
 
         l.addWidget(self.bb)
         self.list_actions = []
-        la = lambda *args:self.list_actions.append(args)
+        def la(*args):
+            return self.list_actions.append(args)
         la('plus.png', _('&New recipe'), _('Create a new recipe from scratch'), self.add_recipe)
         la('news.png', _('Customize &builtin recipe'), _('Customize a builtin news download source'), self.customize_recipe)
         la('document_open.png', _('Load recipe from &file'), _('Load a recipe from a file'), self.load_recipe)

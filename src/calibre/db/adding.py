@@ -41,18 +41,23 @@ def compile_rule(rule):
     if 'with' in mt:
         q = icu_lower(rule['query'])
         if 'startswith' in mt:
-            func = lambda filename: icu_lower(filename).startswith(q)
+            def func(filename):
+                return icu_lower(filename).startswith(q)
         else:
-            func = lambda filename: icu_lower(filename).endswith(q)
+            def func(filename):
+                return icu_lower(filename).endswith(q)
     elif 'glob' in mt:
         q = compile_glob(rule['query'])
-        func  = lambda filename: q.match(filename) is not None
+        def func(filename):
+            return (q.match(filename) is not None)
     else:
         q = re.compile(rule['query'])
-        func  = lambda filename: q.match(filename) is not None
+        def func(filename):
+            return (q.match(filename) is not None)
     ans = func
     if mt.startswith('not_'):
-        ans = lambda filename: not func(filename)
+        def ans(filename):
+            return (not func(filename))
     return ans, rule['action'] == 'add'
 
 

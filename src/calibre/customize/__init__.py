@@ -552,7 +552,7 @@ class CatalogPlugin(Plugin):  # {{{
         from calibre.customize.ui import config
         from calibre.ptempfile import PersistentTemporaryDirectory
 
-        if not type(self) in builtin_plugins and self.name not in config['disabled_plugins']:
+        if type(self) not in builtin_plugins and self.name not in config['disabled_plugins']:
             files_to_copy = [f"{self.name.lower()}.{ext}" for ext in ["ui","py"]]
             resources = zipfile.ZipFile(self.plugin_path,'r')
 

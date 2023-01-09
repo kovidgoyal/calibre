@@ -38,7 +38,8 @@ def short_be(buf):
 
 
 def get_metadata(f):
-    read = lambda at, amount: _read(f, at, amount)
+    def read(at, amount):
+        return _read(f, at, amount)
     f.seek(0)
     buf = f.read(12)
     if buf[4:] == b'ftypLRX2':

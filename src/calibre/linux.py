@@ -1136,7 +1136,8 @@ X-GNOME-UsesNotifications=true
 
 
 def get_appdata():
-    _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
+    def _(x):
+        return x  # Make sure the text below is not translated, but is marked for translation
     return {
         'calibre-gui': {
             'name':'calibre',

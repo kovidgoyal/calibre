@@ -172,7 +172,8 @@ class BookmarkManager(QWidget):
     def set_bookmarks(self, bookmarks=()):
         csb = self.current_sort_by
         if csb in ('name', 'title'):
-            sk = lambda x: primary_sort_key(x['title'])
+            def sk(x):
+                return primary_sort_key(x['title'])
         elif csb == 'timestamp':
             sk = itemgetter('timestamp')
         else:

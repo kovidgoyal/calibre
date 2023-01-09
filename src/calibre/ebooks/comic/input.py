@@ -63,9 +63,11 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     # levels, in which case simply use the filenames.
     basename = os.path.basename if len(sep_counts) > 1 else lambda x: x
     if sort_on_mtime:
-        key = lambda x:os.stat(x).st_mtime
+        def key(x):
+            return os.stat(x).st_mtime
     else:
-        key = lambda x:numeric_sort_key(basename(x))
+        def key(x):
+            return numeric_sort_key(basename(x))
 
     pages.sort(key=key)
     if verbose:

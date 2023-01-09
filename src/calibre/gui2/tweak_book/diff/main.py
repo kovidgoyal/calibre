@@ -423,7 +423,8 @@ class Diff(Dialog):
             self.busy.setVisible(True)
             return True
 
-        kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
+        def kwargs(name):
+            return {'context': self.context, 'beautify': self.beautify, 'syntax': syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
             for name, other_name in sorted(iteritems(changed_names), key=lambda x:numeric_sort_key(x[0])):

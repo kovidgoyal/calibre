@@ -19,7 +19,8 @@ NS_MAP = {
     'manifest': 'http://openoffice.org/2001/manifest',
 }
 
-XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
+def XPath(x):
+    return etree.XPath(x, namespaces=NS_MAP)
 BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
 
 

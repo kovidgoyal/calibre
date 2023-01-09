@@ -188,7 +188,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # we need to do it before we call initialize_dynamic
         if apply_default_prefs and default_prefs is not None:
             if progress_callback is None:
-                progress_callback = lambda x, y: True
+                def progress_callback(x, y):
+                    return True
             dbprefs = DBPrefs(self)
             progress_callback(None, len(default_prefs))
             for i, key in enumerate(default_prefs):
@@ -1972,32 +1973,39 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     icon_map[category] = icon
 
             datatype = cat['datatype']
-            avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
+            def avgr(x):
+                return (0.0 if x.rc == 0 else x.rt / x.rc)
             # Duplicate the build of items below to avoid using a lambda func
             # in the main Tag loop. Saves a few %
             if datatype == 'rating':
-                formatter = (lambda x:'\u2605'*int(x//2))
-                avgr = lambda x: x.n
+                def formatter(x):
+                    return ('★' * int(x // 2))
+                def avgr(x):
+                    return x.n
                 # eliminate the zero ratings line as well as count == 0
                 items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]
             elif category == 'authors':
                 # Clean up the authors strings to human-readable form
-                formatter = (lambda x: x.replace('|', ','))
+                def formatter(x):
+                    return x.replace('|', ',')
                 items = [v for v in tcategories[category].values() if v.c > 0]
             elif category == 'languages':
                 # Use a human readable language string
                 formatter = calibre_langcode_to_name
                 items = [v for v in tcategories[category].values() if v.c > 0]
             else:
-                formatter = (lambda x:str(x))
+                def formatter(x):
+                    return str(x)
                 items = [v for v in tcategories[category].values() if v.c > 0]
 
             # sort the list
             if sort == 'name':
-                kf = lambda x:sort_key(x.s)
+                def kf(x):
+                    return sort_key(x.s)
                 reverse=False
             elif sort == 'popularity':
-                kf = lambda x: x.c
+                def kf(x):
+                    return x.c
                 reverse=True
             else:
                 kf = avgr
@@ -3597,7 +3605,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def move_library_to(self, newloc, progress=None):
         if progress is None:
-            progress = lambda x:x
+            def progress(x):
+                return x
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs = set()

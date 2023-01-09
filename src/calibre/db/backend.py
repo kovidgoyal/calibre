@@ -1262,7 +1262,8 @@ class DB:
         import codecs
         from apsw import Shell
         if callback is None:
-            callback = lambda x: x
+            def callback(x):
+                return x
         uv = int(self.user_version)
 
         with TemporaryFile(suffix='.sql') as fname:
@@ -1587,7 +1588,8 @@ class DB:
     def compress_covers(self, path_map, jpeg_quality, progress_callback):
         cpath_map = {}
         if not progress_callback:
-            progress_callback = lambda book_id, old_sz, new_sz: None
+            def progress_callback(book_id, old_sz, new_sz):
+                return None
         for book_id, path in path_map.items():
             path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
             try:

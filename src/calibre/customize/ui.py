@@ -180,7 +180,8 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
                 print('Running file type plugin %s failed with traceback:'%plugin.name, file=oe)
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
-    x = lambda j: os.path.normpath(os.path.normcase(j))
+    def x(j):
+        return os.path.normpath(os.path.normcase(j))
     if occasion == 'postprocess' and x(nfp) != x(path_to_file):
         shutil.copyfile(nfp, path_to_file)
         nfp = path_to_file

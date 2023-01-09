@@ -810,7 +810,8 @@ def main(args, ext_dir, test_runner):
     build_dir = abspath(join(mkdtemp('frozen-'), APPNAME + '.app'))
     inc_dir = abspath(mkdtemp('include'))
     if args.skip_tests:
-        test_runner = lambda *a: None
+        def test_runner(*a):
+            return None
     Freeze(build_dir, ext_dir, inc_dir, test_runner, dont_strip=args.dont_strip, sign_installers=args.sign_installers, notarize=args.notarize)
 
 

@@ -127,7 +127,8 @@ def read_theme_from_folder(path):
             return int(x)
         except Exception:
             return -1
-    g = lambda x, defval='': metadata.get(x, defval)
+    def g(x, defval=''):
+        return metadata.get(x, defval)
     theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'), g('url', None))
 
     ans = Report(path, name_map, extra, missing, theme)

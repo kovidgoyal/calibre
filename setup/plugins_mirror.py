@@ -156,7 +156,8 @@ def load_plugins_index():
 
 def convert_node(fields, x, names={}, import_data=None):
     name = x.__class__.__name__
-    conv = lambda x:convert_node(fields, x, names=names, import_data=import_data)
+    def conv(x):
+        return convert_node(fields, x, names=names, import_data=import_data)
     if name == 'Str':
         return x.s.decode('utf-8') if isinstance(x.s, bytes) else x.s
     elif name == 'Num':

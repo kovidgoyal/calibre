@@ -363,9 +363,11 @@ def search_in_name(name, search_query, ctx_size=75):
 
     else:
         spans = []
-        miter = lambda: spans
+        def miter():
+            return spans
         if raw:
-            a = lambda s, l: spans.append((s, s + l))
+            def a(s, l):
+                return spans.append((s, s + l))
             primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
     for (start, end) in miter():

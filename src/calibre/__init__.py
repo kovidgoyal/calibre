@@ -77,7 +77,8 @@ def to_unicode(raw, encoding='utf-8', errors='strict'):
 
 def patheq(p1, p2):
     p = os.path
-    d = lambda x : p.normcase(p.normpath(p.realpath(p.normpath(x))))
+    def d(x):
+        return p.normcase(p.normpath(p.realpath(p.normpath(x))))
     if not p1 or not p2:
         return False
     return d(p1) == d(p2)

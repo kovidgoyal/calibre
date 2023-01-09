@@ -542,7 +542,8 @@ def metadata_to_xmp_packet(mi):
 
 
 def find_used_namespaces(elem):
-    getns = lambda x: (x.partition('}')[0][1:] if '}' in x else None)
+    def getns(x):
+        return (x.partition('}')[0][1:] if '}' in x else None)
     ans = {getns(x) for x in list(elem.attrib) + [elem.tag]}
     for child in elem.iterchildren(etree.Element):
         ans |= find_used_namespaces(child)

@@ -23,20 +23,23 @@ class WritingTest(BaseTest):
     def create_getter(self, name, getter=None):
         if getter is None:
             if name.endswith('_index'):
-                ans = lambda db:partial(db.get_custom_extra, index_is_id=True,
-                                        label=name[1:].replace('_index', ''))
+                def ans(db):
+                    return partial(db.get_custom_extra, index_is_id=True, label=name[1:].replace('_index', ''))
             else:
-                ans = lambda db:partial(db.get_custom, label=name[1:],
-                                       index_is_id=True)
+                def ans(db):
+                    return partial(db.get_custom, label=name[1:], index_is_id=True)
         else:
-            ans = lambda db:partial(getattr(db, getter), index_is_id=True)
+            def ans(db):
+                return partial(getattr(db, getter), index_is_id=True)
         return ans
 
     def create_setter(self, name, setter=None):
         if setter is None:
-            ans = lambda db:partial(db.set_custom, label=name[1:], commit=True)
+            def ans(db):
+                return partial(db.set_custom, label=name[1:], commit=True)
         else:
-            ans = lambda db:partial(getattr(db, setter), commit=True)
+            def ans(db):
+                return partial(getattr(db, setter), commit=True)
         return ans
 
     def create_test(self, name, vals, getter=None, setter=None):

@@ -408,7 +408,8 @@ def atof(string):
 
 def type_safe_sort_key_function(keyfunc=None):
     if keyfunc is None:
-        keyfunc = lambda x: x
+        def keyfunc(x):
+            return x
     sentinel = object()
     first_value = sentinel
 

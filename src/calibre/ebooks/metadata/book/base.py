@@ -54,8 +54,10 @@ def reset_field_metadata():
     field_metadata = FieldMetadata()
 
 
-ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
-cv = lambda val: val.strip().replace(',', '|')
+def ck(typ):
+    return icu_lower(typ).strip().replace(':', '').replace(',', '')
+def cv(val):
+    return val.strip().replace(',', '|')
 
 
 class Metadata:

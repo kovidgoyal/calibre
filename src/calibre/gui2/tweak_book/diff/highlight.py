@@ -69,7 +69,8 @@ def pygments_lexer(filename):
         from pygments.util import ClassNotFound
     except ImportError:
         return None
-    glff = lambda n: get_lexer_for_filename(n, stripnl=False)
+    def glff(n):
+        return get_lexer_for_filename(n, stripnl=False)
     try:
         return glff(filename)
     except ClassNotFound:

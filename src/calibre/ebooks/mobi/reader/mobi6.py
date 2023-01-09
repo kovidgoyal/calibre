@@ -823,7 +823,8 @@ class MobiReader:
             unpack = decompress_doc
 
         elif self.book_header.compression_type == b'\x00\x01':
-            unpack = lambda x: x
+            def unpack(x):
+                return x
         else:
             raise MobiError('Unknown compression algorithm: %r' % self.book_header.compression_type)
         self.mobi_html = b''.join(map(unpack, text_sections))

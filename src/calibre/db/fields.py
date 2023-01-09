@@ -47,7 +47,8 @@ def numeric_sort_key(defval, x):
     return x if type(x) in (int, float) else defval
 
 
-IDENTITY = lambda x: x
+def IDENTITY(x):
+    return x
 
 
 class InvalidLinkTable(Exception):

@@ -57,7 +57,8 @@ def run_funcs(self, db, ndb, funcs):
         if callable(meth):
             meth(*args)
         else:
-            fmt = lambda x:x
+            def fmt(x):
+                return x
             if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
@@ -256,12 +257,14 @@ class LegacyTest(BaseTest):
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
         }):
-            fmt = lambda x: x
+            def fmt(x):
+                return x
             if meth[0] in {'!', '@'}:
                 fmt = {'!':dict, '@':frozenset}[meth[0]]
                 meth = meth[1:]
             elif meth == 'get_authors_with_ids':
-                fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
+                def fmt(val):
+                    return {x[0]: tuple(x[1:]) for x in val}
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  f'The method: {meth}() returned different results for argument {a}')

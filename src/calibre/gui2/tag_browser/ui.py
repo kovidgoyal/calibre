@@ -267,7 +267,8 @@ class TagBrowserMixin:  # {{{
 
         db = self.current_db
         if category == 'series':
-            key = lambda x:sort_key(title_sort(x))
+            def key(x):
+                return sort_key(title_sort(x))
         else:
             key = sort_key
 

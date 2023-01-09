@@ -231,7 +231,8 @@ def capitalize(x):
 try:
     swapcase = _icu.swap_case
 except AttributeError:  # For people running from source
-    swapcase = lambda x:x.swapcase()
+    def swapcase(x):
+        return x.swapcase()
 
 find = make_two_arg_func(collator, 'find')
 primary_find = make_two_arg_func(primary_collator, 'find')

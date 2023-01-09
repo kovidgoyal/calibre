@@ -13,7 +13,8 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     get_text_before_cursor, get_leading_whitespace_on_block as lw,
     smart_home, smart_backspace, smart_tab)
 
-get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(editor, previous=previous))
+def get_leading_whitespace_on_block(editor, previous=False):
+    return expand_tabs(lw(editor, previous=previous))
 
 tw = 4  # The tab width (hardcoded to the pep8 value)
 

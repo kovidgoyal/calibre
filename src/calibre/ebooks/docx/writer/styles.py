@@ -64,7 +64,8 @@ class CombinedStyle:
 
     def serialize(self, styles, normal_style):
         makeelement = self.namespace.makeelement
-        w = lambda x: '{{{}}}{}'.format(self.namespace.namespaces['w'], x)
+        def w(x):
+            return '{{{}}}{}'.format(self.namespace.namespaces['w'], x)
         block = makeelement(styles, 'w:style', w_styleId=self.id, w_type='paragraph')
         makeelement(block, 'w:name', w_val=self.name)
         makeelement(block, 'w:qFormat')

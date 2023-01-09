@@ -1652,7 +1652,8 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)
-    meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
+    def meta(n, c):
+        return factory('meta', name='calibre:' + n, content=c)
     if getattr(mi, 'author_link_map', None) is not None:
         meta('author_link_map', dump_dict(mi.author_link_map))
     if mi.series:

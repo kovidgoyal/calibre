@@ -509,7 +509,8 @@ def identify(log, abort,  # {{{
         am_rules = compile_rules(am_rules)
 
     # normalize unicode strings
-    n = lambda x: unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
+    def n(x):
+        return unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
     for r in results:
         if r.tags:
             r.tags = list(map(n, r.tags))

@@ -120,7 +120,8 @@ class TestICU(unittest.TestCase):
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
         # test find all
         m = []
-        a = lambda p,l : m.append((p, l))
+        def a(p, l):
+            return m.append((p, l))
         icu.primary_collator_without_punctuation().find_all('a', 'a a🐱a', a)
         self.ae(m, [(0, 1), (2, 1), (5, 1)])
         # test find whole words

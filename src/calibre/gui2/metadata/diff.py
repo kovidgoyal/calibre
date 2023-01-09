@@ -783,7 +783,8 @@ if __name__ == '__main__':
     ids = sorted(db.all_ids(), reverse=True)
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
-    get_metadata = lambda x:list(map(gm, ids[x]))
+    def get_metadata(x):
+        return list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()
     for changed, mi in itervalues(d.accepted):

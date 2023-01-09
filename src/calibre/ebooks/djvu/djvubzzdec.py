@@ -500,8 +500,10 @@ class BZZDecoder():
         # Decode
         mtfno = 3
         markerpos = -1
-        zc = lambda i: self.zpcodec_decode(self.ctx, i)
-        dc = lambda i, bits: self.decode_binary(self.ctx, i, bits)
+        def zc(i):
+            return self.zpcodec_decode(self.ctx, i)
+        def dc(i, bits):
+            return self.decode_binary(self.ctx, i, bits)
         for i in range(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:

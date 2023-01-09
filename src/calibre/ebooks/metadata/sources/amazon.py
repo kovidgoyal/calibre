@@ -96,7 +96,8 @@ def parse_details_page(url, log, timeout, browser, domain):
         from calibre.ebooks.metadata.sources.update import search_engines_module
         get_data_for_cached_url = search_engines_module().get_data_for_cached_url
     except Exception:
-        get_data_for_cached_url = lambda *a: None
+        def get_data_for_cached_url(*a):
+            return None
     raw = get_data_for_cached_url(url)
     if raw:
         log('Using cached details for url:', url)

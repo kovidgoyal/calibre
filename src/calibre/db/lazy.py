@@ -223,7 +223,8 @@ def has_cover_getter(dbref, book_id, cache):
         return ret
 
 
-fmt_custom = lambda x:list(x) if isinstance(x, tuple) else x
+def fmt_custom(x):
+    return (list(x) if isinstance(x, tuple) else x)
 
 
 def custom_getter(field, dbref, book_id, cache):

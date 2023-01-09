@@ -21,7 +21,8 @@ def get_metadata(stream):
             return mi
         stream.read(10)
 
-        read_i32 = lambda: struct.unpack('<I', stream.read(4))[0]
+        def read_i32():
+            return struct.unpack('<I', stream.read(4))[0]
 
         stream.seek(read_i32())
         toc_count = read_i32()

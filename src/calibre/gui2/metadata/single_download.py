@@ -181,7 +181,8 @@ class ResultsModel(QAbstractTableModel):  # {{{
         return None
 
     def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        key = lambda x: x
+        def key(x):
+            return x
         if col == 0:
             key = attrgetter('gui_rank')
         elif col == 1:
@@ -196,7 +197,8 @@ class ResultsModel(QAbstractTableModel):  # {{{
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
-            key = lambda x: bool(x.comments)
+            def key(x):
+                return bool(x.comments)
 
         self.beginResetModel()
         self.results.sort(key=key, reverse=order==Qt.SortOrder.AscendingOrder)

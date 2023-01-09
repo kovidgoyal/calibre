@@ -806,7 +806,8 @@ class InsertSemantics(Dialog):
         return QSize(800, 600)
 
     def create_known_type_map(self):
-        _ = lambda x: x
+        def _(x):
+            return x
         self.epubtype_guide_map = {v: k for k, v in guide_epubtype_map.items()}
         self.known_type_map = {
             'titlepage': _('Title page'),

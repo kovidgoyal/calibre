@@ -237,9 +237,11 @@ class NumericSearch:  # {{{
         dt = datatype
 
         if is_many and query in {'true', 'false'}:
-            valcheck = lambda x: True
+            def valcheck(x):
+                return True
             if datatype == 'rating':
-                valcheck = lambda x: x is not None and x > 0
+                def valcheck(x):
+                    return (x is not None and x > 0)
             found = set()
             for val, book_ids in field_iter():
                 if valcheck(val):
@@ -248,14 +250,18 @@ class NumericSearch:  # {{{
 
         if query == 'false':
             if location == 'cover':
-                relop = lambda x,y: not bool(x)
+                def relop(x, y):
+                    return (not bool(x))
             else:
-                relop = lambda x,y: x is None
+                def relop(x, y):
+                    return (x is None)
         elif query == 'true':
             if location == 'cover':
-                relop = lambda x,y: bool(x)
+                def relop(x, y):
+                    return bool(x)
             else:
-                relop = lambda x,y: x is not None
+                def relop(x, y):
+                    return (x is not None)
         else:
             for k, relop in iteritems(self.operators):
                 if query.startswith(k):
@@ -265,8 +271,10 @@ class NumericSearch:  # {{{
                 relop = self.operators['=']
 
             if dt == 'rating':
-                cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x // 2
+                def cast(x):
+                    return (0 if x is None else int(x))
+                def adjust(x):
+                    return (x // 2)
             else:
                 # Datatype is empty if the source is a template. Assume float
                 cast = float if dt in ('float', 'composite', 'half-rating', '') else int

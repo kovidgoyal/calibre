@@ -28,7 +28,8 @@ class Parser:
         # No leading zeros, except for numbers in (0, 1) and no trailing zeros for the fractional part
         frac = r'\.[0-9]*[1-9]'
         number = r'(?:[1-9][0-9]*(?:{0})?)|(?:0{0})|(?:0)'.format(frac)
-        c = lambda x:regex.compile(x, flags=regex.VERSION1)
+        def c(x):
+            return regex.compile(x, flags=regex.VERSION1)
 
         # A step of the form /integer
         self.step_pat = c(r'/(%s)' % integer)

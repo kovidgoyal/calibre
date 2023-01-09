@@ -151,7 +151,8 @@ def dt_factory(time_t, assume_utc=False, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 
-safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
+def safeyear(x):
+    return min(max(x, MINYEAR), MAXYEAR)
 
 
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):

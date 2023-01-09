@@ -193,7 +193,8 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # render template
                 templite = Templite(template_html_data)
-                toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
+                def toc():
+                    return self.generate_html_toc(oeb_book, path, output_dir)
                 t = templite.render(ebookContent=ebook_content,
                         prevLink=prevLink, nextLink=nextLink,
                         has_toc=bool(oeb_book.toc.count()), toc=toc,

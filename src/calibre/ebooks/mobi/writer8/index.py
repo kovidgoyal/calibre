@@ -13,7 +13,8 @@ from calibre.ebooks.mobi.writer8.header import Header
 
 TagMeta_ = namedtuple('TagMeta',
         'name number values_per_entry bitmask end_flag')
-TagMeta = lambda x:TagMeta_(*x)
+def TagMeta(x):
+    return TagMeta_(*x)
 EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 
 # map of mask to number of shifts needed, works with 1 bit and two-bit wide masks

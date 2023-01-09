@@ -181,7 +181,8 @@ class LibraryDatabase:
 
         self.is_second_db = is_second_db
         if progress_callback is None:
-            progress_callback = lambda x, y:True
+            def progress_callback(x, y):
+                return True
         self.listeners = set()
 
         backend = self.backend = create_backend(library_path, default_prefs=default_prefs,

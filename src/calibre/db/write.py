@@ -164,11 +164,13 @@ def get_adapter(name, metadata):
     elif dt == 'comments':
         ans = single_text
     elif dt == 'rating':
-        ans = lambda x: None if x in {None, 0} else min(10, max(0, adapt_number(int, x)))
+        def ans(x):
+            return (None if x in {None, 0} else min(10, max(0, adapt_number(int, x))))
     elif dt == 'enumeration':
         ans = single_text
     elif dt == 'composite':
-        ans = lambda x: x
+        def ans(x):
+            return x
 
     if name == 'title':
         return lambda x: ans(x) or _('Unknown')
