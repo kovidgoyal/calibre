@@ -11,10 +11,9 @@ from contextlib import suppress
 from functools import partial
 from itertools import count
 from qt.core import (
-    QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
-    QFont, QHBoxLayout, QIcon, QLabel, QMenu, QModelIndex, QPixmap, QPushButton,
-    QRect, QSize, QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget,
-    pyqtSignal
+    QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox, QFont,
+    QHBoxLayout, QIcon, QLabel, QMenu, QModelIndex, QPixmap, QPushButton, QRect, QSize,
+    QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Event, Thread
 
@@ -22,7 +21,7 @@ from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import (
-    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
+    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url,
 )
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.models import render_pin
@@ -31,6 +30,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HTMLDisplay
+from calibre.utils.localization import ngettext
 
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')

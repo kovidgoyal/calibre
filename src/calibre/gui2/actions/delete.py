@@ -17,8 +17,9 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.dialogs.delete_matching_from_device import (
-    DeleteMatchingFromDeviceDialog
+    DeleteMatchingFromDeviceDialog,
 )
+from calibre.utils.localization import ngettext
 from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)

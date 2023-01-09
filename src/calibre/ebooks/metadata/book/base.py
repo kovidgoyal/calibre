@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.book import (
 )
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, string_or_bytes
 
 # Special sets used to optimize the performance of getting and setting

@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {

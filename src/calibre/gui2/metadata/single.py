@@ -32,7 +32,7 @@ from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.date import local_tz
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import canonicalize_lang, ngettext
 from polyglot.builtins import iteritems
 
 BASE_TITLE = _('Edit metadata')

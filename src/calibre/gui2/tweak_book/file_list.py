@@ -13,31 +13,31 @@ from qt.core import (
     QFormLayout, QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton,
     QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeView,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, sip
+    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, sip,
 )
 
 from calibre import human_readable, sanitize_file_name
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.cover import (
-    get_cover_page_name, get_raster_cover_name, is_raster_image
+    get_cover_page_name, get_raster_cover_name, is_raster_image,
 )
 from calibre.ebooks.oeb.polish.css import add_stylesheet_links
 from calibre.ebooks.oeb.polish.replace import (
-    get_recommended_folders, get_spine_order_for_all_files
+    get_recommended_folders, get_spine_order_for_all_files,
 )
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, guess_type
 from calibre.gui2 import (
     choose_dir, choose_files, choose_save_file, elided_text, error_dialog,
-    make_view_use_window_background, question_dialog
+    make_view_use_window_background, question_dialog,
 )
 from calibre.gui2.tweak_book import (
-    CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
+    CONTAINER_DND_MIMETYPE, current_container, editors, tprefs,
 )
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.fonts.utils import get_font_names
-from calibre.utils.localization import pgettext
 from calibre.utils.icu import numeric_sort_key
+from calibre.utils.localization import ngettext, pgettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import iteritems

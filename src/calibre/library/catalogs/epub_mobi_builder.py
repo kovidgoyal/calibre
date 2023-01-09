@@ -35,8 +35,10 @@ from calibre.utils.date import (
 )
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.icu import capitalize, collation_order, sort_key, upper as icu_upper
-from calibre.utils.localization import get_lang, lang_as_iso639_1
+from calibre.utils.icu import (
+    capitalize, collation_order, sort_key, title_case as icu_title, upper as icu_upper,
+)
+from calibre.utils.localization import get_lang, lang_as_iso639_1, ngettext
 from calibre.utils.resources import get_image_path as I, get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile

@@ -1,41 +1,56 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import io
+
 # Imports {{{
-import os, traceback, time, io, re, sys, weakref
-from threading import Thread, Event
-
+import os
+import re
+import sys
+import time
+import traceback
+import weakref
 from qt.core import (
-    QMenu, QAction, QActionGroup, QIcon, pyqtSignal, QDialog,
-    QObject, QVBoxLayout, QDialogButtonBox, QCoreApplication,
-    QEventLoop, QTimer)
+    QAction, QActionGroup, QCoreApplication, QDialog, QDialogButtonBox, QEventLoop,
+    QIcon, QMenu, QObject, QTimer, QVBoxLayout, pyqtSignal,
+)
+from threading import Event, Thread
 
-from calibre.customize.ui import (available_input_formats, available_output_formats,
-    device_plugins, disabled_device_plugins)
-from calibre.devices.interface import DevicePlugin, currently_connected_device
-from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed, OpenActionNeeded,
-                                    InitialConnectionError)
-from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover
-from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
-from calibre.utils.ipc.job import BaseJob
-from calibre.devices.scanner import DeviceScanner
-from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
-        show_restart_warning, gprefs, question_dialog)
-from calibre.gui2.widgets import BusyCursor
-from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name
-from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
-        BlacklistedDevice)
-from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre import (
+    as_unicode, force_unicode, preferred_encoding, prints, sanitize_file_name,
+)
 from calibre.constants import DEBUG
-from calibre.utils.config import tweaks, device_prefs
-from calibre.utils.img import scale_image
+from calibre.customize.ui import (
+    available_input_formats, available_output_formats, device_plugins,
+    disabled_device_plugins,
+)
+from calibre.devices.errors import (
+    BlacklistedDevice, FreeSpaceError, InitialConnectionError, OpenActionNeeded,
+    OpenFailed, OpenFeedback, UserFeedback, WrongDestinationError,
+)
+from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.devices.interface import DevicePlugin, currently_connected_device
+from calibre.devices.scanner import DeviceScanner
+from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover
+from calibre.ebooks.metadata import authors_to_string
+from calibre.gui2 import (
+    Dispatcher, FunctionDispatcher, choose_dir, config, dynamic, error_dialog, gprefs,
+    info_dialog, question_dialog, show_restart_warning, warning_dialog,
+)
+from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
+from calibre.gui2.widgets import BusyCursor
 from calibre.library.save_to_disk import find_plugboard
-from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
-from polyglot.builtins import string_or_unicode
+from calibre.ptempfile import (
+    PersistentTemporaryFile, force_unicode as filename_to_unicode,
+)
+from calibre.utils.config import device_prefs, tweaks
+from calibre.utils.filenames import ascii_filename
+from calibre.utils.img import scale_image
+from calibre.utils.ipc.job import BaseJob
+from calibre.utils.localization import ngettext
 from polyglot import queue
+from polyglot.builtins import string_or_unicode
+
 # }}}
 
 

@@ -33,6 +33,7 @@ from calibre.utils.config import prefs
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, string_or_bytes
 from polyglot.queue import Empty
 

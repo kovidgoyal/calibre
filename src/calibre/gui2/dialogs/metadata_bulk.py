@@ -33,6 +33,7 @@ from calibre.utils.date import internal_iso_format_string, qt_to_dt
 from calibre.utils.icu import (
     capitalize, lower as icu_lower, sort_key, upper as icu_upper,
 )
+from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
 

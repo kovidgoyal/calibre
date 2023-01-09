@@ -5,30 +5,34 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import numbers
-from operator import attrgetter, methodcaller
-from functools import partial
 from collections import namedtuple
-from polyglot.builtins import iteritems, itervalues
-from itertools import product
 from copy import copy, deepcopy
-
+from functools import partial
+from itertools import product
+from operator import attrgetter, methodcaller
 from qt.core import (
-    QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
-    QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox, QListView,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
-    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox, QAbstractItemView,
-    QToolButton, QVBoxLayout, QSpacerItem, QTimer, QRadioButton)
+    QAbstractItemView, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QFont, QFontComboBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
+    QLabel, QListView, QListWidget, QListWidgetItem, QPushButton, QRadioButton, QSize,
+    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget, Qt, QTimer, QToolButton,
+    QVBoxLayout, QWidget, pyqtSignal,
+)
 
 from calibre import prepare_string_for_xml
-from calibre.utils.localization import get_lang
 from calibre.gui2 import info_dialog
-from calibre.gui2.keyboard import ShortcutConfig
-from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
-from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
-from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
+from calibre.gui2.keyboard import ShortcutConfig
+from calibre.gui2.tweak_book import (
+    actions, editor_toolbar_actions, toolbar_actions, tprefs,
+)
+from calibre.gui2.tweak_book.editor.themes import (
+    ThemeEditor, all_theme_names, default_theme,
+)
+from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import ColorButton
+from calibre.utils.localization import get_lang, ngettext
+from polyglot.builtins import iteritems, itervalues
 
 
 class BasicSettings(QWidget):  # {{{
@@ -348,7 +352,7 @@ class PreviewSettings(BasicSettings):  # {{{
 
         def default_font(which):
             if not self.default_font_settings:
-                from qt.webengine import QWebEngineSettings, QWebEnginePage
+                from qt.webengine import QWebEnginePage, QWebEngineSettings
                 page = QWebEnginePage()
                 s = page.settings()
                 self.default_font_settings = {
@@ -672,8 +676,9 @@ class TemplatesDialog(Dialog):  # {{{
         Dialog.__init__(self, _('Customize templates'), 'customize-templates', parent=parent)
 
     def setup_ui(self):
-        from calibre.gui2.tweak_book.templates import DEFAULT_TEMPLATES
         from calibre.gui2.tweak_book.editor.text import TextEdit
+        from calibre.gui2.tweak_book.templates import DEFAULT_TEMPLATES
+
         # Cannot use QFormLayout as it does not play nice with TextEdit on windows
         self.l = l = QVBoxLayout(self)
 

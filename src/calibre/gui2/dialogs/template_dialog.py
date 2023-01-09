@@ -15,7 +15,7 @@ from qt.core import (
     QAbstractItemView, QApplication, QColor, QComboBox, QCursor, QDialog,
     QDialogButtonBox, QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLineEdit,
     QPalette, QSize, QSyntaxHighlighter, Qt, QTableWidget, QTableWidgetItem,
-    QTextCharFormat, QTextOption, QVBoxLayout, pyqtSignal
+    QTextCharFormat, QTextOption, QVBoxLayout, pyqtSignal,
 )
 
 from calibre import sanitize_file_name
@@ -33,7 +33,7 @@ from calibre.utils.date import DEFAULT_DATE
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower, sort_key
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import localize_user_manual_link, ngettext
 from calibre.utils.resources import get_path as P
 
 
@@ -339,7 +339,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             QDialog.__init__(self, parent, flags=Qt.WindowType.Dialog)
         else:
             QDialog.__init__(self, None, flags=Qt.WindowType.Window)
-            self.raise_() # Not needed on windows but here just in case
+            self.raise_()  # Not needed on windows but here just in case
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())

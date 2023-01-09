@@ -22,6 +22,7 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.fonts.scanner import NoFonts, font_scanner
 from calibre.utils.icu import lower as icu_lower, primary_sort_key as sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 

@@ -7,15 +7,15 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 from qt.core import (
-    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QUrl,
-    QSizePolicy, QStackedWidget, QStatusBar, QStyle, QStyleOption, QSplitter,
-    QStylePainter, Qt, QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
+    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QSizePolicy,
+    QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, QStylePainter, Qt,
+    QTabBar, QTimer, QToolButton, QUrl, QVBoxLayout, QWidget,
 )
 
 from calibre.constants import get_appname_for_display, get_version, ismacos
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import (
-    config, error_dialog, gprefs, is_widescreen, open_local_file, open_url
+    config, error_dialog, gprefs, is_widescreen, open_local_file, open_url,
 )
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.layout_menu import LayoutMenu
@@ -26,7 +26,7 @@ from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.widgets import LayoutButton, Splitter
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_website_link
+from calibre.utils.localization import localize_website_link, ngettext
 
 _keep_refs = []
 

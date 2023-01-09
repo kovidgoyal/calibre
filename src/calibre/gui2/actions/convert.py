@@ -7,14 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
-
 from qt.core import QModelIndex, QTimer
 
-from calibre.gui2 import error_dialog, Dispatcher, gprefs
-from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
-from calibre.utils.config import prefs, tweaks
-from calibre.gui2.actions import InterfaceAction
 from calibre.customize.ui import plugin_for_input_format
+from calibre.gui2 import Dispatcher, error_dialog, gprefs
+from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.tools import convert_bulk_ebook, convert_single_ebook
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.localization import ngettext
 
 
 class ConvertAction(InterfaceAction):

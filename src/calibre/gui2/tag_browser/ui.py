@@ -5,22 +5,25 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, textwrap
+import copy
+import textwrap
 from functools import partial
-
 from qt.core import (
-    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox, QLineEdit,
-    QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
+    QAction, QActionGroup, QComboBox, QDialog, QFrame, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QMenu, QSizePolicy, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal,
+)
 
-from calibre.gui2 import error_dialog, question_dialog, gprefs, config
+from calibre.ebooks.metadata import title_sort
+from calibre.gui2 import config, error_dialog, gprefs, question_dialog
+from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+from calibre.gui2.dialogs.tag_categories import TagCategories
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import sort_key
-from calibre.gui2.tag_browser.view import TagsView
-from calibre.ebooks.metadata import title_sort
-from calibre.gui2.dialogs.tag_categories import TagCategories
-from calibre.gui2.dialogs.tag_list_editor import TagListEditor
-from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 

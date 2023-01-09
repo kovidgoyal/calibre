@@ -8,12 +8,11 @@ __docformat__ = 'restructuredtext en'
 import copy
 import os
 import shutil
-from functools import partial
 from contextlib import contextmanager
+from functools import partial
 from io import BytesIO
 from qt.core import (
-    QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer,
-    QUrl
+    QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl,
 )
 
 from calibre.db.errors import NoSuchFormat
@@ -31,6 +30,7 @@ from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 

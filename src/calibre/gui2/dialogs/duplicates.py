@@ -6,14 +6,15 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os.path
-
 from qt.core import (
-    QDialog, QGridLayout, QIcon, QLabel, QTreeWidget, QTreeWidgetItem, Qt,
-    QFont, QDialogButtonBox, QApplication)
+    QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout, QIcon, QLabel, Qt,
+    QTreeWidget, QTreeWidgetItem,
+)
 
-from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
+from calibre.gui2 import gprefs
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import ngettext
 
 
 class DuplicatesQuestion(QDialog):

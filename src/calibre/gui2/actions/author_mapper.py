@@ -3,8 +3,10 @@
 
 
 from qt.core import QDialog
+
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
@@ -27,7 +29,7 @@ class AuthorMapAction(InterfaceAction):
         self.do_map(ids, selected)
 
     def do_map(self, book_ids, selected):
-        from calibre.ebooks.metadata.author_mapper import map_authors, compile_rules
+        from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         from calibre.gui2.author_mapper import RulesDialog
         from calibre.gui2.widgets import BusyCursor
         d = RulesDialog(self.gui)

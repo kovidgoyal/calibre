@@ -6,12 +6,14 @@ __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
-                      QApplication, QCursor, QTimer)
+from qt.core import (
+    QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTableWidgetItem, QTimer,
+)
 
-from calibre.gui2 import gprefs, error_dialog
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import ngettext
 
 
 class TableItem(QTableWidgetItem):

@@ -17,6 +17,7 @@ from calibre.ebooks.oeb.polish.pretty import (
     pretty_script_or_style, pretty_xml_tree, serialize,
 )
 from calibre.utils.icu import lower as icu_lower, numeric_sort_key
+from calibre.utils.localization import ngettext
 from css_selectors import Select, SelectorError, SelectorSyntaxError, parse
 from polyglot.builtins import iteritems, itervalues
 from polyglot.functools import lru_cache

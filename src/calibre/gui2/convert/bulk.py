@@ -3,20 +3,22 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import shutil
+from qt.core import QDialog, QDialogButtonBox, QModelIndex
 
-from qt.core import QModelIndex, QDialog, QDialogButtonBox
-
-from calibre.gui2.convert.single import Config, GroupModel, gprefs
-from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.ebooks.conversion.config import (
+    get_output_formats, sort_formats_by_preference,
+)
+from calibre.ebooks.conversion.plumber import Plumber
+from calibre.gui2.convert import GuiRecommendations
 from calibre.gui2.convert.heuristics import HeuristicsWidget
-from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
+from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
+from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
-from calibre.gui2.convert import GuiRecommendations
-from calibre.ebooks.conversion.plumber import Plumber
-from calibre.ebooks.conversion.config import sort_formats_by_preference, get_output_formats
 from calibre.utils.config import prefs
+from calibre.utils.localization import ngettext
 from calibre.utils.logging import Log
 
 

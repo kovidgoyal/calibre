@@ -6,19 +6,20 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to create a new custom column'''
 
-import copy, re
+import copy
+import re
 from enum import Enum
 from functools import partial
-
 from qt.core import (
-    QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
-    QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
-    QCheckBox, QSpinBox, QRadioButton, QGroupBox
+    QCheckBox, QColor, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QGroupBox,
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QRadioButton, QSpinBox, Qt, QVBoxLayout,
+    QWidget,
 )
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.utils.date import parse_date, UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, parse_date
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 

@@ -6,25 +6,32 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, logging, sys, numbers
+import logging
+import numbers
+import os
+import re
+import sys
 from collections import defaultdict
 from itertools import count
+from lxml import etree, html
 from operator import attrgetter
 
-from lxml import etree, html
-from calibre import force_unicode
-from calibre.constants import filesystem_encoding, __version__
-from calibre.translations.dynamic import translate
-from calibre.utils.xml_parse import safe_xml_fromstring
+from calibre import as_unicode, force_unicode, get_types_map, isbytestring
+from calibre.constants import __version__, filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import (isbytestring, as_unicode, get_types_map)
-from calibre.ebooks.oeb.parse_utils import barename, XHTML_NS, namespace, XHTML, parse_html, NotHTML
+from calibre.ebooks.oeb.parse_utils import (
+    XHTML, XHTML_NS, NotHTML, barename, namespace, parse_html,
+)
+from calibre.translations.dynamic import translate
 from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.icu import numeric_sort_key, title_case as icu_title
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, string_or_bytes, itervalues, codepoint_to_chr
-from polyglot.urllib import unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse
-from calibre.utils.icu import numeric_sort_key
+from calibre.utils.xml_parse import safe_xml_fromstring
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes
+from polyglot.urllib import (
+    unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse,
+)
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -249,7 +256,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
-    from css_parser import replaceUrls, log, CSSParser
+    from css_parser import CSSParser, log, replaceUrls
     log.setLevel(logging.WARN)
     log.raiseExceptions = False
 
