@@ -612,11 +612,12 @@ class ReadingTest(BaseTest):
             self.assertSetEqual(set(mi.custom_field_keys()), set(pmi.custom_field_keys()))
 
             for field in STANDARD_METADATA_FIELDS | {'#series_index'}:
-                def f(x):
-                    return x
                 if field == 'formats':
                     def f(x):
                         return (x if x is None else tuple(x))
+                else:
+                    def f(x):
+                        return x
                 self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
                                 f'Standard field: {field} not the same for book {book_id}')
                 self.assertEqual(mi.format_field(field), pmi.format_field(field),

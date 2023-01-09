@@ -181,8 +181,6 @@ class ResultsModel(QAbstractTableModel):  # {{{
         return None
 
     def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        def key(x):
-            return x
         if col == 0:
             key = attrgetter('gui_rank')
         elif col == 1:
@@ -199,6 +197,9 @@ class ResultsModel(QAbstractTableModel):  # {{{
         elif key == 4:
             def key(x):
                 return bool(x.comments)
+        else:
+            def key(x):
+                return x
 
         self.beginResetModel()
         self.results.sort(key=key, reverse=order==Qt.SortOrder.AscendingOrder)

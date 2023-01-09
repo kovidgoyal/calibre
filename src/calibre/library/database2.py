@@ -1973,6 +1973,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     icon_map[category] = icon
 
             datatype = cat['datatype']
+
             def avgr(x):
                 return (0.0 if x.rc == 0 else x.rt / x.rc)
             # Duplicate the build of items below to avoid using a lambda func
@@ -1980,7 +1981,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if datatype == 'rating':
                 def formatter(x):
                     return ('★' * int(x // 2))
-                def avgr(x):
+                def avgr(x):  # noqa
                     return x.n
                 # eliminate the zero ratings line as well as count == 0
                 items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]

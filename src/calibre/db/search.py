@@ -237,11 +237,12 @@ class NumericSearch:  # {{{
         dt = datatype
 
         if is_many and query in {'true', 'false'}:
-            def valcheck(x):
-                return True
             if datatype == 'rating':
                 def valcheck(x):
                     return (x is not None and x > 0)
+            else:
+                def valcheck(x):
+                    return True
             found = set()
             for val, book_ids in field_iter():
                 if valcheck(val):
@@ -273,6 +274,7 @@ class NumericSearch:  # {{{
             if dt == 'rating':
                 def cast(x):
                     return (0 if x is None else int(x))
+
                 def adjust(x):
                     return (x // 2)
             else:
