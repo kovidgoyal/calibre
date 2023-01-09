@@ -26,6 +26,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
+from calibre.utils.localization import _
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
 from polyglot.http_client import responses

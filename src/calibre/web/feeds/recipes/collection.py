@@ -5,19 +5,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, calendar, zipfile
-from threading import RLock
+import calendar
+import os
+import zipfile
 from datetime import timedelta
-
 from lxml import etree
 from lxml.builder import ElementMaker
+from threading import RLock
 
 from calibre import force_unicode
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.constants import numeric_version
+from calibre.utils.date import (
+    EPOCH, UNDEFINED_DATE, isoformat, local_tz, now as nowf, utcnow,
+)
 from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
+from calibre.utils.resources import get_path as P
+from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
 
 NS = 'http://calibre-ebook.com/recipe_collection'
@@ -106,8 +111,7 @@ def get_builtin_recipe_collection():
 
 
 def get_custom_recipe_collection(*args):
-    from calibre.web.feeds.recipes import compile_recipe, \
-            custom_recipes
+    from calibre.web.feeds.recipes import compile_recipe, custom_recipes
     bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
     for id_, x in iteritems(custom_recipes):
@@ -132,8 +136,7 @@ def update_custom_recipe(id_, title, script):
 
 
 def update_custom_recipes(script_ids):
-    from calibre.web.feeds.recipes import custom_recipes, \
-            custom_recipe_filename
+    from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
 
     bdir = os.path.dirname(custom_recipes.file_path)
     for id_, title, script in script_ids:
@@ -162,8 +165,7 @@ def add_custom_recipe(title, script):
 
 
 def add_custom_recipes(script_map):
-    from calibre.web.feeds.recipes import custom_recipes, \
-            custom_recipe_filename
+    from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
     id_ = 1000
     keys = tuple(map(int, custom_recipes))
     if keys:
@@ -217,9 +219,10 @@ def get_builtin_recipe_titles():
 
 
 def download_builtin_recipe(urn):
+    import bz2
+
     from calibre.utils.config_base import prefs
     from calibre.utils.https import get_https_resource_securely
-    import bz2
     recipe_source = bz2.decompress(get_https_resource_securely(
         'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
     recipe_source = recipe_source.decode('utf-8')

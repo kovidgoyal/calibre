@@ -6,12 +6,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, traceback, copy, re
+import copy
+import re
+import time
+import traceback
+from builtins import _
 
-from calibre.utils.logging import default_log
-from calibre import entity_to_unicode, strftime, force_unicode
-from calibre.utils.date import dt_factory, utcnow, local_tz
+from calibre import entity_to_unicode, force_unicode, strftime
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
+from calibre.utils.date import dt_factory, local_tz, utcnow
+from calibre.utils.logging import default_log
 from polyglot.builtins import string_or_bytes
 
 
@@ -341,6 +345,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
     from calibre.web.feeds.feedparser import parse
+
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
     raw_xml = re.sub(br'(&amp;#\d+)([^0-9;])', br'\1;\2', raw_xml)

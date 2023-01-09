@@ -913,6 +913,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         if self.currentnote == 0:
             return
         # Changed by Kovid to improve endnote functionality
+        from builtins import _
         self.opentag('h1', {'class':'notes-header'})
         self.writeout(_('Notes'))
         self.closetag('h1')

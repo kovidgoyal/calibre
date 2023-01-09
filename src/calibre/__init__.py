@@ -77,6 +77,7 @@ def to_unicode(raw, encoding='utf-8', errors='strict'):
 
 def patheq(p1, p2):
     p = os.path
+
     def d(x):
         return p.normcase(p.normpath(p.realpath(p.normpath(x))))
     if not p1 or not p2:

@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
+from calibre.utils.resources import get_path as P
 
 from polyglot.builtins import iteritems
 

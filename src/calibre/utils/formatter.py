@@ -7,7 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, string, traceback, numbers
+import numbers
+import re
+import string
+import traceback
 from collections import OrderedDict
 from functools import partial
 from math import modf
@@ -18,8 +21,10 @@ from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
 from calibre.utils.formatter_functions import (
-    formatter_functions, get_database, function_object_type, StoredObjectType)
+    StoredObjectType, formatter_functions, function_object_type, get_database,
+)
 from calibre.utils.icu import strcmp
+from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
 

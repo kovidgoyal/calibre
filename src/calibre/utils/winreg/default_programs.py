@@ -4,16 +4,19 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, time, traceback
+import os
+import sys
+import time
+import traceback
 from threading import Thread
 
-
 from calibre import guess_type, prints
-from calibre.constants import isportable, isfrozen, __version__, DEBUG
-from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
+from calibre.constants import DEBUG, __version__, isfrozen, isportable
+from calibre.utils.localization import _
 from calibre.utils.lock import singleinstance
-from polyglot.builtins import iteritems, itervalues
+from calibre.utils.winreg.lib import HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, Key
 from calibre_extensions import winutil
+from polyglot.builtins import iteritems, itervalues
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
@@ -49,6 +52,7 @@ def default_programs():
 def extensions(basename):
     if basename == 'calibre.exe':
         from calibre.ebooks import BOOK_EXTENSIONS
+
         # We remove rar and zip as they interfere with 7-zip associations
         # https://www.mobileread.com/forums/showthread.php?t=256459
         return set(BOOK_EXTENSIONS) - {'rar', 'zip'}
@@ -56,8 +60,8 @@ def extensions(basename):
         from calibre.customize.ui import all_input_formats
         return set(all_input_formats())
     if basename == 'ebook-edit.exe':
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         return SUPPORTED | IMPORTABLE
 
 

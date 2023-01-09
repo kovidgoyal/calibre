@@ -21,6 +21,7 @@ import weakref, re
 
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from calibre import prints
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.builtins import codepoint_to_chr

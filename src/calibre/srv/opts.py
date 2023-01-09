@@ -4,15 +4,18 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, os, numbers
-from collections import namedtuple, OrderedDict
-from operator import attrgetter
+import errno
+import numbers
+import os
+from collections import OrderedDict, namedtuple
 from functools import partial
+from itertools import zip_longest
+from operator import attrgetter
 
 from calibre.constants import config_dir
+from calibre.utils.localization import _
 from calibre.utils.lock import ExclusiveFile
 from polyglot.builtins import itervalues
-from itertools import zip_longest
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 

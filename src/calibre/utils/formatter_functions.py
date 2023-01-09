@@ -11,21 +11,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, numbers
+import inspect
+import numbers
+import re
+import traceback
 from contextlib import suppress
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
-from math import trunc, floor, ceil, modf
+from math import ceil, floor, modf, trunc
 
-from calibre import human_readable, prints, prepare_string_for_xml
+from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
+from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
+from calibre.utils.icu import capitalize, sort_key, strcmp
+from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import capitalize, strcmp, sort_key
-from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
-from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 from polyglot.builtins import iteritems, itervalues
 
 

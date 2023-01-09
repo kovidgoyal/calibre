@@ -18,7 +18,7 @@ from urllib.parse import urlparse, urlsplit
 
 from calibre import (
     __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding,
-    random_user_agent, strftime
+    random_user_agent, strftime,
 )
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, NavigableString, Tag
 from calibre.ebooks.metadata import MetaInformation
@@ -28,13 +28,13 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import add_borders_to_image, image_to_data, save_cover_data_to
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
 from calibre.utils.threadpool import NoResultsPending, ThreadPool, WorkRequest
 from calibre.web import Recipe
 from calibre.web.feeds import Feed, feed_from_xml, feeds_from_index, templates
 from calibre.web.fetch.simple import (
-    AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser
+    AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser,
 )
 from calibre.web.fetch.utils import prepare_masthead_image
 from polyglot.builtins import string_or_bytes
@@ -717,9 +717,7 @@ class BasicNewsRecipe(Recipe):
                 _raw = self.encoding(_raw)
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
-        from calibre.ebooks.chardet import (
-            strip_encoding_declarations, xml_to_unicode
-        )
+        from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
         from calibre.utils.cleantext import clean_xml_chars
         if isinstance(_raw, str):
             _raw = strip_encoding_declarations(_raw)
