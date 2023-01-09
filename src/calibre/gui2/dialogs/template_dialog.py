@@ -15,7 +15,7 @@ from qt.core import (
     QAbstractItemView, QApplication, QColor, QComboBox, QCursor, QDialog,
     QDialogButtonBox, QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLineEdit,
     QPalette, QSize, QSyntaxHighlighter, Qt, QTableWidget, QTableWidgetItem,
-    QTextCharFormat, QTextOption, QVBoxLayout,
+    QTextCharFormat, QTextOption, QVBoxLayout, pyqtSignal
 )
 
 from calibre import sanitize_file_name
@@ -316,15 +316,35 @@ translate_table = str.maketrans({
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
+    tester_closed = pyqtSignal(object, object)
+
+    def setWindowTitle(self, title, dialog_number=None):
+        if dialog_number is None:
+            title = _('{title} (only one template dialog allowed)').format(title=title)
+        else:
+            title = _('{title} dialog number {number} (multiple template dialogs allowed)').format(
+                    title=title, number=dialog_number)
+        super().setWindowTitle(title)
+
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
                  global_vars=None, all_functions=None, builtin_functions=None,
-                 python_context_object=None):
-        QDialog.__init__(self, parent)
+                 python_context_object=None, dialog_number=None):
+        # If dialog_number isn't None then we want separate non-modal windows
+        # that don't stay on top of the main dialog. This lets Alt-Tab work to
+        # switch between them. dialog_number must be set only by the template
+        # tester, not the rules dialogs etc that depend on modality.
+        if dialog_number is None:
+            QDialog.__init__(self, parent, flags=Qt.WindowType.Dialog)
+        else:
+            QDialog.__init__(self, None, flags=Qt.WindowType.Window)
+            self.raise_() # Not needed on windows but here just in case
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
+        self.setWindowIcon(self.windowIcon())
 
+        self.dialog_number = dialog_number
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
@@ -387,10 +407,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
         self.setup_saved_template_editor(not dialog_is_st_editor, dialog_is_st_editor)
-        # Remove help icon on title bar
-        icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
-        self.setWindowIcon(icon)
 
         self.all_functions = all_functions if all_functions else formatter_functions().get_functions()
         self.builtins = (builtin_functions if builtin_functions else
@@ -411,8 +427,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         # Set up the display table
         self.table_column_widths = None
         try:
-            self.table_column_widths = \
-                        gprefs.get('template_editor_table_widths', None)
+            self.table_column_widths = gprefs.get(self.geometry_string('template_editor_table_widths'), None)
         except:
             pass
         self.set_mi(mi, fm)
@@ -483,7 +498,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
-        self.restore_geometry(gprefs, 'template_editor_dialog_geometry')
+        self.restore_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
+
+    def geometry_string(self, txt):
+        if self.dialog_number is None or self.dialog_number == 0:
+            return txt
+        return txt + '_' + str(self.dialog_number)
 
     def setup_saved_template_editor(self, show_buttonbox, show_doc_and_name):
         self.buttonBox.setVisible(show_buttonbox)
@@ -890,8 +910,8 @@ def evaluate(book, context):
             self.table_column_widths.append(self.template_value.columnWidth(c))
 
     def save_geometry(self):
-        gprefs['template_editor_table_widths'] = self.table_column_widths
-        super().save_geometry(gprefs, 'template_editor_dialog_geometry')
+        gprefs[self.geometry_string('template_editor_table_widths')] = self.table_column_widths
+        super().save_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key.Key_Escape:
@@ -932,8 +952,11 @@ def evaluate(book, context):
             self.rule = ('', txt)
         self.save_geometry()
         QDialog.accept(self)
+        if self.dialog_number is not None:
+            self.tester_closed.emit(txt, self.dialog_number)
 
     def reject(self):
+        self.save_geometry()
         QDialog.reject(self)
         if self.dialog_is_st_editor:
             parent = self.parent()
@@ -944,6 +967,8 @@ def evaluate(book, context):
                 parent = parent.parent()
                 if parent is None:
                     break
+        if self.dialog_number is not None:
+            self.tester_closed.emit(None, self.dialog_number)
 
 
 class BreakReporterItem(QTableWidgetItem):
