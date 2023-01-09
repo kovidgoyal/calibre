@@ -8,36 +8,38 @@ __docformat__ = 'restructuredtext en'
 DEBUG_DIALOG = False
 
 # Imports {{{
-import os, time
-from threading import Thread, Event
-from operator import attrgetter
+import os
+import time
 from io import BytesIO
-
+from operator import attrgetter
 from qt.core import (
-    QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
-    QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
-    QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
-    QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex, QSplitter,
-    QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu, QItemSelectionModel,
-    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QAbstractItemView)
+    QAbstractItemView, QAbstractListModel, QAbstractTableModel, QApplication, QCursor,
+    QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QIcon, QItemSelectionModel,
+    QLabel, QListView, QMenu, QModelIndex, QPalette, QPixmap, QPushButton, QRect,
+    QRectF, QSize, QSizePolicy, QSplitter, QStackedWidget, QStringListModel, QStyle,
+    QStyledItemDelegate, Qt, QTableView, QTextBrowser, QTextDocument, QTimer,
+    QVBoxLayout, QWidget, pyqtSignal,
+)
+from threading import Event, Thread
 
+from calibre import force_unicode
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
-from calibre.utils.logging import GUILog as Log
-from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, rating_font, gprefs
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
+from calibre.gui2 import error_dialog, gprefs, rating_font
 from calibre.gui2.progress_indicator import SpinAnimator
 from calibre.gui2.widgets2 import HTMLDisplay
-from calibre.utils.date import (utcnow, fromordinal, format_date,
-        UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
-from calibre import force_unicode
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.date import UNDEFINED_DATE, as_utc, format_date, fromordinal, utcnow
+from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from calibre.utils.logging import GUILog as Log
+from calibre.utils.resources import get_image_path as I
 from polyglot.builtins import iteritems, itervalues
-from polyglot.queue import Queue, Empty
+from polyglot.queue import Empty, Queue
+
 # }}}
 
 

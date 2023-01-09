@@ -28,7 +28,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.img import image_from_data, scale_image
-from calibre.utils.resources import get_path as P
+from calibre.utils.resources import get_image_path as I, get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot.binary import as_hex_unicode
 from polyglot.urllib import quote

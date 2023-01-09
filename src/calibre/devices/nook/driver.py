@@ -6,11 +6,13 @@ __docformat__ = 'restructuredtext en'
 Device driver for Barns and Nobel's Nook
 '''
 
-import io, os
+import io
+import os
 
 from calibre import fsync, prints
 from calibre.constants import DEBUG
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.resources import get_image_path as I
 
 
 class NOOK(USBMS):

@@ -15,7 +15,7 @@ from calibre import CurrentDir, __appname__, guess_type, prints
 from calibre.constants import isbsd, islinux
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.resources import get_path as P
+from calibre.utils.resources import get_image_path as I, get_path as P
 from polyglot.builtins import iteritems
 
 entry_points = {

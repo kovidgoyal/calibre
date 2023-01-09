@@ -2,23 +2,22 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import apsw
 import os
 import re
 import sys
 import time
 import traceback
-
-import apsw
 from qt.core import QCoreApplication, QIcon, QObject, QTimer
 
 from calibre import force_unicode, prints
 from calibre.constants import (
-    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
-    islinux, ismacos, iswindows
+    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base, islinux,
+    ismacos, iswindows,
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, setup_gui_option_parser
+    question_dialog, setup_gui_option_parser,
 )
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import option_parser as _option_parser
@@ -26,6 +25,7 @@ from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
+from calibre.utils.resources import get_image_path as I
 from polyglot.builtins import as_bytes, environ_item
 
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
@@ -197,6 +197,7 @@ def repair_library(library_path):
 
 def windows_repair(library_path=None):
     import subprocess
+
     from calibre.utils.serialize import json_dumps, json_loads
     from polyglot.binary import as_hex_unicode, from_hex_bytes
     if library_path:
@@ -380,8 +381,10 @@ class GuiRunner(QObject):
 
 
 def run_in_debug_mode():
+    import subprocess
+    import tempfile
+
     from calibre.debug import run_calibre_debug
-    import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
     run_calibre_debug(

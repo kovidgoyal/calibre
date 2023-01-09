@@ -14,7 +14,7 @@ from functools import partial
 from itertools import repeat
 from qt.core import (
     QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, Qt
+    QListWidgetItem, QPushButton, Qt,
 )
 from threading import Thread
 
@@ -26,8 +26,9 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.library.save_to_disk import get_components
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.resources import get_image_path as I
 from calibre.utils.smtp import (
-    compose_mail, config as email_config, extract_email_address, sendmail
+    compose_mail, config as email_config, extract_email_address, sendmail,
 )
 from polyglot.binary import from_hex_unicode
 from polyglot.builtins import iteritems, itervalues
@@ -439,8 +440,8 @@ class EmailMixin:  # {{{
                         _('in the %s format.') %
                         os.path.splitext(f)[1][1:].upper())
                 if mi.comments and gprefs['add_comments_to_email']:
-                    from calibre.utils.html2text import html2text
                     from calibre.ebooks.metadata import fmt_sidx
+                    from calibre.utils.html2text import html2text
                     if mi.series:
                         sidx=fmt_sidx(1.0 if mi.series_index is None else mi.series_index, use_roman=config['use_roman_numerals_for_series_number'])
                         texts[-1] += '\n\n' + _('{series_index} of {series}').format(series_index=sidx, series=mi.series)

@@ -4,27 +4,30 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, random, unicodedata, numbers
+import numbers
+import random
+import re
+import unicodedata
 from collections import namedtuple
 from contextlib import contextmanager
-from math import ceil, sqrt, cos, sin, atan2
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from itertools import chain
-
+from math import atan2, ceil, cos, sin, sqrt
 from qt.core import (
-    QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
-    QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
-    QPainterPath, QPen, QRectF, QTransform, QRadialGradient
+    QBrush, QColor, QFont, QFontMetrics, QImage, QLinearGradient, QPainter,
+    QPainterPath, QPen, QPointF, QRadialGradient, QRect, QRectF, Qt, QTextCharFormat,
+    QTextLayout, QTextOption, QTransform,
 )
 
-from calibre import force_unicode, fit_image
+from calibre import fit_image, force_unicode
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
+from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
+from calibre.utils.resources import get_image_path as I
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 # Default settings {{{
 cprefs = JSONConfig('cover_generation')
@@ -726,7 +729,8 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
 
 
 def test(scale=0.25):
-    from qt.core import QLabel, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
+    from qt.core import QGridLayout, QLabel, QMainWindow, QPixmap, QScrollArea, QWidget
+
     from calibre.gui2 import Application
     app = Application([])
     mi = Metadata('Unknown', ['Kovid Goyal', 'John & Doe', 'Author'])

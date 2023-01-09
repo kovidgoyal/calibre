@@ -11,8 +11,8 @@ import tempfile
 from contextlib import suppress
 from io import BytesIO
 from qt.core import (
-    QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice,
-    QPixmap, Qt, QTransform
+    QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap,
+    Qt, QTransform,
 )
 from threading import Thread
 
@@ -22,6 +22,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
+from calibre.utils.resources import get_image_path as I
 from calibre_extensions import imageops
 from polyglot.builtins import string_or_bytes
 
@@ -110,7 +111,7 @@ def gif_data_to_png_data(data, discard_animation=False):
 def set_image_allocation_limit(size_in_mb=1024):
     with suppress(ImportError):  # for people running form source
         from calibre_extensions.progress_indicator import (
-            set_image_allocation_limit as impl
+            set_image_allocation_limit as impl,
         )
         impl(size_in_mb)
 

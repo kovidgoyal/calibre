@@ -4,15 +4,19 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import glob, os, shutil
+import glob
+import os
+import shutil
 from functools import partial
 from qt.core import (
-    QDialog, QVBoxLayout, QListWidget, QListWidgetItem, Qt, QIcon,
-    QApplication, QSize, QDialogButtonBox, QTimer, QLabel, QAbstractItemView, QListView)
+    QAbstractItemView, QApplication, QDialog, QDialogButtonBox, QIcon, QLabel,
+    QListView, QListWidget, QListWidgetItem, QSize, Qt, QTimer, QVBoxLayout,
+)
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
+from calibre.utils.resources import get_image_path as I
 
 
 def texture_dir():

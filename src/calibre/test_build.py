@@ -18,7 +18,7 @@ import time
 import unittest
 
 from calibre.constants import islinux, ismacos, iswindows, plugins_loc
-from calibre.utils.resources import get_path as P
+from calibre.utils.resources import get_image_path as I, get_path as P
 from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'

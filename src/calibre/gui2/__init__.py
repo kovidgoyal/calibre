@@ -41,7 +41,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.img import set_image_allocation_limit
 from calibre.utils.localization import get_lang
-from calibre.utils.resources import get_path as P, user_dir
+from calibre.utils.resources import get_image_path as I, get_path as P, user_dir
 from polyglot import queue
 from polyglot.builtins import iteritems, string_or_bytes
 

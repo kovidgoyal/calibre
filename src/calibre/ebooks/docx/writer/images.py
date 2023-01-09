@@ -8,15 +8,15 @@ import os
 import posixpath
 from collections import namedtuple
 from functools import partial
-from polyglot.builtins import iteritems, itervalues
-
 from lxml import etree
 
 from calibre import fit_image
-from calibre.ebooks.oeb.base import urlunquote, urlquote
 from calibre.ebooks.docx.images import pt_to_emu
+from calibre.ebooks.oeb.base import urlquote, urlunquote
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import identify
+from calibre.utils.resources import get_image_path as I
+from polyglot.builtins import iteritems, itervalues
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
