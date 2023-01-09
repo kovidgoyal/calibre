@@ -6,7 +6,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from functools import partial
-from gettext import pgettext
 from itertools import product
 from qt.core import (
     QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel,
@@ -49,7 +48,7 @@ from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.utils.icu import ord_string, sort_key
 from calibre.utils.localization import (
-    localize_user_manual_link, localize_website_link
+    localize_user_manual_link, localize_website_link, pgettext
 )
 from calibre.utils.unicode_names import character_name_from_code
 from polyglot.builtins import iteritems, itervalues

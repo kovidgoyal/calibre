@@ -4,7 +4,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, string
 from operator import attrgetter
-from gettext import pgettext
 
 from qt.core import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
                       pyqtSignal, QIcon, QApplication)
@@ -15,6 +14,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import SearchQueryParser
 
 

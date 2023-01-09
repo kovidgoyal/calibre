@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 from collections import OrderedDict
 from functools import partial
-from gettext import pgettext
 
 from qt.core import (QObject, QKeySequence, QAbstractItemModel, QModelIndex, QItemSelectionModel,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame, QAbstractItemView, QMenu,
@@ -19,6 +18,7 @@ from calibre.constants import DEBUG
 from calibre import prints, prepare_string_for_xml
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import error_dialog, info_dialog
+from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
 from polyglot.builtins import iteritems, itervalues

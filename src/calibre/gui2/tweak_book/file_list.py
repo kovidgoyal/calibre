@@ -8,7 +8,6 @@ import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
 from functools import lru_cache, partial
-from gettext import pgettext
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont,
     QFormLayout, QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QLabel,
@@ -37,6 +36,7 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.fonts.utils import get_font_names
+from calibre.utils.localization import pgettext
 from calibre.utils.icu import numeric_sort_key
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode

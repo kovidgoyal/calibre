@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from gettext import pgettext
 from qt.core import (
     QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QFrame,
     QGridLayout, QIcon, QLabel, QLineEdit, QListView, QMenu, QRadioButton, QSize,
@@ -16,7 +15,7 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import localize_user_manual_link, pgettext
 from calibre.utils.search_query_parser import ParseException
 
 
