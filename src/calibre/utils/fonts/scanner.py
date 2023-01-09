@@ -14,7 +14,7 @@ from calibre.constants import (
     DEBUG, config_dir, filesystem_encoding, ismacos, iswindows, isworker,
 )
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import lower as icu_lower, sort_key
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import itervalues
 

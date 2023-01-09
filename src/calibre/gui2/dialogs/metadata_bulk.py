@@ -7,9 +7,9 @@ import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from qt.core import (
-    QApplication, QComboBox, QCompleter, QDateTime, QDialog,
-    QDialogButtonBox, QFont, QGridLayout, QInputDialog, QLabel, QLineEdit,
-    QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
+    QApplication, QComboBox, QCompleter, QDateTime, QDialog, QDialogButtonBox, QFont,
+    QGridLayout, QInputDialog, QLabel, QLineEdit, QProgressBar, QSize, Qt, QVBoxLayout,
+    pyqtSignal,
 )
 from threading import Thread
 
@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import (
     UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, info_dialog,
-    question_dialog
+    question_dialog,
 )
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
@@ -30,7 +30,9 @@ from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import internal_iso_format_string, qt_to_dt
-from calibre.utils.icu import capitalize, sort_key
+from calibre.utils.icu import (
+    capitalize, lower as icu_lower, sort_key, upper as icu_upper,
+)
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
 
@@ -317,7 +319,7 @@ class MyBlockingBusy(QDialog):  # {{{
         elif args.cover_action == 'trim':
             self.progress_next_step_range.emit(len(self.ids))
             from calibre.utils.img import (
-                image_from_data, image_to_data, remove_borders_from_image
+                image_from_data, image_to_data, remove_borders_from_image,
             )
             for book_id in self.ids:
                 cdata = cache.cover(book_id)

@@ -4,16 +4,21 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, sys, re
-from locale import localeconv
+import errno
+import os
+import re
+import sys
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from locale import localeconv
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
-
+from calibre.constants import (
+    cache_dir, get_windows_number_formats, iswindows, preferred_encoding,
+)
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def force_to_bool(val):

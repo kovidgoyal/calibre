@@ -6,16 +6,17 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from functools import partial
 from datetime import datetime
-from polyglot.builtins import iteritems, itervalues
+from functools import partial
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import (
-    parse_only_date, parse_date, UNDEFINED_DATE, isoformat, is_date_undefined)
+    UNDEFINED_DATE, is_date_undefined, isoformat, parse_date, parse_only_date,
+)
+from calibre.utils.icu import lower as icu_lower, strcmp
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.icu import strcmp
+from polyglot.builtins import iteritems, itervalues
 
 missing = object()
 

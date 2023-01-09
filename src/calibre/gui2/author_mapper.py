@@ -10,7 +10,7 @@ from calibre.gui2 import Application, elided_text
 from calibre.gui2.tag_mapper import (
     RuleEdit as RuleEditBase, RuleEditDialog as RuleEditDialogBase,
     RuleItem as RuleItemBase, Rules as RulesBase, RulesDialog as RulesDialogBase,
-    Tester as TesterBase
+    Tester as TesterBase,
 )
 from calibre.utils.config import JSONConfig
 

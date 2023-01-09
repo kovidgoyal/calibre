@@ -12,7 +12,7 @@ from qt.core import (
     QAction, QApplication, QCheckBox, QColor, QDialog, QDialogButtonBox, QFont,
     QGridLayout, QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPainter, QPen,
     QPixmap, QScrollArea, QSize, QSizePolicy, QStackedLayout, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre import fit_image
@@ -26,6 +26,7 @@ from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import iteritems, itervalues
 
 Widgets = namedtuple('Widgets', 'new old label button')
@@ -783,6 +784,7 @@ if __name__ == '__main__':
     ids = sorted(db.all_ids(), reverse=True)
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
+
     def get_metadata(x):
         return list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)

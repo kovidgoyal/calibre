@@ -8,6 +8,7 @@ import re, os
 from bisect import bisect
 
 from calibre import guess_type as _guess_type, replace_entities
+from calibre.utils.icu import upper as icu_upper
 
 
 BLOCK_TAG_NAMES = frozenset((
@@ -248,6 +249,7 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
     found_groups = False
     i = 0
     parts, pos = [], match.start()
+
     def f(text):
         return handle_entities(text, func)
     while True:

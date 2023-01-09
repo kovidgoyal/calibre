@@ -8,6 +8,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre.ebooks.metadata.meta import metadata_from_formats
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.utils.filenames import samefile
+from calibre.utils.icu import lower as icu_lower
 
 
 def serialize_metadata_for(paths, tdir, group_id):

@@ -12,6 +12,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.date import utcnow
+from calibre.utils.icu import lower as icu_lower
 
 
 class BookList(BL):
@@ -73,4 +74,3 @@ class Book(Metadata):
 
 class JSONCodec(JsonCodec):
     pass
-

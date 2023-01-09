@@ -8,21 +8,29 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, functools, os, uuid, glob, io, json, copy
-
+import copy
+import functools
+import glob
+import io
+import json
+import os
+import re
+import sys
+import uuid
 from lxml import etree
 
-from calibre.ebooks import escape_xpath_attr
+from calibre import guess_type, prints
 from calibre.constants import __appname__, __version__, filesystem_encoding
+from calibre.ebooks import escape_xpath_attr
+from calibre.ebooks.metadata import MetaInformation, check_isbn, string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
-from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_date, isoformat
-from calibre.utils.localization import get_lang, canonicalize_lang
-from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
+from calibre.utils.date import isoformat, parse_date
+from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
 from polyglot.urllib import unquote, urlparse
@@ -480,9 +488,10 @@ class TitleSortField(MetadataField):
 
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
+    from calibre.ebooks.metadata.book.json_codec import (
+        encode_is_multiple, object_to_unicode,
+    )
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
-                                                         encode_is_multiple)
 
     for name, fm in all_user_metadata.items():
         try:
@@ -626,8 +635,8 @@ class OPF:  # {{{
     def read_user_metadata(self):
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
-        from calibre.utils.config import from_json
         from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
+        from calibre.utils.config import from_json
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
         for elem in elems:
@@ -1448,7 +1457,8 @@ class OPFCreator(Metadata):
 
         # Actual rendering
         from lxml.builder import ElementMaker
-        from calibre.ebooks.oeb.base import OPF2_NS, DC11_NS, CALIBRE_NS
+
+        from calibre.ebooks.oeb.base import CALIBRE_NS, DC11_NS, OPF2_NS
         DNS = OPF2_NS+'___xx___'
         E = ElementMaker(namespace=DNS, nsmap={None:DNS})
         M = ElementMaker(namespace=DNS,
@@ -1571,9 +1581,10 @@ class OPFCreator(Metadata):
 
 
 def metadata_to_opf(mi, as_string=True, default_lang=None):
-    from lxml import etree
     import textwrap
-    from calibre.ebooks.oeb.base import OPF, DC
+    from lxml import etree
+
+    from calibre.ebooks.oeb.base import DC, OPF
 
     if not mi.application_id:
         mi.application_id = str(uuid.uuid4())
@@ -1652,6 +1663,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)
+
     def meta(n, c):
         return factory('meta', name='calibre:' + n, content=c)
     if getattr(mi, 'author_link_map', None) is not None:

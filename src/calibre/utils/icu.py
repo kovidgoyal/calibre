@@ -287,7 +287,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
     ans = OrderedDict()
     last_c, last_ordnum = ' ', 0
     for item in items:
-        c = icu_upper(key(item) or ' ')
+        c = upper(key(item) or ' ')
         ordnum, ordlen = collation_order(c)
         if last_ordnum != ordnum:
             last_c = c[0:1]

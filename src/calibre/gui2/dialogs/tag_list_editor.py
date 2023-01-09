@@ -3,19 +3,23 @@
 
 
 from functools import partial
+from qt.core import (
+    QAbstractItemView, QAction, QApplication, QColor, QDialog, QDialogButtonBox, QFrame,
+    QIcon, QItemDelegate, QLabel, QMenu, QSize, Qt, QTableWidgetItem, QTimer,
+    pyqtSignal,
+)
 
-from qt.core import (Qt, QDialog, QTableWidgetItem, QIcon, QSize, QAbstractItemView,
-                      QDialogButtonBox, QItemDelegate, QApplication,
-                      pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
-
+from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.config import prefs
-from calibre.utils.icu import contains, primary_contains, primary_startswith, capitalize
+from calibre.utils.icu import (
+    capitalize, contains, lower as icu_lower, primary_contains, primary_startswith,
+    upper as icu_upper,
+)
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'

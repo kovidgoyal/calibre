@@ -35,7 +35,7 @@ from calibre.utils.date import (
 )
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.icu import capitalize, collation_order, sort_key
+from calibre.utils.icu import capitalize, collation_order, sort_key, upper as icu_upper
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_image_path as I, get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring

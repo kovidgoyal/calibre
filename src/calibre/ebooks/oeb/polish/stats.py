@@ -5,15 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import regex
 import sys
 from functools import partial
-
 from lxml.etree import tostring
-import regex
 
 from calibre.ebooks.oeb.base import XHTML, css_text
-from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdeclaration
-from calibre.utils.icu import ord_string, safe_chr
+from calibre.ebooks.oeb.polish.cascade import iterdeclaration, iterrules, resolve_styles
+from calibre.utils.icu import (
+    lower as icu_lower, ord_string, safe_chr, upper as icu_upper,
+)
 from polyglot.builtins import iteritems, itervalues
 from tinycss.fonts3 import parse_font_family
 

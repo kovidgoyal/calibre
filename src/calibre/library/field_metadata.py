@@ -8,6 +8,7 @@ import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {

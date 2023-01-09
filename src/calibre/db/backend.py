@@ -46,7 +46,7 @@ from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions, load_user_template_functions,
     unload_user_template_functions,
 )
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import lower as icu_lower, sort_key
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import (
     cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,

@@ -15,6 +15,7 @@ from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import itervalues
 
 
@@ -48,10 +49,12 @@ def compile_rule(rule):
                 return icu_lower(filename).endswith(q)
     elif 'glob' in mt:
         q = compile_glob(rule['query'])
+
         def func(filename):
             return (q.match(filename) is not None)
     else:
         q = re.compile(rule['query'])
+
         def func(filename):
             return (q.match(filename) is not None)
     ans = func

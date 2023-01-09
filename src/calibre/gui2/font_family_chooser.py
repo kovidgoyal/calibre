@@ -8,14 +8,15 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 from qt.core import (
-    QAbstractItemView, QDialog, QDialogButtonBox, QFont, QFontComboBox,
-    QFontDatabase, QFontInfo, QFontMetrics, QGridLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QListView, QPen, QPushButton, QSize, QSizePolicy, QStringListModel,
-    QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemView, QDialog, QDialogButtonBox, QFont, QFontComboBox, QFontDatabase,
+    QFontInfo, QFontMetrics, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit,
+    QListView, QPen, QPushButton, QSize, QSizePolicy, QStringListModel, QStyle,
+    QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, empty_index, error_dialog, info_dialog
+from calibre.utils.icu import lower as icu_lower
 
 
 def add_fonts(parent):

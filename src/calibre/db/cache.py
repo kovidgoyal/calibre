@@ -24,7 +24,7 @@ from time import monotonic, sleep, time
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import (
-    run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postimport
+    run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postimport,
 )
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
@@ -34,7 +34,7 @@ from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.db.listeners import EventDispatcher, EventType
 from calibre.db.locking import (
-    DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock
+    DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock,
 )
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
@@ -47,7 +47,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, now as nowf, utcnow
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import lower as icu_lower, sort_key
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
 

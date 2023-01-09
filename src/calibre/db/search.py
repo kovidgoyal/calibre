@@ -5,18 +5,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import regex, weakref, operator
-from functools import partial
+import operator
+import regex
+import weakref
+from collections import OrderedDict, deque
 from datetime import timedelta
-from collections import deque, OrderedDict
+from functools import partial
 
-from calibre.constants import preferred_encoding, DEBUG
+from calibre.constants import DEBUG, preferred_encoding
 from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
-from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
-from calibre.utils.icu import primary_no_punc_contains, primary_contains, sort_key
-from calibre.utils.localization import lang_map, canonicalize_lang
-from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from calibre.utils.date import UNDEFINED_DATE, dt_as_local, now, parse_date
+from calibre.utils.icu import (
+    lower as icu_lower, primary_contains, primary_no_punc_contains, sort_key,
+)
+from calibre.utils.localization import canonicalize_lang, lang_map
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from polyglot.builtins import iteritems, string_or_bytes
 
 CONTAINS_MATCH = 0

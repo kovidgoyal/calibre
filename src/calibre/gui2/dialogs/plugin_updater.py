@@ -9,24 +9,25 @@ import datetime
 import re
 import traceback
 from qt.core import (
-    QAbstractItemView, QAbstractTableModel, QAction, QBrush, QComboBox,
-    QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QModelIndex, QSize, QSortFilterProxyModel, Qt, QTableView, QUrl, QVBoxLayout
+    QAbstractItemView, QAbstractTableModel, QAction, QBrush, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QModelIndex,
+    QSize, QSortFilterProxyModel, Qt, QTableView, QUrl, QVBoxLayout,
 )
 
 from calibre import prints
 from calibre.constants import (
-    DEBUG, __appname__, __version__, ismacos, iswindows, numeric_version
+    DEBUG, __appname__, __version__, ismacos, iswindows, numeric_version,
 )
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import (
     NameConflict, add_plugin, disable_plugin, enable_plugin, has_external_plugins,
-    initialized_plugins, is_disabled, remove_plugin
+    initialized_plugins, is_disabled, remove_plugin,
 )
 from calibre.gui2 import error_dialog, gprefs, info_dialog, open_url, question_dialog
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import itervalues
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'

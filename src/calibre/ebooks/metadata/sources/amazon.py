@@ -4,15 +4,18 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
-import string
 import socket
+import string
 import time
 from functools import partial
+
 try:
     from queue import Empty, Queue
 except ImportError:
     from Queue import Empty, Queue
+
 from threading import Thread
+
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -24,9 +27,10 @@ from calibre import as_unicode, browser, random_user_agent, xml_replace_entities
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
+from calibre.ebooks.oeb.base import urlquote
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua
-from calibre.ebooks.oeb.base import urlquote
 
 
 def sort_matches_preferring_kindle_editions(matches):
@@ -89,9 +93,10 @@ def parse_html(raw):
 
 
 def parse_details_page(url, log, timeout, browser, domain):
-    from calibre.utils.cleantext import clean_ascii_chars
-    from calibre.ebooks.chardet import xml_to_unicode
     from lxml.html import tostring
+
+    from calibre.ebooks.chardet import xml_to_unicode
+    from calibre.utils.cleantext import clean_ascii_chars
     try:
         from calibre.ebooks.metadata.sources.update import search_engines_module
         get_data_for_cached_url = search_engines_module().get_data_for_cached_url
@@ -726,6 +731,7 @@ class Worker(Thread):  # Get details {{{
                 ns = ns[0]
                 if len(ns) == 0 and ns.text:
                     import html5lib
+
                     # html5lib parsed noscript as CDATA
                     ns = html5lib.parseFragment(
                         '<div>%s</div>' % (ns.text), treebuilder='lxml', namespaceHTMLElements=False)[0]
@@ -1271,9 +1277,9 @@ class Amazon(Source):
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
         try:
-            from urllib.parse import urlencode, unquote_plus
+            from urllib.parse import unquote_plus, urlencode
         except ImportError:
-            from urllib import urlencode, unquote_plus
+            from urllib import unquote_plus, urlencode
         if domain is None:
             domain = self.domain
 
@@ -1442,8 +1448,8 @@ class Amazon(Source):
     # }}}
 
     def search_amazon(self, br, testing, log, abort, title, authors, identifiers, timeout):  # {{{
-        from calibre.utils.cleantext import clean_ascii_chars
         from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.utils.cleantext import clean_ascii_chars
         matches = []
         query, domain = self.create_query(log, title=title, authors=authors,
                                           identifiers=identifiers)
@@ -1703,8 +1709,10 @@ class Amazon(Source):
 def manual_tests(domain, **kw):  # {{{
     # To run these test use:
     # calibre-debug -c "from calibre.ebooks.metadata.sources.amazon import *; manual_tests('com')"
-    from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-                                                      isbn_test, title_test, authors_test, comments_test, series_test)
+    from calibre.ebooks.metadata.sources.test import (
+        authors_test, comments_test, isbn_test, series_test, test_identify_plugin,
+        title_test,
+    )
     all_tests = {}
     all_tests['com'] = [  # {{{
         (   # Paperback with series

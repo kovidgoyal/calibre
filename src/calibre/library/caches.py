@@ -5,22 +5,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, traceback, locale
-from itertools import repeat
-from datetime import timedelta
-from threading import Thread
+import locale
+import time
+import traceback
 from contextlib import suppress
+from datetime import timedelta
+from itertools import repeat
+from threading import Thread
 
-from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
-from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.utils.search_query_parser import ParseException
-from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc)
+from calibre import force_unicode, prints
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre import prints, force_unicode
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, cmp
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_date
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import canonicalize_lang, get_udc, lang_map
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
 
 
 class MetadataBackup(Thread):  # {{{
@@ -437,6 +439,7 @@ class ResultCache(SearchQueryParser):  # {{{
 
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
+
             def val_func(item, loc=loc):
                 return item[loc]
         q = ''
@@ -472,6 +475,7 @@ class ResultCache(SearchQueryParser):  # {{{
             elif dt == 'rating':
                 def cast(x):
                     return (0 if x is None else int(x))
+
                 def adjust(x):
                     return (x // 2)
             elif dt in ('float', 'composite'):

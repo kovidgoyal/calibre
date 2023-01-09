@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QApplication, QTimer
 
 from calibre.db.categories import find_categories
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-        CommaSeparatedList, AbortCommit
-from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog, gprefs
-from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key
+from calibre.gui2.preferences import (
+    AbortCommit, CommaSeparatedList, ConfigWidgetBase, test_widget,
+)
+from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.library.caches import set_use_primary_find_in_search
+from calibre.utils.config import prefs
+from calibre.utils.icu import lower as icu_lower, sort_key
 from polyglot.builtins import iteritems
 
 

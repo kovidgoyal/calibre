@@ -5,15 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-
 from qt.core import (
-    QDialog, QGridLayout, QDialogButtonBox, QListWidget, QApplication, Qt,
-    pyqtSignal, QSize, QPushButton, QIcon, QStyledItemDelegate, QLabel, QAbstractItemView)
+    QAbstractItemView, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon,
+    QLabel, QListWidget, QPushButton, QSize, QStyledItemDelegate, Qt, pyqtSignal,
+)
 
-from calibre.utils.config_base import tweaks
+from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.ebooks.metadata import string_to_authors
+from calibre.utils.config_base import tweaks
+from calibre.utils.icu import lower as icu_lower
 
 
 class ItemDelegate(QStyledItemDelegate):

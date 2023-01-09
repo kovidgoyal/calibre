@@ -4,6 +4,8 @@
 
 from collections import deque
 
+from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+
 
 def compile_pat(pat):
     import regex

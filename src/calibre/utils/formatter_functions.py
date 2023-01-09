@@ -26,7 +26,7 @@ from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
-from calibre.utils.icu import capitalize, sort_key, strcmp
+from calibre.utils.icu import capitalize, lower as icu_lower, sort_key, strcmp
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import iteritems, itervalues

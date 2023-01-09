@@ -4,18 +4,20 @@
 __license__ = 'GPL v3'
 __copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from css_parser import parseStyle
 from functools import partial
 
-from css_parser import parseStyle
-
 from calibre.constants import iswindows
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, DEFAULTS
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.cascade import DEFAULTS, iterrules, resolve_styles
+from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.css import remove_property_value
 from calibre.ebooks.oeb.polish.embed import find_matching_font
-from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
-from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
+from calibre.ebooks.oeb.polish.stats import (
+    StatsCollector, font_keys, normalize_font_properties, prepare_font_rule,
+)
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.logging import Log, Stream
 from polyglot.builtins import iteritems
 

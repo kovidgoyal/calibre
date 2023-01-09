@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import string_or_bytes
 
 

@@ -6,13 +6,14 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import numbers
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import datetime, timedelta
 
-from calibre.utils.date import parse_date, UNDEFINED_DATE, utc_tz
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import iteritems, itervalues
+from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz
+from calibre.utils.icu import lower as icu_lower
 from calibre_extensions.speedup import parse_date as _c_speedup
+from polyglot.builtins import iteritems, itervalues
 
 
 def c_parse(val):

@@ -6,12 +6,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
-
 from lxml import etree
 
 from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
@@ -163,7 +163,7 @@ def embed_font(container, font, all_font_rules, report, warned):
     if not isinstance(ff, string_or_bytes):
         ff = ff[0]
     if rule is None:
-        from calibre.utils.fonts.scanner import font_scanner, NoFonts
+        from calibre.utils.fonts.scanner import NoFonts, font_scanner
         if ff in warned:
             return
         try:

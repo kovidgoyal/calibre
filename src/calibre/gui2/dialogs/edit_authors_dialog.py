@@ -5,19 +5,22 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from functools import partial
 from contextlib import contextmanager
-
-from qt.core import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
-                  QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
-                  QItemDelegate, QAction)
+from functools import partial
+from qt.core import (
+    QAbstractItemView, QAction, QApplication, QDialog, QDialogButtonBox, QFrame, QIcon,
+    QItemDelegate, QLabel, QMenu, Qt, QTableWidgetItem, QTimer,
+)
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
-from calibre.utils.icu import sort_key, primary_contains, contains, primary_startswith
+from calibre.utils.icu import (
+    contains, lower as icu_lower, primary_contains, primary_startswith, sort_key,
+    upper as icu_upper,
+)
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 

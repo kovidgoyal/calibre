@@ -8,11 +8,13 @@ __docformat__ = 'restructuredtext en'
 import copy
 from collections import OrderedDict
 from functools import partial
-from polyglot.builtins import iteritems, native_string_type
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.utils.config_base import tweaks, prefs
-from calibre.utils.icu import sort_key, collation_order
+from calibre.utils.config_base import prefs, tweaks
+from calibre.utils.icu import (
+    collation_order, lower as icu_lower, sort_key, upper as icu_upper,
+)
+from polyglot.builtins import iteritems, native_string_type
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
