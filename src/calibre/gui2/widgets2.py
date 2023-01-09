@@ -569,7 +569,7 @@ class HTMLDisplay(QTextBrowser):
         if qurl.isLocalFile():
             path = qurl.toLocalFile()
             try:
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     data = f.read()
             except OSError:
                 if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:

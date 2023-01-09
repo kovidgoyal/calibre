@@ -94,11 +94,11 @@ class PageProcessor(list):  # {{{
 
     def render(self):
         from calibre.utils.img import image_from_data, scale_image, crop_image
-        with lopen(self.path_to_page, 'rb') as f:
+        with open(self.path_to_page, 'rb') as f:
             img = image_from_data(f.read())
         width, height = img.width(), img.height()
         if self.num == 0:  # First image so create a thumbnail from it
-            with lopen(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
+            with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
         self.pages = [img]
         if width > height:
@@ -196,7 +196,7 @@ class PageProcessor(list):  # {{{
                 img = quantize_image(img, max_colors=min(256, self.opts.colors))
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
-            with lopen(dest, 'wb') as f:
+            with open(dest, 'wb') as f:
                 f.write(image_to_data(img, fmt=self.opts.output_format))
             self.append(dest)
 # }}}

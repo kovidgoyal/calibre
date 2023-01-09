@@ -65,7 +65,7 @@ def extract_dicts(cache_path):
             tf = tarfile.open(dict_tarball)
         else:
             buf = BytesIO()
-            with lopen(dict_tarball, 'rb') as f:
+            with open(dict_tarball, 'rb') as f:
                 data = f.read()
             decompress(data, outfile=buf)
             buf.seek(0)

@@ -48,7 +48,7 @@ def mobi_html(mobi_file_path: str) -> bytes:
 
 
 def mobi_html_length(mobi_file_path: str) -> int:
-    with lopen(mobi_file_path, 'rb') as mf:
+    with open(mobi_file_path, 'rb') as mf:
         pdb_header = PdbHeaderReader(mf)
         r0 = pdb_header.section_data(0)
         return struct.unpack('>I', r0[4:8])[0]

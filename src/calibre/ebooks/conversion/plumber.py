@@ -948,7 +948,7 @@ OptionRecommendation(name='search_replace',
         if self.opts.read_metadata_from_opf is not None:
             self.opts.read_metadata_from_opf = os.path.abspath(
                                             self.opts.read_metadata_from_opf)
-            with lopen(self.opts.read_metadata_from_opf, 'rb') as stream:
+            with open(self.opts.read_metadata_from_opf, 'rb') as stream:
                 opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
@@ -958,7 +958,7 @@ OptionRecommendation(name='search_replace',
             ext = mi.cover.rpartition('.')[-1].lower().strip()
             if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
-            with lopen(mi.cover, 'rb') as stream:
+            with open(mi.cover, 'rb') as stream:
                 mi.cover_data = (ext, stream.read())
             mi.cover = None
         self.user_metadata = mi
@@ -1064,7 +1064,7 @@ OptionRecommendation(name='search_replace',
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
-            with lopen(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
+            with open(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
                 f.write(DEBUG_README)
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
@@ -1082,7 +1082,7 @@ OptionRecommendation(name='search_replace',
 
         tdir = PersistentTemporaryDirectory('_plumber')
         stream = self.input if self.input_fmt == 'recipe' else \
-                lopen(self.input, 'rb')
+                open(self.input, 'rb')
         if self.input_fmt == 'recipe':
             self.opts.original_recipe_input_arg = self.original_input_arg
 

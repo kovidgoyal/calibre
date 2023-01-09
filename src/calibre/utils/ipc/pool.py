@@ -352,7 +352,7 @@ def worker_main(conn):
             break
         if not isinstance(job, Job):
             if isinstance(job, File):
-                with lopen(job.name, 'rb') as f:
+                with open(job.name, 'rb') as f:
                     common_data = f.read()
                 common_data = pickle_loads(common_data)
             else:

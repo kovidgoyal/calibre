@@ -876,7 +876,7 @@ class Smarts(NullSmarts):
 if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     if sys.argv[-1].endswith('.html'):
-        raw = lopen(sys.argv[-1], 'rb').read().decode('utf-8')
+        raw = open(sys.argv[-1], 'rb').read().decode('utf-8')
     else:
         raw = '''\
 <!DOCTYPE html>

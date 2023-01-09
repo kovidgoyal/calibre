@@ -727,7 +727,7 @@ class BasicNewsRecipe(Recipe):
             _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
         _raw = clean_xml_chars(_raw)
         if save_raw:
-            with lopen(save_raw, 'wb') as f:
+            with open(save_raw, 'wb') as f:
                 f.write(_raw.encode('utf-8'))
         if as_tree:
             from html5_parser import parse

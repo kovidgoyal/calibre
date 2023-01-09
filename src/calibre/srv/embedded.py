@@ -26,7 +26,7 @@ def log_paths():
 
 def read_json(path):
     try:
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             raw = f.read()
     except OSError as err:
         if err.errno != errno.ENOENT:

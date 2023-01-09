@@ -115,7 +115,7 @@ class Sendmail:
             from_ = opts.from_
             if not from_:
                 from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
-            with lopen(attachment, 'rb') as f:
+            with open(attachment, 'rb') as f:
                 msg = compose_mail(from_, to, text, subject, f, aname)
             efrom = extract_email_address(from_)
             eto = []

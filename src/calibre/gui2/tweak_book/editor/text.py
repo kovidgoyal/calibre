@@ -180,7 +180,7 @@ class TextEdit(PlainTextEdit):
                     name = path
                 else:
                     name = get_name(os.path.basename(path))
-                    with lopen(path, 'rb') as f:
+                    with open(path, 'rb') as f:
                         name = add_file(name, f.read(), mt)
                 href = get_href(name)
                 if mt.startswith('image/'):

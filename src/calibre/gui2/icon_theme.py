@@ -187,7 +187,7 @@ def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=Fal
                 ipath = os.path.join(report.path, report.name_map[icon])
             else:
                 ipath = I(icon, allow_user_override=False)
-            with lopen(ipath, 'rb') as f:
+            with open(ipath, 'rb') as f:
                 img = image_from_data(f.read())
             scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
             img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -403,7 +403,7 @@ def create_themeball(report, theme_metadata, progress=None, abort=None):
     with ZipFile(buf, 'w') as zf:
         for name in report.name_map:
             srcpath = os.path.join(report.path, name)
-            with lopen(srcpath, 'rb') as f:
+            with open(srcpath, 'rb') as f:
                 zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
     icon_zip_data = buf
@@ -418,7 +418,7 @@ def create_themeball(report, theme_metadata, progress=None, abort=None):
     if abort is not None and abort.is_set():
         return None, None, None
     with ZipFile(buf, 'w') as zf:
-        with lopen(os.path.join(report.path, THEME_METADATA), 'rb') as f:
+        with open(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
         zf.writestr(prefix + '/' + THEME_COVER, create_cover(report, darkbg=theme_metadata.get('color_palette') == 'dark'))
         zf.writestr(prefix + '/' + 'icons.zip.xz', compressed, compression=ZIP_STORED)
@@ -450,7 +450,7 @@ def create_theme(folder=None, parent=None):
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
     if not dest:
         return
-    with lopen(dest, 'wb') as f:
+    with open(dest, 'wb') as f:
         f.write(raw)
 
     if use_in_calibre:

@@ -334,7 +334,7 @@ class EPUBOutput(OutputFormatPlugin):
                     uris.pop(uri)
                     continue
                 self.log.debug('Encrypting font:', uri)
-                with lopen(path, 'r+b') as f:
+                with open(path, 'r+b') as f:
                     data = f.read(1024)
                     if len(data) >= 1024:
                         data = bytearray(data)

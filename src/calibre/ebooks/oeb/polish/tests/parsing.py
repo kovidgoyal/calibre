@@ -214,7 +214,7 @@ def timing():
     from calibre.utils.monotonic import monotonic
     from html5lib import parse as vanilla
     filename = sys.argv[-1]
-    with lopen(filename, 'rb') as f:
+    with open(filename, 'rb') as f:
         raw = f.read()
     raw = xml_to_unicode(raw)[0]
 

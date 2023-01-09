@@ -70,7 +70,7 @@ class Resources:
             try:
                 from calibre.utils.img import optimize_png
                 optimize_png(pt.name)
-                data = lopen(pt.name, 'rb').read()
+                data = open(pt.name, 'rb').read()
             finally:
                 os.remove(pt.name)
             return func(data)

@@ -103,7 +103,7 @@ def handle_mathjax_request(rq, name):
     if path.startswith(mathjax_dir):
         mt = guess_type(name)
         try:
-            with lopen(path, 'rb') as f:
+            with open(path, 'rb') as f:
                 raw = f.read()
         except OSError as err:
             prints(f"Failed to get mathjax file: {name} with error: {err}", file=sys.stderr)

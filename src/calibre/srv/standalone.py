@@ -68,10 +68,10 @@ class Server:
             access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
         if opts.custom_list_template:
-            with lopen(os.path.expanduser(opts.custom_list_template), 'rb') as f:
+            with open(os.path.expanduser(opts.custom_list_template), 'rb') as f:
                 self.handler.router.ctx.custom_list_template = json.load(f)
         if opts.search_the_net_urls:
-            with lopen(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
+            with open(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
                 self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
@@ -234,7 +234,7 @@ def main(args=sys.argv):
             )
         daemonize()
     if opts.pidfile:
-        with lopen(opts.pidfile, 'wb') as f:
+        with open(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()).encode('ascii'))
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:

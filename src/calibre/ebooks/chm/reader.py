@@ -189,7 +189,7 @@ class CHMReader(CHMFile):
             import shutil
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
-            with lopen(lpath, 'r+b') as f:
+            with open(lpath, 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
                 if isinstance(data, str):

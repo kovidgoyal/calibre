@@ -115,7 +115,7 @@ class DBProxy:
         if self.dbctx.is_remote:
             if fdata is None:
                 raise NoSuchFormat(fmt)
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(fdata)
 
 

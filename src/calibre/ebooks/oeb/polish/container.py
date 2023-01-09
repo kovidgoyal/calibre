@@ -372,7 +372,7 @@ class Container(ContainerBase):  # {{{
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
-        with lopen(path, 'wb') as f:
+        with open(path, 'wb') as f:
             if hasattr(data, 'read'):
                 shutil.copyfileobj(data, f)
             else:
@@ -587,7 +587,7 @@ class Container(ContainerBase):  # {{{
         return set()
 
     def parse(self, path, mime):
-        with lopen(path, 'rb') as src:
+        with open(path, 'rb') as src:
             data = src.read()
         if mime in OEB_DOCS:
             data = self.parse_xhtml(data, self.relpath(path))
@@ -968,7 +968,7 @@ class Container(ContainerBase):  # {{{
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
-        lopen(path, 'wb').close()
+        open(path, 'wb').close()
         return item
 
     def format_opf(self):
@@ -1023,7 +1023,7 @@ class Container(ContainerBase):  # {{{
         if self.cloned and nlinks_file(dest) > 1:
             # Decouple this file from its links
             os.unlink(dest)
-        with lopen(dest, 'wb') as f:
+        with open(dest, 'wb') as f:
             f.write(data)
 
     def filesize(self, name):
@@ -1061,7 +1061,7 @@ class Container(ContainerBase):  # {{{
         this will commit the file if it is dirtied and remove it from the parse
         cache. You must finish with this file before accessing the parsed
         version of it again, or bad things will happen. '''
-        return lopen(self.get_file_path_for_processing(name, mode not in {'r', 'rb'}), mode)
+        return open(self.get_file_path_for_processing(name, mode not in {'r', 'rb'}), mode)
 
     def commit(self, outpath=None, keep_parsed=False):
         '''
@@ -1079,7 +1079,7 @@ class Container(ContainerBase):  # {{{
         mismatches = []
         for name, path in iteritems(self.name_path_map):
             opath = other.name_path_map[name]
-            with lopen(path, 'rb') as f1, lopen(opath, 'rb') as f2:
+            with open(path, 'rb') as f1, open(opath, 'rb') as f2:
                 if f1.read() != f2.read():
                     mismatches.append('The file %s is not the same'%name)
         return '\n'.join(mismatches)
@@ -1172,7 +1172,7 @@ class EpubContainer(Container):
                 if fname is not None:
                     shutil.copy(os.path.join(dirpath, fname), os.path.join(base, fname))
         else:
-            with lopen(self.pathtoepub, 'rb') as stream:
+            with open(self.pathtoepub, 'rb') as stream:
                 try:
                     zf = ZipFile(stream)
                     zf.extractall(tdir)
@@ -1399,12 +1399,12 @@ class EpubContainer(Container):
                     if err.errno != errno.EEXIST:
                         raise
                 for fname in filenames:
-                    with lopen(os.path.join(dirpath, fname), 'rb') as src, lopen(os.path.join(base, fname), 'wb') as dest:
+                    with open(os.path.join(dirpath, fname), 'rb') as src, open(os.path.join(base, fname), 'wb') as dest:
                         shutil.copyfileobj(src, dest)
 
         else:
             from calibre.ebooks.tweak import zip_rebuilder
-            with lopen(join(self.root, 'mimetype'), 'wb') as f:
+            with open(join(self.root, 'mimetype'), 'wb') as f:
                 et = guess_type('a.epub')
                 if not isinstance(et, bytes):
                     et = et.encode('ascii')
@@ -1434,7 +1434,7 @@ class InvalidMobi(InvalidBook):
 def do_explode(path, dest):
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
     from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
-    with lopen(path, 'rb') as stream:
+    with open(path, 'rb') as stream:
         mr = MobiReader(stream, default_log, None, None)
 
         with CurrentDir(dest):
@@ -1494,7 +1494,7 @@ class AZW3Container(Container):
             tdir = PersistentTemporaryDirectory('_azw3_container')
         tdir = os.path.abspath(os.path.realpath(tdir))
         self.root = tdir
-        with lopen(pathtoazw3, 'rb') as stream:
+        with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
             if raw == b'TPZ':
                 raise InvalidMobi(_('This is not a MOBI file. It is a Topaz file.'))

@@ -148,7 +148,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                 safe_remove(mpath, True)
             try:
                 os.utime(mpath, None)
-                with lopen(mpath, 'rb') as f:
+                with open(mpath, 'rb') as f:
                     ans = jsonlib.load(f)
                 ans['metadata'] = book_as_json(db, book_id)
                 user = rd.username or None
@@ -179,7 +179,7 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     if not mpath.startswith(base):
         raise HTTPNotFound(f'No book file with hash: {bhash} and name: {name}')
     try:
-        return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), bhash, name)
+        return rd.filesystem_file_with_custom_etag(open(mpath, 'rb'), bhash, name)
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
@@ -304,4 +304,4 @@ def mathjax(ctx, rd, which):
     path = os.path.abspath(P('mathjax/' + which, allow_user_override=False))
     if not path.startswith(P('mathjax', allow_user_override=False)):
         raise HTTPNotFound('No MathJax file named: %s' % which)
-    return rd.filesystem_file_with_constant_etag(lopen(path, 'rb'), manifest['etag'])
+    return rd.filesystem_file_with_constant_etag(open(path, 'rb'), manifest['etag'])

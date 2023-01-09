@@ -46,7 +46,7 @@ def index(ctx, rd):
         if not p.path.endswith(b'/'):
             p = p._replace(path=p.path + b'/')
             raise HTTPRedirect(urlunparse(p).decode('utf-8'))
-    ans_file = lopen(P('content-server/index-generated.html'), 'rb')
+    ans_file = open(P('content-server/index-generated.html'), 'rb')
     if not in_develop_mode:
         return ans_file
     return ans_file.read().replace(b'__IN_DEVELOP_MODE__', b'1')

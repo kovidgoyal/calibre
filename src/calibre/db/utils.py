@@ -227,7 +227,7 @@ class ThumbnailCache:
         if hasattr(self, 'items'):
             try:
                 data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in self.items)
-                with lopen(os.path.join(self.location, 'order'), 'wb') as f:
+                with open(os.path.join(self.location, 'order'), 'wb') as f:
                     f.write(data.encode('utf-8'))
             except OSError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
@@ -235,7 +235,7 @@ class ThumbnailCache:
     def _read_order(self):
         order = {}
         try:
-            with lopen(os.path.join(self.location, 'order'), 'rb') as f:
+            with open(os.path.join(self.location, 'order'), 'rb') as f:
                 for line in f.read().decode('utf-8').splitlines():
                     parts = line.split(' ', 1)
                     if len(parts) == 2:

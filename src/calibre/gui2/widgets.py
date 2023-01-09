@@ -254,7 +254,7 @@ class ImageDropMixin:  # {{{
                 d.start_download()
                 if d.err is None:
                     pmap = QPixmap()
-                    with lopen(d.fpath, 'rb') as f:
+                    with open(d.fpath, 'rb') as f:
                         data = f.read()
                     pmap.loadFromData(data)
                     if not pmap.isNull():

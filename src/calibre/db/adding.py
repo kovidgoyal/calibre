@@ -244,7 +244,7 @@ def add_catalog(cache, path, title, dbapi=None):
 
     fmt = os.path.splitext(path)[1][1:].lower()
     new_book_added = False
-    with lopen(path, 'rb') as stream:
+    with open(path, 'rb') as stream:
         with cache.write_lock:
             matches = cache._search('title:="{}" and tags:="{}"'.format(title.replace('"', '\\"'), _('Catalog')), None)
             db_id = None
@@ -276,7 +276,7 @@ def add_news(cache, path, arg, dbapi=None):
     from calibre.utils.date import utcnow
 
     fmt = os.path.splitext(getattr(path, 'name', path))[1][1:].lower()
-    stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+    stream = path if hasattr(path, 'read') else open(path, 'rb')
     stream.seek(0)
     mi = get_metadata(stream, fmt, use_libprs_metadata=False,
             force_read_metadata=True)

@@ -442,7 +442,7 @@ def get_font_for_text(text, candidate_font_data=None):
         from calibre.utils.fonts.scanner import font_scanner
         family, faces = font_scanner.find_font_for_text(text)
         if faces:
-            with lopen(faces[0]['path'], 'rb') as f:
+            with open(faces[0]['path'], 'rb') as f:
                 candidate_font_data = f.read()
     return candidate_font_data
 

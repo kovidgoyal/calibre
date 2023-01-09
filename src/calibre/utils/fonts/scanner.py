@@ -253,7 +253,7 @@ class FontScanner(Thread):
         path = font_or_path
         if isinstance(font_or_path, dict):
             path = font_or_path['path']
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             return f.read()
 
     def find_font_for_text(self, text, allowed_families={'serif', 'sans-serif'},
@@ -374,7 +374,7 @@ class FontScanner(Thread):
         self.write_cache()
 
     def read_font_metadata(self, path, fileid):
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             try:
                 fm = FontMetadata(f)
             except UnsupportedFont:

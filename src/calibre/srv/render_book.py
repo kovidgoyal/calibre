@@ -416,8 +416,8 @@ class RenderManager:
         self.max_workers = max_workers
 
     def launch_worker(self):
-        with lopen(os.path.join(self.tdir, f'{len(self.workers)}.json'), 'wb') as output:
-            error = lopen(os.path.join(self.tdir, f'{len(self.workers)}.error'), 'wb')
+        with open(os.path.join(self.tdir, f'{len(self.workers)}.json'), 'wb') as output:
+            error = open(os.path.join(self.tdir, f'{len(self.workers)}.error'), 'wb')
             p = start_pipe_worker('from calibre.srv.render_book import worker_main; worker_main()', stdout=error, stderr=error)
             p.output_path = output.name
             p.error_path = error.name
@@ -485,10 +485,10 @@ class RenderManager:
                 worker.wait()
                 continue
             if worker.wait() != 0:
-                with lopen(worker.error_path, 'rb') as f:
+                with open(worker.error_path, 'rb') as f:
                     error = f.read().decode('utf-8', 'replace')
             else:
-                with lopen(worker.output_path, 'rb') as f:
+                with open(worker.output_path, 'rb') as f:
                     results.append(msgpack_loads(f.read()))
         if error is not None:
             raise Exception('Render worker failed with error:\n' + error)
@@ -698,7 +698,7 @@ def process_exploded_book(
             amap[k] = tuple(v)  # needed for JSON serialization
 
     data = as_bytes(json.dumps(book_render_data, ensure_ascii=False))
-    with lopen(os.path.join(container.root, 'calibre-book-manifest.json'), 'wb') as f:
+    with open(os.path.join(container.root, 'calibre-book-manifest.json'), 'wb') as f:
         f.write(data)
 
     return container, bookmark_data
@@ -784,7 +784,7 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
         if serialize_metadata:
             from calibre.customize.ui import quick_metadata
             from calibre.ebooks.metadata.meta import get_metadata
-            with lopen(pathtoebook, 'rb') as f, quick_metadata:
+            with open(pathtoebook, 'rb') as f, quick_metadata:
                 mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
         book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
         container, bookmark_data = process_exploded_book(
@@ -797,14 +797,14 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
             d = metadata_as_dict(mi)
             d.pop('cover_data', None)
             serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
-            with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
+            with open(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
                 f.write(json_dumps(d))
         if extract_annotations:
             annotations = None
             if bookmark_data:
                 annotations = json_dumps(tuple(get_stored_annotations(container, bookmark_data)))
             if annotations:
-                with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
+                with open(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
                     f.write(annotations)
 
 

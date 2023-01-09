@@ -40,7 +40,7 @@ class Image:
         if hasattr(path_or_file, 'read'):
             self.load(path_or_file.read())
         else:
-            with lopen(path_or_file, 'rb') as f:
+            with open(path_or_file, 'rb') as f:
                 self.load(f.read())
 
     def load(self, data):
@@ -101,7 +101,7 @@ class Image:
             format = ext[1:]
         format = format.upper()
 
-        with lopen(path, 'wb') as f:
+        with open(path, 'wb') as f:
             f.write(self.export(format))
 
     def compose(self, img, left=0, top=0, operation='OverCompositeOp'):

@@ -328,7 +328,7 @@ def base_dir():
 def atomic_write(base, name, content):
     name = os.path.join(base, name)
     tname = name + '.tmp'
-    with lopen(tname, 'wb') as f:
+    with open(tname, 'wb') as f:
         f.write(as_bytes(content))
     atomic_rename(tname, name)
 
@@ -355,7 +355,7 @@ def run_rapydscript_tests():
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'test.pyj')
-    with lopen(fname, 'rb') as f:
+    with open(fname, 'rb') as f:
         js = compile_fast(f.read(), fname)
 
     class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
@@ -443,7 +443,7 @@ def compile_editor():
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'editor.pyj')
-    with lopen(fname, 'rb') as f:
+    with open(fname, 'rb') as f:
         js = set_data(compile_fast(f.read(), fname))
     base = os.path.join(base, 'resources')
     atomic_write(base, 'editor.js', js)
@@ -455,14 +455,14 @@ def compile_viewer():
     g = {'__file__': iconf}
     exec_path(iconf, g)
     icons = g['merge']()
-    with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+    with open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read().decode('utf-8')
     html = '<!DOCTYPE html>\n<html><head><style>{reset}</style></head><body>{icons}</body></html>'.format(
             icons=icons, reset=reset)
 
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
-    with lopen(fname, 'rb') as f:
+    with open(fname, 'rb') as f:
         js = set_data(compile_fast(f.read(), fname))
     base = os.path.join(base, 'resources')
     atomic_write(base, 'viewer.js', js)
@@ -475,22 +475,22 @@ def compile_srv():
     g = {'__file__': iconf}
     exec_path(iconf, g)
     icons = g['merge']().encode('utf-8')
-    with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+    with open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
-    with lopen(rb, 'rb') as f:
+    with open(rb, 'rb') as f:
         rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
     mathjax_version = json.loads(P('mathjax/manifest.json', data=True, allow_user_override=False))['etag']
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
-    with lopen(fname, 'rb') as f:
+    with open(fname, 'rb') as f:
         js = set_data(
             compile_fast(f.read(), fname),
             __RENDER_VERSION__=rv,
             __MATHJAX_VERSION__=mathjax_version
         ).encode('utf-8')
-    with lopen(os.path.join(base, 'index.html'), 'rb') as f:
+    with open(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)

@@ -3709,7 +3709,7 @@ class CatalogBuilder:
         # Write the OPF file
         pretty_opf(root), pretty_xml_tree(root)
         output = etree.tostring(root, encoding='utf-8')
-        with lopen(f"{self.catalog_path}/{self.opts.basename}.opf", 'wb') as outfile:
+        with open(f"{self.catalog_path}/{self.opts.basename}.opf", 'wb') as outfile:
             outfile.write(output.strip())
 
     def generate_rating_string(self, book):
@@ -3885,7 +3885,7 @@ class CatalogBuilder:
                 pass
 
         # Generate crc for current cover
-        with lopen(title['cover'], 'rb') as f:
+        with open(title['cover'], 'rb') as f:
             data = f.read()
         cover_crc = hex(zlib.crc32(data))
 
@@ -3909,7 +3909,7 @@ class CatalogBuilder:
             # Save thumb for catalog. If invalid data, error returns to generate_thumbnails()
             thumb_data = scale_image(data,
                     width=self.thumb_width, height=self.thumb_height)[-1]
-            with lopen(os.path.join(image_dir, thumb_file), 'wb') as f:
+            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
                 f.write(thumb_data)
 
             # Save thumb to archive
@@ -4378,5 +4378,5 @@ class CatalogBuilder:
         self.update_progress_full_step(_("Saving NCX"))
         pretty_xml_tree(self.ncx_root)
         ncx = etree.tostring(self.ncx_root, encoding='utf-8')
-        with lopen(f"{self.catalog_path}/{self.opts.basename}.ncx", 'wb') as outfile:
+        with open(f"{self.catalog_path}/{self.opts.basename}.ncx", 'wb') as outfile:
             outfile.write(ncx)

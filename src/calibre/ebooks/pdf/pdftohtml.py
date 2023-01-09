@@ -46,7 +46,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
     pdfsrc = os.path.join(output_dir, 'src.pdf')
     index = os.path.join(output_dir, 'index.'+('xml' if as_xml else 'html'))
 
-    with lopen(pdf_path, 'rb') as src, lopen(pdfsrc, 'wb') as dest:
+    with open(pdf_path, 'rb') as src, open(pdfsrc, 'wb') as dest:
         shutil.copyfileobj(src, dest)
 
     with CurrentDir(output_dir):
@@ -78,7 +78,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         ret = eintr_retry_call(p.wait)
         logf.flush()
         logf.close()
-        out = lopen(logf.name, 'rb').read().decode('utf-8', 'replace').strip()
+        out = open(logf.name, 'rb').read().decode('utf-8', 'replace').strip()
         if ret != 0:
             raise ConversionError('pdftohtml failed with return code: %d\n%s' % (ret, out))
         if out:
@@ -88,7 +88,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
             raise DRMError()
 
         if not as_xml:
-            with lopen(index, 'r+b') as i:
+            with open(index, 'r+b') as i:
                 raw = i.read().decode('utf-8', 'replace')
                 raw = flip_images(raw)
                 raw = raw.replace('<head', '<!-- created by calibre\'s pdftohtml -->\n  <head', 1)
@@ -150,7 +150,7 @@ def parse_outline(raw, output_dir):
 
 def flip_image(img, flip):
     from calibre.utils.img import flip_image, image_and_format_from_data, image_to_data
-    with lopen(img, 'r+b') as f:
+    with open(img, 'r+b') as f:
         img, fmt = image_and_format_from_data(f.read())
         img = flip_image(img, horizontal='x' in flip, vertical='y' in flip)
         f.seek(0), f.truncate()

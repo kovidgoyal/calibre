@@ -77,12 +77,12 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None):
     gprefs['quick_start_guide_added'] = True
     imgbuf = BytesIO(calibre_cover2(_('Quick Start Guide'), ''))
     try:
-        with lopen(P('quick_start/%s.epub' % l), 'rb') as src:
+        with open(P('quick_start/%s.epub' % l), 'rb') as src:
             buf = BytesIO(src.read())
     except OSError as err:
         if err.errno != errno.ENOENT:
             raise
-        with lopen(P('quick_start/eng.epub'), 'rb') as src:
+        with open(P('quick_start/eng.epub'), 'rb') as src:
             buf = BytesIO(src.read())
     safe_replace(buf, 'images/cover.jpg', imgbuf)
     buf.seek(0)

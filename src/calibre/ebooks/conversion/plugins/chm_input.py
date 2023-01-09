@@ -172,7 +172,7 @@ class CHMInput(InputFormatPlugin):
         return htmlpath, toc
 
     def _read_file(self, name):
-        with lopen(name, 'rb') as f:
+        with open(name, 'rb') as f:
             data = f.read()
         return data
 

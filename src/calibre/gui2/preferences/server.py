@@ -940,7 +940,7 @@ class CustomList(QWidget):  # {{{
         paths = choose_files(self, 'custom-list-template', _('Choose template file'),
             filters=[(_('Template files'), ['json'])], all_files=False, select_only_single_file=True)
         if paths:
-            with lopen(paths[0], 'rb') as f:
+            with open(paths[0], 'rb') as f:
                 raw = f.read()
             self.current_template = self.deserialize(raw)
 
@@ -950,7 +950,7 @@ class CustomList(QWidget):  # {{{
             filters=[(_('Template files'), ['json'])], initial_filename='custom-list-template.json')
         if path:
             raw = self.serialize(self.current_template)
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(as_bytes(raw))
 
     def thumbnail_state_changed(self):
@@ -1003,7 +1003,7 @@ class CustomList(QWidget):  # {{{
                     raise
         else:
             raw = self.serialize(template)
-            with lopen(custom_list_template.path, 'wb') as f:
+            with open(custom_list_template.path, 'wb') as f:
                 f.write(as_bytes(raw))
         return True
 
@@ -1165,7 +1165,7 @@ class SearchTheInternet(QWidget):
                 return False
         cu = self.current_urls
         if cu:
-            with lopen(search_the_net_urls.path, 'wb') as f:
+            with open(search_the_net_urls.path, 'wb') as f:
                 f.write(self.serialized_urls.encode('utf-8'))
         else:
             try:
@@ -1180,14 +1180,14 @@ class SearchTheInternet(QWidget):
             self, 'search-net-urls', _('Choose URLs file'),
             filters=[(_('URL files'), ['json'])], initial_filename='search-urls.json')
         if path:
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(self.serialized_urls.encode('utf-8'))
 
     def import_urls(self):
         paths = choose_files(self, 'search-net-urls', _('Choose URLs file'),
             filters=[(_('URL files'), ['json'])], all_files=False, select_only_single_file=True)
         if paths:
-            with lopen(paths[0], 'rb') as f:
+            with open(paths[0], 'rb') as f:
                 items = json.loads(f.read())
                 [self.append_item(x) for x in items]
                 self.changed_signal.emit()

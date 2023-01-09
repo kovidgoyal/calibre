@@ -114,7 +114,7 @@ class MetadataBackup(Thread):  # {{{
         self.break_cycles()
 
     def write(self, path, raw):
-        with lopen(path, 'wb') as f:
+        with open(path, 'wb') as f:
             f.write(raw)
 
 

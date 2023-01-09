@@ -756,10 +756,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
             try:
-                f = lopen(path, 'rb')
+                f = open(path, 'rb')
             except OSError:
                 time.sleep(0.2)
-                f = lopen(path, 'rb')
+                f = open(path, 'rb')
             with f:
                 if as_path:
                     pt = PersistentTemporaryFile('_dbcover.jpg')
@@ -873,7 +873,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             try:
                 raw = metadata_to_opf(mi)
-                with lopen(path, 'wb') as f:
+                with open(path, 'wb') as f:
                     f.write(raw)
                 if remove_from_dirtied:
                     self.clear_dirtied(book_id, sequence)
@@ -1312,7 +1312,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path is None:
             raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
         sha = hashlib.sha256()
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             while True:
                 raw = f.read(SPOOL_SIZE)
                 sha.update(raw)
@@ -1408,7 +1408,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     windows_atomic_move.copy_path_to(path, dest)
         else:
             if hasattr(dest, 'write'):
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     shutil.copyfileobj(f, dest)
                 if hasattr(dest, 'flush'):
                     dest.flush()
@@ -1427,7 +1427,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             return
                         except:
                             pass
-                    with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    with open(path, 'rb') as f, open(dest, 'wb') as d:
                         shutil.copyfileobj(f, d)
 
     def copy_cover_to(self, index, dest, index_is_id=False,
@@ -1458,10 +1458,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if os.access(path, os.R_OK):
                 try:
-                    f = lopen(path, 'rb')
+                    f = open(path, 'rb')
                 except OSError:
                     time.sleep(0.2)
-                f = lopen(path, 'rb')
+                f = open(path, 'rb')
                 with f:
                     if hasattr(dest, 'write'):
                         shutil.copyfileobj(f, dest)
@@ -1475,7 +1475,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 return True
                             except:
                                 pass
-                        with lopen(dest, 'wb') as d:
+                        with open(dest, 'wb') as d:
                             shutil.copyfileobj(f, d)
                         return True
         return False
@@ -1500,7 +1500,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            with lopen(path, mode) as f:
+            with open(path, mode) as f:
                 if as_path:
                     if preserve_filename:
                         bd = base_dir()
@@ -1511,7 +1511,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             pass
                         fname = os.path.basename(path)
                         ret = os.path.join(d, fname)
-                        with lopen(ret, 'wb') as f2:
+                        with open(ret, 'wb') as f2:
                             shutil.copyfileobj(f, f2)
                     else:
                         with PersistentTemporaryFile('.'+format.lower()) as pt:
@@ -1532,7 +1532,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                               path=None, notify=True, replace=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = lopen(npath, 'rb')
+        stream = open(npath, 'rb')
         format = check_ebook_format(stream, format)
         id = index if index_is_id else self.id(index)
         retval = self.add_format(id, format, stream, replace=replace,
@@ -1564,7 +1564,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if (not getattr(stream, 'name', False) or not samefile(dest,
                 stream.name)):
-                with lopen(dest, 'wb') as f:
+                with open(dest, 'wb') as f:
                     shutil.copyfileobj(stream, f)
                     size = f.tell()
             elif os.path.exists(dest):
@@ -1587,7 +1587,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if opath is None:
             return False
         nfmt = 'ORIGINAL_'+fmt
-        with lopen(opath, 'rb') as f:
+        with open(opath, 'rb') as f:
             return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
 
     def original_fmt(self, book_id, fmt):
@@ -1600,7 +1600,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         opath = self.format_abspath(book_id, original_fmt, index_is_id=True)
         if opath is not None:
             fmt = original_fmt.partition('_')[2]
-            with lopen(opath, 'rb') as f:
+            with open(opath, 'rb') as f:
                 self.add_format(book_id, fmt, f, index_is_id=True, notify=False)
             self.remove_format(book_id, original_fmt, index_is_id=True, notify=notify)
             return True
@@ -2336,7 +2336,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif isinstance(mi.cover, string_or_bytes) and mi.cover:
             if os.access(mi.cover, os.R_OK):
-                with lopen(mi.cover, 'rb') as f:
+                with open(mi.cover, 'rb') as f:
                     raw = f.read()
                 if raw:
                     doit(self.set_cover, id, raw, commit=False)
@@ -3358,7 +3358,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        with lopen(path, 'rb') as stream:
+        with open(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
             if matches:
                 tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
@@ -3394,7 +3394,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+        stream = path if hasattr(path, 'read') else open(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False,
                 force_read_metadata=True)
@@ -3525,7 +3525,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            with lopen(npath, 'rb') as stream:
+            with open(npath, 'rb') as stream:
                 format = check_ebook_format(stream, format)
                 self.add_format(id, format, stream, index_is_id=True)
             postimport.append((id, format))
@@ -3574,7 +3574,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if import_hooks:
                 self.add_format_with_hooks(id, ext, path, index_is_id=True)
             else:
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
         # Mark the book dirty, It probably already has been done by
         # set_metadata, but probably isn't good enough

@@ -668,7 +668,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 path = files[0]
                 d.url.setText(path)
                 if path and os.path.exists(path):
-                    with lopen(path, 'rb') as f:
+                    with open(path, 'rb') as f:
                         q = what(f)
                     is_image = q in {'jpeg', 'png', 'gif'}
                     d.treat_as_image.setChecked(is_image)
@@ -776,7 +776,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if qurl.isLocalFile():
                 path = qurl.toLocalFile()
                 try:
-                    with lopen(path, 'rb') as f:
+                    with open(path, 'rb') as f:
                         data = f.read()
                 except OSError:
                     if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:

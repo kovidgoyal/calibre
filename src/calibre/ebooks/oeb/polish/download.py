@@ -111,7 +111,7 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
                 path = unquote(purl.path)
                 if iswindows and path.startswith('/'):
                     path = path[1:]
-                src = lopen(path, 'rb')
+                src = open(path, 'rb')
                 filename = os.path.basename(path)
                 sz = (src.seek(0, os.SEEK_END), src.tell(), src.seek(0))[1]
             elif purl.scheme == 'data':
@@ -167,7 +167,7 @@ def download_external_resources(container, urls, timeout=60, progress_report=lam
             for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout, progress_report, data_uri_map), urls):
                 if ok:
                     url, suggested_filename, downloaded_file, mt = result
-                    with lopen(downloaded_file, 'rb') as src:
+                    with open(downloaded_file, 'rb') as src:
                         name = container.add_file(suggested_filename, src, mt, modify_name_if_needed=True)
                     replacements[url] = name
                 else:

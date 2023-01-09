@@ -1572,7 +1572,7 @@ class Boss(QObject):
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
             container = current_container()
             for name, (path, mt) in iteritems(name_map):
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     container.add_file(name, f.read(), media_type=mt, modify_name_if_needed=True)
             self.apply_container_update_to_gui()
 

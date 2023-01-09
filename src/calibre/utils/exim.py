@@ -139,13 +139,13 @@ class Exporter:
                 rpath = os.path.relpath(fpath, path).replace(os.sep, '/')
                 key = f'{pkey}:{rpath}'
                 try:
-                    with lopen(fpath, 'rb') as f:
+                    with open(fpath, 'rb') as f:
                         self.add_file(f, key)
                 except OSError:
                     if not iswindows:
                         raise
                     time.sleep(1)
-                    with lopen(fpath, 'rb') as f:
+                    with open(fpath, 'rb') as f:
                         self.add_file(f, key)
                 files.append((key, rpath))
 
@@ -274,7 +274,7 @@ class Importer:
             self.file_metadata = self.metadata['file_metadata']
 
     def part(self, num):
-        return lopen(self.part_map[num], 'rb')
+        return open(self.part_map[num], 'rb')
 
     def start_file(self, key, description):
         partnum, pos, size, digest, mtime = self.file_metadata[key]
@@ -287,16 +287,16 @@ class Importer:
             f = self.start_file(key, relpath)
             path = os.path.join(base_dir, relpath.replace('/', os.sep))
             try:
-                with lopen(path, 'wb') as dest:
+                with open(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
             except OSError:
                 os.makedirs(os.path.dirname(path))
-                with lopen(path, 'wb') as dest:
+                with open(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
             f.close()
         gpath = os.path.join(base_dir, 'global.py')
         try:
-            with lopen(gpath, 'rb') as f:
+            with open(gpath, 'rb') as f:
                 raw = f.read()
         except OSError:
             raw = b''
@@ -310,7 +310,7 @@ class Importer:
         raw = c.src
         if not isinstance(raw, bytes):
             raw = raw.encode('utf-8')
-        with lopen(gpath, 'wb') as f:
+        with open(gpath, 'wb') as f:
             f.write(raw)
         gprefs = JSONConfig('gui', base_path=base_dir)
         gprefs['library_usage_stats'] = dict(library_usage_stats)

@@ -1084,14 +1084,14 @@ class KOBO(USBMS):
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
                         if os.path.exists(fpath):
-                            with lopen(cover, 'rb') as f:
+                            with open(cover, 'rb') as f:
                                 data = f.read()
 
                             # Return the data resized and grayscaled if
                             # required
                             data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize)
 
-                            with lopen(fpath, 'wb') as f:
+                            with open(fpath, 'wb') as f:
                                 f.write(data)
                                 fsync(f)
 
@@ -1111,7 +1111,7 @@ class KOBO(USBMS):
         '''
         for idx, path in enumerate(paths):
             if path.find('kepub') >= 0:
-                with closing(lopen(path, 'rb')) as r:
+                with closing(open(path, 'rb')) as r:
                     tf = PersistentTemporaryFile(suffix='.epub')
                     shutil.copyfileobj(r, tf)
 #                    tf.write(r.read())
@@ -2842,7 +2842,7 @@ class KOBOTOUCH(KOBO):
                     debug_print("KoboTouch:_upload_cover - Image folder does not exist. Creating path='%s'" % (image_dir))
                     os.makedirs(image_dir)
 
-                with lopen(cover, 'rb') as f:
+                with open(cover, 'rb') as f:
                     cover_data = f.read()
 
                 fmt, width, height = identify(cover_data)
@@ -2902,7 +2902,7 @@ class KOBOTOUCH(KOBO):
                         #       through a temporary file...
                         if png_covers:
                             tmp_cover = better_mktemp()
-                            with lopen(tmp_cover, 'wb') as f:
+                            with open(tmp_cover, 'wb') as f:
                                 f.write(data)
 
                             optimize_png(tmp_cover, level=1)
@@ -2910,7 +2910,7 @@ class KOBOTOUCH(KOBO):
                             shutil.copy2(tmp_cover, fpath)
                             os.remove(tmp_cover)
                         else:
-                            with lopen(fpath, 'wb') as f:
+                            with open(fpath, 'wb') as f:
                                 f.write(data)
                                 fsync(f)
         except Exception as e:

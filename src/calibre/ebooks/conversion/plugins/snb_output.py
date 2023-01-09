@@ -241,7 +241,7 @@ class SNBOutput(OutputFormatPlugin):
             #     img = img.rotate(90)
             #     x,y = y,x
             img = resize_image(img, x // scale, y // scale)
-        with lopen(imagePath, 'wb') as f:
+        with open(imagePath, 'wb') as f:
             f.write(image_to_data(img, fmt=imagePath.rpartition('.')[-1]))
 
 

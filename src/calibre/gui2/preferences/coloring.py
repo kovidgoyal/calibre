@@ -1268,14 +1268,14 @@ class EditRules(QWidget):  # {{{
             data = json.dumps(rules, indent=2)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(data)
 
     def import_rules(self):
         files = choose_files(self, 'import-coloring-rules', _('Choose file to import from'),
                                 filters=[(_('Rules'), ['rules'])], all_files=False, select_only_single_file=True)
         if files:
-            with lopen(files[0], 'rb') as f:
+            with open(files[0], 'rb') as f:
                 raw = f.read()
             try:
                 rules = json.loads(raw)

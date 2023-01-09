@@ -31,7 +31,7 @@ def set_azw3_cover(container, cover_path, report, options=None):
     container.insert_into_xml(guide, guide.makeelement(
         OPF('reference'), href=href, type='cover'))
     if not existing_image:
-        with lopen(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
+        with open(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
             shutil.copyfileobj(src, dest)
     container.dirty(container.opf_name)
     report(_('Cover updated') if found else _('Cover inserted'))
@@ -350,7 +350,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
             if callable(cover_path):
                 cover_path('write_image', dest)
             else:
-                with lopen(cover_path, 'rb') as src:
+                with open(cover_path, 'rb') as src:
                     shutil.copyfileobj(src, dest)
     if options is None:
         opts = load_defaults('epub_output')
@@ -374,7 +374,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
                 if existing_image:
                     width, height = identify(container.raw_data(existing_image, decode=False))[1:]
                 else:
-                    with lopen(cover_path, 'rb') as csrc:
+                    with open(cover_path, 'rb') as csrc:
                         width, height = identify(csrc)[1:]
             except:
                 container.log.exception("Failed to get width and height of cover")

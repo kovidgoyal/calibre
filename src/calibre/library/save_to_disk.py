@@ -341,13 +341,13 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
             cdata = db.cover(book_id)
             if cdata:
                 cpath = base_path + '.jpg'
-                with lopen(cpath, 'wb') as f:
+                with open(cpath, 'wb') as f:
                     f.write(cdata)
                 mi.cover = base_name+'.jpg'
         if opts.write_opf:
             from calibre.ebooks.metadata.opf2 import metadata_to_opf
             opf = metadata_to_opf(mi)
-            with lopen(base_path+'.opf', 'wb') as f:
+            with open(base_path+'.opf', 'wb') as f:
                 f.write(opf)
     finally:
         mi.cover, mi.pubdate, mi.timestamp = originals
@@ -363,7 +363,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         except NoSuchFormat:
             continue
         if opts.update_metadata:
-            with lopen(fmt_path, 'r+b') as stream:
+            with open(fmt_path, 'r+b') as stream:
                 update_metadata(mi, fmt, stream, plugboards, cdata)
 
     return not formats_written, book_id, mi.title
@@ -423,7 +423,7 @@ def read_serialized_metadata(data):
     mi.cover, mi.cover_data = None, (None, None)
     cdata = None
     if 'cover' in data:
-        with lopen(data['cover'], 'rb') as f:
+        with open(data['cover'], 'rb') as f:
             cdata = f.read()
     return mi, cdata
 
@@ -441,7 +441,7 @@ def update_serialized_metadata(book, common_data=None):
 
         for fmt, fmtpath in zip(fmts, book['fmts']):
             try:
-                with lopen(fmtpath, 'r+b') as stream:
+                with open(fmtpath, 'r+b') as stream:
                     update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
             except Exception:
                 report_error(fmt, traceback.format_exc())

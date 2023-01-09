@@ -601,7 +601,7 @@ class DeviceManager(Thread):  # {{{
                             if DEBUG:
                                 prints('Setting metadata in:', mi.title, 'at:',
                                         f, file=sys.__stdout__)
-                            with lopen(f, 'r+b') as stream:
+                            with open(f, 'r+b') as stream:
                                 if cpb:
                                     newmi = mi.deepcopy_metadata()
                                     newmi.template_to_attribute(mi, cpb)
@@ -658,7 +658,7 @@ class DeviceManager(Thread):  # {{{
             name = sanitize_file_name(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
-                with lopen(dest, 'wb') as f:
+                with open(dest, 'wb') as f:
                     self.device.get_file(path, f)
 
     def save_books(self, done, paths, target, add_as_step_to_job=None):
@@ -667,7 +667,7 @@ class DeviceManager(Thread):  # {{{
                         to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
-        with lopen(target, 'wb') as f:
+        with open(target, 'wb') as f:
             self.device.get_file(path, f)
         return target
 
@@ -1779,7 +1779,7 @@ class DeviceMixin:  # {{{
 
     def update_thumbnail(self, book):
         if book.cover and os.access(book.cover, os.R_OK):
-            with lopen(book.cover, 'rb') as f:
+            with open(book.cover, 'rb') as f:
                 book.thumbnail = self.cover_to_thumbnail(f.read())
         else:
             cprefs = self.default_thumbnail_prefs

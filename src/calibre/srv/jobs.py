@@ -72,7 +72,7 @@ class Job(Thread):
         ans = ''
         if self.log_path is not None:
             try:
-                with lopen(self.log_path, 'rb') as f:
+                with open(self.log_path, 'rb') as f:
                     ans = f.read()
             except OSError:
                 pass

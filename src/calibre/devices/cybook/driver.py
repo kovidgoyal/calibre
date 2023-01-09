@@ -49,7 +49,7 @@ class CYBOOK(USBMS):
             coverdata = coverdata[2]
         else:
             coverdata = None
-        with lopen('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
+        with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
             t2b.write_t2b(t2bfile, coverdata)
             fsync(t2bfile)
 
@@ -89,7 +89,7 @@ class ORIZON(CYBOOK):
             coverdata = coverdata[2]
         else:
             coverdata = None
-        with lopen('%s.thn' % filepath, 'wb') as thnfile:
+        with open('%s.thn' % filepath, 'wb') as thnfile:
             t4b.write_t4b(thnfile, coverdata)
             fsync(thnfile)
 

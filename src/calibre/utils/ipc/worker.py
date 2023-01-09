@@ -215,7 +215,7 @@ def main():
         result = func(*args, **kwargs)
         if result is not None:
             os.makedirs(os.path.dirname(resultf), exist_ok=True)
-            with lopen(resultf, 'wb') as f:
+            with open(resultf, 'wb') as f:
                 f.write(pickle_dumps(result))
 
         notifier.queue.put(None)

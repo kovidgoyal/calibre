@@ -615,7 +615,7 @@ class Device(DeviceConfig, DevicePlugin):
             path = os.path.join(mp, 'calibre_readonly_test')
             ro = True
             try:
-                with lopen(path, 'wb'):
+                with open(path, 'wb'):
                     ro = False
             except:
                 pass

@@ -233,7 +233,7 @@ class Saver(QObject):
                 fname = os.path.join(self.tdir, '%d.jpg' % book_id)
 
             if fname:
-                with lopen(fname, 'wb') as f:
+                with open(fname, 'wb') as f:
                     f.write(cdata)
                 if self.opts.update_metadata:
                     d['cover'] = fname
@@ -245,7 +245,7 @@ class Saver(QObject):
             fname = os.path.join(self.tdir, '%d.opf' % book_id)
         if fname:
             opf = metadata_to_opf(mi)
-            with lopen(fname, 'wb') as f:
+            with open(fname, 'wb') as f:
                 f.write(opf)
             if self.opts.update_metadata:
                 d['opf'] = fname
@@ -275,7 +275,7 @@ class Saver(QObject):
     def write_fmt(self, book_id, fmt, base_path):
         fmtpath = base_path + os.extsep + fmt
         written = False
-        with lopen(fmtpath, 'w+b') as f:
+        with open(fmtpath, 'w+b') as f:
             try:
                 self.db.copy_format_to(book_id, fmt, f)
                 written = True

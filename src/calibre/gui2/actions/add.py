@@ -127,7 +127,7 @@ class AddAction(InterfaceAction):
                     _('Are you sure you want to set the same'
                     ' cover for all %d books?')%len(ids)):
                 return
-            with lopen(images[0], 'rb') as f:
+            with open(images[0], 'rb') as f:
                 cdata = f.read()
             self.gui.current_db.new_api.set_cover({book_id: cdata for book_id in ids})
             self.gui.refresh_cover_browser()

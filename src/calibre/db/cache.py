@@ -1687,7 +1687,7 @@ class Cache:
         try:
             cdata = mi.cover_data[1]
             if cdata is None and isinstance(mi.cover, string_or_bytes) and mi.cover and os.access(mi.cover, os.R_OK):
-                with lopen(mi.cover, 'rb') as f:
+                with open(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:
                 self._set_cover({book_id: cdata})
@@ -1787,7 +1787,7 @@ class Cache:
             # message in the GUI during the processing.
             npath = run_import_plugins(stream_or_path, fmt)
             fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream_or_path = lopen(npath, 'rb')
+            stream_or_path = open(npath, 'rb')
             needs_close = True
             fmt = check_ebook_format(stream_or_path, fmt)
 
@@ -1807,10 +1807,10 @@ class Cache:
             if hasattr(stream_or_path, 'read'):
                 stream = stream_or_path
             else:
-                stream = lopen(stream_or_path, 'rb')
+                stream = open(stream_or_path, 'rb')
                 needs_close = True
             try:
-                stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
+                stream = stream_or_path if hasattr(stream_or_path, 'read') else open(stream_or_path, 'rb')
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
             finally:
                 if needs_close:
@@ -2711,7 +2711,7 @@ class Cache:
         pt.close()
         self.backend.backup_database(pt.name)
         dbkey = key_prefix + ':::' + 'metadata.db'
-        with lopen(pt.name, 'rb') as f:
+        with open(pt.name, 'rb') as f:
             exporter.add_file(f, dbkey)
         os.remove(pt.name)
         poff = 1
@@ -2723,7 +2723,7 @@ class Cache:
             pt.close()
             self.backend.backup_fts_database(pt.name)
             ftsdbkey = key_prefix + ':::' + 'full-text-search.db'
-            with lopen(pt.name, 'rb') as f:
+            with open(pt.name, 'rb') as f:
                 exporter.add_file(f, ftsdbkey)
             os.remove(pt.name)
 

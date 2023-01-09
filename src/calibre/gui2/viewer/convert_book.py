@@ -186,7 +186,7 @@ def do_convert(path, temp_path, key, instance):
                     )))
                 p.stdin.close()
             if p.wait() != 0:
-                with lopen(logpath, 'rb') as logf:
+                with open(logpath, 'rb') as logf:
                     worker_output = logf.read().decode('utf-8', 'replace')
                 raise ConversionFailure(path, worker_output)
     finally:

@@ -172,7 +172,7 @@ class RTFInput(InputFormatPlugin):
             ' Use Microsoft Word or LibreOffice to save this RTF file'
             ' as HTML and convert that in calibre.')
         name = name.replace('.wmf', '.jpg')
-        with lopen(name, 'wb') as f:
+        with open(name, 'wb') as f:
             f.write(self.default_img)
         return name
 

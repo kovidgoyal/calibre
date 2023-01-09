@@ -57,7 +57,7 @@ class APNXBuilder:
         apnx = self.generate_apnx(pages, apnx_meta)
 
         # Write the APNX.
-        with lopen(apnx_path, 'wb') as apnxf:
+        with open(apnx_path, 'wb') as apnxf:
             apnxf.write(apnx)
             fsync(apnxf)
 
@@ -71,14 +71,14 @@ class APNXBuilder:
             'format': 'MOBI_7',
             'acr': ''
         }
-        with lopen(mobi_file_path, 'rb') as mf:
+        with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
             if as_bytes(ident) != b'BOOKMOBI':
                 # Check that this is really a MOBI file.
                 raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
             apnx_meta['acr'] = as_unicode(PdbHeaderReader(mf).name(), errors='replace')
         # We'll need the PDB name, the MOBI version, and some metadata to make FW 3.4 happy with KF8 files...
-        with lopen(mobi_file_path, 'rb') as mf:
+        with open(mobi_file_path, 'rb') as mf:
             mh = MetadataHeader(mf, default_log)
             if mh.mobi_version == 8:
                 apnx_meta['format'] = 'MOBI_8'

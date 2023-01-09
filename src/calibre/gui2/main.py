@@ -385,8 +385,8 @@ def run_in_debug_mode():
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
     run_calibre_debug(
-        '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
-        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
+        '--gui-debug', logpath, stdout=open(logpath, 'wb'),
+        stderr=subprocess.STDOUT, stdin=open(os.devnull, 'rb'))
 
 
 def run_gui(opts, args, app, gui_debug=None):

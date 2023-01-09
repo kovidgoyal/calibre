@@ -671,7 +671,7 @@ class EditMetadataAction(InterfaceAction):
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
-                with lopen(src_book, 'rb') as f:
+                with open(src_book, 'rb') as f:
                     self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 

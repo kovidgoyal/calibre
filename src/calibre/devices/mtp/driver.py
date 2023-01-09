@@ -344,7 +344,7 @@ class MTP_DEVICE(BASE):
             if iswindows:
                 plen = len(base)
                 name = ''.join(shorten_components_to(245-plen, [name]))
-            with lopen(os.path.join(base, name), 'wb') as out:
+            with open(os.path.join(base, name), 'wb') as out:
                 try:
                     self.get_mtp_file(f, out)
                 except Exception as e:
@@ -435,7 +435,7 @@ class MTP_DEVICE(BASE):
                 close = False
             else:
                 sz = os.path.getsize(infile)
-                stream = lopen(infile, 'rb')
+                stream = open(infile, 'rb')
                 close = True
             try:
                 mtp_file = self.put_file(parent, path[-1], stream, sz)

@@ -134,7 +134,7 @@ class PRS505(USBMS):
                         except:
                             time.sleep(5)
                             os.makedirs(dname, mode=0o777)
-                    with lopen(cachep, 'wb') as f:
+                    with open(cachep, 'wb') as f:
                         f.write(b'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
@@ -295,6 +295,6 @@ class PRS505(USBMS):
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
             cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
-            with lopen(cpath, 'wb') as f:
+            with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
             debug_print('Cover uploaded to: %r'%cpath)

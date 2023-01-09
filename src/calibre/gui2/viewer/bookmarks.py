@@ -300,7 +300,7 @@ class BookmarkManager(QWidget):
             data = json.dumps({'type': 'bookmarks', 'entries': bm}, indent=True)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with lopen(filename, 'wb') as fileobj:
+            with open(filename, 'wb') as fileobj:
                 fileobj.write(data)
 
     def import_bookmarks(self):
@@ -311,7 +311,7 @@ class BookmarkManager(QWidget):
         filename = files[0]
 
         imported = None
-        with lopen(filename, 'rb') as fileobj:
+        with open(filename, 'rb') as fileobj:
             imported = json.load(fileobj)
 
         def import_old_bookmarks(imported):

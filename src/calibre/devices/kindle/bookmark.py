@@ -47,7 +47,7 @@ class Bookmark():  # {{{
         user_notes = {}
         if self.bookmark_extension == 'mbp':
             MAGIC_MOBI_CONSTANT = 150
-            with lopen(self.path,'rb') as f:
+            with open(self.path,'rb') as f:
                 stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.timestamp, = unpack('>I', data[0x24:0x28])
@@ -144,7 +144,7 @@ class Bookmark():  # {{{
                 # Author is not matched
                 # This will find the first instance of a clipping only
                 book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
-                with lopen(book_fs,'rb') as f2:
+                with open(book_fs,'rb') as f2:
                     stream = io.BytesIO(f2.read())
                     mi = get_topaz_metadata(stream)
                 my_clippings = self.path
@@ -175,7 +175,7 @@ class Bookmark():  # {{{
 
             MAGIC_TOPAZ_CONSTANT = 33.33
             self.timestamp = os.path.getmtime(self.path)
-            with lopen(self.path,'rb') as f:
+            with open(self.path,'rb') as f:
                 stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
@@ -216,7 +216,7 @@ class Bookmark():  # {{{
 
         elif self.bookmark_extension == 'pdr':
             self.timestamp = os.path.getmtime(self.path)
-            with lopen(self.path,'rb') as f:
+            with open(self.path,'rb') as f:
                 stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
@@ -285,7 +285,7 @@ class Bookmark():  # {{{
         if self.bookmark_extension == 'mbp':
             # Read the book len from the header
             try:
-                with lopen(book_fs,'rb') as f:
+                with open(book_fs,'rb') as f:
                     self.stream = io.BytesIO(f.read())
                     self.data = StreamSlicer(self.stream)
                     self.nrecs, = unpack('>H', self.data[76:78])
@@ -297,7 +297,7 @@ class Bookmark():  # {{{
             # Read bookLength from metadata
             from calibre.ebooks.metadata.topaz import MetadataUpdater
             try:
-                with lopen(book_fs,'rb') as f:
+                with open(book_fs,'rb') as f:
                     mu = MetadataUpdater(f)
                     self.book_length = mu.book_length
             except:

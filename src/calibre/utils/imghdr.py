@@ -16,7 +16,7 @@ def what(file, h=None):
     ' Recognize image headers '
     if h is None:
         if isinstance(file, string_or_bytes):
-            with lopen(file, 'rb') as f:
+            with open(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:
             location = file.tell()
@@ -42,7 +42,7 @@ def identify(src):
     needs_close = False
 
     if isinstance(src, str):
-        stream = lopen(src, 'rb')
+        stream = open(src, 'rb')
         needs_close = True
     elif isinstance(src, bytes):
         stream = ReadOnlyFileBuffer(src)

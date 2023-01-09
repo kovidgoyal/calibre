@@ -51,12 +51,12 @@ class Worker(Thread):
         else:
             func = partial(encode_jpeg, quality=self.jpeg_quality)
         before = os.path.getsize(path)
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             old_data = f.read()
         func(path)
         after = os.path.getsize(path)
         if after >= before:
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(old_data)
             after = before
         self.results[name] = (True, (before, after))

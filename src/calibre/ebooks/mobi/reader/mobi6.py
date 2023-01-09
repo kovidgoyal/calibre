@@ -303,7 +303,7 @@ class MobiReader:
         def write_as_utf8(path, data):
             if isinstance(data, str):
                 data = data.encode('utf-8')
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(data)
 
         parse_cache[htmlfile] = root
@@ -311,7 +311,7 @@ class MobiReader:
         ncx = io.BytesIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
-        opf.render(lopen(self.created_opf_path, 'wb'), ncx,
+        opf.render(open(self.created_opf_path, 'wb'), ncx,
             ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:

@@ -182,7 +182,7 @@ def main(args=sys.argv):
         processed_args.append(arg)
     if internal_book_data_path:
         try:
-            with lopen(internal_book_data_path, 'rb') as f:
+            with open(internal_book_data_path, 'rb') as f:
                 internal_book_data = json.load(f)
         finally:
             try:

@@ -27,7 +27,7 @@ def save_defaults(name, recs):
 
     os.makedirs(config_dir, exist_ok=True)
 
-    with lopen(path, 'wb'):
+    with open(path, 'wb'):
         pass
     with ExclusiveFile(path) as f:
         f.write(raw)

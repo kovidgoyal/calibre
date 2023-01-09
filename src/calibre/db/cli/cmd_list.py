@@ -166,7 +166,7 @@ def do_list(
         ascending = True
     if 'template' in (f.strip() for f in fields):
         if template_file:
-            with lopen(template_file, 'rb') as f:
+            with open(template_file, 'rb') as f:
                 template = f.read().decode('utf-8')
         if not template:
             raise SystemExit(_('You must provide a template'))
