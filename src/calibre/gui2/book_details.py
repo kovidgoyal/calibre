@@ -5,12 +5,11 @@
 import os
 import re
 from collections import namedtuple
-from functools import partial, lru_cache
+from functools import lru_cache, partial
 from qt.core import (
     QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
-    QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QSplitter,
-    QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl, QWidget, pyqtProperty,
-    QTimer, pyqtSignal
+    QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect,
+    QSize, QSizePolicy, QSplitter, Qt, QTimer, QUrl, QWidget, pyqtProperty, pyqtSignal,
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -20,20 +19,21 @@ from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
 from calibre.ebooks.metadata.search_internet import (
     all_author_searches, all_book_searches, name_for, url_for_author_search,
-    url_for_book_search
+    url_for_book_search,
 )
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    pixmap_to_data, rating_font, safe_open_url
+    pixmap_to_data, rating_font, safe_open_url,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm, confirm as confirm_delete
 from calibre.gui2.dnd import (
-    dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
+    dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions,
 )
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl, langnames_to_langcodes
+from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
 

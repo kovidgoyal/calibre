@@ -18,6 +18,7 @@ import time
 import unittest
 
 from calibre.constants import islinux, ismacos, iswindows, plugins_loc
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -304,7 +305,8 @@ class BuildTest(unittest.TestCase):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         from qt.core import (
-            QApplication, QFontDatabase, QImageReader, QNetworkAccessManager, QTimer, QSslSocket
+            QApplication, QFontDatabase, QImageReader, QNetworkAccessManager,
+            QSslSocket, QTimer,
         )
         from qt.webengine import QWebEnginePage
 

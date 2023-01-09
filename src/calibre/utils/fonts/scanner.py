@@ -9,11 +9,13 @@ import os
 from collections import defaultdict
 from threading import Thread
 
-from calibre import walk, prints, as_unicode
-from calibre.constants import (config_dir, iswindows, ismacos, DEBUG,
-        isworker, filesystem_encoding)
+from calibre import as_unicode, prints, walk
+from calibre.constants import (
+    DEBUG, config_dir, filesystem_encoding, ismacos, iswindows, isworker,
+)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import itervalues
 
 
@@ -267,8 +269,9 @@ class FontScanner(Thread):
 
         :return: (family name, faces) or None, None
         '''
-        from calibre.utils.fonts.utils import (supports_text,
-                panose_to_css_generic_family, get_printable_characters)
+        from calibre.utils.fonts.utils import (
+            get_printable_characters, panose_to_css_generic_family, supports_text,
+        )
         if not isinstance(text, str):
             raise TypeError('%r is not unicode'%text)
         text = get_printable_characters(text)

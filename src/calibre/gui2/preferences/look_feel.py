@@ -7,39 +7,40 @@ __docformat__ = 'restructuredtext en'
 
 import json
 from collections import defaultdict
-from threading import Thread
 from functools import partial
-
 from qt.core import (
-    QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QHeaderView, QListWidgetItem,
-    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
-    QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
+    QAbstractListModel, QApplication, QBrush, QColor, QColorDialog, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QFontDialog, QFontInfo, QFormLayout, QHeaderView, QIcon,
+    QItemSelectionModel, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QPainter,
+    QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTableWidget, QTableWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
+from threading import Thread
 
 from calibre import human_readable
 from calibre.constants import ismacos, iswindows
 from calibre.db.categories import is_standard_category
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
-from calibre.gui2 import default_author_link, icon_resource_manager, choose_save_file, choose_files
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog, error_dialog
-from calibre.utils.localization import (available_translations,
-    get_language, get_lang)
-from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key
+from calibre.gui2 import (
+    choose_files, choose_save_file, config, default_author_link, error_dialog, gprefs,
+    icon_resource_manager, open_local_file, qt_app, question_dialog,
+)
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2.dialogs.quickview import get_qv_field_list
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
+from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
-from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-from calibre.utils.resources import set_data
+from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import available_translations, get_lang, get_language
+from calibre.utils.resources import get_path as P, set_data
 from polyglot.builtins import iteritems
 
 

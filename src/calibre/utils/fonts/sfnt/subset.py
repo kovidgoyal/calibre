@@ -7,12 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 import traceback
 from collections import OrderedDict
-from operator import itemgetter
 from functools import partial
+from operator import itemgetter
 
-from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
-from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
+from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
+from calibre.utils.icu import ord_string, safe_chr
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems, itervalues
 
 # TrueType outlines {{{
@@ -197,6 +198,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
 def option_parser():
     import textwrap
+
     from calibre.utils.config import OptionParser
     parser = OptionParser(usage=textwrap.dedent('''\
             %prog [options] input_font_file output_font_file characters_to_keep
@@ -239,7 +241,9 @@ def print_stats(old_stats, new_stats):
 
 
 def main(args):
-    import sys, time
+    import sys
+    import time
+
     from calibre import prints
     parser = option_parser()
     opts, args = parser.parse_args(args)
@@ -308,8 +312,9 @@ if __name__ == '__main__':
 
 
 def test_mem():
-    from calibre.utils.mem import memory
     import gc
+
+    from calibre.utils.mem import memory
     gc.collect()
     start_mem = memory()
     raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)

@@ -29,6 +29,7 @@ from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import (
     get_lang, lang_code_for_user_manual, lang_map_for_ui, localize_website_link,
 )
+from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
 from polyglot.builtins import iteritems, itervalues

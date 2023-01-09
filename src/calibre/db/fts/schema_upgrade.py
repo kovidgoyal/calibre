@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
+from calibre.utils.resources import get_path as P
+
 
 class SchemaUpgrade:
 

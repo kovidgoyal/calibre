@@ -7,19 +7,18 @@ import shutil
 import sys
 from itertools import count
 from qt.core import (
-    QT_VERSION, QApplication, QByteArray, QEvent, QFontDatabase, QFontInfo,
-    QHBoxLayout, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl, QWidget,
-    pyqtSignal, sip
+    QT_VERSION, QApplication, QByteArray, QEvent, QFontDatabase, QFontInfo, QHBoxLayout,
+    QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, sip,
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
-    QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler, QWebEngineView
+    QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler, QWebEngineView,
 )
 
 from calibre import as_unicode, prints
 from calibre.constants import (
     FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop,
-    ismacos, iswindows
+    ismacos, iswindows,
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -30,11 +29,12 @@ from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
 from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import (
     Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply,
-    to_js, setup_profile
+    setup_profile, to_js,
 )
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.functools import lru_cache

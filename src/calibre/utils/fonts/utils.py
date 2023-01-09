@@ -6,10 +6,11 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-from io import BytesIO
 from collections import defaultdict
+from io import BytesIO
 
-from polyglot.builtins import iteritems, itervalues, as_bytes
+from calibre.utils.resources import get_path as P
+from polyglot.builtins import as_bytes, iteritems, itervalues
 
 
 class UnsupportedFont(ValueError):
@@ -484,7 +485,8 @@ def test():
 
 
 def main():
-    import sys, os
+    import os
+    import sys
     for arg in sys.argv[1:]:
         print(os.path.basename(arg))
         with open(arg, 'rb') as f:

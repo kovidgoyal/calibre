@@ -20,19 +20,19 @@ from collections import OrderedDict, deque
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
-    QUrl, pyqtSignal
+    QUrl, pyqtSignal,
 )
 
 from calibre import detect_ncpus, force_unicode, prints
 from calibre.constants import (
-    DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
+    DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows,
 )
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
 from calibre.gui2 import (
     Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog,
-    max_available_height, open_url, question_dialog, warning_dialog
+    max_available_height, open_url, question_dialog, warning_dialog,
 )
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
@@ -59,6 +59,7 @@ from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker, db_matches
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc.pool import Pool
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import string_or_bytes
 from polyglot.queue import Empty, Queue
 
@@ -625,7 +626,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
-        from urllib.parse import unquote, urlparse, parse_qs
+        from urllib.parse import parse_qs, unquote, urlparse
         if isinstance(args, string_or_bytes):
             args = [args]
         files, urls = [], []
@@ -870,7 +871,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                             )
                     if repair:
                         from calibre.gui2.dialogs.restore_library import (
-                            repair_library_at
+                            repair_library_at,
                         )
                         if repair_library_at(newloc, parent=self):
                             db = LibraryDatabase(newloc, default_prefs=default_prefs)

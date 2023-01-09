@@ -4,13 +4,17 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, time, os
+import json
+import os
+import time
+import zlib
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
+from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot import http_client
 from polyglot.binary import from_hex_unicode
@@ -226,8 +230,8 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_char_count(self):  # {{{
-        from calibre.srv.render_book import get_length
         from calibre.ebooks.oeb.parse_utils import html5_parse
+        from calibre.srv.render_book import get_length
 
         root = html5_parse('<p>a b\nc\td\re')
         self.ae(get_length(root), 5)
@@ -238,8 +242,8 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_html_as_json(self):  # {{{
-        from calibre.srv.render_book import html_as_json
         from calibre.ebooks.oeb.parse_utils import html5_parse
+        from calibre.srv.render_book import html_as_json
 
         def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
             root = html5_parse(html)

@@ -5,19 +5,29 @@ CSS property propagation class.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os, re, logging, copy, unicodedata, numbers
+import copy
+import logging
+import numbers
+import os
+import re
+import unicodedata
+from css_parser import (
+    CSSParser, log as css_parser_log, parseString, parseStyle, profile as cssprofiles,
+    profiles, replaceUrls,
+)
+from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, cssproperties
 from operator import itemgetter
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-from css_parser.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
-        cssproperties)
-from css_parser import (profile as cssprofiles, parseString, parseStyle, log as
-        css_parser_log, CSSParser, profiles, replaceUrls)
-from calibre import force_unicode, as_unicode
+
+from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
+from calibre.ebooks.oeb.base import (
+    CSS_MIME, OEB_STYLES, XHTML, XHTML_NS, urlnormalize, xpath,
+)
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
-from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
+from calibre.utils.resources import get_path as P
+from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
 from polyglot.builtins import iteritems
 from tinycss.media3 import CSSMedia3Parser
 

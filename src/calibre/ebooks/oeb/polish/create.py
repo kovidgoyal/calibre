@@ -4,23 +4,24 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
-
+import os
+import sys
 from lxml import etree
 
-from calibre import prepare_string_for_xml, CurrentDir
-from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.oeb.base import serialize
+from calibre import CurrentDir, prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.oeb.base import serialize
+from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, Container, opf_to_azw3
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, opf_to_azw3, Container
-from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
+from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
 from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
+from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.logging import DevNull
-from calibre.utils.zipfile import ZipFile, ZIP_STORED
+from calibre.utils.resources import get_path as P
+from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot.builtins import as_bytes
 
 valid_empty_formats = {'epub', 'txt', 'docx', 'azw3', 'md'}

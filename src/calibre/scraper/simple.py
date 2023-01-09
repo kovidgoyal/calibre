@@ -13,6 +13,7 @@ from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import retry_on_fail
 from calibre.utils.ipc.simple_worker import start_pipe_worker
+from calibre.utils.resources import get_path as P
 
 
 def worker_main(source):

@@ -4,30 +4,34 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno
-from io import BytesIO
-from threading import Lock
+import errno
+import os
 from contextlib import suppress
 from functools import partial
+from io import BytesIO
+from threading import Lock
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
-from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
+from calibre.ebooks.covers import (
+    cprefs, generate_cover, override_prefs, scale_cover, set_use_roman,
+)
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
-from calibre.srv.errors import HTTPNotFound, BookNotFound
+from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import http_date, get_db, get_use_roman
+from calibre.srv.utils import get_db, get_use_roman, http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
-from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
+from calibre.utils.img import image_from_data, scale_image
+from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
-from polyglot.urllib import quote
 from polyglot.binary import as_hex_unicode
+from polyglot.urllib import quote
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']

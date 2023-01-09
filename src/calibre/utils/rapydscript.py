@@ -17,6 +17,7 @@ from calibre.constants import (
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes, as_unicode, exec_path
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'

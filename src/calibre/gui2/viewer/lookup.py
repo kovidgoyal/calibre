@@ -8,10 +8,10 @@ from functools import lru_cache
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QPalette, QPushButton, QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QPalette, QPushButton, QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal,
 )
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView,
 )
 
 from calibre import prints, random_user_agent
@@ -19,8 +19,9 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import (
-    create_script, insert_scripts, secure_webengine, setup_profile
+    create_script, insert_scripts, secure_webengine, setup_profile,
 )
 
 

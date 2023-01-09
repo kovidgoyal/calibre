@@ -6,47 +6,64 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 
-import os, sys, shutil, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, numbers
+import copy
+import functools
+import glob
+import hashlib
+import json
+import numbers
+import os
+import random
+import re
+import shutil
+import sys
+import threading
+import time
+import traceback
+import uuid
 from collections import defaultdict, namedtuple
-import threading, random
 
-from calibre import prints, force_unicode
-from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
-        string_to_authors, get_title_sort_pat)
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.library.database import LibraryDatabase
-from calibre.library.field_metadata import FieldMetadata
-from calibre.library.schema_upgrades import SchemaUpgrade
-from calibre.library.caches import ResultCache
-from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError
-from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
-from calibre.ptempfile import (PersistentTemporaryFile,
-        base_dir, SpooledTemporaryFile)
-from calibre.customize.ui import (run_plugins_on_import,
-                                  run_plugins_on_postimport)
-from calibre import isbytestring
-from calibre.utils.filenames import (ascii_filename, samefile,
-        WindowsAtomicFolderMove, hardlink_file)
-from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
-        parse_only_date, UNDEFINED_DATE, parse_date)
-from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key, strcmp, lower
-from calibre.utils.search_query_parser import saved_searches, set_saved_searches
-from calibre.ebooks import check_ebook_format
-from calibre.utils.img import save_cover_data_to
-from calibre.utils.recycle_bin import delete_file, delete_tree
-from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
-from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
+from calibre import force_unicode, isbytestring, prints
+from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
+from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
+from calibre.db import (
+    _get_next_series_num_for_list, _get_series_values, get_data_as_dict,
+)
+from calibre.db.adding import (
+    find_books_in_directory, import_book_directory, import_book_directory_multiple,
+    recursive_import,
+)
+from calibre.db.categories import CATEGORY_SORTS, Tag
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
-from calibre.db.categories import Tag, CATEGORY_SORTS
-from calibre.utils.localization import (canonicalize_lang,
-        calibre_langcode_to_name)
+from calibre.ebooks import check_ebook_format
+from calibre.ebooks.metadata import (
+    author_to_author_sort, get_title_sort_pat, string_to_authors, title_sort,
+)
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.library.caches import ResultCache
+from calibre.library.custom_columns import CustomColumns
+from calibre.library.database import LibraryDatabase
+from calibre.library.field_metadata import FieldMetadata
+from calibre.library.prefs import DBPrefs
+from calibre.library.schema_upgrades import SchemaUpgrade
+from calibre.library.sqlite import IntegrityError, connect
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
+from calibre.utils.config import from_json, prefs, to_json, tweaks
+from calibre.utils.date import (
+    UNDEFINED_DATE, now as nowf, parse_date, parse_only_date, utcfromtimestamp, utcnow,
+)
+from calibre.utils.filenames import (
+    WindowsAtomicFolderMove, ascii_filename, hardlink_file, samefile,
+)
+from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.utils.icu import lower, sort_key, strcmp
+from calibre.utils.img import save_cover_data_to
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+from calibre.utils.recycle_bin import delete_file, delete_tree
+from calibre.utils.resources import get_path as P
+from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from polyglot.builtins import iteritems, string_or_bytes
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile

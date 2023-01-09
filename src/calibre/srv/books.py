@@ -21,6 +21,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.filenames import rmtree
+from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_dumps
 from polyglot.builtins import as_unicode, itervalues
 

@@ -4,22 +4,28 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, io, weakref, sys
-
+import io
+import re
+import sys
+import weakref
 from qt.core import (
-    pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
-    QSize, Qt, QApplication, QIcon, QDialogButtonBox)
+    QApplication, QDialogButtonBox, QFontMetrics, QHBoxLayout, QIcon, QLabel,
+    QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal,
+)
 
-from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups, apply_func_to_html_text
+from calibre.ebooks.oeb.polish.utils import (
+    apply_func_to_html_text, apply_func_to_match_groups,
+)
 from calibre.gui2 import error_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import dictionaries
-from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.tweak_book.editor.text import TextEdit
+from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.config import JSONConfig
-from calibre.utils.icu import capitalize, upper, lower, swapcase
-from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import capitalize, lower, swapcase, upper
 from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.resources import get_path as P
+from calibre.utils.titlecase import titlecase
 from polyglot.builtins import iteritems
 from polyglot.io import PolyglotStringIO
 

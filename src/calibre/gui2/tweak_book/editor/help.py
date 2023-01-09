@@ -12,6 +12,7 @@ from lxml import html
 from calibre import browser
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.utils.resources import get_path as P
 
 
 class URLMap:

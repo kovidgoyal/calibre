@@ -20,7 +20,7 @@ from functools import partial
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
 from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding
+    filesystem_encoding, iswindows, plugins, preferred_encoding,
 )
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
@@ -29,7 +29,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.tables import (
     AuthorsTable, CompositeTable, FormatsTable, IdentifiersTable, ManyToManyTable,
-    ManyToOneTable, OneToOneTable, PathTable, RatingTable, SizeTable, UUIDTable
+    ManyToOneTable, OneToOneTable, PathTable, RatingTable, SizeTable, UUIDTable,
 )
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.library.field_metadata import FieldMetadata
@@ -40,15 +40,16 @@ from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
     copytree_using_links, hardlink_file, is_case_sensitive, is_fat_filesystem,
-    remove_dir_if_empty, samefile
+    remove_dir_if_empty, samefile,
 )
 from calibre.utils.formatter_functions import (
-    compile_user_template_functions, formatter_functions,
-    load_user_template_functions, unload_user_template_functions
+    compile_user_template_functions, formatter_functions, load_user_template_functions,
+    unload_user_template_functions,
 )
 from calibre.utils.icu import sort_key
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import (
-    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
+    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,
 )
 
 # }}}

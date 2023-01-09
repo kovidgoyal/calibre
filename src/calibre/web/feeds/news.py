@@ -28,7 +28,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import add_borders_to_image, image_to_data, save_cover_data_to
-from calibre.utils.localization import _, canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang, ngettext
 from calibre.utils.logging import ThreadSafeWrapper
 from calibre.utils.threadpool import NoResultsPending, ThreadPool, WorkRequest
 from calibre.web import Recipe

@@ -12,11 +12,11 @@ from contextlib import contextmanager, suppress
 from functools import lru_cache
 from qt.core import (
     QApplication, QBuffer, QByteArray, QColor, QDateTime, QDesktopServices, QDialog,
-    QDialogButtonBox, QEvent, QFile, QFileDialog, QFileIconProvider, QFileInfo,
-    QFont, QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon,
-    QImageReader, QImageWriter, QIODevice, QLocale, QNetworkProxyFactory, QObject,
-    QPalette, QResource, QSettings, QSocketNotifier, QStringListModel, Qt, QThread,
-    QTimer, QTranslator, QUrl, pyqtSignal, pyqtSlot
+    QDialogButtonBox, QEvent, QFile, QFileDialog, QFileIconProvider, QFileInfo, QFont,
+    QFontDatabase, QFontInfo, QFontMetrics, QGuiApplication, QIcon, QImageReader,
+    QImageWriter, QIODevice, QLocale, QNetworkProxyFactory, QObject, QPalette,
+    QResource, QSettings, QSocketNotifier, QStringListModel, Qt, QThread, QTimer,
+    QTranslator, QUrl, pyqtSignal, pyqtSlot,
 )
 from threading import Lock, RLock
 
@@ -24,13 +24,13 @@ import calibre.gui2.pyqt6_compat as pqc
 from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, builtin_colors_dark,
-    builtin_colors_light, config_dir, is_running_from_develop, isbsd, isfrozen,
-    islinux, ismacos, iswindows, isxp, numeric_version, plugins_loc
+    builtin_colors_light, config_dir, is_running_from_develop, isbsd, isfrozen, islinux,
+    ismacos, iswindows, isxp, numeric_version, plugins_loc,
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.geometry import geometry_for_restore_as_dict
 from calibre.gui2.linux_file_dialogs import (
-    check_for_linux_native_dialogs, linux_native_dialog
+    check_for_linux_native_dialogs, linux_native_dialog,
 )
 from calibre.gui2.palette import PaletteManager
 from calibre.gui2.qt_file_dialogs import FileDialog
@@ -41,7 +41,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.img import set_image_allocation_limit
 from calibre.utils.localization import get_lang
-from calibre.utils.resources import user_dir
+from calibre.utils.resources import get_path as P, user_dir
 from polyglot import queue
 from polyglot.builtins import iteritems, string_or_bytes
 
@@ -888,14 +888,14 @@ if not iswindows and not ismacos and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.e
 
 if has_windows_file_dialog_helper:
     from calibre.gui2.win_file_dialogs import (
-        choose_dir, choose_files, choose_images, choose_save_file
+        choose_dir, choose_files, choose_images, choose_save_file,
     )
 elif has_linux_file_dialog_helper:
     choose_dir, choose_files, choose_save_file, choose_images = map(
         linux_native_dialog, 'dir files save_file images'.split())
 else:
     from calibre.gui2.qt_file_dialogs import (
-        choose_dir, choose_files, choose_images, choose_save_file
+        choose_dir, choose_files, choose_images, choose_save_file,
     )
     choose_files, choose_images, choose_dir, choose_save_file
 

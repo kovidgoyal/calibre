@@ -4,13 +4,15 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, unittest, shutil
+import os
+import shutil
+import unittest
 
-from calibre import CurrentDir
-from calibre.ptempfile import TemporaryDirectory
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
+from calibre import CurrentDir
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
+from calibre.utils.logging import DevNull
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 

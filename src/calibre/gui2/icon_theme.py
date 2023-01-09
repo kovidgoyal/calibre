@@ -20,10 +20,10 @@ from multiprocessing.pool import ThreadPool
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader,
-    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen,
-    QPixmap, QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout,
-    QStaticText, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout,
-    QWidget, pyqtSignal, sip
+    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen, QPixmap,
+    QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout, QStaticText, QStyle,
+    QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout, QWidget, pyqtSignal,
+    sip,
 )
 from threading import Event, Thread
 
@@ -32,7 +32,7 @@ from calibre.constants import cache_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import (
     choose_dir, choose_save_file, empty_index, error_dialog, gprefs,
-    icon_resource_manager, must_use_qt, safe_open_url
+    icon_resource_manager, must_use_qt, safe_open_url,
 )
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -42,6 +42,7 @@ from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_png
+from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
 from polyglot.builtins import as_bytes, iteritems, reraise
@@ -127,6 +128,7 @@ def read_theme_from_folder(path):
             return int(x)
         except Exception:
             return -1
+
     def g(x, defval=''):
         return metadata.get(x, defval)
     theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'), g('url', None))

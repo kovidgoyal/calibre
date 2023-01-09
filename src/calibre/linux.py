@@ -3,17 +3,20 @@
 
 ''' Post installation script for linux '''
 
-import sys, os, textwrap, stat, errno
-from subprocess import check_call, check_output
+import errno
+import os
+import stat
+import sys
+import textwrap
 from functools import partial
+from subprocess import check_call, check_output
 
-from calibre import __appname__, prints, guess_type
-from calibre.constants import islinux, isbsd
+from calibre import CurrentDir, __appname__, guess_type, prints
+from calibre.constants import isbsd, islinux
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
-
 
 entry_points = {
         'console_scripts': [
@@ -322,11 +325,11 @@ class ZshCompleter:  # {{{
         self.commands[name] = txt
 
     def do_ebook_convert(self, f):
-        from calibre.ebooks.conversion.plumber import supported_input_formats
-        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
         from calibre.customize.ui import available_output_formats
         from calibre.ebooks.conversion.cli import create_option_parser, group_titles
+        from calibre.ebooks.conversion.plumber import supported_input_formats
         from calibre.utils.logging import DevNull
+        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
         input_fmts = set(supported_input_formats())
         output_fmts = set(available_output_formats())
         iexts = {x.upper() for x in input_fmts}.union(input_fmts)
@@ -417,8 +420,8 @@ class ZshCompleter:  # {{{
         w('\n}\n')
 
     def do_ebook_edit(self, f):
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.gui2.tweak_book.main import option_parser
         tweakable_fmts = SUPPORTED | IMPORTABLE
         parser = option_parser()
@@ -468,8 +471,8 @@ _ebook_edit() {{
 '''.format(opt_lines, '|'.join(tweakable_fmts)) + '\n\n')
 
     def do_calibredb(self, f):
-        from calibre.db.cli.main import COMMANDS, option_parser_for
         from calibre.customize.ui import available_catalog_formats
+        from calibre.db.cli.main import COMMANDS, option_parser_for
         parsers, descs = {}, {}
         for command in COMMANDS:
             p = option_parser_for(command)()
@@ -568,20 +571,22 @@ def get_bash_completion_path(root, share, info):
 
 
 def write_completion(self, bash_comp_dest, zsh):
-    from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
-    from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
-    from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-    from calibre.gui2.viewer.main import option_parser as viewer_op
-    from calibre.gui2.tweak_book.main import option_parser as tweak_op
-    from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
-    from calibre.gui2.main import option_parser as guiop
-    from calibre.utils.smtp import option_parser as smtp_op
-    from calibre.srv.standalone import create_option_parser as serv_op
-    from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
-    from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+    from calibre.customize.ui import available_input_formats
     from calibre.debug import option_parser as debug_op
     from calibre.ebooks import BOOK_EXTENSIONS
-    from calibre.customize.ui import available_input_formats
+    from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
+    from calibre.ebooks.metadata.cli import (
+        filetypes as meta_filetypes, option_parser as metaop,
+    )
+    from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
+    from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+    from calibre.ebooks.oeb.polish.main import SUPPORTED, option_parser as polish_op
+    from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
+    from calibre.gui2.main import option_parser as guiop
+    from calibre.gui2.tweak_book.main import option_parser as tweak_op
+    from calibre.gui2.viewer.main import option_parser as viewer_op
+    from calibre.srv.standalone import create_option_parser as serv_op
+    from calibre.utils.smtp import option_parser as smtp_op
     input_formats = sorted(all_input_formats())
     tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
 
@@ -917,8 +922,8 @@ class PostInstall:
                 line += extra + ';'
             f.write(line.encode('utf-8') + b'\n')
 
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         with open('calibre-lrfviewer.desktop', 'wb') as f:
             f.write(VIEWER.encode('utf-8'))
         with open('calibre-ebook-viewer.desktop', 'wb') as f:
@@ -1208,8 +1213,8 @@ def changelog_bullet_to_text(bullet):
 
 
 def make_appdata_releases():
-    from lxml.builder import E
     import json
+    from lxml.builder import E
     changelog = json.loads(P('changelog.json', data=True))
 
     releases = E.releases()
@@ -1247,8 +1252,8 @@ def make_appdata_releases():
 
 
 def write_appdata(key, entry, base, translators):
-    from lxml.etree import tostring
     from lxml.builder import E
+    from lxml.etree import tostring
     fpath = os.path.join(base, '%s.metainfo.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:

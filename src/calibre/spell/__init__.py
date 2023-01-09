@@ -7,6 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import namedtuple
 
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.resources import get_path as P
 
 DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
 

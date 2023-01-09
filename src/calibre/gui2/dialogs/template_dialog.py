@@ -5,30 +5,36 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-import json, os, traceback, re
-from functools import partial
+import json
+import os
+import re
 import sys
-
-from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
-                      QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QPalette, QLineEdit, QFontInfo,
-                      QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
-                      QComboBox, QAbstractItemView, QTextOption, QFontMetrics)
+import traceback
+from functools import partial
+from qt.core import (
+    QAbstractItemView, QApplication, QColor, QComboBox, QCursor, QDialog,
+    QDialogButtonBox, QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLineEdit,
+    QPalette, QSize, QSyntaxHighlighter, Qt, QTableWidget, QTableWidgetItem,
+    QTextCharFormat, QTextOption, QVBoxLayout,
+)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import (gprefs, error_dialog, choose_files, choose_save_file,
-                          pixmap_to_data, question_dialog)
+from calibre.gui2 import (
+    choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data,
+    question_dialog,
+)
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
-from calibre.library.coloring import (displayable_columns, color_row_key)
+from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
-from calibre.utils.formatter_functions import formatter_functions, StoredObjectType
-from calibre.utils.formatter import StopException, PythonTemplateContext
+from calibre.utils.formatter import PythonTemplateContext, StopException
+from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.resources import get_path as P
 
 
 class ParenPosition:

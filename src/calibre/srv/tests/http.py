@@ -4,7 +4,11 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import hashlib, zlib, string, time, os
+import hashlib
+import os
+import string
+import time
+import zlib
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -12,8 +16,9 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems
+from calibre.utils.resources import get_path as P
 from polyglot import http_client
+from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 

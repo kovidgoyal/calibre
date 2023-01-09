@@ -10,27 +10,27 @@ from collections import OrderedDict, defaultdict
 from functools import partial
 from itertools import chain
 from qt.core import (
-    QT_VERSION_STR, QAbstractTableModel, QApplication, QCheckBox, QComboBox, QDialog,
-    QDialogButtonBox, QFont, QFormLayout, QGridLayout, QHBoxLayout, QIcon,
-    QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QT_VERSION_STR, QAbstractItemView, QAbstractTableModel, QApplication, QCheckBox,
+    QComboBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout, QHBoxLayout,
+    QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,
     QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize, QStackedLayout, Qt,
-    QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal, QAbstractItemView
+    QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    pyqtSignal,
 )
 from threading import Thread
 
 from calibre.constants import __appname__
-from calibre.ebooks.oeb.base import OEB_DOCS, NCX_MIME, OPF_MIME
+from calibre.ebooks.oeb.base import NCX_MIME, OEB_DOCS, OPF_MIME
 from calibre.ebooks.oeb.polish.spell import (
     get_all_words, get_checkable_file_names, merge_locations, replace_word,
-    undo_replace_word
+    undo_replace_word,
 )
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import (
-    current_container, dictionaries, editors, set_book_locale, tprefs
+    current_container, dictionaries, editors, set_book_locale, tprefs,
 )
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import FlowLayout
@@ -38,13 +38,14 @@ from calibre.spell import DictionaryLocale
 from calibre.spell.break_iterator import split_into_words
 from calibre.spell.dictionary import (
     best_locale_for_language, builtin_dictionaries, custom_dictionaries, dprefs,
-    get_dictionary, remove_dictionary, rename_dictionary
+    get_dictionary, remove_dictionary, rename_dictionary,
 )
 from calibre.spell.import_from import import_from_oxt
 from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
 from calibre.utils.localization import (
-    calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
+    calibre_langcode_to_name, canonicalize_lang, get_lang, get_language,
 )
+from calibre.utils.resources import get_path as P
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.builtins import iteritems
 

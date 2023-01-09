@@ -10,6 +10,7 @@ from functools import lru_cache
 from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 
+from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import create_script, insert_scripts, setup_profile
 
 

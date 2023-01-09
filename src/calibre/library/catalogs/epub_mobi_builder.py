@@ -11,16 +11,14 @@ import time
 import unicodedata
 import zlib
 from copy import deepcopy
+from lxml import etree
 from xml.sax.saxutils import escape
 
-from lxml import etree
-
 from calibre import (
-    as_unicode, force_unicode, isbytestring, prepare_string_for_xml,
-    replace_entities, strftime, xml_replace_entities
+    as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities,
+    strftime, xml_replace_entities,
 )
 from calibre.constants import cache_dir, ismacos
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
@@ -29,17 +27,19 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import (
     AuthorSortMismatchException, EmptyCatalogException,
-    InvalidGenresSourceFieldException
+    InvalidGenresSourceFieldException,
 )
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import (
-    as_local_time, format_date, is_date_undefined, now as nowf
+    as_local_time, format_date, is_date_undefined, now as nowf,
 )
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.localization import get_lang, lang_as_iso639_1
+from calibre.utils.resources import get_path as P
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems
 
@@ -1096,8 +1096,8 @@ class CatalogBuilder:
          bookmarked_books (dict): dict of Bookmarks
         """
 
-        from calibre.devices.usbms.device import Device
         from calibre.devices.kindle.bookmark import Bookmark
+        from calibre.devices.usbms.device import Device
         from calibre.ebooks.metadata import MetaInformation
 
         MBP_FORMATS = ['azw', 'mobi', 'prc', 'txt']

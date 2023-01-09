@@ -18,12 +18,13 @@ from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.oeb.base import (
-    XHTML, XHTML_NS, XPath, urldefrag, urlnormalize, xml2text
+    XHTML, XHTML_NS, XPath, urldefrag, urlnormalize, xml2text,
 )
 from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.config import tweaks
 from calibre.utils.date import as_local_time, format_date, is_date_undefined
 from calibre.utils.icu import sort_key
+from calibre.utils.resources import get_path as P
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 

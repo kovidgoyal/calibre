@@ -22,6 +22,7 @@ class jisyo :
 
     def __init__(self):
         from calibre.utils.serialize import msgpack_loads
+        from calibre.utils.resources import get_path as P
         if self.kanwadict is None:
             self.kanwadict = msgpack_loads(
                 P('localization/pykakasi/kanwadict2.calibre_msgpack', data=True))

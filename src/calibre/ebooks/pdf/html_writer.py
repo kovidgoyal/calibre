@@ -2,8 +2,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 # Imports {{{
-
-
 import copy
 import json
 import os
@@ -16,25 +14,23 @@ from io import BytesIO
 from itertools import count, repeat
 from qt.core import (
     QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl,
-    pyqtSignal, sip
+    pyqtSignal, sip,
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineSettings,
     QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler
+    QWebEngineUrlSchemeHandler,
 )
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
-from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows
-)
+from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.pdf.image_writer import (
-    Image, PDFMetadata, draw_image_page, get_page_layout
+    Image, PDFMetadata, draw_image_page, get_page_layout,
 )
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
@@ -46,8 +42,10 @@ from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import (
-    dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
+    dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation,
 )
+
+from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes, iteritems

@@ -10,12 +10,12 @@ from functools import lru_cache
 from qt.core import (
     QApplication, QByteArray, QFrame, QGridLayout, QIcon, QLabel, QLineEdit,
     QListWidget, QPushButton, QSize, QSplitter, Qt, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal
+    pyqtSignal,
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript,
     QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler, QWebEngineView
+    QWebEngineUrlSchemeHandler, QWebEngineView,
 )
 
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
@@ -23,6 +23,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.utils.logging import default_log
+from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes
