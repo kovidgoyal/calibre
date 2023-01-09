@@ -176,6 +176,7 @@ class SearchBox2(QComboBox):  # {{{
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet('')
+        self.show_parse_error_action(False)
 
     def text(self):
         return self.currentText()
