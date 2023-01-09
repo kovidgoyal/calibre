@@ -26,6 +26,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.actions import InterfaceAction
 from calibre.library import current_library_name
+from calibre.startup import connect_lambda
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext

@@ -35,6 +35,7 @@ from calibre.gui2.tweak_book import (
 )
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
+from calibre.startup import connect_lambda
 from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import ngettext, pgettext

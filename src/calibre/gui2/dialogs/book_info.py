@@ -4,21 +4,21 @@
 
 import textwrap
 from qt.core import (
-    QAction, QApplication, QBrush, QCheckBox, QDialog, QGridLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
-    QPixmap, QPushButton, QShortcut, QSize, Qt, QTimer, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox, QSplitter
+    QAction, QApplication, QBrush, QCheckBox, QDialog, QDialogButtonBox, QGridLayout,
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap,
+    QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout,
+    QWidget, pyqtSignal,
 )
 
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import (
-    create_open_cover_with_menu, css, details_context_menu_event, render_html,
-    set_html
+    create_open_cover_with_menu, css, details_context_menu_event, render_html, set_html,
 )
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
+from calibre.startup import connect_lambda
 
 
 class Cover(CoverView):
@@ -60,7 +60,7 @@ class Configure(Dialog):
 
     def setup_ui(self):
         from calibre.gui2.preferences.look_feel import (
-            DisplayedFields, move_field_down, move_field_up
+            DisplayedFields, move_field_down, move_field_up,
         )
         self.l = QVBoxLayout(self)
         self.field_display_order = fdo = QListView(self)

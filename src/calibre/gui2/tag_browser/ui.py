@@ -22,6 +22,7 @@ from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.library.field_metadata import category_icon_map
+from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems

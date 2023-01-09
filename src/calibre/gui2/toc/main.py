@@ -26,6 +26,7 @@ from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.ptempfile import reset_base_dir
+from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.icu import lower as icu_lower, upper as icu_upper

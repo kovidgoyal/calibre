@@ -42,6 +42,24 @@ def get_debug_executable():
     return [exe_name]
 
 
+def connect_lambda(bound_signal, self, func, **kw):
+    import weakref
+    r = weakref.ref(self)
+    del self
+    num_args = func.__code__.co_argcount - 1
+    if num_args < 0:
+        raise TypeError('lambda must take at least one argument')
+
+    def slot(*args):
+        ctx = r()
+        if ctx is not None:
+            if len(args) != num_args:
+                args = args[:num_args]
+            func(ctx, *args)
+
+    bound_signal.connect(slot, **kw)
+
+
 def initialize_calibre():
     if hasattr(initialize_calibre, 'initialized'):
         return
@@ -126,22 +144,6 @@ def initialize_calibre():
     builtins.__dict__['icu_upper'] = icu_upper
     builtins.__dict__['icu_title'] = title_case
 
-    def connect_lambda(bound_signal, self, func, **kw):
-        import weakref
-        r = weakref.ref(self)
-        del self
-        num_args = func.__code__.co_argcount - 1
-        if num_args < 0:
-            raise TypeError('lambda must take at least one argument')
-
-        def slot(*args):
-            ctx = r()
-            if ctx is not None:
-                if len(args) != num_args:
-                    args = args[:num_args]
-                func(ctx, *args)
-
-        bound_signal.connect(slot, **kw)
     builtins.__dict__['connect_lambda'] = connect_lambda
 
     if islinux or ismacos or isfreebsd:

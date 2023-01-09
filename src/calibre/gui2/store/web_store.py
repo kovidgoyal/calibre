@@ -7,22 +7,23 @@ import os
 import shutil
 from qt.core import (
     QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 from qt.webengine import (
-    QWebEngineDownloadRequest, QWebEnginePage, QWebEngineProfile, QWebEngineView
+    QWebEngineDownloadRequest, QWebEnginePage, QWebEngineProfile, QWebEngineView,
 )
 
 from calibre import random_user_agent, url_slash_cleaner
 from calibre.constants import STORE_DIALOG_APP_UID, islinux, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import (
-    Application, choose_save_file, error_dialog, gprefs, info_dialog, set_app_uid
+    Application, choose_save_file, error_dialog, gprefs, info_dialog, set_app_uid,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import MainWindow
 from calibre.ptempfile import PersistentTemporaryDirectory, reset_base_dir
+from calibre.startup import connect_lambda
 from calibre.utils.webengine import setup_profile
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 from polyglot.builtins import string_or_bytes

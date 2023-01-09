@@ -5,11 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QIcon, QMenu, QTimer, QToolButton, pyqtSignal, QUrl
+from qt.core import QIcon, QMenu, QTimer, QToolButton, QUrl, pyqtSignal
 
-from calibre.gui2 import info_dialog, question_dialog, open_url
+from calibre.gui2 import info_dialog, open_url, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
+from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
 

@@ -4,11 +4,10 @@
 
 import os
 from functools import partial
-
 from qt.core import (
-    QAction, QGroupBox, QHBoxLayout, QIcon, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal, QDialog,
-    QAbstractItemView, QDialogButtonBox
+    QAbstractItemView, QAction, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
+    QIcon, QKeySequence, QLabel, QListWidget, QListWidgetItem, QMenu, Qt, QToolBar,
+    QToolButton, QVBoxLayout, pyqtSignal,
 )
 from qt.webengine import QWebEnginePage
 
@@ -18,6 +17,7 @@ from calibre.gui2.viewer.config import get_session_pref
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.viewer.web_view import set_book_path, vprefs
 from calibre.gui2.widgets2 import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 
 
@@ -236,7 +236,7 @@ class ActionsToolBar(ToolBar):
             a.setToolTip(_('Switch to paged mode -- where the text is broken into pages'))
 
     def change_sleep_permission(self, disallow_sleep=True):
-        from .control_sleep import prevent_sleep, allow_sleep
+        from .control_sleep import allow_sleep, prevent_sleep
         if disallow_sleep:
             if self.prevent_sleep_cookie is None:
                 try:

@@ -22,6 +22,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.convert.metadata import create_opf_file
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, itervalues

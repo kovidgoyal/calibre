@@ -5,20 +5,20 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+from qt.core import (
+    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout,
+    QIcon, QLabel, QListWidget, QListWidgetItem, QPalette, QPen, QPixmap, QProgressBar,
+    QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTextBrowser, QVBoxLayout,
+    pyqtSignal,
+)
 from threading import Thread
 
-from qt.core import (
-    QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
-    QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
-    QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen, QPalette,
-    QProgressBar, pyqtSignal, QApplication, QAbstractItemView
-)
-
-from calibre import human_readable, fit_image, force_unicode
+from calibre import fit_image, force_unicode, human_readable
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
 from calibre.gui2 import empty_index, question_dialog
-from calibre.gui2.tweak_book import tprefs, current_container, set_current_container
+from calibre.gui2.tweak_book import current_container, set_current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key
 
 
@@ -254,8 +254,8 @@ class CompressImagesProgress(Dialog):
         t.start()
 
     def run_compress(self):
-        from calibre.gui2.tweak_book import current_container
         from calibre.ebooks.oeb.polish.images import compress_images
+        from calibre.gui2.tweak_book import current_container
         report = []
         try:
             self.result = (compress_images(
@@ -304,7 +304,9 @@ class CompressImagesProgress(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    import sys, sip
+    import sip
+    import sys
+
     from calibre.ebooks.oeb.polish.container import get_container
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)

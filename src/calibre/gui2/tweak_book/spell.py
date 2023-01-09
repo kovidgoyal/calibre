@@ -41,6 +41,7 @@ from calibre.spell.dictionary import (
     get_dictionary, remove_dictionary, rename_dictionary,
 )
 from calibre.spell.import_from import import_from_oxt
+from calibre.startup import connect_lambda
 from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
 from calibre.utils.localization import (
     calibre_langcode_to_name, canonicalize_lang, get_lang, get_language,

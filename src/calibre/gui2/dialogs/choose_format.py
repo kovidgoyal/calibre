@@ -2,12 +2,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-
 from qt.core import (
-    QDialog, QListWidgetItem, QModelIndex, QIcon, QLabel, QVBoxLayout, QSize,
-    QDialogButtonBox, QListWidget, QHBoxLayout, QPushButton, QMenu)
+    QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
+    QMenu, QModelIndex, QPushButton, QSize, QVBoxLayout,
+)
 
 from calibre.gui2 import file_icon_provider
+from calibre.startup import connect_lambda
 
 
 class ChooseFormatDialog(QDialog):
@@ -51,7 +52,7 @@ class ChooseFormatDialog(QDialog):
             self.update_open_with_button()
 
     def populate_open_with(self):
-        from calibre.gui2.open_with import populate_menu, edit_programs
+        from calibre.gui2.open_with import edit_programs, populate_menu
         menu = self.own
         menu.clear()
         fmt = self._formats[self.formats.currentRow()]

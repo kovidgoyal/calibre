@@ -10,10 +10,10 @@ from functools import partial
 from itertools import chain
 from math import ceil
 from qt.core import (
-    QApplication, QBrush, QColor, QEvent, QEventLoop, QFont, QHBoxLayout,
-    QIcon, QImage, QKeySequence, QMenu, QPainter, QPainterPath, QPalette, QPen,
-    QPixmap, QPlainTextEdit, QRect, QScrollBar, QSplitter, QSplitterHandle, Qt,
-    QTextCharFormat, QTextCursor, QTextLayout, QTimer, QWidget, pyqtSignal
+    QApplication, QBrush, QColor, QEvent, QEventLoop, QFont, QHBoxLayout, QIcon, QImage,
+    QKeySequence, QMenu, QPainter, QPainterPath, QPalette, QPen, QPixmap,
+    QPlainTextEdit, QRect, QScrollBar, QSplitter, QSplitterHandle, Qt, QTextCharFormat,
+    QTextCursor, QTextLayout, QTimer, QWidget, pyqtSignal,
 )
 
 from calibre import fit_image, human_readable
@@ -22,10 +22,11 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
 from calibre.gui2.tweak_book.diff.highlight import get_highlighter
 from calibre.gui2.tweak_book.editor.text import (
-    LineNumbers, PlainTextEdit, default_font_family
+    LineNumbers, PlainTextEdit, default_font_family,
 )
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.widgets import BusyCursor
+from calibre.startup import connect_lambda
 from calibre.utils.icu import utf16_length
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes, iteritems

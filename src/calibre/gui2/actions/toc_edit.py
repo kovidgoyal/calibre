@@ -6,14 +6,15 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from itertools import count
 from collections import OrderedDict
+from itertools import count
 from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer
+    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer,
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction
+from calibre.startup import connect_lambda
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems
 
@@ -148,7 +149,10 @@ class ToCEditAction(InterfaceAction):
                 self.do_one(book_id, fmt)
 
     def do_one(self, book_id, fmt):
-        import struct, json, atexit
+        import atexit
+        import json
+        import struct
+
         from calibre.utils.shm import SharedMemory
         db = self.gui.current_db
         path = db.format(book_id, fmt, index_is_id=True, as_path=True)

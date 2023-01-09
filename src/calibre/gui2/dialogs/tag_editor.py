@@ -9,6 +9,7 @@ from calibre.constants import islinux
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
+from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 
 

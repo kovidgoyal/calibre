@@ -10,8 +10,8 @@ from collections import defaultdict, namedtuple
 from hashlib import sha256
 from qt.core import (
     QApplication, QCursor, QDockWidget, QEvent, QMainWindow, QMenu, QMimeData,
-    QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal, sip
+    QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    sip,
 )
 from threading import Thread
 
@@ -20,23 +20,23 @@ from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
 from calibre.gui2 import (
-    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
+    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars,
 )
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer import get_current_book_data, performance_monitor
 from calibre.gui2.viewer.annotations import (
-    AnnotationsSaveWorker, annotations_dir, parse_annotations
+    AnnotationsSaveWorker, annotations_dir, parse_annotations,
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.config import (
-    get_session_pref, load_reading_rates, save_reading_rates, vprefs
+    get_session_pref, load_reading_rates, save_reading_rates, vprefs,
 )
 from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
 from calibre.gui2.viewer.integration import (
-    get_book_library_details, load_annotations_map_from_library
+    get_book_library_details, load_annotations_map_from_library,
 )
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
@@ -44,6 +44,7 @@ from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
 from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
+from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError

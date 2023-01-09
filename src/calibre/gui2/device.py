@@ -43,6 +43,7 @@ from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import (
     PersistentTemporaryFile, force_unicode as filename_to_unicode,
 )
+from calibre.startup import connect_lambda
 from calibre.utils.config import device_prefs, tweaks
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import scale_image

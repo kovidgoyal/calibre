@@ -1,22 +1,23 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, copy
+import copy
+import re
 from datetime import date
-
 from qt.core import (
-    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
-    QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
-    QSpinBox, QRadioButton, QPushButton, QToolButton
+    QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame, QGroupBox, QHBoxLayout,
+    QIcon, QLabel, QLineEdit, QPushButton, QRadioButton, QSize, QSpinBox, Qt,
+    QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
 from calibre import strftime
-from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.icu import sort_key
+from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
 
 box_values = {}

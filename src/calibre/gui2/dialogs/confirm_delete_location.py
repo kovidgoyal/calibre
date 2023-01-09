@@ -6,8 +6,10 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net' \
                 '2010, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from qt.core import QDialog, QIcon, Qt
+
 from calibre.gui2.dialogs.confirm_delete_location_ui import Ui_Dialog
-from qt.core import QDialog, Qt, QIcon
+from calibre.startup import connect_lambda
 
 
 class Dialog(QDialog, Ui_Dialog):

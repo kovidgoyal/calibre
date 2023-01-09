@@ -14,6 +14,7 @@ from threading import Thread
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.startup import connect_lambda
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems

@@ -2,19 +2,22 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QIcon,
-    pyqtSignal, QFont, QCheckBox, QSizePolicy
-)
 from lxml.etree import tostring
+from qt.core import (
+    QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy,
+    QVBoxLayout, QWidget, pyqtSignal,
+)
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import tprefs, editors, current_container
-from calibre.gui2.tweak_book.search import get_search_regex, InvalidRegex, initialize_search_request
+from calibre.gui2.tweak_book import current_container, editors, tprefs
+from calibre.gui2.tweak_book.search import (
+    InvalidRegex, get_search_regex, initialize_search_request,
+)
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
-from polyglot.builtins import iteritems, error_message
+from calibre.startup import connect_lambda
+from polyglot.builtins import error_message, iteritems
 
 # UI {{{
 

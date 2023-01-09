@@ -61,6 +61,7 @@ from calibre.gui2.tweak_book.widgets import (
 )
 from calibre.gui2.widgets import BusyCursor
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
+from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify

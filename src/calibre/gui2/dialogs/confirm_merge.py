@@ -5,14 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from qt.core import (
-    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog, QDialogButtonBox
+    QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser,
+    QVBoxLayout, QWidget,
 )
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.gui2 import dynamic, gprefs
-from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.dialogs.confirm_delete import confirm_config_name
+from calibre.gui2.widgets2 import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import format_date
 

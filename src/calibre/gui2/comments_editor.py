@@ -10,23 +10,24 @@ from contextlib import contextmanager
 from html5_parser import parse
 from lxml import html
 from qt.core import (
-    QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
-    QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QIcon,
-    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
-    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
+    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QIcon, QKeySequence,
+    QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton, QSize,
+    QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat, QTextCursor,
+    QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl, QVBoxLayout,
+    QWidget, pyqtSignal, pyqtSlot,
 )
 
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
-    NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme
+    NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme,
 )
 from calibre.gui2.book_details import css
 from calibre.gui2.flow_toolbar import create_flow_toolbar
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
+from calibre.startup import connect_lambda
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what

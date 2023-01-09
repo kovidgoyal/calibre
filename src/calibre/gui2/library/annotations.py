@@ -29,6 +29,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
+from calibre.startup import connect_lambda
 from calibre.utils.localization import ngettext
 
 

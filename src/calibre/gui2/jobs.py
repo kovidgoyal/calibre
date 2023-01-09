@@ -27,6 +27,7 @@ from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJob, ThreadedJobServer
 from calibre.gui2.widgets2 import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.icu import lower
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server

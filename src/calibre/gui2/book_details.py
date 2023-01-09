@@ -30,6 +30,7 @@ from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions,
 )
 from calibre.gui2.widgets2 import HTMLDisplay
+from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl, langnames_to_langcodes
