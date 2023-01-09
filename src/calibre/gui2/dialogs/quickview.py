@@ -154,11 +154,10 @@ class Quickview(QDialog, Ui_Quickview):
 
     def __init__(self, gui, row, toggle_shortcut):
         self.is_pane = gprefs.get('quickview_is_pane', False)
-
         if not self.is_pane:
-            QDialog.__init__(self, gui, flags=Qt.WindowType.Widget)
+            QDialog.__init__(self, None, flags=Qt.WindowType.Window)
         else:
-            QDialog.__init__(self, gui)
+            QDialog.__init__(self, None, flags=Qt.WindowType.Dialog)
         Ui_Quickview.__init__(self)
         self.setupUi(self)
         self.isClosed = False
