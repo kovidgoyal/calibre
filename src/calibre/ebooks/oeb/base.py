@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.parse_utils import (
 from calibre.translations.dynamic import translate
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.icu import numeric_sort_key, title_case as icu_title
+from calibre.utils.localization import __
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes

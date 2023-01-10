@@ -6,27 +6,28 @@ Container-/OPF-based input OEBBook reader.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy, re, io
+import copy
+import io
+import os
+import re
+import sys
+import uuid
 from collections import defaultdict
-
 from lxml import etree
 
-from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
-    DC_NSES, OPF, xml2text, XHTML_MIME
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
-    PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
-from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
-    MS_COVER_TYPE, iterlinks
-from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
-                                    urlnormalize, BINARY_MIME, \
-                                    OEBError, OEBBook, DirContainer
-from calibre.ebooks.oeb.writer import OEBWriter
-from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.localization import get_lang
-from calibre.ptempfile import TemporaryDirectory
-from calibre.constants import __appname__, __version__
 from calibre import guess_type, xml_replace_entities
+from calibre.constants import __appname__, __version__
+from calibre.ebooks.oeb.base import (
+    BINARY_MIME, COLLAPSE_RE, DC11_NS, DC_NSES, JPEG_MIME, MS_COVER_TYPE, NCX_MIME,
+    OEB_DOCS, OEB_IMAGES, OEB_STYLES, OPF, OPF1_NS, OPF2_NS, OPF2_NSMAP, PAGE_MAP_MIME,
+    SVG_MIME, XHTML_MIME, XMLDECL_RE, DirContainer, OEBBook, OEBError, XPath, barename,
+    iterlinks, namespace, urlnormalize, xml2text, xpath,
+)
+from calibre.ebooks.oeb.writer import OEBWriter
+from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.localization import __, get_lang
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote, urldefrag, urlparse
 
 __all__ = ['OEBReader']

@@ -268,6 +268,10 @@ def _(x: str) -> str:
     return default_translator.gettext(x)
 
 
+def __(x: str) -> str:
+    return x
+
+
 def ngettext(singular: str, plural: str, n: int) -> str:
     return default_translator.ngettext(singular, plural, n)
 

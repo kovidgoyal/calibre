@@ -5,9 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from calibre.ebooks.oeb.base import (
+    XHTML, XHTML_MIME, XHTML_NS, XPath, css_text, urlnormalize,
+)
+from calibre.utils.localization import __
 from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.ebooks.oeb.base import (urlnormalize, XPath, XHTML_NS, XHTML,
-        XHTML_MIME, css_text)
 
 DEFAULT_TITLE = __('Table of Contents')
 

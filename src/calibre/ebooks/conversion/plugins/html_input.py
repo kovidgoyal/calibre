@@ -15,7 +15,7 @@ from calibre.constants import isbsd, islinux
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import __, get_lang
 from polyglot.builtins import as_unicode
 
 
@@ -113,7 +113,7 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.metadata import string_to_authors
         from calibre.ebooks.oeb.base import (
             BINARY_MIME, OEB_STYLES, DirContainer, rewrite_links, urldefrag,
-            urlnormalize, urlquote, xpath
+            urlnormalize, urlquote, xpath,
         )
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         from calibre.utils.localization import canonicalize_lang
