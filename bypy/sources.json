@@ -933,8 +933,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.6.2.tar.gz",
-            "hash": "sha256:0e3efac1c5dfd8e525ae57140927df26993e13f58b89d1577c314f4105bfd90d",
+            "filename": "sip-6.7.5.tar.gz",
+            "hash": "sha256:9655d089e1d0c5fbf66bde11558a874980729132b5bd0c2ae355ac1a7b893ab4",
             "urls": ["pypi"]
         }
     },
@@ -943,8 +943,8 @@
         "name": "pyqt-builder",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "PyQt-builder-1.13.0.tar.gz",
-            "hash": "sha256:4877580c38ceb5320e129b381d083b0a8601c68166d8b99707f08fa0a1689eef",
+            "filename": "PyQt-builder-1.14.0.tar.gz",
+            "hash": "sha256:6755931c6d2f8940553e0334d10c933ce5cc18b64425e94fda1accf4ff774f59",
             "urls": ["pypi"]
         }
     },
@@ -962,8 +962,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.3.1.tar.gz",
-            "hash": "sha256:8cc6e21dbaf7047d1fc897e396ccd9710a12f2ef976563dad65f06017d2c9757",
+            "filename": "PyQt6-6.4.0.tar.gz",
+            "hash": "sha256:91392469be1f491905fa9e78fa4e4059a89ab616ddf2ecfd525bc1d65c26bb93",
             "urls": ["pypi"]
         }
     },
@@ -971,12 +971,11 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.3.1.tar.gz",
-            "hash": "sha256:c3d1f5527b4b15f44102d617c59b1d74d9af50f821629e9335f13df47de8f007",
+            "filename": "PyQt6_WebEngine-6.4.0.tar.gz",
+            "hash": "sha256:4c71c130860abcd11e04cafb22e33983fa9a3aee8323c51909b15a1701828e21",
             "urls": ["pypi"]
         }
     },
-
 
     {
         "name": "speech-dispatcher-client",
