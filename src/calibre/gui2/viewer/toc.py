@@ -6,14 +6,15 @@ import re
 from functools import partial
 from qt.core import (
     QAbstractItemView, QApplication, QEvent, QFont, QHBoxLayout, QIcon, QMenu,
-    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate,
-    Qt, QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal
+    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate, Qt,
+    QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal,
 )
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.gestures import GestureManager
+from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
+from calibre.utils.localization import _
 
 
 class Delegate(QStyledItemDelegate):

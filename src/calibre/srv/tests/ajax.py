@@ -12,6 +12,7 @@ from io import BytesIO
 
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
+from calibre.utils.localization import _
 from polyglot.binary import as_base64_bytes
 from polyglot.http_client import FORBIDDEN, NOT_FOUND, OK
 from polyglot.urllib import quote, urlencode

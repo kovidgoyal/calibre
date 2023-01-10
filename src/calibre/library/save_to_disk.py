@@ -5,19 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, re, errno
+import errno
+import os
+import re
+import traceback
 
-from calibre.constants import DEBUG
+from calibre import prints, sanitize_file_name, strftime
+from calibre.constants import DEBUG, preferred_encoding
 from calibre.db.errors import NoSuchFormat
-from calibre.utils.config import Config, StringConfig, tweaks
-from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.filenames import shorten_components_to, ascii_filename
-from calibre.constants import preferred_encoding
-from calibre.ebooks.metadata import fmt_sidx
-from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import as_local_time
-from calibre import strftime, prints, sanitize_file_name
 from calibre.db.lazy import FormatsList
+from calibre.ebooks.metadata import fmt_sidx, title_sort
+from calibre.utils.config import Config, StringConfig, tweaks
+from calibre.utils.date import as_local_time
+from calibre.utils.filenames import ascii_filename, shorten_components_to
+from calibre.utils.formatter import TemplateFormatter
+from calibre.utils.localization import _
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'

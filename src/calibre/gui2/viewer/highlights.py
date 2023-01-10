@@ -28,7 +28,7 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 decoration_cache = {}

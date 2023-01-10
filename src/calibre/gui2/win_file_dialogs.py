@@ -6,11 +6,11 @@ import os
 import struct
 import subprocess
 import sys
+from contextlib import suppress
 from threading import Thread
 from uuid import uuid4
-from contextlib import suppress
 
-
+from calibre.utils.localization import _
 from polyglot.builtins import string_or_bytes
 
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)

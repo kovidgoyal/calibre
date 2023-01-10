@@ -19,7 +19,7 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.utils.icu import primary_collator_without_punctuation
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue

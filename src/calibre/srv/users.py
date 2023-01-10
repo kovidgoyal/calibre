@@ -12,6 +12,7 @@ from threading import RLock
 from calibre import as_unicode
 from calibre.constants import config_dir
 from calibre.utils.config import from_json, to_json
+from calibre.utils.localization import _
 from polyglot.builtins import iteritems
 
 

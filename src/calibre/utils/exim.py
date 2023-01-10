@@ -2,19 +2,29 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
+import errno
+import hashlib
+import json
+import os
+import shutil
+import struct
+import sys
+import tempfile
+import time
+import uuid
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows, filesystem_encoding
-from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
+from calibre.constants import config_dir, filesystem_encoding, iswindows
 from calibre.utils.config import JSONConfig
+from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, error_message
+from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode
-
+from polyglot.builtins import error_message, iteritems
 
 # Export {{{
+
 
 def send_file(from_obj, to_obj, chunksize=1<<20):
     m = hashlib.sha1()
@@ -169,8 +179,8 @@ def all_known_libraries():
 
 
 def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
-    from calibre.db.cache import Cache
     from calibre.db.backend import DB
+    from calibre.db.cache import Cache
     if library_paths is None:
         library_paths = all_known_libraries()
     dbmap = dbmap or {}

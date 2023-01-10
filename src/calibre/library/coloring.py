@@ -6,6 +6,7 @@ import json
 import re
 from textwrap import dedent
 
+from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
 color_row_key = '*row'

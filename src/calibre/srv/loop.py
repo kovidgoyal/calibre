@@ -11,7 +11,7 @@ import socket
 import ssl
 import traceback
 from contextlib import suppress
-from functools import partial, lru_cache
+from functools import lru_cache, partial
 from io import BytesIO
 
 from calibre import as_unicode
@@ -23,8 +23,9 @@ from calibre.srv.opts import Options
 from calibre.srv.pool import PluginPool, ThreadPool
 from calibre.srv.utils import (
     DESIRED_SEND_BUFFER_SIZE, HandleInterrupt, create_sock_pair, socket_errors_eintr,
-    socket_errors_nonblocking, socket_errors_socket_closed, start_cork, stop_cork
+    socket_errors_nonblocking, socket_errors_socket_closed, start_cork, stop_cork,
 )
+from calibre.utils.localization import _
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.mdns import get_external_ip
 from calibre.utils.monotonic import monotonic

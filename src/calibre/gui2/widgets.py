@@ -25,7 +25,7 @@ from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.startup import connect_lambda
 from calibre.utils.config import XMLConfig, prefs
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from polyglot.builtins import native_string_type
 
 history = XMLConfig('history')

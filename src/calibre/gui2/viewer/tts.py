@@ -6,6 +6,7 @@ from qt.core import QDialog, QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.config import get_pref_group, vprefs
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import _
 
 
 def set_sync_override(allowed):

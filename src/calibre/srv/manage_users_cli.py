@@ -7,7 +7,7 @@ from functools import partial
 from calibre import prints
 from calibre.constants import iswindows, preferred_encoding
 from calibre.utils.config import OptionParser
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from polyglot.builtins import iteritems
 
 

@@ -5,21 +5,24 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from itertools import cycle
 
 from calibre import force_unicode
-from calibre.library.field_metadata import category_icon_map
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from calibre.srv.errors import HTTPNotFound, BookNotFound
-from calibre.srv.routes import endpoint, json
+from calibre.library.field_metadata import category_icon_map
 from calibre.srv.content import get as get_content, icon as get_icon
-from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name, get_db
+from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.routes import endpoint, json
+from calibre.srv.utils import (
+    custom_fields_to_display, decode_name, encode_name, get_db, http_date,
+)
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
+from calibre.utils.localization import _
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def ensure_val(x, *allowed):
@@ -126,9 +129,10 @@ def book_to_json(ctx, rd, db, book_id,
         data['_series_sort_'] = series
         if device_for_template:
             import posixpath
+
+            from calibre.customize.ui import device_plugins
             from calibre.devices.utils import create_upload_path
             from calibre.utils.filenames import ascii_filename as sanitize
-            from calibre.customize.ui import device_plugins
 
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:

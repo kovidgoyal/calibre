@@ -18,7 +18,7 @@ from calibre import prints, random_user_agent
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import (
     create_script, insert_scripts, secure_webengine, setup_profile,

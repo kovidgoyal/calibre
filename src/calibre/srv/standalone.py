@@ -21,10 +21,10 @@ from calibre.srv.opts import opts_to_parser
 from calibre.srv.users import connect
 from calibre.srv.utils import HandleInterrupt, RotatingLog
 from calibre.utils.config import prefs
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.lock import singleinstance
-from polyglot.builtins import error_message
 from calibre_extensions import speedup
+from polyglot.builtins import error_message
 
 
 def daemonize():  # {{{

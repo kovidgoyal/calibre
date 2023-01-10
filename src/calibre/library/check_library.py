@@ -5,11 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, traceback, fnmatch
+import fnmatch
+import os
+import re
+import traceback
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.utils.localization import _
 from polyglot.builtins import iteritems
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)

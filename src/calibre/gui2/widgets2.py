@@ -4,13 +4,13 @@
 
 import weakref
 from qt.core import (
-    QApplication, QBrush, QByteArray, QCalendarWidget, QCheckBox, QColor,
-    QColorDialog, QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog,
-    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence,
-    QLabel, QLayout, QMenu, QMimeData, QPainter, QPalette, QPixmap, QPoint,
-    QPushButton, QRect, QScrollArea, QSize, QSizePolicy, QStyle, QStyledItemDelegate,
-    QStyleOptionToolButton, QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor,
-    QToolButton, QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal
+    QApplication, QBrush, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
+    QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
+    QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence, QLabel, QLayout, QMenu,
+    QMimeData, QPainter, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
+    QSize, QSizePolicy, QStyle, QStyledItemDelegate, QStyleOptionToolButton,
+    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QToolButton, QUndoCommand,
+    QUndoStack, QUrl, QWidget, pyqtSignal,
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -19,6 +19,7 @@ from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.localization import _
 from polyglot.functools import lru_cache
 
 

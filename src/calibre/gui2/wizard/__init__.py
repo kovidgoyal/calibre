@@ -10,8 +10,8 @@ import re
 import traceback
 from contextlib import closing, suppress
 from qt.core import (
-    QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt,
-    QWizard, QWizardPage, pyqtSignal
+    QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard,
+    QWizardPage, pyqtSignal,
 )
 
 from calibre import __appname__
@@ -24,7 +24,7 @@ from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from polyglot.builtins import iteritems
 
 # Devices {{{
@@ -717,7 +717,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.blockSignals(True)
         self.language.clear()
         from calibre.utils.localization import (
-            available_translations, get_lang, get_language, get_lc_messages_path
+            available_translations, get_lang, get_language, get_lc_messages_path,
         )
         lang = get_lang()
         lang = get_lc_messages_path(lang) if lang else lang

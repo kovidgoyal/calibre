@@ -19,6 +19,7 @@ from calibre.gui2.viewer.web_view import set_book_path, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 class Action:

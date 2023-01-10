@@ -60,7 +60,7 @@ from calibre.utils.filenames import (
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.icu import lower, lower as icu_lower, sort_key, strcmp
 from calibre.utils.img import save_cover_data_to
-from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches

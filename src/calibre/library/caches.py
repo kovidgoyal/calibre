@@ -20,7 +20,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_date
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import canonicalize_lang, get_udc, lang_map
+from calibre.utils.localization import _, canonicalize_lang, get_udc, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
 

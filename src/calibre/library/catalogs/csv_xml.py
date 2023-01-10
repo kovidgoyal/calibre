@@ -5,12 +5,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, os
+import codecs
+import os
+import re
 from collections import namedtuple
 
 from calibre.customize import CatalogPlugin
-from calibre.library.catalogs import FIELDS
 from calibre.customize.conversion import DummyReporter
+from calibre.library.catalogs import FIELDS
+from calibre.utils.localization import _
 
 
 class CSV_XML(CatalogPlugin):
@@ -50,12 +53,13 @@ class CSV_XML(CatalogPlugin):
                 "Applies to: CSV, XML output formats"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
+        from lxml import etree
+
+        from calibre.ebooks.metadata import authors_to_string
         from calibre.library import current_library_name
         from calibre.utils.date import isoformat
         from calibre.utils.html2text import html2text
         from calibre.utils.logging import default_log as log
-        from lxml import etree
-        from calibre.ebooks.metadata import authors_to_string
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification

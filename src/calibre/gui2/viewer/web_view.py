@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import shutil
 import sys
@@ -28,7 +27,7 @@ from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open

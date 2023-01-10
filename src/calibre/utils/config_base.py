@@ -17,6 +17,7 @@ from calibre.constants import (
     CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows,
     preferred_encoding,
 )
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 

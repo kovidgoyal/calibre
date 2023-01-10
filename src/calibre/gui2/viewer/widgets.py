@@ -2,13 +2,13 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-
 from qt.core import (
-    QAction, QFont, QFontMetrics, QStyle, QStyledItemDelegate, Qt, pyqtSignal, QPalette
+    QAction, QFont, QFontMetrics, QPalette, QStyle, QStyledItemDelegate, Qt, pyqtSignal,
 )
 
 from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION
 from calibre.gui2.widgets2 import HistoryComboBox
+from calibre.utils.localization import _
 
 
 class ResultsDelegate(QStyledItemDelegate):  # {{{

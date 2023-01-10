@@ -48,6 +48,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes, as_unicode, iteritems, itervalues
 
 

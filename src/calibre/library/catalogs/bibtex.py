@@ -16,6 +16,7 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import DummyReporter
 from calibre.ebooks.metadata import format_isbn
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
+from calibre.utils.localization import _
 from polyglot.builtins import string_or_bytes
 
 

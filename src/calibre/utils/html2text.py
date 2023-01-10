@@ -2,6 +2,9 @@
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from calibre.utils.localization import _
+
+
 def html2text(html, single_line_break=True):
     from html2text import HTML2Text
     import re

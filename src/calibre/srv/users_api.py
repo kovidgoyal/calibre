@@ -8,6 +8,7 @@ from calibre import as_unicode
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden
 from calibre.srv.routes import endpoint
 from calibre.srv.users import validate_password
+from calibre.utils.localization import _
 
 
 @endpoint('/users/change-pw', methods={'POST'})

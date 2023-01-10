@@ -7,7 +7,7 @@ from operator import itemgetter
 from qt.core import (
     QAbstractItemView, QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon,
     QInputDialog, QItemSelectionModel, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, Qt, QWidget, pyqtSignal
+    QPushButton, Qt, QWidget, pyqtSignal,
 )
 
 from calibre.gui2 import choose_files, choose_save_file
@@ -17,6 +17,7 @@ from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 class BookmarksList(QListWidget):

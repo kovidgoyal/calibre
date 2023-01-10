@@ -7,14 +7,14 @@ import errno
 import os
 import shutil
 import time
+from contextlib import closing, suppress
 from math import ceil
-from contextlib import suppress, closing
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
-    filesystem_encoding, iswindows, preferred_encoding, ismacos
+    filesystem_encoding, ismacos, iswindows, preferred_encoding,
 )
-from calibre.utils.localization import get_udc
+from calibre.utils.localization import _, get_udc
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -331,6 +331,7 @@ class WindowsAtomicFolderMove:
 
     def __init__(self, path):
         from collections import defaultdict
+
         from calibre_extensions import winutil
         self.handle_map = {}
 
