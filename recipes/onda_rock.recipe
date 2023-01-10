@@ -26,5 +26,16 @@ class AdvancedUserRecipe1328535130(BasicNewsRecipe):
     masthead_url = 'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'  # noqa
 
     extra_css = '''  # noqa
-        .boxtabscontain_page {border: 1px solid #E0E0E0;clear: both;font-family: "Verdana", "Arial", "Helvetica", sans-serif;font-size: 10px;line-height: 17px;margin: 0px 0px 20px;padding: 10px 10px 10px 40px;position: relative;top: -1px;width: 258px;z-index: 1;}
-                '''
+        .boxtabscontain_page {
+             border: 1px solid #E0E0E0;clear: both;
+             font-family: "Verdana", "Arial", "Helvetica", sans-serif;
+             font-size: 10px;
+             line-height: 17px;
+             margin: 0px 0px 20px;
+             padding: 10px 10px 10px 40px;
+             position: relative;
+             top: -1px;
+             width: 258px;
+             z-index: 1;
+        }
+    '''

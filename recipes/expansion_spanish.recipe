@@ -147,7 +147,7 @@ class expansion_spanish(BasicNewsRecipe):
 
         # Eliminar artículos duplicados en otros feeds
 
-        if not (link in self._processed_links):
+        if link not in self._processed_links:
             self._processed_links.append(link)
         else:
             link = None

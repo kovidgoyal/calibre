@@ -1,14 +1,14 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import os, locale, re, io
+import io
+import locale
+import os
+import re
 from gettext import GNUTranslations, NullTranslations
-from calibre.utils.resources import get_path as P
 
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 _available_translations = None
@@ -29,7 +29,7 @@ def available_translations():
 
 
 def get_system_locale():
-    from calibre.constants import iswindows, ismacos
+    from calibre.constants import ismacos, iswindows
     lang = None
     if iswindows:
         try:

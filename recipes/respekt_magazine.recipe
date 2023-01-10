@@ -159,7 +159,7 @@ class respektRecipe(BasicNewsRecipe):
         for par in paragraphs[:-1]:
             prev = par.getprevious()
             # Do not indent after headings
-            if hasattr(prev,'tag') and not (prev.tag in ['h2','h3']):
+            if hasattr(prev,'tag') and prev.tag not in ['h2', 'h3']:
                 par.attrib['class']="indent_first_line"
         # Fix subtitle for Téma
         try:

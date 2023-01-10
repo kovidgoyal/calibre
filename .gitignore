@@ -41,7 +41,7 @@ setup/installer/windows/calibre/build.log
 setup/pyqt_enums
 tags
 nbproject/
-translations/
+/translations/
 *.mdproj
 *.pidb
 *.sln

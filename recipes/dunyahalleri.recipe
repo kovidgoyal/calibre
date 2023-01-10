@@ -10,6 +10,7 @@ from shutil import copyfile
 from calibre import strftime
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.utils.resources import get_path
 from PIL import Image, ImageDraw, ImageFont
 
 __license__ = 'GPL v3'
@@ -168,7 +169,7 @@ class DunyaHalleri(BasicNewsRecipe):
             self.cover_img_path = None
 
     def draw_text(self, draw, text, text_size, top):
-        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+        font_path = get_path('fonts/liberation/LiberationSerif-Bold.ttf')
         font = ImageFont.truetype(font_path, text_size)
         width, height = draw.textsize(text, font=font)
         left = max(int((self.COVER_WIDTH - width) / 2.), 0)

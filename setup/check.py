@@ -77,7 +77,7 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p2 = subprocess.Popen(['flake8', '--filename', '*.py,*.recipe', f])
+            p2 = subprocess.Popen(['ruff', '--no-update-check', f])
             return p2.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])

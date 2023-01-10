@@ -81,7 +81,7 @@ class ElPais_RSS(BasicNewsRecipe):
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
-        if url and (not('/album/' in url) and not('/futbol/partido/' in url)):
+        if url and ('/album/' not in url and '/futbol/partido/' not in url):
             return url
         self.log('Skipping non-article', url)
         return None
