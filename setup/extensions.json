@@ -185,6 +185,14 @@
         "cflags": "/X"
     },
     {
+        "name": "winspeech",
+        "only": "windows",
+        "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
+        "sources": "calibre/utils/windows/winspeech.cpp",
+        "libraries": "shlwapi runtimeobject",
+        "cflags": "/X"
+    },
+    {
         "name": "wpd",
         "only": "windows",
         "sources": "calibre/devices/mtp/windows/device_enumeration.cpp calibre/devices/mtp/windows/content_enumeration.cpp calibre/devices/mtp/windows/device.cpp calibre/devices/mtp/windows/wpd.cpp",

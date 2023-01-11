@@ -261,7 +261,7 @@ class ExtDev(Command):
         try:
             path = path.format(ext)
             src = os.path.join(ext_dir, os.path.basename(path))
-            subprocess.check_call(['ssh', '-S', control_path, host, 'chmod', '+w', f'"{path}"'])
+            subprocess.check_call(['ssh', '-S', control_path, host, 'chmod', '+wx', f'"{path}"'])
             with open(src, 'rb') as f:
                 p = subprocess.Popen(['ssh', '-S', control_path, host, f'cat - > "{path}"'], stdin=subprocess.PIPE)
                 p.communicate(f.read())
