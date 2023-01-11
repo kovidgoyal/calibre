@@ -273,17 +273,6 @@ class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
   ULONG m_cRef;
 }; // }}}
 
-class scoped_com_initializer {  // {{{
-	public:
-		scoped_com_initializer() : m_succeded(false) { if (SUCCEEDED(CoInitialize(NULL))) m_succeded = true; }
-		~scoped_com_initializer() { CoUninitialize(); }
-		bool succeeded() { return m_succeded; }
-	private:
-		bool m_succeded;
-		scoped_com_initializer( const scoped_com_initializer & ) ;
-		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
-}; // }}}
-
 static PyObject*
 get_computer_name(PyObject *self, PyObject *args) {
     COMPUTER_NAME_FORMAT fmt = ComputerNameDnsFullyQualified;

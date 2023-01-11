@@ -189,8 +189,8 @@
         "only": "windows",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winspeech.cpp",
-        "libraries": "shlwapi runtimeobject",
-        "cflags": "/X"
+        "libraries": "WindowsApp",
+        "cflags": "/X /std:c++17 /ZW /bigobj /await /permissive- /WX /Zc:twoPhase-"
     },
     {
         "name": "wpd",
