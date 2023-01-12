@@ -6,8 +6,10 @@
  */
 #include "common.h"
 
+#include <array>
 #include <collection.h>
 #include <winrt/base.h>
+#include <ppltasks.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <windows.foundation.h>
 #include <windows.media.speechsynthesis.h>
@@ -17,6 +19,15 @@ using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Media::SpeechSynthesis;
 using namespace Windows::Storage::Streams;
+using namespace Platform;
+using namespace Concurrency;
+
+// static void
+// wait_for_async( Windows::Foundation::IAsyncInfo ^op ) {
+//     while(op->Status == Windows::Foundation::AsyncStatus::Started) {
+//         CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+//     }
+// }
 
 typedef struct {
     PyObject_HEAD
@@ -42,6 +53,75 @@ static void
 Synthesizer_dealloc(Synthesizer *self) {
     self->synth = nullptr;
     CoUninitialize();
+}
+
+#define WM_DONE (WM_USER + 0)
+
+static void
+ensure_current_thread_has_message_queue(void) {
+    MSG msg;
+    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+}
+
+static bool
+send_done_message_to_thread(DWORD thread_id) {
+    return PostThreadMessageA(thread_id, WM_DONE, 0, 0);
+}
+
+static bool
+pump_till_done(void) {
+    MSG msg;
+    while (true) {
+        BOOL ret = GetMessage(&msg, NULL, 0, 0);
+        if (ret == 0) { PyErr_SetString(PyExc_OSError, "WM_QUIT received"); return false; } // WM_QUIT
+        if (ret == -1) { PyErr_SetFromWindowsErr(0); return false; }
+		if (msg.message == WM_DONE) {
+            break;
+        }
+		DispatchMessage(&msg);
+    }
+    return true;
+}
+
+static PyObject*
+Synthesizer_create_recording(Synthesizer *self, PyObject *args) {
+    wchar_raii pytext;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &pytext)) return NULL;
+    StringReference text(pytext.ptr());
+    bool error_ocurred = false;
+    HRESULT hr = S_OK;
+    std::array<wchar_t, 2048> error_msg;
+    DataReader ^reader = nullptr;
+    DWORD main_thread_id = GetCurrentThreadId();
+    unsigned long long stream_size;
+    unsigned int bytes_read;
+
+    create_task(self->synth->SynthesizeTextToStreamAsync(text.GetString()), task_continuation_context::use_current()
+    ).then([&reader, &stream_size](task<SpeechSynthesisStream^> stream_task) {
+        SpeechSynthesisStream^ stream = stream_task.get();
+        stream_size = stream->Size;
+        reader = ref new DataReader(stream);
+        return reader->LoadAsync((unsigned int)stream_size);
+    }).then([main_thread_id, &bytes_read, &error_msg, &error_ocurred, &reader](task<unsigned int> bytes_read_task) {
+        try {
+            bytes_read = bytes_read_task.get();
+        } catch (Exception ^ex) {
+            std::swprintf(error_msg.data(), error_msg.size(), L"Could not synthesize speech from text: %ls", ex->Message->Data());
+            error_ocurred = true;
+        }
+        send_done_message_to_thread(main_thread_id);
+    });
+
+    if (!pump_till_done()) return NULL;
+
+    if (error_ocurred) {
+        pyobject_raii err(PyUnicode_FromWideChar(error_msg.data(), -1));
+        PyErr_Format(PyExc_OSError, "%V", err.ptr(), "Could not create error message unicode object");
+        return NULL;
+    }
+    auto data = ref new Platform::Array<byte>(bytes_read);
+    reader->ReadBytes(data);
+    return PyBytes_FromStringAndSize((const char*)data->Data, bytes_read);
 }
 
 static PyObject*
@@ -84,6 +164,7 @@ default_voice(PyObject* /*self*/, PyObject* /*args*/) { INITIALIZE_COM_IN_FUNCTI
 
 #define M(name, args) { #name, (PyCFunction)Synthesizer_##name, args, ""}
 static PyMethodDef Synthesizer_methods[] = {
+    M(create_recording, METH_VARARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
