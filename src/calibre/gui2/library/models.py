@@ -1702,6 +1702,10 @@ class DeviceBooksModel(BooksModel):  # {{{
         if current.isValid():
             idx = current.row()
             try:
+                self.db[self.map[idx]]
+            except Exception:
+                return  # can happen if the device is ejected
+            try:
                 data = self.get_book_display_info(idx)
             except Exception:
                 import traceback
