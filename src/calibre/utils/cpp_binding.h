@@ -11,6 +11,9 @@
 #define _UNICODE
 #include <Python.h>
 #include <wchar.h>
+#if __cplusplus >= 201703L
+#include <string_view>
+#endif
 
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
@@ -41,7 +44,23 @@ class generic_raii {
 		explicit operator bool() const noexcept { return handle != null; }
 };
 
+#if __cplusplus >= 201703L
+class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
+    private:
+        Py_ssize_t sz;
+    public:
+        int from_unicode(PyObject *obj) {
+            wchar_t *buf = PyUnicode_AsWideCharString(obj, &sz);
+            if (!buf) return 0;
+            attach(buf);
+            return 1;
+        }
+        std::wstring_view as_view() const { return std::wstring_view(handle, sz); }
+};
+#else
 typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;
+#endif
+
 static inline void python_object_destructor(void *p) { PyObject *x = reinterpret_cast<PyObject*>(p); Py_XDECREF(x); }
 typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
 
@@ -93,8 +112,12 @@ py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}
+#if __cplusplus >= 201703L
+    return output->from_unicode(obj);
+#else
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
-    if (!buf) { PyErr_NoMemory(); return 0; }
-	output->attach(buf);
-	return 1;
+    if (!buf) { return 0; }
+    output->attach(buf);
+    return 1;
+#endif
 }
