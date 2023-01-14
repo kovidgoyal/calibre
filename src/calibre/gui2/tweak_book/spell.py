@@ -1131,16 +1131,12 @@ class SpellCheck(Dialog):
         self.addAction(a)
 
     def next_word(self):
-        if self.focusWidget() is self.suggested_list:
-            self.suggested_list.next_word()
-        else:
-            self.words_view.next_word()
+        v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
+        v.next_word()
 
     def previous_word(self):
-        if self.focusWidget() is self.suggested_list:
-            self.suggested_list.previous_word()
-        else:
-            self.words_view.previous_word()
+        v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
+        v.previous_word()
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
