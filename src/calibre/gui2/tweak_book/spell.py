@@ -961,6 +961,17 @@ class ManageExcludedFiles(Dialog):
         return {item.text() for item in self.files.selectedItems()}
 
 
+class SuggestedList(QListWidget):
+
+    def next_word(self):
+        row = (self.currentRow() + 1) % self.count()
+        self.setCurrentRow(row)
+
+    def previous_word(self):
+        row = (self.currentRow() - 1 + self.count()) % self.count()
+        self.setCurrentRow(row)
+
+
 class SpellCheck(Dialog):
 
     work_finished = pyqtSignal(object, object, object)
@@ -1089,7 +1100,7 @@ class SpellCheck(Dialog):
         sw.setPlaceholderText(_('The replacement word'))
         sw.returnPressed.connect(self.change_word)
         l.addWidget(sw)
-        self.suggested_list = sl = QListWidget(self)
+        self.suggested_list = sl = SuggestedList(self)
         sl.currentItemChanged.connect(self.current_suggestion_changed)
         sl.itemActivated.connect(self.change_word)
         set_no_activate_on_click(sl)
@@ -1112,12 +1123,24 @@ class SpellCheck(Dialog):
         self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2)
         self.action_next_word = a = QAction(self)
         a.setShortcut(QKeySequence(Qt.Key.Key_Down))
-        a.triggered.connect(self.words_view.next_word)
+        a.triggered.connect(self.next_word)
         self.addAction(a)
         self.action_previous_word = a = QAction(self)
-        a.triggered.connect(self.words_view.previous_word)
+        a.triggered.connect(self.previous_word)
         a.setShortcut(QKeySequence(Qt.Key.Key_Up))
         self.addAction(a)
+
+    def next_word(self):
+        if self.focusWidget() is self.suggested_list:
+            self.suggested_list.next_word()
+        else:
+            self.words_view.next_word()
+
+    def previous_word(self):
+        if self.focusWidget() is self.suggested_list:
+            self.suggested_list.previous_word()
+        else:
+            self.words_view.next_word()
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
