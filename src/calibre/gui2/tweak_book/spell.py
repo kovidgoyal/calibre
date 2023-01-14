@@ -10,12 +10,12 @@ from collections import OrderedDict, defaultdict
 from functools import partial
 from itertools import chain
 from qt.core import (
-    QT_VERSION_STR, QAbstractItemView, QAbstractTableModel, QApplication, QCheckBox,
-    QComboBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout, QHBoxLayout,
-    QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize, QStackedLayout, Qt,
-    QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
-    pyqtSignal,
+    QT_VERSION_STR, QAbstractItemView, QAbstractTableModel, QAction, QApplication,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout,
+    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize,
+    QStackedLayout, Qt, QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Thread
 
@@ -856,6 +856,17 @@ class WordsView(QTableView):
         self.setTabKeyNavigation(False)
         self.verticalHeader().close()
 
+    def change_current_word_by(self, delta=1):
+        row = self.currentIndex().row()
+        row = (row + delta + self.model().rowCount()) % self.model().rowCount()
+        self.highlight_row(row)
+
+    def next_word(self):
+        self.change_current_word_by(1)
+
+    def previous_word(self):
+        self.change_current_word_by(-1)
+
     def keyPressEvent(self, ev):
         if ev == QKeySequence.StandardKey.Copy:
             self.copy_to_clipboard()
@@ -1099,6 +1110,14 @@ class SpellCheck(Dialog):
         self.hb = h = FlowLayout()
         self.summary = s = QLabel('')
         self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2)
+        self.action_next_word = a = QAction(self)
+        a.setShortcut(QKeySequence(Qt.Key.Key_Down))
+        a.triggered.connect(self.words_view.next_word)
+        self.addAction(a)
+        self.action_previous_word = a = QAction(self)
+        a.triggered.connect(self.words_view.previous_word)
+        a.setShortcut(QKeySequence(Qt.Key.Key_Up))
+        self.addAction(a)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
