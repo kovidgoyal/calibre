@@ -1130,6 +1130,17 @@ class SpellCheck(Dialog):
         a.setShortcut(QKeySequence(Qt.Key.Key_Up))
         self.addAction(a)
 
+        def button_action(sc, tt, button):
+            a = QAction(self)
+            self.addAction(a)
+            a.setShortcut(QKeySequence(sc, QKeySequence.SequenceFormat.PortableText))
+            button.setToolTip(tt + f' [{a.shortcut().toString(QKeySequence.SequenceFormat.NativeText)}]')
+            a.triggered.connect(button.click)
+            return a
+
+        self.action_change_word = button_action('ctrl+right', _('Change all occurrences of this word'), self.change_button)
+        self.action_show_next_occurrence = button_action('alt+right', _('Show next occurrence of this word in the book'), self.next_occurrence)
+
     def next_word(self):
         v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
         v.next_word()
