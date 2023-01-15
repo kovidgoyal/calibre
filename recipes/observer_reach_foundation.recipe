@@ -1,0 +1,60 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+class ORF(BasicNewsRecipe):
+    title = u'Observer Research Foundation'
+    description = (
+        'Set up in 1990, ORF seeks to lead and aid policy thinking towards building a strong and prosperous India'
+        ' in a fair and equitable world. It helps discover and inform India’s choices, and carries Indian voices '
+        'and ideas to forums shaping global debates. '
+    )
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    oldest_article = 7.5  # days
+    max_articles_per_feed = 25
+    encoding = 'utf-8'
+    masthead_url = 'https://www.orfonline.org/wp-content/uploads/2015/09/Logo_ORF_JPEG.jpg'
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+
+    extra_css = '''
+        .report-slider {font-size:small; color:#404040;}
+        .report {font-size:small; font-weight:bold;}
+        .excert-italic, .recent-block-people {font-style:italic; color:#202020;}
+        blockquote, em {color:#202020;}
+    '''
+
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
+    resolve_internal_links = True
+    remove_empty_feeds = True
+
+    keep_only_tags = [classes('recent-updates-block recent-block-people')]
+    remove_tags = [
+        classes(
+            'social socialshare comment-area-section telegramhtml post-tag '
+            'research-prev research-next'
+        )
+    ]
+
+    feeds = [
+            ('Commentaries', 'https://www.orfonline.org/content-type/commentary/feed/'),
+            ('Expert Speak', 'https://www.orfonline.org/expert-speak/feed/'),
+            ('Books and Monographs', 'https://www.orfonline.org/content-type/books/feed/'),
+            ('Event Reports', 'https://www.orfonline.org/content-type/event-reports/feed/'),
+            ('Events', 'https://www.orfonline.org/content-type/events/feed/'),
+            ('Forums', 'https://www.orfonline.org/content-type/forums/feed/'),
+            ('GP-ORF Series', 'https://www.orfonline.org/content-type/gp-orf-series/feed/'),
+            ('Issue Briefs & Special Reports', 'https://www.orfonline.org/content-type/issue-brief/feed/'),
+            ('Monitors', 'https://www.orfonline.org/content-type/monitors/feed/'),
+            ('Occasional Papers', 'https://www.orfonline.org/content-type/occasional-paper/feed/'),
+            ('Primer', 'https://www.orfonline.org/content-type/primer/feed/'),
+            ('Series', 'https://www.orfonline.org/content-type/series/feed/'),
+            ('Surveys & Polls', 'https://www.orfonline.org/content-type/surveys-polls/feed/'),
+            ('Young Voices', 'https://www.orfonline.org/content-type/young-voices/feed/'),
+        ]
+
+    def print_version(self, url):
+        if 'marathi' in url or 'hindi' in url or 'bangla' in url:
+            return ''
+        return url
