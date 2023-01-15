@@ -124,4 +124,6 @@ class Bloomberg(BasicNewsRecipe):
                 img['src'] = img['data-native-src']
             else:
                 img['src'] = ''
+        for img in soup.findAll('img', attrs={'src':lambda x: x and x.endswith(('-1x-1.jpg', '-1x-1.png'))}):
+            img['src'] = img['src'].replace('-1x-1', '750x-1')
         return soup
