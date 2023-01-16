@@ -13,10 +13,12 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Media.SpeechSynthesis.h>
+#include <winrt/Windows.Media.Playback.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Media::SpeechSynthesis;
+using namespace winrt::Windows::Media::Playback;
 using namespace winrt::Windows::Storage::Streams;
 
 static PyObject*

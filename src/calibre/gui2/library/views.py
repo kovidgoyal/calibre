@@ -1177,6 +1177,14 @@ class BooksView(QTableView):  # {{{
 
     def handle_mouse_press_event(self, ev):
         m = ev.modifiers()
+        b = ev.button()
+        if (
+            m == Qt.KeyboardModifier.NoModifier and b == Qt.MouseButton.LeftButton and
+            self.editTriggers() & QAbstractItemView.EditTrigger.SelectedClicked
+        ):
+            index = self.indexAt(ev.pos())
+            self.last_mouse_press_on_row = index.row()
+
         if m & Qt.KeyboardModifier.ShiftModifier:
             # Shift-Click in QTableView is badly behaved.
             index = self.indexAt(ev.pos())
@@ -1240,9 +1248,11 @@ class BooksView(QTableView):  # {{{
             # edit triggers contain SelectedClicked and the clicked row is
             # already selected, so do it ourselves
             index = self.indexAt(ev.pos())
-            sm = self.selectionModel()
-            if index.isValid() and sm.isSelected(index):
-                self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
+            last_press, self.last_mouse_press_on_row = getattr(self, 'last_mouse_press_on_row', -111), -112
+            if index.row() == last_press:
+                sm = self.selectionModel()
+                if index.isValid() and sm.isSelected(index):
+                    self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
         QTableView.mouseReleaseEvent(self, ev)
 
     @property
