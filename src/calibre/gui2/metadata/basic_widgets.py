@@ -1714,12 +1714,13 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         rules = msprefs['id_link_rules']
         if rules:
             formatter = EvalFormatter()
-            vals = {'id' : '(?P<new_id>.+)'}
+            vals = {'id' : '__ID_REGEX_PLACEHOLDER__'}
             for key in rules.keys():
                 rule = rules[key]
                 for name, template in rule:
                     try:
                         url_pattern = formatter.safe_format(template, vals, '', vals)
+                        url_pattern = re.escape(url_pattern).replace('__ID_REGEX_PLACEHOLDER__', '(?P<new_id>.+)')
                         if url_pattern.startswith('http:') or url_pattern.startswith('https:'):
                             url_pattern = '(?:http|https):' + url_pattern.partition(':')[2]
                         new_id = re.compile(url_pattern)
@@ -1731,7 +1732,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                             return True
                     except Exception:
                         import traceback
-                        traceback.format_exc()
+                        traceback.print_exc()
                         continue
 
         from calibre.customize.ui import all_metadata_plugins
