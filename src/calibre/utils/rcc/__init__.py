@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-import os
+import os, io
 import sys
 import tempfile
 from posixpath import normpath
@@ -14,7 +14,12 @@ from calibre_extensions import rcc_backend
 def compile_qrc(output_path, *qrc_file_paths):
     rcc = rcc_backend.RCCResourceLibrary()
     err_device = QFile()
-    if not err_device.open(sys.stderr.fileno(), QIODevice.OpenModeFlag.WriteOnly | QIODevice.OpenModeFlag.Text):
+
+    try:
+        fd = sys.__stderr__.fileno()
+    except io.UnsupportedOperation:
+        fd = 2
+    if not err_device.open(fd, QIODevice.OpenModeFlag.WriteOnly | QIODevice.OpenModeFlag.Text):
         raise ValueError('Failed to open STDERR for writing')
     if not qrc_file_paths:
         raise TypeError('Must specify at least one .qrc file')
