@@ -371,14 +371,26 @@ class AddAction(InterfaceAction):
         existing_isbns.pop('', None)
         ok = []
         duplicates = []
+        checker_maps = {}
         for book in books:
-            q = normalize_isbn(book['isbn'])
-            if q and q in existing_isbns:
-                duplicates.append((book, existing_isbns[q]))
+            if 'isbn' in book:
+                q = normalize_isbn(book['isbn'])
+                if q and q in existing_isbns:
+                    duplicates.append((book, existing_isbns[q]))
+                else:
+                    ok.append(book)
             else:
-                ok.append(book)
+                key = book['']
+                if key not in checker_maps:
+                    checker_maps[key] = {ids.get(key, ''): book_id for book_id, ids in book_id_identifiers.items()}
+                    checker_maps[key].pop('', None)
+                q = book[key]
+                if q in checker_maps[key]:
+                    duplicates.append((book, checker_maps[key][q]))
+                else:
+                    ok.append(book)
         if duplicates:
-            det_msg = '\n'.join(f'{book["isbn"]}: {db.field_for("title", book_id)}' for book, book_id in duplicates)
+            det_msg = '\n'.join(f'{book[book[""]]}: {db.field_for("title", book_id)}' for book, book_id in duplicates)
             if question_dialog(self.gui, _('Duplicates found'), _(
                 'Books with some of the specified ISBNs already exist in the calibre library.'
                 ' Click "Show details" for the full list. Do you want to add them anyway?'), det_msg=det_msg
@@ -416,7 +428,10 @@ class AddAction(InterfaceAction):
                 return
 
             mi = MetaInformation(None)
-            mi.isbn = x['isbn']
+            if x[''] == 'isbn':
+                mi.isbn = x['isbn']
+            else:
+                mi.set_identifiers({x['']:x[x['']]})
             if self.isbn_add_tags:
                 mi.tags = list(self.isbn_add_tags)
             fmts = [] if x['path'] is None else [x['path']]
