@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime
 import json
 
 # a serarch topic, filled into the string below. You can change that to anything google news should be searched for...
@@ -27,10 +26,6 @@ class google_news_de(BasicNewsRecipe):
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
     description = u'Google News filter by your own recipe. Please read it in calibre software!'
-    # add date to description so for dayly downloads you can find them easier
-    # ---- can be edit by user
-    description = description + ' fetched: ' + \
-        datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
     # What is the content of?
     category = u'NEWS'
     # describes itself, 						 							---- can be edit by user

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime
 
 
 class MyDealzDE(BasicNewsRecipe):
@@ -21,10 +20,6 @@ class MyDealzDE(BasicNewsRecipe):
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
     description = u'MyDealz - Shopping Deals for Germany'
-    # add date to description so for dayly downloads you can find them easier
-    # ---- can be edit by user
-    description = description + ' fetched: ' + \
-        datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
     # Who published the content?
     publisher = u'https://www.mydealz.de'
     # What is the content of?
