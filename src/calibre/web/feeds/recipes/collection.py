@@ -58,13 +58,13 @@ def serialize_recipe(urn, recipe_class):
         ns = 'no'
     if ns is True:
         ns = 'yes'
-    return ('  <recipe id="{id}" title={title} author={author} language={language}'
-            ' needs_subscription="{needs_subscription}" description={description}/>').format(**{
-        'id'                 : str(urn),
+    return ('  <recipe id={id} title={title} author={author} language={language}'
+            ' needs_subscription={needs_subscription} description={description}/>').format(**{
+        'id'                 : quoteattr(str(urn)),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
         'language'           : attr('language', 'und'),
-        'needs_subscription' : ns,
+        'needs_subscription' : quoteattr(ns),
         'description'        : attr('description', '')
         })
 
