@@ -127,14 +127,15 @@ ensure_current_thread_has_message_queue(void) {
     PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 }
 
+#define PREPARE_METHOD_CALL ensure_current_thread_has_message_queue(); if (GetCurrentThreadId() != self->creation_thread_id) { PyErr_SetString(PyExc_RuntimeError, "Cannot use a Synthesizer object from a thread other than the thread it was created in"); return NULL; }
+
+
 static PyObject*
 Synthesizer_speak(Synthesizer *self, PyObject *args) {
+    PREPARE_METHOD_CALL;
     wchar_raii pytext;
-    PyObject *callback;
     int is_ssml = 0;
-	if (!PyArg_ParseTuple(args, "O&O|p", py_to_wchar_no_none, &pytext, &callback, &is_ssml)) return NULL;
-    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback must be callable"); return NULL; }
-    ensure_current_thread_has_message_queue();
+	if (!PyArg_ParseTuple(args, "O&|p", py_to_wchar_no_none, &pytext, &is_ssml)) return NULL;
     SpeechSynthesisStream stream{nullptr};
     try {
         if (is_ssml) stream = self->synth.SynthesizeSsmlToStreamAsync(pytext.as_view()).get();
@@ -151,13 +152,13 @@ Synthesizer_speak(Synthesizer *self, PyObject *args) {
 
 static PyObject*
 Synthesizer_create_recording(Synthesizer *self, PyObject *args) {
+    PREPARE_METHOD_CALL;
     wchar_raii pytext;
     PyObject *callback;
     int is_ssml = 0;
 	if (!PyArg_ParseTuple(args, "O&O|p", py_to_wchar_no_none, &pytext, &callback, &is_ssml)) return NULL;
     if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback must be callable"); return NULL; }
 
-    ensure_current_thread_has_message_queue();
     SpeechSynthesisStream stream{nullptr};
     try {
         if (is_ssml) stream = self->synth.SynthesizeSsmlToStreamAsync(pytext.as_view()).get();
