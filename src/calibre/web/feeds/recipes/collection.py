@@ -44,20 +44,22 @@ def iterate_over_builtin_recipe_files():
 
 
 def serialize_recipe(urn, recipe_class):
+    from xml.sax.saxutils import quoteattr
 
     def attr(n, d):
         ans = getattr(recipe_class, n, d)
         if isinstance(ans, bytes):
             ans = ans.decode('utf-8', 'replace')
-        return ans
+        return quoteattr(ans)
 
     default_author = _('You') if urn.startswith('custom:') else _('Unknown')
-    ns = attr('needs_subscription', False)
+    ns = getattr(recipe_class, 'needs_subscription', False)
     if not ns:
         ns = 'no'
     if ns is True:
         ns = 'yes'
-    return E.recipe({
+    return ('  <recipe id="{id}" title={title} author={author} language={language}'
+            ' needs_subscription="{needs_subscription}" description={description}/>').format(**{
         'id'                 : str(urn),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
@@ -68,12 +70,7 @@ def serialize_recipe(urn, recipe_class):
 
 
 def serialize_collection(mapping_of_recipe_classes):
-    collection = E.recipe_collection()
-    '''for u, x in mapping_of_recipe_classes.items():
-        print 11111, u, repr(x.title)
-        if isinstance(x.title, bytes):
-            x.title.decode('ascii')
-    '''
+    collection = []
     for urn in sorted(mapping_of_recipe_classes.keys(),
             key=lambda key: force_unicode(
                 getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
@@ -85,9 +82,11 @@ def serialize_collection(mapping_of_recipe_classes):
             traceback.print_exc()
             continue
         collection.append(recipe)
-    collection.set('count', str(len(collection)))
-    return etree.tostring(collection, encoding='utf-8', xml_declaration=True,
-            pretty_print=True)
+    items = '\n'.join(collection)
+    return f'''<?xml version='1.0' encoding='utf-8'?>
+<recipe_collection xmlns="http://calibre-ebook.com/recipe_collection" count="{len(collection)}">
+{items}
+</recipe_collection>'''.encode('utf-8')
 
 
 def serialize_builtin_recipes():
