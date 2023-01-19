@@ -6,8 +6,7 @@ import os
 import subprocess
 import sys
 
-from setup import Command
-
+from setup import Command, ismacos, is_ci
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
 
@@ -41,6 +40,12 @@ class Test(Command):
             self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
             sys.stdout.flush()
             os.execl('setup.py', *sys.argv)
+        if is_ci and ismacos:
+            import ctypes
+            sys.libxml2_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxml2.dylib'))
+            sys.libxslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxslt.dylib'))
+            sys.libexslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libexslt.dylib'))
+            print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
         from calibre.utils.run_tests import (
             filter_tests_by_name, remove_tests_by_name, run_cli, find_tests
         )
