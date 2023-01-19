@@ -7,7 +7,6 @@ from abc import abstractmethod, ABCMeta
 from typing import Optional
 
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
-from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_bytes
 from calibre.ebooks.pdb.header import PdbHeaderReader
@@ -40,6 +39,7 @@ class IPageGenerator(metaclass=ABCMeta):
 
 
 def mobi_html(mobi_file_path: str) -> bytes:
+    from calibre.ebooks.mobi.reader.mobi6 import MobiReader
     mr = MobiReader(mobi_file_path, default_log)
     if mr.book_header.encryption_type != 0:
         raise Exception("DRMed book")
