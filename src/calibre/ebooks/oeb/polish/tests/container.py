@@ -48,7 +48,8 @@ class ContainerTests(BaseTest):
 
             for name in c1.name_path_map:
                 self.assertIn(name, c2.name_path_map)
-                self.assertEqual(c1.open(name).read(), c2.open(name).read(), 'The file %s differs' % name)
+                with c1.open(name) as one, c2.open(name) as two:
+                    self.assertEqual(one.read(), two.read(), 'The file %s differs' % name)
 
             spine_names = tuple(x[0] for x in c1.spine_names)
             text = spine_names[0]
