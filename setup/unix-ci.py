@@ -161,7 +161,8 @@ username = api
         if ismacos:
             os.environ['SSL_CERT_FILE'] = os.path.abspath(
                 'resources/mozilla-ca-certs.pem')
-            os.environ['DYLD_LIBRARY_PATH'] = os.path.join(SW, 'lib')  # needed to ensure correct libxml2.dylib is loaded
+            # needed to ensure correct libxml2 is loaded
+            os.environ['DYLD_INSERT_LIBRARIES'] = ':'.join(os.path.join(SW, 'lib', x) for x in 'libxml2.dylib libxslt.dylib libexslt.dylib'.split())
 
         install_env()
         run_python('setup.py test')

@@ -46,8 +46,6 @@ class Test(Command):
             sys.libxslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxslt.dylib'))
             sys.libexslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libexslt.dylib'))
             print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
-            os.non_calibre_subprocess_env = e = os.environ
-            del e['DYLD_LIBRARY_PATH']
         from calibre.utils.run_tests import (
             filter_tests_by_name, remove_tests_by_name, run_cli, find_tests
         )
