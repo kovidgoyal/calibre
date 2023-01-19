@@ -10,10 +10,9 @@ from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json
+from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, is_ci
 from setup.parallel_build import batched_parallel_jobs
 from polyglot.builtins import codepoint_to_chr, iteritems
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def qt_sources():

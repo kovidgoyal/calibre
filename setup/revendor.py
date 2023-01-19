@@ -7,9 +7,7 @@ import tarfile
 import time
 from io import BytesIO
 
-from setup import Command, download_securely
-
-is_ci = os.environ.get('CI', '').lower() == 'true'
+from setup import Command, download_securely, is_ci
 
 
 class ReVendor(Command):

@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, shutil, zipfile, glob, json, errno
 from zlib import compress
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely, dump_json
 from polyglot.builtins import codepoint_to_chr, itervalues, iteritems, only_unicode_recursive
