@@ -114,8 +114,11 @@ Synthesizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds) { INITIALIZE
 static void
 Synthesizer_dealloc(Synthesizer *self_) {
     synthesizer_weakrefs.unregister_ref(self_, [](Synthesizer *self) {
-        self->synth = SpeechSynthesizer{nullptr};
-        self->player = MediaPlayer{nullptr};
+        try {
+            self->~Synthesizer();
+        } catch (...) {
+            fprintf(stderr, "Unhandled exception during Synthesizer object destruction, ignored.\n");
+        }
         Py_TYPE(self)->tp_free((PyObject*)self);
         CoUninitialize();
     });
