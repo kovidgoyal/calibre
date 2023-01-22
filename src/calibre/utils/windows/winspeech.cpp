@@ -11,6 +11,7 @@
 #include <memory>
 #include <mutex>
 #include <functional>
+#include <iostream>
 #include <unordered_map>
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -35,7 +36,15 @@ runtime_error_as_python_error(PyObject *exc_type, winrt::hresult_error const &ex
     else PyErr_Format(exc_type, "%s:%d:%s:[hr=0x%x] %V", file, line, prefix, hr, msg.ptr(), "Out of memory");
     return NULL;
 }
-#define set_python_error_from_runtime(ex, ...) runtime_error_as_python_error(PyExc_OSError, ex, __FILE__, __LINE__, __VA_ARGS__)
+
+#define CATCH_ALL_EXCEPTIONS(msg) catch(winrt::hresult_error const& ex) { \
+    runtime_error_as_python_error(PyExc_OSError, ex, __FILE__, __LINE__, msg); \
+} catch (std::exception const &ex) { \
+    PyErr_Format(PyExc_OSError, "%s:%d:%s: %s", __FILE__, __LINE__, msg, ex.what()); \
+} catch (...) { \
+    PyErr_Format(PyExc_OSError, "%s:%d:%s: Unknown exception type was raised", __FILE__, __LINE__, msg); \
+}
+
 
 template<typename T>
 class WeakRefs {
@@ -44,84 +53,144 @@ class WeakRefs {
     std::unordered_map<id_type, T*> refs;
     id_type counter;
     public:
-    void register_ref(T *self) {
+    id_type register_ref(T *self) {
         std::scoped_lock lock(weak_ref_lock);
-        self->id = ++counter;
-        refs[self->id] = self;
+        auto id = ++counter;
+        refs[id] = self;
+        return id;
     }
-    void unregister_ref(T *self, std::function<void(T*)> dealloc) {
+    void unregister_ref(T* self) {
         std::scoped_lock lock(weak_ref_lock);
-        dealloc(self);
-        refs.erase(self->id);
-        self->id = 0;
+        auto id = self->clear_id();
+        refs.erase(id);
+        self->~T();
     }
-    void use_ref(id_type id, DWORD creation_thread_id, std::function<void(T*)> callback) {
-        if (GetCurrentThreadId() == creation_thread_id) {
-            try {
-                callback(at(id));
-            } catch (std::out_of_range) {
-                callback(NULL);
-            }
-        }
-        else {
-            std::scoped_lock lock(weak_ref_lock);
-            try {
-                callback(at(id));
-            } catch (std::out_of_range) {
-                callback(NULL);
-            }
+    void use_ref(id_type id, std::function<void(T*)> callback) {
+        std::scoped_lock lock(weak_ref_lock);
+        try {
+            callback(refs.at(id));
+        } catch (std::out_of_range) {
+            callback(NULL);
         }
     }
 };
 
-struct Synthesizer {
-    PyObject_HEAD
+enum class EventType {
+    playback_state_changed = 1, media_opened, media_failed, media_ended
+};
+
+class Event {
+    private:
+        EventType type;
+    public:
+        Event(EventType type) : type(type) {}
+        Event(const Event &source) : type(source.type) {}
+};
+
+class SynthesizerImplementation {
+    private:
     id_type id;
     DWORD creation_thread_id;
     SpeechSynthesizer synth{nullptr};
     MediaPlayer player{nullptr};
+
+    struct {
+        MediaPlaybackSession::PlaybackStateChanged_revoker playback_state_changed;
+        MediaPlayer::MediaEnded_revoker media_ended;
+        MediaPlayer::MediaOpened_revoker media_opened;
+        MediaPlayer::MediaFailed_revoker media_failed;
+    } revoker;
+
+    std::vector<Event> events;
+    std::mutex events_lock;
+    public:
+    SynthesizerImplementation();
+    void add_simple_event(EventType type) {
+        try {
+            std::scoped_lock lock(events_lock);
+            events.emplace_back(type);
+        } catch(...) {}
+    }
+
+    SpeechSynthesisStream synthesize(const std::wstring_view &text, bool is_ssml = false) {
+        if (is_ssml) return synth.SynthesizeSsmlToStreamAsync(text).get();
+        return synth.SynthesizeTextToStreamAsync(text).get();
+    }
+
+    void speak(const std::wstring_view &text, bool is_ssml = false) {
+        SpeechSynthesisStream stream = synthesize(text, is_ssml);
+        MediaSource source = winrt::Windows::Media::Core::MediaSource::CreateFromStream(stream, stream.ContentType());
+        player.Source(source);
+        player.Play();
+    }
+
+    bool is_creation_thread() const noexcept {
+        return creation_thread_id == GetCurrentThreadId();
+    }
+
+    id_type clear_id() noexcept {
+        auto ans = id;
+        id = 0;
+        return ans;
+    }
+
+};
+
+struct Synthesizer {
+    PyObject_HEAD
+    SynthesizerImplementation impl;
 };
 
 static PyTypeObject SynthesizerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
 };
 
-static WeakRefs<Synthesizer> synthesizer_weakrefs;
+static WeakRefs<SynthesizerImplementation> synthesizer_weakrefs;
 
+SynthesizerImplementation::SynthesizerImplementation() {
+    events.reserve(128);
+    synth = SpeechSynthesizer();
+    player = MediaPlayer();
+    player.AudioCategory(MediaPlayerAudioCategory::Speech);
+    creation_thread_id = GetCurrentThreadId();
+    id = synthesizer_weakrefs.register_ref(this);
+    id_type self_id = id;
+#define simple_event_listener(method, event_type) \
+        revoker.event_type = method(winrt::auto_revoke, [self_id](auto, const auto &args) { \
+        fprintf(stderr, "111111111 %s\n", #event_type); fflush(stderr); \
+        synthesizer_weakrefs.use_ref(self_id, [](auto s) { \
+            if (s) s->add_simple_event(EventType::event_type); \
+        }); \
+    });
+    simple_event_listener(player.PlaybackSession().PlaybackStateChanged, playback_state_changed);
+    simple_event_listener(player.MediaOpened, media_opened);
+    simple_event_listener(player.MediaEnded, media_ended);
+#undef simple_event_listener
+}
 
 static PyObject*
 Synthesizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds) { INITIALIZE_COM_IN_FUNCTION
 	Synthesizer *self = (Synthesizer *) type->tp_alloc(type, 0);
     if (self) {
+        auto i = &self->impl;
         try {
-            self->synth = SpeechSynthesizer();
-            self->player = MediaPlayer();
-            self->player.AudioCategory(MediaPlayerAudioCategory::Speech);
-        } catch(winrt::hresult_error const& ex) {
-            set_python_error_from_runtime(ex, "Failed to get SpeechSynthesisStream from text");
-            Py_CLEAR(self);
-        }
+            new (i) SynthesizerImplementation();
+        } CATCH_ALL_EXCEPTIONS("Failed to create SynthesizerImplementation object");
+        if (PyErr_Occurred()) { Py_CLEAR(self); }
     }
-    if (PyErr_Occurred()) { Py_CLEAR(self); }
-    if (self) {
-        self->creation_thread_id = GetCurrentThreadId();
-        synthesizer_weakrefs.register_ref(self);
-        com.detach();
-    }
+    if (self) com.detach();
     return (PyObject*)self;
 }
 
 static void
-Synthesizer_dealloc(Synthesizer *self_) {
-    synthesizer_weakrefs.unregister_ref(self_, [](Synthesizer *self) {
-        try {
-            self->~Synthesizer();
-        } catch (...) {
-            fprintf(stderr, "Unhandled exception during Synthesizer object destruction, ignored.\n");
-        }
-        Py_TYPE(self)->tp_free((PyObject*)self);
-        CoUninitialize();
-    });
+Synthesizer_dealloc(Synthesizer *self) {
+    auto *i = &self->impl;
+    try {
+        synthesizer_weakrefs.unregister_ref(i);
+    } CATCH_ALL_EXCEPTIONS("Failed to destruct SynthesizerImplementation");
+    if (PyErr_Occurred()) { PyErr_Print(); }
+    Py_TYPE(self)->tp_free((PyObject*)self);
+    CoUninitialize();
 }
 
 static void
@@ -130,8 +199,7 @@ ensure_current_thread_has_message_queue(void) {
     PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 }
 
-#define PREPARE_METHOD_CALL ensure_current_thread_has_message_queue(); if (GetCurrentThreadId() != self->creation_thread_id) { PyErr_SetString(PyExc_RuntimeError, "Cannot use a Synthesizer object from a thread other than the thread it was created in"); return NULL; }
-
+#define PREPARE_METHOD_CALL ensure_current_thread_has_message_queue(); if (!self->impl.is_creation_thread()) { PyErr_SetString(PyExc_RuntimeError, "Cannot use a Synthesizer object from a thread other than the thread it was created in"); return NULL; }
 
 static PyObject*
 Synthesizer_speak(Synthesizer *self, PyObject *args) {
@@ -139,16 +207,10 @@ Synthesizer_speak(Synthesizer *self, PyObject *args) {
     wchar_raii pytext;
     int is_ssml = 0;
 	if (!PyArg_ParseTuple(args, "O&|p", py_to_wchar_no_none, &pytext, &is_ssml)) return NULL;
-    SpeechSynthesisStream stream{nullptr};
     try {
-        if (is_ssml) stream = self->synth.SynthesizeSsmlToStreamAsync(pytext.as_view()).get();
-        else stream = self->synth.SynthesizeTextToStreamAsync(pytext.as_view()).get();
-    } catch (winrt::hresult_error const& ex) {
-        return set_python_error_from_runtime(ex, "Failed to get SpeechSynthesisStream from text");
-    }
-    MediaSource source = winrt::Windows::Media::Core::MediaSource::CreateFromStream(stream, stream.ContentType());
-    self->player.Source(source);
-    self->player.Play();
+        self->impl.speak(pytext.as_view(), (bool)is_ssml);
+    } CATCH_ALL_EXCEPTIONS("Failed to start speaking text");
+    if (PyErr_Occurred()) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -164,11 +226,9 @@ Synthesizer_create_recording(Synthesizer *self, PyObject *args) {
 
     SpeechSynthesisStream stream{nullptr};
     try {
-        if (is_ssml) stream = self->synth.SynthesizeSsmlToStreamAsync(pytext.as_view()).get();
-        else stream = self->synth.SynthesizeTextToStreamAsync(pytext.as_view()).get();
-    } catch(winrt::hresult_error const& ex) {
-        return set_python_error_from_runtime(ex, "Failed to get SpeechSynthesisStream from text");
-    }
+        stream = self->impl.synthesize(pytext.as_view(), (bool)is_ssml);
+    } CATCH_ALL_EXCEPTIONS( "Failed to get SpeechSynthesisStream from text");
+    if (PyErr_Occurred()) return NULL;
     unsigned long long stream_size = stream.Size(), bytes_read = 0;
     DataReader reader(stream);
     unsigned int n;
@@ -176,9 +236,8 @@ Synthesizer_create_recording(Synthesizer *self, PyObject *args) {
     while (bytes_read < stream_size) {
         try {
             n = reader.LoadAsync(chunk_size).get();
-        } catch(winrt::hresult_error const& ex) {
-            return set_python_error_from_runtime(ex, "Failed to load data from DataReader");
-        }
+        } CATCH_ALL_EXCEPTIONS("Failed to load data from DataReader");
+        if (PyErr_Occurred()) return NULL;
         if (n > 0) {
             bytes_read += n;
             pyobject_raii b(PyBytes_FromStringAndSize(NULL, n));
@@ -209,9 +268,8 @@ voice_as_dict(VoiceInformation const& voice) {
             "language", voice.Language().c_str(),
             "gender", gender
         );
-    } catch(winrt::hresult_error const& ex) {
-        return set_python_error_from_runtime(ex);
-    }
+    } CATCH_ALL_EXCEPTIONS("Could not convert Voice to dict");
+    return NULL;
 }
 
 
@@ -231,18 +289,16 @@ all_voices(PyObject* /*self*/, PyObject* /*args*/) { INITIALIZE_COM_IN_FUNCTION
             }
         }
         return ans.detach();
-    } catch(winrt::hresult_error const& ex) {
-        return set_python_error_from_runtime(ex);
-    }
+    } CATCH_ALL_EXCEPTIONS("Could not get all voices");
+    return NULL;
 }
 
 static PyObject*
 default_voice(PyObject* /*self*/, PyObject* /*args*/) { INITIALIZE_COM_IN_FUNCTION
     try {
         return voice_as_dict(SpeechSynthesizer::DefaultVoice());
-    } catch(winrt::hresult_error const& ex) {
-        return set_python_error_from_runtime(ex);
-    }
+    } CATCH_ALL_EXCEPTIONS("Could not get default voice");
+    return NULL;
 }
 
 #define M(name, args) { #name, (PyCFunction)Synthesizer_##name, args, ""}
