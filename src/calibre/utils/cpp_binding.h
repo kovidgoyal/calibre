@@ -56,6 +56,7 @@ class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
             return 1;
         }
         std::wstring_view as_view() const { return std::wstring_view(handle, sz); }
+        std::wstring as_copy() const { return std::wstring(handle, sz); }
 };
 #else
 typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;

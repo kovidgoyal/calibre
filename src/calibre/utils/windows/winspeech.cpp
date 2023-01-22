@@ -76,7 +76,7 @@ class WeakRefs {
 };
 
 enum class EventType {
-    playback_state_changed = 1, media_opened, media_failed, media_ended
+    playback_state_changed = 1, media_opened, media_failed, media_ended, source_changed, cue_entered, cue_exited, track_failed
 };
 
 class Event {
@@ -93,18 +93,27 @@ class SynthesizerImplementation {
     DWORD creation_thread_id;
     SpeechSynthesizer synth{nullptr};
     MediaPlayer player{nullptr};
+    MediaSource current_source{nullptr};
+    SpeechSynthesisStream current_stream{nullptr};
+    MediaPlaybackItem currently_playing{nullptr};
 
     struct {
         MediaPlaybackSession::PlaybackStateChanged_revoker playback_state_changed;
-        MediaPlayer::MediaEnded_revoker media_ended;
-        MediaPlayer::MediaOpened_revoker media_opened;
-        MediaPlayer::MediaFailed_revoker media_failed;
+        MediaPlayer::MediaEnded_revoker media_ended; MediaPlayer::MediaOpened_revoker media_opened;
+        MediaPlayer::MediaFailed_revoker media_failed; MediaPlayer::SourceChanged_revoker source_changed;
+
+        MediaPlaybackItem::TimedMetadataTracksChanged_revoker timed_metadata_tracks_changed;
+        std::vector<TimedMetadataTrack::CueEntered_revoker> cue_entered;
+        std::vector<TimedMetadataTrack::CueExited_revoker> cue_exited;
+        std::vector<TimedMetadataTrack::TrackFailed_revoker> track_failed;
     } revoker;
 
     std::vector<Event> events;
     std::mutex events_lock;
+
     public:
     SynthesizerImplementation();
+
     void add_simple_event(EventType type) {
         try {
             std::scoped_lock lock(events_lock);
@@ -118,10 +127,33 @@ class SynthesizerImplementation {
     }
 
     void speak(const std::wstring_view &text, bool is_ssml = false) {
-        SpeechSynthesisStream stream = synthesize(text, is_ssml);
-        MediaSource source = winrt::Windows::Media::Core::MediaSource::CreateFromStream(stream, stream.ContentType());
-        player.Source(source);
-        player.Play();
+        revoker.cue_entered.clear();
+        revoker.cue_exited.clear();
+        revoker.track_failed.clear();
+        current_stream = synthesize(text, is_ssml);
+        current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
+        currently_playing = MediaPlaybackItem(current_source);
+        auto self_id = id;
+        revoker.timed_metadata_tracks_changed = currently_playing.TimedMetadataTracksChanged(winrt::auto_revoke, [self_id](auto, auto const &args) {
+            auto change_type = args.CollectionChange();
+            auto index = args.Index();
+            synthesizer_weakrefs.use_ref(self_id, [change_type, index](auto s) {
+            if (!s) return;
+            switch (change_type) {
+            case CollectionChange::ItemInserted: {
+                s->register_metadata_handler_for_speech(s->currently_playing.TimedMetadataTracks().GetAt(index));
+                } break;
+            case CollectionChange::Reset:
+                for (auto const& track : s->currently_playing.TimedMetadataTracks()) {
+                    s->register_metadata_handler_for_speech(track);
+                }
+                break;
+            }});
+        });
+        player.Source(currently_playing);
+        for (auto const &track : currently_playing.TimedMetadataTracks()) {
+            register_metadata_handler_for_speech(track);
+        }
     }
 
     bool is_creation_thread() const noexcept {
@@ -133,6 +165,28 @@ class SynthesizerImplementation {
         id = 0;
         return ans;
     }
+
+    void register_metadata_handler_for_speech(TimedMetadataTrack const& track) {
+        fprintf(stderr, "99999999999 registering metadata handler\n");
+        auto self_id = id;
+#define simple_event_listener(method, event_type) \
+        revoker.event_type.push_back(method(winrt::auto_revoke, [self_id](auto, const auto&) { \
+        fprintf(stderr, "111111111 %s %u\n", #event_type, GetCurrentThreadId()); fflush(stderr); \
+        synthesizer_weakrefs.use_ref(self_id, [](auto s) { \
+            if (!s) return; \
+            s->add_simple_event(EventType::event_type); \
+            fprintf(stderr, "2222222222 %d\n", s->player.PlaybackSession().PlaybackState()); \
+        }); \
+    }));
+        simple_event_listener(track.CueEntered, cue_entered);
+        simple_event_listener(track.CueExited, cue_exited);
+        simple_event_listener(track.TrackFailed, track_failed);
+#undef simple_event_listener
+        track.CueEntered([](auto, const auto&) {
+            fprintf(stderr, "cue entered\n"); fflush(stderr);
+        });
+}
+
 
 };
 
@@ -150,22 +204,41 @@ static WeakRefs<SynthesizerImplementation> synthesizer_weakrefs;
 SynthesizerImplementation::SynthesizerImplementation() {
     events.reserve(128);
     synth = SpeechSynthesizer();
+    synth.Options().IncludeSentenceBoundaryMetadata(true);
+    synth.Options().IncludeWordBoundaryMetadata(true);
     player = MediaPlayer();
     player.AudioCategory(MediaPlayerAudioCategory::Speech);
+    player.AutoPlay(true);
     creation_thread_id = GetCurrentThreadId();
     id = synthesizer_weakrefs.register_ref(this);
-    id_type self_id = id;
+    auto self_id = id;
 #define simple_event_listener(method, event_type) \
-        revoker.event_type = method(winrt::auto_revoke, [self_id](auto, const auto &args) { \
-        fprintf(stderr, "111111111 %s\n", #event_type); fflush(stderr); \
+        revoker.event_type = method(winrt::auto_revoke, [self_id](auto, const auto&) { \
+        fprintf(stderr, "111111111 %s %u\n", #event_type, GetCurrentThreadId()); fflush(stderr); \
         synthesizer_weakrefs.use_ref(self_id, [](auto s) { \
-            if (s) s->add_simple_event(EventType::event_type); \
+            if (!s) return; \
+            s->add_simple_event(EventType::event_type); \
+            fprintf(stderr, "2222222222 %d\n", s->player.PlaybackSession().PlaybackState()); \
         }); \
     });
     simple_event_listener(player.PlaybackSession().PlaybackStateChanged, playback_state_changed);
     simple_event_listener(player.MediaOpened, media_opened);
+    simple_event_listener(player.MediaFailed, media_failed);
     simple_event_listener(player.MediaEnded, media_ended);
+    simple_event_listener(player.SourceChanged, source_changed);
 #undef simple_event_listener
+    player.PlaybackSession().PlaybackStateChanged([](auto, const auto&) {
+        fprintf(stderr, "111111111 %s %u\n", "playback state changed", GetCurrentThreadId()); fflush(stderr); \
+    });
+    player.MediaOpened([](auto, const auto&) {
+        fprintf(stderr, "111111111 %s %u\n", "media opened", GetCurrentThreadId()); fflush(stderr); \
+    });
+    player.MediaFailed([](auto, const auto&) {
+        fprintf(stderr, "111111111 %s %u\n", "media failed", GetCurrentThreadId()); fflush(stderr); \
+    });
+    player.MediaEnded([](auto, const auto&) {
+        fprintf(stderr, "111111111 %s %u\n", "media ended", GetCurrentThreadId()); fflush(stderr); \
+    });
 }
 
 static PyObject*
@@ -309,10 +382,33 @@ static PyMethodDef Synthesizer_methods[] = {
 };
 #undef M
 
+static PyObject*
+pump_waiting_messages(PyObject*, PyObject*) {
+	UINT firstMsg = 0, lastMsg = 0;
+    MSG msg;
+    bool found = false;
+	// Read all of the messages in this next loop,
+	// removing each message as we read it.
+	while (PeekMessage(&msg, NULL, firstMsg, lastMsg, PM_REMOVE)) {
+		// If it's a quit message, we're out of here.
+		if (msg.message == WM_QUIT) {
+            Py_RETURN_NONE;
+		}
+        found = true;
+		// Otherwise, dispatch the message.
+		DispatchMessage(&msg);
+	} // End of PeekMessage while loop
+
+    if (found) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef methods[] = {
     M(all_voices, METH_NOARGS),
     M(default_voice, METH_NOARGS),
+    M(pump_waiting_messages, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
