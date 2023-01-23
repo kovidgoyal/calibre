@@ -72,13 +72,37 @@ private:
     std::map<std::string, json_val> object;
 public:
     json_val() : type(DT_NONE) {}
-    json_val(bool x) : type(DT_BOOL), b(x) {}
     json_val(std::string &&text) : type(DT_STRING), s(text) {}
+    json_val(const char *ns) : type(DT_STRING), s(ns) {}
+    json_val(winrt::hstring const& text) : type(DT_STRING), s(winrt::to_string(text)) {}
     json_val(std::string_view text) : type(DT_STRING), s(text) {}
     json_val(long long num) : type(DT_INT), i(num) {}
     json_val(std::vector<json_val> &&items) : type(DT_LIST), list(items) {}
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
     json_val(std::initializer_list<std::pair<const std::string, json_val>> vals) : type(DT_OBJECT), object(vals) { }
+    json_val(bool x) : type(DT_BOOL), b(x) {}
+
+    json_val(VoiceInformation const& voice) : type(DT_OBJECT) {
+        const char *gender = "";
+        switch (voice.Gender()) {
+            case VoiceGender::Male: gender = "male"; break;
+            case VoiceGender::Female: gender = "female"; break;
+        }
+        object = {
+            {"display_name", json_val(voice.DisplayName())},
+            {"description", json_val(voice.Description())},
+            {"id", json_val(voice.Id())},
+            {"language", json_val(voice.Language())},
+            {"gender", json_val(gender)},
+        };
+    }
+
+    json_val(IVectorView<VoiceInformation> const& voices) : type(DT_LIST) {
+        list.reserve(voices.Size());
+        for(auto const& voice : voices) {
+            list.emplace_back(json_val(voice));
+        }
+    }
 
     std::string serialize() const {
         switch(type) {
@@ -127,18 +151,19 @@ output(std::string const &msg_type, json_val const &&msg) {
 }
 
 static void
-output_error(std::string_view const &msg, const char *file, long long line, HRESULT hr=S_OK) {
+output_error(std::string_view const &msg, const char *file, long long line, HRESULT hr=S_OK, std::string const &key = "") {
     std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"file", json_val(file)}, {"line", json_val(line)}};
     if (hr != S_OK) m["hr"] = json_val((long long)hr);
+    if (key.size() > 0) m["key"] = json_val(key);
     output("error", std::move(m));
 }
 
-#define CATCH_ALL_EXCEPTIONS(msg) catch(winrt::hresult_error const& ex) { \
-    output_error(std::string(msg) + std::string(": ") + winrt::to_string(ex.message()), __FILE__, __LINE__, ex.to_abi()); \
+#define CATCH_ALL_EXCEPTIONS(msg, key) catch(winrt::hresult_error const& ex) { \
+    output_error(winrt::to_string(ex.message()), __FILE__, __LINE__, ex.to_abi(), key); \
 } catch (std::exception const &ex) { \
-    output_error(std::string(msg) + std::string(": ") + ex.what(), __FILE__, __LINE__); \
+    output_error(ex.what(), __FILE__, __LINE__, S_OK, key); \
 } catch (...) { \
-    output_error(std::string(msg) + std::string(": ") + "Unknown exception type was raised", __FILE__, __LINE__); \
+    output_error("Unknown exception type was raised", __FILE__, __LINE__, S_OK, key); \
 }
 
 /* Legacy code {{{
@@ -552,8 +577,14 @@ handle_stdin_messages(void) {
             else if (command == "echo") {
                 output(command, {{"msg", json_val(std::move(rest))}});
             }
-            else output_error(std::string("Unknown command: ") + command, __FILE__, __LINE__);
-        } CATCH_ALL_EXCEPTIONS(std::string("Error handling input message: " + msg));
+            else if (command == "default_voice") {
+                output("default_voice", SpeechSynthesizer::DefaultVoice());
+            }
+            else if (command == "all_voices") {
+                output("all_voices", SpeechSynthesizer::AllVoices());
+            }
+            else output_error("Unknown command" , __FILE__, __LINE__, S_OK, command);
+        } CATCH_ALL_EXCEPTIONS(std::string("Error handling input message"), msg);
     }
     stdin_messages.clear();
 }
