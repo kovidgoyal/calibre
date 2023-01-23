@@ -131,9 +131,9 @@ def update_quick_action_table():
             style='margin: 1ex; display: flex; align-contents: center',
             hs.make_swatch(E.span(), is_dark_theme()),
             '\xa0',
-            hs.friendly_name,
-            '\xa0',
             E.input(type='checkbox', value=hs.key, checked=current[hs.key]),
+            '\xa0',
+            hs.friendly_name,
         ))
 
 
