@@ -707,7 +707,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             vl = get_virtual_library(query)
 
             def doit():
-                if vl != '_':
+                # To maintain compatibility, don't change the VL if it isn't specified.
+                if vl is not None and vl != '_':
                     self.apply_virtual_library(vl)
                 rows = self.library_view.select_rows((book_id,))
                 db = self.current_db
