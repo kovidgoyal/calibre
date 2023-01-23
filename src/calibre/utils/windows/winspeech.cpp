@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <mutex>
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <unordered_map>
@@ -39,6 +40,60 @@ enum {
     STDIN_MSG,
     EXIT_REQUESTED
 };
+
+// trim from start (in place)
+static inline void
+ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+static inline void
+rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+static std::vector<std::string_view>
+split(std::string const &src_, std::string const &delim = " ") {
+    size_t pos;
+    std::vector<std::string_view> ans; ans.reserve(16);
+    std::string_view sv(src_);
+    while ((pos = sv.find(delim)) != std::string_view::npos) {
+        if (pos > 0) ans.emplace_back(sv.substr(0, pos));
+        sv = sv.substr(pos + 1);
+    }
+    if (sv.size() > 0) ans.emplace_back(sv);
+    return ans;
+}
+
+static std::string
+join(std::vector<std::string_view> parts, std::string const &delim = " ") {
+    std::string ans; ans.reserve(1024);
+    for (auto const &x : parts) {
+        ans.append(x);
+        ans.append(delim);
+    }
+    ans.erase(ans.size() - delim.size());
+    return ans;
+}
+
+static id_type
+parse_id(std::string_view const& s) {
+    id_type ans = 0;
+    for (auto ch : s) {
+        auto delta = ch - '0';
+        if (delta < 0 || delta > 9) {
+            throw std::invalid_argument(std::string("Not a valid id: ") + std::string(s));
+        }
+        ans = (ans * 10) + delta;
+    }
+    return ans;
+}
+
 
 static std::string
 serialize_string_for_json(std::string const &src) {
@@ -143,27 +198,26 @@ public:
 };
 
 static void
-output(std::string const &msg_type, json_val const &&msg) {
+output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
     std::scoped_lock lock(output_lock);
-    std::cout << msg_type;
-    std::cout << " " << msg.serialize();
-    std::cout << std::endl;
+    std::cout << cmd_id << " " << msg_type << " " << msg.serialize() << std::endl;
 }
 
 static void
-output_error(std::string_view const &msg, const char *file, long long line, HRESULT hr=S_OK, std::string const &key = "") {
-    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"file", json_val(file)}, {"line", json_val(line)}};
+output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, long long line, HRESULT hr=S_OK) {
+    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
     if (hr != S_OK) m["hr"] = json_val((long long)hr);
-    if (key.size() > 0) m["key"] = json_val(key);
-    output("error", std::move(m));
+    output(cmd_id, "error", std::move(m));
 }
 
-#define CATCH_ALL_EXCEPTIONS(msg, key) catch(winrt::hresult_error const& ex) { \
-    output_error(winrt::to_string(ex.message()), __FILE__, __LINE__, ex.to_abi(), key); \
+#define CATCH_ALL_EXCEPTIONS(msg, cmd_id) catch(winrt::hresult_error const& ex) { \
+    output_error(cmd_id, msg, winrt::to_string(ex.message()), __LINE__, ex.to_abi()); \
 } catch (std::exception const &ex) { \
-    output_error(ex.what(), __FILE__, __LINE__, S_OK, key); \
+    output_error(cmd_id, msg, ex.what(), __LINE__); \
+} catch (std::string const &ex) { \
+    output_error(cmd_id, msg, ex, __LINE__); \
 } catch (...) { \
-    output_error("Unknown exception type was raised", __FILE__, __LINE__, S_OK, key); \
+    output_error(cmd_id, msg, "Unknown exception type was raised", __LINE__); \
 }
 
 /* Legacy code {{{
@@ -553,38 +607,54 @@ run_input_loop(void) {
     post_message(STDIN_FAILED, std::cin.fail() ? 1 : 0);
 }
 
+static void
+handle_speak(id_type cmd_id, std::vector<std::string_view> &parts) {
+}
+
 static winrt::fire_and_forget
 handle_stdin_messages(void) {
     co_await winrt::resume_background();
     std::scoped_lock lock(stdin_messages_lock);
-    for (auto const& msg : stdin_messages) {
+    std::vector<std::string_view> parts;
+    std::string_view command;
+    id_type cmd_id;
+    for (auto & msg : stdin_messages) {
+        rtrim(msg);
+        bool ok = false;
+        if (msg == "exit") {
+            post_message(EXIT_REQUESTED);
+            break;
+        }
         try {
-            auto pos = msg.find(" ");
-            std::string rest;
-            std::string command = msg;
-            if (pos != std::string::npos) {
-                command = msg.substr(0, pos);
-                rest = msg.substr(pos + 1);
-            }
+            parts = split(msg);
+            command = parts.at(1); cmd_id = parse_id(parts.at(0));
+            parts.erase(parts.begin(), parts.begin() + 2);
+            ok = true;
+        } CATCH_ALL_EXCEPTIONS((std::string("Invalid input message: ") + msg), 0);
+        if (!ok) continue;
+        try {
             if (command == "exit") {
                 try {
-                    post_message(EXIT_REQUESTED, std::stoi(rest));
+                    post_message(EXIT_REQUESTED, parse_id(parts.at(2)));
                 } catch(...) {
                     post_message(EXIT_REQUESTED);
                 }
                 break;
             }
             else if (command == "echo") {
-                output(command, {{"msg", json_val(std::move(rest))}});
+                output(cmd_id, command, {{"msg", json_val(std::move(join(parts)))}});
             }
             else if (command == "default_voice") {
-                output("default_voice", SpeechSynthesizer::DefaultVoice());
+                output(cmd_id, "default_voice", SpeechSynthesizer::DefaultVoice());
             }
             else if (command == "all_voices") {
-                output("all_voices", SpeechSynthesizer::AllVoices());
+                output(cmd_id, "all_voices", SpeechSynthesizer::AllVoices());
             }
-            else output_error("Unknown command" , __FILE__, __LINE__, S_OK, command);
-        } CATCH_ALL_EXCEPTIONS(std::string("Error handling input message"), msg);
+            else if (command == "speak") {
+                handle_speak(cmd_id, parts);
+            }
+            else throw std::string("Unknown command: ") + std::string(command);
+        } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
     }
     stdin_messages.clear();
 }
