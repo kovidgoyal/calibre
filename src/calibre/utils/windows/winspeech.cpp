@@ -607,8 +607,56 @@ run_input_loop(void) {
     post_message(STDIN_FAILED, std::cin.fail() ? 1 : 0);
 }
 
+struct Revokers {
+    MediaPlaybackSession::PlaybackStateChanged_revoker playback_state_changed;
+    MediaPlayer::MediaEnded_revoker media_ended; MediaPlayer::MediaOpened_revoker media_opened;
+    MediaPlayer::MediaFailed_revoker media_failed; MediaPlayer::SourceChanged_revoker source_changed;
+
+    MediaPlaybackItem::TimedMetadataTracksChanged_revoker timed_metadata_tracks_changed;
+    std::vector<TimedMetadataTrack::CueEntered_revoker> cue_entered;
+    std::vector<TimedMetadataTrack::CueExited_revoker> cue_exited;
+    std::vector<TimedMetadataTrack::TrackFailed_revoker> track_failed;
+};
+
+class Synthesizer {
+    private:
+    SpeechSynthesizer synth{nullptr};
+    MediaPlayer player{nullptr};
+    MediaSource current_source{nullptr};
+    SpeechSynthesisStream current_stream{nullptr};
+    MediaPlaybackItem current_item{nullptr};
+    id_type current_cmd_id;
+
+    Revokers revoker;
+    std::recursive_mutex lock;
+
+    public:
+    void initialize() {
+        synth = SpeechSynthesizer();
+        player = MediaPlayer();
+    }
+    void stop_current_activity() {
+        std::scoped_lock sl(lock);
+        if (current_cmd_id) {
+            current_cmd_id = 0;
+            revoker = {};
+            current_source = MediaSource{nullptr};
+            current_stream = SpeechSynthesisStream{nullptr};
+            current_item = MediaPlaybackItem{nullptr};
+            player.Pause();
+        }
+    }
+
+};
+
+static Synthesizer sx;
+
 static void
 handle_speak(id_type cmd_id, std::vector<std::string_view> &parts) {
+    bool is_ssml = parts.at(0) == "ssml"; parts.erase(parts.begin());
+    bool is_shm = parts.at(0) == "shm"; parts.erase(parts.begin());
+    auto address = join(parts);
+    if (address.size() == 0) throw std::string("Address missing");
 }
 
 static winrt::fire_and_forget
@@ -628,6 +676,9 @@ handle_stdin_messages(void) {
         try {
             parts = split(msg);
             command = parts.at(1); cmd_id = parse_id(parts.at(0));
+            if (cmd_id == 0) {
+                throw std::exception("Command id of zero is not allowed");
+            }
             parts.erase(parts.begin(), parts.begin() + 2);
             ok = true;
         } CATCH_ALL_EXCEPTIONS((std::string("Invalid input message: ") + msg), 0);
@@ -665,6 +716,14 @@ run_main_loop(PyObject*, PyObject*) {
     main_thread_id = GetCurrentThreadId();
     MSG msg;
     unsigned long long exit_code = 0;
+    bool ok = false;
+    try {
+        new (&sx) Synthesizer();
+        sx.initialize();
+        ok = true;
+    } CATCH_ALL_EXCEPTIONS("Error initializing Synthesizer", 0);
+    if (!ok) return PyLong_FromUnsignedLongLong(1);
+
     Py_BEGIN_ALLOW_THREADS;
     PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);  // ensure we have a message queue
 
@@ -687,6 +746,11 @@ run_main_loop(PyObject*, PyObject*) {
         }
     }
     Py_END_ALLOW_THREADS;
+    try {
+        sx.stop_current_activity();
+        (&sx)->~Synthesizer();
+    } CATCH_ALL_EXCEPTIONS("Error stopping all activity", 0);
+
     return PyLong_FromUnsignedLongLong(exit_code);
 }
 
