@@ -675,6 +675,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 return bytes.fromhex(x[6:]).decode('utf-8')
             return x
 
+        def get_virtual_library(query):
+            vl = None
+            if query.get('encoded_virtual_library'):
+                vl = bytes.fromhex(query.get('encoded_virtual_library')[0]).decode('utf-8')
+            elif query.get('virtual_library'):
+                vl = query.get('virtual_library')[0]
+            if vl == '-':
+                vl = None
+            return vl
+
         if action == 'switch-library':
             library_id = decode_library_id(posixpath.basename(path))
             library_path = self.library_broker.path_for_library_id(library_id)
@@ -694,8 +704,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             library_path = self.library_broker.path_for_library_id(library_id)
             if library_path is None:
                 return
+            vl = get_virtual_library(query)
 
             def doit():
+                if vl != '_':
+                    self.apply_virtual_library(vl)
                 rows = self.library_view.select_rows((book_id,))
                 db = self.current_db
                 if not rows and (db.data.get_base_restriction_name() or db.data.get_search_restriction_name()):
@@ -743,13 +756,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if sq:
                     sq = sq[0]
             sq = sq or ''
-            vl = None
-            if query.get('encoded_virtual_library'):
-                vl = bytes.fromhex(query.get('encoded_virtual_library')[0]).decode('utf-8')
-            elif query.get('virtual_library'):
-                vl = query.get('virtual_library')[0]
-            if vl == '-':
-                vl = None
+            vl = get_virtual_library(query)
 
             def doit():
                 if vl != '_':
