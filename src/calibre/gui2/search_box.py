@@ -158,7 +158,6 @@ class SearchBox2(QComboBox):  # {{{
                 items.append(item)
         self.addItems(items)
         self.line_edit.setPlaceholderText(help_text)
-        self.colorize = colorize
         self.clear()
 
     def clear_history(self):
@@ -210,10 +209,6 @@ class SearchBox2(QComboBox):  # {{{
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        if self.colorize:
-            self.line_edit.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not ok))
-        else:
-            self.line_edit.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
@@ -337,7 +332,7 @@ class SearchBoxMixin:  # {{{
         pass
 
     def init_search_box_mixin(self):
-        self.search.initialize('main_search_history', colorize=True,
+        self.search.initialize('main_search_history',
                 help_text=_('Search (For advanced search click the gear icon to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
         # Queued so that search.current_text will be correct

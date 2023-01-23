@@ -546,6 +546,35 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 # }}}
 
 
+# LineEditIndicators {{{
+
+def setup_status_actions(self: QLineEdit):
+    self.status_actions = (
+        self.addAction(QIcon.ic('ok.png'), QLineEdit.ActionPosition.TrailingPosition),
+        self.addAction(QIcon.ic('dialog_error.png'), QLineEdit.ActionPosition.TrailingPosition))
+    self.status_actions[0].setVisible(False)
+    self.status_actions[1].setVisible(False)
+
+def update_status_actions(self: QLineEdit, ok, tooltip: str = ''):
+    self.status_actions[0].setVisible(bool(ok))
+    self.status_actions[1].setVisible(not ok)
+    if ok:
+        self.status_actions[0].setToolTip(tooltip)
+    elif ok is None:
+        self.status_actions[1].setVisible(False)
+    else:
+        self.status_actions[1].setToolTip(tooltip)
+
+class LineEditIndicators:
+
+    def setup_status_actions(self):
+        setup_status_actions(self)
+
+    def update_status_actions(self, ok, tooltip=''):
+        update_status_actions(self, ok, tooltip)
+# }}}
+
+
 class ItemsCompleter(QCompleter):  # {{{
 
     '''

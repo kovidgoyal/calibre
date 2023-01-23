@@ -1291,10 +1291,6 @@ class Application(QApplication):
         ans.setDevicePixelRatio(device_pixel_ratio)
         return ans
 
-    def stylesheet_for_line_edit(self, is_error=False):
-        col = '#FF2400' if is_error else '#50c878'
-        return f'QLineEdit {{ border: 2px solid {col}; border-radius: 3px }}'
-
     def _send_file_open_events(self):
         with self._file_open_lock:
             if self._file_open_paths:

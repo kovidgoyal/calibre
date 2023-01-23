@@ -37,7 +37,7 @@ from calibre.gui2.comments_editor import Editor
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit as LE
-from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
+from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView, LineEditIndicators
 from calibre.gui2.widgets2 import (
     DateTimeEdit, Dialog, RatingEditor, RightClickButton, access_key,
     populate_standard_spinbox_context_menu,
@@ -261,7 +261,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
         self.dialog = None
 
 
-class TitleSortEdit(TitleEdit, ToMetadataMixin):
+class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
 
     TITLE_ATTR = FIELD_NAME = 'title_sort'
     TOOLTIP = _('Specify how this book should be sorted when by title.'
@@ -270,15 +270,16 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
 
     def __init__(self, parent, title_edit, autogen_button, languages_edit):
         TitleEdit.__init__(self, parent)
+        self.setup_status_actions()
         self.title_edit = title_edit
         self.languages_edit = languages_edit
 
         base = self.TOOLTIP
         ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>' + _(
-            ' The green color indicates that the current '
+            ' The ok icon indicates that the current '
             'title sort matches the current title'))
         bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>' + _(
-            ' The red color warns that the current '
+            ' The error icon warns that the current '
             'title sort does not match the current title. '
             'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
@@ -314,8 +315,8 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
     def update_state(self, *args):
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
-        self.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not normal))
         tt = self.tooltips[0 if normal else 1]
+        self.update_status_actions(normal, tt)
         self.setToolTip(tt)
         self.setWhatsThis(tt)
 
@@ -456,7 +457,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             pass
 
 
-class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
+class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
             'For example Charles Dickens should be sorted as Dickens, '
@@ -470,15 +471,16 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
     def __init__(self, parent, authors_edit, autogen_button, db,
             copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
         EnLineEdit.__init__(self, parent)
+        self.setup_status_actions()
         self.authors_edit = authors_edit
         self.db = db
 
         base = self.TOOLTIP
         ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>' + _(
-            ' The green color indicates that the current '
+            ' The ok icon indicates that the current '
             'author sort matches the current author'))
         bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+ _(
-            ' The red color indicates that the current '
+            ' The error icon indicates that the current '
             'author sort does not match the current author. '
             'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
@@ -529,8 +531,8 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         au = self.author_sort_from_authors(string_to_authors(au))
 
         normal = au == self.current_val
-        self.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not normal))
         tt = self.tooltips[0 if normal else 1]
+        self.update_status_actions(normal, tt)
         self.setToolTip(tt)
         self.setWhatsThis(tt)
 
@@ -1572,7 +1574,7 @@ class Identifiers(Dialog):
         Dialog.accept(self)
 
 
-class IdentifiersEdit(QLineEdit, ToMetadataMixin):
+class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
     LABEL = _('&Ids:')
     BASE_TT = _('Edit the identifiers for this book. '
             'For example: \n\n%s\n\nIf an identifier value contains a comma, you can use the | character to represent it.')%(
@@ -1582,6 +1584,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
+        self.setup_status_actions()
         self.pat = re.compile(r'[^0-9a-zA-Z]')
         self.textChanged.connect(self.validate)
         self.textChanged.connect(self.data_changed)
@@ -1652,16 +1655,17 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         isbn = identifiers.get('isbn', '')
         tt = self.BASE_TT
         extra = ''
+        ok = None
         if not isbn:
-            sheet = ''
+            pass
         elif check_isbn(isbn) is not None:
-            sheet = QApplication.instance().stylesheet_for_line_edit()
+            ok = True
             extra = '\n\n'+_('This ISBN is valid')
         else:
-            sheet = QApplication.instance().stylesheet_for_line_edit(True)
+            ok = False
             extra = '\n\n' + _('This ISBN is invalid')
         self.setToolTip(tt+extra)
-        self.setStyleSheet(sheet)
+        self.update_status_actions(ok, self.toolTip())
 
     def paste_identifier(self):
         identifier_found = self.parse_clipboard_for_identifier()
@@ -1751,6 +1755,9 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         return False
 # }}}
 
+class IndicatorLineEdit(QLineEdit, LineEditIndicators):
+    pass
+
 
 class ISBNDialog(QDialog):  # {{{
 
@@ -1763,7 +1770,8 @@ class ISBNDialog(QDialog):  # {{{
         l.addWidget(w, 0, 0, 1, 2)
         w = QLabel(_('ISBN:'))
         l.addWidget(w, 1, 0, 1, 1)
-        self.line_edit = w = QLineEdit()
+        self.line_edit = w = IndicatorLineEdit()
+        w.setup_status_actions()
         w.setText(txt)
         w.selectAll()
         w.textChanged.connect(self.checkText)
@@ -1787,17 +1795,17 @@ class ISBNDialog(QDialog):  # {{{
 
     def checkText(self, txt):
         isbn = str(txt)
+        ok = None
         if not isbn:
-            sheet = ''
-            extra = ''
+            pass
         elif check_isbn(isbn) is not None:
-            sheet = QApplication.instance().stylesheet_for_line_edit()
             extra = _('This ISBN is valid')
+            ok = True
         else:
-            sheet = QApplication.instance().stylesheet_for_line_edit(True)
             extra = _('This ISBN is invalid')
+            ok = False
         self.line_edit.setToolTip(extra)
-        self.line_edit.setStyleSheet(sheet)
+        self.line_edit.update_status_actions(ok, extra)
 
     def text(self):
         return check_isbn(str(self.line_edit.text()))
