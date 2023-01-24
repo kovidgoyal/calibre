@@ -19,8 +19,12 @@ def decode_msg(line: bytes) -> dict:
     return ans
 
 
+def start_worker():
+    return start_pipe_worker('from calibre_extensions.winspeech import run_main_loop; raise SystemExit(run_main_loop())')
+
+
 def develop_speech(text='Lucca brazzi sleeps with the fishes'):
-    p = start_pipe_worker('from calibre_extensions.winspeech import run_main_loop; run_main_loop()')
+    p = start_worker()
     print('\x1b[32mSpeaking', text, '\x1b[39m]]'[:-2], flush=True)
     q = Queue()
 
