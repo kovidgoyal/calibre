@@ -647,6 +647,23 @@ class Synthesizer {
     Revokers revoker;
     std::recursive_mutex recursive_lock;
 
+    void register_metadata_handler_for_track(TimedMetadataTrack const& track, id_type cmd_id) {
+        std::scoped_lock sl(recursive_lock);
+        if (current_cmd_id.load() != cmd_id) return;
+        track.CueEntered([cmd_id](auto, const auto&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "cue", {{"state", "entered"}});
+        });
+        track.CueExited([cmd_id](auto, const auto&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "cue", {{"state", "exited"}});
+        });
+        track.TrackFailed([cmd_id](auto, const auto&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "track_failed", {});
+        });
+    }
+
     void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id) {
         std::scoped_lock sl(recursive_lock);
         if (cmd_id != current_cmd_id.load()) return;
@@ -667,17 +684,46 @@ class Synthesizer {
             if (main_loop_is_running.load()) sx.output(
                 cmd_id, "media_state_changed", {{"state", json_val("failed")}, {"error", args.ErrorMessage()}, {"code", json_val(args.Error())}});
         });
-            current_stream = stream;
-            current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
-            current_item = MediaPlaybackItem(current_source);
-            player.Source(current_item);
+        current_stream = stream;
+        current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
+        current_item = MediaPlaybackItem(current_source);
+
+        revoker.timed_metadata_tracks_changed = current_item.TimedMetadataTracksChanged(winrt::auto_revoke,
+            [cmd_id](auto, auto const &args) {
+            auto change_type = args.CollectionChange();
+            long index;
+            switch (change_type) {
+                case CollectionChange::ItemInserted: index = args.Index(); break;
+                case CollectionChange::Reset: index = -1; break;
+                default: index = -2; break;
+            }
+            if (index > -2 && main_loop_is_running.load()) sx.register_metadata_handler_for_speech(cmd_id, index);
+        });
+        register_metadata_handler_for_speech(cmd_id, -1);
+
+        player.Source(current_item);
     }
+
     public:
+    void register_metadata_handler_for_speech(id_type cmd_id, long index) {
+        std::scoped_lock sl(recursive_lock);
+        if (!cmd_id_is_current(cmd_id)) return;
+        if (index < 0) {
+            for (auto const &track : current_item.TimedMetadataTracks()) {
+                register_metadata_handler_for_track(track, cmd_id);
+            }
+        } else {
+            register_metadata_handler_for_track(current_item.TimedMetadataTracks().GetAt(index), cmd_id);
+        }
+    }
+
     bool cmd_id_is_current(id_type cmd_id) const noexcept { return current_cmd_id.load() == cmd_id; }
+
     void output(id_type cmd_id, std::string_view const& type, json_val const && x) {
         std::scoped_lock sl(recursive_lock);
         if (cmd_id_is_current(cmd_id)) ::output(cmd_id, type, std::move(x));
     }
+
     void initialize() {
         synth = SpeechSynthesizer();
         synth.Options().IncludeSentenceBoundaryMetadata(true);
