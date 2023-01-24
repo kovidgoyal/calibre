@@ -179,6 +179,19 @@ public:
         }
     }
 
+    json_val(MediaPlayerError const& e) : type(DT_STRING) {
+        // https://learn.microsoft.com/en-us/uwp/api/windows.media.playback.mediaplayererror
+        switch(e) {
+            case MediaPlayerError::Unknown: s = "unknown"; break;
+            case MediaPlayerError::Aborted: s = "aborted"; break;
+            case MediaPlayerError::NetworkError: s = "network_error"; break;
+            case MediaPlayerError::DecodingError: s = "decoding_error"; break;
+            case MediaPlayerError::SourceNotSupported: s = "source_not_supported"; break;
+            default: s = "unknown"; break;
+        }
+    }
+
+
     void serialize(std::ostream &out) const {
         switch(type) {
             case DT_NONE:
@@ -646,9 +659,9 @@ class Synthesizer {
             if (main_loop_is_running.load()) sx.output(
                 cmd_id, "media_state_changed", {{"state", json_val("ended")}});
         });
-        revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+        revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const& args) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", json_val("failed")}});
+                cmd_id, "media_state_changed", {{"state", json_val("failed")}, {"error", args.ErrorMessage()}, {"code", json_val(args.Error())}});
         });
             current_stream = stream;
             current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
