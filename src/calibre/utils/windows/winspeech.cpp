@@ -143,7 +143,7 @@ public:
     json_val(long long num) : type(DT_INT), i(num) {}
     json_val(std::vector<json_val> &&items) : type(DT_LIST), list(items) {}
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
-    json_val(std::initializer_list<std::pair<const std::string, json_val>> vals) : type(DT_OBJECT), object(vals) { }
+    json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
     json_val(bool x) : type(DT_BOOL), b(x) {}
 
     json_val(VoiceInformation const& voice) : type(DT_OBJECT) {
