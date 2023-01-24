@@ -4,7 +4,6 @@
 
 import json
 import sys
-import time
 from contextlib import closing
 from queue import Queue
 from threading import Thread
