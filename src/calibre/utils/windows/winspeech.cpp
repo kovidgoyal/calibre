@@ -205,20 +205,24 @@ public:
                 return serialize_string_for_json(s, out);
             case DT_LIST: {
                 out << '[';
+                bool first = true;
                 for (auto const &i : list) {
+                    if (!first) out << ", ";
+                    first = false;
                     i.serialize(out);
-                    out << ", ";
                 }
                 out << ']';
                 break;
             }
             case DT_OBJECT: {
                 out << '{';
+                bool first = true;
                 for (const auto& [key, value]: object) {
+                    if (!first) out << ", ";
+                    first = false;
                     serialize_string_for_json(key, out);
                     out << ": ";
                     value.serialize(out);
-                    out << ", ";
                 }
                 out << '}';
                 break;
