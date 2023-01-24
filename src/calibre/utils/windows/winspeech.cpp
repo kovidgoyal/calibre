@@ -34,6 +34,13 @@ using namespace winrt::Windows::Media::Core;
 using namespace winrt::Windows::Storage::Streams;
 typedef unsigned long long id_type;
 
+#define debug(format_string, ...) { \
+    std::scoped_lock _sl_(output_lock); \
+    DWORD _tid_ = GetCurrentThreadId(); \
+    char _buf_[64] = {0}; snprintf(_buf_, sizeof(_buf_)-1, "thread-%u", _tid_); \
+    fprintf(stderr, "%s " format_string "\n", main_thread_id == _tid_ ? "thread-main" : _buf_, __VA_ARGS__); fflush(stderr);\
+}
+
 static std::mutex output_lock;
 static std::atomic_bool main_loop_is_running;
 static DWORD main_thread_id;
@@ -119,7 +126,7 @@ serialize_string_for_json(std::string const &src) {
     return ans;
 }
 
-class json_val {
+class json_val {  // {{{
 private:
     enum { DT_INT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL } type;
     std::string s;
@@ -208,7 +215,7 @@ public:
         }
         return "";
     }
-};
+}; // }}}
 
 static void
 output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
@@ -672,9 +679,9 @@ class Synthesizer {
     }
     public:
     bool cmd_id_is_current(id_type cmd_id) const noexcept { return current_cmd_id.load() == cmd_id; }
-    void output(id_type cmd_id, std::string_view const& type, json_val const& x) {
+    void output(id_type cmd_id, std::string_view const& type, json_val const && x) {
         std::scoped_lock sl(recursive_lock);
-        if (cmd_id_is_current(cmd_id)) output(cmd_id, type, x);
+        if (cmd_id_is_current(cmd_id)) ::output(cmd_id, type, std::move(x));
     }
     void initialize() {
         synth = SpeechSynthesizer();
