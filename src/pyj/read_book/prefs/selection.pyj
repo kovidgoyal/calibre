@@ -126,7 +126,9 @@ def update_quick_action_table():
     c.style.display = 'flex'
     c.style.flexWrap = 'wrap'
     current = {x: True for x in JSON.parse(c.dataset.actions)}
-    for hs in all_styles():
+    actions = list(all_styles())
+    actions.pysort(key=def (a): return (a.friendly_name or '').toLowerCase();)
+    for hs in actions:
         c.appendChild(E.label(
             style='margin: 1ex; display: flex; align-contents: center',
             hs.make_swatch(E.span(), is_dark_theme()),
