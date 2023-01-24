@@ -6,6 +6,7 @@
  */
 #include "common.h"
 
+#include <atomic>
 #include <array>
 #include <vector>
 #include <map>
@@ -34,6 +35,7 @@ using namespace winrt::Windows::Storage::Streams;
 typedef unsigned long long id_type;
 
 static std::mutex output_lock;
+static std::atomic_bool main_loop_is_running;
 static DWORD main_thread_id;
 enum {
     STDIN_FAILED = 1,
@@ -159,6 +161,17 @@ public:
         }
     }
 
+    json_val(MediaPlaybackState const& state) : type(DT_STRING) {
+        switch(state) {
+            case MediaPlaybackState::None: s = "none"; break;
+            case MediaPlaybackState::Opening: s = "opening"; break;
+            case MediaPlaybackState::Buffering: s = "buffering"; break;
+            case MediaPlaybackState::Playing: s = "playing"; break;
+            case MediaPlaybackState::Paused: s = "paused"; break;
+            default: s = "unknown"; break;
+        }
+    }
+
     std::string serialize() const {
         switch(type) {
             case DT_NONE:
@@ -199,8 +212,10 @@ public:
 
 static void
 output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
-    std::scoped_lock lock(output_lock);
-    std::cout << cmd_id << " " << msg_type << " " << msg.serialize() << std::endl;
+    std::scoped_lock sl(output_lock);
+    try {
+        std::cout << cmd_id << " " << msg_type << " " << msg.serialize() << std::endl;
+    } catch(...) {}
 }
 
 static void
@@ -598,7 +613,7 @@ run_input_loop(void) {
     while(!std::cin.eof() && std::getline(std::cin, line)) {
         if (line.size() > 0) {
             {
-                std::scoped_lock lock(stdin_messages_lock);
+                std::scoped_lock sl(stdin_messages_lock);
                 stdin_messages.push_back(line);
             }
             post_message(STDIN_MSG);
@@ -625,20 +640,55 @@ class Synthesizer {
     MediaSource current_source{nullptr};
     SpeechSynthesisStream current_stream{nullptr};
     MediaPlaybackItem current_item{nullptr};
-    id_type current_cmd_id;
+    std::atomic<id_type> current_cmd_id;
 
     Revokers revoker;
-    std::recursive_mutex lock;
+    std::recursive_mutex recursive_lock;
 
+    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id) {
+        std::scoped_lock sl(recursive_lock);
+        if (cmd_id != current_cmd_id.load()) return;
+        revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
+                winrt::auto_revoke, [cmd_id](auto session, auto const&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "playback_state_changed", {{"state", json_val(session.PlaybackState())}});
+        });
+        revoker.media_opened = player.MediaOpened(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "media_state_changed", {{"state", json_val("opened")}});
+        });
+        revoker.media_ended = player.MediaEnded(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "media_state_changed", {{"state", json_val("ended")}});
+        });
+        revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+            if (main_loop_is_running.load()) sx.output(
+                cmd_id, "media_state_changed", {{"state", json_val("failed")}});
+        });
+            current_stream = stream;
+            current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
+            current_item = MediaPlaybackItem(current_source);
+            player.Source(current_item);
+    }
     public:
+    bool cmd_id_is_current(id_type cmd_id) const noexcept { return current_cmd_id.load() == cmd_id; }
+    void output(id_type cmd_id, std::string_view const& type, json_val const& x) {
+        std::scoped_lock sl(recursive_lock);
+        if (cmd_id_is_current(cmd_id)) output(cmd_id, type, x);
+    }
     void initialize() {
         synth = SpeechSynthesizer();
+        synth.Options().IncludeSentenceBoundaryMetadata(true);
+        synth.Options().IncludeWordBoundaryMetadata(true);
         player = MediaPlayer();
+        player.AudioCategory(MediaPlayerAudioCategory::Speech);
+        player.AutoPlay(true);
     }
+
     void stop_current_activity() {
-        std::scoped_lock sl(lock);
-        if (current_cmd_id) {
-            current_cmd_id = 0;
+        std::scoped_lock sl(recursive_lock);
+        if (current_cmd_id.load()) {
+            current_cmd_id.store(0);
             revoker = {};
             current_source = MediaSource{nullptr};
             current_stream = SpeechSynthesisStream{nullptr};
@@ -647,22 +697,71 @@ class Synthesizer {
         }
     }
 
+    winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml) {
+        winrt::apartment_context main_thread;  // capture calling thread
+        SpeechSynthesisStream stream{nullptr};
+        { std::scoped_lock sl(recursive_lock);
+            stop_current_activity();
+            current_cmd_id.store(cmd_id);
+        }
+        if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
+        else stream = co_await synth.SynthesizeTextToStreamAsync(text);
+        co_await main_thread;
+        if (main_loop_is_running.load()) {
+            load_stream_for_playback(stream, cmd_id);
+        }
+    }
+
 };
 
 static Synthesizer sx;
 
+static inline std::wstring
+decode_utf8(std::string_view const& src) {
+    std::wstring ans(src.length() + 1, 0);
+    size_t count = MultiByteToWideChar(CP_UTF8, 0, src.data(), (int)src.length(), ans.data(), (int)ans.length());
+    if (count == 0) {
+        switch(GetLastError()) {
+            case ERROR_INSUFFICIENT_BUFFER:
+                throw std::exception("Could not convert UTF-8 to UTF-16: buffer too small");
+            case ERROR_INVALID_PARAMETER:
+                throw std::exception("Could not convert UTF-8 to UTF-16: invalid parameter");
+            case ERROR_NO_UNICODE_TRANSLATION:
+                throw std::exception("Could not convert UTF-8 to UTF-16: invalid UTF-8 encountered");
+            default:
+                throw std::exception("Could not convert UTF-8 to UTF-16: unknown error");
+        }
+    }
+    count++; // ensure trailing null
+    if (ans.length() > count) {
+        auto extra = ans.length() - count;
+        ans.erase(ans.length() - extra, extra);
+    }
+    return ans;
+}
+
 static void
 handle_speak(id_type cmd_id, std::vector<std::string_view> &parts) {
-    bool is_ssml = parts.at(0) == "ssml"; parts.erase(parts.begin());
-    bool is_shm = parts.at(0) == "shm"; parts.erase(parts.begin());
+    bool is_ssml = false, is_shm = false;
+    try {
+        is_ssml = parts.at(0) == "ssml";
+        is_shm = parts.at(1) == "shm";
+    } catch (std::exception const&) {
+        throw std::string("Not a well formed speak command");
+    }
+    parts.erase(parts.begin(), parts.begin() + 2);
     auto address = join(parts);
     if (address.size() == 0) throw std::string("Address missing");
+    if (is_shm) {
+        throw std::string("TODO: Implement support for SHM");
+    }
+    sx.speak(cmd_id, decode_utf8(address), is_ssml);
 }
 
 static winrt::fire_and_forget
 handle_stdin_messages(void) {
     co_await winrt::resume_background();
-    std::scoped_lock lock(stdin_messages_lock);
+    std::scoped_lock sl(stdin_messages_lock);
     std::vector<std::string_view> parts;
     std::string_view command;
     id_type cmd_id;
@@ -725,6 +824,7 @@ run_main_loop(PyObject*, PyObject*) {
     if (!ok) return PyLong_FromUnsignedLongLong(1);
 
     Py_BEGIN_ALLOW_THREADS;
+    main_loop_is_running.store(true);
     PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);  // ensure we have a message queue
 
     if (_isatty(_fileno(stdin))) {
@@ -745,6 +845,7 @@ run_main_loop(PyObject*, PyObject*) {
             DispatchMessage(&msg);
         }
     }
+    main_loop_is_running.store(false);
     Py_END_ALLOW_THREADS;
     try {
         sx.stop_current_activity();
