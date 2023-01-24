@@ -22,7 +22,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE, rename_only_in_vl_question)
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
-                          rating_font, empty_index, question_dialog)
+                          rating_font, empty_index, question_dialog, FunctionDispatcher)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
 
@@ -217,6 +217,7 @@ class TagsView(QTreeView):  # {{{
         self._model.convert_requested.connect(self.convert_requested)
         self.set_look_and_feel(first=True)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
+        self.marked_change_listener = FunctionDispatcher(self.recount_on_mark_change)
 
     def convert_requested(self, book_ids, to_fmt):
         from calibre.gui2.ui import get_gui
@@ -330,6 +331,7 @@ class TagsView(QTreeView):  # {{{
         db.add_listener(self.database_changed)
         self.expanded.connect(self.item_expanded)
         self.collapsed.connect(self.collapse_node_and_children)
+        db.data.add_marked_listener(self.marked_change_listener)
 
     def keyPressEvent(self, event):
 
@@ -1251,6 +1253,10 @@ class TagsView(QTreeView):  # {{{
         if getattr(item, 'type', None) == TagTreeItem.TAG:
             idx = idx.parent()
         return self.isExpanded(idx)
+
+    def recount_on_mark_change(self, *args):
+        # Let other marked listeners run before we do the recount
+        QTimer.singleShot(0, self.recount)
 
     def recount_with_position_based_index(self):
         self._model.use_position_based_index_on_next_recount = True
