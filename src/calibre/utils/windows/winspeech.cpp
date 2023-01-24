@@ -105,26 +105,24 @@ parse_id(std::wstring_view const& s) {
 }
 
 
-static std::string
-serialize_string_for_json(std::string const &src) {
-    std::string ans("\"");
-    ans.reserve(src.size() + 16);
+static void
+serialize_string_for_json(std::string const &src, std::ostream &out) {
+    out << '"';
     for (auto ch : src) {
         switch(ch) {
             case '\\':
-                ans += "\\\\"; break;
+                out << "\\\\"; break;
             case '"':
-                ans += "\\\""; break;
+                out << "\\\""; break;
             case '\n':
-                ans += "\\n"; break;
+                out << "\\n"; break;
             case '\r':
-                ans += "\\r"; break;
+                out << "\\r"; break;
             default:
-                ans += ch; break;
+                out << ch; break;
         }
     }
-    ans += '"';
-    return ans;
+    out << '"';
 }
 
 class json_val {  // {{{
@@ -181,41 +179,38 @@ public:
         }
     }
 
-    std::string serialize() const {
+    void serialize(std::ostream &out) const {
         switch(type) {
             case DT_NONE:
-                return "nil";
+                out << "nil"; break;
             case DT_BOOL:
-                return b ? "true" : "false";
+                out << b ? "true" : "false"; break;
             case DT_INT:
                 // this is not really correct since JS has various limits on numeric types, but good enough for us
-                return std::to_string(i);
+                out << i; break;
             case DT_STRING:
-                return serialize_string_for_json(s);
+                return serialize_string_for_json(s, out);
             case DT_LIST: {
-                std::string ans("[");
-                ans.reserve(list.size() * 32);
+                out << '[';
                 for (auto const &i : list) {
-                    ans += i.serialize();
-                    ans += ", ";
+                    i.serialize(out);
+                    out << ", ";
                 }
-                ans.erase(ans.size() - 2); ans += "]";
-                return ans;
+                out << ']';
+                break;
             }
             case DT_OBJECT: {
-                std::string ans("{");
-                ans.reserve(object.size() * 64);
+                out << '{';
                 for (const auto& [key, value]: object) {
-                    ans += serialize_string_for_json(key);
-                    ans += ": ";
-                    ans += value.serialize();
-                    ans += ", ";
+                    serialize_string_for_json(key, out);
+                    out << ": ";
+                    value.serialize(out);
+                    out << ", ";
                 }
-                ans.erase(ans.size() - 2); ans += "}";
-                return ans;
+                out << '}';
+                break;
             }
         }
-        return "";
     }
 }; // }}}
 
@@ -223,7 +218,9 @@ static void
 output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
     std::scoped_lock sl(output_lock);
     try {
-        std::cout << cmd_id << " " << msg_type << " " << msg.serialize() << std::endl;
+        std::cout << cmd_id << " " << msg_type << " ";
+        msg.serialize(std::cout);
+        std::cout << std::endl;
     } catch(...) {}
 }
 
@@ -703,30 +700,6 @@ class Synthesizer {
 };
 
 static Synthesizer sx;
-
-static inline std::wstring
-decode_utf8(std::string_view const& src) {
-    std::wstring ans(src.length() + 1, 0);
-    size_t count = MultiByteToWideChar(CP_UTF8, 0, src.data(), (int)src.length(), ans.data(), (int)ans.length());
-    if (count == 0) {
-        switch(GetLastError()) {
-            case ERROR_INSUFFICIENT_BUFFER:
-                throw std::exception("Could not convert UTF-8 to UTF-16: buffer too small");
-            case ERROR_INVALID_PARAMETER:
-                throw std::exception("Could not convert UTF-8 to UTF-16: invalid parameter");
-            case ERROR_NO_UNICODE_TRANSLATION:
-                throw std::exception("Could not convert UTF-8 to UTF-16: invalid UTF-8 encountered");
-            default:
-                throw std::exception("Could not convert UTF-8 to UTF-16: unknown error");
-        }
-    }
-    count++; // ensure trailing null
-    if (ans.length() > count) {
-        auto extra = ans.length() - count;
-        ans.erase(ans.length() - extra, extra);
-    }
-    return ans;
-}
 
 static void
 handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
