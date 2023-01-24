@@ -33,7 +33,7 @@ using namespace winrt::Windows::Media::SpeechSynthesis;
 using namespace winrt::Windows::Media::Playback;
 using namespace winrt::Windows::Media::Core;
 using namespace winrt::Windows::Storage::Streams;
-typedef unsigned long long id_type;
+typedef uint64_t id_type;
 
 #define debug(format_string, ...) { \
     std::scoped_lock _sl_(output_lock); \
@@ -130,7 +130,7 @@ private:
     enum { DT_INT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL } type;
     std::string s;
     bool b;
-    long long i;
+    int64_t i;
     std::vector<json_val> list;
     std::map<std::string, json_val> object;
 public:
@@ -140,7 +140,8 @@ public:
     json_val(winrt::hstring const& text) : type(DT_STRING), s(winrt::to_string(text)) {}
     json_val(std::wstring const& text) : type(DT_STRING), s(winrt::to_string(text)) {}
     json_val(std::string_view text) : type(DT_STRING), s(text) {}
-    json_val(long long num) : type(DT_INT), i(num) {}
+    json_val(int32_t num) : type(DT_INT), i(num) {}
+    json_val(int64_t num) : type(DT_INT), i(num) {}
     json_val(std::vector<json_val> &&items) : type(DT_LIST), list(items) {}
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
     json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
@@ -189,6 +190,45 @@ public:
             case MediaPlayerError::SourceNotSupported: s = "source_not_supported"; break;
             default: s = "unknown"; break;
         }
+    }
+
+    json_val(winrt::Windows::Foundation::TimeSpan const &t) : type(DT_INT) {
+        i = std::chrono::nanoseconds(t).count();
+    }
+
+    json_val(winrt::hstring const &label, SpeechCue const &cue) : type(DT_OBJECT) {
+#define common_fields \
+        {"start_time", json_val(cue.StartTime())}, \
+        {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())}, \
+        {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
+
+        if (label == L"SpeechBookmark") {
+            object = {
+                {"type", json_val("bookmark")},
+                {"id", json_val(cue.Id())},
+                common_fields
+            };
+
+        } else if (label == L"SpeechWord") {
+            object = {
+                {"type", json_val("word")},
+                {"text", json_val(cue.Text())},
+                common_fields
+            };
+        } else if (label == L"SpeechSentence") {
+            object = {
+                {"type", json_val("sentence")},
+                {"text", json_val(cue.Text())},
+                common_fields
+            };
+        } else {
+            object = {
+                {"type", json_val(label)},
+                {"text", json_val(cue.Text())},
+                common_fields
+            };
+        }
+#undef common_fields
     }
 
 
@@ -242,9 +282,9 @@ output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
 }
 
 static void
-output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, long long line, HRESULT hr=S_OK) {
+output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, int64_t line, HRESULT hr=S_OK) {
     std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
-    if (hr != S_OK) m["hr"] = json_val((long long)hr);
+    if (hr != S_OK) m["hr"] = json_val((int64_t)hr);
     output(cmd_id, "error", std::move(m));
 }
 
@@ -647,21 +687,23 @@ class Synthesizer {
     Revokers revoker;
     std::recursive_mutex recursive_lock;
 
-    void register_metadata_handler_for_track(TimedMetadataTrack const& track, id_type cmd_id) {
+    void register_metadata_handler_for_track(uint32_t index, id_type cmd_id) {
+        TimedMetadataTrack track = current_item.TimedMetadataTracks().GetAt(index);
         std::scoped_lock sl(recursive_lock);
         if (current_cmd_id.load() != cmd_id) return;
-        track.CueEntered([cmd_id](auto, const auto&) {
+        revoker.cue_entered.push_back(track.CueEntered(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "cue", {{"state", "entered"}});
-        });
-        track.CueExited([cmd_id](auto, const auto&) {
+                cmd_id, "cue_entered", json_val(track.Label(), args.Cue().as<SpeechCue>()));
+        }));
+        revoker.cue_exited.push_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "cue", {{"state", "exited"}});
-        });
-        track.TrackFailed([cmd_id](auto, const auto&) {
+                cmd_id, "cue_exited", json_val(track.Label(), args.Cue().as<SpeechCue>()));
+        }));
+        revoker.track_failed.push_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
             if (main_loop_is_running.load()) sx.output(
                 cmd_id, "track_failed", {});
-        });
+        }));
+        current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::Hidden);
     }
 
     void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id) {
@@ -709,11 +751,11 @@ class Synthesizer {
         std::scoped_lock sl(recursive_lock);
         if (!cmd_id_is_current(cmd_id)) return;
         if (index < 0) {
-            for (auto const &track : current_item.TimedMetadataTracks()) {
-                register_metadata_handler_for_track(track, cmd_id);
+            for (uint32_t i = 0; i < current_item.TimedMetadataTracks().Size(); i++) {
+                register_metadata_handler_for_track(i, cmd_id);
             }
         } else {
-            register_metadata_handler_for_track(current_item.TimedMetadataTracks().GetAt(index), cmd_id);
+            register_metadata_handler_for_track(index, cmd_id);
         }
     }
 
@@ -782,7 +824,7 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     sx.speak(cmd_id, address, is_ssml);
 }
 
-static long long
+static int64_t
 handle_stdin_message(winrt::hstring const &&msg) {
     if (msg == L"exit") {
         return 0;
@@ -830,7 +872,7 @@ run_main_loop(PyObject*, PyObject*) {
     winrt::init_apartment(); // MTA (multi-threaded apartment)
     main_thread_id = GetCurrentThreadId();
     MSG msg;
-    long long exit_code = 0;
+    int64_t exit_code = 0;
     bool ok = false;
     try {
         new (&sx) Synthesizer();
