@@ -21,12 +21,12 @@ def decode_msg(line: bytes) -> dict:
 
 def develop_speech(text='Lucca brazzi sleeps with the fishes'):
     p = start_pipe_worker('from calibre_extensions.winspeech import run_main_loop; run_main_loop()')
-    print('\x1b[32mSpeaking', text, '\x1b[39m', flush=True)  # ]]
+    print('\x1b[32mSpeaking', text, '\x1b[39m]]'[:-2], flush=True)
     q = Queue()
 
     def echo_output(p):
         for line in p.stdout:
-            sys.stdout.buffer.write(b'\x1b[33m' + line + b'\x1b[39m')  # ]]
+            sys.stdout.buffer.write(b'\x1b[33m' + line + b'\x1b[39m]]'[:-2])
             sys.stdout.buffer.flush()
             q.put(decode_msg(line))
 
