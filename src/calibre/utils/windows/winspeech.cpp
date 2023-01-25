@@ -36,14 +36,27 @@ using namespace winrt::Windows::Media::Core;
 using namespace winrt::Windows::Storage::Streams;
 typedef uint64_t id_type;
 
-#define debug(format_string, ...) { \
-    std::scoped_lock _sl_(output_lock); \
-    DWORD _tid_ = GetCurrentThreadId(); \
-    char _buf_[64] = {0}; snprintf(_buf_, sizeof(_buf_)-1, "thread-%u", _tid_); \
-    fprintf(stderr, "%s " format_string "\n", main_thread_id == _tid_ ? "thread-main" : _buf_, __VA_ARGS__); fflush(stderr);\
+static std::mutex output_lock;
+
+template<typename T, typename... Args> static void
+__debug_multiple(T x, Args... args) {
+    std::cerr << x << " ";
+    __debug_multiple(args...);
 }
 
-static std::mutex output_lock;
+template<typename T> static void
+__debug_multiple(T x) {
+    std::cerr << x << std::endl;
+}
+
+template<typename... Args> static void
+debug(Args... args) {
+    std::scoped_lock _sl_(output_lock);
+    DWORD tid = GetCurrentThreadId();
+    if (tid == main_thread_id) std::cerr << "thread-main"; else std::cerr << "thread-" << tid << ": ";
+    __debug_multiple(args...);
+}
+
 static std::atomic_bool main_loop_is_running;
 static DWORD main_thread_id;
 enum {
@@ -164,6 +177,48 @@ private:
     int64_t i;
     std::vector<json_val> list;
     std::map<std::string, json_val> object;
+
+    void serialize(std::ostream &out) const {
+        switch(type) {
+            case DT_NONE:
+                out << "nil"; break;
+            case DT_BOOL:
+                out << b ? "true" : "false"; break;
+            case DT_INT:
+                // this is not really correct since JS has various limits on numeric types, but good enough for us
+                serialize_integer(out, i); break;
+            case DT_FLOAT:
+                // again not technically correct
+                serialize_float(out, f); break;
+            case DT_STRING:
+                return serialize_string_for_json(s, out);
+            case DT_LIST: {
+                out << '[';
+                bool first = true;
+                for (auto const &i : list) {
+                    if (!first) out << ", ";
+                    first = false;
+                    i.serialize(out);
+                }
+                out << ']';
+                break;
+            }
+            case DT_OBJECT: {
+                out << '{';
+                bool first = true;
+                for (const auto& [key, value]: object) {
+                    if (!first) out << ", ";
+                    first = false;
+                    serialize_string_for_json(key, out);
+                    out << ": ";
+                    value.serialize(out);
+                }
+                out << '}';
+                break;
+            }
+        }
+    }
+
 public:
     json_val() : type(DT_NONE) {}
     json_val(std::string &&text) : type(DT_STRING), s(text) {}
@@ -178,6 +233,16 @@ public:
     json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
     json_val(bool x) : type(DT_BOOL), b(x) {}
     json_val(double x) : type(DT_FLOAT), f(x) {}
+
+    json_val(HRESULT hr) : type(DT_STRING) {
+        std::array<char, 16> str;
+        str[0] = '0'; str[1] = 'x';
+        if (auto [ptr, ec] = std::to_chars(str.data()+2, str.data() + str.size(), (uint32_t)hr, 16); ec == std::errc()) {
+            s = std::string(str.data(), ptr - str.data());
+        } else {
+            throw std::exception(std::make_error_code(ec).message().c_str());
+        }
+    }
 
     json_val(VoiceInformation const& voice) : type(DT_OBJECT) {
         const char *gender = "";
@@ -238,63 +303,25 @@ public:
         };
     }
 
-
-    void serialize(std::ostream &out) const {
-        switch(type) {
-            case DT_NONE:
-                out << "nil"; break;
-            case DT_BOOL:
-                out << b ? "true" : "false"; break;
-            case DT_INT:
-                // this is not really correct since JS has various limits on numeric types, but good enough for us
-                serialize_integer(out, i); break;
-            case DT_FLOAT:
-                // again not technically correct
-                serialize_float(out, f); break;
-            case DT_STRING:
-                return serialize_string_for_json(s, out);
-            case DT_LIST: {
-                out << '[';
-                bool first = true;
-                for (auto const &i : list) {
-                    if (!first) out << ", ";
-                    first = false;
-                    i.serialize(out);
-                }
-                out << ']';
-                break;
-            }
-            case DT_OBJECT: {
-                out << '{';
-                bool first = true;
-                for (const auto& [key, value]: object) {
-                    if (!first) out << ", ";
-                    first = false;
-                    serialize_string_for_json(key, out);
-                    out << ": ";
-                    value.serialize(out);
-                }
-                out << '}';
-                break;
-            }
-        }
+    friend std::ostream& operator<<(std::ostream &os, const json_val &self) {
+        self.serialize(os);
+        return os;
     }
+
 }; // }}}
 
 static void
 output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
     std::scoped_lock sl(output_lock);
     try {
-        std::cout << cmd_id << " " << msg_type << " ";
-        msg.serialize(std::cout);
-        std::cout << std::endl;
+        std::cout << cmd_id << " " << msg_type << " " << msg << std::endl;
     } catch(...) {}
 }
 
 static void
 output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, int64_t line, HRESULT hr=S_OK) {
     std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
-    if (hr != S_OK) m["hr"] = json_val((int64_t)hr);
+    if (hr != S_OK) m["hr"] = json_val(hr);
     output(cmd_id, "error", std::move(m));
 }
 
@@ -896,11 +923,14 @@ handle_stdin_message(winrt::hstring const &&msg) {
     return -1;
 }
 
+
 static PyObject*
 run_main_loop(PyObject*, PyObject*) {
-    std::cout.imbue(std::locale("C"));
-    std::cin.imbue(std::locale("C"));
-    std::cerr.imbue(std::locale("C"));
+    try {
+        std::cout.imbue(std::locale("C"));
+        std::cin.imbue(std::locale("C"));
+        std::cerr.imbue(std::locale("C"));
+    } CATCH_ALL_EXCEPTIONS("Failed to set stdio locales to C", 0);
     winrt::init_apartment(); // MTA (multi-threaded apartment)
     main_thread_id = GetCurrentThreadId();
     MSG msg;
