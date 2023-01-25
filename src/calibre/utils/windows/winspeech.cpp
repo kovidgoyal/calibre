@@ -183,7 +183,7 @@ private:
             case DT_NONE:
                 out << "nil"; break;
             case DT_BOOL:
-                out << b ? "true" : "false"; break;
+                out << (b ? "true" : "false"); break;
             case DT_INT:
                 // this is not really correct since JS has various limits on numeric types, but good enough for us
                 serialize_integer(out, i); break;
@@ -226,22 +226,24 @@ public:
     json_val(winrt::hstring const& text) : type(DT_STRING), s(winrt::to_string(text)) {}
     json_val(std::wstring const& text) : type(DT_STRING), s(winrt::to_string(text)) {}
     json_val(std::string_view text) : type(DT_STRING), s(text) {}
-    json_val(int32_t num) : type(DT_INT), i(num) {}
-    json_val(int64_t num) : type(DT_INT), i(num) {}
     json_val(std::vector<json_val> &&items) : type(DT_LIST), list(items) {}
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
     json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
-    json_val(bool x) : type(DT_BOOL), b(x) {}
-    json_val(double x) : type(DT_FLOAT), f(x) {}
 
-    json_val(HRESULT hr) : type(DT_STRING) {
+    static json_val from_bool(bool x) { json_val ans; ans.type = DT_BOOL; ans.b = x; return ans; }
+    static json_val from_double(double x) { json_val ans; ans.type = DT_FLOAT; ans.f = x; return ans; }
+    static json_val from_integer(int64_t x) { json_val ans; ans.type = DT_INT; ans.i = x; return ans; }
+
+    static json_val from_hresult(HRESULT hr) {
+        json_val ans; ans.type = DT_STRING;
         std::array<char, 16> str;
         str[0] = '0'; str[1] = 'x';
         if (auto [ptr, ec] = std::to_chars(str.data()+2, str.data() + str.size(), (uint32_t)hr, 16); ec == std::errc()) {
-            s = std::string(str.data(), ptr - str.data());
+            ans.s = std::string(str.data(), ptr - str.data());
         } else {
             throw std::exception(std::make_error_code(ec).message().c_str());
         }
+        return ans;
     }
 
     json_val(VoiceInformation const& voice) : type(DT_OBJECT) {
@@ -298,8 +300,8 @@ public:
             {"type", json_val(label)},
             {"text", json_val(cue.Text())},
             {"start_time", json_val(cue.StartTime())},
-            {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())},
-            {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
+            {"start_pos_in_text", json_val::from_integer(cue.StartPositionInInput().Value())},
+            {"end_pos_in_text", json_val::from_integer(cue.EndPositionInInput().Value())},
         };
     }
 
@@ -320,8 +322,8 @@ output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
 
 static void
 output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, int64_t line, HRESULT hr=S_OK) {
-    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
-    if (hr != S_OK) m["hr"] = json_val(hr);
+    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val::from_integer(line)}};
+    if (hr != S_OK) m["hr"] = json_val::from_hresult(hr);
     output(cmd_id, "error", std::move(m));
 }
 
@@ -831,6 +833,7 @@ class Synthesizer {
             stop_current_activity();
             current_cmd_id.store(cmd_id);
         }
+        output(cmd_id, "synthesizing", {{"ssml", json_val::from_bool(is_ssml)}});
         bool ok = false;
         try {
             if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
@@ -931,7 +934,7 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 auto vol = parse_double(parts[0].data());
                 sx.volume(vol);
             }
-            output(cmd_id, "volume", {{"value", json_val(sx.volume())}});
+            output(cmd_id, "volume", {{"value", json_val::from_double(sx.volume())}});
         }
         else throw std::string("Unknown command: ") + winrt::to_string(command);
     } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
