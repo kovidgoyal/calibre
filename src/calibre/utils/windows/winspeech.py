@@ -61,7 +61,7 @@ def encode_to_file_object(text, output) -> int:
     return sz
 
 
-def develop_speech(text='Lucca Brazzi sleeps with the fishes.'):
+def develop_speech(text='Lucca Brazzi sleeps with the fishes.', mark_words=False):
     p = start_worker()
     print('\x1b[32mSpeaking', text, '\x1b[39m]]'[:-2], flush=True)
     q = Queue()
@@ -79,8 +79,16 @@ def develop_speech(text='Lucca Brazzi sleeps with the fishes.'):
 
     Thread(name='Echo', target=echo_output, args=(p,), daemon=True).start()
     exit_code = 0
+    st = 'ssml' if '<speak' in text else 'text'
+    if mark_words:
+        words = text.split()
+        text = []
+        for i, w in enumerate(words):
+            text.append(i+1)
+            text.append(w)
+            if w is not words[-1]:
+                text.append(' ')
     with closing(p.stdin), closing(p.stdout), SharedMemory(size=max_buffer_size(text)) as shm:
-        st = 'ssml' if '<speak' in text else 'text'
         sz = encode_to_file_object(text, shm)
         try:
             send('1 echo Synthesizer started')

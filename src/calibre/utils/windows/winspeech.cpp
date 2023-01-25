@@ -341,7 +341,7 @@ output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
 
 static void
 output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, int64_t line, HRESULT hr=S_OK) {
-    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
+    std::map<std::string, json_val> m = {{"msg", msg}, {"error", error}, {"file", "winspeech.cpp"}, {"line", line}};
     if (hr != S_OK) m["hr"] = json_val::from_hresult(hr);
     output(cmd_id, "error", std::move(m));
 }
@@ -770,19 +770,19 @@ class Synthesizer {
         revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
                 winrt::auto_revoke, [cmd_id](auto session, auto const&) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "playback_state_changed", {{"state", json_val(session.PlaybackState())}});
+                cmd_id, "playback_state_changed", {{"state", session.PlaybackState()}});
         });
         revoker.media_opened = player.MediaOpened(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", json_val("opened")}});
+                cmd_id, "media_state_changed", {{"state", "opened"}});
         });
         revoker.media_ended = player.MediaEnded(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", json_val("ended")}});
+                cmd_id, "media_state_changed", {{"state", "ended"}});
         });
         revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const& args) {
             if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", json_val("failed")}, {"error", args.ErrorMessage()}, {"code", json_val(args.Error())}});
+                cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"code", args.Error()}});
         });
         current_stream = stream;
         current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
@@ -826,8 +826,6 @@ class Synthesizer {
 
     void initialize() {
         synth = SpeechSynthesizer();
-        // synth.Options().IncludeSentenceBoundaryMetadata(true);
-        synth.Options().IncludeWordBoundaryMetadata(true);
         player = MediaPlayer();
         player.AudioCategory(MediaPlayerAudioCategory::Speech);
         player.AutoPlay(true);
@@ -851,8 +849,10 @@ class Synthesizer {
         { std::scoped_lock sl(recursive_lock);
             stop_current_activity();
             current_cmd_id.store(cmd_id);
+            synth.Options().IncludeSentenceBoundaryMetadata(true);
+            synth.Options().IncludeWordBoundaryMetadata(true);
         }
-        output(cmd_id, "synthesizing", {{"ssml", json_val(is_ssml)}});
+        output(cmd_id, "synthesizing", {{"ssml", is_ssml}});
         bool ok = false;
         try {
             if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
@@ -888,6 +888,7 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     }
     parts.erase(parts.begin(), parts.begin() + 2);
     std::wstring address;
+    std::wstring_view text;
     id_type shm_size = 0;
     if (is_shm) {
         shm_size = parse_id(parts.at(0));
@@ -903,11 +904,13 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
             return;
         }
         address = winrt::to_hstring((const char*)mapping.ptr());
+        text = address;
     } else {
         address = join(parts);
         if (address.size() == 0) throw std::string("Address missing");
+        text = address;
     }
-    sx.speak(cmd_id, address, is_ssml);
+    sx.speak(cmd_id, text, is_ssml);
 }
 
 static int64_t
@@ -953,7 +956,7 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 auto vol = parse_double(parts[0].data());
                 sx.volume(vol);
             }
-            output(cmd_id, "volume", {{"value", json_val(sx.volume())}});
+            output(cmd_id, "volume", {{"value", sx.volume()}});
         }
         else throw std::string("Unknown command: ") + winrt::to_string(command);
     } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
