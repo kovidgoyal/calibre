@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <deque>
+#include <charconv>
 #include <memory>
 #include <sstream>
 #include <mutex>
@@ -104,6 +105,14 @@ parse_id(std::wstring_view const& s) {
     return ans;
 }
 
+static double
+parse_double(const wchar_t *raw) {
+    std::wistringstream s(raw, std::ios_base::in);
+    s.imbue(std::locale("C"));
+    double ans;
+    s >> ans;
+    return ans;
+}
 
 static void
 serialize_string_for_json(std::string const &src, std::ostream &out) {
@@ -125,11 +134,33 @@ serialize_string_for_json(std::string const &src, std::ostream &out) {
     out << '"';
 }
 
+template<typename T> static void
+serialize_integer(std::ostream &out, T val, int base = 10) {
+    std::array<char, 16> str;
+    if (auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(), val, base); ec == std::errc()) {
+        out << std::string_view(str.data(), ptr - str.data());
+    } else {
+        throw std::exception(std::make_error_code(ec).message().c_str());
+    }
+}
+
+template<typename T>static void
+serialize_float(std::ostream &out, T val, std::chars_format fmt = std::chars_format::fixed) {
+    std::array<char, 16> str;
+    if (auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(), val, fmt); ec == std::errc()) {
+        out << std::string_view(str.data(), ptr - str.data());
+    } else {
+        throw std::exception(std::make_error_code(ec).message().c_str());
+    }
+}
+
+
 class json_val {  // {{{
 private:
-    enum { DT_INT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL } type;
+    enum { DT_INT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL, DT_FLOAT } type;
     std::string s;
     bool b;
+    double f;
     int64_t i;
     std::vector<json_val> list;
     std::map<std::string, json_val> object;
@@ -146,6 +177,7 @@ public:
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
     json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
     json_val(bool x) : type(DT_BOOL), b(x) {}
+    json_val(double x) : type(DT_FLOAT), f(x) {}
 
     json_val(VoiceInformation const& voice) : type(DT_OBJECT) {
         const char *gender = "";
@@ -197,38 +229,13 @@ public:
     }
 
     json_val(winrt::hstring const &label, SpeechCue const &cue) : type(DT_OBJECT) {
-#define common_fields \
-        {"start_time", json_val(cue.StartTime())}, \
-        {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())}, \
-        {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
-
-        if (label == L"SpeechBookmark") {
-            object = {
-                {"type", json_val("bookmark")},
-                {"id", json_val(cue.Id())},
-                common_fields
-            };
-
-        } else if (label == L"SpeechWord") {
-            object = {
-                {"type", json_val("word")},
-                {"text", json_val(cue.Text())},
-                common_fields
-            };
-        } else if (label == L"SpeechSentence") {
-            object = {
-                {"type", json_val("sentence")},
-                {"text", json_val(cue.Text())},
-                common_fields
-            };
-        } else {
-            object = {
-                {"type", json_val(label)},
-                {"text", json_val(cue.Text())},
-                common_fields
-            };
-        }
-#undef common_fields
+        object = {
+            {"type", json_val(label)},
+            {"text", json_val(cue.Text())},
+            {"start_time", json_val(cue.StartTime())},
+            {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())},
+            {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
+        };
     }
 
 
@@ -240,7 +247,10 @@ public:
                 out << b ? "true" : "false"; break;
             case DT_INT:
                 // this is not really correct since JS has various limits on numeric types, but good enough for us
-                out << i; break;
+                serialize_integer(out, i); break;
+            case DT_FLOAT:
+                // again not technically correct
+                serialize_float(out, f); break;
             case DT_STRING:
                 return serialize_string_for_json(s, out);
             case DT_LIST: {
@@ -703,7 +713,7 @@ class Synthesizer {
             if (main_loop_is_running.load()) sx.output(
                 cmd_id, "track_failed", {});
         }));
-        current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::Hidden);
+        current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::ApplicationPresented);
     }
 
     void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id) {
@@ -768,7 +778,7 @@ class Synthesizer {
 
     void initialize() {
         synth = SpeechSynthesizer();
-        synth.Options().IncludeSentenceBoundaryMetadata(true);
+        // synth.Options().IncludeSentenceBoundaryMetadata(true);
         synth.Options().IncludeWordBoundaryMetadata(true);
         player = MediaPlayer();
         player.AudioCategory(MediaPlayerAudioCategory::Speech);
@@ -788,18 +798,30 @@ class Synthesizer {
     }
 
     winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml) {
-        winrt::apartment_context main_thread;  // capture calling thread
+        // winrt::apartment_context main_thread;  // capture calling thread
         SpeechSynthesisStream stream{nullptr};
         { std::scoped_lock sl(recursive_lock);
             stop_current_activity();
             current_cmd_id.store(cmd_id);
         }
-        if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
-        else stream = co_await synth.SynthesizeTextToStreamAsync(text);
-        co_await main_thread;
-        if (main_loop_is_running.load()) {
-            load_stream_for_playback(stream, cmd_id);
+        bool ok = false;
+        try {
+            if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
+            else stream = co_await synth.SynthesizeTextToStreamAsync(text);
+            ok = true;
+        } CATCH_ALL_EXCEPTIONS("Failed to synthesize speech", cmd_id);
+        if (ok) {
+            // co_await main_thread;
+            if (main_loop_is_running.load()) {
+                load_stream_for_playback(stream, cmd_id);
+            }
         }
+    }
+
+    double volume() const { return player.Volume(); }
+    void volume(double val) {
+        if (val < 0 || val > 1) throw std::out_of_range("Invalid volume value must be between 0 and 1");
+        player.Volume(val);
     }
 
 };
@@ -862,6 +884,13 @@ handle_stdin_message(winrt::hstring const &&msg) {
         else if (command == L"speak") {
             handle_speak(cmd_id, parts);
         }
+        else if (command == L"volume") {
+            if (parts.size()) {
+                auto vol = parse_double(parts[0].data());
+                sx.volume(vol);
+            }
+            output(cmd_id, "volume", {{"value", json_val(sx.volume())}});
+        }
         else throw std::string("Unknown command: ") + winrt::to_string(command);
     } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
     return -1;
@@ -869,6 +898,9 @@ handle_stdin_message(winrt::hstring const &&msg) {
 
 static PyObject*
 run_main_loop(PyObject*, PyObject*) {
+    std::cout.imbue(std::locale("C"));
+    std::cin.imbue(std::locale("C"));
+    std::cerr.imbue(std::locale("C"));
     winrt::init_apartment(); // MTA (multi-threaded apartment)
     main_thread_id = GetCurrentThreadId();
     MSG msg;
