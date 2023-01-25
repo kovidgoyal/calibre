@@ -170,11 +170,12 @@ serialize_float(std::ostream &out, T val, std::chars_format fmt = std::chars_for
 
 class json_val {  // {{{
 private:
-    enum { DT_INT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL, DT_FLOAT } type;
+    enum { DT_INT, DT_UINT, DT_STRING, DT_LIST, DT_OBJECT, DT_NONE, DT_BOOL, DT_FLOAT } type;
     std::string s;
     bool b;
     double f;
     int64_t i;
+    uint64_t u;
     std::vector<json_val> list;
     std::map<std::string, json_val> object;
 
@@ -187,6 +188,9 @@ private:
             case DT_INT:
                 // this is not really correct since JS has various limits on numeric types, but good enough for us
                 serialize_integer(out, i); break;
+            case DT_UINT:
+                // this is not really correct since JS has various limits on numeric types, but good enough for us
+                serialize_integer(out, u); break;
             case DT_FLOAT:
                 // again not technically correct
                 serialize_float(out, f); break;
@@ -229,10 +233,6 @@ public:
     json_val(std::vector<json_val> &&items) : type(DT_LIST), list(items) {}
     json_val(std::map<std::string, json_val> &&m) : type(DT_OBJECT), object(m) {}
     json_val(std::initializer_list<std::pair<const std::string, json_val>> const& vals) : type(DT_OBJECT), object(vals) { }
-
-    static json_val from_bool(bool x) { json_val ans; ans.type = DT_BOOL; ans.b = x; return ans; }
-    static json_val from_double(double x) { json_val ans; ans.type = DT_FLOAT; ans.f = x; return ans; }
-    static json_val from_integer(int64_t x) { json_val ans; ans.type = DT_INT; ans.i = x; return ans; }
 
     static json_val from_hresult(HRESULT hr) {
         json_val ans; ans.type = DT_STRING;
@@ -300,9 +300,28 @@ public:
             {"type", json_val(label)},
             {"text", json_val(cue.Text())},
             {"start_time", json_val(cue.StartTime())},
-            {"start_pos_in_text", json_val::from_integer(cue.StartPositionInInput().Value())},
-            {"end_pos_in_text", json_val::from_integer(cue.EndPositionInInput().Value())},
+            {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())},
+            {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
         };
+    }
+
+    template<typename T> json_val(T x) {
+        static_assert(sizeof(bool) < sizeof(int16_t), "The bool type on this machine is more than one byte");
+        if constexpr (std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> || std::is_same_v<T, int16_t>) {
+            type = DT_INT;
+            i = x;
+        } else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, uint16_t>) {
+            type = DT_UINT;
+            u = x;
+        } else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+            type = DT_FLOAT;
+            f = x;
+        } else if constexpr (std::is_same_v<T, bool>) {
+            type = DT_BOOL;
+            b = x;
+        } else {
+            static_assert(false, "Unknown type T cannot be converted to JSON");
+        }
     }
 
     friend std::ostream& operator<<(std::ostream &os, const json_val &self) {
@@ -322,7 +341,7 @@ output(id_type cmd_id, std::string_view const &msg_type, json_val const &&msg) {
 
 static void
 output_error(id_type cmd_id, std::string_view const &msg, std::string_view const &error, int64_t line, HRESULT hr=S_OK) {
-    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val::from_integer(line)}};
+    std::map<std::string, json_val> m = {{"msg", json_val(msg)}, {"error", json_val(error)}, {"file", json_val("winspeech.cpp")}, {"line", json_val(line)}};
     if (hr != S_OK) m["hr"] = json_val::from_hresult(hr);
     output(cmd_id, "error", std::move(m));
 }
@@ -833,7 +852,7 @@ class Synthesizer {
             stop_current_activity();
             current_cmd_id.store(cmd_id);
         }
-        output(cmd_id, "synthesizing", {{"ssml", json_val::from_bool(is_ssml)}});
+        output(cmd_id, "synthesizing", {{"ssml", json_val(is_ssml)}});
         bool ok = false;
         try {
             if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
@@ -934,7 +953,7 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 auto vol = parse_double(parts[0].data());
                 sx.volume(vol);
             }
-            output(cmd_id, "volume", {{"value", json_val::from_double(sx.volume())}});
+            output(cmd_id, "volume", {{"value", json_val(sx.volume())}});
         }
         else throw std::string("Unknown command: ") + winrt::to_string(command);
     } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
