@@ -61,7 +61,7 @@ def encode_to_file_object(text, output) -> int:
     return sz
 
 
-def develop_speech(text='Lucca Brazzi sleeps with the fishes.', mark_words=False):
+def develop_speech(text='Lucca Brazzi sleeps with the fishes.', mark_words=True):
     p = start_worker()
     print('\x1b[32mSpeaking', text, '\x1b[39m]]'[:-2], flush=True)
     q = Queue()
@@ -81,6 +81,7 @@ def develop_speech(text='Lucca Brazzi sleeps with the fishes.', mark_words=False
     exit_code = 0
     st = 'ssml' if '<speak' in text else 'text'
     if mark_words:
+        st = 'cued'
         words = text.split()
         text = []
         for i, w in enumerate(words):

@@ -53,7 +53,8 @@ template<typename... Args> static void
 debug(Args... args) {
     std::scoped_lock _sl_(output_lock);
     DWORD tid = GetCurrentThreadId();
-    if (tid == main_thread_id) std::cerr << "thread-main"; else std::cerr << "thread-" << tid << ": ";
+    if (tid == main_thread_id) std::cerr << "thread-main"; else std::cerr << "thread-" << tid;
+    std::cerr << ": ";
     __debug_multiple(args...);
 }
 
@@ -297,11 +298,11 @@ public:
 
     json_val(winrt::hstring const &label, SpeechCue const &cue) : type(DT_OBJECT) {
         object = {
-            {"type", json_val(label)},
-            {"text", json_val(cue.Text())},
-            {"start_time", json_val(cue.StartTime())},
-            {"start_pos_in_text", json_val(cue.StartPositionInInput().Value())},
-            {"end_pos_in_text", json_val(cue.EndPositionInInput().Value())},
+            {"type", label},
+            {"text", cue.Text()},
+            {"start_time", cue.StartTime()},
+            {"start_pos_in_text", cue.StartPositionInInput().Value()},
+            {"end_pos_in_text", cue.EndPositionInInput().Value()},
         };
     }
 
@@ -733,6 +734,12 @@ struct Revokers {
     std::vector<TimedMetadataTrack::TrackFailed_revoker> track_failed;
 };
 
+struct Mark {
+    uint32_t id, pos_in_text;
+    Mark(uint32_t id, uint32_t pos) : id(id), pos_in_text(pos) {}
+};
+typedef std::vector<Mark> Marks;
+
 class Synthesizer {
     private:
     SpeechSynthesizer synth{nullptr};
@@ -740,6 +747,8 @@ class Synthesizer {
     MediaSource current_source{nullptr};
     SpeechSynthesisStream current_stream{nullptr};
     MediaPlaybackItem current_item{nullptr};
+    std::vector<wchar_t> current_text_storage;
+    Marks current_marks;
     std::atomic<id_type> current_cmd_id;
 
     Revokers revoker;
@@ -764,9 +773,26 @@ class Synthesizer {
         current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::ApplicationPresented);
     }
 
-    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id) {
+    void add_cues() {
+        TimedMetadataTrack track(L"mark", L"en-us", TimedMetadataKind::Speech);
+        track.Label(L"mark");
+        for (const Mark &mark : current_marks) {
+            SpeechCue cue;
+            cue.StartPositionInInput(IReference<int>{(int)mark.pos_in_text});
+            cue.EndPositionInInput(IReference<int>{(int)mark.pos_in_text + 1});
+            cue.Text(winrt::to_hstring(mark.id));
+            track.AddCue(cue);
+        }
+        current_source.ExternalTimedMetadataTracks().Append(track);
+    }
+
+    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued) {
         std::scoped_lock sl(recursive_lock);
         if (cmd_id != current_cmd_id.load()) return;
+        current_stream = stream;
+        current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
+        if (is_cued) add_cues();
+
         revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
                 winrt::auto_revoke, [cmd_id](auto session, auto const&) {
             if (main_loop_is_running.load()) sx.output(
@@ -784,8 +810,6 @@ class Synthesizer {
             if (main_loop_is_running.load()) sx.output(
                 cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"code", args.Error()}});
         });
-        current_stream = stream;
-        current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
         current_item = MediaPlaybackItem(current_source);
 
         revoker.timed_metadata_tracks_changed = current_item.TimedMetadataTracksChanged(winrt::auto_revoke,
@@ -840,19 +864,22 @@ class Synthesizer {
             current_stream = SpeechSynthesisStream{nullptr};
             current_item = MediaPlaybackItem{nullptr};
             player.Pause();
+            current_text_storage = std::vector<wchar_t>();
+            current_marks = Marks();
         }
     }
 
-    winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml) {
-        // winrt::apartment_context main_thread;  // capture calling thread
+    winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml, bool is_cued, std::vector<wchar_t> &&buf, Marks const && marks) {
         SpeechSynthesisStream stream{nullptr};
         { std::scoped_lock sl(recursive_lock);
             stop_current_activity();
             current_cmd_id.store(cmd_id);
+            current_text_storage = std::move(buf);
+            current_marks = std::move(marks);
             synth.Options().IncludeSentenceBoundaryMetadata(true);
             synth.Options().IncludeWordBoundaryMetadata(true);
         }
-        output(cmd_id, "synthesizing", {{"ssml", is_ssml}});
+        output(cmd_id, "synthesizing", {{"ssml", is_ssml}, {"num_marks", current_marks.size()}, {"text_length", text.size()}});
         bool ok = false;
         try {
             if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
@@ -860,9 +887,10 @@ class Synthesizer {
             ok = true;
         } CATCH_ALL_EXCEPTIONS("Failed to synthesize speech", cmd_id);
         if (ok) {
-            // co_await main_thread;
             if (main_loop_is_running.load()) {
-                load_stream_for_playback(stream, cmd_id);
+                try {
+                    load_stream_for_playback(stream, cmd_id, is_cued);
+                } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for playback", cmd_id);
             }
         }
     }
@@ -877,19 +905,68 @@ class Synthesizer {
 
 static Synthesizer sx;
 
+static size_t
+decode_into(std::string_view src, std::wstring_view dest) {
+    int n = MultiByteToWideChar(CP_UTF8, 0, src.data(), (int)src.size(), (wchar_t*)dest.data(), (int)dest.size());
+    if (n == 0 && src.size() > 0) {
+        switch (GetLastError()) {
+            case ERROR_INSUFFICIENT_BUFFER:
+                throw std::exception("Output buffer too small while decoding cued text");
+            case ERROR_INVALID_FLAGS:
+                throw std::exception("Invalid flags while decoding cued text");
+            case ERROR_INVALID_PARAMETER:
+                throw std::exception("Invalid parameters while decoding cued text");
+            case ERROR_NO_UNICODE_TRANSLATION:
+                throw std::exception("Invalid UTF-8 found while decoding cued text");
+            default:
+                throw std::exception("Unknown error while decoding cued text");
+        }
+    }
+    return n;
+}
+
+static std::wstring_view
+parse_cued_text(std::string_view src, Marks &marks, std::wstring_view dest) {
+    size_t dest_pos = 0;
+    if (dest.size() < src.size()) throw std::exception("Destination buffer for parse_cued_text() too small");
+    while (src.size()) {
+        auto pos = src.find('\0');
+        size_t limit = pos == std::string_view::npos ? src.size() : pos;
+        if (limit) {
+            dest_pos += decode_into(
+                std::string_view(src.data(), limit),
+                std::wstring_view(dest.data() + dest_pos, dest.size() - dest_pos));
+            src = std::string_view(src.data() + limit, src.size() - limit);
+        }
+        if (pos != std::string_view::npos) {
+            src = std::string_view(src.data() + 1, src.size() - 1);
+            if (src.size() >= 4) {
+                uint32_t mark = *((uint32_t*)src.data());
+                marks.emplace_back(mark, (uint32_t)dest_pos);
+                src = std::string_view(src.data() + 4, src.size() - 4);
+            }
+        }
+    }
+    *((wchar_t*)dest.data() + dest_pos) = 0;  // ensure NULL termination
+    return std::wstring_view(dest.data(), dest_pos);
+}
+
 static void
 handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
-    bool is_ssml = false, is_shm = false;
+    bool is_ssml = false, is_shm = false, is_cued = false;
     try {
         is_ssml = parts.at(0) == L"ssml";
         is_shm = parts.at(1) == L"shm";
+        is_cued = parts.at(0) == L"cued";
     } catch (std::exception const&) {
         throw std::string("Not a well formed speak command");
     }
     parts.erase(parts.begin(), parts.begin() + 2);
     std::wstring address;
-    std::wstring_view text;
     id_type shm_size = 0;
+    Marks marks;
+    std::vector<wchar_t> buf;
+    std::wstring_view text;
     if (is_shm) {
         shm_size = parse_id(parts.at(0));
         address = parts.at(1);
@@ -903,14 +980,25 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
             output_error(cmd_id, "Could not map shared memory with error", std::to_string(GetLastError()), __LINE__);
             return;
         }
-        address = winrt::to_hstring((const char*)mapping.ptr());
-        text = address;
+        buf.reserve(shm_size + 2);
+        std::string_view src((const char*)mapping.ptr(), shm_size);
+        std::wstring_view dest(buf.data(), buf.capacity());
+        if (is_cued) {
+            text = parse_cued_text(src, marks, dest);
+        } else {
+            size_t n = decode_into(src, dest);
+            *(buf.data() + n) = 0; // ensure null termination
+            text = std::wstring_view(buf.data(), n);
+        }
     } else {
         address = join(parts);
         if (address.size() == 0) throw std::string("Address missing");
-        text = address;
+        buf.reserve(address.size() + 1);
+        text = std::wstring_view(buf.data(), address.size() + 1);
+        memcpy(buf.data(), address.c_str(), address.size());
+        *(buf.data() + address.size()) = 0; // ensure null termination
     }
-    sx.speak(cmd_id, text, is_ssml);
+    sx.speak(cmd_id, text, is_ssml, is_cued, std::move(buf), std::move(marks));
 }
 
 static int64_t
@@ -940,7 +1028,7 @@ handle_stdin_message(winrt::hstring const &&msg) {
             return 0;
         }
         else if (command == L"echo") {
-            output(cmd_id, "echo", {{"msg", json_val(std::move(join(parts)))}});
+            output(cmd_id, "echo", {{"msg", join(parts)}});
         }
         else if (command == L"default_voice") {
             output(cmd_id, "default_voice", SpeechSynthesizer::DefaultVoice());
