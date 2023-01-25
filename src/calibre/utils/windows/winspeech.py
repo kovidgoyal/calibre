@@ -3,11 +3,13 @@
 
 
 import json
+import struct
 import sys
 from contextlib import closing
 from queue import Queue
 from threading import Thread
 
+from calibre.utils.shm import SharedMemory
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 SSML_SAMPLE = '''
@@ -30,7 +32,36 @@ def start_worker():
     return start_pipe_worker('from calibre_extensions.winspeech import run_main_loop; raise SystemExit(run_main_loop())')
 
 
-def develop_speech(text=SSML_SAMPLE):
+def max_buffer_size(text) -> int:
+    if isinstance(text, str):
+        text = [text]
+    ans = 0
+    for x in text:
+        if isinstance(x, int):
+            ans += 5
+        else:
+            ans += 4 * len(x)
+    return ans
+
+
+def encode_to_file_object(text, output) -> int:
+    if isinstance(text, str):
+        text = [text]
+    p = struct.pack
+    sz = 0
+    for x in text:
+        if isinstance(x, int):
+            output.write(b'\0')
+            output.write(p('=I', x))
+            sz += 5
+        else:
+            b = x.encode('utf-8')
+            output.write(b)
+            sz += len(b)
+    return sz
+
+
+def develop_speech(text='Lucca Brazzi sleeps with the fishes.'):
     p = start_worker()
     print('\x1b[32mSpeaking', text, '\x1b[39m]]'[:-2], flush=True)
     q = Queue()
@@ -48,18 +79,20 @@ def develop_speech(text=SSML_SAMPLE):
 
     Thread(name='Echo', target=echo_output, args=(p,), daemon=True).start()
     exit_code = 0
-    with closing(p.stdin), closing(p.stdout):
-        text = text.replace('\n', ' ')
+    with closing(p.stdin), closing(p.stdout), SharedMemory(size=max_buffer_size(text)) as shm:
         st = 'ssml' if '<speak' in text else 'text'
+        sz = encode_to_file_object(text, shm)
         try:
             send('1 echo Synthesizer started')
             send('1 volume 0.1')
-            send(f'2 speak {st} inline', text)
+            send(f'2 speak {st} shm {sz} {shm.name}')
             while True:
                 m = q.get()
+                if m['related_to'] != 2:
+                    continue
                 if m['payload_type'] == 'media_state_changed' and m['state'] == 'ended':
                     break
-                if m['payload_type'] == 'error' and m['related_to'] == 2:
+                if m['payload_type'] == 'error':
                     exit_code = 1
                     break
             send(f'3 echo Synthesizer exiting with exit code: {exit_code}')

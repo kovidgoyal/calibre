@@ -865,10 +865,25 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
         throw std::string("Not a well formed speak command");
     }
     parts.erase(parts.begin(), parts.begin() + 2);
-    auto address = join(parts);
-    if (address.size() == 0) throw std::string("Address missing");
+    std::wstring address;
+    id_type shm_size = 0;
     if (is_shm) {
-        throw std::string("TODO: Implement support for SHM");
+        shm_size = parse_id(parts.at(0));
+        address = parts.at(1);
+        handle_raii handle(OpenFileMappingW(FILE_MAP_READ, false, address.data()));
+        if (handle.ptr() == INVALID_HANDLE_VALUE) {
+            output_error(cmd_id, "Could not open shared memory at", winrt::to_string(address), __LINE__);
+            return;
+        }
+        mapping_raii mapping(MapViewOfFile(handle.ptr(), FILE_MAP_READ, 0, 0, (SIZE_T)shm_size));
+        if (mapping.ptr() == NULL) {
+            output_error(cmd_id, "Could not map shared memory with error", std::to_string(GetLastError()), __LINE__);
+            return;
+        }
+        address = winrt::to_hstring((const char*)mapping.ptr());
+    } else {
+        address = join(parts);
+        if (address.size() == 0) throw std::string("Address missing");
     }
     sx.speak(cmd_id, address, is_ssml);
 }

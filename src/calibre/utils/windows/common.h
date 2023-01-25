@@ -62,6 +62,8 @@ static inline void co_task_mem_free(void* m) { CoTaskMemFree(m); }
 typedef generic_raii<wchar_t*, co_task_mem_free, static_cast<wchar_t*>(NULL)> com_wchar_raii;
 static inline void handle_destructor(HANDLE p) { CloseHandle(p); }
 typedef generic_raii<HANDLE, handle_destructor, INVALID_HANDLE_VALUE> handle_raii;
+static inline void mapping_destructor(void *p) { UnmapViewOfFile(p); }
+typedef generic_raii<void*, mapping_destructor, static_cast<void*>(NULL)> mapping_raii;
 
 struct prop_variant : PROPVARIANT {
 	prop_variant(VARTYPE vt=VT_EMPTY) noexcept : PROPVARIANT{} { PropVariantInit(this); this->vt = vt;  }
