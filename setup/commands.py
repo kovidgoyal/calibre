@@ -20,7 +20,7 @@ __all__ = [
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
     'linux', 'linux64', 'linuxarm64', 'win', 'win64', 'osx', 'build_dep',
-    'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint'
+    'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint', 'xwin',
 ]
 
 from setup.installers import Linux, Win, OSX, Linux64, LinuxArm64, Win64, ExtDev, BuildDep, ExportPackages
@@ -100,6 +100,10 @@ upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
 upload_installers = UploadInstallers()
 reupload = ReUpload()
+
+
+from setup.xwin import XWin
+xwin = XWin()
 
 commands = {}
 for x in __all__:
