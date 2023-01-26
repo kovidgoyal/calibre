@@ -6,7 +6,7 @@
         "lib_dirs": "!hunspell_lib_dirs",
         "libraries": "hunspell-1.7",
         "windows_libraries": "libhunspell",
-		"needs_c++11": true
+		"needs_c++": "11"
     },
     {
         "name": "hyphen",
@@ -14,7 +14,7 @@
 		"libraries": "hyphen",
         "inc_dirs": "!hyphen_inc_dirs",
         "lib_dirs": "!hyphen_lib_dirs",
-		"needs_c99": true
+		"needs_c": "99"
     },
     {
         "name": "uchardet",
@@ -27,7 +27,7 @@
         "name": "unicode_names",
         "headers": "unicode_names/names.h unicode_names/data-types.h",
         "sources": "unicode_names/unicode_names.c",
-        "needs_c99": true
+        "needs_c": "99"
     },
     {
         "name": "speedup",
@@ -82,7 +82,7 @@
         "name": "sqlite_extension",
         "headers": "calibre/utils/cpp_binding.h",
         "sources": "calibre/db/sqlite_extension.cpp",
-		"needs_c++14": true,
+		"needs_c++": "14",
         "libraries": "icudata icui18n icuuc icuio stemmer",
         "windows_libraries": "icudt icuin icuuc icuio libstemmer",
         "lib_dirs": "!icu_lib_dirs",
@@ -124,19 +124,19 @@
         "lib_dirs": "!podofo_lib",
         "inc_dirs": "!podofo_inc",
         "error": "!podofo_error",
-		"needs_c++11": true
+		"needs_c++": "11"
     },
     {
         "name": "html_as_json",
         "sources": "calibre/srv/html_as_json.cpp",
-		"needs_c++11": true
+		"needs_c++": "11"
     },
     {
         "name": "fast_css_transform",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/stb_sprintf.h",
         "sources": "calibre/srv/fast_css_transform.cpp",
 		"inc_dirs": "perfect-hashing",
-		"needs_c++14": true
+		"needs_c++": "14"
     },
     {
         "name": "rcc_backend",
@@ -190,7 +190,8 @@
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winspeech.cpp",
         "libraries": "WindowsApp",
-        "cflags": "/X /std:c++17 /Zc:__cplusplus /bigobj /await /permissive- /WX /Zc:twoPhase-"
+		"needs_c++": "17",
+        "cflags": "/X /Zc:__cplusplus /bigobj /await /permissive- /WX /Zc:twoPhase-"
     },
     {
         "name": "wpd",

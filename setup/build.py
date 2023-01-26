@@ -49,10 +49,12 @@ class Extension:
         self.libraries = d['libraries'] = kwargs.get('libraries', [])
         self.cflags = d['cflags'] = kwargs.get('cflags', [])
         self.uses_icu = 'icuuc' in self.libraries
+        if self.needs_cxx and kwargs.get('needs_c++'):
+            std_prefix = '/std:' if iswindows else '-std='
+            self.cflags.insert(0, std_prefix + 'c++' + kwargs['needs_c++'])
+
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
-            if self.needs_cxx and kwargs.get('needs_c++14'):
-                self.cflags.insert(0, '/std:c++14')
         else:
             return_type = 'PyObject*'
             extern_decl = 'extern "C"' if self.needs_cxx else ''
@@ -61,14 +63,8 @@ class Extension:
                 '-DCALIBRE_MODINIT_FUNC='
                 '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type))
 
-            if self.needs_cxx:
-                if kwargs.get('needs_c++11'):
-                    self.cflags.insert(0, '-std=c++11')
-                elif kwargs.get('needs_c++14'):
-                    self.cflags.insert(0, '-std=c++14')
-            else:
-                if kwargs.get('needs_c99'):
-                    self.cflags.insert(0, '-std=c99')
+            if kwargs.get('needs_c'):
+                self.cflags.insert(0, '-std=c' + kwargs['needs_c'])
 
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
@@ -182,6 +178,20 @@ def get_python_include_paths():
 is_macos_universal_build = ismacos and 'universal2' in sysconfig.get_platform()
 
 
+def basic_windows_flags(debug=False):
+    cflags = '/c /nologo /W3 /EHsc /utf-8'.split()
+    cflags.append('/Zi' if debug else '/DNDEBUG')
+    suffix = ('d' if debug else '')
+    cflags.append('/MD' + suffix)
+    ldflags = f'/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt{suffix}.lib'.split()
+    if debug:
+        ldflags.append('/DEBUG')
+    # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
+    # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+    cflags.append('/GS-')
+    return cflags, ldflags
+
+
 def init_env(debug=False, sanitize=False):
     from setup.build_environment import win_ld, win_inc, win_lib, NMAKE, win_cc
     linker = None
@@ -236,17 +246,7 @@ def init_env(debug=False, sanitize=False):
 
     if iswindows:
         cc = cxx = win_cc
-        cflags = '/c /nologo /W3 /EHsc /utf-8'.split()
-        cflags.append('/Zi' if debug else '/DNDEBUG')
-        suffix = ('d' if debug else '')
-        cflags.append('/MD' + suffix)
-        ldflags = f'/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt{suffix}.lib'.split()
-        if debug:
-            ldflags.append('/DEBUG')
-        # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
-        # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
-        cflags.append('/GS-')
-
+        cflags, ldflags = basic_windows_flags(debug)
         for p in win_inc:
             cflags.append('-I'+p)
         for p in win_lib:
