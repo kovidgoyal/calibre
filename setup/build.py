@@ -300,6 +300,7 @@ class Build(Command):
             help='Build with sanitization support. Run with LD_PRELOAD=$(gcc -print-file-name=libasan.so)')
 
     def dump_db(self, name, db):
+        os.makedirs('build', exist_ok=True)
         try:
             with open(f'build/{name}_commands.json', 'w') as f:
                 json.dump(db, f, indent=2)
