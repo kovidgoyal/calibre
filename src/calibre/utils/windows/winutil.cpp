@@ -8,7 +8,7 @@
 #include "common.h"
 #include <processthreadsapi.h>
 #include <wininet.h>
-#include <Lmcons.h>
+#include <lmcons.h>
 #include <combaseapi.h>
 #include <locale.h>
 #include <shlobj.h>
@@ -826,10 +826,10 @@ set_handle_information(PyObject *self, PyObject *args) {
 
 static PyObject *
 get_long_path_name(PyObject *self, PyObject *args) {
-    wchar_raii path;
+    wchar_raii path, buf;
     if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
     DWORD current_size = 4096;
-    wchar_raii buf((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
+    buf.attach((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
     if (!buf) return PyErr_NoMemory();
     DWORD needed_size;
     Py_BEGIN_ALLOW_THREADS
@@ -1506,7 +1506,7 @@ static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL}
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
-CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+PyMODINIT_FUNC PyInit_winutil(void) {
     module_def.m_name     = "winutil";
     module_def.m_doc      = winutil_doc;
     module_def.m_methods  = winutil_methods;

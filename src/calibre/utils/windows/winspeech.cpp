@@ -21,12 +21,12 @@
 #include <unordered_map>
 #include <io.h>
 #include <winrt/base.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.Media.SpeechSynthesis.h>
-#include <winrt/Windows.Media.Core.h>
-#include <winrt/Windows.Media.Playback.h>
+#include <winrt/windows.foundation.h>
+#include <winrt/windows.foundation.collections.h>
+#include <winrt/windows.storage.streams.h>
+#include <winrt/windows.media.speechsynthesis.h>
+#include <winrt/windows.media.core.h>
+#include <winrt/windows.media.playback.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
@@ -320,9 +320,12 @@ public:
         } else if constexpr (std::is_same_v<T, bool>) {
             type = DT_BOOL;
             b = x;
-        } else {
+        }
+#ifdef _MSVC
+        else {
             static_assert(false, "Unknown type T cannot be converted to JSON");
         }
+#endif
     }
 
     friend std::ostream& operator<<(std::ostream &os, const json_val &self) {
@@ -754,24 +757,8 @@ class Synthesizer {
     Revokers revoker;
     std::recursive_mutex recursive_lock;
 
-    void register_metadata_handler_for_track(uint32_t index, id_type cmd_id) {
-        TimedMetadataTrack track = current_item.TimedMetadataTracks().GetAt(index);
-        std::scoped_lock sl(recursive_lock);
-        if (current_cmd_id.load() != cmd_id) return;
-        revoker.cue_entered.push_back(track.CueEntered(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "cue_entered", json_val(track.Label(), args.Cue().as<SpeechCue>()));
-        }));
-        revoker.cue_exited.push_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "cue_exited", json_val(track.Label(), args.Cue().as<SpeechCue>()));
-        }));
-        revoker.track_failed.push_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "track_failed", {});
-        }));
-        current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::ApplicationPresented);
-    }
+    void register_metadata_handler_for_track(uint32_t index, id_type cmd_id);
+    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued);
 
     void add_cues() {
         TimedMetadataTrack track(L"mark", L"en-us", TimedMetadataKind::Speech);
@@ -784,48 +771,6 @@ class Synthesizer {
             track.AddCue(cue);
         }
         current_source.ExternalTimedMetadataTracks().Append(track);
-    }
-
-    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued) {
-        std::scoped_lock sl(recursive_lock);
-        if (cmd_id != current_cmd_id.load()) return;
-        current_stream = stream;
-        current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
-        if (is_cued) add_cues();
-
-        revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
-                winrt::auto_revoke, [cmd_id](auto session, auto const&) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "playback_state_changed", {{"state", session.PlaybackState()}});
-        });
-        revoker.media_opened = player.MediaOpened(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", "opened"}});
-        });
-        revoker.media_ended = player.MediaEnded(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", "ended"}});
-        });
-        revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const& args) {
-            if (main_loop_is_running.load()) sx.output(
-                cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"code", args.Error()}});
-        });
-        current_item = MediaPlaybackItem(current_source);
-
-        revoker.timed_metadata_tracks_changed = current_item.TimedMetadataTracksChanged(winrt::auto_revoke,
-            [cmd_id](auto, auto const &args) {
-            auto change_type = args.CollectionChange();
-            long index;
-            switch (change_type) {
-                case CollectionChange::ItemInserted: index = args.Index(); break;
-                case CollectionChange::Reset: index = -1; break;
-                default: index = -2; break;
-            }
-            if (index > -2 && main_loop_is_running.load()) sx.register_metadata_handler_for_speech(cmd_id, index);
-        });
-        register_metadata_handler_for_speech(cmd_id, -1);
-
-        player.Source(current_item);
     }
 
     public:
@@ -904,6 +849,70 @@ class Synthesizer {
 };
 
 static Synthesizer sx;
+
+void
+Synthesizer::register_metadata_handler_for_track(uint32_t index, id_type cmd_id) {
+    TimedMetadataTrack track = current_item.TimedMetadataTracks().GetAt(index);
+    std::scoped_lock sl(recursive_lock);
+    if (current_cmd_id.load() != cmd_id) return;
+    revoker.cue_entered.push_back(track.CueEntered(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "cue_entered", json_val(track.Label(), args.Cue().template as<SpeechCue>()));
+    }));
+    revoker.cue_exited.push_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "cue_exited", json_val(track.Label(), args.Cue().template as<SpeechCue>()));
+    }));
+    revoker.track_failed.push_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "track_failed", {});
+    }));
+    current_item.TimedMetadataTracks().SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::ApplicationPresented);
+}
+
+void
+Synthesizer::load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued) {
+    std::scoped_lock sl(recursive_lock);
+    if (cmd_id != current_cmd_id.load()) return;
+    current_stream = stream;
+    current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
+    if (is_cued) add_cues();
+
+    revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
+            winrt::auto_revoke, [cmd_id](auto session, auto const&) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "playback_state_changed", {{"state", session.PlaybackState()}});
+    });
+    revoker.media_opened = player.MediaOpened(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "media_state_changed", {{"state", "opened"}});
+    });
+    revoker.media_ended = player.MediaEnded(winrt::auto_revoke, [cmd_id](auto player, auto const&) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "media_state_changed", {{"state", "ended"}});
+    });
+    revoker.media_failed = player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const& args) {
+        if (main_loop_is_running.load()) sx.output(
+            cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"code", args.Error()}});
+    });
+    current_item = MediaPlaybackItem(current_source);
+
+    revoker.timed_metadata_tracks_changed = current_item.TimedMetadataTracksChanged(winrt::auto_revoke,
+        [cmd_id](auto, auto const &args) {
+        auto change_type = args.CollectionChange();
+        long index;
+        switch (change_type) {
+            case CollectionChange::ItemInserted: index = args.Index(); break;
+            case CollectionChange::Reset: index = -1; break;
+            default: index = -2; break;
+        }
+        if (index > -2 && main_loop_is_running.load()) sx.register_metadata_handler_for_speech(cmd_id, index);
+    });
+    register_metadata_handler_for_speech(cmd_id, -1);
+
+    player.Source(current_item);
+}
+
 
 static size_t
 decode_into(std::string_view src, std::wstring_view dest) {
@@ -1120,7 +1129,7 @@ static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL}
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
-CALIBRE_MODINIT_FUNC PyInit_winspeech(void) {
+PyMODINIT_FUNC PyInit_winspeech(void) {
     module_def.m_name     = "winspeech";
     module_def.m_doc      = "Windows Speech API wrapper";
     module_def.m_methods  = methods;
