@@ -933,22 +933,20 @@ parse_cued_text(std::string_view src, Marks &marks, std::wstring_view dest) {
         auto pos = src.find('\0');
         size_t limit = pos == std::string_view::npos ? src.size() : pos;
         if (limit) {
-            dest_pos += decode_into(
-                std::string_view(src.data(), limit),
-                std::wstring_view(dest.data() + dest_pos, dest.size() - dest_pos));
-            src = std::string_view(src.data() + limit, src.size() - limit);
+            dest_pos += decode_into(src.substr(0, limit), dest.substr(dest_pos, dest.size() - dest_pos));
+            src = src.substr(limit, src.size() - limit);
         }
         if (pos != std::string_view::npos) {
-            src = std::string_view(src.data() + 1, src.size() - 1);
+            src = src.substr(1, src.size() - 1);
             if (src.size() >= 4) {
                 uint32_t mark = *((uint32_t*)src.data());
                 marks.emplace_back(mark, (uint32_t)dest_pos);
-                src = std::string_view(src.data() + 4, src.size() - 4);
+                src = src.substr(4, src.size() - 4);
             }
         }
     }
     *((wchar_t*)dest.data() + dest_pos) = 0;  // ensure NULL termination
-    return std::wstring_view(dest.data(), dest_pos);
+    return dest.substr(0, dest_pos);
 }
 
 static void
@@ -987,16 +985,16 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
             text = parse_cued_text(src, marks, dest);
         } else {
             size_t n = decode_into(src, dest);
-            *(buf.data() + n) = 0; // ensure null termination
+            buf[n] = 0;  // ensure null termination
             text = std::wstring_view(buf.data(), n);
         }
     } else {
         address = join(parts);
         if (address.size() == 0) throw std::string("Address missing");
         buf.reserve(address.size() + 1);
-        text = std::wstring_view(buf.data(), address.size() + 1);
-        memcpy(buf.data(), address.c_str(), address.size());
-        *(buf.data() + address.size()) = 0; // ensure null termination
+        text = std::wstring_view(buf.data(), address.size());
+        address.copy(buf.data(), address.size());
+        buf[address.size()] = 0;  // null terminate
     }
     sx.speak(cmd_id, text, is_ssml, is_cued, std::move(buf), std::move(marks));
 }
