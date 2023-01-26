@@ -37,6 +37,7 @@ using namespace winrt::Windows::Storage::Streams;
 typedef uint64_t id_type;
 
 static std::mutex output_lock;
+static DWORD main_thread_id;
 
 template<typename T, typename... Args> static void
 __debug_multiple(T x, Args... args) {
@@ -59,7 +60,6 @@ debug(Args... args) {
 }
 
 static std::atomic_bool main_loop_is_running;
-static DWORD main_thread_id;
 enum {
     STDIN_FAILED = 1,
     STDIN_MSG,
