@@ -945,7 +945,6 @@ parse_cued_text(std::string_view src, Marks &marks, std::wstring_view dest) {
             }
         }
     }
-    *((wchar_t*)dest.data() + dest_pos) = 0;  // ensure NULL termination
     return dest.substr(0, dest_pos);
 }
 
@@ -985,7 +984,6 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
             text = parse_cued_text(src, marks, dest);
         } else {
             size_t n = decode_into(src, dest);
-            buf[n] = 0;  // ensure null termination
             text = std::wstring_view(buf.data(), n);
         }
     } else {
@@ -994,8 +992,8 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
         buf.reserve(address.size() + 1);
         text = std::wstring_view(buf.data(), address.size());
         address.copy(buf.data(), address.size());
-        buf[address.size()] = 0;  // null terminate
     }
+    *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
     sx.speak(cmd_id, text, is_ssml, is_cued, std::move(buf), std::move(marks));
 }
 

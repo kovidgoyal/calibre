@@ -8,7 +8,7 @@
 #define PY_SSIZE_T_CLEAN
 #define UNICODE
 #define _UNICODE
-#include <Windows.h>
+#include <windows.h>
 #include <Python.h>
 #include <comdef.h>
 #include "../cpp_binding.h"
