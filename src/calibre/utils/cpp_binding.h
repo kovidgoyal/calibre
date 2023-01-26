@@ -32,8 +32,9 @@ class generic_raii {
 
 		void release() noexcept {
 			if (handle != null) {
-				free_T(handle);
+                T temp = handle;
 				handle = null;
+				free_T(temp);
 			}
 		}
 
