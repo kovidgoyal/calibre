@@ -301,7 +301,7 @@ class Build(Command):
 
     def dump_db(self, name, db):
         try:
-            with open(f'{name}_commands.json', 'w') as f:
+            with open(f'build/{name}_commands.json', 'w') as f:
                 json.dump(db, f, indent=2)
         except OSError as err:
             if err.errno != errno.EROFS:
