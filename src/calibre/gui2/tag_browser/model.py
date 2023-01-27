@@ -1717,15 +1717,18 @@ class TagsModel(QAbstractItemModel):  # {{{
                         letters_seen = {}
                         for subnode in tag_item.children:
                             if subnode.tag.sort:
-                                letters_seen[subnode.tag.sort[0]] = True
+                                c = subnode.tag.sort[0]
+                                if c in r'\.^$[]|()':
+                                    c = f'\\{c}'
+                                letters_seen[c] = True
                         if letters_seen:
                             charclass = ''.join(letters_seen)
                             if k == 'author_sort':
-                                expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                                expr = r'%s:"""~(^[%s])|(&\s*[%s])"""'%(k, charclass, charclass)
                             elif k == 'series':
-                                expr = r'series_sort:"~^[%s]"'%(charclass)
+                                expr = r'series_sort:"""~^[%s]"""'%(charclass)
                             else:
-                                expr = r'%s:"~^[%s]"'%(k, charclass)
+                                expr = r'%s:"""~^[%s]"""'%(k, charclass)
                         else:
                             expr = r'%s:false'%(k)
                         if node_searches[tag_item.tag.state] == 'true':
