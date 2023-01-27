@@ -655,12 +655,13 @@ bzz_decompress(PyObject *self, PyObject *args) {
 
         if (state.xsize > 0) {
             while (buflen - (pos - buf) <= state.xsize) {
+                size_t xpos = pos - buf;
                 tmp = (char*) realloc(buf, buflen + (buflen * sizeof(char)));
                 if (tmp == NULL) {
                     PyErr_NoMemory(); goto end;
                 }
                 buflen += buflen * sizeof(char);
-                pos = tmp + (pos - buf);
+                pos = tmp + xpos;
                 buf = tmp; tmp = NULL;
             }
             memcpy(pos, state.buf, state.xsize);
