@@ -222,6 +222,7 @@ static PyMethodDef Handle_methods[] = {
 class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
  public:
   DeleteFileProgressSink() : m_cRef(0) {}
+  virtual ~DeleteFileProgressSink() = default;
 
  private:
   ULONG STDMETHODCALLTYPE AddRef(void) { InterlockedIncrement(&m_cRef); return m_cRef; }
