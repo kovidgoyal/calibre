@@ -529,6 +529,8 @@ class Build(Command):
                     '-DCALIBRE_MODINIT_FUNC='
                     '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
             if ext.needs_cxx and ext.needs_cxx_std:
+                if env.cc_output_flag.startswith('/') and ext.needs_cxx == "11":
+                    ext.needs_cxx = "14"
                 cflags.append(env.std_prefix + 'c++' + ext.needs_cxx_std)
 
             if ext.needs_c_std and not env.std_prefix.startswith('/'):
