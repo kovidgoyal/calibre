@@ -68,8 +68,8 @@ class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wc
         }
 #if __cplusplus >= 201703L
         std::wstring_view as_view() const { return std::wstring_view(handle, sz); }
-#endif
         std::wstring as_copy() const { return std::wstring(handle, sz); }
+#endif
 };
 #if (defined(__GNUC__) && !defined(__clang__))
 #pragma GCC diagnostic pop
