@@ -17,7 +17,7 @@
 
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
-template<typename T, void free_T(T), T null=static_cast<T>(NULL)>
+template<typename T=void*, void free_T(T)=free, T null=static_cast<T>(NULL)>
 class generic_raii {
 	private:
 		generic_raii( const generic_raii & ) noexcept;
@@ -43,23 +43,37 @@ class generic_raii {
 		void attach(T val) noexcept { release(); handle = val; }
 		T* unsafe_address() noexcept { return &handle; }
 		explicit operator bool() const noexcept { return handle != null; }
+
 };
 
-class wchar_raii : public generic_raii<wchar_t*, [](wchar_t* x){PyMem_Free(x);}> {
-#if __cplusplus >= 201703L
+static inline void wchar_raii_free(wchar_t *x) { PyMem_Free(x); }
+
+#if (defined(__GNUC__) && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsubobject-linkage"
+#endif
+class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wchar_t*>(NULL)> {
     private:
         Py_ssize_t sz;
     public:
+        wchar_raii(PyObject *obj) {
+            from_unicode(obj);
+        }
+        wchar_raii(wchar_t *obj, size_t sz) : generic_raii(obj), sz(sz) { }
         int from_unicode(PyObject *obj) {
             wchar_t *buf = PyUnicode_AsWideCharString(obj, &sz);
             if (!buf) return 0;
             attach(buf);
             return 1;
         }
+#if __cplusplus >= 201703L
         std::wstring_view as_view() const { return std::wstring_view(handle, sz); }
-        std::wstring as_copy() const { return std::wstring(handle, sz); }
 #endif
+        std::wstring as_copy() const { return std::wstring(handle, sz); }
 };
+#if (defined(__GNUC__) && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 
 typedef generic_raii<PyObject*, Py_DecRef> pyobject_raii;
 
@@ -91,26 +105,8 @@ class generic_raii_array {
 		const T operator[](size_t i) const noexcept { return array[i]; }
 };
 
-
 static inline int
-py_to_wchar(PyObject *obj, wchar_raii *output) {
-	if (!PyUnicode_Check(obj)) {
-		if (obj == Py_None) { output->release(); return 1; }
-		PyErr_SetString(PyExc_TypeError, "unicode object expected");
-		return 0;
-	}
-    wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
-    if (!buf) { PyErr_NoMemory(); return 0; }
-	output->attach(buf);
-	return 1;
-}
-
-static inline int
-py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
-	if (!PyUnicode_Check(obj)) {
-		PyErr_SetString(PyExc_TypeError, "unicode object expected");
-		return 0;
-	}
+py_to_wchar_(PyObject *obj, wchar_raii *output) {
 #if __cplusplus >= 201703L
     return output->from_unicode(obj);
 #else
@@ -119,4 +115,23 @@ py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
     output->attach(buf);
     return 1;
 #endif
+}
+
+static inline int
+py_to_wchar(PyObject *obj, wchar_raii *output) {
+	if (!PyUnicode_Check(obj)) {
+		if (obj == Py_None) { output->release(); return 1; }
+		PyErr_SetString(PyExc_TypeError, "unicode object expected");
+		return 0;
+	}
+    return py_to_wchar_(obj, output);
+}
+
+static inline int
+py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
+	if (!PyUnicode_Check(obj)) {
+		PyErr_SetString(PyExc_TypeError, "unicode object expected");
+		return 0;
+	}
+    return py_to_wchar_(obj, output);
 }

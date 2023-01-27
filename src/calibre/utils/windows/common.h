@@ -58,8 +58,11 @@ class scoped_com_initializer {  // {{{
 
 #define INITIALIZE_COM_IN_FUNCTION scoped_com_initializer com; if (!com) return com.set_python_error();
 
-typedef generic_raii<wchar_t*, [](wchar_t *x) { CoTaskMemFree(x); }> com_wchar_raii;
-typedef generic_raii<void*, [](void* x) { UnmapViewOfFile(x);}> mapping_raii;
+static inline void com_wchar_raii_free(wchar_t *x) { CoTaskMemFree(x); }
+typedef generic_raii<wchar_t*, com_wchar_raii_free> com_wchar_raii;
+
+static inline void mapping_raii_free(void *x) { UnmapViewOfFile(x); }
+typedef generic_raii<void*, mapping_raii_free> mapping_raii;
 
 class handle_raii {
 	private:
