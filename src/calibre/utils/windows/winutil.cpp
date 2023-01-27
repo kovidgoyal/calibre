@@ -311,7 +311,7 @@ known_folder_path(PyObject *self, PyObject *args) {
 	DWORD flags = KF_FLAG_DEFAULT;
 	if (!PyArg_ParseTuple(args, "O!|k", &PyGUIDType, &id, &flags)) return NULL;
 	com_wchar_raii path;
-	HRESULT hr = SHGetKnownFolderPath(id->guid, flags, NULL, path.unsafe_address());
+	SHGetKnownFolderPath(id->guid, flags, NULL, path.unsafe_address());
 	return PyUnicode_FromWideChar(path.ptr(), -1);
 }
 
@@ -473,7 +473,7 @@ static PyObject*
 winutil_get_file_size(PyObject *self, PyObject *args) {
 	HANDLE handle;
     if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
-    LARGE_INTEGER ans = {0};
+    LARGE_INTEGER ans = {{0}};
     if (!GetFileSizeEx(handle, &ans)) return set_error_from_handle(args);
     return PyLong_FromLongLong(ans.QuadPart);
 }
@@ -482,9 +482,9 @@ static PyObject*
 winutil_set_file_pointer(PyObject *self, PyObject *args) {
     unsigned long move_method = FILE_BEGIN;
 	HANDLE handle;
-    LARGE_INTEGER pos = {0};
+    LARGE_INTEGER pos = {{0}};
     if (!PyArg_ParseTuple(args, "O&L|k", convert_handle, &handle, &pos.QuadPart, &move_method)) return NULL;
-    LARGE_INTEGER ans = {0};
+    LARGE_INTEGER ans = {{0}};
     if (!SetFilePointerEx(handle, pos, &ans, move_method)) return set_error_from_handle(args);
     return PyLong_FromLongLong(ans.QuadPart);
 }
@@ -1019,7 +1019,6 @@ EnumResProc(HMODULE handle, LPWSTR type, LPWSTR name, ResourceData *data) {
 static const wchar_t*
 get_resource_id_for_index(HMODULE handle, const int index, LPCWSTR type = RT_GROUP_ICON) {
 	ResourceData data = {index, NULL};
-	int count = index;
 	EnumResourceNamesW(handle, type, reinterpret_cast<ENUMRESNAMEPROC>(EnumResProc), reinterpret_cast<LONG_PTR>(&data));
 	return data.resource_id;
 }
