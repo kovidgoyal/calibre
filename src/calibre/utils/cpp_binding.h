@@ -79,7 +79,7 @@ class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wc
 
 typedef generic_raii<PyObject*, Py_DecRef> pyobject_raii;
 
-template<typename T, void free_T(void*), size_t sz, T null=static_cast<T>(NULL)>
+template<typename T, void free_T(T), size_t sz, T null=static_cast<T>(NULL)>
 class generic_raii_array {
 	private:
 		generic_raii_array( const generic_raii_array & ) noexcept;
