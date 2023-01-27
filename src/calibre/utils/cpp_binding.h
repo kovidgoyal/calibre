@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <exception>
 #define PY_SSIZE_T_CLEAN
 #define UNICODE
 #define _UNICODE
@@ -56,8 +57,9 @@ class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wc
     private:
         Py_ssize_t sz;
     public:
-        wchar_raii(PyObject *obj) {
-            from_unicode(obj);
+        wchar_raii(wchar_t *x=NULL) : generic_raii(x), sz(0) {}
+        wchar_raii(PyObject *obj) : generic_raii(), sz(0) {
+            if (!from_unicode(obj)) PyErr_Clear();
         }
         wchar_raii(wchar_t *obj, size_t sz) : generic_raii(obj), sz(sz) { }
         int from_unicode(PyObject *obj) {
