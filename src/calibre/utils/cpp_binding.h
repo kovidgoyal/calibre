@@ -17,7 +17,7 @@
 
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
-template<typename T, void free_T(void*), T null=static_cast<T>(NULL)>
+template<typename T, void free_T(T), T null=static_cast<T>(NULL)>
 class generic_raii {
 	private:
 		generic_raii( const generic_raii & ) noexcept;
@@ -45,8 +45,8 @@ class generic_raii {
 		explicit operator bool() const noexcept { return handle != null; }
 };
 
+class wchar_raii : public generic_raii<wchar_t*, [](wchar_t* x){PyMem_Free(x);}> {
 #if __cplusplus >= 201703L
-class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
     private:
         Py_ssize_t sz;
     public:
@@ -58,13 +58,10 @@ class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
         }
         std::wstring_view as_view() const { return std::wstring_view(handle, sz); }
         std::wstring as_copy() const { return std::wstring(handle, sz); }
-};
-#else
-typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;
 #endif
+};
 
-static inline void python_object_destructor(void *p) { PyObject *x = reinterpret_cast<PyObject*>(p); Py_XDECREF(x); }
-typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
+typedef generic_raii<PyObject*, Py_DecRef> pyobject_raii;
 
 template<typename T, void free_T(void*), size_t sz, T null=static_cast<T>(NULL)>
 class generic_raii_array {
