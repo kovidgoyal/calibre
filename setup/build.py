@@ -504,14 +504,17 @@ class Build(Command):
     def get_compile_commands(self, ext, db):
         obj_dir = self.j(self.obj_dir, ext.name)
 
-        def get(src: str, env: Environment) -> CompileCommand:
+        def get(src: str, env: Environment, for_tooling: bool = False) -> CompileCommand:
             compiler = env.cxx if ext.needs_cxx else env.cc
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+env.obj_suffix)
             inf = env.cc_input_cpp_flag if src.endswith('.cpp') or src.endswith('.cxx') else env.cc_input_c_flag
             sinc = [inf, src]
             if env.cc_output_flag.startswith('/'):
-                oinc = [env.cc_output_flag + obj]
-                sinc = [inf + src]
+                if for_tooling:  # clangd gets confused by cl.exe style source and output flags
+                    oinc = ['-o', obj]
+                else:
+                    oinc = [env.cc_output_flag + obj]
+                    sinc = [inf + src]
             else:
                 oinc = [env.cc_output_flag, obj]
             einc = env.inc_dirs_to_cflags(ext.inc_dirs)
@@ -545,8 +548,9 @@ class Build(Command):
                 ans.append(cc)
             env = self.env_for_compilation_db(ext)
             if env is not None:
+                cc = get(src, env, for_tooling=True)
                 db.append({
-                    'arguments': get(src, env).cmd, 'directory': os.getcwd(), 'file': os.path.relpath(src, os.getcwd()),
+                    'arguments': cc.cmd, 'directory': os.getcwd(), 'file': os.path.relpath(src, os.getcwd()),
                     'output': os.path.relpath(cc.dest, os.getcwd())})
         return ans, objects
 
@@ -573,7 +577,7 @@ class Build(Command):
         env = self.env_for_compilation_db(ext)
         if env is not None:
             ld = get(env)
-            lddb.append({'arguments': ld.cmd, 'directory': os.getcwd(), 'output': os.path.relpath(self.dest(ext, env), os.getcwd())})
+            lddb.append({'arguments': ld.cmd, 'directory': os.getcwd(), 'output': os.path.relpath(ld.dest, os.getcwd())})
 
         env = self.windows_cross_env if self.compiling_for == 'windows' else self.env
         lc = get(env)
