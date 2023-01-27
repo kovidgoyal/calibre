@@ -120,7 +120,7 @@ wpd_uninit(PyObject *self, PyObject *args) {
 // enumerate_devices() {{{
 static PyObject *
 wpd_enumerate_devices(PyObject *self, PyObject *args) {
-    PyObject *refresh = NULL, *ans = NULL, *temp;
+    PyObject *ans = NULL, *temp;
     HRESULT hr;
     DWORD num_of_devices, i;
     PWSTR *pnp_device_ids;
