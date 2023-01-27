@@ -239,7 +239,9 @@ class ExtDev(Command):
         which, ext = opts.cli_args[:2]
         cmd = opts.cli_args[2:] or ['calibre-debug', '--test-build']
         if which == 'windows':
-            subprocess.check_call([sys.executable, 'setup.py', 'build', '--cross-compile-extensions=windows', '--only=winspeech'])
+            cp = subprocess.run([sys.executable, 'setup.py', 'build', '--cross-compile-extensions=windows', '--only=winspeech'])
+            if cp.returncode != 0:
+                raise SystemExit(cp.returncode)
             src = 'src/calibre/plugins/winspeech.cross-windows-x64.pyd'
             host = 'win'
             path = '/cygdrive/c/Program Files/Calibre2/app/bin/{}.pyd'

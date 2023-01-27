@@ -309,6 +309,8 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
             cc = cxx = 'clang-cl'
             linker = 'lld-link'
             splat = '.build-cache/xwin/splat'
+            cflags.append('-fcolor-diagnostics')
+            cflags.append('-fansi-escape-codes')
             for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include'.split():
                 cflags.append('/external:I')
                 cflags.append(f'{splat}/{I}')
