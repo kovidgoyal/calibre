@@ -12,10 +12,14 @@
 #define _UNICODE
 #include <Python.h>
 #include <wchar.h>
+#include <string>
 #if __cplusplus >= 201703L
 #include <string_view>
 #endif
 
+#if __cplusplus >= 201402L
+using namespace std::string_literals;
+#endif
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
 template<typename T>

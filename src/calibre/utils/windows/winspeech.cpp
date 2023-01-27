@@ -14,6 +14,7 @@
 #include <deque>
 #include <charconv>
 #include <memory>
+#include <fstream>
 #include <sstream>
 #include <mutex>
 #include <filesystem>
@@ -750,6 +751,7 @@ class Synthesizer {
     Marks current_marks;
     int32_t last_reported_mark_index;
     std::atomic<id_type> current_cmd_id;
+    std::ofstream outfile;
 
     Revokers revoker;
     std::recursive_mutex recursive_lock;
@@ -757,15 +759,20 @@ class Synthesizer {
     public:
     // Speak {{{
     void register_metadata_handler_for_track(uint32_t index, id_type cmd_id);
-    void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued);
+    void load_stream_for_playback(SpeechSynthesisStream const &&stream, id_type cmd_id, bool is_cued);
     winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml, bool is_cued, std::vector<wchar_t> &&buf, Marks const && marks);
     void register_metadata_handler_for_speech(id_type cmd_id, long index);
     bool cmd_id_is_current(id_type cmd_id) const noexcept { return current_cmd_id.load() == cmd_id; }
     void on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue);
     // }}}
 
+    winrt::fire_and_forget save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::ofstream &&outfile);
+    void load_stream_for_save(SpeechSynthesisStream const &&stream, id_type cmd_id);
+
     void initialize() {
         synth = SpeechSynthesizer();
+        synth.Options().IncludeSentenceBoundaryMetadata(true);
+        synth.Options().IncludeWordBoundaryMetadata(true);
         player = MediaPlayer();
         player.AudioCategory(MediaPlayerAudioCategory::Speech);
         player.AutoPlay(true);
@@ -788,6 +795,7 @@ class Synthesizer {
             current_text_storage = std::vector<wchar_t>();
             current_marks = Marks();
             last_reported_mark_index = -1;
+            if (outfile.is_open()) outfile.close();
         }
     }
 
@@ -854,7 +862,7 @@ Synthesizer::register_metadata_handler_for_track(uint32_t index, id_type cmd_id)
 }
 
 void
-Synthesizer::load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued) {
+Synthesizer::load_stream_for_playback(SpeechSynthesisStream const &&stream, id_type cmd_id, bool is_cued) {
     std::scoped_lock sl(recursive_lock);
     if (cmd_id != current_cmd_id.load()) return;
     current_stream = stream;
@@ -902,8 +910,6 @@ winrt::fire_and_forget Synthesizer::speak(id_type cmd_id, std::wstring_view cons
         current_cmd_id.store(cmd_id);
         current_text_storage = std::move(buf);
         current_marks = std::move(marks);
-        synth.Options().IncludeSentenceBoundaryMetadata(true);
-        synth.Options().IncludeWordBoundaryMetadata(true);
     }
     output(cmd_id, "synthesizing", {{"ssml", is_ssml}, {"num_marks", current_marks.size()}, {"text_length", text.size()}});
     bool ok = false;
@@ -915,7 +921,7 @@ winrt::fire_and_forget Synthesizer::speak(id_type cmd_id, std::wstring_view cons
     if (ok) {
         if (main_loop_is_running.load()) {
             try {
-                load_stream_for_playback(stream, cmd_id, is_cued);
+                load_stream_for_playback(std::move(stream), cmd_id, is_cued);
             } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for playback", cmd_id);
         }
     }
@@ -964,6 +970,26 @@ parse_cued_text(std::string_view src, Marks &marks, std::wstring_view dest) {
     return dest.substr(0, dest_pos);
 }
 
+static std::wstring_view
+read_from_shm(id_type cmd_id, const std::wstring_view size, const std::wstring_view address, std::vector<wchar_t> &buf, Marks &marks, bool is_cued=false) {
+    id_type shm_size = parse_id(size);
+    handle_raii handle(OpenFileMappingW(FILE_MAP_READ, false, address.data()));
+    if (handle.ptr() == INVALID_HANDLE_VALUE) {
+        output_error(cmd_id, "Could not open shared memory at", winrt::to_string(address), __LINE__);
+        return {};
+    }
+    mapping_raii mapping(MapViewOfFile(handle.ptr(), FILE_MAP_READ, 0, 0, (SIZE_T)shm_size));
+    if (!mapping) {
+        output_error(cmd_id, "Could not map shared memory with error", std::to_string(GetLastError()), __LINE__);
+        return {};
+    }
+    buf.reserve(shm_size + 2);
+    std::string_view src((const char*)mapping.ptr(), shm_size);
+    std::wstring_view dest(buf.data(), buf.capacity());
+    if (is_cued) return parse_cued_text(src, marks, dest);
+    return std::wstring_view(buf.data(), decode_into(src, dest));
+}
+
 static void
 handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     bool is_ssml = false, is_shm = false, is_cued = false;
@@ -976,32 +1002,12 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     }
     parts.erase(parts.begin(), parts.begin() + 2);
     std::wstring address;
-    id_type shm_size = 0;
     Marks marks;
     std::vector<wchar_t> buf;
     std::wstring_view text;
     if (is_shm) {
-        shm_size = parse_id(parts.at(0));
-        address = parts.at(1);
-        handle_raii handle(OpenFileMappingW(FILE_MAP_READ, false, address.data()));
-        if (handle.ptr() == INVALID_HANDLE_VALUE) {
-            output_error(cmd_id, "Could not open shared memory at", winrt::to_string(address), __LINE__);
-            return;
-        }
-        mapping_raii mapping(MapViewOfFile(handle.ptr(), FILE_MAP_READ, 0, 0, (SIZE_T)shm_size));
-        if (mapping.ptr() == NULL) {
-            output_error(cmd_id, "Could not map shared memory with error", std::to_string(GetLastError()), __LINE__);
-            return;
-        }
-        buf.reserve(shm_size + 2);
-        std::string_view src((const char*)mapping.ptr(), shm_size);
-        std::wstring_view dest(buf.data(), buf.capacity());
-        if (is_cued) {
-            text = parse_cued_text(src, marks, dest);
-        } else {
-            size_t n = decode_into(src, dest);
-            text = std::wstring_view(buf.data(), n);
-        }
+        text = read_from_shm(cmd_id, parts.at(0), parts.at(1), buf, marks, is_cued);
+        if (text.size() == 0) return;
     } else {
         address = join(parts);
         if (address.size() == 0) throw std::string("Address missing");
@@ -1011,6 +1017,58 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     }
     *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
     sx.speak(cmd_id, text, is_ssml, is_cued, std::move(buf), std::move(marks));
+}
+// }}}
+
+// Save {{{
+void
+Synthesizer::load_stream_for_save(SpeechSynthesisStream const &&stream, id_type cmd_id) {
+    std::scoped_lock sl(recursive_lock);
+    if (cmd_id != current_cmd_id.load()) return;
+    current_stream = stream;
+}
+
+winrt::fire_and_forget Synthesizer::save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::ofstream &&out) {
+    SpeechSynthesisStream stream{nullptr};
+    { std::scoped_lock sl(recursive_lock);
+        stop_current_activity();
+        current_cmd_id.store(cmd_id);
+        current_text_storage = std::move(buf);
+        outfile = std::move(out);
+    }
+    output(cmd_id, "saving", {{"ssml", is_ssml}});
+    bool ok = false;
+    try {
+        if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
+        else stream = co_await synth.SynthesizeTextToStreamAsync(text);
+        ok = true;
+    } CATCH_ALL_EXCEPTIONS("Failed to synthesize speech", cmd_id);
+    if (ok) {
+        if (main_loop_is_running.load()) {
+            try {
+                load_stream_for_save(std::move(stream), cmd_id);
+            } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for save", cmd_id);
+        }
+    }
+}
+
+static void
+handle_save(id_type cmd_id, std::vector<std::wstring_view> &parts) {
+    bool is_ssml;
+    try {
+        is_ssml = parts.at(0) == L"ssml";
+    } catch (std::exception const&) {
+        throw std::string("Not a well formed save command");
+    }
+    std::vector<wchar_t> buf;
+    std::wstring_view text;
+    std::wstring address;
+    Marks marks;
+    text = read_from_shm(cmd_id, parts.at(2), parts.at(3), buf, marks);
+    if (text.size() == 0) return;
+    *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
+    std::ofstream outfile(parts.at(1), std::ios::out | std::ios::trunc);
+    sx.save(cmd_id, text, is_ssml, std::move(buf), std::move(outfile));
 }
 // }}}
 
@@ -1058,6 +1116,9 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 sx.volume(vol);
             }
             output(cmd_id, "volume", {{"value", sx.volume()}});
+        }
+        else if (command == L"save") {
+            handle_save(cmd_id, parts);
         }
         else throw std::string("Unknown command: ") + winrt::to_string(command);
     } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
