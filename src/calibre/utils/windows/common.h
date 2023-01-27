@@ -64,33 +64,9 @@ typedef generic_raii<wchar_t*, co_task_mem_free> com_wchar_raii;
 
 static inline void mapping_raii_free(void *x) { UnmapViewOfFile(x); }
 typedef generic_raii<void*, mapping_raii_free> mapping_raii;
-
-class handle_raii {
-	private:
-		handle_raii( const handle_raii & ) noexcept;
-		handle_raii & operator=( const handle_raii & ) noexcept ;
-
-	protected:
-		HANDLE handle;
-
-	public:
-		explicit handle_raii(HANDLE h = INVALID_HANDLE_VALUE) noexcept : handle(h) {}
-		~handle_raii() noexcept { release(); }
-
-		void release() noexcept {
-			if (handle != INVALID_HANDLE_VALUE) {
-                HANDLE temp = handle;
-				handle = INVALID_HANDLE_VALUE;
-				CloseHandle(temp);
-			}
-		}
-
-		HANDLE ptr() noexcept { return handle; }
-		HANDLE detach() noexcept { HANDLE ans = handle; handle = INVALID_HANDLE_VALUE; return ans; }
-		void attach(HANDLE val) noexcept { release(); handle = val; }
-		explicit operator bool() const noexcept { return handle != INVALID_HANDLE_VALUE; }
-};
-
+static inline HANDLE invalid_handle_value_getter(void) { return INVALID_HANDLE_VALUE; }
+static inline void close_handle(HANDLE x) { CloseHandle(x); }
+typedef generic_raii<HANDLE, close_handle, invalid_handle_value_getter> handle_raii;
 
 struct prop_variant : PROPVARIANT {
 	prop_variant(VARTYPE vt=VT_EMPTY) noexcept : PROPVARIANT{} { PropVariantInit(this); this->vt = vt;  }

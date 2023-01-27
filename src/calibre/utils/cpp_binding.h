@@ -18,7 +18,10 @@
 
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
-template<typename T=void*, void free_T(T)=free, T null=static_cast<T>(NULL)>
+template<typename T>
+static inline T generic_null_getter(void) { return T{}; }
+
+template<typename T=void*, void free_T(T)=free, T null_getter(void)=generic_null_getter>
 class generic_raii {
 	private:
 		generic_raii( const generic_raii & ) noexcept;
@@ -28,23 +31,23 @@ class generic_raii {
 		T handle;
 
 	public:
-		explicit generic_raii(T h = null) noexcept : handle(h) {}
+		generic_raii() noexcept { handle = null_getter(); }
+		explicit generic_raii(T h) noexcept : handle(h) {}
 		~generic_raii() noexcept { release(); }
 
 		void release() noexcept {
-			if (handle != null) {
+			if (handle != null_getter()) {
                 T temp = handle;
-				handle = null;
+				handle = null_getter();
 				free_T(temp);
 			}
 		}
 
 		T ptr() noexcept { return handle; }
-		T detach() noexcept { T ans = handle; handle = null; return ans; }
+		T detach() noexcept { T ans = handle; handle = null_getter(); return ans; }
 		void attach(T val) noexcept { release(); handle = val; }
 		T* unsafe_address() noexcept { return &handle; }
-		explicit operator bool() const noexcept { return handle != null; }
-
+		explicit operator bool() const noexcept { return handle != null_getter(); }
 };
 
 template<typename T>
