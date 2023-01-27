@@ -54,6 +54,9 @@ static inline void wchar_raii_free(wchar_t *x) { PyMem_Free(x); }
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
 #endif
 class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wchar_t*>(NULL)> {
+#if (defined(__GNUC__) && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     private:
         Py_ssize_t sz;
     public:
@@ -73,9 +76,6 @@ class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wc
         std::wstring as_copy() const { return std::wstring(handle, sz); }
 #endif
 };
-#if (defined(__GNUC__) && !defined(__clang__))
-#pragma GCC diagnostic pop
-#endif
 
 typedef generic_raii<PyObject*, Py_DecRef> pyobject_raii;
 
