@@ -47,13 +47,14 @@ class generic_raii {
 
 };
 
-static inline void wchar_raii_free(wchar_t *x) { PyMem_Free(x); }
+template<typename T>
+static inline void pymem_free(T *x) { PyMem_Free(x); }
 
 #if (defined(__GNUC__) && !defined(__clang__))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
 #endif
-class wchar_raii : public generic_raii<wchar_t*, wchar_raii_free, static_cast<wchar_t*>(NULL)> {
+class wchar_raii : public generic_raii<wchar_t*, pymem_free> {
 #if (defined(__GNUC__) && !defined(__clang__))
 #pragma GCC diagnostic pop
 #endif

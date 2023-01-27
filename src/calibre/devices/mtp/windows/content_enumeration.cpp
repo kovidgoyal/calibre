@@ -555,7 +555,7 @@ wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest,
 		return NULL;
     }
 
-	generic_raii<char*, PyMem_Free> buf(reinterpret_cast<char*>(PyMem_Malloc(bufsize)));
+	generic_raii<char*, pymem_free> buf(reinterpret_cast<char*>(PyMem_Malloc(bufsize)));
 	if (!buf) return PyErr_NoMemory();
 
     while (total_read < filesize) {
