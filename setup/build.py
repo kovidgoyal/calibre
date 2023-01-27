@@ -69,32 +69,10 @@ class Extension:
         self.libraries = d['libraries'] = kwargs.get('libraries', [])
         self.cflags = d['cflags'] = kwargs.get('cflags', [])
         self.uses_icu = 'icuuc' in self.libraries
-        if self.needs_cxx and kwargs.get('needs_c++'):
-            std_prefix = '/std:' if iswindows else '-std='
-            self.cflags.insert(0, std_prefix + 'c++' + kwargs['needs_c++'])
-
-        if iswindows:
-            self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
-        else:
-            return_type = 'PyObject*'
-            extern_decl = 'extern "C"' if self.needs_cxx else ''
-
-            self.cflags.append(
-                '-DCALIBRE_MODINIT_FUNC='
-                '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type))
-
-            if kwargs.get('needs_c'):
-                self.cflags.insert(0, '-std=c' + kwargs['needs_c'])
-
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
-        of = kwargs.get('optimize_level', None)
-        if of is None:
-            of = '/Ox' if iswindows else '-O3'
-        else:
-            flag = '/O%d' if iswindows else '-O%d'
-            of = flag % of
-        self.cflags.insert(0, of)
+        self.needs_cxx_std = kwargs.get('needs_c++')
+        self.needs_c_std = kwargs.get('needs_c')
         self.only_build_for = kwargs.get('only', '')
 
 
@@ -245,6 +223,7 @@ class Environment(NamedTuple):
     cc_output_flag: str
     platform_name: str
     dest_ext: str
+    std_prefix: str
 
     def inc_dirs_to_cflags(self, dirs) -> List[str]:
         return [self.external_inc_prefix+x for x in dirs]
@@ -264,6 +243,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
     libdir_prefix = '-L'
     lib_prefix = '-l'
     lib_suffix = ''
+    std_prefix = '-std='
     obj_suffix = '.o'
     cc_input_c_flag = cc_input_cpp_flag = '-c'
     cc_output_flag = '-o'
@@ -321,17 +301,18 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
 
     if iswindows or compiling_for == 'windows':
         platform_name = 'windows'
+        std_prefix = '/std:'
         cc = cxx = win_cc
         linker = win_ld
         cflags, ldflags = basic_windows_flags(debug)
         if compiling_for == 'windows':
-            cc = 'clang-cl'
+            cc = cxx = 'clang-cl'
             linker = 'lld-link'
             splat = '.build-cache/xwin/splat'
-            for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include':
+            for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include'.split():
                 cflags.append('/external:I')
                 cflags.append(f'{splat}/{I}')
-            for L in './sdk/lib/um/x86_64 crt/lib/x86_64':
+            for L in 'sdk/lib/um/x86_64 crt/lib/x86_64 sdk/lib/ucrt/x86_64'.split():
                 ldflags.append(f'/libpath:{splat}/{L}')
         else:
             for p in win_inc:
@@ -359,7 +340,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
             cflags.extend('-I' + x for x in get_python_include_paths())
             ldflags.append('/LIBPATH:'+os.path.join(sysconfig.get_config_var('prefix'), 'libs'))
     return Environment(
-        platform_name=platform_name, dest_ext=dest_ext,
+        platform_name=platform_name, dest_ext=dest_ext, std_prefix=std_prefix,
         cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make', lib_prefix=lib_prefix,
         obj_suffix=obj_suffix, cc_input_c_flag=cc_input_c_flag, cc_input_cpp_flag=cc_input_cpp_flag, cc_output_flag=cc_output_flag,
         internal_inc_prefix=internal_inc_prefix, external_inc_prefix=external_inc_prefix, libdir_prefix=libdir_prefix, lib_suffix=lib_suffix)
@@ -410,9 +391,18 @@ class Build(Command):
 
     def dump_db(self, name, db):
         os.makedirs('build', exist_ok=True)
+        existing = []
+        try:
+            with open(f'build/{name}_commands.json', 'rb') as f:
+                existing = json.load(f)
+        except FileNotFoundError:
+            pass
+        combined = {x['output']: x for x in existing}
+        for x in db:
+            combined[x['output']] = x
         try:
             with open(f'build/{name}_commands.json', 'w') as f:
-                json.dump(db, f, indent=2)
+                json.dump(tuple(combined.values()), f, indent=2)
         except OSError as err:
             if err.errno != errno.EROFS:
                 raise
@@ -525,7 +515,23 @@ class Build(Command):
             else:
                 oinc = [env.cc_output_flag, obj]
             einc = env.inc_dirs_to_cflags(ext.inc_dirs)
-            cmd = [compiler] + env.cflags + ext.cflags + einc + sinc + oinc
+            if env.cc_output_flag.startswith('/'):
+                cflags = ['/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC']
+            else:
+                return_type = 'PyObject*'
+                extern_decl = 'extern "C"' if ext.needs_cxx else ''
+                cflags = [
+                    '-DCALIBRE_MODINIT_FUNC='
+                    '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
+            if ext.needs_cxx and ext.needs_cxx_std:
+                cflags.append(env.std_prefix + 'c++' + ext.needs_cxx_std)
+
+            if ext.needs_c_std and not env.std_prefix.startswith('/'):
+                cflags.append(env.std_prefix + 'c' + ext.needs_c_std)
+            if env is self.windows_cross_env:
+                cflags.append('-Wno-deprecated-experimental-coroutine')
+
+            cmd = [compiler] + env.cflags + cflags + ext.cflags + einc + sinc + oinc
             return CompileCommand(cmd, src, obj)
 
         objects = []
@@ -538,11 +544,10 @@ class Build(Command):
             if self.newer(cc.dest, [src]+ext.headers):
                 ans.append(cc)
             env = self.env_for_compilation_db(ext)
-            if env is None:
-                continue
-            db.append({
-                'arguments': get(src, env).cmd, 'directory': os.getcwd(), 'file': os.path.relpath(src, os.getcwd()),
-                'output': os.path.relpath(cc.dest, os.getcwd())})
+            if env is not None:
+                db.append({
+                    'arguments': get(src, env).cmd, 'directory': os.getcwd(), 'file': os.path.relpath(src, os.getcwd()),
+                    'output': os.path.relpath(cc.dest, os.getcwd())})
         return ans, objects
 
     def get_link_command(self, ext, objects, lddb):
@@ -550,7 +555,7 @@ class Build(Command):
         def get(env: Environment) -> LinkCommand:
             dest = self.dest(ext, env)
             compiler = env.cxx if ext.needs_cxx else env.cc
-            linker = self.env.linker or compiler
+            linker = env.linker or compiler
             cmd = [linker]
             elib = env.lib_dirs_to_ldflags(ext.lib_dirs)
             xlib = env.libraries_to_ldflags(ext.libraries)
@@ -559,10 +564,10 @@ class Build(Command):
                 if ext.uses_icu:
                     # windows has its own ICU libs that dont work
                     pre_ld_flags = elib
-                cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
+                cmd += pre_ld_flags + env.ldflags + ext.ldflags + elib + xlib + \
                     ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
-                cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
+                cmd += objects + ext.extra_objs + ['-o', dest] + env.ldflags + ext.ldflags + elib + xlib
             return LinkCommand(cmd, objects, dest)
 
         env = self.env_for_compilation_db(ext)

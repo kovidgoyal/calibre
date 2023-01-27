@@ -191,7 +191,7 @@
         "sources": "calibre/utils/windows/winspeech.cpp",
         "libraries": "WindowsApp",
 		"needs_c++": "20",
-        "cflags": "/X /Zc:__cplusplus /bigobj /await /permissive- /WX /Zc:twoPhase-"
+        "cflags": "/X /Zc:__cplusplus /bigobj /permissive- /WX /Zc:twoPhase-"
     },
     {
         "name": "wpd",
