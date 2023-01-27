@@ -97,9 +97,9 @@
     {
         "name": "freetype",
         "sources": "calibre/utils/fonts/freetype.cpp",
-        "libraries": "!ft_libs",
-        "inc_dirs": "!ft_inc_dirs",
-        "lib_dirs": "!ft_lib_dirs"
+        "libraries": "!freetype_libs",
+        "inc_dirs": "!freetype_inc_dirs",
+        "lib_dirs": "!freetype_lib_dirs"
     },
     {
         "name": "msdes",
@@ -121,8 +121,8 @@
         "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/fonts.cpp calibre/utils/podofo/impose.cpp calibre/utils/podofo/images.cpp calibre/utils/podofo/outlines.cpp calibre/utils/podofo/podofo.cpp",
         "headers": "calibre/utils/podofo/global.h",
         "libraries": "podofo",
-        "lib_dirs": "!podofo_lib",
-        "inc_dirs": "!podofo_inc",
+        "lib_dirs": "!podofo_lib_dirs",
+        "inc_dirs": "!podofo_inc_dirs",
         "error": "!podofo_error",
 		"needs_c++": "11"
     },
@@ -190,7 +190,7 @@
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winspeech.cpp",
         "libraries": "WindowsApp",
-		"needs_c++": "17",
+		"needs_c++": "20",
         "cflags": "/X /Zc:__cplusplus /bigobj /await /permissive- /WX /Zc:twoPhase-"
     },
     {
@@ -222,15 +222,9 @@
     },
     {
         "name": "libusb",
-        "only": "macos linux haiku",
+        "only": "macos linux haiku freebsd",
         "sources": "calibre/devices/libusb/libusb.c",
-        "libraries": "usb-1.0"
-    },
-    {
-        "name": "libusb",
-        "only": "freebsd",
-        "sources": "calibre/devices/libusb/libusb.c",
-        "libraries": "usb"
+        "libraries": "!usb_library"
     },
     {
         "name": "libmtp",
