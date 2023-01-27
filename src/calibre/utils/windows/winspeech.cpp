@@ -6,6 +6,7 @@
  */
 #include "common.h"
 
+#include <algorithm>
 #include <atomic>
 #include <array>
 #include <vector>
@@ -28,6 +29,9 @@
 #include <winrt/windows.media.core.h>
 #include <winrt/windows.media.playback.h>
 
+#ifdef max
+#undef max
+#endif
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Media::SpeechSynthesis;
@@ -744,6 +748,7 @@ class Synthesizer {
     MediaPlaybackItem current_item{nullptr};
     std::vector<wchar_t> current_text_storage;
     Marks current_marks;
+    int32_t last_reported_mark_index;
     std::atomic<id_type> current_cmd_id;
 
     Revokers revoker;
@@ -751,19 +756,6 @@ class Synthesizer {
 
     void register_metadata_handler_for_track(uint32_t index, id_type cmd_id);
     void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued);
-
-    void add_cues() {
-        TimedMetadataTrack track(L"mark", L"en-us", TimedMetadataKind::Speech);
-        track.Label(L"mark");
-        for (const Mark &mark : current_marks) {
-            SpeechCue cue;
-            cue.StartPositionInInput(IReference<int>{(int)mark.pos_in_text});
-            cue.EndPositionInInput(IReference<int>{(int)mark.pos_in_text + 1});
-            cue.Text(winrt::to_hstring(mark.id));
-            track.AddCue(cue);
-        }
-        current_source.ExternalTimedMetadataTracks().Append(track);
-    }
 
     public:
     void register_metadata_handler_for_speech(id_type cmd_id, long index) {
@@ -785,6 +777,26 @@ class Synthesizer {
         if (cmd_id_is_current(cmd_id)) ::output(cmd_id, type, std::move(x));
     }
 
+    void on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue) {
+        std::scoped_lock sl(recursive_lock);
+        if (!cmd_id_is_current(cmd_id)) return;
+        output(cmd_id, "cue_entered", json_val(label, cue));
+        if (label != L"SpeechWord") return;
+        int32_t pos = cue.StartPositionInInput().Value();
+        for (int32_t i = std::max(0, last_reported_mark_index); i < (int32_t)current_marks.size(); i++) {
+            int32_t idx = -1;
+            if (current_marks[i].pos_in_text > pos) {
+                idx = i-1;
+                if (idx == last_reported_mark_index && current_marks[i].pos_in_text - pos < 3) idx = i;
+            } else if (current_marks[i].pos_in_text == pos) idx = i;
+            if (idx > -1) {
+                output(cmd_id, "mark_reached", {{"id", current_marks[idx].id}});
+                last_reported_mark_index = idx;
+                break;
+            }
+        }
+    }
+
     void initialize() {
         synth = SpeechSynthesizer();
         player = MediaPlayer();
@@ -803,6 +815,7 @@ class Synthesizer {
             player.Pause();
             current_text_storage = std::vector<wchar_t>();
             current_marks = Marks();
+            last_reported_mark_index = -1;
         }
     }
 
@@ -848,8 +861,7 @@ Synthesizer::register_metadata_handler_for_track(uint32_t index, id_type cmd_id)
     std::scoped_lock sl(recursive_lock);
     if (current_cmd_id.load() != cmd_id) return;
     revoker.cue_entered.push_back(track.CueEntered(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
-        if (main_loop_is_running.load()) sx.output(
-            cmd_id, "cue_entered", json_val(track.Label(), args.Cue().template as<SpeechCue>()));
+        if (main_loop_is_running.load()) sx.on_cue_entered(cmd_id, track.Label(), args.Cue().template as<SpeechCue>());
     }));
     revoker.cue_exited.push_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
         if (main_loop_is_running.load()) sx.output(
@@ -868,7 +880,6 @@ Synthesizer::load_stream_for_playback(SpeechSynthesisStream const &stream, id_ty
     if (cmd_id != current_cmd_id.load()) return;
     current_stream = stream;
     current_source = MediaSource::CreateFromStream(current_stream, current_stream.ContentType());
-    if (is_cued) add_cues();
 
     revoker.playback_state_changed = player.PlaybackSession().PlaybackStateChanged(
             winrt::auto_revoke, [cmd_id](auto session, auto const&) {
