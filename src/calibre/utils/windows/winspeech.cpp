@@ -754,54 +754,26 @@ class Synthesizer {
     Revokers revoker;
     std::recursive_mutex recursive_lock;
 
+    public:
+    // Speak {{{
     void register_metadata_handler_for_track(uint32_t index, id_type cmd_id);
     void load_stream_for_playback(SpeechSynthesisStream const &stream, id_type cmd_id, bool is_cued);
-
-    public:
-    void register_metadata_handler_for_speech(id_type cmd_id, long index) {
-        std::scoped_lock sl(recursive_lock);
-        if (!cmd_id_is_current(cmd_id)) return;
-        if (index < 0) {
-            for (uint32_t i = 0; i < current_item.TimedMetadataTracks().Size(); i++) {
-                register_metadata_handler_for_track(i, cmd_id);
-            }
-        } else {
-            register_metadata_handler_for_track(index, cmd_id);
-        }
-    }
-
+    winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml, bool is_cued, std::vector<wchar_t> &&buf, Marks const && marks);
+    void register_metadata_handler_for_speech(id_type cmd_id, long index);
     bool cmd_id_is_current(id_type cmd_id) const noexcept { return current_cmd_id.load() == cmd_id; }
-
-    void output(id_type cmd_id, std::string_view const& type, json_val const && x) {
-        std::scoped_lock sl(recursive_lock);
-        if (cmd_id_is_current(cmd_id)) ::output(cmd_id, type, std::move(x));
-    }
-
-    void on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue) {
-        std::scoped_lock sl(recursive_lock);
-        if (!cmd_id_is_current(cmd_id)) return;
-        output(cmd_id, "cue_entered", json_val(label, cue));
-        if (label != L"SpeechWord") return;
-        int32_t pos = cue.StartPositionInInput().Value();
-        for (int32_t i = std::max(0, last_reported_mark_index); i < (int32_t)current_marks.size(); i++) {
-            int32_t idx = -1;
-            if (current_marks[i].pos_in_text > pos) {
-                idx = i-1;
-                if (idx == last_reported_mark_index && current_marks[i].pos_in_text - pos < 3) idx = i;
-            } else if (current_marks[i].pos_in_text == pos) idx = i;
-            if (idx > -1) {
-                output(cmd_id, "mark_reached", {{"id", current_marks[idx].id}});
-                last_reported_mark_index = idx;
-                break;
-            }
-        }
-    }
+    void on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue);
+    // }}}
 
     void initialize() {
         synth = SpeechSynthesizer();
         player = MediaPlayer();
         player.AudioCategory(MediaPlayerAudioCategory::Speech);
         player.AutoPlay(true);
+    }
+
+    void output(id_type cmd_id, std::string_view const& type, json_val const && x) {
+        std::scoped_lock sl(recursive_lock);
+        if (cmd_id_is_current(cmd_id)) ::output(cmd_id, type, std::move(x));
     }
 
     void stop_current_activity() {
@@ -819,32 +791,6 @@ class Synthesizer {
         }
     }
 
-    winrt::fire_and_forget speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml, bool is_cued, std::vector<wchar_t> &&buf, Marks const && marks) {
-        SpeechSynthesisStream stream{nullptr};
-        { std::scoped_lock sl(recursive_lock);
-            stop_current_activity();
-            current_cmd_id.store(cmd_id);
-            current_text_storage = std::move(buf);
-            current_marks = std::move(marks);
-            synth.Options().IncludeSentenceBoundaryMetadata(true);
-            synth.Options().IncludeWordBoundaryMetadata(true);
-        }
-        output(cmd_id, "synthesizing", {{"ssml", is_ssml}, {"num_marks", current_marks.size()}, {"text_length", text.size()}});
-        bool ok = false;
-        try {
-            if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
-            else stream = co_await synth.SynthesizeTextToStreamAsync(text);
-            ok = true;
-        } CATCH_ALL_EXCEPTIONS("Failed to synthesize speech", cmd_id);
-        if (ok) {
-            if (main_loop_is_running.load()) {
-                try {
-                    load_stream_for_playback(stream, cmd_id, is_cued);
-                } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for playback", cmd_id);
-            }
-        }
-    }
-
     double volume() const { return player.Volume(); }
     void volume(double val) {
         if (val < 0 || val > 1) throw std::out_of_range("Invalid volume value must be between 0 and 1");
@@ -854,6 +800,39 @@ class Synthesizer {
 };
 
 static Synthesizer sx;
+
+// Speak {{{
+void Synthesizer::on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue) {
+    std::scoped_lock sl(recursive_lock);
+    if (!cmd_id_is_current(cmd_id)) return;
+    output(cmd_id, "cue_entered", json_val(label, cue));
+    if (label != L"SpeechWord") return;
+    uint32_t pos = cue.StartPositionInInput().Value();
+    for (int32_t i = std::max(0, last_reported_mark_index); i < (int32_t)current_marks.size(); i++) {
+        int32_t idx = -1;
+        if (current_marks[i].pos_in_text > pos) {
+            idx = i-1;
+            if (idx == last_reported_mark_index && current_marks[i].pos_in_text - pos < 3) idx = i;
+        } else if (current_marks[i].pos_in_text == pos) idx = i;
+        if (idx > -1) {
+            output(cmd_id, "mark_reached", {{"id", current_marks[idx].id}});
+            last_reported_mark_index = idx;
+            break;
+        }
+    }
+}
+
+void Synthesizer::register_metadata_handler_for_speech(id_type cmd_id, long index) {
+    std::scoped_lock sl(recursive_lock);
+    if (!cmd_id_is_current(cmd_id)) return;
+    if (index < 0) {
+        for (uint32_t i = 0; i < current_item.TimedMetadataTracks().Size(); i++) {
+            register_metadata_handler_for_track(i, cmd_id);
+        }
+    } else {
+        register_metadata_handler_for_track(index, cmd_id);
+    }
+}
 
 void
 Synthesizer::register_metadata_handler_for_track(uint32_t index, id_type cmd_id) {
@@ -916,6 +895,31 @@ Synthesizer::load_stream_for_playback(SpeechSynthesisStream const &stream, id_ty
     player.Source(current_item);
 }
 
+winrt::fire_and_forget Synthesizer::speak(id_type cmd_id, std::wstring_view const &text, bool is_ssml, bool is_cued, std::vector<wchar_t> &&buf, Marks const && marks) {
+    SpeechSynthesisStream stream{nullptr};
+    { std::scoped_lock sl(recursive_lock);
+        stop_current_activity();
+        current_cmd_id.store(cmd_id);
+        current_text_storage = std::move(buf);
+        current_marks = std::move(marks);
+        synth.Options().IncludeSentenceBoundaryMetadata(true);
+        synth.Options().IncludeWordBoundaryMetadata(true);
+    }
+    output(cmd_id, "synthesizing", {{"ssml", is_ssml}, {"num_marks", current_marks.size()}, {"text_length", text.size()}});
+    bool ok = false;
+    try {
+        if (is_ssml) stream = co_await synth.SynthesizeSsmlToStreamAsync(text);
+        else stream = co_await synth.SynthesizeTextToStreamAsync(text);
+        ok = true;
+    } CATCH_ALL_EXCEPTIONS("Failed to synthesize speech", cmd_id);
+    if (ok) {
+        if (main_loop_is_running.load()) {
+            try {
+                load_stream_for_playback(stream, cmd_id, is_cued);
+            } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for playback", cmd_id);
+        }
+    }
+}
 
 static size_t
 decode_into(std::string_view src, std::wstring_view dest) {
@@ -1008,6 +1012,7 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
     sx.speak(cmd_id, text, is_ssml, is_cued, std::move(buf), std::move(marks));
 }
+// }}}
 
 static int64_t
 handle_stdin_message(winrt::hstring const &&msg) {
