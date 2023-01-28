@@ -460,6 +460,16 @@ class Synthesizer {
         synth.Options().SpeakingRate(val);
     }
 
+    double pitch() const {
+        return synth.Options().AudioPitch();
+    }
+
+    void pitch(double val) {
+        if (val < 0 || val > 2) throw std::out_of_range("Invalid pitch value must be between 0 and 2");
+        std::scoped_lock sl(recursive_lock);
+        synth.Options().AudioPitch(val);
+    }
+
 
 };
 
@@ -810,6 +820,13 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 sx.rate(rate);
             }
             output(cmd_id, "rate", {{"value", sx.rate()}});
+        }
+        else if (command == L"pitch") {
+            if (parts.size()) {
+                auto rate = parse_double(parts[0].data());
+                sx.rate(rate);
+            }
+            output(cmd_id, "pitch", {{"pitch", sx.rate()}});
         }
         else if (command == L"save") {
             handle_save(cmd_id, parts);
