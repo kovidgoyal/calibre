@@ -442,10 +442,10 @@ class Synthesizer {
         }
     }
 
-    double volume() const { return player.Volume(); }
+    double volume() const { return synth.Options().AudioVolume(); }
     void volume(double val) {
         if (val < 0 || val > 1) throw std::out_of_range("Invalid volume value must be between 0 and 1");
-        player.Volume(val);
+        synth.Options().AudioVolume(val);
     }
 
 };
