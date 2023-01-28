@@ -442,11 +442,26 @@ class Synthesizer {
         }
     }
 
-    double volume() const { return synth.Options().AudioVolume(); }
+    double volume() const {
+        return synth.Options().AudioVolume();
+    }
+
     void volume(double val) {
         if (val < 0 || val > 1) throw std::out_of_range("Invalid volume value must be between 0 and 1");
+        std::scoped_lock sl(recursive_lock);
         synth.Options().AudioVolume(val);
     }
+
+    double rate() const {
+        return synth.Options().SpeakingRate();
+    }
+
+    void rate(double val) {
+        if (val < 0.5 || val > 6.0) throw std::out_of_range("Invalid rate value must be between 0.5 and 6");
+        std::scoped_lock sl(recursive_lock);
+        synth.Options().SpeakingRate(val);
+    }
+
 
 };
 
@@ -788,6 +803,13 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 sx.volume(vol);
             }
             output(cmd_id, "volume", {{"value", sx.volume()}});
+        }
+        else if (command == L"rate") {
+            if (parts.size()) {
+                auto rate = parse_double(parts[0].data());
+                sx.rate(rate);
+            }
+            output(cmd_id, "rate", {{"value", sx.rate()}});
         }
         else if (command == L"save") {
             handle_save(cmd_id, parts);
