@@ -675,7 +675,7 @@ save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id
     DataReader reader(stream);
     unsigned int n;
     const static unsigned int chunk_size = 16 * 1024;
-    uint8_t buf[chunk_size];
+    std::array<uint8_t, chunk_size> buf;
     std::ofstream outfile;
     bool ok = false;
     try {
@@ -693,8 +693,8 @@ save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id
             bytes_read += n;
             ok = false;
             try {
-                reader.ReadBytes(winrt::array_view(buf, buf + n));
-                outfile.write((const char*)buf, n);
+                reader.ReadBytes(winrt::array_view(buf.data(), buf.data() + n));
+                outfile.write((const char*)buf.data(), n);
                 if (!outfile.good()) throw "Failed to write to output file";
                 ok = true;
             } CATCH_ALL_EXCEPTIONS("Failed to save bytes from DataReader to file", cmd_id);
