@@ -682,12 +682,13 @@ save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id
         outfile.open(path.string(), std::ios::out | std::ios::trunc);
         ok = true;
     } CATCH_ALL_EXCEPTIONS("Failed to create file: " + path.string(), cmd_id);
-    while (ok && bytes_read < stream_size) {
+    if (!ok) co_return;
+    while (bytes_read < stream_size) {
         try {
             n = co_await reader.LoadAsync(chunk_size);
             ok = true;
         } CATCH_ALL_EXCEPTIONS("Failed to load data from DataReader", cmd_id);
-        if (!ok) break;
+        if (!ok) co_return;
         if (n > 0) {
             bytes_read += n;
             ok = false;
@@ -697,7 +698,7 @@ save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id
                 if (!outfile.good()) throw "Failed to write to output file";
                 ok = true;
             } CATCH_ALL_EXCEPTIONS("Failed to save bytes from DataReader to file", cmd_id);
-            if (!ok) break;
+            if (!ok) co_return;
         }
     }
     output(cmd_id, "saved", {{"size", bytes_read}});
