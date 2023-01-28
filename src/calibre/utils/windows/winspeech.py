@@ -62,7 +62,7 @@ def encode_to_file_object(text, output) -> int:
     return sz
 
 
-def develop_loop(wait_for, *commands):
+def develop_loop(*commands):
     p = start_worker()
     q = Queue()
 
@@ -84,18 +84,20 @@ def develop_loop(wait_for, *commands):
             send('1 echo Synthesizer started')
             send('1 volume 0.1')
             for command in commands:
-                send(command)
-            while True:
-                m = q.get()
-                if m['related_to'] != wait_for:
-                    continue
-                if m['payload_type'] == 'media_state_changed' and m['state'] == 'ended':
-                    break
-                if m['payload_type'] == 'saved':
-                    break
-                if m['payload_type'] == 'error':
-                    exit_code = 1
-                    break
+                if isinstance(command, str):
+                    send(command)
+                else:
+                    while True:
+                        m = q.get()
+                        if m['related_to'] != command:
+                            continue
+                        if m['payload_type'] == 'media_state_changed' and m['state'] == 'ended':
+                            break
+                        if m['payload_type'] == 'saved':
+                            break
+                        if m['payload_type'] == 'error':
+                            exit_code = 1
+                            break
             send(f'333 echo Synthesizer exiting with exit code: {exit_code}')
             send(f'334 exit {exit_code}')
             ec = p.wait(1)
@@ -122,7 +124,7 @@ def develop_speech(text='Lucca Brazzi sleeps with the fishes.', mark_words=True)
 
     with SharedMemory(size=max_buffer_size(text)) as shm:
         sz = encode_to_file_object(text, shm)
-        develop_loop(2, f'2 speak {st} shm {sz} {shm.name}')
+        develop_loop(f'2 speak {st} shm {sz} {shm.name}', 2)
 
 
 def develop_save(text='Lucca Brazzi sleeps with the fishes.', filename="speech.wav"):
@@ -130,4 +132,4 @@ def develop_save(text='Lucca Brazzi sleeps with the fishes.', filename="speech.w
     st = 'ssml' if '<speak' in text else 'text'
     with SharedMemory(size=max_buffer_size(text)) as shm:
         sz = encode_to_file_object(text, shm)
-        develop_loop(2, f'2 save {st} {sz} {shm.name} {filename}')
+        develop_loop(f'2 save {st} {sz} {shm.name} {filename}', 2)
