@@ -830,7 +830,7 @@ run_main_loop(PyObject*, PyObject*) {
         std::wcout.imbue(std::locale("C"));
         std::wcerr.imbue(std::locale("C"));
     } CATCH_ALL_EXCEPTIONS("Failed to set stdio locales to C", 0);
-    winrt::init_apartment(); // MTA (multi-threaded apartment)
+    winrt::init_apartment(winrt::apartment_type::multi_threaded);
     main_thread_id = GetCurrentThreadId();
     MSG msg;
     int64_t exit_code = 0;
