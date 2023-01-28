@@ -396,7 +396,6 @@ class Synthesizer {
     Marks current_marks;
     int32_t last_reported_mark_index;
     std::atomic<id_type> current_cmd_id;
-    std::ofstream outfile;
 
     Revokers revoker;
     std::recursive_mutex recursive_lock;
@@ -411,8 +410,8 @@ class Synthesizer {
     void on_cue_entered(id_type cmd_id, const winrt::hstring &label, const SpeechCue &cue);
     // }}}
 
-    winrt::fire_and_forget save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::ofstream &&outfile);
-    void start_save_stream(SpeechSynthesisStream const &&stream, id_type cmd_id);
+    winrt::fire_and_forget save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::filesystem::path path);
+    void start_save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id_type cmd_id);
 
     void initialize() {
         synth = SpeechSynthesizer();
@@ -438,7 +437,6 @@ class Synthesizer {
             current_text_storage = std::vector<wchar_t>();
             current_marks = Marks();
             last_reported_mark_index = -1;
-            if (outfile.is_open()) outfile.close();
         }
     }
 
@@ -672,14 +670,19 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
 
 // Save {{{
 static winrt::fire_and_forget
-save_stream(SpeechSynthesisStream const &&stream, std::ofstream &&outfile, id_type cmd_id) {
+save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id_type cmd_id) {
     unsigned long long stream_size = stream.Size(), bytes_read = 0;
     DataReader reader(stream);
     unsigned int n;
     const static unsigned int chunk_size = 16 * 1024;
     uint8_t buf[chunk_size];
-    while (bytes_read < stream_size) {
-        bool ok = false;
+    std::ofstream outfile;
+    bool ok = false;
+    try {
+        outfile.open(path.string(), std::ios::out | std::ios::trunc);
+        ok = true;
+    } CATCH_ALL_EXCEPTIONS("Failed to create file: " + path.string(), cmd_id);
+    while (ok && bytes_read < stream_size) {
         try {
             n = co_await reader.LoadAsync(chunk_size);
             ok = true;
@@ -697,26 +700,24 @@ save_stream(SpeechSynthesisStream const &&stream, std::ofstream &&outfile, id_ty
             if (!ok) break;
         }
     }
-    outfile.close();
     output(cmd_id, "saved", {{"size", bytes_read}});
 }
 
 void
-Synthesizer::start_save_stream(SpeechSynthesisStream const &&stream, id_type cmd_id) {
+Synthesizer::start_save_stream(SpeechSynthesisStream const &&stream, std::filesystem::path path, id_type cmd_id) {
     std::scoped_lock sl(recursive_lock);
     try {
-        save_stream(std::move(stream), std::move(outfile), cmd_id);
+        save_stream(std::move(stream), path, cmd_id);
     } CATCH_ALL_EXCEPTIONS("Failed to save loaded stream", cmd_id);
     stop_current_activity();
 }
 
-winrt::fire_and_forget Synthesizer::save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::ofstream &&out) {
+winrt::fire_and_forget Synthesizer::save(id_type cmd_id, std::wstring_view const &text, bool is_ssml, std::vector<wchar_t> &&buf, std::filesystem::path path) {
     SpeechSynthesisStream stream{nullptr};
     { std::scoped_lock sl(recursive_lock);
         stop_current_activity();
         current_cmd_id.store(cmd_id);
         current_text_storage = std::move(buf);
-        outfile = std::move(out);
         synth.Options().IncludeSentenceBoundaryMetadata(false);
         synth.Options().IncludeWordBoundaryMetadata(false);
     }
@@ -729,7 +730,7 @@ winrt::fire_and_forget Synthesizer::save(id_type cmd_id, std::wstring_view const
     if (ok) {
         if (main_loop_is_running.load()) {
             try {
-                sx.start_save_stream(std::move(stream), cmd_id);
+                sx.start_save_stream(std::move(stream), path, cmd_id);
             } CATCH_ALL_EXCEPTIONS("Failed to load synthesized stream for save", cmd_id);
         }
     }
@@ -752,10 +753,8 @@ handle_save(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
     auto filename = join(parts);
     auto path = std::filesystem::absolute(filename);
-    std::ofstream outfile(path.string(), std::ios::out | std::ios::trunc);
-    if (!outfile.good()) throw "Failed to create: " + path.string();
     output(cmd_id, "saving", {{"ssml", is_ssml}, {"output_path", path.string()}});
-    sx.save(cmd_id, text, is_ssml, std::move(buf), std::move(outfile));
+    sx.save(cmd_id, text, is_ssml, std::move(buf), path);
 }
 // }}}
 
