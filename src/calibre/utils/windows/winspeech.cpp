@@ -493,34 +493,33 @@ register_metadata_handler_for_track(MediaPlaybackTimedMetadataTrackList const &t
     TimedMetadataTrack track = tracks.GetAt(index);
     tracks.SetPresentationMode((unsigned int)index, TimedMetadataTrackPresentationMode::ApplicationPresented);
 
-    speak_revoker.cue_entered.push_back(track.CueEntered(winrt::auto_revoke, [cmd_id, marks](auto track, const auto& args) {
-        if (main_loop_is_running.load()) {
-            auto label = track.Label();
-            auto cue = args.Cue().template as<SpeechCue>();
-            output(cmd_id, "cue_entered", {label, cue});
-            if (label != L"SpeechWord") return;
-            uint32_t pos = cue.StartPositionInInput().Value();
-            for (int32_t i = std::max(0, marks->last_reported_mark_index); i < (int32_t)marks->entries.size(); i++) {
-                int32_t idx = -1;
-                if (marks->entries[i].pos_in_text > pos) {
-                    idx = i-1;
-                    if (idx == marks->last_reported_mark_index && marks->entries[i].pos_in_text - pos < 3) idx = i;
-                } else if (marks->entries[i].pos_in_text == pos) idx = i;
-                if (idx > -1) {
-                    output(cmd_id, "mark_reached", {{"id", marks->entries[idx].id}});
-                    marks->last_reported_mark_index = idx;
-                    break;
-                }
+    speak_revoker.cue_entered.emplace_back(track.CueEntered(winrt::auto_revoke, [cmd_id, marks](auto track, const auto& args) {
+        if (!main_loop_is_running.load()) return;
+        auto label = track.Label();
+        auto cue = args.Cue().template as<SpeechCue>();
+        output(cmd_id, "cue_entered", {label, cue});
+        if (label != L"SpeechWord") return;
+        uint32_t pos = cue.StartPositionInInput().Value();
+        for (int32_t i = std::max(0, marks->last_reported_mark_index); i < (int32_t)marks->entries.size(); i++) {
+            int32_t idx = -1;
+            if (marks->entries[i].pos_in_text > pos) {
+                idx = i-1;
+                if (idx == marks->last_reported_mark_index && marks->entries[i].pos_in_text - pos < 3) idx = i;
+            } else if (marks->entries[i].pos_in_text == pos) idx = i;
+            if (idx > -1) {
+                output(cmd_id, "mark_reached", {{"id", marks->entries[idx].id}});
+                marks->last_reported_mark_index = idx;
+                break;
             }
         }
     }));
 
-    speak_revoker.cue_exited.push_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
+    speak_revoker.cue_exited.emplace_back(track.CueExited(winrt::auto_revoke, [cmd_id](auto track, const auto& args) {
         if (main_loop_is_running.load()) output(
             cmd_id, "cue_exited", json_val(track.Label(), args.Cue().template as<SpeechCue>()));
     }));
 
-    speak_revoker.track_failed.push_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
+    speak_revoker.track_failed.emplace_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
         if (main_loop_is_running.load()) output(
             cmd_id, "track_failed", {});
     }));
@@ -838,6 +837,7 @@ run_main_loop(PyObject*, PyObject*) {
 
     main_loop_is_running.store(false);
     try {
+        speak_revoker = {};
         speech_synthesizer = SpeechSynthesizer{nullptr};
         media_player = MediaPlayer{nullptr};
     } catch(...) {}
