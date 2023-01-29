@@ -470,6 +470,25 @@ class Synthesizer {
         synth.Options().AudioPitch(val);
     }
 
+    void pause() const {
+        player.Pause();
+    }
+
+    void play() const {
+        player.Play();
+    }
+
+    bool toggle() const {
+        switch (player.PlaybackSession().PlaybackState()) {
+            case MediaPlaybackState::Playing: pause(); return true;
+            case MediaPlaybackState::Paused: play(); return true;
+            default: return false;
+        }
+    }
+
+    MediaPlaybackState playback_state() const {
+        return player.PlaybackSession().PlaybackState();
+    }
 
 };
 
@@ -794,6 +813,18 @@ handle_stdin_message(winrt::hstring const &&msg) {
                 return parse_id(parts.at(0));
             } catch(...) { }
             return 0;
+        }
+        else if (command == L"play") {
+            sx.play();
+            output(cmd_id, "play", {{"playback_state", sx.playback_state()}});
+        }
+        else if (command == L"pause") {
+            sx.play();
+            output(cmd_id, "pause", {{"playback_state", sx.playback_state()}});
+        }
+        else if (command == L"state") {
+            sx.play();
+            output(cmd_id, "state", {{"playback_state", sx.playback_state()}});
         }
         else if (command == L"echo") {
             output(cmd_id, "echo", {{"msg", join(parts)}});
