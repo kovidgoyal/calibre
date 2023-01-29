@@ -232,7 +232,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
-    MAX_CLIENT_COMM_TIMEOUT     = 300.0  # Wait at most N seconds for an answer
     MAX_UNSUCCESSFUL_CONNECTS   = 5
 
     SEND_NOOP_EVERY_NTH_PROBE   = 5
@@ -575,9 +574,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _read_binary_from_net(self, length):
         try:
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
             v = self.device_socket.recv(length)
-            self.device_socket.settimeout(None)
             return v
         except:
             self._close_device_socket()
@@ -615,12 +612,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         total_len = len(s)
         while sent_len < total_len:
             try:
-                sock.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
                 if sent_len == 0:
                     amt_sent = sock.send(s)
                 else:
                     amt_sent = sock.send(s[sent_len:])
-                sock.settimeout(None)
                 if amt_sent <= 0:
                     raise OSError('Bad write on socket')
                 sent_len += amt_sent
