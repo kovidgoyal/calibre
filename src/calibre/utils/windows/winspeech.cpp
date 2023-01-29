@@ -554,14 +554,12 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     *((wchar_t*)text.data() + text.size()) = 0;  // ensure NULL termination
 
     output(cmd_id, "synthesizing", {{"ssml", is_ssml}, {"num_marks", marks->entries.size()}, {"text_length", text.size()}});
-    bool ok = false;
     SpeechSynthesisStream stream{nullptr};
     if (!run_catching_exceptions([&]() {
         speech_synthesizer.Options().IncludeSentenceBoundaryMetadata(true);
         speech_synthesizer.Options().IncludeWordBoundaryMetadata(true);
         if (is_ssml) stream = speech_synthesizer.SynthesizeSsmlToStreamAsync(text).get();
         else stream = speech_synthesizer.SynthesizeTextToStreamAsync(text).get();
-        ok = true;
     }, "Failed to synthesize speech", __LINE__, cmd_id)) return;
 
     speak_revoker = {};  // delete any revokers previously installed
@@ -708,6 +706,29 @@ static const std::unordered_map<std::string, handler_function> handlers = {
 
     {"speak", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
         handle_speak(cmd_id, parts);
+    }},
+
+    {"audio_device", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        if (parts.size()) {
+            auto di = DeviceInformation::CreateFromIdAsync(parts[0]).get();
+            media_player.AudioDevice(di);
+        }
+        output(cmd_id, "audio_device", {{"value", media_player.AudioDevice()}});
+    }},
+
+    {"voice", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        bool found = false;
+        if (parts.size()) {
+            auto voice_id = winrt::hstring(parts[0]);
+            for (auto const &candidate : SpeechSynthesizer::AllVoices()) {
+                if (candidate.Id() == voice_id) {
+                    speech_synthesizer.Voice(candidate);
+                    found = true;
+                    break;
+                }
+            }
+        }
+        output(cmd_id, "voice", {{"value", speech_synthesizer.Voice()}, {"found", found}});
     }},
 
     {"volume", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
