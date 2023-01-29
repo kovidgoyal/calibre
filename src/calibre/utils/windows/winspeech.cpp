@@ -32,6 +32,8 @@
 #include <winrt/windows.media.speechsynthesis.h>
 #include <winrt/windows.media.core.h>
 #include <winrt/windows.media.playback.h>
+#include <winrt/windows.media.devices.h>
+#include <winrt/windows.devices.enumeration.h>
 
 #ifdef max
 #undef max
@@ -41,6 +43,8 @@ using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Media::SpeechSynthesis;
 using namespace winrt::Windows::Media::Playback;
 using namespace winrt::Windows::Media::Core;
+using namespace winrt::Windows::Media::Devices;
+using namespace winrt::Windows::Devices::Enumeration;
 using namespace winrt::Windows::Storage::Streams;
 typedef uint64_t id_type;
 
@@ -257,18 +261,58 @@ public:
             case VoiceGender::Female: gender = "female"; break;
         }
         object = {
-            {"display_name", json_val(voice.DisplayName())},
-            {"description", json_val(voice.Description())},
-            {"id", json_val(voice.Id())},
-            {"language", json_val(voice.Language())},
-            {"gender", json_val(gender)},
+            {"display_name", voice.DisplayName()},
+            {"description", voice.Description()},
+            {"id", voice.Id()},
+            {"language", voice.Language()},
+            {"gender", gender},
         };
     }
 
     json_val(IVectorView<VoiceInformation> const& voices) : type(DT_LIST) {
         list.reserve(voices.Size());
         for(auto const& voice : voices) {
-            list.emplace_back(json_val(voice));
+            list.emplace_back(voice);
+        }
+    }
+
+    json_val(DeviceInformationKind const dev) : type(DT_STRING) {
+        switch(dev) {
+            case DeviceInformationKind::Unknown:
+                s = "unknown"; break;
+            case DeviceInformationKind::AssociationEndpoint:
+                s = "association_endpoint"; break;
+            case DeviceInformationKind::AssociationEndpointContainer:
+                s = "association_endpoint_container"; break;
+            case DeviceInformationKind::AssociationEndpointService:
+                s = "association_endpoint_service"; break;
+            case DeviceInformationKind::Device:
+                s = "device"; break;
+            case DeviceInformationKind::DevicePanel:
+                s = "device_panel"; break;
+            case DeviceInformationKind::DeviceInterface:
+                s = "device_interface"; break;
+            case DeviceInformationKind::DeviceInterfaceClass:
+                s = "device_interface_class"; break;
+            case DeviceInformationKind::DeviceContainer:
+                s = "device_container"; break;
+        }
+    }
+
+    json_val(DeviceInformation const& dev) : type(DT_OBJECT) {
+        object = {
+            {"id", dev.Id()},
+            {"name", dev.Name()},
+            {"kind", dev.Kind()},
+            {"is_default", dev.IsDefault()},
+            {"is_enabled", dev.IsEnabled()},
+        };
+    }
+
+    json_val(DeviceInformationCollection const& devices) : type(DT_LIST) {
+        list.reserve(devices.Size());
+        for(auto const& dev : devices) {
+            list.emplace_back(json_val(dev));
         }
     }
 
@@ -309,26 +353,22 @@ public:
         };
     }
 
-    template<typename T> json_val(T x) {
-        static_assert(sizeof(bool) < sizeof(int16_t), "The bool type on this machine is more than one byte");
-        if constexpr (std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> || std::is_same_v<T, int16_t>) {
-            type = DT_INT;
-            i = x;
-        } else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, uint16_t>) {
-            type = DT_UINT;
-            u = x;
-        } else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
-            type = DT_FLOAT;
-            f = x;
-        } else if constexpr (std::is_same_v<T, bool>) {
+    template<typename T> json_val(T const x) {
+        if constexpr (std::is_same_v<T, bool>) {
             type = DT_BOOL;
             b = x;
+        } else if constexpr (std::is_unsigned_v<T>) {
+            type = DT_UINT;
+            u = x;
+        } else if constexpr (std::is_integral_v<T>) {
+            type = DT_INT;
+            i = x;
+        } else if constexpr (std::is_floating_point_v<T>) {
+            type = DT_FLOAT;
+            f = x;
+        } else {
+            static_assert(!sizeof(T), "Unknown type T cannot be converted to JSON");
         }
-#ifdef _MSVC
-        else {
-            static_assert(false, "Unknown type T cannot be converted to JSON");
-        }
-#endif
     }
 
     friend std::ostream& operator<<(std::ostream &os, const json_val &self) {
@@ -383,6 +423,7 @@ struct Mark {
     uint32_t id, pos_in_text;
     Mark(uint32_t id, uint32_t pos) : id(id), pos_in_text(pos) {}
 };
+
 typedef std::vector<Mark> Marks;
 
 class Synthesizer {
@@ -488,6 +529,22 @@ class Synthesizer {
 
     MediaPlaybackState playback_state() const {
         return player.PlaybackSession().PlaybackState();
+    }
+
+    DeviceInformation audio_device() const {
+        return player.AudioDevice();
+    }
+
+    void audio_device(DeviceInformation const &di) const {
+        player.AudioDevice(di);
+    }
+
+    VoiceInformation voice() const {
+        return synth.Voice();
+    }
+
+    void voice(VoiceInformation const &v) const {
+        return synth.Voice(v);
     }
 
 };
@@ -834,6 +891,11 @@ handle_stdin_message(winrt::hstring const &&msg) {
         }
         else if (command == L"all_voices") {
             output(cmd_id, "all_voices", SpeechSynthesizer::AllVoices());
+        }
+        else if (command == L"all_audio_devices") {
+            try {
+                output(cmd_id, "all_audio_devices", DeviceInformation::FindAllAsync(MediaDevice::GetAudioRenderSelector()).get());
+            } CATCH_ALL_EXCEPTIONS("Failed to list audio devices", cmd_id) { }
         }
         else if (command == L"speak") {
             handle_speak(cmd_id, parts);
