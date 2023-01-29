@@ -845,6 +845,83 @@ handle_save(id_type cmd_id, std::vector<std::wstring_view> &parts) {
 }
 // }}}
 
+
+typedef std::function<void(id_type, std::vector<std::wstring_view>, int64_t*)> handler_function;
+
+static const std::unordered_map<std::string, handler_function> handlers = {
+
+    {"exit", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t* exit_code) {
+        try {
+            *exit_code = parse_id(parts.at(0));
+        } catch(...) { }
+        *exit_code = 0;
+    }},
+
+    {"echo", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        output(cmd_id, "echo", {{"msg", join(parts)}});
+    }},
+
+    {"play", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        sx.play();
+        output(cmd_id, "play", {{"playback_state", sx.playback_state()}});
+    }},
+
+    {"pause", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        sx.play();
+        output(cmd_id, "pause", {{"playback_state", sx.playback_state()}});
+    }},
+
+    {"state", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        sx.play();
+        output(cmd_id, "state", {{"playback_state", sx.playback_state()}});
+    }},
+
+    {"default_voice", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        output(cmd_id, "default_voice", {{"voice", SpeechSynthesizer::DefaultVoice()}});
+    }},
+
+    {"all_voices", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        output(cmd_id, "all_voices", {{"voices", SpeechSynthesizer::AllVoices()}});
+    }},
+
+    {"all_audio_devices", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        output(cmd_id, "all_audio_devices", {{"devices", DeviceInformation::FindAllAsync(MediaDevice::GetAudioRenderSelector()).get()}});
+    }},
+
+    {"speak", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        handle_speak(cmd_id, parts);
+    }},
+
+    {"volume", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        if (parts.size()) {
+            auto vol = parse_double(parts[0].data());
+            sx.volume(vol);
+        }
+        output(cmd_id, "volume", {{"value", sx.volume()}});
+    }},
+
+    {"rate", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        if (parts.size()) {
+            auto rate = parse_double(parts[0].data());
+            sx.rate(rate);
+        }
+        output(cmd_id, "rate", {{"value", sx.rate()}});
+    }},
+
+    {"pitch", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        if (parts.size()) {
+            auto rate = parse_double(parts[0].data());
+            sx.rate(rate);
+        }
+        output(cmd_id, "pitch", {{"pitch", sx.rate()}});
+    }},
+
+    {"save", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        handle_save(cmd_id, parts);
+    }},
+};
+
+
 static int64_t
 handle_stdin_message(winrt::hstring const &&msg) {
     if (msg == L"exit") {
@@ -854,6 +931,7 @@ handle_stdin_message(winrt::hstring const &&msg) {
     std::wstring_view command;
     bool ok = false;
     std::vector<std::wstring_view> parts;
+    int64_t exit_code = -1;
     try {
         parts = split(msg);
         command = parts.at(1); cmd_id = parse_id(parts.at(0));
@@ -863,70 +941,20 @@ handle_stdin_message(winrt::hstring const &&msg) {
         parts.erase(parts.begin(), parts.begin() + 2);
         ok = true;
     } CATCH_ALL_EXCEPTIONS((std::string("Invalid input message: ") + winrt::to_string(msg)), 0);
-    if (!ok) return -1;
-    try {
-        if (command == L"exit") {
-            try {
-                return parse_id(parts.at(0));
-            } catch(...) { }
-            return 0;
+    if (ok) {
+        handler_function handler;
+        std::string cmd(winrt::to_string(command));
+        try {
+            handler = handlers.at(cmd.c_str());
+        } catch (std::out_of_range) {
+            output_error(cmd_id, "Unknown command", cmd, __LINE__);
+            return exit_code;
         }
-        else if (command == L"play") {
-            sx.play();
-            output(cmd_id, "play", {{"playback_state", sx.playback_state()}});
-        }
-        else if (command == L"pause") {
-            sx.play();
-            output(cmd_id, "pause", {{"playback_state", sx.playback_state()}});
-        }
-        else if (command == L"state") {
-            sx.play();
-            output(cmd_id, "state", {{"playback_state", sx.playback_state()}});
-        }
-        else if (command == L"echo") {
-            output(cmd_id, "echo", {{"msg", join(parts)}});
-        }
-        else if (command == L"default_voice") {
-            output(cmd_id, "default_voice", SpeechSynthesizer::DefaultVoice());
-        }
-        else if (command == L"all_voices") {
-            output(cmd_id, "all_voices", SpeechSynthesizer::AllVoices());
-        }
-        else if (command == L"all_audio_devices") {
-            try {
-                output(cmd_id, "all_audio_devices", DeviceInformation::FindAllAsync(MediaDevice::GetAudioRenderSelector()).get());
-            } CATCH_ALL_EXCEPTIONS("Failed to list audio devices", cmd_id) { }
-        }
-        else if (command == L"speak") {
-            handle_speak(cmd_id, parts);
-        }
-        else if (command == L"volume") {
-            if (parts.size()) {
-                auto vol = parse_double(parts[0].data());
-                sx.volume(vol);
-            }
-            output(cmd_id, "volume", {{"value", sx.volume()}});
-        }
-        else if (command == L"rate") {
-            if (parts.size()) {
-                auto rate = parse_double(parts[0].data());
-                sx.rate(rate);
-            }
-            output(cmd_id, "rate", {{"value", sx.rate()}});
-        }
-        else if (command == L"pitch") {
-            if (parts.size()) {
-                auto rate = parse_double(parts[0].data());
-                sx.rate(rate);
-            }
-            output(cmd_id, "pitch", {{"pitch", sx.rate()}});
-        }
-        else if (command == L"save") {
-            handle_save(cmd_id, parts);
-        }
-        else throw std::string("Unknown command: ") + winrt::to_string(command);
-    } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
-    return -1;
+        try {
+            handler(cmd_id, parts, &exit_code);
+        } CATCH_ALL_EXCEPTIONS("Error handling input message", cmd_id);
+    }
+    return exit_code;
 }
 
 
