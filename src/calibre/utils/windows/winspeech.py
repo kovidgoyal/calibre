@@ -133,3 +133,23 @@ def develop_save(text='Lucca Brazzi sleeps with the fishes.', filename="speech.w
     with SharedMemory(size=max_buffer_size(text)) as shm:
         sz = encode_to_file_object(text, shm)
         develop_loop(f'2 save {st} {sz} {shm.name} {filename}', 2)
+
+
+def develop_interactive():
+    import subprocess
+    from calibre.debug import run_calibre_debug
+    print('\x1b[32mInteractive winspeech', '\x1b[39m]]'[:-2], flush=True)
+    p = run_calibre_debug('-c', 'from calibre_extensions.winspeech import run_main_loop; raise SystemExit(run_main_loop())',
+                          stdin=subprocess.PIPE)
+    try:
+        while True:
+            line = input()
+            if p.poll() is not None:
+                raise SystemExit(p.returncode)
+            p.stdin.write((line + '\n').encode())
+            p.stdin.flush()
+    except KeyboardInterrupt:
+        print('Exiting on interrupt', flush=True)
+    finally:
+        if p.poll() is None:
+            p.kill()

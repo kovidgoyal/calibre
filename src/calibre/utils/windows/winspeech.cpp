@@ -665,6 +665,19 @@ handle_save(id_type cmd_id, std::vector<std::wstring_view> &parts) {
 
 typedef std::function<void(id_type, std::vector<std::wstring_view>, int64_t*)> handler_function;
 
+static DeviceInformationKind
+get_device_kind(const std::wstring x) {
+    if (x == L"device") return DeviceInformationKind::Device;
+    if (x == L"association_endpoint") return DeviceInformationKind::AssociationEndpoint;
+    if (x == L"association_endpoint_container") return DeviceInformationKind::AssociationEndpointContainer;
+    if (x == L"association_endpoint_service") return DeviceInformationKind::AssociationEndpointService;
+    if (x == L"device_container") return DeviceInformationKind::DeviceContainer;
+    if (x == L"device_interface") return DeviceInformationKind::DeviceInterface;
+    if (x == L"device_interface_class") return DeviceInformationKind::DeviceInterfaceClass;
+    if (x == L"device_panel") return DeviceInformationKind::DevicePanel;
+    return DeviceInformationKind::Unknown;
+}
+
 static const std::unordered_map<std::string, handler_function> handlers = {
 
     {"exit", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t* exit_code) {
@@ -689,7 +702,9 @@ static const std::unordered_map<std::string, handler_function> handlers = {
     }},
 
     {"state", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
-        output(cmd_id, "state", {{"playback_state", media_player.PlaybackSession().PlaybackState()}});
+        auto ps = media_player.PlaybackSession();
+        if (ps) output(cmd_id, "state", {{"playback_state", ps.PlaybackState()}});
+        else output(cmd_id, "state", {{"playback_state", ""}});
     }},
 
     {"default_voice", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
@@ -709,17 +724,26 @@ static const std::unordered_map<std::string, handler_function> handlers = {
     }},
 
     {"audio_device", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
+        bool found = false;
         if (parts.size()) {
-            auto di = DeviceInformation::CreateFromIdAsync(parts[0]).get();
-            media_player.AudioDevice(di);
+            auto device_kind = std::wstring(parts.at(0));
+            parts.erase(parts.begin(), parts.begin() + 1);
+            auto device_id = join(parts);
+            auto di = DeviceInformation::CreateFromIdAsync(device_id, {}, get_device_kind(device_kind)).get();
+            if (di) {
+                media_player.AudioDevice(di);
+                found = true;
+            }
         }
-        output(cmd_id, "audio_device", {{"value", media_player.AudioDevice()}});
+        auto x = media_player.AudioDevice();
+        if (x) output(cmd_id, "audio_device", {{"value", x}, {"found", found}});
+        else output(cmd_id, "audio_device", {{"value", ""}, {"found", found}});
     }},
 
     {"voice", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
         bool found = false;
         if (parts.size()) {
-            auto voice_id = winrt::hstring(parts[0]);
+            auto voice_id = winrt::hstring(parts.at(0));
             for (auto const &candidate : SpeechSynthesizer::AllVoices()) {
                 if (candidate.Id() == voice_id) {
                     speech_synthesizer.Voice(candidate);
@@ -728,12 +752,14 @@ static const std::unordered_map<std::string, handler_function> handlers = {
                 }
             }
         }
-        output(cmd_id, "voice", {{"value", speech_synthesizer.Voice()}, {"found", found}});
+        auto x = speech_synthesizer.Voice();
+        if (x) output(cmd_id, "voice", {{"value", speech_synthesizer.Voice()}, {"found", found}});
+        else output(cmd_id, "voice", {{"value", ""}, {"found", found}});
     }},
 
     {"volume", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
         if (parts.size()) {
-            auto vol = parse_double(parts[0].data());
+            auto vol = parse_double(parts.at(0).data());
             if (vol < 0 || vol > 1) throw std::out_of_range("Invalid volume value must be between 0 and 1");
             speech_synthesizer.Options().AudioVolume(vol);
         }
@@ -742,7 +768,7 @@ static const std::unordered_map<std::string, handler_function> handlers = {
 
     {"rate", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
         if (parts.size()) {
-            auto rate = parse_double(parts[0].data());
+            auto rate = parse_double(parts.at(0).data());
             if (rate < 0.5 || rate > 6.0) throw std::out_of_range("Invalid rate value must be between 0.5 and 6");
             speech_synthesizer.Options().SpeakingRate(rate);
         }
@@ -751,7 +777,7 @@ static const std::unordered_map<std::string, handler_function> handlers = {
 
     {"pitch", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
         if (parts.size()) {
-            auto pitch = parse_double(parts[0].data());
+            auto pitch = parse_double(parts.at(0).data());
             if (pitch < 0 || pitch > 2) throw std::out_of_range("Invalid pitch value must be between 0 and 2");
             speech_synthesizer.Options().AudioPitch(pitch);
         }
