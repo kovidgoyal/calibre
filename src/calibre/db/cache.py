@@ -2652,7 +2652,10 @@ class Cache:
             if not fmts:
                 continue
             mi = self._get_metadata(book_id)
-            cdata = self.cover(book_id)
+            buf = BytesIO()
+            if not self._copy_cover_to(book_id, buf):
+                return
+            cdata = buf.getvalue()
             if cdata:
                 mi.cover_data = ('jpeg', cdata)
             try:
