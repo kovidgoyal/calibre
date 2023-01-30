@@ -23,6 +23,7 @@ class LiveMint(BasicNewsRecipe):
     masthead_url = 'https://images.livemint.com/static/livemint-logo-v1.svg'
 
     remove_empty_feeds =  True
+    resolve_internal_links = True
 
     def get_cover_url(self):
         soup = self.index_to_soup(
@@ -61,21 +62,23 @@ class LiveMint(BasicNewsRecipe):
     else:
 
         extra_css = '''
+            img {display:block; margin:0 auto;}
             #img-cap {font-size:small; text-align:center;}
             #auth-info {font-size:small; text-align:center;}
             .highlights {font-style:italic;}
-            .summary{font-style:italic; color:#404040;}
+            .summary{font-style:italic; color:#202020;}
+            .author-widget{font-size:small; font-style:italic; color:#404040; text-align:center;}
+            em, blockquote {color:#202020;}
         '''
 
         keep_only_tags = [
-            dict(name='h1'),
-            dict(name='figure', attrs={'data-vars-mediatype':'image'}),
-            classes('articleInfo FirstEle summary highlights paywall'),
+            dict(name='article'),
+            classes('contentSec')
         ]
         remove_tags = [
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
-                ' socialHolder imgbig disclamerText disqus-comment-count'
+                ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot'
             )
         ]
 
