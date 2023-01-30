@@ -267,6 +267,19 @@ public:
         }
     }
 
+    json_val(TimedMetadataTrackErrorCode const ec) : type(DT_STRING) {
+        switch(ec) {
+            case TimedMetadataTrackErrorCode::DataFormatError:
+                s = "data_format_error"; break;
+            case TimedMetadataTrackErrorCode::NetworkError:
+                s = "network_error"; break;
+            case TimedMetadataTrackErrorCode::InternalError:
+                s = "internal_error"; break;
+            case TimedMetadataTrackErrorCode::None:
+                s = "none"; break;
+        }
+    }
+
     json_val(DeviceInformationKind const dev) : type(DT_STRING) {
         switch(dev) {
             case DeviceInformationKind::Unknown:
@@ -314,7 +327,6 @@ public:
             case MediaPlaybackState::Buffering: s = "buffering"; break;
             case MediaPlaybackState::Playing: s = "playing"; break;
             case MediaPlaybackState::Paused: s = "paused"; break;
-            default: s = "unknown"; break;
         }
     }
 
@@ -326,7 +338,6 @@ public:
             case MediaPlayerError::NetworkError: s = "network_error"; break;
             case MediaPlayerError::DecodingError: s = "decoding_error"; break;
             case MediaPlayerError::SourceNotSupported: s = "source_not_supported"; break;
-            default: s = "unknown"; break;
         }
     }
 
@@ -520,8 +531,9 @@ register_metadata_handler_for_track(MediaPlaybackTimedMetadataTrackList const &t
     }));
 
     speak_revoker.track_failed.emplace_back(track.TrackFailed(winrt::auto_revoke, [cmd_id](auto, const auto& args) {
+        auto error = args.Error();
         if (main_loop_is_running.load()) output(
-            cmd_id, "track_failed", {});
+            cmd_id, "track_failed", {{"code", error.ErrorCode()}, {"hr", json_val::from_hresult(error.ExtendedError())}});
     }));
 };
 
@@ -580,7 +592,7 @@ handle_speak(id_type cmd_id, std::vector<std::wstring_view> &parts) {
     });
     speak_revoker.media_failed = media_player.MediaFailed(winrt::auto_revoke, [cmd_id](auto player, auto const& args) {
         if (main_loop_is_running.load()) output(
-            cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"code", args.Error()}});
+            cmd_id, "media_state_changed", {{"state", "failed"}, {"error", args.ErrorMessage()}, {"hr", json_val::from_hresult(args.ExtendedErrorCode())}, {"code", args.Error()}});
     });
     auto playback_item = std::make_shared<MediaPlaybackItem>(source);
 
@@ -736,8 +748,8 @@ static const std::unordered_map<std::string, handler_function> handlers = {
             }
         }
         auto x = media_player.AudioDevice();
-        if (x) output(cmd_id, "audio_device", {{"value", x}, {"found", found}});
-        else output(cmd_id, "audio_device", {{"value", ""}, {"found", found}});
+        if (x) output(cmd_id, "audio_device", {{"device", x}, {"found", found}});
+        else output(cmd_id, "audio_device", {{"device", ""}, {"found", found}});
     }},
 
     {"voice", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
@@ -781,7 +793,7 @@ static const std::unordered_map<std::string, handler_function> handlers = {
             if (pitch < 0 || pitch > 2) throw std::out_of_range("Invalid pitch value must be between 0 and 2");
             speech_synthesizer.Options().AudioPitch(pitch);
         }
-        output(cmd_id, "pitch", {{"pitch", speech_synthesizer.Options().AudioPitch()}});
+        output(cmd_id, "pitch", {{"value", speech_synthesizer.Options().AudioPitch()}});
     }},
 
     {"save", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {
