@@ -33,7 +33,7 @@ from read_book.cfi import (
 )
 from read_book.globals import current_spine_item, get_boss, rtl_page_progression
 from read_book.settings import opts
-from read_book.viewport import scroll_viewport, line_height, rem_size
+from read_book.viewport import scroll_viewport, line_height, rem_size, get_unit_size_in_pixels
 from utils import (
     get_elem_data, set_elem_data
 )
@@ -155,18 +155,7 @@ def cps_by_em_size():
         if fs is 0:
             ans = cps_by_em_size.ans = 16
         else:
-            d = document.createElement('span')
-            d.style.position = 'absolute'
-            d.style.visibility = 'hidden'
-            d.style.width = '1rem'
-            d.style.fontSize = '1rem'
-            d.style.paddingTop = d.style.paddingBottom = d.style.paddingLeft = d.style.paddingRight = '0'
-            d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
-            d.style.borderStyle = 'none'
-            document.body.appendChild(d)
-            w = d.clientWidth
-            document.body.removeChild(d)
-            ans = cps_by_em_size.ans = max(2, w)
+            ans = cps_by_em_size.ans = max(2, get_unit_size_in_pixels('rem'))
         cps_by_em_size.at_font_size = fs
     return ans
 
