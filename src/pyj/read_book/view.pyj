@@ -116,12 +116,15 @@ def show_controls_help():
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
 
     left_msg = msg(_('Tap to turn back'))
-    left_width = '25vw'
+    left_width = 'min(25vw, 1in)'
     right_msg = msg(_('Tap to turn page'))
-    right_width = '75vw'
+    right_width = 'auto'
+    left_grow = 0
+    right_grow = 1
     if rtl_page_progression():
         left_msg, right_msg = right_msg, left_msg
         left_width, right_width = right_width, left_width
+        left_grow, right_grow = right_grow, left_grow
 
     # Clear it out if this is not the first time it's created.
     # Needed to correctly show it again in a different page progression direction.
@@ -139,11 +142,11 @@ def show_controls_help():
             style="display: flex; align-items: stretch; flex-grow: 10",
             E.div(
                 left_msg,
-                style=f'width: {left_width}; display:flex; align-items: center; border-right: solid 2px currentColor',
+                style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',
             ),
             E.div(
                 right_msg,
-                style=f'width: {right_width}; display:flex; align-items: center',
+                style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',
             )
         )
     ))
