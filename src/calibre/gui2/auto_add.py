@@ -233,6 +233,7 @@ class AutoAdder(QObject):
             if os.path.exists(fpath):
                 with open(fpath) as f:
                     paths[0] = f.read()
+            book_fmt = os.path.splitext(os.path.basename(paths[0]))[1][1:].upper()
             sz = os.path.join(tdir, 'size.txt')
             try:
                 with open(sz, 'rb') as f:
@@ -265,10 +266,7 @@ class AutoAdder(QObject):
                     mi.authors = new_authors
                     mi.author_sort = gui.current_db.new_api.author_sort_from_authors(mi.authors)
             mi = [mi]
-            dups, ids = m.add_books(paths,
-                    [os.path.splitext(fname)[1][1:].upper()], mi,
-                    add_duplicates=not gprefs['auto_add_check_for_duplicates'],
-                    return_ids=True)
+            dups, ids = m.add_books(paths, [book_fmt], mi, add_duplicates=not gprefs['auto_add_check_for_duplicates'], return_ids=True)
             added_ids |= set(ids)
             num = len(ids)
             if dups:
