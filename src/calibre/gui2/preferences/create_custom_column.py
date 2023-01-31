@@ -892,7 +892,7 @@ class CreateNewCustomColumn:
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
         if not isinstance(display, dict):
             return (self.Result.INVALID_DISPLAY,
-                   _("The display parameter must be a Python dict"))
+                   _("The display parameter must be a Python dictionary"))
         self.created_count += 1
         self.custcols[lookup_name] = {
                 'label': lookup_name,

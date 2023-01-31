@@ -681,7 +681,7 @@ class Cache:
 
         The returned value for is_multiple fields are always tuples, even when
         no values are found (in other words, default_value is ignored). The
-        exception is identifiers for which the returned value is always a dict.
+        exception is identifiers for which the returned value is always a dictionary.
         The returned tuples are always in link order, that is, the order in
         which they were created.
         '''

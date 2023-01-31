@@ -737,9 +737,9 @@ A developer can choose to pass additional information to the template processor,
 
 **Developer: how to pass additional information**
 
-The additional information is a Python dictionary containing pairs ``variable_name: variable_value`` where the values must be strings. The template can access the dict, creating template local variables named ``variable_name`` containing the value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other template local variables, for example by prefixing the name with an underscore.
+The additional information is a Python dictionary containing pairs ``variable_name: variable_value`` where the values must be strings. The template can access the dictionary, creating template local variables named ``variable_name`` containing the value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other template local variables, for example by prefixing the name with an underscore.
 
-This dict is passed to the template processor (the ``formatter``) using the named parameter ``global_vars=your_dict``. The full method signature is::
+This dictionary is passed to the template processor (the ``formatter``) using the named parameter ``global_vars=your_dict``. The full method signature is::
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
@@ -749,17 +749,17 @@ This dict is passed to the template processor (the ``formatter``) using the name
 
 **Template writer: how to access the additional information**
 
-You access the additional information (the ``globals`` dict) in a template using the template function::
+You access the additional information (the ``globals`` dictionary) in a template using the template function::
 
   globals(id[=expression] [, id[=expression]]*)
 
 where ``id`` is any legal variable name. This function checks whether the additional information provided by the developer contains the name. If it does then the function assigns the provided value to a template local variable with that name. If the name is not in the additional information and if an ``expression`` is provided, the ``expression`` is evaluated and the result is assigned to the local variable. If neither a value nor an expression is provided, the function assigns the empty string (``''``) to the local variable.
 
-A template can set a value in the ``globals`` dict using the template function::
+A template can set a value in the ``globals`` dictionary using the template function::
 
   set_globals(id[=expression] [, id[=expression]]*)
 
-This function sets the ``globals`` dict key:value pair ``id:value`` where ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is set to the result of evaluating ``expression``.
+This function sets the ``globals`` dictionary key:value pair ``id:value`` where ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is set to the result of evaluating ``expression``.
 
 Notes on the difference between modes
 -----------------------------------------
