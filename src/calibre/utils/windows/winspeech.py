@@ -302,9 +302,9 @@ class WinSpeech:
     def _get_messages(self, worker, queue):
         try:
             for line in worker.stdout:
-                queue.put(line.decode('utf-8'))
+                queue.put(line.decode('utf-8', 'replace'))
         except OSError as e:
-            line = ('0 error ' + json.dumps({"msg": "Failed to read from worker", "error": str(e), "file": "winspeech.py", "line": 0}))
+            line = '0 error ' + json.dumps({"msg": "Failed to read from worker", "error": str(e), "file": "winspeech.py", "line": 0})
             queue.put(line)
 
 
