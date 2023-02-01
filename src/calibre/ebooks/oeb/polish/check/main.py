@@ -61,7 +61,8 @@ def run_checks(container):
             items = raster_images
         if items is not None:
             items.append((name, mt, container.raw_data(name, decode=decode)))
-    errors.extend(run_checkers(check_html_size, html_items))
+    if container.book_type == 'epub':
+        errors.extend(run_checkers(check_html_size, html_items))
     errors.extend(run_checkers(check_xml_parsing, xml_items))
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
