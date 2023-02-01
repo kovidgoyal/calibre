@@ -57,9 +57,11 @@ class TTS(QObject):
     def dispatch_on_main_thread(self, func):
         try:
             func()
-        except Exception:
+        except Exception as e:
             import traceback
             traceback.print_exc()
+            if getattr(e, 'display_to_user', False):
+                error_dialog(self.parent(), _('Error in speech subsystem'), str(e), det_msg=traceback.format_exc(), show=True)
 
     @property
     def tts_client_class(self):

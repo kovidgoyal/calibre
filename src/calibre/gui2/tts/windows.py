@@ -76,7 +76,13 @@ class Client:
                     self.current_chunk_idx += 1
                     self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
             elif x.state is MediaState.failed:
-                raise x.as_exception()
+                self.clear_chunks()
+                self.callback_ignoring_errors(Event(EventType.cancel))
+                e = x.as_exception()
+                e.display_to_user = True
+                raise e
+            elif x.state is MediaState.opened:
+                self.callback_ignoring_errors(Event(EventType.begin))
         elif isinstance(x, Error):
             raise x.as_exception(check_for_no_audio_devices=True)
         else:

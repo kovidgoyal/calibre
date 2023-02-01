@@ -121,8 +121,8 @@ class Error(NamedTuple):
 
     def as_exception(self, msg='', check_for_no_audio_devices=False):
         if check_for_no_audio_devices and self.hr == 0xc00d36fa:
-            raise NoAudioDevices()
-        raise SpeechError(self, msg)
+            return NoAudioDevices()
+        return SpeechError(self, msg)
 
 
 class Synthesizing(NamedTuple):
@@ -396,9 +396,7 @@ class WinSpeech:
             st = 'cued' if is_cued else ('ssml' if is_xml else 'text')
             sz = encode_to_file_object(text, shm)
             self.current_speak_cmd_id = self.send_command(f'speak {st} shm {sz} {shm.name}')
-            x = self.wait_for('speech synthesis to start', MediaStateChanged, related_to=self.current_speak_cmd_id, timeout=8)
-            if x.state is MediaState.failed:
-                raise x.as_exception()
+            self.wait_for('speech synthesis to start', Synthesizing, related_to=self.current_speak_cmd_id, timeout=8)
         return self.current_speak_cmd_id
 
     def dispatch_message(self, x):

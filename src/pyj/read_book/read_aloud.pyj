@@ -243,6 +243,8 @@ class ReadAloud:
                 self.play()
             if data is not None:
                 pass
+        elif which is 'cancel':
+            self.state = STOPPED
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)
