@@ -51,6 +51,7 @@ class Client:
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.synthesizing = False
         self.settings = settings or {}
+        self.clear_chunks()
         self.apply_settings()
 
     def __del__(self):
@@ -63,19 +64,17 @@ class Client:
         self.dispatch_on_main_thread(partial(self.handle_event, msg))
 
     def handle_event(self, x):
-        if isinstance(x, MarkReached):
+        if isinstance(x, MarkReached) and self.current_chunks:
             self.last_mark = x.id
+            self.callback_ignoring_errors(Event(EventType.mark, x.id))
         elif isinstance(x, MediaStateChanged) and self.current_chunks:
-            if x.state is MediaState.opened:
-                if self.current_chunk == 0:
-                    self.callback_ignoring_errors(Event(EventType.begin))
-            elif x.state is MediaState.ended:
-                if self.current_chunk >= len(self.chunks) - 1:
+            if x.state is MediaState.ended:
+                if self.current_chunk_idx >= len(self.current_chunks) - 1:
                     self.clear_chunks()
                     self.callback_ignoring_errors(Event(EventType.end))
                 else:
-                    self.current_chunk += 1
-                    self.backend.speak(self.chunks[self.current_chunk], is_cued=True)
+                    self.current_chunk_idx += 1
+                    self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
             elif x.state is MediaState.failed:
                 raise x.as_exception()
         elif isinstance(x, Error):
@@ -92,11 +91,13 @@ class Client:
         self.backend.pause()
         self.clear_chunks()
         self.current_callback = callback
-        self.chunks = tuple(split_into_chunks(text, self.chunk_size))
-        self.current_chunk = 0
-        if self.chunks:
-            self.backend.speak(self.chunks[self.current_chunk], is_cued=True)
+        self.current_chunks = tuple(split_into_chunks(text, self.chunk_size))
+        self.current_chunk_idx = 0
+        if self.current_chunks:
+            self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
             self.synthesizing = True
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.begin))
 
     def callback_ignoring_errors(self, ev):
         if self.current_callback is not None:
@@ -108,7 +109,7 @@ class Client:
 
     def clear_chunks(self):
         self.synthesizing = False
-        self.current_chunk = 0
+        self.current_chunk_idx = -100
         self.current_chunks = []
         self.last_mark = -1
 

@@ -107,7 +107,8 @@ class SpeechError(OSError):
 
 class NoAudioDevices(Exception):
     def __init__(self):
-        super().__init__(_('No active audio output devices found. Connect headphones or speakers.'))
+        super().__init__(_('No active audio output devices found.'
+                           ' Connect headphones or speakers. If you are using Remote Desktop then enable Remote Audio for it.'))
 
 
 class Error(NamedTuple):
@@ -119,8 +120,8 @@ class Error(NamedTuple):
     related_to: int = 0
 
     def as_exception(self, msg='', check_for_no_audio_devices=False):
-        if check_for_no_audio_devices and self.hr == 0x8004503a:
-            raise NoAudioDevices(_('No active audio output devices found. Connect headphones or speakers.'))
+        if check_for_no_audio_devices and self.hr == 0xc00d36fa:
+            raise NoAudioDevices()
         raise SpeechError(self, msg)
 
 
