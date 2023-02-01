@@ -270,7 +270,7 @@ class Client:
         return ans
 
     def config_widget(self, backend_settings, parent):
-        from calibre.gui2.tts.windows_config import Widget
+        from calibre.gui2.tts.windows_sapi_config import Widget
         return Widget(self, backend_settings, parent)
 
     def change_rate(self, steps=1):
