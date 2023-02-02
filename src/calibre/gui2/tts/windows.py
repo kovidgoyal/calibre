@@ -133,6 +133,7 @@ class Client:
 
     def stop(self):
         self.backend.pause()
+        self.synthesizing = False
         self.clear_chunks()
         if self.current_callback is not None:
             self.current_callback(Event(EventType.cancel))
@@ -151,17 +152,17 @@ class Client:
 
     def apply_settings(self, new_settings=None):
         if self.synthesizing:
-            self.stop()
+            self.pause()
         if new_settings is not None:
             self.settings = new_settings
-        try:
-            self.backend.set_rate(self.settings.get('rate', self.default_system_rate))
-        except OSError:
-            self.settings.pop('rate', None)
         try:
             self.backend.set_voice(self.settings.get('voice'), self.default_system_voice)
         except OSError:
             self.settings.pop('voice', None)
+        try:
+            self.backend.set_rate(self.settings.get('rate', self.default_system_rate))
+        except OSError:
+            self.settings.pop('rate', None)
         try:
             self.backend.set_audio_device(self.settings.get('sound_output'), self.default_system_audio_device)
         except OSError:
@@ -172,27 +173,29 @@ class Client:
         return Widget(self, backend_settings, parent)
 
     def chunks_from_last_mark(self):
-        for i, chunk in enumerate(self.current_chunks):
-            for ci, x in enumerate(chunk):
-                if x == self.last_mark:
-                    chunks = self.current_chunks[i:]
-                    chunk = chunk[ci + 1:]
-                    if chunk:
-                        chunks = (chunk,) + chunks[1:]
-                    else:
-                        chunks = chunks[1:]
-                    return chunks
+        print(222222222, self.last_mark)
+        if self.last_mark > -1:
+            for i, chunk in enumerate(self.current_chunks):
+                for ci, x in enumerate(chunk):
+                    if x == self.last_mark:
+                        chunks = self.current_chunks[i:]
+                        chunk = chunk[ci + 1:]
+                        if chunk:
+                            chunks = (chunk,) + chunks[1:]
+                        else:
+                            chunks = chunks[1:]
+                        return chunks
         return ()
 
     def resume_after_configure(self):
         if not self.synthesizing:
             return
+        self.current_chunks = self.chunks_from_last_mark()
         self.current_chunk_idx = -100
         self.last_mark = -1
-        self.current_chunks = self.chunks_from_last_mark()
         self.next_start_is_resume = True
         self.synthesizing = bool(self.current_chunks)
-        if self.current_chunks:
+        if self.synthesizing:
             self.current_chunk_idx = 0
             self.speak_current_chunk()
 
@@ -207,7 +210,6 @@ class Client:
         if rate != current_rate:
             self.settings['rate'] = rate
             was_synthesizing = self.synthesizing
-            self.pause()
             self.apply_settings()
             if was_synthesizing:
                 self.synthesizing = True
