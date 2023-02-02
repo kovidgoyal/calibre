@@ -15,7 +15,7 @@ class JerusalemPost(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     keep_only_tags = [
-        classes('margin-container-body'),
+        classes('margin-container-body article-title article-subline article-inner-content-breaking-news'),
     ]
     remove_tags = [
         classes('share-buttons hide-for-premium'),
@@ -31,6 +31,7 @@ class JerusalemPost(BasicNewsRecipe):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
 
     feeds = [
+        ('Top Stories', 'https://www.jpost.com/Rss/RssFeedsHeadlines.aspx'),
         ('Arab Israeli Conflict', 'https://www.jpost.com/rss/rssfeedsarabisraeliconflict.aspx'),
         ('US Politics', 'https://www.jpost.com/rss/rssfeedsamerican-politics'),
         ('Israel News', 'https://www.jpost.com/rss/rssfeedsisraelnews.aspx'),
@@ -39,4 +40,5 @@ class JerusalemPost(BasicNewsRecipe):
             'https://www.jpost.com/rss/rssfeedsmiddleeastnews.aspx'
         ),
         ('International News', 'https://www.jpost.com/rss/rssfeedsinternational'),
+        ('Opinion', 'https://www.jpost.com/Rss/RssFeedsOpinion.aspx'),
     ]
