@@ -1106,9 +1106,14 @@ class OPF:  # {{{
         for x in matches:
             x.getparent().remove(x)
 
+        num_done = 0
         for lang in val:
             l = self.create_metadata_element('language')
             self.set_text(l, str(lang))
+            num_done += 1
+        if num_done == 0:
+            l = self.create_metadata_element('language')
+            self.set_text(l, 'und')
 
     @property
     def raw_languages(self):
