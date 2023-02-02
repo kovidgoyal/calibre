@@ -438,7 +438,7 @@ class WinSpeech:
         val = spec or getattr(default_system_voice, 'id', '__default__')
         x = self.wait_for('Setting the voice', Voice, related_to=self.send_command(f'voice {val}'))
         if not x.found:
-            raise KeyError(f'Failed to find the voice: {val}')
+            raise SpeechError(f'Failed to find the voice: {val}')
 
     def set_audio_device(self, spec, default_system_audio_device):
         if not spec and not default_system_audio_device:
@@ -447,7 +447,7 @@ class WinSpeech:
             spec = default_system_audio_device.spec()
         x = self.wait_for('Setting the audio device', AudioDevice, related_to=self.send_command(f'audio_device {spec[0]} {spec[1]}'))
         if not x.found:
-            raise KeyError(f'Failed to find the audio device: {spec}')
+            raise SpeechError(f'Failed to find the audio device: {spec}')
 
     def get_audio_device(self):
         return self.wait_for('Audio device', AudioDevice, related_to=self.send_command('audio_device'))
