@@ -242,7 +242,7 @@ class TouchHandler:
         self.handle_gesture(gesture)
 
 def inch_in_pixels():
-    ans = inch_in_pixels().ans
+    ans = inch_in_pixels.ans
     if not ans:
         ans = inch_in_pixels.ans = max(2, get_unit_size_in_pixels('in'))
     return ans

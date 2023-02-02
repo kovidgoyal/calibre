@@ -162,7 +162,7 @@ class ReadUI:
         div.appendChild(E.div(style='padding: 2ex 2rem; display:table; margin: auto'))
         div = div.lastChild
         dp = E.div()
-        create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', dp)
+        create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', 'red', dp)
         div.appendChild(dp)
         div.appendChild(E.div(
             style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px currentColor',
