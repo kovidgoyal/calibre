@@ -213,7 +213,8 @@ class TouchHandler:
             self.reset_handlers()
 
     def handle_touchcancel(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if ev.cancelable:
+            ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
             tid = touch_id(touch)  # noqa: unused-local
             v'delete self.ongoing_touches[tid]'
