@@ -159,14 +159,20 @@ class Client:
         try:
             self.backend.set_voice(self.settings.get('voice'), self.default_system_voice)
         except OSError:
+            import traceback
+            traceback.print_exc()
             self.settings.pop('voice', None)
         try:
             self.backend.set_rate(self.settings.get('rate', self.default_system_rate))
         except OSError:
+            import traceback
+            traceback.print_exc()
             self.settings.pop('rate', None)
         try:
             self.backend.set_audio_device(self.settings.get('sound_output'), self.default_system_audio_device)
         except OSError:
+            import traceback
+            traceback.print_exc()
             self.settings.pop('sound_output', None)
         if was_synthesizing:
             self.resume_after_configure()

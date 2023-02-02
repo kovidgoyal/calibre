@@ -313,7 +313,7 @@ def parse_message(line):
         return AllAudioDevices(**ans)
     if msg_type == 'audio_device':
         if ans['device']:
-            ans['device'] = DeviceInformation(ans['device'])
+            ans['device'] = DeviceInformation(**ans['device'])
         else:
             ans['device'] = None
         return AudioDevice(**ans)
