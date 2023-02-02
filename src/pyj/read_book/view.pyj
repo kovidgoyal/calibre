@@ -906,13 +906,16 @@ class View:
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
         self.book_load_started = True
-        if not is_current_book:
+        if is_current_book:
+            if not is_redisplay:
+                self.search_overlay.clear_caches(book)  # could be a reload
+        else:
             if self.book:
                 self.iframe_wrapper.reset()
                 self.content_popup_overlay.reset()
             self.clear_book_resource_caches()
             self.timers.start_book(book)
-        self.search_overlay.clear_caches(book)  # could be a reload
+            self.search_overlay.clear_caches(book)
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
         hl = None
