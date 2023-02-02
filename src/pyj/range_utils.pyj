@@ -65,17 +65,17 @@ def all_annots_in_range(r, annot_id_uuid_map, ans):
             if node.dataset and node.dataset.calibreRangeWrapper:
                 annot_id = annot_id_uuid_map[node.dataset.calibreRangeWrapper]
                 if annot_id:
-                    ans.push(annot_id)
+                    ans[annot_id] = True
             if not is_full_tree and node.isSameNode(r.endContainer):
                 break
     return ans
 
 
 def all_annots_in_selection(sel, annot_id_uuid_map):
-    ans = v'[]'
+    ans = v'{}'
     for i in range(sel.rangeCount):
         all_annots_in_range(sel.getRangeAt(i), annot_id_uuid_map, ans)
-    return ans
+    return Object.keys(ans)
 
 
 def remove(node):
