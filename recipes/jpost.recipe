@@ -32,7 +32,6 @@ class JerusalemPost(BasicNewsRecipe):
 
     feeds = [
         ('Arab Israeli Conflict', 'https://www.jpost.com/rss/rssfeedsarabisraeliconflict.aspx'),
-        ('Jerusalem', 'https://www.jpost.com/rss/rssfeedsjerusalem.aspx'),
         ('US Politics', 'https://www.jpost.com/rss/rssfeedsamerican-politics'),
         ('Israel News', 'https://www.jpost.com/rss/rssfeedsisraelnews.aspx'),
         (
