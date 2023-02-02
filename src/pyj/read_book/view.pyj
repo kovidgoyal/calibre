@@ -527,7 +527,7 @@ class View:
         elif data.name is 'toggle_read_aloud':
             self.toggle_read_aloud()
         elif data.name is 'reload_book':
-            ui_operations.reload_book()
+            self.reload_book()
         elif data.name is 'sync_book':
             self.overlay.sync_book()
         elif data.name is 'next_section':
@@ -893,6 +893,14 @@ class View:
                 'library_id': self.book.key[0], 'book_id': self.book.key[1] + '', 'close_action': 'book_list',
             }, 'book_details'))
 
+    def clear_book_resource_caches(self):
+        self.loaded_resources = {}
+        self.content_popup_overlay.loaded_resources = {}
+
+    def reload_book(self):
+        self.clear_book_resource_caches()
+        ui_operations.reload_book()
+
     def display_book(self, book, initial_position, is_redisplay):
         self.hide_overlays()
         self.iframe.focus()
@@ -902,10 +910,9 @@ class View:
             if self.book:
                 self.iframe_wrapper.reset()
                 self.content_popup_overlay.reset()
-            self.loaded_resources = {}
-            self.content_popup_overlay.loaded_resources = {}
+            self.clear_book_resource_caches()
             self.timers.start_book(book)
-            self.search_overlay.clear_caches(book)
+        self.search_overlay.clear_caches(book)  # could be a reload
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
         hl = None

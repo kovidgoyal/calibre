@@ -120,7 +120,7 @@ class DeleteBook:  # {{{
     def delete_book(self):
         if runtime.is_standalone_viewer:
             if self.reload_book:
-                ui_operations.reload_book()
+                self.overlay.view.reload_book()
             return
         self.show_working()
         view = self.overlay.view
@@ -130,7 +130,7 @@ class DeleteBook:  # {{{
                 view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
             else:
                 if self.reload_book:
-                    ui_operations.reload_book()
+                    self.overlay.view.reload_book()
                 else:
                     home()
         )
