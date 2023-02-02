@@ -151,6 +151,7 @@ class Client:
             self.current_callback(Event(EventType.resume))
 
     def apply_settings(self, new_settings=None):
+        was_synthesizing = self.synthesizing
         if self.synthesizing:
             self.pause()
         if new_settings is not None:
@@ -167,13 +168,14 @@ class Client:
             self.backend.set_audio_device(self.settings.get('sound_output'), self.default_system_audio_device)
         except OSError:
             self.settings.pop('sound_output', None)
+        if was_synthesizing:
+            self.resume_after_configure()
 
     def config_widget(self, backend_settings, parent):
         from calibre.gui2.tts.windows_config import Widget
         return Widget(self, backend_settings, parent)
 
     def chunks_from_last_mark(self):
-        print(222222222, self.last_mark)
         if self.last_mark > -1:
             for i, chunk in enumerate(self.current_chunks):
                 for ci, x in enumerate(chunk):
@@ -188,8 +190,6 @@ class Client:
         return ()
 
     def resume_after_configure(self):
-        if not self.synthesizing:
-            return
         self.current_chunks = self.chunks_from_last_mark()
         self.current_chunk_idx = -100
         self.last_mark = -1
@@ -209,9 +209,5 @@ class Client:
         rate = max(self.min_rate, min(rate, self.max_rate))
         if rate != current_rate:
             self.settings['rate'] = rate
-            was_synthesizing = self.synthesizing
             self.apply_settings()
-            if was_synthesizing:
-                self.synthesizing = True
-                self.resume_after_configure()
             return self.settings
