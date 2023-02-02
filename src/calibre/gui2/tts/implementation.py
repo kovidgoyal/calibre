@@ -4,7 +4,11 @@
 from calibre.constants import iswindows, ismacos
 
 if iswindows:
-    from .windows import Client
+    from calibre.utils.config_base import tweaks
+    if tweaks.get('prefer_winsapi'):
+        from .windows_sapi import Client
+    else:
+        from .windows import Client
 elif ismacos:
     from .macos import Client
 else:
