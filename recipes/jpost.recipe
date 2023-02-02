@@ -27,6 +27,9 @@ class JerusalemPost(BasicNewsRecipe):
     max_articles_per_feed = 10
     no_stylesheets = True
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     feeds = [
         ('Arab Israeli Conflict', 'https://www.jpost.com/rss/rssfeedsarabisraeliconflict.aspx'),
         ('Jerusalem', 'https://www.jpost.com/rss/rssfeedsjerusalem.aspx'),
