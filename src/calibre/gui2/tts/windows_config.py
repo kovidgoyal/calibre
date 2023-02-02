@@ -154,9 +154,12 @@ class Widget(QWidget):
     def sound_output(self, val):
         idx = 0
         if val:
-            q = self.sound_outputs.findData(val)
-            if q > -1:
-                idx = q
+            val = tuple(val)
+            for q in range(self.sound_outputs.count()):
+                x = self.sound_outputs.itemData(q)
+                if x == val:
+                    idx = q
+                    break
         self.sound_outputs.setCurrentIndex(idx)
 
     @property
@@ -184,11 +187,16 @@ class Widget(QWidget):
 def develop():
     from calibre.gui2 import Application
     from calibre.gui2.tts.implementation import Client
+    from calibre.gui2.viewer.config import vprefs
+    s = vprefs.get('tts_winspeech') or {}
+    print(s)
+    print(flush=True)
     app = Application([])
     c = Client()
-    w = Widget(c, {})
+    w = Widget(c, s)
     w.show()
     app.exec()
+    print(flush=True)
     print(w.backend_settings)
 
 
