@@ -180,7 +180,9 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchstart(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         self.prune_expired_touches()
         for touch in ev.changedTouches:
             self.ongoing_touches[touch_id(touch)] = copy_touch(touch)
@@ -193,7 +195,9 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchmove(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
@@ -201,7 +205,9 @@ class TouchHandler:
                 self.dispatch_gesture()
 
     def handle_touchend(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
@@ -214,7 +220,8 @@ class TouchHandler:
 
     def handle_touchcancel(self, ev):
         if ev.cancelable:
-            ev.preventDefault(), ev.stopPropagation()
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             tid = touch_id(touch)  # noqa: unused-local
             v'delete self.ongoing_touches[tid]'
