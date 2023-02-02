@@ -180,7 +180,7 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchstart(self, ev):
-        if ev.cancelable:
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
             ev.preventDefault()
         ev.stopPropagation()
         self.prune_expired_touches()
@@ -195,7 +195,7 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchmove(self, ev):
-        if ev.cancelable:
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
             ev.preventDefault()
         ev.stopPropagation()
         for touch in ev.changedTouches:
@@ -205,7 +205,7 @@ class TouchHandler:
                 self.dispatch_gesture()
 
     def handle_touchend(self, ev):
-        if ev.cancelable:
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
             ev.preventDefault()
         ev.stopPropagation()
         for touch in ev.changedTouches:
@@ -219,7 +219,7 @@ class TouchHandler:
             self.reset_handlers()
 
     def handle_touchcancel(self, ev):
-        if ev.cancelable:
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
             ev.preventDefault()
         ev.stopPropagation()
         for touch in ev.changedTouches:
