@@ -12,7 +12,7 @@ from itertools import count
 from queue import Empty, Queue
 from threading import Thread
 from time import monotonic
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Optional
 
 from calibre.constants import DEBUG
 from calibre.utils.ipc.simple_worker import start_pipe_worker
@@ -101,11 +101,12 @@ class SpeechError(OSError):
             val += f'{msg}. '
         val += err.msg + ': ' + err.error + f'\nFile: {err.file} Line: {err.line}'
         if err.hr:
+            # List of mediaserver errors is here: https://www.hresult.info/FACILITY_MEDIASERVER
             val += f' HRESULT: 0x{err.hr:x}'
         super().__init__(val)
 
 
-class NoAudioDevices(Exception):
+class NoAudioDevices(OSError):
     def __init__(self):
         super().__init__(_('No active audio output devices found.'
                            ' Connect headphones or speakers. If you are using Remote Desktop then enable Remote Audio for it.'))
@@ -212,7 +213,7 @@ class DefaultVoice(NamedTuple):
 
 class Voice(NamedTuple):
     related_to: int
-    voice: VoiceInformation
+    voice: Optional[VoiceInformation]
     found: bool = True
 
 
@@ -223,11 +224,19 @@ class DeviceInformation(NamedTuple):
     is_default: bool
     is_enabled: bool
 
+    def spec(self) -> Tuple[str, str]:
+        return self.kind, self.id
+
 
 class AudioDevice(NamedTuple):
     related_to: int
-    device: DeviceInformation
+    device: Optional[DeviceInformation]
     found: bool = True
+
+
+class AllAudioDevices(NamedTuple):
+    related_to: int
+    devices: Tuple[DeviceInformation, ...]
 
 
 class AllVoices(NamedTuple):
@@ -301,11 +310,18 @@ def parse_message(line):
         return AllVoices(**ans)
     if msg_type == 'all_audio_devices':
         ans['devices'] = tuple(DeviceInformation(**x) for x in ans['devices'])
-        return AudioDevice(**ans)
+        return AllAudioDevices(**ans)
     if msg_type == 'audio_device':
+        if ans['device']:
+            ans['device'] = DeviceInformation(ans['device'])
+        else:
+            ans['device'] = None
         return AudioDevice(**ans)
     if msg_type == 'voice':
-        ans['voice'] = VoiceInformation(**ans['voice'])
+        if ans['voice']:
+            ans['voice'] = VoiceInformation(**ans['voice'])
+        else:
+            ans['voice'] = None
         return Voice(**ans)
     if msg_type == 'volume':
         return Volume(**ans)
@@ -357,7 +373,7 @@ class WinSpeech:
                 line = line.strip()
                 if DEBUG:
                     with suppress(Exception):
-                        print('winspeech:', line.decode('utf-8', 'replace'), flush=True)
+                        print('winspeech:\x1b[32m<-\x1b[39m', line.decode('utf-8', 'replace'), flush=True)
                 send_msg(parse_message(line))
         except OSError as e:
             send_msg(Error('Failed to read from worker', str(e)))
@@ -367,7 +383,11 @@ class WinSpeech:
     def send_command(self, cmd):
         cmd_id = next(self.msg_id_counter)
         w = self.worker
-        w.stdin.write(f'{cmd_id} {cmd}\n'.encode('utf-8'))
+        cmd = f'{cmd_id} {cmd}'
+        if DEBUG:
+            with suppress(Exception):
+                print('winspeech:\x1b[31m->\x1b[39m', cmd, flush=True)
+        w.stdin.write(f'{cmd}\n'.encode('utf-8'))
         w.stdin.flush()
         return cmd_id
 
@@ -409,6 +429,38 @@ class WinSpeech:
 
     def play(self):
         self.wait_for('play', Play, related_to=self.send_command('play'))
+
+    def set_rate(self, val):
+        val = float(val)
+        self.wait_for('Setting the rate', Rate, related_to=self.send_command(f'rate {val}'))
+
+    def set_voice(self, spec, default_system_voice):
+        val = spec or getattr(default_system_voice, 'id', '__default__')
+        x = self.wait_for('Setting the voice', Voice, related_to=self.send_command(f'voice {val}'))
+        if not x.found:
+            raise KeyError(f'Failed to find the voice: {val}')
+
+    def set_audio_device(self, spec, default_system_audio_device):
+        if not spec and not default_system_audio_device:
+            return
+        if not spec:
+            spec = default_system_audio_device.spec()
+        x = self.wait_for('Setting the audio device', AudioDevice, related_to=self.send_command(f'audio_device {spec[0]} {spec[1]}'))
+        if not x.found:
+            raise KeyError(f'Failed to find the audio device: {spec}')
+
+    def get_audio_device(self):
+        return self.wait_for('Audio device', AudioDevice, related_to=self.send_command('audio_device'))
+
+    def default_voice(self):
+        return self.wait_for('Default voice', DefaultVoice, related_to=self.send_command('default_voice'))
+
+    def all_voices(self):
+        return self.wait_for('All voices', AllVoices, related_to=self.send_command('all_voices'))
+
+    def all_audio_devices(self):
+        return self.wait_for('All audio devices', AllAudioDevices, related_to=self.send_command('all_audio_devices'))
+
 
 
 # develop {{{

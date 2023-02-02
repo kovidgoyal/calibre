@@ -756,6 +756,9 @@ static const std::unordered_map<std::string, handler_function> handlers = {
         bool found = false;
         if (parts.size()) {
             auto voice_id = winrt::hstring(parts.at(0));
+            if (voice_id == L"__default__") {
+                voice_id = SpeechSynthesizer::DefaultVoice().Id();
+            }
             for (auto const &candidate : SpeechSynthesizer::AllVoices()) {
                 if (candidate.Id() == voice_id) {
                     speech_synthesizer.Voice(candidate);
@@ -765,8 +768,8 @@ static const std::unordered_map<std::string, handler_function> handlers = {
             }
         }
         auto x = speech_synthesizer.Voice();
-        if (x) output(cmd_id, "voice", {{"value", speech_synthesizer.Voice()}, {"found", found}});
-        else output(cmd_id, "voice", {{"value", ""}, {"found", found}});
+        if (x) output(cmd_id, "voice", {{"voice", speech_synthesizer.Voice()}, {"found", found}});
+        else output(cmd_id, "voice", {{"voice", ""}, {"found", found}});
     }},
 
     {"volume", [](id_type cmd_id, std::vector<std::wstring_view> parts, int64_t*) {

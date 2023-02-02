@@ -52,7 +52,15 @@ class Client:
         self.synthesizing = False
         self.settings = settings or {}
         self.clear_chunks()
+        self.default_system_audio_device = self.backend.get_audio_device().device
+        self.default_system_voice = self.backend.default_voice().voice
         self.apply_settings()
+
+    def get_all_voices(self):
+        return self.backend.all_voices().voices
+
+    def get_all_audio_devices(self):
+        return self.backend.all_audio_devices().devices
 
     def __del__(self):
         if self.backend is not None:
@@ -62,6 +70,9 @@ class Client:
 
     def dispatch_msg(self, msg):
         self.dispatch_on_main_thread(partial(self.handle_event, msg))
+
+    def speak_current_chunk(self):
+        self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
 
     def handle_event(self, x):
         if isinstance(x, MarkReached) and self.current_chunks:
@@ -74,7 +85,7 @@ class Client:
                     self.callback_ignoring_errors(Event(EventType.end))
                 else:
                     self.current_chunk_idx += 1
-                    self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
+                    self.speak_current_chunk()
             elif x.state is MediaState.failed:
                 self.clear_chunks()
                 self.callback_ignoring_errors(Event(EventType.cancel))
@@ -82,7 +93,8 @@ class Client:
                 e.display_to_user = True
                 raise e
             elif x.state is MediaState.opened:
-                self.callback_ignoring_errors(Event(EventType.begin))
+                self.callback_ignoring_errors(Event(EventType.resume if self.next_start_is_resume else EventType.begin))
+                self.next_start_is_resume = False
         elif isinstance(x, Error):
             raise x.as_exception(check_for_no_audio_devices=True)
         else:
@@ -98,12 +110,11 @@ class Client:
         self.clear_chunks()
         self.current_callback = callback
         self.current_chunks = tuple(split_into_chunks(text, self.chunk_size))
-        self.current_chunk_idx = 0
+        self.current_chunk_idx = -100
         if self.current_chunks:
-            self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
+            self.current_chunk_idx = 0
+            self.speak_current_chunk()
             self.synthesizing = True
-            if self.current_callback is not None:
-                self.current_callback(Event(EventType.begin))
 
     def callback_ignoring_errors(self, ev):
         if self.current_callback is not None:
@@ -115,8 +126,9 @@ class Client:
 
     def clear_chunks(self):
         self.synthesizing = False
+        self.next_start_is_resume = False
         self.current_chunk_idx = -100
-        self.current_chunks = []
+        self.current_chunks = ()
         self.last_mark = -1
 
     def stop(self):
@@ -138,11 +150,51 @@ class Client:
             self.current_callback(Event(EventType.resume))
 
     def apply_settings(self, new_settings=None):
-        pass
+        if self.synthesizing:
+            self.stop()
+        if new_settings is not None:
+            self.settings = new_settings
+        try:
+            self.backend.set_rate(self.settings.get('rate', self.default_system_rate))
+        except OSError:
+            self.settings.pop('rate', None)
+        try:
+            self.backend.set_voice(self.settings.get('voice'), self.default_system_voice)
+        except OSError:
+            self.settings.pop('voice', None)
+        try:
+            self.backend.set_audio_device(self.settings.get('sound_output'), self.default_system_audio_device)
+        except OSError:
+            self.settings.pop('sound_output', None)
 
     def config_widget(self, backend_settings, parent):
         from calibre.gui2.tts.windows_config import Widget
         return Widget(self, backend_settings, parent)
+
+    def chunks_from_last_mark(self):
+        for i, chunk in enumerate(self.current_chunks):
+            for ci, x in enumerate(chunk):
+                if x == self.last_mark:
+                    chunks = self.current_chunks[i:]
+                    chunk = chunk[ci + 1:]
+                    if chunk:
+                        chunks = (chunk,) + chunks[1:]
+                    else:
+                        chunks = chunks[1:]
+                    return chunks
+        return ()
+
+    def resume_after_configure(self):
+        if not self.synthesizing:
+            return
+        self.current_chunk_idx = -100
+        self.last_mark = -1
+        self.current_chunks = self.chunks_from_last_mark()
+        self.next_start_is_resume = True
+        self.synthesizing = bool(self.current_chunks)
+        if self.current_chunks:
+            self.current_chunk_idx = 0
+            self.speak_current_chunk()
 
     def change_rate(self, steps=1):
         rate = current_rate = self.settings.get('rate', self.default_system_rate)
