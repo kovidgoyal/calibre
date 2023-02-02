@@ -17,9 +17,10 @@ def split_into_chunks(marked_text, chunk_size):
             sz = len(x)
             if tlen + sz > chunk_size:
                 mark = None
-                if chunk and isinstance(chunk[-1], int):
-                    mark = chunk[-1]
-                    del chunk[-1]
+                if chunk:
+                    if isinstance(chunk[-1], int):
+                        mark = chunk[-1]
+                        del chunk[-1]
                     yield chunk
                 chunk = [] if mark is None else [mark]
                 tlen = sz
@@ -38,7 +39,7 @@ class Client:
     min_rate = 0.5
     max_rate = 6.0
     default_system_rate = 1.0
-    chunk_size = 128 * 1024
+    chunk_size = 64 * 1024
 
     @classmethod
     def escape_marked_text(cls, text):
