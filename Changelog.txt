@@ -23,6 +23,68 @@
 # - title by author
 # }}}
 
+{{{ 6.12.0 2023-02-03
+
+:: new features
+
+- E-book viewer: Read aloud: On Windows switch to using the new Microsoft speech subsystem with access to more voices
+
+  Note that this means that old voice, speed and audio devices setting will not be used so a reconfiguration might be needed.
+
+- [2003712] calibre:// URL scheme: allow specifying a Virtual library for show_book URLs
+
+- [2003227] Add by ISBN: Allow adding using identifiers other than ISBN as well
+
+- Update bundled Qt to 6.4 this means calibre on macOS is now only supported on Big Sur and newer
+
+- Spell check dialog: Allow up and down arrow keys to work regardless of focus
+
+- [2002257] Allow multiple Template tester dialogs
+
+:: bug fixes
+
+- Windows MTP device driver: Ignore failure to enumerate objects inside non-root folders
+
+  There are apparently a lot of devices out there that fail in this way.
+  So rather than aborting the scan simply ignore the folder.
+
+- Book list: Fix a regression in the previous release that broke dragging to select multiple books
+
+- [2004197] Content server viewer: Fix reload book not actually reloading until the browser is also refreshed
+
+- [2003916] E-book viewer: Fix occasional false warning about highlight being overwritten
+
+- [2003908] E-book viewer: Fix detection of selected highlights when all text is selected
+
+- [2003729] Fix an error when embedding metadata into a large number of books
+
+- [2004522] When updating metadata in EPUB 2 files and no language is specified, do not remove the <dc:language> tag as this causes epubcheck to complain. Instead set the language to "und"
+
+- [2004083] Wireless device driver: Remove the timeout for initial connection
+
+- [2003652] Use an icon rather than a color to report errors in fields and the search box
+
+- Conversion dialog: Regex builder: Workaround bug in Qt that prevented searching for non breaking spaces in the wizard used to test search expressions
+
+- [2002864] Spell check dialog: move down after correcting word, not up
+
+- [2002534] Get books: Fix Mobileread store plugin not working
+
+:: improved recipes
+- Jerusalem Post
+- LiveMint
+- The Seattle Times
+- India Today
+- Outlook Magazine
+- Live Mint
+- Irish Independent
+- Irish Times
+
+:: new recipes
+- Boston Globe Print Edition by unkn0wn
+- Observer Reach Foundation by unkn0wn
+}}}
+
 {{{ 6.11.0 2023-01-06
 
 :: new features
