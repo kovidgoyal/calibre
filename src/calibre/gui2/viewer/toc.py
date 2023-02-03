@@ -89,6 +89,7 @@ class TOCView(QTreeView):
             }
 
         ''' + QApplication.instance().palette_manager.tree_view_hover_style())
+        self.setProperty('hovered_item_is_highlighted', True)
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():

@@ -241,6 +241,7 @@ class TagsView(QTreeView):  # {{{
         '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb) + QApplication.instance().palette_manager.tree_view_hover_style()
         )
+        self.setProperty('hovered_item_is_highlighted', True)
 
     def set_look_and_feel(self, first=False):
         self.set_style_sheet()
