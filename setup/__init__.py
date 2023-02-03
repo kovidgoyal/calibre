@@ -47,8 +47,12 @@ def newer(targets, sources):
         if not os.path.exists(f):
             return True
     ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-    stimes = map(lambda x: os.stat(x).st_mtime, sources)
-    newest_source, oldest_target = max(stimes), min(ttimes)
+    oldest_target = max(ttimes)
+    try:
+        stimes = map(lambda x: os.stat(x).st_mtime, sources)
+        newest_source = max(stimes)
+    except FileNotFoundError:
+        newest_source = oldest_target +1
     return newest_source > oldest_target
 
 
