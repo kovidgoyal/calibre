@@ -238,13 +238,9 @@ class TagsView(QTreeView):  # {{{
                     padding-bottom:PADex;
                 }
 
-                QTreeView::item:hover {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                    border: 1px solid #bfcde4;
-                    border-radius: 6px;
-                }
         '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
-            '' if gprefs['tag_browser_old_look'] else stylish_tb))
+            '' if gprefs['tag_browser_old_look'] else stylish_tb) + QApplication.instance().palette_manager.tree_view_hover_style()
+        )
 
     def set_look_and_feel(self, first=False):
         self.set_style_sheet()

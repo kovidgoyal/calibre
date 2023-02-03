@@ -88,13 +88,7 @@ class TOCView(QTreeView):
                 padding-bottom:0.5ex;
             }
 
-            QTreeView::item:hover {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                color: black;
-                border: 1px solid #bfcde4;
-                border-radius: 6px;
-            }
-        ''')
+        ''' + QApplication.instance().palette_manager.tree_view_hover_style())
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():

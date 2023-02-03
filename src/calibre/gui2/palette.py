@@ -445,3 +445,19 @@ class PaletteManager(QObject):
                         print('Detected a spontaneous palette change by Qt, reverting it', file=sys.stderr)
                     self.set_palette(pal)
             self.on_palette_change()
+
+    def tree_view_hover_style(self):
+        g1, g2 = '#e7effd', '#cbdaf1'
+        border_size = '1px'
+        if self.is_dark_theme:
+            c = QApplication.instance().palette().color(QPalette.ColorRole.Highlight)
+            c = c.lighter(180)
+            g1 = g2 = c.name()
+            border_size = '0px'
+        return f'''
+            QTreeView::item:hover {{
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 {g1}, stop: 1 {g2});
+                border: {border_size} solid #bfcde4;
+                border-radius: 6px;
+            }}
+        '''

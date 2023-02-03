@@ -203,7 +203,7 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
                 QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
                 QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
                 if (is_color_dark(option->palette.color(QPalette::Window))) {
-                    color = color.lighter(190);
+                    color = color.lighter(180);
                 } else {
                     color = color.lighter(125);
                 }
