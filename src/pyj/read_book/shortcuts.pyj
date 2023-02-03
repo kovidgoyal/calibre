@@ -315,7 +315,7 @@ def common_shortcuts():  # {{{
     ),
 
     'reload_book': desc(
-        v"['F5', 'Ctrl+r']",
+        v"['Ctrl+Alt+F5', 'Ctrl+Alt+r']",
         'ui',
         _('Reload book'),
     ),
