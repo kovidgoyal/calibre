@@ -87,7 +87,7 @@ static void draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption
     if (rect.isEmpty())
         return;
 
-    const qreal dpi = option->fontMetrics.fontDpi();
+    const qreal dpi = std::max(76.0, option->fontMetrics.fontDpi());
     const int arrowWidth = int(dpiScaled(14, dpi));
     const int arrowHeight = int(dpiScaled(8, dpi));
 
