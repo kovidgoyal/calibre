@@ -34,11 +34,14 @@ class Bloomberg(BasicNewsRecipe):
             br.open(url)
         except Exception as e:
             url = e.hdrs.get('location')
-        html = br.open(url).read()
+        soup = self.index_to_soup(url)
+        link = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://www.bloomberg.com')})
+        html = br.open(link['href']).read()
         pt = PersistentTemporaryFile('.html')
         pt.write(html)
         pt.close()
         return pt.name
+
 
     def get_browser(self):
         br = browser()
