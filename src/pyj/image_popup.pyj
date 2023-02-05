@@ -8,6 +8,8 @@ from ajax import absolute_path
 from dom import add_extra_css, svgicon, unique_id
 from gettext import gettext as _
 from popups import MODAL_Z_INDEX
+from read_book.flow_mode import FlickAnimator
+from read_book.touch import TouchHandler, install_handlers
 from utils import debounce
 
 add_extra_css(def():
@@ -44,9 +46,14 @@ def fit_image(width, height, pwidth, pheight):
     return scaled, int(width), int(height)
 
 
-class ImagePopup:
+class ImagePopup(TouchHandler):
 
     def __init__(self):
+        TouchHandler.__init__(self)
+        self.flick_animator = fa = FlickAnimator()
+        fa.scroll_x = self.scroll_x
+        fa.scroll_y = self.scroll_y
+        fa.cancel_current_drag_scroll = def(): pass
         self._container = None
         self.container_id = unique_id('image-popup')
         self.img = None
@@ -78,12 +85,12 @@ class ImagePopup:
                 ),
             )
             document.body.appendChild(self._container)
+            install_handlers(self.canvas, self)
             window.addEventListener('resize', debounce(self.resize_canvas, 250))
         return self._container
 
     def onkeydown(self, ev):
         ev.preventDefault(), ev.stopPropagation()
-        console.log(ev.key)
         if ev.key is ' ':
             return self.toggle_fit_to_window()
         if ev.key is 'Escape':
@@ -100,6 +107,27 @@ class ImagePopup:
             return self.scroll_left((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
         if ev.key is 'ArrowRight':
             return self.scroll_right((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
+
+    def handle_gesture(self, gesture):
+        self.flick_animator.stop()
+        if gesture.type is 'swipe':
+            if not self.img_ok or self.fit_to_window:
+                return
+            if gesture.points.length > 1 and not gesture.is_held:
+                delta = gesture.points[-2] - gesture.points[-1]
+                if Math.abs(delta) >= 1:
+                    if gesture.axis is 'vertical':
+                        self.scroll_y(delta)
+                    else:
+                        self.scroll_x(delta)
+            if not gesture.active and not gesture.is_held:
+                self.flick_animator.start(gesture)
+        if gesture.type is 'pinch' and self.img_ok:
+            if gesture.direction is 'in':
+                self.fit_to_window = True
+            else:
+                self.fit_to_window = False
+            self.update_canvas()
 
     @property
     def vertical_max_bounce_distance(self):
@@ -151,6 +179,18 @@ class ImagePopup:
                 self.x = x
                 self.update_canvas()
 
+    def scroll_y(self, amt):
+        if amt < 0:
+            self.scroll_up(-amt)
+        elif amt > 0:
+            self.scroll_down(amt)
+
+    def scroll_x(self, amt):
+        if amt < 0:
+            self.scroll_left(-amt)
+        elif amt > 0:
+            self.scroll_right(amt)
+
     @property
     def canvas(self):
         return self.container.getElementsByTagName('canvas')[0]
@@ -184,9 +224,11 @@ class ImagePopup:
         self.update_canvas()
 
     def show_container(self):
+        self.flick_animator.stop()
         self.container.style.display = 'block'
 
     def hide_container(self):
+        self.flick_animator.stop()
         self.container.style.display = 'none'
 
     def show_url(self, url):

@@ -422,8 +422,11 @@ class FlickAnimator:
     def __init__(self):
         self.animation_id = None
 
-    def start(self, gesture):
+    def cancel_current_drag_scroll(self):
         cancel_drag_scroll()
+
+    def start(self, gesture):
+        self.cancel_current_drag_scroll()
         self.vertical = gesture.axis is 'vertical'
         now = window.performance.now()
         points = times = None
@@ -449,10 +452,16 @@ class FlickAnimator:
         if abs(delta) >= 1:
             delta = Math.round(delta)
             if self.vertical:
-                window.scrollBy(0, delta)
+                self.scroll_y(delta)
             else:
-                window.scrollBy(delta, 0)
+                self.scroll_x(delta)
             self.animation_id = window.requestAnimationFrame(self.auto_scroll)
+
+    def scroll_y(self, delta):
+        window.scrollBy(0, delta)
+
+    def scroll_x(self, delta):
+        window.scrollBy(delta, 0)
 
     def stop(self):
         if self.animation_id is not None:
