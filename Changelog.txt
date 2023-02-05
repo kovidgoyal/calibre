@@ -119,7 +119,7 @@
 
 - Content server home page: When showing recently read books from across devices hide the entries for which loading the cover fails
 
-- Windows Text-to-speech: Dont fail to configure if one of the voices has no defined language
+- Windows Text-to-speech: Do not fail to configure if one of the voices has no defined language
 
 - Fix a regression in calibre 5 that broke using a file for the --extra-css option of ebook-convert
 
@@ -173,7 +173,7 @@
 
 - Book list: Workaround for change in Qt 6 behavior where clicking on an already selected row does not deselect other rows
 
-- [1998165] Windows: Fix a regression in calibre 6 causing Open With to not extract icons from EXE files
+- [1998165] Windows: Fix a regression in calibre 6 causing Open with to not extract icons from EXE files
 
 :: improved recipes
 - Indian Express
