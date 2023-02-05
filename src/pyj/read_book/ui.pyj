@@ -21,6 +21,7 @@ from read_book.view import View
 from session import get_interface_data
 from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
+from image_popup import show_image
 
 RENDER_VERSION = __RENDER_VERSION__
 MATHJAX_VERSION = "__MATHJAX_VERSION__"
@@ -219,7 +220,7 @@ class ReadUI:
         ui_operations.get_file(
             self.view.book, image_file_name, def(blob, name, mimetype):
                 url = window.URL.createObjectURL(blob)
-                window.open(url)
+                show_image(url)
         )
 
     def load_book(self, library_id, book_id, fmt, metadata, force_reload):

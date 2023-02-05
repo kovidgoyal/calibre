@@ -1,0 +1,166 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from ajax import absolute_path
+from dom import add_extra_css, svgicon, unique_id
+from gettext import gettext as _
+from popups import MODAL_Z_INDEX
+from utils import debounce
+
+add_extra_css(def():
+    bg = '#333'
+    fg = '#ddd'
+    button_bg = '#000'
+    css =  f'.calibre-image-popup {{ background-color: {bg}; color: {fg}; }}'
+    css += f'.calibre-image-popup a {{ background-color: {button_bg}; }}'
+    css += f'.calibre-image-popup a:hover {{ background-color: {fg}; color: {button_bg}; }}'
+    return css
+)
+
+
+def fit_image(width, height, pwidth, pheight):
+    '''
+    Fit image in box of width pwidth and height pheight.
+    @param width: Width of image
+    @param height: Height of image
+    @param pwidth: Width of box
+    @param pheight: Height of box
+    @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
+    '''
+    scaled = height > pheight or width > pwidth
+    if height > pheight:
+        corrf = pheight / float(height)
+        width, height = Math.floor(corrf*width), pheight
+    if width > pwidth:
+        corrf = pwidth / float(width)
+        width, height = pwidth, Math.floor(corrf*height)
+    if height > pheight:
+        corrf = pheight / float(height)
+        width, height = Math.floor(corrf*width), pheight
+
+    return scaled, int(width), int(height)
+
+
+class ImagePopup:
+
+    def __init__(self):
+        self._container = None
+        self.container_id = unique_id('image-popup')
+        self.img = None
+        self.img_loading = False
+        self.img_ok = False
+
+    @property
+    def container(self):
+        if self._container is None:
+            self._container = E.div(
+                style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
+                id=self.container_id, tabindex='0', class_='calibre-image-popup',
+                E.div(
+                    style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box',
+                    E.a(
+                        svgicon('close'), title=_('Close'),
+                        style='padding: 0.25ex; display: inline-block; border-radius: 100%; cursor: pointer',
+                        onclick=self.hide_container
+                    ),
+                ),
+                E.canvas(
+                    width=window.innerWidth + '', height=window.innerHeight + '',
+                    style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block',
+                    aria_label='Popup view of image',
+                ),
+            )
+            document.body.appendChild(self._container)
+            window.addEventListener('resize', debounce(self.resize_canvas, 250))
+        return self._container
+
+    @property
+    def canvas(self):
+        return self.container.getElementsByTagName('canvas')[0]
+
+    def resize_canvas(self):
+        c = self.canvas
+        dpr = Math.max(1, window.devicePixelRatio)
+        c.width = Math.ceil(window.innerWidth * dpr)
+        c.height = Math.ceil(window.innerHeight * dpr)
+        c.style.width = (c.width / dpr) + 'px'
+        c.style.height = (c.height / dpr) + 'px'
+        ctx = c.getContext('2d')
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.scale(dpr, dpr)
+        ctx.fillStyle = ctx.strokeStyle = '#eee'
+        ctx.font = '16px sans-serif'
+        self.update_canvas()
+
+    def show_container(self):
+        self.container.style.display = 'block'
+
+    def hide_container(self):
+        self.container.style.display = 'none'
+
+    def show_url(self, url):
+        self.img = Image()
+        self.img.addEventListener('load', self.image_loaded)
+        self.img.addEventListener('error', self.image_failed)
+        self.img_loading = True
+        self.img_ok = True
+        self.img.src = url
+        self.show_container()
+        self.resize_canvas()
+        self.update_canvas()
+
+    def update_canvas(self):
+        canvas = self.canvas
+        ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        dpr = Math.max(1, window.devicePixelRatio)
+        canvas_width, canvas_height = canvas.width / dpr, canvas.height / dpr
+
+        def draw_centered_text(text):
+            tm = ctx.measureText(text)
+            x = Math.max(0, (canvas_width - tm.width) / 2)
+            y = (canvas_height - 16) / 2
+            ctx.fillText(text, x, y)
+
+        if self.img_loading:
+            draw_centered_text(_('Loading image, please wait…'))
+            return
+        if not self.img_ok:
+            draw_centered_text(_('Loading the image failed'))
+            return
+
+        def draw_full_image_fit_to_canvas():
+            scaled, width, height = fit_image(self.img.width, self.img.height, canvas_width, canvas_height)
+            scaled
+            x = (canvas_width - width) / 2
+            y = (canvas_height - height) / 2
+            ctx.drawImage(self.img, x, y, width, height)
+
+        draw_full_image_fit_to_canvas()
+
+    def image_loaded(self):
+        self.img_loading = False
+        self.img_ok = True
+        self.update_canvas()
+
+    def image_failed(self):
+        self.img_loading = False
+        self.img_ok = False
+        self.update_canvas()
+
+
+popup = None
+
+
+def show_image(url):
+    nonlocal popup
+    if popup is None:
+        popup = ImagePopup()
+    popup.show_url(url)
+
+
+def develop(container):
+    show_image(absolute_path('get/cover/1698'))
