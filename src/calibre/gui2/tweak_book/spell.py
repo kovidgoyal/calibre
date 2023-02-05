@@ -1284,6 +1284,7 @@ class SpellCheck(Dialog):
         self.change_requested.emit(w, new_word)
 
     def do_change_word(self, w, new_word):
+        current_row = self.words_view.currentIndex().row()
         self.undo_cache.clear()
         changed_files = replace_word(current_container(), new_word, self.words_model.words[w], w[1], undo_cache=self.undo_cache)
         if changed_files:
@@ -1292,7 +1293,7 @@ class SpellCheck(Dialog):
             row = self.words_model.row_for_word(w)
             if row == -1:
                 row = self.words_view.currentIndex().row()
-                if row < self.words_model.rowCount() - 1:
+                if row < self.words_model.rowCount() - 1 and current_row > 0:
                     row += 1
             if row > -1:
                 self.words_view.highlight_row(row)
