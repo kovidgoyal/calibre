@@ -13,10 +13,10 @@ from utils import debounce
 add_extra_css(def():
     bg = '#333'
     fg = '#ddd'
-    button_bg = '#000'
+    button_bg = '#333'
     css =  f'.calibre-image-popup {{ background-color: {bg}; color: {fg}; }}'
-    css += f'.calibre-image-popup a {{ background-color: {button_bg}; }}'
-    css += f'.calibre-image-popup a:hover {{ background-color: {fg}; color: {button_bg}; }}'
+    css += f'.calibre-image-popup a {{ padding: 0.25ex; display: inline-block; border-radius: 100%; cursor: pointer; background-color: {button_bg}; }}'
+    css += f'.calibre-image-popup.fit-to-window a.fit-to-window {{ color: {button_bg}; background-color: {fg}; }}'
     return css
 )
 
@@ -60,10 +60,13 @@ class ImagePopup:
                 style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
                 id=self.container_id, tabindex='0', class_='calibre-image-popup',
                 E.div(
-                    style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box',
+                    style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box; display: flex; justify-content: space-between',
+                    E.a(
+                        svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window',
+                        onclick=self.toggle_fit_to_window,
+                    ),
                     E.a(
                         svgicon('close'), title=_('Close'),
-                        style='padding: 0.25ex; display: inline-block; border-radius: 100%; cursor: pointer',
                         onclick=self.hide_container
                     ),
                 ),
@@ -80,6 +83,20 @@ class ImagePopup:
     @property
     def canvas(self):
         return self.container.getElementsByTagName('canvas')[0]
+
+    @property
+    def fit_to_window(self):
+        return self.container.classList.contains('fit-to-window')
+
+    @fit_to_window.setter
+    def fit_to_window(self, val):
+        c = self.container
+        if val:
+            c.classList.add('fit-to-window')
+            c.querySelector('a.fit-to-window').title = _('Do not fit image to window')
+        else:
+            c.classList.remove('fit-to-window')
+            c.querySelector('a.fit-to-window').title = _('Fit image to window')
 
     def resize_canvas(self):
         c = self.canvas
@@ -107,10 +124,10 @@ class ImagePopup:
         self.img.addEventListener('error', self.image_failed)
         self.img_loading = True
         self.img_ok = True
+        self.fit_to_window = True
         self.img.src = url
         self.show_container()
         self.resize_canvas()
-        self.update_canvas()
 
     def update_canvas(self):
         canvas = self.canvas
@@ -139,7 +156,15 @@ class ImagePopup:
             y = (canvas_height - height) / 2
             ctx.drawImage(self.img, x, y, width, height)
 
-        draw_full_image_fit_to_canvas()
+        if self.fit_to_window:
+            draw_full_image_fit_to_canvas()
+            return
+
+        ctx.drawImage(self.img, 0, 0)
+
+    def toggle_fit_to_window(self):
+        self.fit_to_window ^= True
+        self.update_canvas()
 
     def image_loaded(self):
         self.img_loading = False
