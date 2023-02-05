@@ -59,6 +59,7 @@ class ImagePopup:
             self._container = E.div(
                 style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
                 id=self.container_id, tabindex='0', class_='calibre-image-popup',
+                onkeydown=self.onkeydown,
                 E.div(
                     style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box; display: flex; justify-content: space-between',
                     E.a(
@@ -79,6 +80,76 @@ class ImagePopup:
             document.body.appendChild(self._container)
             window.addEventListener('resize', debounce(self.resize_canvas, 250))
         return self._container
+
+    def onkeydown(self, ev):
+        ev.preventDefault(), ev.stopPropagation()
+        console.log(ev.key)
+        if ev.key is ' ':
+            return self.toggle_fit_to_window()
+        if ev.key is 'Escape':
+            return self.hide_container()
+        if ev.key is 'ArrowDown':
+            return self.scroll_down((window.innerHeight - 10) if ev.getModifierState("Control") else 10)
+        if ev.key is 'PageDown':
+            return self.scroll_down(window.innerHeight-10)
+        if ev.key is 'ArrowUp':
+            return self.scroll_up((window.innerHeight - 10) if ev.getModifierState("Control") else 10)
+        if ev.key is 'PageUp':
+            return self.scroll_up(window.innerHeight-10)
+        if ev.key is 'ArrowLeft':
+            return self.scroll_left((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
+        if ev.key is 'ArrowRight':
+            return self.scroll_right((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
+
+    @property
+    def vertical_max_bounce_distance(self):
+        return Math.min(60, window.innerHeight / 2)
+
+    @property
+    def horizontal_max_bounce_distance(self):
+        return Math.min(60, window.innerWidth / 2)
+
+    def scroll_down(self, amt):
+        if self.img_ok and not self.fit_to_window:
+            canvas_height = self.canvas_height
+            if self.img.height <= canvas_height:
+                return
+            miny = canvas_height - self.img.height - self.vertical_max_bounce_distance
+            y = Math.max(self.y - amt, miny)
+            if y is not self.y:
+                self.y = y
+                self.update_canvas()
+
+    def scroll_up(self, amt):
+        if self.img_ok and not self.fit_to_window:
+            canvas_height = self.canvas_height
+            if self.img.height <= canvas_height:
+                return
+            y = Math.min(self.y + amt, self.vertical_max_bounce_distance)
+            if y is not self.y:
+                self.y = y
+                self.update_canvas()
+
+    def scroll_right(self, amt):
+        if self.img_ok and not self.fit_to_window:
+            canvas_width = self.canvas_width
+            if self.img.width <= canvas_width:
+                return
+            minx = canvas_width - self.img.width - self.horizontal_max_bounce_distance
+            x = Math.max(self.x - amt, minx)
+            if x is not self.x:
+                self.x = x
+                self.update_canvas()
+
+    def scroll_left(self, amt):
+        if self.img_ok and not self.fit_to_window:
+            canvas_width = self.canvas_width
+            if self.img.width <= canvas_width:
+                return
+            x = Math.min(self.x + amt, self.horizontal_max_bounce_distance)
+            if x is not self.x:
+                self.x = x
+                self.update_canvas()
 
     @property
     def canvas(self):
@@ -123,18 +194,26 @@ class ImagePopup:
         self.img.addEventListener('load', self.image_loaded)
         self.img.addEventListener('error', self.image_failed)
         self.img_loading = True
-        self.img_ok = True
+        self.x = self.y = 0
+        self.img_ok = False
         self.fit_to_window = True
         self.img.src = url
         self.show_container()
         self.resize_canvas()
 
+    @property
+    def canvas_width(self):
+        return self.canvas.width / Math.max(1, window.devicePixelRatio)
+
+    @property
+    def canvas_height(self):
+        return self.canvas.height / Math.max(1, window.devicePixelRatio)
+
     def update_canvas(self):
         canvas = self.canvas
         ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        dpr = Math.max(1, window.devicePixelRatio)
-        canvas_width, canvas_height = canvas.width / dpr, canvas.height / dpr
+        canvas_width, canvas_height = self.canvas_width, self.canvas_height
 
         def draw_centered_text(text):
             tm = ctx.measureText(text)
@@ -160,7 +239,7 @@ class ImagePopup:
             draw_full_image_fit_to_canvas()
             return
 
-        ctx.drawImage(self.img, 0, 0)
+        ctx.drawImage(self.img, self.x, self.y)
 
     def toggle_fit_to_window(self):
         self.fit_to_window ^= True
