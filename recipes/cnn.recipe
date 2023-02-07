@@ -4,8 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Profile to download CNN
 '''
 
-import re
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class CNN(BasicNewsRecipe):
@@ -18,38 +17,14 @@ class CNN(BasicNewsRecipe):
 
     no_stylesheets = True
     use_embedded_content = False
-    oldest_article = 15
+    oldest_article = 2
     ignore_duplicate_articles = {'url'}
-    # recursions = 1
-    # match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
-    compress_news_images = True
-    compress_news_images_auto_size = 12
-
-    extra_css = '''
-                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
-                    .cnn_story_author, .cnn_stryathrtmp {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .cnn_strycaptiontxt, .cnnArticleGalleryPhotoContainer {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .cnn_strycbftrtxt, .cnnEditorialNote {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .cnn_strycntntlft {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
-                '''
-
-    preprocess_regexps = [
-        (re.compile(r'<!--\[if.*if\]-->', re.DOTALL), lambda m: ''),
-        (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
-        (re.compile(r'<style.*?</style>', re.DOTALL), lambda m: ''),
-    ]
-
+    remove_attributes = ['style', 'height', 'width']
     keep_only_tags = [
-        dict(id=['body-text', 'storycontent']),
-        dict(attrs={'class': ['pg-headline', 'metadata']}),
+        classes('headline__wrapper headline__sub-container article__main'),
     ]
-
-    remove_tags = [
-        dict(attrs={'class': lambda x: x and bool({
-            'video__end-slate', 'owl-filmstrip', 'el-embed-instagram',
-        }.intersection(set(x.split())))}),
-    ]
+    remove_tags = [classes('video-inline_carousel')]
 
     feeds = [
         ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
@@ -68,15 +43,6 @@ class CNN(BasicNewsRecipe):
         ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss')
     ]
 
-    def preprocess_html(self, soup):
-        body = soup.find('body')
-        for h2 in soup.findAll(attrs={'class': 'pg-headline'}):
-            h2.extract()
-            body.insert(0, h2)
-        for img in soup.findAll('img', attrs={'data-src-medium': True}):
-            img['src'] = img['data-src-medium']
-        return soup
-
     def get_article_url(self, article):
         ans = BasicNewsRecipe.get_article_url(self, article)
         ans = ans.partition('?')[0]
@@ -93,3 +59,8 @@ class CNN(BasicNewsRecipe):
             self.log("\nCover unavailable")
             masthead = None
         return masthead
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'src':lambda x: x and x.endswith('.svg')}):
+            img.extract()
+        return soup
