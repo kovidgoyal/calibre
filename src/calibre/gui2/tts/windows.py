@@ -32,6 +32,13 @@ def split_into_chunks(marked_text, chunk_size):
         yield chunk
 
 
+def chunk_has_text(chunk):
+    for x in chunk:
+        if isinstance(x, str) and x:
+            return True
+    return False
+
+
 class Client:
 
     mark_template = ''
@@ -73,7 +80,19 @@ class Client:
         self.dispatch_on_main_thread(partial(self.handle_event, msg))
 
     def speak_current_chunk(self):
-        self.backend.speak(self.current_chunks[self.current_chunk_idx], is_cued=True)
+        chunk = self.current_chunks[self.current_chunk_idx]
+        if chunk_has_text(chunk):
+            self.backend.speak(chunk, is_cued=True)
+        else:
+            self.handle_end_event()
+
+    def handle_end_event(self):
+        if self.current_chunk_idx >= len(self.current_chunks) - 1:
+            self.clear_chunks()
+            self.callback_ignoring_errors(Event(EventType.end))
+        else:
+            self.current_chunk_idx += 1
+            self.speak_current_chunk()
 
     def handle_event(self, x):
         if isinstance(x, MarkReached):
@@ -83,12 +102,7 @@ class Client:
         elif isinstance(x, MediaStateChanged):
             if self.current_chunks:
                 if x.state is MediaState.ended:
-                    if self.current_chunk_idx >= len(self.current_chunks) - 1:
-                        self.clear_chunks()
-                        self.callback_ignoring_errors(Event(EventType.end))
-                    else:
-                        self.current_chunk_idx += 1
-                        self.speak_current_chunk()
+                    self.handle_end_event()
                 elif x.state is MediaState.failed:
                     self.clear_chunks()
                     self.callback_ignoring_errors(Event(EventType.cancel))
