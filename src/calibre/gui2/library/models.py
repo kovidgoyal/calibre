@@ -1602,7 +1602,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 return ax
 
         keygen = {
-                'title': ('title_sorter', lambda x: sort_key(x) if x else ''),
+                'title': ('title_sorter', lambda x: sort_key(x) if x else b''),
                 'authors' : author_key,
                 'size' : ('size', int),
                 'timestamp': ('datetime', functools.partial(dt_factory, assume_utc=True)),
