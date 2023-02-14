@@ -1,0 +1,51 @@
+'''
+https://www.economist.com/the-world-in-brief
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+class Espresso(BasicNewsRecipe):
+    title = 'The Economist Espresso'
+    language = 'en'
+    __author__ = 'unkn0wn'
+    description = (
+        'Espresso is a rich, full-flavoured shot of daily global analysis'
+        ' from the editors of The Economist to get you up to speed, fast.'
+         'Maximise your understanding of the most significant business, '
+         'economic, political and cultural developments globally.'
+    )
+    no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    use_embedded_content = False
+
+    extra_css = '''
+        h1 { text-align:center; }
+        ._main-image, ._description { text-align:center; font-size:small; }
+        ._quote-container { font-size:x-large; font-style:italic; color:#202020; }
+    '''
+
+    keep_only_tags = [
+        dict(name='main', attrs={'id':'content'})
+    ]
+
+    remove_tags = [
+        classes('_podcast-promo _newsletter-promo-container _time-last-updated')
+    ]
+
+    def parse_index(self):
+        return [
+            ('Espresso',
+                [
+                    {
+                        'title': 'The World in Brief',
+                        'url': 'https://www.economist.com/the-world-in-brief',
+                        'description': 'Catch up quickly on the global stories that matter'
+                    },
+                ]
+            ),
+        ]
+
+    def preprocess_html(self, soup):
+        for h3 in soup.findAll('h3'):
+            h3.name = 'h1'
+        return soup
