@@ -107,9 +107,20 @@ class SpeechError(OSError):
 
 
 class NoAudioDevices(OSError):
+    display_to_user = True
     def __init__(self):
         super().__init__(_('No active audio output devices found.'
                            ' Connect headphones or speakers. If you are using Remote Desktop then enable Remote Audio for it.'))
+
+
+class NoMediaPack(OSError):
+    display_to_user = True
+
+    def __init__(self):
+        super().__init__(_('This computer is missing the Windows MediaPack, which is needed for Read aloud. Instructions'
+                           ' for installing it are available at {}').format(
+
+            'https://support.medal.tv/support/solutions/articles/48001157311-windows-is-missing-media-pack'))
 
 
 class Error(NamedTuple):
@@ -121,8 +132,11 @@ class Error(NamedTuple):
     related_to: int = 0
 
     def as_exception(self, msg='', check_for_no_audio_devices=False):
+        from calibre_extensions.winspeech import INITIALIZE_FAILURE_MESSAGE
         if check_for_no_audio_devices and self.hr == 0xc00d36fa:
             return NoAudioDevices()
+        if check_for_no_audio_devices and self.hr == 0x80070002 and self.msg == INITIALIZE_FAILURE_MESSAGE:
+            return NoMediaPack()
         return SpeechError(self, msg)
 
 

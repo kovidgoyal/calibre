@@ -838,6 +838,8 @@ handle_stdin_message(winrt::hstring const &&msg) {
     return exit_code;
 }
 
+#define INITIALIZE_FAILURE_MESSAGE  "Failed to initialize SpeechSynthesizer and MediaPlayer"
+
 static PyObject*
 run_main_loop(PyObject*, PyObject*) {
     if (!run_catching_exceptions([]() {
@@ -864,7 +866,7 @@ run_main_loop(PyObject*, PyObject*) {
         media_player = MediaPlayer();
         media_player.AudioCategory(MediaPlayerAudioCategory::Speech);
         media_player.AutoPlay(true);
-    }, "Failed to initialize SpeechSynthesizer and MediaPlayer", __LINE__)) {
+    }, INITIALIZE_FAILURE_MESSAGE, __LINE__)) {
         return PyLong_FromLongLong(1);
     }
 
@@ -916,6 +918,7 @@ static PyMethodDef methods[] = {
 
 static int
 exec_module(PyObject *m) {
+    PyModule_AddStringMacro(m, INITIALIZE_FAILURE_MESSAGE);
     return 0;
 }
 
