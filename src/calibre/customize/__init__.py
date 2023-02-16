@@ -334,6 +334,16 @@ class FileTypePlugin(Plugin):  # {{{
     #: methods of the plugin are called.
     on_postimport  = False
 
+    #: If True, this plugin is run after a book file is added
+    #: to the database. In this case the postconvert method of
+    #: the plugin is called.
+    on_postconvert = False
+
+    #: If True, this plugin is run after a book file is deleted
+    #: from the database. In this case the postdelete method of
+    #: the plugin is called.
+    on_postdelete = False
+
     #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
@@ -371,6 +381,28 @@ class FileTypePlugin(Plugin):  # {{{
         this is different from :meth:`postadd` which is called when the book record is created for
         the first time. This method is called whenever a new file is added to a book record. It is
         useful for modifying the book record based on the contents of the newly added file.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+        :param db: Library database.
+        '''
+        pass  # Default implementation does nothing
+
+    def postconvert(self, book_id, book_format, db):
+        '''
+        Called post conversion, i.e., after the book file has been added to the database. It is
+        useful for modifying the book record based on the contents of the newly added file.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+        :param db: Library database.
+        '''
+        pass  # Default implementation does nothing
+
+    def postdelete(self, book_id, book_format, db):
+        '''
+        Called post deletion, i.e., after the book file has been deleted from the database. It is
+        useful for modifying the book record based on the format of the deleted file.
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
