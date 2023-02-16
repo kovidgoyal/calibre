@@ -67,6 +67,7 @@ class ImagePopup(TouchHandler):
                 style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
                 id=self.container_id, tabindex='0', class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
+                onwheel=self.onwheel,
                 E.div(
                     style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box; display: flex; justify-content: space-between',
                     E.a(
@@ -88,6 +89,16 @@ class ImagePopup(TouchHandler):
             install_handlers(self.canvas, self)
             window.addEventListener('resize', debounce(self.resize_canvas, 250))
         return self._container
+
+    def onwheel(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        dy = ev.deltaY
+        dx = ev.deltaX
+        if ev.deltaMode is window.WheelEvent.DOM_DELTA_LINE:
+            dy *= 20
+            dx *= 20
+        self.scroll_y(dy)
+        self.scroll_x(dx)
 
     def onkeydown(self, ev):
         ev.preventDefault(), ev.stopPropagation()
@@ -285,6 +296,7 @@ class ImagePopup(TouchHandler):
 
     def toggle_fit_to_window(self):
         self.fit_to_window ^= True
+        self.x = self.y = 0
         self.update_canvas()
 
     def image_loaded(self):
