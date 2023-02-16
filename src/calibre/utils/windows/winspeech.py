@@ -117,7 +117,7 @@ class NoMediaPack(OSError):
     display_to_user = True
 
     def __init__(self):
-        super().__init__(_('This computer is missing the Windows MediaPack, which is needed for Read aloud. Instructions'
+        super().__init__(_('This computer is missing the Windows MediaPack, or the DLLs are corrupted. This is needed for Read aloud. Instructions'
                            ' for installing it are available at {}').format(
 
             'https://support.medal.tv/support/solutions/articles/48001157311-windows-is-missing-media-pack'))
