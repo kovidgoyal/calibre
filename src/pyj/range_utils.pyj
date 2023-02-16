@@ -151,6 +151,13 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
             current_range.setEnd(node, end_offset)
             end_node = current_wrapper
             end_offset = 1
+        if current_range.collapsed:
+            # Dont wrap empty ranges. This is needed otherwise two adjacent
+            # selections of text will incorrectly be detected as overlapping.
+            # For example: highlight abc then def in the word abcdef here the
+            # second highlight's first range is the collapsed range at the end
+            # of <span wrapper-for-first-highlight>abc<span wrapper-for-2nd></span></span>
+            return
         crw = node.parentNode?.dataset?.calibreRangeWrapper
         if crw:
             intersecting_wrappers[crw] = True
@@ -158,7 +165,6 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
         if process_wrapper:
             process_wrapper(current_wrapper)
         all_wrappers.push(current_wrapper)
-        return current_wrapper
 
     return wrap_node
 
@@ -184,10 +190,13 @@ def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
     all_wrappers = v'[]'
     wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers)
     text_nodes_in_range(r).map(wrap_node)
+    ancestor = r.commonAncestorContainer
+    if ancestor.nodeType is Node.TEXT_NODE:
+        ancestor = ancestor.parentNode
     # remove any empty text nodes created by surroundContents() on either
     # side of the wrapper. This happens for instance on Chrome when
     # wrapping all text inside <i>some text</i>
-    r.commonAncestorContainer.normalize()
+    ancestor.normalize()
     crw = wrapper_elem.dataset.calibreRangeWrapper
     v'delete intersecting_wrappers[crw]'
     if class_to_add_to_last and all_wrappers.length:
