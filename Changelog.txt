@@ -23,6 +23,42 @@
 # - title by author
 # }}}
 
+{{{ 6.13.0 2023-02-17
+
+:: new features
+
+- Content server: E-book viewer: Long tapping on an image now causes it to be displayed in an internal popup rather than a new window as some browsers block the creation of new windows
+
+:: bug fixes
+
+- E-book viewer: Fix some adjacent highlights with nothing in between them not being displayed.
+
+- [2006726] Content server: Workaround for Safari regression causing bookmarks to disappear on reload
+
+- [2007039] E-book viewer: Read aloud: Fix a regression in the previous release that caused the Read aloud controls to not reappear when Read aloud is canceled and restarted
+
+- [2006062] E-book viewer: Read aloud: Fix a regression in the previous release that caused an error when using Read aloud on a chapter with no text, such as the cover page
+
+- E-book viewer: Fix a regression that caused a spurious error on Windows when reading out selected text
+
+- [2007165] Fix a regression in calibre 5.0 that broke sorting the device view by title if one of the books has an empty title
+
+- Edit book: Spell Check dialog: Fix second word not getting selected when after first word is fixed
+
+- [2004621] Improve hover highlight color in tree views
+
+:: improved recipes
+- CNN
+- Bloomberg
+
+:: new recipes
+- The Economist Espresso by unkn0wn
+- Science X by unkn0wn
+- Horizons by unkn0wn
+- Deccan Herald by unkn0wn
+- The Monthly by unkn0wn
+}}}
+
 {{{ 6.12.0 2023-02-03
 
 :: new features
