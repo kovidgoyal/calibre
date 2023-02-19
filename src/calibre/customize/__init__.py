@@ -390,8 +390,9 @@ class FileTypePlugin(Plugin):  # {{{
 
     def postconvert(self, book_id, book_format, db):
         '''
-        Called post conversion, i.e., after the book file has been added to the database. It is
-        useful for modifying the book record based on the contents of the newly added file.
+        Called post conversion, i.e., after the book file has been added to the database. Note that
+        it is run after a conversion only, not after a book is added. It is useful for modifying
+        the book record based on the contents of the newly added file.
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
@@ -401,8 +402,10 @@ class FileTypePlugin(Plugin):  # {{{
 
     def postdelete(self, book_id, book_format, db):
         '''
-        Called post deletion, i.e., after the book file has been deleted from the database. It is
-        useful for modifying the book record based on the format of the deleted file.
+        Called post deletion, i.e., after the book file has been deleted from the database. Note
+        that it is not run when a book record is deleted, only when one or more formats from the
+        book are deleted. It is useful for modifying the book record based on the format of the
+        deleted file.
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.

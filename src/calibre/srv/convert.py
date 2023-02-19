@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from threading import Lock
 
-from calibre.customize.ui import input_profiles, output_profiles
+from calibre.customize.ui import input_profiles, output_profiles, run_plugins_on_postconvert
 from calibre.db.errors import NoSuchBook
 from calibre.srv.changes import formats_added
 from calibre.srv.errors import BookNotFound, HTTPNotFound
@@ -194,6 +194,7 @@ def conversion_status(ctx, rd, job_id):
             except NoSuchBook:
                 raise HTTPNotFound(
                     f'book_id {job_status.book_id} not found in library')
+            run_plugins_on_postconvert(db, job_status.book_id, fmt)
             formats_added({job_status.book_id: (fmt,)})
             ans['size'] = os.path.getsize(job_status.output_path)
             ans['fmt'] = fmt
