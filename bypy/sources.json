@@ -996,5 +996,15 @@
             "hash": "sha256:1324b66b356051de662ba87d84f73ada062acd42b047ed1246e60a449f833e10",
             "urls": ["pypi"]
         }
+    },
+
+    {
+        "name": "zstd",
+        "os": "linux",
+        "unix": {
+            "filename": "zstd-1.5.4.tar.gz",
+            "hash": "sha256:0f470992aedad543126d06efab344dc5f3e171893810455787d38347343a4424",
+            "urls": ["https://github.com/facebook/zstd/releases/download/v1.5.4/{filename}"]
+        }
     }
 ]
