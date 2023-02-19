@@ -24,7 +24,7 @@ from time import monotonic, sleep, time
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import (
-    run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postimport,
+    run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postimport, run_plugins_on_postdelete,
 )
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
@@ -1865,6 +1865,10 @@ class Cache:
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
+
+        for book_id, fmts in iteritems(formats_map):
+            run_plugins_on_postdelete(self, book_id, fmt)
+
         self._update_last_modified(tuple(formats_map))
         self.event_dispatcher(EventType.formats_removed, formats_map)
 
