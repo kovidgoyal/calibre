@@ -210,9 +210,8 @@ def run_plugins_on_postimport(db, book_id, fmt):
         with plugin:
             try:
                 plugin.postimport(book_id, fmt, db)
-            except:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 
@@ -224,9 +223,8 @@ def run_plugins_on_postconvert(db, book_id, fmt):
         with plugin:
             try:
                 plugin.postconvert(book_id, fmt, db)
-            except:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 
@@ -238,9 +236,8 @@ def run_plugins_on_postdelete(db, book_id, fmt):
         with plugin:
             try:
                 plugin.postdelete(book_id, fmt, db)
-            except:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 
@@ -254,8 +251,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
             try:
                 plugin.postadd(book_id, fmt_map, db)
             except Exception:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 # }}}

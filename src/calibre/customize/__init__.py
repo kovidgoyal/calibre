@@ -334,9 +334,8 @@ class FileTypePlugin(Plugin):  # {{{
     #: methods of the plugin are called.
     on_postimport  = False
 
-    #: If True, this plugin is run after a book file is added
-    #: to the database. In this case the postconvert method of
-    #: the plugin is called.
+    #: If True, this plugin is run after a book is converted.
+    #: In this case the postconvert method of the plugin is called.
     on_postconvert = False
 
     #: If True, this plugin is run after a book file is deleted
@@ -390,8 +389,8 @@ class FileTypePlugin(Plugin):  # {{{
 
     def postconvert(self, book_id, book_format, db):
         '''
-        Called post conversion, i.e., after the book file has been added to the database. Note that
-        it is run after a conversion only, not after a book is added. It is useful for modifying
+        Called post conversion, i.e., after the conversion output book file has been added to the database.
+        Note that it is run after a conversion only, not after a book is added. It is useful for modifying
         the book record based on the contents of the newly added file.
 
         :param book_id: Database id of the added book.
