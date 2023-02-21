@@ -4,7 +4,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 import json
 import re
 
-
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg'
     language = 'en'
@@ -12,7 +11,7 @@ class Bloomberg(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
-    ignore_duplicate_articles = {'url'}
+    ignore_duplicate_articles = {'url', 'title'}
     resolve_internal_links = True
     oldest_article = 2  # days
     delay = 1.5
@@ -36,6 +35,9 @@ class Bloomberg(BasicNewsRecipe):
             url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
         link = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://www.bloomberg.com')})
+        if '/videos/' in link['href']:
+            self.abort_article('Aborting Video article')
+        self.log('Found link: ', link['href'])
         html = br.open(link['href']).read()
         pt = PersistentTemporaryFile('.html')
         pt.write(html)
@@ -49,7 +51,14 @@ class Bloomberg(BasicNewsRecipe):
         return br
 
     feeds = [
-        ('Articles', 'https://news.google.com/rss/search?q=when:24h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en'),
+        ('Features',
+            'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Ffeatures%2F&hl=en-US&gl=US&ceid=US:en'),
+        ('News',
+            'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Farticles%2F&hl=en-US&gl=US&ceid=US:en'),
+        ('Opinion', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fopinion%2F&hl=en-US&gl=US&ceid=US:en'),
+        ('Newsletters',
+            'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Fnewsletters%2F&hl=en-US&gl=US&ceid=US:en'),
+        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en')
     ]
 
     def preprocess_raw_html(self, raw, *a):
@@ -84,12 +93,12 @@ class Bloomberg(BasicNewsRecipe):
 
         if 'ledeImageUrl' in data:
             if data['ledeImageUrl'] is not None:
-                lede = '<p><img src="{}">'.format(data['ledeImageUrl'].replace('\\', ''))
+                lede = '<p><img src="{}">'.format(data['ledeImageUrl'])
 
         if data['ledeDescription'] is not None:
             caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
 
-        body = data['body'].replace('\\', '')
+        body = data['body']
         html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
         return html
 

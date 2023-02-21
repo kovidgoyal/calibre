@@ -8,9 +8,9 @@ class herald(BasicNewsRecipe):
     language = 'en_IN'
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
-    ignore_duplicate_articles = {'url'}
+    ignore_duplicate_articles = {'url', 'title'}
     encoding = 'utf-8'
-
+    
     articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
@@ -22,26 +22,26 @@ class herald(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         link = soup.find('a', href=True)
         skip_sections =[ # add sections you want to skip
-            '/sports/', '/video/', '/bengaluru-crime/', '/metrolife/',
+            '/video/', '/bengaluru-crime/', '/metrolife/',
             '/karnataka-districts/', '/brandspot/', '/entertainment/',
         ]
         if any(x in link['href'] for x in skip_sections):
             self.log('Aborting Article ', link['href'])
             self.abort_article('skipping section')
-
+            
         self.log('Downloading ', link['href'])
         html = br.open(link['href']).read()
         pt = PersistentTemporaryFile('.html')
         pt.write(html)
         pt.close()
         return pt.name
-
+    
     keep_only_tags = [
         classes('article-title article-author__name'),
         dict(name='div', attrs={'id':'main-content'})
-
+        
     ]
-
+    
     remove_tags = [
         classes(
             'storyShare social-media-icons in_article_video static_text'
@@ -49,7 +49,17 @@ class herald(BasicNewsRecipe):
             ' field-name-field-tags section-full strip--business'
         )
     ]
-
+    
     feeds = [
-        ('DH', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com&hl=en-IN&gl=IN&ceid=IN:en')
+        ('Nation', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fnational%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('Karnataka', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fstate%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('Opinion', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fopinion%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('City', 
+            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fcity%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('Business', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fbusiness%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('World', 
+            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Finternational%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('Sports',
+            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fsports%2F&hl=en-IN&gl=IN&ceid=IN:en'),
+        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com&hl=en-IN&gl=IN&ceid=IN:en'),
     ]
