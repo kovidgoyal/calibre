@@ -13,7 +13,7 @@ from contextlib import suppress
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, iteritems, as_unicode
+from polyglot.builtins import iteritems, as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -176,8 +176,25 @@ def get_title_sort_pat(lang=None):
     return ans
 
 
-_ignore_starts = '\'"'+''.join(codepoint_to_chr(x) for x in
-        list(range(0x2018, 0x201e))+[0x2032, 0x2033])
+quote_pairs = {
+    # https://en.wikipedia.org/wiki/Quotation_mark
+    '"': ('"',),
+    "'": ("'",),
+    '“': ('”','“'),
+    '”': ('”','”'),
+    '„': ('”','“'),
+    '‚': ('’','‘'),
+    '’': ('’','‘'),
+    '‘': ('’','‘'),
+    '‹': ('›',),
+    '›': ('‹',),
+    '《': ('》',),
+    '〈': ('〉',),
+    '»': ('«', '»'),
+    '«': ('«', '»'),
+    '「': ('」',),
+    '『': ('』',),
+}
 
 
 def title_sort(title, order=None, lang=None):
@@ -186,8 +203,11 @@ def title_sort(title, order=None, lang=None):
     title = title.strip()
     if order == 'strictly_alphabetic':
         return title
-    if title and title[0] in _ignore_starts:
+    if title and title[0] in quote_pairs:
+        q = title[0]
         title = title[1:]
+        if title and title[-1] in quote_pairs[q]:
+            title = title[:-1]
     match = get_title_sort_pat(lang).search(title)
     if match:
         try:
@@ -197,8 +217,11 @@ def title_sort(title, order=None, lang=None):
         else:
             if prep:
                 title = title[len(prep):] + ', ' + prep
-                if title[0] in _ignore_starts:
+                if title[0] in quote_pairs:
+                    q = title[0]
                     title = title[1:]
+                    if title and title[-1] in quote_pairs[q]:
+                        title = title[:-1]
     return title.strip()
 
 
