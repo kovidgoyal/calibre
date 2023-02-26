@@ -246,7 +246,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             ('toolbar', _('The main toolbar')),
             ('toolbar-device', _('The main toolbar when a device is connected')),
             ('toolbar-child', _('The optional second toolbar')),
-            ('searchbar', ('The buttons on the search bar')),
+            ('searchbar', _('The buttons on the search bar')),
             ('menubar', _('The menubar')),
             ('menubar-device', _('The menubar when a device is connected')),
             ('context-menu', _('The context menu for the books in the '
