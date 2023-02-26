@@ -439,17 +439,12 @@ class SavedSearchBoxMixin:  # {{{
     def init_saved_seach_box_mixin(self):
         pass
 
-    def populate_add_saved_search_menu(self, to_menu):
-        m = to_menu
-        m.clear()
-        m.clear()
-        m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
-        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
-                     self.get_saved_search_text)
-        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
-                     partial(self.do_saved_search_edit, None))
-        m.addSeparator()
-        db = self.current_db
+    def add_saved_searches_to_menu(self, menu, db, add_action_func=None):
+        def add_action(current_menu, whole_name, last_component, func=None):
+            if add_action_func is None:
+                return current_menu.addAction(last_component, func)
+            return add_action_func(current_menu, whole_name, last_component)
+
         folder_icon = QIcon.ic('folder_saved_search.png')
         search_icon = QIcon.ic('search.png')
         use_hierarchy = 'search' in db.new_api.pref('categories_using_hierarchy', [])
@@ -459,7 +454,7 @@ class SavedSearchBoxMixin:  # {{{
                 components = tuple(n.strip() for n in name.split('.'))
                 hierarchy = components[:-1]
                 last = components[-1]
-                current_menu = m
+                current_menu = menu
                 # Walk the hierarchy, creating submenus as needed
                 for i,c in enumerate(hierarchy, start=1):
                     hierarchical_prefix = '.'.join(hierarchy[:i])
@@ -469,10 +464,22 @@ class SavedSearchBoxMixin:  # {{{
                         submenus[hierarchical_prefix] = current_menu
                     else:
                         current_menu = submenus[hierarchical_prefix]
-                ac = current_menu.addAction(last, partial(self.search.set_search_string, 'search:"='+name+'"'))
+                ac = add_action(current_menu, name, last, partial(self.search.set_search_string, 'search:"='+name+'"'))
             else:
-                ac = m.addAction(name, partial(self.search.set_search_string, 'search:"='+name+'"'))
-            ac.setIcon(search_icon)
+                ac = add_action(current_menu, name, name, partial(self.search.set_search_string, 'search:"='+name+'"'))
+            if ac.icon().isNull():
+                ac.setIcon(search_icon)
+
+    def populate_add_saved_search_menu(self, to_menu):
+        m = to_menu
+        m.clear()
+        m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
+        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
+                     self.get_saved_search_text)
+        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
+                     partial(self.do_saved_search_edit, None))
+        m.addSeparator()
+        self.add_saved_searches_to_menu(m, self.current_db)
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()
