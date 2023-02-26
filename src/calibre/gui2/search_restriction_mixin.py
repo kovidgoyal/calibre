@@ -547,7 +547,6 @@ class SearchRestrictionMixin:
 
     def build_search_restriction_list(self):
         self.search_restriction_list_built = True
-        from calibre.gui2.ui import get_gui
         m = self.ar_menu
         m.clear()
 
@@ -562,26 +561,25 @@ class SearchRestrictionMixin:
         current_restriction = self.library_view.model().db.data.get_search_restriction_name()
         m.setIcon(self.checked if current_restriction else self.empty)
 
-        def add_action(txt, index):
-            self.search_restriction.addItem(txt)
-            txt = self._trim_restriction_name(txt)
-            if txt == current_restriction:
-                a = m.addAction(self.checked, txt if txt else self.no_restriction)
+        dex = 0
+        def add_action(current_menu, name, last):
+            nonlocal dex
+            self.search_restriction.addItem(name)
+            txt = self._trim_restriction_name(last)
+            if name == current_restriction:
+                a = current_menu.addAction(self.checked, txt if txt else self.no_restriction)
             else:
-                a = m.addAction(self.empty, txt if txt else self.no_restriction)
+                a = current_menu.addAction(txt if txt else self.no_restriction)
             a.triggered.connect(partial(self.search_restriction_triggered,
-                                        action=a, index=index))
+                                        action=a, index=dex))
+            dex += 1
+            return a
 
-        add_action('', 0)
-        add_action(_('*current search'), 1)
-        dex = 2
+        add_action(m, '', '')
+        add_action(m, _('*current search'), _('*current search'))
         if current_restriction_text:
-            add_action(current_restriction_text, 2)
-            dex += 1
-
-        for n in sorted(get_gui().current_db.saved_search_names(), key=sort_key):
-            add_action(n, dex)
-            dex += 1
+            add_action(m, current_restriction_text)
+        self.add_saved_searches_to_menu(m, self.library_view.model().db, add_action)
 
     def search_restriction_triggered(self, action=None, index=None):
         self.search_restriction.setCurrentIndex(index)
