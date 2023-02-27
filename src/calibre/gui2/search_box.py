@@ -450,11 +450,11 @@ class SavedSearchBoxMixin:  # {{{
         use_hierarchy = 'search' in db.new_api.pref('categories_using_hierarchy', [])
         submenus = {}
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
+            current_menu = menu
             if use_hierarchy:
                 components = tuple(n.strip() for n in name.split('.'))
                 hierarchy = components[:-1]
                 last = components[-1]
-                current_menu = menu
                 # Walk the hierarchy, creating submenus as needed
                 for i,c in enumerate(hierarchy, start=1):
                     hierarchical_prefix = '.'.join(hierarchy[:i])
