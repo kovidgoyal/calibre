@@ -1127,7 +1127,7 @@ class TOCEditor(QDialog):  # {{{
         tb = None
         try:
             self.ebook = get_container(self.pathtobook, log=self.log)
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
         if self.working:
@@ -1160,6 +1160,15 @@ class TOCEditor(QDialog):  # {{{
         self.writing_done.emit(tb)
 
 # }}}
+
+
+def develop():
+    from calibre.gui2 import Application
+    app = Application([])
+    d = TOCEditor(sys.argv[-1])
+    d.start()
+    d.exec()
+    del app
 
 
 def main(shm_name=None):
