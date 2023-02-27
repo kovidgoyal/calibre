@@ -13,7 +13,7 @@ from calibre.utils.config_base import tweaks
 
 
 def is_debugging():
-    return _is_debugging() and not tweaks.get('suppress_geometry_debug_output')
+    return _is_debugging() and tweaks.get('show_geometry_debug_output')
 
 
 def debug(*a, **kw):
