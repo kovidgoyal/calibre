@@ -1162,6 +1162,8 @@ class TOCEditor(QDialog):  # {{{
 
 
 def develop():
+    from calibre.utils.webengine import setup_fake_protocol
+    setup_fake_protocol()
     from calibre.gui2 import Application
     app = Application([])
     d = TOCEditor(sys.argv[-1])
