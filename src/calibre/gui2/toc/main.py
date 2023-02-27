@@ -10,13 +10,13 @@ from functools import partial
 from qt.core import (
     QAbstractItemView, QCheckBox, QCursor, QDialog, QDialogButtonBox, QEvent, QFrame,
     QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
-    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QToolButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QTimer,
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Thread
 from time import monotonic
 
-from calibre.constants import TOC_DIALOG_APP_UID, islinux, iswindows
+from calibre.constants import TOC_DIALOG_APP_UID, islinux, ismacos, iswindows
 from calibre.ebooks.oeb.polish.container import AZW3Container, get_container
 from calibre.ebooks.oeb.polish.toc import (
     TOC, add_id, commit_toc, from_files, from_links, from_xpaths, get_toc,
@@ -1064,6 +1064,15 @@ class TOCEditor(QDialog):  # {{{
     def add_new_item(self, item, where):
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(2)
+        if ismacos:
+            QTimer.singleShot(0, self.workaround_macos_mouse_with_webview_bug)
+
+    def workaround_macos_mouse_with_webview_bug(self):
+        # macOS is weird: https://bugs.launchpad.net/calibre/+bug/2004639
+        # needed as of Qt 6.4.2
+        d = info_dialog(self, _('Loading...'), _('Loading view, please wait...'), show_copy_button=False)
+        QTimer.singleShot(0, d.reject)
+        d.exec()
 
     def accept(self):
         if monotonic() - self.last_accept_at < 1:
