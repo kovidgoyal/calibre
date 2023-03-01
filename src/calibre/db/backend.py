@@ -162,7 +162,7 @@ class DBPrefs(dict):  # {{{
             data = json.dumps(self, indent=2, default=to_json)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with open(to_filename, "wb") as f:
+            with open(to_filename, 'wb') as f:
                 f.write(data)
         except:
             import traceback
@@ -172,7 +172,7 @@ class DBPrefs(dict):  # {{{
     def read_serialized(cls, library_path, recreate_prefs=False):
         from_filename = os.path.join(library_path,
                 'metadata_db_prefs_backup.json')
-        with open(from_filename, "rb") as f:
+        with open(from_filename, 'rb') as f:
             return json.load(f, object_hook=from_json)
 # }}}
 
@@ -1531,8 +1531,8 @@ class DB:
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
@@ -1638,8 +1638,8 @@ class DB:
             return False
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if dest:
                 if samefile(dest, path):
                     # Ensure that the file has the same case as dest
@@ -1919,11 +1919,11 @@ class DB:
         text = 'annotations.searchable_text'
         if highlight_start is not None and highlight_end is not None:
             if snippet_size is not None:
-                text = 'snippet({fts_table}, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'.format(
+                text = "snippet({fts_table}, 0, '{highlight_start}', '{highlight_end}', '…', {snippet_size})".format(
                         fts_table=fts_table, highlight_start=highlight_start, highlight_end=highlight_end,
                         snippet_size=max(1, min(snippet_size, 64)))
             else:
-                text = f'highlight({fts_table}, 0, "{highlight_start}", "{highlight_end}")'
+                text = f"highlight({fts_table}, 0, '{highlight_start}', '{highlight_end}')"
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
         query = query.format('annotations', text)
         query += ' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'.format(fts_table=fts_table)
@@ -1994,7 +1994,7 @@ class DB:
                     new_annot['title'] = annot_data['title']
                 replacements.append((json.dumps(new_annot), timestamp, annot_id))
         if replacements:
-            self.executemany('UPDATE annotations SET annot_data=?, timestamp=?, searchable_text="" WHERE id=?', replacements)
+            self.executemany("UPDATE annotations SET annot_data=?, timestamp=?, searchable_text='' WHERE id=?", replacements)
         if removals:
             self.executemany('DELETE FROM annotations WHERE id=?', removals)
 
@@ -2085,7 +2085,7 @@ class DB:
     def annotation_count_for_book(self, book_id):
         for (count,) in self.execute('''
                  SELECT count(id) FROM annotations
-                 WHERE book=? AND json_extract(annot_data, "$.removed") IS NULL
+                 WHERE book=? AND json_extract(annot_data, '$.removed') IS NULL
                  ''', (book_id,)):
             return count
         return 0

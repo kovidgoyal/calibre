@@ -39,7 +39,7 @@ class FTS:
             if conn.fts_dbpath is None:
                 main_db_path = os.path.abspath(conn.db_filename('main'))
                 dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
-                conn.execute(f'ATTACH DATABASE "{dbpath}" AS fts_db')
+                conn.execute(f"ATTACH DATABASE '{dbpath}' AS fts_db")
                 SchemaUpgrade(conn)
                 conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
                 num_dirty = conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
@@ -160,9 +160,9 @@ class FTS:
             text = 'books_text.searchable_text'
             if highlight_start is not None and highlight_end is not None:
                 if snippet_size is not None:
-                    text = f'snippet("{fts_table}", 0, "{highlight_start}", "{highlight_end}", "…", {max(1, min(snippet_size, 64))})'
+                    text = f'''snippet("{fts_table}", 0, '{highlight_start}', '{highlight_end}', '…', {max(1, min(snippet_size, 64))})'''
                 else:
-                    text = f'highlight("{fts_table}", 0, "{highlight_start}", "{highlight_end}")'
+                    text = f'''highlight("{fts_table}", 0, '{highlight_start}', '{highlight_end}')'''
             text = ', ' + text
         else:
             text = ''
