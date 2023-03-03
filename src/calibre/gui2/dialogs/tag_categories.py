@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
 from calibre.constants import islinux
@@ -213,8 +213,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         idx = self.category_filter_box.currentIndex()
         filter_key = self.category_filter_box.itemData(idx)
         self.available_items_box.clear()
+        applied = defaultdict(set)
+        for it in self.applied_items:
+            applied[it.k].add(it.v)
         for it in self.sorted_items:
             if idx != 0 and it.k != filter_key:
+                continue
+            if it.v in applied[it.k]:
                 continue
             self.available_items_box.addItem(self.make_available_list_item(it.k, it.v))
 
@@ -228,6 +233,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.applied_items_box.clear()
         for tup in self.applied_items:
             self.applied_items_box.addItem(self.make_applied_list_item(tup))
+        self.display_filtered_categories()
 
     def apply_button_clicked(self):
         self.apply_tags(node=None)
