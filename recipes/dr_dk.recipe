@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2023, Joel Davies <joeld.dev at gmail.com>
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class DRNyheder(BasicNewsRecipe):
@@ -52,7 +51,7 @@ class DRNyheder(BasicNewsRecipe):
     simultaneous_downloads      = 20
     compress_news_images        = True
     masthead_url                = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/DR_logo.svg/1024px-DR_logo.svg.png'
-    
+
     extra_css = '''
         .dre-byline__contributions {
             margin-bottom: 10px;
@@ -75,7 +74,7 @@ class DRNyheder(BasicNewsRecipe):
         .dre-picture {
             margin-bottom: 10px;
         }
-        
+
         .dre-picture__image {
             max-width: 100%;
             height: auto;
@@ -86,7 +85,7 @@ class DRNyheder(BasicNewsRecipe):
             color: #575757;
         }
         '''
-        
+
     # Skip articles with /stories/ URL as these are Instagram story-style interactive pieces that play videos
     # Also DRTV as these are just links to the live TV channel
     def preprocess_raw_html(self, raw_html, url):
@@ -103,10 +102,10 @@ class DRNyheder(BasicNewsRecipe):
         if cover_item:
             cover_url = cover_item['src']
         return cover_url
-    
-    
+
+
     keep_only_tags = [
-        
+
         dict(name="h1", attrs={'class': 'dre-article-title__heading'}), # Title
         dict(name="div", attrs={'class': 'dre-article-byline'}), # Author
         dict(name="figure", attrs={'class': 'dre-standard-article__figure'}), # Comment out to remove images
@@ -117,10 +116,12 @@ class DRNyheder(BasicNewsRecipe):
         #dict(name="div", attrs={'class': 'dre-speech'}),
         #dict(name="div", attrs={'itemprop': 'author'})
     ]
-    
+
     remove_tags = [
         dict(name='ol', attrs={'class': 'hydra-latest-news-page__list'}),
-        dict(name='div', attrs={'class': ['hydra-latest-news-page-short-news__share', 'hydra-latest-news-page-short-news__a11y-container', 'hydra-latest-news-page-short-news__meta', 'hydra-latest-news-page-short-news__image-slider', 'dre-byline__dates']}),
+        dict(name='div', attrs={'class': [
+            'hydra-latest-news-page-short-news__share', 'hydra-latest-news-page-short-news__a11y-container',
+            'hydra-latest-news-page-short-news__meta', 'hydra-latest-news-page-short-news__image-slider', 'dre-byline__dates']}),
         dict(name="source"),
         #dict(name='menu', attrs={'class': 'share'}),
         #dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
