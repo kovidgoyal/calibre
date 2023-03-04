@@ -80,7 +80,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                 if regex.search(query, t, flags) is not None:
                     return True
             except regex.error as e:
-                raise ParseException(_('Invalid regular expression: {}').format(str(e)))
+                raise ParseException(_('Invalid regular expression: {!r} with error: {}').format(query, str(e)))
         elif matchkind == ACCENT_MATCH:
             if primary_contains(query, t):
                 return True
