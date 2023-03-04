@@ -294,7 +294,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         r('remove_format', 'edit-clear', _('Remove formatting'))
         r('copy', 'edit-copy', _('Copy'), shortcut=QKeySequence.StandardKey.Copy)
         r('paste', 'edit-paste', _('Paste'), shortcut=QKeySequence.StandardKey.Paste)
-        r('paste_and_match_style', 'edit-paste', _('Paste and match style'))
+        r('paste_and_match_style', 'edit-paste', _('Paste and match style'), shortcut=QKeySequence('ctrl+shift+v', QKeySequence.SequenceFormat.PortableText))
         r('cut', 'edit-cut', _('Cut'), shortcut=QKeySequence.StandardKey.Cut)
         r('indent', 'format-indent-more', _('Increase indentation'))
         r('outdent', 'format-indent-less', _('Decrease indentation'))
