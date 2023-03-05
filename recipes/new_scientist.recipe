@@ -64,11 +64,11 @@ class NewScientist(BasicNewsRecipe):
                                 """
 
     keep_only_tags = [
-        classes('article-header article__content')
+        classes('article-header article__content ArticleHeader ArticleContent')
     ]
 
     remove_tags = [
-        classes('social__button-container')
+        classes('social__button-container ArticleHeader__SocialWrapper')
     ]
 
     def preprocess_html(self, soup):
@@ -83,6 +83,11 @@ class NewScientist(BasicNewsRecipe):
         ans = BasicNewsRecipe.get_article_url(self, article)
         return ans.partition('?')[0]
 
+    def print_version(self, url):
+        if '/video/' in url:
+            return None
+        return url
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
@@ -94,7 +99,7 @@ class NewScientist(BasicNewsRecipe):
             br['email'] = self.username
             br['password'] = self.password
             res = br.submit().read()
-            if b'>Log out<' not in res:
+            if b'>Your account<' not in res:
                 raise ValueError('Failed to log in to New Scientist, check your username and password')
         return br
 
