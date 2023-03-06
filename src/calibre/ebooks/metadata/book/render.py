@@ -127,7 +127,8 @@ def mi_to_html(
             name = field
         name += ':'
         disp = metadata['display']
-        if metadata['datatype'] == 'comments' or field == 'comments':
+        if (metadata['datatype'] == 'comments' or field == 'comments'
+            or disp.get('composite_show_in_comments', '')):
             val = getattr(mi, field)
             if val:
                 ctype = disp.get('interpret_as') or 'html'
@@ -155,7 +156,7 @@ def mi_to_html(
                     '<td class="title">%s</td><td class="rating value" '
                     'style=\'font-family:"%s"\'>%s</td>'%(
                         name, rating_font, star_string)))
-        elif metadata['datatype'] == 'composite':
+        elif metadata['datatype'] == 'composite' and not disp.get('composite_show_in_comments', ''):
             val = getattr(mi, field)
             if val:
                 val = force_unicode(val)
