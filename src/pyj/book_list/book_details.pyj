@@ -334,7 +334,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         name = fm.name or field
         datatype = fm.datatype
         val = mi[field]
-        if field is 'comments' or datatype is 'comments':
+        if field is 'comments' or datatype is 'comments' or fm.display?.composite_show_in_comments:
             if not val:
                 return
             ias = fm.display?.interpret_as or 'html'
