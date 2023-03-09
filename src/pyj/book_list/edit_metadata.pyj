@@ -37,7 +37,7 @@ from utils import (
 from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
-IGNORED_FIELDS = {'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
+IGNORED_FIELDS = {'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn', 'in_tag_browser'}
 def identity(x):
     return x
 value_to_json = identity
