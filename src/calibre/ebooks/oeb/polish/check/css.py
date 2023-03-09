@@ -205,6 +205,9 @@ def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):
     if is_declaration:
         css = 'div{\n' + css + '\n}'
         line_offset -= 1
+    if line_offset > 0:
+        css = ('\n' * line_offset) + css
+        line_offset = 0
     return Job(name, css, line_offset, fix_data)
 
 
