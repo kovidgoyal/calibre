@@ -1008,11 +1008,12 @@ class TagsView(QTreeView):  # {{{
                 if tag is None:
                     cm = self.context_menu
                     cm.addSeparator()
-                    sm = cm.addAction(_('Change {} category icon').format(category),
+                    acategory = category.replace('&', '&&')
+                    sm = cm.addAction(_('Change {} category icon').format(acategory),
                                       partial(self.context_menu_handler, action='set_icon',
                                               key=key, category=category))
                     sm.setIcon(QIcon.ic('icon_choose.png'))
-                    sm = cm.addAction(_('Restore {} category default icon').format(category),
+                    sm = cm.addAction(_('Restore {} category default icon').format(acategory),
                                       partial(self.context_menu_handler, action='clear_icon',
                                               key=key, category=category))
                     sm.setIcon(QIcon.ic('edit-clear.png'))
