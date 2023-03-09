@@ -667,7 +667,6 @@ class CreateCustomColumn(QDialog):
                            'composite columns'))
             if self.composite_in_comments_box.isChecked():
                 display_dict = {'composite_template':str(self.composite_box.text()).strip(),
-                                'composite_show_in_comments': self.composite_in_comments_box.isChecked(),
                                 'heading_position': self.composite_heading_position.currentData(),
                                 'composite_show_in_comments': True,
                             }
