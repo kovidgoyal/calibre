@@ -415,24 +415,23 @@ class MetadataSingleDialogBase(QDialog):
         if mi is not None:
             self.update_from_mi(mi)
 
-    def get_pdf_cover(self):
-        pdfpath = self.formats_manager.get_format_path(self.db, self.book_id,
-                                                       'pdf')
+    def choose_cover_from_pages(self, ext):
+        path = self.formats_manager.get_format_path(self.db, self.book_id, ext.lower())
         from calibre.gui2.metadata.pdf_covers import PDFCovers
-        d = PDFCovers(pdfpath, parent=self)
+        d = PDFCovers(path, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             cpath = d.cover_path
             if cpath:
                 with open(cpath, 'rb') as f:
-                    self.update_cover(f.read(), 'PDF')
+                    self.update_cover(f.read(), ext.upper())
         d.cleanup()
 
     def cover_from_format(self, *args):
         ext = self.formats_manager.get_selected_format()
         if ext is None:
             return
-        if ext == 'pdf':
-            return self.get_pdf_cover()
+        if ext in ('pdf', 'cbz', 'cbr'):
+            return self.choose_cover_from_pages(ext)
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
                     self.book_id)

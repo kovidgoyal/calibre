@@ -57,7 +57,7 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
     '''
-    extensions = {'jpeg', 'jpg', 'gif', 'png', 'webp'}
+    from calibre.libunzip import comic_exts
     items = generate_entries_from_dir(dir_or_items) if isinstance(dir_or_items, str) else dir_or_items
     sep_counts = set()
     pages = []
@@ -65,8 +65,8 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
         if '__MACOSX' in path:
             continue
         ext = path.rpartition('.')[2].lower()
-        if ext in extensions:
-            sep_counts.add(path.replace(os.sep, '/').count('/'))
+        if ext in comic_exts:
+            sep_counts.add(path.replace('\\', '/').count('/'))
             pages.append(path)
     # Use the full path to sort unless the files are in folders of different
     # levels, in which case simply use the filenames.

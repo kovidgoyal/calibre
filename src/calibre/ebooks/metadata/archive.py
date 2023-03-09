@@ -199,3 +199,60 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
         comment = get_comment(stream)
 
     return parse_comic_comment(comment or b'{}', series_index=series_index)
+
+
+def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based indexing
+    from functools import partial
+    with open(path, 'rb') as f:
+        fmt = archive_type(f)
+        if fmt not in ('zip', 'rar'):
+            return 0
+    items = {}
+    if fmt == 'rar':
+        from calibre.utils.unrar import headers
+        for h in headers(path):
+            items[h['filename']] = lambda : partial(h.get, 'file_time', 0)
+    else:
+        from zipfile import ZipFile
+        with ZipFile(path) as zf:
+            for i in zf.infolist():
+                items[i.filename] = partial(getattr, i, 'date_time')
+    from calibre.ebooks.comic.input import find_pages
+    pages = find_pages(items)
+    if last <= 0:
+        last = len(pages)
+    pages = pages[first-1:last]
+
+    def make_filename(num, ext):
+        return f'{num:08d}{ext}'
+
+    if fmt == 'rar':
+        all_pages = {p:i+first for i, p in enumerate(pages)}
+        from calibre.utils.unrar import extract_members
+        current = None
+        def callback(x):
+            nonlocal current
+            if isinstance(x, dict):
+                if current is not None:
+                    current.close()
+                fname = x['filename']
+                if fname in all_pages:
+                    ext = os.path.splitext(fname)[1]
+                    num = all_pages[fname]
+                    current = open(os.path.join(tdir, make_filename(num, ext)), 'wb')
+                    return True
+                return False
+            if isinstance(x, bytes):
+                current.write(x)
+        extract_members(path, callback)
+        if current is not None:
+            current.close()
+    else:
+        import shutil
+        with ZipFile(path) as zf:
+            for i, name in enumerate(pages):
+                num = i + first
+                ext = os.path.splitext(name)[1]
+                with open(os.path.join(tdir, make_filename(num, ext)), 'wb') as dest, zf.open(name) as src:
+                    shutil.copyfileobj(src, dest)
+    return len(pages)

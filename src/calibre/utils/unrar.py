@@ -94,6 +94,12 @@ def extract_member(
             return name, data
 
 
+def extract_members(path_or_stream, callback):
+    from unrardll import extract_members
+    with StreamAsPath(path_or_stream) as path:
+        extract_members(path, callback)
+
+
 def extract_first_alphabetically(stream):
     from calibre.libunzip import sort_key
     names_ = sorted((

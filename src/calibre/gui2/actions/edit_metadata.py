@@ -983,13 +983,13 @@ class EditMetadataAction(InterfaceAction):
         fmt = fmt.lower()
         cdata = None
         db = self.gui.current_db.new_api
-        if fmt == 'pdf':
-            pdfpath = db.format_abspath(book_id, fmt)
-            if pdfpath is None:
+        if fmt in ('pdf', 'cbz', 'cbr'):
+            path = db.format_abspath(book_id, fmt)
+            if path is None:
                 return error_dialog(self.gui, _('Format file missing'), _(
-                    'Cannot read cover as the %s file is missing from this book') % 'PDF', show=True)
+                    'Cannot read cover as the %s file is missing from this book') % fmt.upper(), show=True)
             from calibre.gui2.metadata.pdf_covers import PDFCovers
-            d = PDFCovers(pdfpath, parent=self.gui)
+            d = PDFCovers(path, parent=self.gui)
             ret = d.exec()
             if ret == QDialog.DialogCode.Accepted:
                 cpath = d.cover_path
