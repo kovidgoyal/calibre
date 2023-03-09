@@ -459,8 +459,11 @@ class CreateCustomColumn(QDialog):
         l = QHBoxLayout()
         self.composite_in_comments_box = cmc = QCheckBox(_("Show with comments in book details"))
         cmc.setToolTip('<p>' + _('If you check this box then the column contents '
-                                 'will show in the Comments section in book details, '
-                                 'which is on the right hand side. The output of the '
+                                 'will show in the Comments section in book details. '
+                                 'You can indicate whether not to have a header or '
+                                 'to put a header above the column. If you want a '
+                                 "header beside the data, don't check this box. "
+                                 'If this box is checked then the output of the '
                                  'column template must be plain text or html.') + '</p>')
         l.addWidget(cmc)
         self.composite_heading_position = chp = QComboBox(self)
