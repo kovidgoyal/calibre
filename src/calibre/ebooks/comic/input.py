@@ -39,32 +39,41 @@ def extract_comic(path_to_comic_file):
     return tdir
 
 
-def find_pages(dir, sort_on_mtime=False, verbose=False):
+def generate_entries_from_dir(path):
+    from functools import partial
+    from calibre import walk
+    ans = {}
+    for x in walk(path):
+        x = os.path.abspath(x)
+        ans[x] = partial(os.path.getmtime, x)
+    return ans
+
+
+def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     '''
     Find valid comic pages in a previously un-archived comic.
 
-    :param dir: Directory in which extracted comic lives
+    :param dir_or_items: Directory in which extracted comic lives or a dict of paths to function getting mtime
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
     '''
     extensions = {'jpeg', 'jpg', 'gif', 'png', 'webp'}
+    items = generate_entries_from_dir(dir_or_items) if isinstance(dir_or_items, str) else dir_or_items
+    sep_counts = set()
     pages = []
-    for datum in os.walk(dir):
-        for name in datum[-1]:
-            path = os.path.abspath(os.path.join(datum[0], name))
-            if '__MACOSX' in path:
-                continue
-            for ext in extensions:
-                if path.lower().endswith('.'+ext):
-                    pages.append(path)
-                    break
-    sep_counts = {x.replace(os.sep, '/').count('/') for x in pages}
+    for path in items:
+        if '__MACOSX' in path:
+            continue
+        ext = path.rpartition('.')[2].lower()
+        if ext in extensions:
+            sep_counts.add(path.replace(os.sep, '/').count('/'))
+            pages.append(path)
     # Use the full path to sort unless the files are in folders of different
     # levels, in which case simply use the filenames.
     basename = os.path.basename if len(sep_counts) > 1 else lambda x: x
     if sort_on_mtime:
         def key(x):
-            return os.stat(x).st_mtime
+            return items[x]()
     else:
         def key(x):
             return numeric_sort_key(basename(x))
@@ -72,7 +81,12 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     pages.sort(key=key)
     if verbose:
         prints('Found comic pages...')
-        prints('\t'+'\n\t'.join([os.path.relpath(p, dir) for p in pages]))
+        try:
+            base = os.path.commonpath(pages)
+        except ValueError:
+            pass
+        else:
+            prints('\t'+'\n\t'.join([os.path.relpath(p, base) for p in pages]))
     return pages
 
 

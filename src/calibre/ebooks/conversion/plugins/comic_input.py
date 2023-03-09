@@ -6,10 +6,13 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import shutil, textwrap, codecs, os
+import codecs
+import os
+import shutil
+import textwrap
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ptempfile import PersistentTemporaryDirectory
 
 
@@ -126,8 +129,7 @@ class ComicInput(InputFormatPlugin):
         return comics
 
     def get_pages(self, comic, tdir2):
-        from calibre.ebooks.comic.input import (extract_comic,  process_pages,
-                find_pages)
+        from calibre.ebooks.comic.input import extract_comic, find_pages, process_pages
         tdir  = extract_comic(comic)
         new_pages = find_pages(tdir, sort_on_mtime=self.opts.no_sort,
                 verbose=self.opts.verbose)
