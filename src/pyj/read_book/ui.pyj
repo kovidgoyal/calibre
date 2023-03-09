@@ -311,6 +311,7 @@ class ReadUI:
 
     def start_load(self, book_id, fmt, metadata, force_reload):
         self.current_book_id = book_id
+        self.current_book_fmt = fmt
         metadata = metadata or library_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
         update_window_title('', self.current_metadata.title)
@@ -344,6 +345,12 @@ class ReadUI:
         if end_type is 'abort':
             return
         if end_type is not 'load':
+            if xhr.status is 404:
+                fmt = (self.current_book_fmt or 'UNKNOWN').toUpperCase()
+                if 'cannot be viewed' in xhr.error_html:
+                    return self.show_error(
+                        _('Failed to view book'), _('Viewing of the {} format is not supported.').format(fmt), xhr.error_html)
+                return self.show_error(_('Failed to view book'), _('The {} format is not available.').format(fmt), xhr.error_html)
             return self.show_error(_('Failed to load book manifest'),
                 _('The book manifest failed to load, click "Show details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)
