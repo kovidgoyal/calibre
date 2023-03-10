@@ -23,6 +23,37 @@
 # - title by author
 # }}}
 
+{{{ 6.14.0 2023-03-10
+
+:: new features
+
+- [2007765] Edit metadata: When setting a cover from comic files allow choosing which page to use as the cover
+
+- [2009304] Allow display of columns built from other columns as comments in Book details
+
+- Comments editor: Add a shortcut for "Paste and match style" (Ctrl+Shift+v)
+
+:: bug fixes
+
+- [2004639] macOS: ToC Editor: Fix mouse becoming unusable when trying to create a new entry
+
+- When computing title sorts strip leading and trailing quotes, not just leading quotes
+
+- [2009268] Content server viewer: Fix searching only showing results from the current chapter onwards
+
+- [2009735] Check book: Fix some incorrect line numbers reported in a few CSS error messages
+
+:: improved recipes
+- Strange Horizons
+- The Saturday Paper
+- New Scientist
+- The Mainichi
+- DR Nyheder
+- New York Magazine
+- Bloomberg
+- Deccan Herald
+}}}
+
 {{{ 6.13.0 2023-02-17
 
 :: new features
