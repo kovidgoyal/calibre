@@ -15,7 +15,7 @@ from qt.core import (
     QShortcut, QTimer, QStyle)
 
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key
@@ -348,8 +348,10 @@ class Quickview(QDialog, Ui_Quickview):
         a.setEnabled(book_displayed)
         a = m.addAction(self.quickview_icon, _('Quickview this cell'),
                         partial(self.quickview_item, row, column))
-        a.setEnabled(self.is_category(self.column_order[column]) and
-                     book_displayed and not self.lock_qv.isChecked())
+        key = self.column_order[column]
+        a.setEnabled(self.is_category(key) and book_displayed and
+                     key in self.view.visible_columns and
+                     not self.lock_qv.isChecked())
         m.addSeparator()
         m.addAction(self.view_icon, _('Open book in the E-book viewer'),
                         partial(self.view_plugin._view_calibre_books, [book_id]))
@@ -517,9 +519,11 @@ class Quickview(QDialog, Ui_Quickview):
             self.indicate_no_items()
 
     def is_category(self, key):
-        return key is not None and (self.fm[key]['is_category'] or
+        return key is not None and (
+                     self.fm[key]['table'] is not None and
+                     (self.fm[key]['is_category'] or
                                     (self.fm[key]['datatype'] == 'composite' and
-                                     self.fm[key]['display'].get('make_category', False)))
+                                     self.fm[key]['display'].get('make_category', False))))
 
     def _refresh(self, book_id, key):
         '''
@@ -718,7 +722,6 @@ class Quickview(QDialog, Ui_Quickview):
             self.select_book_and_qv(row, self.key_to_table_widget_column(self.current_key))
 
     def book_not_in_view_error(self):
-        from calibre.gui2 import error_dialog
         error_dialog(self, _('Quickview: Book not in library view'),
                      _('The book you selected is not currently displayed in '
                        'the library view, perhaps because of a search or a '
@@ -745,6 +748,7 @@ class Quickview(QDialog, Ui_Quickview):
             else:
                 self.quickview_item(row, self.key_to_table_widget_column(self.current_key))
         except:
+            traceback.print_exc()
             self.book_not_in_view_error()
 
     def edit_metadata(self, book_id, follow_library_view=True):
@@ -784,6 +788,13 @@ class Quickview(QDialog, Ui_Quickview):
         if QApplication.keyboardModifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier):
             self.edit_metadata(book_id)
         else:
+            if key not in self.view.visible_columns:
+                error_dialog(self, _("Quickview: Column cannot be selected"),
+                     _("The column you double-clicked, '{}', is not shown in the "
+                       "library view. The book/column cannot be selected by Quickview.").format(key),
+                     show=True,
+                     show_copy_button=False)
+                return
             self.view.select_cell(self.db.data.id_to_index(book_id),
                                   self.view.column_map.index(key))
 
