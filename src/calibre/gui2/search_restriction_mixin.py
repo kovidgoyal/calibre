@@ -543,7 +543,10 @@ class SearchRestrictionMixin:
         self.rebuild_vl_tabs()
 
     def _trim_restriction_name(self, name):
-        return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip()
+        name = name.strip()
+        if len(name) < MAX_VIRTUAL_LIBRARY_NAME_LENGTH or name.endswith('…'):
+            return name
+        return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip() + '…'
 
     def build_search_restriction_list(self):
         self.search_restriction_list_built = True
@@ -566,7 +569,7 @@ class SearchRestrictionMixin:
             nonlocal dex
             self.search_restriction.addItem(name)
             txt = self._trim_restriction_name(last)
-            if name == current_restriction:
+            if self._trim_restriction_name(name) == self._trim_restriction_name(current_restriction):
                 a = current_menu.addAction(self.checked, txt if txt else self.no_restriction)
             else:
                 a = current_menu.addAction(txt if txt else self.no_restriction)
@@ -578,7 +581,7 @@ class SearchRestrictionMixin:
         add_action(m, '', '')
         add_action(m, _('*current search'), _('*current search'))
         if current_restriction_text:
-            add_action(m, current_restriction_text)
+            add_action(m, current_restriction_text, current_restriction_text)
         self.add_saved_searches_to_menu(m, self.library_view.model().db, add_action)
 
     def search_restriction_triggered(self, action=None, index=None):
