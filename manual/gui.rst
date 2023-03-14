@@ -325,6 +325,9 @@ The Search & Sort section allows you to perform several powerful actions on your
 
     * You can configure which fields you want displayed by using the :ref:`configuration` dialog.
 
+    * To perform multiple column based sub-sorting add the :guilabel:`Sort by`
+      tool to a toolbar via :guilabel:`Preferences->Toolbars & menus`.
+
 .. _search_interface:
 
 The search interface
