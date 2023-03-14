@@ -311,7 +311,10 @@ Search & sort
 
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
-    * You can sort them by title, author, date, rating, etc. by clicking on the column titles. You can also sub-sort, i.e. sort on multiple columns. For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
+    * You can sort them by title, author, date, rating, etc. by clicking on the column titles.
+      You can also sub-sort, i.e. sort on multiple columns.
+      For example, if you click on the title column and then the author column, the book will be sorted by
+      author and then all the entries for the same author will be sorted by title.
 
     * You can search for a particular book or set of books using the Search bar. More on that below.
 
@@ -325,7 +328,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
     * You can configure which fields you want displayed by using the :ref:`configuration` dialog.
 
-    * To perform multiple column based sub-sorting add the :guilabel:`Sort by`
+    * To perform complex multiple column based sub-sorting add the :guilabel:`Sort by`
       tool to a toolbar via :guilabel:`Preferences->Toolbars & menus`.
 
 .. _search_interface:
