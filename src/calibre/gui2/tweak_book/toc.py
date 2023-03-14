@@ -5,14 +5,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from qt.core import (
-    QAction, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon, QMenu,
-    QSize, QStackedWidget, QStyledItemDelegate, Qt, QTimer, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QAction, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon, QMenu, QSize,
+    QStackedWidget, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 from time import monotonic
 
+from calibre.constants import ismacos
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
-from calibre.gui2 import error_dialog, make_view_use_window_background
+from calibre.gui2 import error_dialog, info_dialog, make_view_use_window_background
 from calibre.gui2.toc.main import ItemEdit, TOCView
 from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
 from calibre_extensions.progress_indicator import set_no_activate_on_click
@@ -61,6 +62,15 @@ class TOCEditor(QDialog):
     def add_new_item(self, item, where):
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(1)
+        if ismacos:
+            QTimer.singleShot(0, self.workaround_macos_mouse_with_webview_bug)
+
+    def workaround_macos_mouse_with_webview_bug(self):
+        # macOS is weird: https://bugs.launchpad.net/calibre/+bug/2004639
+        # needed as of Qt 6.4.2
+        d = info_dialog(self, _('Loading...'), _('Loading view, please wait...'), show_copy_button=False)
+        QTimer.singleShot(0, d.reject)
+        d.exec()
 
     def accept(self):
         if monotonic() - self.last_accept_at < 1:
