@@ -32,8 +32,13 @@ class ElPais(BasicNewsRecipe):
 
     remove_javascript = True
     no_stylesheets = True
-    
-        extra_css = 'span._db {max-width: 100%; height: auto;} .a_m_p {font-size: .75rem;} .a_m_m {text-transform: uppercase; padding-top: 0.5rem;} div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}'
+
+    extra_css = '''
+span._db {max-width: 100%; height: auto;}
+.a_m_p {font-size: .75rem;}
+.a_m_m {text-transform: uppercase; padding-top: 0.5rem;}
+div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}
+'''
 
     keep_only_tags = [
         dict(attrs={'class': [
@@ -45,7 +50,7 @@ class ElPais(BasicNewsRecipe):
                               'articulo-apertura',
                               'articulo__contenedor'
                               'a_e_m',
-                              'a_md_a',   
+                              'a_md_a',
                              ]}),
         dict(name='div', attrs={'class': 'a_c',}),
 
@@ -71,9 +76,9 @@ class ElPais(BasicNewsRecipe):
         dict(id='cta_id'),
         dict(name='svg'),
     ]
-    
+
     remove_attributes = ['width', 'height']
-    
+
     feeds = [
         (u'Espa\xf1a', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada'),
         (u'Internacional',
@@ -90,10 +95,12 @@ class ElPais(BasicNewsRecipe):
         (u'Sociedad', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/sociedad/portada'),
         (u'Blogs', u'http://ep01.epimg.net/rss/elpais/blogs.xml'),
     ]
-    
+
     def get_cover_url(self):
         from datetime import date
-        cover = 'https://srv00.epimg.net/pdf/elpais/snapshot/' + str(date.today().year) + '/' + date.today().strftime('%m') + '/elpais/' + str(date.today().year) +  date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg'
+        cover = ('https://srv00.epimg.net/pdf/elpais/snapshot/' +
+                 str(date.today().year) + '/' + date.today().strftime('%m') + '/elpais/' +
+                 str(date.today().year) +  date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg')
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
@@ -101,7 +108,7 @@ class ElPais(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
-    
+
     def image_url_processor(cls, baseurl, url):
         splitUrl = url.split("cloudfront-")
         parsedUrl = 'https://cloudfront-' + splitUrl[1]
