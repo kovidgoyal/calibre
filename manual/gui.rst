@@ -167,14 +167,14 @@ The :guilabel:`Fetch news` action has three variations, accessed by doing a righ
     3. **Download all scheduled news sources**: Causes calibre to immediately begin downloading all news sources that you have scheduled.
 
 
-.. _library:
+.. _ebooks:
 
-Library
+ebooks
 ~~~~~~~~~~~~~~~~~
-.. |lii| image:: images/library.png
+.. |lii| image:: images/ebooks.png
     :class: float-right-img
 
-|lii| The :guilabel:`Library` action allows you to create, switch between, rename or remove a Library.  calibre allows you to create as many libraries as you wish. You could, for instance, create a fiction library, a non-fiction library, a foreign language library, a project library, or any structure that suits your needs. Libraries are the highest organizational structure within calibre. Each library has its own set of books, tags, categories and base storage location.
+|lii| The :guilabel:`ebooks` action allows you to create, switch between, rename or remove a Library.  calibre allows you to create as many libraries as you wish. You could, for instance, create a fiction library, a non-fiction library, a foreign language library, a project library, or any structure that suits your needs. Libraries are the highest organizational structure within calibre. Each library has its own set of books, tags, categories and base storage location.
 
     1. **Switch/create library...**: Allows you to; a) connect to a pre-existing calibre library at another location, b) create an empty library at a new location or, c) move the current library to a newly specified location.
     2. **Quick switch**: Allows you to switch between libraries that have been registered or created within calibre.
