@@ -303,7 +303,7 @@ class Sdist(Command):
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
         for x in open('.gitignore').readlines():
-            if not x.startswith('resources/'):
+            if not x.startswith('/resources/'):
                 continue
             p = x.strip().replace('/', os.sep)
             for p in glob.glob(p):
