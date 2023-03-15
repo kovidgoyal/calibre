@@ -5,9 +5,6 @@ particular order.
 New features for the in-browser viewer
 ----------------------------------------
 
-- Bookmarks and more generally, annotations such as highlighting text and
-  adding comments
-
 - When reaching the end of the book, show a popup that allows the user
   to rate the book and optionally delete it from the local storage.
 
@@ -17,8 +14,6 @@ New features for the in-browser viewer
 
 New features for the server generally
 ---------------------------------------
-
-- Create a UI for sending by email
 
 - Add a way to search the set of locally available books stored in offline
   storage.
