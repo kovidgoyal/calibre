@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.14.0 2023-03-10
+{{{ 6.14.1 2023-03-16
 
 :: new features
 
@@ -42,6 +42,12 @@
 - [2009268] Content server viewer: Fix searching only showing results from the current chapter onwards
 
 - [2009735] Check book: Fix some incorrect line numbers reported in a few CSS error messages
+
+- Fix regression in 6.14.0 that caused some generated resources to be excluded from the calibre source bundle
+
+- [2011586] Fix regression in 6.14.0 that broke using paths with single quotes in them for the calibre library
+
+- Fix ToC Editor on macOS in 6.14.0 not working inside the Edit book tool only
 
 :: improved recipes
 - Strange Horizons
