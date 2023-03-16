@@ -305,6 +305,7 @@ class Sdist(Command):
         for x in open('.gitignore').readlines():
             if not x.startswith('/resources/'):
                 continue
+            x = x[1:]
             p = x.strip().replace('/', os.sep)
             for p in glob.glob(p):
                 d = self.j(tdir, os.path.dirname(p))
