@@ -1,0 +1,61 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+
+class TheWire(BasicNewsRecipe):
+    title = 'The Wire'
+    __author__ = 'unkn0wn'
+    description = 'The Wire is an Indian nonprofit news and opinion website'
+    language = 'en_IN'
+    masthead_url = 'https://cdn.thewire.in/wp-content/uploads/thewire-app-images/wire-logo.svg'
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = [
+        classes(
+            'title shortDesc author__name featured-image postComplete__description'
+            ' post-content-container thb-article-featured-image post-title '
+            'sharing-counts-off post-bottom-meta'
+        )
+    ]
+
+    ignore_duplicate_articles = {'title'}
+    resolve_internal_links  = True
+    remove_empty_feeds = True
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast-'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Downloading ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    feeds = []
+
+    sections = [
+        'government', 'politics', 'law', 'business', 'economy', 'education', 'the-sciences',
+        'security', 'tech', 'culture', 'environment', 'health', 'travel', 'rights',
+        'labour', 'world', 'diplomacy', 'books', 'south-asia', 'caste', 'communalism',
+    ]
+
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:thewire.in{}&hl=en-IN&gl=IN&ceid=IN:en'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    feeds.append(('Others', a.format('')))
