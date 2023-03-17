@@ -1,7 +1,7 @@
 import json
 import re
 from collections import defaultdict
-from datetime import date
+from datetime import datetime
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -10,10 +10,11 @@ def absurl(url):
         url = 'https://www.thehindu.com' + url
     return url
 
-
-local_edition = None
 # Chennai is default edition, for other editions use 'th_hyderabad', 'th_bangalore', 'th_delhi', 'th_kolkata' etc
+local_edition = None
 
+# For past editions, set date to, for example, '2023-01-28'
+past_edition = None
 
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu'
@@ -22,15 +23,18 @@ class TheHindu(BasicNewsRecipe):
     no_stylesheets = True
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
     remove_attributes = ['style', 'height', 'width']
-    extra_css = '.caption{font-size:small; text-align:center;}'\
-        '.author{font-size:small; font-weight:bold;}'\
-        '.subhead, .subhead_lead {font-weight:bold;}'\
-        'img {display:block; margin:0 auto;}'
+
+    extra_css = '''
+        .caption {font-size:small; text-align:center;}
+        .author {font-size:small; font-weight:bold;}
+        .subhead, .subhead_lead {font-weight:bold;}
+        img {display:block; margin:0 auto;}
+    '''
 
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes('article-section ')
+        classes('article-section')
     ]
 
     remove_tags = [
@@ -44,12 +48,22 @@ class TheHindu(BasicNewsRecipe):
             img['src'] = img['data-original']
         return soup
 
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            if not past_edition:
+                self.title = 'The Hindu ' + datetime.today().strftime('%b %d, %Y')
+
     def parse_index(self):
-        if local_edition:
-            yr = str(date.today().year)
-            mn = date.today().strftime('%m')
-            dy = date.today().strftime('%d')
-            url = 'https://www.thehindu.com/todays-paper/' + yr + '-' + mn + '-' + dy + '/' + local_edition + '/'
+        global local_edition
+        if local_edition or past_edition:
+            if local_edition is None:
+                local_edition = 'th_chennai'
+            today = datetime.today().strftime('%Y-%m-%d')
+            if past_edition:
+                today = past_edition
+                self.log('Downloading past edition of', local_edition + ' from ' + today)
+            url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
         else:
             url = 'https://www.thehindu.com/todays-paper/'
         raw = self.index_to_soup(url, raw=True)
