@@ -1,13 +1,9 @@
-#!/usr/bin/env  python
-
 import json
 import re
 from datetime import date
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 is_saturday = date.today().weekday() == 5
-
 
 class LiveMint(BasicNewsRecipe):
     title = u'Live Mint'
@@ -34,28 +30,35 @@ class LiveMint(BasicNewsRecipe):
 
     if is_saturday:
 
+        oldest_article = 6 # days
+
+        extra_css = '''
+            #story-summary-0 {font-style:italic; color:#202020;}
+            .innerBanner, .storyImgSec {text-align:center; font-size:small;}
+            .author {font-size:small;}
+        '''
+
         keep_only_tags = [
-            dict(name='h1'),
-            dict(name='h2', attrs={'id':'story-summary-0'}),
-            dict(name='picture'),
-            dict(name='div', attrs={'class':'innerBanCaption'}),
-            dict(name='div', attrs={'id':'date-display-before-content'}),
-            dict(name='div', attrs={'class':'storyContent'}),
+            classes('storyPageHeading storyContent innerBanner author')
         ]
         remove_tags = [
-            classes(
-                'sidebarAdv similarStoriesClass moreFromSecClass'
-            )
+            classes('hidden-article-url sidebarAdv similarStoriesClass moreFromSecClass linkStories publishDetail'),
+            dict(attrs={'id':['hidden-article-id-0', 'hidden-article-type-0']})
         ]
+
         feeds = [
-            ('News', 'https://lifestyle.livemint.com/rss/news'),
-            ('Food','https://lifestyle.livemint.com/rss/food'),
-            ('Fashion','https://lifestyle.livemint.com/rss/fashion'),
-            ('How to Lounge','https://lifestyle.livemint.com/rss/how-to-lounge'),
-            ('Smart Living','https://lifestyle.livemint.com/rss/smart-living'),
+            ('Lounge News', 'https://lifestyle.livemint.com/rss/news'),
+            ('Food', 'https://lifestyle.livemint.com/rss/food'),
+            ('Fashion', 'https://lifestyle.livemint.com/rss/fashion'),
+            ('How to Lounge', 'https://lifestyle.livemint.com/rss/how-to-lounge'),
+            ('Smart Living', 'https://lifestyle.livemint.com/rss/smart-living'),
+            ('Health', 'https://lifestyle.livemint.com/rss/health'),
+            ('Relationships', 'https://lifestyle.livemint.com//rss/relationships')
         ]
 
         def preprocess_html(self, soup):
+            if h2 := soup.find('h2'):
+                h2.name = 'p'
             for img in soup.findAll('img', attrs={'data-img': True}):
                 img['src'] = img['data-img']
             return soup
@@ -72,7 +75,7 @@ class LiveMint(BasicNewsRecipe):
         '''
 
         keep_only_tags = [
-            dict(name='article'),
+            dict(name='article', attrs={'id':lambda x: x and x.startswith('article_')}),
             classes('contentSec')
         ]
         remove_tags = [
@@ -128,3 +131,6 @@ class LiveMint(BasicNewsRecipe):
             for img in soup.findAll('img', attrs={'data-src': True}):
                 img['src'] = img['data-src']
             return soup
+
+        def populate_article_metadata(self, article, soup, first):
+            article.title = article.title.replace('<span class="webrupee">₹</span>','₹')
