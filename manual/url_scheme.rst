@@ -56,6 +56,8 @@ brackets at the end of the path to the book folder.
 You can copy a link to the current book displayed in calibre by right clicking
 the :guilabel:`Book details` panel and choosing :guilabel:`Copy link to book`.
 
+If a search is active and the book is not matched by the search then the search is cleared.
+
 If a Virtual library is selected, calibre will use it when showing the book. If
 the book isn't found in that virtual library then the virtual library is cleared.
 
@@ -65,8 +67,8 @@ If you want to switch to a particular Virtual library when showing the book, use
     or
     calibre://show-book/Library_Name/book_id?encoded_virtual_library=hex_encoded_virtual_library_name
 
-replacing spaces in the Virtual library name by ``%20``. If the book isn't in that
-virtual library then it is ignored.
+replacing spaces in the Virtual library name by ``%20``. If the book isn't found in that
+virtual library then the virtual library is ignored.
 
 
 Open a specific book in the E-book viewer at a specific position

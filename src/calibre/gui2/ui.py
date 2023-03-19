@@ -711,6 +711,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if vl is not None and vl != '_':
                     self.apply_virtual_library(vl)
                 rows = self.library_view.select_rows((book_id,))
+                if not rows:
+                    self.search.set_search_string('')
+                    rows = self.library_view.select_rows((book_id,))
                 db = self.current_db
                 if not rows and (db.data.get_base_restriction_name() or db.data.get_search_restriction_name()):
                     self.apply_virtual_library()
