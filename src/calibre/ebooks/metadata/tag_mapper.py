@@ -5,6 +5,7 @@
 from collections import deque
 
 from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from polyglot.builtins import as_unicode
 
 
 def compile_pat(pat):
@@ -14,25 +15,29 @@ def compile_pat(pat):
 
 
 def matcher(rule):
+    import unicodedata
+    def n(x):
+        return unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
+
     mt = rule['match_type']
     if mt == 'one_of':
-        tags = {icu_lower(x.strip()) for x in rule['query'].split(',')}
+        tags = {icu_lower(n(x.strip())) for x in rule['query'].split(',')}
         return lambda x: x in tags
 
     if mt == 'not_one_of':
-        tags = {icu_lower(x.strip()) for x in rule['query'].split(',')}
+        tags = {icu_lower(n(x.strip())) for x in rule['query'].split(',')}
         return lambda x: x not in tags
 
     if mt == 'matches':
-        pat = compile_pat(rule['query'])
+        pat = compile_pat(n(rule['query']))
         return lambda x: pat.match(x) is not None
 
     if mt == 'not_matches':
-        pat = compile_pat(rule['query'])
+        pat = compile_pat(n(rule['query']))
         return lambda x: pat.match(x) is None
 
     if mt == 'has':
-        s = icu_lower(rule['query'])
+        s = icu_lower(n(rule['query']))
         return lambda x: s in x
 
     return lambda x: False
