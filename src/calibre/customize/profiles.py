@@ -504,6 +504,20 @@ class KoboReaderOutput(OutputProfile):
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
 
+class KoboLibra2Output(OutputProfile):
+
+    name = 'Kobo Libra 2'
+    short_name = 'koboL2'
+
+    description = _('This profile is intended for the Kobo Libra 2.')
+
+    screen_size               = (1264, 1680)
+    comic_screen_size         = (1264, 1680)
+    dpi                       = 300
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+
 class SonyReader300Output(SonyReaderOutput):
 
     author      = 'John Schember'
@@ -906,7 +920,7 @@ output_profiles = [
     OutputProfile, SonyReaderOutput, SonyReader300Output, SonyReader900Output,
     SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
     HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput, iPadOutput,
-    iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
+    iPad3Output, KoboReaderOutput, KoboLibra2Output, TabletOutput, SamsungGalaxy,
     SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
     IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
     NookColorOutput, PocketBook900Output,
