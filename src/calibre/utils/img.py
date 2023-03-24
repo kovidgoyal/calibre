@@ -449,8 +449,9 @@ def crop_image(img, x, y, width, height):
 # Image transformations {{{
 
 
-def grayscale_image(img):
-    return imageops.grayscale(image_from_data(img))
+def grayscale_image(img) -> QImage:
+    img: QImage = image_from_data(img)
+    return img.convertToFormat(QImage.Format.Format_Grayscale8)
 
 
 def set_image_opacity(img, alpha=0.5):
