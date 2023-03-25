@@ -200,13 +200,31 @@ class PageProcessor(list):  # {{{
             if not self.opts.dont_sharpen:
                 img = gaussian_sharpen_image(img, 0.0, 1.0)
 
-            if not self.opts.dont_grayscale:
+            img_is_allGray = img.allGray()
+            if not self.opts.dont_grayscale and not img_is_allGray: # only grayscale if colored
                 img = grayscale_image(img)
+                img_is_allGray = True
 
             if self.opts.despeckle:
                 img = despeckle_image(img)
 
-            if self.opts.output_format.lower() == 'png' and self.opts.colors:
+            # At this point, the image format will always be QImage.Format.Format_RGB32
+            # becuase many imageops operation converts to that format, excluding the quantize operation.
+            # Now if the image is grayscaled, this format just wastes space for no reason.
+            # By using the quantize operation, we can convert back to a more efficient grayscale format.
+            # The following is a quick and dirty solution to do that automaticly on gray images,
+            # only if the user has ignored the colors option, which otherwise would use quantize on its own.
+            output_is_png = self.opts.output_format.lower() == 'png'
+            is_grayscale_format = (
+                img.format() is img.Format.Format_Indexed8
+                or img.format() is img.Format.Format_Grayscale8
+                or img.format() is img.Format.Format_Grayscale16
+            )
+            if output_is_png and img_is_allGray and not self.opts.colors and not is_grayscale_format:
+                img = quantize_image(img, max_colors=256)
+            # end of dirty solution
+
+            if output_is_png and self.opts.colors:
                 img = quantize_image(img, max_colors=min(256, self.opts.colors))
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
