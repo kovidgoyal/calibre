@@ -546,6 +546,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(False)
 
     def finish_editing(self, edited_item):
+        if edited_item.column != 0:
+            return
         if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
                 'An item cannot be set to nothing. Delete it instead.'), show=True)
@@ -680,7 +682,5 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def accepted(self):
         self.links = {}
         for r in range(0, self.table.rowCount()):
-            l = self.table.item(r, 3).text()
-            if l:
-                self.links[self.table.item(r, 0).text()] = l
+            self.links[self.table.item(r, 0).text()] = self.table.item(r, 3).text()
         self.save_geometry()

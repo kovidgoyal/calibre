@@ -2397,6 +2397,8 @@ class Cache:
             values, not field ids.
 
         returns books changed by setting the link
+
+        NB: this method doesn't change values not in the value_to_link_map
         '''
         if field not in self.fields:
             raise ValueError(f'Lookup name {field} is not a valid name')
