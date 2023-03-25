@@ -793,3 +793,28 @@ CREATE TRIGGER fkc_annot_update
 
     def upgrade_version_24(self):
         self.db.reindex_annotations()
+
+    def upgrade_version_25(self):
+        for record in self.db.execute(
+                'SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
+            data = {
+                    'label':record[0],
+                    'name':record[1],
+                    'datatype':record[2],
+                    'editable':bool(record[3]),
+                    'display':record[4],
+                    'normalized':bool(record[5]),
+                    'num':record[6],
+                    'is_multiple':bool(record[7]),
+                    }
+            if data['normalized']:
+                tn = 'custom_column_{}'.format(data['num'])
+                self.db.execute(f'ALTER TABLE {tn} ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        self.db.execute('ALTER TABLE publishers ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        self.db.execute('ALTER TABLE series ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        self.db.execute('ALTER TABLE tags ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        # These aren't necessary in that there is no UI to set links, but having them
+        # makes the code uniform
+        self.db.execute('ALTER TABLE languages ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        self.db.execute('ALTER TABLE ratings ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+

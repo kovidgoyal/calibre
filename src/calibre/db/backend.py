@@ -1121,6 +1121,7 @@ class DB:
                 CREATE TABLE %s(
                     id    INTEGER PRIMARY KEY AUTOINCREMENT,
                     value %s NOT NULL %s,
+                    link TEXT NOT NULL DEFAULT "",
                     UNIQUE(value));
                 '''%(table, dt, collate),
 

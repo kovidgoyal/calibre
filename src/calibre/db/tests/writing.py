@@ -919,4 +919,28 @@ class WritingTest(BaseTest):
         ae(cache.field_for('series_index', 1), 2.0)
         ae(cache.field_for('series_index', 2), 3.5)
 
+    def test_link_maps(self):
+        cache = self.init_cache()
+
+        cache.set_field('tags', {1:'foo'})
+        self.assertEqual(('foo',), cache.field_for('tags', 1), 'Setting tag foo failed')
+        cache.set_field('tags', {1:'foo, bar'})
+        self.assertEqual(('foo', 'bar'), cache.field_for('tags', 1), 'Adding second tag failed')
+
+        links = cache.get_link_map('tags')
+        self.assertDictEqual(links, {}, 'Initial tags link dict is not empty')
+        links['foo'] = 'url'
+        cache.set_link_map('tags', links)
+        links2 = cache.get_link_map('tags')
+        self.assertDictEqual(links2, links, 'tags link dict mismatch')
+
+        cache.set_field('publisher', {1:'random'})
+        cache.set_link_map('publisher', {'random': 'url2'})
+
+        links = cache.get_all_link_maps_for_book(1)
+        self.assert_('foo' in links['tags'], 'foo not there')
+        self.assert_('bar' not in links['tags'], 'bar is there')
+        self.assert_('random' in links['publisher'], 'random is not there')
+        self.assertSetEqual({'tags', 'publisher'}, set(links.keys()), 'Link map has extra stuff')
+
     # }}}

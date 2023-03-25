@@ -595,6 +595,8 @@ class OPF:  # {{{
                                     renderer=dump_dict)
     author_link_map = MetadataField('author_link_map', is_dc=False,
                                 formatter=json.loads, renderer=dump_dict)
+    link_map = MetadataField('link_maps', is_dc=False,
+                                formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwd(), unquote_urls=True,
             populate_spine=True, try_to_guess_cover=False, preparsed_opf=None, read_toc=True):
@@ -1310,7 +1312,7 @@ class OPF:  # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments', 'book_producer',
-                     'pubdate', 'user_categories', 'author_link_map'):
+                     'pubdate', 'user_categories', 'author_link_map', 'link_map'):
             val = getattr(mi, attr, None)
             if attr == 'rating' and val:
                 val = float(val)
@@ -1673,6 +1675,8 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         return factory('meta', name='calibre:' + n, content=c)
     if getattr(mi, 'author_link_map', None) is not None:
         meta('author_link_map', dump_dict(mi.author_link_map))
+    if getattr(mi, 'link_maps', None) is not None:
+        meta('link_maps', dump_dict(mi.link_maps))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:

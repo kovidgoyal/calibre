@@ -199,19 +199,22 @@ class ManyToOneTable(Table):
 
     def read(self, db):
         self.id_map = {}
+        self.link_map = {}
         self.col_book_map = defaultdict(set)
         self.book_col_map = {}
         self.read_id_maps(db)
         self.read_maps(db)
 
     def read_id_maps(self, db):
-        query = db.execute('SELECT id, {} FROM {}'.format(
+        query = db.execute('SELECT id, {}, link FROM {}'.format(
             self.metadata['column'], self.metadata['table']))
         if self.unserialize is None:
-            self.id_map = dict(query)
+            us = lambda x: x
         else:
             us = self.unserialize
-            self.id_map = {book_id:us(val) for book_id, val in query}
+        for id_, val, link in query:
+            self.id_map[id_] = us(val)
+            self.link_map[id_] = link
 
     def read_maps(self, db):
         cbm = self.col_book_map
@@ -342,6 +345,14 @@ class ManyToOneTable(Table):
             db.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
+
+    def set_links(self, link_map, db):
+        link_map = {id_:(l or '').strip() for id_, l in iteritems(link_map)}
+        link_map = {id_:l for id_, l in iteritems(link_map) if l != self.link_map.get(id_)}
+        self.link_map.update(link_map)
+        db.executemany(f'UPDATE {self.metadata["table"]} SET link=? WHERE id=?',
+            [(v, k) for k, v in iteritems(link_map)])
+        return link_map
 
 
 class RatingTable(ManyToOneTable):
@@ -526,7 +537,7 @@ class ManyToManyTable(ManyToOneTable):
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
-        self.alink_map = lm = {}
+        self.link_map = lm = {}
         self.asort_map = sm = {}
         self.id_map = im = {}
         us = self.unserialize
@@ -547,8 +558,8 @@ class AuthorsTable(ManyToManyTable):
 
     def set_links(self, link_map, db):
         link_map = {aid:(l or '').strip() for aid, l in iteritems(link_map)}
-        link_map = {aid:l for aid, l in iteritems(link_map) if l != self.alink_map.get(aid, None)}
-        self.alink_map.update(link_map)
+        link_map = {aid:l for aid, l in iteritems(link_map) if l != self.link_map.get(aid, None)}
+        self.link_map.update(link_map)
         db.executemany('UPDATE authors SET link=? WHERE id=?',
             [(v, k) for k, v in iteritems(link_map)])
         return link_map
@@ -556,14 +567,14 @@ class AuthorsTable(ManyToManyTable):
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)
         for item_id in clean:
-            self.alink_map.pop(item_id, None)
+            self.link_map.pop(item_id, None)
             self.asort_map.pop(item_id, None)
         return clean
 
     def rename_item(self, item_id, new_name, db):
         ret = ManyToManyTable.rename_item(self, item_id, new_name, db)
         if item_id not in self.id_map:
-            self.alink_map.pop(item_id, None)
+            self.link_map.pop(item_id, None)
             self.asort_map.pop(item_id, None)
         else:
             # Was a simple rename, update the author sort value

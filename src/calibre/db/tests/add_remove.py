@@ -225,7 +225,7 @@ class AddRemoveTest(BaseTest):
             self.assertNotIn(3, c.all_book_ids())
             self.assertNotIn('Unknown', set(itervalues(table.id_map)))
             self.assertNotIn(item_id, table.asort_map)
-            self.assertNotIn(item_id, table.alink_map)
+            self.assertNotIn(item_id, table.link_map)
             ae(len(table.id_map), olen-1)
 
         # Check that files are removed

@@ -91,6 +91,24 @@ def mi_to_html(
         rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
         for_qt=False, vertical_fields=()
     ):
+
+    show_links = not hasattr(mi, '_bd_dbwref')
+
+    def get_link_map(column):
+        if not show_links:
+            return {}
+        try:
+            return mi.link_maps[column]
+        except (KeyError, ValueError):
+            return {column:{}}
+
+    def add_other_link(field, field_value):
+        link = get_link_map(field).get(field_value, None)
+        if link:
+            return (' <a title="%s" href="%s">%s</a>'%(_('Click to open {}').format(link), link, _('(item link)')))
+        else:
+            return ''
+
     if field_list is None:
         field_list = get_field_list(mi)
     ans = []
@@ -170,9 +188,12 @@ def mi_to_html(
                     else:
                         all_vals = [v.strip()
                             for v in val.split(metadata['is_multiple']['cache_to_list']) if v.strip()]
-                        links = ['<a href="{}" title="{}">{}</a>'.format(
-                            search_action(field, x), _('Click to see books with {0}: {1}').format(
+                        if show_links:
+                            links = ['<a href="{}" title="{}">{}</a>'.format(
+                                search_action(field, x), _('Click to see books with {0}: {1}').format(
                                      metadata['name'], a(x)), p(x)) for x in all_vals]
+                        else:
+                            links = all_vals
                         val = value_list(metadata['is_multiple']['list_to_ui'], links)
                     ans.append((field, row % (name, val)))
         elif field == 'path':
@@ -188,10 +209,15 @@ def mi_to_html(
                         durl = ':::'.join((durl.split(':::'))[2:])
                     extra = '<br><span style="font-size:smaller">%s</span>'%(
                             prepare_string_for_xml(durl))
-                link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, loc=loc),
+                if show_links:
+                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, loc=loc),
                         prepare_string_for_xml(path, True), pathstr, extra)
+                else:
+                    link = prepare_string_for_xml(path, True)
                 ans.append((field, row % (name, link)))
         elif field == 'formats':
+            # Don't need show_links here because formats are removed from mi on
+            # cross library displays.
             if isdevice:
                 continue
             path = mi.path or ''
@@ -209,12 +235,15 @@ def mi_to_html(
             ans.append((field, row % (name, value_list(', ', fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers, sort_results=True)
-            links = [
-                '<a href="{}" title="{}:{}">{}</a>'.format(
-                    action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
-                    a(id_typ), a(id_val), p(namel))
-                for namel, id_typ, id_val, url in urls]
-            links = value_list(', ', links)
+            if show_links:
+                links = [
+                    '<a href="{}" title="{}:{}">{}</a>'.format(
+                        action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
+                        a(id_typ), a(id_val), p(namel))
+                    for namel, id_typ, id_val, url in urls]
+                links = value_list(', ', links)
+            else:
+                links = ', '.join(mi.identifiers)
             if links:
                 ans.append((field, row % (_('Ids')+':', links)))
         elif field == 'authors':
@@ -222,39 +251,46 @@ def mi_to_html(
             formatter = EvalFormatter()
             for aut in mi.authors:
                 link = ''
-                if mi.author_link_map.get(aut):
-                    link = lt = mi.author_link_map[aut]
-                elif default_author_link:
-                    if default_author_link.startswith('search-'):
-                        which_src = default_author_link.partition('-')[2]
-                        link, lt = author_search_href(which_src, title=mi.title, author=aut)
+                if show_links:
+                    if default_author_link:
+                        if default_author_link.startswith('search-'):
+                            which_src = default_author_link.partition('-')[2]
+                            link, lt = author_search_href(which_src, title=mi.title, author=aut)
+                        else:
+                            vals = {'author': qquote(aut), 'title': qquote(mi.title)}
+                            try:
+                                vals['author_sort'] =  qquote(mi.author_sort_map[aut])
+                            except KeyError:
+                                vals['author_sort'] = qquote(aut)
+                            link = lt = formatter.safe_format(default_author_link, vals, '', vals)
                     else:
-                        vals = {'author': qquote(aut), 'title': qquote(mi.title)}
-                        try:
-                            vals['author_sort'] =  qquote(mi.author_sort_map[aut])
-                        except KeyError:
-                            vals['author_sort'] = qquote(aut)
-                        link = lt = formatter.safe_format(default_author_link, vals, '', vals)
-                aut = p(aut)
+                        aut = p(aut)
                 if link:
-                    authors.append('<a title="%s" href="%s">%s</a>'%(a(lt), action('author', url=link, name=aut, title=lt), aut))
+                    val = '<a title="%s" href="%s">%s</a>'%(a(lt), action('author', url=link, name=aut, title=lt), aut)
                 else:
-                    authors.append(aut)
+                    val = aut
+                val += add_other_link('authors', aut)
+                authors.append(val)
             ans.append((field, row % (name, value_list(' & ', authors))))
         elif field == 'languages':
             if not mi.languages:
                 continue
             names = filter(None, map(calibre_langcode_to_name, mi.languages))
-            names = ['<a href="{}" title="{}">{}</a>'.format(search_action_with_data('languages', n, book_id), _(
-                'Search calibre for books with the language: {}').format(n), n) for n in names]
+            if show_links:
+                names = ['<a href="{}" title="{}">{}</a>'.format(search_action_with_data('languages', n, book_id), _(
+                    'Search calibre for books with the language: {}').format(n), n) for n in names]
             ans.append((field, row % (name, value_list(', ', names))))
         elif field == 'publisher':
             if not mi.publisher:
                 continue
-            val = '<a href="{}" title="{}">{}</a>'.format(
-                search_action_with_data('publisher', mi.publisher, book_id),
-                _('Click to see books with {0}: {1}').format(metadata['name'], a(mi.publisher)),
-                p(mi.publisher))
+            if show_links:
+                val = '<a href="{}" title="{}">{}</a>'.format(
+                    search_action_with_data('publisher', mi.publisher, book_id),
+                    _('Click to see books with {0}: {1}').format(metadata['name'], a(mi.publisher)),
+                    p(mi.publisher))
+                val += add_other_link('publisher', mi.publisher)
+            else:
+                val = p(mi.publisher)
             ans.append((field, row % (name, val)))
         elif field == 'title':
             # otherwise title gets metadata['datatype'] == 'text'
@@ -268,79 +304,85 @@ def mi_to_html(
             if val is None:
                 continue
             val = p(val)
-            if metadata['datatype'] == 'series':
-                sidx = mi.get(field+'_index')
-                if sidx is None:
-                    sidx = 1.0
-                try:
-                    st = metadata['search_terms'][0]
-                except Exception:
-                    st = field
-                series = getattr(mi, field)
-                val = _(
-                    '%(sidx)s of <a href="%(href)s" title="%(tt)s">'
-                    '<span class="%(cls)s">%(series)s</span></a>') % dict(
-                        sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
-                        series=p(series), href=search_action_with_data(st, series, book_id, field),
-                        tt=p(_('Click to see books in this series')))
-            elif metadata['datatype'] == 'datetime':
-                aval = getattr(mi, field)
-                if is_date_undefined(aval):
-                    continue
-                aval = format_date(aval, 'yyyy-MM-dd')
-                key = field if field != 'timestamp' else 'date'
-                if val == aval:
-                    val = '<a href="{}" title="{}">{}</a>'.format(
-                        search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
-                            _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
-                else:
-                    val = '<a href="{}" title="{}">{}</a>'.format(
-                        search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
-                            _('Click to see books with {0}: {1} (derived from {2})').format(
-                                metadata['name'] or field, aval, val)), val)
-            elif metadata['datatype'] == 'text' and metadata['is_multiple']:
-                try:
-                    st = metadata['search_terms'][0]
-                except Exception:
-                    st = field
-                all_vals = mi.get(field)
-                if not metadata.get('display', {}).get('is_names', False):
-                    all_vals = sorted(all_vals, key=sort_key)
-                links = ['<a href="{}" title="{}">{}</a>'.format(
-                    search_action_with_data(st, x, book_id, field), _('Click to see books with {0}: {1}').format(
-                        metadata['name'] or field, a(x)), p(x))
-                         for x in all_vals]
-                val = value_list(metadata['is_multiple']['list_to_ui'], links)
-            elif metadata['datatype'] == 'text' or metadata['datatype'] == 'enumeration':
-                # text/is_multiple handled above so no need to add the test to the if
-                try:
-                    st = metadata['search_terms'][0]
-                except Exception:
-                    st = field
-                val = '<a href="{}" title="{}">{}</a>'.format(
-                    search_action_with_data(st, unescaped_val, book_id, field), a(
-                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
-            elif metadata['datatype'] == 'bool':
-                val = '<a href="{}" title="{}">{}</a>'.format(
-                    search_action_with_data(field, val, book_id, None), a(
-                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
-            else:
-                try:
-                    aval = str(getattr(mi, field))
-                    if not aval:
+            if show_links:
+                if metadata['datatype'] == 'series':
+                    sidx = mi.get(field+'_index')
+                    if sidx is None:
+                        sidx = 1.0
+                    try:
+                        st = metadata['search_terms'][0]
+                    except Exception:
+                        st = field
+                    series = getattr(mi, field)
+                    val = _(
+                        '%(sidx)s of <a href="%(href)s" title="%(tt)s">'
+                        '<span class="%(cls)s">%(series)s</span></a>') % dict(
+                            sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
+                            series=p(series), href=search_action_with_data(st, series, book_id, field),
+                            tt=p(_('Click to see books in this series')))
+                    val += add_other_link('series', mi.series)
+                elif metadata['datatype'] == 'datetime':
+                    aval = getattr(mi, field)
+                    if is_date_undefined(aval):
                         continue
+                    aval = format_date(aval, 'yyyy-MM-dd')
+                    key = field if field != 'timestamp' else 'date'
                     if val == aval:
                         val = '<a href="{}" title="{}">{}</a>'.format(
-                            search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                            search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
                                 _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
                     else:
                         val = '<a href="{}" title="{}">{}</a>'.format(
-                            search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                            search_action_with_data(key, str(aval), book_id, None, original_value=val), a(
                                 _('Click to see books with {0}: {1} (derived from {2})').format(
                                     metadata['name'] or field, aval, val)), val)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
+                elif metadata['datatype'] == 'text' and metadata['is_multiple']:
+                    try:
+                        st = metadata['search_terms'][0]
+                    except Exception:
+                        st = field
+                    all_vals = mi.get(field)
+                    if not metadata.get('display', {}).get('is_names', False):
+                        all_vals = sorted(all_vals, key=sort_key)
+                    links = []
+                    for x in all_vals:
+                        v = '<a href="{}" title="{}">{}</a>'.format(
+                            search_action_with_data(st, x, book_id, field), _('Click to see books with {0}: {1}').format(
+                            metadata['name'] or field, a(x)), p(x))
+                        v += add_other_link(field, x)
+                        links.append(v)
+                    val = value_list(metadata['is_multiple']['list_to_ui'], links)
+                elif metadata['datatype'] == 'text' or metadata['datatype'] == 'enumeration':
+                    # text/is_multiple handled above so no need to add the test to the if
+                    try:
+                        st = metadata['search_terms'][0]
+                    except Exception:
+                        st = field
+                    v = '<a href="{}" title="{}">{}</a>'.format(
+                        search_action_with_data(st, unescaped_val, book_id, field), a(
+                            _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+                    val = v + add_other_link(field, val)
+                elif metadata['datatype'] == 'bool':
+                    val = '<a href="{}" title="{}">{}</a>'.format(
+                        search_action_with_data(field, val, book_id, None), a(
+                            _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+                else:
+                    try:
+                        aval = str(getattr(mi, field))
+                        if not aval:
+                            continue
+                        if val == aval:
+                            val = '<a href="{}" title="{}">{}</a>'.format(
+                                search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                                    _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), val)
+                        else:
+                            val = '<a href="{}" title="{}">{}</a>'.format(
+                                search_action_with_data(field, str(aval), book_id, None, original_value=val), a(
+                                    _('Click to see books with {0}: {1} (derived from {2})').format(
+                                        metadata['name'] or field, aval, val)), val)
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
 
             ans.append((field, row % (name, val)))
 
