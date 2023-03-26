@@ -77,7 +77,7 @@ class SimilarBooksAction(InterfaceAction):
             # Get the value of the requested field. Can be a list or a simple
             # val. It is possible that col no longer exists, in which case fall
             # back to the default
-            if col not in mi:
+            if col not in mi.all_field_keys():
                 col = db.prefs.defaults[key]
             val = mi.get(col, None)
         if not val:
