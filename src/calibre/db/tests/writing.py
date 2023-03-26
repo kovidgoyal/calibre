@@ -922,11 +922,13 @@ class WritingTest(BaseTest):
     def test_link_maps(self):
         cache = self.init_cache()
 
+        # Add two tags
         cache.set_field('tags', {1:'foo'})
         self.assertEqual(('foo',), cache.field_for('tags', 1), 'Setting tag foo failed')
         cache.set_field('tags', {1:'foo, bar'})
         self.assertEqual(('foo', 'bar'), cache.field_for('tags', 1), 'Adding second tag failed')
 
+        # Check adding a link
         links = cache.get_link_map('tags')
         self.assertDictEqual(links, {}, 'Initial tags link dict is not empty')
         links['foo'] = 'url'
@@ -934,13 +936,26 @@ class WritingTest(BaseTest):
         links2 = cache.get_link_map('tags')
         self.assertDictEqual(links2, links, 'tags link dict mismatch')
 
+        # Check getting links for a book and that links are correct
         cache.set_field('publisher', {1:'random'})
         cache.set_link_map('publisher', {'random': 'url2'})
-
         links = cache.get_all_link_maps_for_book(1)
-        self.assert_('foo' in links['tags'], 'foo not there')
-        self.assert_('bar' not in links['tags'], 'bar is there')
-        self.assert_('random' in links['publisher'], 'random is not there')
-        self.assertSetEqual({'tags', 'publisher'}, set(links.keys()), 'Link map has extra stuff')
+        self.assertSetEqual({v for v in links.keys()}, {'tags', 'publisher'}, 'Wrong link keys')
+        self.assertSetEqual({v for v in links['tags'].keys()}, {'foo', }, 'Should be "foo"')
+        self.assertSetEqual({v for v in links['publisher'].keys()}, {'random', }, 'Should be "random"')
+        self.assertEqual('url', links['tags']['foo'], 'link for tag foo is wrong')
+        self.assertEqual('url2', links['publisher']['random'], 'link for publisher random is wrong')
+
+        # Now test deleting the links.
+        links = cache.get_link_map('tags')
+        to_del = {l:'' for l in links.keys()}
+        cache.set_link_map('tags', to_del)
+        self.assertEqual({}, cache.get_link_map('tags'), 'links on tags were not deleted')
+        links = cache.get_link_map('publisher')
+        to_del = {l:'' for l in links.keys()}
+        cache.set_link_map('publisher', to_del)
+        self.assertEqual({}, cache.get_link_map('publisher'), 'links on publisher were not deleted')
+        self.assertEqual({}, cache.get_all_link_maps_for_book(1), 'Not all links for book were deleted')
+
 
     # }}}

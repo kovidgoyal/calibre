@@ -2405,6 +2405,9 @@ class Cache:
         table = self.fields[field].table
         if not hasattr(table, 'link_map'):
             raise ValueError(f"Lookup name {field} doesn't have a link map")
+        # Clear the links for book cache as we don't know what will be affected
+        self.link_maps_cache = {}
+
         fids = {k: self.get_item_id(field, k) for k in value_to_link_map.keys()}
         id_to_link_map = {fid:value_to_link_map[k] for k, fid in fids.items() if fid is not None}
         result_map = table.set_links(id_to_link_map, self.backend)
