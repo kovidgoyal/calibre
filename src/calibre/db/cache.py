@@ -291,7 +291,14 @@ class Cache:
             self.format_metadata_cache.clear()
         if search_cache:
             self._clear_search_caches(book_ids)
-        self.link_maps_cache = {}
+        self.clear_link_map_cache(book_ids)
+
+    def clear_link_map_cache(self, book_ids=None):
+        if book_ids is None:
+            self.link_maps_cache = {}
+        else:
+            for book in book_ids:
+                self.link_maps_cache.pop(book, None)
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -1487,6 +1494,7 @@ class Cache:
             if update_path and do_path_update:
                 self._update_path(dirtied, mark_as_dirtied=False)
             self._mark_as_dirty(dirtied)
+            self.clear_link_map_cache(dirtied)
             self.event_dispatcher(EventType.metadata_changed, name, dirtied)
         return dirtied
 
@@ -1502,6 +1510,7 @@ class Cache:
             self.format_metadata_cache.pop(book_id, None)
             if mark_as_dirtied:
                 self._mark_as_dirty(book_ids)
+            self.clear_link_map_cache(book_ids)
 
     @read_api
     def get_a_dirtied_book(self):
@@ -2161,6 +2170,7 @@ class Cache:
                 for book_id in moved_books:
                     self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._fast_field_for(f, book_id), field=field)})
             self._mark_as_dirty(affected_books)
+            self.clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_renamed, field, affected_books, id_map)
         return affected_books, id_map
 
@@ -2180,6 +2190,7 @@ class Cache:
                 self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})
             else:
                 self._mark_as_dirty(affected_books)
+            self.clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_removed, field, affected_books, item_ids)
         return affected_books
 
@@ -2314,6 +2325,7 @@ class Cache:
                 self._set_field('author_sort', val_map)
         if changed_books:
             self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
         return changed_books
 
     @write_api
@@ -2324,6 +2336,7 @@ class Cache:
             changed_books |= self._books_for_field('authors', author_id)
         if changed_books:
             self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
         return changed_books
 
     @read_api
@@ -2416,6 +2429,7 @@ class Cache:
             changed_books |= self._books_for_field(field, id_)
         if changed_books:
             self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
         return changed_books
 
     @read_api

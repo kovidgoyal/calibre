@@ -330,9 +330,6 @@ class ProxyMetadata(Metadata):
         sa(self, '_user_metadata', db.field_metadata)
 
     def __getattribute__(self, field):
-        if field == 'link_maps':
-            db = ga(self, '_db')()
-            return db.get_all_link_maps_for_book(ga(self, '_book_id'))
         getter = getters.get(field, None)
         if getter is not None:
             return getter(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
@@ -353,6 +350,10 @@ class ProxyMetadata(Metadata):
                     return series_index_getter(field[:-6])(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
                 return custom_getter(field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
             return composite_getter(self, field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'), ga(self, 'formatter'), ga(self, 'template_cache'))
+
+        if field == 'link_maps':
+            db = ga(self, '_db')()
+            return db.get_all_link_maps_for_book(ga(self, '_book_id'))
 
         try:
             return ga(self, '_cache')[field]
