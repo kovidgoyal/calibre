@@ -1989,6 +1989,11 @@ class Cache:
         if cover is not None:
             mi.cover, mi.cover_data = None, (None, cover)
         self._set_metadata(book_id, mi, ignore_errors=True)
+        lm = getattr(mi, 'link_maps', None)
+        if lm:
+            for field, link_map in lm.items():
+                if self._has_link_map(field):
+                    self._set_link_map(field, link_map, only_set_if_no_existing_link=True)
         if preserve_uuid and mi.uuid:
             self._set_field('uuid', {book_id:mi.uuid})
         # Update the caches for fields from the books table
@@ -2397,7 +2402,7 @@ class Cache:
         return links
 
     @write_api
-    def set_link_map(self, field, value_to_link_map):
+    def set_link_map(self, field, value_to_link_map, only_set_if_no_existing_link=False):
         '''
         Sets links for item values in field
 
@@ -2418,7 +2423,11 @@ class Cache:
         self.link_maps_cache = {}
 
         fids = self._get_item_ids(field, value_to_link_map)
-        id_to_link_map = {fid:value_to_link_map[k] for k, fid in fids.items() if fid is not None}
+        if only_set_if_no_existing_link:
+            lm = table.link_map
+            id_to_link_map = {fid:value_to_link_map[k] for k, fid in fids.items() if fid is not None and not lm.get(fid)}
+        else:
+            id_to_link_map = {fid:value_to_link_map[k] for k, fid in fids.items() if fid is not None}
         result_map = table.set_links(id_to_link_map, self.backend)
         changed_books = set()
         for id_ in result_map:

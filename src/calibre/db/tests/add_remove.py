@@ -148,7 +148,10 @@ class AddRemoveTest(BaseTest):
         'Test the creation of new book entries'
         from calibre.ebooks.metadata.book.base import Metadata
         cache = self.init_cache()
+        cache.set_field('authors', {1: 'Creator Two'})
+        cache.set_link_map('authors', {'Creator Two': 'original'})
         mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
+        mi.link_maps = {'authors': {'Creator One': 'link1', 'Creator Two': 'changed'}}
 
         book_id = cache.create_book_entry(mi)
         self.assertIsNot(book_id, None)
@@ -163,6 +166,7 @@ class AddRemoveTest(BaseTest):
             self.assertEqual(('Created One', ('Creator One', 'Creator Two')), (cache.field_for('title', book_id), cache.field_for('authors', book_id)))
             self.assertEqual(cache.field_for('series_index', book_id), 1.0)
             self.assertEqual(cache.field_for('pubdate', book_id), UNDEFINED_DATE)
+            self.assertEqual(cache.get_all_link_maps_for_book(book_id), {'authors': {'Creator One': 'link1', 'Creator Two': 'original'}})
 
         do_test(cache, book_id)
         # Test that the db contains correct data
