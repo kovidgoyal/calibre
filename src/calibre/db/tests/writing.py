@@ -354,6 +354,9 @@ class WritingTest(BaseTest):
         try:
             ae(sf('title', {1:'title1', 2:'title2', 3:'title3'}), {1,2,3})
             ae(sf('authors', {1:'author1 & author2', 2:'author1 & author2', 3:'author1 & author2'}), {1,2,3})
+            ae(sf('tags', {1:'tag1', 2:'tag1,tag2', 3:'XXX'}), {1,2,3})
+            ae(cache.set_link_map('authors', {'author1': 'link1'}), {1,2,3})
+            ae(cache.set_link_map('tags', {'XXX': 'YYY', 'tag2': 'link2'}), {2,3})
             count = 6
             while cache.dirty_queue_length() and count > 0:
                 mb.join(2)
@@ -364,11 +367,24 @@ class WritingTest(BaseTest):
         mb.join(2)
         af(mb.is_alive())
         from calibre.ebooks.metadata.opf2 import OPF
-        for book_id in (1, 2, 3):
+        book_ids = (1,2,3)
+        for book_id in book_ids:
             raw = cache.read_backup(book_id)
             opf = OPF(BytesIO(raw))
             ae(opf.title, 'title%d'%book_id)
             ae(opf.authors, ['author1', 'author2'])
+        tested_fields = 'title authors tags'.split()
+        before = {f:cache.all_field_for(f, book_ids) for f in tested_fields}
+        lbefore = tuple(cache.get_all_link_maps_for_book(i) for i in book_ids)
+        cache.close()
+        from calibre.db.restore import Restore
+        restorer = Restore(cl)
+        restorer.start()
+        restorer.join(8)
+        af(restorer.is_alive())
+        cache = self.init_cache(cl)
+        ae(before, {f:cache.all_field_for(f, book_ids) for f in tested_fields})
+        ae(lbefore, tuple(cache.get_all_link_maps_for_book(i) for i in book_ids))
     # }}}
 
     def test_set_cover(self):  # {{{
