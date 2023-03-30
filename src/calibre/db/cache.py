@@ -325,19 +325,16 @@ class Cache:
         aut_list = [adata[i] for i in author_ids]
         aum = []
         aus = {}
-        aul = {}
         for rec in aut_list:
             aut = rec['name']
             aum.append(aut)
             aus[aut] = rec['sort']
-            aul[aut] = rec['link']
         mi.title       = self._field_for('title', book_id,
                 default_value=_('Unknown'))
         mi.authors     = aum
         mi.author_sort = self._field_for('author_sort', book_id,
                 default_value=_('Unknown'))
         mi.author_sort_map = aus
-        mi.author_link_map = aul
         mi.comments    = self._field_for('comments', book_id)
         mi.publisher   = self._field_for('publisher', book_id)
         n = utcnow()

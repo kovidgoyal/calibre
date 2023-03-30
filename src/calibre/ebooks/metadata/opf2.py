@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import uuid
+from contextlib import suppress
 from lxml import etree
 
 from calibre import guess_type, prints
@@ -458,6 +459,37 @@ class MetadataField:
         obj.set_text(elem, self.renderer(val))
 
 
+class LinkMapsField:
+
+    def __get__(self, obj, type=None):
+        ans = obj.get_metadata_element('link_maps')
+        if ans is not None:
+            ans = obj.get_text(ans)
+            if ans:
+                with suppress(Exception):
+                    return json.loads(ans)
+        ans = obj.get_metadata_element('author_link_map')
+        if ans is not None:
+            ans = obj.get_text(ans)
+            if ans:
+                with suppress(Exception):
+                    return {'authors': json.loads(ans)}
+        return {}
+
+    def __set__(self, obj, val):
+        elem = obj.get_metadata_element('author_link_map')
+        if elem is not None:
+            elem.getparent().remove(elem)
+        elem = obj.get_metadata_element('link_maps')
+        if not val:
+            if elem is not None:
+                elem.getparent().remove(elem)
+            return
+        if elem is None:
+            elem = obj.create_metadata_element('link_maps', is_dc=False)
+        obj.set_text(elem, dump_dict(val))
+
+
 class TitleSortField(MetadataField):
 
     def __get__(self, obj, type=None):
@@ -593,10 +625,7 @@ class OPF:  # {{{
     user_categories = MetadataField('user_categories', is_dc=False,
                                     formatter=json.loads,
                                     renderer=dump_dict)
-    author_link_map = MetadataField('author_link_map', is_dc=False,
-                                formatter=json.loads, renderer=dump_dict)
-    link_map = MetadataField('link_maps', is_dc=False,
-                                formatter=json.loads, renderer=dump_dict)
+    link_maps = LinkMapsField()
 
     def __init__(self, stream, basedir=os.getcwd(), unquote_urls=True,
             populate_spine=True, try_to_guess_cover=False, preparsed_opf=None, read_toc=True):
@@ -667,6 +696,7 @@ class OPF:  # {{{
             ans.set_user_metadata(n, v)
 
         ans.set_identifiers(self.get_identifiers())
+        ans.link_maps = self.link_maps
 
         return ans
 
@@ -1312,7 +1342,7 @@ class OPF:  # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments', 'book_producer',
-                     'pubdate', 'user_categories', 'author_link_map', 'link_map'):
+                     'pubdate', 'user_categories', 'link_maps'):
             val = getattr(mi, attr, None)
             if attr == 'rating' and val:
                 val = float(val)
@@ -1673,9 +1703,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
     def meta(n, c):
         return factory('meta', name='calibre:' + n, content=c)
-    if getattr(mi, 'author_link_map', None) is not None:
-        meta('author_link_map', dump_dict(mi.author_link_map))
-    if getattr(mi, 'link_maps', None) is not None:
+    if not mi.is_null('link_maps'):
         meta('link_maps', dump_dict(mi.link_maps))
     if mi.series:
         meta('series', mi.series)

@@ -5,18 +5,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, traceback, shutil, time
-from threading import Thread
+import os
+import re
+import shutil
+import time
+import traceback
+from contextlib import suppress
 from operator import itemgetter
+from threading import Thread
 
-from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata.opf2 import OPF
+from calibre import force_unicode, isbytestring
+from calibre.constants import filesystem_encoding
 from calibre.db.backend import DB, DBPrefs
 from calibre.db.cache import Cache
-from calibre.constants import filesystem_encoding
+from calibre.ebooks.metadata.opf2 import OPF
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp
-from calibre import isbytestring, force_unicode
-from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset((
     'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -59,7 +63,7 @@ class Restore(Thread):
         self.mismatched_dirs = []
         self.successes = 0
         self.tb = None
-        self.authors_links = {}
+        self.link_maps = {}
 
     @property
     def errors_occurred(self):
@@ -209,11 +213,13 @@ class Restore(Thread):
         else:
             self.mismatched_dirs.append(dirpath)
 
-        alm = mi.get('author_link_map', {})
-        for author, link in iteritems(alm):
-            existing_link, timestamp = self.authors_links.get(author, (None, None))
-            if existing_link is None or existing_link != link and timestamp < mi.timestamp:
-                self.authors_links[author] = (link, mi.timestamp)
+        alm = mi.get('link_maps', {})
+        for field, lmap in alm.items():
+            dest = self.link_maps.setdefault(field, {})
+            for item, link in lmap.items():
+                existing_link, timestamp = dest.get(item, (None, None))
+                if existing_link is None or existing_link != link and timestamp < mi.timestamp:
+                    dest[item] = link, mi.timestamp
 
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
@@ -262,10 +268,9 @@ class Restore(Thread):
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
-        id_map = db.get_item_ids('authors', [author for author in self.authors_links])
-        link_map = {aid:self.authors_links[name][0] for name, aid in iteritems(id_map) if aid is not None}
-        if link_map:
-            db.set_link_for_authors(link_map)
+        for field, lmap in self.link_maps.items():
+            with suppress(Exception):
+                db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
         db.close()
 
     def replace_db(self):

@@ -865,15 +865,30 @@ def dict_reader(name, load=json.loads, try2=True):
 
 
 read_user_categories = dict_reader('user_categories')
-read_author_link_map = dict_reader('author_link_map')
+_read_link_maps = dict_reader('link_maps')
+_read_author_link_map = dict_reader('author_link_map')
 
 
-def dict_writer(name, serialize=dump_dict, remove2=True):
+def read_link_maps(root, prefixes, refines):
+    ans = _read_link_maps(root, prefixes, refines)
+    if ans is not None:
+        return ans
+    ans = _read_author_link_map(root, prefixes, refines)
+    if ans:
+        ans = {k: v for k, v in ans.items() if v}
+        if ans:
+            return {'authors': ans}
+
+
+def dict_writer(name, serialize=dump_dict, remove2=True, extra_remove=''):
     pq = f'{CALIBRE_PREFIX}:{name}'
 
     def writer(root, prefixes, refines, val):
         if remove2:
             for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % name)(root):
+                remove_element(meta, refines)
+        if extra_remove:
+            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % extra_remove)(root):
                 remove_element(meta, refines)
         for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
             prop = expand_prefix(meta.get('property'), prefixes)
@@ -889,7 +904,7 @@ def dict_writer(name, serialize=dump_dict, remove2=True):
 
 
 set_user_categories = dict_writer('user_categories')
-set_author_link_map = dict_writer('author_link_map')
+set_link_maps = dict_writer('link_maps', extra_remove='author_link_map')
 
 
 def deserialize_user_metadata(val):
@@ -1054,7 +1069,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
     s, si = read_series(root, prefixes, refines)
     if s:
         ans.series, ans.series_index = s, si
-    ans.author_link_map = read_author_link_map(root, prefixes, refines) or ans.author_link_map
+    ans.link_maps = read_link_maps(root, prefixes, refines) or ans.link_maps
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
     for name, fm in iteritems(read_user_metadata(root, prefixes, refines) or {}):
         ans.set_user_metadata(name, fm)
@@ -1105,8 +1120,8 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
         set_rating(root, prefixes, refines, mi.rating)
     if ok('series'):
         set_series(root, prefixes, refines, mi.series, mi.series_index or 1)
-    if ok('author_link_map'):
-        set_author_link_map(root, prefixes, refines, getattr(mi, 'author_link_map', None))
+    if ok('link_maps'):
+        set_link_maps(root, prefixes, refines, getattr(mi, 'link_maps', None))
     if ok('user_categories'):
         set_user_categories(root, prefixes, refines, getattr(mi, 'user_categories', None))
     # We ignore apply_null for the next two to match the behavior with opf2.py

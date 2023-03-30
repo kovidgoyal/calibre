@@ -2014,7 +2014,10 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val_sep, pair_sep):
         if hasattr(mi, '_proxy_metadata'):
-            link_data = mi._proxy_metadata.author_link_map
+            link_data = mi._proxy_metadata.link_maps
+            if not link_data:
+                return ''
+            link_data = link_data.get('authors')
             if not link_data:
                 return ''
             names = sorted(link_data.keys(), key=sort_key)

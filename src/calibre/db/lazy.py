@@ -315,7 +315,7 @@ getters = {
 for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
     getters[field] = simple_getter(field)
 
-for field in ('author_sort_map', 'author_link_map'):
+for field in ('author_sort_map',):
     getters[field] = adata_getter(field)
 
 for field in ('timestamp', 'pubdate', 'last_modified'):

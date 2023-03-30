@@ -575,7 +575,6 @@ class LegacyTest(BaseTest):
         omi = [db.get_metadata(x) for x in (0, 1, 2)]
         nmi = [ndb.get_metadata(x) for x in (0, 1, 2)]
         self.assertEqual([x.author_sort_map for x in omi], [x.author_sort_map for x in nmi])
-        self.assertEqual([x.author_link_map for x in omi], [x.author_link_map for x in nmi])
         db.close()
 
         ndb = self.init_legacy(self.cloned_library)
