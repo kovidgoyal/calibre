@@ -391,7 +391,7 @@ class Cache:
         for key in composites:
             mi.set(key, val=self._composite_for(key, book_id, mi))
 
-        mi.link_maps = self.get_all_link_maps_for_book(book_id)
+        mi.link_maps = self._get_all_link_maps_for_book(book_id)
 
         user_cat_vals = {}
         if get_user_categories:

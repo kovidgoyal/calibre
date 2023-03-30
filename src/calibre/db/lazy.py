@@ -147,6 +147,15 @@ def adata_getter(field):
     return func
 
 
+def link_maps_getter(dbref, book_id, cache):
+    try:
+        ans = cache['link_maps']
+    except KeyError:
+        db = dbref()
+        ans = cache['link_maps'] = db.get_all_link_maps_for_book(book_id)
+    return ans
+
+
 def dt_getter(field):
     def func(dbref, book_id, cache):
         try:
@@ -300,6 +309,7 @@ getters = {
     'application_id':lambda x, book_id, y: book_id,
     'id':lambda x, book_id, y: book_id,
     'virtual_libraries':virtual_libraries_getter,
+    'link_maps': link_maps_getter,
 }
 
 for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
@@ -350,10 +360,6 @@ class ProxyMetadata(Metadata):
                     return series_index_getter(field[:-6])(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
                 return custom_getter(field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
             return composite_getter(self, field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'), ga(self, 'formatter'), ga(self, 'template_cache'))
-
-        if field == 'link_maps':
-            db = ga(self, '_db')()
-            return db.get_all_link_maps_for_book(ga(self, '_book_id'))
 
         try:
             return ga(self, '_cache')[field]
