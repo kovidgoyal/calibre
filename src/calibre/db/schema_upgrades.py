@@ -810,14 +810,13 @@ CREATE TRIGGER fkc_annot_update
                     }
             if data['normalized']:
                 tn = 'custom_column_{}'.format(data['num'])
-                alters.append(f'ALTER TABLE {tn} ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+                alters.append(f"ALTER TABLE {tn} ADD COLUMN link TEXT NOT NULL DEFAULT '';")
 
-        alters.append('ALTER TABLE publishers ADD COLUMN link TEXT NOT NULL DEFAULT "";')
-        alters.append('ALTER TABLE series ADD COLUMN link TEXT NOT NULL DEFAULT "";')
-        alters.append('ALTER TABLE tags ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        alters.append("ALTER TABLE publishers ADD COLUMN link TEXT NOT NULL DEFAULT '';")
+        alters.append("ALTER TABLE series ADD COLUMN link TEXT NOT NULL DEFAULT '';")
+        alters.append("ALTER TABLE tags ADD COLUMN link TEXT NOT NULL DEFAULT '';")
         # These aren't necessary in that there is no UI to set links, but having them
         # makes the code uniform
-        alters.append('ALTER TABLE languages ADD COLUMN link TEXT NOT NULL DEFAULT "";')
-        alters.append('ALTER TABLE ratings ADD COLUMN link TEXT NOT NULL DEFAULT "";')
+        alters.append("ALTER TABLE languages ADD COLUMN link TEXT NOT NULL DEFAULT '';")
+        alters.append("ALTER TABLE ratings ADD COLUMN link TEXT NOT NULL DEFAULT '';")
         self.db.execute('\n'.join(alters))
-

@@ -97,6 +97,7 @@ CREATE TABLE identifiers  ( id     INTEGER PRIMARY KEY,
         );
 CREATE TABLE languages    ( id        INTEGER PRIMARY KEY,
                                     lang_code TEXT NOT NULL COLLATE NOCASE,
+							        link TEXT NOT NULL DEFAULT '',
                                     UNIQUE(lang_code)
         );
 CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
@@ -116,19 +117,23 @@ CREATE TABLE preferences(id INTEGER PRIMARY KEY,
 CREATE TABLE publishers ( id   INTEGER PRIMARY KEY,
                                   name TEXT NOT NULL COLLATE NOCASE,
                                   sort TEXT COLLATE NOCASE,
+								  link TEXT NOT NULL DEFAULT '',
                                   UNIQUE(name)
                              );
 CREATE TABLE ratings ( id   INTEGER PRIMARY KEY,
                                rating INTEGER CHECK(rating > -1 AND rating < 11),
+							   link TEXT NOT NULL DEFAULT '',
                                UNIQUE (rating)
                              );
 CREATE TABLE series ( id   INTEGER PRIMARY KEY,
                               name TEXT NOT NULL COLLATE NOCASE,
                               sort TEXT COLLATE NOCASE,
+							  link TEXT NOT NULL DEFAULT '',
                               UNIQUE (name)
                              );
 CREATE TABLE tags ( id   INTEGER PRIMARY KEY,
                             name TEXT NOT NULL COLLATE NOCASE,
+							link TEXT NOT NULL DEFAULT '',
                             UNIQUE (name)
                              );
 CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
@@ -633,4 +638,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=25;
+pragma user_version=26;

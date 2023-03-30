@@ -2341,10 +2341,7 @@ class Cache:
 
     @read_api
     def has_link_map(self, field):
-        if field not in self.fields:
-            raise ValueError(f'Lookup name {field} is not a valid name')
-        table = self.fields[field].table
-        return hasattr(table, 'link_map')
+        return hasattr(getattr(self.fields.get(field), 'table', None), 'link_map')
 
     @read_api
     def get_link_map(self, for_field):
@@ -2358,11 +2355,12 @@ class Cache:
         if for_field not in self.fields:
             raise ValueError(f'Lookup name {for_field} is not a valid name')
         table = self.fields[for_field].table
-        if not hasattr(table, 'link_map'):
+        lm = getattr(table, 'link_map', None)
+        if lm is None:
             raise ValueError(f"Lookup name {for_field} doesn't have a link map")
         lm = table.link_map
         vm = table.id_map
-        return dict({vm.get(fid, None):v for fid,v in lm.items() if v})
+        return {vm.get(fid):v for fid,v in lm.items() if v}
 
     @read_api
     def get_all_link_maps_for_book(self, book_id):
@@ -2381,21 +2379,22 @@ class Cache:
                  If book 2's author is neither A nor B and has no tags, this
                  method returns {}
         '''
-        if book_id in self.link_maps_cache:
-            return self.link_maps_cache[book_id]
+        cached = self.link_maps_cache.get(book_id)
+        if cached is not None:
+            return cached
         links = {}
         def add_links_for_field(f):
             field_ids = frozenset(self.field_ids_for(f, book_id))
             table = self.fields[f].table
             lm = table.link_map
             vm = table.id_map
-            d = dict({vm.get(fid, None):v for fid,v in lm.items() if v and fid in field_ids})
+            d = {vm.get(fid):v for fid,v in lm.items() if v and fid in field_ids}
             if d:
                 links[f] = d
         for field in ('authors', 'publisher', 'series', 'tags'):
             add_links_for_field(field)
         for field in self.field_metadata.custom_field_keys(include_composites=False):
-            if self.has_link_map(field):
+            if self._has_link_map(field):
                 add_links_for_field(field)
         self.link_maps_cache[book_id] = links
         return links
@@ -2415,8 +2414,8 @@ class Cache:
         '''
         if field not in self.fields:
             raise ValueError(f'Lookup name {field} is not a valid name')
-        table = self.fields[field].table
-        if not hasattr(table, 'link_map'):
+        table = getattr(self.fields[field], 'table', None)
+        if table is None:
             raise ValueError(f"Lookup name {field} doesn't have a link map")
         # Clear the links for book cache as we don't know what will be affected
         self.link_maps_cache = {}

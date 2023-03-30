@@ -16,6 +16,9 @@ from calibre_extensions.speedup import parse_date as _c_speedup
 from polyglot.builtins import iteritems, itervalues
 
 
+def identity(x):
+    return x
+
 def c_parse(val):
     try:
         year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)
@@ -208,10 +211,7 @@ class ManyToOneTable(Table):
     def read_id_maps(self, db):
         query = db.execute('SELECT id, {}, link FROM {}'.format(
             self.metadata['column'], self.metadata['table']))
-        if self.unserialize is None:
-            us = lambda x: x
-        else:
-            us = self.unserialize
+        us = identity if self.unserialize is None else self.unserialize
         for id_, val, link in query:
             self.id_map[id_] = us(val)
             self.link_map[id_] = link
@@ -347,11 +347,12 @@ class ManyToOneTable(Table):
         return affected_books, new_id
 
     def set_links(self, link_map, db):
-        link_map = {id_:(l or '').strip() for id_, l in iteritems(link_map)}
-        link_map = {id_:l for id_, l in iteritems(link_map) if l != self.link_map.get(id_)}
-        self.link_map.update(link_map)
-        db.executemany(f'UPDATE {self.metadata["table"]} SET link=? WHERE id=?',
-            [(v, k) for k, v in iteritems(link_map)])
+        link_map = {id_:(l or '').strip() for id_, l in link_map.items()}
+        link_map = {id_:l for id_, l in link_map.items() if l != self.link_map.get(id_)}
+        if link_map:
+            self.link_map.update(link_map)
+            db.executemany(f'UPDATE {self.metadata["table"]} SET link=? WHERE id=?',
+                tuple((v, k) for k, v in link_map.items()))
         return link_map
 
 
