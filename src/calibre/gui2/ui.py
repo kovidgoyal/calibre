@@ -690,6 +690,22 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             library_path = self.library_broker.path_for_library_id(library_id)
             if not db_matches(self.current_db, library_id, library_path):
                 self.library_moved(library_path)
+        elif action == 'book-details':
+            parts = tuple(filter(None, path.split('/')))
+            if len(parts) != 2:
+                return
+            library_id, book_id = parts
+            library_id = decode_library_id(library_id)
+            library_path = self.library_broker.path_for_library_id(library_id)
+            if library_path is None:
+                return
+            try:
+                book_id = int(book_id)
+            except Exception:
+                prints('Ignoring invalid book id', book_id, file=sys.stderr)
+                return
+            details = self.iactions['Show Book Details']
+            details.show_book_info(library_id=library_id, library_path=library_path, book_id=book_id)
         elif action == 'show-book':
             parts = tuple(filter(None, path.split('/')))
             if len(parts) != 2:

@@ -116,6 +116,16 @@ If you perform a search in calibre and want to generate a link for it you can
 do so by right clicking the search bar and choosing :guilabel:`Copy search as
 URL`.
 
+Open a book details window on a book in some library
+------------------------------------------------------
+
+The URL syntax is::
+
+    calibre://book-details/Library_Name/book_id
+
+This opens a book details window on the specified book from the specified library without changing the
+current library or the selected book.
+
 
 .. _hex_encoding:
 

@@ -153,6 +153,7 @@ class Cache:
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
+        self.link_maps_cache = {}
         self.vls_for_books_cache = None
         self.vls_for_books_lib_in_process = None
         self.vls_cache_lock = Lock()
@@ -290,6 +291,14 @@ class Cache:
             self.format_metadata_cache.clear()
         if search_cache:
             self._clear_search_caches(book_ids)
+        self.clear_link_map_cache(book_ids)
+
+    def clear_link_map_cache(self, book_ids=None):
+        if book_ids is None:
+            self.link_maps_cache = {}
+        else:
+            for book in book_ids:
+                self.link_maps_cache.pop(book, None)
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -381,6 +390,8 @@ class Cache:
                 mi.set(key, val=val, extra=extra)
         for key in composites:
             mi.set(key, val=self._composite_for(key, book_id, mi))
+
+        mi.link_maps = self.get_all_link_maps_for_book(book_id)
 
         user_cat_vals = {}
         if get_user_categories:
@@ -1483,6 +1494,7 @@ class Cache:
             if update_path and do_path_update:
                 self._update_path(dirtied, mark_as_dirtied=False)
             self._mark_as_dirty(dirtied)
+            self.clear_link_map_cache(dirtied)
             self.event_dispatcher(EventType.metadata_changed, name, dirtied)
         return dirtied
 
@@ -1498,6 +1510,7 @@ class Cache:
             self.format_metadata_cache.pop(book_id, None)
             if mark_as_dirtied:
                 self._mark_as_dirty(book_ids)
+            self.clear_link_map_cache(book_ids)
 
     @read_api
     def get_a_dirtied_book(self):
@@ -2157,6 +2170,7 @@ class Cache:
                 for book_id in moved_books:
                     self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._fast_field_for(f, book_id), field=field)})
             self._mark_as_dirty(affected_books)
+            self.clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_renamed, field, affected_books, id_map)
         return affected_books, id_map
 
@@ -2176,6 +2190,7 @@ class Cache:
                 self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})
             else:
                 self._mark_as_dirty(affected_books)
+            self.clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_removed, field, affected_books, item_ids)
         return affected_books
 
@@ -2310,6 +2325,7 @@ class Cache:
                 self._set_field('author_sort', val_map)
         if changed_books:
             self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
         return changed_books
 
     @write_api
@@ -2320,6 +2336,100 @@ class Cache:
             changed_books |= self._books_for_field('authors', author_id)
         if changed_books:
             self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
+        return changed_books
+
+    @read_api
+    def has_link_map(self, field):
+        if field not in self.fields:
+            raise ValueError(f'Lookup name {field} is not a valid name')
+        table = self.fields[field].table
+        return hasattr(table, 'link_map')
+
+    @read_api
+    def get_link_map(self, for_field):
+        '''
+        Return a dict of links for the supplied field.
+
+        field: the lookup name of the field for which the link map is desired
+
+        returns {field_value:link_value, ...} for non-empty links
+        '''
+        if for_field not in self.fields:
+            raise ValueError(f'Lookup name {for_field} is not a valid name')
+        table = self.fields[for_field].table
+        if not hasattr(table, 'link_map'):
+            raise ValueError(f"Lookup name {for_field} doesn't have a link map")
+        lm = table.link_map
+        vm = table.id_map
+        return dict({vm.get(fid, None):v for fid,v in lm.items() if v})
+
+    @read_api
+    def get_all_link_maps_for_book(self, book_id):
+        '''
+        Returns all links for all fields referenced by book identified by book_id
+
+        book_id: the book id in question.
+
+        returns:
+            {field: {field_value, link_value}, ...
+            for all fields that have a non-empty link value for that book
+
+        Example: Assume author A has link X, author B has link Y, tag S has link
+                 F, and tag T has link G. IF book 1 has author A and
+                 tag T, this method returns {'authors':{'A':'X'}, 'tags':{'T', 'G'}}
+                 If book 2's author is neither A nor B and has no tags, this
+                 method returns {}
+        '''
+        if book_id in self.link_maps_cache:
+            return self.link_maps_cache[book_id]
+        links = {}
+        def add_links_for_field(f):
+            field_ids = frozenset(self.field_ids_for(f, book_id))
+            table = self.fields[f].table
+            lm = table.link_map
+            vm = table.id_map
+            d = dict({vm.get(fid, None):v for fid,v in lm.items() if v and fid in field_ids})
+            if d:
+                links[f] = d
+        for field in ('authors', 'publisher', 'series', 'tags'):
+            add_links_for_field(field)
+        for field in self.field_metadata.custom_field_keys(include_composites=False):
+            if self.has_link_map(field):
+                add_links_for_field(field)
+        self.link_maps_cache[book_id] = links
+        return links
+
+    @write_api
+    def set_link_map(self, field, value_to_link_map):
+        '''
+        Sets links for item values in field
+
+        field: the lookup name
+        value_to_link_map: dict(field_value:link, ...). Note that these are
+            values, not field ids.
+
+        returns books changed by setting the link
+
+        NB: this method doesn't change values not in the value_to_link_map
+        '''
+        if field not in self.fields:
+            raise ValueError(f'Lookup name {field} is not a valid name')
+        table = self.fields[field].table
+        if not hasattr(table, 'link_map'):
+            raise ValueError(f"Lookup name {field} doesn't have a link map")
+        # Clear the links for book cache as we don't know what will be affected
+        self.link_maps_cache = {}
+
+        fids = {k: self.get_item_id(field, k) for k in value_to_link_map.keys()}
+        id_to_link_map = {fid:value_to_link_map[k] for k, fid in fids.items() if fid is not None}
+        result_map = table.set_links(id_to_link_map, self.backend)
+        changed_books = set()
+        for id_ in result_map:
+            changed_books |= self._books_for_field(field, id_)
+        if changed_books:
+            self._mark_as_dirty(changed_books)
+            self.clear_link_map_cache(changed_books)
         return changed_books
 
     @read_api

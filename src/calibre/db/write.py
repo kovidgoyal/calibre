@@ -295,7 +295,8 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
         table.col_book_map[item_id] = set()
         if is_authors:
             table.asort_map[item_id] = aus
-            table.alink_map[item_id] = ''
+        if hasattr(table, 'link_map'):
+            table.link_map[item_id] = ''
     elif allow_case_change and val != table.id_map[item_id]:
         case_changes[item_id] = val
     val_map[val] = item_id
@@ -491,7 +492,8 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
             table.col_book_map.pop(item_id, None)
             if is_authors:
                 table.asort_map.pop(item_id, None)
-                table.alink_map.pop(item_id, None)
+            if hasattr(table, 'link_map'):
+                table.link_map.pop(item_id, None)
 
     return dirtied
 
