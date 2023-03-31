@@ -87,6 +87,9 @@ def book_as_json(db, book_id):
         langs = ans.get('languages')
         if langs:
             ans['lang_names'] = {l:calibre_langcode_to_name(l) for l in langs}
+        link_maps = db.get_all_link_maps_for_book(book_id)
+        if link_maps:
+            ans['link_maps'] = link_maps
     return ans
 
 

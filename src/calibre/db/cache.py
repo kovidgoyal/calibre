@@ -2386,9 +2386,9 @@ class Cache:
             return cached
         links = {}
         def add_links_for_field(f):
-            table = self.fields[f].table
             field_ids = self._field_ids_for(f, book_id)
             if field_ids:
+                table = self.fields[f].table
                 lm = table.link_map
                 id_link_map = {fid:lm.get(fid) for fid in field_ids}
                 vm = table.id_map

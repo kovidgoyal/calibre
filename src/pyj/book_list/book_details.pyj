@@ -190,6 +190,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     else:
         fields = filter(allowed_fields, fields)
     comments = v'[]'
+    link_maps = mi.link_maps or v'{}'
 
     def add_row(field, name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
@@ -199,18 +200,25 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         def add_val(v):
             if not v.appendChild:
                 v += ''
+            parent = table.lastChild.lastChild
             if is_searchable:
                 text_rep = search_text or v
-                table.lastChild.lastChild.appendChild(E.a(
+                parent.appendChild(E.a(
                     v,
                     title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
                     href=href_for_search(is_searchable, text_rep, use_quotes=use_quotes)
                 ))
+                if link_maps[field] and link_maps[field][text_rep]:
+                    url = link_maps[field][text_rep]
+                    if url.startswith('https://') or url.startswith('http://'):
+                        parent.appendChild(document.createTextNode(' '))
+                        parent.appendChild(E.a(
+                            svgicon('external-link'), title=_('Click to open') + ': ' + url, href=url, target='_new', class_='blue-link'))
             else:
                 if v.appendChild:
-                    table.lastChild.lastChild.appendChild(v)
+                    parent.appendChild(v)
                 else:
-                    table.lastChild.lastChild.appendChild(document.createTextNode(v))
+                    parent.appendChild(document.createTextNode(v))
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html and /[<>]/.test(val + ''):
