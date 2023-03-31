@@ -698,6 +698,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             library_id = decode_library_id(library_id)
             library_path = self.library_broker.path_for_library_id(library_id)
             if library_path is None:
+                prints('Ignoring unknown library id', library_id, file=sys.stderr)
                 return
             try:
                 book_id = int(book_id)

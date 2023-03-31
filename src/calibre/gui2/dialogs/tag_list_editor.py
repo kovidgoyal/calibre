@@ -680,7 +680,5 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.sortByColumn(2, Qt.SortOrder(self.was_order))
 
     def accepted(self):
-        self.links = {}
-        for r in range(0, self.table.rowCount()):
-            self.links[self.table.item(r, 0).text()] = self.table.item(r, 3).text()
+        self.links = {self.table.item(r, 0).text():self.table.item(r, 3).text() for r in range(self.table.rowCount())}
         self.save_geometry()
