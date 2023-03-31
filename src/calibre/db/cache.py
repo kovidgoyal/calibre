@@ -2387,12 +2387,15 @@ class Cache:
         links = {}
         def add_links_for_field(f):
             table = self.fields[f].table
-            lm = table.link_map
-            vm = table.id_map
-            d = {vm.get(fid):v for fid, v in lm.items() if v}
-            d.pop(None, None)
-            if d:
-                links[f] = d
+            field_ids = self._field_ids_for(f, book_id)
+            if field_ids:
+                lm = table.link_map
+                id_link_map = {fid:lm.get(fid) for fid in field_ids}
+                vm = table.id_map
+                d = {vm.get(fid):v for fid, v in id_link_map.items() if v}
+                d.pop(None, None)
+                if d:
+                    links[f] = d
         for field in ('authors', 'publisher', 'series', 'tags'):
             add_links_for_field(field)
         for field in self.field_metadata.custom_field_keys(include_composites=False):
