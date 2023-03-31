@@ -3,7 +3,6 @@
 
 
 import textwrap
-import weakref
 
 from qt.core import (
     QAction, QApplication, QBrush, QCheckBox, QDialog, QDialogButtonBox, QGridLayout,
@@ -201,13 +200,12 @@ class BookInfo(QDialog):
         self.slave_connected = False
         if library_path is not None:
             self.view = None
-            from calibre.db.legacy import LibraryDatabase
-            db = LibraryDatabase(library_path, read_only=True, is_second_db=True)
+            db = get_gui().library_broker.get_library(library_path)
             if book_id is None:
                 ids = db.new_api.search(query)
                 if len(ids) == 0:
                     raise ValueError(_('Query "{}" found no books').format(query))
-                book_id = sorted([i for i in ids])[0]
+                book_id = sorted(ids)[0]
             if not db.new_api.has_id(book_id):
                 raise ValueError(_("Book {} doesn't exist").format(book_id))
             mi = db.new_api.get_metadata(book_id, get_cover=False)
@@ -216,7 +214,7 @@ class BookInfo(QDialog):
             mi.format_files = dict()
             mi.formats = list()
             mi.marked = ''
-            mi._bd_dbwref = weakref.proxy(db)
+            mi.external_library_path = library_path
             self.refresh(row, mi)
         else:
             self.view = view

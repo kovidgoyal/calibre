@@ -89,25 +89,25 @@ def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
         rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
-        for_qt=False, vertical_fields=()
+        for_qt=False, vertical_fields=(), show_links=True,
     ):
 
-    show_links = not hasattr(mi, '_bd_dbwref')
-
+    link_markup =  '↗️'
+    if for_qt:
+        link_markup = '<img valign="bottom" src="calibre-icon:///external-link.png" width=16 height=16>'
     def get_link_map(column):
-        if not show_links:
-            return {}
         try:
             return mi.link_maps[column]
-        except (KeyError, ValueError):
-            return {column:{}}
+        except Exception:
+            return {}
 
     def add_other_link(field, field_value):
-        link = get_link_map(field).get(field_value, None)
-        if link:
-            return (' <a title="%s" href="%s">%s</a>'%(_('Click to open {}').format(link), link, _('(item link)')))
-        else:
-            return ''
+        if show_links:
+            link = get_link_map(field).get(field_value)
+            if link:
+                link = prepare_string_for_xml(link, True)
+                return ' <a title="{0}: {1}" href="{1}">{2}</a>'.format(_('Click to open'), link, link_markup)
+        return ''
 
     if field_list is None:
         field_list = get_field_list(mi)

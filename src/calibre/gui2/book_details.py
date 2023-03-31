@@ -41,14 +41,18 @@ from polyglot.binary import from_hex_bytes
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
 
+def db_for_mi(mi):
+    from calibre.gui2.ui import get_gui
+    lp = getattr(mi, 'external_library_path', None)
+    if lp:
+        return get_gui().library_broker.get_library(lp), True
+    return get_gui().current_db, False
+
+
 def set_html(mi, html, text_browser):
-    if hasattr(mi, '_bd_dbwref') and mi._bd_dbwref is not None:
-        db = mi._bd_dbwref
-    else:
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
     book_id = getattr(mi, 'id', None)
     search_paths = []
+    db, _ = db_for_mi(mi)
     if db and book_id is not None:
         path = db.abspath(book_id, index_is_id=True)
         if path:
@@ -209,18 +213,15 @@ def comments_pat():
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
                 pref_name='book_display_fields',
                 pref_value=None):  # {{{
-    if hasattr(mi, '_bd_dbwref') and mi._bd_dbwref is not None:
-        db = mi._bd_dbwref
-    else:
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+    db, is_external = db_for_mi(mi)
+    show_links = not is_external
     func = render_data_func or partial(render_data,
                    vertical_fields=db.prefs.get('book_details_vertical_categories') or ())
     try:
-        table, comment_fields = func(mi, all_fields=all_fields,
+        table, comment_fields = func(mi, all_fields=all_fields, show_links=show_links,
                 use_roman_numbers=config['use_roman_numerals_for_series_number'], pref_name=pref_name)
     except TypeError:
-        table, comment_fields = func(mi, all_fields=all_fields,
+        table, comment_fields = func(mi, all_fields=all_fields, show_links=show_links,
                 use_roman_numbers=config['use_roman_numerals_for_series_number'])
 
     def color_to_string(col):
@@ -278,7 +279,7 @@ def get_field_list(fm, use_defaults=False, pref_name='book_display_fields', mi=N
 
 
 def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_display_fields',
-                vertical_fields=()):
+                vertical_fields=(), show_links=True):
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata),
                                 pref_name=pref_name, mi=mi)
     field_list = [(x, all_fields or display) for x, display in field_list]
@@ -286,7 +287,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
-        vertical_fields=vertical_fields
+        vertical_fields=vertical_fields, show_links=show_links
     )
 
 # }}}
