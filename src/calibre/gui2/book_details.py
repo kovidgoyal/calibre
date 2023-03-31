@@ -462,6 +462,7 @@ def create_copy_links(menu, data=None):
 
     menu.addSeparator()
     link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
+    link(_('Link to show book details in calibre'), f'calibre://book-details/{library_id}/{book_id}')
     if data:
         field = data.get('field')
         if data['type'] == 'author':
