@@ -22,20 +22,19 @@ class ShowBookDetailsAction(InterfaceAction):
 
     def genesis(self):
         self.qaction.triggered.connect(self.show_book_info)
-        self.memory = []
         self.dialogs = [None, ]
 
     def show_book_info(self, *args, **kwargs):
-        if self.gui.current_view() is not self.gui.library_view:
-            error_dialog(self.gui, _('No detailed info available'),
-                _('No detailed information is available for books '
-                  'on the device.')).exec()
-            return
         library_path = kwargs.get('library_path', None)
         book_id = kwargs.get('book_id', None)
         library_id = kwargs.get('library_id', None)
         query = kwargs.get('query', None)
         index = self.gui.library_view.currentIndex()
+        if self.gui.current_view() is not self.gui.library_view and not library_path:
+            error_dialog(self.gui, _('No detailed info available'),
+                _('No detailed information is available for books '
+                  'on the device.')).exec()
+            return
         if library_path or index.isValid():
             # Window #0 is slaved to changes in the book list. As such
             # it must not be used for details from other libraries.
@@ -58,7 +57,6 @@ class ShowBookDetailsAction(InterfaceAction):
 
             d.open_cover_with.connect(self.gui.bd_open_cover_with, type=Qt.ConnectionType.QueuedConnection)
             self.dialogs[dn] = d
-            self.memory.append(d)
             d.closed.connect(self.closed, type=Qt.ConnectionType.QueuedConnection)
             d.show()
 
@@ -78,7 +76,6 @@ class ShowBookDetailsAction(InterfaceAction):
         try:
             d.closed.disconnect(self.closed)
             self.dialogs[d.dialog_number] = None
-            self.memory.remove(d)
         except ValueError:
             pass
         else:
