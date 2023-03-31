@@ -135,10 +135,10 @@ class BookInfo(QDialog):
     closed = pyqtSignal(object)
     open_cover_with = pyqtSignal(object, object)
 
-    def __init__(self, parent, view, row, link_delegate,
+    def __init__(self, parent, view, row, link_delegate, dialog_number=None,
                  library_id=None, library_path=None, book_id=None, query=None):
         QDialog.__init__(self, None, flags=Qt.WindowType.Window)
-        self.for_external_library = bool(library_path)
+        self.dialog_number = dialog_number
         self.library_id = library_id
         self.marked = None
         self.gui = parent
@@ -179,7 +179,7 @@ class BookInfo(QDialog):
         hl.setContentsMargins(0, 0, 0, 0)
         l2.addLayout(hl, l2.rowCount(), 0, 1, -1)
         hl.addWidget(self.fit_cover), hl.addStretch()
-        if not self.for_external_library:
+        if self.dialog_number == 0:
             self.previous_button = QPushButton(QIcon.ic('previous.png'), _('&Previous'), self)
             self.previous_button.clicked.connect(self.previous)
             l2.addWidget(self.previous_button, l2.rowCount(), 0)
@@ -218,7 +218,7 @@ class BookInfo(QDialog):
             self.refresh(row, mi)
         else:
             self.view = view
-            if not self.for_external_library:
+            if dialog_number == 0:
                 self.slave_connected = True
                 self.view.model().new_bookdisplay_data.connect(self.slave)
             self.refresh(row)
@@ -245,9 +245,9 @@ class BookInfo(QDialog):
             pass
 
     def geometry_string(self, txt):
-        if self.for_external_library:
-            txt += '_' + 'for_external_library'
-        return txt
+        if self.dialog_number is None or self.dialog_number == 0:
+            return txt
+        return txt + '_' + str(self.dialog_number)
 
     def sizeHint(self):
         try:
@@ -378,7 +378,7 @@ class BookInfo(QDialog):
             # Indicates books was deleted from library, or row numbers have
             # changed
             return
-        if not self.for_external_library:
+        if self.dialog_number == 0:
             self.previous_button.setEnabled(False if row == 0 else True)
             self.next_button.setEnabled(False if row == self.view.model().rowCount(QModelIndex())-1 else True)
             self.setWindowTitle(mi.title + ' ' + _('(the current book)'))
