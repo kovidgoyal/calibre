@@ -413,6 +413,25 @@ class DisplayPluginModel(QAbstractTableModel):
                         _('Right-click to see more options'))
 
 
+def notify_on_successful_install(parent, plugin):
+    d = info_dialog(parent, _('Success'),
+            _('Plugin <b>{0}</b> successfully installed under <b>'
+                '{1}</b>. You may have to restart calibre '
+                'for the plugin to take effect.').format(plugin.name, plugin.type),
+            show_copy_button=False)
+    b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
+    b.setIcon(QIcon.ic('lt.png'))
+    d.do_restart = False
+
+    def rf():
+        d.do_restart = True
+    b.clicked.connect(rf)
+    d.set_details('')
+    d.exec()
+    b.clicked.disconnect()
+    return d.do_restart
+
+
 class PluginUpdaterDialog(SizePersistedDialog):
 
     initial_extra_size = QSize(350, 100)
@@ -716,23 +735,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             widget.gui = self.gui
             widget.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             self.gui.status_bar.showMessage(_('Plugin installed: %s') % display_plugin.name)
-            d = info_dialog(self.gui, _('Success'),
-                    _('Plugin <b>{0}</b> successfully installed under <b>'
-                        '{1}</b>. You may have to restart calibre '
-                        'for the plugin to take effect.').format(plugin.name, plugin.type),
-                    show_copy_button=False)
-            b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
-            b.setIcon(QIcon.ic('lt.png'))
-            d.do_restart = False
-
-            def rf():
-                d.do_restart = True
-            b.clicked.connect(rf)
-            d.set_details('')
-            d.exec()
-            b.clicked.disconnect()
-            do_restart = d.do_restart
-
+            do_restart = notify_on_successful_install(self.gui, plugin)
             display_plugin.plugin = plugin
             # We cannot read the 'actual' version information as the plugin will not be loaded yet
             display_plugin.installed_version = display_plugin.available_version

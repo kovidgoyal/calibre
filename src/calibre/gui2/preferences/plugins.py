@@ -331,14 +331,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self._plugin_model.endResetModel()
             self.changed_signal.emit()
             self.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
-            info_dialog(self, _('Success'),
-                    _('Plugin <b>{0}</b> successfully installed under <b>'
-                        '{1}</b>. You may have to restart calibre '
-                        'for the plugin to take effect.').format(plugin.name, plugin.type),
-                    show=True, show_copy_button=False)
+            from calibre.gui2.dialogs.plugin_updater import notify_on_successful_install
+            do_restart = notify_on_successful_install(self, plugin)
             idx = self._plugin_model.plugin_to_index_by_properties(plugin)
             if idx.isValid():
                 self.highlight_index(idx)
+            if do_restart:
+                self.restart_now.emit()
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec()
