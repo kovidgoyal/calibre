@@ -257,11 +257,7 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
 
 
 def get_field_list(fm, use_defaults=False, pref_name='book_display_fields', mi=None):
-    if mi is not None and hasattr(mi, '_bd_dbwref') and mi._bd_dbwref is not None:
-        db = mi._bd_dbwref
-    else:
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+    db = db_for_mi(mi)
     if use_defaults:
         src = db.prefs.defaults
     else:
