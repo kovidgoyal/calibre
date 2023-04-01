@@ -561,3 +561,14 @@ value_for_undefined_numbers_when_sorting = 0
 # using these functions in composites can be very slow.
 # Default: False
 allow_template_database_functions_in_composites = False
+
+
+#: Change the programs that are run when opening files/URLS
+# By default, calibre passes URLs to the operating system to open using
+# whatever default programs are configured there. Here you can override
+# that by specifying the program to use, per URL type. For local files,
+# the type is "file" for web links it is "http*". For example:
+# openers_by_scheme = { "http*": "firefox %u" } will make calibre run firefox
+# for https://whatever URLs. %u is replaced by the URL to be opened. The scheme
+# takes a glob pattern allowing a single entry to match multiple URL types.
+openers_by_scheme = {}

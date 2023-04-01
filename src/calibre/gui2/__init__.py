@@ -1410,13 +1410,30 @@ SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 
 def open_url(qurl):
-    # Qt 5 requires QApplication to be constructed before trying to use
-    # QDesktopServices::openUrl()
-    ensure_app()
     if isinstance(qurl, string_or_bytes):
         qurl = QUrl(qurl)
+    scheme = qurl.scheme().lower() or 'file'
+    import fnmatch
+    opener = []
+    with suppress(Exception):
+        for scheme_pat, spec in tweaks['openers_by_scheme'].items():
+            if fnmatch.fnmatch(scheme, scheme_pat):
+                with suppress(Exception):
+                    import shlex
+                    opener = shlex.split(spec)
+                    break
     with sanitize_env_vars():
-        QDesktopServices.openUrl(qurl)
+        if opener:
+            import subprocess
+            cmd = [x.replace('%u', qurl.toString()) for x in opener]
+            if DEBUG:
+                print('Running opener:', cmd)
+            subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # Qt 5 requires QApplication to be constructed before trying to use
+            # QDesktopServices::openUrl()
+            ensure_app()
+            QDesktopServices.openUrl(qurl)
 
 
 def safe_open_url(qurl):
@@ -1426,7 +1443,7 @@ def safe_open_url(qurl):
         path = qurl.toLocalFile()
         ext = os.path.splitext(path)[-1].lower()[1:]
         if ext in ('exe', 'com', 'cmd', 'bat', 'sh', 'psh', 'ps1', 'vbs', 'js', 'wsf', 'vba', 'py', 'rb', 'pl', 'app'):
-            prints('Refusing to open file:', path)
+            prints('Refusing to open file:', path, file=sys.stderr)
             return
     open_url(qurl)
 
