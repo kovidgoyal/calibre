@@ -546,7 +546,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(False)
 
     def finish_editing(self, edited_item):
-        if edited_item.column != 0:
+        if edited_item.column() != 0:
             return
         if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
