@@ -320,7 +320,7 @@ def mi_to_html(
                             sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
                             series=p(series), href=search_action_with_data(st, series, book_id, field),
                             tt=p(_('Click to see books in this series')))
-                    val += add_other_link('series', mi.series)
+                    val += add_other_link(field, series)
                 elif metadata['datatype'] == 'datetime':
                     aval = getattr(mi, field)
                     if is_date_undefined(aval):
