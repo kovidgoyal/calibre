@@ -15,6 +15,7 @@ from qt.core import (
     QIcon, QApplication, QKeyEvent)
 
 from calibre.gui2 import config, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
+from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
@@ -174,7 +175,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
-        self.line_edit.setStyleSheet('')
+        self.setStyleSheet('')
         self.show_parse_error_action(False)
 
     def text(self):
@@ -194,11 +195,9 @@ class SearchBox2(QComboBox):  # {{{
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def show_parse_error_action(self, to_show, tooltip=''):
-        try:
+        if self.parse_error_action is not None:
             self.parse_error_action.setVisible(to_show)
             self.parse_error_action.setToolTip(tooltip)
-        except Exception:
-            pass
 
     def search_done(self, ok):
         if isinstance(ok, string_or_bytes):
@@ -206,9 +205,14 @@ class SearchBox2(QComboBox):  # {{{
             self.show_parse_error_action(True, tooltip=ok)
             ok = False
         if not str(self.currentText()).strip():
+            self.setStyleSheet('')
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
+        if self.parse_error_action is not None and not ok:
+            self.setStyleSheet(stylesheet_for_lineedit(bool(ok), 'QComboBox'))
+        else:
+            self.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
