@@ -225,6 +225,42 @@ def cleanup_qt_markup(root):
 # }}}
 
 
+def fix_html(original_html, original_txt):
+    raw = original_html
+    raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
+    comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+    raw = comments_pat.sub('', raw)
+    if not original_txt and '<img' not in raw.lower():
+        return ''
+
+    try:
+        root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+    except Exception:
+        root = parse(clean_xml_chars(raw), maybe_xhtml=False, sanitize_names=True)
+    if root.xpath('//meta[@name="calibre-dont-sanitize"]'):
+        # Bypass cleanup if special meta tag exists
+        return original_html
+
+    try:
+        cleanup_qt_markup(root)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+    elems = []
+    for body in root.xpath('//body'):
+        if body.text:
+            elems.append(body.text)
+        elems += [html.tostring(x, encoding='unicode') for x in body if
+            x.tag not in ('script', 'style')]
+
+    if len(elems) > 1:
+        ans = '<div>%s</div>'%(''.join(elems))
+    else:
+        ans = ''.join(elems)
+        if not ans.startswith('<'):
+            ans = '<p>%s</p>'%ans
+    return xml_replace_entities(ans)
+
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
@@ -261,7 +297,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.em_size = f.horizontalAdvance('m')
         self.base_url = None
         self._parent = weakref.ref(parent)
-        self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
         self.shortcut_map = {}
 
         def r(name, icon, text, checkable=False, shortcut=None):
@@ -736,40 +771,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     @property
     def html(self):
-        raw = original_html = self.toHtml()
-        check = self.toPlainText().strip()
-        raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
-        raw = self.comments_pat.sub('', raw)
-        if not check and '<img' not in raw.lower():
-            return ''
-
-        try:
-            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
-        except Exception:
-            root = parse(clean_xml_chars(raw), maybe_xhtml=False, sanitize_names=True)
-        if root.xpath('//meta[@name="calibre-dont-sanitize"]'):
-            # Bypass cleanup if special meta tag exists
-            return original_html
-
-        try:
-            cleanup_qt_markup(root)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-        elems = []
-        for body in root.xpath('//body'):
-            if body.text:
-                elems.append(body.text)
-            elems += [html.tostring(x, encoding='unicode') for x in body if
-                x.tag not in ('script', 'style')]
-
-        if len(elems) > 1:
-            ans = '<div>%s</div>'%(''.join(elems))
-        else:
-            ans = ''.join(elems)
-            if not ans.startswith('<'):
-                ans = '<p>%s</p>'%ans
-        return xml_replace_entities(ans)
+        return fix_html(self.toHtml(), self.toPlainText().strip())
 
     @html.setter
     def html(self, val):
@@ -821,6 +823,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def hasSelectedText(self):
         c = self.textCursor()
         return c.hasSelection()
+
+    def createMimeDataFromSelection(self):
+        ans = super().createMimeDataFromSelection()
+        html, txt = ans.html(), ans.text()
+        ans.setHtml(fix_html(html, txt))
+        return ans
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
