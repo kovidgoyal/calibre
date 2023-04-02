@@ -225,11 +225,12 @@ def cleanup_qt_markup(root):
 # }}}
 
 
-def fix_html(original_html, original_txt):
+def fix_html(original_html, original_txt, remove_comments=True):
     raw = original_html
     raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
-    comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
-    raw = comments_pat.sub('', raw)
+    if remove_comments:
+        comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+        raw = comments_pat.sub('', raw)
     if not original_txt and '<img' not in raw.lower():
         return ''
 
@@ -827,7 +828,17 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def createMimeDataFromSelection(self):
         ans = super().createMimeDataFromSelection()
         html, txt = ans.html(), ans.text()
-        ans.setHtml(fix_html(html, txt))
+        html = fix_html(html, txt, remove_comments=False)
+        # Qt has a bug where copying from the start of a paragraph does not
+        # include the paragraph definition in the fragment. Try to fix that
+        # by moving the StartFragment comment to before the paragraph when
+        # the selection starts at the start of a block
+        c = self.textCursor()
+        c2 = QTextCursor(c)
+        c2.setPosition(c.selectionStart())
+        if c2.atBlockStart():
+            html = re.sub(r'(<p.*?>)(<!--StartFragment-->)', r'\2\1', html, count=1)
+        ans.setHtml(html)
         return ans
 
     def contextMenuEvent(self, ev):
@@ -1255,6 +1266,6 @@ if __name__ == '__main__':
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
-    w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p>\xa0</p><p>ss</p></div>'
+    w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p align="justify">\xa0</p><p align="justify">ss</p></div>'
     app.exec()
     # print w.html
