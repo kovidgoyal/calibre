@@ -191,14 +191,18 @@ class MetadataSingleDialogBase(QDialog):
         self.manage_authors_button = QToolButton(self)
         self.manage_authors_button.setIcon(QIcon.ic('user_profile.png'))
         self.manage_authors_button.setToolTip('<p>' + _(
-            'Manage authors. Use to rename authors and correct '
+            'Open the Authors Category editor. Use to rename authors and correct '
             'individual author\'s sort values') + '</p>')
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
+        self.series_editor_button = QToolButton(self)
+        self.series_editor_button.setToolTip(_('Open the Series Category editor'))
+        self.series_editor_button.setIcon(QIcon.ic('chapters.png'))
+        self.series_editor_button.clicked.connect(self.series_editor)
         self.series = SeriesEdit(self)
+        self.series.editor_requested.connect(self.series_editor)
         self.clear_series_button = QToolButton(self)
-        self.clear_series_button.setToolTip(
-               _('Clear series'))
+        self.clear_series_button.setToolTip(_('Clear series'))
         self.clear_series_button.clicked.connect(self.series.clear)
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
@@ -229,7 +233,7 @@ class MetadataSingleDialogBase(QDialog):
 
         self.tags = TagsEdit(self)
         self.tags_editor_button = QToolButton(self)
-        self.tags_editor_button.setToolTip(_('Open Tag editor'))
+        self.tags_editor_button.setToolTip(_('Open the Tag editor. If CTRL or SHIFT is pressed, open the Tags Category editor'))
         self.tags_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.tags_editor_button.clicked.connect(self.tags_editor)
         self.tags.tag_editor_requested.connect(self.tags_editor)
@@ -256,7 +260,12 @@ class MetadataSingleDialogBase(QDialog):
         b.setMenu(QMenu(b))
         self.update_paste_identifiers_menu()
 
+        self.publisher_editor_button = QToolButton(self)
+        self.publisher_editor_button.setToolTip(_('Open the Publishers Category editor'))
+        self.publisher_editor_button.setIcon(QIcon.ic('chapters.png'))
+        self.publisher_editor_button.clicked.connect(self.publisher_editor)
         self.publisher = PublisherEdit(self)
+        self.publisher.editor_requested.connect(self.publisher_editor)
         self.basic_metadata_widgets.append(self.publisher)
 
         self.timestamp = DateEdit(self)
@@ -408,6 +417,12 @@ class MetadataSingleDialogBase(QDialog):
 
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
+
+    def publisher_editor(self, *args):
+        self.publisher.edit(self.db, self.book_id)
+
+    def series_editor(self, *args):
+        self.series.edit(self.db, self.book_id)
 
     def metadata_from_format(self, *args):
         mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
@@ -791,7 +806,9 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         sto(self.title_sort, self.manage_authors_button)
         sto(self.manage_authors_button, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
-        sto(self.author_sort, self.series)
+        tl.addWidget(self.series_editor_button, 2, 0, 1, 1)
+        sto(self.author_sort, self.series_editor_button)
+        sto(self.series_editor_button, self.series)
         create_row(2, self.series, self.clear_series_button,
                 self.series_index, icon='trash.png')
 
@@ -851,8 +868,9 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         create_row2(4, self.timestamp, self.timestamp.clear_button)
         sto(self.timestamp.clear_button, self.pubdate)
         create_row2(5, self.pubdate, self.pubdate.clear_button)
-        sto(self.pubdate.clear_button, self.publisher)
-        create_row2(6, self.publisher, self.publisher.clear_button)
+        sto(self.pubdate.clear_button, self.publisher_editor_button)
+        sto(self.publisher_editor_button, self.publisher)
+        create_row2(6, self.publisher, self.publisher.clear_button, front_button=self.publisher_editor_button)
         sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
@@ -957,8 +975,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
-        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
+        tl.addWidget(self.series_editor_button, 6, 0, 1, 1)
         tl.addWidget(self.tags_editor_button, 6, 0, 1, 1)
+        tl.addWidget(self.publisher_editor_button, 9, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -983,8 +1003,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
-        sto(self.manage_authors_button, self.tags_editor_button)
-        sto(self.tags_editor_button, self.paste_isbn_button)
+        sto(self.manage_authors_button, self.series_editor_button)
+        sto(self.series_editor_button, self.tags_editor_button)
+        sto(self.tags_editor_button, self.publisher_editor_button)
+        sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
                    13, 1, 1 ,1)
 
@@ -1111,8 +1133,10 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
-        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
+        tl.addWidget(self.series_editor_button, 4, 0, 1, 1)
         tl.addWidget(self.tags_editor_button, 6, 0, 1, 1)
+        tl.addWidget(self.publisher_editor_button, 9, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -1138,8 +1162,10 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
-        sto(self.manage_authors_button, self.tags_editor_button)
-        sto(self.tags_editor_button, self.paste_isbn_button)
+        sto(self.manage_authors_button, self.series_editor_button)
+        sto(self.series_editor_button, self.tags_editor_button)
+        sto(self.tags_editor_button, self.publisher_editor_button)
+        sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
                    13, 1, 1 ,1)
 
