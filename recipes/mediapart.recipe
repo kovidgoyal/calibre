@@ -19,7 +19,7 @@ __copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 
 Mediapart
 '''
 
-from datetime import date, datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -30,7 +30,7 @@ class Mediapart(BasicNewsRecipe):
     publication_type = 'newspaper'
     language = 'fr'
     needs_subscription = True
-    
+
     use_embedded_content = False
     no_stylesheets = True
 
@@ -39,12 +39,12 @@ class Mediapart(BasicNewsRecipe):
             'news__heading__top news__heading__center news__body__center__article'
         )
     ]
-    
+
     remove_tags = [
         classes('action-links media--rich read-also login-subscribe print-source_url'),
         dict(name='svg'),
     ]
-    
+
     conversion_options = {'smarten_punctuation': True}
 
     masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
@@ -52,7 +52,7 @@ class Mediapart(BasicNewsRecipe):
     ignore_duplicate_articles = {'title'}
     resolve_internal_links  = True
     remove_empty_feeds = True
-    
+
     articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
