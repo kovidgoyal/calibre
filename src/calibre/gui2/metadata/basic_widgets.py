@@ -614,6 +614,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     LABEL = _('&Series:')
     FIELD_NAME = 'series'
     data_changed = pyqtSignal()
+    editor_requested = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent, sort_func=title_sort)
@@ -651,8 +652,39 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         if series != self.original_val:
             self.books_to_refresh |= db.set_series(id_, series, notify=False, commit=True, allow_case_change=True)
 
+    @property
+    def changed(self):
+        return self.current_val != self.original_val
+
     def break_cycles(self):
         self.dialog = None
+
+    def edit(self, db, id_):
+        if self.changed:
+            d = save_dialog(self, _('Series changed'),
+                    _('You have changed the series. In order to use the category'
+                       ' editor, you must either discard or apply these '
+                       'changes. Apply changes?'))
+            if d == QMessageBox.StandardButton.Cancel:
+                return
+            if d == QMessageBox.StandardButton.Yes:
+                self.commit(db, id_)
+                db.commit()
+                self.original_val = self.current_val
+            else:
+                self.current_val = self.original_val
+        from calibre.gui2.ui import get_gui
+        get_gui().do_tags_list_edit(self.current_val, 'series')
+        db = get_gui().current_db
+        self.update_items_cache(db.new_api.all_field_names('series'))
+        self.initialize(db, id_)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key.Key_F2:
+            self.editor_requested.emit()
+            ev.accept()
+            return
+        return EditWithComplete.keyPressEvent(self, ev)
 
 
 class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
@@ -679,7 +711,6 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
 
     @property
     def current_val(self):
-
         return self.value()
 
     @current_val.setter
@@ -1817,6 +1848,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('&Publisher:')
     FIELD_NAME = 'publisher'
     data_changed = pyqtSignal()
+    editor_requested = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -1833,7 +1865,6 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     @property
     def current_val(self):
-
         return clean_text(str(self.currentText()))
 
     @current_val.setter
@@ -1846,12 +1877,45 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     def initialize(self, db, id_):
         self.books_to_refresh = set()
         self.update_items_cache(db.new_api.all_field_names('publisher'))
-        self.original_val = self.current_val = db.new_api.field_for('publisher', id_)
+        self.current_val = db.new_api.field_for('publisher', id_)
+        # having this as a separate assignment ensures that original_val is not None
+        self.original_val = self.current_val
 
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_publisher(id_, self.current_val,
                             notify=False, commit=False, allow_case_change=True)
         return True
+
+    @property
+    def changed(self):
+        return self.original_val != self.current_val
+
+    def edit(self, db, id_):
+        if self.changed:
+            d = save_dialog(self, _('Publisher changed'),
+                    _('You have changed the publisher. In order to use the category'
+                       ' editor, you must either discard or apply these '
+                       'changes. Apply changes?'))
+            if d == QMessageBox.StandardButton.Cancel:
+                return
+            if d == QMessageBox.StandardButton.Yes:
+                self.commit(db, id_)
+                db.commit()
+                self.original_val = self.current_val
+            else:
+                self.current_val = self.original_val
+        from calibre.gui2.ui import get_gui
+        get_gui().do_tags_list_edit(self.current_val, 'publisher')
+        db = get_gui().current_db
+        self.update_items_cache(db.new_api.all_field_names('publisher'))
+        self.initialize(db, id_)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key.Key_F2:
+            self.editor_requested.emit()
+            ev.accept()
+            return
+        return EditWithComplete.keyPressEvent(self, ev)
 
 # }}}
 
