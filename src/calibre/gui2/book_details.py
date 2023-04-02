@@ -451,9 +451,12 @@ def create_copy_links(menu, data=None):
     library_id = '_hex_-' + library_id.encode('utf-8').hex()
     book_id = get_gui().library_view.current_id
 
+    all_links = []
     def link(text, url):
         def doit():
             QApplication.instance().clipboard().setText(url)
+        nonlocal all_links
+        all_links.append(url)
         menu.addAction(QIcon.ic('edit-copy.png'), text, doit)
 
     menu.addSeparator()
@@ -472,6 +475,13 @@ def create_copy_links(menu, data=None):
     for fmt in db.formats(book_id):
         fmt = fmt.upper()
         link(_('Link to view {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
+
+    if all_links:
+        menu.addSeparator()
+        mi = db.new_api.get_proxy_metadata(book_id)
+        all_links.insert(0, '')
+        all_links.insert(0, mi.get('title') + ' - ' + ' & '.join(mi.get('authors')))
+        link(_('Copy all the above links'), '\n'.join(all_links))
 
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
