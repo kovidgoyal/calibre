@@ -262,6 +262,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.base_url = None
         self._parent = weakref.ref(parent)
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+        self.shortcut_map = {}
 
         def r(name, icon, text, checkable=False, shortcut=None):
             ac = QAction(QIcon.ic(icon + '.png'), text, self)
@@ -271,6 +272,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             setattr(self, 'action_'+name, ac)
             ac.triggered.connect(getattr(self, 'do_' + name))
             if shortcut is not None:
+                self.shortcut_map[shortcut] = ac
                 sc = shortcut if isinstance(shortcut, QKeySequence) else QKeySequence(shortcut)
                 ac.setShortcut(sc)
                 ac.setToolTip(text + f' [{sc.toString(QKeySequence.SequenceFormat.NativeText)}]')
@@ -492,6 +494,13 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.setBlockFormat(QTextBlockFormat())
             c.setCharFormat(QTextCharFormat())
         self.update_cursor_position_actions()
+
+    def keyPressEvent(self, ev):
+        for sc, ac in self.shortcut_map.items():
+            if isinstance(sc, QKeySequence.StandardKey) and ev.matches(sc):
+                ac.trigger()
+                return
+        return super().keyPressEvent(ev)
 
     def do_copy(self):
         self.copy()
@@ -814,14 +823,13 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         return c.hasSelection()
 
     def contextMenuEvent(self, ev):
-        menu = self.createStandardContextMenu()
-        for action in menu.actions():
-            parts = action.text().split('\t')
-            if len(parts) == 2 and QKeySequence(QKeySequence.StandardKey.Paste).toString(QKeySequence.SequenceFormat.NativeText) in parts[-1]:
-                menu.insertAction(action, self.action_paste_and_match_style)
-                break
-        else:
-            menu.addAction(self.action_paste_and_match_style)
+        menu = QMenu(self)
+        for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
+            if ac == '--':
+                menu.addSeparator()
+            else:
+                ac = getattr(self, 'action_' + ac)
+                menu.addAction(ac)
         st = self.text()
         m = QMenu(_('Fonts'))
         m.addAction(self.action_bold), m.addAction(self.action_italic), m.addAction(self.action_underline)
@@ -1239,6 +1247,6 @@ if __name__ == '__main__':
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
-    w.html = '<div><p id="moo">Testing <em>a</em> link.</p><p>\xa0</p><p>ss</p></div>'
+    w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p>\xa0</p><p>ss</p></div>'
     app.exec()
     # print w.html
