@@ -379,7 +379,7 @@ class PaletteManager(QObject):
                 ss += '''
 QTabBar::tab:selected {
     background-color: palette(base);
-    border: 2px solid gray;
+    border: 1px solid gray;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     border-bottom-width: 0;
