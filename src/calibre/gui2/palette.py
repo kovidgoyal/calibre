@@ -376,6 +376,17 @@ class PaletteManager(QObject):
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
             if self.is_dark_theme:
                 ss += 'QMenu { border: 1px solid palette(shadow); }'
+                ss += '''
+QTabBar::tab:selected {
+    background-color: palette(base);
+    border: 2px solid gray;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-width: 0;
+    padding: 2px;
+    padding-left: 0.5em;
+}
+'''
             app.setStyleSheet(ss)
         app.palette_changed.emit()
 
