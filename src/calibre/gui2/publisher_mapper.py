@@ -4,8 +4,7 @@
 
 from collections import OrderedDict
 
-from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
+from calibre.ebooks.metadata.tag_mapper import map_tags
 from calibre.gui2 import Application, elided_text
 from calibre.gui2.tag_mapper import (
     RuleEdit as RuleEditBase, RuleEditDialog as RuleEditDialogBase,
@@ -14,7 +13,7 @@ from calibre.gui2.tag_mapper import (
 )
 from calibre.utils.config import JSONConfig
 
-author_maps = JSONConfig('author-mapping-rules')
+publisher_maps = JSONConfig('publisher-mapping-rules')
 
 
 class RuleEdit(RuleEditBase):
@@ -22,6 +21,7 @@ class RuleEdit(RuleEditBase):
     ACTION_MAP = OrderedDict((
         ('replace', _('Change')),
         ('capitalize', _('Capitalize')),
+        ('titlecase', _('Title-case')),
         ('lower', _('Lower-case')),
         ('upper', _('Upper-case')),
     ))
@@ -34,11 +34,11 @@ class RuleEdit(RuleEditBase):
         ('not_matches', _('does not match regex pattern')),
     ))
 
-    MSG = _('Create the rule below, the rule can be used to add or ignore authors')
-    SUBJECT = _('the author, if the author name')
-    VALUE_ERROR = _('You must provide a value for the author name to match')
+    MSG = _('Create the rule below, the rule can be used to modify publishers')
+    SUBJECT = _('the publisher, if the publisher name')
+    VALUE_ERROR = _('You must provide a value for the publisher name to match')
     REPLACE_TEXT = _('with the name:')
-    SINGLE_EDIT_FIELD_NAME = 'authors'
+    SINGLE_EDIT_FIELD_NAME = 'publisher'
 
     @property
     def can_use_tag_editor(self):
@@ -76,7 +76,7 @@ class RuleEdit(RuleEditBase):
 
 class RuleEditDialog(RuleEditDialogBase):
 
-    PREFS_NAME = 'edit-author-mapping-rule'
+    PREFS_NAME = 'edit-publisher-mapping-rule'
     RuleEditClass = RuleEdit
 
 
@@ -86,7 +86,7 @@ class RuleItem(RuleItemBase):
     def text_from_rule(rule, parent):
         query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
         text = _(
-            '<b>{action}</b> the author name, if it <i>{match_type}</i>: <b>{query}</b>').format(
+            '<b>{action}</b> the publisher name, if it <i>{match_type}</i>: <b>{query}</b>').format(
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         if rule['action'] == 'replace':
             text += '<br>' + _('to the name') + ' <b>%s</b>' % rule['replace']
@@ -97,39 +97,39 @@ class Rules(RulesBase):
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
-    MSG = _('You can specify rules to manipulate author names here.'
+    MSG = _('You can specify rules to manipulate publisher names here.'
             ' Click the "Add Rule" button'
-            ' below to get started. The rules will be processed in order for every author.')
+            ' below to get started. The rules will be processed in order for every publisher.')
 
 
 class Tester(TesterBase):
 
-    DIALOG_TITLE = _('Test author mapping rules')
-    PREFS_NAME = 'test-author-mapping-rules'
-    LABEL = _('Enter an author name to test:')
-    PLACEHOLDER = _('Enter author and click the "Test" button')
+    DIALOG_TITLE = _('Test publisher mapping rules')
+    PREFS_NAME = 'test-publisher-mapping-rules'
+    LABEL = _('Enter an publisher name to test:')
+    PLACEHOLDER = _('Enter publisher and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
     def do_test(self):
-        authors = string_to_authors(self.value.strip())
-        ans = map_authors(authors, compile_rules(self.rules))
-        self.result.setText(authors_to_string(ans))
+        publisher = self.value.strip()
+        ans = map_tags([publisher], self.rules)
+        self.result.setText((ans or ('',))[0])
 
 
 class RulesDialog(RulesDialogBase):
 
-    DIALOG_TITLE = _('Edit author mapping rules')
-    PREFS_NAME = 'edit-author-mapping-rules'
+    DIALOG_TITLE = _('Edit publisher mapping rules')
+    PREFS_NAME = 'edit-publisher-mapping-rules'
     RulesClass = Rules
     TesterClass = Tester
-    PREFS_OBJECT = author_maps
+    PREFS_OBJECT = publisher_maps
 
 
 if __name__ == '__main__':
     app = Application([])
     d = RulesDialog()
     d.rules = [
-            {'action':'replace', 'query':'alice B & alice bob', 'match_type':'one_of', 'replace':'Alice Bob'},
+            {'action':'replace', 'query':'alice Bob', 'match_type':'one_of', 'replace':'Alice Bob'},
     ]
     d.exec()
     from pprint import pprint

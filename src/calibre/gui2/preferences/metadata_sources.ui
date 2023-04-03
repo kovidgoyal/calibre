@@ -234,7 +234,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Create &amp;rules to transform tags/authors</string>
+                <string>Create &amp;rules to transform tags/authors/publishers</string>
                </property>
                <property name="popupMode">
                 <enum>QToolButton::InstantPopup</enum>

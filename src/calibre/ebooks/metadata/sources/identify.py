@@ -501,7 +501,8 @@ def identify(log, abort,  # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
     tm_rules = msprefs['tag_map_rules']
-    if tm_rules:
+    pm_rules = msprefs['publisher_map_rules']
+    if tm_rules or pm_rules:
         from calibre.ebooks.metadata.tag_mapper import map_tags
     am_rules = msprefs['author_map_rules']
     if am_rules:
@@ -531,6 +532,9 @@ def identify(log, abort,  # {{{
         r.tags = r.tags[:max_tags]
         if getattr(r.pubdate, 'year', 2000) <= UNDEFINED_DATE.year:
             r.pubdate = None
+        if pm_rules and r.publisher:
+            pubs = map_tags([r.publisher], pm_rules)
+            r.publisher = pubs[0] if pubs else ''
 
     if msprefs['swap_author_names']:
         for r in results:

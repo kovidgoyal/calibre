@@ -18,8 +18,9 @@ msprefs.defaults['swap_author_names'] = False
 msprefs.defaults['fewer_tags'] = True
 msprefs.defaults['find_first_edition_date'] = False
 msprefs.defaults['append_comments'] = False
-msprefs.defaults['tag_map_rules'] = []
-msprefs.defaults['author_map_rules'] = []
+msprefs.defaults['tag_map_rules'] = ()
+msprefs.defaults['author_map_rules'] = ()
+msprefs.defaults['publisher_map_rules'] = ()
 msprefs.defaults['id_link_rules'] = {}
 msprefs.defaults['keep_dups'] = False
 
