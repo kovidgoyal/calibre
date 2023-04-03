@@ -333,8 +333,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_default_button.clicked.connect(self.changed_signal)
         self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
         self.tag_map_rules = self.author_map_rules = None
-        self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
-        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
+        m = QMenu(self)
+        m.addAction(_('Tags')).triggered.connect(self.change_tag_map_rules)
+        m.addAction(_('Authors')).triggered.connect(self.change_author_map_rules)
+        self.map_rules_button.setMenu(m)
         l = self.page.layout()
         l.setStretch(0, 1)
         l.setStretch(1, 1)
