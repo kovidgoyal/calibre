@@ -568,7 +568,7 @@ allow_template_database_functions_in_composites = False
 # whatever default programs are configured there. Here you can override
 # that by specifying the program to use, per URL type. For local files,
 # the type is "file" and for web links it is "http*". For example:
-# openers_by_scheme = { "http*": "firefox %u" } will make calibre run firefox
+# openers_by_scheme = { "http*": "firefox %u" } will make calibre run Firefox
 # for https://whatever URLs. %u is replaced by the URL to be opened. The scheme
 # takes a glob pattern allowing a single entry to match multiple URL types.
 openers_by_scheme = {}
