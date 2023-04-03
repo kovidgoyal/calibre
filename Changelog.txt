@@ -2406,7 +2406,7 @@ Only works with output formats such as EPUB that support CSS transforms
 
 - Edit metadata dialog: Use only a single line for custom column date fields
 
-- [1899341] Add an item to search for categories to the category editor context menu.
+- [1899341] Add an item to search for categories to the Category editor context menu.
 
 - [1899316] Category editor: Add a right click menu to change case of the selected entries.
 

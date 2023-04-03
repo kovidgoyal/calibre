@@ -233,7 +233,7 @@ class MetadataSingleDialogBase(QDialog):
 
         self.tags = TagsEdit(self)
         self.tags_editor_button = QToolButton(self)
-        self.tags_editor_button.setToolTip(_('Open the Tag editor. If CTRL or SHIFT is pressed, open the Tags Category editor'))
+        self.tags_editor_button.setToolTip(_('Open the Tag editor. If Ctrl or Shift is pressed, open the Tags Category editor'))
         self.tags_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.tags_editor_button.clicked.connect(self.tags_editor)
         self.tags.tag_editor_requested.connect(self.tags_editor)

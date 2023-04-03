@@ -1893,7 +1893,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     def edit(self, db, id_):
         if self.changed:
             d = save_dialog(self, _('Publisher changed'),
-                    _('You have changed the publisher. In order to use the category'
+                    _('You have changed the publisher. In order to use the Category'
                        ' editor, you must either discard or apply these '
                        'changes. Apply changes?'))
             if d == QMessageBox.StandardButton.Cancel:
