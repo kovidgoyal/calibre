@@ -383,8 +383,21 @@ QTabBar::tab:selected {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     border-bottom-width: 0;
-    padding: 2px;
-    padding-left: 0.5em;
+    padding: 2px 8px;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+QTabBar::tab:first:selected {
+    margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
+}
+
+QTabBar::tab:last:selected {
+    margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
+}
+
+QTabBar::tab:only-one {
+    margin: 0; /* if there is only one tab, we don't want overlapping margins */
 }
 '''
             app.setStyleSheet(ss)
