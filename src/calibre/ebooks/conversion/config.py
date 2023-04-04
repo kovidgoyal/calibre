@@ -278,7 +278,7 @@ OPTIONS = {
         'epub': (
             'dont_split_on_page_breaks', 'flow_size', 'no_default_epub_cover',
             'no_svg_cover', 'epub_inline_toc', 'epub_toc_at_end', 'toc_title',
-            'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version'),
+            'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version', 'epub_max_image_size',),
 
         'fb2': ('sectionize', 'fb2_genre'),
 

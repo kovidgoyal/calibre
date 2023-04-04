@@ -124,6 +124,17 @@ class EPUBOutput(OutputFormatPlugin):
                 ' actually need it.')
         ),
 
+        OptionRecommendation(name='epub_max_image_size', recommended_value='none',
+            help=_('The maximum image size (width x height). A value of {0} means use the screen size from the output'
+                   ' profile. A value of {1} means no maximum size is specified. For example, a value of {2}'
+                   ' will cause all images to be resized so that their width is no more than {3} pixels and'
+                   ' their height is no more than {4} pixels. Note that this only affects the size of the actual'
+                   ' image files themselves. Any given image may be rendered at a different size depending on the styling'
+                   ' applied to it in the document.'
+                   ).format('none', 'profile', '100x200', 100, 200)
+        ),
+
+
         }
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
@@ -196,8 +207,9 @@ class EPUBOutput(OutputFormatPlugin):
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
         self.upshift_markup()
+
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
-        RescaleImages(check_colorspaces=True)(oeb, opts)
+        RescaleImages(check_colorspaces=True)(oeb, opts, max_size=self.opts.epub_max_image_size)
 
         from calibre.ebooks.oeb.transforms.split import Split
         split = Split(not self.opts.dont_split_on_page_breaks,
@@ -385,7 +397,6 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.base import XPath, XHTML, barename, urlunquote
 
         stylesheet = self.oeb.manifest.main_stylesheet
-
         # ADE cries big wet tears when it encounters an invalid fragment
         # identifier in the NCX toc.
         frag_pat = re.compile(r'[-A-Za-z0-9_:.]+$')

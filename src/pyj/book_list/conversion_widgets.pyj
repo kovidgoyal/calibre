@@ -540,6 +540,7 @@ def epub_output(container):
     g.appendChild(checkbox('epub_toc_at_end', _('Put inserted Table of Contents at the &end of the book')))
     g.appendChild(lineedit('toc_title', _('&Title for inserted ToC:')))
     g.appendChild(int_spin('flow_size', _('Split files &larger than:'), unit='KB', max=1000000, step=20))
+    g.appendChild(lineedit('epub_max_image_size', _('Shrink &images larger than:')))
     g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
 # }}}
 

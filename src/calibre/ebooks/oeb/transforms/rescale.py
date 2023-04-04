@@ -15,11 +15,11 @@ class RescaleImages:
     def __init__(self, check_colorspaces=False):
         self.check_colorspaces = check_colorspaces
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb, opts, max_size: str = 'profile'):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
-        self.rescale()
+        self.rescale(max_size)
 
-    def rescale(self):
+    def rescale(self, max_size: str = 'profile'):
         from PIL import Image
         from io import BytesIO
 
@@ -32,6 +32,23 @@ class RescaleImages:
             page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72
             page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72
 
+        no_scale_size = 99999999999
+        if max_size == 'none':
+            page_width = page_height = no_scale_size
+        elif max_size != 'profile':
+            w, __, h = max_size.strip().lower().partition('x')
+            try:
+                page_width = int(w.strip())
+            except Exception:
+                page_width = no_scale_size
+            if page_width <= 0:
+                page_width = no_scale_size
+            try:
+                page_height = int(h.strip())
+            except Exception:
+                page_height = no_scale_size
+            if page_height <= 0:
+                page_height = no_scale_size
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
                 ext = item.media_type.split('/')[-1].upper()

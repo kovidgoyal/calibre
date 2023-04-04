@@ -140,7 +140,7 @@ OptionRecommendation(name='output_profile',
             choices=[x.short_name for x in output_profiles()],
             help=_('Specify the output profile. The output profile '
                    'tells the conversion system how to optimize the '
-                   'created document for the specified device (such as by resizing images for the device screen size). In some cases, '
+                   'created document for the specified device. In some cases, '
                    'an output profile can be used to optimize the output for a particular device, but this is rarely necessary. '
                    'Choices are:') + ', '.join([
                        x.short_name for x in output_profiles()])
