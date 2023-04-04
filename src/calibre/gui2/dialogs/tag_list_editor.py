@@ -213,6 +213,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
         self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.rejected.connect(self.rejected)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
         le = self.search_box.lineEdit()
@@ -681,4 +682,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def accepted(self):
         self.links = {self.table.item(r, 0).text():self.table.item(r, 3).text() for r in range(self.table.rowCount())}
+        self.save_geometry()
+
+    def rejected(self):
         self.save_geometry()
