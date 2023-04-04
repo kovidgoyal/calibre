@@ -279,6 +279,13 @@ class Convert:
             if fallbacks:
                 for choice in choices:
                     ac.remove(choice)
+                if len(fallbacks) == 1 and ac.getparent().tag.endswith('}r') and len(fallbacks[0]) == 1:
+                    q = fallbacks[0][0]
+                    if q.tag and (q.tag.endswith('}drawing') or q.tag.endswith('}pict')):
+                        p = ac.getparent()
+                        idx = p.index(ac)
+                        p.insert(idx, q)
+                        p.remove(ac)
 
     def read_styles(self, relationships_by_type):
 
