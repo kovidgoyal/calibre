@@ -347,6 +347,7 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
     link_xpath = XPath('//h:a[@href]')
     svg_link_xpath = XPath('//svg:a')
     img_xpath = XPath('//h:img[@src]')
+    svg_img_xpath = XPath('//svg:image[@xl:href]')
     res_link_xpath = XPath('//h:link[@href]')
     root = container.parsed(name)
     changed_names = set()
@@ -355,6 +356,10 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
     # Used for viewing images
     for img in img_xpath(root):
         img_name = container.href_to_name(img.get('src'), name)
+        if img_name:
+            img.set('data-calibre-src', img_name)
+    for img in svg_img_xpath(root):
+        img_name = container.href_to_name(img.get(XLINK('href')), name)
         if img_name:
             img.set('data-calibre-src', img_name)
 

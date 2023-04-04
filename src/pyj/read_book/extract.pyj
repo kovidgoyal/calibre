@@ -10,9 +10,10 @@ def get_elements(x, y):
     nonlocal img_id_counter
     ans = {'link': None, 'img': None, 'highlight': None, 'crw': None}
     for elem in document.elementsFromPoint(x, y):
-        if elem.tagName.toLowerCase() is 'a' and elem.getAttribute('href') and not ans.link:
+        tl = elem.tagName.toLowerCase()
+        if tl is 'a' and elem.getAttribute('href') and not ans.link:
             ans.link = elem.getAttribute('href')
-        elif elem.tagName.toLowerCase() is 'img' and elem.getAttribute('data-calibre-src') and not ans.img:
+        elif (tl is 'img' or tl is 'image') and elem.getAttribute('data-calibre-src') and not ans.img:
             ans.img = elem.getAttribute('data-calibre-src')
         elif elem.dataset?.calibreRangeWrapper:
             ans.crw = elem.dataset.calibreRangeWrapper
