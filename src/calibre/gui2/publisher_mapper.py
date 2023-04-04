@@ -106,7 +106,7 @@ class Tester(TesterBase):
 
     DIALOG_TITLE = _('Test publisher mapping rules')
     PREFS_NAME = 'test-publisher-mapping-rules'
-    LABEL = _('Enter an publisher name to test:')
+    LABEL = _('Enter a publisher name to test:')
     PLACEHOLDER = _('Enter publisher and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
