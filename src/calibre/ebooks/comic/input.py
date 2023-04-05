@@ -104,9 +104,11 @@ class PageProcessor(list):  # {{{
         self.num          = num
         self.dest         = dest
         self.rotate       = False
+        self.src_img_was_grayscaled = False
         self.render()
 
     def render(self):
+        from qt.core import QImage
         from calibre.utils.img import image_from_data, scale_image, crop_image
         with open(self.path_to_page, 'rb') as f:
             img = image_from_data(f.read())
@@ -114,6 +116,8 @@ class PageProcessor(list):  # {{{
         if self.num == 0:  # First image so create a thumbnail from it
             with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
+        self.src_img_was_grayscaled = img.format() in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
+            img.format() == QImage.Format.Format_Indexed8 and img.allGray())
         self.pages = [img]
         if width > height:
             if self.opts.landscape:
@@ -126,6 +130,7 @@ class PageProcessor(list):  # {{{
         self.process_pages()
 
     def process_pages(self):
+        from qt.core import QImage
         from calibre.utils.img import (
             image_to_data, rotate_image, remove_borders_from_image, normalize_image,
             add_borders_to_image, resize_image, gaussian_sharpen_image, grayscale_image,
@@ -206,8 +211,11 @@ class PageProcessor(list):  # {{{
             if self.opts.despeckle:
                 img = despeckle_image(img)
 
-            if self.opts.output_format.lower() == 'png' and self.opts.colors:
-                img = quantize_image(img, max_colors=min(256, self.opts.colors))
+            if self.opts.output_format.lower() == 'png':
+                if self.opts.colors:
+                    img = quantize_image(img, max_colors=min(256, self.opts.colors))
+                elif self.src_img_was_grayscaled:
+                    img = img.convertToFormat(QImage.Format.Format_Grayscale8)
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
             with open(dest, 'wb') as f:
