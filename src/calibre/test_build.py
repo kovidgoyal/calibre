@@ -96,6 +96,12 @@ class BuildTest(unittest.TestCase):
         import lzma
         lzma.open
 
+    def test_zstd(self):
+        from pyzstd import compress, decompress
+        data = os.urandom(4096)
+        cdata = compress(data)
+        self.assertEqual(data, decompress(cdata))
+
     def test_html5lib(self):
         import html5lib.html5parser  # noqa
         from html5lib import parse  # noqa

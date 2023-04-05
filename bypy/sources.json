@@ -106,6 +106,14 @@
         }
     },
 
+    {
+        "name": "zstd",
+        "unix": {
+            "filename": "zstd-1.5.5.tar.gz",
+            "hash": "sha256:9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+            "urls": ["https://github.com/facebook/zstd/releases/download/v1.5.5/{filename}"]
+        }
+    },
 
     {
         "name": "expat",
@@ -853,8 +861,8 @@
         "name": "pyzstd",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "pyzstd-0.15.0.tar.gz",
-            "hash": "sha256:bf15a39cb3c9b662775e22ffa8c4da09fdde6a15ece5e0ed710b6d3b4329cf36",
+            "filename": "pyzstd-0.15.6.tar.gz",
+            "hash": "sha256:32a1b67d5340d8df381e718a788417455edd76bed7e8a4cbd259acdc30b5e17e",
             "urls": ["pypi"]
         }
     },
