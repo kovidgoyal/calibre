@@ -370,6 +370,22 @@ class TagsModel(QAbstractItemModel):  # {{{
     def gui_parent(self):
         return QObject.parent(self)
 
+    def rename_user_category_icon(self, old_key, new_key):
+        '''
+        This is required for user categories because the key (lookup name) changes
+        on rename. We must rename the old icon to use the new key then update
+        the preferences and internal tables.
+        '''
+        old_icon = self.prefs['tags_browser_category_icons'].get(old_key, None)
+        if old_icon is not None:
+            old_path = os.path.join(config_dir, 'tb_icons', old_icon)
+            _, ext = os.path.splitext(old_path)
+            new_icon = new_key + ext
+            new_path = os.path.join(config_dir, 'tb_icons', new_icon)
+            os.replace(old_path, new_path)
+            self.set_custom_category_icon(new_key, new_path)
+            self.set_custom_category_icon(old_key, None)
+
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
         if path:
@@ -1351,14 +1367,16 @@ class TagsModel(QAbstractItemModel):  # {{{
                             return self.show_error_after_event_loop_tick(_('Rename User category'),
                                 _('The name %s is already used')%nkey)
                         user_cats[nkey] = user_cats[ckey]
+                        self.rename_user_category_icon('@' + c, '@' + nkey)
                         del user_cats[ckey]
                     elif c[len(ckey)] == '.':
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
                             return self.show_error_after_event_loop_tick(_('Rename User category'),
-                                _('The name %s is already used')%(nkey+rest))
+                                _('The name %s is already used')%(nkey + rest))
                         user_cats[nkey + rest] = user_cats[ckey + rest]
+                        self.rename_user_category_icon('@' + ckey + rest, '@' + nkey + rest)
                         del user_cats[ckey + rest]
             self.user_categories_edited.emit(user_cats, nkey)  # Does a refresh
             self.use_position_based_index_on_next_recount = True
