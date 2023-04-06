@@ -291,6 +291,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(find_tests())
         from calibre.live import find_tests
         a(find_tests())
+        from calibre.utils.copy_files_test import find_tests
+        a(find_tests())
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
             a(find_tests())
