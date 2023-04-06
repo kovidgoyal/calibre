@@ -1775,9 +1775,10 @@ class DB:
                     self.copy_format_to(book_id, fmt, ofmt_fname, current_path,
                                         dest, windows_atomic_move=wam, use_hardlink=True)
             # Update db to reflect new file locations
-            for fmt in formats:
-                formats_field.table.set_fname(book_id, fmt, fname, self)
-            path_field.table.set_path(book_id, path, self)
+            with self.conn:
+                for fmt in formats:
+                    formats_field.table.set_fname(book_id, fmt, fname, self)
+                path_field.table.set_path(book_id, path, self)
 
             # Delete not needed files and directories
             if source_ok:
