@@ -2350,9 +2350,9 @@ class Cache:
         '''
         Return a dict of links for the supplied field.
 
-        field: the lookup name of the field for which the link map is desired
+        :param for_field: the lookup name of the field for which the link map is desired
 
-        returns {field_value:link_value, ...} for non-empty links
+        :return: {field_value:link_value, ...} for non-empty links
         '''
         if for_field not in self.fields:
             raise ValueError(f'Lookup name {for_field} is not a valid name')
@@ -2369,17 +2369,16 @@ class Cache:
         '''
         Returns all links for all fields referenced by book identified by book_id
 
-        book_id: the book id in question.
-
-        returns:
-            {field: {field_value, link_value}, ...
-            for all fields that have a non-empty link value for that book
-
         Example: Assume author A has link X, author B has link Y, tag S has link
                  F, and tag T has link G. IF book 1 has author A and
                  tag T, this method returns {'authors':{'A':'X'}, 'tags':{'T', 'G'}}
                  If book 2's author is neither A nor B and has no tags, this
                  method returns {}
+
+        :param book_id: the book id in question.
+
+        :return: {field: {field_value, link_value}, ...  for all fields that have a non-empty link value for that book
+
         '''
         cached = self.link_maps_cache.get(book_id)
         if cached is not None:
@@ -2408,14 +2407,13 @@ class Cache:
     def set_link_map(self, field, value_to_link_map, only_set_if_no_existing_link=False):
         '''
         Sets links for item values in field
-
-        field: the lookup name
-        value_to_link_map: dict(field_value:link, ...). Note that these are
-            values, not field ids.
-
-        returns books changed by setting the link
-
         Note: this method doesn't change values not in the value_to_link_map
+
+        :param field: the lookup name
+        :param value_to_link_map: dict(field_value:link, ...). Note that these are values, not field ids.
+
+        :return: books changed by setting the link
+
         '''
         if field not in self.fields:
             raise ValueError(f'Lookup name {field} is not a valid name')
