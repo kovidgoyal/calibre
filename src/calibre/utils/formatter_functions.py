@@ -1389,7 +1389,9 @@ class BuiltinSeriesSort(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.series:
-            return title_sort(mi.series)
+            langs = mi.languages
+            lang = langs[0] if len(langs) > 0 else None
+            return title_sort(mi.series, lang=lang)
         return ''
 
 
