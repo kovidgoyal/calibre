@@ -110,7 +110,11 @@ class TagBrowserMixin:  # {{{
         self.library_view.model().count_changed()
 
     def user_categories_edited(self):
-        self.library_view.model().refresh()
+        current_row_id = self.library_view.current_id
+        self.library_view.model().refresh(reset=True)
+        self.library_view.model().research(reset=False)
+        self.library_view.current_id = current_row_id # the setter checks for None
+
 
     def do_restriction_error(self, e):
         error_dialog(self.tags_view, _('Invalid search restriction'),
