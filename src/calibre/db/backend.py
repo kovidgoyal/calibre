@@ -55,6 +55,7 @@ from polyglot.builtins import (
 # }}}
 
 
+BOOK_ID_PATH_TEMPLATE = ' ({})'
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
@@ -425,13 +426,8 @@ class DB:
                  restore_all_prefs=False, progress_callback=lambda x, y:True,
                  load_user_formatter_functions=True):
         self.is_closed = False
-        try:
-            if isbytestring(library_path):
-                library_path = library_path.decode(filesystem_encoding)
-        except:
-            import traceback
-            traceback.print_exc()
-
+        if isbytestring(library_path):
+            library_path = library_path.decode(filesystem_encoding)
         self.field_metadata = FieldMetadata()
 
         self.library_path = os.path.abspath(library_path)
@@ -1338,7 +1334,7 @@ class DB:
         '''
         Construct the directory name for this book based on its metadata.
         '''
-        book_id = ' (%d)' % book_id
+        book_id = BOOK_ID_PATH_TEMPLATE.format(book_id)
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
         author = ascii_filename(author)[:l]
         title  = ascii_filename(title.lstrip())[:l].rstrip()
@@ -1433,8 +1429,22 @@ class DB:
                     pprint.pprint(table.metadata)
                     raise
 
-    def format_abspath(self, book_id, fmt, fname, path):
-        path = os.path.join(self.library_path, path)
+    def find_path_for_book(self, book_id):
+        q = BOOK_ID_PATH_TEMPLATE.format(book_id)
+        for author_dir in os.scandir(self.library_path):
+            if not author_dir.is_dir():
+                continue
+            try:
+                book_dir_iter = os.scandir(author_dir.path)
+            except OSError:
+                pass
+            else:
+                for book_dir in book_dir_iter:
+                    if book_dir.name.endswith(q) and book_dir.is_dir():
+                        return book_dir.path
+
+    def format_abspath(self, book_id, fmt, fname, book_path):
+        path = os.path.join(self.library_path, book_path)
         fmt = ('.' + fmt.lower()) if fmt else ''
         fmt_path = os.path.join(path, fname+fmt)
         if os.path.exists(fmt_path):
