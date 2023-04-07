@@ -28,8 +28,6 @@ class ShowBookDetailsAction(InterfaceAction):
         library_path = kwargs.get('library_path', None)
         book_id = kwargs.get('book_id', None)
         library_id = kwargs.get('library_id', None)
-        if library_path is not None and self.gui.library_broker.is_gui_library(library_path):
-            library_path = library_id = None
         query = kwargs.get('query', None)
         index = self.gui.library_view.currentIndex()
         if self.gui.current_view() is not self.gui.library_view and not library_path:
