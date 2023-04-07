@@ -479,6 +479,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.sortByColumn(0, Qt.SortOrder(self.name_order))
         elif self.last_sorted_by == 'count':
             self.table.sortByColumn(1, Qt.SortOrder(self.count_order))
+        elif self.last_sorted_by == 'link':
+            self.table.sortByColumn(3, Qt.SortOrder(self.link_order))
         else:
             self.table.sortByColumn(2, Qt.SortOrder(self.was_order))
 
@@ -664,7 +666,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.scrollToItem(self.table.item(row, 0))
 
     def do_sort(self, section):
-        (self.do_sort_by_name, self.do_sort_by_count, self.do_sort_by_was, self.do_sort_by_was_link)[section]()
+        (self.do_sort_by_name, self.do_sort_by_count, self.do_sort_by_was, self.do_sort_by_link)[section]()
 
     def do_sort_by_name(self):
         self.name_order = 1 - self.name_order
