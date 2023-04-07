@@ -20,6 +20,13 @@ For more information, see the [calibre About page](https://calibre-ebook.com/abo
 
 See the [User Manual](https://manual.calibre-ebook.com).
 
+## Download
+
+Installers can be downloaded from the [releases section](https://github.com/kovidgoyal/calibre/releases), on macOS you can install it via HomeBrew with
+```sh
+brew install calibre
+```
+
 ## Development
 
 [Setting up a development environment for calibre](https://manual.calibre-ebook.com/develop.html).
