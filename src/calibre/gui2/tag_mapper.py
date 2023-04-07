@@ -392,7 +392,7 @@ class Rules(QWidget):
     @rules.setter
     def rules(self, rules):
         self.rule_list.clear()
-        for rule in rules:
+        for rule in (rules or ()):
             if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
                 self.RuleItemClass(rule, self.rule_list)
 
