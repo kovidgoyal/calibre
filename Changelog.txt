@@ -23,6 +23,58 @@
 # - title by author
 # }}}
 
+{{{ 6.15.0 2023-04-07
+
+:: new features
+
+- Allow adding external links to tags, series, publishers, etcetera in addition to authors
+
+  The links show up as click-able icons in the book details panel. They can be set by right clicking the
+  author/tag/etc. in the Tag browser and choosing "Manage"
+
+- calibre:// URL scheme: Add support for a new type of URL that pops up the metadata of the specified book in a new window
+
+  Works even with books not in the current library. See https://manual.calibre-ebook.com/url_scheme.html#open-a-book-details-window-on-a-book-in-some-library for details
+
+- EPUB Output: Do not shrink images to fit the screen size by default, as modern readers do this themselves well enough. Can be controlled via an option in the EPUB Output section of the conversion dialog
+
+- Edit metadata dialog: Add buttons to pop up the category editing windows easily
+
+- [2012304] Metadata download: Allow specifying rules to transform publisher names in addition to author and tag names
+
+- [2007764] Edit metadata dialog: Use both a colored border and an icon to indicate errors in line edits
+
+- A new tweak in Preferences->Tweaks to control what program is run when clicking on URLs in calibre
+
+:: bug fixes
+
+- [2009586] E-book viewer: Fix a regression that caused incorrect highlight collision detection in some books
+
+- E-book viewer: Fix images embedded inside SVG tags not available for viewing in a pop-up
+
+- [2013972] DOCX Input: Do not ignore images that are present as fallbacks for a word drawing object
+
+- Comic Input: When converting grayscaled PNG images to PNG ensure output images are stored as indexed PNG
+
+- [2012797] Fix active tab not easy to distinguish in dark mode
+
+- [2011755] Content server: Fix re-opening book from home page after making progress not opening to correct last read position when a user is logged in
+
+- [2012760] Comments editor: When copying to clipboard, copy clean HTML rather than the junk Qt produces
+
+:: improved recipes
+- Saechsische Zeitung
+- LA Times
+- Mediapart
+- Live Mint
+- The Hindu
+
+:: new recipes
+- Tehelka by Areet Mahadevan
+- The Wire by unkn0wn
+
+}}}
+
 {{{ 6.14.1 2023-03-16
 
 :: new features
