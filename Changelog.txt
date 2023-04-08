@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.15.0 2023-04-07
+{{{ 6.15.1 2023-04-07
 
 :: new features
 
@@ -61,6 +61,8 @@
 - [2011755] Content server: Fix re-opening book from home page after making progress not opening to correct last read position when a user is logged in
 
 - [2012760] Comments editor: When copying to clipboard, copy clean HTML rather than the junk Qt produces
+
+- Version 6.15.1 fixes an issue with the new URL scheme popping up incorrect book details windows
 
 :: improved recipes
 - Saechsische Zeitung
