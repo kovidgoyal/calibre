@@ -116,6 +116,32 @@ Composite columns can use any template option, including formatting.
 
 Note: You cannot edit the data displayed in a composite column. Instead you edit the source columns. If you edit a composite column, for example by double-clicking it, calibre will open the template for editing, not the underlying data.
 
+
+Templates and plugboards
+---------------------------
+
+Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
+
+When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, ``save_to_disk``, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can of course use composite columns in these templates.
+
+Plugboards are quite flexible and can be written in Single Function Mode, Template Program Mode, General Program Mode, or Python Template mode.
+
+When a plugboard might apply (Content server, save to disk, or send to device), calibre searches the
+defined plugboards to choose the correct one for the given format and device. For example, to find the appropriate plugboard for an EPUB book being sent to an ANDROID device, calibre searches
+the plugboards using the following search order:
+
+* a plugboard with an exact match on format and device, e.g., ``EPUB`` and ``ANDROID``
+* a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
+* a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
+* a plugboard with ``any format`` and ``any device``
+
+The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever calibre finds a comma. For example, if the template produces
+the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
+
+The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
+
+Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
+
 .. _single_mode:
 
 Using functions in templates - Single Function Mode
@@ -822,29 +848,6 @@ To accomplish this, we:
 1. Create a composite field (give it lookup name #aa) containing ``{series}/{series_index} - {title}``. If the series is not empty, then this template will produce `series/series_index - title`.
 2. Create a composite field (give it lookup name #bb) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``. This template produces `genre/author_sort/title`, where an empty genre is replaced with `Unknown`.
 3. Set the save template to ``{series:lookup(.,#aa,#bb}``. This template chooses composite field ``#aa`` if series is not empty and composite field ``#bb`` if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
-
-Templates and plugboards
----------------------------
-
-Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
-
-When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, ``save_to_disk``, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can of course use composite columns in these templates.
-
-When a plugboard might apply (Content server, save to disk, or send to device), calibre searches the
-defined plugboards to choose the correct one for the given format and device. For example, to find the appropriate plugboard for an EPUB book being sent to an ANDROID device, calibre searches
-the plugboards using the following search order:
-
-* a plugboard with an exact match on format and device, e.g., ``EPUB`` and ``ANDROID``
-* a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
-* a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
-* a plugboard with ``any format`` and ``any device``
-
-The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever calibre finds a comma. For example, if the template produces
-the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
-
-The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
-
-Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
 
 Tips
 -----
