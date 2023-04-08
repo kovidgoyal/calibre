@@ -7,6 +7,7 @@ import tempfile
 import time
 import unittest
 
+from calibre import walk
 from calibre.constants import iswindows
 
 from .copy_files import copy_tree
@@ -79,6 +80,14 @@ class TestCopyFiles(unittest.TestCase):
         if not iswindows:
             self.ae(os.readlink(self.d('link.extra')), 'sub/a')
 
+        self.reset()
+        src, dest = self.s(), self.d()
+        if iswindows:
+            with open(self.s('sub/a')) as locked:
+                locked
+                self.assertRaises(IOError, copy_tree, src, dest)
+                self.ae(os.listdir(self.d()), ['sub'])
+                self.assertFalse(tuple(walk(self.d())))
 
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCopyFiles)

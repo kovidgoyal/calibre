@@ -91,7 +91,7 @@ class WindowsFileCopier:
         for path, file_id in self.path_to_fileid_map.items():
             self.fileid_to_paths_map[file_id].add(path)
         for src in self.copy_map:
-            self.path_to_handle_map = self._open_file(src)
+            self.path_to_handle_map[src] = self._open_file(src)
 
     def __exit__(self, *a) -> None:
         for h in self.path_to_handle_map.values():
