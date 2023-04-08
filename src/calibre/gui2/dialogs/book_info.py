@@ -214,6 +214,7 @@ class BookInfo(QDialog):
             mi.format_files = dict()
             mi.formats = list()
             mi.marked = ''
+            mi.field_metadata = db.field_metadata
             mi.external_library_path = library_path
             self.refresh(row, mi)
         else:
