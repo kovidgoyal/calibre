@@ -508,6 +508,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         ac.current_url = url
         ac.setText(_('Copy link location'))
         menu.addAction(ac)
+        menu.addAction(QIcon.ic('external-link'), _('Open this link'), lambda : book_info.link_clicked.emit(url))
     if not copy_links_added:
         create_copy_links(copy_menu)
 
