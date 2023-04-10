@@ -2368,7 +2368,7 @@ class Cache:
     def get_all_link_maps_for_book(self, book_id):
         '''
         Returns all links for all fields referenced by book identified by book_id.
-        If book_id is None or doesn't exist then the method returns {}.
+        If book_id doesn't exist then the method returns {}.
 
         Example: Assume author A has link X, author B has link Y, tag S has link
         F, and tag T has link G. If book 1 has author A and tag T,
@@ -2380,7 +2380,7 @@ class Cache:
         :return: {field: {field_value, link_value}, ...  for all fields with a field_value having a non-empty link value for that book
 
         '''
-        if not self.has_id(book_id):
+        if not self._has_id(book_id):
             # Works for book_id is None.
             return {}
         cached = self.link_maps_cache.get(book_id)

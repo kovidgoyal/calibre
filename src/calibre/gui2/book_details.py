@@ -392,8 +392,8 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             ac.setText(_('Remove %s from this book') % escape_for_menu(author))
             menu.addAction(ac)
         # See if we need to add a click associated link menu line for the author
-        link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', None))
-        link = link_map.get("authors", {}).get(author, None)
+        link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
+        link = link_map.get("authors", {}).get(author)
         if link:
             menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
                            lambda : book_info.link_clicked.emit(link))
@@ -442,8 +442,8 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
             menu.addAction(ac)
             # See if we need to add a click associated link menu line
-            link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', None))
-            link = link_map.get(field, {}).get(value, None)
+            link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
+            link = link_map.get(field, {}).get(value)
             if link:
                 menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
                                lambda : book_info.link_clicked.emit(link))
@@ -520,7 +520,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         ac.current_url = url
         ac.setText(_('Copy link location'))
         menu.addAction(ac)
-        menu.addAction(QIcon.ic('external-link'), _('Open this link'), lambda : book_info.link_clicked.emit(url))
+        menu.addAction(QIcon.ic('external-link'), _('Open associated link'), lambda : book_info.link_clicked.emit(url))
     if not copy_links_added:
         create_copy_links(copy_menu)
 
