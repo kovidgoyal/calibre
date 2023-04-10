@@ -265,12 +265,17 @@ class AddRemoveTest(BaseTest):
         # Check that files are removed
         fmtpath = cache.format_abspath(1, 'FMT1')
         bookpath = os.path.dirname(fmtpath)
+        os.mkdir(os.path.join(bookpath, 'xyz'))
+        open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
         item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
-
+        b, f = cache.backend.list_trash_entries()
+        self.assertEqual(len(b), 1)
+        self.assertEqual(len(f), 0)
+        self.assertTrue(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
     # }}}
 
     def test_original_fmt(self):  # {{{
