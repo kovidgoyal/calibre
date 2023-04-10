@@ -2038,18 +2038,17 @@ class Cache:
     def remove_books(self, book_ids, permanent=False):
         ''' Remove the books specified by the book_ids from the database and delete
         their format files. If ``permanent`` is False, then the format files
-        are placed in the recycle bin. '''
+        are placed in the per-library trash directory. '''
         path_map = {}
         for book_id in book_ids:
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
+            except Exception:
                 path = None
             path_map[book_id] = path
-        if iswindows:
-            paths = (x.replace(os.sep, '/') for x in itervalues(path_map) if x)
-            self.backend.windows_check_if_files_in_use(paths)
-
+        # ensure metadata.opf is written so we can restore the book
+        if not permanent:
+            self._dump_metadata(book_ids=tuple(bid for bid, path in path_map.items() if path))
         self.backend.remove_books(path_map, permanent=permanent)
         for field in itervalues(self.fields):
             try:

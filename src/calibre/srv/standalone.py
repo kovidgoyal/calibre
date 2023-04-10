@@ -9,7 +9,6 @@ import sys
 
 from calibre import as_unicode
 from calibre.constants import is_running_from_develop, ismacos, iswindows
-from calibre.db.delete_service import shutdown as shutdown_delete_service
 from calibre.db.legacy import LibraryDatabase
 from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
@@ -243,7 +242,4 @@ def main(args=sys.argv):
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
     with HandleInterrupt(server.stop):
-        try:
-            server.serve_forever()
-        finally:
-            shutdown_delete_service()
+        server.serve_forever()

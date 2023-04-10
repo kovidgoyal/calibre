@@ -15,10 +15,11 @@ from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.localization import _
 from polyglot.builtins import iteritems
+from calibre.db.backend import TRASH_DIR_NAME
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset({'metadata.opf', 'cover.jpg'})
-IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db'})
+IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db', TRASH_DIR_NAME})
 
 '''
 Checks fields:

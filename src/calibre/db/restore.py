@@ -16,7 +16,7 @@ from threading import Thread
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import filesystem_encoding
-from calibre.db.backend import DB, DBPrefs
+from calibre.db.backend import DB, TRASH_DIR_NAME, DBPrefs
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
@@ -160,6 +160,8 @@ class Restore(Thread):
 
     def scan_library(self):
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):
+            with suppress(ValueError):
+                dirnames.remove(TRASH_DIR_NAME)
             leaf = os.path.basename(dirpath)
             m = self.db_id_regexp.search(leaf)
             if m is None or 'metadata.opf' not in filenames:

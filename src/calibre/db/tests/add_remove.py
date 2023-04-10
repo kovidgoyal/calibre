@@ -261,7 +261,6 @@ class AddRemoveTest(BaseTest):
             self.assertFalse(table.col_book_map)
 
         # Test the delete service
-        from calibre.db.delete_service import delete_service
         cache = self.init_cache(cl)
         # Check that files are removed
         fmtpath = cache.format_abspath(1, 'FMT1')
@@ -269,7 +268,6 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
-        delete_service().wait()
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
 

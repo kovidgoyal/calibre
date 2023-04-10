@@ -1141,14 +1141,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if not question_dialog(self, _('Library updates waiting'), msg):
                 return False
 
-        from calibre.db.delete_service import has_jobs
-        if has_jobs():
-            msg = _('Some deleted books are still being moved to the recycle '
-                    'bin, if you quit now, they will be left behind. Are you '
-                    'sure you want to quit?')
-            if not question_dialog(self, _('Active jobs'), msg):
-                return False
-
         return True
 
     def shutdown(self, write_settings=True):
@@ -1229,8 +1221,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self._spare_pool.shutdown()
         from calibre.scraper.simple import cleanup_overseers
         wait_for_cleanup = cleanup_overseers()
-        from calibre.db.delete_service import shutdown
-        shutdown()
         from calibre.live import async_stop_worker
         wait_for_stop = async_stop_worker()
         time.sleep(2)

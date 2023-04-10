@@ -24,7 +24,6 @@ from calibre.constants import (
 )
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
-from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.tables import (
@@ -36,6 +35,7 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
+from calibre.utils.copy_files import copy_tree, copy_files
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
@@ -55,6 +55,7 @@ from polyglot.builtins import (
 # }}}
 
 
+TRASH_DIR_NAME =  '.caltrash'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
@@ -501,6 +502,14 @@ class DB:
         if load_user_formatter_functions:
             set_global_state(self)
 
+    @property
+    def last_expired_trash_at(self) -> float:
+        return float(self.prefs['last_expired_trash_at'])
+
+    @last_expired_trash_at.setter
+    def last_expired_trash_at(self, val: float) -> None:
+        self.prefs['last_expired_trash_at'] = float(val)
+
     def get_template_functions(self):
         return self._template_functions
 
@@ -549,6 +558,8 @@ class DB:
         defs['similar_tags_match_kind'] = 'match_all'
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
+        defs['last_expired_trash_at'] = 0.0
+        defs['expire_old_trash_after'] = 7 * 86400
         defs['book_display_fields'] = [
         ('title', False), ('authors', True), ('series', True),
         ('identifiers', True), ('tags', True), ('formats', True),
@@ -1519,17 +1530,14 @@ class DB:
         return os.path.getsize(dest_path)
 
     def remove_formats(self, remove_map):
-        paths = []
+        self.ensure_trash_dir()
+        paths = set()
         for book_id, removals in iteritems(remove_map):
             for fmt, fname, path in removals:
                 path = self.format_abspath(book_id, fmt, fname, path)
-                if path is not None:
-                    paths.append(path)
-        try:
-            delete_service().delete_files(paths, self.library_path)
-        except:
-            import traceback
-            traceback.print_exc()
+                if path:
+                    paths.add(path)
+        self.move_book_files_to_trash(book_id, paths)
 
     def cover_last_modified(self, path):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
@@ -1856,17 +1864,68 @@ class DB:
         with open(path, 'rb') as f:
             return f.read()
 
+    @property
+    def trash_dir(self):
+        return os.path.abspath(os.path.join(self.library_path, TRASH_DIR_NAME))
+
+    def ensure_trash_dir(self):
+        tdir = self.trash_dir
+        os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
+        os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
+        if iswindows:
+            import calibre_extensions.winutil as winutil
+            winutil.set_file_attributes(tdir, getattr(winutil, 'FILE_ATTRIBUTE_HIDDEN', 2) | getattr(winutil, 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED', 8192))
+        if time.monotonic() - self.last_expired_trash_at >= 3600:
+            self.expire_old_trash()
+
+    def expire_old_trash(self, expire_age_in_seconds=-1):
+        if expire_age_in_seconds < 0:
+            expire_age_in_seconds = max(1 * 24 * 3600, float(self.prefs['expire_old_trash_after']))
+        self.last_expired_trash_at = now = time.time()
+        removals = []
+        for base in ('b', 'f'):
+            base = os.path.join(self.trash_dir, base)
+            for entries in os.scandir(base):
+                for x in entries:
+                    try:
+                        st = x.stat(follow_symlinks=False)
+                        mtime = st.st_mtime
+                    except OSError:
+                        mtime = 0
+                    if mtime + expire_age_in_seconds < now:
+                        removals.append(x.path)
+        for x in removals:
+            rmtree_with_retry(x)
+
+    def move_book_to_trash(self, book_id, book_dir_abspath):
+        dest = os.path.join(self.trash_dir, 'b', str(book_id))
+        if os.path.exists(dest):
+            rmtree_with_retry(dest)
+        copy_tree(book_dir_abspath, dest, delete_source=True)
+
+    def move_book_files_to_trash(self, book_id, format_abspaths):
+        dest = os.path.join(self.trash_dir, 'f', str(book_id))
+        if not os.path.exists(dest):
+            os.makedirs(dest)
+        fmap = {}
+        for path in format_abspaths:
+            ext = path.rpartition('.')[-1].lower()
+            fmap[path] = os.path.join(dest, ext)
+        copy_files(fmap, delete_source=True)
+
     def remove_books(self, path_map, permanent=False):
+        self.ensure_trash_dir()
         self.executemany(
             'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
-        paths = {os.path.join(self.library_path, x) for x in itervalues(path_map) if x}
-        paths = {x for x in paths if os.path.exists(x) and self.is_deletable(x)}
-        if permanent:
-            for path in paths:
-                self.rmtree(path)
-                remove_dir_if_empty(os.path.dirname(path), ignore_metadata_caches=True)
-        else:
-            delete_service().delete_books(paths, self.library_path)
+        parent_paths = set()
+        for book_id, path in path_map.items():
+            if path:
+                path = os.path.abspath(os.path.join(self.library_path, path))
+                if os.path.exists(path) and self.is_deletable(path):
+                    self.rmtree(path) if permanent else self.move_book_to_trash(book_id, path)
+                    parent_paths.add(os.path.dirname(path))
+        for path in parent_paths:
+            remove_dir_if_empty(path, ignore_metadata_caches=True)
 
     def add_custom_data(self, name, val_map, delete_first):
         if delete_first:
