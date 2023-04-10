@@ -183,14 +183,14 @@ def mi_to_html(
                 else:
                     if not metadata['is_multiple']:
                         val = '<a href="{}" title="{}">{}</a>'.format(
-                              search_action(field, val),
+                              search_action(field, val, book_id=book_id),
                               _('Click to see books with {0}: {1}').format(metadata['name'], a(val)), p(val))
                     else:
                         all_vals = [v.strip()
                             for v in val.split(metadata['is_multiple']['cache_to_list']) if v.strip()]
                         if show_links:
                             links = ['<a href="{}" title="{}">{}</a>'.format(
-                                search_action(field, x), _('Click to see books with {0}: {1}').format(
+                                search_action(field, x, book_id=book_id), _('Click to see books with {0}: {1}').format(
                                      metadata['name'], a(x)), p(x)) for x in all_vals]
                         else:
                             links = all_vals
@@ -210,7 +210,7 @@ def mi_to_html(
                     extra = '<br><span style="font-size:smaller">%s</span>'%(
                             prepare_string_for_xml(durl))
                 if show_links:
-                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, loc=loc),
+                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
                         prepare_string_for_xml(path, True), pathstr, extra)
                 else:
                     link = prepare_string_for_xml(path, True)
@@ -238,7 +238,7 @@ def mi_to_html(
             if show_links:
                 links = [
                     '<a href="{}" title="{}:{}">{}</a>'.format(
-                        action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
+                        action('identifier', book_id=book_id, url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers'),
                         a(id_typ), a(id_val), p(namel))
                     for namel, id_typ, id_val, url in urls]
                 links = value_list(', ', links)
@@ -266,7 +266,8 @@ def mi_to_html(
                     else:
                         aut = p(aut)
                 if link:
-                    val = '<a title="%s" href="%s">%s</a>'%(a(lt), action('author', url=link, name=aut, title=lt), aut)
+                    val = '<a title="%s" href="%s">%s</a>'%(a(lt), action('author', book_id=book_id,
+                                                              url=link, name=aut, title=lt), aut)
                 else:
                     val = aut
                 val += add_other_link('authors', aut)
