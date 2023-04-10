@@ -126,6 +126,11 @@ class TagCategories(QDialog, Ui_TagCategories):
     def category_name_tuple(self, key, name):
         return self.CategoryNameTuple(name, key)
 
+    def item_sort_key(self, v):
+        # Add the key so the order of identical items is predictable.
+        # The tab ensures that the values sort together regardless of key
+        return primary_sort_key(v.v + '\t ' + (v.k[1:] if v.k.startswith('#') else v.k))
+
     def initialize_category_lists(self):
         cfb = self.category_filter_box
         current_cat_filter = (self.category_labels[cfb.currentIndex()]
@@ -154,11 +159,9 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.available_items[key] = av
             sorted_categories.append(self.category_name_tuple(key, self.all_items[key]['name']))
 
-        # Sort the items
-        self.sorted_items.sort(key=lambda v: primary_sort_key(v.v + v.k))
+        self.sorted_items.sort(key=self.item_sort_key)
+        sorted_categories.sort(key=lambda v: primary_sort_key(v.n))
 
-        # Fill in the category names with visible (not hidden) lookup keys
-        sorted_categories.sort(key=lambda v: primary_sort_key(v.n + v.k))
         cfb.blockSignals(True)
         cfb.clear()
         cfb.addItem('', '')
@@ -227,7 +230,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         ccn = self.current_cat_name
         if ccn:
             self.applied_items = [v for v in self.user_categories[ccn]]
-            self.applied_items.sort(key=lambda x:primary_sort_key(x.v + x.k))
+            self.applied_items.sort(key=self.item_sort_key)
         else:
             self.applied_items = []
         self.applied_items_box.clear()

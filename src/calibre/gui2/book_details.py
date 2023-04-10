@@ -391,6 +391,12 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             ac.data = ('authors', author, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(author))
             menu.addAction(ac)
+        # See if we need to add a click associated link menu line for the author
+        link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', None))
+        link = link_map.get("authors", {}).get(author, None)
+        if link:
+            menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
+                           lambda : book_info.link_clicked.emit(link))
     elif dt in ('path', 'devpath'):
         path = data['loc']
         ac = book_info.copy_link_action
@@ -435,6 +441,12 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
             menu.addAction(ac)
+            # See if we need to add a click associated link menu line
+            link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', None))
+            link = link_map.get(field, {}).get(value, None)
+            if link:
+                menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
+                               lambda : book_info.link_clicked.emit(link))
         else:
             v = data.get('original_value') or data.get('value')
             copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
