@@ -75,9 +75,11 @@ author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
                         'MD', 'M.D', 'I', 'II', 'III', 'IV',
                         'Junior', 'Senior')
 author_name_prefixes = ('Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
-author_name_copywords = ('Agency', 'Corporation', 'Company', 'Co.', 'Council',
-                         'Committee', 'Inc.', 'Institute', 'National',
-                         'Society', 'Club', 'Team')
+author_name_copywords = (
+    'Agency', 'Corporation', 'Company', 'Co.', 'Council',
+    'Committee', 'Inc.', 'Institute', 'National', 'Society', 'Club', 'Team',
+    'Software', 'Games', 'Entertainment', 'Media', 'Studios',
+)
 author_use_surname_prefixes = False
 author_surname_prefixes = ('da', 'de', 'di', 'la', 'le', 'van', 'von')
 
