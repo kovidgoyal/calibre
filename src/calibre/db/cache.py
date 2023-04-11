@@ -2665,7 +2665,13 @@ class Cache:
 
     @read_api
     def list_trash_entries(self):
-        return self.backend.list_trash_entries()
+        books, formats = self.backend.list_trash_entries()
+        ff = []
+        for e in formats:
+            if self._has_id(e.book_id):
+                ff.append(e)
+                e.cover_path = self.format_abspath(e.book_id, '__COVER_INTERNAL__')
+        return books, formats
 
     @write_api
     def move_book_from_trash(self, book_id):

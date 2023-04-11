@@ -281,11 +281,11 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(len(b), 1)
         self.assertEqual(len(f), 0)
         self.assertEqual(b[0].title, title)
-        self.assertTrue(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+        self.assertTrue(os.path.exists(b[0].cover_path))
         cache.backend.expire_old_trash(1000)
-        self.assertTrue(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+        self.assertTrue(os.path.exists(b[0].cover_path))
         cache.backend.expire_old_trash(0)
-        self.assertFalse(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+        self.assertFalse(os.path.exists(b[0].cover_path))
 
         # test restoring of books
         cache = self.init_cache(cl2)

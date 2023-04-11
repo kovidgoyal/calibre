@@ -69,7 +69,7 @@ class TrashEntry:
     book_id: int
     title: str
     author: str
-    book_dir: str
+    cover_path: str
     mtime: float
     formats: Sequence[str] = ()
 
@@ -1968,7 +1968,7 @@ class DB:
                 except Exception:
                     continue
                 opf = OPF(os.path.join(x.path, 'metadata.opf'), basedir=x.path)
-                books.append(TrashEntry(book_id, opf.title or unknown, (opf.authors or au)[0], x.path, mtime))
+                books.append(TrashEntry(book_id, opf.title or unknown, (opf.authors or au)[0], os.path.join(x.path, COVER_FILE_NAME), mtime))
         base = os.path.join(self.trash_dir, 'f')
         um = {'title': unknown, 'authors': au}
         for x in os.scandir(base):
@@ -1988,7 +1988,7 @@ class DB:
                         else:
                             formats.add(f.name.upper())
                 if formats:
-                    files.append(TrashEntry(book_id, metadata.get('title') or unknown, (metadata.get('authors') or au)[0], x.path, mtime, tuple(formats)))
+                    files.append(TrashEntry(book_id, metadata.get('title') or unknown, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
         return books, files
 
     def remove_books(self, path_map, permanent=False):
