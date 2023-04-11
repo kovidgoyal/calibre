@@ -5,14 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, glob
+import glob
+import os
+from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from datetime import timedelta
 
-from calibre.db.tests.base import BaseTest, IMG
+from calibre.db.tests.base import IMG, BaseTest
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.date import now, UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, now, utcnow
+from calibre.utils.img import image_from_path
+from calibre.utils.resources import get_image_path
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -215,6 +218,7 @@ class AddRemoveTest(BaseTest):
     def test_remove_books(self):  # {{{
         'Test removal of books'
         cl = self.cloned_library
+        cl2 = self.cloned_library
         cache = self.init_cache()
         af, ae = self.assertFalse, self.assertEqual
         authors = cache.fields['authors'].table
@@ -261,10 +265,11 @@ class AddRemoveTest(BaseTest):
             self.assertFalse(table.col_book_map)
 
         # Test the delete service
+        # test basic delete book and cache expiry
         cache = self.init_cache(cl)
-        # Check that files are removed
         fmtpath = cache.format_abspath(1, 'FMT1')
         bookpath = os.path.dirname(fmtpath)
+        title = cache.field_for('title', 1)
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
@@ -272,10 +277,36 @@ class AddRemoveTest(BaseTest):
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
-        b, f = cache.backend.list_trash_entries()
+        b, f = cache.list_trash_entries()
         self.assertEqual(len(b), 1)
         self.assertEqual(len(f), 0)
+        self.assertEqual(b[0].title, title)
         self.assertTrue(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+        cache.backend.expire_old_trash(1000)
+        self.assertTrue(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+        cache.backend.expire_old_trash(0)
+        self.assertFalse(os.path.exists(os.path.join(b[0].book_dir, 'metadata.opf')))
+
+        # test restoring of books
+        cache = self.init_cache(cl2)
+        cache.set_cover({1: image_from_path(get_image_path('lt.png', allow_user_override=False))})
+        fmtpath = cache.format_abspath(1, 'FMT1')
+        bookpath = os.path.dirname(fmtpath)
+        cache.set_annotations_for_book(1, 'FMT1', [({'title': 'else', 'type': 'bookmark', 'timestamp': utcnow().isoformat()}, 1)])
+        annots_before = cache.all_annotations_for_book(1)
+        fm_before = cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)
+        os.mkdir(os.path.join(bookpath, 'xyz'))
+        open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
+        cache.remove_books((1,))
+        cache.move_book_from_trash(1)
+        b, f = cache.list_trash_entries()
+        self.assertEqual(len(b), 0)
+        self.assertEqual(len(f), 0)
+        self.assertEqual(fmtpath, cache.format_abspath(1, 'FMT1'))
+        self.assertEqual(fm_before, (cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)))
+        self.assertEqual(annots_before, cache.all_annotations_for_book(1))
+        self.assertTrue(cache.cover(1))
+        self.assertTrue(os.path.exists(os.path.join(bookpath, 'xyz', 'abc')))
     # }}}
 
     def test_original_fmt(self):  # {{{
@@ -315,7 +346,7 @@ class AddRemoveTest(BaseTest):
     def test_copy_to_library(self):  # {{{
         from calibre.db.copy_to_library import copy_one_book
         from calibre.ebooks.metadata import authors_to_string
-        from calibre.utils.date import utcnow, EPOCH
+        from calibre.utils.date import EPOCH, utcnow
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
 

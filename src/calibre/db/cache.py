@@ -1858,6 +1858,7 @@ class Cache:
 
         if not db_only:
             removes = defaultdict(set)
+            metadata_map = {}
             for book_id, fmts in iteritems(formats_map):
                 try:
                     path = self._field_for('path', book_id).replace('/', os.sep)
@@ -1870,8 +1871,10 @@ class Cache:
                         continue
                     if name and path:
                         removes[book_id].add((fmt, name, path))
+                if removes[book_id]:
+                    metadata_map[book_id] = {'title': self._field_for('title', book_id), 'authors': self._field_for('authors', book_id)}
             if removes:
-                self.backend.remove_formats(removes)
+                self.backend.remove_formats(removes, metadata_map)
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
@@ -2660,17 +2663,46 @@ class Cache:
     def is_closed(self):
         return self.backend.is_closed
 
+    @read_api
+    def list_trash_entries(self):
+        return self.backend.list_trash_entries()
+
+    @write_api
+    def move_book_from_trash(self, book_id):
+        ''' Undelete a book from the trash directory '''
+        if self._has_id(book_id):
+            raise ValueError(f'A book with the id {book_id} already exists')
+        mi, annotations, formats = self.backend.get_metadata_for_trash_book(book_id)
+        mi.cover = None
+        self._create_book_entry(mi, add_duplicates=True,
+                force_id=book_id, apply_import_tags=False, preserve_uuid=True)
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        self.backend.move_book_from_trash(book_id, path)
+        self.format_metadata_cache.pop(book_id, None)
+        f = self.fields['formats'].table
+        max_size = 0
+        for (fmt, size, fname) in formats:
+            max_size = max(max_size, f.update_fmt(book_id, fmt, fname, size, self.backend))
+        self.fields['size'].table.update_sizes({book_id: max_size})
+        cover = self.backend.cover_abspath(book_id, path)
+        if cover and os.path.exists(cover):
+            self._set_field('cover', {book_id:1})
+        if annotations:
+            self._restore_annotations(book_id, annotations)
+
     @write_api
     def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()):
         ''' Restore the book entry in the database for a book that already exists on the filesystem '''
-        cover = mi.cover
-        mi.cover = None
+        cover, mi.cover = mi.cover, None
         self._create_book_entry(mi, add_duplicates=True,
                 force_id=book_id, apply_import_tags=False, preserve_uuid=True)
         self._update_last_modified((book_id,), last_modified)
         if cover and os.path.exists(cover):
             self._set_field('cover', {book_id:1})
-        self.backend.restore_book(book_id, path, formats)
+        f = self.fields['formats'].table
+        for (fmt, size, fname) in formats:
+            f.update_fmt(book_id, fmt, fname, size, self.backend)
+        self.fields['path'].table.set_path(book_id, path, self.backend)
         if annotations:
             self._restore_annotations(book_id, annotations)
 
