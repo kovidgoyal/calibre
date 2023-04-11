@@ -219,6 +219,7 @@ class AddRemoveTest(BaseTest):
         'Test removal of books'
         cl = self.cloned_library
         cl2 = self.cloned_library
+        cl3 = self.cloned_library
         cache = self.init_cache()
         af, ae = self.assertFalse, self.assertEqual
         authors = cache.fields['authors'].table
@@ -307,6 +308,21 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(annots_before, cache.all_annotations_for_book(1))
         self.assertTrue(cache.cover(1))
         self.assertTrue(os.path.exists(os.path.join(bookpath, 'xyz', 'abc')))
+
+        # test restoring of formats
+        cache = self.init_cache(cl3)
+        all_formats = cache.formats(1)
+        cache.remove_formats({1: all_formats})
+        self.assertFalse(cache.formats(1))
+        b, f = cache.list_trash_entries()
+        self.assertEqual(len(b), 0)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].title, title)
+        self.assertTrue(f[0].cover_path)
+        for fmt in all_formats:
+            cache.move_format_from_trash(1, fmt)
+        self.assertEqual(all_formats, cache.formats(1))
+        self.assertFalse(os.listdir(os.path.join(cache.backend.trash_dir, 'f')))
     # }}}
 
     def test_original_fmt(self):  # {{{

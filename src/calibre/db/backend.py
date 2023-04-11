@@ -1746,7 +1746,7 @@ class DB:
                     # rename rather than remove, so that if something goes
                     # wrong in the rest of this function, at least the file is
                     # not deleted
-                    os.rename(old_path, dest)
+                    os.replace(old_path, dest)
                 except OSError as e:
                     if getattr(e, 'errno', None) != errno.ENOENT:
                         # Failing to rename the old format will at worst leave a
@@ -1754,7 +1754,17 @@ class DB:
                         import traceback
                         traceback.print_exc()
 
-        if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
+        if isinstance(stream, str) and stream:
+            try:
+                os.replace(stream, dest)
+            except OSError:
+                if iswindows:
+                    time.sleep(1)
+                    os.replace(stream, dest)
+                else:
+                    raise
+            size = os.path.getsize(dest)
+        elif (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
             with open(dest, 'wb') as f:
                 shutil.copyfileobj(stream, f)
                 size = f.tell()
@@ -1952,6 +1962,20 @@ class DB:
             raise ValueError(f'The book {book_id} not present in the trash folder')
         dest = os.path.abspath(os.path.join(self.library_path, path))
         copy_tree(bdir, dest, delete_source=True)
+
+    def path_for_trash_format(self, book_id, fmt):
+        bdir = os.path.join(self.trash_dir, 'f', str(book_id))
+        if not os.path.isdir(bdir):
+            return ''
+        path = os.path.join(bdir, fmt.lower())
+        if not os.path.exists(path):
+            path = ''
+        return path
+
+    def remove_trash_formats_dir_if_empty(self, book_id):
+        bdir = os.path.join(self.trash_dir, 'f', str(book_id))
+        if os.path.isdir(bdir) and len(os.listdir(bdir)) <= 1:  # dont count metadata.json
+            self.rmtree(bdir)
 
     def list_trash_entries(self):
         from calibre.ebooks.metadata.opf2 import OPF

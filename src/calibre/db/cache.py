@@ -2674,6 +2674,26 @@ class Cache:
         return books, formats
 
     @write_api
+    def move_format_from_trash(self, book_id, fmt):
+        ''' Undelete a format from the trash directory '''
+        if not self._has_id(book_id):
+            raise ValueError(f'A book with the id {book_id} does not exist')
+        fmt = fmt.upper()
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+        except Exception:
+            name = None
+        fpath = self.backend.path_for_trash_format(book_id, fmt)
+        if not fpath:
+            raise ValueError(f'No format {fmt} found in book {book_id}')
+        size, fname = self._do_add_format(book_id, fmt, fpath, name)
+        self.format_metadata_cache.pop(book_id, None)
+        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+        self.fields['size'].table.update_sizes({book_id: max_size})
+        self.event_dispatcher(EventType.format_added, book_id, fmt)
+        self.backend.remove_trash_formats_dir_if_empty(book_id)
+
+    @write_api
     def move_book_from_trash(self, book_id):
         ''' Undelete a book from the trash directory '''
         if self._has_id(book_id):
