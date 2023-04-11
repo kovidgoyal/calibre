@@ -158,9 +158,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return error_dialog(self.gui, _('Grouped search terms'),
                                 _('The search term name cannot be blank'),
                                 show=True)
-        if ' ' in name:
+        if ' ' in name or '.' in name:
             return error_dialog(self.gui, _('Invalid grouped search name'),
-                _('The grouped search term name cannot contain spaces'), show=True)
+                _('The grouped search term name cannot contain spaces or periods'), show=True)
         if idx != 0:
             orig_name = str(self.gst_names.itemData(idx) or '')
         else:
