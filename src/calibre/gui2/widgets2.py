@@ -9,10 +9,12 @@ from qt.core import (
     QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence, QLabel, QLayout, QMenu,
     QMimeData, QPainter, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
     QSize, QSizePolicy, QStyle, QStyledItemDelegate, QStyleOptionToolButton,
-    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QToolButton, QUndoCommand,
-    QUndoStack, QUrl, QWidget, pyqtSignal,
+    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QTimer, QToolButton,
+    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal,
 )
 
+from calibre import prepare_string_for_xml
+from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
@@ -722,6 +724,62 @@ class DateTimeEdit(QDateTimeEdit):
             ev.accept()
         else:
             return QDateTimeEdit.keyPressEvent(self, ev)
+
+
+class MessagePopup(QLabel):
+
+    undo_requested = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QLabel.__init__(self, parent)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.undo_data = None
+        if QApplication.instance().is_dark_theme:
+            c = builtin_colors_dark['green']
+        else:
+            c = builtin_colors_light['green']
+        self.color = self.palette().color(QPalette.ColorRole.WindowText).name()
+        bg = QColor(c).getRgb()
+        self.setStyleSheet(f'''QLabel {{
+            background-color: rgba({bg[0]}, {bg[1]}, {bg[2]}, 0.85);
+            border-radius: 4px;
+            color: {self.color};
+            padding: 0.5em;
+        }}'''
+        )
+        self.linkActivated.connect(self.link_activated)
+        self.close_timer = t = QTimer()
+        t.setSingleShot(True)
+        t.timeout.connect(self.hide)
+        self.setMouseTracking(True)
+        self.hide()
+
+    def mouseMoveEvent(self, ev):
+        self.close_timer.start()
+        return super().mouseMoveEvent(ev)
+
+    def link_activated(self, link):
+        self.hide()
+        if link.startswith('undo://'):
+            self.undo_requested.emit(self.undo_data)
+
+    def __call__(self, text='Testing message popup', show_undo=True, timeout=5000, has_markup=False):
+        text = '<p>' + (text if has_markup else prepare_string_for_xml(text))
+        if show_undo:
+            self.undo_data = show_undo
+            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com">{}</a>'.format(_('Undo'))
+        text += f'\xa0\xa0<a style="text-decoration: none; color: {self.color}" href="close://me.com">✖</a>'
+        self.setText(text)
+        self.resize(self.sizeHint())
+        self.position_in_parent()
+        self.show()
+        self.raise_()
+        self.close_timer.start(timeout)
+
+    def position_in_parent(self):
+        p = self.parent()
+        self.move((p.width() - self.width()) // 2, 25)
+
 
 
 if __name__ == '__main__':

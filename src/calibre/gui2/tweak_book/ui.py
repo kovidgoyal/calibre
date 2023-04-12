@@ -8,16 +8,12 @@ import os
 from functools import partial
 from itertools import product
 from qt.core import (
-    QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel,
-    QMenu, QMenuBar, QPalette, QSize, QStackedWidget, Qt, QTabWidget, QTimer, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QAction, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel, QMenu, QMenuBar, QSize,
+    QStackedWidget, Qt, QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal,
 )
 
-from calibre import prepare_string_for_xml, prints
-from calibre.constants import (
-    DEBUG, __appname__, builtin_colors_dark, builtin_colors_light, get_version,
-    ismacos
-)
+from calibre import prints
+from calibre.constants import DEBUG, __appname__, get_version, ismacos
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
@@ -25,7 +21,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.tweak_book import (
     actions, capitalize, current_container, editors, toolbar_actions, tprefs,
-    update_mark_text_action
+    update_mark_text_action,
 )
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.char_select import CharSelect
@@ -46,9 +42,10 @@ from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.text_search import TextSearch
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.undo import CheckpointView
+from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.icu import ord_string, sort_key
 from calibre.utils.localization import (
-    localize_user_manual_link, localize_website_link, pgettext
+    localize_user_manual_link, localize_website_link, pgettext,
 )
 from calibre.utils.unicode_names import character_name_from_code
 from polyglot.builtins import iteritems, itervalues
@@ -258,61 +255,6 @@ def install_new_plugins():
             if plugin is not None:
                 install_plugin(plugin)
         prefs['newly_installed_plugins'] = []
-
-
-class MessagePopup(QLabel):
-
-    undo_requested = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QLabel.__init__(self, parent)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.undo_data = None
-        if QApplication.instance().is_dark_theme:
-            c = builtin_colors_dark['green']
-        else:
-            c = builtin_colors_light['green']
-        self.color = self.palette().color(QPalette.ColorRole.WindowText).name()
-        bg = QColor(c).getRgb()
-        self.setStyleSheet(f'''QLabel {{
-            background-color: rgba({bg[0]}, {bg[1]}, {bg[2]}, 0.85);
-            border-radius: 4px;
-            color: {self.color};
-            padding: 0.5em;
-        }}'''
-        )
-        self.linkActivated.connect(self.link_activated)
-        self.close_timer = t = QTimer()
-        t.setSingleShot(True)
-        t.timeout.connect(self.hide)
-        self.setMouseTracking(True)
-        self.hide()
-
-    def mouseMoveEvent(self, ev):
-        self.close_timer.start()
-        return super().mouseMoveEvent(ev)
-
-    def link_activated(self, link):
-        self.hide()
-        if link.startswith('undo://'):
-            self.undo_requested.emit(self.undo_data)
-
-    def __call__(self, text='Testing message popup', show_undo=True, timeout=5000, has_markup=False):
-        text = '<p>' + (text if has_markup else prepare_string_for_xml(text))
-        if show_undo:
-            self.undo_data = show_undo
-            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com">{}</a>'.format(_('Undo'))
-        text += f'\xa0\xa0<a style="text-decoration: none; color: {self.color}" href="close://me.com">✖</a>'
-        self.setText(text)
-        self.resize(self.sizeHint())
-        self.position_in_parent()
-        self.show()
-        self.raise_()
-        self.close_timer.start(timeout)
-
-    def position_in_parent(self):
-        p = self.parent()
-        self.move((p.width() - self.width()) // 2, 25)
 
 
 class Main(MainWindow):
