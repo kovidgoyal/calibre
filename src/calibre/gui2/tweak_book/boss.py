@@ -825,7 +825,7 @@ class Boss(QObject):
     # }}}
 
     # Global history {{{
-    def do_global_undo(self):
+    def do_global_undo(self, *a):
         container = self.global_undo.undo()
         if container is not None:
             set_current_container(container)
