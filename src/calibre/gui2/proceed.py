@@ -6,11 +6,12 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
-
 from qt.core import (
-    QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap, QEvent,
-    QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
-    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage, QPalette)
+    QApplication, QCheckBox, QDialogButtonBox, QEasingCurve, QEvent, QFontMetrics,
+    QHBoxLayout, QIcon, QImage, QLabel, QPainter, QPainterPath, QPalette, QPixmap,
+    QPlainTextEdit, QPropertyAnimation, QRectF, QSize, QSizePolicy, Qt, QTimer,
+    QVBoxLayout, QWidget, pyqtProperty, pyqtSignal, sip,
+)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -19,7 +20,7 @@ Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
         'action_label action_icon focus_action show_det show_ok icon '
-        'log_viewer_unique_name')
+        'log_viewer_unique_name auto_hide_after')
 
 
 class Icon(QWidget):
@@ -95,6 +96,7 @@ class ProceedQuestion(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setVisible(False)
+        self.auto_hide_timer = None
         parent.installEventFilter(self)
 
         self._show_fraction = 0.0
@@ -181,6 +183,7 @@ class ProceedQuestion(QWidget):
         self.accept()
 
     def accept(self):
+        self.cancel_auto_hide()
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -191,6 +194,7 @@ class ProceedQuestion(QWidget):
         self.hide()
 
     def reject(self):
+        self.cancel_auto_hide()
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -223,10 +227,16 @@ class ProceedQuestion(QWidget):
         self.resize(sz)
         self.position_widget()
 
+    def cancel_auto_hide(self):
+        if self.auto_hide_timer is not None:
+            self.auto_hide_timer.stop()
+            self.auto_hide_timer = None
+
     def show_question(self):
         if not self.questions:
             return
         if not self.isVisible():
+            self.cancel_auto_hide()
             question = self.questions[0]
             self.msg_label.setText(question.msg)
             self.icon.set_icon(question.icon)
@@ -260,6 +270,16 @@ class ProceedQuestion(QWidget):
             button.setDefault(True)
             self.raise_()
             self.start_show_animation()
+            if question.auto_hide_after > 0:
+                self.auto_hide_timer = t = QTimer(self)
+                t.setSingleShot(True)
+                t.timeout.connect(self.auto_hide)
+                t.start(1000 * question.auto_hide_after)
+
+    def auto_hide(self):
+        self.auto_hide_timer = None
+        if not sip.isdeleted(self) and self.isVisible():
+            self.reject()
 
     def start_show_animation(self):
         if self.rendered_pixmap is not None:
@@ -307,18 +327,21 @@ class ProceedQuestion(QWidget):
         self.show()
         self.position_widget()
 
-    def dummy_question(self, action_label=None):
+    def dummy_question(self, action_label=None, auto_hide_after=0):
         self(lambda *args:args, (), 'dummy log', 'Log Viewer', 'A Dummy Popup',
              'This is a dummy popup to easily test things, with a long line of text that should wrap. '
              'This is a dummy popup to easily test things, with a long line of text that should wrap',
-             checkbox_msg='A dummy checkbox',
+             checkbox_msg='A dummy checkbox', auto_hide_after=auto_hide_after,
              action_callback=lambda *args: args, action_label=action_label or 'An action')
 
-    def __call__(self, callback, payload, html_log, log_viewer_title, title,
-            msg, det_msg='', show_copy_button=False, cancel_callback=None,
-            log_is_file=False, checkbox_msg=None, checkbox_checked=False,
-            action_callback=None, action_label=None, action_icon=None, focus_action=False,
-            show_det=False, show_ok=False, icon=None, log_viewer_unique_name=None, **kw):
+    def __call__(
+        self, callback, payload, html_log, log_viewer_title, title,
+        msg, det_msg='', show_copy_button=False, cancel_callback=None,
+        log_is_file=False, checkbox_msg=None, checkbox_checked=False, auto_hide_after=0,
+        action_callback=None, action_label=None, action_icon=None, focus_action=False,
+        show_det=False, show_ok=False, icon=None, log_viewer_unique_name=None,
+        **kw
+    ):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -343,6 +366,7 @@ class ProceedQuestion(QWidget):
                              called with both the payload and the state of the
                              checkbox as arguments.
         :param checkbox_checked: If True the checkbox is checked by default.
+        :param auto_hide_after: Number of seconds to automatically cancel this question after. Zero or less for no auto hide.
         :param action_callback: If not None, an extra button is added, which
                                 when clicked will cause action_callback to be called
                                 instead of callback. action_callback is called in
@@ -359,7 +383,7 @@ class ProceedQuestion(QWidget):
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon, focus_action, show_det, show_ok, icon, log_viewer_unique_name)
+            action_icon, focus_action, show_det, show_ok, icon, log_viewer_unique_name, auto_hide_after)
         self.questions.append(question)
         self.show_question()
 
@@ -403,8 +427,9 @@ class ProceedQuestion(QWidget):
 
 
 def main():
-    from calibre.gui2 import Application
     from qt.core import QMainWindow, QStatusBar, QTimer
+
+    from calibre.gui2 import Application
     app = Application([])
     w = QMainWindow()
     s = QStatusBar(w)
@@ -414,6 +439,10 @@ def main():
     p = ProceedQuestion(w)
 
     def doit():
+        p(
+            lambda p:None, None, 'ass2', 'ass2', 'testing auto hide', 'this popup will auto hide after 2 seconds',
+            auto_hide_after=2,
+        )
         p.dummy_question()
         p.dummy_question(action_label='A very long button for testing relayout (indeed)')
         p(
