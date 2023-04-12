@@ -11,16 +11,17 @@ from collections import Counter
 from functools import partial
 from qt.core import QDialog, QModelIndex, QObject, QTimer
 
-from calibre.constants import ismacos, trash_name
-from calibre.gui2 import Aborted, error_dialog, question_dialog
+from calibre.constants import ismacos
+from calibre.gui2 import Aborted, error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.dialogs.delete_matching_from_device import (
     DeleteMatchingFromDeviceDialog,
 )
+from calibre.gui2.widgets import BusyCursor
+from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.localization import ngettext
-from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
@@ -33,16 +34,6 @@ class MultiDeleter(QObject):  # {{{
         self.model = gui.library_view.model()
         self.ids = ids
         self.permanent = False
-        if can_recycle and len(ids) > 100:
-            if question_dialog(gui, _('Are you sure?'), '<p>'+
-                _('You are trying to delete {0} books. '
-                    'Sending so many files to the {1}'
-                    ' <b>can be slow</b>. Should calibre skip the'
-                    ' {1}? If you click Yes the files'
-                    ' will be <b>permanently deleted</b>.').format(len(ids), trash_name()),
-                add_abort_button=True
-            ):
-                self.permanent = True
         self.gui = gui
         self.failures = []
         self.deleted_ids = []
@@ -64,7 +55,7 @@ class MultiDeleter(QObject):  # {{{
             if title_:
                 title = title_
             self.model.db.delete_book(id_, notify=False, commit=False,
-                    permanent=self.permanent)
+                    permanent=False)
             self.deleted_ids.append(id_)
         except:
             import traceback
@@ -365,13 +356,35 @@ class DeleteAction(InterfaceAction):
         if view.model().rowCount(QModelIndex()) < 1:
             self.gui.book_details.reset_info()
 
-    def library_ids_deleted2(self, ids_deleted, next_id=None):
+    def library_ids_deleted2(self, ids_deleted, next_id=None, can_undo=False):
         view = self.gui.library_view
         current_row = None
         if next_id is not None:
             rmap = view.ids_to_rows([next_id])
             current_row = rmap.get(next_id, None)
         self.library_ids_deleted(ids_deleted, current_row=current_row)
+        if can_undo:
+            if not hasattr(self, 'message_popup'):
+                self.message_popup = MessagePopup(self.gui)
+                self.message_popup.undo_requested.connect(self.undelete)
+            self.message_popup(ngettext('One book deleted.', '{} books deleted.', len(ids_deleted)).format(len(ids_deleted)),
+                               show_undo=(self.gui.current_db.new_api.library_id, ids_deleted))
+
+    def library_changed(self, db):
+        if hasattr(self, 'message_popup'):
+            self.message_popup.hide()
+
+    def undelete(self, what):
+        library_id, book_ids = what
+        db = self.gui.current_db.new_api
+        if library_id == db.library_id:
+            with BusyCursor():
+                for book_id in book_ids:
+                    db.move_book_from_trash(book_id)
+            self.gui.current_db.data.books_added(book_ids)
+            self.gui.iactions['Add Books'].refresh_gui(len(book_ids))
+            self.gui.library_view.resort()
+            self.gui.library_view.select_rows(set(book_ids), using_ids=True)
 
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()
@@ -400,9 +413,9 @@ class DeleteAction(InterfaceAction):
         # The following will run if the selected books are not on a connected device.
         # The user has selected to delete from the library or the device and library.
         if not confirm('<p>'+ngettext(
-                'The selected book will be <b>permanently deleted</b> and the files '
+                'The selected book will be <b>deleted</b> and the files '
                 'removed from your calibre library. Are you sure?',
-                'The {} selected books will be <b>permanently deleted</b> and the files '
+                'The {} selected books will be <b>deleted</b> and the files '
                 'removed from your calibre library. Are you sure?', len(to_delete_ids)).format(len(to_delete_ids)),
                 'library_delete_books', self.gui):
             return
@@ -418,11 +431,11 @@ class DeleteAction(InterfaceAction):
                             ' program? Click "Show details" for more information.')%fname, det_msg=traceback.format_exc(),
                             show=True)
                 raise
-            self.library_ids_deleted2(to_delete_ids, next_id=next_id)
+            self.library_ids_deleted2(to_delete_ids, next_id=next_id, can_undo=True)
         else:
             try:
                 self.__md = MultiDeleter(self.gui, to_delete_ids,
-                        partial(self.library_ids_deleted2, next_id=next_id))
+                        partial(self.library_ids_deleted2, next_id=next_id, can_undo=True))
             except Aborted:
                 pass
 
