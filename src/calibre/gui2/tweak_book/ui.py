@@ -267,6 +267,7 @@ class MessagePopup(QLabel):
     def __init__(self, parent):
         QLabel.__init__(self, parent)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.undo_data = None
         if QApplication.instance().is_dark_theme:
             c = builtin_colors_dark['green']
         else:
@@ -294,16 +295,13 @@ class MessagePopup(QLabel):
     def link_activated(self, link):
         self.hide()
         if link.startswith('undo://'):
-            import base64, json
-            data = base64.urlsafe_b64decode(link.rpartition('/')[-1])
-            self.undo_requested.emit(json.loads(data))
+            self.undo_requested.emit(self.undo_data)
 
     def __call__(self, text='Testing message popup', show_undo=True, timeout=5000, has_markup=False):
         text = '<p>' + (text if has_markup else prepare_string_for_xml(text))
         if show_undo:
-            import base64, json
-            data = base64.urlsafe_b64encode(json.dumps(show_undo).encode('utf-8')).decode('ascii')
-            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com/{}">{}</a>'.format(data, _('Undo'))
+            self.undo_data = show_undo
+            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com">{}</a>'.format(_('Undo'))
         text += f'\xa0\xa0<a style="text-decoration: none; color: {self.color}" href="close://me.com">✖</a>'
         self.setText(text)
         self.resize(self.sizeHint())
