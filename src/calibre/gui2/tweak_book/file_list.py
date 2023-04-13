@@ -717,7 +717,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             m.addSeparator()
             if num > 1:
                 m.addAction(QIcon.ic('modified.png'), _('&Bulk rename the selected files'), self.request_bulk_rename)
-            m.addAction(QIcon.ic('modified.png'), _('Change the file extension for the selected files'), self.request_change_ext)
+            m.addAction(QIcon.ic('modified.png'), _('Change the file extensions for the selected files'), self.request_change_ext)
             m.addAction(QIcon.ic('trash.png'), ngettext(
                 '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
             m.addAction(QIcon.ic('edit-copy.png'), ngettext(
@@ -980,7 +980,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             self._request_edit(item)
         else:
             error_dialog(self, _('Cannot edit'),
-                         _('No item with the name: %s was found') % name, show=True)
+                         _('No item with the name %s was found') % name, show=True)
 
     def edit_next_file(self, currently_editing=None, backwards=False):
         category = self.categories['text']
