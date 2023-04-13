@@ -573,7 +573,7 @@ class DB:
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
         defs['last_expired_trash_at'] = 0.0
-        defs['expire_old_trash_after'] = 7 * 86400
+        defs['expire_old_trash_after'] = 14 * 86400
         defs['book_display_fields'] = [
         ('title', False), ('authors', True), ('series', True),
         ('identifiers', True), ('tags', True), ('formats', True),
@@ -1904,7 +1904,7 @@ class DB:
         if iswindows:
             import calibre_extensions.winutil as winutil
             winutil.set_file_attributes(tdir, getattr(winutil, 'FILE_ATTRIBUTE_HIDDEN', 2) | getattr(winutil, 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED', 8192))
-        if time.monotonic() - self.last_expired_trash_at >= 3600:
+        if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash()
 
     def expire_old_trash(self, expire_age_in_seconds=-1):
