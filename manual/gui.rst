@@ -270,8 +270,10 @@ Remove books
 
     6. **Remove matching books from device**: Allows you to remove e-book files from a connected device that match the books that are selected in the book list.
 
+    7. **Restore recently deleted**: Allows you to undo the removal of books or formats.
+
 .. note::
-    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is permanently deleted, but the files are placed into the :guilabel:`Recycle Bin/Trash`. This allows you to recover the files if you change your mind.
+    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is deleted, but the books is temporarily stored, for a few days, in a trash folder. You can undo the delete by right clicking the :guilabel:`Remove books` button and choosing to :guilabel:`Restore recently deleted` books.
 
 .. _configuration:
 

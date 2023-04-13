@@ -2720,6 +2720,16 @@ class Cache:
             self._restore_annotations(book_id, annotations)
 
     @write_api
+    def delete_trash_entry(self, book_id, category):
+        " Delete an entry from the trash. Here category is 'b' for books and 'f' for formats. "
+        self.backend.delete_trash_entry(book_id, category)
+
+    @write_api
+    def expire_old_trash(self):
+        ' Expire entries from the trash that are too old '
+        self.backend.expire_old_trash()
+
+    @write_api
     def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()):
         ''' Restore the book entry in the database for a book that already exists on the filesystem '''
         cover, mi.cover = mi.cover, None

@@ -134,6 +134,8 @@ class DeleteAction(InterfaceAction):
         m('delete-matching',
                 _('Remove matching books from device'),
                 triggered=self.remove_matching_books_from_device)
+        self.delete_menu.addSeparator()
+        m('delete-undelete', _('Restore recently deleted'), triggered=self.undelete_recent, icon='edit-undo.png')
         self.qaction.setMenu(self.delete_menu)
         self.delete_memory = {}
 
@@ -401,10 +403,23 @@ class DeleteAction(InterfaceAction):
             with BusyCursor():
                 for book_id in book_ids:
                     db.move_book_from_trash(book_id)
-            self.gui.current_db.data.books_added(book_ids)
-            self.gui.iactions['Add Books'].refresh_gui(len(book_ids))
-            self.gui.library_view.resort()
-            self.gui.library_view.select_rows(set(book_ids), using_ids=True)
+            self.refresh_after_undelete(book_ids)
+
+    def refresh_after_undelete(self, book_ids):
+        self.gui.current_db.data.books_added(book_ids)
+        self.gui.iactions['Add Books'].refresh_gui(len(book_ids))
+        self.gui.library_view.resort()
+        self.gui.library_view.select_rows(set(book_ids), using_ids=True)
+
+    def undelete_recent(self):
+        from calibre.gui2.trash import TrashView
+        current_idx = self.gui.library_view.currentIndex()
+        d = TrashView(self.gui.current_db, self.gui)
+        d.books_restored.connect(self.refresh_after_undelete)
+        d.exec()
+        if d.formats_restored:
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx, current_idx)
 
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()

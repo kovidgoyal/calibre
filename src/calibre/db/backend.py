@@ -57,6 +57,7 @@ from polyglot.builtins import (
 # }}}
 
 COVER_FILE_NAME = 'cover.jpg'
+DEFAULT_TRASH_EXPIRY_TIME_SECONDS = 14 * 86400
 TRASH_DIR_NAME =  '.caltrash'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
@@ -573,7 +574,7 @@ class DB:
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
         defs['last_expired_trash_at'] = 0.0
-        defs['expire_old_trash_after'] = 14 * 86400
+        defs['expire_old_trash_after'] = DEFAULT_TRASH_EXPIRY_TIME_SECONDS
         defs['book_display_fields'] = [
         ('title', False), ('authors', True), ('series', True),
         ('identifiers', True), ('tags', True), ('formats', True),
@@ -1906,6 +1907,12 @@ class DB:
             winutil.set_file_attributes(tdir, getattr(winutil, 'FILE_ATTRIBUTE_HIDDEN', 2) | getattr(winutil, 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED', 8192))
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash()
+
+    def delete_trash_entry(self, book_id, category):
+        self.ensure_trash_dir()
+        path = os.path.join(self.trash_dir, category, str(book_id))
+        if os.path.exists(path):
+            self.rmtree(path)
 
     def expire_old_trash(self, expire_age_in_seconds=-1):
         if expire_age_in_seconds < 0:
