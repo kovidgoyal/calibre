@@ -356,6 +356,14 @@ class DeleteAction(InterfaceAction):
         if view.model().rowCount(QModelIndex()) < 1:
             self.gui.book_details.reset_info()
 
+    @property
+    def show_message_popup(self):
+        if not hasattr(self, 'message_popup'):
+            self.message_popup = MessagePopup(self.gui)
+            self.message_popup.OFFSET_FROM_TOP = 12
+            self.message_popup.undo_requested.connect(self.undelete)
+        return self.message_popup
+
     def library_ids_deleted2(self, ids_deleted, next_id=None, can_undo=False):
         view = self.gui.library_view
         current_row = None
@@ -364,18 +372,12 @@ class DeleteAction(InterfaceAction):
             current_row = rmap.get(next_id, None)
         self.library_ids_deleted(ids_deleted, current_row=current_row)
         if can_undo:
-            if not hasattr(self, 'message_popup'):
-                self.message_popup = MessagePopup(self.gui)
-                self.message_popup.undo_requested.connect(self.undelete)
-            self.message_popup(ngettext('One book deleted from library.', '{} books deleted from library.', len(ids_deleted)).format(len(ids_deleted)),
+            self.show_message_popup(ngettext('One book deleted from library.', '{} books deleted from library.', len(ids_deleted)).format(len(ids_deleted)),
                                show_undo=(self.gui.current_db.new_api.library_id, ids_deleted))
 
     def show_undo_for_deleted_formats(self, removed_map):
-        if not hasattr(self, 'message_popup'):
-            self.message_popup = MessagePopup(self.gui)
-            self.message_popup.undo_requested.connect(self.undelete)
         num = sum(map(len, removed_map.values()))
-        self.message_popup(ngettext('One book format deleted.', '{} book formats deleted.', num).format(num),
+        self.show_message_popup(ngettext('One book format deleted.', '{} book formats deleted.', num).format(num),
                         show_undo=(self.gui.current_db.new_api.library_id, removed_map))
 
     def library_changed(self, db):

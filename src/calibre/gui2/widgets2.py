@@ -729,6 +729,7 @@ class DateTimeEdit(QDateTimeEdit):
 class MessagePopup(QLabel):
 
     undo_requested = pyqtSignal(object)
+    OFFSET_FROM_TOP = 25
 
     def __init__(self, parent):
         QLabel.__init__(self, parent)
@@ -778,7 +779,7 @@ class MessagePopup(QLabel):
 
     def position_in_parent(self):
         p = self.parent()
-        self.move((p.width() - self.width()) // 2, 25)
+        self.move((p.width() - self.width()) // 2, self.OFFSET_FROM_TOP)
 
 
 
