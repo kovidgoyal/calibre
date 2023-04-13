@@ -1545,14 +1545,18 @@ class DB:
 
     def remove_formats(self, remove_map, metadata_map):
         self.ensure_trash_dir()
+        removed_map = {}
         for book_id, removals in iteritems(remove_map):
             paths = set()
+            removed_map[book_id] = set()
             for fmt, fname, path in removals:
                 path = self.format_abspath(book_id, fmt, fname, path)
                 if path:
                     paths.add(path)
+                    removed_map[book_id].add(fmt.upper())
             if paths:
                 self.move_book_files_to_trash(book_id, paths, metadata_map[book_id])
+        return removed_map
 
     def cover_last_modified(self, path):
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))

@@ -166,7 +166,7 @@ class DeleteAction(InterfaceAction):
         return set(map(self.gui.library_view.model().id, rows))
 
     def _remove_formats_from_ids(self, fmts, ids):
-        self.gui.library_view.model().db.new_api.remove_formats({bid: fmts for bid in ids})
+        self.show_undo_for_deleted_formats(self.gui.library_view.model().db.new_api.remove_formats({bid: fmts for bid in ids}))
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
@@ -174,7 +174,7 @@ class DeleteAction(InterfaceAction):
     def remove_format_by_id(self, book_id, fmt):
         title = self.gui.current_db.title(book_id, index_is_id=True)
         if not confirm('<p>'+(_(
-            'The %(fmt)s format will be <b>permanently deleted</b> from '
+            'The %(fmt)s format will be <b>deleted</b> from '
             '%(title)s. Are you sure?')%dict(fmt=fmt, title=title)) +
                        '</p>', 'library_delete_specific_format', self.gui):
             return
@@ -193,8 +193,8 @@ class DeleteAction(InterfaceAction):
             return error_dialog(self.gui, _('Format not found'), _('The {} format is not present in the selected books.').format(fmt), show=True)
         if not confirm(
             '<p>'+ ngettext(
-                _('The {fmt} format will be <b>permanently deleted</b> from {title}.'),
-                _('The {fmt} format will be <b>permanently deleted</b> from all {num} selected books.'),
+                _('The {fmt} format will be <b>deleted</b> from {title}.'),
+                _('The {fmt} format will be <b>deleted</b> from all {num} selected books.'),
                 len(ids)).format(fmt=fmt.upper(), num=len(ids), title=self.gui.current_db.title(next(iter(ids)), index_is_id=True)
                                  ) + ' ' + _('Are you sure?'), 'library_delete_specific_format_from_selected', self.gui
         ):
@@ -217,7 +217,7 @@ class DeleteAction(InterfaceAction):
         if not fmts:
             return
         m = self.gui.library_view.model()
-        m.db.new_api.remove_formats({book_id:fmts for book_id in ids})
+        self.show_undo_for_deleted_formats(m.db.new_api.remove_formats({book_id:fmts for book_id in ids}))
         m.refresh_ids(ids)
         m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
@@ -247,7 +247,7 @@ class DeleteAction(InterfaceAction):
                 # formats
                 removals[id] = rfmts
         if removals:
-            m.db.new_api.remove_formats(removals)
+            self.show_undo_for_deleted_formats(m.db.new_api.remove_formats(removals))
             m.refresh_ids(ids)
             m.current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
@@ -270,7 +270,7 @@ class DeleteAction(InterfaceAction):
             if fmts:
                 removals[id] = fmts.split(',')
         if removals:
-            db.new_api.remove_formats(removals)
+            self.show_undo_for_deleted_formats(db.new_api.remove_formats(removals))
             self.gui.library_view.model().refresh_ids(ids)
             self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
@@ -367,8 +367,16 @@ class DeleteAction(InterfaceAction):
             if not hasattr(self, 'message_popup'):
                 self.message_popup = MessagePopup(self.gui)
                 self.message_popup.undo_requested.connect(self.undelete)
-            self.message_popup(ngettext('One book deleted.', '{} books deleted.', len(ids_deleted)).format(len(ids_deleted)),
+            self.message_popup(ngettext('One book deleted from library.', '{} books deleted from library.', len(ids_deleted)).format(len(ids_deleted)),
                                show_undo=(self.gui.current_db.new_api.library_id, ids_deleted))
+
+    def show_undo_for_deleted_formats(self, removed_map):
+        if not hasattr(self, 'message_popup'):
+            self.message_popup = MessagePopup(self.gui)
+            self.message_popup.undo_requested.connect(self.undelete)
+        num = sum(map(len, removed_map.values()))
+        self.message_popup(ngettext('One book format deleted.', '{} book formats deleted.', num).format(num),
+                        show_undo=(self.gui.current_db.new_api.library_id, removed_map))
 
     def library_changed(self, db):
         if hasattr(self, 'message_popup'):
@@ -377,7 +385,17 @@ class DeleteAction(InterfaceAction):
     def undelete(self, what):
         library_id, book_ids = what
         db = self.gui.current_db.new_api
-        if library_id == db.library_id:
+        if library_id != db.library_id:
+            return
+        current_idx = self.gui.library_view.currentIndex()
+        if isinstance(book_ids, dict):
+            with BusyCursor():
+                for book_id, fmts in book_ids.items():
+                    for fmt in fmts:
+                        db.move_format_from_trash(book_id, fmt)
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx, current_idx)
+        else:
             with BusyCursor():
                 for book_id in book_ids:
                     db.move_book_from_trash(book_id)

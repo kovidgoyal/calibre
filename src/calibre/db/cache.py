@@ -1848,9 +1848,11 @@ class Cache:
 
         :param formats_map: A mapping of book_id to a list of formats to be removed from the book.
         :param db_only: If True, only remove the record for the format from the db, do not delete the actual format file from the filesystem.
+        :return: A map of book id to set of formats actually deleted from the filesystem for that book
         '''
         table = self.fields['formats'].table
         formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in iteritems(formats_map)}
+        removed_map = {}
 
         for book_id, fmts in iteritems(formats_map):
             for fmt in fmts:
@@ -1874,7 +1876,7 @@ class Cache:
                 if removes[book_id]:
                     metadata_map[book_id] = {'title': self._field_for('title', book_id), 'authors': self._field_for('authors', book_id)}
             if removes:
-                self.backend.remove_formats(removes, metadata_map)
+                removed_map = self.backend.remove_formats(removes, metadata_map)
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
@@ -1884,6 +1886,7 @@ class Cache:
 
         self._update_last_modified(tuple(formats_map))
         self.event_dispatcher(EventType.formats_removed, formats_map)
+        return removed_map
 
     @read_api
     def get_next_series_num_for(self, series, field='series', current_indices=False):
