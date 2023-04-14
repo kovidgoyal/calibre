@@ -273,7 +273,7 @@ Remove books
     7. **Restore recently deleted**: Allows you to undo the removal of books or formats.
 
 .. note::
-    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is deleted, but the books is temporarily stored, for a few days, in a trash folder. You can undo the delete by right clicking the :guilabel:`Remove books` button and choosing to :guilabel:`Restore recently deleted` books.
+    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is deleted, but the books are temporarily stored, for a few days, in a trash folder. You can undo the delete by right clicking the :guilabel:`Remove books` button and choosing to :guilabel:`Restore recently deleted` books.
 
 .. _configuration:
 
