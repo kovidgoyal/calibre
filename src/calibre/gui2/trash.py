@@ -4,6 +4,7 @@
 
 import time
 import traceback
+from operator import attrgetter
 from qt.core import (
     QAbstractItemView, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget,
     QListWidgetItem, QPainter, QPalette, QPixmap, QRectF, QSize, QSpinBox, QStyle,
@@ -89,7 +90,7 @@ class TrashList(QListWidget):
         self.delegate = TrashItemDelegate(self)
         self.setItemDelegate(self.delegate)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        for entry in entries:
+        for entry in sorted(entries, key=attrgetter('mtime'), reverse=True):
             i = QListWidgetItem(self)
             i.setData(Qt.ItemDataRole.UserRole, entry)
             self.addItem(i)
