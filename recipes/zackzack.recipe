@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Zackzack_at_review(BasicNewsRecipe):
     title = 'ZackZack.at'
     oldest_article = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 20
     use_embedded_content = False
     __author__ = 'Dirk Gomez'
     language = 'de_AT'
@@ -18,10 +18,15 @@ class Zackzack_at_review(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-                      dict(name='h1', attrs={'class': 'av-special-heading-tag'}),
-                      dict(name='div', attrs={'class': 'av-subheading'}),
-                      dict(name='div', attrs={'class': 'avia_textblock'}),
-                      ]
+        dict(name='div', attrs={'class': 'tdb_title'}),
+        dict(name='div', attrs={'class': 'tdb_single_author'}),
+        dict(name='div', attrs={'class': 'tdb_single_date'}),
+        dict(name='div', attrs={'class': 'tdb_single_content'}),
+    ]
+
+    remove_tags = [
+        dict(name='figure', attrs={'class': 'wp-block-image'}),
+    ]
 
     feeds = [(u'Zack Zack',
               u'https://zackzack.at/feed/')]
