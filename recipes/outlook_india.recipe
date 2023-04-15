@@ -32,6 +32,9 @@ class outlook(BasicNewsRecipe):
         )
     ]
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     def parse_index(self):
         soup = self.index_to_soup('https://www.outlookindia.com/magazine')
         div = soup.find('div', attrs={'class':'wrapper'})
