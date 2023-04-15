@@ -1,0 +1,64 @@
+'''
+washingtonpost.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+class wapoprint(BasicNewsRecipe):
+    title = 'The Washington Post | Print Edition'
+    __author__ = 'unkn0wn'
+    description = (
+        'Leading source for news, video and opinion on politics, business, world and national news, science,'
+        ' travel, entertainment and more. Our local coverage includes reporting on education, crime, weather,'
+        ' traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing,'
+        ' entertainment information and restaurant reviews.'
+    )
+    publisher = 'The Washington Post Company'
+    category = 'news, politics, USA'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en'
+    remove_attributes = ['style', 'height', 'width']
+    publication_type = 'newspaper'
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [
+        dict(name=['h1', 'figure']),
+        dict(attrs={'data-qa': 'lede-art'}),
+        classes('byline article-body'),
+    ]
+
+    remove_tags = [
+        dict(name=['meta', 'link', 'svg']),
+        classes('inline-video author-tooltip author-image powa-wrapper'),
+        dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
+        if cover := soup.find('div', attrs={'class':lambda x: x and 'todays-content-image' in x.split()}):
+            self.cover_url  = cover.img['src']
+        main = soup.find('div', attrs={'id':'todays-paper'})
+
+        feeds = []
+
+        for div in main.findAll('div', attrs={'class': lambda x: x and 'todays-content' in x.split()}):
+            h2 = div.find('p', attrs={'class':lambda x: x and 'heading2' in x.split()})
+            secname = self.tag_to_string(h2)
+            self.log(secname)
+            articles = []
+            for a in div.findAll('a', href=True, attrs={'class':'headline'}):
+                url = a['href']
+                title = self.tag_to_string(a)
+                articles.append({'title': title, 'url': url})
+                self.log('\t', title)
+                self.log('\t\t', url)
+            if articles:
+                feeds.append((secname, articles))
+        return feeds
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', srcset=True):
+            img['src'] = img['srcset'].split()[0]
+        return soup
