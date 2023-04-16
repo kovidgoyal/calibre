@@ -541,8 +541,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     menu.addSeparator()
     from calibre.gui2.ui import get_gui
     if add_popup_action:
-        ema = get_gui().iactions['Show Book Details'].menuless_qaction
-        menu.addAction(_('Open the Book details window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), book_info.show_book_info)
+        menu.addMenu(get_gui().iactions['Show Book Details'].qaction.menu())
     else:
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)

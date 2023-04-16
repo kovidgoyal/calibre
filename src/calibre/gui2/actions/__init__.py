@@ -79,6 +79,10 @@ class InterfaceAction(QObject):
     #: with no default key binding.
     action_spec = ('text', 'icon', None, None)
 
+    #: If not none, used for the name displayed to the user when customizing
+    #: the keyboard shortcuts for the above action spec (self.qaction)
+    action_shortcut_name = None
+
     #: If True, a menu is automatically created and added to self.qaction
     action_add_menu = False
 
@@ -181,7 +185,9 @@ class InterfaceAction(QObject):
         if shortcut is not None:
             keys = ((shortcut,) if isinstance(shortcut, string_or_bytes) else
                     tuple(shortcut))
-            if shortcut_name is None and spec[0]:
+            if shortcut_name is None and self.action_shortcut_name is not None:
+                shortcut_name = self.action_shortcut_name
+            if not shortcut_name and spec[0]:
                 shortcut_name = str(spec[0])
 
             if shortcut_name and self.action_spec[0] and not (
