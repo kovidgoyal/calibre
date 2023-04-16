@@ -10,7 +10,7 @@ import unittest
 from calibre import walk
 from calibre.constants import iswindows
 
-from .copy_files import copy_tree
+from .copy_files import copy_tree, rename_files
 from .filenames import nlinks_file
 
 
@@ -51,6 +51,15 @@ class TestCopyFiles(unittest.TestCase):
     def reset(self):
         self.tearDown()
         self.setUp()
+
+    def test_renaming_of_files(self):
+        for name in 'one two'.split():
+            with open(os.path.join(self.tdir, name), 'w') as f:
+                f.write(name)
+        renames = {os.path.join(self.tdir, k): os.path.join(self.tdir, v) for k, v in {'one': 'One', 'two': 'three'}.items()}
+        rename_files(renames)
+        contents = set(os.listdir(self.tdir)) - {'base', 'src'}
+        self.ae(contents, {'One', 'three'})
 
     def test_copying_of_trees(self):
         src, dest = self.s(), self.d()
