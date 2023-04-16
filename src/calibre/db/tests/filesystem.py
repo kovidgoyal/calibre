@@ -67,6 +67,68 @@ class FilesystemTest(BaseTest):
             part = fpath[-x:][0]
             self.assertIn(part, os.listdir(base))
 
+        initial_side_data = {}
+        def init_cache():
+            nonlocal cache, initial_side_data
+            cache = self.init_cache(self.cloned_library)
+            bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
+            with open(os.path.join(bookdir, 'a.side'), 'w') as f:
+                f.write('a.side')
+            os.mkdir(os.path.join(bookdir, 'subdir'))
+            with open(os.path.join(bookdir, 'subdir', 'a.fmt1'), 'w') as f:
+                f.write('a.fmt1')
+            initial_side_data = side_data()
+
+        def side_data(book_id=1):
+            bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
+            return {
+                'a.side': open(os.path.join(bookdir, 'a.side')).read(),
+                'a.fmt1': open(os.path.join(bookdir, 'subdir', 'a.fmt1')).read(),
+            }
+
+        def check_that_filesystem_and_db_entries_match(book_id):
+            bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
+            if iswindows:
+                from calibre_extensions import winutil
+                bookdir = winutil.get_long_path_name(bookdir)
+            bookdir_contents = set(os.listdir(bookdir))
+            expected_contents = {'cover.jpg', 'a.side', 'subdir'}
+            for fmt, fname in cache.fields['formats'].table.fname_map[book_id].items():
+                expected_contents.add(fname + '.' + fmt.lower())
+            ae(expected_contents, bookdir_contents)
+            fs_path = bookdir.split(os.sep)[-2:]
+            db_path = cache.field_for('path', book_id).split('/')
+            ae(db_path, fs_path)
+            ae(initial_side_data, side_data(book_id))
+
+        # test only formats being changed
+        init_cache()
+        fname = cache.fields['formats'].table.fname_map[1]['FMT1']
+        cache.fields['formats'].table.fname_map[1]['FMT1'] = 'some thing else'
+        cache.fields['formats'].table.fname_map[1]['FMT2'] = fname.upper()
+        cache.backend.update_path(1, cache.field_for('title', 1), cache.field_for('authors', 1)[0], cache.fields['path'], cache.fields['formats'])
+        check_that_filesystem_and_db_entries_match(1)
+
+        # test a case only change
+        init_cache()
+        title = cache.field_for('title', 1)
+        self.assertNotEqual(title, title.upper())
+        cache.set_field('title', {1: title.upper()})
+        check_that_filesystem_and_db_entries_match(1)
+
+        # test a title change
+        init_cache()
+        cache.set_field('title', {1: 'new changed title'})
+        check_that_filesystem_and_db_entries_match(1)
+        # test an author change
+        cache.set_field('authors', {1: ('new changed author',)})
+        check_that_filesystem_and_db_entries_match(1)
+        # test a double change
+        from calibre.ebooks.metadata.book.base import Metadata
+        cache.set_metadata(1, Metadata('t1', ('a1', 'a2')))
+        check_that_filesystem_and_db_entries_match(1)
+
+
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):
         'Test book file open in another process when changing metadata'
