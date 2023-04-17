@@ -31,7 +31,7 @@ class ShowBookDetailsAction(InterfaceAction):
             icon='drm-locked.png', shortcut=None)
         l.triggered.connect(self.open_locked_window)
         l = self.create_menu_action(m,
-            'close_all_details', _('Close all book details windows'), icon='close.png', shortcut=None)
+            'close_all_details', _('Close all Book details windows'), icon='close.png', shortcut=None)
         l.triggered.connect(self.close_all_windows)
         self.qaction.triggered.connect(self.show_book_info)
 
