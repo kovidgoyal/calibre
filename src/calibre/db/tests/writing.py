@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from collections import namedtuple
 from functools import partial
 from io import BytesIO
@@ -368,6 +369,22 @@ class WritingTest(BaseTest):
         af(mb.is_alive())
         from calibre.ebooks.metadata.opf2 import OPF
         book_ids = (1,2,3)
+
+        def read_all_formats():
+            fbefore = {}
+            for book_id in book_ids:
+                ff = fbefore[book_id] = {}
+                for fmt in cache.formats(book_id):
+                    ff[fmt] = cache.format(book_id, fmt)
+            return fbefore
+
+        def read_all_extra_files(book_id=1):
+            ans = {}
+            bp = cache.field_for('path', book_id)
+            for (relpath, fobj, mtime) in cache.backend.iter_extra_files(book_id, bp, cache.fields['formats']):
+                ans[relpath] = fobj.read()
+            return ans
+
         for book_id in book_ids:
             raw = cache.read_backup(book_id)
             opf = OPF(BytesIO(raw))
@@ -376,6 +393,14 @@ class WritingTest(BaseTest):
         tested_fields = 'title authors tags'.split()
         before = {f:cache.all_field_for(f, book_ids) for f in tested_fields}
         lbefore = tuple(cache.get_all_link_maps_for_book(i) for i in book_ids)
+        fbefore = read_all_formats()
+        bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
+        with open(os.path.join(bookdir, 'exf'), 'w') as f:
+            f.write('exf')
+        os.mkdir(os.path.join(bookdir, 'sub'))
+        with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
+            f.write('recurse')
+        ebefore = read_all_extra_files()
         cache.close()
         from calibre.db.restore import Restore
         restorer = Restore(cl)
@@ -385,6 +410,8 @@ class WritingTest(BaseTest):
         cache = self.init_cache(cl)
         ae(before, {f:cache.all_field_for(f, book_ids) for f in tested_fields})
         ae(lbefore, tuple(cache.get_all_link_maps_for_book(i) for i in book_ids))
+        ae(fbefore, read_all_formats())
+        ae(ebefore, read_all_extra_files())
     # }}}
 
     def test_set_cover(self):  # {{{
