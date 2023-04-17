@@ -38,7 +38,7 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
         return
     if new_authors:
         author_id_map = db.get_item_ids('authors', new_authors)
-        sort_map, link_map = {}, {}
+        sort_map = {}
         for author, aid in iteritems(author_id_map):
             if aid is not None:
                 adata = db.author_data((aid,)).get(aid)
@@ -48,13 +48,8 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
                         asv = adata.get('sort')
                         if asv:
                             sort_map[aid] = asv
-                        alv = adata.get('link')
-                        if alv:
-                            link_map[aid] = alv
         if sort_map:
             newdb.set_sort_for_authors(sort_map, update_books=False)
-        if link_map:
-            newdb.set_link_for_authors(link_map)
 
     co = db.conversion_options(book_id)
     if co is not None:
