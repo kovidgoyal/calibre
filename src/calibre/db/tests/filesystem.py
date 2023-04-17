@@ -215,6 +215,12 @@ class FilesystemTest(BaseTest):
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
         cache = self.init_cache()
+        bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
+        with open(os.path.join(bookdir, 'exf'), 'w') as f:
+            f.write('exf')
+        os.mkdir(os.path.join(bookdir, 'sub'))
+        with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
+            f.write('recurse')
         for part_size in (1 << 30, 100, 1):
             with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
                 exporter = Exporter(tdir, part_size=part_size)
@@ -228,6 +234,9 @@ class FilesystemTest(BaseTest):
                     for fmt in cache.formats(book_id):
                         self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))
                         self.assertEqual(cache.format_metadata(book_id, fmt)['mtime'], cache.format_metadata(book_id, fmt)['mtime'])
+                bookdir = os.path.dirname(ic.format_abspath(1, '__COVER_INTERNAL__'))
+                self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
+                self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
         cache.add_format(1, 'TXT', BytesIO(b'testing exim'))
         cache.fts_indexing_sleep_time = 0.001
         cache.enable_fts()

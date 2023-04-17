@@ -2927,7 +2927,8 @@ class Cache:
             os.remove(pt.name)
 
         format_metadata = {}
-        metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total}
+        extra_files = {}
+        metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total, 'extra_files': extra_files}
         if has_fts:
             metadata['full-text-search.db'] = ftsdbkey
         for i, book_id in enumerate(book_ids):
@@ -2935,11 +2936,11 @@ class Cache:
                 return
             if progress is not None:
                 progress(self._field_for('title', book_id), i + poff, total)
-            format_metadata[book_id] = {}
+            format_metadata[book_id] = fm = {}
             for fmt in self._formats(book_id):
                 mdata = self.format_metadata(book_id, fmt)
                 key = f'{key_prefix}:{book_id}:{fmt}'
-                format_metadata[book_id][fmt] = key
+                fm[fmt] = key
                 with exporter.start_file(key, mtime=mdata.get('mtime')) as dest:
                     self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
             cover_key = '{}:{}:{}'.format(key_prefix, book_id, '.cover')
@@ -2947,7 +2948,15 @@ class Cache:
                 if not self.copy_cover_to(book_id, dest, report_file_size=dest.ensure_space):
                     dest.discard()
                 else:
-                    format_metadata[book_id]['.cover'] = cover_key
+                    fm['.cover'] = cover_key
+            bp = self.field_for('path', book_id)
+            extra_files[book_id] = ef = {}
+            if bp:
+                for (relpath, fobj, mtime) in self.backend.iter_extra_files(book_id, bp, self.fields['formats']):
+                    key = f'{key_prefix}:{book_id}:.|{relpath}'
+                    with exporter.start_file(key, mtime=mtime) as dest:
+                        shutil.copyfileobj(fobj, dest)
+                    ef[relpath] = key
         exporter.set_metadata(library_key, metadata)
         if progress is not None:
             progress(_('Completed'), total, total)
@@ -3067,6 +3076,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
     format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
+    extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
     for i, (book_id, fmt_key_map) in enumerate(iteritems(format_data)):
         if abort is not None and abort.is_set():
             return
@@ -3084,6 +3094,10 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
                 size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
                 cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
             stream.close()
+        for relpath, efkey in extra_files.get(book_id, {}).items():
+            stream = importer.start_file(efkey, _('{0} for {1}').format(relpath, title))
+            path = cache._field_for('path', book_id).replace('/', os.sep)
+            cache.backend.add_extra_file(relpath, stream, path)
         cache.dump_metadata({book_id})
     if progress is not None:
         progress(_('Completed'), total, total)

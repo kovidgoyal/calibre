@@ -57,6 +57,7 @@ from polyglot.builtins import (
 # }}}
 
 COVER_FILE_NAME = 'cover.jpg'
+METADATA_FILE_NAME = 'metadata.opf'
 DEFAULT_TRASH_EXPIRY_TIME_SECONDS = 14 * 86400
 TRASH_DIR_NAME =  '.caltrash'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
@@ -1584,7 +1585,8 @@ class DB:
                 try:
                     f = open(path, 'rb')
                 except OSError:
-                    time.sleep(0.2)
+                    if iswindows:
+                        time.sleep(0.2)
                     try:
                         f = open(path, 'rb')
                     except OSError as e:
@@ -1624,7 +1626,8 @@ class DB:
         try:
             f = open(path, 'rb')
         except OSError:
-            time.sleep(0.2)
+            if iswindows:
+                time.sleep(0.2)
         f = open(path, 'rb')
         with f:
             return True, f.read(), stat.st_mtime
@@ -1660,7 +1663,8 @@ class DB:
                 try:
                     os.remove(path)
                 except OSError:
-                    time.sleep(0.2)
+                    if iswindows:
+                        time.sleep(0.2)
                     os.remove(path)
         else:
             if no_processing:
@@ -1671,7 +1675,8 @@ class DB:
                 try:
                     save_cover_data_to(data, path)
                 except OSError:
-                    time.sleep(0.2)
+                    if iswindows:
+                        time.sleep(0.2)
                     save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
@@ -1884,8 +1889,42 @@ class DB:
             os.makedirs(tpath)
         update_paths_in_db()
 
+    def iter_extra_files(self, book_id, book_path, formats_field):
+        known_files = {COVER_FILE_NAME, METADATA_FILE_NAME}
+        for fmt in formats_field.for_book(book_id, default_value=()):
+            fname = formats_field.format_fname(book_id, fmt)
+            fpath = self.format_abspath(book_id, fmt, fname, book_path, do_file_rename=False)
+            if fpath:
+                known_files.add(os.path.basename(fpath))
+        full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
+        for dirpath, dirnames, filenames in os.walk(full_book_path):
+            for fname in filenames:
+                path = os.path.join(dirpath, fname)
+                if os.access(path, os.R_OK):
+                    relpath = os.path.relpath(path, full_book_path)
+                    relpath = relpath.replace(os.sep, '/')
+                    if relpath not in known_files:
+                        try:
+                            src = open(path, 'rb')
+                        except OSError:
+                            if iswindows:
+                                time.sleep(1)
+                            src = open(path, 'rb')
+                        with src:
+                            yield relpath, src, os.path.getmtime(path)
+
+    def add_extra_file(self, relpath, stream, book_path):
+        dest = os.path.abspath(os.path.join(self.library_path, book_path, relpath))
+        try:
+            d = open(dest, 'wb')
+        except OSError:
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            d = open(dest, 'wb')
+        with d:
+            shutil.copyfileobj(stream, d)
+
     def write_backup(self, path, raw):
-        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))
         try:
             with open(path, 'wb') as f:
                 f.write(raw)
@@ -1904,7 +1943,7 @@ class DB:
                 f.write(raw)
 
     def read_backup(self, path):
-        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))
         with open(path, 'rb') as f:
             return f.read()
 
@@ -1972,7 +2011,7 @@ class DB:
         mi, _, annotations = read_opf(bdir, read_annotations=read_annotations)
         formats = []
         for x in os.scandir(bdir):
-            if x.is_file() and x.name not in (COVER_FILE_NAME, 'metadata.opf') and '.' in x.name:
+            if x.is_file() and x.name not in (COVER_FILE_NAME, METADATA_FILE_NAME) and '.' in x.name:
                 try:
                     size = x.stat(follow_symlinks=False).st_size
                 except OSError:
@@ -2016,7 +2055,7 @@ class DB:
                     mtime = x.stat(follow_symlinks=False).st_mtime
                 except Exception:
                     continue
-                opf = OPF(os.path.join(x.path, 'metadata.opf'), basedir=x.path)
+                opf = OPF(os.path.join(x.path, METADATA_FILE_NAME), basedir=x.path)
                 books.append(TrashEntry(book_id, opf.title or unknown, (opf.authors or au)[0], os.path.join(x.path, COVER_FILE_NAME), mtime))
         base = os.path.join(self.trash_dir, 'f')
         um = {'title': unknown, 'authors': au}
