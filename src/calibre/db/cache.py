@@ -3095,7 +3095,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
                 cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
             stream.close()
         for relpath, efkey in extra_files.get(book_id, {}).items():
-            stream = importer.start_file(efkey, _('{0} for {1}').format(relpath, title))
+            stream = importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title))
             path = cache._field_for('path', book_id).replace('/', os.sep)
             cache.backend.add_extra_file(relpath, stream, path)
         cache.dump_metadata({book_id})
