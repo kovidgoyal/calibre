@@ -377,6 +377,12 @@ class AddRemoveTest(BaseTest):
             a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed again'),
         ]
         src_db.set_annotations_for_book(1, 'FMT1', annot_list)
+        bookdir = os.path.dirname(src_db.format_abspath(1, '__COVER_INTERNAL__'))
+        with open(os.path.join(bookdir, 'exf'), 'w') as f:
+            f.write('exf')
+        os.mkdir(os.path.join(bookdir, 'sub'))
+        with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
+            f.write('recurse')
 
         def make_rdata(book_id=1, new_book_id=None, action='add'):
             return {
@@ -416,5 +422,8 @@ class AddRemoveTest(BaseTest):
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
         self.assertEqual(dest_db.format(rdata['new_book_id'], 'FMT1'), b'second-round')
+        bookdir = os.path.dirname(dest_db.format_abspath(1, '__COVER_INTERNAL__'))
+        self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
+        self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
 
     # }}}

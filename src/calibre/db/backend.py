@@ -1889,7 +1889,7 @@ class DB:
             os.makedirs(tpath)
         update_paths_in_db()
 
-    def iter_extra_files(self, book_id, book_path, formats_field):
+    def iter_extra_files(self, book_id, book_path, formats_field, yield_paths=False):
         known_files = {COVER_FILE_NAME, METADATA_FILE_NAME}
         for fmt in formats_field.for_book(book_id, default_value=()):
             fname = formats_field.format_fname(book_id, fmt)
@@ -1904,24 +1904,35 @@ class DB:
                     relpath = os.path.relpath(path, full_book_path)
                     relpath = relpath.replace(os.sep, '/')
                     if relpath not in known_files:
-                        try:
-                            src = open(path, 'rb')
-                        except OSError:
-                            if iswindows:
-                                time.sleep(1)
-                            src = open(path, 'rb')
-                        with src:
-                            yield relpath, src, os.path.getmtime(path)
+                        mtime = os.path.getmtime(path)
+                        if yield_paths:
+                            yield relpath, path, mtime
+                        else:
+                            try:
+                                src = open(path, 'rb')
+                            except OSError:
+                                if iswindows:
+                                    time.sleep(1)
+                                src = open(path, 'rb')
+                            with src:
+                                yield relpath, src, mtime
 
     def add_extra_file(self, relpath, stream, book_path):
         dest = os.path.abspath(os.path.join(self.library_path, book_path, relpath))
-        try:
-            d = open(dest, 'wb')
-        except OSError:
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            d = open(dest, 'wb')
-        with d:
-            shutil.copyfileobj(stream, d)
+        if isinstance(stream, str):
+            try:
+                shutil.copy2(stream, dest)
+            except FileNotFoundError:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                shutil.copy2(stream, dest)
+        else:
+            try:
+                d = open(dest, 'wb')
+            except FileNotFoundError:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                d = open(dest, 'wb')
+            with d:
+                shutil.copyfileobj(stream, d)
 
     def write_backup(self, path, raw):
         path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))
