@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QApplication, QTimer
 
-from calibre.db.categories import find_categories
 from calibre.gui2 import config, error_dialog, gprefs
 from calibre.gui2.preferences import (
     AbortCommit, CommaSeparatedList, ConfigWidgetBase, test_widget,
