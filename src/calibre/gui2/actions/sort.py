@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from contextlib import suppress
+from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QDialog, QDialogButtonBox, QIcon, QListWidget,
     QListWidgetItem, QSize, Qt, QToolButton, QVBoxLayout, pyqtSignal,
@@ -82,6 +83,14 @@ class SortByAction(InterfaceAction):
         lv = self.gui.library_view
         m = lv.model()
         db = m.db
+
+        # Add saved sorts to the menu
+        saved_sorts = db.new_api.pref('saved_multisort_specs', {})
+        if saved_sorts:
+            for name in sorted(saved_sorts.keys(), key=primary_sort_key):
+                menu.addAction(name, partial(self.named_sort_selected, saved_sorts[name]))
+            menu.addSeparator()
+
         try:
             sort_col, order = m.sorted_on
         except TypeError:
@@ -143,6 +152,9 @@ class SortByAction(InterfaceAction):
                 if not i.isSelected():
                     hidden.append(i.data(Qt.ItemDataRole.UserRole))
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))
+
+    def named_sort_selected(self, sort_spec):
+        self.gui.library_view.multisort(sort_spec)
 
     def choose_multisort(self):
         from calibre.gui2.dialogs.multisort import ChooseMultiSort
