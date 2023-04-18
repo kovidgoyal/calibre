@@ -16,7 +16,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatsList
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre.utils.config import Config, StringConfig, tweaks
-from calibre.utils.date import as_local_time
+from calibre.utils.date import as_local_time, is_date_undefined
 from calibre.utils.filenames import ascii_filename, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.localization import _
@@ -208,11 +208,12 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     else:
         format_args['identifiers'] = ''
 
-    if hasattr(mi.timestamp, 'timetuple'):
+    if not is_date_undefined(mi.timestamp) and hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
-    if hasattr(mi.pubdate, 'timetuple'):
+    if not is_date_undefined(mi.pubdate) and hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
-    if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
+    if (hasattr(mi, 'last_modified') and not is_date_undefined(mi.last_modified) and
+                hasattr(mi.last_modified, 'timetuple')):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
     format_args['id'] = str(id)
