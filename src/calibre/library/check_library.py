@@ -12,13 +12,13 @@ import traceback
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
+from calibre.db.backend import COVER_FILE_NAME, METADATA_FILE_NAME, TRASH_DIR_NAME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.localization import _
 from polyglot.builtins import iteritems
-from calibre.db.backend import TRASH_DIR_NAME
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
-NORMALS = frozenset({'metadata.opf', 'cover.jpg'})
+NORMALS = frozenset({METADATA_FILE_NAME, COVER_FILE_NAME, 'data'})
 IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db', TRASH_DIR_NAME})
 
 '''
@@ -169,7 +169,7 @@ class CheckLibrary:
                             os.path.join(path, fmt[0]+'.'+fmt[1].lower()), id_))
                 if self.db.has_cover(id_):
                     self.missing_covers.append((title_dir,
-                            os.path.join(path, 'cover.jpg'), id_))
+                            os.path.join(path, COVER_FILE_NAME), id_))
 
     def is_ebook_file(self, filename):
         ext = os.path.splitext(filename)[1]
@@ -187,7 +187,7 @@ class CheckLibrary:
         filenames = frozenset(f for f in os.listdir(os.path.join(lib, db_path))
                                if not self.ignore_name(f) and (
                                    os.path.splitext(f)[1] not in self.ignore_ext or
-                                   f == 'cover.jpg'))
+                                   f == COVER_FILE_NAME))
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         book_formats = frozenset(x[0]+'.'+x[1].lower() for x in
@@ -252,10 +252,10 @@ class CheckLibrary:
 
         # check cached has_cover
         if self.db.has_cover(book_id):
-            if 'cover.jpg' not in filenames:
+            if COVER_FILE_NAME not in filenames:
                 self.missing_covers.append((title_dir,
-                        os.path.join(db_path, 'cover.jpg'), book_id))
+                        os.path.join(db_path, COVER_FILE_NAME), book_id))
         else:
-            if 'cover.jpg' in filenames:
+            if COVER_FILE_NAME in filenames:
                 self.extra_covers.append((title_dir,
-                        os.path.join(db_path, 'cover.jpg'), book_id))
+                        os.path.join(db_path, COVER_FILE_NAME), book_id))
