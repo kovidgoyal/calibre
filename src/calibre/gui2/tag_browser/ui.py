@@ -306,7 +306,7 @@ class TagBrowserMixin:  # {{{
                 db.new_api.remove_items(category, to_delete)
                 db.new_api.rename_items(category, to_rename, change_index=False)
 
-                # Must do this at the end so renames are accounted for
+                # Must do this at the end so renames and deletes are accounted for
                 db.new_api.set_link_map(category, d.links)
 
                 # Clean up the library view
