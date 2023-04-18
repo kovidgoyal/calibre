@@ -71,6 +71,8 @@ class AddAction(InterfaceAction):
                 triggered=self.add_formats, shortcut='Shift+A')
         ma('add-formats-clipboard', _('Add files to selected book records from clipboard'),
                 triggered=self.add_formats_from_clipboard, shortcut='Shift+Alt+A', icon='edit-paste.png')
+        ma('add-extra-files-to-books', _(
+            'Add data files to selected book records')).triggered.connect(self.add_extra_files)
         ma('add-empty-format-to-books', _(
             'Add an empty file to selected book records')).triggered.connect(self.add_empty_format_choose)
         self.add_menu.addSeparator()
@@ -144,6 +146,18 @@ class AddAction(InterfaceAction):
                 _('Select book files'), filters=get_filters())
         if books:
             self._add_formats(books, ids)
+
+    def add_extra_files(self):
+        ids = self._check_add_formats_ok()
+        if not ids:
+            return
+        books = choose_files_and_remember_all_files(self.gui, 'add extra data files dialog dir',
+                _('Select extra data files'), filters=get_filters())
+        if books:
+            rmap = {'data/' + os.path.basename(x): x for x in books}
+            db = self.gui.current_db.new_api
+            for book_id in ids:
+                db.add_extra_files(book_id, rmap)
 
     def _add_formats(self, paths, ids):
         if len(ids) > 1 and not question_dialog(

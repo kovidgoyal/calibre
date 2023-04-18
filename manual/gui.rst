@@ -57,7 +57,9 @@ Add books
 
     6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
 
-    7. **Add an empty file to selected book records**: Allows you to add an empty file of the specified format to the selected book records.
+    7. **Add data files to selected book records**: Allows you to add any number of extra files that will be stored in a :file:`data` sub-directory in the book directory
+
+    8. **Add an empty file to selected book records**: Allows you to add an empty file of the specified format to the selected book records.
 
 The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition, it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
@@ -69,6 +71,16 @@ To add an additional format for an existing book you can do any of three things:
     2. Right click the :guilabel:`Add books` button and choose :guilabel:`Add files to selected books`.
 
     3. Click the :guilabel:`Add books` button in the top right area of the :guilabel:`Edit metadata` dialog, accessed by the :ref:`edit_meta_information` action.
+
+.. note::
+   The extra data files added to a book will be managed by calibre, as part of
+   the book. However, they cannot be viewed directly or used as conversion
+   sources. Nor are they indexed by the Full text search engine in calibre. To
+   view them select the book and press the :kbd:`O` key which will open up the
+   book folder in your file manager, from where the extra files can be viewed
+   using any program you like. They are most useful to store any ancilliary
+   data associated with a book such as supplementary reading material, digital
+   resources, etc.
 
 .. _edit_meta_information:
 
