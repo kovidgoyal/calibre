@@ -3050,11 +3050,13 @@ class Cache:
         self.backend.reindex_annotations()
 
     @write_api
-    def add_extra_files(self, book_id, map_of_relpath_to_stream_or_path):
+    def add_extra_files(self, book_id, map_of_relpath_to_stream_or_path, replace=True):
         ' Add extra data files '
         path = self._field_for('path', book_id).replace('/', os.sep)
+        added = {}
         for relpath, stream_or_path in map_of_relpath_to_stream_or_path.items():
-            self.backend.add_extra_file(relpath, stream_or_path, path)
+            added[relpath] = self.backend.add_extra_file(relpath, stream_or_path, path, replace)
+        return added
 
     @read_api
     def list_extra_files_matching(self, book_id, pattern=''):

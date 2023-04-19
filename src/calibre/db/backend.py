@@ -1936,8 +1936,10 @@ class DB:
                         with src:
                             yield relpath, src, mtime
 
-    def add_extra_file(self, relpath, stream, book_path):
+    def add_extra_file(self, relpath, stream, book_path, replace=True):
         dest = os.path.abspath(os.path.join(self.library_path, book_path, relpath))
+        if not replace and os.path.exists(dest):
+            return False
         if isinstance(stream, str):
             try:
                 shutil.copy2(stream, dest)
@@ -1952,6 +1954,7 @@ class DB:
                 d = open(dest, 'wb')
             with d:
                 shutil.copyfileobj(stream, d)
+        return True
 
     def write_backup(self, path, raw):
         path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))

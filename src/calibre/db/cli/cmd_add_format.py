@@ -15,8 +15,14 @@ def implementation(db, notify_changes, book_id, data, fmt, replace):
     is_remote = notify_changes is not None
     if is_remote:
         data = BytesIO(data[1])
-    added = db.add_format(book_id, fmt, data, replace=replace)
-    if is_remote and added:
+    relpath = ''
+    if fmt.startswith('.EXTRA_DATA_FILE:'):
+        relpath = fmt[len('.EXTRA_DATA_FILE:'):]
+    if relpath:
+        added = db.add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]
+    else:
+        added = db.add_format(book_id, fmt, data, replace=replace)
+    if is_remote and added and not relpath:
         notify_changes(formats_added({book_id: (fmt,)}))
     return added
 
@@ -40,6 +46,13 @@ it is replaced, unless the do not replace option is specified.\
         action='store_false',
         help=_('Do not replace the format if it already exists')
     )
+    parser.add_option(
+        '--as-extra-data-file',
+        default=False,
+        action='store_true',
+        help=_('Add the file as an extra data file to the book, not an ebook format')
+    )
+
     return parser
 
 
@@ -48,9 +61,14 @@ def main(opts, args, dbctx):
         raise SystemExit(_('You must specify an id and an e-book file'))
 
     id, path, fmt = int(args[0]), args[1], os.path.splitext(args[1])[-1]
+    if opts.as_extra_data_file:
+        fmt = '.EXTRA_DATA_FILE:' + 'data/' + os.path.basename(args[1])
+    else:
+        fmt = fmt[1:].upper()
     if not fmt:
         raise SystemExit(_('e-book file must have an extension'))
-    fmt = fmt[1:].upper()
     if not dbctx.run('add_format', id, dbctx.path(path), fmt, opts.replace):
+        if opts.as_extra_data_file:
+            raise SystemExit(f'An extra data file with the filename {os.path.basename(args[1])} already exists')
         raise SystemExit(_('A %(fmt)s file already exists for book: %(id)d, not replacing')%dict(fmt=fmt, id=id))
     return 0
