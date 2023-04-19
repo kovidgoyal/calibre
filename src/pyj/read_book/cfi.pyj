@@ -322,6 +322,7 @@ def decode(cfi, doc):
     error = None
     node = doc
 
+    orig_cfi = cfi
     while cfi.length > 0 and not error:
         r = cfi.match(simple_node_regex)
         if r: # Path step
@@ -335,7 +336,7 @@ def decode(cfi, doc):
                 cfi = cfi.substr(r[0].length)
             else:
                 if target:
-                    error = "No matching child found for CFI: " + cfi
+                    error = f"No matching child found for CFI: {orig_cfi} leftover: {cfi}"
                     break
                 else:
                     cfi = cfi.substr(r[0].length)
