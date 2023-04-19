@@ -3058,14 +3058,20 @@ class Cache:
 
     @read_api
     def list_extra_files_matching(self, book_id, pattern=''):
-        ' List extra data files matching the specified patter. Empty pattern matches all. Recursive globbing with ** is supported. '
-        path = self._field_for('path', book_id).replace('/', os.sep)
+        ' List extra data files matching the specified pattern. Empty pattern matches all. Recursive globbing with ** is supported. '
+        path = self._field_for('path', book_id)
         ans = {}
         if path:
-            for (relpath, path, mtime) in self.backend.iter_extra_files(
-                    book_id, path, self.fields['formats'], yield_paths=True, pattern=pattern):
-                ans[relpath] = path
+            book_path = path.replace('/', os.sep)
+            for (relpath, file_path, mtime) in self.backend.iter_extra_files(
+                    book_id, book_path, self.fields['formats'], yield_paths=True, pattern=pattern):
+                ans[relpath] = file_path
         return ans
+
+    @read_api
+    def copy_extra_file_to(self, book_id, relpath, stream_or_path):
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        self.backend.copy_extra_file_to(book_id, path, relpath, stream_or_path)
 
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):

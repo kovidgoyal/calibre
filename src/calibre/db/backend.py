@@ -42,7 +42,7 @@ from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
     copytree_using_links, hardlink_file, is_case_sensitive, is_fat_filesystem,
-    remove_dir_if_empty, samefile,
+    make_long_path_useable, remove_dir_if_empty, samefile,
 )
 from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions, load_user_template_functions,
@@ -1888,6 +1888,15 @@ class DB:
         else:
             os.makedirs(tpath)
         update_paths_in_db()
+
+    def copy_extra_file_to(self, book_id, book_path, relpath, stream_or_path):
+        full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
+        src_path = make_long_path_useable(os.path.join(full_book_path, relpath))
+        if isinstance(stream_or_path, str):
+            shutil.copy2(src_path, make_long_path_useable(stream_or_path))
+        else:
+            with open(src_path, 'rb') as src:
+                shutil.copyfileobj(src, stream_or_path)
 
     def iter_extra_files(self, book_id, book_path, formats_field, yield_paths=False, pattern=''):
         known_files = {COVER_FILE_NAME, METADATA_FILE_NAME}
