@@ -4,23 +4,29 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, errno, os, time, shutil
-from collections import namedtuple, defaultdict
-
+import errno
+import os
+import shutil
+import time
+import traceback
+from collections import defaultdict, namedtuple
 from qt.core import QObject, Qt, pyqtSignal
 
-from calibre import prints, force_unicode
+from calibre import force_unicode, prints
 from calibre.constants import DEBUG
 from calibre.customize.ui import can_set_metadata
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
-from calibre.gui2 import error_dialog, warning_dialog, gprefs, open_local_file
+from calibre.gui2 import error_dialog, gprefs, open_local_file, warning_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.library.save_to_disk import (
+    find_plugboard, get_path_components, plugboard_save_to_disk_value, sanitize_args,
+)
+from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.utils.ipc.pool import Pool, Failure
-from calibre.library.save_to_disk import sanitize_args, get_path_components, find_plugboard, plugboard_save_to_disk_value
+from calibre.utils.ipc.pool import Failure, Pool
 from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Empty
 
@@ -205,7 +211,10 @@ class Saver(QObject):
                 self.errors[book_id].append(('critical', _('Requested formats not available')))
                 return
 
-        if not fmts and not self.opts.write_opf and not self.opts.save_cover:
+        extra_files = {}
+        if self.opts.save_extra_files:
+            extra_files = self.db.new_api.list_extra_files_matching(int(book_id), 'data/**/*')
+        if not fmts and not self.opts.write_opf and not self.opts.save_cover and not extra_files:
             return
 
         # On windows python incorrectly raises an access denied exception
@@ -252,6 +261,16 @@ class Saver(QObject):
         mi.cover, mi.cover_data = None, (None, None)
         if self.opts.update_metadata:
             d['fmts'] = []
+        if extra_files:
+            for relpath, src_path in extra_files.items():
+                src_path = make_long_path_useable(src_path)
+                if os.access(src_path, os.R_OK):
+                    dest = make_long_path_useable(os.path.abspath(os.path.join(base_dir, relpath)))
+                    try:
+                        shutil.copy2(src_path, dest)
+                    except FileNotFoundError:
+                        os.makedirs(os.path.dirname(dest), exist_ok=True)
+                        shutil.copy2(src_path, dest)
         for fmt in fmts:
             try:
                 fmtpath = self.write_fmt(book_id, fmt, base_path)

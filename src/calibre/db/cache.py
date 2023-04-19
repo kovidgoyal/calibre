@@ -3051,9 +3051,21 @@ class Cache:
 
     @write_api
     def add_extra_files(self, book_id, map_of_relpath_to_stream_or_path):
+        ' Add extra data files '
         path = self._field_for('path', book_id).replace('/', os.sep)
         for relpath, stream_or_path in map_of_relpath_to_stream_or_path.items():
             self.backend.add_extra_file(relpath, stream_or_path, path)
+
+    @read_api
+    def list_extra_files_matching(self, book_id, pattern=''):
+        ' List extra data files matching the specified patter. Empty pattern matches all. Recursive globbing with ** is supported. '
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        ans = {}
+        if path:
+            for (relpath, path, mtime) in self.backend.iter_extra_files(
+                    book_id, path, self.fields['formats'], yield_paths=True, pattern=pattern):
+                ans[relpath] = path
+        return ans
 
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):

@@ -18,8 +18,8 @@ class SaveTemplate(QWidget, Ui_Form):
 
     changed_signal = pyqtSignal()
 
-    def __init__(self, *args):
-        QWidget.__init__(self, *args)
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
         Ui_Form.__init__(self)
         self.setupUi(self)
         self.orig_help_text = self.help_label.text()

@@ -125,6 +125,8 @@ def config(defaults=None):
     x('single_dir', default=False,
             help=_('Save into a single folder, ignoring the template'
                 ' folder structure'))
+    x('save_extra_files', default=True, help=_(
+        'Save any data files associated with the book when saving the book'))
     return c
 
 

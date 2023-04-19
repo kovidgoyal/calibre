@@ -221,6 +221,8 @@ class FilesystemTest(BaseTest):
         os.mkdir(os.path.join(bookdir, 'sub'))
         with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
             f.write('recurse')
+        self.assertEqual(set(cache.list_extra_files_matching(1, 'sub/**/*')), {'sub/recurse'})
+        self.assertEqual(set(cache.list_extra_files_matching(1, '')), {'exf', 'sub/recurse'})
         for part_size in (1 << 30, 100, 1):
             with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
                 exporter = Exporter(tdir, part_size=part_size)
