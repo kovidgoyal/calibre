@@ -583,6 +583,11 @@ class BooksModel(QAbstractTableModel):  # {{{
         if not self.db:
             return
         self.db.multisort(self.sort_history[:tweaks['maximum_resort_levels']])
+        if self.sort_history:
+            # There are ways to get here that don't set sorted_on, e.g., the
+            # sort_by action. I don't think sort_history can be empty, but it
+            # doesn't hurt to check
+            self.sorted_on = self.sort_history[0]
         if reset:
             self.beginResetModel(), self.endResetModel()
 
