@@ -47,7 +47,7 @@ def subset_all_fonts(container, font_stats, report):
         chars = font_stats.get(name, set())
         with container.open(name, 'rb') as f:
             f.seek(0, os.SEEK_END)
-            total_old += f.tell()
+            font_size = f.tell()
         if not chars:
             remove.add(name)
             report(_('Removed unused font: %s')%name)
@@ -57,23 +57,24 @@ def subset_all_fonts(container, font_stats, report):
             try:
                 font_name = get_font_names(raw)[-1]
             except Exception as e:
-                container.log.warning(
+                report(
                     'Corrupted font: %s, ignoring.  Error: %s'%(
                         name, as_unicode(e)))
                 continue
             warnings = []
-            container.log('Subsetting font: %s'%(font_name or name))
+            report('Subsetting font: %s'%(font_name or name))
             try:
                 nraw, old_sizes, new_sizes = subset(raw, chars,
                                                 warnings=warnings)
             except UnsupportedFont as e:
-                container.log.warning(
-                    'Unsupported font: %s, ignoring.  Error: %s'%(
+                report(
+                    'Unsupported font: %s, ignoring. Error: %s'%(
                         name, as_unicode(e)))
                 continue
+            total_old += font_size
 
             for w in warnings:
-                container.log.warn(w)
+                report(w)
             olen = sum(itervalues(old_sizes))
             nlen = sum(itervalues(new_sizes))
             total_new += len(nraw)
