@@ -336,6 +336,9 @@ class EbookViewer(MainWindow):
     def start_search(self, search_query):
         name = self.web_view.current_content_file
         if name:
+            if search_query.is_empty and search_query.text:
+                return error_dialog(self, _('Empty search expression'), _(
+                    'Cannot search for {!r} as it contains only punctuation and spaces.').format(search_query.text), show=True)
             self.web_view.get_current_cfi(self.search_widget.set_anchor_cfi)
             self.search_widget.start_search(search_query, name)
             self.web_view.setFocus(Qt.FocusReason.OtherFocusReason)

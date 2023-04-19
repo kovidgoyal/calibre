@@ -145,6 +145,14 @@ class Search:
             self._nsd = word_pats, full_pat
         return self._nsd
 
+    @property
+    def is_empty(self):
+        if not self.text:
+            return True
+        if self.mode in ('normal', 'word') and not regex.sub(r'[\s\p{P}]+', '', self.text):
+            return True
+        return False
+
     def __str__(self):
         from collections import namedtuple
         s = ('text', 'mode', 'case_sensitive', 'backwards')
