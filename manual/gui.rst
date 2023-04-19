@@ -78,7 +78,7 @@ To add an additional format for an existing book you can do any of three things:
    sources. Nor are they indexed by the Full text search engine in calibre. To
    view them select the book and press the :kbd:`O` key which will open up the
    book folder in your file manager, from where the extra files can be viewed
-   using any program you like. They are most useful to store any ancilliary
+   using any program you like. They are most useful to store any auxiliary
    data associated with a book such as supplementary reading material, digital
    resources, etc.
 
