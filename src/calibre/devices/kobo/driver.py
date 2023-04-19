@@ -1451,6 +1451,7 @@ class KOBOTOUCH(KOBO):
     CLARA_HD_PRODUCT_ID = [0x4228]
     CLARA_2E_PRODUCT_ID = [0x4235]
     ELIPSA_PRODUCT_ID   = [0x4233]
+    ELIPSA_2E_PRODUCT_ID   = [0x4236]
     FORMA_PRODUCT_ID    = [0x4229]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
@@ -1467,7 +1468,7 @@ class KOBOTOUCH(KOBO):
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
                           AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID + \
                           NIA_PRODUCT_ID + ELIPSA_PRODUCT_ID + \
-                          SAGE_PRODUCT_ID + LIBRA2_PRODUCT_ID + CLARA_2E_PRODUCT_ID
+                          SAGE_PRODUCT_ID + LIBRA2_PRODUCT_ID + CLARA_2E_PRODUCT_ID + ELIPSA_2E_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401, 0x409]
 
@@ -3561,6 +3562,9 @@ class KOBOTOUCH(KOBO):
     def isClara2E(self):
         return self.detected_device.idProduct in self.CLARA_2E_PRODUCT_ID
 
+    def isElipsa2E(self):
+        return self.detected_device.idProduct in self.ELIPSA_2E_PRODUCT_ID
+
     def isElipsa(self):
         return self.detected_device.idProduct in self.ELIPSA_PRODUCT_ID
 
@@ -3613,6 +3617,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isElipsa():
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
+        elif self.isElipsa2E():
+            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isForma():
             _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
         elif self.isGlo():
@@ -3661,6 +3667,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Clara 2E'
         elif self.isElipsa():
             device_name = 'Kobo Elipsa'
+        elif self.isElipsa2E():
+            device_name = 'Kobo Elipsa 2E'
         elif self.isForma():
             device_name = 'Kobo Forma'
         elif self.isGlo():
