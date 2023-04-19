@@ -238,7 +238,14 @@ def encode(doc, node, offset, tail):
                 index -= 1
         # Add id assertions for robustness where possible
         id = node.id
-        idspec = ('[' + escape_for_cfi(id) + ']') if id else ''
+        idspec = ''
+        if id:
+            try:
+                multiples = document.querySelectorAll('#' + id)
+            except:
+                multiples = None
+            if multiples and multiples.length < 2:
+                idspec = ('[' + escape_for_cfi(id) + ']')
         cfi = '/' + index + idspec + cfi
         node = p
 
@@ -268,7 +275,12 @@ def node_for_path_step(parent, target, assertion):
     if assertion:
         q = document.getElementById(assertion)
         if q:
-            return q
+            try:
+                multiples = document.querySelectorAll('#' + assertion)
+            except:
+                multiples = None
+            if multiples and multiples.length < 2:
+                return q
     is_element = target % 2 == 0
     target //= 2
     if is_element and target > 0:
