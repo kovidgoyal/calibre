@@ -145,7 +145,7 @@ class ChooseMultiSort(Dialog):
             return self.no_column_selected_error()
         d = QInputDialog(self)
         d.setComboBoxEditable(True)
-        d.setComboBoxItems(self.saved_specs.keys())
+        d.setComboBoxItems(sorted(self.saved_specs.keys(), key=primary_sort_key))
         d.setWindowTitle(_('Choose name'))
         d.setLabelText(_('Choose a name for these settings'))
         if d.exec():
