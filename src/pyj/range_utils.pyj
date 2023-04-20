@@ -32,7 +32,7 @@ def first_annot_in_range(r, annot_id_uuid_map):
     parent = r.commonAncestorContainer
     doc = parent.ownerDocument or document
     is_full_tree = parent is doc.documentElement
-    in_range = not is_full_tree
+    in_range = is_full_tree
     iterator = doc.createNodeIterator(parent)
     while True:
         node = iterator.nextNode()
