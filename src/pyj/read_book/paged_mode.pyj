@@ -328,23 +328,13 @@ def layout(is_single_page, on_resize):
             number_of_cols = 1
             document.body.style.columnWidth = f'100vw'
 
-    # Some browser engine, WebKit at least, adjust column sizes to please
-    # themselves, unless the container size is an exact multiple, so we check
-    # for that and manually set the container sizes.
     def check_column_sizes():
         nonlocal number_of_cols
         ncols = number_of_cols = (scroll_viewport.paged_content_inline_size() + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
-            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':ncols, 'desired_inline_size':dis}
+            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':ncols}
             return data
 
-    data = check_column_sizes()
-    if data:
-        dis = data.desired_inline_size
-        for elem in document.documentElement, document.body:
-            set_css(elem, max_width=dis + 'px', min_width=dis + 'px')
-            if scroll_viewport.vertical_writing_mode:
-                set_css(elem, max_height=dis + 'px', min_height=dis + 'px')
     data = check_column_sizes()
     if data:
         print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
