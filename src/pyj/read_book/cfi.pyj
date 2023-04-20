@@ -52,6 +52,16 @@ def get_current_time(target): # {{{
     return fstr(target.currentTime or 0)
 # }}}
 
+def id_is_unique(idval): # {{{
+    try:
+        multiples = document.querySelectorAll('[id=' + window.CSS.escape(idval) + ']')
+    except:
+        return False
+    if multiples and multiples.length < 2:
+        return True
+    return False
+# }}}
+
 # Convert point to character offset {{{
 def range_has_point(range_, x, y):
     rects = range_.getClientRects()
@@ -239,13 +249,8 @@ def encode(doc, node, offset, tail):
         # Add id assertions for robustness where possible
         id = node.id
         idspec = ''
-        if id:
-            try:
-                multiples = document.querySelectorAll('#' + id)
-            except:
-                multiples = None
-            if multiples and multiples.length < 2:
-                idspec = ('[' + escape_for_cfi(id) + ']')
+        if id and id_is_unique(id):
+            idspec = ('[' + escape_for_cfi(id) + ']')
         cfi = '/' + index + idspec + cfi
         node = p
 
@@ -274,13 +279,8 @@ def node_at_index(nodes, target, index, iter_text_nodes):
 def node_for_path_step(parent, target, assertion):
     if assertion:
         q = document.getElementById(assertion)
-        if q:
-            try:
-                multiples = document.querySelectorAll('#' + assertion)
-            except:
-                multiples = None
-            if multiples and multiples.length < 2:
-                return q
+        if q and id_is_unique(assertion):
+            return q
     is_element = target % 2 == 0
     target //= 2
     if is_element and target > 0:

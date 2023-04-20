@@ -350,8 +350,8 @@ def run_rapydscript_tests():
         setup_fake_protocol, setup_profile
     )
     must_use_qt()
-    setup_default_profile()
     setup_fake_protocol()
+    setup_default_profile()
 
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
