@@ -47,6 +47,27 @@ def set_css(elem, **kw):
                         s.setProperty('-' + prefix + '-' + name, val)
     return elem
 
+def set_important_css(elem, **kw):
+    if jstype(elem) is 'string':
+        elem = document.querySelector(elem)
+    s = elem.style
+    if s:
+        for prop in kw:
+            name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
+            if val is None or val is undefined:
+                s.removeProperty(name)
+            else:
+                s.setProperty(name, val, 'important')
+            prefixes = simple_vendor_prefixes[name]
+            if prefixes:
+                for prefix in prefixes:
+                    if val is None or val is undefined:
+                        s.removeProperty('-' + prefix + '-' + name)
+                    else:
+                        s.setProperty('-' + prefix + '-' + name, val, 'important')
+    return elem
+
+
 def build_rule(selector, **kw):
     ans = v'[selector + " { "]'
     for prop in kw:

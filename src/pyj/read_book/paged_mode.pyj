@@ -26,7 +26,7 @@ from __python__ import hash_literals, bound_methods
 import traceback
 from elementmaker import E
 
-from dom import set_css
+from dom import set_important_css
 from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
@@ -66,22 +66,34 @@ def handle_rtl_body(body_style):
 def create_page_div(elem):
     div = E('blank-page-div', ' \n    ')
     document.body.appendChild(div)
-    set_css(div, break_before='always', display='block', white_space='pre', background_color='transparent',
-            background_image='none', border_width='0', float='none', position='static')
+    # the min-height is needed to get firefox to always insert a column break before this div
+    set_important_css(div, break_before='column', break_inside='avoid', display='block', white_space='pre', background_color='transparent',
+            background_image='none', border_width='0', float='none', position='static', min_height='100vh')
 
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
 
 
-col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
+col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = last_scrolled_to_column = 0
 is_full_screen_layout = False
 
 
+def get_number_of_cols(dont_return_integer):
+    # we dont store this because of the chrome resize bug where the document width
+    # sometimes changes a few milliseconds after layout in paged mode
+    if is_full_screen_layout:
+        return 1
+    ans = (scroll_viewport.paged_content_inline_size() + gap) / col_and_gap
+    if not dont_return_integer:
+        ans = Math.floor(ans)
+    return ans
+
+
 def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols, last_scrolled_to_column
+    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, last_scrolled_to_column
     scroll_viewport.reset_globals()
-    col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
+    col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = last_scrolled_to_column = 0
     is_full_screen_layout = _in_paged_mode = False
     resize_manager.reset()
 
@@ -130,8 +142,8 @@ def fit_images():
         if previously_limited or image_block_size > maxb or (image_block_size is maxb and image_inline_size > col_size):
             block_limited_images.push(img)
         if previously_limited:
-            set_css(img, break_before='auto', display=data.display)
-        set_css(img, break_inside='avoid')
+            set_important_css(img, break_before='auto', display=data.display)
+        set_important_css(img, break_inside='avoid')
 
     for img_tag, max_inline_size in inline_limited_images:
         if scroll_viewport.vertical_writing_mode:
@@ -142,9 +154,9 @@ def fit_images():
 
     for img_tag in block_limited_images:
         if scroll_viewport.vertical_writing_mode:
-            set_css(img_tag, break_before='always', max_width='100vw')
+            set_important_css(img_tag, break_before='always', max_width='100vw')
         else:
-            set_css(img_tag, break_before='always', max_height='100vh')
+            set_important_css(img_tag, break_before='always', max_height='100vh')
         set_elem_data(img_tag, 'block-limited', True)
 
 
@@ -234,7 +246,7 @@ class ScrollResizeBugWatcher:
 scroll_resize_bug_watcher = ScrollResizeBugWatcher()
 
 def layout(is_single_page, on_resize):
-    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols
+    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen
     line_height(True)
     rem_size(True)
     body_style = window.getComputedStyle(document.body)
@@ -285,7 +297,7 @@ def layout(is_single_page, on_resize):
     screen_block = scroll_viewport.block_size()
     col_and_gap = col_size + gap
 
-    set_css(document.body, column_gap=gap + 'px', column_width=col_size + 'px', column_rule='0px inset blue',
+    set_important_css(document.body, column_gap=gap + 'px', column_width=col_size + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='100vh', column_fill='auto',
         margin='0', border_width='0', padding='0', box_sizing='content-box',
         width=scroll_viewport.width() + 'px', height=scroll_viewport.height() + 'px', overflow_wrap='break-word'
@@ -298,7 +310,7 @@ def layout(is_single_page, on_resize):
     if c:
         # Remove page breaks on the first few elements to prevent blank pages
         # at the start of a chapter
-        set_css(c, break_before='avoid')
+        set_important_css(c, break_before='avoid')
         if c.tagName.toLowerCase() is 'div':
             c2 = first_child(c)
             if c2 and not has_start_text(c):
@@ -306,7 +318,7 @@ def layout(is_single_page, on_resize):
                 # <div>, see for example: https://bugs.launchpad.net/bugs/1366074
                 # In this case, we also modify the first child of the div
                 # as long as there was no text before it.
-                set_css(c2, break_before='avoid')
+                set_important_css(c2, break_before='avoid')
 
     if first_layout:
         # Because of a bug in webkit column mode, svg elements defined with
@@ -325,20 +337,15 @@ def layout(is_single_page, on_resize):
             cols_per_screen = 1
             col_size = screen_inline
             col_and_gap = col_size + gap
-            number_of_cols = 1
             document.body.style.columnWidth = f'100vw'
 
     def check_column_sizes():
-        nonlocal number_of_cols
-        ncols = number_of_cols = (scroll_viewport.paged_content_inline_size() + gap) / col_and_gap
-        if ncols is not Math.floor(ncols):
-            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':ncols}
-            return data
+        nc = get_number_of_cols(True)
+        if Math.floor(nc) is not nc:
+            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':nc}
+            print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
 
-    data = check_column_sizes()
-    if data:
-        print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
-
+    check_column_sizes()
     _in_paged_mode = True
     fit_images()
     scroll_resize_bug_watcher.layout_done()
@@ -378,7 +385,7 @@ def scroll_to_pos(pos, notify=False, duration=1000):
 def scroll_to_previous_position(fsd):
     fsd = fsd or next_spine_item.forward_scroll_data
     next_spine_item.forward_scroll_data = None
-    if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < number_of_cols:
+    if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < get_number_of_cols():
         scroll_resize_bug_watcher.last_command = scroll_to_previous_position.bind(None, fsd)
         scroll_to_column(fsd.current_col)
         return True
@@ -414,7 +421,7 @@ def current_column_location():
 
 def number_of_cols_left():
     current_col = column_at(current_scroll_offset() + 10)
-    cols_left = number_of_cols - (current_col + cols_per_screen)
+    cols_left = get_number_of_cols() - (current_col + cols_per_screen)
     return Math.max(0, cols_left)
 
 
@@ -431,7 +438,10 @@ def next_screen_location():
     if limit < col_and_gap:
         return -1
     if ans > limit:
-        ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
+        current_pos = Math.ceil(current_scroll_offset())
+        ans = limit if current_pos < limit else -1
+        if cols_per_screen is 1 and ans is not -1 and ans - current_pos < col_size:
+            ans = -1  # cant scroll partial columns
     return ans
 
 
@@ -642,7 +652,7 @@ def progress_frac(frac):
 
 def page_counts():
     if in_paged_mode():
-        return {'current': column_at_current_scroll_offset(), 'total': number_of_cols, 'pages_per_screen': cols_per_screen}
+        return {'current': column_at_current_scroll_offset(), 'total': get_number_of_cols(), 'pages_per_screen': cols_per_screen}
     doc_size = scroll_viewport.document_block_size()
     screen_size = scroll_viewport.block_size()
     pos = scroll_viewport.block_pos()
@@ -732,7 +742,8 @@ def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
         next_spine_item(backward)
     else:
         if not backward:
-            scrolled_frac = (pages / number_of_cols) if number_of_cols > 0 else 0
+            nc = get_number_of_cols()
+            scrolled_frac = (pages / nc) if nc > 0 else 0
             get_boss().report_human_scroll(scrolled_frac)
         else:
             get_boss().report_human_scroll()
