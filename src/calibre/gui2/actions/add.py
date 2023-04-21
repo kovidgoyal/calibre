@@ -158,6 +158,8 @@ class AddAction(InterfaceAction):
             db = self.gui.current_db.new_api
             for book_id in ids:
                 db.add_extra_files(book_id, rmap)
+            self.gui.library_view.model().refresh_ids(ids,
+                                  current_row=self.gui.library_view.currentIndex().row())
 
     def _add_formats(self, paths, ids):
         if len(ids) > 1 and not question_dialog(
