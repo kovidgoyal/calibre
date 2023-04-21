@@ -88,8 +88,11 @@ class Configure(Dialog):
         h.addLayout(v)
 
         self.l.addLayout(h)
-        self.l.addWidget(QLabel('<p>' + _(
-            'Note that <b>comments</b> will always be displayed at the end, regardless of the order you assign here')))
+        txt = QLabel('<p>' + _(
+            'Note: <b>comments</b>-like columns will always be displayed at '
+            'the end unless their "Heading position" is "Show heading to the side"')+'</p>')
+        txt.setWordWrap(True)
+        self.l.addWidget(txt)
 
         b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
