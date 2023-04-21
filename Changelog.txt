@@ -23,6 +23,45 @@
 # - title by author
 # }}}
 
+{{{ 6.16.0 2023-04-20
+
+:: new features
+
+- [major] Allow storing extra data files with a book
+
+  Right click the Add books button to add arbitrary files as "data files" to a book record.
+  These are managed by calibre along with the book files, but cannot be used for conversion/viewing.
+  Select a book and press the "O" key to view the data files in your file explorer.
+
+- Allow undoing the deletion of books from the calibre library
+
+  Now deleted books are stored in a calibre "Trash bin" from which they can be restored with
+  a single click. To view the trash bin, right click the "Remove books" button.
+
+- [2016070] Kobo driver: Add support for the new Kobo Elipsa 2E
+
+- Book details: if an item has an associated link then offer that link in the item's context menu
+
+
+:: bug fixes
+
+- [2015617] Content server viewer: Fix end of chapter content being occasionally skipped when scrolling by screen full with multiple pages
+
+- [2017130] E-book viewer: Fix a regression that caused notes from a different highlights to be shown in some situations
+
+- [2015795] E-book viewer: Show an error if the user tries to search for only punctuation or spaces in the search modes that ignore these
+
+- Fix custom columns not showing in Book details links from other libraries
+
+:: improved recipes
+- Frontline
+- Outlook Magazine
+
+:: new recipes
+- Bar and Bench by unkn0wn
+- The Washington Post Print Edition by unkn0wn
+}}}
+
 {{{ 6.15.1 2023-04-07
 
 :: new features
