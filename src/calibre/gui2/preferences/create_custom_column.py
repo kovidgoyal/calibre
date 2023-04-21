@@ -396,9 +396,13 @@ class CreateCustomColumn(QDialog):
                 ('side', _('Show heading to the side of the text'))
         ):
             ct.addItem(text, k)
-        ct.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
-                        'details panel and, if shown, where'))
-        self.comments_heading_position_label = add_row(_('Column heading:'), ct)
+        ct.setToolTip('<p>' +
+                      _('Choose whether or not the column heading is shown in the Book '
+                      'details panel and, if shown, where. Setting this to '
+                      "'Show heading to the side of the text' moves the information "
+                      "from dislayed with other comments to displayed with the "
+                      "non-comments columns.") + '</p>')
+        self.comments_heading_position_label = add_row(_('Heading position:'), ct)
 
         self.comments_type = ct = QComboBox(self)
         for k, text in (
