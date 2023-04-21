@@ -7,10 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 import glob
 import os
+from contextlib import suppress
 from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
+from calibre.db.backend import METADATA_FILE_NAME
 from calibre.db.tests.base import IMG, BaseTest
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE, now, utcnow
@@ -298,6 +300,8 @@ class AddRemoveTest(BaseTest):
         fm_before = cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
+        with suppress(FileNotFoundError):
+            os.remove(os.path.join(bookpath, METADATA_FILE_NAME))
         cache.remove_books((1,))
         cache.move_book_from_trash(1)
         b, f = cache.list_trash_entries()

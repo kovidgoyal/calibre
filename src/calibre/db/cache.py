@@ -1515,6 +1515,15 @@ class Cache:
             return random.choice(tuple(self.dirtied_cache))
         return None
 
+    def _metadata_as_object_for_dump(self, book_id):
+        mi = self._get_metadata(book_id)
+        # Always set cover to cover.jpg. Even if cover doesn't exist,
+        # no harm done. This way no need to call dirtied when
+        # cover is set/removed
+        mi.cover = 'cover.jpg'
+        mi.all_annotations = self._all_annotations_for_book(book_id)
+        return mi
+
     @read_api
     def get_metadata_for_dump(self, book_id):
         mi = None
@@ -1527,12 +1536,7 @@ class Cache:
                 # While a book is being created, the path is empty. Don't bother to
                 # try to write the opf, because it will go to the wrong folder.
                 if self._field_for('path', book_id):
-                    mi = self._get_metadata(book_id)
-                    # Always set cover to cover.jpg. Even if cover doesn't exist,
-                    # no harm done. This way no need to call dirtied when
-                    # cover is set/removed
-                    mi.cover = 'cover.jpg'
-                    mi.all_annotations = self._all_annotations_for_book(book_id)
+                    mi = self._metadata_as_object_for_dump(book_id)
             except:
                 # This almost certainly means that the book has been deleted while
                 # the backup operation sat in the queue.
@@ -2052,9 +2056,15 @@ class Cache:
             except Exception:
                 path = None
             path_map[book_id] = path
-        # ensure metadata.opf is written so we can restore the book
-        if not permanent:
-            self._dump_metadata(book_ids=tuple(bid for bid, path in path_map.items() if path))
+            if not permanent and path:
+                # ensure metadata.opf is written and up-to-date so we can restore the book
+                try:
+                    mi = self._metadata_as_object_for_dump(book_id)
+                    raw = metadata_to_opf(mi)
+                    self.backend.write_backup(path, raw)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
         self.backend.remove_books(path_map, permanent=permanent)
         for field in itervalues(self.fields):
             try:
