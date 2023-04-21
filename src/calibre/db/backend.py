@@ -2086,9 +2086,12 @@ class DB:
                 try:
                     book_id = int(x.name)
                     mtime = x.stat(follow_symlinks=False).st_mtime
+                    with open(make_long_path_useable(os.path.join(x.path, METADATA_FILE_NAME)), 'rb') as opf_stream:
+                        opf = OPF(opf_stream, basedir=x.path)
                 except Exception:
+                    import traceback
+                    traceback.print_exc()
                     continue
-                opf = OPF(os.path.join(x.path, METADATA_FILE_NAME), basedir=x.path)
                 books.append(TrashEntry(book_id, opf.title or unknown, (opf.authors or au)[0], os.path.join(x.path, COVER_FILE_NAME), mtime))
         base = os.path.join(self.trash_dir, 'f')
         um = {'title': unknown, 'authors': au}
