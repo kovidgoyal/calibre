@@ -2107,8 +2107,13 @@ class DB:
                 for f in os.scandir(x.path):
                     if f.is_file(follow_symlinks=False):
                         if f.name == 'metadata.json':
-                            with open(f.path, 'rb') as mf:
-                                metadata = json.loads(mf.read())
+                            try:
+                                with open(f.path, 'rb') as mf:
+                                    metadata = json.loads(mf.read())
+                            except Exception:
+                                import traceback
+                                traceback.print_exc()
+                                continue
                         else:
                             formats.add(f.name.upper())
                 if formats:
