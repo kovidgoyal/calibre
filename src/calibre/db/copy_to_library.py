@@ -105,7 +105,7 @@ def copy_one_book(
         bp = db.field_for('path', book_id)
         if bp:
             for (relpath, src_path, mtime) in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
-                nbp = newdb.field_for('path', book_id)
+                nbp = newdb.field_for('path', new_book_id)
                 if nbp:
                     newdb.backend.add_extra_file(relpath, src_path, nbp)
         postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action)
