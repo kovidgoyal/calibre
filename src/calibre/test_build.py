@@ -418,7 +418,7 @@ class BuildTest(unittest.TestCase):
         i = Image.open(P('catalog/DefaultCover.jpg', allow_user_override=False))
         self.assertGreaterEqual(i.size, (20, 20))
 
-    @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-itegration)')
+    @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-integration)')
     def test_file_dialog_helper(self):
         from calibre.gui2.win_file_dialogs import test
         test()
