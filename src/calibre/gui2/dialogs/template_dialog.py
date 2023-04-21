@@ -618,17 +618,17 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def add_python_template_header_text(self):
         self.textbox.setPlainText('''python:
 def evaluate(book, context):
-    # book is a calibre metadata object
-    # context is an instance of calibre.utils.formatter.PythonTemplateContext,
-    # which currently contains the following attributes:
-    # db: a calibre legacy database object.
-    # globals: the template global variable dictionary.
-    # arguments: is a list of arguments if the template is called by a GPM template, otherwise None.
-    # funcs: used to call Built-in/User functions and Stored GPM/Python templates.
-    # Example: context.funcs.list_re_group()
+\t# book is a calibre metadata object
+\t# context is an instance of calibre.utils.formatter.PythonTemplateContext,
+\t# which currently contains the following attributes:
+\t# db: a calibre legacy database object.
+\t# globals: the template global variable dictionary.
+\t# arguments: is a list of arguments if the template is called by a GPM template, otherwise None.
+\t# funcs: used to call Built-in/User functions and Stored GPM/Python templates.
+\t# Example: context.funcs.list_re_group()
 
-    # your Python code goes here
-    return 'a string'
+\t# your Python code goes here
+\treturn 'a string'
 ''')
 
     def set_word_wrap(self, to_what):
