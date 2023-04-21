@@ -71,7 +71,7 @@ class WindowsFileCopier:
 
     def _open_file(self, path: str, retry_on_sharing_violation: bool = True) -> 'winutil.Handle':
         try:
-            return winutil.create_file(path, winutil.GENERIC_READ,
+            return winutil.create_file(make_long_path_useable(path), winutil.GENERIC_READ,
                     winutil.FILE_SHARE_DELETE,
                     winutil.OPEN_EXISTING, winutil.FILE_FLAG_SEQUENTIAL_SCAN)
         except OSError as e:
@@ -104,23 +104,23 @@ class WindowsFileCopier:
     def copy_all(self) -> None:
         for src_path, dest_path in self.copy_map.items():
             with suppress(Exception):
-                windows_hardlink(src_path, dest_path)
-                shutil.copystat(src_path, dest_path, follow_symlinks=False)
+                windows_hardlink(make_long_path_useable(src_path), make_long_path_useable(dest_path))
+                shutil.copystat(make_long_path_useable(src_path), make_long_path_useable(dest_path), follow_symlinks=False)
                 continue
             handle = self.path_to_handle_map[src_path]
             winutil.set_file_pointer(handle, 0, winutil.FILE_BEGIN)
-            with open(dest_path, 'wb') as f:
+            with open(make_long_path_useable(dest_path), 'wb') as f:
                 sz = 1024 * 1024
                 while True:
                     raw = winutil.read_file(handle, sz)
                     if not raw:
                         break
                     f.write(raw)
-            shutil.copystat(src_path, dest_path, follow_symlinks=False)
+            shutil.copystat(make_long_path_useable(src_path), make_long_path_useable(dest_path), follow_symlinks=False)
 
     def rename_all(self) -> None:
         for src_path, dest_path in self.copy_map.items():
-            winutil.move_file(src_path, dest_path)
+            winutil.move_file(make_long_path_useable(src_path), make_long_path_useable(dest_path))
 
     def delete_all_source_files(self) -> None:
         for src_path in self.copy_map:
