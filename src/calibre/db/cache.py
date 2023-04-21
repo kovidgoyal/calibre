@@ -2676,6 +2676,10 @@ class Cache:
     def is_closed(self):
         return self.backend.is_closed
 
+    @write_api
+    def clear_trash_bin(self):
+        self.backend.clear_trash_dir()
+
     @read_api
     def list_trash_entries(self):
         books, formats = self.backend.list_trash_entries()

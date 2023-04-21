@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import time
 import traceback
 from operator import attrgetter
@@ -15,6 +14,7 @@ from typing import Iterator, List
 from calibre import fit_image
 from calibre.db.backend import DEFAULT_TRASH_EXPIRY_TIME_SECONDS, TrashEntry
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
 
@@ -145,6 +145,7 @@ class TrashView(Dialog):
         la.setBuddy(ad)
         l.addLayout(h)
 
+        h = QHBoxLayout()
         l.addWidget(self.bb)
         self.restore_button = b = self.bb.addButton(_('&Restore selected'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_selected)
@@ -153,6 +154,18 @@ class TrashView(Dialog):
         b.setToolTip(_('Remove the selected entries from the trash bin, thereby deleting them permanently'))
         b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.delete_selected)
+        self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+        b.clicked.connect(self.clear_all)
+        b.setIcon(QIcon.ic('dialog_warning.png'))
+        self.update_titles()
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def clear_all(self):
+        if not confirm('<p>'+_('All books and formats will be <b>permanently deleted</b>! Are you sure?'), 'clear_trash_bin', self):
+            return
+        self.db.clear_trash_bin()
+        self.books.clear()
+        self.formats.clear()
         self.update_titles()
 
     def update_titles(self):

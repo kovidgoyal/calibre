@@ -1984,6 +1984,12 @@ class DB:
     def trash_dir(self):
         return os.path.abspath(os.path.join(self.library_path, TRASH_DIR_NAME))
 
+    def clear_trash_dir(self):
+        tdir = self.trash_dir
+        if os.path.exists(tdir):
+            self.rmtree(tdir)
+            self.ensure_trash_dir()
+
     def ensure_trash_dir(self):
         tdir = self.trash_dir
         os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
