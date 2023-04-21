@@ -6,6 +6,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from functools import partial
+from contextlib import suppress
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
@@ -201,7 +202,6 @@ def mi_to_html(
                 path = force_unicode(mi.path, filesystem_encoding)
                 scheme = 'devpath' if isdevice else 'path'
                 loc = path if isdevice else book_id
-                pathstr = _('Click to open')
                 extra = ''
                 if isdevice:
                     durl = path
@@ -211,7 +211,15 @@ def mi_to_html(
                             prepare_string_for_xml(durl))
                 if show_links:
                     link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
-                        prepare_string_for_xml(path, True), pathstr, extra)
+                        prepare_string_for_xml(path, True), _('Click to open'), extra)
+                    if not isdevice:
+                        data_path = os.path.join(path, 'data')
+                        with suppress(OSError):
+                            if os.listdir(data_path):
+                                link += ' \xa0 <a href="{}" title="{}">{}</a>'.format(
+                                    action('data-path', book_id=book_id, loc=book_id),
+                                    prepare_string_for_xml(data_path, True), _('Data files'))
+
                 else:
                     link = prepare_string_for_xml(path, True)
                 ans.append((field, row % (name, link)))

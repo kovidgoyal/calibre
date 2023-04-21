@@ -1088,6 +1088,7 @@ class BookDetails(DetailsLayout):  # {{{
 
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
+    open_data_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
     search_requested = pyqtSignal(object, object)
     remove_specific_format = pyqtSignal(int, object)
@@ -1237,6 +1238,8 @@ class BookDetails(DetailsLayout):  # {{{
                     browse(data['url'])
             elif dt == 'path':
                 self.open_containing_folder.emit(int(data['loc']))
+            elif dt == 'data-path':
+                self.open_data_folder.emit(int(data['loc']))
             elif dt == 'devpath':
                 self.view_device_book.emit(data['loc'])
         else:

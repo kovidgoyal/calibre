@@ -281,6 +281,10 @@ class ViewAction(InterfaceAction):
         path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
         open_local_file(path)
 
+    def view_data_folder_for_id(self, id_):
+        path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
+        open_local_file(os.path.join(path, 'data'))
+
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()
         self._view_books(rows)

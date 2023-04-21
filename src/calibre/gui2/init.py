@@ -669,6 +669,7 @@ class LayoutMixin:  # {{{
                 self.iactions['Add Books'].remote_file_dropped_on_book,
                 type=Qt.ConnectionType.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
+        self.book_details.open_data_folder.connect(self.iactions['View'].view_data_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
         self.book_details.search_requested.connect(self.set_search_string_with_append)
         self.book_details.remove_specific_format.connect(
