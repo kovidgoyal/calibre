@@ -286,6 +286,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.view_icon = QIcon.ic('view.png')
         self.view_plugin = self.gui.iactions['View']
+        self.show_details_plugin = self.gui.iactions['Show Book Details']
         self.edit_metadata_icon = QIcon.ic('edit_input.png')
         self.quickview_icon = QIcon.ic('quickview.png')
         self.select_book_icon = QIcon.ic('library.png')
@@ -341,6 +342,8 @@ class Quickview(QDialog, Ui_Quickview):
         a = m.addAction(self.select_book_icon, _('Select this book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
+        m.addAction(_('Open a locked book details window for this book'),
+                    partial(self.show_book_details, book_id))
         m.addAction(self.search_icon, _('Find item in the library'),
                         partial(self.do_search, follow_library_view=False))
         a = m.addAction(self.edit_metadata_icon, _('Edit metadata'),
@@ -760,6 +763,12 @@ class Quickview(QDialog, Ui_Quickview):
                 em.actual_plugin_.edit_metadata(None)
         finally:
             self.follow_library_view = True
+
+    def show_book_details(self, book_id):
+        try:
+            self.show_details_plugin.show_book_info(book_id=book_id, locked=True)
+        finally:
+            pass
 
     def select_book(self, book_id):
         '''
