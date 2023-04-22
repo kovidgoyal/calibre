@@ -648,7 +648,7 @@ def encode_jpeg(file_path, quality=80):
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
 
 
-def encode_webp(file_path, quality=70, m=6, metadata='all'):
+def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
 # }}}
 
