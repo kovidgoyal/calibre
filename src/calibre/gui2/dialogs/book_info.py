@@ -211,10 +211,11 @@ class BookInfo(QDialog):
         if library_path is not None:
             self.view = None
             db = get_gui().library_broker.get_library(library_path)
-            if not db.new_api.has_id(book_id):
+            dbn = db.new_api
+            if not dbn.has_id(book_id):
                 raise ValueError(_("Book {} doesn't exist").format(book_id))
-            mi = db.new_api.get_metadata(book_id, get_cover=False)
-            mi.cover_data = [None, db.new_api.cover(book_id, as_image=True)]
+            mi = dbn.get_metadata(book_id, get_cover=False)
+            mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
             mi.path = None
             mi.format_files = dict()
             mi.formats = list()
@@ -227,7 +228,18 @@ class BookInfo(QDialog):
             if dialog_number == DialogNumbers.Slaved:
                 self.slave_connected = True
                 self.view.model().new_bookdisplay_data.connect(self.slave)
-            self.refresh(row)
+            if book_id:
+                db = get_gui().current_db
+                dbn = db.new_api
+                mi = dbn.get_metadata(book_id, get_cover=False)
+                mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
+                mi.path = dbn._field_for('path', book_id)
+                mi.format_files = dbn.format_files(book_id)
+                mi.marked = db.data.get_marked(book_id)
+                mi.field_metadata = db.field_metadata
+                self.refresh(row, mi)
+            else:
+                self.refresh(row)
 
             ema = get_gui().iactions['Edit Metadata'].menuless_qaction
             a = self.ema = QAction('edit metadata', self)
