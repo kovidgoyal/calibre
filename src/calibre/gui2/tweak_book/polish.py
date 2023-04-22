@@ -9,7 +9,7 @@ from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout,
     QIcon, QLabel, QListWidget, QListWidgetItem, QPalette, QPen, QPixmap, QProgressBar,
     QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTextBrowser, QVBoxLayout,
-    pyqtSignal,
+    QWidget, pyqtSignal,
 )
 from threading import Thread
 
@@ -176,6 +176,35 @@ class ImageItemDelegate(QStyledItemDelegate):
         painter.restore()
 
 
+class LossyCompression(QWidget):
+
+    def __init__(self, image_type, default_compression=80, parent=None):
+        super().__init__(parent)
+        l = QVBoxLayout(self)
+        image_type = image_type.upper()
+        self.enable_lossy = el = QCheckBox(_('Enable &lossy compression of {} images').format(image_type))
+        el.setToolTip(_('This allows you to change the quality factor used for {} images.\nBy lowering'
+                        ' the quality you can greatly reduce file size, at the expense of the image looking blurred.'.format(image_type)))
+        l.addWidget(el)
+        self.h2 = h = QHBoxLayout()
+        l.addLayout(h)
+        self.jq = jq = QSpinBox(self)
+        image_type = image_type.lower()
+        self.image_type = image_type
+        self.quality_pref_name = f'{image_type}_compression_quality_for_lossless_compression'
+        jq.setMinimum(1), jq.setMaximum(100), jq.setValue(tprefs.get(self.quality_pref_name, default_compression))
+        jq.setEnabled(False)
+        jq.setToolTip(_('The image quality, 1 is high compression with low image quality, 100 is low compression with high image quality'))
+        jq.valueChanged.connect(self.save_compression_quality)
+        el.toggled.connect(jq.setEnabled)
+        self.jql = la = QLabel(_('Image &quality:'))
+        la.setBuddy(jq)
+        h.addWidget(la), h.addWidget(jq)
+
+    def save_compression_quality(self):
+        tprefs.set(self.quality_pref_name, self.jq.value())
+
+
 class CompressImages(Dialog):
 
     def __init__(self, parent=None):
@@ -203,28 +232,13 @@ class CompressImages(Dialog):
             ' without affecting image quality. Typically image size is reduced by 5 - 15%.'))
         la.setWordWrap(True)
         la.setMinimumWidth(250)
-        l.addWidget(la), l.addSpacing(30)
-
-        self.enable_lossy = el = QCheckBox(_('Enable &lossy compression of JPEG images'))
-        el.setToolTip(_('This allows you to change the quality factor used for JPEG images.\nBy lowering'
-                        ' the quality you can greatly reduce file size, at the expense of the image looking blurred.'))
-        l.addWidget(el)
-        self.h2 = h = QHBoxLayout()
-        l.addLayout(h)
-        self.jq = jq = QSpinBox(self)
-        jq.setMinimum(0), jq.setMaximum(100), jq.setValue(tprefs.get('jpeg_compression_quality_for_lossless_compression', 80)), jq.setEnabled(False)
-        jq.setToolTip(_('The compression quality, 1 is high compression, 100 is low compression.\nImage'
-                        ' quality is inversely correlated with compression quality.'))
-        jq.valueChanged.connect(self.save_compression_quality)
-        el.toggled.connect(jq.setEnabled)
-        self.jql = la = QLabel(_('Compression &quality:'))
-        la.setBuddy(jq)
-        h.addWidget(la), h.addWidget(jq)
+        l.addWidget(la)
+        self.jpeg = LossyCompression('jpeg', parent=self)
+        l.addSpacing(30), l.addWidget(self.jpeg)
+        self.webp = LossyCompression('webp', default_compression=75, parent=self)
+        l.addSpacing(30), l.addWidget(self.webp)
         l.addStretch(10)
         l.addWidget(self.bb)
-
-    def save_compression_quality(self):
-        tprefs.set('jpeg_compression_quality_for_lossless_compression', self.jq.value())
 
     @property
     def names(self):
@@ -232,9 +246,16 @@ class CompressImages(Dialog):
 
     @property
     def jpeg_quality(self):
-        if not self.enable_lossy.isChecked():
+        if not self.jpeg.enable_lossy.isChecked():
             return None
-        return self.jq.value()
+        return self.jpeg.jq.value()
+
+    @property
+    def webp_quality(self):
+        if not self.webp.enable_lossy.isChecked():
+            return None
+        return self.webp.jq.value()
+
 
 
 class CompressImagesProgress(Dialog):
@@ -242,8 +263,9 @@ class CompressImagesProgress(Dialog):
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, parent=None):
         self.names, self.jpeg_quality = names, jpeg_quality
+        self.webp_quality = webp_quality
         self.keep_going = True
         self.result = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
@@ -259,7 +281,7 @@ class CompressImagesProgress(Dialog):
         report = []
         try:
             self.result = (compress_images(
-                current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality,
+                current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality, webp_quality=self.webp_quality,
                 progress_callback=self.progress_callback
             )[0], report)
         except Exception:
