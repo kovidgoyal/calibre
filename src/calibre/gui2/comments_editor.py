@@ -11,17 +11,17 @@ from html5_parser import parse
 from lxml import html
 from qt.core import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
-    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QIcon, QKeySequence,
-    QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton, QSize,
-    QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat, QTextCursor,
-    QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl, QVBoxLayout,
-    QWidget, pyqtSignal, pyqtSlot,
+    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout, QIcon,
+    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
+    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
+    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
 )
 
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
-    NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme,
+    NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
 )
 from calibre.gui2.book_details import css
 from calibre.gui2.flow_toolbar import create_flow_toolbar
@@ -650,7 +650,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             return
         url = self.parse_link(link)
         if url.isValid():
-            url = str(url.toString(NO_URL_FORMATTING))
+            if url.isLocalFile() and not os.path.isabs(url.toLocalFile()):
+                url = url.toLocalFile()
+            else:
+                url = url.toString(NO_URL_FORMATTING)
             self.focus_self()
             with self.editing_cursor() as c:
                 if is_image:
@@ -702,24 +705,46 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.treat_as_image = QCheckBox(d)
         d.setMinimumWidth(600)
         d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        d.br = b = QPushButton(_('&Browse'))
-        b.setIcon(QIcon.ic('document_open.png'))
+        d.br = b = QPushButton(_('&File'))
+        base = os.path.dirname(self.base_url.toLocalFile()) if self.base_url else os.getcwd()
+        data_path = os.path.join(base, 'data')
+        if self.base_url:
+            os.makedirs(data_path, exist_ok=True)
 
-        def cf():
+        def cf(data_dir=False):
             filetypes = []
             if d.treat_as_image.isChecked():
                 filetypes = [(_('Images'), 'png jpeg jpg gif'.split())]
-            files = choose_files(d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True)
+            if data_dir:
+                files = choose_files(
+                    d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True, no_save_dir=True,
+                    default_dir=data_path)
+            else:
+                files = choose_files(d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True)
             if files:
                 path = files[0]
                 d.url.setText(path)
                 if path and os.path.exists(path):
                     with open(path, 'rb') as f:
                         q = what(f)
-                    is_image = q in {'jpeg', 'png', 'gif'}
+                    is_image = q in {'jpeg', 'png', 'gif', 'webp'}
                     d.treat_as_image.setChecked(is_image)
+                if data_dir:
+                    path = os.path.relpath(path, base)
+                    d.url.setText(path)
+        b.clicked.connect(lambda: cf())
+        d.brdf = b = QPushButton(_('&Data file'))
+        b.clicked.connect(lambda: cf(True))
+        b.setToolTip(_('A relative link to a data file associated with this book'))
+        if not os.path.exists(data_path):
+            b.setVisible(False)
+        d.brd = b = QPushButton(_('F&older'))
+        def cd():
+            path = choose_dir(d, 'select link folder', _('Choose folder'))
+            if path:
+                d.url.setText(path)
+        b.clicked.connect(cd)
 
-        b.clicked.connect(cf)
         d.la = la = QLabel(_(
             'Enter a URL. If you check the "Treat the URL as an image" box '
             'then the URL will be added as an image reference instead of as '
@@ -733,7 +758,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         l.addRow(_('Enter &URL:'), d.url)
         l.addRow(_('Treat the URL as an &image'), d.treat_as_image)
         l.addRow(_('Enter &name (optional):'), d.name)
-        l.addRow(_('Choose a file on your computer:'), d.br)
+        h = QHBoxLayout()
+        h.addWidget(d.br), h.addWidget(d.brdf), h.addWidget(d.brd)
+        l.addRow(_('Choose a file on your computer:'), h)
         l.addRow(d.bb)
         d.bb.accepted.connect(d.accept)
         d.bb.rejected.connect(d.reject)
@@ -753,6 +780,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             url = QUrl(link, QUrl.ParsingMode.TolerantMode)
             if url.isValid():
                 return url
+        else:
+            if self.base_url:
+                base = os.path.dirname(self.base_url.toLocalFile())
+            else:
+                base = os.getcwd()
+            candidate = os.path.join(base, link)
+            if os.path.exists(candidate):
+                return QUrl.fromLocalFile(link)
         if os.path.exists(link):
             return QUrl.fromLocalFile(link)
 
@@ -1260,6 +1295,7 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     w = Editor(one_line_toolbar=False)
+    w.set_base_url(QUrl.fromLocalFile(os.getcwd()))
     w.resize(800, 600)
     w.setWindowFlag(Qt.WindowType.Dialog)
     w.show()
