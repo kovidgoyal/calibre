@@ -16,9 +16,7 @@ import sys
 import time
 import uuid
 from contextlib import closing, suppress
-from dataclasses import dataclass
 from functools import partial
-from typing import Sequence
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
 from calibre.constants import (
@@ -26,6 +24,10 @@ from calibre.constants import (
 )
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
+from calibre.db.constants import (
+    BOOK_ID_PATH_TEMPLATE, COVER_FILE_NAME, DEFAULT_TRASH_EXPIRY_TIME_SECONDS,
+    METADATA_FILE_NAME, TRASH_DIR_NAME, TrashEntry,
+)
 from calibre.db.errors import NoSuchFormat
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.tables import (
@@ -56,25 +58,9 @@ from polyglot.builtins import (
 
 # }}}
 
-COVER_FILE_NAME = 'cover.jpg'
-METADATA_FILE_NAME = 'metadata.opf'
-DEFAULT_TRASH_EXPIRY_TIME_SECONDS = 14 * 86400
-TRASH_DIR_NAME =  '.caltrash'
-DATA_DIR_NAME = 'data'
-BOOK_ID_PATH_TEMPLATE = ' ({})'
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
-
-
-@dataclass
-class TrashEntry:
-    book_id: int
-    title: str
-    author: str
-    cover_path: str
-    mtime: float
-    formats: Sequence[str] = ()
 
 
 class DynamicFilter:  # {{{

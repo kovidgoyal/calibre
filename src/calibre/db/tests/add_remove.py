@@ -12,7 +12,7 @@ from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
-from calibre.db.backend import METADATA_FILE_NAME
+from calibre.db.constants import METADATA_FILE_NAME
 from calibre.db.tests.base import IMG, BaseTest
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE, now, utcnow

@@ -19,7 +19,7 @@ from qt.core import (
 )
 
 from calibre import xml_replace_entities
-from calibre.db.backend import DATA_DIR_NAME
+from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,

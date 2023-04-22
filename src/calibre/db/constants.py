@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+# License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+
+from dataclasses import dataclass
+from typing import Sequence
+
+COVER_FILE_NAME = 'cover.jpg'
+METADATA_FILE_NAME = 'metadata.opf'
+DEFAULT_TRASH_EXPIRY_TIME_SECONDS = 14 * 86400
+TRASH_DIR_NAME =  '.caltrash'
+DATA_DIR_NAME = 'data'
+BOOK_ID_PATH_TEMPLATE = ' ({})'
+
+
+@dataclass
+class TrashEntry:
+    book_id: int
+    title: str
+    author: str
+    cover_path: str
+    mtime: float
+    formats: Sequence[str] = ()

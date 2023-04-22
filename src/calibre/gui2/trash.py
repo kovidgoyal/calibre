@@ -12,7 +12,7 @@ from qt.core import (
 from typing import Iterator, List
 
 from calibre import fit_image
-from calibre.db.backend import DEFAULT_TRASH_EXPIRY_TIME_SECONDS, TrashEntry
+from calibre.db.constants import DEFAULT_TRASH_EXPIRY_TIME_SECONDS, TrashEntry
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor

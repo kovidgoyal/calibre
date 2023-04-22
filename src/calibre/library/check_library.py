@@ -12,7 +12,7 @@ import traceback
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
-from calibre.db.backend import (
+from calibre.db.constants import (
     COVER_FILE_NAME, DATA_DIR_NAME, METADATA_FILE_NAME, TRASH_DIR_NAME,
 )
 from calibre.ebooks import BOOK_EXTENSIONS
