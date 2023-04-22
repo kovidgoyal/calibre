@@ -107,6 +107,12 @@ class CountTableWidgetItem(QTableWidgetItem):
         return self._count < other._count
 
 
+def was_item(tag=''):
+    item = QTableWidgetItem()
+    item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+    item.setData(Qt.ItemDataRole.DisplayRole, tag)
+    return item
+
 class EditColumnDelegate(QItemDelegate):
     editing_finished = pyqtSignal(int)
     editing_started  = pyqtSignal(int)
@@ -466,11 +472,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
             self.table.setItem(row, 1, item)
 
-            item = QTableWidgetItem()
-            item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            if _id in self.to_rename or _id in self.to_delete:
-                item.setData(Qt.ItemDataRole.DisplayRole, tag)
-            self.table.setItem(row, 2, item)
+            was = tag if _id in self.to_rename or _id in self.to_delete else ''
+            self.table.setItem(row, 2, was_item(was))
 
             item = QTableWidgetItem()
             if self.link_map is None:
@@ -591,6 +594,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             id_ = int(item.data(Qt.ItemDataRole.UserRole))
             self.to_rename[id_] = new_text
             orig = self.table.item(item.row(), 2)
+            if orig is None:
+                orig = was_item()
+                self.table.setItem(item.row(), 2, orig)
             item.setText(new_text)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
         self.table.blockSignals(False)
