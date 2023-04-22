@@ -341,7 +341,7 @@ class BookInfo(QDialog):
             self.cover.set_marked(self.marked)
             return
         pixmap = self.cover_pixmap
-        if self.fit_cover.isChecked():
+        if self.fit_cover.isChecked() and not pixmap.isNull():
             scaled, new_width, new_height = fit_image(pixmap.width(),
                     pixmap.height(), self.cover.size().width()-10,
                     self.cover.size().height()-10)
