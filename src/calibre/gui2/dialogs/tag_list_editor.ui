@@ -252,19 +252,6 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1" colspan="4">
-    <widget class="TleTableWidget" name="table">
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0" colspan="5">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
@@ -279,12 +266,6 @@
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TleTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>calibre/gui2/dialogs/tag_list_editor_table_widget.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
