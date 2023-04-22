@@ -722,8 +722,8 @@ class HistoryLineEdit(QComboBox):  # {{{
 
     lost_focus = pyqtSignal()
 
-    def __init__(self, *args):
-        QComboBox.__init__(self, *args)
+    def __init__(self, parent=None):
+        QComboBox.__init__(self, parent)
         self.setEditable(True)
         self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.setMaxCount(10)
