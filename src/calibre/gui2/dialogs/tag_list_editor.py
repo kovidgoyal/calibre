@@ -593,8 +593,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for item in items:
             id_ = int(item.data(Qt.ItemDataRole.UserRole))
             self.to_rename[id_] = new_text
-            self.set_was_from_item(item)
+            orig = self.table.item(item.row(), 2)
+            if orig is None:
+                orig = was_item()
+                self.table.setItem(item.row(), 2, orig)
             item.setText(new_text)
+            orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
         self.table.blockSignals(False)
 
     def undo_edit(self):
@@ -713,7 +717,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.add(id_)
             item.set_is_deleted(True)
             row = item.row()
-            self.set_was_from_item(item)
+            orig = self.table.item(row, 2)
+            orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
             link = self.table.item(row, 3)
             link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
             link.setIcon(QIcon.ic('trash.png'))
@@ -722,13 +727,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             row = self.table.rowCount() - 1
         if row >= 0:
             self.table.scrollToItem(self.table.item(row, 0))
-
-    def set_was_from_item(self, item):
-        orig = self.table.item(item.row(), 2)
-        if orig is None:
-            orig = was_item()
-            self.table.setItem(item.row(), 2, orig)
-        orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
 
     def record_sort(self, section):
         # Note what sort was done so we can redo it when the table is rebuilt
