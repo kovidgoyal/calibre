@@ -19,6 +19,7 @@ from qt.core import (
 )
 
 from calibre import xml_replace_entities
+from calibre.db.backend import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
@@ -707,7 +708,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         d.br = b = QPushButton(_('&File'))
         base = os.path.dirname(self.base_url.toLocalFile()) if self.base_url else os.getcwd()
-        data_path = os.path.join(base, 'data')
+        data_path = os.path.join(base, DATA_DIR_NAME)
         if self.base_url:
             os.makedirs(data_path, exist_ok=True)
 

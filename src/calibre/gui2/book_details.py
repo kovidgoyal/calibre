@@ -15,6 +15,7 @@ from qt.core import (
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
+from calibre.db.backend import DATA_DIR_NAME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -476,7 +477,7 @@ def create_copy_links(menu, data=None):
     link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     link(_('Link to show book details in a popup window'), f'calibre://book-details/{library_id}/{book_id}')
     mi = db.new_api.get_proxy_metadata(book_id)
-    data_path = os.path.join(db.backend.library_path, mi.path, 'data')
+    data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
     with suppress(OSError):
         if os.listdir(data_path):
             if iswindows:

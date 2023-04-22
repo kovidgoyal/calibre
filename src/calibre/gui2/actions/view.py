@@ -9,12 +9,13 @@ import json
 import os
 import time
 from functools import partial
-from qt.core import QAction, QIcon, pyqtSignal, QDialog
+from qt.core import QAction, QDialog, QIcon, pyqtSignal
 
 from calibre.constants import ismacos, iswindows
+from calibre.db.backend import DATA_DIR_NAME
 from calibre.gui2 import (
     Dispatcher, config, elided_text, error_dialog, info_dialog, open_local_file,
-    question_dialog
+    question_dialog,
 )
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -283,7 +284,7 @@ class ViewAction(InterfaceAction):
 
     def view_data_folder_for_id(self, id_):
         path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
-        open_local_file(os.path.join(path, 'data'))
+        open_local_file(os.path.join(path, DATA_DIR_NAME))
 
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()

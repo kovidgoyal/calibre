@@ -60,6 +60,7 @@ COVER_FILE_NAME = 'cover.jpg'
 METADATA_FILE_NAME = 'metadata.opf'
 DEFAULT_TRASH_EXPIRY_TIME_SECONDS = 14 * 86400
 TRASH_DIR_NAME =  '.caltrash'
+DATA_DIR_NAME = 'data'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))

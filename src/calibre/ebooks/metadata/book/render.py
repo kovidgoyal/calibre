@@ -5,18 +5,21 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-from functools import partial
 from contextlib import suppress
+from functools import partial
 
-from calibre import prepare_string_for_xml, force_unicode
-from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote, DEFAULT_AUTHOR_SOURCE
-from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
+from calibre import force_unicode, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
+from calibre.db.backend import DATA_DIR_NAME
+from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
+from calibre.ebooks.metadata.search_internet import (
+    DEFAULT_AUTHOR_SOURCE, name_for, qquote, url_for_author_search, url_for_book_search,
+)
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.library.comments import comments_to_html, markdown
-from calibre.utils.icu import sort_key
+from calibre.utils.date import format_date, is_date_undefined
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.date import is_date_undefined, format_date
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.serialize import json_dumps
 from polyglot.binary import as_hex_unicode
@@ -213,7 +216,7 @@ def mi_to_html(
                     link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
                         prepare_string_for_xml(path, True), _('Click to open'), extra)
                     if not isdevice:
-                        data_path = os.path.join(path, 'data')
+                        data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
                             if os.listdir(data_path):
                                 link += ' \xa0 <a href="{}" title="{}">{}</a>'.format(

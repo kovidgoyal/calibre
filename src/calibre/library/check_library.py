@@ -12,13 +12,15 @@ import traceback
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
-from calibre.db.backend import COVER_FILE_NAME, METADATA_FILE_NAME, TRASH_DIR_NAME
+from calibre.db.backend import (
+    COVER_FILE_NAME, DATA_DIR_NAME, METADATA_FILE_NAME, TRASH_DIR_NAME,
+)
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.localization import _
 from polyglot.builtins import iteritems
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
-NORMALS = frozenset({METADATA_FILE_NAME, COVER_FILE_NAME, 'data'})
+NORMALS = frozenset({METADATA_FILE_NAME, COVER_FILE_NAME, DATA_DIR_NAME})
 IGNORE_AT_TOP_LEVEL = frozenset({'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db', TRASH_DIR_NAME})
 
 '''
