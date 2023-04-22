@@ -173,7 +173,8 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     '''
     Serialize image to bytestring in the specified format.
 
-    :param compression_quality: is for JPEG and goes from 0 to 100. 100 being lowest compression, highest image quality
+    :param compression_quality: is for JPEG and WEBP and goes from 0 to 100.
+                                100 being lowest compression, highest image quality. For WEBP 100 means lossless with effort of 70.
     :param png_compression_level: is for PNG and goes from 0-9. 9 being highest compression.
     :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
     :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
@@ -202,6 +203,8 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     elif fmt == 'PNG':
         cl = min(9, max(0, png_compression_level))
         w.setQuality(10 * (9-cl))
+    elif fmt == 'WEBP':
+        w.setQuality(compression_quality)
     if not w.write(img):
         raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
     return ba.data()
@@ -548,6 +551,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         else:
             os.close(fd)
         iname, oname = os.path.basename(file_path), os.path.basename(outfile)
+        input_size = os.path.getsize(file_path)
 
         def repl(q, r):
             cmd[cmd.index(q)] = r
@@ -584,8 +588,9 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
                 sz = 0
             if sz < 1:
                 return '%s returned a zero size image' % cmd[0]
-            shutil.copystat(file_path, outfile)
-            atomic_rename(outfile, file_path)
+            if sz < input_size:
+                shutil.copystat(file_path, outfile)
+                atomic_rename(outfile, file_path)
     finally:
         try:
             os.remove(outfile)
@@ -612,6 +617,21 @@ def optimize_png(file_path, level=7):
     return run_optimizer(file_path, cmd)
 
 
+def run_cwebp(file_path, lossless, q, m, metadata):
+    exe = get_exe_path('cwebp')
+    q = max(0, min(q, 100))
+    m = max(0, min(m, 6))
+    cmd = [exe] + f'-mt -metadata {metadata} -q {q} -m {m} -o'.split() + [False, True]
+    if lossless:
+        cmd.insert(1, '-lossless')
+    return run_optimizer(file_path, cmd)
+
+
+def optimize_webp(file_path, q=100, m=6, metadata='all'):
+    ' metadata can be a comma seaprated list of all, none, exif, icc, xmp '
+    return run_cwebp(file_path, True, q, m, metadata)
+
+
 def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
@@ -626,6 +646,10 @@ def encode_jpeg(file_path, quality=80):
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
+
+
+def encode_webp(file_path, quality=70, m=6, metadata='all'):
+    return run_cwebp(file_path, False, quality, m, metadata)
 # }}}
 
 
@@ -649,6 +673,10 @@ def test():  # {{{
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
+        save_image(img, 'test.webp',  compression_quality=100)
+        ret = optimize_webp('test.webp')
+        if ret is not None:
+            raise SystemExit('optimize_webp failed: %s' % ret)
     quantize_image(img)
     oil_paint_image(img)
     gaussian_sharpen_image(img)
