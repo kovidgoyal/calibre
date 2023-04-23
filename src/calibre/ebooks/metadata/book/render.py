@@ -219,7 +219,7 @@ def mi_to_html(
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
                             if os.listdir(data_path):
-                                link += ' \xa0 <a href="{}" title="{}">{}</a>'.format(
+                                link += ', <a href="{}" title="{}">{}</a>'.format(
                                     action('data-path', book_id=book_id, loc=book_id),
                                     prepare_string_for_xml(data_path, True), _('Data files'))
 
