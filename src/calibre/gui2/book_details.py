@@ -407,6 +407,15 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         ac.current_url = path
         ac.setText(_('The location of the book'))
         copy_menu.addAction(ac)
+    elif dt == 'data-path':
+        path = data['loc']
+        ac = book_info.copy_link_action
+        path = get_gui().library_view.model().db.abspath(data['loc'], index_is_id=True)
+        if path:
+            path = os.path.join(path, DATA_DIR_NAME)
+            ac.current_url = path
+            ac.setText(_('The location of the book\'s data files'))
+            copy_menu.addAction(ac)
     else:
         field = data.get('field')
         if field is not None:
@@ -451,8 +460,9 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                                lambda : book_info.link_clicked.emit(link))
         else:
             v = data.get('original_value') or data.get('value')
-            copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
-                                    lambda: QApplication.instance().clipboard().setText(v))
+            if v:
+                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
+                                        lambda: QApplication.instance().clipboard().setText(v))
     return search_internet_added
 
 
