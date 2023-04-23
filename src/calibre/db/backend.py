@@ -1923,25 +1923,38 @@ class DB:
                         with src:
                             yield relpath, src, mtime
 
-    def add_extra_file(self, relpath, stream, book_path, replace=True):
-        dest = os.path.abspath(os.path.join(self.library_path, book_path, relpath))
-        if not replace and os.path.exists(dest):
-            return False
+    def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
+        bookdir = os.path.join(self.library_path, book_path)
+        dest = os.path.abspath(os.path.join(bookdir, relpath))
+        if not replace and os.path.exists(make_long_path_useable(dest)):
+            if not auto_rename:
+                return None
+            dirname, basename = os.path.split(dest)
+            num = 0
+            while True:
+                mdir = 'merge conflict'
+                if num:
+                    mdir += f' {num}'
+                candidate = os.path.join(dirname, mdir, basename)
+                if not os.path.exists(make_long_path_useable(candidate)):
+                    dest = candidate
+                    break
+                num += 1
         if isinstance(stream, str):
             try:
-                shutil.copy2(stream, dest)
+                shutil.copy2(make_long_path_useable(stream), make_long_path_useable(dest))
             except FileNotFoundError:
-                os.makedirs(os.path.dirname(dest), exist_ok=True)
-                shutil.copy2(stream, dest)
+                os.makedirs(make_long_path_useable(os.path.dirname(dest)), exist_ok=True)
+                shutil.copy2(make_long_path_useable(stream), make_long_path_useable(dest))
         else:
             try:
-                d = open(dest, 'wb')
+                d = open(make_long_path_useable(dest), 'wb')
             except FileNotFoundError:
-                os.makedirs(os.path.dirname(dest), exist_ok=True)
-                d = open(dest, 'wb')
+                os.makedirs(make_long_path_useable(os.path.dirname(dest)), exist_ok=True)
+                d = open(make_long_path_useable(dest), 'wb')
             with d:
                 shutil.copyfileobj(stream, d)
-        return True
+        return os.path.relpath(dest, bookdir).replace(os.sep, '/')
 
     def write_backup(self, path, raw):
         path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))

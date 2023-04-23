@@ -399,36 +399,91 @@ class AddRemoveTest(BaseTest):
         def compare_field(field, func=self.assertEqual):
             func(src_db.field_for(field, rdata['book_id']), dest_db.field_for(field, rdata['new_book_id']))
 
+        def assert_has_extra_files(book_id):
+            bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
+            self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
+            self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
+
+        def assert_does_not_have_extra_files(book_id):
+            bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
+            self.assertFalse(os.path.exists(os.path.join(bookdir, 'exf')))
+            self.assertFalse(os.path.exists(os.path.join(bookdir, 'sub', 'recurse')))
+
+        def clear_extra_files(book_id):
+            for file_path in dest_db.list_extra_files_matching(book_id).values():
+                os.remove(file_path)
+
+        assert_does_not_have_extra_files(1)
+
         rdata = copy_one_book(1, src_db, dest_db)
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp')
         compare_field('uuid', self.assertNotEqual)
         self.assertEqual(src_db.all_annotations_for_book(1), dest_db.all_annotations_for_book(max(dest_db.all_book_ids())))
+        assert_has_extra_files(rdata['new_book_id'])
+        clear_extra_files(rdata['new_book_id'])
+
         rdata = copy_one_book(1, src_db, dest_db, preserve_date=False, preserve_uuid=True)
-        data_file_new_book_id = rdata['new_book_id']
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp', self.assertNotEqual)
         compare_field('uuid')
+        assert_has_extra_files(rdata['new_book_id'])
+        clear_extra_files(rdata['new_book_id'])
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='ignore')
         self.assertIsNone(rdata['new_book_id'])
         self.assertEqual(rdata['action'], 'duplicate')
         src_db.add_format(1, 'FMT1', BytesIO(b'replaced'), run_hooks=False)
+        assert_does_not_have_extra_files(1)
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_has_extra_files(new_book_id)
+            clear_extra_files(new_book_id)
+
         src_db.add_format(1, 'FMT1', BytesIO(b'second-round'), run_hooks=False)
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='ignore')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_does_not_have_extra_files(new_book_id)
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='new record')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_does_not_have_extra_files(new_book_id)
         self.assertEqual(dest_db.format(rdata['new_book_id'], 'FMT1'), b'second-round')
-        bookdir = os.path.dirname(dest_db.format_abspath(data_file_new_book_id, '__COVER_INTERNAL__'))
-        self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
-        self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
+        assert_has_extra_files(rdata['new_book_id'])
 
+    # }}}
+
+    def test_merging_extra_files(self):  # {{{
+        db = self.init_cache()
+
+        def add_extra(book_id, relpath):
+            db.add_extra_files(book_id, {relpath: BytesIO(f'{book_id}:{relpath}'.encode())})
+
+        def extra_files_for(book_id):
+            ans = {}
+            for relpath, file_path in db.list_extra_files_matching(book_id).items():
+                with open(file_path) as f:
+                    ans[relpath] = f.read()
+            return ans
+
+        add_extra(1, 'one'), add_extra(1, 'sub/one')
+        add_extra(2, 'one'), add_extra(2, 'sub/one'), add_extra(2, 'two/two')
+        add_extra(3, 'one'), add_extra(3, 'sub/one'), add_extra(3, 'three')
+
+        self.assertEqual(extra_files_for(1), {
+            'one': '1:one', 'sub/one': '1:sub/one',
+        })
+        db.merge_extra_files(1, (2, 3))
+        self.assertEqual(extra_files_for(1), {
+            'one': '1:one', 'sub/one': '1:sub/one',
+            'merge conflict/one': '2:one', 'sub/merge conflict/one': '2:sub/one', 'two/two': '2:two/two',
+            'three': '3:three', 'merge conflict 1/one': '3:one', 'sub/merge conflict 1/one': '3:sub/one',
+        })
     # }}}

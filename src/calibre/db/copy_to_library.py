@@ -8,15 +8,19 @@ from calibre.utils.date import now
 from polyglot.builtins import iteritems
 
 
-def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map):
+def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
     seen_fmts = set()
     replace = automerge_action == 'overwrite'
     for identical_book in identical_book_list:
         ib_fmts = newdb.formats(identical_book)
         if ib_fmts:
             seen_fmts |= {fmt.upper() for fmt in ib_fmts}
+        at_least_one_format_added = False
         for fmt, path in iteritems(format_map):
-            newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False)
+            if newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False):
+                at_least_one_format_added = True
+        if at_least_one_format_added and extra_file_map:
+            newdb.add_extra_files(identical_book, extra_file_map, replace=False, auto_rename=True)
 
     if automerge_action == 'new record':
         incoming_fmts = {fmt.upper() for fmt in format_map}
@@ -28,9 +32,12 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
             # We should arguably put only the duplicate
             # formats, but no real harm is done by having
             # all formats
-            return newdb.add_books(
+            new_book_id = newdb.add_books(
                 [(mi, format_map)], add_duplicates=True, apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-            preserve_uuid=False, run_hooks=False)[0][0]
+                preserve_uuid=False, run_hooks=False)[0][0]
+            if extra_file_map:
+                newdb.add_extra_files(new_book_id, extra_file_map)
+            return new_book_id
 
 
 def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action):
@@ -72,6 +79,7 @@ def copy_one_book(
             mi.timestamp = now()
         format_map = {}
         fmts = list(db.formats(book_id, verify_formats=False))
+        extra_file_map = db.list_extra_files_matching(book_id)
         for fmt in fmts:
             path = db.format_abspath(book_id, fmt)
             if path:
@@ -91,7 +99,7 @@ def copy_one_book(
             identical_book_list = find_identical_books(mi, identical_books_data)
             if identical_book_list:  # books with same author and nearly same title exist in newdb
                 if duplicate_action == 'add_formats_to_existing':
-                    new_book_id = automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map)
+                    new_book_id = automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map)
                     return_data['action'] = 'automerge'
                     return_data['new_book_id'] = new_book_id
                     postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action)

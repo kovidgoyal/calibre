@@ -656,6 +656,7 @@ class EditMetadataAction(InterfaceAction):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
+            self.merge_data_files(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
             dest_row = rows[0].row()
@@ -666,6 +667,9 @@ class EditMetadataAction(InterfaceAction):
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids((dest_id,), cr)
         self.gui.library_view.horizontalScrollBar().setValue(hpos)
+
+    def merge_data_files(self, dest_id, src_ids):
+        self.gui.current_db.new_api.merge_extra_files(dest_id, src_ids)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:

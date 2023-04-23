@@ -3064,12 +3064,28 @@ class Cache:
         self.backend.reindex_annotations()
 
     @write_api
-    def add_extra_files(self, book_id, map_of_relpath_to_stream_or_path, replace=True):
+    def add_extra_files(self, book_id, map_of_relpath_to_stream_or_path, replace=True, auto_rename=False):
         ' Add extra data files '
         path = self._field_for('path', book_id).replace('/', os.sep)
         added = {}
         for relpath, stream_or_path in map_of_relpath_to_stream_or_path.items():
-            added[relpath] = self.backend.add_extra_file(relpath, stream_or_path, path, replace)
+            added[relpath] = bool(self.backend.add_extra_file(relpath, stream_or_path, path, replace, auto_rename))
+        return added
+
+    @write_api
+    def merge_extra_files(self, dest_id, src_ids, replace=False):
+        ' Merge the extra files from src_ids into dest_id. Conflicting files are auto-renamed unless replace=True in which case they are replaced. '
+        added = set()
+        path = self._field_for('path', dest_id)
+        if path:
+            path = path.replace('/', os.sep)
+            for src_id in src_ids:
+                book_path = self._field_for('path', src_id)
+                if book_path:
+                    book_path = book_path.replace('/', os.sep)
+                    for (relpath, file_path, mtime) in self.backend.iter_extra_files(
+                            src_id, book_path, self.fields['formats'], yield_paths=True):
+                        added.add(self.backend.add_extra_file(relpath, file_path, path, replace=replace, auto_rename=True))
         return added
 
     @read_api
