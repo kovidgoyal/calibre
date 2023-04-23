@@ -253,8 +253,6 @@ class Cache:
         if self.dirtied_cache:
             self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
         self._initialize_dynamic_categories()
-        self.extra_files_cache = self.backend.prefs.get('extra_files_cache', {})
-        self.extra_files_cache_dirty = False
 
     @write_api
     def initialize_template_cache(self):
@@ -279,29 +277,9 @@ class Cache:
     @write_api
     def clear_extra_files_cache(self, book_id=None):
         if book_id is None:
-            pref_changed = bool(self.extra_files_cache)
             self.extra_files_cache = {}
         else:
-            pref_changed = self.extra_files_cache.pop(str(book_id), False)
-        if pref_changed:
-            # self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
-            self.extra_files_cache_dirty = True
-
-    @write_api
-    def add_to_extra_files_cache(self, book_id, data):
-        self.extra_files_cache[str(book_id)] = data
-        # self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
-        self.extra_files_cache_dirty = True
-
-    @write_api
-    def save_extra_files_cache(self):
-        if self.extra_files_cache_dirty:
-            self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
-            self.extra_files_cache_dirty = False
-
-    @read_api
-    def get_extra_files_from_cache(self, book_id):
-        return self.extra_files_cache.get(str(book_id), {})
+            self.extra_files_cache.pop(book_id, None)
 
     @read_api
     def last_modified(self):
@@ -2694,8 +2672,6 @@ class Cache:
                         plugin.run(self)
                     except Exception:
                         traceback.print_exc()
-            # do this last in case a plugin changes the extra files
-            self.save_extra_files_cache()
         self._shutdown_fts(stage=2)
         with self.write_lock:
             self.backend.close()
@@ -3133,7 +3109,7 @@ class Cache:
                 fsize is the file's size in bytes
 
         '''
-        ans = self.get_extra_files_from_cache(book_id)
+        ans = self.extra_files_cache.get(book_id, {})
         if not ans:
             path = self._field_for('path', book_id)
             if path:
@@ -3142,8 +3118,7 @@ class Cache:
                         book_id, book_path, None, yield_paths=True):
                     ans[file_path] = dict(zip(('relpath', 'mtime', 'fsize'),
                                               (relpath, mtime, fsize)))
-                if ans:
-                    self.add_to_extra_files_cache(book_id, ans)
+                self.extra_files_cache[book_id] = ans
         return ans
 
     @read_api

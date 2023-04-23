@@ -69,8 +69,6 @@ class MetadataBackup(Thread):
                     return
                 traceback.print_exc()
 
-        self.db.save_extra_files_cache()
-
         try:
             book_id = self.db.get_a_dirtied_book()
             if book_id is None:
