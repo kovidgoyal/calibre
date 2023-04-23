@@ -273,7 +273,7 @@ class ViewAction(InterfaceAction):
         if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return
         for i, row in enumerate(rows):
-            db = self.gui.library_view.model().db
+            db = self.gui.current_db
             db.new_api.clear_extra_files_cache(self.gui.library_view.model().id(row))
             path = db.abspath(row.row())
             open_local_file(path)
@@ -281,11 +281,13 @@ class ViewAction(InterfaceAction):
                 time.sleep(0.1)  # Finder cannot handle multiple folder opens
 
     def view_folder_for_id(self, id_):
-        path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
+        db = self.gui.current_db
+        db.new_api.clear_extra_files_cache(id_)
+        path = db.abspath(id_, index_is_id=True)
         open_local_file(path)
 
     def view_data_folder_for_id(self, id_):
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         db.new_api.clear_extra_files_cache(id_)
         path = db.abspath(id_, index_is_id=True)
         open_local_file(os.path.join(path, DATA_DIR_NAME))
