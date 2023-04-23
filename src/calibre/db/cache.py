@@ -3108,8 +3108,7 @@ class Cache:
                  where relpath is the relative path of the file to the book directory using / as a separator.
                  stat_result is the result of calling os.stat() on the file.
         '''
-        key = book_id, pattern
-        ans = self.extra_files_cache.get(key)
+        ans = self.extra_files_cache.setdefault(book_id, {}).get(pattern)
         if ans is None or not use_cache:
             ans = []
             path = self._field_for('path', book_id)
@@ -3118,7 +3117,7 @@ class Cache:
                     book_id, path, self.fields['formats'], yield_paths=True, pattern=pattern
                 ):
                     ans.append((relpath, file_path, stat_result))
-            self.extra_files_cache[key] = ans = tuple(ans)
+            self.extra_files_cache[book_id][pattern] = ans = tuple(ans)
         return ans
 
     @read_api
