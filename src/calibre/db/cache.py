@@ -294,7 +294,7 @@ class Cache:
         self.extra_files_cache_dirty = True
 
     @write_api
-    def save_extra_files_cache_if_needed(self):
+    def save_extra_files_cache(self):
         if self.extra_files_cache_dirty:
             self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
             self.extra_files_cache_dirty = False
@@ -2695,7 +2695,7 @@ class Cache:
                     except Exception:
                         traceback.print_exc()
             # do this last in case a plugin changes the extra files
-            self.check_save_extra_files_cache_needed()
+            self.save_extra_files_cache()
         self._shutdown_fts(stage=2)
         with self.write_lock:
             self.backend.close()
@@ -3121,26 +3121,29 @@ class Cache:
     @write_api
     def list_extra_files(self, book_id):
         '''
-        For book_id, returns the dict {
-            'relpath': file's relative path from the book's 'data' directory,
-            'file_path': full path to the file,
-            'mtime': the file's modification time as a floating point number,
-            'fsize': the file's size in bytes
-        }
+        Returns information for files in the book's data directory.
+
+        :param book_id: the database book id for the book
+
+        :return: {rel_path: {'file_path', mtime, fsize} ... }
+            where:
+                rel_path is the relative path to the file from the data/ directory
+                file_path is the full path to the file
+                mtime is the file's modification time. The epoch is OS dependent
+                fsize is the file's size in bytes
+
         '''
         ans = self.get_extra_files_from_cache(book_id)
         if not ans:
-            print('not cached', book_id)
             path = self._field_for('path', book_id)
             if path:
                 book_path = (path + '/data').replace('/', os.sep)
                 for (relpath, file_path, mtime, fsize) in self.backend.iter_extra_files(
                         book_id, book_path, None, yield_paths=True):
-                    ans = dict(zip(('relpath', 'file_path', 'mtime', 'fsize'),
-                                   (relpath, file_path, mtime, fsize)))
-                self.add_to_extra_files_cache(book_id, ans)
-        else:
-            print('cached', book_id)
+                    ans[file_path] = dict(zip(('relpath', 'mtime', 'fsize'),
+                                              (relpath, mtime, fsize)))
+                if ans:
+                    self.add_to_extra_files_cache(book_id, ans)
         return ans
 
     @read_api
