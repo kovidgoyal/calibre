@@ -898,6 +898,15 @@
     },
 
     {
+        "name": "fonttools",
+        "unix": {
+            "filename": "fonttools-4.39.3.zip",
+            "hash": "sha256:9234b9f57b74e31b192c3fc32ef1a40750a8fbc1cd9837a7b7bfc4ca4a5c51d7",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "toml",
 		"comment": "Needed for sip (build time dependency)",
         "unix": {
