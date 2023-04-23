@@ -69,7 +69,7 @@ class Bug:
         msg = msg.replace('Fixesed', 'Fixed')
         env = dict(os.environ)
         env['LAUNCHPAD_FIX_BUG'] = msg
-        subprocess.run([sys.executable, LAUNCHPAD], env=env, input=f'Subject: [Bug ({bug})]', text=True, check=True)
+        subprocess.run([sys.executable, LAUNCHPAD], env=env, input=f'Subject: [Bug {bug}]', text=True, check=True)
 
 
 def main():
