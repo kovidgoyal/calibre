@@ -154,6 +154,7 @@ class Cache:
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.link_maps_cache = {}
+        self.extra_files_cache = {}
         self.vls_for_books_cache = None
         self.vls_for_books_lib_in_process = None
         self.vls_cache_lock = Lock()
@@ -252,6 +253,8 @@ class Cache:
         if self.dirtied_cache:
             self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
         self._initialize_dynamic_categories()
+        self.extra_files_cache = self.backend.prefs.get('extra_files_cache', {})
+        self.extra_files_cache_dirty = False
 
     @write_api
     def initialize_template_cache(self):
@@ -273,6 +276,33 @@ class Cache:
         self.vls_for_books_cache = None
         self.vls_for_books_lib_in_process = None
 
+    @write_api
+    def clear_extra_files_cache(self, book_id=None):
+        if book_id is None:
+            pref_changed = bool(self.extra_files_cache)
+            self.extra_files_cache = {}
+        else:
+            pref_changed = self.extra_files_cache.pop(str(book_id), False)
+        if pref_changed:
+            # self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
+            self.extra_files_cache_dirty = True
+
+    @write_api
+    def add_to_extra_files_cache(self, book_id, data):
+        self.extra_files_cache[str(book_id)] = data
+        # self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
+        self.extra_files_cache_dirty = True
+
+    @write_api
+    def save_extra_files_cache_if_needed(self):
+        if self.extra_files_cache_dirty:
+            self.backend.prefs.set('extra_files_cache', self.extra_files_cache)
+            self.extra_files_cache_dirty = False
+
+    @read_api
+    def get_extra_files_from_cache(self, book_id):
+        return self.extra_files_cache.get(str(book_id), {})
+
     @read_api
     def last_modified(self):
         return self.backend.last_modified()
@@ -293,6 +323,7 @@ class Cache:
             self._clear_search_caches(book_ids)
         self.clear_link_map_cache(book_ids)
 
+    @write_api
     def clear_link_map_cache(self, book_ids=None):
         if book_ids is None:
             self.link_maps_cache = {}
@@ -560,7 +591,6 @@ class Cache:
                     has_more = do_one()
                 except Exception:
                     if self.backend.fts_enabled:
-                        import traceback
                         traceback.print_exc()
                 sleep(self.fts_indexing_sleep_time)
 
@@ -1540,7 +1570,6 @@ class Cache:
             except:
                 # This almost certainly means that the book has been deleted while
                 # the backup operation sat in the queue.
-                import traceback
                 traceback.print_exc()
         return mi, sequence
 
@@ -2063,7 +2092,6 @@ class Cache:
                     raw = metadata_to_opf(mi)
                     self.backend.write_backup(path, raw)
                 except Exception:
-                    import traceback
                     traceback.print_exc()
         self.backend.remove_books(path_map, permanent=permanent)
         for field in itervalues(self.fields):
@@ -2577,7 +2605,6 @@ class Cache:
                 if progress is not None:
                     progress(item_name, item_count, total)
             except Exception:
-                import traceback
                 traceback.print_exc()
 
         all_paths = {self._field_for('path', book_id).partition('/')[0] for book_id in self._all_book_ids()}
@@ -2666,8 +2693,9 @@ class Cache:
                     try:
                         plugin.run(self)
                     except Exception:
-                        import traceback
                         traceback.print_exc()
+            # do this last in case a plugin changes the extra files
+            self.check_save_extra_files_cache_needed()
         self._shutdown_fts(stage=2)
         with self.write_lock:
             self.backend.close()
@@ -2966,7 +2994,7 @@ class Cache:
             bp = self.field_for('path', book_id)
             extra_files[book_id] = ef = {}
             if bp:
-                for (relpath, fobj, mtime) in self.backend.iter_extra_files(book_id, bp, self.fields['formats']):
+                for (relpath, fobj, mtime, fsize) in self.backend.iter_extra_files(book_id, bp, self.fields['formats']):
                     key = f'{key_prefix}:{book_id}:.|{relpath}'
                     with exporter.start_file(key, mtime=mtime) as dest:
                         shutil.copyfileobj(fobj, dest)
@@ -3070,6 +3098,7 @@ class Cache:
         added = {}
         for relpath, stream_or_path in map_of_relpath_to_stream_or_path.items():
             added[relpath] = bool(self.backend.add_extra_file(relpath, stream_or_path, path, replace, auto_rename))
+        self.clear_extra_files_cache(book_id)
         return added
 
     @write_api
@@ -3083,10 +3112,36 @@ class Cache:
                 book_path = self._field_for('path', src_id)
                 if book_path:
                     book_path = book_path.replace('/', os.sep)
-                    for (relpath, file_path, mtime) in self.backend.iter_extra_files(
+                    for (relpath, file_path, mtime, fsize) in self.backend.iter_extra_files(
                             src_id, book_path, self.fields['formats'], yield_paths=True):
                         added.add(self.backend.add_extra_file(relpath, file_path, path, replace=replace, auto_rename=True))
+        self.clear_extra_files_cache(dest_id)
         return added
+
+    @write_api
+    def list_extra_files(self, book_id):
+        '''
+        For book_id, returns the dict {
+            'relpath': file's relative path from the book's 'data' directory,
+            'file_path': full path to the file,
+            'mtime': the file's modification time as a floating point number,
+            'fsize': the file's size in bytes
+        }
+        '''
+        ans = self.get_extra_files_from_cache(book_id)
+        if not ans:
+            print('not cached', book_id)
+            path = self._field_for('path', book_id)
+            if path:
+                book_path = (path + '/data').replace('/', os.sep)
+                for (relpath, file_path, mtime, fsize) in self.backend.iter_extra_files(
+                        book_id, book_path, None, yield_paths=True):
+                    ans = dict(zip(('relpath', 'file_path', 'mtime', 'fsize'),
+                                   (relpath, file_path, mtime, fsize)))
+                self.add_to_extra_files_cache(book_id, ans)
+        else:
+            print('cached', book_id)
+        return ans
 
     @read_api
     def list_extra_files_matching(self, book_id, pattern=''):
@@ -3095,7 +3150,7 @@ class Cache:
         ans = {}
         if path:
             book_path = path.replace('/', os.sep)
-            for (relpath, file_path, mtime) in self.backend.iter_extra_files(
+            for (relpath, file_path, mtime, fsize) in self.backend.iter_extra_files(
                     book_id, book_path, self.fields['formats'], yield_paths=True, pattern=pattern):
                 ans[relpath] = file_path
         return ans

@@ -329,6 +329,10 @@ class ChooseLibraryAction(InterfaceAction):
                                       None, None),
                                       attr='action_restore_database')
         ac.triggered.connect(self.restore_database, type=Qt.ConnectionType.QueuedConnection)
+        ac = self.create_action(spec=(_('Clear extra files cache'), 'lt.png',
+                                      None, None),
+                                      attr='action_clear_extra_files_cache')
+        ac.triggered.connect(self.clear_extra_files_cache, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
 
         self.choose_menu.addMenu(self.maintenance_menu)
@@ -648,6 +652,10 @@ class ChooseLibraryAction(InterfaceAction):
         db.prefs.disable_setting = True
         if restore_database(db, self.gui):
             self.gui.library_moved(db.library_path)
+
+    def clear_extra_files_cache(self):
+        db = self.gui.library_view.model().db
+        db.new_api.clear_extra_files_cache()
 
     def check_library(self):
         from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
