@@ -1872,6 +1872,9 @@ class DB:
 
         if os.path.exists(spath):
             copy_tree(os.path.abspath(spath), tpath, delete_source=True, transform_destination_filename=transform_format_filenames)
+            parent = os.path.dirname(spath)
+            with suppress(OSError):
+                os.rmdir(parent)  # remove empty parent directory
         else:
             os.makedirs(tpath)
         update_paths_in_db()

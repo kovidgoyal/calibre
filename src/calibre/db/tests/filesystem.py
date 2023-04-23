@@ -127,7 +127,10 @@ class FilesystemTest(BaseTest):
         from calibre.ebooks.metadata.book.base import Metadata
         cache.set_metadata(1, Metadata('t1', ('a1', 'a2')))
         check_that_filesystem_and_db_entries_match(1)
-
+        # check that empty author folders are removed
+        for x in os.scandir(cache.backend.library_path):
+            if x.is_dir():
+                self.assertTrue(os.listdir(x.path))
 
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):
