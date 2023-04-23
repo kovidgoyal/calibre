@@ -38,7 +38,7 @@ from calibre.utils.date import (
     UNDEFINED_DATE, as_local_time, dt_factory, is_date_undefined, qt_to_dt,
 )
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import calibre_langcode_to_name, ngettext
+from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
@@ -192,20 +192,12 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bi_font = QFont(self.bold_font)
         self.bi_font.setItalic(True)
         self.styled_columns = {}
-        self.orig_headers = {
-                        'title'     : _("Title"),
-                        'ondevice'   : _("On Device"),
-                        'authors'   : _("Author(s)"),
-                        'size'      : _("Size (MB)"),
-                        'timestamp' : _("Date"),
-                        'pubdate'   : _('Published'),
-                        'rating'    : _('Rating'),
-                        'publisher' : _("Publisher"),
-                        'tags'      : _("Tags"),
-                        'series'    : ngettext("Series", 'Series', 1),
-                        'last_modified' : _('Modified'),
-                        'languages' : _('Languages'),
-        }
+        possible_columns = ('title', 'ondevice', 'authors', 'size', 'timestamp',
+                            'pubdate', 'rating', 'publisher', 'tags', 'series',
+                            'last_modified', 'languages', 'formats', 'id', 'path')
+        from calibre.library.field_metadata import FieldMetadata
+        fm = FieldMetadata()
+        self.orig_headers = {k: fm[k]['name'] for k in possible_columns}
 
         self.db = None
 
@@ -829,6 +821,10 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         def renderer(field, decorator=False):
             idfunc = self.db.id
+            if field == 'id':
+                def func(idx):
+                    return idfunc(idx)
+                return func
             fffunc = self.db.new_api.fast_field_for
             field_obj = self.db.new_api.fields[field]
             m = field_obj.metadata.copy()
@@ -953,7 +949,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
             return func
 
-        self.dc = {f:renderer(f) for f in 'title authors size timestamp pubdate last_modified rating publisher tags series ondevice languages'.split()}
+        self.dc = {f:renderer(f) for f in self.orig_headers.keys()}
         self.dc_decorator = {f:renderer(f, True) for f in ('ondevice',)}
 
         for col in self.custom_columns:
