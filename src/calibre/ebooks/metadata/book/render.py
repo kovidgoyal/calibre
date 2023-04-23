@@ -213,19 +213,19 @@ def mi_to_html(
                     extra = '<br><span style="font-size:smaller">%s</span>'%(
                             prepare_string_for_xml(durl))
                 if show_links:
-                    has_data_files = False
+                    num_of_folders = 1
                     if isdevice:
                         text = _('Click to open')
                     else:
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
                             if os.listdir(data_path):
-                                has_data_files = True
+                                num_of_folders = 2
                         text = _('Book files')
-                        name = ngettext('Folder:', 'Folders:', 2 if has_data_files else 1)
+                        name = ngettext('Folder:', 'Folders:', num_of_folders)
                     link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
                         prepare_string_for_xml(path, True), text, extra)
-                    if has_data_files:
+                    if num_of_folders > 1:
                         link += ', <a href="{}" title="{}">{}</a>'.format(
                             action('data-path', book_id=book_id, loc=book_id),
                             prepare_string_for_xml(data_path, True), _('Data files'))
