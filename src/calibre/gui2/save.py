@@ -16,6 +16,7 @@ from calibre import force_unicode, prints
 from calibre.constants import DEBUG
 from calibre.customize.ui import can_set_metadata
 from calibre.db.errors import NoSuchFormat
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.gui2 import error_dialog, gprefs, open_local_file, warning_dialog
@@ -213,7 +214,9 @@ class Saver(QObject):
 
         extra_files = {}
         if self.opts.save_extra_files:
-            extra_files = self.db.new_api.list_extra_files_matching(int(book_id), 'data/**/*')
+            extra_files = {}
+            for (relpath, file_path, stat_result) in self.db.new_api.list_extra_files(int(book_id), pattern=DATA_FILE_PATTERN):
+                extra_files[relpath] = file_path
         if not fmts and not self.opts.write_opf and not self.opts.save_cover and not extra_files:
             return
 

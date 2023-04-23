@@ -6,6 +6,7 @@ import os
 
 from calibre.db.cli import integers_from_string
 from calibre.db.errors import NoSuchFormat
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.library.save_to_disk import (
     config, do_save_book_to_disk, get_formats, sanitize_args
 )
@@ -26,7 +27,7 @@ def implementation(db, notify_changes, action, *args):
         mi = db.get_metadata(book_id)
         plugboards = db.pref('plugboards', {})
         formats = get_formats(db.formats(book_id), formats)
-        extra_files_for_export = tuple(db.list_extra_files_matching(book_id, 'data/**/*'))
+        extra_files_for_export = tuple(relpath for (relpath, file_path, stat_result) in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
         plugboards['extra_files_for_export'] = extra_files_for_export
         return mi, plugboards, formats, db.library_id, db.pref(
             'user_template_functions', []

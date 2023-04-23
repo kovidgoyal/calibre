@@ -1890,11 +1890,12 @@ class DB:
 
     def iter_extra_files(self, book_id, book_path, formats_field, yield_paths=False, pattern=''):
         known_files = {COVER_FILE_NAME, METADATA_FILE_NAME}
-        for fmt in formats_field.for_book(book_id, default_value=()):
-            fname = formats_field.format_fname(book_id, fmt)
-            fpath = self.format_abspath(book_id, fmt, fname, book_path, do_file_rename=False)
-            if fpath:
-                known_files.add(os.path.basename(fpath))
+        if '/' not in pattern:
+            for fmt in formats_field.for_book(book_id, default_value=()):
+                fname = formats_field.format_fname(book_id, fmt)
+                fpath = self.format_abspath(book_id, fmt, fname, book_path, do_file_rename=False)
+                if fpath:
+                    known_files.add(os.path.basename(fpath))
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         if pattern:
             from pathlib import Path
@@ -1913,9 +1914,9 @@ class DB:
                 relpath = os.path.relpath(path, full_book_path)
                 relpath = relpath.replace(os.sep, '/')
                 if relpath not in known_files:
-                    mtime = os.path.getmtime(path)
+                    stat = os.stat(path)
                     if yield_paths:
-                        yield relpath, path, mtime
+                        yield relpath, path, stat
                     else:
                         try:
                             src = open(path, 'rb')
@@ -1924,7 +1925,7 @@ class DB:
                                 time.sleep(1)
                             src = open(path, 'rb')
                         with src:
-                            yield relpath, src, mtime
+                            yield relpath, src, stat
 
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)

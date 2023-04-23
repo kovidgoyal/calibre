@@ -79,7 +79,9 @@ def copy_one_book(
             mi.timestamp = now()
         format_map = {}
         fmts = list(db.formats(book_id, verify_formats=False))
-        extra_file_map = db.list_extra_files_matching(book_id)
+        extra_file_map = {}
+        for (relpath, file_path, stat_result) in db.list_extra_files(book_id):
+            extra_file_map[relpath] = file_path
         for fmt in fmts:
             path = db.format_abspath(book_id, fmt)
             if path:
@@ -112,7 +114,7 @@ def copy_one_book(
             preserve_uuid=preserve_uuid, run_hooks=False)[0][0]
         bp = db.field_for('path', book_id)
         if bp:
-            for (relpath, src_path, mtime) in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
+            for (relpath, src_path, stat_result) in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
                 nbp = newdb.field_for('path', new_book_id)
                 if nbp:
                     newdb.backend.add_extra_file(relpath, src_path, nbp)

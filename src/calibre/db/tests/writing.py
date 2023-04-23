@@ -381,7 +381,7 @@ class WritingTest(BaseTest):
         def read_all_extra_files(book_id=1):
             ans = {}
             bp = cache.field_for('path', book_id)
-            for (relpath, fobj, mtime) in cache.backend.iter_extra_files(book_id, bp, cache.fields['formats']):
+            for (relpath, fobj, stat_result) in cache.backend.iter_extra_files(book_id, bp, cache.fields['formats']):
                 ans[relpath] = fobj.read()
             return ans
 
