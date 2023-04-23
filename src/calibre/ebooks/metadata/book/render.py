@@ -20,7 +20,7 @@ from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.date import format_date, is_date_undefined
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.serialize import json_dumps
 from polyglot.binary import as_hex_unicode
 
@@ -213,15 +213,22 @@ def mi_to_html(
                     extra = '<br><span style="font-size:smaller">%s</span>'%(
                             prepare_string_for_xml(durl))
                 if show_links:
-                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
-                        prepare_string_for_xml(path, True), _('Book files'), extra)
-                    if not isdevice:
+                    has_data_files = False
+                    if isdevice:
+                        text = _('Click to open')
+                    else:
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
                             if os.listdir(data_path):
-                                link += ', <a href="{}" title="{}">{}</a>'.format(
-                                    action('data-path', book_id=book_id, loc=book_id),
-                                    prepare_string_for_xml(data_path, True), _('Data files'))
+                                has_data_files = True
+                        text = _('Book files')
+                        name = ngettext('Folder:', 'Folders:', 2 if has_data_files else 1)
+                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
+                        prepare_string_for_xml(path, True), text, extra)
+                    if has_data_files:
+                        link += ', <a href="{}" title="{}">{}</a>'.format(
+                            action('data-path', book_id=book_id, loc=book_id),
+                            prepare_string_for_xml(data_path, True), _('Data files'))
 
                 else:
                     link = prepare_string_for_xml(path, True)
