@@ -214,7 +214,7 @@ def mi_to_html(
                             prepare_string_for_xml(durl))
                 if show_links:
                     link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
-                        prepare_string_for_xml(path, True), _('Click to open'), extra)
+                        prepare_string_for_xml(path, True), _('Book files'), extra)
                     if not isdevice:
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
