@@ -158,6 +158,10 @@ class BuildTest(unittest.TestCase):
         from calibre.utils.certgen import create_key_pair
         create_key_pair()
 
+    def test_fonttools(self):
+        from fontTools.subset import main
+        main
+
     def test_msgpack(self):
         from calibre.utils.date import utcnow
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
