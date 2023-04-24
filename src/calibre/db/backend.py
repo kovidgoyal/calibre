@@ -1915,7 +1915,10 @@ class DB:
                 relpath = os.path.relpath(path, full_book_path)
                 relpath = relpath.replace(os.sep, '/')
                 if relpath not in known_files:
-                    stat_result = os.stat(path)
+                    try:
+                        stat_result = os.stat(path)
+                    except OSError:
+                        continue
                     if stat.S_ISDIR(stat_result.st_mode):
                         continue
                     if yield_paths:
