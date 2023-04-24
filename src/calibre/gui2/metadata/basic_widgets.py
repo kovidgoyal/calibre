@@ -28,7 +28,6 @@ from calibre.ebooks.metadata import (
     authors_to_sort_string, check_isbn, string_to_authors, title_sort,
 )
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 from calibre.gui2 import (
     choose_files_and_remember_all_files, choose_images, error_dialog,
     file_icon_provider, gprefs,
@@ -851,6 +850,7 @@ class FormatList(_FormatList):
         return QSize(sz.width() * 7, sz.height() * 3)
 
     def contextMenuEvent(self, event):
+        from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
         item = self.itemFromIndex(self.currentIndex())
         originals = [self.item(x).ext.upper() for x in range(self.count())]
         originals = [x for x in originals if x.startswith('ORIGINAL_')]
