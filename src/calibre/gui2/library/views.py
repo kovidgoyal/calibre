@@ -967,7 +967,6 @@ class BooksView(QTableView):  # {{{
                     injected = False
                     for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
                         if not ans.get(f+'_injected', False):
-                            print('injecting', f)
                             injected = True
                             ans[f+'_injected'] = True
                             hc = ans.get('hidden_columns', [])

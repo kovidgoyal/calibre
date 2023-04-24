@@ -575,16 +575,10 @@ allow_template_database_functions_in_composites = False
 # takes a glob pattern allowing a single entry to match multiple URL types.
 openers_by_scheme = {}
 
-#: Change standard column heading text to some value
-# Use the dictionary below to change a column heading. The format of the
-# dictionary is
-#   {lookup_name: new_heading, ...}
-# The new_heading must be unique: no two columns can have the same heading.
-# This tweak works only with standard columns: it cannot be used to change
-# the heading for a custom column. If a custom column has the same heading as
-# one provided here then a number will appended to the custom column's heading
-# to make it unique.
-#
+#: Change standard column names
+# Use the dictionary below to change a column name.
+# This tweak works only with standard columns, it cannot be used to change
+# the heading for a custom column.
 # Example:
-#   alternate_column_headings = {'authors':'Writers', 'size':'MBytes'}
-alternate_column_headings = {}
+#   alternate_column_names = {'authors':'Writers', 'size':'MBytes'}
+alternate_column_names = {}

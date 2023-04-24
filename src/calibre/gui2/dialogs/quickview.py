@@ -342,7 +342,7 @@ class Quickview(QDialog, Ui_Quickview):
         a = m.addAction(self.select_book_icon, _('Select this book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
-        m.addAction(_('Open a locked book details window for this book'),
+        m.addAction(_('Open a locked Book details window for this book'),
                     partial(self.show_book_details, book_id))
         m.addAction(self.search_icon, _('Find item in the library'),
                         partial(self.do_search, follow_library_view=False))
