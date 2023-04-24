@@ -23,6 +23,7 @@ from math import ceil, floor, modf, trunc
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
@@ -2398,7 +2399,7 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         db = self.get_database(mi).new_api
         try:
-            files = db.list_extra_files(mi.id, use_cache=True, pattern='data/**/*')
+            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             return 'Yes' if files else ''
         except Exception as e:
             traceback.print_exc()
@@ -2416,7 +2417,7 @@ class BuiltinExtraFileNames(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, sep):
         db = self.get_database(mi).new_api
         try:
-            files = db.list_extra_files(mi.id, use_cache=True, pattern='data/**/*')
+            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             return sep.join([file[0][5:] for file in files])
         except Exception as e:
             traceback.print_exc()
@@ -2436,7 +2437,7 @@ class BuiltinExtraFileSize(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             file_name = 'data/' + file_name
-            files = db.list_extra_files(mi.id, use_cache=True, pattern='data/**/*')
+            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             for f in files:
                 if f[0] == file_name:
                     return str(f[2].st_size)
@@ -2463,7 +2464,7 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             file_name = 'data/' + file_name
-            files = db.list_extra_files(mi.id, use_cache=True, pattern='data/**/*')
+            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             for f in files:
                 if f[0] == file_name:
                     val = f[2].st_mtime
