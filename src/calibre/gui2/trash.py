@@ -181,7 +181,7 @@ class TrashView(Dialog):
             self.db.expire_old_trash()
 
     def sizeHint(self):
-        return QSize(500, 650)
+        return QSize(530, 650)
 
     def do_operation_on_selected(self, func):
         ok_items, failed_items = [], []
