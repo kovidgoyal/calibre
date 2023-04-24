@@ -134,7 +134,8 @@ def markdown(val):
     except AttributeError:
         from calibre.ebooks.markdown import Markdown
         md = markdown.Markdown = Markdown()
-    return md.convert(val)
+    val = md.convert(val)
+    return re.sub(r'<p(|\s+[^>]*?)>\s*<br\s*/?>\s*</p>','<p\\1>\xa0</p>', val)
 
 
 def merge_comments(one, two):
