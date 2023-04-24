@@ -272,24 +272,23 @@ class ViewAction(InterfaceAction):
             return
         if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return
+        db = self.gui.current_db
         for i, row in enumerate(rows):
-            db = self.gui.current_db
-            db.new_api.clear_extra_files_cache(self.gui.library_view.model().id(row))
+            self.gui.extra_files_watcher.watch_book(db.id(row.row()))
             path = db.abspath(row.row())
-            open_local_file(path)
-            if ismacos and i < len(rows) - 1:
-                time.sleep(0.1)  # Finder cannot handle multiple folder opens
+            if path:
+                open_local_file(path)
+                if ismacos and i < len(rows) - 1:
+                    time.sleep(0.1)  # Finder cannot handle multiple folder opens
 
     def view_folder_for_id(self, id_):
-        db = self.gui.current_db
-        db.new_api.clear_extra_files_cache(id_)
-        path = db.abspath(id_, index_is_id=True)
+        self.gui.extra_files_watcher.watch_book(id_)
+        path = self.gui.current_db.abspath(id_, index_is_id=True)
         open_local_file(path)
 
     def view_data_folder_for_id(self, id_):
-        db = self.gui.current_db
-        db.new_api.clear_extra_files_cache(id_)
-        path = db.abspath(id_, index_is_id=True)
+        self.gui.extra_files_watcher.watch_book(id_)
+        path = self.gui.current_db.abspath(id_, index_is_id=True)
         open_local_file(os.path.join(path, DATA_DIR_NAME))
 
     def view_book(self, triggered):

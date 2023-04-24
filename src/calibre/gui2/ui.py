@@ -30,6 +30,7 @@ from calibre.constants import (
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
+from calibre.gui2.extra_files_watcher import ExtraFilesWatcher
 from calibre.gui2 import (
     Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog,
     max_available_height, open_url, question_dialog, warning_dialog,
@@ -118,6 +119,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.setWindowIcon(QApplication.instance().windowIcon())
+        self.extra_files_watcher = ExtraFilesWatcher(self)
         self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.ConnectionType.QueuedConnection)
@@ -914,6 +916,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     import traceback
                     traceback.print_exc()
             self.library_path = newloc
+            self.extra_files_watcher.clear()
             prefs['library_path'] = self.library_path
             self.book_on_device(None, reset=True)
             db.set_book_on_device_func(self.book_on_device)
@@ -1148,6 +1151,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.shutdown_started.emit()
         self.show_shutdown_message()
         self.server_change_notification_timer.stop()
+        self.extra_files_watcher.clear()
         try:
             self.event_in_db.disconnect()
         except Exception:
