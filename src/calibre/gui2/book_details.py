@@ -561,8 +561,11 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     if add_popup_action:
         menu.addMenu(get_gui().iactions['Show Book Details'].qaction.menu())
     else:
-        ema = get_gui().iactions['Edit Metadata'].menuless_qaction
-        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
+        # We can't open edit metadata from a locked window because EM expects to
+        # be editing the current book, which this book probably isn't
+        if edit_metadata is not None:
+            ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+            menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
     if not reindex_fmt_added:
         menu.addSeparator()
         menu.addAction(_(

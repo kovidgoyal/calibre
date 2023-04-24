@@ -119,19 +119,21 @@ class Configure(Dialog):
 
 class Details(HTMLDisplay):
 
-    def __init__(self, book_info, parent=None, allow_context_menu=True):
+    def __init__(self, book_info, parent=None, allow_context_menu=True, is_locked=False):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
         self.edit_metadata = getattr(parent, 'edit_metadata', None)
         self.setDefaultStyleSheet(css())
         self.allow_context_menu = allow_context_menu
+        self.is_locked = is_locked
 
     def sizeHint(self):
         return QSize(350, 350)
 
     def contextMenuEvent(self, ev):
         if self.allow_context_menu:
-            details_context_menu_event(self, ev, self.book_info, edit_metadata=self.edit_metadata)
+            details_context_menu_event(self, ev, self.book_info,
+                           edit_metadata=None if self.is_locked else self.edit_metadata)
 
 
 class DialogNumbers(IntEnum):
@@ -167,7 +169,8 @@ class BookInfo(QDialog):
         self.splitter.addWidget(self.cover)
 
         self.details = Details(parent.book_details.book_info, self,
-                               allow_context_menu=library_path is None)
+                               allow_context_menu=library_path is None,
+                               is_locked = dialog_number == DialogNumbers.Locked)
         self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
