@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import sys
 import time
 import uuid
@@ -1914,9 +1915,11 @@ class DB:
                 relpath = os.path.relpath(path, full_book_path)
                 relpath = relpath.replace(os.sep, '/')
                 if relpath not in known_files:
-                    stat = os.stat(path)
+                    stat_result = os.stat(path)
+                    if stat.S_ISDIR(stat_result.st_mode):
+                        continue
                     if yield_paths:
-                        yield relpath, path, stat
+                        yield relpath, path, stat_result
                     else:
                         try:
                             src = open(path, 'rb')
@@ -1925,7 +1928,7 @@ class DB:
                                 time.sleep(1)
                             src = open(path, 'rb')
                         with src:
-                            yield relpath, src, stat
+                            yield relpath, src, stat_result
 
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)
