@@ -5,6 +5,7 @@ Created on 25 May 2010
 '''
 
 import traceback
+import sys
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
@@ -197,7 +198,7 @@ def _builtin_field_metadata():
                            'datatype':'int',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':None,
+                           'name': _('Id'),
                            'search_terms':['id'],
                            'is_custom':False,
                            'is_category':False,
@@ -411,6 +412,15 @@ class FieldMetadata:
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
+        alternate_headings = tweaks.get('alternate_column_headings', {})
+        if alternate_headings:
+            existing_headings = {k['name'] for k in self._tb_cats.values() if k['name']}
+            for k,v in alternate_headings.items():
+                if k in self._tb_cats.keys():
+                    v = self.get_unique_field_heading(v)
+                    existing_headings.discard(self._tb_cats[k]['name'])
+                    existing_headings.add(v)
+                    self._tb_cats[k]['name'] = v
         self._tb_cats['timestamp']['display'] = {
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
@@ -453,6 +463,10 @@ class FieldMetadata:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def set_field_heading(self, key, heading):
+        if key in self._tb_cats.keys():
+            self._tb_cats[key]['name'] = heading
 
     def sortable_field_keys(self):
         return [k for k in self._tb_cats.keys()
@@ -560,6 +574,18 @@ class FieldMetadata:
             l[k] = self._tb_cats[k]
         return l
 
+    def get_unique_field_heading(self, name):
+        # Verify column heading is unique. Can only happen if the tweak is set
+        if tweaks.get('alternate_column_headings', {}):
+            existing_names = {icu_lower(c['name']) for c in self._tb_cats.values() if c['name'] is not None}
+            t = icu_lower(name)
+            if t in existing_names:
+                for i in range(1, sys.maxsize):
+                    if (t + '_' + str(i)) not in existing_names:
+                        name = name + '_' + str(i)
+                        break
+        return name
+
     def add_custom_field(self, label, table, column, datatype, colnum, name,
                          display, is_editable, is_multiple, is_category,
                          is_csp=False):
@@ -568,6 +594,7 @@ class FieldMetadata:
             raise ValueError('Duplicate custom field [%s]'%(label))
         if datatype not in self.VALID_DATA_TYPES:
             raise ValueError('Unknown datatype %s for field %s'%(datatype, key))
+        name = self.get_unique_field_heading(name)
         self._tb_cats[key] = {'table':table,       'column':column,
                              'datatype':datatype,  'is_multiple':is_multiple,
                              'kind':'field',       'name':name,

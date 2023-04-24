@@ -808,8 +808,8 @@ class BooksView(QTableView):  # {{{
         state = {}
         state['hidden_columns'] = [cm[i] for i in range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
-        state['last_modified_injected'] = True
-        state['languages_injected'] = True
+        for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+            state[f+'_injected'] = True
         state['sort_history'] = \
             self.cleanup_sort_history(self.model().sort_history, ignore_column_map=self.is_library_view)
         state['column_positions'] = {}
@@ -923,7 +923,7 @@ class BooksView(QTableView):  # {{{
 
     def get_default_state(self):
         old_state = {
-                'hidden_columns': ['last_modified', 'languages'],
+                'hidden_columns': ['last_modified', 'languages', 'formats', 'id', 'path'],
                 'sort_history':[DEFAULT_SORT],
                 'column_positions': {},
                 'column_sizes': {},
@@ -931,9 +931,9 @@ class BooksView(QTableView):  # {{{
                     'size':'center',
                     'timestamp':'center',
                     'pubdate':'center'},
-                'last_modified_injected': True,
-                'languages_injected': True,
                 }
+        for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+            old_state[f+'_injected'] = True
         h = self.column_header
         cm = self.column_map
         for i in range(h.count()):
@@ -965,18 +965,14 @@ class BooksView(QTableView):  # {{{
                         db.new_api.set_pref(name, ans)
                 else:
                     injected = False
-                    if not ans.get('last_modified_injected', False):
-                        injected = True
-                        ans['last_modified_injected'] = True
-                        hc = ans.get('hidden_columns', [])
-                        if 'last_modified' not in hc:
-                            hc.append('last_modified')
-                    if not ans.get('languages_injected', False):
-                        injected = True
-                        ans['languages_injected'] = True
-                        hc = ans.get('hidden_columns', [])
-                        if 'languages' not in hc:
-                            hc.append('languages')
+                    for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+                        if not ans.get(f+'_injected', False):
+                            print('injecting', f)
+                            injected = True
+                            ans[f+'_injected'] = True
+                            hc = ans.get('hidden_columns', [])
+                            if f not in hc:
+                                hc.append(f)
                     if injected:
                         db.new_api.set_pref(name, ans)
         return ans
