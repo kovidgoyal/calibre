@@ -219,8 +219,10 @@ def mi_to_html(
                     else:
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
-                            if os.listdir(data_path):
-                                num_of_folders = 2
+                            for de in os.scandir(data_path):
+                                if de.is_file():
+                                    num_of_folders = 2
+                                    break
                         text = _('Book files')
                         name = ngettext('Folder:', 'Folders:', num_of_folders)
                     link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
