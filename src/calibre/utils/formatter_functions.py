@@ -13,6 +13,7 @@ __docformat__ = 'restructuredtext en'
 
 import inspect
 import numbers
+import posixpath
 import re
 import traceback
 from contextlib import suppress
@@ -23,7 +24,7 @@ from math import ceil, floor, modf, trunc
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
-from calibre.db.constants import DATA_FILE_PATTERN
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
@@ -2411,14 +2412,14 @@ class BuiltinExtraFileNames(BuiltinFormatterFunction):
     arg_count = 1
     category = 'Template database functions'
     __doc__ = doc = _("extra_file_names(sep) -- returns a sep-separated list of "
-                      "extra files in the book's 'data/' folder. "
-                      'This function can be used only in the GUI.')
+                      "extra files in the book's '{}/' folder. "
+                      'This function can be used only in the GUI.').format(DATA_DIR_NAME)
 
     def evaluate(self, formatter, kwargs, mi, locals, sep):
         db = self.get_database(mi).new_api
         try:
             files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            return sep.join([file[0][5:] for file in files])
+            return sep.join(file[0].partition('/')[-1] for file in files)
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)
@@ -2429,17 +2430,17 @@ class BuiltinExtraFileSize(BuiltinFormatterFunction):
     arg_count = 1
     category = 'Template database functions'
     __doc__ = doc = _("extra_file_size(file_name) -- returns the size in bytes of "
-                      "the extra file 'file_name' in the book's 'data/' folder if "
+                      "the extra file 'file_name' in the book's '{}/' folder if "
                       "it exists, otherwise -1."
-                      'This function can be used only in the GUI.')
+                      'This function can be used only in the GUI.').format(DATA_DIR_NAME)
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name):
         db = self.get_database(mi).new_api
         try:
-            file_name = 'data/' + file_name
+            q = posixpath.join(DATA_DIR_NAME, file_name)
             files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             for f in files:
-                if f[0] == file_name:
+                if f[0] == q:
                     return str(f[2].st_size)
             return str(-1)
         except Exception as e:
@@ -2453,20 +2454,20 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
     category = 'Template database functions'
     __doc__ = doc = _("extra_file_modtime(file_name, format_spec) -- returns the "
                       "modification time of the extra file 'file_name' in the "
-                      "book's 'data/' folder if it exists, otherwise -1.0. The "
+                      "book's '{}/' folder if it exists, otherwise -1.0. The "
                       "modtime is formatted according to 'format_string' "
                       "(see format_date()). If 'format_string' is empty, returns "
                       "the modtime as the floating point number of seconds since "
                       "the epoch. The epoch is OS dependent. "
-                      "This function can be used only in the GUI.")
+                      "This function can be used only in the GUI.").format(DATA_DIR_NAME)
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name, format_string):
         db = self.get_database(mi).new_api
         try:
-            file_name = 'data/' + file_name
+            q = posixpath.join(DATA_DIR_NAME, file_name)
             files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
             for f in files:
-                if f[0] == file_name:
+                if f[0] == q:
                     val = f[2].st_mtime
                     if format_string:
                         return format_date(datetime.fromtimestamp(val), format_string)
