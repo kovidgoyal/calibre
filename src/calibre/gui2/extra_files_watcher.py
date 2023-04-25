@@ -84,4 +84,5 @@ class ExtraFilesWatcher(QObject):
             self.timer.stop()
 
     def refresh_gui(self, book_ids):
-        self.gui.library_view.model().refresh_ids(frozenset(book_ids), current_row=self.gui.library_view.currentIndex().row())
+        lv = self.gui.library_view
+        lv.model().refresh_ids(frozenset(book_ids), current_row=lv.currentIndex().row())
