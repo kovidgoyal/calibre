@@ -18,6 +18,7 @@ from qt.core import (
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import UNDEFINED_QDATETIME, elided_text, error_dialog, gprefs
 from calibre.gui2.comments_editor import Editor as CommentsEditor
+from calibre.gui2.markdown_editor import Editor as MarkdownEditor
 from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
@@ -467,6 +468,41 @@ class Comments(Base):
         self.signals_to_disconnect.append(self._tb.data_changed)
 
 
+class Markdown(Base):
+
+    def setup_ui(self, parent):
+        self._box = QGroupBox(parent)
+        self._box.setTitle(label_string(self.col_metadata['name']))
+        self._layout = QVBoxLayout()
+        self._tb = MarkdownEditor(self._box)
+        self._tb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        # self._tb.setTabChangesFocus(True)
+        self._layout.addWidget(self._tb)
+        self._box.setLayout(self._layout)
+        self.widgets = [self._box]
+
+    def setter(self, val):
+        self._tb.markdown = str(val or '').strip()
+
+    def getter(self):
+        val = self._tb.markdown.strip()
+        if not val:
+            val = None
+        return val
+
+    @property
+    def tab(self):
+        return self._tb.tab
+
+    @tab.setter
+    def tab(self, val):
+        self._tb.tab = val
+
+    def connect_data_changed(self, slot):
+        self._tb.editor.textChanged.connect(slot)
+        self.signals_to_disconnect.append(self._tb.editor.textChanged)
+
+
 class MultipleWidget(QWidget):
 
     def __init__(self, parent, only_manage_items=False, widget=EditWithComplete, name=None):
@@ -780,8 +816,10 @@ def comments_factory(db, key, parent):
     ctype = fm.get('display', {}).get('interpret_as', 'html')
     if ctype == 'short-text':
         return SimpleText(db, key, parent)
-    if ctype in ('long-text', 'markdown'):
+    if ctype == 'long-text':
         return LongText(db, key, parent)
+    if ctype == 'markdown':
+        return Markdown(db, key, parent)
     return Comments(db, key, parent)
 
 
