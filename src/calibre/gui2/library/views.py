@@ -1337,6 +1337,7 @@ class BooksView(QTableView):  # {{{
             row = self.model().db.data.id_to_index(book_id)
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
+            hpos = self.horizontalScrollBar().value()
             logical_indices = list(range(h.count()))
             logical_indices = [x for x in logical_indices if not
                     h.isSectionHidden(x)]
@@ -1347,6 +1348,9 @@ class BooksView(QTableView):  # {{{
             pairs.sort(key=lambda x: x[1])
             i = pairs[0][0]
             index = self.model().index(row, i)
+            ci = self.currentIndex()
+            if ci.isValid():
+                index = self.model().index(row, ci.column())
             if for_sync:
                 sm = self.selectionModel()
                 sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
@@ -1355,6 +1359,7 @@ class BooksView(QTableView):  # {{{
                 if select:
                     sm = self.selectionModel()
                     sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
+            self.horizontalScrollBar().setValue(hpos)
 
     def select_cell(self, row_number=0, logical_column=0):
         if row_number > -1 and row_number < self.model().rowCount(QModelIndex()):
