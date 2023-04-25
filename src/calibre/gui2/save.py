@@ -215,8 +215,8 @@ class Saver(QObject):
         extra_files = {}
         if self.opts.save_extra_files:
             extra_files = {}
-            for (relpath, file_path, stat_result) in self.db.new_api.list_extra_files(int(book_id), pattern=DATA_FILE_PATTERN):
-                extra_files[relpath] = file_path
+            for efx in self.db.new_api.list_extra_files(int(book_id), pattern=DATA_FILE_PATTERN):
+                extra_files[efx.relpath] = efx.file_path
         if not fmts and not self.opts.write_opf and not self.opts.save_cover and not extra_files:
             return
 

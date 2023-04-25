@@ -2400,8 +2400,7 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         db = self.get_database(mi).new_api
         try:
-            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            return 'Yes' if files else ''
+            return 'Yes' if db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN) else ''
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)
@@ -2419,7 +2418,7 @@ class BuiltinExtraFileNames(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            return sep.join(file[0].partition('/')[-1] for file in files)
+            return sep.join(file.relpath.partition('/')[-1] for file in files)
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)
@@ -2438,10 +2437,9 @@ class BuiltinExtraFileSize(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
-            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            for f in files:
-                if f[0] == q:
-                    return str(f[2].st_size)
+            for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
+                if f.relpath == q:
+                    return str(f.stat_result.st_size)
             return str(-1)
         except Exception as e:
             traceback.print_exc()
@@ -2465,10 +2463,9 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
-            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            for f in files:
-                if f[0] == q:
-                    val = f[2].st_mtime
+            for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
+                if f.relpath == q:
+                    val = f.stat_result.st_mtime
                     if format_string:
                         return format_date(datetime.fromtimestamp(val), format_string)
                     return str(val)

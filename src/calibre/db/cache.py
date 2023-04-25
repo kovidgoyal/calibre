@@ -20,6 +20,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
 from threading import Lock
 from time import monotonic, sleep, time
+from typing import NamedTuple, Tuple
 
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -51,6 +52,12 @@ from calibre.utils.date import UNDEFINED_DATE, now as nowf, utcnow
 from calibre.utils.icu import lower as icu_lower, sort_key
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+
+
+class ExtraFile(NamedTuple):
+    relpath: str
+    file_path: str
+    stat_result: os.stat_result
 
 
 def api(f):
@@ -3096,7 +3103,7 @@ class Cache:
         return added
 
     @read_api
-    def list_extra_files(self, book_id, use_cache=False, pattern=''):
+    def list_extra_files(self, book_id, use_cache=False, pattern='') -> Tuple[ExtraFile, ...]:
         '''
         Get information about extra files in the book's directory.
 
@@ -3104,8 +3111,9 @@ class Cache:
         :param pattern: the pattern of filenames to search for. Empty pattern matches all extra files. Patterns must use / as separator.
                         Use the DATA_FILE_PATTERN constant to match files inside the data directory.
 
-        :return: A tuple of all extra files matching the specified pattern. Each element of the tuple is (relpath, file_path, stat_result)
-                 where relpath is the relative path of the file to the book directory using / as a separator.
+        :return: A tuple of all extra files matching the specified pattern. Each element of the tuple is
+                 ExtraFile(relpath, file_path, stat_result). Where relpath is the relative path of the file
+                 to the book directory using / as a separator.
                  stat_result is the result of calling os.stat() on the file.
         '''
         ans = self.extra_files_cache.setdefault(book_id, {}).get(pattern)
@@ -3116,7 +3124,7 @@ class Cache:
                 for (relpath, file_path, stat_result) in self.backend.iter_extra_files(
                     book_id, path, self.fields['formats'], yield_paths=True, pattern=pattern
                 ):
-                    ans.append((relpath, file_path, stat_result))
+                    ans.append(ExtraFile(relpath, file_path, stat_result))
             self.extra_files_cache[book_id][pattern] = ans = tuple(ans)
         return ans
 

@@ -80,8 +80,8 @@ def copy_one_book(
         format_map = {}
         fmts = list(db.formats(book_id, verify_formats=False))
         extra_file_map = {}
-        for (relpath, file_path, stat_result) in db.list_extra_files(book_id):
-            extra_file_map[relpath] = file_path
+        for ef in db.list_extra_files(book_id):
+            extra_file_map[ef.relpath] = ef.file_path
         for fmt in fmts:
             path = db.format_abspath(book_id, fmt)
             if path:

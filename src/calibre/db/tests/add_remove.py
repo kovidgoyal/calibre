@@ -410,8 +410,8 @@ class AddRemoveTest(BaseTest):
             self.assertFalse(os.path.exists(os.path.join(bookdir, 'sub', 'recurse')))
 
         def clear_extra_files(book_id):
-            for (relpath, file_path, stat_result) in dest_db.list_extra_files(book_id):
-                os.remove(file_path)
+            for ef in dest_db.list_extra_files(book_id):
+                os.remove(ef.file_path)
 
         assert_does_not_have_extra_files(1)
 
@@ -468,9 +468,9 @@ class AddRemoveTest(BaseTest):
 
         def extra_files_for(book_id):
             ans = {}
-            for relpath, file_path, stat_result in db.list_extra_files(book_id):
-                with open(file_path) as f:
-                    ans[relpath] = f.read()
+            for ef in db.list_extra_files(book_id):
+                with open(ef.file_path) as f:
+                    ans[ef.relpath] = f.read()
             return ans
 
         add_extra(1, 'one'), add_extra(1, 'sub/one')

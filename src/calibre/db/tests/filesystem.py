@@ -104,9 +104,9 @@ class FilesystemTest(BaseTest):
         # test only formats being changed
         init_cache()
         ef = set()
-        for (relpath, file_path, stat_result) in cache.list_extra_files(1):
-            ef.add(relpath)
-            self.assertTrue(os.path.exists(file_path))
+        for efx in cache.list_extra_files(1):
+            ef.add(efx.relpath)
+            self.assertTrue(os.path.exists(efx.file_path))
         self.assertEqual(ef, {'a.side', 'subdir/a.fmt1'})
         fname = cache.fields['formats'].table.fname_map[1]['FMT1']
         cache.fields['formats'].table.fname_map[1]['FMT1'] = 'some thing else'
@@ -229,8 +229,8 @@ class FilesystemTest(BaseTest):
         os.mkdir(os.path.join(bookdir, 'sub'))
         with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
             f.write('recurse')
-        self.assertEqual({relpath for (relpath, _, _) in cache.list_extra_files(1, pattern='sub/**/*')}, {'sub/recurse'})
-        self.assertEqual({relpath for (relpath, _, _) in cache.list_extra_files(1)}, {'exf', 'sub/recurse'})
+        self.assertEqual({ef.relpath for ef in cache.list_extra_files(1, pattern='sub/**/*')}, {'sub/recurse'})
+        self.assertEqual({ef.relpath for ef in cache.list_extra_files(1)}, {'exf', 'sub/recurse'})
         for part_size in (1 << 30, 100, 1):
             with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
                 exporter = Exporter(tdir, part_size=part_size)

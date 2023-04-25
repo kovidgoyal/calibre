@@ -27,7 +27,7 @@ def implementation(db, notify_changes, action, *args):
         mi = db.get_metadata(book_id)
         plugboards = db.pref('plugboards', {})
         formats = get_formats(db.formats(book_id), formats)
-        extra_files_for_export = tuple(relpath for (relpath, file_path, stat_result) in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
+        extra_files_for_export = tuple(ef.relpath for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
         plugboards['extra_files_for_export'] = extra_files_for_export
         return mi, plugboards, formats, db.library_id, db.pref(
             'user_template_functions', []
