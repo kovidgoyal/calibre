@@ -219,8 +219,8 @@ def mi_to_html(
                     else:
                         data_path = os.path.join(path, DATA_DIR_NAME)
                         with suppress(OSError):
-                            for de in os.scandir(data_path):
-                                if de.is_file():
+                            for dirpath, dirnames, filenames in os.walk(data_path):
+                                if filenames:
                                     num_of_folders = 2
                                     break
                         text = _('Book files')
