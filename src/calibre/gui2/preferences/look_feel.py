@@ -255,6 +255,8 @@ class DisplayedFields(QAbstractListModel):  # {{{
                 name = self.db.field_metadata[field]['name']
             except:
                 pass
+            if field == 'path':
+                name = _('Folders/path')
             if not name:
                 return field
             return f'{name} ({field})'
