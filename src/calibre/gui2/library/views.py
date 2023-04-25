@@ -5,31 +5,35 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import itertools, operator
-from functools import partial
+import itertools
+import operator
 from collections import OrderedDict
-
+from functools import partial
 from qt.core import (
-    QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
-    QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
-    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics,
-    QDialog, QGridLayout, QPushButton, QDialogButtonBox, QLabel, QSpinBox)
+    QAbstractItemView, QDialog, QDialogButtonBox, QDrag, QEvent, QFont, QFontMetrics,
+    QGridLayout, QHeaderView, QIcon, QItemSelection, QItemSelectionModel, QLabel, QMenu,
+    QMimeData, QModelIndex, QPoint, QPushButton, QSize, QSpinBox, QStyle,
+    QStyleOptionHeader, Qt, QTableView, QTimer, QUrl, pyqtSignal,
+)
 
-from calibre.constants import islinux
+from calibre import force_unicode
+from calibre.constants import filesystem_encoding, islinux
+from calibre.gui2 import FunctionDispatcher, error_dialog, gprefs
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
-from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
-    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, CcLongTextDelegate,
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
-    CcEnumDelegate, CcNumberDelegate, LanguagesDelegate, SeriesDelegate, CcSeriesDelegate)
+from calibre.gui2.gestures import GestureManager
+from calibre.gui2.library import DEFAULT_SORT
+from calibre.gui2.library.alternate_views import (
+    AlternateViews, handle_enter_press, setup_dnd_interface,
+)
+from calibre.gui2.library.delegates import (
+    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcEnumDelegate,
+    CcLongTextDelegate, CcNumberDelegate, CcSeriesDelegate, CcTemplateDelegate,
+    CcTextDelegate, CompleteDelegate, DateDelegate, LanguagesDelegate, PubDateDelegate,
+    RatingDelegate, SeriesDelegate, TextDelegate,
+)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.pin_columns import PinTableView
-from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface, handle_enter_press
-from calibre.gui2.gestures import GestureManager
-from calibre.utils.config import tweaks, prefs
-from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
-from calibre.gui2.library import DEFAULT_SORT
-from calibre.constants import filesystem_encoding
-from calibre import force_unicode
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import iteritems
 
@@ -1055,6 +1059,13 @@ class BooksView(QTableView):  # {{{
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
         self.alternate_views.set_database(db, stage=1)
+        # need to let a few event loop ticks pass for the bug to manifest
+        QTimer.singleShot(10, self.workaround_initial_horizontal_scroll_bug)
+
+    def workaround_initial_horizontal_scroll_bug(self):
+        h = self.horizontalScrollBar()
+        if h.value() == h.maximum():
+            h.setValue(0)
 
     def marked_changed(self, old_marked, current_marked):
         self.alternate_views.marked_changed(old_marked, current_marked)
