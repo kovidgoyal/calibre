@@ -13,7 +13,7 @@ from qt.core import (
     QAbstractItemView, QDialog, QDialogButtonBox, QDrag, QEvent, QFont, QFontMetrics,
     QGridLayout, QHeaderView, QIcon, QItemSelection, QItemSelectionModel, QLabel, QMenu,
     QMimeData, QModelIndex, QPoint, QPushButton, QSize, QSpinBox, QStyle,
-    QStyleOptionHeader, Qt, QTableView, QTimer, QUrl, pyqtSignal,
+    QStyleOptionHeader, Qt, QTableView, QUrl, pyqtSignal,
 )
 
 from calibre import force_unicode
@@ -1059,13 +1059,6 @@ class BooksView(QTableView):  # {{{
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
         self.alternate_views.set_database(db, stage=1)
-        # need to let a few event loop ticks pass for the bug to manifest
-        QTimer.singleShot(10, self.workaround_initial_horizontal_scroll_bug)
-
-    def workaround_initial_horizontal_scroll_bug(self):
-        h = self.horizontalScrollBar()
-        if h.value() == h.maximum():
-            h.setValue(0)
 
     def marked_changed(self, old_marked, current_marked):
         self.alternate_views.marked_changed(old_marked, current_marked)
@@ -1293,12 +1286,27 @@ class BooksView(QTableView):  # {{{
             self.column_header.update()
 
     def scroll_to_row(self, row):
+        row = min(row, self.model().rowCount(QModelIndex())-1)
         if row > -1:
-            h = self.horizontalHeader()
-            for i in range(h.count()):
-                if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
-                    self.scrollTo(self.model().index(row, i), QAbstractItemView.ScrollHint.PositionAtCenter)
-                    break
+            # taken from Qt implementation of scrollTo but this ensured horizontal position is not affected
+            vh = self.verticalHeader()
+            viewport_height = self.viewport().height()
+            vertical_offset = vh.offset()
+            vertical_position = vh.sectionPosition(row)
+            cell_height = vh.sectionSize(row)
+
+            pos = 'center'
+            if vertical_position - vertical_offset < 0 or cell_height > viewport_height:
+                pos = 'top'
+            elif vertical_position - vertical_offset + cell_height > viewport_height:
+                pos = 'bottom'
+            vsb = self.verticalScrollBar()
+            if pos == 'top':
+                vsb.setValue(vertical_position)
+            elif pos == 'bottom':
+                vsb.setValue(vertical_position - viewport_height + cell_height)
+            else:
+                vsb.setValue(vertical_position - ((viewport_height - cell_height) // 2))
 
     @property
     def current_book(self):
