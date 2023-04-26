@@ -263,8 +263,7 @@ def conditionable_columns(fm):
 def displayable_columns(fm):
     yield color_row_key
     for key in fm.displayable_field_keys():
-        if key not in ('sort', 'author_sort', 'comments', 'formats',
-                'identifiers', 'path'):
+        if key not in ('sort', 'author_sort', 'comments', 'identifiers',):
             yield key
 
 
