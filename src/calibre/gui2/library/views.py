@@ -55,10 +55,10 @@ def restrict_column_width(self, col, old_size, new_size):
 
 class HeaderView(QHeaderView):  # {{{
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         QHeaderView.__init__(self, *args)
         if self.orientation() == Qt.Orientation.Horizontal:
-            self.setSectionsMovable(True)
+            self.setSectionsMovable(kwargs.get('allow_mouse_resize', True))
             self.setSectionsClickable(True)
             self.setTextElideMode(Qt.TextElideMode.ElideRight)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -419,8 +419,10 @@ class BooksView(QTableView):  # {{{
         self.can_add_columns = True
         self.was_restored = False
         self.allow_save_state = True
-        self.column_header = HeaderView(Qt.Orientation.Horizontal, self)
-        self.pin_view.column_header = HeaderView(Qt.Orientation.Horizontal, self.pin_view)
+        self.column_header = HeaderView(Qt.Orientation.Horizontal, self,
+                        allow_mouse_resize=gprefs.get('allow_column_movement_with_mouse', True))
+        self.pin_view.column_header = HeaderView(Qt.Orientation.Horizontal, self.pin_view,
+                        allow_mouse_resize=gprefs.get('allow_column_movement_with_mouse', True))
         self.setHorizontalHeader(self.column_header)
         self.pin_view.setHorizontalHeader(self.pin_view.column_header)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -497,6 +499,12 @@ class BooksView(QTableView):  # {{{
             gprefs['book_list_split'] = self.pin_view.isVisible()
             self.save_state()
             return
+        if action in ('lock', 'unlock'):
+            val = action == 'unlock'
+            self.column_header.setSectionsMovable(val)
+            self.pin_view.column_header.setSectionsMovable(val)
+            gprefs.set('allow_column_movement_with_mouse', val)
+
         if not action or not column or not view:
             return
         try:
@@ -680,6 +688,14 @@ class BooksView(QTableView):  # {{{
                 ac.setText(_('Un-split the book list'))
             else:
                 ac.setText(_('Split the book list'))
+            if view.column_header.sectionsMovable():
+                view.column_header_context_menu.addAction(
+                        QIcon.ic('drm-locked.png'), _("Don't allow moving columns with the mouse"),
+                        partial(self.column_header_context_handler, action='lock'))
+            else:
+                view.column_header_context_menu.addAction(
+                        QIcon.ic('drm-unlocked.png'), _("Allow moving columns with the mouse"),
+                        partial(self.column_header_context_handler, action='unlock'))
         if has_context_menu:
             view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
