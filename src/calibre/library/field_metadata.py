@@ -412,12 +412,6 @@ class FieldMetadata:
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
-        try:
-            for k, v in tweaks['alternate_column_names'].items():
-                if k in self._tb_cats and not self.is_custom_field(k):
-                    self._tb_cats[k]['name'] = v
-        except Exception:
-            traceback.print_exc()
         self._tb_cats['timestamp']['display'] = {
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {

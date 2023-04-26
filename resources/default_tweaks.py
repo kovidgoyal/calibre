@@ -574,11 +574,3 @@ allow_template_database_functions_in_composites = False
 # for https://whatever URLs. %u is replaced by the URL to be opened. The scheme
 # takes a glob pattern allowing a single entry to match multiple URL types.
 openers_by_scheme = {}
-
-#: Change standard column names
-# Use the dictionary below to change a column name.
-# This tweak works only with standard columns, it cannot be used to change
-# the heading for a custom column.
-# Example:
-#   alternate_column_names = {'authors':'Writers', 'size':'MBytes'}
-alternate_column_names = {}
