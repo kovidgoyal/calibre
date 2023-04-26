@@ -25,6 +25,8 @@ class Editor(QWidget):  # {{{
         self._layout.addWidget(self.tabs)
 
         self.editor = QPlainTextEdit(self.tabs)
+        self.editor.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.editor.customContextMenuRequested.connect(self.show_context_menu)
 
         self.preview = HTMLDisplay(self.tabs)
         self.preview.setDefaultStyleSheet(css())
@@ -38,6 +40,12 @@ class Editor(QWidget):  # {{{
 
     def set_minimum_height_for_editor(self, val):
         self.editor.setMinimumHeight(val)
+
+    def show_context_menu(self, point):
+        menu = self.editor.createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction(_('Smarten punctuation'), self.smarten_punctuation)
+        menu.exec(self.editor.mapToGlobal(point))
 
     @property
     def markdown(self):
