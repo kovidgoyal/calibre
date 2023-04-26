@@ -162,6 +162,7 @@ class PreserveViewState:  # {{{
         self.current_id = None
         self.vscroll = self.hscroll = 0
         self.original_view = None
+        self.row = self.col = -1
 
     def __enter__(self):
         self.init_vals()
@@ -171,11 +172,16 @@ class PreserveViewState:  # {{{
             self.current_id = self.view.current_id
             self.vscroll = view.verticalScrollBar().value()
             self.hscroll = view.horizontalScrollBar().value()
+            ci = self.view.currentIndex()
+            self.row, self.col = ci.row(), ci.column()
         except:
             import traceback
             traceback.print_exc()
 
     def __exit__(self, *args):
+        ci = self.view.model().index(self.row, self.col)
+        if ci.isValid():
+            self.view.setCurrentIndex(ci)
         if self.selected_ids or not self.require_selected_ids:
             if self.current_id is not None:
                 self.view.current_id = self.current_id
