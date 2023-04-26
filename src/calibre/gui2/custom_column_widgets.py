@@ -481,6 +481,12 @@ class Markdown(Base):
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
 
+    def initialize(self, book_id):
+        path = self.db.abspath(book_id, index_is_id=True)
+        if path:
+            self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
+        return super().initialize(book_id)
+
     def setter(self, val):
         self._tb.markdown = str(val or '').strip()
 
