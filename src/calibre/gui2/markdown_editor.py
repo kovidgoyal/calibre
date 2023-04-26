@@ -30,6 +30,11 @@ class MarkdownEdit(QPlainTextEdit):
 
     smarten_punctuation = pyqtSignal()
 
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        from calibre.gui2.markdown_syntax_highlighter import MarkdownHighlighter
+        self.highlighter = MarkdownHighlighter(self.document())
+
     def contextMenuEvent(self, ev):
         m = self.createStandardContextMenu()
         m.addSeparator()
