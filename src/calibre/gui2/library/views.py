@@ -206,7 +206,7 @@ class PreserveViewState:  # {{{
     def state(self):
         self.__enter__()
         return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
-            'vscroll', 'hscroll')}
+            'vscroll', 'hscroll', 'row', 'col')}
 
     @state.setter
     def state(self, state):
