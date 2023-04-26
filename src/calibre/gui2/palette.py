@@ -380,12 +380,21 @@ class PaletteManager(QObject):
 QTabBar::tab:selected {
     background-color: palette(base);
     border: 1px solid gray;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-width: 0;
     padding: 2px 8px;
     margin-left: -4px;
     margin-right: -4px;
+}
+
+QTabBar::tab:top:selected {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-width: 0;
+}
+
+QTabBar::tab:bottom:selected {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-width: 0;
 }
 
 QTabBar::tab:first:selected {
