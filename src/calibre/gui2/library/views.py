@@ -1137,9 +1137,10 @@ class BooksView(QTableView):  # {{{
                 elif cc['datatype'] == 'enumeration':
                     set_item_delegate(colhead, self.cc_enum_delegate)
             else:
-                dattr = colhead+'_delegate'
-                delegate = colhead if hasattr(self, dattr) else 'text'
-                set_item_delegate(colhead, getattr(self, delegate+'_delegate'))
+                if colhead in self._model.editable_cols:
+                    dattr = colhead+'_delegate'
+                    delegate = colhead if hasattr(self, dattr) else 'text'
+                    set_item_delegate(colhead, getattr(self, delegate+'_delegate'))
 
         self.restore_state()
         self.set_ondevice_column_visibility()

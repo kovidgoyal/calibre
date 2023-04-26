@@ -771,10 +771,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
 class BuddyLabel(QLabel):  # {{{
 
     def __init__(self, buddy):
-        sval = tweaks['alternate_column_names'].get(getattr(buddy, 'FIELD_NAME', None))
-        if sval:
-            sval = '&' + sval.replace('&', '&&')
-        QLabel.__init__(self, sval or buddy.LABEL)
+        QLabel.__init__(self, buddy.LABEL)
         self.setBuddy(buddy)
         self.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 # }}}
