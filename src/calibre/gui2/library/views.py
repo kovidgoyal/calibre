@@ -150,8 +150,7 @@ class PreserveViewState:  # {{{
     and dont affect the scroll position.
     '''
 
-    def __init__(self, view, preserve_hpos=True, preserve_vpos=True,
-            require_selected_ids=True):
+    def __init__(self, view, preserve_hpos=True, preserve_vpos=True, require_selected_ids=True):
         self.view = view
         self.require_selected_ids = require_selected_ids
         self.preserve_hpos = preserve_hpos
@@ -439,10 +438,6 @@ class BooksView(QTableView):  # {{{
         hv = self.verticalHeader()
         hv.setSectionsClickable(True)
         hv.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.selected_ids = []
-        self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
-        self._model.sorting_done.connect(self.sorting_done,
-                type=Qt.ConnectionType.QueuedConnection)
         self.set_row_header_visibility()
         self.allow_mirroring = True
         if self.is_library_view:
@@ -698,7 +693,8 @@ class BooksView(QTableView):  # {{{
         self.column_header.blockSignals(True)
         self.column_header.setSortIndicator(col, order)
         self.column_header.blockSignals(False)
-        self.model().sort(col, order)
+        with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
+            self.model().sort(col, order)
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
@@ -727,17 +723,6 @@ class BooksView(QTableView):  # {{{
         gprefs[pname] = previous
         self.sort_by_named_field(field, previous[field])
 
-    def about_to_be_sorted(self, idc):
-        selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
-        self.selected_ids = [idc(r) for r in selected_rows]
-
-    def sorting_done(self, indexc):
-        pos = self.horizontalScrollBar().value()
-        self.select_rows(self.selected_ids, using_ids=True, change_current=True,
-            scroll=True)
-        self.selected_ids = []
-        self.horizontalScrollBar().setValue(pos)
-
     def sort_by_named_field(self, field, order, reset=True):
         if isinstance(order, Qt.SortOrder):
             order = order == Qt.SortOrder.AscendingOrder
@@ -745,7 +730,8 @@ class BooksView(QTableView):  # {{{
             idx = self.column_map.index(field)
             self.sort_by_column_and_order(idx, order)
         else:
-            self._model.sort_by_named_field(field, order, reset)
+            with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
+                self._model.sort_by_named_field(field, order, reset)
             self.set_sort_indicator(-1, True)
 
     def multisort(self, fields, reset=True, only_if_different=False):
@@ -767,7 +753,8 @@ class BooksView(QTableView):  # {{{
                 sh.insert(0, (n, d))
         sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]
-        self._model.resort(reset=reset)
+        with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
+            self._model.resort(reset=reset)
         col = fields[0][0]
         ascending = fields[0][1]
         try:
@@ -781,13 +768,12 @@ class BooksView(QTableView):  # {{{
             self._model.resort(reset=True)
 
     def reverse_sort(self):
-        with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
-            m = self.model()
-            try:
-                sort_col, order = m.sorted_on
-            except TypeError:
-                sort_col, order = 'date', True
-            self.sort_by_named_field(sort_col, not order)
+        m = self.model()
+        try:
+            sort_col, order = m.sorted_on
+        except TypeError:
+            sort_col, order = 'date', True
+        self.sort_by_named_field(sort_col, not order)
     # }}}
 
     # Ondevice column {{{
@@ -1483,7 +1469,7 @@ class BooksView(QTableView):  # {{{
         for idx in self.selectedIndexes():
             r = idx.row()
             i = m.id(r)
-            if i not in seen:
+            if i not in seen and i is not None:
                 ans.append(i)
                 seen.add(i)
         return seen if as_set else ans

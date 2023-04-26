@@ -1721,6 +1721,13 @@ class DeviceBooksModel(BooksModel):  # {{{
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows]
 
+    def id(self, row):
+        row = getattr(row, 'row', lambda:row)()
+        try:
+            return self.db[self.map[row]].path
+        except Exception:
+            return None
+
     def paths_for_db_ids(self, db_ids, as_map=False):
         res = defaultdict(list) if as_map else []
         for r,b in enumerate(self.db):
