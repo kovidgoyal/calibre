@@ -58,7 +58,7 @@ class HeaderView(QHeaderView):  # {{{
     def __init__(self, *args, **kwargs):
         QHeaderView.__init__(self, *args)
         if self.orientation() == Qt.Orientation.Horizontal:
-            self.setSectionsMovable(kwargs.get('allow_mouse_resize', True))
+            self.setSectionsMovable(kwargs.get('allow_mouse_movement', True))
             self.setSectionsClickable(True)
             self.setTextElideMode(Qt.TextElideMode.ElideRight)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -420,9 +420,9 @@ class BooksView(QTableView):  # {{{
         self.was_restored = False
         self.allow_save_state = True
         self.column_header = HeaderView(Qt.Orientation.Horizontal, self,
-                        allow_mouse_resize=gprefs.get('allow_column_movement_with_mouse', True))
+                        allow_mouse_movement=gprefs.get('allow_column_movement_with_mouse', True))
         self.pin_view.column_header = HeaderView(Qt.Orientation.Horizontal, self.pin_view,
-                        allow_mouse_resize=gprefs.get('allow_column_movement_with_mouse', True))
+                        allow_mouse_movement=gprefs.get('allow_column_movement_with_mouse', True))
         self.setHorizontalHeader(self.column_header)
         self.pin_view.setHorizontalHeader(self.pin_view.column_header)
         self.column_header.sectionMoved.connect(self.save_state)
