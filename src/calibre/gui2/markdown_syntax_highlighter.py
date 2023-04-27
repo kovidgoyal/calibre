@@ -177,7 +177,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()
-                formatRange.format = self.MARKDOWN_KWS_FORMAT['HeaderLine']
+                formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
                 prevCursor.block().layout().setFormats([formatRange])
