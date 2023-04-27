@@ -34,6 +34,27 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Html': re.compile('<.+?>')
     }
 
+    key_theme_maps = {
+        'Bold': "bold",
+        'uBold': "bold",
+        'Italic': "emphasis",
+        'uItalic': "emphasis",
+        'Link': "link",
+        'Image': "image",
+        'HeaderAtx': "header",
+        'Header': "header",
+        'CodeBlock': "codeblock",
+        'UnorderedList': "unorderedlist",
+        'UnorderedListStar': "unorderedlist",
+        'OrderedList': "orderedlist",
+        'BlockQuote': "blockquote",
+        'BlockQuoteCount': "blockquote",
+        'CodeSpan': "codespan",
+        'HR': "line",
+        'eHR': "line",
+        'Html': "html",
+    }
+
     light_theme =  {
         "bold": {"color":"#859900", "font-weight":"bold", "font-style":"normal"},
         "emphasis": {"color":"#b58900", "font-weight":"bold", "font-style":"italic"},
@@ -73,101 +94,16 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.theme = theme
         self.MARKDOWN_KWS_FORMAT = {}
 
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['bold']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['bold']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['bold']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['Bold'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['bold']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['bold']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['bold']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['uBold'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['emphasis']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['emphasis']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['emphasis']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['Italic'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['emphasis']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['emphasis']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['emphasis']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['uItalic'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['link']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['link']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['link']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['Link'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['image']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['image']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['image']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['Image'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['header']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['header']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['header']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['Header'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['header']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['header']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['header']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['HeaderAtx'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['unorderedlist']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['unorderedlist']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['unorderedlist']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['UnorderedList'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['orderedlist']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['orderedlist']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['orderedlist']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['OrderedList'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['blockquote']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['blockquote']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['blockquote']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['BlockQuote'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['codespan']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['codespan']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['codespan']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['CodeSpan'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['codeblock']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['codeblock']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['codeblock']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['CodeBlock'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['line']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['line']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['line']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['HR'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['line']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['line']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['line']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['eHR'] = format
-
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(theme['html']['color'])))
-        format.setFontWeight(QFont.Weight.Bold if theme['html']['font-weight']=='bold' else QFont.Weight.Normal)
-        format.setFontItalic(True if theme['html']['font-style']=='italic' else False)
-        self.MARKDOWN_KWS_FORMAT['HTML'] = format
+        for k,t in self.key_theme_maps.items():
+            subtheme = theme[t]
+            format = QTextCharFormat()
+            if 'color' in subtheme:
+                format.setForeground(QBrush(QColor(subtheme['color'])))
+            if 'font-weight' in subtheme:
+                format.setFontWeight(QFont.Weight.Bold if subtheme['font-weight']=='bold' else QFont.Weight.Normal)
+            if 'font-style' in subtheme:
+                format.setFontItalic(True if subtheme['font-style']=='italic' else False)
+            self.MARKDOWN_KWS_FORMAT[k] = format
 
         self.rehighlight()
 
