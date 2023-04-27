@@ -23,6 +23,43 @@
 # - title by author
 # }}}
 
+{{{ 6.17.0 2023-04-26
+
+:: new features
+
+- Font subsetting: Add support for WOFF format fonts and CID keyed fonts. Also further reduce file sizes when subsetting
+
+- Book details: Show a link to open the data files folder when data files are present
+
+- Template language: Add various functions to query the extra files associated with a book
+
+- [2017195] Edit book: Compress images: Support compression of images in the WEBP format as well
+
+- Comments editor: Add buttons to create links to data files and also to folders easily when inserting a link
+
+- Allow displaying the id, formats and path builtin columns via Preferences->Add your own columns
+
+- Add a tweak in Preferences->Tweaks to allow for changing the titles of builtin columns
+
+- [2017232] Trash bin: Add a button to clear the bin
+
+- Metadata editor: Use a dedicated editor with preview for custom columns that store markdown formatted text
+
+:: bug fixes
+
+- Fix a regression in the previous release that could result in empty author folders remaining in the library when the author of a book is changed
+
+- [2017373] Fix the data files associated with a book not being handled when using the Merge books and Copy to library functions
+
+- Fix a regression in the previous release that broke some operations in the Manage tags/authors/etc. dialogs
+
+- [2017217] Ensure metadata.opf is always written when deleting book even if it is not sequenced for backup
+
+:: improved recipes
+- Scientific American
+
+}}}
+
 {{{ 6.16.0 2023-04-20
 
 :: new features
