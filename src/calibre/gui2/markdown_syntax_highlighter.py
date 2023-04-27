@@ -29,8 +29,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'BlockQuote': re.compile(r'(?u)^\s*>+\s*'),
         'BlockQuoteCount': re.compile('^[ \t]*>[ \t]?'),
         'CodeSpan': re.compile('(?P<delim>`+).+?(?P=delim)'),
-        'HR': re.compile(r'(?u)^(\s*(\*|-)\s*){3,}$'),
-        'eHR': re.compile(r'(?u)^(\s*(\*|=)\s*){3,}$'),
+        'HeaderLine': re.compile(r'(?u)^(\s*(-|=)\s*){3,}$'),
+        'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
         'Html': re.compile('<.+?>')
     }
 
@@ -43,6 +43,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Image': "image",
         'HeaderAtx': "header",
         'Header': "header",
+        'HeaderLine': "header",
         'CodeBlock': "codeblock",
         'UnorderedList': "unorderedlist",
         'UnorderedListStar': "unorderedlist",
@@ -51,7 +52,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'BlockQuoteCount': "blockquote",
         'CodeSpan': "codespan",
         'HR': "line",
-        'eHR': "line",
         'Html': "html",
     }
 
@@ -166,23 +166,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightHorizontalLine(self, text, cursor, bf, strt):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HR'],text):
-            prevBlock = self.currentBlock().previous()
-            prevCursor = QTextCursor(prevBlock)
-            prev = prevBlock.text()
-            prevAscii = str(prev.replace('\u2029','\n'))
-            if prevAscii.strip():
-                #print "Its a header"
-                prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
-                #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
-                formatRange = QTextLayout.FormatRange()
-                formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
-                formatRange.length = prevCursor.block().length()
-                formatRange.start = 0
-                prevCursor.block().layout().setFormats([formatRange])
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['eHR'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderLine'],text):
             prevBlock = self.currentBlock().previous()
             prevCursor = QTextCursor(prevBlock)
             prev = prevBlock.text()
@@ -192,11 +177,16 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()
-                formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
+                formatRange.format = self.MARKDOWN_KWS_FORMAT['HeaderLine']
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
                 prevCursor.block().layout().setFormats([formatRange])
+                self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
+                return True
+
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HR'],text):
             self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
+            found = True
         return found
 
     def highlightAtxHeader(self, text, cursor, bf, strt):
