@@ -5,16 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import os, sys
 
 from qt.core import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
-        QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
+        QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence, QUrl,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime, QEvent,
         QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit, QDialog, QPalette)
 
 from calibre.ebooks.metadata import rating_to_stars, title_sort
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font, gprefs
 from calibre.constants import iswindows
+from calibre.gui2.markdown_editor import MarkdownEditDialog
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor, DateTimeEdit as DateTimeEditBase
 from calibre.gui2.complete2 import EditWithComplete
@@ -534,7 +535,14 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
             text = ''
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
-        d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
+        column_format = m.custom_columns[m.column_map[index.column()]]['display'].get('interpret_as')
+        if column_format == 'markdown':
+            path = m.db.abspath(index.row(), index_is_id=False)
+            base_url = QUrl.fromLocalFile(os.path.join(path, 'metadata.html')) if path else None
+            d = MarkdownEditDialog(parent, text, column_name=m.custom_columns[col]['name'],
+                                   base_url=base_url)
+        else:
+            d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
         return None

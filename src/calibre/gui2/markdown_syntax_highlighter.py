@@ -237,13 +237,13 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prevAscii = str(prev.replace('\u2029','\n'))
             if prevAscii.strip():
                 #print "Its a header"
-                prevCursor.select(QTextCursor.LineUnderCursor)
+                prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()
                 formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
-                prevCursor.block().layout().setAdditionalFormats([formatRange])
+                prevCursor.block().layout().setFormats([formatRange])
             self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['eHR'],text):
@@ -253,13 +253,13 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prevAscii = str(prev.replace('\u2029','\n'))
             if prevAscii.strip():
                 #print "Its a header"
-                prevCursor.select(QTextCursor.LineUnderCursor)
+                prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()
                 formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
-                prevCursor.block().layout().setAdditionalFormats([formatRange])
+                prevCursor.block().layout().setFormats([formatRange])
             self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
         return found
 
