@@ -29,7 +29,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'BlockQuote': re.compile(r'(?u)^\s*>+\s*'),
         'BlockQuoteCount': re.compile('^[ \t]*>[ \t]?'),
         'CodeSpan': re.compile('(?P<delim>`+).+?(?P=delim)'),
-        'HeaderLine': re.compile(r'(?u)^(\s*(-|=)\s*){3,}$'),
+        'HeaderLine': re.compile(r'(?u)^(-|=)+\s*$'),
         'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
         'Html': re.compile('<.+?>')
     }
