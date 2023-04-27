@@ -99,10 +99,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             format = QTextCharFormat()
             if 'color' in subtheme:
                 format.setForeground(QBrush(QColor(subtheme['color'])))
-            if 'font-weight' in subtheme:
-                format.setFontWeight(QFont.Weight.Bold if subtheme['font-weight']=='bold' else QFont.Weight.Normal)
-            if 'font-style' in subtheme:
-                format.setFontItalic(True if subtheme['font-style']=='italic' else False)
+            format.setFontWeight(QFont.Weight.Bold if subtheme.get('font-weight') == 'bold' else QFont.Weight.Normal)
+            format.setFontItalic(subtheme.get('font-style') == 'italic')
             self.MARKDOWN_KWS_FORMAT[k] = format
 
         self.rehighlight()
