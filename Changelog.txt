@@ -39,8 +39,6 @@
 
 - Allow displaying the id, formats and path builtin columns via Preferences->Add your own columns
 
-- Add a tweak in Preferences->Tweaks to allow for changing the titles of builtin columns
-
 - [2017232] Trash bin: Add a button to clear the bin
 
 - Metadata editor: Use a dedicated editor with preview for custom columns that store markdown formatted text
