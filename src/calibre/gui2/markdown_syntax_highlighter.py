@@ -56,8 +56,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     }
 
     light_theme =  {
-        "bold": {"color":"#859900", "font-weight":"bold", "font-style":"normal"},
-        "emphasis": {"color":"#b58900", "font-weight":"bold", "font-style":"italic"},
+        "bold": {"font-weight":"bold"},
+        "emphasis": {"font-style":"italic"},
         "link": {"color":light_link_color.name(), "font-weight":"normal", "font-style":"normal"},
         "image": {"color":"#cb4b16", "font-weight":"normal", "font-style":"normal"},
         "header": {"color":"#2aa198", "font-weight":"bold", "font-style":"normal"},
@@ -71,8 +71,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     }
 
     dark_theme =  {
-        "bold": {"color":"#859900", "font-weight":"bold", "font-style":"normal"},
-        "emphasis": {"color":"#b58900", "font-weight":"bold", "font-style":"italic"},
+        "bold": {"font-weight":"bold"},
+        "emphasis": {"font-style":"italic"},
         "link": {"color":dark_link_color.name(), "font-weight":"normal", "font-style":"normal"},
         "image": {"color":"#cb4b16", "font-weight":"normal", "font-style":"normal"},
         "header": {"color":"#2aa198", "font-weight":"bold", "font-style":"normal"},
