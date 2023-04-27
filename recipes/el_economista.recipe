@@ -31,5 +31,4 @@ class ElConfidencial(BasicNewsRecipe):
         (u'elEconomista tecnología', u'https://www.eleconomista.es/rss/rss-category.php?category=tecnologia'),
         (u'Selección elEconomista', u'https://www.eleconomista.es/rss/rss-seleccion-ee.php'),
         (u'Mercados', u'https://www.eleconomista.es/rss/rss-mercados.php'),
-        (u'Mercados', u'https://www.eleconomista.es/rss/rss-mercados.php'),
     ]
