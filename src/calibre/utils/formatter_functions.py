@@ -2391,16 +2391,28 @@ class BuiltinBookValues(BuiltinFormatterFunction):
 
 class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     name = 'has_extra_files'
-    arg_count = 0
+    arg_count = -1
     category = 'Template database functions'
-    __doc__ = doc = _("has_extra_files() -- returns 'Yes' if there are any extra "
+    __doc__ = doc = _("has_extra_files([pattern]) -- returns the count of extra "
                       "files, otherwise '' (the empty string). "
+                      "If the optional parameter 'pattern' (a regular expression) "
+                      "is supplied then the list is filtered to files that match "
+                      "pattern before the files are counted. The pattern match is "
+                      "case insensitive. "
                       'This function can be used only in the GUI.')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if len(args) > 1:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
+        pattern = args[0] if len(args) == 1 else None
         db = self.get_database(mi).new_api
         try:
-            return 'Yes' if db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN) else ''
+            files = tuple(f.relpath.partition('/')[-1] for f in
+                          db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
+            if pattern:
+                r = re.compile(pattern, re.IGNORECASE)
+                files = tuple(filter(r.search, files))
+            return len(files) if len(files) > 0 else ''
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)
@@ -2408,17 +2420,27 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
 
 class BuiltinExtraFileNames(BuiltinFormatterFunction):
     name = 'extra_file_names'
-    arg_count = 1
+    arg_count = -1
     category = 'Template database functions'
-    __doc__ = doc = _("extra_file_names(sep) -- returns a sep-separated list of "
-                      "extra files in the book's '{}/' folder. "
+    __doc__ = doc = _("extra_file_names(sep [, pattern]) -- returns a sep-separated "
+                      "list of extra files in the book's '{}/' folder. If the "
+                      "optional parameter 'pattern', a regular expression, is "
+                      "supplied then the list is filtered to files that match pattern. "
+                      "The pattern match is case insensitive. "
                       'This function can be used only in the GUI.').format(DATA_DIR_NAME)
 
-    def evaluate(self, formatter, kwargs, mi, locals, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, sep, *args):
+        if len(args) > 1:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
+        pattern = args[0] if len(args) == 1 else None
         db = self.get_database(mi).new_api
         try:
-            files = db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN)
-            return sep.join(file.relpath.partition('/')[-1] for file in files)
+            files = tuple(f.relpath.partition('/')[-1] for f in
+                          db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
+            if pattern:
+                r = re.compile(pattern, re.IGNORECASE)
+                files = tuple(filter(r.search, files))
+            return sep.join(files)
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)

@@ -3,13 +3,14 @@
 
 import os
 from qt.core import (
-    QPlainTextEdit, Qt, QTabWidget, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QTabWidget, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 
-from calibre.gui2 import safe_open_url
+from calibre.gui2 import safe_open_url, gprefs
 from calibre.gui2.book_details import css
 from calibre.gui2.widgets2 import HTMLDisplay
-from calibre.library.comments import markdown
+from calibre.library.comments import markdown as get_markdown
 
 
 class Preview(HTMLDisplay):
@@ -40,6 +41,56 @@ class MarkdownEdit(QPlainTextEdit):
         m.addSeparator()
         m.addAction(_('Smarten punctuation'), self.smarten_punctuation.emit)
         m.exec(ev.globalPos())
+
+
+class MarkdownEditDialog(QDialog):
+
+    def __init__(self, parent, text, column_name=None, base_url=None):
+        QDialog.__init__(self, parent)
+        self.setObjectName("MarkdownEditDialog")
+        self.setWindowTitle(_("Edit markdown"))
+        self.verticalLayout = l = QVBoxLayout(self)
+        self.textbox = editor = Editor(self)
+        editor.set_base_url(base_url)
+        self.buttonBox = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(editor)
+        l.addWidget(bb)
+        # Remove help icon on title bar
+        icon = self.windowIcon()
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        self.setWindowIcon(icon)
+
+        self.textbox.markdown =text
+        # self.textbox.wyswyg_dirtied()
+
+        if column_name:
+            self.setWindowTitle(_('Edit "{0}"').format(column_name))
+        self.restore_geometry(gprefs, 'markdown_edit_dialog_geom')
+
+    def sizeHint(self):
+        return QSize(650, 600)
+
+    def accept(self):
+        self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
+        QDialog.accept(self)
+
+    def reject(self):
+        self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
+        QDialog.reject(self)
+
+    def closeEvent(self, ev):
+        self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
+        return QDialog.closeEvent(self, ev)
+
+    @property
+    def text(self):
+        return self.textbox.markdown
+
+    @text.setter
+    def text(self, val):
+        self.textbox.markdown = val or ''
 
 
 class Editor(QWidget):  # {{{
@@ -90,7 +141,7 @@ class Editor(QWidget):  # {{{
             self.update_preview()
 
     def update_preview(self):
-        html = markdown(self.editor.toPlainText().strip())
+        html = get_markdown(self.editor.toPlainText().strip())
         val = f'''\
         <html>
             <head></head>
