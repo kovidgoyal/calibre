@@ -21,16 +21,17 @@ class LiveMint(BasicNewsRecipe):
     remove_empty_feeds =  True
     resolve_internal_links = True
 
-    def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Mint-Mumbai/Newspaper/'
-        )
-        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-            return citem['content']
-
     if is_saturday:
+        
+        def get_cover_url(self):
+            soup = self.index_to_soup('https://lifestyle.livemint.com/')
+            self.title = 'Mint Lounge'
+            if citem := soup.find('div', attrs={'class':'headLatestIss_cover'}):
+                return citem.img['src'].replace('_tn.jpg', '_mr.jpg')
+        
+        masthead_url = 'https://lifestyle.livemint.com/mintlounge/static-images/lounge-logo.svg'
 
-        oldest_article = 6 # days
+        oldest_article = 6.5 # days
 
         extra_css = '''
             #story-summary-0 {font-style:italic; color:#202020;}
@@ -63,6 +64,13 @@ class LiveMint(BasicNewsRecipe):
                 img['src'] = img['data-img']
             return soup
     else:
+        
+        def get_cover_url(self):
+            soup = self.index_to_soup(
+                'https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Mint-Mumbai/Newspaper/'
+            )
+            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+                return citem['content']
 
         extra_css = '''
             img {display:block; margin:0 auto;}
