@@ -27,7 +27,7 @@ from calibre.gui2.library.alternate_views import (
 )
 from calibre.gui2.library.delegates import (
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcEnumDelegate,
-    CcLongTextDelegate, CcNumberDelegate, CcSeriesDelegate, CcTemplateDelegate,
+    CcLongTextDelegate, CcMarkdownDelegate, CcNumberDelegate, CcSeriesDelegate, CcTemplateDelegate,
     CcTextDelegate, CompleteDelegate, DateDelegate, LanguagesDelegate, PubDateDelegate,
     RatingDelegate, SeriesDelegate, TextDelegate,
 )
@@ -396,6 +396,7 @@ class BooksView(QTableView):  # {{{
         self.cc_text_delegate = CcTextDelegate(self)
         self.cc_series_delegate = CcSeriesDelegate(self)
         self.cc_longtext_delegate = CcLongTextDelegate(self)
+        self.cc_markdown_delegate = CcMarkdownDelegate(self)
         self.cc_enum_delegate = CcEnumDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
@@ -1127,8 +1128,10 @@ class BooksView(QTableView):  # {{{
                     ctype = cc['display'].get('interpret_as', 'html')
                     if ctype == 'short-text':
                         set_item_delegate(colhead, self.cc_text_delegate)
-                    elif ctype in ('long-text', 'markdown'):
+                    elif ctype == 'long-text':
                         set_item_delegate(colhead, self.cc_longtext_delegate)
+                    elif ctype == 'markdown':
+                        set_item_delegate(colhead, self.cc_markdown_delegate)
                     else:
                         set_item_delegate(colhead, self.cc_comments_delegate)
                 elif cc['datatype'] == 'text':

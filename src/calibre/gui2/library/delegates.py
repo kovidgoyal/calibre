@@ -26,7 +26,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
-
+from calibre.library.comments import markdown
 
 class UpdateEditorGeometry:
 
@@ -535,16 +535,63 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
             text = ''
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
-        column_format = m.custom_columns[m.column_map[index.column()]]['display'].get('interpret_as')
-        if column_format == 'markdown':
-            path = m.db.abspath(index.row(), index_is_id=False)
-            base_url = QUrl.fromLocalFile(os.path.join(path, 'metadata.html')) if path else None
-            d = MarkdownEditDialog(parent, text, column_name=m.custom_columns[col]['name'],
-                                   base_url=base_url)
-        else:
-            d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
+        d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
+        return None
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
+# }}}
+
+
+class CcMarkdownDelegate(QStyledItemDelegate):  # {{{
+
+    '''
+    Delegate for markdown data.
+    '''
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
+    def paint(self, painter, option, index):
+        self.initStyleOption(option, index)
+        style = QApplication.style() if option.widget is None \
+                                                else option.widget.style()
+        option.text = markdown(option.text)
+        self.document.setHtml(option.text)
+        style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
+        rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, self.parent())
+        ic = option.icon
+        if rect.isValid() and not ic.isNull():
+            sz = ic.actualSize(option.decorationSize)
+            painter.drawPixmap(rect.topLeft(), ic.pixmap(sz))
+        ctx = QAbstractTextDocumentLayout.PaintContext()
+        ctx.palette = option.palette
+        if option.state & QStyle.StateFlag.State_Selected:
+            ctx.palette.setColor(QPalette.ColorRole.Text, ctx.palette.color(QPalette.ColorRole.HighlightedText))
+        textRect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, self.parent())
+        painter.save()
+        painter.translate(textRect.topLeft())
+        painter.setClipRect(textRect.translated(-textRect.topLeft()))
+        self.document.documentLayout().draw(painter, ctx)
+        painter.restore()
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
+            text = ''
+        else:
+            text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
+        
+        path = m.db.abspath(index.row(), index_is_id=False)
+        base_url = QUrl.fromLocalFile(os.path.join(path, 'metadata.html')) if path else None
+        d = MarkdownEditDialog(parent, text, column_name=m.custom_columns[col]['name'],
+                               base_url=base_url)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            m.setData(index, (d.text), Qt.ItemDataRole.EditRole)
         return None
 
     def setModelData(self, editor, model, index):
