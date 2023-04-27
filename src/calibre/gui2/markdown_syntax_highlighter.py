@@ -278,4 +278,4 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightHtml(self, text):
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Html'], text):
-            self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HTML'])
+            self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Html'])
