@@ -15,7 +15,7 @@ from qt.core import (
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
-from calibre.db.constants import DATA_DIR_NAME
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -487,12 +487,11 @@ def create_copy_links(menu, data=None):
     link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     link(_('Link to show book details in a popup window'), f'calibre://book-details/{library_id}/{book_id}')
     mi = db.new_api.get_proxy_metadata(book_id)
-    data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
-    with suppress(OSError):
-        if os.listdir(data_path):
-            if iswindows:
-                data_path = '/' + data_path.replace('\\', '/')
-            link(_("Link to open book's data files folder"), 'file://' + data_path)
+    with suppress(Exception):
+        data_files = db.new_api.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
+        if data_files:
+            data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
+            link(_("Link to open book's data files folder"), bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
     if data:
         field = data.get('field')
         if data['type'] == 'author':
