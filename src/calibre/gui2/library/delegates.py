@@ -552,13 +552,12 @@ class CcMarkdownDelegate(QStyledItemDelegate):  # {{{
     '''
 
     def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
+        super().__init__(parent)
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
         self.initStyleOption(option, index)
-        style = QApplication.style() if option.widget is None \
-                                                else option.widget.style()
+        style = QApplication.style() if option.widget is None else option.widget.style()
         option.text = markdown(option.text)
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
@@ -585,7 +584,7 @@ class CcMarkdownDelegate(QStyledItemDelegate):  # {{{
             text = ''
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
-        
+
         path = m.db.abspath(index.row(), index_is_id=False)
         base_url = QUrl.fromLocalFile(os.path.join(path, 'metadata.html')) if path else None
         d = MarkdownEditDialog(parent, text, column_name=m.custom_columns[col]['name'],
