@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+__license__ = 'GPL v3'
+__author__ = 'hmeza'
+__description__ = 'El Confidencial - El diario de los lectores influyentes'
+__version__ = 'v1.00.000'
+__date__ = '27, April 2023'
+'''
+https://www.elconfidencial.com/
+'''
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ElConfidencial(BasicNewsRecipe):
+    title = u'El Confidencial'
+    oldest_article = 7.0
+    __author__ = 'hmeza'
+    description = 'El Confidencial - El diario de los lectores influyentes'
+    timefmt = ' [%d %b, %Y]'
+    publication_type = 'newspaper'
+    language = 'es'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+
+    feeds = [
+        (u'ACTUALIDAD - España', 'https://rss.elconfidencial.com/espana/'),
+        (u'ACTUALIDAD - Mundo', 'https://rss.elconfidencial.com/mundo/'),
+        (u'ACTUALIDAD - Comunicación', 'https://rss.elconfidencial.com/comunicacion/'),
+        (u'ACTUALIDAD - Sociedad', 'https://rss.elconfidencial.com/sociedad/'),
+        (u'OPINIÓN - A.casado', 'https://rss.blogs.elconfidencial.com/espana/al-grano/'),
+        (u'OPINIÓN - J.a.zarzalejos', 'https://rss.blogs.elconfidencial.com/espana/notebook/'),
+        (u'OPINIÓN - C.sánchez', 'https://rss.blogs.elconfidencial.com/espana/mientras-tanto/'),
+        (u'OPINIÓN - El confidente', 'https://rss.blogs.elconfidencial.com/espana/el-confidente/'),
+        (u'COTIZALIA - Mercados', 'https://rss.elconfidencial.com/mercados/'),
+        (u'COTIZALIA - Economía', 'https://rss.elconfidencial.com/economia/'),
+        (u'COTIZALIA - Empresas', 'https://rss.elconfidencial.com/empresas/'),
+        (u'COTIZALIA - Finanzas personales', 'https://rss.elconfidencial.com/mercados/finanzas-personales/'),
+        (u'COTIZALIA - Vivienda', 'https://rss.elconfidencial.com/vivienda'),
+        (u'COTIZALIA - Fondos de inversión', 'https://rss.elconfidencial.com/mercados/fondos-de-inversion/'),
+        (u'TEKNAUTAS - Aplicaciones', 'https://rss.elconfidencial.com/tags/temas/apps-9337/'),
+        (u'TEKNAUTAS - Emprendedores', 'https://rss.elconfidencial.com/tags/economia/emprendedores-4800/'),
+        (u'TEKNAUTAS - Gadgets', 'https://rss.elconfidencial.com/tags/temas/gadgets-9340/'),
+        (u'TEKNAUTAS - Hardware', 'https://rss.elconfidencial.com/tags/temas/hardware-9341/'),
+        (u'TEKNAUTAS - Internet', 'https://rss.elconfidencial.com/tags/temas/internet-9342/'),
+        (u'TEKNAUTAS - Móviles', 'https://rss.elconfidencial.com/tags/otros/moviles-8601/'),
+        (u'TEKNAUTAS - Redes sociales', 'https://rss.elconfidencial.com/tags/temas/redes-sociales-9344/'),
+        (u'DEPORTES - Fútbol', 'https://rss.elconfidencial.com/deportes/futbol/'),
+        (u'DEPORTES - Baloncesto', 'https://rss.elconfidencial.com/deportes/baloncesto/'),
+        (u'DEPORTES - Fórmula 1', 'https://rss.elconfidencial.com/deportes/formula-1/'),
+        (u'DEPORTES - Motociclismo', 'https://rss.elconfidencial.com/deportes/motociclismo/'),
+        (u'DEPORTES - Tenis', 'https://rss.elconfidencial.com/deportes/tenis/'),
+        (u'DEPORTES - Ciclismo', 'https://rss.elconfidencial.com/deportes/ciclismo/'),
+        (u'DEPORTES - Golf', 'https://rss.elconfidencial.com/deportes/golf/'),
+        (u'DEPORTES - Otros deportes', 'https://rss.elconfidencial.com/deportes/otros-deportes/'),
+        (u'ACV - Alimentación', 'https://rss.elconfidencial.com/tags/otros/alimentacion-5601/'),
+        (u'ACV - Bienestar', 'https://rss.elconfidencial.com/tags/temas/bienestar-9331/'),
+        (u'ACV - Educación', 'https://rss.elconfidencial.com/tags/temas/educacion-9332/'),
+        (u'ACV - Psicología', 'https://rss.elconfidencial.com/tags/temas/psicologia-9333/'),
+        (u'ACV - Salud', 'https://rss.elconfidencial.com/tags/otros/salud-6110/'),
+        (u'ACV - Sexualidad', 'https://rss.elconfidencial.com/tags/temas/sexualidad-6986/'),
+        (u'ACV - Trabajo', 'https://rss.elconfidencial.com/tags/economia/trabajo-5284/'),
+        (u'CULTURA - Libros', 'https://rss.elconfidencial.com/tags/otros/libros-5344/'),
+        (u'CULTURA - Arte', 'https://rss.elconfidencial.com/tags/otros/arte-6092/'),
+        (u'CULTURA - Cine', 'https://rss.elconfidencial.com/tags/otros/cine-7354/'),
+        (u'CULTURA - Música', 'https://rss.elconfidencial.com/tags/otros/musica-5272/'),
+        (u'VANITATIS - Actualidad', 'https://rss.vanitatis.elconfidencial.com/noticias/'),
+        (u'VANITATIS - Tendencias', 'https://rss.vanitatis.elconfidencial.com/estilo/'),
+        (u'VANITATIS - Televisión', 'https://rss.vanitatis.elconfidencial.com/television/'),
+        (u'VANITATIS - Casas reales', 'https://rss.vanitatis.elconfidencial.com/casas-reales/'),
+        (u'VANITATIS - Blogs', 'https://rss.blogs.vanitatis.elconfidencial.com/'),
+        (u'ALIMENTE - Nutrición', 'https://rss.alimente.elconfidencial.com/nutricion/'),
+        (u'ALIMENTE - Consumo', 'https://rss.alimente.elconfidencial.com/consumo/'),
+        (u'ALIMENTE - Gastronomía', 'https://rss.alimente.elconfidencial.com/gastronomia-y-cocina/'),
+        (u'ALIMENTE - Bienestar', 'https://rss.alimente.elconfidencial.com/bienestar/'),
+        (u'ALIMENTE - Recetas', 'https://rss.alimente.elconfidencial.com/recetas/'),
+        (u'GENTLEMAN - Gentlemanía', 'https://rss.gentleman.elconfidencial.com/gentlemania/'),
+        (u'GENTLEMAN - Nombres propios', 'https://rss.gentleman.elconfidencial.com/personajes/'),
+        (u'GENTLEMAN - Style', 'https://rss.gentleman.elconfidencial.com/estilo-hombre/'),
+        (u'GENTLEMAN - Gourmet', 'https://rss.gentleman.elconfidencial.com/gourmet/'),
+        (u'GENTLEMAN - Relojes', 'https://rss.gentleman.elconfidencial.com/relojes/')
+    ]
