@@ -71,6 +71,12 @@ class SortByAction(InterfaceAction):
     def about_to_show(self):
         self.update_menu()
 
+    def library_changed(self, db):
+        self.update_menu()
+
+    def initialization_complete(self):
+        self.update_menu()
+
     def update_menu(self, menu=None):
         menu = self.qaction.menu() if menu is None else menu
         for action in menu.actions():
@@ -80,9 +86,8 @@ class SortByAction(InterfaceAction):
                     action.toggled.disconnect()
 
         menu.clear()
-        lv = self.gui.library_view
-        m = lv.model()
-        db = m.db
+        m = self.gui.library_view.model()
+        db = self.gui.current_db
 
         # Add saved sorts to the menu
         saved_sorts = db.new_api.pref('saved_multisort_specs', {})
@@ -161,6 +166,7 @@ class SortByAction(InterfaceAction):
         d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.gui.library_view.multisort(d.current_sort_spec)
+            self.update_menu()
 
     def sort_requested(self, key, ascending):
         if ascending is None:
