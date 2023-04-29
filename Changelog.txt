@@ -1526,7 +1526,7 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 
 :: new features
 
-- When adding Markdown (.md) or textile (.textile) files that contain references to images, automatically add them as txtz with the images
+- When adding Markdown (.md) or textile (.textile) files that contain references to images, automatically add them as TXTZ with the images
 
 :: bug fixes
 
