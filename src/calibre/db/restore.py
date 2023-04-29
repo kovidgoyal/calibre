@@ -152,6 +152,13 @@ class Restore(Thread):
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
+            if self.failed_dirs:
+                for x in self.failed_dirs:
+                    for (dirpath, tb) in self.failed_dirs:
+                        self.tb += f'\n\n-------------\nFailed to restore: {dirpath}\n{tb}'
+            if self.failed_restores:
+                for (book, tb) in self.failed_restores:
+                    self.tb += f'\n\n-------------\nFailed to restore: {book["path"]}\n{tb}'
 
     def load_preferences(self):
         self.progress_callback(None, 1)
@@ -195,6 +202,7 @@ class Restore(Thread):
                 self.process_dir(dirpath, dirnames, filenames, book_id)
             except Exception:
                 self.failed_dirs.append((dirpath, traceback.format_exc()))
+                traceback.print_exc()
             self.progress_callback(_('Processed') + ' ' + dirpath, i+1)
 
     def process_dir(self, dirpath, dirnames, filenames, book_id):
@@ -204,7 +212,7 @@ class Restore(Thread):
                 return os.path.getmtime(path)
             return sys.maxsize
 
-        filenames.sort(key=lambda f: safe_mtime(os.path.join(dirpath, filenames)))
+        filenames.sort(key=lambda f: safe_mtime(os.path.join(dirpath, f)))
         fmt_map = {}
         fmts, formats, sizes, names = [], [], [], []
         for x in filenames:
@@ -285,6 +293,7 @@ class Restore(Thread):
                 self.successes += 1
             except:
                 self.failed_restores.append((book, traceback.format_exc()))
+                traceback.print_exc()
             self.progress_callback(book['mi'].title, i+1)
 
         for field, lmap in self.link_maps.items():
