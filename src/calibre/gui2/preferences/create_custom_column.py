@@ -409,7 +409,7 @@ class CreateCustomColumn(QDialog):
                 ('html', 'HTML'),
                 ('short-text', _('Short text, like a title')),
                 ('long-text', _('Plain text')),
-                ('markdown', _('Plain text formatted using markdown'))
+                ('markdown', _('Plain text formatted using Markdown'))
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose how the data in this column is interpreted.\n'

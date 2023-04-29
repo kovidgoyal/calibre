@@ -41,7 +41,7 @@
 
 - [2017232] Trash bin: Add a button to clear the bin
 
-- Metadata editor: Use a dedicated editor with preview for custom columns that store markdown formatted text
+- Metadata editor: Use a dedicated editor with preview for custom columns that store Markdown formatted text
 
 :: bug fixes
 
@@ -1526,7 +1526,7 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 
 :: new features
 
-- When adding markdown (.md) or textile (.textile) files that contain references to images, automatically add them as txtz with the images
+- When adding Markdown (.md) or textile (.textile) files that contain references to images, automatically add them as txtz with the images
 
 :: bug fixes
 
@@ -1542,7 +1542,7 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 
 - [1941992] TXT Output: Fix a regression in calibre 5 that caused the max line length option to not work
 
-- When auto converting added TXT files with image references to TXTZ use a full markdown parser to detect markdown images
+- When auto converting added TXT files with image references to TXTZ use a full Markdown parser to detect Markdown images
 
 :: improved recipes
 - BBC News
@@ -1952,7 +1952,7 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 - [1921689] E-book viewer: Add an option under Preferences->Miscellaneous to not restore open panels such as Search, Table of Contents etc on restart
 
-- When exporting highlights as text or markdown also output top level chapter titles
+- When exporting highlights as text or Markdown also output top level chapter titles
 
 - [1922327] Allow downloading metadata from amazon.se
 
