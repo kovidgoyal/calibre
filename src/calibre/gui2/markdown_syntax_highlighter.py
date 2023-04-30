@@ -211,7 +211,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def highlightLink(self, text, cursor, bf, strt):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Link'])
+            start_bracket = mo.group()[0][0] == '['
+            self.setFormat(mo.start()+strt+(0 if start_bracket else 1), mo.end() - mo.start()-strt-(0 if start_bracket else 1), self.MARKDOWN_KWS_FORMAT['Link'])
             found = True
         return found
 
