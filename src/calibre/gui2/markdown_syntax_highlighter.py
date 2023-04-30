@@ -23,14 +23,12 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Link': re.compile(r'(?u)(?<![!\\]])\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
         'Image': re.compile(r'(?u)(?<!\\)!\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
         'LinkRef': re.compile(r'(?u)^ *\[.*?\]:[ \t]*.*$'),
-        'HeaderAtx': re.compile(r'(?u)^\#{1,6}(.*?)\#*(''\n|$)'),
-        'Header': re.compile('^(.+)[ \t]*\n(=+|-+)[ \t]*\n+'),
+        'Header': re.compile(r'(?u)^#{1,6}(.*?)$'),
         'CodeBlock': re.compile('^([ ]{4,}|\t).*'),
         'UnorderedList': re.compile(r'(?u)^\s*(\* |\+ |- )+\s*'),
         'UnorderedListStar': re.compile(r'^\s*(\* )+\s*'),
         'OrderedList': re.compile(r'(?u)^\s*(\d+\. )\s*'),
-        'BlockQuote': re.compile(r'(?u)^([ ]{0,3}>)+\s*'),
-        'BlockQuoteCount': re.compile(r'^[ ]{0,3}>[ \t]?'),
+        'BlockQuote': re.compile(r'(?u)^[ ]{0,3}>+[ \t]?'),
         'CodeSpan': re.compile(r'(?<!\\)(?P<delim>`+).+?(?P=delim)'),
         'HeaderLine': re.compile(r'(?u)^(-|=)+\s*$'),
         'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
@@ -47,7 +45,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Link': "link",
         'Image': "image",
         'LinkRef': "link",
-        'HeaderAtx': "header",
         'Header': "header",
         'HeaderLine': "header",
         'CodeBlock': "codeblock",
@@ -55,7 +52,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'UnorderedListStar': "unorderedlist",
         'OrderedList': "orderedlist",
         'BlockQuote': "blockquote",
-        'BlockQuoteCount': "blockquote",
         'CodeSpan': "codespan",
         'HR': "line",
         'Html': "html",
@@ -132,7 +128,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         if self.highlightHorizontalLine(text, cursor, bf, strt):
             return
 
-        if self.highlightAtxHeader(text, cursor, bf, strt):
+        if self.highlightHeader(text, cursor, bf, strt):
             return
 
         self.highlightList(text, cursor, bf, strt)
@@ -156,11 +152,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         mo = re.search(self.MARKDOWN_KEYS_REGEX['BlockQuote'],text)
         if mo:
             self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
-            unquote = re.sub(self.MARKDOWN_KEYS_REGEX['BlockQuoteCount'],'',text)
-            spcs = re.match(self.MARKDOWN_KEYS_REGEX['BlockQuoteCount'],text)
-            spcslen = 0
-            if spcs:
-                spcslen = len(spcs.group(0))
+            spcslen = mo.end()
+            unquote = text[spcslen:]
             self.highlightMarkdown(unquote,spcslen)
             found = True
         return found
@@ -180,7 +173,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prevCursor = QTextCursor(prevBlock)
             prev = prevBlock.text()
             prevAscii = str(prev.replace('\u2029','\n'))
-            if prevAscii.strip():
+            if strt == 0 and prevAscii.strip():
                 #print "Its a header"
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
@@ -197,13 +190,13 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightAtxHeader(self, text, cursor, bf, strt):
+    def highlightHeader(self, text, cursor, bf, strt):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderAtx'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'],text):
             #bf.setBackground(QBrush(QColor(7,54,65)))
             #cursor.movePosition(QTextCursor.End)
             #cursor.mergeBlockFormat(bf)
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderAtx'])
+            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
             found = True
         return found
 
@@ -284,7 +277,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'],text):
             stripped = text.lstrip()
-            if stripped[0] not in ('*','-','+','>'):
+            if stripped[0] not in ('*','-','+','>') and not re.match('\d+\.', stripped):
                 self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
         return found
