@@ -5,11 +5,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from contextlib import suppress
-from enum import Enum
 from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QDialog, QDialogButtonBox, QIcon, QListWidget,
-    QListWidgetItem, QMenu, QSize, Qt, QToolButton, QVBoxLayout, pyqtSignal,
+    QListWidgetItem, QSize, Qt, QToolButton, QVBoxLayout, pyqtSignal,
 )
 
 from calibre.gui2.actions import InterfaceAction
@@ -36,21 +35,6 @@ class SortAction(QAction):
         self.sort_requested.emit(self.key, self.ascending)
 
 
-class InitializationEnum(Enum):
-    WaitingInitialization = 0
-    InitializeCalled = 1
-    FullyInitialized = 2
-
-
-class FakeAction(QAction):
-
-    def menu(self):
-        return self.the_menu
-
-    def setMenu(self, menu):
-        self.the_menu = menu
-
-
 class SortByAction(InterfaceAction):
 
     name = 'Sort By'
@@ -59,11 +43,8 @@ class SortByAction(InterfaceAction):
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-cover-browser', ))
-    init_complete = InitializationEnum.WaitingInitialization
-    menu_shown = False
 
     def genesis(self):
-        self.fake_action = None
         self.sorted_icon = QIcon.ic('ok.png')
         self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
@@ -75,45 +56,6 @@ class SortByAction(InterfaceAction):
 
         c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
         c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
-
-
-    # The property is here because Qt can put the menu on the wrong screen if
-    # the menu is built for the first time outside of the process of showing it.
-    # On Windows this happens if calibre is on screen 2; the menu appears on
-    # screen 1. Why Qt does this I can't say. The problem can be triggered if a
-    # plugin queries the menu during its own initialization. We solve this
-    # problem by giving the caller a fake QAction with the menu, which works for
-    # plugins. We use the "real" action once the user has requested the menu. Of
-    # course, the right fix would be for Qt to show the menu where it should go
-    # even if built previously, but I can't find how to make that happen
-
-    @property
-    def qaction(self):
-        try:
-            # if initialization_complete() hasn't been called or we are fully
-            # initialized then do nothing special
-            if self.init_complete == InitializationEnum.InitializeCalled:
-                if not self.menu_shown:
-                    # This is the problematic case where something wants the
-                    # menu before it's been shown. Construct the fake action
-                    m = QMenu()
-                    self.update_menu(m)
-                    if self.fake_action is None:
-                        self.fake_action = FakeAction()
-                    self.fake_action.setMenu(m)
-                    return self.fake_action
-                else:
-                    # The menu has been shown. No need to construct the fake
-                    # action in the future.
-                    self.init_complete = InitializationEnum.FullyInitialized
-        except Exception:
-            import traceback
-            traceback.print_exc()
-        return self.my_qaction
-
-    @qaction.setter
-    def qaction(self, val):
-        self.my_qaction = val
 
     def reverse_sort(self):
         self.gui.current_view().reverse_sort()
@@ -127,14 +69,13 @@ class SortByAction(InterfaceAction):
         self.menuless_qaction.setEnabled(enabled)
 
     def about_to_show(self):
-        self.menu_shown = True
         self.update_menu()
 
     def library_changed(self, db):
         self.update_menu()
 
     def initialization_complete(self):
-        self.init_complete = InitializationEnum.InitializeCalled
+        self.update_menu()
 
     def update_menu(self, menu=None):
         menu = self.qaction.menu() if menu is None else menu
@@ -187,8 +128,6 @@ class SortByAction(InterfaceAction):
                 menu.insertSeparator(before)
             else:
                 menu.addAction(sac)
-        if self.fake_action is not None:
-            self.fake_action.setMenu(menu)
 
     def select_sortable_columns(self):
         db = self.gui.current_db
@@ -227,7 +166,7 @@ class SortByAction(InterfaceAction):
         d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.gui.library_view.multisort(d.current_sort_spec)
-        self.update_menu()
+            self.update_menu()
 
     def sort_requested(self, key, ascending):
         if ascending is None:
