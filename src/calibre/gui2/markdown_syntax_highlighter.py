@@ -20,8 +20,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'uItalic': re.compile('(?P<delim>_)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
         'BoldItalic': re.compile(r'(?P<delim>\*\*\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
         'uBoldItalic': re.compile(r'(?P<delim>___)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
-        'Link': re.compile(r'(?u)(^|(?P<pre>[^!]))\[.*?\]:?[ ''\t'r']*\(?[^)]+\)?'),
-        'Image': re.compile(r'(?u)!\[.*?\]\(.+?\)'),
+        'Link': re.compile(r'(?u)(?<!!)\[.*?\](\[.+?\]|\(.+?\))'),
+        'Image': re.compile(r'(?u)!\[.*?\](\[.+?\]|\(.+?\))'),
+        'LinkRef': re.compile(r'(?u)^ *\[.*?\]:[ \t]*.*$'),
         'HeaderAtx': re.compile(r'(?u)^\#{1,6}(.*?)\#*(''\n|$)'),
         'Header': re.compile('^(.+)[ \t]*\n(=+|-+)[ \t]*\n+'),
         'CodeBlock': re.compile('^([ ]{4,}|\t).*'),
@@ -45,6 +46,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'uBoldItalic': "boldemphasis",
         'Link': "link",
         'Image': "image",
+        'LinkRef': "link",
         'HeaderAtx': "header",
         'Header': "header",
         'HeaderLine': "header",
@@ -219,9 +221,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def highlightLink(self, text, cursor, bf, strt):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'],text):
-            start_bracket = mo.group()[0][0] == '['
-            self.setFormat(mo.start() + strt + (0 if start_bracket else 1),
-                           mo.end() - mo.start() - strt - (0 if start_bracket else 1), self.MARKDOWN_KWS_FORMAT['Link'])
+            self.setFormat(mo.start() + strt, mo.end() - mo.start() - strt, self.MARKDOWN_KWS_FORMAT['Link'])
+            found = True
+
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['LinkRef'],text):
+            self.setFormat(mo.start() + strt, mo.end() - mo.start() - strt, self.MARKDOWN_KWS_FORMAT['LinkRef'])
             found = True
         return found
 
