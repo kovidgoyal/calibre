@@ -252,7 +252,7 @@ In such apps you can go to the online catalog screen and add the IP address of
 the calibre server to browse and download books from your calibre library
 within the app.
 
-How do I use calibre with my Android phone/tablet or Kindle Fire HD?
+How do I use calibre with my Android phone/tablet or Kindle Fire?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable -- or wirelessly, over the air.
