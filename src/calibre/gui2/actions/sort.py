@@ -98,8 +98,8 @@ class SortByAction(InterfaceAction):
             w.setStyleSheet('QToolButton::menu-button {image: none; }'
                             'QToolButton::menu-arrow {image: none; }')
 
-    def update_menu(self):
-        menu = self.qaction.menu()
+    def update_menu(self, menu=None):
+        menu = menu or self.qaction.menu()
         for action in menu.actions():
             if hasattr(action, 'sort_requested'):
                 action.sort_requested.disconnect()
