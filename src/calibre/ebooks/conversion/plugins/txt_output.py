@@ -24,7 +24,7 @@ class TXTOutput(OutputFormatPlugin):
             'formatting_types': {
                 'plain': _('Plain text'),
                 'markdown': _('Markdown formatted text'),
-                'textile': _('TexTile formatted text')
+                'textile': _('Textile formatted text')
             },
     }
 

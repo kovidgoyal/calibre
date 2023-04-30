@@ -49,7 +49,7 @@ class TXTInput(InputFormatPlugin):
             'auto': _('Automatically decide which formatting processor to use'),
             'plain': _('No formatting'),
             'heuristic': _('Use heuristics to determine chapter headings, italics, etc.'),
-            'textile': _('Use the TexTile markup language'),
+            'textile': _('Use the Textile markup language'),
             'markdown': _('Use the Markdown markup language')
         },
     }
