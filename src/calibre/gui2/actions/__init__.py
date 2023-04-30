@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from qt.core import (QToolButton, QAction, QIcon, QObject, QMenu,
+from qt.core import (QToolButton, QAction, QIcon, QObject, QMenu, QPoint,
         QKeySequence)
 
 from calibre import prints
@@ -16,6 +16,62 @@ from calibre.constants import ismacos
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 from polyglot.builtins import string_or_bytes
+
+
+def toolbar_widgets_for_action(gui, action):
+    # Search the the toolbars for the widget associated with an action, passing
+    # them to the caller for further processing
+    for x in gui.bars_manager.bars:
+        try:
+            w = x.widgetForAction(action)
+            # It seems that multiple copies of the action can exist, such as
+            # when the device-connected menu is changed while the device is
+            # connected. Use the one that has an actual position.
+            if w is None or w.pos().x() == 0:
+                continue
+            # The button might be hidden
+            if not w.isVisible():
+                continue
+            yield(w)
+        except Exception:
+            continue
+
+
+def show_menu_under_widget(gui, menu, action, name):
+    # First try the tool bar
+    for w in toolbar_widgets_for_action(gui, action):
+        try:
+            # The w.height() assures that the menu opens below the button.
+            menu.exec(w.mapToGlobal(QPoint(0, w.height())))
+            return
+        except Exception:
+            continue
+    # Now try the menu bar
+    for x in gui.bars_manager.menu_bar.added_actions:
+        # This depends on no two menus with the same name.
+        # I don't know if this works on a Mac
+        if x.text() == name:
+            try:
+                # The menu item might be hidden
+                if not x.isVisible():
+                    continue
+                # We can't use x.trigger() because it doesn't put the menu
+                # in the right place. Instead get the position of the menu
+                # widget on the menu bar
+                p = x.parent().menu_bar
+                r = p.actionGeometry(x)
+                # Make sure that the menu item is actually displayed in the menu
+                # and not the overflow
+                if p.geometry().width() < (r.x() + r.width()):
+                    continue
+                # Show the menu under the name in the menu bar
+                menu.exec(p.mapToGlobal(QPoint(r.x()+2, r.height()-2)))
+                return
+            except Exception:
+                continue
+    # No visible button found. Fall back to displaying in upper left corner
+    # of the library view.
+    menu.exec(gui.library_view.mapToGlobal(QPoint(10, 10)))
 
 
 def menu_action_unique_name(plugin, unique_name):
