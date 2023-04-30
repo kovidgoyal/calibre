@@ -183,6 +183,7 @@ class SortByAction(InterfaceAction):
                 if not i.isSelected():
                     hidden.append(i.data(Qt.ItemDataRole.UserRole))
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))
+            self.update_menu()
 
     def named_sort_selected(self, sort_spec):
         self.gui.library_view.multisort(sort_spec)
