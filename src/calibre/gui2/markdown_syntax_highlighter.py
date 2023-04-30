@@ -15,9 +15,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     MARKDOWN_KEYS_REGEX = {
         'Bold' : re.compile(r'(?P<delim>\*\*)(?P<text>.+)(?P=delim)'),
-        'uBold': re.compile('(?P<delim>__)(?P<text>[^_]{2,})(?P=delim)'),
+        'uBold': re.compile('(?P<delim>__)(?P<text>.+)(?P=delim)'),
         'Italic': re.compile(r'(?P<delim>\*)(?P<text>[^*]{2,})(?P=delim)'),
-        'uItalic': re.compile('(?P<delim>_)(?P<text>[^_]+)(?P=delim)'),
+        'uItalic': re.compile('(?P<delim>_)(?P<text>[^_]{2,})(?P=delim)'),
         'Link': re.compile(r'(?u)(^|(?P<pre>[^!]))\[.*?\]:?[ ''\t'r']*\(?[^)]+\)?'),
         'Image': re.compile(r'(?u)!\[.*?\]\(.+?\)'),
         'HeaderAtx': re.compile(r'(?u)^\#{1,6}(.*?)\#*(''\n|$)'),
