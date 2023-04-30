@@ -18,6 +18,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'uBold': re.compile('(?P<delim>__)(?P<text>.+)(?P=delim)'),
         'Italic': re.compile(r'(?P<delim>\*)(?P<text>([^*]{2,}|[^*]))(?P=delim)'),
         'uItalic': re.compile('(?P<delim>_)(?P<text>([^_]{2,}|[^_]))(?P=delim)'),
+        'BoldItalic': re.compile(r'(?P<delim>\*\*\*)(?P<text>([^*]{2,}|[^*]))(?P=delim)'),
+        'uBoldItalic': re.compile(r'(?P<delim>___)(?P<text>([^_]{2,}|[^_]))(?P=delim)'),
         'Link': re.compile(r'(?u)(^|(?P<pre>[^!]))\[.*?\]:?[ ''\t'r']*\(?[^)]+\)?'),
         'Image': re.compile(r'(?u)!\[.*?\]\(.+?\)'),
         'HeaderAtx': re.compile(r'(?u)^\#{1,6}(.*?)\#*(''\n|$)'),
@@ -39,6 +41,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'uBold': "bold",
         'Italic': "emphasis",
         'uItalic': "emphasis",
+        'BoldItalic': "boldemphasis",
+        'uBoldItalic': "boldemphasis",
         'Link': "link",
         'Image': "image",
         'HeaderAtx': "header",
@@ -58,6 +62,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     light_theme =  {
         "bold": {"font-weight":"bold"},
         "emphasis": {"font-style":"italic"},
+        "boldemphasis": {"font-weight":"bold", "font-style":"italic"},
         "link": {"color":light_link_color.name(), "font-weight":"normal", "font-style":"normal"},
         "image": {"color":"#cb4b16", "font-weight":"normal", "font-style":"normal"},
         "header": {"color":"#2aa198", "font-weight":"bold", "font-style":"normal"},
@@ -73,6 +78,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     dark_theme =  {
         "bold": {"font-weight":"bold"},
         "emphasis": {"font-style":"italic"},
+        "boldemphasis": {"font-weight":"bold", "font-style":"italic"},
         "link": {"color":dark_link_color.name(), "font-weight":"normal", "font-style":"normal"},
         "image": {"color":"#cb4b16", "font-weight":"normal", "font-style":"normal"},
         "header": {"color":"#2aa198", "font-weight":"bold", "font-style":"normal"},
@@ -132,6 +138,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightEmphasis(text, cursor, bf, strt)
 
         self.highlightBold(text, cursor, bf, strt)
+
+        self.highlightBoldEmphasis(text, cursor, bf, strt)
 
         self.highlightLink(text, cursor, bf, strt)
 
@@ -253,6 +261,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'],text):
             self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['uItalic'])
+            found = True
+        return found
+
+    def highlightBoldEmphasis(self, text, cursor, bf, strt):
+        found = False
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'],text):
+            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['BoldItalic'])
+            found = True
+
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'],text):
+            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['uBoldItalic'])
             found = True
         return found
 
