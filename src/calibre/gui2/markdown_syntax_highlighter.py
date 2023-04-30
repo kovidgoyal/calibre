@@ -129,15 +129,15 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         self.highlightList(text, cursor, bf, strt)
 
+        self.highlightEmphasis(text, cursor, bf, strt)
+
+        self.highlightBold(text, cursor, bf, strt)
+
         self.highlightLink(text, cursor, bf, strt)
 
         self.highlightImage(text, cursor, bf, strt)
 
         self.highlightCodeSpan(text, cursor, bf, strt)
-
-        self.highlightEmphasis(text, cursor, bf, strt)
-
-        self.highlightBold(text, cursor, bf, strt)
 
         self.highlightCodeBlock(text, cursor, bf, strt)
 
