@@ -104,7 +104,8 @@ class PageProcessor(list):  # {{{
         self.num          = num
         self.dest         = dest
         self.rotate       = False
-        self.src_img_was_grayscaled = False
+        self.src_img_was_grayscale = False
+        self.img_is_grayscale = False
         self.render()
 
     def render(self):
@@ -116,8 +117,9 @@ class PageProcessor(list):  # {{{
         if self.num == 0:  # First image so create a thumbnail from it
             with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
-        self.src_img_was_grayscaled = img.format() in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
+        self.src_img_was_grayscale = img.format() in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
             img.format() == QImage.Format.Format_Indexed8 and img.allGray())
+        self.img_is_grayscale = self.src_img_was_grayscale
         self.pages = [img]
         if width > height:
             if self.opts.landscape:
@@ -207,6 +209,7 @@ class PageProcessor(list):  # {{{
 
             if not self.opts.dont_grayscale:
                 img = grayscale_image(img)
+                self.img_is_grayscale = True
 
             if self.opts.despeckle:
                 img = despeckle_image(img)
@@ -214,7 +217,7 @@ class PageProcessor(list):  # {{{
             if self.opts.output_format.lower() == 'png':
                 if self.opts.colors:
                     img = quantize_image(img, max_colors=min(256, self.opts.colors))
-                elif self.src_img_was_grayscaled:
+                elif self.img_is_grayscale:
                     img = quantize_image(img, max_colors=256)
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
