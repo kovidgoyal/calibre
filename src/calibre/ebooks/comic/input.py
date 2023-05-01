@@ -215,7 +215,7 @@ class PageProcessor(list):  # {{{
                 if self.opts.colors:
                     img = quantize_image(img, max_colors=min(256, self.opts.colors))
                 elif self.src_img_was_grayscaled:
-                    img = img.convertToFormat(QImage.Format.Format_Grayscale8)
+                    img = quantize_image(img, max_colors=256)
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
             with open(dest, 'wb') as f:
