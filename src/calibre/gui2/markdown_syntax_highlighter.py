@@ -110,62 +110,64 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.rehighlight()
 
     def highlightBlock(self, text):
-        self.highlightMarkdown(text,0)
+        self.offset = 0
+        self.highlightMarkdown(text)
         self.highlightHtml(text)
 
-    def highlightMarkdown(self, text, strt):
+    def highlightMarkdown(self, text):
         cursor = QTextCursor(self.document())
         bf = cursor.blockFormat()
 
-        #Block quotes can contain all elements so process it first
-        self.highlightBlockQuote(text, cursor, bf, strt)
+        #Block quotes can contain all elements so process it first, internaly process recusively and return
+        if self.highlightBlockQuote(text, cursor, bf):
+            return
 
         #If empty line no need to check for below elements just return
-        if self.highlightEmptyLine(text, cursor, bf, strt):
+        if self.highlightEmptyLine(text, cursor, bf):
             return
 
         #If horizontal line, look at pevious line to see if its a header, process and return
-        if self.highlightHorizontalLine(text, cursor, bf, strt):
+        if self.highlightHorizontalLine(text, cursor, bf):
             return
 
-        if self.highlightHeader(text, cursor, bf, strt):
+        if self.highlightHeader(text, cursor, bf):
             return
 
-        self.highlightList(text, cursor, bf, strt)
+        self.highlightList(text, cursor, bf)
 
-        self.highlightEmphasis(text, cursor, bf, strt)
+        self.highlightEmphasis(text, cursor, bf)
 
-        self.highlightBold(text, cursor, bf, strt)
+        self.highlightBold(text, cursor, bf)
 
-        self.highlightBoldEmphasis(text, cursor, bf, strt)
+        self.highlightBoldEmphasis(text, cursor, bf)
 
-        self.highlightLink(text, cursor, bf, strt)
+        self.highlightLink(text, cursor, bf)
 
-        self.highlightImage(text, cursor, bf, strt)
+        self.highlightImage(text, cursor, bf)
 
-        self.highlightCodeSpan(text, cursor, bf, strt)
+        self.highlightCodeSpan(text, cursor, bf)
 
-        self.highlightCodeBlock(text, cursor, bf, strt)
+        self.highlightCodeBlock(text, cursor, bf)
 
-    def highlightBlockQuote(self, text, cursor, bf, strt):
+    def highlightBlockQuote(self, text, cursor, bf):
         found = False
         mo = re.search(self.MARKDOWN_KEYS_REGEX['BlockQuote'],text)
         if mo:
-            self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
-            spcslen = mo.end()
-            unquote = text[spcslen:]
-            self.highlightMarkdown(unquote,spcslen)
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
+            self.offset += mo.end()
+            unquote = text[mo.end():]
+            self.highlightMarkdown(unquote)
             found = True
         return found
 
-    def highlightEmptyLine(self, text, cursor, bf, strt):
+    def highlightEmptyLine(self, text, cursor, bf):
         textAscii = str(text.replace('\u2029','\n'))
         if textAscii.strip():
             return False
         else:
             return True
 
-    def highlightHorizontalLine(self, text, cursor, bf, strt):
+    def highlightHorizontalLine(self, text, cursor, bf):
         found = False
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderLine'],text):
@@ -173,7 +175,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prevCursor = QTextCursor(prevBlock)
             prev = prevBlock.text()
             prevAscii = str(prev.replace('\u2029','\n'))
-            if strt == 0 and prevAscii.strip():
+            if self.offset == 0 and prevAscii.strip():
                 #print "Its a header"
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
@@ -182,72 +184,72 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
                 prevCursor.block().layout().setFormats([formatRange])
-                self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
+                self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
                 return True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HR'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
             found = True
         return found
 
-    def highlightHeader(self, text, cursor, bf, strt):
+    def highlightHeader(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'],text):
             #bf.setBackground(QBrush(QColor(7,54,65)))
             #cursor.movePosition(QTextCursor.End)
             #cursor.mergeBlockFormat(bf)
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
             found = True
         return found
 
-    def highlightList(self, text, cursor, bf, strt):
+    def highlightList(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['UnorderedList'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['UnorderedList'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['UnorderedList'])
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['OrderedList'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['OrderedList'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['OrderedList'])
             found = True
         return found
 
-    def highlightLink(self, text, cursor, bf, strt):
+    def highlightLink(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'],text):
-            self.setFormat(mo.start() + strt, mo.end() - mo.start() - strt, self.MARKDOWN_KWS_FORMAT['Link'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Link'])
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['LinkRef'],text):
-            self.setFormat(mo.start() + strt, mo.end() - mo.start() - strt, self.MARKDOWN_KWS_FORMAT['LinkRef'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['LinkRef'])
             found = True
         return found
 
-    def highlightImage(self, text, cursor, bf, strt):
+    def highlightImage(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Image'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Image'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Image'])
             found = True
         return found
 
-    def highlightCodeSpan(self, text, cursor, bf, strt):
+    def highlightCodeSpan(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeSpan'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['CodeSpan'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeSpan'])
             found = True
         return found
 
-    def highlightBold(self, text, cursor, bf, strt):
+    def highlightBold(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Bold'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Bold'])
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['uBold'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uBold'])
             found = True
         return found
 
-    def highlightEmphasis(self, text, cursor, bf, strt):
+    def highlightEmphasis(self, text, cursor, bf):
         found = False
         unlist = re.sub(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'],'',text)
         spcs = re.match(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'],text)
@@ -255,30 +257,30 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         if spcs:
             spcslen = len(spcs.group(0))
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],unlist):
-            self.setFormat(mo.start()+strt+spcslen, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Italic'])
+            self.setFormat(self.offset+ mo.start()+spcslen, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
             found = True
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['uItalic'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uItalic'])
             found = True
         return found
 
-    def highlightBoldEmphasis(self, text, cursor, bf, strt):
+    def highlightBoldEmphasis(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['BoldItalic'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BoldItalic'])
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['uBoldItalic'])
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uBoldItalic'])
             found = True
         return found
 
-    def highlightCodeBlock(self, text, cursor, bf, strt):
+    def highlightCodeBlock(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'],text):
             stripped = text.lstrip()
             if stripped[0] not in ('*','-','+','>') and not re.match('\d+\.', stripped):
-                self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
+                self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
         return found
 
