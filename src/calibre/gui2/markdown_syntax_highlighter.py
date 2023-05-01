@@ -290,7 +290,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'],text):
             stripped = text.lstrip()
-            if stripped[0] not in ('*','-','+','>') and not re.match('\d+\.', stripped):
+            if stripped[0] not in ('*','-','+','>') and not re.match(r'\d+\.', stripped):
                 self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
         return found
