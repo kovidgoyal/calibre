@@ -16,8 +16,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     MARKDOWN_KEYS_REGEX = {
         'Bold' : re.compile(r'(?<!\\)(?P<delim>\*\*)(?P<text>.+?)(?P=delim)'),
         'uBold': re.compile(r'(?<!\\)(?P<delim>__)(?P<text>.+?)(?P=delim)'),
-        'Italic': re.compile(r'(?<!\\)(?P<delim>\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
-        'uItalic': re.compile(r'(?<!\\)(?P<delim>_)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
+        'Italic': re.compile(r'(?<![\*\\])(?P<delim>\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
+        'uItalic': re.compile(r'(?<![_\\])(?P<delim>_)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
         'BoldItalic': re.compile(r'(?<!\\)(?P<delim>\*\*\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
         'uBoldItalic': re.compile(r'(?<!\\)(?P<delim>___)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
         'Link': re.compile(r'(?u)(?<![!\\]])\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
@@ -256,6 +256,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         spcslen = 0
         if spcs:
             spcslen = len(spcs.group(0))
+
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],unlist):
             self.setFormat(self.offset+ mo.start()+spcslen, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
             found = True
