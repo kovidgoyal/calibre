@@ -263,7 +263,7 @@ class ViewAction(InterfaceAction):
                 'cannot be stopped until complete. Do you wish to continue?'
                 ) % num, show_copy_button=False, skip_dialog_name=skip_dialog_name)
 
-    def view_folder(self, *args):
+    def view_folder(self, *args, **kwargs):
         rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot open folder'),
@@ -272,12 +272,25 @@ class ViewAction(InterfaceAction):
             return
         if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return
+        data_folder = kwargs.get('data_folder', False)
         db = self.gui.current_db
         for i, row in enumerate(rows):
             self.gui.extra_files_watcher.watch_book(db.id(row.row()))
             path = db.abspath(row.row())
             if path:
-                open_local_file(path)
+                if data_folder:
+                    path = os.path.join(path, DATA_DIR_NAME)
+                    if not os.path.exists(path):
+                        try:
+                            os.mkdir(path)
+                        except Exception as e:
+                            error_dialog(self.gui, _('Failed to create folder'), str(e), show=True)
+                            continue
+                try:
+                    open_local_file(path)
+                except Exception as e:
+                    # We shouldn't get here ...
+                    error_dialog(self.gui, _('Cannot open folder'), str(e), show=True)
                 if ismacos and i < len(rows) - 1:
                     time.sleep(0.1)  # Finder cannot handle multiple folder opens
 
@@ -289,7 +302,14 @@ class ViewAction(InterfaceAction):
     def view_data_folder_for_id(self, id_):
         self.gui.extra_files_watcher.watch_book(id_)
         path = self.gui.current_db.abspath(id_, index_is_id=True)
-        open_local_file(os.path.join(path, DATA_DIR_NAME))
+        path = os.path.join(path, DATA_DIR_NAME)
+        if not os.path.exists(path):
+            try:
+                os.mkdir(path)
+            except Exception as e:
+                error_dialog(self.gui, _('Failed to create folder'), str(e), show=True)
+                return
+        open_local_file(path)
 
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()
