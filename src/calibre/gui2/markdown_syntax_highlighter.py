@@ -14,12 +14,12 @@ from calibre.gui2.palette import dark_link_color, light_link_color
 class MarkdownHighlighter(QSyntaxHighlighter):
 
     MARKDOWN_KEYS_REGEX = {
-        'Bold' : re.compile(r'(?<!\\)(?P<delim>\*\*)(?P<text>.+?)(?P=delim)'),
+        'Bold': re.compile(r'(?<!\\)(?P<delim>\*\*)(?P<text>.+?)(?P=delim)'),
+        'Italic': re.compile(r'(?<![\*\\])(?P<delim>\*)(?!\*)(?P<text>([^\*]{2,}?|[^\*]))(?<![\*\\])(?P=delim)'),
+        'BoldItalic': re.compile(r'(?<!\\)(?P<delim>\*\*\*)(?P<text>([^\*]{2,}?|[^\*]))(?<!\\)(?P=delim)'),
         'uBold': re.compile(r'(?<!\\)(?P<delim>__)(?P<text>.+?)(?P=delim)'),
-        'Italic': re.compile(r'(?<![\*\\])(?P<delim>\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
-        'uItalic': re.compile(r'(?<![_\\])(?P<delim>_)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
-        'BoldItalic': re.compile(r'(?<!\\)(?P<delim>\*\*\*)(?P<text>([^*]{2,}?|[^*]))(?P=delim)'),
-        'uBoldItalic': re.compile(r'(?<!\\)(?P<delim>___)(?P<text>([^_]{2,}?|[^_]))(?P=delim)'),
+        'uItalic': re.compile(r'(?<![_\\])(?P<delim>_)(?!_)(?P<text>([^_]{2,}?|[^_]))(?<![_\\])(?P=delim)'),
+        'uBoldItalic': re.compile(r'(?<!\\)(?P<delim>___)(?P<text>([^_]{2,}?|[^_]))(?<!\\)(?P=delim)'),
         'Link': re.compile(r'(?u)(?<![!\\]])\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
         'Image': re.compile(r'(?u)(?<!\\)!\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
         'LinkRef': re.compile(r'(?u)^ *\[.*?\]:[ \t]*.*$'),
@@ -37,10 +37,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     key_theme_maps = {
         'Bold': "bold",
-        'uBold': "bold",
         'Italic': "emphasis",
-        'uItalic': "emphasis",
         'BoldItalic': "boldemphasis",
+        'uBold': "bold",
+        'uItalic': "emphasis",
         'uBoldItalic': "boldemphasis",
         'Link': "link",
         'Image': "image",
@@ -134,10 +134,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             return
 
         self.highlightList(text, cursor, bf)
-
-        self.highlightEmphasis(text, cursor, bf)
-
-        self.highlightBold(text, cursor, bf)
 
         self.highlightBoldEmphasis(text, cursor, bf)
 
@@ -238,42 +234,56 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightBold(self, text, cursor, bf):
+    def highlightBoldEmphasis(self, text, cursor, bf):
+        mo = re.match(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'], text)
+        if mo:
+            offset = mo.end()
+        else:
+            offset = 0
+        return self._highlightBoldEmphasis(text[offset:], cursor, bf, offset, False, False)
+
+    def _highlightBoldEmphasis(self, text, cursor, bf, offset, bold, emphasis):
+        #detect and apply imbricated Bold/Emphasis
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Bold'])
-            found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uBold'])
-            found = True
-        return found
+        def apply(match, bold, emphasis):
+            if bold and emphasis:
+                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['BoldItalic'])
+            elif bold:
+                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Bold'])
+            elif emphasis:
+                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
 
-    def highlightEmphasis(self, text, cursor, bf):
-        found = False
-        unlist = re.sub(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'],'',text)
-        spcs = re.match(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'],text)
-        spcslen = 0
-        if spcs:
-            spcslen = len(spcs.group(0))
+        def recusive(match, extra_offset, bold, emphasis):
+            apply(match, bold, emphasis)
+            if bold and emphasis:
+                return  # max deep => return, do not process extra Bold/Italic
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],unlist):
-            self.setFormat(self.offset+ mo.start()+spcslen, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
+            sub_txt = text[match.start()+extra_offset : match.end()-extra_offset]
+            sub_offset = offset + extra_offset + mo.start()
+            self._highlightBoldEmphasis(sub_txt, cursor, bf, sub_offset, bold, emphasis)
+
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],text):
+            recusive(mo, 1, bold, True)
             found = True
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uItalic'])
+            recusive(mo, 1, bold, True)
             found = True
-        return found
 
-    def highlightBoldEmphasis(self, text, cursor, bf):
-        found = False
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'],text):
+            recusive(mo, 2, True, emphasis)
+            found = True
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'],text):
+            recusive(mo, 2, True, emphasis)
+            found = True
+
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BoldItalic'])
+            apply(mo, True, True)
+            found = True
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'],text):
+            apply(mo, True, True)
             found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['uBoldItalic'])
-            found = True
         return found
 
     def highlightCodeBlock(self, text, cursor, bf):
