@@ -487,11 +487,12 @@ def create_copy_links(menu, data=None):
     link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     link(_('Link to show book details in a popup window'), f'calibre://book-details/{library_id}/{book_id}')
     mi = db.new_api.get_proxy_metadata(book_id)
-    with suppress(Exception):
-        data_files = db.new_api.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
-        if data_files:
-            data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
-            link(_("Link to open book's data files folder"), bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
+    if mi and mi.path:
+        with suppress(Exception):
+            data_files = db.new_api.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
+            if data_files:
+                data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
+                link(_("Link to open book's data files folder"), bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
     if data:
         field = data.get('field')
         if data['type'] == 'author':
