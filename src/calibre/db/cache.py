@@ -2402,7 +2402,7 @@ class Cache:
         Example: Assume author A has link X, author B has link Y, tag S has link
         F, and tag T has link G. If book 1 has author A and tag T,
         this method returns {'authors':{'A':'X'}, 'tags':{'T', 'G'}}
-        If book 2's author is neither A nor B and has no tags, this method returns {}
+        If book 2's author is neither A nor B and has no tags, this method returns {}.
 
         :param book_id: the book id in question.
 
