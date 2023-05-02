@@ -405,6 +405,8 @@ class BooksModel(QAbstractTableModel):  # {{{
     def refresh_rows(self, rows, current_row=-1):
         self._clear_caches()
         cc = self.columnCount(QModelIndex()) - 1
+        for r in rows:
+            self.db.new_api.clear_extra_files_cache(self.db.id(r))
         for first_row, last_row in group_numbers(rows):
             self.dataChanged.emit(self.index(first_row, 0), self.index(last_row, cc))
             if current_row >= 0 and first_row <= current_row <= last_row:

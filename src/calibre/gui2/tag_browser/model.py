@@ -816,13 +816,38 @@ class TagsModel(QAbstractItemModel):  # {{{
                 process_one_node(category, collapse_model, self.db.new_api.fields['rating'].book_value_map,
                                 state_map.get(category.category_key, {}))
 
-        # Fix up the node tree, reordering as needed and deleting undisplayed nodes
+        # Fix up the node tree, reordering as needed and deleting undisplayed
+        # nodes. First, remove empty user category subnodes if needed. This is a
+        # recursive process because the hierarchical categories were combined
+        # together in process_one_node (above), which also computes the child
+        # count.
+        if self.prefs['tag_browser_hide_empty_categories']:
+            def process_uc_children(parent, depth):
+                new_children = []
+                for node in parent.children:
+                    if node.type == TagTreeItem.CATEGORY:
+                        # I could De Morgan's this but I think it is more
+                        # understandable this way
+                        if node.category_key.startswith('@') and len(node.children) == 0:
+                            pass
+                        else:
+                            new_children.append(node)
+                            process_uc_children(node, depth+1)
+                    else:
+                        new_children.append(node)
+                parent.children = new_children
+            for node in self.root_item.children:
+                if node.category_key.startswith('@'):
+                    process_uc_children(node, 1)
+
+        # Now check the standard categories and root-level user categories,
+        # removing any hidden categories and if needed, empty categories
         new_children = []
         for node in self.root_item.children:
+            if self.prefs['tag_browser_hide_empty_categories'] and len(node.child_tags()) == 0:
+                continue
             key = node.category_key
             if key in self.row_map:
-                if self.prefs['tag_browser_hide_empty_categories'] and len(node.child_tags()) == 0:
-                    continue
                 if self.hidden_categories:
                     if key in self.hidden_categories:
                         continue
