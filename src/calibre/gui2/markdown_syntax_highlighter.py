@@ -20,19 +20,19 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'uBold': re.compile(r'(?<!\\)(?P<delim>__)(?P<text>.+?)(?P=delim)'),
         'uItalic': re.compile(r'(?<![_\\])(?P<delim>_)(?!_)(?P<text>([^_]{2,}?|[^_]))(?<![_\\])(?P=delim)'),
         'uBoldItalic': re.compile(r'(?<!\\)(?P<delim>___)(?P<text>([^_]{2,}?|[^_]))(?<!\\)(?P=delim)'),
-        'Link': re.compile(r'(?u)(?<![!\\]])\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
-        'Image': re.compile(r'(?u)(?<!\\)!\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
-        'LinkRef': re.compile(r'(?u)^ *\[.*?\]:[ \t]*.*$'),
-        'Header': re.compile(r'(?u)^#{1,6}(.*?)$'),
-        'CodeBlock': re.compile('^([ ]{4,}|\t).*'),
-        'UnorderedList': re.compile(r'(?u)^\s*(\* |\+ |- )+\s*'),
-        'UnorderedListStar': re.compile(r'^\s*(\* )+\s*'),
-        'OrderedList': re.compile(r'(?u)^\s*(\d+\. )\s*'),
-        'BlockQuote': re.compile(r'(?u)^[ ]{0,3}>+[ \t]?'),
+        'Link': re.compile(r'(?<![!\\]])\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
+        'Image': re.compile(r'(?<!\\)!\[.*?(?<!\\)\](\[.+?(?<!\\)\]|\(.+?(?<!\\)\))'),
+        'LinkRef': re.compile(r'^(?u)^\s*\[.*?\]:\s*[^\s].*'),
+        'Header': re.compile(r'^#{1,6}.*'),
+        'UnorderedList': re.compile(r'(?u)^\s*(\*|\+|-)[ \t]\s*'),
+        'UnorderedListStar': re.compile(r'(?u)^\s*\*[ \t]\s*'),
+        'OrderedList': re.compile(r'(?u)^\s*\d+\.[ \t]\s*'),
+        'BlockQuote': re.compile(r'^[ ]{0,3}>+[ \t]?'),
+        'CodeBlock': re.compile('^([ ]{4,}|[ ]*\t).*'),
         'CodeSpan': re.compile(r'(?<!\\)(?P<delim>`+).+?(?P=delim)'),
         'HeaderLine': re.compile(r'(?u)^(-|=)+\s*$'),
         'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
-        'Html': re.compile(r'<.+?(?<!\\)>')
+        'Html': re.compile(r'(?u)</?[^/\s].*?(?<!\\)>')
     }
 
     key_theme_maps = {
@@ -147,7 +147,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightBlockQuote(self, text, cursor, bf):
         found = False
-        mo = re.search(self.MARKDOWN_KEYS_REGEX['BlockQuote'],text)
+        mo = re.match(self.MARKDOWN_KEYS_REGEX['BlockQuote'],text)
         if mo:
             self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
             self.offset += mo.end()
@@ -290,7 +290,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'],text):
             stripped = text.lstrip()
-            if stripped[0] not in ('*','-','+','>') and not re.match(r'\d+\.', stripped):
+            if stripped[0] not in ('*','-','+') and not re.match(self.MARKDOWN_KEYS_REGEX['OrderedList'], stripped):
                 self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
         return found
