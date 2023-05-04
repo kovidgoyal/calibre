@@ -386,6 +386,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         hh.sectionClicked.connect(self.record_sort)
         hh.setSortIndicatorShown(True)
 
+        vh = self.table.verticalHeader()
+        vh.setDefaultSectionSize(gprefs.get('general_category_editor_row_height', vh.defaultSectionSize()))
+        vh.sectionResized.connect(self.row_height_changed)
+
         self.table.setColumnCount(4)
         for col,width in enumerate(self.table_column_widths):
             self.table.setColumnWidth(col, width)
@@ -420,6 +424,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+
+    def row_height_changed(self, row, old, new):
+        self.table.verticalHeader().blockSignals(True)
+        self.table.verticalHeader().setDefaultSectionSize(new)
+        self.table.verticalHeader().blockSignals(False)
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
@@ -552,6 +561,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.table.setColumnWidth(c, w)
 
     def save_geometry(self):
+        gprefs['general_category_editor_row_height'] = self.table.verticalHeader().sectionSize(0)
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
 
