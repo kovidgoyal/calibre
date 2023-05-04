@@ -32,7 +32,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'CodeSpan': re.compile(r'(?<!\\)(?P<delim>`+).+?(?P=delim)'),
         'HeaderLine': re.compile(r'(?u)^(-|=)+\s*$'),
         'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
-        'Html': re.compile(r'(?u)</?[^/\s].*?(?<!\\)>')
+        'Html': re.compile(r'(?u)</?[^/\s].*?(?<!\\)>'),
+        'Entity': re.compile(r'&([A-z]{2,7}|#\d{1,7}|#x[\dA-Fa-f]{1,6});'),
     }
 
     key_theme_maps = {
@@ -55,6 +56,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'CodeSpan': "codespan",
         'HR': "line",
         'Html': "html",
+        'Entity': "entity",
     }
 
     light_theme =  {
@@ -70,7 +72,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         "codespan": {"color":"#ff5800", "font-weight":"normal", "font-style":"normal"},
         "codeblock": {"color":"#ff5800", "font-weight":"normal", "font-style":"normal"},
         "line": {"color":"#2aa198", "font-weight":"normal", "font-style":"normal"},
-        "html": {"color":"#c000c0", "font-weight":"normal", "font-style":"normal"}
+        "html": {"color":"#c000c0", "font-weight":"normal", "font-style":"normal"},
+        "entity": {"color":"#006496"},
     }
 
     dark_theme =  {
@@ -86,7 +89,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         "codespan": {"color":"#90ee90", "font-weight":"normal", "font-style":"normal"},
         "codeblock": {"color":"#ff9900", "font-weight":"normal", "font-style":"normal"},
         "line": {"color":"#2aa198", "font-weight":"normal", "font-style":"normal"},
-        "html": {"color":"#F653A6", "font-weight":"normal", "font-style":"normal"}
+        "html": {"color":"#f653a6", "font-weight":"normal", "font-style":"normal"},
+        "entity": {"color":"#ff82ac"},
     }
 
     def __init__(self, parent):
@@ -97,6 +101,16 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def setTheme(self, theme):
         self.theme = theme
         self.MARKDOWN_KWS_FORMAT = {}
+
+        for k in ['Bold', 'Italic','BoldItalic']:
+            # generate dynamically keys and theme for EntityBold, EntityItalic, EntityBoldItalic
+            t = self.key_theme_maps[k]
+            newtheme = theme['entity'].copy()
+            newtheme.update(theme[t])
+            newthemekey = 'entity'+t
+            newmapkey = 'Entity'+k
+            theme[newthemekey] = newtheme
+            self.key_theme_maps[newmapkey] = newthemekey
 
         for k,t in self.key_theme_maps.items():
             subtheme = theme[t]
@@ -140,6 +154,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightLink(text, cursor, bf)
 
         self.highlightImage(text, cursor, bf)
+
+        self.highlightEntity(text, cursor, bf)
 
         self.highlightCodeSpan(text, cursor, bf)
 
@@ -293,6 +309,24 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             if stripped[0] not in ('*','-','+') and not re.match(self.MARKDOWN_KEYS_REGEX['OrderedList'], stripped):
                 self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
+        return found
+
+    def highlightEntity(self, text, cursor, bf):
+        found = False
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Entity'],text):
+            charformat = self.format(self.offset+ mo.start())
+            charbold = charformat.fontWeight() == QFont.Weight.Bold
+            charitalic = charformat.fontItalic()
+            if charbold and charitalic:
+                format = self.MARKDOWN_KWS_FORMAT['EntityBoldItalic']
+            elif charbold and not charitalic:
+                format = self.MARKDOWN_KWS_FORMAT['EntityBold']
+            elif not charbold and charitalic:
+                format = self.MARKDOWN_KWS_FORMAT['EntityItalic']
+            else:
+                format = self.MARKDOWN_KWS_FORMAT['Entity']
+            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), format)
+            found = True
         return found
 
     def highlightHtml(self, text):

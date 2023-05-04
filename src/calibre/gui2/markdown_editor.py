@@ -183,7 +183,7 @@ if __name__ == '__main__':
     w.setWindowFlag(Qt.WindowType.Dialog)
     w.show()
     w.markdown = '''\
-test *italic* **bold** ***bold-italic*** `code` [link](https://calibre-ebook.com) <span style="font-weight: bold; color:red">span</span>
+normal&amp; *italic&#38;* **bold&#x0026;** ***bold-italic*** `code` [link](https://calibre-ebook.com) <span style="font-weight: bold; color:red">span</span>
 
 > Blockquotes
 
