@@ -53,7 +53,7 @@ class TestResult(unittest.TextTestResult):
 
 
 def find_tests_in_package(package, excludes=('main.py',)):
-    items = list(importlib.resources.contents(package))
+    items = [path.name for path in importlib.resources.files(package).iterdir()]
     suits = []
     excludes = set(excludes) | {x + 'c' for x in excludes}
     seen = set()
