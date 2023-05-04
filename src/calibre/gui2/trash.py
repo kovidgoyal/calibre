@@ -250,7 +250,7 @@ class TrashView(Dialog):
             return
         det_msg = []
         for (entry, exc, tb) in failures:
-            det_msg.append(_('Failed for {} with error:').format(entry.title))
+            det_msg.append(_('Failed for the book {} with error:').format(entry.title))
             det_msg.append(tb)
             det_msg.append('-' * 40)
             det_msg.append('')
