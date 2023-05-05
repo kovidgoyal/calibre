@@ -25,7 +25,9 @@ class IrishIndependent(BasicNewsRecipe):
     ]
 
     feeds = [
+        ('Frontpage News', 'http://www.independent.ie/rss'),
         ('News', 'http://www.independent.ie/rss'),
+        ('World News', 'http://www.independent.ie/world-news/rss'),
         ('Opinion', 'http://www.independent.ie/opinion/rss'),
         ('Business', 'http://www.independent.ie/business/rss'),
         ('Sport', 'http://www.independent.ie/sport/rss'),
