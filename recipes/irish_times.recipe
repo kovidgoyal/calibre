@@ -32,12 +32,11 @@ class IrishTimes(BasicNewsRecipe):
     no_stylesheets = True
     temp_files = []
     keep_only_tags = [
-        dict(name=['h1', 'h2']),
-        classes('lead-art-wrapper article-body-wrapper byline-text'),
+        classes('custom-headline custom-subheadline lead-art-wrapper article-body-wrapper byline-text'),
     ]
     remove_tags = [
         dict(name='button'),
-        classes('sm-promo-headline top-table-list-container'),
+        classes('sm-promo-headline top-table-list-container single-divider interstitial-link'),
     ]
     remove_attributes = ['width', 'height']
 
