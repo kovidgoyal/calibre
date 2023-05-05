@@ -165,12 +165,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        # Get saved geometry info
-        try:
-            self.table_column_widths = gprefs.get('tag_list_editor_table_widths', None)
-        except:
-            pass
-
         # initialization
         self.to_rename = {}
         self.to_delete = set()
@@ -370,6 +364,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # I'm not sure if this is standard Qt behavior or behavior triggered by
         # something in this class, but replacing the table fixes it.
         if self.table is not None:
+            self.save_geometry()
             self.gridlayout.removeWidget(self.table)
             sip.delete(self.table)
         self.table = TleTableWidget(self)
@@ -391,8 +386,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         vh.sectionResized.connect(self.row_height_changed)
 
         self.table.setColumnCount(4)
-        for col,width in enumerate(self.table_column_widths):
-            self.table.setColumnWidth(col, width)
 
         self.edit_delegate = EditColumnDelegate(self.table, self.check_for_deleted_items)
         self.edit_delegate.editing_finished.connect(self.stop_editing)
@@ -420,7 +413,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.not_found_label_timer_event, type=Qt.ConnectionType.QueuedConnection)
 
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
+
         self.restore_geometry(gprefs, 'tag_list_editor_dialog_geometry')
+        self.table_column_widths = gprefs.get('tag_list_editor_table_widths', None)
+        if self.table_column_widths is not None:
+            for col,width in enumerate(self.table_column_widths):
+                self.table.setColumnWidth(col, width)
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
@@ -541,7 +539,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def do_filter(self):
         self.fill_in_table(None, None, False)
 
-    def table_column_resized(self, col, old, new):
+    def table_column_resized(self, *args):
         self.table_column_widths = []
         for c in range(0, self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
