@@ -15,6 +15,7 @@ class IrishIndependent(BasicNewsRecipe):
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
         dict(name='div', attrs={'class':lambda x: x and '_contentwrapper' in x})
@@ -26,7 +27,6 @@ class IrishIndependent(BasicNewsRecipe):
 
     feeds = [
         ('Frontpage News', 'http://www.independent.ie/rss'),
-        ('News', 'http://www.independent.ie/rss'),
         ('World News', 'http://www.independent.ie/world-news/rss'),
         ('Opinion', 'http://www.independent.ie/opinion/rss'),
         ('Business', 'http://www.independent.ie/business/rss'),
