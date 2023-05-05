@@ -68,7 +68,7 @@ class TOCEditor(QDialog):
     def workaround_macos_mouse_with_webview_bug(self):
         # macOS is weird: https://bugs.launchpad.net/calibre/+bug/2004639
         # needed as of Qt 6.4.2
-        d = info_dialog(self, _('Loading...'), _('Loading view, please wait...'), show_copy_button=False)
+        d = info_dialog(self, _('Loading...'), _('Loading table of contents view, please wait...'), show_copy_button=False)
         QTimer.singleShot(0, d.reject)
         d.exec()
 
