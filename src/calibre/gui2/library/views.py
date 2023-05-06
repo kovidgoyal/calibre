@@ -756,6 +756,10 @@ class BooksView(QTableView):  # {{{
         gprefs[pname] = previous
         self.sort_by_named_field(field, previous[field])
 
+    def keyboardSearch(self, search):
+        if gprefs.get('allow_keyboard_search_in_library_views', True):
+            super().keyboardSearch(search)
+
     def sort_by_named_field(self, field, order, reset=True):
         if isinstance(order, Qt.SortOrder):
             order = order == Qt.SortOrder.AscendingOrder
