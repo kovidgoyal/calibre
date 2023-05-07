@@ -1096,12 +1096,12 @@ will be elided, otherwise they will be word wrapped.</string>
            <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_edit_metadata_templates_only_F2_on_booklist">
              <property name="toolTip">
-              <string>&lt;p&gt;Check this box to disable editing the template for
-a &quot;Column built from other columns&quot; in the book list when the column is entered
-using the Tab key. The F2 (Edit) key will still open the template editor.&lt;/p&gt;</string>
+              <string>&lt;p&gt;Check this box to allow only the F2 (Edit) key to
+open the template editor in the book list for a &quot;Column built from other
+columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p&gt;</string>
              </property>
              <property name="text">
-              <string>&amp;Tab key doesn't edit column templates in the book list</string>
+              <string>Only the &amp;F2 (Edit) key edits column templates in the book list</string>
              </property>
             </widget>
            </item>
