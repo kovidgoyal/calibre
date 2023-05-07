@@ -1339,18 +1339,15 @@ class BooksView(QTableView):  # {{{
                     h = (viewport_height // 2) if pos == 'center' else viewport_height
                     y = cell_height
                     while vertical_index > 0:
-                        r = vh.logicalIndex(vertical_index - 1)
-                        y += vh.sectionSize(r)
+                        y += vh.sectionSize(vh.logicalIndex(vertical_index -1))
                         if y > h:
                             break
                         vertical_index -= 1
-                hidden_sections = 0
                 if vh.sectionsHidden():
                     for s in range(vertical_index - 1, -1, -1):
-                        r = vh.logicalIndex(s)
-                        if vh.isSectionHidden(r):
-                            hidden_sections += 1
-                vsb.setValue(vertical_index - hidden_sections)
+                        if vh.isSectionHidden(vh.logicalIndex(s)):
+                            vertical_index -= 1
+                vsb.setValue(vertical_index)
 
     @property
     def current_book(self):
