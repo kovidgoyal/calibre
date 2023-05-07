@@ -22,7 +22,8 @@ class IrishIndependent(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'data-testid':['article-share', 'embed-video']})
+        dict(name=['svg', 'button']),
+        dict(name='div', attrs={'data-testid':['article-share', 'embed-video', 'inline-related-wrapper']})
     ]
 
     feeds = [
