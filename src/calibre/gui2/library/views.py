@@ -1319,19 +1319,35 @@ class BooksView(QTableView):  # {{{
             vertical_offset = vh.offset()
             vertical_position = vh.sectionPosition(row)
             cell_height = vh.sectionSize(row)
-
             pos = 'center'
             if vertical_position - vertical_offset < 0 or cell_height > viewport_height:
                 pos = 'top'
             elif vertical_position - vertical_offset + cell_height > viewport_height:
                 pos = 'bottom'
             vsb = self.verticalScrollBar()
-            if pos == 'top':
-                vsb.setValue(vertical_position)
-            elif pos == 'bottom':
-                vsb.setValue(vertical_position - viewport_height + cell_height)
+
+            if self.verticalScrollMode() == QAbstractItemView.ScrollMode.ScrollPerPixel:
+                if pos == 'top':
+                    vsb.setValue(vertical_position)
+                elif pos == 'bottom':
+                    vsb.setValue(vertical_position - viewport_height + cell_height)
+                else:
+                    vsb.setValue(vertical_position - ((viewport_height - cell_height) // 2))
             else:
-                vsb.setValue(vertical_position - ((viewport_height - cell_height) // 2))
+                vertical_index = vh.visualIndex(row)
+                if pos in ('bottom', 'center'):
+                    h = (viewport_height // 2) if pos == 'center' else viewport_height
+                    y = cell_height
+                    while vertical_index > 0:
+                        y += vh.sectionSize(vh.logicalIndex(vertical_index -1))
+                        if y > h:
+                            break
+                        vertical_index -= 1
+                if vh.sectionsHidden():
+                    for s in range(vertical_index - 1, -1, -1):
+                        if vh.isSectionHidden(vh.logicalIndex(s)):
+                            vertical_index -= 1
+                vsb.setValue(vertical_index)
 
     @property
     def current_book(self):
