@@ -1348,7 +1348,7 @@ class BooksView(QTableView):  # {{{
                 if vh.sectionsHidden():
                     for s in range(vertical_index - 1, -1, -1):
                         r = vh.logicalIndex(s)
-                        if vh.isSectionHidden(row):
+                        if vh.isSectionHidden(r):
                             hidden_sections += 1
                 vsb.setValue(vertical_index - hidden_sections)
 
