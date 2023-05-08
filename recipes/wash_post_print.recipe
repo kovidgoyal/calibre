@@ -37,23 +37,23 @@ class wapoprint(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
-        if cover := soup.find('div', attrs={'class':lambda x: x and 'todays-content-image' in x.split()}):
-            self.cover_url  = cover.img['src']
-        main = soup.find('div', attrs={'id':'todays-paper'})
+        if img := soup.find('img', attrs={'src':lambda x: x and x.endswith('_FrontPage.png')}):
+            self.cover_url  = img['src']
 
         feeds = []
 
-        for div in main.findAll('div', attrs={'class': lambda x: x and 'todays-content' in x.split()}):
-            h2 = div.find('p', attrs={'class':lambda x: x and 'heading2' in x.split()})
-            secname = self.tag_to_string(h2)
+        for div in soup.findAll('section', attrs={'id': True}):
+            secname = self.tag_to_string(div.find('label')).strip()
             self.log(secname)
             articles = []
-            for a in div.findAll('a', href=True, attrs={'class':'headline'}):
+            for a in div.findAll('a', href=True):
                 url = a['href']
-                title = self.tag_to_string(a)
-                articles.append({'title': title, 'url': url})
+                title = self.tag_to_string(a).strip()
+                if not title or not url:
+                    continue
                 self.log('\t', title)
                 self.log('\t\t', url)
+                articles.append({'title': title, 'url': url})
             if articles:
                 feeds.append((secname, articles))
         return feeds
