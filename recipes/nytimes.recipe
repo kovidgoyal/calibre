@@ -197,6 +197,28 @@ class NewYorkTimes(BasicNewsRecipe):
     def parse_article_group(self, container):
         for li in container.findAll('li'):
             article = li.find('article')
+            if article is None:
+                a = li.find('a', href=True)
+                if a is not None:
+                    title = self.tag_to_string(li.find('h3'))
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://www.nytimes.com' + url
+                    desc = ''
+                    p = li.find('p')
+                    if p is not None:
+                        desc = self.tag_to_string(p)
+                    date = ''
+                    d = date_from_url(url)
+                    if d is not None:
+                        date = format_date(d)
+                        today = datetime.date.today()
+                        delta = today - d
+                        if delta.days > oldest_web_edition_article:
+                            self.log.debug('\tSkipping article', title, 'as it is too old')
+                            continue
+                    yield {'title': title, 'url': url, 'description': desc, 'date': date}
+                continue
             h2 = article.find('h2')
             if h2 is not None:
                 title = self.tag_to_string(h2)
