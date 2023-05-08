@@ -80,7 +80,7 @@ class SCMP(BasicNewsRecipe):
             date.today().year
         ) + '/' + date.today().strftime('%m') + '/' + date.today(
         ).strftime('%d') + '/cn/scmp.750.jpg'
-        br = BasicNewsRecipe.get_browser(self)
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         try:
             br.open(cover)
         except:
