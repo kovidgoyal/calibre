@@ -99,7 +99,7 @@ def copy_all(text_browser):
     simplified_html = etree.tostring(root, encoding='unicode')
     txt = html2text(simplified_html, single_line_break=True).strip()
     if iswindows:
-        txt = '\r\n'.join(txt.splitlines())
+        txt = os.linesep.join(txt.splitlines())
     # print(simplified_html)
     # print(txt)
     md.setText(txt)
