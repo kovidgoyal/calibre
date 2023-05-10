@@ -796,28 +796,40 @@ class BuiltinStrInList(BuiltinFormatterFunction):
 
 class BuiltinIdentifierInList(BuiltinFormatterFunction):
     name = 'identifier_in_list'
-    arg_count = 4
+    arg_count = -1
     category = 'List lookup'
-    __doc__ = doc = _('identifier_in_list(val, id, found_val, not_found_val) -- '
-            'treat val as a list of identifiers separated by commas, '
-            'comparing the string against each value in the list. An identifier '
-            'has the format "identifier:value". The id parameter should be '
-            'either "id" or "id:regexp". The first case matches if there is any '
-            'identifier with that id. The second case matches if the regexp '
-            'matches the identifier\'s value. If there is a match, '
-            'return found_val, otherwise return not_found_val.')
+    __doc__ = doc = _('identifier_in_list(val, id_name [, found_val, not_found_val]) -- '
+            'treat val as a list of identifiers separated by commas. An identifier '
+            'has the format "id_name:value". The id_name parameter is the id_name '
+            'text to search for, either "id_name" or "id_name:regexp". The first case '
+            'matches if there is any identifier matching that id_name. The second '
+            'case matches if id_name matches an identifier and the regexp '
+            'matches the identifier\'s value. If found_val and not_found_val '
+            'are provided then if there is a match then return found_val, otherwise '
+            'return not_found_val. If found_val and not_found_val are not '
+            'provided then if there is a match then return the indentfier:value '
+            'pair, otherwise the empty string.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, ident, fv, nfv):
+    def evaluate(self, formatter, kwargs, mi, locals, val, ident, *args):
+        if len(args) == 0:
+            fv_is_id = True
+            nfv = ''
+        elif len(args) == 2:
+            fv_is_id = False
+            fv = args[0]
+            nfv = args[1]
+        else:
+            raise ValueError(_("{} requires 2 or 4 arguments").format(self.name))
+
         l = [v.strip() for v in val.split(',') if v.strip()]
-        (id, _, regexp) = ident.partition(':')
-        if not id:
+        (id_, _, regexp) = ident.partition(':')
+        if not id_:
             return nfv
-        id += ':'
-        if l:
-            for v in l:
-                if v.startswith(id):
-                    if not regexp or re.search(regexp, v[len(id):], flags=re.I):
-                        return fv
+        for candidate in l:
+            i, _, v =  candidate.partition(':')
+            if v and i == id_:
+                if not regexp or re.search(regexp, v, flags=re.I):
+                    return candidate if fv_is_id else fv
         return nfv
 
 
