@@ -92,6 +92,9 @@ def copy_all(text_browser):
     if not is_vertical:
         parent = tables[1]
     for tag in parent.iterdescendants('td'):
+        for child in tag.iterdescendants('br'):
+            child.tag = 'span'
+            child.text = '\ue000'
         tt = etree.tostring(tag, method='text', encoding='unicode')
         tag.tag = 'span'
         for child in tuple(tag):
@@ -105,6 +108,7 @@ def copy_all(text_browser):
     from calibre.utils.html2text import html2text
     simplified_html = etree.tostring(root, encoding='unicode')
     txt = html2text(simplified_html, single_line_break=True).strip()
+    txt = txt.replace('\ue000', '\n\t')
     if iswindows:
         txt = os.linesep.join(txt.splitlines())
     # print(simplified_html)
