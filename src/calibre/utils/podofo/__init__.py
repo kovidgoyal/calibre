@@ -189,7 +189,6 @@ def test_save_to(src, dest):
 
 def test_podofo():
     import tempfile
-    from io import BytesIO
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
     # {{{
@@ -203,11 +202,13 @@ def test_podofo():
     p.title = mi.title
     p.author = mi.authors[0]
     p.set_xmp_metadata(xmp_packet)
-    buf = BytesIO()
-    p.save_to_fileobj(buf)
-    raw = buf.getvalue()
     with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
-        f.write(raw)
+        p.save_to_fileobj(f)
+        f.seek(0)
+        fraw = f.read()
+        wraw = p.write()
+        if fraw != wraw:
+            raise ValueError("write() and save_to_fileobj() resulted in different output")
     try:
         p = podofo.PDFDoc()
         p.open(f.name)

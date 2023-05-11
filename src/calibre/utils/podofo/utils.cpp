@@ -7,6 +7,7 @@
 
 #include "global.h"
 #include <sstream>
+#include <stdexcept>
 
 using namespace pdf;
 
@@ -29,5 +30,8 @@ pdf::podofo_convert_pdfstring(const PdfString &s) {
 
 const PdfString
 pdf::podofo_convert_pystring(PyObject *val) {
-    return PdfString(reinterpret_cast<const char*>(PyUnicode_AsUTF8(val)));
+    Py_ssize_t len;
+    const char *data = PyUnicode_AsUTF8AndSize(val, &len);
+    if (data == NULL) throw std::runtime_error("Failed to convert python string to UTF-8, possibly not a string object");
+    return PdfString::FromRaw(bufferview(data, len));
 }

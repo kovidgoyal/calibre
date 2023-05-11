@@ -8,6 +8,7 @@
 #include "global.h"
 #include <iostream>
 #include <algorithm>
+#include <new>
 #include <string_view>
 
 using namespace pdf;
@@ -97,7 +98,7 @@ class BytesOutputDevice : public OutputStreamDevice {
         pyunique_ptr bytes;
         size_t written;
     public:
-        BytesOutputDevice() : bytes(PyBytes_FromStringAndSize(NULL, 1 * 1024 *1024)) { SetAccess(DeviceAccess::Write); }
+        BytesOutputDevice() : bytes(), written(0) { SetAccess(DeviceAccess::Write); }
         size_t GetLength() const { return written; }
         size_t GetPosition() const { return written; }
         size_t capacity() const { return bytes ? PyBytes_GET_SIZE(bytes.get()) : 0; }
@@ -106,19 +107,30 @@ class BytesOutputDevice : public OutputStreamDevice {
         void writeBuffer(const char* src, size_t src_sz) {
             if (written + src_sz > capacity()) {
                 PyObject* old = bytes.release();
-                if (_PyBytes_Resize(&old, std::max(written + src_sz, 2 * capacity())) != 0) {
-                    return;
+                static const size_t initial_capacity = 1024 * 1024;
+                if (old) {
+                    if (_PyBytes_Resize(&old, std::max(written + src_sz, 2 * std::max(capacity(), initial_capacity))) != 0) {
+                        throw std::bad_alloc();
+                    }
+                } else {
+                    old = PyBytes_FromStringAndSize(NULL, std::max(written + src_sz, initial_capacity));
+                    if (!old) throw std::bad_alloc();
                 }
                 bytes.reset(old);
             }
             if (bytes) {
-                memcpy(PyBytes_AS_STRING(bytes.get()), src, src_sz);
+                memcpy(PyBytes_AS_STRING(bytes.get()) + written, src, src_sz);
                 written += src_sz;
             }
         }
 
         void Flush() { }
-        PyObject* Release() { return bytes.release(); }
+        PyObject* Release() {
+            auto ans = bytes.release();
+            _PyBytes_Resize(&ans, written);
+            written = 0;
+            return ans;
+        }
 };
 
 static PyObject *
