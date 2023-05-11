@@ -7,10 +7,19 @@
 using namespace PoDoFo;
 
 #include "global.h"
+#include <iostream>
 
 PyObject *pdf::Error = NULL;
 
 static char podofo_doc[] = "Wrapper for the PoDoFo PDF library";
+
+static void
+pdf_log_message(PdfLogSeverity logSeverity, const std::string_view& msg) {
+    if (logSeverity == PdfLogSeverity::Error || logSeverity == PdfLogSeverity::Warning) {
+        const char *level = logSeverity == PdfLogSeverity::Error ? "ERROR" : "WARNING";
+        std::cerr << "PoDoFo" << level << ": " << msg << std::endl;
+    }
+}
 
 static int
 exec_module(PyObject *m) {
@@ -23,6 +32,8 @@ exec_module(PyObject *m) {
 
     Py_INCREF(&pdf::PDFDocType);
     PyModule_AddObject(m, "PDFDoc", (PyObject *)&pdf::PDFDocType);
+
+    PdfCommon::SetLogMessageCallback(pdf_log_message);
 	return 0;
 }
 
