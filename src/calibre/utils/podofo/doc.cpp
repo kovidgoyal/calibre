@@ -239,12 +239,11 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
 // delete_page() {{{
 static PyObject *
 PDFDoc_delete_pages(PDFDoc *self, PyObject *args) {
-    int page = 0, count = 1;
-    if (PyArg_ParseTuple(args, "i|i", &page, &count)) {
+    unsigned int page, count = 1;
+    if (PyArg_ParseTuple(args, "I|I", &page, &count)) {
         try {
-            while (count > 0) {
-                self->doc->GetPages().RemovePageAt(page - 1);
-            }
+            auto &pages = self->doc->GetPages();
+            while (count-- > 0) pages.RemovePageAt(page - 1);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
