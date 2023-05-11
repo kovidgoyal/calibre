@@ -10,11 +10,12 @@
 using namespace PoDoFo;
 
 #define NUKE(x) { Py_XDECREF(x); x = NULL; }
+#define PODOFO_RAISE_ERROR(code) throw ::PoDoFo::PdfError(code, __FILE__, __LINE__)
 
 class pyerr : public std::exception {
 };
 
-class OutputDevice : public PdfOutputDevice {
+class MyOutputDevice : public OutputStreamDevice {
 
     private:
         PyObject *tell_func;
@@ -26,12 +27,13 @@ class OutputDevice : public PdfOutputDevice {
 
         void update_written() {
             size_t pos;
-            pos = Tell();
+            pos = GetPosition();
             if (pos > written) written = pos;
         }
 
     public:
-        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) {
+        MyOutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) {
+            SetAccess(DeviceAccess::Write);
 #define GA(f, a) { if((f = PyObject_GetAttrString(file, a)) == NULL) throw pyerr(); }
             GA(tell_func, "tell");
             GA(seek_func, "seek");
@@ -39,7 +41,7 @@ class OutputDevice : public PdfOutputDevice {
             GA(write_func, "write");
             GA(flush_func, "flush");
         }
-        ~OutputDevice() {
+        ~MyOutputDevice() {
             NUKE(tell_func); NUKE(seek_func); NUKE(read_func); NUKE(write_func); NUKE(flush_func);
         }
 
@@ -47,7 +49,7 @@ class OutputDevice : public PdfOutputDevice {
 
         long PrintVLen(const char* pszFormat, va_list args) {
 
-            if( !pszFormat ) { PODOFO_RAISE_ERROR( ePdfError_InvalidHandle ); }
+            if( !pszFormat ) { PODOFO_RAISE_ERROR(PdfErrorCode::InvalidHandle); }
 
 #ifdef _MSC_VER
             return _vscprintf(pszFormat, args) + 1;
@@ -60,7 +62,7 @@ class OutputDevice : public PdfOutputDevice {
             char *buf;
             int res;
 
-            if( !pszFormat ) { PODOFO_RAISE_ERROR( ePdfError_InvalidHandle ); }
+            if( !pszFormat ) { PODOFO_RAISE_ERROR(PdfErrorCode::InvalidHandle); }
 
             buf = new (std::nothrow) char[lBytes+1];
             if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
@@ -129,7 +131,7 @@ class OutputDevice : public PdfOutputDevice {
             Py_DECREF(ret);
         }
 
-        size_t Tell() const {
+        size_t GetPosition() const {
             PyObject *ret;
             unsigned long ans;
 
@@ -151,7 +153,9 @@ class OutputDevice : public PdfOutputDevice {
             return static_cast<size_t>(ans);
         }
 
-        void Write(const char* pBuffer, size_t lLen) {
+        bool Eof() const { return false; }
+
+        void writeBuffer(const char* pBuffer, size_t lLen) {
             PyObject *ret, *temp = NULL;
 
             temp = PyBytes_FromStringAndSize(pBuffer, static_cast<Py_ssize_t>(lLen));
@@ -177,10 +181,10 @@ class OutputDevice : public PdfOutputDevice {
 
 
 PyObject* pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
-    OutputDevice d(f);
+    MyOutputDevice d(f);
 
     try {
-        doc->Write(&d);
+        doc->Save(d);
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
     } catch (...) {

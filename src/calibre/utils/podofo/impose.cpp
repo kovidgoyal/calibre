@@ -6,24 +6,19 @@
  */
 
 #include "global.h"
+#include <string>
 
 using namespace pdf;
 
 static void
-impose_page(PdfMemDocument *doc, unsigned long dest_page_num, unsigned long src_page_num) {
-    PdfXObject *xobj = new PdfXObject(doc, src_page_num, "HeaderFooter");
-    PdfPage *dest = doc->GetPage(dest_page_num);
-    dest->AddResource(xobj->GetIdentifier(), xobj->GetObject()->Reference(), "XObject");
-    PdfStream *stream = dest->GetContents()->GetStream();
-    char *buffer = NULL; pdf_long sz;
-    stream->GetFilteredCopy(&buffer, &sz);
-    stream->BeginAppend();
-    stream->Append("q\n1 0 0 1 0 0 cm\n/");
-    stream->Append(xobj->GetIdentifier().GetName());
-    stream->Append(" Do\nQ\n");
-    stream->Append(buffer, sz);
-    stream->EndAppend();
-    podofo_free(buffer);
+impose_page(PdfMemDocument *doc, unsigned int dest_page_num, unsigned int src_page_num) {
+    auto xobj = doc->CreateXObjectForm(Rect(), "HeaderFooter");
+    xobj->FillFromPage(doc->GetPages().GetPageAt(src_page_num));
+    auto dest = &doc->GetPages().GetPageAt(dest_page_num);
+    static unsigned counter = 0;
+    dest->GetOrCreateResources().AddResource("XObject", "Imp"s + std::to_string(++counter), xobj->GetObject());
+    auto data = "q\n1 0 0 1 0 0 cm\n/"s + xobj->GetIdentifier().GetEscapedName() + " Do\nQ\n"s;
+    dest->GetOrCreateContents().GetStreamForAppending().SetData(data);
 }
 
 static PyObject*
@@ -33,7 +28,8 @@ impose(PDFDoc *self, PyObject *args) {
     for (unsigned long i = 0; i < count; i++) {
         impose_page(self->doc, dest_page_num - 1 + i, src_page_num - 1 + i);
     }
-    self->doc->DeletePages(src_page_num - 1, count);
+    auto& pages = self->doc->GetPages();
+    while (count-- && src_page_num <= pages.GetCount()) pages.RemovePageAt(src_page_num - 1);
     Py_RETURN_NONE;
 }
 

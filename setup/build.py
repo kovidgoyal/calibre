@@ -231,8 +231,12 @@ class Environment(NamedTuple):
     def lib_dirs_to_ldflags(self, dirs) -> List[str]:
         return [self.libdir_prefix+x for x in dirs if x]
 
-    def libraries_to_ldflags(self, dirs):
-        return [self.lib_prefix+x+self.lib_suffix for x in dirs]
+    def libraries_to_ldflags(self, libs):
+        def map_name(x):
+            if '/' in x:
+                return x
+            return self.lib_prefix+x+self.lib_suffix
+        return list(map(map_name, libs))
 
 
 
