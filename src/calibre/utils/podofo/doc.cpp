@@ -427,7 +427,7 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
         const PdfObject *dests_ref = self->doc->GetCatalog().GetDictionary().GetKey("Dests");
         auto& pages = self->doc->GetPages();
         if (dests_ref && dests_ref->IsReference()) {
-            const PdfObject *dests_obj = self->doc->GetObjects().GetObject(dests_ref->GetReference());
+            const PdfObject *dests_obj = self->doc->GetObjects().GetObject(object_as_reference(dests_ref));
             if (dests_obj && dests_obj->IsDictionary()) {
                 const PdfDictionary &dests = dests_obj->GetDictionary();
                 for (auto itres: dests) {
@@ -436,7 +436,7 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
                         // see section 8.2 of PDF spec for different types of destination arrays
                         // but chromium apparently generates only [page /XYZ left top zoom] type arrays
                         if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetString() == "XYZ") {
-                            const PdfPage *page = get_page(pages, dest[0].GetReference());
+                            const PdfPage *page = get_page(pages, object_as_reference(dest[0]));
                             if (page) {
                                 unsigned int pagenum = page->GetPageNumber();
                                 double left = dest[2].GetReal(), top = dest[3].GetReal();
@@ -503,15 +503,15 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 		link_color.Add(1.); link_color.Add(0.); link_color.Add(0.);
         std::vector<PdfReference> links;
         for (auto &it : self->doc->GetObjects()) {
-			if(it->IsDictionary()) {
-				PdfDictionary &link = it->GetDictionary();
-				if (dictionary_has_key_name(link, PdfName::KeyType, "Annot") && dictionary_has_key_name(link, PdfName::KeySubtype, "Link")) {
-					if (link.HasKey("A") && link.GetKey("A")->IsDictionary()) {
-						PdfDictionary &A = link.GetKey("A")->GetDictionary();
-						if (dictionary_has_key_name(A, PdfName::KeyType, "Action") && dictionary_has_key_name(A, "S", "URI")) {
-							PdfObject *uo = A.GetKey("URI");
+            PdfDictionary *link;
+			if(it->TryGetDictionary(link)) {
+				if (dictionary_has_key_name(*link, PdfName::KeyType, "Annot") && dictionary_has_key_name(*link, PdfName::KeySubtype, "Link")) {
+                    PdfObject *akey; PdfDictionary *A;
+					if ((akey = link->GetKey("A")) && akey->TryGetDictionary(A)) {
+						if (dictionary_has_key_name(*A, PdfName::KeyType, "Action") && dictionary_has_key_name(*A, "S", "URI")) {
+							PdfObject *uo = A->GetKey("URI");
 							if (uo && uo->IsString()) {
-                                links.push_back(it->GetReference());
+                                links.push_back(object_as_reference(it));
 							}
 						}
 					}

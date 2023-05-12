@@ -64,7 +64,7 @@ dedup_images(PDFDoc *self, PyObject *args) {
         if (!k->IsDictionary()) continue;
         const PdfDictionary &dict = k->GetDictionary();
         if (dictionary_has_key_name(dict, PdfName::KeyType, "XObject") && dictionary_has_key_name(dict, PdfName::KeySubtype, "Image")) {
-            Image img(k->GetReference(), k);
+            Image img(object_as_reference(k), k);
             auto it = image_map.find(img);
             if (it == image_map.end()) {
                 std::vector<PdfReference> vals;
@@ -99,7 +99,7 @@ dedup_images(PDFDoc *self, PyObject *args) {
                 for (const auto &x : xobject) {
                     if (x.second.IsReference()) {
                         try {
-                            const PdfReference &r = ref_map.at(x.second.GetReference());
+                            const PdfReference &r = ref_map.at(object_as_reference(x.second));
                             new_xobject.AddKey(x.first, r);
                             changed = true;
                         } catch (const std::out_of_range &err) { (void)err; continue; }

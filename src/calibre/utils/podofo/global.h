@@ -119,6 +119,15 @@ get_page(PdfDocument *doc, const unsigned num) {
     return nullptr;
 }
 
+static inline PdfReference
+object_as_reference(const PdfObject &o) {
+    return o.IsReference() ? o.GetReference() : o.GetIndirectReference();
+}
+
+static inline PdfReference
+object_as_reference(const PdfObject *o) {
+    return o->IsReference() ? o->GetReference() : o->GetIndirectReference();
+}
 
 
 class PdfReferenceHasher {
