@@ -269,6 +269,7 @@ class Economist(BasicNewsRecipe):
             self.timefmt = ' [' + edition_date + ']'
         else:
             url = 'https://www.economist.com/printedition'
+        # raw = open('/t/raw.html').read()
         raw = self.index_to_soup(url, raw=True)
         # with open('/t/raw.html', 'wb') as f:
         #     f.write(raw)
@@ -293,18 +294,19 @@ class Economist(BasicNewsRecipe):
         script_tag = soup.find("script", id="__NEXT_DATA__")
         if script_tag is not None:
             data = json.loads(script_tag.string)
+            # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
             self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical")
             self.log('Got cover:', self.cover_url)
 
             feeds_dict = defaultdict(list)
             for part in safe_dict(data, "props", "pageProps", "content", "hasPart", "parts"):
                 section = safe_dict(part, "print", "section", "headline") or ''
-                title = safe_dict(part, "print", "headline") or ''
+                title = safe_dict(part, "headline") or ''
                 url = safe_dict(part, "url", "canonical") or ''
                 if not section or not title or not url:
                     continue
-                desc = safe_dict(part, "print", "description") or ''
-                sub = safe_dict(part, "print", "subheadline") or ''
+                desc = safe_dict(part, "description") or ''
+                sub = safe_dict(part, "subheadline") or ''
                 if sub and section != sub:
                     desc = sub + ' :: ' + desc
                 if '/interactive/' in url:
