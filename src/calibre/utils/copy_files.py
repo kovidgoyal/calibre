@@ -47,7 +47,8 @@ class UnixFileCopier:
 
     def delete_all_source_files(self) -> None:
         for src_path in self.copy_map:
-            os.unlink(src_path)
+            with suppress(FileNotFoundError):
+                os.unlink(src_path)
 
 
 class WindowsFileCopier:
