@@ -83,7 +83,7 @@ PDFDoc_save(PDFDoc *self, PyObject *args) {
 
     if (PyArg_ParseTuple(args, "s", &buffer)) {
         try {
-            self->doc->Save(buffer);
+            self->doc->Save(buffer, save_options);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
@@ -139,7 +139,7 @@ PDFDoc_write(PDFDoc *self, PyObject *args) {
     BytesOutputDevice d;
 
     try {
-        self->doc->Save(d);
+        self->doc->Save(d, save_options);
         return d.Release();
     } catch(const PdfError &err) {
         podofo_set_exception(err);
@@ -391,7 +391,13 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
 static PyObject *
 PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
     try {
-        auto s = self->doc->GetCatalog().GetMetadataStreamValue();
+        auto obj = self->doc->GetCatalog().GetDictionary().FindKey("Metadata");
+        if (obj == nullptr) Py_RETURN_NONE;
+        auto stream = obj->GetStream();
+        if (stream == nullptr) Py_RETURN_NONE;
+        std::string s;
+        StringStreamDevice ouput(s);
+        stream->CopyTo(ouput);
         return PyBytes_FromStringAndSize(s.data(), s.size());
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
@@ -408,7 +414,10 @@ PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     Py_ssize_t len = 0;
     if (!PyArg_ParseTuple(args, "y#", &raw, &len)) return NULL;
     try {
-        self->doc->GetCatalog().SetMetadataStreamValue(std::string_view(raw, len));
+        auto& metadata = self->doc->GetCatalog().GetOrCreateMetadataObject();
+        auto& stream = metadata.GetOrCreateStream();
+        stream.SetData(std::string_view(raw, len), true);
+        metadata.GetDictionary().RemoveKey(PdfName::KeyFilter);
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
     } catch (...) {
@@ -582,97 +591,94 @@ PDFDoc_version_getter(PDFDoc *self, void *closure) {
     return PyUnicode_FromString("");
 }
 
-static inline PyObject*
-string_metadata_getter(const nullable<PdfString>& t) {
-    if (t.has_value()) return podofo_convert_pdfstring(t.value());
-    return PyUnicode_FromString("");
+static PdfDictionary&
+get_or_create_info(PDFDoc *self) {
+    PdfObject *info = self->doc->GetTrailer().GetDictionary().FindKey("Info");
+    if (info && info->IsDictionary()) return info->GetDictionary();
+    auto ninfo = self->doc->GetObjects().CreateDictionaryObject();
+    self->doc->GetTrailer().GetDictionary().AddKeyIndirect("Info", ninfo);
+    return ninfo.GetDictionary();
 }
+
+static inline PyObject*
+string_metadata_getter(PDFDoc *self, const std::string_view name) {
+    auto info = get_or_create_info(self);
+    auto obj = info.FindKey(name);
+    const PdfString* str;
+    return (obj == nullptr || !obj->TryGetString(str)) ?  PyUnicode_FromString("") : podofo_convert_pdfstring(*str);
+}
+
 
 static PyObject *
 PDFDoc_title_getter(PDFDoc *self, void *closure) {
-    return string_metadata_getter(self->doc->GetMetadata().GetTitle());
+    return string_metadata_getter(self, "Title");
 }
 
 static PyObject *
 PDFDoc_author_getter(PDFDoc *self, void *closure) {
-    return string_metadata_getter(self->doc->GetMetadata().GetAuthor());
+    return string_metadata_getter(self, "Author");
 }
 
 static PyObject *
 PDFDoc_subject_getter(PDFDoc *self, void *closure) {
-    return string_metadata_getter(self->doc->GetMetadata().GetSubject());
+    return string_metadata_getter(self, "Subject");
 }
 
 static PyObject *
 PDFDoc_keywords_getter(PDFDoc *self, void *closure) {
-    auto kw = self->doc->GetMetadata().GetKeywords();
-    pyunique_ptr ans(PyTuple_New(kw.size()));
-    if (!ans) return NULL;
-    for (size_t i = 0; i < kw.size(); i++) {
-        pyunique_ptr t(PyUnicode_FromString(kw[i].c_str()));
-        if (!t) return NULL;
-        PyTuple_SET_ITEM(ans.get(), i, t.release());
-    }
-    return ans.release();
+    return string_metadata_getter(self, "Keywords");
 }
 
 static PyObject *
 PDFDoc_creator_getter(PDFDoc *self, void *closure) {
-    return string_metadata_getter(self->doc->GetMetadata().GetCreator());
+    return string_metadata_getter(self, "Creator");
 }
 
 static PyObject *
 PDFDoc_producer_getter(PDFDoc *self, void *closure) {
-    return string_metadata_getter(self->doc->GetMetadata().GetProducer());
+    return string_metadata_getter(self, "Producer");
 }
+
+static inline int
+string_metadata_setter(PDFDoc *self, const std::string_view name, PyObject *val) {
+    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
+    auto& info = get_or_create_info(self);
+    const char *raw; Py_ssize_t sz;
+    raw = PyUnicode_AsUTF8AndSize(val, &sz);
+    if (sz == 0) info.RemoveKey(name);
+    else info.AddKey(name, PdfString(std::string_view(raw, sz)));
+    return 0;
+}
+
 
 static int
 PDFDoc_title_setter(PDFDoc *self, PyObject *val, void *closure) {
-    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    self->doc->GetMetadata().SetTitle(podofo_convert_pystring(val));
-    return 0;
+    return string_metadata_setter(self, "Title", val);
 }
 
 static int
 PDFDoc_author_setter(PDFDoc *self, PyObject *val, void *closure) {
-    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    self->doc->GetMetadata().SetAuthor(podofo_convert_pystring(val));
-    return 0;
+    return string_metadata_setter(self, "Author", val);
 }
 
 static int
 PDFDoc_subject_setter(PDFDoc *self, PyObject *val, void *closure) {
-    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    self->doc->GetMetadata().SetSubject(podofo_convert_pystring(val));
-    return 0;
+    return string_metadata_setter(self, "Subject", val);
 }
 
 static int
 PDFDoc_keywords_setter(PDFDoc *self, PyObject *val, void *closure) {
-    pyunique_ptr f(PySequence_Fast(val, "Need a sequence to set keywords"));
-    if (!f) return -1;
-    std::vector<std::string> keywords(PySequence_Fast_GET_SIZE(f.get()));
-    for (Py_ssize_t i = 0; i < PySequence_Fast_GET_SIZE(f.get()); i++) {
-        PyObject *x = PySequence_Fast_GET_ITEM(f.get(), i);
-        if (!PyUnicode_Check(x)) { PyErr_SetString(PyExc_TypeError, "keywords sequence must contain only unicode objects"); return -1; }
-        keywords.emplace_back(podofo_convert_pystring(x));
-    }
-    self->doc->GetMetadata().SetKeywords(keywords);
-    return 0;
+    return string_metadata_setter(self, "Keywords", val);
 }
 
 static int
 PDFDoc_creator_setter(PDFDoc *self, PyObject *val, void *closure) {
-    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    self->doc->GetMetadata().SetCreator(podofo_convert_pystring(val));
-    return 0;
+    return string_metadata_setter(self, "Creator", val);
 }
 
 static int
 PDFDoc_producer_setter(PDFDoc *self, PyObject *val, void *closure) {
-    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    self->doc->GetMetadata().SetProducer(podofo_convert_pystring(val));
-    return 0;
+    return string_metadata_setter(self, "Producer", val);
 }
 
 static PyGetSetDef PDFDoc_getsetters[] = {

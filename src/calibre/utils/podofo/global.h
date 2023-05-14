@@ -129,6 +129,8 @@ object_as_reference(const PdfObject *o) {
     return o->IsReference() ? o->GetReference() : o->GetIndirectReference();
 }
 
+// Needed to avoid PoDoFo clobbering the /Info and XMP metadata with its own nonsense
+static const PdfSaveOptions save_options = PdfSaveOptions::NoModifyDateUpdate;
 
 class PdfReferenceHasher {
     public:

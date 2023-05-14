@@ -182,7 +182,7 @@ PyObject* pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
     MyOutputDevice d(f);
 
     try {
-        doc->Save(d);
+        doc->Save(d, save_options);
         d.Flush();
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
