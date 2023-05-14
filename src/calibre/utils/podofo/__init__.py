@@ -201,6 +201,8 @@ def test_podofo():
     p.title = 'info title'
     p.author = 'info author'
     p.keywords = 'a, b'
+    if p.version != '1.1':
+        raise ValueError('Incorrect PDF version')
     xmp_packet = metadata_to_xmp_packet(mi)
     # print(p.get_xmp_metadata().decode())
     p.set_xmp_metadata(xmp_packet)
