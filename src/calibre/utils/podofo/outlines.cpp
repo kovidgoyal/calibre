@@ -24,9 +24,8 @@ create_outline(PDFDoc *self, PyObject *args) {
 
     try {
         PdfString title = podofo_convert_pystring(title_buf);
-        PdfOutlines *outlines = self->doc->GetOutlines();
-        if (outlines == NULL) {PyErr_NoMemory(); return NULL;}
-        ans->item = outlines->CreateRoot(title);
+        PdfOutlines &outlines = self->doc->GetOrCreateOutlines();
+        ans->item = outlines.CreateRoot(title);
         if (ans->item == NULL) {PyErr_NoMemory(); return NULL;}
         ans->doc = self->doc;
         auto page = get_page(self->doc, pagenum -1);
