@@ -8,7 +8,6 @@ Backend that implements storage of ebooks in an sqlite database.
 import datetime
 import re
 import sqlite3 as sqlite
-import sre_constants
 from zlib import compress, decompress
 
 from calibre import isbytestring
@@ -1515,7 +1514,7 @@ def text_to_tokens(text):
     for i in tokens:
         try:
             ans.append(SearchToken(i))
-        except sre_constants.error:
+        except re.error:
             continue
     return ans, OR
 
