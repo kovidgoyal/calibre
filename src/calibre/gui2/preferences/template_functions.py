@@ -88,7 +88,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         in template processing. You use a stored template in another template as
         if it were a template function, for example 'some_name(arg1, arg2...)'.</p>
 
-        <p>Stored templates must use either General Program Mode -- they must
+        <p>Stored templates must use General Program Mode -- they must
         either begin with the text '{0}' or be {1}. You retrieve arguments
         passed to a GPM stored template using the '{2}()' template function, as
         in '{2}(var1, var2, ...)'. The passed arguments are copied to the named
