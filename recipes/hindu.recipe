@@ -27,7 +27,7 @@ class TheHindu(BasicNewsRecipe):
     extra_css = '''
         .caption {font-size:small; text-align:center;}
         .author, .dateLine {font-size:small; font-weight:bold;}
-        .subhead, .subhead_lead {font-weight:bold;}
+        .subhead, .subhead_lead, .bold {font-weight:bold;}
         img {display:block; margin:0 auto;}
         .italic {font-style:italic; color:#202020;}
     '''

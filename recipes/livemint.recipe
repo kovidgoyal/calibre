@@ -129,6 +129,8 @@ class LiveMint(BasicNewsRecipe):
                 return raw
 
         def preprocess_html(self, soup):
+            for h2 in soup.find('h2'):
+                h2.name = 'p'
             for span in soup.findAll('figcaption'):
                 span['id'] = 'img-cap'
             for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
