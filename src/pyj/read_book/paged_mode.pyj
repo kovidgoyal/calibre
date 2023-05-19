@@ -691,13 +691,18 @@ class HandleWheel:
         self.accumulated_scroll = 0
 
     def onwheel(self, evt):
-        if not evt.deltaY:
+        if not (evt.deltaY or evt.deltaX):
             return
-        backward = evt.deltaY < 0
-        if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
-            self.add_pixel_scroll(backward, Math.abs(evt.deltaY))
-        else:
-            self.do_scroll(backward)
+        if evt.deltaY:
+            backward = evt.deltaY < 0
+            if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
+                self.add_pixel_scroll(backward, Math.abs(evt.deltaY))
+            else:
+                self.do_scroll(backward)
+        if evt.deltaX:
+            backward = evt.deltaX < 0
+            self.do_section_jump(backward)
+
 
     def add_pixel_scroll(self, backward, deltaY):
         now = window.performance.now()
@@ -721,6 +726,9 @@ class HandleWheel:
         else:
             scroll_to_pos(pos)
 
+    def do_section_jump(self, backward):
+        self.reset()
+        next_spine_item(backward)
 
 wheel_handler = HandleWheel()
 onwheel = wheel_handler.onwheel
