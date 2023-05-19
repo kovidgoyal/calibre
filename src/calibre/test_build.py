@@ -135,8 +135,8 @@ class BuildTest(unittest.TestCase):
             # libusb fails to initialize in containers without USB subsystems
             exclusions.update(set('libusb libmtp'.split()))
         from importlib import import_module
-        from importlib.resources import contents
-        for name in contents('calibre_extensions'):
+        from importlib.resources import files
+        for name in (path.name for path in files('calibre_extensions').iterdir()):
             if name in exclusions:
                 if name in ('libusb', 'libmtp'):
                     # Just check that the DLL can be loaded
