@@ -40,6 +40,11 @@ class Test(Command):
             self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
             sys.stdout.flush()
             os.execl('setup.py', *sys.argv)
+
+        # cgi is used by feedparser and possibly other dependencies
+        import warnings
+        warnings.filterwarnings('ignore', message="'cgi' is deprecated and slated for removal in Python 3.13")
+
         if is_ci and ismacos:
             import ctypes
             sys.libxml2_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxml2.dylib'))
