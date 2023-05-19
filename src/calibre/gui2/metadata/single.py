@@ -252,8 +252,8 @@ class MetadataSingleDialogBase(QDialog):
         self.paste_isbn_button = b = RightClickButton(self)
         b.setToolTip('<p>' +
                     _('Paste the contents of the clipboard into the '
-                      'identifiers prefixed with isbn: or url:. Or right click, '
-                      'to choose a different prefix.') + '</p>')
+                      'identifiers prefixed with an auto-detected prefix such as isbn: or url:. Or right click, '
+                      'and choose a specific prefix to use.') + '</p>')
         b.setIcon(QIcon.ic('edit-paste.png'))
         b.clicked.connect(self.identifiers.paste_identifier)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
