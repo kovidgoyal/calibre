@@ -407,6 +407,35 @@ PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 } // }}}
 
+// add_image_page() {{{
+static PyObject *
+PDFDoc_add_image_page(PDFDoc *self, PyObject *args) {
+    const char *image_data; Py_ssize_t image_data_sz;
+    double page_x, page_y, page_width, page_height;
+    double image_x, image_y, image_canvas_width, image_canvas_height;
+    unsigned int page_num = 1; int preserve_aspect_ratio = 1;
+    if (!PyArg_ParseTuple(args, "y#dddddddd|Ip", &image_data, &image_data_sz, &page_x, &page_y, &page_width, &page_height, &image_x, &image_y, &image_canvas_width, &image_canvas_height, &page_num, &preserve_aspect_ratio)) return NULL;
+    auto img = self->doc->CreateImage();
+    img->LoadFromBuffer(bufferview(image_data, image_data_sz));
+    auto &page = self->doc->GetPages().CreatePageAt(page_num-1, Rect(page_x, page_y, page_width, page_height));
+    PdfPainter painter;
+    painter.SetCanvas(page);
+    auto scaling_x = image_canvas_width, scaling_y = image_canvas_height;
+    if (preserve_aspect_ratio) {
+        auto page_ar = page_width / page_height, img_ar = img->GetRect().Width / img->GetRect().Height;
+        if (page_ar > img_ar) {
+            scaling_x = img_ar * image_canvas_height;
+            image_x = (image_canvas_width - scaling_x) / 2.;
+        } else if (page_ar < img_ar) {
+            scaling_y = image_canvas_width / img_ar;
+            image_y = (image_canvas_height - scaling_y) / 2.;
+        }
+    }
+    painter.DrawImage(*img, image_x, image_y, scaling_x / img->GetRect().Width, scaling_y / img->GetRect().Height);
+    return Py_BuildValue("dd", img->GetRect().Width, img->GetRect().Height);
+}
+// }}}
+
 // set_xmp_metadata() {{{
 static PyObject *
 PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
@@ -809,6 +838,10 @@ static PyMethodDef PDFDoc_methods[] = {
     {"set_xmp_metadata", (PyCFunction)PDFDoc_set_xmp_metadata, METH_VARARGS,
      "set_xmp_metadata(raw) -> Set the XMP metadata to the raw bytes (which must be a valid XML packet)"
     },
+    {"add_image_page", (PyCFunction)PDFDoc_add_image_page, METH_VARARGS,
+     "add_image_page(image_data, page_idx=0) -> Add the specified image as a full page image, will use the size of the first existing page as page size."
+    },
+
 
     {NULL}  /* Sentinel */
 };

@@ -166,6 +166,23 @@ def test_dedup_type3_fonts(src):
     print(f'Modified pdf with {num} glyphs removed saved to:', dest)
 
 
+def add_image_page(pdf_doc, image_data, page_size=None, page_num=1, preserve_aspect_ratio=True):
+    if page_size is None:
+        from qt.core import QPageSize
+        page_size = QPageSize(QPageSize.PageSizeId.A4)
+    page = page_size.rect(QPageSize.Unit.Point)
+    pdf_doc.add_image_page(
+        image_data, page.left(), page.top(), page.width(), page.height(), page.left(), page.top(), page.width(), page.height(), page_num, preserve_aspect_ratio)
+
+
+def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):
+    image_data = open(image, 'rb').read()
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    add_image_page(p, image_data, **kw)
+    p.save(dest)
+
+
 def test_list_fonts(src):
     podofo = get_podofo()
     p = podofo.PDFDoc()
