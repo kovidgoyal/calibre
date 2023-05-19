@@ -10,7 +10,6 @@ import sys
 from collections import namedtuple
 from functools import lru_cache
 from html5_parser import parse
-from io import BytesIO
 from itertools import count, repeat
 from qt.core import (
     QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl,
@@ -29,10 +28,7 @@ from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.pdf.image_writer import (
-    Image, PDFMetadata, draw_image_page, get_page_layout,
-)
-from calibre.ebooks.pdf.render.serialize import PDFStream
+from calibre.ebooks.pdf.image_writer import PDFMetadata, get_page_layout
 from calibre.gui2 import setup_unix_signals
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
@@ -42,9 +38,9 @@ from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import (
-    dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation,
+    add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts,
+    set_metadata_implementation,
 )
-
 from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
@@ -481,15 +477,8 @@ def update_metadata(pdf_doc, pdf_metadata):
 
 
 def add_cover(pdf_doc, cover_data, page_layout, opts):
-    buf = BytesIO()
-    page_size = page_layout.fullRectPoints().size()
-    img = Image(cover_data)
-    writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
-    writer.apply_fill(color=(1, 1, 1))
-    draw_image_page(writer, img, preserve_aspect_ratio=opts.preserve_cover_aspect_ratio)
-    writer.end()
-    cover_pdf_doc = data_as_pdf_doc(buf.getvalue())
-    pdf_doc.insert_existing_page(cover_pdf_doc)
+    r = page_layout.fullRect(QPageLayout.Unit.Point)
+    add_image_page(pdf_doc, cover_data, page_size=(r.left(), r.top(), r.width(), r.height()), preserve_aspect_ratio=opts.preserve_cover_aspect_ratio)
 # }}}
 
 

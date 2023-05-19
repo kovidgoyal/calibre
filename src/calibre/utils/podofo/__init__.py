@@ -169,10 +169,10 @@ def test_dedup_type3_fonts(src):
 def add_image_page(pdf_doc, image_data, page_size=None, page_num=1, preserve_aspect_ratio=True):
     if page_size is None:
         from qt.core import QPageSize
-        page_size = QPageSize(QPageSize.PageSizeId.A4)
-    page = page_size.rect(QPageSize.Unit.Point)
+        p = QPageSize(QPageSize.PageSizeId.A4).rect(QPageSize.Unit.Point)
+        page_size = p.left(), p.top(), p.width(), p.height()
     pdf_doc.add_image_page(
-        image_data, page.left(), page.top(), page.width(), page.height(), page.left(), page.top(), page.width(), page.height(), page_num, preserve_aspect_ratio)
+        image_data, *page_size, *page_size, page_num, preserve_aspect_ratio)
 
 
 def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):

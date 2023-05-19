@@ -432,6 +432,7 @@ PDFDoc_add_image_page(PDFDoc *self, PyObject *args) {
         }
     }
     painter.DrawImage(*img, image_x, image_y, scaling_x / img->GetRect().Width, scaling_y / img->GetRect().Height);
+    painter.FinishDrawing();
     return Py_BuildValue("dd", img->GetRect().Width, img->GetRect().Height);
 }
 // }}}
