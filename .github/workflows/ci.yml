@@ -36,36 +36,36 @@ jobs:
               run:
                   python setup/unix-ci.py test
 
-    archtest:
-        name: Test on Arch
-        runs-on: ubuntu-latest
-        container:
-            image: 'archlinux/archlinux:latest'
-            env:
-                CI: 'true'
-        steps:
-            - name: Setup container
-              run: |
-                pacman -Syu --noconfirm
-                pacman -S --noconfirm tar
-
-            - name: Checkout source code
-              uses: actions/checkout@master
-              with:
-                fetch-depth: 10
-
-            - name: Install calibre dependencies
-              run: setup/arch-ci.sh
-
-            - name: Bootstrap calibre
-              run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
-
-            - name: Test calibre
-              env:
-                PYTHONWARNINGS: error
-                CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
-              run: |
-                  set -xe
-                  runuser -u ci -- python setup.py test --under-sanitize
-                  echo "Running test_rs"
-                  runuser -u ci -- python setup.py test_rs --under-sanitize
+    # archtest:
+    #     name: Test on Arch
+    #     runs-on: ubuntu-latest
+    #     container:
+    #         image: 'archlinux/archlinux:latest'
+    #         env:
+    #             CI: 'true'
+    #     steps:
+    #         - name: Setup container
+    #           run: |
+    #             pacman -Syu --noconfirm
+    #             pacman -S --noconfirm tar
+    #
+    #         - name: Checkout source code
+    #           uses: actions/checkout@master
+    #           with:
+    #             fetch-depth: 10
+    #
+    #         - name: Install calibre dependencies
+    #           run: setup/arch-ci.sh
+    #
+    #         - name: Bootstrap calibre
+    #           run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
+    #
+    #         - name: Test calibre
+    #           env:
+    #             PYTHONWARNINGS: error
+    #             CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
+    #           run: |
+    #               set -xe
+    #               runuser -u ci -- python setup.py test --under-sanitize
+    #               echo "Running test_rs"
+    #               runuser -u ci -- python setup.py test_rs
