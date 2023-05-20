@@ -12,13 +12,14 @@ using namespace pdf;
 
 static void
 impose_page(PdfMemDocument *doc, unsigned int dest_page_num, unsigned int src_page_num) {
-    auto xobj = doc->CreateXObjectForm(Rect(), "HeaderFooter");
-    xobj->FillFromPage(doc->GetPages().GetPageAt(src_page_num));
-    auto dest = &doc->GetPages().GetPageAt(dest_page_num);
-    static unsigned counter = 0;
-    dest->GetOrCreateResources().AddResource("XObject", "Imp"s + std::to_string(++counter), xobj->GetObject());
-    auto data = "q\n1 0 0 1 0 0 cm\n/"s + xobj->GetIdentifier().GetEscapedName() + " Do\nQ\n"s;
-    dest->GetOrCreateContents().GetStreamForAppending().SetData(data);
+    auto &src_page = doc->GetPages().GetPageAt(src_page_num);
+    auto xobj = doc->CreateXObjectForm(src_page.GetMediaBox(), "HeaderFooter");
+    xobj->FillFromPage(src_page);
+    auto &dest = doc->GetPages().GetPageAt(dest_page_num);
+    PdfPainter painter;
+    painter.SetCanvas(dest);
+    painter.DrawXObject(*xobj, 0, 0);
+    painter.FinishDrawing();
 }
 
 static PyObject*
