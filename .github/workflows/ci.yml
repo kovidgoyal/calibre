@@ -67,4 +67,5 @@ jobs:
               run: |
                   set -xe
                   runuser -u ci -- python setup.py test --under-sanitize
-                  runuser -u ci -- python setup.py test_rs
+                  echo "Running test_rs"
+                  runuser -u ci -- python setup.py test_rs --under-sanitize
