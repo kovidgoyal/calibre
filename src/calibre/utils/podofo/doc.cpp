@@ -46,6 +46,7 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
 
 	try {
 		self->doc->LoadFromBuffer(bufferview(buffer, size));
+        Py_CLEAR(self->load_buffer_ref);
         self->load_buffer_ref = args;
         Py_INCREF(args);
 	} catch(const PdfError & err) {
