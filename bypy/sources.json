@@ -382,9 +382,9 @@
     {
         "name": "podofo",
         "unix": {
-            "filename": "podofo-0.9.7.tar.gz",
-            "hash": "sha256:7cf2e716daaef89647c54ffcd08940492fd40c385ef040ce7529396bfadc1eb8",
-            "urls": ["https://downloads.sourceforge.net/podofo/{filename}"]
+            "filename": "podofo-0.10.0.tar.gz",
+            "hash": "sha256:c9bf607fe4862b5cc6eac1754f0e39674c553350e8bbde68f5fff3e3eb2ed4bc",
+            "urls": ["https://github.com/podofo/podofo/archive/refs/tags/0.10.0.tar.gz"]
         }
     },
 
