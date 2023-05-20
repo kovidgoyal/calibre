@@ -18,6 +18,7 @@ static void
 PDFDoc_dealloc(PDFDoc* self)
 {
     if (self->doc != NULL) delete self->doc;
+    Py_CLEAR(self->load_buffer_ref);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -45,6 +46,8 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
 
 	try {
 		self->doc->LoadFromBuffer(bufferview(buffer, size));
+        self->load_buffer_ref = args;
+        Py_INCREF(args);
 	} catch(const PdfError & err) {
 		podofo_set_exception(err);
 		return NULL;

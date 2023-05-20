@@ -26,6 +26,7 @@ typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
     PdfMemDocument *doc;
+    PyObject *load_buffer_ref;
 
 } PDFDoc;
 
