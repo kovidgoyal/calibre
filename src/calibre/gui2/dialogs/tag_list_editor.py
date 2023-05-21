@@ -647,16 +647,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(False)
 
     def selection_changed(self):
-        col0 = tuple(item for item in self.table.selectedItems() if item.column() == 0)
-        col3 = tuple(item for item in self.table.selectedItems() if item.column() == 3)
-        if col0 and col3:
-            error_dialog(self, _('Cannot select in multiple columns'),
-                               '<p>'+_('Selection of items in multiple columns is not supported. '
-                                       'The selection will be cleared')+'<br>',
-                               show=True)
-            sm = self.table.selectionModel()
+        if self.table.currentIndex().isValid():
+            col = self.table.currentIndex().column()
             self.table.blockSignals(True)
-            sm.clear()
+            for itm in (item for item in self.table.selectedItems() if item.column() != col):
+                itm.setSelected(False)
             self.table.blockSignals(False)
 
     def check_for_deleted_items(self, show_error=False):
