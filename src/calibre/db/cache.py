@@ -2377,7 +2377,7 @@ class Cache:
     @read_api
     def get_link_map(self, for_field):
         '''
-        Return a dict of links for the supplied field.
+        Return a dictionary of links for the supplied field.
 
         :param for_field: the lookup name of the field for which the link map is desired
 
@@ -2438,7 +2438,7 @@ class Cache:
     @write_api
     def set_link_map(self, field, value_to_link_map, only_set_if_no_existing_link=False):
         '''
-        Sets links for item values in field
+        Sets links for item values in field.
         Note: this method doesn't change values not in the value_to_link_map
 
         :param field: the lookup name
