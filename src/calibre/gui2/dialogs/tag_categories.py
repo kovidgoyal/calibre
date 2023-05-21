@@ -284,11 +284,19 @@ class TagCategories(QDialog, Ui_TagCategories):
                       'or after periods.')).exec()
             return False
         for c in sorted(self.user_categories.keys(), key=primary_sort_key):
-            if strcmp(c, cat_name) == 0 or \
-                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and
-                     not cat_name.startswith(c + '.')):
+            if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec()
+                        _('The user category name is already used, perhaps with different case.'),
+                        det_msg=_('Existing category: {existing}\nNew category: {new}').format(existing=c, new=cat_name),
+                        show=True)
+                return False
+            if icu_lower(cat_name).startswith(icu_lower(c) + '.') and not cat_name.startswith(c + '.'):
+                error_dialog(self, _('Name already used'),
+                        _('The hierarchical prefix of the new category is already used, '
+                          'perhaps with different case.'),
+                        det_msg=_('Existing prefix: {prefix}\n'
+                                  'New category: {new}').format(prefix=c, new=cat_name),
+                        show=True)
                 return False
         if cat_name not in self.user_categories:
             self.user_categories[cat_name] = set()
@@ -316,7 +324,10 @@ class TagCategories(QDialog, Ui_TagCategories):
         for c in self.user_categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec()
+                        _('The user category name is already used, perhaps with different case.'),
+                        det_msg=_('Existing category: {existing}\n'
+                                  'New category: {new}').format(existing=c, new=cat_name),
+                        show=True)
                 return
         # The order below is important because of signals
         self.user_categories[cat_name] = self.user_categories[self.current_cat_name]
