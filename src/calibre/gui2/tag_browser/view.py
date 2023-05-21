@@ -722,7 +722,16 @@ class TagsView(QTreeView):  # {{{
                 added_show_hidden_categories = True
                 m = self.context_menu.addMenu(_('Show category'))
                 m.setIcon(QIcon.ic('plus.png'))
-                for col in sorted(self.hidden_categories,
+                # The search category can disappear from field_metadata. Perhaps
+                # other dynamic categories can as well. The implication is that
+                # dynamic categories are being removed, but how that would
+                # happen is a mystery. I suspect a plugin is operating on the
+                # "real" field_metadata instead of a copy, thereby changing the
+                # dict used by the rest of calibre.
+                #
+                # As it can happen, to avoid key errors check that a category
+                # exists before offering to unhide it.
+                for col in sorted((c for c in self.hidden_categories if c in self.db.field_metadata),
                         key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
                     ac = m.addAction(self.db.field_metadata[col]['name'],
                         partial(self.context_menu_handler, action='show', category=col))
