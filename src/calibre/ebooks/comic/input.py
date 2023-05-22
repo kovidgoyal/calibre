@@ -107,7 +107,7 @@ class PageProcessor(list):  # {{{
         self.num          = num
         self.dest         = dest
         self.rotate       = False
-        self.src_img_was_grayscaled = False
+        self.src_img_was_grayscale = False
         self.src_img_format = None
         self.render()
 
@@ -122,7 +122,7 @@ class PageProcessor(list):  # {{{
             with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
         self.src_img_format = img.format()
-        self.src_img_was_grayscaled = self.src_img_format in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
+        self.src_img_was_grayscale = self.src_img_format in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
             img.format() == QImage.Format.Format_Indexed8 and img.allGray())
         self.pages = [img]
         if width > height:
@@ -215,7 +215,7 @@ class PageProcessor(list):  # {{{
             if self.opts.despeckle:
                 img = despeckle_image(img)
 
-            img_is_grayscale = self.src_img_was_grayscaled
+            img_is_grayscale = self.src_img_was_grayscale
             if not self.opts.dont_grayscale:
                 img = img.convertToFormat(QImage.Format.Format_Grayscale16)
                 img_is_grayscale = True
