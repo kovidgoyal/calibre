@@ -295,7 +295,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                         _('The hierarchical prefix of the new category is already used, '
                           'perhaps with different case.'),
                         det_msg=_('Existing prefix: {prefix}\n'
-                                  'New category: {new}').format(prefix=c, new=cat_name),
+                                  'New prefix: {new}').format(prefix=c, new=cat_name),
                         show=True)
                 return False
         if cat_name not in self.user_categories:
