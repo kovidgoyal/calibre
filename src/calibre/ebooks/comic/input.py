@@ -6,14 +6,16 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, traceback, time
+import os
+import time
+import traceback
 
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
+from calibre.utils.ipc.server import Server
 from polyglot.queue import Empty
 
 # If the specified screen has either dimension larger than this value, no image
@@ -41,6 +43,7 @@ def extract_comic(path_to_comic_file):
 
 def generate_entries_from_dir(path):
     from functools import partial
+
     from calibre import walk
     ans = {}
     for x in walk(path):
@@ -105,18 +108,21 @@ class PageProcessor(list):  # {{{
         self.dest         = dest
         self.rotate       = False
         self.src_img_was_grayscaled = False
+        self.src_img_format = None
         self.render()
 
     def render(self):
         from qt.core import QImage
-        from calibre.utils.img import image_from_data, scale_image, crop_image
+
+        from calibre.utils.img import crop_image, image_from_data, scale_image
         with open(self.path_to_page, 'rb') as f:
             img = image_from_data(f.read())
         width, height = img.width(), img.height()
         if self.num == 0:  # First image so create a thumbnail from it
             with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
-        self.src_img_was_grayscaled = img.format() in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
+        self.src_img_format = img.format()
+        self.src_img_was_grayscaled = self.src_img_format in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
             img.format() == QImage.Format.Format_Indexed8 and img.allGray())
         self.pages = [img]
         if width > height:
@@ -131,10 +137,11 @@ class PageProcessor(list):  # {{{
 
     def process_pages(self):
         from qt.core import QImage
+
         from calibre.utils.img import (
-            image_to_data, rotate_image, remove_borders_from_image, normalize_image,
-            add_borders_to_image, resize_image, gaussian_sharpen_image, grayscale_image,
-            despeckle_image, quantize_image
+            add_borders_to_image, despeckle_image, gaussian_sharpen_image,
+            image_to_data, normalize_image, quantize_image, remove_borders_from_image,
+            resize_image, rotate_image,
         )
         for i, img in enumerate(self.pages):
             if self.rotate:
@@ -205,17 +212,22 @@ class PageProcessor(list):  # {{{
             if not self.opts.dont_sharpen:
                 img = gaussian_sharpen_image(img, 0.0, 1.0)
 
-            if not self.opts.dont_grayscale:
-                img = grayscale_image(img)
-
             if self.opts.despeckle:
                 img = despeckle_image(img)
+
+            img_is_grayscale = self.src_img_was_grayscaled
+            if not self.opts.dont_grayscale:
+                img = img.convertToFormat(QImage.Format.Format_Grayscale16)
+                img_is_grayscale = True
 
             if self.opts.output_format.lower() == 'png':
                 if self.opts.colors:
                     img = quantize_image(img, max_colors=min(256, self.opts.colors))
-                elif self.src_img_was_grayscaled:
-                    img = img.convertToFormat(QImage.Format.Format_Grayscale8)
+                elif img_is_grayscale:
+                    uses_256_colors = self.src_img_format in (QImage.Format.Format_Indexed8, QImage.Format.Format_Grayscale8)
+                    final_fmt = QImage.Format.Format_Indexed8 if uses_256_colors else QImage.Format.Format_Grayscale16
+                    if img.format() != final_fmt:
+                        img = img.convertToFormat(final_fmt)
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
             with open(dest, 'wb') as f:
