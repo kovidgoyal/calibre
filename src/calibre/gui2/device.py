@@ -1043,6 +1043,28 @@ class DeviceMixin:  # {{{
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
         if m is not None:
+            ids = self.library_view.get_selected_ids(as_set=True)
+            db = self.current_db.new_api
+            already_on_device = db.all_field_for('ondevice', ids, default_value='')
+            books_on_device = {book_id for book_id, val in already_on_device.items() if val}
+            if books_on_device:
+                if len(books_on_device) == 1:
+                    if not question_dialog(self, _('Book already on device'), _(
+                        'The book {} is already present on the device. Resending it might cause any'
+                            ' annotations/bookmarks on the device for this book to be lost. Are you sure?').format(
+                                db.field_for('title', tuple(books_on_device)[0])), skip_dialog_name='confirm-resend-existing-books'
+                    ):
+                        return
+                else:
+                    title_sorts = db.all_field_for('sort', books_on_device)
+                    titles = sorted(db.all_field_for('title', books_on_device).items(), key=lambda x: title_sorts[x[0]])
+                    details = '\n'.join(title for book_id, title in titles)
+                    if not question_dialog(self, _('Some books already on device'), _(
+                        'Some of the selected books are already on the device. Resending them might cause any annotations/bookmarks on the'
+                        ' device for these books to be lost. Click "Show details" to see the books already on the device. Are you sure?'),
+                                        skip_dialog_name='confirm-resend-existing-books', det_msg=details
+                    ):
+                        return
             m.trigger_default()
 
     def create_device_menu(self):
