@@ -287,7 +287,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
                         _('The user category name is already used, perhaps with different case.'),
-                        det_msg=_('Existing category: {existing}\nNew category: {new}').format(existing=c, new=cat_name),
+                        det_msg=_('Existing category: {existing}\nNew category name: {new}').format(existing=c, new=cat_name),
                         show=True)
                 return False
             if icu_lower(cat_name).startswith(icu_lower(c) + '.') and not cat_name.startswith(c + '.'):
