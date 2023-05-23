@@ -54,6 +54,14 @@ def fts_search(ctx, rd):
     return ans
 
 
+@endpoint('/fts/disable', needs_db_write=True)
+def fts_disable(ctx, rd):
+    db = get_library_data(ctx, rd)[0]
+    if db.is_fts_enabled():
+        db.enable_fts(enabled=False)
+    return ''
+
+
 @endpoint('/fts/reindex', needs_db_write=True, methods=('POST',))
 def fts_reindex(ctx, rd):
     db = get_library_data(ctx, rd)[0]
