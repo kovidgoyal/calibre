@@ -24,16 +24,20 @@ from threading import Event, Thread
 
 from calibre import force_unicode
 from calibre.customize.ui import metadata_plugins
+from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-from calibre.gui2 import error_dialog, gprefs, rating_font
+from calibre.gui2 import (
+    choose_save_file, error_dialog, gprefs, rating_font,
+)
 from calibre.gui2.progress_indicator import SpinAnimator
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import UNDEFINED_DATE, as_utc, format_date, fromordinal, utcnow
+from calibre.utils.img import image_to_data, save_image
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
@@ -772,6 +776,7 @@ class CoversView(QListView):  # {{{
 
     def __init__(self, current_cover, parent=None):
         QListView.__init__(self, parent)
+        self.book_id = getattr(parent, 'book_id', 0)
         self.m = CoversModel(current_cover, self)
         self.setModel(self.m)
 
@@ -828,25 +833,57 @@ class CoversView(QListView):  # {{{
             m = QMenu(self)
             m.addAction(QIcon.ic('view.png'), _('View this cover at full size'), self.show_cover)
             m.addAction(QIcon.ic('edit-copy.png'), _('Copy this cover to clipboard'), self.copy_cover)
+            m.addAction(QIcon.ic('save.png'), _('Save this cover to disk'), self.save_to_disk)
+            if self.book_id:
+                m.addAction(QIcon.ic('save.png'), _('Save this cover as in the book extra files'), self.save_alternate_cover)
             m.exec(QCursor.pos())
 
-    def show_cover(self):
+    @property
+    def current_pixmap(self):
         idx = self.currentIndex()
         pmap = self.model().cover_pixmap(idx)
         if pmap is None and idx.row() == 0:
             pmap = self.model().cc
+        return pmap
+
+    def show_cover(self):
+        pmap = self.current_pixmap
         if pmap is not None:
             from calibre.gui2.image_popup import ImageView
-            d = ImageView(self, pmap, str(idx.data(Qt.ItemDataRole.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
+            d = ImageView(self, pmap, str(self.currentIndex().data(Qt.ItemDataRole.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
 
     def copy_cover(self):
-        idx = self.currentIndex()
-        pmap = self.model().cover_pixmap(idx)
-        if pmap is None and idx.row() == 0:
-            pmap = self.model().cc
+        pmap = self.current_pixmap
         if pmap is not None:
             QApplication.clipboard().setPixmap(pmap)
+
+    def save_to_disk(self):
+        pmap = self.current_pixmap
+        if pmap:
+            path = choose_save_file(self, 'save-downloaded-cover-to-disk', _('Save cover image'), filters=[
+                (_('Images'), ['jpg', 'jpeg', 'png', 'webp'])], all_files=False, initial_filename=COVER_FILE_NAME)
+            if path:
+                save_image(pmap.toImage(), path)
+
+    def save_alternate_cover(self):
+        pmap = self.current_pixmap
+        if pmap:
+            from calibre.gui2.ui import get_gui
+            db = get_gui().current_db.new_api
+            existing = {x[0] for x in db.list_extra_files(self.book_id)}
+            h, ext = os.path.splitext(COVER_FILE_NAME)
+            template = f'{DATA_DIR_NAME}/{h}-{{:03d}}{ext}'
+            for i in range(1, 1000):
+                q = template.format(i)
+                if q not in existing:
+                    cdata = image_to_data(pmap.toImage())
+                    db.add_extra_files(self.book_id, {q: BytesIO(cdata)}, replace=False, auto_rename=True)
+                    break
+            else:
+                error_dialog(self, _('Too many covers'), _(
+                    'Could not save cover as there are too many existing covers'), show=True)
+                return
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
@@ -873,6 +910,7 @@ class CoversWidget(QWidget):  # {{{
 
         self.msg = QLabel()
         self.msg.setWordWrap(True)
+        self.book_id = getattr(parent, 'book_id', 0)
         l.addWidget(self.msg, 0, 0)
 
         self.covers_view = CoversView(current_cover, self)
@@ -1024,6 +1062,7 @@ class FullFetch(QDialog):  # {{{
     def __init__(self, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
         self.current_cover = current_cover
+        self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()
         self.book = self.cover_pixmap = None
 
@@ -1138,6 +1177,7 @@ class CoverFetch(QDialog):  # {{{
     def __init__(self, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
         self.current_cover = current_cover
+        self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()
         self.cover_pixmap = None
 
