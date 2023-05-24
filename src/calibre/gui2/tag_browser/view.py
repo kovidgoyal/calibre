@@ -5,24 +5,31 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, traceback
+import os
+import re
+import traceback
+from contextlib import suppress
 from functools import partial
-
 from qt.core import (
-    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle, QAbstractItemView,
-    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex, QPointF, QStyleOptionViewItem,
-    QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
+    QAbstractItemView, QApplication, QBrush, QColor, QCursor, QDrag, QFont, QIcon,
+    QLinearGradient, QMenu, QModelIndex, QPalette, QPen, QPoint, QPointF, QRect, QSize,
+    QStyle, QStyledItemDelegate, QStyleOptionViewItem, Qt, QTimer, QToolTip, QTreeView,
+    pyqtSignal,
 )
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
+from calibre.gui2 import (
+    FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data,
+    question_dialog, rating_font,
+)
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
-        TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE, rename_only_in_vl_question)
+from calibre.gui2.tag_browser.model import (
+    COUNT_ROLE, DRAG_IMAGE_ROLE, TAG_SEARCH_STATES, TagsModel, TagTreeItem,
+    rename_only_in_vl_question,
+)
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
-                          rating_font, empty_index, question_dialog, FunctionDispatcher)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
 
@@ -34,7 +41,6 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.old_look = False
         self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
         self.rating_font = QFont(rating_font())
-        self.completion_data = None
         self.tags_view = tags_view
 
     def draw_average_rating(self, item, style, painter, option, widget):
@@ -123,9 +129,6 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         if item.type == TagTreeItem.TAG and item.tag.state == 0 and config['show_avg_rating']:
             self.draw_average_rating(item, style, painter, option, widget)
 
-    def set_completion_data(self, data):
-        self.completion_data = data
-
     def createEditor(self, parent, option, index):
         item = self.tags_view.model().get_node(index)
         if not item.ignore_vl:
@@ -143,10 +146,19 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                                     yes_text=_('Yes, apply in entire library'),
                                     no_text=_('No, apply only in Virtual library'),
                                     skip_dialog_name='tag_item_rename_in_entire_library')
-        if self.completion_data:
+        key, completion_data = '', None
+        if item.type == TagTreeItem.CATEGORY:
+            key = item.category_key
+        elif item.type == TagTreeItem.TAG:
+            key = getattr(item.tag, 'category', '')
+        if key:
+            from calibre.gui2.ui import get_gui
+            with suppress(Exception):
+                completion_data = get_gui().current_db.new_api.all_field_names(key)
+        if completion_data:
             editor = EditWithComplete(parent)
             editor.set_separator(None)
-            editor.update_items_cache(self.completion_data)
+            editor.update_items_cache(completion_data)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -546,25 +558,16 @@ class TagsView(QTreeView):  # {{{
                 self.recount()
                 return
 
-            def set_completion_data(category):
-                try:
-                    completion_data = self.db.new_api.all_field_names(category)
-                except:
-                    completion_data = None
-                self.itemDelegate().set_completion_data(completion_data)
-
             if action == 'edit_item_no_vl':
                 item = self.model().get_node(index)
                 item.use_vl = False
                 item.ignore_vl = ignore_vl
-                set_completion_data(category)
                 self.edit(index)
                 return
             if action == 'edit_item_in_vl':
                 item = self.model().get_node(index)
                 item.use_vl = True
                 item.ignore_vl = ignore_vl
-                set_completion_data(category)
                 self.edit(index)
                 return
             if action == 'delete_item_in_vl':
