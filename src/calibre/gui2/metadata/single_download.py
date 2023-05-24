@@ -835,7 +835,7 @@ class CoversView(QListView):  # {{{
             m.addAction(QIcon.ic('edit-copy.png'), _('Copy this cover to clipboard'), self.copy_cover)
             m.addAction(QIcon.ic('save.png'), _('Save this cover to disk'), self.save_to_disk)
             if self.book_id:
-                m.addAction(QIcon.ic('save.png'), _('Save this cover as in the book extra files'), self.save_alternate_cover)
+                m.addAction(QIcon.ic('save.png'), _('Save this cover in the book extra files'), self.save_alternate_cover)
             m.exec(QCursor.pos())
 
     @property
