@@ -207,9 +207,14 @@ else:
     uchardet_libs = pkgconfig_libs('uchardet', '', '')
 
 
+if 'PODOFO_PREFIX' in os.environ:
+    os.environ['PODOFO_LIB_DIR'] = os.path.join(os.environ['PODOFO_PREFIX'], 'lib')
+    os.environ['PODOFO_INC_DIR'] = os.path.join(os.environ['PODOFO_PREFIX'], 'include', 'podofo')
+    os.environ['PODOFO_LIB_NAME'] = os.path.join(os.environ['PODOFO_PREFIX'], 'lib', 'libpodofo.so.1')
 podofo_lib = os.environ.get('PODOFO_LIB_DIR', podofo_lib)
 podofo_inc = os.environ.get('PODOFO_INC_DIR', podofo_inc)
 podofo = os.environ.get('PODOFO_LIB_NAME', 'podofo')
+
 podofo_error = None if os.path.exists(os.path.join(podofo_inc, 'podofo.h')) else \
         ('PoDoFo not found on your system. Various PDF related',
     ' functionality will not work. Use the PODOFO_INC_DIR and',
