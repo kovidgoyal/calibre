@@ -822,11 +822,11 @@ class BuiltinIdentifierInList(BuiltinFormatterFunction):
             raise ValueError(_("{} requires 2 or 4 arguments").format(self.name))
 
         l = [v.strip() for v in val.split(',') if v.strip()]
-        (id_, _, regexp) = ident.partition(':')
+        (id_, __, regexp) = ident.partition(':')
         if not id_:
             return nfv
         for candidate in l:
-            i, _, v =  candidate.partition(':')
+            i, __, v =  candidate.partition(':')
             if v and i == id_:
                 if not regexp or re.search(regexp, v, flags=re.I):
                     return candidate if fv_is_id else fv
