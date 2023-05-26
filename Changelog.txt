@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.18.0 2023-05-26
+{{{ 6.18.1 2023-05-26
 
 :: new features
 
@@ -60,6 +60,8 @@
 - [2018660] Fix a regression in previous release that broke scrolling when using the scroll_per_row tweak
 
 - [2018548] Fix a regression in the previous release that broke the category manager dialog in some situations
+
+- 6.18.1 fixes a regression that broke setting metadata and generating PDF files in the macOS and Linux binary builds
 
 
 :: improved recipes
