@@ -231,6 +231,7 @@ class CoverFlow(pictureflow.PictureFlow):
         return self.minimumSize()
 
     def wheelEvent(self, ev):
+        d = 0
         if ev.angleDelta().x():
             d = ev.angleDelta().x()
         if ev.angleDelta().y():
