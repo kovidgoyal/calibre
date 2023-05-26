@@ -89,12 +89,21 @@ class WSJ(BasicNewsRecipe):
         return soup
 
     def get_cover_url(self):
-        index = 'http://en.kiosko.net/us/np/wsj.html'
-        soup = self.index_to_soup(index)
-        for image in soup.findAll('img', src=True):
-            if image['src'].endswith('750.jpg'):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/us/wsj.750.jpg'
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
+        try:
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/us/np/wsj.html'
+            soup = self.index_to_soup(index)
+            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
+                if image['src'].startswith('/'):
+                    return 'https:' + image['src']
                 return image['src']
-        self.log("\nCover unavailable")
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     # login {{{
 
