@@ -318,7 +318,6 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setEditorData(self, editor, index):
         editor.setText(get_val_for_textlike_columns(index))
-        editor.selectAll()
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -383,7 +382,6 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setEditorData(self, editor, index):
         editor.setText(get_val_for_textlike_columns(index))
-        editor.selectAll()
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -493,12 +491,10 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             text = index.data(Qt.ItemDataRole.DisplayRole)
             if text:
                 editor.setText(text)
-                editor.selectAll()
         return editor
 
     def setEditorData(self, editor, index):
         editor.setText(get_val_for_textlike_columns(index))
-        editor.selectAll()
 
     def setModelData(self, editor, model, index):
         val = editor.text() or ''
