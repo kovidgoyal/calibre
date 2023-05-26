@@ -225,12 +225,13 @@ def mi_to_html(
                                     break
                         text = _('Book files')
                         name = ngettext('Folder:', 'Folders:', num_of_folders)
-                    link = '<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
-                        prepare_string_for_xml(path, True), text, extra)
+                    links = ['<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
+                        prepare_string_for_xml(path, True), text, extra)]
                     if num_of_folders > 1:
-                        link += ', <a href="{}" title="{}">{}</a>'.format(
+                        links.append('<a href="{}" title="{}">{}</a>'.format(
                             action('data-path', book_id=book_id, loc=book_id),
-                            prepare_string_for_xml(data_path, True), _('Data files'))
+                            prepare_string_for_xml(data_path, True), _('Data files')))
+                    link = value_list(', ', links)
 
                 else:
                     link = prepare_string_for_xml(path, True)
