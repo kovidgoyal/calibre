@@ -483,7 +483,9 @@ class BDVerticalCats(DisplayedFields):  # {{{
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         fm = self.db.field_metadata
-        cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple']]
+        cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and not k.startswith('#')]
+        cats.append('path')
+        cats.extend([k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and k.startswith('#')])
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]
