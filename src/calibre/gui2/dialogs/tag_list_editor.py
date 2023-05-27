@@ -424,9 +424,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.customContextMenuRequested.connect(self.show_context_menu)
 
     def row_height_changed(self, row, old, new):
-        self.table.verticalHeader().blockSignals(True)
         self.table.verticalHeader().setDefaultSectionSize(new)
-        self.table.verticalHeader().blockSignals(False)
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
@@ -559,7 +557,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.table.setColumnWidth(c, w)
 
     def save_geometry(self):
-        gprefs['general_category_editor_row_height'] = self.table.verticalHeader().sectionSize(0)
+        gprefs['general_category_editor_row_height'] = self.table.verticalHeader().defaultSectionSize()
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
 
