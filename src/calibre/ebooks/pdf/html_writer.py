@@ -22,7 +22,7 @@ from qt.webengine import (
 )
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
-from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows
+from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows, __appname__
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
@@ -1196,6 +1196,8 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
 
     if metadata is not None:
         update_metadata(pdf_doc, pdf_metadata)
+    pdf_doc.creator = __appname__ + ' ' + __version__
+    pdf_doc.producer = __appname__ + ' ' + __version__
     report_progress(1, _('Updated metadata in PDF'))
 
     if opts.uncompressed_pdf:
