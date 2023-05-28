@@ -1196,8 +1196,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
 
     if metadata is not None:
         update_metadata(pdf_doc, pdf_metadata)
-    pdf_doc.creator = __appname__ + ' ' + __version__
-    pdf_doc.producer = __appname__ + ' ' + __version__
+    pdf_doc.creator = pdf_doc.producer = __appname__ + ' ' + __version__
     report_progress(1, _('Updated metadata in PDF'))
 
     if opts.uncompressed_pdf:
