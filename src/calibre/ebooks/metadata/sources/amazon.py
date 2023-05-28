@@ -584,6 +584,9 @@ class Worker(Thread):  # Get details {{{
             span = root.xpath('//*[@id="ebooksTitle"]')
             if span:
                 return sanitize_title(self.totext(span[0]))
+            h1 = root.xpath('//h1[@data-feature-name="title"]')
+            if h1:
+                return sanitize_title(self.totext(h1[0]))
             raise ValueError('No title block found')
         tdiv = tdiv[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
@@ -602,6 +605,7 @@ class Worker(Thread):  # Get details {{{
                 '#bylineInfo .author .contributorNameID',
                 '#bylineInfo .author a.a-link-normal',
                 '#bylineInfo #bylineContributor',
+                '#bylineInfo #contributorLink',
         ):
             matches = tuple(self.selector(sel))
             if matches:
@@ -1038,7 +1042,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 3)
+    version = (1, 3, 4)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
