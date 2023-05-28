@@ -30,8 +30,8 @@ class ItemDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
-        editor.setText(name)
-        editor.lineEdit().selectAll()
+        n = editor.metaObject().userProperty().name()
+        editor.setProperty(n, name)
 
     def setModelData(self, editor, model, index):
         authors = string_to_authors(str(editor.text()))

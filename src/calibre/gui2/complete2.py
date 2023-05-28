@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
-    QApplication, QListView, QPoint, QModelIndex, QEvent,
+    QApplication, QListView, QPoint, QModelIndex, QEvent, pyqtProperty,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer, sip)
 
 from calibre.constants import ismacos
@@ -514,6 +514,16 @@ class EditWithComplete(EnComboBox):
 
     def text(self):
         return self.lineEdit().text()
+
+
+    @pyqtProperty(str)
+    def currentText(self):
+        return self.lineEdit().text()
+
+    @currentText.setter
+    def currentText(self, text):
+        self.setText(text)
+        self.lineEdit().selectAll()
 
     def selectAll(self):
         self.lineEdit().selectAll()
