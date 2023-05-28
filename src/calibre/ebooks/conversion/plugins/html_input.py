@@ -13,7 +13,7 @@ from urllib.parse import quote
 
 from calibre.constants import isbsd, islinux
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, get_long_path_name
 from calibre.utils.imghdr import what
 from calibre.utils.localization import __, get_lang
 from polyglot.builtins import as_unicode
@@ -86,7 +86,7 @@ class HTMLInput(InputFormatPlugin):
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
             fname = os.path.basename(stream.name)
-        self.root_dir_of_input = os.path.normcase(os.path.abspath(basedir) + os.sep)
+        self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
 
         if file_ext != 'opf':
             if opts.dont_package:
@@ -262,9 +262,10 @@ class HTMLInput(InputFormatPlugin):
         if not link:
             return None, None
         link = os.path.abspath(os.path.realpath(link))
-        if not os.path.normcase(link).startswith(self.root_dir_of_input):
+        q = os.path.normcase(get_long_path_name(link))
+        if not q.startswith(self.root_dir_of_input):
             if not self.opts.allow_local_files_outside_root:
-                self.log.warn('Not adding {} as it is outside the document root: {}'.format(link, self.root_dir_of_input))
+                self.log.warn('Not adding {} as it is outside the document root: {}'.format(q, self.root_dir_of_input))
                 return None, None
         return link, frag
 

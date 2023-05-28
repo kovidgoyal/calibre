@@ -620,8 +620,18 @@ if iswindows:
             return False
         # Values I have seen: FAT32, exFAT, NTFS
         return tn.upper().startswith('FAT')
+
+    def get_long_path_name(path):
+        from calibre_extensions.winutil import get_long_path_name
+        if os.path.isabs(path) and not path.startswith(long_path_prefix):
+            path = long_path_prefix + path
+        return get_long_path_name(path)
+
 else:
     def make_long_path_useable(path):
+        return path
+
+    def get_long_path_name(path):
         return path
 
     def is_fat_filesystem(path):
