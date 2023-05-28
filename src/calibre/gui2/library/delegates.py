@@ -109,6 +109,11 @@ class UpdateEditorGeometry:
         initial_geometry.adjust(delta_x, 0, delta_width, 0)
         editor.setGeometry(initial_geometry)
 
+class EditableTextDelegate:
+
+    def setEditorData(self, editor, index):
+        n = editor.metaObject().userProperty().name()
+        editor.setProperty(n, get_val_for_textlike_columns(index))
 
 class DateTimeEdit(DateTimeEditBase):  # {{{
 
@@ -285,7 +290,7 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
+class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
 
     use_title_sort = False
 
@@ -316,10 +321,6 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             editor = EnLineEdit(parent)
         return editor
 
-    def setEditorData(self, editor, index):
-        n = editor.metaObject().userProperty().name()
-        editor.setProperty(n, get_val_for_textlike_columns(index))
-
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
             val = editor.lineEdit().text()
@@ -340,7 +341,7 @@ class SeriesDelegate(TextDelegate):  # {{{
 # }}}
 
 
-class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
 
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
@@ -380,10 +381,6 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         else:
             editor = EnLineEdit(parent)
         return editor
-
-    def setEditorData(self, editor, index):
-        n = editor.metaObject().userProperty().name()
-        editor.setProperty(n, get_val_for_textlike_columns(index))
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -464,7 +461,7 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
 
     '''
     Delegate for text data.
@@ -494,10 +491,6 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             if text:
                 editor.setText(text)
         return editor
-
-    def setEditorData(self, editor, index):
-        n = editor.metaObject().userProperty().name()
-        editor.setProperty(n, get_val_for_textlike_columns(index))
 
     def setModelData(self, editor, model, index):
         val = editor.text() or ''
