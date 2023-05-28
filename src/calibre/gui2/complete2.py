@@ -12,6 +12,7 @@ from qt.core import (
 
 from calibre.constants import ismacos
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
+from calibre.gui2 import gprefs
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
@@ -523,7 +524,8 @@ class EditWithComplete(EnComboBox):
     @currentText.setter
     def currentText(self, text):
         self.setText(text)
-        self.lineEdit().selectAll()
+        if gprefs['edit_select_cell']:
+            self.selectAll()
 
     def selectAll(self):
         self.lineEdit().selectAll()
