@@ -317,7 +317,8 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setEditorData(self, editor, index):
-        editor.setText(get_val_for_textlike_columns(index))
+        n = editor.metaObject().userProperty().name()
+        editor.setProperty(n, get_val_for_textlike_columns(index))
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
