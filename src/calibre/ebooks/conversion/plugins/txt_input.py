@@ -107,12 +107,13 @@ class TXTInput(InputFormatPlugin):
         from html5_parser import parse
         root = parse(html)
         changed = False
+        base_dir = os.path.normcase(os.path.abspath(base_dir)) + os.sep
         for img in root.xpath('//img[@src]'):
             src = img.get('src')
             prefix = src.split(':', 1)[0].lower()
             if src and prefix not in ('file', 'http', 'https', 'ftp') and not os.path.isabs(src):
                 src = os.path.join(base_dir, src)
-                if os.path.isfile(src) and os.access(src, os.R_OK):
+                if os.path.normcase(src).startswith(base_dir) and os.path.isfile(src) and os.access(src, os.R_OK):
                     with open(src, 'rb') as f:
                         data = f.read()
                     f = self.shift_file(os.path.basename(src), data)

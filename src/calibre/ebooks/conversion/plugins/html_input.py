@@ -86,7 +86,7 @@ class HTMLInput(InputFormatPlugin):
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
             fname = os.path.basename(stream.name)
-        self.root_dir_of_input = os.path.abspath(basedir) + os.sep
+        self.root_dir_of_input = os.path.normcase(os.path.abspath(basedir) + os.sep)
 
         if file_ext != 'opf':
             if opts.dont_package:
@@ -262,7 +262,7 @@ class HTMLInput(InputFormatPlugin):
         if not link:
             return None, None
         link = os.path.abspath(os.path.realpath(link))
-        if not link.startswith(self.root_dir_of_input):
+        if not os.path.normcase(link).startswith(self.root_dir_of_input):
             if not self.opts.allow_local_files_outside_root:
                 self.log.warn('Not adding {} as it is outside the document root: {}'.format(link, self.root_dir_of_input))
                 return None, None
