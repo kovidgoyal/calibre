@@ -70,7 +70,7 @@ def get_simple_book(fmt='epub'):
                 with open(x, 'wb') as f:
                     f.write(raw.encode('utf-8'))
                 build_book(x, ans, args=[
-                    '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
+                    '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png', '--allow-local-files-outside-root'])
     return ans
 
 
@@ -85,7 +85,7 @@ def get_split_book(fmt='epub'):
             with open(x, 'wb') as f:
                 f.write(raw.encode('utf-8'))
             build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
-                                        '--cover=' + I('lt.png')])
+                                        '--cover=' + I('lt.png'), '--allow-local-files-outside-root'])
         finally:
             os.remove(x)
     return ans
