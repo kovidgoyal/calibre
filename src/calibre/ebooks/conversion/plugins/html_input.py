@@ -64,6 +64,16 @@ class HTMLInput(InputFormatPlugin):
                 )
         ),
 
+        OptionRecommendation(name='allow_local_files_outside_root',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Normally, resources linked to by the HTML file or its children will only be allowed'
+                   ' if they are in a sub-folder of the original HTML file. This option allows including'
+                   ' local files from any location on your computer. This can be a security risk if you'
+                   ' are converting untrusted HTML and expecting to distribute the result of the conversion.'
+                )
+        ),
+
+
     }
 
     def convert(self, stream, opts, file_ext, log,
@@ -76,6 +86,7 @@ class HTMLInput(InputFormatPlugin):
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
             fname = os.path.basename(stream.name)
+        self.root_dir_of_input = os.path.abspath(basedir) + os.sep
 
         if file_ext != 'opf':
             if opts.dont_package:
@@ -250,6 +261,11 @@ class HTMLInput(InputFormatPlugin):
         frag = l.fragment
         if not link:
             return None, None
+        link = os.path.abspath(os.path.realpath(link))
+        if not link.startswith(self.root_dir_of_input):
+            if not self.opts.allow_local_files_outside_root:
+                self.log.warn('Not adding {} as it is outside the document root: {}'.format(link, self.root_dir_of_input))
+                return None, None
         return link, frag
 
     def resource_adder(self, link_, base=None):
