@@ -112,8 +112,11 @@ class UpdateEditorGeometry:
 class EditableTextDelegate:
 
     def setEditorData(self, editor, index):
-        n = editor.metaObject().userProperty().name()
-        editor.setProperty(n, get_val_for_textlike_columns(index))
+        if gprefs['edit_select_cell']:
+            n = editor.metaObject().userProperty().name()
+            editor.setProperty(n, get_val_for_textlike_columns(index))
+        else:
+            editor.setText(get_val_for_textlike_columns(index))
 
 class DateTimeEdit(DateTimeEditBase):  # {{{
 

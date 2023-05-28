@@ -167,7 +167,7 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="15" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -194,6 +194,13 @@
         <widget class="QCheckBox" name="opt_dnd_merge">
          <property name="text">
           <string>Allow using &amp;drag and drop to merge books</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QCheckBox" name="opt_edit_select_cell">
+         <property name="text">
+          <string>Select all the content when starting editing a cell</string>
          </property>
         </widget>
        </item>
