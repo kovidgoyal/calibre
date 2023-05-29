@@ -519,6 +519,9 @@ class EditWithComplete(EnComboBox):
         self.setText(text)
         self.selectAll()
 
+    # Create a Qt user property for the current text so that when this widget
+    # is used as an edit widget in a table view it selects all text, as
+    # matching the behavior of all other Qt widgets.
     current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
