@@ -61,6 +61,8 @@ every time you add an HTML file to the library.\
                         recs.append(['input_encoding', enc, OptionRecommendation.HIGH])
                 if settings.get('breadth_first'):
                     recs.append(['breadth_first', True, OptionRecommendation.HIGH])
+                if settings.get('allow_local_files_outside_root'):
+                    recs.append(['allow_local_files_outside_root', True, OptionRecommendation.HIGH])
             gui_convert(htmlfile, tdir, recs, abort_after_input_dump=True)
             of = self.temporary_file('_plugin_html2zip.zip')
             tdir = os.path.join(tdir, 'input')
@@ -103,6 +105,7 @@ every time you add an HTML file to the library.\
         help_text = self.customization_help(gui=True)
         help_text = QLabel(help_text, config_dialog)
         help_text.setWordWrap(True)
+        help_text.setMinimumWidth(300)
         help_text.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.LinksAccessibleByKeyboard)
         help_text.setOpenExternalLinks(True)
         v.addWidget(help_text)
@@ -111,11 +114,20 @@ every time you add an HTML file to the library.\
             ' calibre does it depth first, i.e. if file A links to B and '
             ' C, but B links to D, the files are added in the order A, B, D, C. '
             ' With this option, they will instead be added as A, B, C, D'))
+        lr = QCheckBox(_('Allow resources outside the HTML file root folder'))
+        from calibre.customize.ui import plugin_for_input_format
+        hi = plugin_for_input_format('html')
+        for opt in hi.options:
+            if opt.option.name == 'allow_local_files_outside_root':
+                lr.setToolTip(opt.help)
+                break
         settings = self.parse_my_settings(plugin_customization(self))
         bf.setChecked(bool(settings.get('breadth_first')))
+        lr.setChecked(bool(settings.get('allow_local_files_outside_root')))
         sc = QLineEdit(str(settings.get('encoding', '')), config_dialog)
         v.addWidget(sc)
         v.addWidget(bf)
+        v.addWidget(lr)
         v.addWidget(button_box)
         size_dialog()
         config_dialog.exec()
@@ -127,6 +139,8 @@ every time you add an HTML file to the library.\
                 settings['encoding'] = enc
             if bf.isChecked():
                 settings['breadth_first'] = True
+            if lr.isChecked():
+                settings['allow_local_files_outside_root'] = True
             customize_plugin(self, json.dumps(settings, ensure_ascii=True))
 
         return config_dialog.result()
