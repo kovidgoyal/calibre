@@ -103,6 +103,7 @@ class CHMInput(InputFormatPlugin):
         from calibre.customize.builtins import HTMLInput
         opts.breadth_first = True
         htmlinput = HTMLInput(None)
+        htmlinput.set_root_dir_of_input(basedir)
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
 

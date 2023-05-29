@@ -76,6 +76,9 @@ class HTMLInput(InputFormatPlugin):
 
     }
 
+    def set_root_dir_of_input(self, basedir):
+        self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
+
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
@@ -86,7 +89,7 @@ class HTMLInput(InputFormatPlugin):
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
             fname = os.path.basename(stream.name)
-        self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
+        self.set_root_dir_of_input(basedir)
 
         if file_ext != 'opf':
             if opts.dont_package:
