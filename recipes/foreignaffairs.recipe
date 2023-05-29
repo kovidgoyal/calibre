@@ -155,7 +155,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        self.cover_url = soup.find(**classes('subscribe-callout-image'))['data-src'].split("|")[-1]
+        self.cover_url = soup.find(**classes('subscribe-callout-image'))['srcset'].split()[-3]
         self.cover_url = self.cover_url.split('?')[0]
         self.cover_url = self.cover_url.replace('_webp_issue_small_2x', '_webp_issue_large_2x')
 
