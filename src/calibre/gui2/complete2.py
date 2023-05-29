@@ -515,15 +515,11 @@ class EditWithComplete(EnComboBox):
     def text(self):
         return self.lineEdit().text()
 
-
-    @pyqtProperty(str)
-    def currentText(self):
-        return self.lineEdit().text()
-
-    @currentText.setter
-    def currentText(self, text):
+    def set_current_text(self, text):
         self.setText(text)
-        self.lineEdit().selectAll()
+        self.selectAll()
+
+    current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
         self.lineEdit().selectAll()
