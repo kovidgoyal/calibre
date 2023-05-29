@@ -23,6 +23,30 @@
 # - title by author
 # }}}
 
+{{{ 6.19.0 2023-05-29
+
+:: new features
+
+- HTML Input: Restrict adding of resources like images to only files within the folder hierarchy starting at the parent folder of the root HTML file
+  Can be controlled by customizing the HTML to Zip plugin in Preferences->Plugins or the --allow-local-files-outside-root option to the
+  ebook-convert command
+
+:: bug fixes
+
+- PDF Output: Fix regression in previous release causing non-English entries to be incorrectly encoded into the PDF bookmarks
+
+- PDF Output: Fix regression in previous release that caused blank pages when generating headers or footers
+
+- [2021367] Book list: Fix editing-in-place not pre-selecting existing text for some column types
+
+- Amazon.de metadata download: Update for site changes
+
+- PDF Output: Set /Creator and /Producer in /Info
+
+- [2020906] Fix row height incorrect in Manage category dialog when blank
+
+}}}
+
 {{{ 6.18.1 2023-05-26
 
 :: new features
