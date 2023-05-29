@@ -6,6 +6,9 @@ import unittest, functools, importlib, importlib.resources, os
 from calibre.utils.monotonic import monotonic
 
 
+is_ci = os.environ.get('CI', '').lower() == 'true'
+
+
 def no_endl(f):
     @functools.wraps(f)
     def func(*args, **kwargs):
@@ -329,6 +332,6 @@ def run_cli(suite, verbosity=4, buffer=True):
     r = unittest.TextTestRunner
     r.resultclass = unittest.TextTestResult if verbosity < 2 else TestResult
     init_env()
-    result = r(verbosity=verbosity, buffer=buffer).run(suite)
+    result = r(verbosity=verbosity, buffer=buffer and not is_ci).run(suite)
     if not result.wasSuccessful():
         raise SystemExit(1)

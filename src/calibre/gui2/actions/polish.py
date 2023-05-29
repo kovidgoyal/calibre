@@ -145,8 +145,11 @@ class Polish(QDialog):  # {{{
         connect_lambda(b.clicked, self, lambda self: self.select_all(False))
         l.addWidget(bb, count+1, 1, 1, -1)
         self.setup_load_button()
+        self.resize(self.sizeHint())
 
-        self.resize(QSize(950, 600))
+    def sizeHint(self):
+        sz = super().sizeHint()
+        return QSize(max(950, sz.width()), max(600, sz.height()))
 
     def select_all(self, enable):
         for action in self.all_actions:

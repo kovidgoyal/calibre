@@ -12,7 +12,6 @@ from qt.core import (
 
 from calibre.constants import ismacos
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
-from calibre.gui2 import gprefs
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
@@ -516,16 +515,15 @@ class EditWithComplete(EnComboBox):
     def text(self):
         return self.lineEdit().text()
 
-
-    @pyqtProperty(str)
-    def currentText(self):
-        return self.lineEdit().text()
-
-    @currentText.setter
-    def currentText(self, text):
+    def set_current_text(self, text):
         self.setText(text)
         if gprefs['edit_select_cell']:
             self.selectAll()
+
+    # Create a Qt user property for the current text so that when this widget
+    # is used as an edit widget in a table view it selects all text, as
+    # matching the behavior of all other Qt widgets.
+    current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
         self.lineEdit().selectAll()
