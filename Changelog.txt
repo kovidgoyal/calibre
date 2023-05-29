@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.19.0 2023-05-29
+{{{ 6.19.1 2023-05-29
 
 :: new features
 
@@ -44,6 +44,8 @@
 - PDF Output: Set /Creator and /Producer in /Info
 
 - [2020906] Fix row height incorrect in Manage category dialog when blank
+
+- [2021452] 6.19.1 fixes a bug in 6.19.0 that broke the edit metadata dialog
 
 }}}
 
