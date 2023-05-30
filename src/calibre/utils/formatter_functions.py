@@ -807,7 +807,7 @@ class BuiltinIdentifierInList(BuiltinFormatterFunction):
             'matches the identifier\'s value. If found_val and not_found_val '
             'are provided then if there is a match then return found_val, otherwise '
             'return not_found_val. If found_val and not_found_val are not '
-            'provided then if there is a match then return the indentfier:value '
+            'provided then if there is a match then return the identifier:value '
             'pair, otherwise the empty string.')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, ident, *args):
