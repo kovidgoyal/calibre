@@ -149,6 +149,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
+                if mime_type == 'text/css':
+                    mime_type += '; charset=utf-8'
                 send_reply(rq, mime_type, data)
             except Exception:
                 import traceback
