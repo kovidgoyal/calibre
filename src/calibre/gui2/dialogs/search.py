@@ -442,13 +442,11 @@ class SearchDialog(QDialog):
     def template_search_string(self):
         template = str(self.template_program_box.text())
         value = str(self.template_value_box.text())
-        if template and value:
-            cb = self.template_test_type_box
-            op =  str(cb.itemData(cb.currentIndex()))
-            l = f'{template}#@#:{op}:{value}'
-            # Use docstring quoting (super-quoting) to avoid problems with escaping
-            return 'template:"""' + l + '"""'
-        return ''
+        cb = self.template_test_type_box
+        op =  str(cb.itemData(cb.currentIndex()))
+        l = f'{template}#@#:{op}:{value}'
+        # Use docstring quoting (super-quoting) to avoid problems with escaping
+        return 'template:"""' + l + '"""'
 
     def date_search_string(self):
         field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')
