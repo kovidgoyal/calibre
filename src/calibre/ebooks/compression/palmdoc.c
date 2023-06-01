@@ -70,12 +70,12 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
     while (i < input_len) {
         c = input[i++];
         if (c >= 1 && c <= 8)  { // copy 'c' bytes
-            while (c--) { write(input[i++]); }
+            while (c-- && i < input_len) { write(input[i++]); }
         } else if (c <= 0x7F)  { // 0, 09-7F = self
             write((char)c);
         } else if (c >= 0xC0) { // space + ASCII char
             write(' '); write(c ^ 0x80);
-        } else { // 80-BF repeat sequences
+        } else if (i < input_len) { // 80-BF repeat sequences
             c = (c << 8) + input[i++];
             di = (c & 0x3FFF) >> 3;
             for ( n = (c & 7) + 3; n--; ++o ) {
@@ -84,7 +84,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
         }
     }
 #undef write
-    if (input != NULL) PyMem_Free(input);
+    PyMem_Free(input);
     if (_PyBytes_Resize(&ans, o) != 0) return NULL;
     return ans;
 }
