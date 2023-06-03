@@ -5,19 +5,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 store_version = 16  # Needed for dynamic plugin loading
 
-from contextlib import closing
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
-from lxml import html, etree
+from lxml import etree
 
-from qt.core import QUrl
-
-from calibre import browser
 from calibre.gui2 import open_url
-from calibre.gui2.store import StorePlugin
+from calibre.gui2.store import browser_get_url, StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
 SEARCH_BASE_URL = 'https://www.amazon.fr/s/'
@@ -49,79 +45,72 @@ def search_amazon(query, max_results=10, timeout=60,
         return x
     uquery = {asbytes(k):asbytes(v) for k, v in uquery.items()}
     url = base_url + '?' + urlencode(uquery)
-    br = browser(user_agent=get_user_agent())
 
+    doc = browser_get_url(url, timeout, user_agent=get_user_agent(), save_html_to=write_html_to)
     counter = max_results
-    with closing(br.open(url, timeout=timeout)) as f:
-        raw = f.read()
-        if write_html_to is not None:
-            with open(write_html_to, 'wb') as f:
-                f.write(raw)
-        doc = html.fromstring(raw)
-        for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
-            kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
-            # Even though we are searching digital-text only Amazon will still
-            # put in results for non Kindle books (author pages). Se we need
-            # to explicitly check if the item is a Kindle book and ignore it
-            # if it isn't.
-            if 'kindle' not in kformat.lower():
-                continue
-            asin = result.get('data-asin')
-            if not asin:
-                continue
+    for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
+        if counter <= 0:
+            break
 
-            cover_url = ''.join(result.xpath('.//img/@src'))
-            title = etree.tostring(result.xpath('.//h2')[0], method='text', encoding='unicode')
-            adiv = result.xpath('.//div[contains(@class, "a-color-secondary")]')[0]
-            aparts = etree.tostring(adiv, method='text', encoding='unicode').split()
-            idx = aparts.index(BY)
-            author = ' '.join(aparts[idx+1:]).split('|')[0].strip()
-            price = ''
-            for span in result.xpath('.//span[contains(@class, "a-price")]/span[contains(@class, "a-offscreen")]'):
-                q = ''.join(span.xpath('./text()'))
-                if q:
-                    price = q
-                    break
+        kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
+        # Even though we are searching digital-text only Amazon will still
+        # put in results for non Kindle books (author pages). Se we need
+        # to explicitly check if the item is a Kindle book and ignore it
+        # if it isn't.
+        if 'kindle' not in kformat.lower():
+            continue
+        asin = result.get('data-asin')
+        if not asin:
+            continue
 
-            counter -= 1
+        cover_url = ''.join(result.xpath('.//img/@src'))
+        title = etree.tostring(result.xpath('.//h2')[0], method='text', encoding='unicode')
+        adiv = result.xpath('.//div[contains(@class, "a-color-secondary")]')[0]
+        aparts = etree.tostring(adiv, method='text', encoding='unicode').split()
+        idx = aparts.index(BY)
+        author = ' '.join(aparts[idx+1:]).split('|')[0].strip()
+        price = ''
+        for span in result.xpath('.//span[contains(@class, "a-price")]/span[contains(@class, "a-offscreen")]'):
+            q = ''.join(span.xpath('./text()'))
+            if q:
+                price = q
+                break
 
-            s = SearchResult()
-            s.cover_url = cover_url.strip()
-            s.title = title.strip()
-            s.author = author.strip()
-            s.detail_item = asin.strip()
-            s.price = price.strip()
-            s.formats = 'Kindle'
+        counter -= 1
 
-            yield s
+        s = SearchResult()
+        s.cover_url = cover_url.strip()
+        s.title = title.strip()
+        s.author = author.strip()
+        s.detail_item = asin.strip()
+        s.price = price.strip()
+        s.formats = 'Kindle'
+
+        yield s
 
 
 class AmazonKindleStore(StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         store_link = (DETAILS_URL + detail_item) if detail_item else STORE_LINK
-        open_url(QUrl(store_link))
+        open_url(store_link)
 
     def search(self, query, max_results=10, timeout=60):
         for result in search_amazon(query, max_results=max_results, timeout=timeout):
             yield result
 
     def get_details(self, search_result, timeout):
-        url = DETAILS_URL
-
-        br = browser(user_agent=get_user_agent())
-        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
+        idata = browser_get_url(DETAILS_URL + search_result.detail_item, timeout, user_agent=get_user_agent())
+        if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
+                       DRM_SEARCH_TEXT + '")])'):
+            if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
+                           DRM_FREE_TEXT + '") and contains(b, "' +
                            DRM_SEARCH_TEXT + '")])'):
-                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
-                               DRM_FREE_TEXT + '") and contains(b, "' +
-                               DRM_SEARCH_TEXT + '")])'):
-                    search_result.drm = SearchResult.DRM_UNLOCKED
-                else:
-                    search_result.drm = SearchResult.DRM_UNKNOWN
+                search_result.drm = SearchResult.DRM_UNLOCKED
             else:
-                search_result.drm = SearchResult.DRM_LOCKED
+                search_result.drm = SearchResult.DRM_UNKNOWN
+        else:
+            search_result.drm = SearchResult.DRM_LOCKED
         return True
 
 

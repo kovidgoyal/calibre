@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from threading import Lock
 
-from qt.core import (QUrl, QCoreApplication)
+from qt.core import QCoreApplication
 
 from calibre.constants import cache_dir
 from calibre.gui2 import open_url
@@ -43,7 +43,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else url))
+            open_url(detail_item if detail_item else url)
         else:
             if detail_item:
                 d = WebStoreDialog(self.gui, url, parent, detail_item)

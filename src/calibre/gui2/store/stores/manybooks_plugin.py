@@ -41,66 +41,66 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
     oquery.count = max_results
     url = oquery.url()
 
-    counter = max_results
     br = browser()
     with closing(br.open(url, timeout=timeout)) as f:
-        raw_data = f.read()
-        raw_data = raw_data.decode('utf-8', 'replace')
-        doc = etree.fromstring(raw_data, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
-        for data in doc.xpath('//*[local-name() = "entry"]'):
-            if counter <= 0:
-                break
+        raw_data = f.read().decode('utf-8', 'replace')
+    doc = etree.fromstring(raw_data, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
 
-            counter -= 1
+    counter = max_results
+    for data in doc.xpath('//*[local-name() = "entry"]'):
+        if counter <= 0:
+            break
 
-            s = SearchResult()
+        counter -= 1
 
-            detail_links = data.xpath('./*[local-name() = "link" and @type = "text/html"]')
-            if not detail_links:
-                continue
-            detail_link = detail_links[0]
-            detail_href = detail_link.get('href')
-            if not detail_href:
-                continue
+        s = SearchResult()
 
-            s.detail_item = 'http://manybooks.net/titles/' + detail_href.split('tid=')[-1] + '.html'
-            # These can have HTML inside of them. We are going to get them again later
-            # just in case.
-            s.title = ''.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
-            s.author = ', '.join(data.xpath('./*[local-name() = "author"]//text()')).strip()
+        detail_links = data.xpath('./*[local-name() = "link" and @type = "text/html"]')
+        if not detail_links:
+            continue
+        detail_link = detail_links[0]
+        detail_href = detail_link.get('href')
+        if not detail_href:
+            continue
 
-            # Follow the detail link to get the rest of the info.
-            with closing(br.open(detail_href, timeout=timeout/4)) as df:
-                ddoc = etree.fromstring(df.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
-                ddata = ddoc.xpath('//*[local-name() = "entry"][1]')
-                if ddata:
-                    ddata = ddata[0]
+        s.detail_item = 'http://manybooks.net/titles/' + detail_href.split('tid=')[-1] + '.html'
+        # These can have HTML inside of them. We are going to get them again later
+        # just in case.
+        s.title = ''.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
+        s.author = ', '.join(data.xpath('./*[local-name() = "author"]//text()')).strip()
 
-                    # This is the real title and author info we want. We got
-                    # it previously just in case it's not specified here for some reason.
-                    s.title = ''.join(ddata.xpath('./*[local-name() = "title"]//text()')).strip()
-                    s.author = ', '.join(ddata.xpath('./*[local-name() = "author"]//text()')).strip()
-                    if s.author.startswith(','):
-                        s.author = s.author[1:]
-                    if s.author.endswith(','):
-                        s.author = s.author[:-1]
+        # Follow the detail link to get the rest of the info.
+        with closing(br.open(detail_href, timeout=timeout/4)) as df:
+            ddoc = etree.fromstring(df.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
+            ddata = ddoc.xpath('//*[local-name() = "entry"][1]')
+            if ddata:
+                ddata = ddata[0]
 
-                    s.cover_url = ''.join(ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/thumbnail"][1]/@href')).strip()
+                # This is the real title and author info we want. We got
+                # it previously just in case it's not specified here for some reason.
+                s.title = ''.join(ddata.xpath('./*[local-name() = "title"]//text()')).strip()
+                s.author = ', '.join(ddata.xpath('./*[local-name() = "author"]//text()')).strip()
+                if s.author.startswith(','):
+                    s.author = s.author[1:]
+                if s.author.endswith(','):
+                    s.author = s.author[:-1]
 
-                    for link in ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
-                        type = link.get('type')
-                        href = link.get('href')
-                        if type:
-                            ext = mimetypes.guess_extension(type)
-                            if ext:
-                                ext = ext[1:].upper().strip()
-                                s.downloads[ext] = href
+                s.cover_url = ''.join(ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/thumbnail"][1]/@href')).strip()
 
-            s.price = '$0.00'
-            s.drm = SearchResult.DRM_UNLOCKED
-            s.formats = 'EPUB, PDB (eReader, PalmDoc, zTXT, Plucker, iSilo), FB2, ZIP, AZW, MOBI, PRC, LIT, PKG, PDF, TXT, RB, RTF, LRF, TCR, JAR'
+                for link in ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
+                    type = link.get('type')
+                    href = link.get('href')
+                    if type:
+                        ext = mimetypes.guess_extension(type)
+                        if ext:
+                            ext = ext[1:].upper().strip()
+                            s.downloads[ext] = href
 
-            yield s
+        s.price = '$0.00'
+        s.drm = SearchResult.DRM_UNLOCKED
+        s.formats = 'EPUB, PDB (eReader, PalmDoc, zTXT, Plucker, iSilo), FB2, ZIP, AZW, MOBI, PRC, LIT, PKG, PDF, TXT, RB, RTF, LRF, TCR, JAR'
+
+        yield s
 
 
 class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):

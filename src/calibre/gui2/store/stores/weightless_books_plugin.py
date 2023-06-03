@@ -7,19 +7,14 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from contextlib import closing
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
-from lxml import html
-
-from qt.core import QUrl
-
-from calibre import browser, url_slash_cleaner
+from calibre import url_slash_cleaner
 from calibre.gui2 import open_url
-from calibre.gui2.store import StorePlugin
+from calibre.gui2.store import browser_get_url, StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
@@ -31,7 +26,7 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
         url = 'http://weightlessbooks.com/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(url_slash_cleaner(detail_item if detail_item else url))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
@@ -41,41 +36,39 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         url = 'http://weightlessbooks.com/?s=' + quote_plus(query)
 
-        br = browser()
+        doc = browser_get_url(url, timeout)
 
         counter = max_results
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
-            for data in doc.xpath('//li[@class="product"]'):
-                if counter <= 0:
-                    break
+        for data in doc.xpath('//li[@class="product"]'):
+            if counter <= 0:
+                break
 
-                id = ''.join(data.xpath('.//div[@class="cover"]/a/@href'))
-                if not id:
-                    continue
+            id = ''.join(data.xpath('.//div[@class="cover"]/a/@href'))
+            if not id:
+                continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
+            cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
 
-                price = ''.join(data.xpath('.//div[@class="buy_buttons"]/b[1]/text()'))
-                if not price:
-                    continue
+            price = ''.join(data.xpath('.//div[@class="buy_buttons"]/b[1]/text()'))
+            if not price:
+                continue
 
-                formats = ', '.join(data.xpath('.//select[@class="eStore_variation"]//option//text()'))
-                formats = formats.upper()
+            formats = ', '.join(data.xpath('.//select[@class="eStore_variation"]//option//text()'))
+            formats = formats.upper()
 
-                title = ''.join(data.xpath('.//h3/a/text()'))
-                author = ''.join(data.xpath('.//h3//text()'))
-                author = author.replace(title, '')
+            title = ''.join(data.xpath('.//h3/a/text()'))
+            author = ''.join(data.xpath('.//h3//text()'))
+            author = author.replace(title, '')
 
-                counter -= 1
+            counter -= 1
 
-                s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = price.strip()
-                s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_UNLOCKED
-                s.formats = formats
+            s = SearchResult()
+            s.cover_url = cover_url
+            s.title = title.strip()
+            s.author = author.strip()
+            s.price = price.strip()
+            s.detail_item = id.strip()
+            s.drm = SearchResult.DRM_UNLOCKED
+            s.formats = formats
 
-                yield s
+            yield s

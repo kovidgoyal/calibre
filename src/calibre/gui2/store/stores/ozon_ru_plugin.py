@@ -13,7 +13,12 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-from qt.core import QUrl
+try:
+    from html5_parser import parse as parse_html
+except ImportError:  # Old versions of calibre
+    import html5lib
+    def parse_html(raw):
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode
@@ -25,39 +30,28 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 shop_url = 'http://www.ozon.ru'
 
 
-def parse_html(raw):
-    try:
-        from html5_parser import parse
-    except ImportError:
-        # Old versions of calibre
-        import html5lib
-        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
-    else:
-        return parse(raw)
-
-
 def search(query, max_results=15, timeout=60):
     url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % quote_plus(query)
 
-    counter = max_results
     br = browser()
-
     with closing(br.open(url, timeout=timeout)) as f:
         raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-        root = parse_html(raw)
-        for tile in root.xpath('//*[@class="bShelfTile inline"]'):
-            if counter <= 0:
-                break
-            counter -= 1
+    root = parse_html(raw)
 
-            s = SearchResult(store_name='OZON.ru')
-            s.detail_item = shop_url + tile.xpath('descendant::a[@class="eShelfTile_Link"]/@href')[0]
-            s.title = tile.xpath('descendant::span[@class="eShelfTile_ItemNameText"]/@title')[0]
-            s.author = tile.xpath('descendant::span[@class="eShelfTile_ItemPerson"]/@title')[0]
-            s.price = ''.join(tile.xpath('descendant::div[contains(@class, "eShelfTile_Price")]/text()'))
-            s.cover_url = 'http:' + tile.xpath('descendant::img/@data-original')[0]
-            s.price = format_price_in_RUR(s.price)
-            yield s
+    counter = max_results
+    for tile in root.xpath('//*[@class="bShelfTile inline"]'):
+        if counter <= 0:
+            break
+        counter -= 1
+
+        s = SearchResult(store_name='OZON.ru')
+        s.detail_item = shop_url + tile.xpath('descendant::a[@class="eShelfTile_Link"]/@href')[0]
+        s.title = tile.xpath('descendant::span[@class="eShelfTile_ItemNameText"]/@title')[0]
+        s.author = tile.xpath('descendant::span[@class="eShelfTile_ItemPerson"]/@title')[0]
+        s.price = ''.join(tile.xpath('descendant::div[contains(@class, "eShelfTile_Price")]/text()'))
+        s.cover_url = 'http:' + tile.xpath('descendant::img/@data-original')[0]
+        s.price = format_price_in_RUR(s.price)
+        yield s
 
 
 class OzonRUStore(StorePlugin):
@@ -65,7 +59,7 @@ class OzonRUStore(StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(url_slash_cleaner(url))
         else:
             d = WebStoreDialog(self.gui, shop_url, parent, url)
             d.setWindowTitle(self.name)

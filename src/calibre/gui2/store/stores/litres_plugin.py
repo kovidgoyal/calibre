@@ -16,7 +16,6 @@ except ImportError:
 
 from contextlib import closing
 from lxml import etree
-from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner, prints
 from calibre.ebooks.chardet import xml_to_unicode
@@ -32,7 +31,6 @@ class LitResStore(BasicStoreConfig, StorePlugin):
     # http://robot.litres.ru/pages/biblio_book/?art=174405
 
     def open(self, parent=None, detail_item=None, external=False):
-
         aff_id = u'?' + _get_affiliate_id()
 
         url = self.shop_url + aff_id
@@ -43,7 +41,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
                 u'&art=' + quote(detail_item)
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(url_slash_cleaner(detail_url if detail_url else url))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
@@ -52,29 +50,26 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
-        'search=%s&limit=0,%s'
-        search_url = search_url % (quote(query), max_results)
+        'search=%s&limit=0,%s' % (quote(query), max_results)
 
-        counter = max_results
         br = browser()
         br.addheaders.append(['Accept-Encoding','gzip'])
-
         with closing(br.open(search_url, timeout=timeout)) as r:
-            ungzipResponse(r,br)
-            raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
+            ungzipResponse(r, br)
+            raw = xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
+        doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
 
-            doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
-            for data in doc.xpath('//*[local-name() = "fb2-book"]'):
-                if counter <= 0:
-                    break
-                counter -= 1
-
-                try:
-                    sRes = self.create_search_result(data)
-                except Exception as e:
-                    prints('ERROR: cannot parse search result #%s: %s'%(max_results - counter + 1, e))
-                    continue
-                yield sRes
+        counter = max_results
+        for data in doc.xpath('//*[local-name() = "fb2-book"]'):
+            if counter <= 0:
+                break
+            counter -= 1
+            try:
+                sRes = self.create_search_result(data)
+            except Exception as e:
+                prints('ERROR: cannot parse search result #%s: %s'%(max_results - counter + 1, e))
+                continue
+            yield sRes
 
     def get_details(self, search_result, timeout=60):
         pass

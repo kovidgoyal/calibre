@@ -13,10 +13,9 @@ try:
 except ImportError:
     from urllib import urlencode, quote_plus
 
+from contextlib import closing
 from lxml import html
 from mechanize import Request
-
-from qt.core import QUrl
 
 from calibre import url_slash_cleaner, browser
 from calibre.gui2 import open_url
@@ -53,9 +52,8 @@ def search(query, max_results=10, timeout=60):
         'nw_filtry_filtr_zakrescen_formularz[min]':'0',
         'nw_filtry_filtr_zakrescen_formularz[max]':'350',
     }))
-    r = br.open(rq)
-    raw = r.read()
-    doc = html.fromstring('<html><body>' + raw.decode('utf-8') + '</body></html>')
+    with closing(br.open(rq)) as web_page:
+        doc = html.fromstring('<html><body>' + web_page.read().decode('utf-8') + '</body></html>')
     counter = max_results
 
     for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka ebook " or @class="nw_katalog_lista_ksiazka ebook promocja"]'):
@@ -98,7 +96,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
+            open_url(url_slash_cleaner(detail_url if detail_url else aff_url))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
             d.setWindowTitle(self.name)

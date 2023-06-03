@@ -2,7 +2,84 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from contextlib import closing
+from time import perf_counter
+
+from lxml import html
+
+from calibre import browser as create_browser, prints
+from calibre.constants import DEBUG
+from calibre.scraper.simple import read_url
 from calibre.utils.filenames import ascii_filename
+
+
+def browser_get_url(url, timeout, browser=None, user_agent=None, headers=None, data=None, novisit=False, html_parser=None, save_html_to=None):
+    """
+    Retrieve the content at the given HTTP URL,
+    and measure the time it takes to do so in DEBUG mode.
+    Uses mechanize.Browser
+
+    :param url: a URL string.
+
+    :param timeout: a numerical timeout in seconds for the HTTP request.
+
+    :param browser: an optional existing mechanize.Browser instance.
+    If not provided, a new one will be created.
+
+    :param user_agent: optional User-Agent to use if no "browser" parameter is provided.
+
+    :param headers: optional list of HTTP headers to set on the request
+
+    :param data: optional query parameters
+
+    :param novisit: optional boolean indicating to use mechanize "novisit" method
+    when fetching web pages.
+
+    :param save_html_to: an optional file path where to save the web page content.
+
+    :param html_parser: an optional function to parse the HTML string.
+    By default: lxml.html.fromstring
+
+    :return: a parsed HTML element/document
+    """
+    start_time = perf_counter()
+    if browser is None:
+        browser = create_browser(user_agent=user_agent)
+    if headers:
+        browser.addheaders.extend(headers)
+    browser_open = browser.open_novisit if novisit else browser.open
+    with closing(browser_open(url, data=data, timeout=timeout)) as web_page:
+        html_content = web_page.read()
+    if save_html_to:
+        with open(save_html_to, 'wb') as html_file:
+            html_file.write(raw_content)
+    if not html_parser:
+        html_parser = html.fromstring
+    html_parsed = html_parser(html_content)
+    if DEBUG:
+        duration = perf_counter() - start_time
+        prints(f'browser_get_url took {duration:.2f}s for URL {url}')
+    return html_parsed
+
+
+def http_get_url(storage, url, timeout):
+    """
+    Retrieve the content at the given HTTP URL,
+    and measure the time it takes to do so in DEBUG mode.
+    Uses qt.webengine and hence the chromium network stack.
+
+    :param url: a URL string.
+
+    :param timeout: a numerical timeout in seconds for the HTTP request.
+
+    :return: the HTML content as a string
+    """
+    start_time = perf_counter()
+    html_content = read_url(storage, url, timeout)
+    if DEBUG:
+        duration = perf_counter() - start_time
+        prints(f"http_get_url took {duration:.2f}s for URL {url}")
+    return html_content
 
 
 class StorePlugin:  # {{{
