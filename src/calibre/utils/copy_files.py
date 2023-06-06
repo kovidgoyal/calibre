@@ -225,11 +225,9 @@ def copy_tree(
     with copier:
         copier.copy_all()
 
-    if delete_source:
+    if delete_source and os.path.exists(make_long_path_useable(src)):
         try:
             shutil.rmtree(make_long_path_useable(src))
-        except FileNotFoundError:
-            pass
         except OSError:
             if iswindows:
                 time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
