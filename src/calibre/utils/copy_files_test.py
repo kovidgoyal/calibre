@@ -6,12 +6,15 @@ import shutil
 import tempfile
 import time
 import unittest
+from contextlib import closing
 
 from calibre import walk
 from calibre.constants import iswindows
 
 from .copy_files import copy_tree, rename_files
 from .filenames import nlinks_file
+if iswindows:
+    from calibre_extensions import winutil
 
 
 class TestCopyFiles(unittest.TestCase):
@@ -94,6 +97,11 @@ class TestCopyFiles(unittest.TestCase):
         if iswindows:
             with open(self.s('sub/a')) as locked:
                 locked
+                self.assertRaises(IOError, copy_tree, src, dest)
+                self.ae(os.listdir(self.d()), ['sub'])
+                self.assertFalse(tuple(walk(self.d())))
+            h = winutil.create_file(self.s('sub'), winutil.GENERIC_READ, 0, winutil.OPEN_EXISTING, winutil.FILE_FLAG_BACKUP_SEMANTICS)
+            with closing(h):
                 self.assertRaises(IOError, copy_tree, src, dest)
                 self.ae(os.listdir(self.d()), ['sub'])
                 self.assertFalse(tuple(walk(self.d())))

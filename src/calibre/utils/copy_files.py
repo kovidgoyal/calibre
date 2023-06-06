@@ -8,7 +8,7 @@ import stat
 import time
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, Dict, Set, Tuple, Union
+from typing import Callable, Dict, Set, Tuple, Union, List
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import make_long_path_useable, samefile, windows_hardlink
@@ -27,6 +27,9 @@ class UnixFileCopier:
 
     def register(self, path: str, dest: str) -> None:
         self.copy_map[path] = dest
+
+    def register_folder(self, path: str) -> None:
+        pass
 
     def __enter__(self) -> None:
         pass
@@ -64,6 +67,8 @@ class WindowsFileCopier:
         self.path_to_fileid_map : Dict[str, WindowsFileId] = {}
         self.fileid_to_paths_map: Dict[WindowsFileId, Set[str]] = defaultdict(set)
         self.path_to_handle_map: Dict[str, 'winutil.Handle'] = {}
+        self.folder_to_handle_map: Dict[str, 'winutil.Handle'] = {}
+        self.folders: List[str] = []
         self.copy_map: Dict[str, str] = {}
 
     def register(self, path: str, dest: str) -> None:
@@ -73,11 +78,18 @@ class WindowsFileCopier:
         self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path))
         self.copy_map[path] = dest
 
-    def _open_file(self, path: str, retry_on_sharing_violation: bool = True) -> 'winutil.Handle':
+    def register_folder(self, path: str) -> None:
+        with suppress(OSError):
+            # Ensure the folder is not read-only
+            winutil.set_file_attributes(make_long_path_useable(path), winutil.FILE_ATTRIBUTE_NORMAL)
+        self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path))
+        self.folders.append(path)
+
+    def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> 'winutil.Handle':
+        flags = winutil.FILE_FLAG_BACKUP_SEMANTICS if is_folder else winutil.FILE_FLAG_SEQUENTIAL_SCAN
         try:
             return winutil.create_file(make_long_path_useable(path), winutil.GENERIC_READ,
-                    winutil.FILE_SHARE_DELETE,
-                    winutil.OPEN_EXISTING, winutil.FILE_FLAG_SEQUENTIAL_SCAN)
+                    winutil.FILE_SHARE_DELETE, winutil.OPEN_EXISTING, flags)
         except OSError as e:
             if e.winerror == winutil.ERROR_SHARING_VIOLATION:
                 # The file could be a hardlink to an already opened file,
@@ -88,7 +100,7 @@ class WindowsFileCopier:
                         return self.path_to_handle_map[other]
                 if retry_on_sharing_violation:
                     time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
-                    return self._open_file(path, False)
+                    return self._open_file(path, False, is_folder)
                 err = IOError(errno.EACCES,
                         _('File is open in another program'))
                 err.filename = path
@@ -100,6 +112,8 @@ class WindowsFileCopier:
             self.fileid_to_paths_map[file_id].add(path)
         for src in self.copy_map:
             self.path_to_handle_map[src] = self._open_file(src)
+        for path in self.folders:
+            self.folder_to_handle_map[path] = self._open_file(path, is_folder=True)
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         try:
@@ -107,6 +121,8 @@ class WindowsFileCopier:
                 self.delete_all_source_files()
         finally:
             for h in self.path_to_handle_map.values():
+                h.close()
+            for h in self.folder_to_handle_map.values():
                 h.close()
 
     def copy_all(self) -> None:
@@ -133,6 +149,8 @@ class WindowsFileCopier:
     def delete_all_source_files(self) -> None:
         for src_path in self.copy_map:
             winutil.delete_file(make_long_path_useable(src_path))
+        for path in reversed(self.folders):
+            os.rmdir(make_long_path_useable(path))
 
 
 def get_copier(delete_all=False) -> Union[UnixFileCopier, WindowsFileCopier]:
@@ -189,12 +207,14 @@ def copy_tree(
 
 
     copier = get_copier(delete_source)
+    copier.register_folder(src)
     for (dirpath, dirnames, filenames) in os.walk(src, onerror=raise_error):
         for d in dirnames:
             path = os.path.join(dirpath, d)
             dest = dest_from_entry(dirpath, d)
             os.makedirs(make_long_path_useable(dest), exist_ok=True)
             shutil.copystat(make_long_path_useable(path), make_long_path_useable(dest), follow_symlinks=False)
+            copier.register_folder(path)
         for f in filenames:
             path = os.path.join(dirpath, f)
             dest = dest_from_entry(dirpath, f)
@@ -214,6 +234,8 @@ def copy_tree(
     if delete_source:
         try:
             shutil.rmtree(make_long_path_useable(src))
+        except FileNotFoundError:
+            pass
         except OSError:
             if iswindows:
                 time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
