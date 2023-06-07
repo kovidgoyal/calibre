@@ -61,7 +61,7 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
                     if old_val is None:
                         vmetrics_map[glyph_id] = m
                     elif m != vmetrics_map[glyph_id]:
-                        log(f'Metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
+                        log(f'Vertical metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
 
     glyf = ans[b'glyf']
     head = ans[b'head']
