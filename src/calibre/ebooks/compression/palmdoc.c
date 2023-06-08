@@ -43,7 +43,7 @@ typedef struct {
 #define CHAR(x) (( (x) > 127 ) ? (x)-256 : (x))
 
 static bool
-write_to_bytes_object(PyObject **output, Py_ssize_t pos, char ch) {
+write_to_bytes_object(PyObject **output, size_t pos, char ch) {
     if (pos >= PyBytes_GET_SIZE(*output)) {
         if (_PyBytes_Resize(output, 2 * pos) != 0) return false;
     }
@@ -54,15 +54,17 @@ write_to_bytes_object(PyObject **output, Py_ssize_t pos, char ch) {
 static PyObject *
 cpalmdoc_decompress(PyObject *self, PyObject *args) {
     const char *_input = NULL; Py_ssize_t input_len = 0;
-    Byte *input; Byte c; PyObject *ans;
-    Py_ssize_t i = 0, o = 0, j = 0, di, n;
+    Byte *input; Byte c; PyObject *ans = NULL;
+    Py_ssize_t i = 0, j = 0;
+    size_t o = 0, di = 0, n = 0;
     if (!PyArg_ParseTuple(args, "y#", &_input, &input_len))
 		return NULL;
     input = (Byte *) PyMem_Malloc(sizeof(Byte)*input_len);
     if (input == NULL) return PyErr_NoMemory();
     // Map chars to bytes
-    for (j = 0; j < input_len; j++)
+    for (j = 0; j < input_len; j++) {
         input[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
+    }
     ans = PyBytes_FromStringAndSize(NULL, 8*input_len);
     if (ans == NULL) { PyMem_Free(input); return NULL; }
 
@@ -78,8 +80,10 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
         } else if (i < input_len) { // 80-BF repeat sequences
             c = (c << 8) + input[i++];
             di = (c & 0x3FFF) >> 3;
-            for ( n = (c & 7) + 3; n--; ++o ) {
-                if (!write_to_bytes_object(&ans, o, PyBytes_AS_STRING(ans)[o-di])) { PyMem_Free(input); return NULL; }
+            if (di <= o) {
+                for ( n = (c & 7) + 3; n--; ++o ) {
+                    if (!write_to_bytes_object(&ans, o, PyBytes_AS_STRING(ans)[o-di])) { PyMem_Free(input); return NULL; }
+                }
             }
         }
     }
