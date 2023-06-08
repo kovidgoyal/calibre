@@ -131,6 +131,7 @@ class HTMLInput(InputFormatPlugin):
         )
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         from calibre.utils.localization import canonicalize_lang
+        self.opts = opts
         css_parser.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
