@@ -15,6 +15,7 @@ from collections import defaultdict
 from itertools import count
 from lxml import etree, html
 from operator import attrgetter
+from typing import Optional
 
 from calibre import as_unicode, force_unicode, get_types_map, isbytestring
 from calibre.constants import __version__, filesystem_encoding
@@ -1018,6 +1019,12 @@ class Manifest:
         # }}}
 
         @property
+        def data_as_bytes_or_none(self) -> Optional[bytes]:
+            if self._loader is None:
+                return None
+            return self._loader(getattr(self, 'html_input_href', self.href))
+
+        @property
         def data(self):
             """Provides MIME type sensitive access to the manifest
             entry's associated content.
@@ -1033,10 +1040,7 @@ class Manifest:
             """
             data = self._data
             if data is None:
-                if self._loader is None:
-                    return None
-                data = self._loader(getattr(self, 'html_input_href',
-                    self.href))
+                data = self.data_as_bytes_or_none
             try:
                 mt = self.media_type.lower()
             except Exception:

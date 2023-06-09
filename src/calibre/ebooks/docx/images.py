@@ -10,7 +10,7 @@ from lxml.html.builder import HR, IMG
 
 from calibre import sanitize_file_name
 from calibre.constants import iswindows
-from calibre.ebooks.docx.names import barename
+from calibre.ebooks.docx.names import SVG_BLIP_URI, barename
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import image_to_data, resize_to_fit
 from calibre.utils.imghdr import what
@@ -236,9 +236,12 @@ class Images:
                 name = image_filename(name)
             alt = pr.get('descr') or alt
             for a in XPath('descendant::a:blip[@r:embed or @r:link]')(pic):
-                rid = get(a, 'r:embed')
-                if not rid:
-                    rid = get(a, 'r:link')
+                rid = get(a, 'r:embed') or get(a, 'r:link')
+                for asvg in XPath(f'./a:extLst/a:ext[@uri="{SVG_BLIP_URI}"]/asvg:svgBlip[@r:embed or @r:link]')(a):
+                    svg_rid = get(asvg, 'r:embed') or get(asvg, 'r:link')
+                    if svg_rid and svg_rid in self.rid_map:
+                        rid = svg_rid
+                        break
                 if rid and rid in self.rid_map:
                     try:
                         src = self.generate_filename(rid, name)
