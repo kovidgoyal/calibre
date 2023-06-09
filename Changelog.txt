@@ -23,6 +23,33 @@
 # - title by author
 # }}}
 
+{{{ 6.20.0 2023-06-09
+
+:: bug fixes
+
+- [2021413] CHM Input: Fix a regression in the previous release that broke conversion of CHM files
+
+- Windows: Make moving files in the calibre library folder more robust, locking folders in addition to files, before the start of the move
+
+- [2023046] Get books: Update Barnes and Noble store plugin for website changes
+
+- [2023189] Kindle output: Only re-encode JPEG images with EXIF metadata if the metadata contains actual transpose operations
+
+- [2023041] PDF Output: Fix error when input document contains multiple instances of a font some with vertical metrics and some without
+
+- PDF Output: Fix using CSS Multicolumns for body causing conversion to fail when header/footer is specified
+
+- [2022035] MOBI Input: Fix a crash when converting some corrupted palmdoc compressed MOBI files
+
+- [2021554] E-book viewer: Ensure CSS stylesheets are interpreted as UTF-8
+
+:: improved recipes
+- Foreign Affairs
+
+:: new recipes
+- Prospect Magazine UK (Free) by ping
+}}}
+
 {{{ 6.19.1 2023-05-29
 
 :: new features
