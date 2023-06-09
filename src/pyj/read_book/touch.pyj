@@ -82,7 +82,7 @@ def interpret_double_gesture(touch1, touch2, gesture_id):
     max_y_displacement1 = max_displacement(touch1.viewport_y)
     max_y_displacement2 = max_displacement(touch2.viewport_y)
     if max(max_x_displacement1, max_y_displacement1) < TAP_THRESHOLD and max(max_x_displacement2, max_y_displacement2) < TAP_THRESHOLD:
-        ans.type = 'double-tap'
+        ans.type = 'two-finger-tap'
         ans.viewport_x1 = touch1.viewport_x[0]
         ans.viewport_y1 = touch1.viewport_y[0]
         ans.viewport_x2 = touch2.viewport_x[0]
@@ -288,10 +288,9 @@ class BookTouchHandler(TouchHandler):
         if gesture.type is 'pinch':
             if gesture.active:
                 return
-        if gesture.type is 'double-tap':
+        if gesture.type is 'two-finger-tap':
             if gesture.active:
                 return
-            gesture.type = 'show-chrome'
         if self.for_side_margin:
             ui_operations.forward_gesture(gesture)
         else:
