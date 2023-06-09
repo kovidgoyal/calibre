@@ -623,9 +623,13 @@ if iswindows:
 
     def get_long_path_name(path):
         from calibre_extensions.winutil import get_long_path_name
-        if os.path.isabs(path) and not path.startswith(long_path_prefix):
-            path = long_path_prefix + path
-        return get_long_path_name(path)
+        lpath = path
+        if os.path.isabs(lpath) and not lpath.startswith(long_path_prefix):
+            lpath = long_path_prefix + lpath
+        try:
+            return get_long_path_name(lpath)
+        except FileNotFoundError:
+            return path
 
 else:
     def make_long_path_useable(path):
