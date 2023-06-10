@@ -37,6 +37,7 @@ class HTMLInput(InputFormatPlugin):
     description = _('Convert HTML and OPF files to an OEB')
     file_types  = {'opf', 'html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'}
     commit_name = 'html_input'
+    root_dir_for_absolute_links = ''
 
     options = {
         OptionRecommendation(name='breadth_first',
@@ -253,6 +254,9 @@ class HTMLInput(InputFormatPlugin):
             except:
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
                 return None, None
+        if self.root_dir_for_absolute_links and link_.startswith('/'):
+            link_ = link_.lstrip('/')
+            base = self.root_dir_for_absolute_links
         try:
             l = Link(link_, base if base else os.getcwd())
         except:

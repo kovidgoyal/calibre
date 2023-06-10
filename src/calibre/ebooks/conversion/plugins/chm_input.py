@@ -104,6 +104,7 @@ class CHMInput(InputFormatPlugin):
         opts.breadth_first = True
         htmlinput = HTMLInput(None)
         htmlinput.set_root_dir_of_input(basedir)
+        htmlinput.root_dir_for_absolute_links = basedir
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
 
