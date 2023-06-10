@@ -3,107 +3,169 @@
 # vi: set fenc=utf-8 ft=python :
 # kate: encoding utf-8; syntax python;
 
-__license__ = 'GPL v3'
-__copyright__ = '2008-2019, Darko Miletic <darko.miletic at gmail.com>'
-'''
-harpers.org - paid subscription/ printed issue articles
+__license__ = "GPL v3"
+__copyright__ = "2008-2019, Darko Miletic <darko.miletic at gmail.com>"
+"""
+harpers.org - printed issue articles
 This recipe only get's article's published in text format
 images and pdf's are ignored
-If you have institutional subscription based on access IP you do not need to enter
-anything in username/password fields
-'''
+"""
 
-import time
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urljoin
+
+from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+# overwrite this with a custom issue url, e.g. https://harpers.org/archive/2023/01/
+_issue_url = ""
 
 
 class Harpers_full(BasicNewsRecipe):
     title = "Harper's Magazine - articles from printed edition"
-    __author__ = 'Darko Miletic'
+    __author__ = "Darko Miletic, updated by ping"
     description = "Harper's Magazine, the oldest general-interest monthly in America, explores the issues that drive our national conversation, through long-form narrative journalism and essays, and such celebrated features as the iconic Harper's Index."  # noqa
     publisher = "Harpers's"
-    category = 'news, politics, USA'
-    oldest_article = 30
+    category = "news, politics, USA"
+    oldest_article = 31
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    delay = 1
-    language = 'en'
-    encoding = 'utf8'
-    needs_subscription = 'optional'
-    publication_type = 'magazine'
-    LOGIN = 'https://harpers.org/wp-admin/admin-ajax.php'
+    language = "en"
+    encoding = "utf8"
+    publication_type = "magazine"
+    requires_version = (5, 0, 0)  # py3
+    ignore_duplicate_articles = {"url"}
+    base_url = "https://harpers.org"
+
     keep_only_tags = [
-        classes('article-header-text entry-content'),
+        dict(
+            class_=[
+                "article-content",
+                "template-index-archive",  # harper's index
+            ]
+        )
     ]
     remove_tags = [
-        classes('related-issue-tout section-tags component-from-author component-share-buttons')
+        dict(
+            class_=[
+                "component-newsletter-signup",
+                "sidebar",
+                "header-meta",
+                "component-from-author",
+                "from-issue",
+                "d-none",
+                "COA_roles_fix_space",
+                "section-tags",
+                "aria-font-adjusts",
+                "component-share-buttons",
+                "index-footer",
+                "index-prev-link",
+                "comma",
+            ]
+        ),
+        # for harper's index
+        dict(
+            class_=[
+                "aria-font-adjusts",
+                "component-share-buttons",
+                "index-footer",
+                "index-prev-link",
+            ]
+        ),
     ]
+    remove_attributes = ["style", "width", "height"]
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.open('https://harpers.org/')
-        if self.username is not None and self.password is not None:
-            tt = time.localtime() * 1000
-            data = urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'https://harpers.org/', 'tt': tt
-                                     })
-            br.open(self.LOGIN, data)
-        return br
+    extra_css = """
+    h1.article-title { font-size: x-large; margin-bottom: 0.4rem; }
+    .subheading, .post-subtitle { font-size: large; font-style: italic; margin-bottom: 1rem; }
+    .byline { margin-bottom: 1rem }
+    .article-hero-img img, .flex-section-image img, .wp-caption img {
+        display: block; margin-bottom: 0.3rem; max-width: 100%; height: auto;
+        box-sizing: border-box;
+    }
+    .wp-caption-text { font-size: small; margin-top: 0.3rem; }
+
+    .author-bio { margin-top: 2.5rem; font-style: italic; }
+    .author-bio em { font-weight: bold; }
+
+    .index-item { font-size: large; margin: 1rem 0; }
+    .index-statement > p { display: inline-block; margin: 0.5rem 0; }
+    .index-statement > span { display: inline-block; }
+    .index-statement .index-tooltip { font-size: small; }
+    """
+
+    # Send cookie-less requests to get full article
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
+
+    def preprocess_html(self, soup):
+        # General UI tweaks
+        # move subheading to before byline (instead of where it is now, after)
+        subheading_ele = soup.find(class_="subheading")
+        byline_ele = soup.find(class_="byline")
+        if byline_ele and subheading_ele:
+            byline_ele.insert_before(subheading_ele.extract())
+
+        # strip extraneous stuff from author bio
+        for bio in soup.find_all(class_="author-bio"):
+            for dec_ele in bio.find_all("br"):
+                dec_ele.decompose()
+            for unwrap_ele in bio.find_all("p"):
+                unwrap_ele.unwrap()
+
+        # remove extraneous hr
+        for hr in soup.select(".after-post-content hr"):
+            hr.decompose()
+        return soup
 
     def parse_index(self):
-        # find current issue
-        soup = self.index_to_soup('https://harpers.org/')
-        currentIssue_url = soup.find(attrs={'data-current-issue-url': True})['data-current-issue-url']
-        self.log('Found issue at:', currentIssue_url)
+        if not _issue_url:
+            issues_soup = self.index_to_soup("https://harpers.org/issues/")
+            curr_issue_a_ele = issues_soup.select_one("div.issue-card a")
+            curr_issue_url = urljoin(self.base_url, curr_issue_a_ele["href"])
+        else:
+            curr_issue_url = _issue_url
 
-        # go to the current issue
-        soup = self.index_to_soup(currentIssue_url)
-        self.timefmt = u' [%s]' % self.tag_to_string(soup.find('a', href=currentIssue_url))
+        soup = self.index_to_soup(curr_issue_url)
+        self.timefmt = (
+            f' [{self.tag_to_string(soup.find("h1", class_="issue-heading")).strip()}]'
+        )
+        self.cover_url = soup.find("img", class_="cover-img")["src"]
 
-        # get cover
-        self.cover_url = soup.find(**classes('past-issue')).find('img')['src']
-        self.log('Found cover at:', self.cover_url)
-        features = []
-
-        self.log('Features')
-        for item in soup.find(**classes('issue-features')).findAll(**classes('article-card')):
-            h = item.find(**classes('ac-title'))
-            a = h.parent
-            url = a['href']
-            title = self.tag_to_string(h).strip()
-            h = item.find(**classes('ac-subtitle'))
-            if h is not None:
-                st = self.tag_to_string(h).strip()
-                if st:
-                    title += ': ' + st
-            desc = ''
-            p = item.find(**classes('byline'))
-            if p is not None:
-                desc += self.tag_to_string(p)
-            self.log(' ', title, 'at', url)
-            features.append({'title': title, 'url': url, 'description': desc})
-
-        readings = []
-        self.log('Readings')
-        for item in soup.find(**classes('issue-readings')).findAll(**classes('reading-item')):
-            a = item.find('a', **classes('ac-title'))
-            title = self.tag_to_string(a).strip()
-            url = a['href']
-            desc = ''
-            a = item.find(**classes('ac-author'))
-            if a is not None:
-                desc = self.tag_to_string(a)
-            self.log(' ', title, 'at', url)
-            readings.append({'title': title, 'url': url, 'description': desc})
-
-        return [('Features', features), ('Readings', readings)]
+        articles = {}
+        for section_name in ("features", "readings", "articles"):
+            section = soup.find("section", class_=f"issue-{section_name}")
+            if not section:
+                continue
+            for card in section.find_all("div", class_="article-card"):
+                title_ele = card.find(class_="ac-title")
+                if not title_ele:
+                    continue
+                article_url = card.find("a")["href"]
+                article_title = self.tag_to_string(title_ele)
+                article_description = (
+                    f'{self.tag_to_string(card.find(class_="ac-tax"))} '
+                    f'{self.tag_to_string(card.find(class_="ac-subtitle"))}'
+                ).strip()
+                byline = card.find(class_="byline")
+                if byline:
+                    article_description += (
+                        f' {self.tag_to_string(byline).strip().strip(",")}'
+                    )
+                articles.setdefault(section_name.title(), []).append(
+                    {
+                        "url": article_url,
+                        "title": article_title,
+                        "description": article_description,
+                    }
+                )
+        return articles.items()
