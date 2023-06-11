@@ -117,6 +117,8 @@ class Guardian(BasicNewsRecipe):
                 for a in li.findAll('a', attrs={'data-link-name': 'article'}, href=True):
                     title = self.tag_to_string(a).strip()
                     url = a['href']
+                    if url.startswith('/'):
+                        url = self.base_url.rpartition('/')[0] + url
                     self.log(' ', title, url)
                     feeds[-1][1].append({'title': title, 'url': url})
                     break
