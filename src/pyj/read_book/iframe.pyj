@@ -9,6 +9,7 @@ from range_utils import (
     all_annots_in_selection, highlight_associated_with_selection, last_span_for_crw,
     reset_highlight_counter, select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
+from read_book.touch import GESTURE
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -315,13 +316,13 @@ class IframeBoss:
         self.auto_scroll_action('toggle')
 
     def handle_gesture(self, gesture):
-        if gesture.type is 'show-chrome':
+        if gesture.type is GESTURE.control_zone_tap or gesture.type is GESTURE.two_finger_tap:
             self.send_message('show_chrome')
-        elif gesture.type is 'two-finger-tap':
-            self.send_message('show_chrome')
-        elif gesture.type is 'pinch':
-            self.send_message('bump_font_size', increase=gesture.direction is 'out')
-        elif gesture.type is 'long-tap':
+        elif gesture.type is GESTURE.pinch_in:
+            self.send_message('bump_font_size', increase=False)
+        elif gesture.type is GESTURE.pinch_out:
+            self.send_message('bump_font_size', increase=True)
+        elif gesture.type is GESTURE.long_tap:
             self.handle_long_tap(gesture)
         else:
             self._handle_gesture(gesture)
