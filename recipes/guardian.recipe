@@ -102,9 +102,29 @@ class Guardian(BasicNewsRecipe):
 
         return cover
 
-    def parse_section(self, url, title_prefix=''):
+    def parse_observer_index(self, soup):
+        for section in soup.findAll('section'):
+            articles = []
+            title = self.tag_to_string(section.find('h2'))
+            if not title:
+                continue
+            self.log('Found section:', title)
+            for li in section.findAll('li'):
+                a = li.find('a', attrs={'href': True, 'aria-label': True})
+                if a:
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = self.base_url.rpartition('/')[0] + url
+                    self.log('\t', a['aria-label'], url)
+                    articles.append({'title': a['aria-label'], 'url': url})
+            if articles:
+                yield title, articles
+
+    def parse_section(self, section_url, title_prefix=''):
         feeds = []
-        soup = self.index_to_soup(url)
+        soup = self.index_to_soup(section_url)
+        if '/observer' in section_url:
+            return list(self.parse_observer_index(soup))
         for section in soup.findAll('section'):
             title = title_prefix + self.tag_to_string(section.find(
                 attrs={'class': 'fc-container__header__title'})).strip().capitalize()
@@ -117,6 +137,8 @@ class Guardian(BasicNewsRecipe):
                 for a in li.findAll('a', attrs={'data-link-name': 'article'}, href=True):
                     title = self.tag_to_string(a).strip()
                     url = a['href']
+                    if url.startswith('/'):
+                        url = self.base_url.rpartition('/')[0] + url
                     self.log(' ', title, url)
                     feeds[-1][1].append({'title': title, 'url': url})
                     break
