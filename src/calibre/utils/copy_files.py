@@ -49,7 +49,8 @@ class UnixFileCopier:
                 os.link(src_path, dest_path, follow_symlinks=False)
                 shutil.copystat(src_path, dest_path, follow_symlinks=False)
                 continue
-            shutil.copy2(src_path, dest_path, follow_symlinks=False)
+            with suppress(shutil.SameFileError):
+                shutil.copy2(src_path, dest_path, follow_symlinks=False)
 
     def delete_all_source_files(self) -> None:
         for src_path in self.copy_map:
