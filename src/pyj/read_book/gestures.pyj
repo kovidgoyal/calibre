@@ -4,6 +4,69 @@ from __python__ import bound_methods, hash_literals
 
 from read_book.touch import GESTURE
 from read_book.settings import opts
+from gettext import gettext as _
+
+
+def get_action_descriptions():
+    if not get_action_descriptions.ans:
+        get_action_descriptions.ans = {
+            'prev_page': {
+                'short': _('Previous page'),
+                'long': _('Scroll to the previous page, if more than one page is displayed on the screen only a single page is scrolled')
+            },
+            'next_page': {
+                'short': _('Next page'),
+                'long': _('Scroll to the next page, if more than one page is displayed on the screen only a single page is scrolled')
+            },
+            'prev_screen': {
+                'short': _('Previous screen'),
+                'long': _('Scroll to the previous screen, if more than one page is displayed on the screen all pages are scrolled')
+            },
+            'next_screen': {
+                'short': _('Next screen'),
+                'long': _('Scroll to the next screen, if more than one page is displayed on the screen all pages are scrolled')
+            },
+            'show_chrome': {
+                'short': _('Show controls'),
+                'long': _('Show the controls for the viewer including Preferences, Go to, etc.')
+            },
+            'highlight_or_inspect': {
+                'short': _('Highlight or inspect'),
+                'long': _('Highlight the word under the tap point or')
+            },
+            'decrease_font_size': {
+                'short': _('Make text smaller'),
+                'long': _('Decrease the font size')
+            },
+            'increase_font_size': {
+                'short': _('Make text bigger'),
+                'long': _('Increase the font size')
+            },
+            'next_section': {
+                'short': _('Next chapter'),
+                'long': _('Scroll to the start of the next section or chapter in the book')
+            },
+            'prev_section': {
+                'short': _('Previous chapter'),
+                'long': _('Scroll to the start of the previous section or chapter in the book')
+            },
+            'pan': {
+                'short': _('Pan the contents'),
+                'long': _('Scroll the screen contents in tandem with finger movement')
+            },
+            'animated_scroll': {
+                'short': _('Flick scroll'),
+                'long': _('Scroll the screen contents with momentum based on how fast you flick your finger')
+            },
+            'none': {
+                'short': _('No action'),
+                'long': _('Ignore this gesture performing no action in response to it')
+            },
+        }
+    return get_action_descriptions.ans
+
+only_flow_swipe_mode_actions = {'pan': True, 'animated_scroll': True}
+only_tap_actions = {'highlight_or_inspect': True}
 
 default_actions_for_gesture = {
     'common': {
