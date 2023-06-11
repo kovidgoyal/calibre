@@ -69,8 +69,6 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         'paged_wheel_scrolls_by_screen', _('Mouse wheel scrolls by screen fulls instead of pages')))
     container.lastChild.appendChild(cb(
         'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
-    container.lastChild.appendChild(cb(
-        'paged_taps_scroll_by_screen', _('Tapping scrolls by screen fulls instead of pages')))
     container.lastChild.appendChild(
         E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
             *spinner(

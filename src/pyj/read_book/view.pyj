@@ -1017,12 +1017,12 @@ class View:
             'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
             'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
             'paged_pixel_scroll_threshold': sd.get('paged_pixel_scroll_threshold'),
-            'paged_taps_scroll_by_screen': sd.get('paged_taps_scroll_by_screen'),
             'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
             'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
             'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
             'reverse_page_turn_zones': sd.get('reverse_page_turn_zones'),
+            'gesture_overrides': sd.get('gesture_overrides'),
         }
 
     def show_name(self, name, initial_position=None):

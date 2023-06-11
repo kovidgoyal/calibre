@@ -53,7 +53,6 @@ defaults = {
     'override_book_colors': 'never',
     'paged_margin_clicks_scroll_by_screen': True,
     'paged_wheel_scrolls_by_screen': False,
-    'paged_taps_scroll_by_screen': False,
     'paged_pixel_scroll_threshold': 60,
     'read_mode': 'paged',
     'scroll_auto_boundary_delay': 5,
@@ -78,6 +77,7 @@ defaults = {
     'book_search_mode': 'contains',
     'book_search_case_sensitive': False,
     'reverse_page_turn_zones': False,
+    'gesture_overrides': {},
 }
 
 is_local_setting = {

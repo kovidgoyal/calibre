@@ -1,0 +1,49 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.touch import GESTURE
+from read_book.settings import opts
+
+default_actions_for_gesture = {
+    'common': {
+        GESTURE.back_zone_tap: 'prev_page',
+        GESTURE.forward_zone_tap: 'next_page',
+        GESTURE.control_zone_tap: 'show_chrome',
+        GESTURE.two_finger_tap: 'show_chrome',
+        GESTURE.long_tap: 'highlight_or_inspect',
+        GESTURE.pinch_in: 'decrease_font_size',
+        GESTURE.pinch_out: 'increase_font_size',
+    },
+    'flow_mode': {
+        GESTURE.swipe_inline_backward_in_progress: 'pan',
+        GESTURE.swipe_inline_forward_in_progress: 'pan',
+        GESTURE.swipe_block_backward_in_progress: 'pan',
+        GESTURE.swipe_block_forward_in_progress: 'pan',
+        GESTURE.flick_block_forward: 'animated_scroll',
+        GESTURE.flick_block_backward: 'animated_scroll',
+        GESTURE.flick_inline_forward: 'animated_scroll',
+        GESTURE.flick_inline_backward: 'animated_scroll',
+    },
+    'paged_mode': {
+        GESTURE.flick_block_forward: 'next_section',
+        GESTURE.flick_block_backward: 'prev_section',
+        GESTURE.flick_inline_forward: 'next_screen',
+        GESTURE.flick_inline_backward: 'prev_screen',
+        GESTURE.swipe_inline_forward_hold: 'next_screen',
+        GESTURE.swipe_inline_backward_hold: 'prev_screen',
+    },
+}
+
+def action_for_gesture(gesture, in_flow_mode):
+    overrides = opts.gesture_overrides
+    mode = 'flow_mode' if in_flow_mode else 'paged_mode'
+    mode_overrides = overrides[mode] or {}
+    if mode_overrides[gesture.type]:
+        return mode_overrides[gesture.type]
+    common_overrides = overrides.common or {}
+    if common_overrides[gesture.type]:
+        return common_overrides[gesture.type]
+    if default_actions_for_gesture[mode][gesture.type]:
+        return default_actions_for_gesture[mode][gesture.type]
+    return default_actions_for_gesture.common[gesture.type] or 'none'

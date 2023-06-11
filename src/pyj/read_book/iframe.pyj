@@ -9,7 +9,6 @@ from range_utils import (
     all_annots_in_selection, highlight_associated_with_selection, last_span_for_crw,
     reset_highlight_counter, select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
-from read_book.touch import GESTURE
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -27,6 +26,7 @@ from read_book.flow_mode import (
     start_drag_scroll as start_drag_scroll_flow
 )
 from read_book.footnotes import is_footnote_link
+from read_book.gestures import action_for_gesture
 from read_book.globals import (
     annot_id_uuid_map, clear_annot_id_uuid_map, current_book, current_layout_mode,
     current_spine_item, runtime, set_boss, set_current_spine_item, set_layout_mode,
@@ -316,13 +316,14 @@ class IframeBoss:
         self.auto_scroll_action('toggle')
 
     def handle_gesture(self, gesture):
-        if gesture.type is GESTURE.control_zone_tap or gesture.type is GESTURE.two_finger_tap:
+        gesture.resolved_action = action_for_gesture(gesture, current_layout_mode() is 'flow')
+        if gesture.resolved_action is 'show_chrome':
             self.send_message('show_chrome')
-        elif gesture.type is GESTURE.pinch_in:
+        elif gesture.resolved_action is 'decrease_font_size':
             self.send_message('bump_font_size', increase=False)
-        elif gesture.type is GESTURE.pinch_out:
+        elif gesture.resolved_action is 'increase_font_size':
             self.send_message('bump_font_size', increase=True)
-        elif gesture.type is GESTURE.long_tap:
+        elif gesture.resolved_action is 'highlight_or_inspect':
             self.handle_long_tap(gesture)
         else:
             self._handle_gesture(gesture)

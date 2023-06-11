@@ -20,6 +20,7 @@ GESTURE_NAMES = {
     'two_finger_tap': _('Two finger tap'),
     'pinch_in': _('Pinch in'),
     'pinch_out': _('Pinch out'),
+
     'flick_inline_backward': _('Flick in writing direction, backwards'),
     'flick_inline_forward': _('Flick in writing direction, forwards'),
     'flick_block_backward': _('Flick perpendicular to writing direction, backwards'),
