@@ -73,6 +73,9 @@ class Worker:
 
     @property
     def executable(self):
+        if ismacos and not hasattr(sys, 'running_from_setup'):
+            base = os.path.dirname(sys.executables_location)
+            return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/headless.app/Contents/MacOS', self.exe_name)
         return exe_path(self.exe_name)
 
     @property

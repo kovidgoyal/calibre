@@ -32,7 +32,7 @@ def get_action_descriptions():
             },
             'highlight_or_inspect': {
                 'short': _('Highlight or inspect'),
-                'long': _('Highlight the word under the tap point or')
+                'long': _('Highlight the word under the tap point or view the image under the tap or select the highlight under the tap')
             },
             'decrease_font_size': {
                 'short': _('Make text smaller'),
@@ -67,14 +67,14 @@ def get_action_descriptions():
 
 only_flow_swipe_mode_actions = {'pan': True, 'animated_scroll': True}
 only_tap_actions = {'highlight_or_inspect': True}
-
 default_actions_for_gesture = {
     'common': {
         GESTURE.back_zone_tap: 'prev_page',
         GESTURE.forward_zone_tap: 'next_page',
         GESTURE.control_zone_tap: 'show_chrome',
-        GESTURE.two_finger_tap: 'show_chrome',
         GESTURE.long_tap: 'highlight_or_inspect',
+
+        GESTURE.two_finger_tap: 'show_chrome',
         GESTURE.pinch_in: 'decrease_font_size',
         GESTURE.pinch_out: 'increase_font_size',
     },
@@ -98,15 +98,30 @@ default_actions_for_gesture = {
     },
 }
 
-def action_for_gesture(gesture, in_flow_mode):
-    overrides = opts.gesture_overrides
+def current_action_for_gesture_type(overrides, gesture_type, in_flow_mode):
     mode = 'flow_mode' if in_flow_mode else 'paged_mode'
     mode_overrides = overrides[mode] or {}
-    if mode_overrides[gesture.type]:
-        return mode_overrides[gesture.type]
+    if mode_overrides[gesture_type]:
+        return mode_overrides[gesture_type]
     common_overrides = overrides.common or {}
-    if common_overrides[gesture.type]:
-        return common_overrides[gesture.type]
-    if default_actions_for_gesture[mode][gesture.type]:
-        return default_actions_for_gesture[mode][gesture.type]
-    return default_actions_for_gesture.common[gesture.type] or 'none'
+    if common_overrides[gesture_type]:
+        return common_overrides[gesture_type]
+    if default_actions_for_gesture[mode][gesture_type]:
+        return default_actions_for_gesture[mode][gesture_type]
+    return default_actions_for_gesture.common[gesture_type] or 'none'
+
+def action_for_gesture(gesture, in_flow_mode):
+    return current_action_for_gesture_type(opts.gesture_overrides, gesture.type, in_flow_mode)
+
+def allowed_actions_for_tap():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac]]
+
+def allowed_actions_for_paged_mode_swipe():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac] and not only_tap_actions[ac]]
+allowed_actions_for_two_fingers = allowed_actions_for_paged_mode_swipe
+
+def allowed_actions_for_flow_mode_flick():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_tap_actions[ac]]
+
+def allowed_actions_for_flow_mode_drag():
+    return ['pan', 'none']

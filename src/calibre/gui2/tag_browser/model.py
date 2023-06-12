@@ -1481,13 +1481,21 @@ class TagsModel(QAbstractItemModel):  # {{{
         '''
         user_cats = self.db.new_api.pref('user_categories', {})
         for k in user_cats.keys():
-            new_contents = []
-            for tup in user_cats[k]:
-                if tup[0] == item_name and tup[1] == item_category:
-                    new_contents.append([new_name, item_category, 0])
-                else:
-                    new_contents.append(tup)
-            user_cats[k] = new_contents
+            ucat = {n:c for n,c,_ in user_cats[k]}
+            # Check if the new name with the same category already exists. If
+            # so, remove the old name because it would be a duplicate. This can
+            # happen if two items in the item_category were renamed to the same
+            # name.
+            if ucat.get(new_name, None) == item_category:
+                if ucat.pop(item_name, None) is not None:
+                    # Only update the user_cats when something changes
+                    user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
+            elif ucat.get(item_name, None) == item_category:
+                # If the old name/item_category exists, rename it to the new
+                # name using del/add
+                del ucat[item_name]
+                ucat[new_name] = item_category
+                user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
         self.db.new_api.set_pref('user_categories', user_cats)
 
     def delete_item_from_all_user_categories(self, item_name, item_category):

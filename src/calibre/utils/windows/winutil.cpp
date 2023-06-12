@@ -491,6 +491,17 @@ winutil_set_file_pointer(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
+winutil_set_file_handle_delete_on_close(PyObject *self, PyObject *args) {
+    HANDLE handle;
+    int delete_on_close;
+    if (!PyArg_ParseTuple(args, "O&p", convert_handle, &handle, &delete_on_close)) return NULL;
+    FILE_DISPOSITION_INFO di;
+    di.DeleteFile = delete_on_close;
+    if (!SetFileInformationByHandle(handle, FileDispositionInfo, &di, sizeof(FILE_DISPOSITION_INFO))) return set_error_from_handle(args);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 winutil_create_file(PyObject *self, PyObject *args) {
 	wchar_raii path;
     unsigned long desired_access, share_mode, creation_disposition, flags_and_attributes;
@@ -1255,6 +1266,10 @@ static PyMethodDef winutil_methods[] = {
         "set_file_pointer(handle, pos, method=FILE_BEGIN)\n\nWrapper for SetFilePointer"
     },
 
+    {"set_file_handle_delete_on_close", (PyCFunction)winutil_set_file_handle_delete_on_close, METH_VARARGS,
+        "set_file_handle_delete_on_close(handle, delete_on_close)\n\nSet the delete on close flag on the specified handle. Note only works if CreateFile() is called with DELETE generic access, and without FILE_FLAG_DELETE_ON_CLOSE."
+    },
+
     {"read_file", (PyCFunction)winutil_read_file, METH_VARARGS,
         "read_file(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
     },
@@ -1467,6 +1482,7 @@ exec_module(PyObject *m) {
     A(ERROR_ALREADY_EXISTS);
     A(ERROR_BROKEN_PIPE);
     A(ERROR_PIPE_BUSY);
+    A(ERROR_DIR_NOT_EMPTY);
     A(NormalHandle);
     A(ModuleHandle);
     A(IconHandle);

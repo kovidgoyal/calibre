@@ -742,15 +742,24 @@ class Freeze:
             e = plist['CFBundleDocumentTypes'][0]
             e['CFBundleTypeExtensions'] = [x.lower() for x in formats]
 
+        def headless_plist(plist):
+            plist['CFBundleDisplayName'] = 'calibre worker process'
+            plist['CFBundleExecutable'] = 'calibre-parallel'
+            plist['CFBundleIdentifier'] = 'com.calibre-ebook.calibre-parallel'
+            plist['LSBackgroundOnly'] = '1'
+            plist.pop('CFBundleDocumentTypes')
+
         self.create_app_clone('ebook-viewer.app', partial(specialise_plist, 'ebook-viewer', input_formats))
         self.create_app_clone('ebook-edit.app', partial(specialise_plist, 'ebook-edit', edit_formats),
                 base_dir=join(self.contents_dir, 'ebook-viewer.app', 'Contents'))
+        self.create_app_clone('headless.app', headless_plist,
+                base_dir=join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents'))
         # We need to move the webengine resources into the deepest sub-app
         # because the sandbox gets set to the nearest enclosing app which
         # means that WebEngine will fail to access its resources when running
         # in the sub-apps unless they are present inside the sub app bundle
         # somewhere
-        base_dest = join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents', 'SharedSupport')
+        base_dest = join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents', 'headless.app', 'Contents', 'SharedSupport')
         os.mkdir(base_dest)
         base_src = os.path.realpath(join(self.frameworks_dir, 'QtWebEngineCore.framework/Resources'))
         items = [join(base_src, 'qtwebengine_locales')] + glob.glob(join(base_src, '*.pak')) + glob.glob(join(base_src, '*.dat'))
