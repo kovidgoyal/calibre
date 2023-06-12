@@ -90,11 +90,12 @@ class WindowsFileCopier:
 
     def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> 'winutil.Handle':
         flags = winutil.FILE_FLAG_BACKUP_SEMANTICS if is_folder else winutil.FILE_FLAG_SEQUENTIAL_SCAN
+        access_flags = winutil.GENERIC_READ
         if self.delete_all:
-            flags |= winutil.FILE_FLAG_DELETE_ON_CLOSE
+            access_flags |= winutil.DELETE
+        share_flags = winutil.FILE_SHARE_DELETE if self.allow_move else 0
         try:
-            return winutil.create_file(make_long_path_useable(path), winutil.GENERIC_READ,
-                                       winutil.FILE_SHARE_DELETE if self.allow_move else 0, winutil.OPEN_EXISTING, flags)
+            return winutil.create_file(make_long_path_useable(path), access_flags, share_flags, winutil.OPEN_EXISTING, flags)
         except OSError as e:
             if e.winerror == winutil.ERROR_SHARING_VIOLATION:
                 # The file could be a hardlink to an already opened file,
@@ -106,13 +107,12 @@ class WindowsFileCopier:
                 if retry_on_sharing_violation:
                     time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
                     return self._open_file(path, False, is_folder)
-                err = IOError(errno.EACCES,
-                        _('File is open in another program'))
+                err = IOError(errno.EACCES, _('File {} is open in another program').format(path))
                 err.filename = path
                 raise err from e
             raise
 
-    def __enter__(self) -> None:
+    def open_all_handles(self) -> None:
         for path, file_id in self.path_to_fileid_map.items():
             self.fileid_to_paths_map[file_id].add(path)
         for src in self.copy_map:
@@ -120,11 +120,36 @@ class WindowsFileCopier:
         for path in self.folders:
             self.folder_to_handle_map[path] = self._open_file(path, is_folder=True)
 
+    def __enter__(self) -> None:
+        try:
+            self.open_all_handles()
+        except OSError:
+            self.close_all_handles()
+            raise
+
+    def close_all_handles(self, delete_on_close: bool = False) -> None:
+        while self.path_to_handle_map:
+            path, h = next(iter(self.path_to_handle_map.items()))
+            if delete_on_close:
+                winutil.set_file_handle_delete_on_close(h, True)
+            h.close()
+            self.path_to_handle_map.pop(path)
+        while self.folder_to_handle_map:
+            path, h = next(reversed(self.folder_to_handle_map.items()))
+            if delete_on_close:
+                try:
+                    winutil.set_file_handle_delete_on_close(h, True)
+                except OSError as err:
+                    # Ignore dir not empty errors. Should never happen but we
+                    # ignore it as the UNIX semantics are to no delete folders
+                    # during __exit__ anyway and we dont want to leak the handle.
+                    if err.winerror != winutil.ERROR_DIR_NOT_EMPTY:
+                        raise
+            h.close()
+            self.folder_to_handle_map.pop(path)
+
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        for h in self.path_to_handle_map.values():
-            h.close()
-        for h in reversed(self.folder_to_handle_map.values()):
-            h.close()
+        self.close_all_handles(delete_on_close=self.delete_all and exc_val is None)
 
     def copy_all(self) -> None:
         for src_path, dest_path in self.copy_map.items():
