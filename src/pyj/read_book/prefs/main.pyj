@@ -17,6 +17,7 @@ from read_book.prefs.layout import commit_layout, create_layout_panel
 from read_book.prefs.misc import commit_misc, create_misc_panel
 from read_book.prefs.scrolling import commit_scrolling, create_scrolling_panel
 from read_book.prefs.selection import commit_selection, create_selection_panel
+from read_book.prefs.touch import commit_touch, create_touch_panel
 from read_book.prefs.user_stylesheet import (
     commit_user_stylesheet, create_user_stylesheet_panel
 )
@@ -106,6 +107,7 @@ class Prefs:
         ci(_('Headers and footers'), 'head_foot', _('Customize the headers and footers'))
         ci(_('Scrolling behavior'), 'scrolling', _('Control how the viewer scrolls'))
         ci(_('Selection behavior'), 'selection', _('Control how the viewer selects text'))
+        ci(_('Touch behavior'), 'touch', _('Customize what various touchscreen gestures do'))
         ci(_('Keyboard shortcuts'), 'keyboard', _('Customize the keyboard shortcuts'))
         if runtime.is_standalone_viewer:
             ci(_('Fonts'), 'fonts', _('Font choices'))
@@ -165,6 +167,13 @@ class Prefs:
 
     def close_selection(self):
         commit_selection(self.onchange, self.container)
+
+    def display_touch(self, container):
+        self.create_panel(container, 'touch', create_touch_panel)
+
+    def close_touch(self):
+        commit_touch(self.onchange, self.container)
+
 
 
 def create_prefs_panel(container, close_func, on_change):

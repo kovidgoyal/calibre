@@ -21,18 +21,20 @@ GESTURE_NAMES = {
     'pinch_in': _('Pinch in'),
     'pinch_out': _('Pinch out'),
 
-    'flick_inline_backward': _('Flick in writing direction, backwards'),
-    'flick_inline_forward': _('Flick in writing direction, forwards'),
-    'flick_block_backward': _('Flick perpendicular to writing direction, backwards'),
-    'flick_block_forward': _('Flick perpendicular to writing direction, forwards'),
-    'swipe_inline_backward_in_progress': _('Swipe in writing direction, backwards, in-progress'),
-    'swipe_inline_forward_in_progress': _('Swipe in writing direction, forwards, in-progress'),
-    'swipe_block_backward_in_progress': _('Swipe perpendicular to writing direction, backwards, in-progress'),
-    'swipe_block_forward_in_progress': _('Swipe perpendicular to writing direction, forwards, in-progress'),
-    'swipe_inline_backward_hold': _('Swipe in writing direction, backwards and hold'),
-    'swipe_inline_forward_hold': _('Swipe in writing direction, forwards and hold'),
-    'swipe_block_backward_hold': _('Swipe perpendicular to writing direction, backwards and hold'),
-    'swipe_block_forward_hold': _('Swipe perpendicular to writing direction, forwards and hold'),
+    'flick_inline_backward': _('Flick in writing direction, to go back'),
+    'flick_inline_forward': _('Flick in writing direction, to go forward'),
+    'flick_block_backward': _('Flick perpendicular to writing direction, to go forward'),
+    'flick_block_forward': _('Flick perpendicular to writing direction, to go back'),
+
+    'swipe_inline_backward_in_progress': _('Drag finger in writing direction, to go back'),
+    'swipe_inline_forward_in_progress': _('Drag finger in writing direction, to go forward'),
+    'swipe_block_backward_in_progress': _('Drag finger perpendicular to writing direction, to go back'),
+    'swipe_block_forward_in_progress': _('Drag finger perpendicular to writing direction, to go forward'),
+
+    'swipe_inline_backward_hold': _('Drag and hold finger in writing direction, to go back'),
+    'swipe_inline_forward_hold': _('Drag and hold finger in writing direction, to go forward'),
+    'swipe_block_backward_hold': _('Drag and hold finger perpendicular to writing direction, to go back'),
+    'swipe_block_forward_hold': _('Drag and hold finger perpendicular to writing direction, to go forward'),
 }
 GESTURE = {k:k for k in Object.keys(GESTURE_NAMES)}
 GESTURE.tap = 'tap'
