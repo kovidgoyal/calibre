@@ -80,6 +80,7 @@ class TestCopyFiles(unittest.TestCase):
         copy_tree(src, dest, delete_source=True)
         self.ae(set(os.listdir(self.tdir)), {'dest', 'base'})
         self.ae(nlinks_file(self.d('one')), 1)
+        self.assertFalse(os.path.exists(src))
 
         def transform_destination_filename(src, dest):
             return dest + '.extra'
