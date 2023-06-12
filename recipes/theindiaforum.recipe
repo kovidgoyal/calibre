@@ -13,7 +13,7 @@ class mains(BasicNewsRecipe):
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['height', 'width', 'style']
-    no_stylesheets = True 
+    no_stylesheets = True
     resolve_internal_links = True
     remove_empty_feeds = True
     use_embedded_content = False
@@ -28,17 +28,17 @@ class mains(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.theindiaforum.in/')
-        ul = soup.find('ul', attrs={'class':'float-left'}) 
-        
+        ul = soup.find('ul', attrs={'class':'float-left'})
+
         section_list = []
-       
+
         for x in ul.findAll('a', href=True):
             if '/podcast' in x['href']:
                 continue
             section_list.append(
                 (self.tag_to_string(x).strip().replace('■','■ '), 'https://www.theindiaforum.in' + x['href'])
             )
-       
+
         feeds = []
 
         for section in section_list:
@@ -50,7 +50,7 @@ class mains(BasicNewsRecipe):
             if articles:
                 feeds.append((section_title, articles))
         return feeds
-    
+
     def articles_from_soup(self, soup):
         ans = []
         for art in soup.findAll('div', attrs={'class':lambda x: x and 'views-col' in x.split()}):
