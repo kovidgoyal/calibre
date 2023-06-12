@@ -68,4 +68,3 @@ class mains(BasicNewsRecipe):
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return ans
-            
