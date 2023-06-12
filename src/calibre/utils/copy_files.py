@@ -47,7 +47,12 @@ class UnixFileCopier:
         for src_path, dest_path in self.copy_map.items():
             with suppress(OSError):
                 os.link(src_path, dest_path, follow_symlinks=False)
-                shutil.copystat(src_path, dest_path, follow_symlinks=False)
+                try:
+                    shutil.copystat(src_path, dest_path, follow_symlinks=False)
+                except OSError:
+                    # Failure to copy metadata is not critical
+                    import traceback
+                    traceback.print_exc()
                 continue
             with suppress(shutil.SameFileError):
                 shutil.copy2(src_path, dest_path, follow_symlinks=False)
