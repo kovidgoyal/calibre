@@ -141,7 +141,7 @@ class WindowsFileCopier:
                     winutil.set_file_handle_delete_on_close(h, True)
                 except OSError as err:
                     # Ignore dir not empty errors. Should never happen but we
-                    # ignore it as the UNIX semantics are to no delete folders
+                    # ignore it as the UNIX semantics are to not delete folders
                     # during __exit__ anyway and we dont want to leak the handle.
                     if err.winerror != winutil.ERROR_DIR_NOT_EMPTY:
                         raise
