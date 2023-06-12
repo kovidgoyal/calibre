@@ -326,7 +326,12 @@ class CreateCustomColumn(QDialog):
             "Everything else will show nothing."))
         h.addWidget(ud)
         self.is_names = ins = QCheckBox(_("Contains names"), self)
-        ins.setToolTip(_("Check this box if this column contains names, like the authors column."))
+        ins.setToolTip('<p>' + _('Check this box if this column contains names, '
+             'like the authors column. If checked, the item separator will be an ampersand '
+             '(&) instead of a comma (,), sorting will be done using a computed value '
+             'that respects the author sort tweaks (for example converting "Firstname '
+             'Lastname" into "Lastname, Firstname"), and item order will be '
+             'preserved.')+'</p>')
         h.addWidget(ins)
         add_row(_("&Column type:"), h)
 
