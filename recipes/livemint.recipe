@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 is_saturday = date.today().weekday() == 5
 
 class LiveMint(BasicNewsRecipe):
-    title = u'Live Mint'
+    title = 'Live Mint'
     description = 'Financial News from India.'
     language = 'en_IN'
     __author__ = 'Krittika Goyal, revised by unkn0wn'
@@ -20,12 +20,18 @@ class LiveMint(BasicNewsRecipe):
 
     remove_empty_feeds =  True
     resolve_internal_links = True
+    
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'Mint ' + date.today().strftime('%b %d, %Y')
+            if is_saturday:
+                self.title = 'Mint Lounge ' + date.today().strftime('%b %d, %Y')
 
     if is_saturday:
         
         def get_cover_url(self):
             soup = self.index_to_soup('https://lifestyle.livemint.com/')
-            self.title = 'Mint Lounge'
             if citem := soup.find('div', attrs={'class':'headLatestIss_cover'}):
                 return citem.img['src'].replace('_tn.jpg', '_mr.jpg')
         
@@ -75,11 +81,13 @@ class LiveMint(BasicNewsRecipe):
         extra_css = '''
             img {display:block; margin:0 auto;}
             #img-cap {font-size:small; text-align:center;}
-            #auth-info {font-size:small; text-align:center;}
-            .highlights {font-style:italic;}
-            .summary{font-style:italic; color:#202020;}
-            .author-widget{font-size:small; font-style:italic; color:#404040; text-align:center;}
+            .summary, .highlights {
+                font-weight:normal !important; font-style:italic; color:#202020;
+            }
+            h2 {font-size:normal !important;}
+            .author-widget {font-size:small; font-style:italic; color:#404040;}
             em, blockquote {color:#202020;}
+            .moreAbout, .articleInfo {font-size:small;}
         '''
 
         keep_only_tags = [
@@ -90,6 +98,7 @@ class LiveMint(BasicNewsRecipe):
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
                 ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot'
+                ' datePublish sepStory'
             )
         ]
 
@@ -131,8 +140,7 @@ class LiveMint(BasicNewsRecipe):
         def preprocess_html(self, soup):
             for span in soup.findAll('figcaption'):
                 span['id'] = 'img-cap'
-            for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
-                auth['id'] = 'auth-info'
+            for auth in soup.findAll('span', attrs={'class':lambda x: x and 'articleInfo' in x.split()}):
                 auth.name = 'div'
             for span in soup.findAll('span', attrs={'class':'exclusive'}):
                 span.extract()
