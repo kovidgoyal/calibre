@@ -23,6 +23,42 @@
 # - title by author
 # }}}
 
+{{{ 6.21.0 2023-06-13
+
+:: new features
+
+- DOCX Output: Add support for SVG images
+
+  Now the generated DOCX will contain both the rasterized version of the SVG
+  image and the original SVG image as the preferred source, which is supported
+  by modern versions of Word.
+
+- [2023367] E-book viewer: Allow configuring the actions triggered by touch gestures
+
+- DOCX Input: Add support for SVG images
+
+:: bug fixes
+
+- Windows: Fix a regression in the previous release that could cause files to be deleted if one of the files/folders was open in another program while changing title/author in calibre
+
+- [2023395] macOS: Fix extra dock icons visible when doing a job using Qt WebEngine such as converting to PDF or searching in Get books
+
+- [2023476] macOS and Linux: Fix an error when changing metadata or deleting books whose files are owned by another user
+
+- [2023377] CHM Input: Yet another regression opening CHM files with missing internal files on windows
+
+- [2023431] CHM Input: Resolve absolute links to resource files from the root of the CHM file
+
+:: improved recipes
+- Guardian & Observer
+- Harper's Magazine Print recipe
+- Live Mint
+
+:: new recipes
+- The India Forum by unkn0wn
+
+}}}
+
 {{{ 6.20.0 2023-06-09
 
 :: bug fixes
