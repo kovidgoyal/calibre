@@ -16,8 +16,6 @@ class mains(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
     use_embedded_content = False
-Expand All
-	@@ -28,17 +28,17 @@ class mains(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.theindiaforum.in/')
@@ -35,8 +33,6 @@ Expand All
         feeds = []
 
         for section in section_list:
-Expand All
-	@@ -50,7 +50,7 @@ class mains(BasicNewsRecipe):
             if articles:
                 feeds.append((section_title, articles))
         return feeds
