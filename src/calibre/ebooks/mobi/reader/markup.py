@@ -274,7 +274,10 @@ def insert_images_into_markup(parts, resource_map, log):
             if tag.startswith('<im'):
                 for m in img_index_pattern.finditer(tag):
                     num = int(m.group(1), 32)
-                    href = resource_map[num-1]
+                    try:
+                        href = resource_map[num-1]
+                    except IndexError:
+                        href = ''
                     if href:
                         replacement = '"%s"'%('../' + href)
                         tag = img_index_pattern.sub(replacement, tag, 1)
