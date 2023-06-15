@@ -791,6 +791,7 @@ class MobiReader:
             try:
                 num += (ord(data[off:off+1]) & 0x3) + 1
             except TypeError:
+                self.log.warn('Invalid sizeof trailing entries')
                 num += 1
         return num
 
