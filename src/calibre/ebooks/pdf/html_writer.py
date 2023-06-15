@@ -1151,6 +1151,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         else:
             pdf_doc.append(doc)
 
+    log('Pages merged')
     page_number_display_map = get_page_number_display_map(manager, opts, num_pages, log)
 
     if has_toc:
