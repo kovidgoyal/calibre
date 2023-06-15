@@ -188,7 +188,10 @@ class SubsetFonts:
         '''
         self.embedded_fonts = []
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'):
+            try:
+                if not hasattr(item.data, 'cssRules'):
+                    continue
+            except FileNotFoundError:
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
