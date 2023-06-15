@@ -41,7 +41,8 @@ from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
 from calibre.utils.copy_files import (
-    copy_files, copy_tree, rename_files, windows_check_if_files_in_use,
+    copy_files, copy_tree, rename_files,
+    windows_check_if_files_in_use,
 )
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
@@ -414,11 +415,10 @@ def rmtree_with_retry(path, sleep_time=1):
     try:
         shutil.rmtree(path)
     except OSError as e:
-        if not iswindows:
-            raise
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
-        time.sleep(sleep_time)  # In case something has temporarily locked a file
+        if iswindows:
+            time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
 
 
@@ -1577,12 +1577,7 @@ class DB:
                 except OSError:
                     if iswindows:
                         time.sleep(0.2)
-                    try:
-                        f = open(path, 'rb')
-                    except OSError as e:
-                        # Ensure the path that caused this error is reported
-                        raise Exception(f'Failed to open {path!r} with error: {e}')
-
+                    f = open(path, 'rb')
                 with f:
                     if hasattr(dest, 'write'):
                         if report_file_size is not None:

@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
 import os
 from datetime import datetime
 from functools import partial
@@ -26,7 +25,7 @@ from calibre.gui2.metadata.basic_widgets import (
     AuthorsEdit, AuthorSortEdit, BuddyLabel, CommentsEdit, Cover, DateEdit,
     FormatsManager, IdentifiersEdit, LanguagesEdit, PubdateEdit, PublisherEdit,
     RatingEdit, RightClickButton, SeriesEdit, SeriesIndexEdit, TagsEdit, TitleEdit,
-    TitleSortEdit, show_locked_file_error,
+    TitleSortEdit
 )
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.widgets2 import CenteredToolButton
@@ -448,17 +447,9 @@ class MetadataSingleDialogBase(QDialog):
         if ext in ('pdf', 'cbz', 'cbr'):
             return self.choose_cover_from_pages(ext)
         try:
-            mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
-                    self.book_id)
-        except OSError as err:
-            if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                import traceback
-                fname = err.filename if err.filename else 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(),
-                        show=True)
-                return
+            mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
+        except OSError as e:
+            e.locking_violation_msg = _('Could not read from book file.')
             raise
         if mi is None:
             return
@@ -608,18 +599,16 @@ class MetadataSingleDialogBase(QDialog):
             return True
         self.comments_edit_state_at_apply = {w:w.tab for w in self.comments_edit_state_at_apply}
         for widget in self.basic_metadata_widgets:
+            if hasattr(widget, 'validate_for_commit'):
+                title, msg, det_msg = widget.validate_for_commit()
+                if title is not None:
+                    error_dialog(self, title, msg, det_msg=det_msg, show=True)
+                    return False
             try:
-                if hasattr(widget, 'validate_for_commit'):
-                    title, msg, det_msg = widget.validate_for_commit()
-                    if title is not None:
-                        error_dialog(self, title, msg, det_msg=det_msg, show=True)
-                        return False
                 widget.commit(self.db, self.book_id)
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
-            except OSError as err:
-                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                    show_locked_file_error(self, err)
-                    return False
+            except OSError as e:
+                e.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
             self.books_to_refresh |= widget.commit(self.book_id)

@@ -54,16 +54,6 @@ from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
-def show_locked_file_error(parent, err):
-    import traceback
-    fname = getattr(err, 'filename', None)
-    p = 'Locked file: %s\n\n'%fname if fname else ''
-    error_dialog(parent, _('Permission denied'),
-            _('Could not change the on disk location of this'
-                ' book. Is it open in another program?'),
-            det_msg=p+traceback.format_exc(), show=True)
-
-
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
@@ -388,9 +378,9 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             if d == QMessageBox.StandardButton.Yes:
                 try:
                     self.commit(self.db, self.id_)
-                except PermissionError as err:
-                    show_locked_file_error(self, err)
-                    return
+                except OSError as e:
+                    e.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
+                    raise
                 self.db.commit()
                 self.original_val = self.current_val
             else:

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-import errno
 import os
 import shutil
 import stat
@@ -63,6 +62,16 @@ class UnixFileCopier:
                 os.unlink(src_path)
 
 
+def windows_lock_path_and_callback(path: str, f: Callable) -> None:
+    is_folder = os.path.isdir(path)
+    flags = winutil.FILE_FLAG_BACKUP_SEMANTICS if is_folder else winutil.FILE_FLAG_SEQUENTIAL_SCAN
+    h = winutil.create_file(make_long_path_useable(path), winutil.GENERIC_READ, 0, winutil.OPEN_EXISTING, flags)
+    try:
+        f()
+    finally:
+        h.close()
+
+
 class WindowsFileCopier:
 
     '''
@@ -112,9 +121,6 @@ class WindowsFileCopier:
                 if retry_on_sharing_violation:
                     time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
                     return self._open_file(path, False, is_folder)
-                err = IOError(errno.EACCES, _('File {} is open in another program').format(path))
-                err.filename = path
-                raise err from e
             raise
 
     def open_all_handles(self) -> None:

@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
-import os
 from collections import Counter
 from functools import partial
 from qt.core import QDialog, QModelIndex, QObject, QTimer
@@ -458,13 +456,7 @@ class DeleteAction(InterfaceAction):
             try:
                 view.model().delete_books_by_id(to_delete_ids)
             except OSError as err:
-                if err.errno == errno.EACCES:
-                    import traceback
-                    fname = os.path.basename(getattr(err, 'filename', 'file') or 'file')
-                    return error_dialog(self.gui, _('Permission denied'),
-                            _('Could not access %s. Is it being used by another'
-                            ' program? Click "Show details" for more information.')%fname, det_msg=traceback.format_exc(),
-                            show=True)
+                err.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
                 raise
             self.library_ids_deleted2(to_delete_ids, next_id=next_id, can_undo=True)
         else:

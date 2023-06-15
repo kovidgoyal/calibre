@@ -1099,6 +1099,7 @@ class Application(QApplication):
         if not args:
             args = sys.argv[:1]
         args = [args[0]]
+        sys.excepthook = simple_excepthook
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         setup_to_run_webengine()
         if iswindows:
@@ -1474,6 +1475,9 @@ def open_local_file(path):
 
 _ea_lock = Lock()
 
+def simple_excepthook(t, v, tb):
+    return sys.__excepthook__(t, v, tb)
+
 
 def ensure_app(headless=True):
     global _store_app
@@ -1492,7 +1496,6 @@ def ensure_app(headless=True):
             set_image_allocation_limit()
             if headless and has_headless:
                 _store_app.headless = True
-            import traceback
 
             # This is needed because as of PyQt 5.4 if sys.execpthook ==
             # sys.__excepthook__ PyQt will abort the application on an
@@ -1501,14 +1504,8 @@ def ensure_app(headless=True):
             # or running a headless browser, we circumvent this as I really
             # dont feel like going through all the code and making sure no
             # unhandled exceptions ever occur. All the actual GUI apps already
-            # override sys.except_hook with a proper error handler.
-
-            def eh(t, v, tb):
-                try:
-                    traceback.print_exception(t, v, tb, file=sys.stderr)
-                except:
-                    pass
-            sys.excepthook = eh
+            # override sys.excepthook with a proper error handler.
+            sys.excepthook = simple_excepthook
     return _store_app
 
 

@@ -5,11 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
 import functools
 import numbers
 import os
 import re
+import sys
 import time
 import traceback
 from collections import defaultdict, namedtuple
@@ -20,14 +20,13 @@ from qt.core import (
 )
 
 from calibre import (
-    fit_image, force_unicode, human_readable, isbytestring, prepare_string_for_xml,
-    strftime,
+    fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime,
 )
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.caches import force_to_bool
 from calibre.library.coloring import color_row_key
@@ -641,10 +640,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return
             try:
                 data = self.get_book_display_info(idx)
-            except Exception:
-                import traceback
-                error_dialog(None, _('Unhandled error'), _(
-                    'Failed to read book data from calibre library. Click "Show details" for more information'), det_msg=traceback.format_exc(), show=True)
+            except Exception as e:
+                if sys.excepthook is simple_excepthook or sys.excepthook is sys.__excepthook__:
+                    return  # ignore failures during startup/shutdown
+                e.locking_violation_msg = _('Failed to read cover file for this book from the calibre library.')
+                raise
             else:
                 if emit_signal:
                     self.new_bookdisplay_data.emit(data)
@@ -1257,13 +1257,10 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return self._set_data(index, value)
             except OSError as err:
                 import traceback
-                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                    fname = getattr(err, 'filename', None)
-                    p = 'Locked file: %s\n\n'%force_unicode(fname if fname else '')
-                    error_dialog(get_gui(), _('Permission denied'),
-                            _('Could not change the on disk location of this'
-                                ' book. Is it open in another program?'),
-                            det_msg=p+force_unicode(traceback.format_exc()), show=True)
+                traceback.print_exc()
+                det_msg = traceback.format_exc()
+                gui = get_gui()
+                if gui.show_possible_sharing_violation(err, det_msg):
                     return False
                 error_dialog(get_gui(), _('Failed to set data'),
                         _('Could not set data, click "Show details" to see why.'),
