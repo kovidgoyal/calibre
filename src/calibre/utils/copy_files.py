@@ -8,7 +8,7 @@ import stat
 import time
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, Dict, Set, Tuple, Union, List
+from typing import Callable, Dict, List, Set, Tuple, Union
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import make_long_path_useable, samefile, windows_hardlink
@@ -200,9 +200,13 @@ def copy_files(src_to_dest_map: Dict[str, str], delete_source: bool = False) -> 
         copier.copy_all()
 
 
+def identity_transform(src_path: str, dest_path: str) -> str:
+    return dest_path
+
+
 def register_folder_recursively(
     src: str, copier: Union[UnixFileCopier, WindowsFileCopier], dest_dir: str,
-    transform_destination_filename: Callable[[str, str], str] = lambda src_path, dest_path : dest_path,
+    transform_destination_filename: Callable[[str, str], str] = identity_transform,
 ) -> None:
 
     def dest_from_entry(dirpath: str, x: str) -> str:
@@ -234,9 +238,16 @@ def register_folder_recursively(
             copier.register(path, dest)
 
 
+def windows_check_if_files_in_use(src_folder: str) -> None:
+    copier = get_copier()
+    register_folder_recursively(src_folder, copier, os.getcwd())
+    with copier:
+        pass
+
+
 def copy_tree(
     src: str, dest: str,
-    transform_destination_filename: Callable[[str, str], str] = lambda src_path, dest_path : dest_path,
+    transform_destination_filename: Callable[[str, str], str] = identity_transform,
     delete_source: bool = False
 ) -> None:
     '''

@@ -40,12 +40,14 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
-from calibre.utils.copy_files import copy_files, copy_tree, rename_files
+from calibre.utils.copy_files import (
+    copy_files, copy_tree, rename_files, windows_check_if_files_in_use,
+)
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
-    WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
-    copytree_using_links, hardlink_file, is_case_sensitive, is_fat_filesystem,
-    make_long_path_useable, remove_dir_if_empty, samefile,
+    ascii_filename, atomic_rename, copyfile_using_links, copytree_using_links,
+    hardlink_file, is_case_sensitive, is_fat_filesystem, make_long_path_useable,
+    remove_dir_if_empty, samefile,
 )
 from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions, load_user_template_functions,
@@ -1717,19 +1719,14 @@ class DB:
 
     def windows_check_if_files_in_use(self, paths):
         '''
-        Raises an EACCES IOError if any of the files in the folder of book_id
+        Raises an EACCES IOError if any of the files in the specified folders
         are opened in another program on windows.
         '''
         if iswindows:
             for path in paths:
                 spath = os.path.join(self.library_path, *path.split('/'))
-                wam = None
                 if os.path.exists(spath):
-                    try:
-                        wam = WindowsAtomicFolderMove(spath)
-                    finally:
-                        if wam is not None:
-                            wam.close_handles()
+                    windows_check_if_files_in_use(spath)
 
     def add_format(self, book_id, fmt, stream, title, author, path, current_name, mtime=None):
         fmt = ('.' + fmt.lower()) if fmt else ''
