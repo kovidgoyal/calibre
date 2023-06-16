@@ -150,9 +150,13 @@ class ChooseMultiSort(Dialog):
         d.setLabelText(_('Choose a name for these settings'))
         if d.exec():
             name = d.textValue()
-            q = self.saved_specs
-            q[name] = spec
-            self.saved_specs = q
+            if name:
+                q = self.saved_specs
+                q[name] = spec
+                self.saved_specs = q
+            else:
+                error_dialog(self, _('No name provided'), _(
+                    'You must provide a name for the settings'), show=True)
 
     def populate_load_menu(self):
         m = self.load_menu
