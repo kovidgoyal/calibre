@@ -21,24 +21,22 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
 
     __author__ = 'Armin Geller' # 2013-02-05 V3
 
-    oldest_article = 14  
+    oldest_article = 14
     max_articles_per_feed = 50
     auto_cleanup = False
-    
+
     feeds =  [
               (u'Inhalt:', u'https://www.fluter.de/rss.xml')
              ]
-    
+
     keep_only_tags = [
                         dict(name='article', attrs={'class':'node node-article block fullWidth stage'})
                      ]
-    
+
     remove_tags = [
                     dict(name='h2', attrs={'class':'element-invisible'})
                   ]
-    
+
     extra_css =  '''
                  .field-group-format, .group_additional_info, .additional-info {display: inline-block; min-width: 8rem; text-align: center}
                  '''
-
-    
