@@ -1149,8 +1149,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         if pdf_doc is None:
             pdf_doc = doc
         else:
+            st = monotonic()
             pdf_doc.append(doc)
-            log(f'Merged ({i}/{len(margin_files)-1})')
+            log(f'Merged ({i}/{len(margin_files)-1}) in {monotonic()-st:.1f} seconds')
 
     page_number_display_map = get_page_number_display_map(manager, opts, num_pages, log)
 
