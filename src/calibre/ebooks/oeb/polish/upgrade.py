@@ -74,7 +74,10 @@ def collect_properties(container):
         if mt.lower() not in OEB_DOCS:
             continue
         name = container.href_to_name(item.get('href'), container.opf_name)
-        root = container.parsed(name)
+        try:
+            root = container.parsed(name)
+        except KeyError:
+            continue
         root = ensure_namespace_prefixes(root, {'epub': EPUB_NS})
         properties = set()
         container.replace(name, root)  # Ensure entities are converted
