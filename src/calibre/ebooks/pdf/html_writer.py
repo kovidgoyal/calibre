@@ -1135,7 +1135,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     num_pages = 0
     page_margins_map = []
     log(f'Merging {len(margin_files)} PDF render results, this could take a while...')
-    for margin_file in margin_files:
+    for i, margin_file in enumerate(margin_files):
         name = margin_file.name
         data = results[name]
         if not isinstance(data, bytes):
@@ -1150,8 +1150,8 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             pdf_doc = doc
         else:
             pdf_doc.append(doc)
+            log(f'Merged ({i}/{len(margin_files)-1})')
 
-    log('Pages merged')
     page_number_display_map = get_page_number_display_map(manager, opts, num_pages, log)
 
     if has_toc:
