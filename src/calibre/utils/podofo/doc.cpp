@@ -11,6 +11,7 @@
 #include <new>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 using namespace pdf;
 
@@ -365,12 +366,15 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
     PdfMemDocument *dest = self->doc;
 
     try {
+        std::vector<const PdfMemDocument*> docs(PyTuple_GET_SIZE(args));
         for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
             PyObject *doc = PyTuple_GET_ITEM(args, i);
             int typ = PyObject_IsInstance(doc, (PyObject*)&PDFDocType);
             if (typ == -1) return NULL;
             if (typ == 0) { PyErr_SetString(PyExc_TypeError, "You must pass a PDFDoc instance to this method"); return NULL; }
-            const PdfMemDocument *src = ((PDFDoc*)doc)->doc;
+            docs[i] = ((PDFDoc*)doc)->doc;
+        }
+        for (auto src : docs) {
             std::unordered_map<PdfReference, PdfObject*> ref_map;
             std::unordered_map<PdfReference, PdfReference> page_parent_map;
             const unsigned initial_page_count = dest->GetPages().GetCount();

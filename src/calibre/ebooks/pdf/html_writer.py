@@ -1134,7 +1134,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     results = manager.convert_html_files(jobs, settle_time=1, has_maths=has_maths)
     num_pages = 0
     page_margins_map = []
-    log(f'Merging {len(margin_files)} PDF render results, this could take a while...')
+    all_docs = []
     for i, margin_file in enumerate(margin_files):
         name = margin_file.name
         data = results[name]
@@ -1145,13 +1145,10 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         doc_pages = doc.page_count()
         page_margins_map.extend(repeat(resolve_margins(margin_file.margins, page_layout), doc_pages))
         num_pages += doc_pages
+        all_docs.append(doc)
 
-        if pdf_doc is None:
-            pdf_doc = doc
-        else:
-            st = monotonic()
-            pdf_doc.append(doc)
-            log(f'Merged ({i}/{len(margin_files)-1}) in {monotonic()-st:.1f} seconds')
+    pdf_doc = all_docs[0]
+    pdf_doc.append(*all_docs[1:])
 
     page_number_display_map = get_page_number_display_map(manager, opts, num_pages, log)
 
