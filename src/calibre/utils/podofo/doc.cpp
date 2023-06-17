@@ -388,13 +388,21 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
 
     PyThreadState *_save; _save = PyEval_SaveThread();
     try {
+        unsigned total_pages_to_append = 0;
+        for (auto src : docs)  total_pages_to_append += src->GetPages().GetCount();
+        unsigned base_page_index = dest->GetPages().GetCount();
+#if PODOFO_VERSION > PODOFO_MAKE_VERSION(0, 10, 0)
+        dest->GetPages().CreatePagesAt(base_page_index, Rect(), total_pages_to_append);
+#else
+        while (total_pages_to_append--) dest->GetPages().CreatePage(Rect());
+#endif
         for (auto src : docs) {
             MapReferences ref_map;
             std::vector<AppendPagesData> pages;
             // append pages first
             for (unsigned i = 0; i < src->GetPages().GetCount(); i++) {
                 const auto& src_page = src->GetPages().GetPageAt(i);
-                auto& dest_page = dest->GetPages().CreatePage(src_page.GetRect());
+                auto& dest_page = dest->GetPages().GetPageAt(base_page_index++);
                 pages.emplace_back(src_page, dest_page);
                 dest_page.GetObject() = src_page.GetObject();
                 dest_page.GetDictionary().RemoveKey("Resource");
