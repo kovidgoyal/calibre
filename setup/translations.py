@@ -597,7 +597,7 @@ class Translations(POT):  # {{{
             self.compile_group(files, handle_stats=handle_stats)
 
             for locale, translated in iteritems(stats):
-                if translated >= 50:
+                if translated >= threshold:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
                     zi = ZipInfo(os.path.basename(f.name))
@@ -627,7 +627,7 @@ class Translations(POT):  # {{{
             f.write(data)
 
     def compile_changelog_translations(self):
-        self._compile_website_translations('changelog', 0)
+        self._compile_website_translations('changelog', threshold=0)
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')
