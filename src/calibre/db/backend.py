@@ -1261,6 +1261,8 @@ class DB:
 
     def close(self, force=False, unload_formatter_functions=True):
         if getattr(self, '_conn', None) is not None:
+            if self.prefs['expire_old_trash_after'] == 0:
+                self.expire_old_trash(0)
             if unload_formatter_functions:
                 try:
                     unload_user_template_functions(self.library_id)
@@ -2021,7 +2023,7 @@ class DB:
                     mtime = st.st_mtime
                 except OSError:
                     mtime = 0
-                if mtime + expire_age_in_seconds <= now:
+                if mtime + expire_age_in_seconds <= now or expire_age_in_seconds <= 0:
                     removals.append(x.path)
         for x in removals:
             rmtree_with_retry(x)
