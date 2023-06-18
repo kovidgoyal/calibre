@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from range_utils import select_first_node_from_range, is_node_visible
 
 def build_text_map():
     node_list = v'[]'
@@ -26,9 +27,6 @@ def build_text_map():
                 return
             tag = node.tagName.toLowerCase()
             if ignored_tags[tag]:
-                return
-            style = window.getComputedStyle(node)
-            if style.display is 'none' or style.visibility is 'hidden':
                 return
             children = node.childNodes
             for i in range(children.length):
@@ -143,7 +141,12 @@ def select_find_result(match):
         sel.setBaseAndExtent(match.start_node, match.start_offset, match.end_node, match.end_offset)
     except:  # if offset is outside node
         return False
-    return True
+    if not sel.rangeCount:
+        return False
+    for i in range(sel.rangeCount):
+        if select_first_node_from_range(sel.getRangeAt(i), is_node_visible):
+            return True
+    return False
 
 
 def select_search_result(sr):
