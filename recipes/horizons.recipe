@@ -27,6 +27,9 @@ class horizons(BasicNewsRecipe):
         classes('back-link'),
         dict(name='div', attrs={'class':'single-post-footer'})
     ]
+    
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
