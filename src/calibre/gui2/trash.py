@@ -140,8 +140,8 @@ class TrashView(Dialog):
         ad.setValue(int(self.db.pref('expire_old_trash_after', DEFAULT_TRASH_EXPIRY_TIME_SECONDS) / 86400))
         ad.setSuffix(_(' days'))
         ad.setToolTip(_(
-            'Deleted items are permanently deleted automatically after the specified number of days. If set to "on close" they are'
-            ' deleted whenever the library is closed, that is when switching to another library or exiting calibre.'
+            'Deleted items are permanently deleted automatically after the specified number of days.\n'
+            'If set to "on close" they are deleted whenever the library is closed, that is when switching to another library or exiting calibre.'
         ))
         ad.valueChanged.connect(self.trash_expiry_time_changed)
         h = QHBoxLayout()
