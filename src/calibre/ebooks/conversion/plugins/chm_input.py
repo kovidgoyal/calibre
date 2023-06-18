@@ -133,17 +133,21 @@ class CHMInput(InputFormatPlugin):
             return _unquote(x).decode('utf-8')
 
         def unquote_path(x):
-            y = unquote(x)
-            if (not os.path.exists(os.path.join(base, x)) and os.path.exists(os.path.join(base, y))):
-                x = y
-            return x
+            x, _, frag = x.partition('#')
+            if frag:
+                frag = '#' + frag
+            if not os.path.exists(os.path.join(base, x)):
+                y = unquote(x)
+                if os.path.exists(os.path.join(base, y)):
+                    x = y
+            return x, frag
 
         def donode(item, parent, base, subpath):
             for child in item:
                 title = child.title
                 if not title:
                     continue
-                raw = unquote_path(child.href or '')
+                raw, frag = unquote_path(child.href or '')
                 rsrcname = os.path.basename(raw)
                 rsrcpath = os.path.join(subpath, rsrcname)
                 if (not os.path.exists(os.path.join(base, rsrcpath)) and os.path.exists(os.path.join(base, raw))):
@@ -153,7 +157,7 @@ class CHMInput(InputFormatPlugin):
                     rsrcpath = urlquote(rsrcpath)
                 if not raw:
                     rsrcpath = ''
-                c = DIV(A(title, href=rsrcpath))
+                c = DIV(A(title, href=rsrcpath + frag))
                 donode(child, c, base, subpath)
                 parent.append(c)
 
@@ -161,7 +165,7 @@ class CHMInput(InputFormatPlugin):
             if toc.count() > 1:
                 from lxml.html.builder import HTML, BODY, DIV, A
                 path0 = toc[0].href
-                path0 = unquote_path(path0)
+                path0 = unquote_path(path0)[0]
                 subpath = os.path.dirname(path0)
                 base = os.path.dirname(f.name)
                 root = DIV()
