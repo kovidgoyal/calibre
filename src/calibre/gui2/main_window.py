@@ -148,12 +148,17 @@ class MainWindow(QMainWindow):
 
         def no_processes_found() -> bool:
             is_folder = fname and os.path.isdir(fname)
-            w = _('folder') if is_folder else _('file')
             if e.winerror == winutil.ERROR_SHARING_VIOLATION:
                 if fname:
-                    dmsg = _('The {0} "{1}" is opened in another program, so calibre cannot access it.').format(w, fname)
+                    if is_folder:
+                        dmsg = _('The folder "{}" is opened in another program, so calibre cannot access it.').format(fname)
+                    else:
+                        dmsg = _('The file "{}" is opened in another program, so calibre cannot access it.').format(fname)
                 else:
-                    dmsg = _('A {} is open in another program so calibre cannot access it.').format(w)
+                    if is_folder:
+                        dmsg = _('A folder is open in another program so calibre cannot access it.')
+                    else:
+                        dmsg = _('A file is open in another program so calibre cannot access it.')
                 if is_folder:
                     dmsg += _('This is usually caused by leaving Windows explorer or a similar file manager open'
                               ' to a folder in the calibre library. Close Windows explorer and retry.')
