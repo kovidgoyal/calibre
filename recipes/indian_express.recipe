@@ -99,7 +99,7 @@ class IndianExpress(BasicNewsRecipe):
         div = soup.find('div', attrs={'class':['nation', 'o-opin']})
         for art in div.findAll(attrs={'class':['articles', 'o-opin-article']}):
             for a in art.findAll('a', href=True):
-                if not a.find('img') and not ('/profile/' in a['href'] or '/agency/' in a['href'])::
+                if not a.find('img') and not ('/profile/' in a['href'] or '/agency/' in a['href']):
                     url = a['href']
                     title = self.tag_to_string(a)
                     desc = ''
