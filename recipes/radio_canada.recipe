@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+__license__ = 'GPL v3'
+__author__ = 'quatorze'
+__copyright__ = '2023, quatorze'
+__version__ = 'v1.0'
+__date__ = '18 June 2023'
+__description__ = 'Radio-Canada '
+
+'''
+https://ici.radio-canada.ca/rss/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+class RadioCanada(BasicNewsRecipe):
+    title            = 'Radio Canada'
+    __author__       = 'quatorze'
+    timefmt          = ' %Y-%m-%d'
+    language         = 'fr'
+    encoding         = 'utf-8'
+    publisher        = 'ici.radiocanada.ca'
+    publication_type = 'newspaper'
+    category         = 'News, finance, economy, politics'
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article   = 1.00
+
+    no_stylesheets   = True
+    extra_css        = '''
+        .blockquote, q, span.signature-name { font-style: italic }
+        .footer, p.fQwTrv, p.xWUSX { font-size: 80%; }
+        ol { list-style: none; }
+        ol li { display: inline; }
+        ol li+li:before { padding: 16px; content: ">" }
+        ul { list-style-type: none; }
+    '''
+
+    keep_only_tags = [
+        classes('document-simple-header-container main-multimedia-item signature-container-top '
+                ' lead-container e-p picture-attachment-container blockquote framed signature-name'),
+        dict(id='picture')
+    ]
+
+    remove_tags    = [
+            classes('signature-link comment-text'),
+            dict(name='aside')
+    ]
+
+    feeds            = [
+        ('Politique',     'https://ici.radio-canada.ca/rss/4175'),
+        ('International', 'https://ici.radio-canada.ca/rss/96'),
+        ('Montréal',      'https://ici.radio-canada.ca/rss/4201'),
+        ('Société',       'https://ici.radio-canada.ca/rss/7110'),
+        ('Justice',       'https://ici.radio-canada.ca/rss/92411'),
+        ('Science',       'https://ici.radio-canada.ca/rss/4165'),
+        ('Santé',         'https://ici.radio-canada.ca/rss/4171'),
+        ('Économie',      'https://ici.radio-canada.ca/rss/5717'),
+        ('Techno',        'https://ici.radio-canada.ca/rss/4169'),
+        ('Environnement', 'https://ici.radio-canada.ca/rss/92408'),
+        ('Le reste',      'https://ici.radio-canada.ca/rss/4159')
+    ]
+
+    # The following was copied and adapted as per the following post:
+    # https://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
+    # Credit goes to user Starson17
+    def parse_feeds (self):
+      feeds = BasicNewsRecipe.parse_feeds(self)
+      for feed in feeds:
+        for article in feed.articles[:]:
+            if ('VIDEO' in article.title.upper() or 'OHDIO' in article.title.upper() or
+                    '/emissions/' in article.url or '/segments/' in article.url or '/entrevue/' in article.url or '/ohdio/' in article.url
+            ):
+                feed.articles.remove(article)
+      return feeds
