@@ -16,6 +16,13 @@ local_edition = None
 # For past editions, set date to, for example, '2023-01-28'
 past_edition = None
 
+is_sunday = date.today().weekday() == 6
+
+if past_edition:
+    year, month, day = (int(x) for x in past_edition.split('-'))    
+    dt = date(year, month, day)
+    is_sunday = dt.weekday() == 6
+
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu'
     __author__ = 'unkn0wn'
@@ -54,9 +61,11 @@ class TheHindu(BasicNewsRecipe):
         if self.output_profile.short_name.startswith('kindle'):
             if not past_edition:
                 self.title = 'The Hindu ' + date.today().strftime('%b %d, %Y')
+            else:
+                self.title = 'The Hindu ' + dt.strftime('%b %d, %Y')
 
     def parse_index(self):
-        
+        mag_url = None
         global local_edition
         if local_edition or past_edition:
             if local_edition is None:
@@ -66,8 +75,12 @@ class TheHindu(BasicNewsRecipe):
                 today = past_edition
                 self.log('Downloading past edition of', local_edition + ' from ' + today)
             url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
+            if is_sunday:
+                mag_url = url + '?supplement=' + local_edition + '-sm'
         else:
             url = 'https://www.thehindu.com/todays-paper/'
+            if is_sunday:
+                mag_url = url + '?supplement=th_chennai-sm'
             
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
@@ -79,6 +92,12 @@ class TheHindu(BasicNewsRecipe):
             raise ValueError(
                     'The Hindu Newspaper is not published Today.'
                 )
+        if mag_url:
+            self.log('\nFetching Sunday Magazine')
+            soup = self.index_to_soup(mag_url)
+            ans2 = self.hindu_parse_index(soup)
+            if ans2:
+                return ans + ans2
         return ans
 
     def hindu_parse_index(self, soup):
