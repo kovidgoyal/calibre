@@ -47,6 +47,7 @@ class LineEdit(EditWithComplete):
         self.metadata = metadata
         if not is_new:
             self.setReadOnly(True)
+            self.setClearButtonEnabled(False)
         else:
             sep = metadata['is_multiple']['list_to_ui'] if metadata['is_multiple'] else None
             self.set_separator(sep)
@@ -124,6 +125,7 @@ class LanguagesEdit(LE):
         self.textChanged.connect(self.changed)
         if not is_new:
             self.lineEdit().setReadOnly(True)
+            self.lineEdit().setClearButtonEnabled(False)
 
     @property
     def current_val(self):
