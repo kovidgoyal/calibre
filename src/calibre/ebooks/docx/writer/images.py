@@ -203,8 +203,12 @@ class ImagesManager:
     def serialize(self, images_map):
         for img in self.images.values():
             images_map['word/' + img.fname] = partial(self.get_data, img.item)
+
+        def get_svg_data(img):
+            return img.item.data_as_bytes_or_none
+
         for img in self.svg_images.values():
-            images_map['word/' + img.fname] = lambda: img.item.data_as_bytes_or_none
+            images_map['word/' + img.fname] = partial(get_svg_data, img)
 
     def get_data(self, item):
         try:
