@@ -39,7 +39,7 @@ class BusinessLine(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('hide-mobile comments-shares share-page editiondetails')
+        classes('hide-mobile comments-shares share-page editiondetails author-img')
     ]
 
     def preprocess_html(self, soup):
@@ -50,13 +50,13 @@ class BusinessLine(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
+        dt = date.today().strftime('%Y-%m-%d')
+        # For past editions, set date to, for example, '2023-01-28'
+        # dt = '2023-01-28'
         if local_edition:
-            yr = str(date.today().year)
-            mn = date.today().strftime('%m')
-            dy = date.today().strftime('%d')
-            url = absurl('/todays-paper/' + yr + '-' + mn + '-' + dy + '/' + local_edition + '/')
+            url = absurl('/todays-paper/' + dt + '/' + local_edition + '/')
         else:
-            url = 'https://www.thehindubusinessline.com/todays-paper/'
+            url = absurl('/todays-paper/' + dt + '/bl_chennai/')
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
@@ -74,8 +74,8 @@ class BusinessLine(BasicNewsRecipe):
             if not self.tag_to_string(script).strip().startswith('let grouped_articles = {}'):
                 continue
             if script is not None:
-                art = re.search(r'grouped_articles = ({\"[^<]+?]})', self.tag_to_string(script))
-                data = json.loads(art.group(1))
+                art = re.search(r'grouped_articles = ({\".*)', self.tag_to_string(script))
+                data = json.JSONDecoder().raw_decode(art.group(1))[0]
 
                 feeds_dict = defaultdict(list)
 
