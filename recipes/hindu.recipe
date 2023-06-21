@@ -98,6 +98,7 @@ class TheHindu(BasicNewsRecipe):
             ans2 = self.hindu_parse_index(soup)
             if ans2:
                 return ans + ans2
+            return ans
         return ans
 
     def hindu_parse_index(self, soup):
