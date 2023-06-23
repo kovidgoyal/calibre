@@ -95,7 +95,10 @@ def range_extents(q, in_flow_mode):
     end = q.cloneRange()
 
     def rect_onscreen(r):
-        if r.right <= window.innerWidth and r.bottom <= window.innerHeight and r.left >= 0 and r.top >= 0:
+        # we use -1 rather than zero for the top limit because on some
+        # platforms the browser engine returns that for top line selections.
+        # See https://bugs.launchpad.net/calibre/+bug/2024375/ for a test case.
+        if r.right <= window.innerWidth and r.bottom <= window.innerHeight and r.left >= 0 and r.top >= -1:
             return True
         return False
 
