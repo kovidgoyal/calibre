@@ -167,7 +167,7 @@ def itercsslinks(raw):
         yield match.group(1), match.start(1)
 
 
-_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
+_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster', 'altimg'}
 
 
 def iterlinks(root, find_links_in_css=True):
