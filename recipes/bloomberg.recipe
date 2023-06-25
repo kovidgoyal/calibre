@@ -13,8 +13,8 @@ class Bloomberg(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
     resolve_internal_links = True
-    oldest_article = 2  # days
-    delay = 1.5
+    
+    delay = 5 # seconds
 
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
@@ -53,11 +53,11 @@ class Bloomberg(BasicNewsRecipe):
     feeds = [
         ('Features',
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Ffeatures%2F&hl=en-US&gl=US&ceid=US:en'),
-        ('News',
-            'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Farticles%2F&hl=en-US&gl=US&ceid=US:en'),
         ('Opinion', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fopinion%2F&hl=en-US&gl=US&ceid=US:en'),
         ('Newsletters',
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Fnewsletters%2F&hl=en-US&gl=US&ceid=US:en'),
+        ('News',
+            'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Farticles%2F&hl=en-US&gl=US&ceid=US:en'),
         ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en')
     ]
 
@@ -84,7 +84,7 @@ class Bloomberg(BasicNewsRecipe):
                 subhead = '<div id="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
         else:
             if 'summary' in data:
-                subhead = '<div id="subhead">' + data['summary'] + '</div>'
+                subhead = '<div id="subhead"><p>' + data['summary'] + '</p></div>'
 
         if 'byline' in data:
             if data['byline'] is not None:
