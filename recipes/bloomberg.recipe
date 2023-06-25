@@ -18,7 +18,7 @@ class Bloomberg(BasicNewsRecipe):
 
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
-        #time {font-size:small;}
+        #time, .chart {font-size:small;}
         #subhead {font-style:italic; color:#404040;}
         #cat {font-size:small; color:gray;}
         .news-figure-caption-text, #cap {font-size:small; text-align:center;}
