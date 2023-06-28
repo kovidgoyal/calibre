@@ -382,9 +382,9 @@
     {
         "name": "podofo",
         "unix": {
-            "filename": "podofo-0.10.0.tar.gz",
-            "hash": "sha256:c9bf607fe4862b5cc6eac1754f0e39674c553350e8bbde68f5fff3e3eb2ed4bc",
-            "urls": ["https://github.com/podofo/podofo/archive/refs/tags/0.10.0.tar.gz"]
+            "filename": "podofo-90ccd750ddf11be6853703ca432c0d96d89f19f2.tar.gz",
+            "hash": "sha256:9c7c9f18e70bfc3904c71048f12f48a047e718124cc626141867a2814e070d80",
+            "urls": ["https://github.com/podofo/podofo/archive/90ccd750ddf11be6853703ca432c0d96d89f19f2.tar.gz"]
         }
     },
 
