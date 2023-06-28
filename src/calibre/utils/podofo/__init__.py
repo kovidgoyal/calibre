@@ -243,6 +243,13 @@ def test_podofo():
         del p
     finally:
         os.remove(f.name)
+    a = podofo.PDFDoc()
+    a.load(raw)
+    b = podofo.PDFDoc()
+    b.load(raw)
+    a.append(b)
+    if a.page_count() != 2 * b.page_count():
+        raise ValueError('Appending failed')
 
 
 if __name__ == '__main__':
