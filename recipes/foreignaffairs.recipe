@@ -6,13 +6,7 @@ import html5lib
 import mechanize
 from lxml import html
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def as_article(source, log):
@@ -155,9 +149,14 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        self.cover_url = soup.find(**classes('subscribe-callout-image'))['srcset'].split()[-3]
-        self.cover_url = self.cover_url.split('?')[0]
-        self.cover_url = self.cover_url.replace('_webp_issue_small_2x', '_webp_issue_large_2x')
+        self.cover_url = re.sub(
+            r"_webp_issue_small_\dx",
+            "_webp_issue_large_2x",
+            soup.find(class_="subscribe-callout-image")["srcset"]
+            .split(",")[0]
+            .strip()
+            .split(" ")[0],
+        )
 
         cls = soup.find('body')['class']
         if isinstance(cls, (list, tuple)):

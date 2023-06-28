@@ -51,7 +51,7 @@ class Nature(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(BASE + '/nature/current-issue')
-        self.cover_url = 'https:' + soup.find(
+        self.cover_url = soup.find(
             'img', attrs={'data-test': check_words('issue-cover-image')}
         )['src']
         try:
