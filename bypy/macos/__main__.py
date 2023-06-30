@@ -414,9 +414,6 @@ class Freeze:
             raise SystemExit('No calibre plugins found in: ' + self.ext_dir)
         for f in plugins:
             self.fix_dependencies_in_lib(f)
-            if f.endswith('/podofo.so'):
-                self.change_dep('libpodofo.0.9.7.dylib',
-                    '@executable_path/../Frameworks/libpodofo.0.9.7.dylib', False, f)
 
     @flush
     def create_plist(self):
@@ -476,7 +473,7 @@ class Freeze:
     @flush
     def add_podofo(self):
         print('\nAdding PoDoFo')
-        pdf = join(PREFIX, 'lib', 'libpodofo.1.dylib')
+        pdf = join(PREFIX, 'lib', 'libpodofo.2.dylib')
         self.install_dylib(pdf)
 
     @flush
