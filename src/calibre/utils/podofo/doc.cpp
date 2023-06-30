@@ -391,11 +391,7 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
         unsigned total_pages_to_append = 0;
         for (auto src : docs)  total_pages_to_append += src->GetPages().GetCount();
         unsigned base_page_index = dest->GetPages().GetCount();
-#if PODOFO_VERSION > PODOFO_MAKE_VERSION(0, 10, 0)
         dest->GetPages().CreatePagesAt(base_page_index, total_pages_to_append, Rect());
-#else
-        while (total_pages_to_append--) dest->GetPages().CreatePage(Rect());
-#endif
         for (auto src : docs) {
             MapReferences ref_map;
             std::vector<AppendPagesData> pages;
