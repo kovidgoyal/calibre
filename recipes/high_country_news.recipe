@@ -39,7 +39,7 @@ class HighCountryNews(BasicNewsRecipe):
     publisher = 'High Country News'
     category = 'News, Politics, Social, Nature, Environmental, Western United States, Native American'
     timefmt = ' [%a, %d %b %Y]'
-    language = 'en-Us'
+    language = 'en'
     encoding = 'UTF-8'
     publication_type = 'newspaper'
     oldest_article = 30
