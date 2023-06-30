@@ -23,6 +23,47 @@
 # - title by author
 # }}}
 
+{{{ 6.22.0 2023-06-30
+
+:: new features
+
+- Kobo driver: Add support for newest firmware
+
+- [2023604] Trash bin: Allow setting removed books to be permanently deleted on library close
+
+- Windows: Nicer error message when file/folder is locked in another program
+
+:: bug fixes
+
+- PDF Output: Fix regression that caused large slowdowns when converting books with lots of internal HTML files to PDF
+
+- [2024139] CHM Input: Fix ToC entries that use fragments not supported
+
+- E-book viewer: Fix searching for text next to hidden text not scrolling to the match
+
+- [2024375] E-book viewer: Fix selection popup not showing for some books on some platforms when the selection is in the top line
+
+- [2024433] DOCX Output: Fix multiple SVG images in the input document causing all the SVG images in the output to be just one of the input images
+
+- [2023943] MOBI Input: Ignore another form of corruption in trailing bytes
+
+:: improved recipes
+- Foreign Affairs
+- Nature
+- Bloomberg
+- LiveMint
+- Hindu and Hindu Business Line
+- Deautsche Welle
+- Horizons
+- Indian Express
+- Psych
+- Harper's Magazine
+
+:: new recipes
+- Radio Canada by quatorze
+- Deutschland Funk by Armin Geller
+}}}
+
 {{{ 6.21.0 2023-06-13
 
 :: new features
