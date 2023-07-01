@@ -4,14 +4,17 @@ Fetch Private Eye (Online Edition)
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import datetime, timedelta
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##
     # Last Edited:  2023-07-01
     #
     # Remark:       Version 3.0
-    #               Rewrite (by Sophist-UK) to fix bugs, fit latest web pages, 
-    #               correctly identify pages to include and improve formatting.
+    #               Rewrite (by Sophist-UK) to fit latest web pages, correctly identify pages to include
+    #               and improve formatting.
+    #               Edited to add:  inclusion of About page,
+    #                               identifying series number and publication date and setting metadata.
     #
 
     title = u'Private Eye (Online Edition)'
@@ -27,24 +30,60 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     __author__ = u'Martyn Pritchard & Sophist-UK'
     __copyright__ = '2020, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
 
-    current_issue = 'https://www.private-eye.co.uk/current-issue'
-    masthead_url = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
+    current_issue   = 'https://www.private-eye.co.uk/current-issue'
+    about_page      = 'https://www.private-eye.co.uk/about'
+    masthead_url    = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
+    author = 'Private Eye'
+    series = title = 'Private Eye Online'
+    conversion_options = {
+        'authors':      author,
+        'author_sort':  author,
+        'series':       series,
+        'series_index': 0,
+        'title':        title,
+        'title_sort':   title,
+    }
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.current_issue)
-        for citem in soup.findAll('img'):
-            if citem['src'].endswith('big.jpg'):
-                return citem['src']
+
+        for img in soup.findAll('img'):
+            src = img['src']
+            if src.endswith('_big.jpg'):
+                file_name = src.rsplit('/',1)[1]
+                if file_name is None:
+                    file_name = src
+                try:
+                    self.conversion_options.update({'series_index': int(file_name[:-len('_big.jpg')])})
+                    self.log('series-index:', self.conversion_options['series_index'])
+                except (TypeError, ValueError):
+                    # wrong big image
+                    continue
+                return src
         return None
 
     def parse_index(self):
         soup = self.index_to_soup(self.current_issue)
 
-        key = None
-        articles = []
+        # Get publication date
+        sidebar = soup.find('div', attrs={'id': 'current-issue-sidebar'})
+        next_issue_text = sidebar.find('b').nextSibling.strip()
+        try:
+            day, month, year = next_issue_text.split(' ')
+            day = ''.join(c for c in day if c.isdigit())
+            pub_date = datetime.strptime(" ".join((day, month, year)), "%d %B %Y") - timedelta(12)
+            self.log('pub-date:', pub_date)
+            self.conversion_options.update({'pubdate': datetime.strftime(pub_date, "%d %B %Y").lstrip("0")})
+            title = self.title + " " + datetime.strftime(pub_date, "%Y-%m-%d")
+            self.conversion_options.update({'title': title})
+            self.conversion_options.update({'title_sort': title})
+        except (TypeError, ValueError):
+            # Bad date
+            self.log('Cannot parse next issue date from:', next_issue_date)
 
         # Get pages first from the sub-menu, and then from the contents panel.
         # Duplicates will be eliminated automatically.
+        articles = []
         for menu_attrs in (
             {'class': 'sub-nav-bar', 'id':'sub-nav-box'},
             {'class': 'article', 'id': 'block-left'},
@@ -66,19 +105,30 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         if not articles:
             abort_recipe_processing('Private-Eye Online index of pages not found');
 
-        index = [('Private Eye', articles)]
+        # Add the About page as a final article
+        articles.append({
+            'title': 'About Private Eye',
+            'url': self.about_page,
+        })
 
-        self.log('parse_index', index)
+        self.log('parse_index:', articles)
 
-        return index
+        return [('Private Eye', articles)]
 
-
-    remove_tags_before = remove_tags_after = [
+    # We remove vast swathes of HTML which is not part of the articles.
+    # Remove sibling content
+    remove_tags_before =  [
         {'name': 'div', 'class': "article"},
         {'name': 'div', 'id': "page"},
         {'name': 'div', 'id': "page-wide"},
         {'name': 'div', 'id': "content"},
+        {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
     ]
+    remove_tags_after = remove_tags_before.copy()
+    remove_tags_after.append(
+        {'name': 'div', 'id': 'about-covers'},
+    )
+    # Remove non-sibling content
     remove_tags = [
         {'name': 'div', 'attrs': {'id': 'top-bar'}},
         {'name': 'div', 'attrs': {'id': 'header-wide'}},
@@ -87,6 +137,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'attrs': {'id': 'sidebar'}},
         {'name': 'div', 'attrs': {'id': 'sections-sidebar'}},
         {'name': 'div', 'attrs': {'id': 'nav-box-sections-mobile'}},
+        {'name': 'div', 'attrs': {'id': 'nav-box-pages-mobile'}},
+        {'name': 'div', 'attrs': {'id': 'about-covers'}},
+        {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
         {'name': 'iframe'},
         {'name': 'link', 'attrs': {'href': re.compile('/javastyle/lightbox/')}},
         {'name': 'link', 'attrs': {'href': re.compile('/javastyle/news_ticker/')}},
@@ -97,24 +150,26 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     preprocess_regexps = [
         (
             re.compile(
-                r'<span class="headline">(.*?)</span>',
+                r'<span class="headline(?:-new)?">(.*?)</span>\s*(?:<br>\s*)*(?:<span class="text">(.*?)</span>)?',
                 re.DOTALL | re.IGNORECASE
-            ), lambda match: '<h1>' + match[0] + '</h1>'
-        ),
-        (
-            re.compile(
-                r'<span class="text">(<font color="#666666">.*?)</span>',
-                re.DOTALL | re.IGNORECASE
-            ), lambda match: '<h4>' + match[0] + '</h4>'
+            ),
+            lambda match: '<h1>' + match[1] + '</h1>' +
+                         (('<h4>' + match[2] + '</h4>') if match[2] else '')
         ),
     ]
 
+    # The following extra css is to tweak the formatting of various elements of various article pages.
+    # Unfortunately, there are a variety of different pages styles, hence the extended tweak list.
+    # Some of these mimic the actual layout.css which does not seem to make it across into the calibre
+    # ebook without duplicating it as extra css.
+    # However some is new css to tweak output when part of an ebook.
     extra_css = ' \n '.join([
         '#content img {float: right;}',
         '#content img.cartoon-left {float: left;}',
         '#content img.cartoon-right {float: right;}',
         '#content img:first-child {float: none;}',
         '#content #block-sections img {float: none;}',
+        '#content #block-sections img.crossword {float: none; width: 50%; margin-right: 20px;}',
         '#article-caption-box {float: right; background: #222222; display: block; width: 40%; max-width: 40%;}',
         '#caption-box {color: #ffffff; text-align: center; padding: 5px 20px 15px 20px;}',
         '#whatsapp {border-left: 5px #8aba60 solid; border-right: 5px #8aba60 solid; border-bottom: 5px #8aba60 solid; padding: 0 20px 20px 20px;}',
