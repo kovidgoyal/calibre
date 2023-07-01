@@ -1,49 +1,127 @@
+'''
+Fetch Private Eye (Online Edition)
+'''
+
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class PrivateEyeRecipe(BasicNewsRecipe):
+    ##
+    # Last Edited:  2023-07-01
+    #
+    # Remark:       Version 3.0
+    #               Rewrite (by Sophist-UK) to fix bugs, fit latest web pages, 
+    #               correctly identify pages to include and improve formatting.
+    #
 
-class AdvancedUserRecipe1359406781(BasicNewsRecipe):
-    title = u'Private Eye'
-    publication_type = 'magazine'
+    title = u'Private Eye (Online Edition)'
     description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
-    oldest_article = 13
-    max_articles_per_feed = 100
-    remove_empty_feeds = True
-    remove_javascript = True
-    no_stylesheets = True
-    ignore_duplicate_articles = {'title'}
+    publication_type = 'magazine'
     language = 'en_GB'
     encoding = 'utf-8'
-    __author__ = u'Martyn Pritchard'
-    __copyright__ = '2020, Martyn Pritchard <MPritchard2k9@gmail.com>'
+    oldest_article = 13
+    max_articles_per_feed = 100
+    remove_javascript = True
+    ignore_duplicate_articles = {'url'}
+
+    __author__ = u'Martyn Pritchard & Sophist-UK'
+    __copyright__ = '2020, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
+
+    current_issue = 'https://www.private-eye.co.uk/current-issue'
+    masthead_url = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
 
     def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup('https://www.private-eye.co.uk')
+        soup = self.index_to_soup(self.current_issue)
         for citem in soup.findAll('img'):
             if citem['src'].endswith('big.jpg'):
                 return citem['src']
-        return cover_url
+        return None
 
-    remove_tags_before = {'class': "article"}
-    remove_tags_after = {'class': "article"}
-    remove_tags = [dict(name='div', attrs={'id': 'sections-sidebar'})]
-    remove_tags = {'class': "sub-nav-bar"}
-    remove_tags = [dict(name='a', attrs={'class': 'twitter-share-button'})]
-    remove_tags = [dict(name='div', attrs={'id': 'nav-box-sections-mobile'})]
+    def parse_index(self):
+        soup = self.index_to_soup(self.current_issue)
 
+        key = None
+        articles = []
+
+        # Get pages first from the sub-menu, and then from the contents panel.
+        # Duplicates will be eliminated automatically.
+        for menu_attrs in (
+            {'class': 'sub-nav-bar', 'id':'sub-nav-box'},
+            {'class': 'article', 'id': 'block-left'},
+        ):
+            menu = soup.find('div', attrs=menu_attrs)
+
+            if not menu:
+                continue
+
+            for a in menu.findAll('a', href=True):
+                title = a.getText().rstrip(' »\n')
+                if not title:
+                    continue
+                articles.append({
+                    'title': title,
+                    'url': a.get('href'),
+                })
+
+        if not articles:
+            abort_recipe_processing('Private-Eye Online index of pages not found');
+
+        index = [('Private Eye', articles)]
+
+        self.log('parse_index', index)
+
+        return index
+
+
+    remove_tags_before = remove_tags_after = [
+        {'name': 'div', 'class': "article"},
+        {'name': 'div', 'id': "page"},
+        {'name': 'div', 'id': "page-wide"},
+        {'name': 'div', 'id': "content"},
+    ]
+    remove_tags = [
+        {'name': 'div', 'attrs': {'id': 'top-bar'}},
+        {'name': 'div', 'attrs': {'id': 'header-wide'}},
+        {'name': 'div', 'attrs': {'id': 'footer-wide'}},
+        {'name': 'div', 'attrs': {'id': 'follow-buttons'}},
+        {'name': 'div', 'attrs': {'id': 'sidebar'}},
+        {'name': 'div', 'attrs': {'id': 'sections-sidebar'}},
+        {'name': 'div', 'attrs': {'id': 'nav-box-sections-mobile'}},
+        {'name': 'iframe'},
+        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/lightbox/')}},
+        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/news_ticker/')}},
+        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/media-queries-')}},
+    ]
+
+    # Convert headers to h1, strapline to h4
     preprocess_regexps = [
         (
             re.compile(
-                r'<a href="https://www.subscription.*?</a>',
+                r'<span class="headline">(.*?)</span>',
                 re.DOTALL | re.IGNORECASE
-            ), lambda match: ''
+            ), lambda match: '<h1>' + match[0] + '</h1>'
         ),
         (
             re.compile(
-                r'<a class="twitter-share-button.*?</a>', re.DOTALL | re.IGNORECASE
-            ), lambda match: ''
+                r'<span class="text">(<font color="#666666">.*?)</span>',
+                re.DOTALL | re.IGNORECASE
+            ), lambda match: '<h4>' + match[0] + '</h4>'
         ),
     ]
 
-    feeds = [(u'http://bodybuilder3d.eu5.org/PrivateEyeStat.xml')]
+    extra_css = ' \n '.join([
+        '#content img {float: right;}',
+        '#content img.cartoon-left {float: left;}',
+        '#content img.cartoon-right {float: right;}',
+        '#content img:first-child {float: none;}',
+        '#content #block-sections img {float: none;}',
+        '#article-caption-box {float: right; background: #222222; display: block; width: 40%; max-width: 40%;}',
+        '#caption-box {color: #ffffff; text-align: center; padding: 5px 20px 15px 20px;}',
+        '#whatsapp {border-left: 5px #8aba60 solid; border-right: 5px #8aba60 solid; border-bottom: 5px #8aba60 solid; padding: 0 20px 20px 20px;}',
+        '#whatsapp::after {clear:both;}',
+        '.whatsapp-left, .whatsapp-right {margin: 20px 0px 0px 0px; padding: 15px; border-radius: 10px;}',
+        '.whatsapp-left, .whatsapp-right {font-family: Helvetica, Arial, "sans-serif"; font-weight: 300; font-size: 18px; line-height: 24px;}',
+        '.whatsapp-left {text-align: left; margin-right: 30%; background-color: #eeeeee;}',
+        '.whatsapp-right {text-align: right; margin-left: 30%; background-color: #dce5ae;}',
+        '#whatsapp .whatsapp-left img, #whatsapp .whatsapp-right img {width: 35px; margin: 0 10px; vertical-align: middle;}',
+    ])
