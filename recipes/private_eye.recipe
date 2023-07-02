@@ -79,7 +79,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             self.conversion_options.update({'title_sort': title})
         except (TypeError, ValueError):
             # Bad date
-            self.log('Cannot parse next issue date from:', next_issue_date)
+            self.log('Cannot parse next issue date from:', next_issue_text)
 
         # Get pages first from the sub-menu, and then from the contents panel.
         # Duplicates will be eliminated automatically.
@@ -103,7 +103,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 })
 
         if not articles:
-            abort_recipe_processing('Private-Eye Online index of pages not found');
+            raise ValueError('Private-Eye Online index of pages not found')
 
         # Add the About page as a final article
         articles.append({
