@@ -232,7 +232,9 @@ class Worker(Thread):  # Get details {{{
                 7: ['juil'],
                 8: ['août'],
                 9: ['sept'],
-                12: ['déc'],
+                10: ['oct', 'octobre'],
+                11: ['nov', 'novembre'],
+                12: ['déc', 'décembre'],
             },
             'br': {
                 1: ['janeiro'],
@@ -329,7 +331,7 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Audible.com Release Date:")]
         '''
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare', 'Herausgeber',
-                                'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
+                                'Editore', 'Editeur', 'Éditeur', 'Editor', 'Editora', '出版社'}
 
         self.language_xpath =    '''
             descendant::*[
@@ -1042,7 +1044,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 4)
+    version = (1, 3, 5)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
