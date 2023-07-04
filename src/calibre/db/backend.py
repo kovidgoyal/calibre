@@ -506,7 +506,7 @@ class DB:
         self.set_user_template_functions(compile_user_template_functions(
                                  self.prefs.get('user_template_functions', [])))
         if self.prefs['last_expired_trash_at'] > 0:
-            self.ensure_trash_dir()
+            self.ensure_trash_dir(during_init=True)
         if load_user_formatter_functions:
             set_global_state(self)
 
@@ -1994,7 +1994,7 @@ class DB:
             self.rmtree(tdir)
             self.ensure_trash_dir()
 
-    def ensure_trash_dir(self):
+    def ensure_trash_dir(self, during_init=False):
         tdir = self.trash_dir
         os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
@@ -2002,7 +2002,7 @@ class DB:
             import calibre_extensions.winutil as winutil
             winutil.set_file_attributes(tdir, getattr(winutil, 'FILE_ATTRIBUTE_HIDDEN', 2) | getattr(winutil, 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED', 8192))
         if time.time() - self.last_expired_trash_at >= 3600:
-            self.expire_old_trash()
+            self.expire_old_trash(during_init=during_init)
 
     def delete_trash_entry(self, book_id, category):
         self.ensure_trash_dir()
@@ -2010,7 +2010,7 @@ class DB:
         if os.path.exists(path):
             self.rmtree(path)
 
-    def expire_old_trash(self, expire_age_in_seconds=-1):
+    def expire_old_trash(self, expire_age_in_seconds=-1, during_init=False):
         if expire_age_in_seconds < 0:
             expire_age_in_seconds = max(1 * 24 * 3600, float(self.prefs['expire_old_trash_after']))
         self.last_expired_trash_at = now = time.time()
@@ -2026,7 +2026,13 @@ class DB:
                 if mtime + expire_age_in_seconds <= now or expire_age_in_seconds <= 0:
                     removals.append(x.path)
         for x in removals:
-            rmtree_with_retry(x)
+            try:
+                rmtree_with_retry(x)
+            except OSError:
+                if not during_init:
+                    raise
+                import traceback
+                traceback.print_exc()
 
     def move_book_to_trash(self, book_id, book_dir_abspath):
         dest = os.path.join(self.trash_dir, 'b', str(book_id))
