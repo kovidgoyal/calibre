@@ -213,6 +213,7 @@ def identity_transform(src_path: str, dest_path: str) -> str:
 def register_folder_recursively(
     src: str, copier: Union[UnixFileCopier, WindowsFileCopier], dest_dir: str,
     transform_destination_filename: Callable[[str, str], str] = identity_transform,
+    read_only: bool = False
 ) -> None:
 
     def dest_from_entry(dirpath: str, x: str) -> str:
@@ -228,14 +229,15 @@ def register_folder_recursively(
         for d in dirnames:
             path = os.path.join(dirpath, d)
             dest = dest_from_entry(dirpath, d)
-            os.makedirs(make_long_path_useable(dest), exist_ok=True)
-            shutil.copystat(make_long_path_useable(path), make_long_path_useable(dest), follow_symlinks=False)
+            if not read_only:
+                os.makedirs(make_long_path_useable(dest), exist_ok=True)
+                shutil.copystat(make_long_path_useable(path), make_long_path_useable(dest), follow_symlinks=False)
             copier.register_folder(path)
         for f in filenames:
             path = os.path.join(dirpath, f)
             dest = dest_from_entry(dirpath, f)
             dest = transform_destination_filename(path, dest)
-            if not iswindows:
+            if not iswindows and not read_only:
                 s = os.stat(path, follow_symlinks=False)
                 if stat.S_ISLNK(s.st_mode):
                     link_dest = os.readlink(path)
@@ -246,7 +248,7 @@ def register_folder_recursively(
 
 def windows_check_if_files_in_use(src_folder: str) -> None:
     copier = get_copier()
-    register_folder_recursively(src_folder, copier, os.getcwd())
+    register_folder_recursively(src_folder, copier, os.getcwd(), read_only=True)
     with copier:
         pass
 
