@@ -4,7 +4,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import shutil
+import time
 from contextlib import closing
+from pathlib import Path
 from mechanize import MozillaCookieJar
 
 from calibre import browser
@@ -101,17 +103,21 @@ class EbookDownload:
     def _add(self, filename, gui, add_to_lib, tags):
         if not add_to_lib or not filename:
             return
-        ext = os.path.splitext(filename)[1][1:].lower()
+
+        from calibre.ebooks.metadata.worker import run_import_plugins
+
+        path = run_import_plugins((filename,), time.monotonic_ns(), str(Path(filename).parent))[0]
+        ext = os.path.splitext(path)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             raise Exception(_('Not a support e-book format.'))
 
         from calibre.ebooks.metadata.meta import get_metadata
-        with open(filename, 'rb') as f:
+        with open(path, 'rb') as f:
             mi = get_metadata(f, ext, force_read_metadata=True)
         mi.tags.extend(tags)
 
         id = gui.library_view.model().db.create_book_entry(mi)
-        gui.library_view.model().db.add_format_with_hooks(id, ext.upper(), filename, index_is_id=True)
+        gui.library_view.model().db.add_format_with_hooks(id, ext.upper(), path, index_is_id=True)
         gui.library_view.model().books_added(1)
         gui.library_view.model().count_changed()
 
