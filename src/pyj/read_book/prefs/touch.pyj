@@ -82,7 +82,7 @@ def create_touch_panel(container, apply_func, cancel_func):
 
     def make_setting(gesture_type, allowed_actions):
         ans = E.div(style='margin-top: 1ex')
-        title = GESTURE_NAMES[gesture_type]
+        title = GESTURE_NAMES()[gesture_type]
         sid = unique_id(gesture_type)
         ans.appendChild(E.h4(E.label(title, 'for'=sid)))
         select = E.select(name=gesture_type, id=sid)

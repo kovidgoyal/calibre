@@ -12,7 +12,39 @@ TAP_THRESHOLD = 8  # pixels
 SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 20  # pixels
-GESTURE_NAMES = {
+GESTURE = {k:k for k in v"""[
+    'back_zone_tap',
+    'forward_zone_tap',
+    'control_zone_tap',
+    'long_tap',
+    'two_finger_tap',
+    'pinch_in',
+    'pinch_out',
+
+    'flick_inline_backward',
+    'flick_inline_forward',
+    'flick_block_backward',
+    'flick_block_forward',
+
+    'swipe_inline_backward_in_progress',
+    'swipe_inline_forward_in_progress',
+    'swipe_block_backward_in_progress',
+    'swipe_block_forward_in_progress',
+
+    'swipe_inline_backward_hold',
+    'swipe_inline_forward_hold',
+    'swipe_block_backward_hold',
+    'swipe_block_forward_hold',
+
+    'tap',
+    'swipe',
+    'pinch',
+]"""}
+
+def GESTURE_NAMES():
+    ans = GESTURE_NAMES.ans
+    if not ans:
+        GESTURE_NAMES.ans = ans = {
     'back_zone_tap': _('Tap on back zone'),
     'forward_zone_tap': _('Tap on forward zone'),
     'control_zone_tap': _('Tap in the controls zone'),
@@ -35,11 +67,8 @@ GESTURE_NAMES = {
     'swipe_inline_forward_hold': _('Drag and hold finger in writing direction, to go forward'),
     'swipe_block_backward_hold': _('Drag and hold finger perpendicular to writing direction, to go back'),
     'swipe_block_forward_hold': _('Drag and hold finger perpendicular to writing direction, to go forward'),
-}
-GESTURE = {k:k for k in Object.keys(GESTURE_NAMES)}
-GESTURE.tap = 'tap'
-GESTURE.swipe = 'swipe'
-GESTURE.pinch = 'pinch'
+    }
+    return ans
 
 gesture_id = 0
 
