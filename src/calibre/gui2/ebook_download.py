@@ -6,7 +6,6 @@ import os
 import shutil
 import time
 from contextlib import closing
-from pathlib import Path
 from mechanize import MozillaCookieJar
 
 from calibre import browser
@@ -17,7 +16,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 from calibre.web import get_download_filename_from_response
-from polyglot.builtins import string_or_bytes, as_unicode
+from polyglot.builtins import as_unicode, string_or_bytes
 
 
 class DownloadInfo(MessageBox):
@@ -104,20 +103,21 @@ class EbookDownload:
         if not add_to_lib or not filename:
             return
 
-        from calibre.ebooks.metadata.worker import run_import_plugins
-
-        path = run_import_plugins((filename,), time.monotonic_ns(), str(Path(filename).parent))[0]
-        ext = os.path.splitext(path)[1][1:].lower()
-        if ext not in BOOK_EXTENSIONS:
-            raise Exception(_('Not a support e-book format.'))
-
         from calibre.ebooks.metadata.meta import get_metadata
-        with open(path, 'rb') as f:
-            mi = get_metadata(f, ext, force_read_metadata=True)
-        mi.tags.extend(tags)
+        from calibre.ebooks.metadata.worker import run_import_plugins
+        from calibre.ptempfile import TemporaryDirectory
 
-        id = gui.library_view.model().db.create_book_entry(mi)
-        gui.library_view.model().db.add_format_with_hooks(id, ext.upper(), path, index_is_id=True)
+        with TemporaryDirectory() as tdir:
+            path = run_import_plugins((filename,), time.monotonic_ns(), tdir)[0]
+            ext = os.path.splitext(path)[1][1:].lower()
+            if ext not in BOOK_EXTENSIONS:
+                raise Exception(_('{} is not a supported e-book format').format(ext.upper()))
+            with open(path, 'rb') as f:
+                mi = get_metadata(f, ext, force_read_metadata=True)
+            mi.tags.extend(tags)
+            db = gui.current_db
+            book_id = db.create_book_entry(mi)
+            db.new_api.add_format(book_id, ext.upper(), path)
         gui.library_view.model().books_added(1)
         gui.library_view.model().count_changed()
 
