@@ -581,7 +581,7 @@ class LayoutMixin:  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('sb', 'tb', 'bd', 'gv', 'cb', 'qv')
+            self.button_order = button_order = ('sb', 'tb', 'bd', 'gv', 'cb', 'qv')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -596,7 +596,7 @@ class LayoutMixin:  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
                 QSizePolicy.Policy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
+            self.button_order = button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
         # }}}
 
         # This must use the base method to find the plugin because it hasn't

@@ -1077,6 +1077,13 @@ class ActionSavedSearches(InterfaceActionBase):
     description = _('Show a menu of saved searches')
 
 
+class ActionLayoutActions(InterfaceActionBase):
+    name = 'Layout actions'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.layout_actions:LayoutActions'
+    description = _("Show a menu of actions to change calibre's layout")
+
+
 class ActionBooklistContextMenu(InterfaceActionBase):
     name = 'Booklist context menu'
     author = 'Charles Haley'
@@ -1125,7 +1132,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches]
+        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches,
+        ActionLayoutActions]
 
 # }}}
 
