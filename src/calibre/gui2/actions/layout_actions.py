@@ -1,52 +1,67 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2022, Charles Haley
-#
 
+from enum import Enum
 from functools import partial
-
 from qt.core import QIcon, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
 
+class Panel(Enum):
+    ' See gui2.init for these '
+    SEARCH_BAR = 'sb'
+    TAG_BROWSER = 'tb'
+    BOOK_DETAILS = 'bd'
+    GRID_VIEW = 'gv'
+    COVER_BROWSER = 'cb'
+    QUICKVIEW = 'qv'
+
+
 class LayoutActions(InterfaceAction):
 
     name = 'Layout Actions'
-    action_spec = (_('Layout Actions'), 'tags.png',
+    action_spec = (_('Layout actions'), 'tags.png',
                    _('Add/remove layout items: search bar, tag browser, etc.'), None)
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
-    dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
-
-    # The button names used by change_item_by_name() come from gui2.init. They are
-    # 'sb' => Search Bar
-    # 'tb' => Tag Browser
-    # 'bd' => Book Details
-    # 'gv' => Grid View
-    # 'cb' => Cover Browser
-    # 'qv' => QuickView
+    dont_add_to = frozenset({'context-menu-device', 'menubar-device'})
 
     def gui_layout_complete(self):
         m = self.qaction.menu()
         self.button_names = {}
         m.addAction(_('Hide all'), self.hide_all)
-        for i,b in enumerate(self.gui.layout_buttons):
+        for i, name in enumerate(self.gui.button_order):
             m.addSeparator()
-            self.button_names[self.gui.button_order[i]] = b
-            ic = QIcon.ic(b.icname)
-            m.addAction(ic, _('Show ') + b.label, partial(self.change_item, b, True))
-            m.addAction(ic, _('Hide ') + b.label, partial(self.change_item, b, False))
+            name = self.gui.button_order[i]
+            self.button_names[self.gui.button_order[i]] = i
+            button = self.gui.layout_buttons[i]
+            ic = QIcon.ic(button.icname)
+            m.addAction(ic, _('Show {}').format(button.label), partial(self.set_visible, Panel(name), True))
+            m.addAction(ic, _('Hide {}').format(button.label), partial(self.set_visible, Panel(name), False))
 
-    def change_item(self, button, show=True):
+    def _change_item(self, button, show=True):
         if button.isChecked() and not show:
             button.click()
         elif not button.isChecked() and show:
             button.click()
 
-    def change_item_by_name(self, name, show=True):
-        self.change_item(self.button_names[name], show)
+    def _button_from_enum(self, name: Panel):
+        for q, b in zip(self.gui.button_order, self.gui.layout_buttons):
+            if q == name.value:
+                return b
+
+    def set_visible(self, name: Panel, show=True):
+        self._change_item(self._button_from_enum(name), show)
+
+    def is_visible(self, name: Panel):
+        self._button_from_enum(name).isChecked()
 
     def hide_all(self):
-        for name in self.button_names:
-            self.change_item_by_name(name, show=False)
+        for name in self.gui.button_order:
+            self.set_visible(Panel(name), show=False)
+
+    def show_all(self):
+        for name in self.gui.button_order:
+            self.set_visible(Panel(name), show=True)
