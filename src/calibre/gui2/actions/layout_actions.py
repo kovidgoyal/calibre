@@ -61,9 +61,3 @@ class LayoutActions(InterfaceAction):
     def show_all(self):
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
-
-    def button_names(self):
-        names = {}
-        for p in Panel:
-            names[self._button_from_enum(p).label] = p
-        return names
