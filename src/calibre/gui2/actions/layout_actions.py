@@ -49,9 +49,21 @@ class LayoutActions(InterfaceAction):
                 return b
 
     def set_visible(self, name: Panel, show=True):
+        '''
+        Show or hide the panel. Does nothing if the panel is already in the
+        desired state.
+
+        :param name: specifies which panel using a Panel enum
+        :param show: If True, show the panel, otherwise hide the panel
+        '''
         self._change_item(self._button_from_enum(name), show)
 
     def is_visible(self, name: Panel):
+        '''
+        Returns True if the panel is visible.
+
+        :param name: specifies which panel using a Panel enum
+        '''
         self._button_from_enum(name).isChecked()
 
     def hide_all(self):
@@ -61,3 +73,18 @@ class LayoutActions(InterfaceAction):
     def show_all(self):
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
+
+    def button_names(self):
+        '''
+        Return a dictionary of translated panel names to its Panel enum. This
+        simplifies building dialogs, for example combo boxes of all the panel
+        names or check boxes for each panel. You can also use the dict
+        to find the translated names of particular panels, easier after
+        inverting it with dict(map(reversed, instance.button_names().items()))
+
+        :return: {panel_name: Panel_enum_value, ...}
+        '''
+        names = {}
+        for p in Panel:
+            names[self._button_from_enum(p).label] = p
+        return names
