@@ -74,17 +74,12 @@ class LayoutActions(InterfaceAction):
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
 
-    def button_names(self):
+    def panel_titles(self):
         '''
-        Return a dictionary of translated panel names to its Panel enum. This
-        simplifies building dialogs, for example combo boxes of all the panel
-        names or check boxes for each panel. You can also use the dict
-        to find the translated names of particular panels, easier after
-        inverting it with dict(map(reversed, instance.button_names().items()))
+        Return a dictionary of Panel Enum items to translated human readable title.
+        Simplifies building dialogs, for example combo boxes of all the panel
+        names or check boxes for each panel.
 
-        :return: {panel_name: Panel_enum_value, ...}
+        :return: {Panel_enum_value: human readable title, ...}
         '''
-        names = {}
-        for p in Panel:
-            names[self._button_from_enum(p).label] = p
-        return names
+        return {p: self._button_from_enum(p).label for p in Panel}
