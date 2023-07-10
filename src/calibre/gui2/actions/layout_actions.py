@@ -30,13 +30,9 @@ class LayoutActions(InterfaceAction):
 
     def gui_layout_complete(self):
         m = self.qaction.menu()
-        self.button_names = {}
         m.addAction(_('Hide all'), self.hide_all)
-        for i, name in enumerate(self.gui.button_order):
+        for button, name in zip(self.gui.layout_buttons, self.gui.button_order):
             m.addSeparator()
-            name = self.gui.button_order[i]
-            self.button_names[self.gui.button_order[i]] = i
-            button = self.gui.layout_buttons[i]
             ic = QIcon.ic(button.icname)
             m.addAction(ic, _('Show {}').format(button.label), partial(self.set_visible, Panel(name), True))
             m.addAction(ic, _('Hide {}').format(button.label), partial(self.set_visible, Panel(name), False))
@@ -65,3 +61,9 @@ class LayoutActions(InterfaceAction):
     def show_all(self):
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
+
+    def button_names(self):
+        names = {}
+        for p in Panel:
+            names[self._button_from_enum(p).label] = p
+        return names
