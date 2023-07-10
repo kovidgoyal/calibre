@@ -128,6 +128,18 @@ class TagBrowserMixin:  # {{{
         opportunity to edit the name.
         '''
         db = self.library_view.model().db
+        m = self.tags_view.model()
+        # Can't add an unnamed pref when empty categories are hidden. There is no
+        # way for the user to see/edit it.
+        if new_category_name is None and m.prefs['tag_browser_hide_empty_categories']:
+            error_dialog(self.tags_view, _('Cannot add subcategory to category'),
+                    _("The option 'Preferences / Look & feel / Tag browser / "
+                      "Hide empty categories' is checked, preventing the creation "
+                      "of new empty user subcategories because they won't be "
+                      "displayed. Either change the option or use the 'Manage "
+                      "Categories' dialog to add the subcategories."),
+                    show=True)
+            return
         user_cats = db.new_api.pref('user_categories', {})
 
         # Ensure that the temporary name we will use is not already there
@@ -148,7 +160,6 @@ class TagBrowserMixin:  # {{{
         db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
         db.new_api.clear_search_caches()
-        m = self.tags_view.model()
         idx = m.index_for_path(m.find_category_node('@' + new_cat))
         self.tags_view.show_item_at_index(idx)
         # Open the editor on the new item to rename it
