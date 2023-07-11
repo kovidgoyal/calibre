@@ -21,7 +21,7 @@ class Panel(Enum):
 class LayoutActions(InterfaceAction):
 
     name = 'Layout Actions'
-    action_spec = (_('Layout actions'), 'tags.png',
+    action_spec = (_('Layout actions'), 'layout.png',
                    _('Add/remove layout items: search bar, tag browser, etc.'), None)
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
