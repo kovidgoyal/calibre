@@ -43,14 +43,22 @@ def iterate_over_builtin_recipe_files():
         yield rid, f
 
 
+def normalize_language(x: str) -> str:
+    lang, sep, country = x.replace('-', '_').partition('_')
+    if sep == '_':
+        x = f'{lang}{sep}{country.upper()}'
+    return x
+
+
 def serialize_recipe(urn, recipe_class):
     from xml.sax.saxutils import quoteattr
 
-    def attr(n, d):
+
+    def attr(n, d, normalize=lambda x: x):
         ans = getattr(recipe_class, n, d)
         if isinstance(ans, bytes):
             ans = ans.decode('utf-8', 'replace')
-        return quoteattr(ans)
+        return quoteattr(normalize(ans))
 
     default_author = _('You') if urn.startswith('custom:') else _('Unknown')
     ns = getattr(recipe_class, 'needs_subscription', False)
@@ -63,7 +71,7 @@ def serialize_recipe(urn, recipe_class):
         'id'                 : quoteattr(str(urn)),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
-        'language'           : attr('language', 'und'),
+        'language'           : attr('language', 'und', normalize_language),
         'needs_subscription' : quoteattr(ns),
         'description'        : attr('description', '')
         })
