@@ -22,10 +22,15 @@ builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from calibre.constants import iswindows, ismacos, islinux, DEBUG, isfreebsd
 
 
-def get_debug_executable():
+def get_debug_executable(headless=False):
     exe_name = 'calibre-debug' + ('.exe' if iswindows else '')
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
+        if headless:
+            from calibre.utils.ipc.launch import Worker
+            class W(Worker):
+                exe_name = 'calibre-debug'
+            return [W().executable]
         return [os.path.join(base, 'MacOS', exe_name)]
     if getattr(sys, 'run_local', None):
         return [sys.run_local, exe_name]

@@ -18,9 +18,10 @@ from polyglot.builtins import exec_path
 def run_calibre_debug(*args, **kw):
     import subprocess
     creationflags = 0
+    headless = bool(kw.pop('headless', False))
     if iswindows:
         creationflags = subprocess.CREATE_NO_WINDOW
-    cmd = get_debug_executable() + list(args)
+    cmd = get_debug_executable(headless=headless) + list(args)
     kw['creationflags'] = creationflags
     return subprocess.Popen(cmd, **kw)
 

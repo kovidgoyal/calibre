@@ -233,7 +233,7 @@ def forked_compile():
 def run_forked_compile(data, options):
     from calibre.debug import run_calibre_debug
     p = run_calibre_debug('-c', 'from calibre.utils.rapydscript import *; forked_compile()',
-            json.dumps(options), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            json.dumps(options), stdin=subprocess.PIPE, stdout=subprocess.PIPE, headless=True)
     stdout = p.communicate(as_bytes(data))[0]
     if p.wait() != 0:
         raise SystemExit(p.returncode)

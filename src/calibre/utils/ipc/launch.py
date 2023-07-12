@@ -140,11 +140,10 @@ class Worker:
         except:
             pass
 
-    def __init__(self, env, gui=False, job_name=None):
-        self._env = {}
+    def __init__(self, env=None, gui=False, job_name=None):
         self.gui = gui
         self.job_name = job_name
-        self._env = env.copy()
+        self._env = (env or {}).copy()
 
     def __call__(self, redirect_output=True, cwd=None, priority=None, pass_fds=()):
         '''
