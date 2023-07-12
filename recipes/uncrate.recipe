@@ -28,7 +28,7 @@ class Uncrate(BasicNewsRecipe):
     encoding = 'utf-8'
     publisher = 'Zombie corp.'
     category = 'news, gadgets, clothes, cars, DVDs'
-    lang = 'en-US'
+    lang = 'en'
     language = 'en'
 
     html2lrf_options = [

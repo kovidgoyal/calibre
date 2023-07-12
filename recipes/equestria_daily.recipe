@@ -11,7 +11,7 @@ class AdvancedUserRecipe1639926896(BasicNewsRecipe):
 
     title = "Equestria Daily"
     description = "Everything new in Equestria and beyond!"
-    language = 'en_US'
+    language = 'en'
 
     # Max. supported by website: 50
     max_articles_per_feed = 30

@@ -7,7 +7,7 @@ class EpochTimes(BasicNewsRecipe):
     title = 'The Epoch Times'
     __author__ = 'Kovid Goyal'
     description = 'US general news'
-    language = 'en_US'
+    language = 'en'
     encoding = 'utf-8'
     oldest_article = 2
     max_articles_per_feed = 10

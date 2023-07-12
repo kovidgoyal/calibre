@@ -17,7 +17,7 @@ class SBM(BasicNewsRecipe):
     category = 'science, sbm, ebm, blog, pseudoscience'
     language = 'en'
 
-    lang = 'en-US'
+    lang = 'en'
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True
