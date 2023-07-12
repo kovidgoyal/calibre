@@ -10,6 +10,7 @@ class AdvancedUserRecipe1333705905(BasicNewsRecipe):
     description = 'Free Italian Comics'
 
     oldest_article = 7
+    language = 'it'
     max_articles_per_feed = 100
     auto_cleanup = False
     keep_only_tags = [

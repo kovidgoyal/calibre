@@ -7,6 +7,7 @@ class Volkskrant(BasicNewsRecipe):
     title = 'Volkskrant'
     __author__ = 'Cristi Ghera'
     max_articles_per_feed = 100
+    language = 'nl'
     description = 'Volkskrant - Nieuws, achtergronden en columns'
     needs_subscription = False
     resolve_internal_links = True

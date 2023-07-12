@@ -19,6 +19,7 @@ class Tehelka(BasicNewsRecipe):
     description = u'Free. Fair. Fearless.'
     category = 'news, india'
     encoding = 'utf-8'
+    language = 'en_IN'
     no_stylesheets = True
     remove_empty_feeds = True
     remove_javascript = True
