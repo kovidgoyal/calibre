@@ -857,9 +857,11 @@ class WordsView(QTableView):
         self.verticalHeader().close()
 
     def change_current_word_by(self, delta=1):
-        row = self.currentIndex().row()
-        row = (row + delta + self.model().rowCount()) % self.model().rowCount()
-        self.highlight_row(row)
+        rc = self.model().rowCount()
+        if rc > 0:
+            row = self.currentIndex().row()
+            row = (row + delta + rc) % rc
+            self.highlight_row(row)
 
     def next_word(self):
         self.change_current_word_by(1)
