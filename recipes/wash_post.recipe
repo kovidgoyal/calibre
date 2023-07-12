@@ -41,17 +41,23 @@ class TheWashingtonPost(BasicNewsRecipe):
         dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
     ]
 
+    # Official feeds: https://www.washingtonpost.com/discussions/2018/10/12/washington-post-rss-feeds/
     feeds = [
-        (u'World', u'http://feeds.washingtonpost.com/rss/world'),
-        (u'National', u'http://feeds.washingtonpost.com/rss/national'),
-        (u'White House',
-         u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
-        (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
+        (u'Politics', u'http://feeds.washingtonpost.com/rss/politics'),
         (u'Opinions', u'http://feeds.washingtonpost.com/rss/opinions'),
         (u'Local', u'http://feeds.washingtonpost.com/rss/local'),
+        (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
+        (u'Technology', u'http://feeds.washingtonpost.com/rss/business/technology'),
+        (u'National', u'http://feeds.washingtonpost.com/rss/national'),
+        (u'World', u'http://feeds.washingtonpost.com/rss/world'),
+        (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
+        (u'Lifestyle', u'http://feeds.washingtonpost.com/rss/lifestyle'),
         (u'Entertainment',
          u'http://feeds.washingtonpost.com/rss/entertainment'),
-        (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
+
+        # Undocumented feeds.
+        (u'White House',
+         u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
         (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
 
