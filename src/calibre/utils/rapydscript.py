@@ -230,6 +230,18 @@ def forked_compile():
     stdout.close()
 
 
+def run_forked_compile(data, options):
+    from calibre.debug import run_calibre_debug
+    p = run_calibre_debug('-c', 'from calibre.utils.rapydscript import *; forked_compile()',
+            json.dumps(options), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    stdout = p.communicate(as_bytes(data))[0]
+    if p.wait() != 0:
+        raise SystemExit(p.returncode)
+    idx = stdout.find(OUTPUT_SENTINEL)
+    result = as_unicode(stdout[idx+len(OUTPUT_SENTINEL):])
+    return result
+
+
 def compile_pyj(
     data,
     filename='<stdin>',
@@ -249,17 +261,16 @@ def compile_pyj(
         'js_version': js_version,
     }
     if not ok_to_import_webengine():
-        from calibre.debug import run_calibre_debug
-        p = run_calibre_debug('-c', 'from calibre.utils.rapydscript import *; forked_compile()',
-                json.dumps(options), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout = p.communicate(as_bytes(data))[0]
-        if p.wait() != 0:
-            raise SystemExit(p.returncode)
-        idx = stdout.find(OUTPUT_SENTINEL)
-        result = as_unicode(stdout[idx+len(OUTPUT_SENTINEL):])
+        result = run_forked_compile(data, options)
     else:
-        c = compiler()
-        result = c(data, options)
+        try:
+            c = compiler()
+            result = c(data, options)
+        except RuntimeError as err:
+            if 'Cannot use Qt in non GUI thread' in str(err):
+                result = run_forked_compile(data, options)
+            else:
+                raise
     return result
 
 
