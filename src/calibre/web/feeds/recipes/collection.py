@@ -46,7 +46,9 @@ def iterate_over_builtin_recipe_files():
 def normalize_language(x: str) -> str:
     lang, sep, country = x.replace('-', '_').partition('_')
     if sep == '_':
-        x = f'{lang}{sep}{country.upper()}'
+        x = f'{lang.lower()}{sep}{country.upper()}'
+    else:
+        x = lang.lower()
     return x
 
 
