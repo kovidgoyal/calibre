@@ -648,6 +648,7 @@ def pdf_output(container):
     g.appendChild(choices('paper_size', indent + _('&Paper size:'), ui_data.paper_sizes))
     g.appendChild(lineedit('custom_size', indent + _('&Custom size:')))
     g.appendChild(choices('unit', indent + _('Custom size unit:'), ui_data.units))
+    g.appendChild(checkbox('pdf_no_cover', _('Discard book &cover')))
     g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve &aspect ratio of cover')))
     g.appendChild(checkbox('pdf_page_numbers', _('Add page &numbers to the bottom of every page')))
     g.appendChild(checkbox('pdf_hyphenate', _('&Break long words at the end of lines')))

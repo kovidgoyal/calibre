@@ -305,7 +305,7 @@ OPTIONS = {
             'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
             'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
             'toc_title', 'pdf_page_margin_left', 'pdf_page_margin_top',
-            'pdf_page_margin_right', 'pdf_page_margin_bottom',
+            'pdf_page_margin_right', 'pdf_page_margin_bottom', 'pdf_no_cover',
             'pdf_use_document_margins', 'pdf_page_number_map', 'pdf_odd_even_offset'),
 
         'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),

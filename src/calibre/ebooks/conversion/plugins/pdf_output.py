@@ -139,6 +139,11 @@ class PDFOutput(OutputFormatPlugin):
                 ' the PDF CropBox, not all software respects the CropBox.'
             )
         ),
+        OptionRecommendation(name='pdf_no_cover',
+            recommended_value=False,
+            help=_('Do not insert the book cover as an image at the start of the document.'
+                   ' If you use this option, the book cover will be discarded.')
+        ),
 
     }
 
@@ -229,7 +234,8 @@ class PDFOutput(OutputFormatPlugin):
     def convert_text(self, oeb_book):
         import json
         from calibre.ebooks.pdf.html_writer import convert
-        self.get_cover_data()
+        if not self.opts.pdf_no_cover:
+            self.get_cover_data()
         self.process_fonts()
 
         if self.opts.pdf_use_document_margins and self.stored_page_margins:
