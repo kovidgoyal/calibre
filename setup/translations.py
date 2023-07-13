@@ -12,6 +12,7 @@ from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, is_ci
 from setup.parallel_build import batched_parallel_jobs
+from setup.iso_codes import iso_data
 from polyglot.builtins import codepoint_to_chr, iteritems
 
 
@@ -92,11 +93,7 @@ class POT(Command):  # {{{
 
     def get_iso639_strings(self):
         self.info('Generating translation template for iso639')
-        src = self.j(self.d(self.SRC), 'setup', 'iso_639-3.json')
-        if not os.path.exists(src):
-            raise Exception(src + ' does not exist')
-        with open(src, 'rb') as f:
-            root = json.load(f)
+        root = json.loads(iso_data.db_data('iso_639-3.json'))
         entries = root['639-3']
         ans = []
 
@@ -780,19 +777,12 @@ class ISO639(Command):  # {{{
             'iso639.calibre_msgpack')
 
     def run(self, opts):
-        src = self.j(self.d(self.SRC), 'setup', 'iso_639-3.json')
-        if not os.path.exists(src):
-            raise Exception(src + ' does not exist')
         dest = self.DEST
         base = self.d(dest)
         if not os.path.exists(base):
             os.makedirs(base)
-        if not self.newer(dest, [src, __file__]):
-            self.info('Packed code is up to date')
-            return
         self.info('Packing ISO-639 codes to', dest)
-        with open(src, 'rb') as f:
-            root = json.load(f)
+        root = json.loads(iso_data.db_data('iso_639-3.json'))
         entries = root['639-3']
         by_2 = {}
         by_3 = {}
@@ -847,19 +837,12 @@ class ISO3166(ISO639):  # {{{
             'iso3166.calibre_msgpack')
 
     def run(self, opts):
-        src = self.j(self.d(self.SRC), 'setup', 'iso_3166-1.json')
-        if not os.path.exists(src):
-            raise Exception(src + ' does not exist')
         dest = self.DEST
         base = self.d(dest)
         if not os.path.exists(base):
             os.makedirs(base)
-        if not self.newer(dest, [src, __file__]):
-            self.info('Packed code is up to date')
-            return
         self.info('Packing ISO-3166 codes to', dest)
-        with open(src, 'rb') as f:
-            db = json.load(f)
+        db = json.loads(iso_data.db_data('iso_3166-1.json'))
         codes = set()
         three_map = {}
         name_map = {}
