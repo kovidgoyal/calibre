@@ -47,17 +47,17 @@ def usage(code, msg=''):
     sys.exit(code)
 
 
-def add(ctxt, id, str, fuzzy):
+def add(ctxt, msgid, msgstr, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
-    if (not fuzzy or not id) and str:
-        if id:
+    if (not fuzzy or not msgid) and msgstr:
+        if msgid:
             STATS['translated'] += 1
         if ctxt is None:
-            MESSAGES[id] = str
+            MESSAGES[msgid] = msgstr
         else:
-            MESSAGES[b"%b\x04%b" % (ctxt, id)] = str
+            MESSAGES[b"%b\x04%b" % (ctxt, msgid)] = msgstr
     else:
-        if id:
+        if msgid:
             STATS['untranslated'] += 1
 
 
