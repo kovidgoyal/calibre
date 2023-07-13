@@ -377,8 +377,6 @@ _extra_lang_codes = {
         'de_AT' : _('German (Austria)'),
         'fr_BE' : _('French (Belgium)'),
         'fr_CA' : _('French (Canadian)'),
-        'nl'    : _('Dutch (Netherlands)'),
-        'nl_BE' : _('Dutch (Belgium)'),
         'und'   : _('Unknown')
         }
 
@@ -411,6 +409,7 @@ if False:
     _('Step &down')
     _('Close without Saving')
     _('Close Tab')
+    _('Ukraine')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
@@ -478,7 +477,10 @@ def countrycode_to_name(cc, localize=True):
     try:
         name = iso3166['names'][q]
     except Exception:
-        return cc
+        if q == 'UK':
+            name = 'Ukraine'
+        else:
+            return cc
     translate = _ if localize else lambda x: x
     try:
         return translate(name)
