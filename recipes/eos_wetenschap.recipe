@@ -8,7 +8,7 @@ class EOSWetenschap(BasicNewsRecipe):
     __author__ = u'erkfuizfeuadjfjzefzfuzeff'
     description = u'Wetenschapsnieuws'
     oldest_article = 7
-    language = 'nl_NL'
+    language = 'nl'
 
     max_articles_per_feed = 100
     no_stylesheets = True
