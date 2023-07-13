@@ -370,7 +370,7 @@ class Translations(POT):  # {{{
         files = []
         skip_iso = {
             'si', 'te', 'km', 'en_GB', 'en_AU', 'en_CA', 'yi', 'ku', 'my', 'uz@Latn', 'fil', 'hy', 'ltg', 'km_KH', 'km',
-            'ur', 'ml', 'fo', 'ug', 'jv'
+            'ur', 'ml', 'fo', 'ug', 'jv', 'nds',
         }
 
         def handle_stats(f, data):
