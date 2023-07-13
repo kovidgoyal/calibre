@@ -6,21 +6,14 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from calibre.utils.localization import canonicalize_lang
-from calibre.utils.resources import get_path as P
+from calibre.utils.localization import canonicalize_lang, load_iso3166
 
 DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
 
-ccodes, ccodemap, country_names = None, None, None
-
 
 def get_codes():
-    global ccodes, ccodemap, country_names
-    if ccodes is None:
-        from calibre.utils.serialize import msgpack_loads
-        data = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
-        ccodes, ccodemap, country_names = data['codes'], data['three_map'], data['names']
-    return ccodes, ccodemap
+    data = load_iso3166()
+    return data['codes'], data['three_map']
 
 
 def parse_lang_code(raw):

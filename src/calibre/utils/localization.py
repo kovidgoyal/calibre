@@ -414,6 +414,14 @@ def _load_iso639():
     return _iso639
 
 
+def load_iso3166():
+    ans = getattr(load_iso3166, 'ans', None)
+    if ans is None:
+        from calibre.utils.serialize import msgpack_loads
+        ans = load_iso3166.ans = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
+    return ans
+
+
 def get_iso_language(lang_trans, lang):
     iso639 = _load_iso639()
     ans = lang
