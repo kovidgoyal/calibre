@@ -8,10 +8,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AlMasryAlyoum(BasicNewsRecipe):
-    title = u'Al-Masry Alyoum (المصري اليوم)'
+    title = u'المصري اليوم (Al-Masry Alyoum)'
     __author__ = 'Hassan Williamson'
     description = 'The Arabic version of the Al-Masry Alyoum (Egypt Independent) newspaper.'
-    language = 'ar'
+    language = 'ar_eg'
     encoding = 'utf8'
     cover_url = 'http://www.almasryalyoum.com/content/images/header_logo.png'
     oldest_article = 7
