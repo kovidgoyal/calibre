@@ -449,13 +449,13 @@
     },
     {
       "alpha_3": "adb",
-      "name": "Adabe",
+      "name": "Atauran",
       "scope": "I",
       "type": "L"
     },
     {
       "alpha_3": "add",
-      "name": "Dzodinka",
+      "name": "Lidzonka",
       "scope": "I",
       "type": "L"
     },
@@ -1115,13 +1115,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "ais",
-      "inverted_name": "Amis, Nataoran",
-      "name": "Nataoran Amis",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "ait",
       "name": "Arikem",
       "scope": "I",
@@ -1147,7 +1140,7 @@
     },
     {
       "alpha_3": "aja",
-      "name": "Aja (Sudan)",
+      "name": "Aja (South Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -1177,9 +1170,8 @@
       "type": "L"
     },
     {
-      "alpha_3": "ajt",
-      "inverted_name": "Arabic, Judeo-Tunisian",
-      "name": "Judeo-Tunisian Arabic",
+      "alpha_3": "ajs",
+      "name": "Algerian Jewish Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -1850,12 +1842,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "aoh",
-      "name": "Arma",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "aoi",
       "name": "Anindilyakwa",
       "scope": "I",
@@ -2106,6 +2092,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "aqk",
+      "name": "Aninka",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "aqm",
       "name": "Atohwaim",
       "scope": "I",
@@ -2271,7 +2263,7 @@
     },
     {
       "alpha_3": "arx",
-      "name": "Aruá (Rondonia State)",
+      "name": "Aruá (Rodonia State)",
       "scope": "I",
       "type": "L"
     },
@@ -2309,12 +2301,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "asd",
-      "name": "Asas",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "ase",
       "name": "American Sign Language",
       "scope": "I",
@@ -2322,7 +2308,7 @@
     },
     {
       "alpha_3": "asf",
-      "name": "Australian Sign Language",
+      "name": "Auslan",
       "scope": "I",
       "type": "L"
     },
@@ -3108,13 +3094,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "ayy",
-      "inverted_name": "Ayta, Tayabas",
-      "name": "Tayabas Ayta",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "ayz",
       "name": "Mai Brat",
       "scope": "I",
@@ -3477,13 +3456,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "bbz",
-      "inverted_name": "Creole Arabic, Babalia",
-      "name": "Babalia Creole Arabic",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "bca",
       "inverted_name": "Bai, Central",
       "name": "Central Bai",
@@ -3548,7 +3520,7 @@
     },
     {
       "alpha_3": "bck",
-      "name": "Bunaba",
+      "name": "Bunuba",
       "scope": "I",
       "type": "L"
     },
@@ -3681,7 +3653,7 @@
     },
     {
       "alpha_3": "bdh",
-      "name": "Baka (Sudan)",
+      "name": "Baka (South Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -3693,7 +3665,7 @@
     },
     {
       "alpha_3": "bdj",
-      "name": "Bai",
+      "name": "Bai (South Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -4420,12 +4392,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "bic",
-      "name": "Bikaru",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "bid",
       "name": "Bidiyo",
       "scope": "I",
@@ -4446,12 +4412,6 @@
     {
       "alpha_3": "big",
       "name": "Biangai",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "bij",
-      "name": "Vaghat-Ya-Bijim-Legeri",
       "scope": "I",
       "type": "L"
     },
@@ -4883,12 +4843,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "blg",
-      "name": "Balau",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "blh",
       "name": "Kuwaa",
       "scope": "I",
@@ -4921,7 +4875,7 @@
     },
     {
       "alpha_3": "blm",
-      "name": "Beli (Sudan)",
+      "name": "Beli (South Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -4970,7 +4924,7 @@
     },
     {
       "alpha_3": "blv",
-      "name": "Bolo",
+      "name": "Kibala",
       "scope": "I",
       "type": "L"
     },
@@ -5032,7 +4986,7 @@
     },
     {
       "alpha_3": "bmf",
-      "name": "Bom",
+      "name": "Bom-Kim",
       "scope": "I",
       "type": "L"
     },
@@ -5459,14 +5413,20 @@
       "type": "L"
     },
     {
-      "alpha_3": "bpb",
-      "name": "Barbacoas",
+      "alpha_3": "bpc",
+      "name": "Mbuk",
       "scope": "I",
-      "type": "E"
+      "type": "L"
     },
     {
       "alpha_3": "bpd",
       "name": "Banda-Banda",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "bpe",
+      "name": "Bauni",
       "scope": "I",
       "type": "L"
     },
@@ -5753,7 +5713,7 @@
     },
     {
       "alpha_3": "brb",
-      "name": "Lave",
+      "name": "Brao",
       "scope": "I",
       "type": "L"
     },
@@ -5779,7 +5739,7 @@
     },
     {
       "alpha_3": "brf",
-      "name": "Bera",
+      "name": "Bira",
       "scope": "I",
       "type": "L"
     },
@@ -6869,7 +6829,7 @@
     },
     {
       "alpha_3": "bym",
-      "name": "Bidyara",
+      "name": "Bidjara",
       "scope": "I",
       "type": "L"
     },
@@ -7359,12 +7319,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "cca",
-      "name": "Cauca",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "ccc",
       "name": "Chamicuro",
       "scope": "I",
@@ -7449,12 +7403,6 @@
     {
       "alpha_3": "cdf",
       "name": "Chiru",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "cdg",
-      "name": "Chamari",
       "scope": "I",
       "type": "L"
     },
@@ -7566,6 +7514,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "cey",
+      "inverted_name": "Chin, Ekai",
+      "name": "Ekai Chin",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "cfa",
       "name": "Dijim-Bwilim",
       "scope": "I",
@@ -7664,7 +7619,7 @@
       "alpha_3": "chh",
       "name": "Chinook",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "chj",
@@ -7940,6 +7895,12 @@
     {
       "alpha_3": "ckl",
       "name": "Cibak",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "ckm",
+      "name": "Chakavian",
       "scope": "I",
       "type": "L"
     },
@@ -8232,6 +8193,25 @@
     {
       "alpha_3": "cno",
       "name": "Con",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "cnp",
+      "inverted_name": "Chinese, Northern Ping",
+      "name": "Northern Ping Chinese",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "cnq",
+      "name": "Chung",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "cnr",
+      "name": "Montenegrin",
       "scope": "I",
       "type": "L"
     },
@@ -8750,6 +8730,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "csp",
+      "inverted_name": "Chinese, Southern Ping",
+      "name": "Southern Ping Chinese",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "csq",
       "name": "Croatia Sign Language",
       "scope": "I",
@@ -8790,6 +8777,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "csx",
+      "name": "Cambodian Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "csy",
       "inverted_name": "Chin, Siyin",
       "name": "Siyin Chin",
@@ -8813,7 +8806,7 @@
       "alpha_3": "ctc",
       "name": "Chetco",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "ctd",
@@ -8895,6 +8888,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "cty",
+      "name": "Moundadan Chetty",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ctz",
       "inverted_name": "Chatino, Zacatepec",
       "name": "Zacatepec Chatino",
@@ -8917,12 +8916,6 @@
       "alpha_3": "cuc",
       "inverted_name": "Chinantec, Usila",
       "name": "Usila Chinantec",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "cug",
-      "name": "Cung",
       "scope": "I",
       "type": "L"
     },
@@ -9010,6 +9003,12 @@
       "alpha_3": "cux",
       "inverted_name": "Cuicatec, Tepeuxila",
       "name": "Tepeuxila Cuicatec",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "cuy",
+      "name": "Cuitlatec",
       "scope": "I",
       "type": "L"
     },
@@ -9665,12 +9664,6 @@
       "type": "E"
     },
     {
-      "alpha_3": "dgu",
-      "name": "Degaru",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "dgw",
       "name": "Daungwurrung",
       "scope": "I",
@@ -9879,12 +9872,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "dit",
-      "name": "Dirari",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "diu",
       "name": "Diriku",
       "scope": "I",
@@ -9986,7 +9973,7 @@
     },
     {
       "alpha_3": "djn",
-      "name": "Djauan",
+      "name": "Jawoyn",
       "scope": "I",
       "type": "L"
     },
@@ -10017,6 +10004,12 @@
     {
       "alpha_3": "dka",
       "name": "Dakpakha",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "dkg",
+      "name": "Kadung",
       "scope": "I",
       "type": "L"
     },
@@ -10099,6 +10092,12 @@
       "name": "Dugwor",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "dmf",
+      "name": "Medefaidrin",
+      "scope": "I",
+      "type": "E"
     },
     {
       "alpha_3": "dmg",
@@ -10221,6 +10220,12 @@
     {
       "alpha_3": "dnn",
       "name": "Dzùùngoo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "dno",
+      "name": "Ndrulo",
       "scope": "I",
       "type": "L"
     },
@@ -10427,7 +10432,7 @@
     },
     {
       "alpha_3": "dri",
-      "name": "C'lela",
+      "name": "C'Lela",
       "scope": "I",
       "type": "L"
     },
@@ -10454,12 +10459,6 @@
     {
       "alpha_3": "drq",
       "name": "Dura",
-      "scope": "I",
-      "type": "E"
-    },
-    {
-      "alpha_3": "drr",
-      "name": "Dororo",
       "scope": "I",
       "type": "E"
     },
@@ -10522,7 +10521,7 @@
       "alpha_3": "dsn",
       "name": "Dusner",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "dso",
@@ -10533,6 +10532,12 @@
     {
       "alpha_3": "dsq",
       "name": "Tadaksahak",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "dsz",
+      "name": "Mardin Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -10650,12 +10655,6 @@
     {
       "alpha_3": "duc",
       "name": "Duna",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "dud",
-      "name": "Hun-Saare",
       "scope": "I",
       "type": "L"
     },
@@ -10797,6 +10796,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "dwk",
+      "inverted_name": "Kui, Dawik",
+      "name": "Dawik Kui",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "dwr",
       "name": "Dawro",
       "scope": "I",
@@ -10823,6 +10829,13 @@
     {
       "alpha_3": "dwy",
       "name": "Dhuwaya",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "dwz",
+      "inverted_name": "Rai, Dewas",
+      "name": "Dewas Rai",
       "scope": "I",
       "type": "L"
     },
@@ -10885,7 +10898,7 @@
     },
     {
       "alpha_3": "dyy",
-      "name": "Dyaabugay",
+      "name": "Djabugay",
       "scope": "I",
       "type": "L"
     },
@@ -10931,6 +10944,12 @@
       "name": "Karenggapa",
       "scope": "I",
       "type": "E"
+    },
+    {
+      "alpha_3": "ebc",
+      "name": "Beginci",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "ebg",
@@ -11018,6 +11037,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "egm",
+      "name": "Benamanga",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ego",
       "name": "Eggon",
       "scope": "I",
@@ -11028,6 +11053,12 @@
       "name": "Egyptian (Ancient)",
       "scope": "I",
       "type": "A"
+    },
+    {
+      "alpha_3": "ehs",
+      "name": "Miyakubo Sign Language",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "ehu",
@@ -11064,13 +11095,6 @@
       "name": "Ekajuk",
       "scope": "I",
       "type": "L"
-    },
-    {
-      "alpha_3": "ekc",
-      "inverted_name": "Karnic, Eastern",
-      "name": "Eastern Karnic",
-      "scope": "I",
-      "type": "E"
     },
     {
       "alpha_3": "eke",
@@ -11249,6 +11273,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "emq",
+      "inverted_name": "Minyag, Eastern",
+      "name": "Eastern Minyag",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ems",
       "inverted_name": "Yupik, Pacific Gulf",
       "name": "Pacific Gulf Yupik",
@@ -11279,7 +11310,13 @@
       "inverted_name": "Mayan, Epigraphic",
       "name": "Epigraphic Mayan",
       "scope": "I",
-      "type": "E"
+      "type": "A"
+    },
+    {
+      "alpha_3": "emz",
+      "name": "Mbessa",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "ena",
@@ -11371,7 +11408,7 @@
     },
     {
       "alpha_3": "env",
-      "name": "Enwan (Edu State)",
+      "name": "Enwan (Edo State)",
       "scope": "I",
       "type": "L"
     },
@@ -11775,7 +11812,7 @@
     },
     {
       "alpha_3": "fap",
-      "name": "Palor",
+      "name": "Paloor",
       "scope": "I",
       "type": "L"
     },
@@ -11872,6 +11909,12 @@
     {
       "alpha_3": "fie",
       "name": "Fyer",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "fif",
+      "name": "Faifi",
       "scope": "I",
       "type": "L"
     },
@@ -12081,7 +12124,7 @@
       "alpha_3": "frk",
       "name": "Frankish",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "frm",
@@ -12453,7 +12496,7 @@
     },
     {
       "alpha_3": "gbd",
-      "name": "Karadjeri",
+      "name": "Karajarri",
       "scope": "I",
       "type": "L"
     },
@@ -12795,6 +12838,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "gef",
+      "name": "Gerai",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "geg",
       "name": "Gengle",
       "scope": "I",
@@ -12905,7 +12954,7 @@
     },
     {
       "alpha_3": "gge",
-      "name": "Guragone",
+      "name": "Gurr-goni",
       "scope": "I",
       "type": "L"
     },
@@ -12956,7 +13005,7 @@
       "inverted_name": "Gaelic, Hiberno-Scottish",
       "name": "Hiberno-Scottish Gaelic",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "ghe",
@@ -13017,7 +13066,7 @@
     },
     {
       "alpha_3": "gia",
-      "name": "Kitja",
+      "name": "Kija",
       "scope": "I",
       "type": "L"
     },
@@ -13040,6 +13089,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "gie",
+      "name": "Gaɓogbo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "gig",
       "name": "Goaria",
       "scope": "I",
@@ -13048,6 +13103,12 @@
     {
       "alpha_3": "gih",
       "name": "Githabul",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "gii",
+      "name": "Girirra",
       "scope": "I",
       "type": "L"
     },
@@ -13135,12 +13196,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "gji",
-      "name": "Geji",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "gjk",
       "inverted_name": "Koli, Kachi",
       "name": "Kachi Koli",
@@ -13174,6 +13229,12 @@
     {
       "alpha_3": "gka",
       "name": "Guya",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "gkd",
+      "name": "Magɨ (Madang Province)",
       "scope": "I",
       "type": "L"
     },
@@ -13217,6 +13278,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "glb",
+      "name": "Belning",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "glc",
       "name": "Bon Gula",
       "scope": "I",
@@ -13248,12 +13315,6 @@
       "name": "Northwest Pashai",
       "scope": "I",
       "type": "L"
-    },
-    {
-      "alpha_3": "gli",
-      "name": "Guliguli",
-      "scope": "I",
-      "type": "E"
     },
     {
       "alpha_3": "glj",
@@ -13361,6 +13422,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "gmr",
+      "name": "Mirning",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "gmu",
       "name": "Gumalu",
       "scope": "I",
@@ -13440,8 +13507,14 @@
       "type": "L"
     },
     {
+      "alpha_3": "gnj",
+      "name": "Ngen",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "gnk",
-      "name": "//Gana",
+      "name": "ǁGana",
       "scope": "I",
       "type": "L"
     },
@@ -13632,6 +13705,12 @@
     {
       "alpha_3": "gou",
       "name": "Gavar",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "gov",
+      "name": "Goo",
       "scope": "I",
       "type": "L"
     },
@@ -13935,7 +14014,7 @@
     },
     {
       "alpha_3": "gue",
-      "name": "Gurinji",
+      "name": "Gurindji",
       "scope": "I",
       "type": "L"
     },
@@ -14151,7 +14230,7 @@
     },
     {
       "alpha_3": "gwc",
-      "name": "Kalami",
+      "name": "Gawri",
       "scope": "I",
       "type": "L"
     },
@@ -14187,7 +14266,7 @@
     },
     {
       "alpha_3": "gwj",
-      "name": "/Gwi",
+      "name": "ǀGwi",
       "scope": "I",
       "type": "L"
     },
@@ -14302,6 +14381,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "gyo",
+      "name": "Gyalsumdo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "gyr",
       "name": "Guarayu",
       "scope": "I",
@@ -14312,6 +14397,12 @@
       "name": "Gunya",
       "scope": "I",
       "type": "E"
+    },
+    {
+      "alpha_3": "gyz",
+      "name": "Geji",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "gza",
@@ -14615,7 +14706,7 @@
     },
     {
       "alpha_3": "hgm",
-      "name": "Hai//om",
+      "name": "Haiǁom",
       "scope": "I",
       "type": "L"
     },
@@ -14760,8 +14851,20 @@
       "type": "L"
     },
     {
+      "alpha_3": "hkh",
+      "name": "Khah",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "hkk",
       "name": "Hunjara-Kaina Ke",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "hkn",
+      "name": "Mel-Khaonh",
       "scope": "I",
       "type": "L"
     },
@@ -14881,7 +14984,7 @@
       "alpha_3": "hmk",
       "name": "Maek",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "hml",
@@ -14995,8 +15098,14 @@
       "type": "L"
     },
     {
+      "alpha_3": "hng",
+      "name": "Hungu",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "hnh",
-      "name": "//Ani",
+      "name": "ǁAni",
       "scope": "I",
       "type": "L"
     },
@@ -15156,7 +15265,7 @@
       "alpha_3": "hpo",
       "name": "Hpon",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "hps",
@@ -15280,7 +15389,7 @@
       "alpha_3": "hti",
       "name": "Hoti",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "hto",
@@ -15316,7 +15425,7 @@
     },
     {
       "alpha_3": "huc",
-      "name": "=/Hua",
+      "name": "ǂHua",
       "scope": "I",
       "type": "L"
     },
@@ -15368,7 +15477,7 @@
       "alpha_3": "huk",
       "name": "Hulung",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "hul",
@@ -15530,6 +15639,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "hyw",
+      "inverted_name": "Armenian, Western",
+      "name": "Western Armenian",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "iai",
       "name": "Iaai",
       "scope": "I",
@@ -15574,6 +15690,12 @@
     {
       "alpha_3": "ibg",
       "name": "Ibanag",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "ibh",
+      "name": "Bih",
       "scope": "I",
       "type": "L"
     },
@@ -16091,6 +16213,12 @@
       "type": "A"
     },
     {
+      "alpha_3": "imt",
+      "name": "Imotong",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "imy",
       "name": "Milyan",
       "scope": "I",
@@ -16246,7 +16374,7 @@
     },
     {
       "alpha_3": "iri",
-      "name": "Irigwe",
+      "name": "Rigwe",
       "scope": "I",
       "type": "L"
     },
@@ -16733,6 +16861,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "jbm",
+      "name": "Bijim",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "jbn",
       "name": "Nafusi",
       "scope": "I",
@@ -16807,12 +16941,6 @@
     {
       "alpha_3": "jee",
       "name": "Jerung",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "jeg",
-      "name": "Jeng",
       "scope": "I",
       "type": "L"
     },
@@ -16920,7 +17048,7 @@
     },
     {
       "alpha_3": "jid",
-      "name": "Bu",
+      "name": "Bu (Kaduna State)",
       "scope": "I",
       "type": "L"
     },
@@ -16932,7 +17060,7 @@
     },
     {
       "alpha_3": "jig",
-      "name": "Djingili",
+      "name": "Jingulu",
       "scope": "I",
       "type": "L"
     },
@@ -17039,6 +17167,12 @@
     {
       "alpha_3": "jkr",
       "name": "Koro (India)",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "jks",
+      "name": "Amami Koniya Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -17252,7 +17386,7 @@
     },
     {
       "alpha_3": "jrt",
-      "name": "Jorto",
+      "name": "Jakattoe",
       "scope": "I",
       "type": "L"
     },
@@ -17380,7 +17514,7 @@
       "alpha_3": "jvd",
       "name": "Javindo",
       "scope": "I",
-      "type": "E"
+      "type": "L"
     },
     {
       "alpha_3": "jvn",
@@ -18344,12 +18478,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "kgd",
-      "name": "Kataang",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "kge",
       "name": "Komering",
       "scope": "I",
@@ -18542,8 +18670,7 @@
     {
       "alpha_2": "km",
       "alpha_3": "khm",
-      "inverted_name": "Khmer, Central",
-      "name": "Central Khmer",
+      "name": "Khmer",
       "scope": "I",
       "type": "L"
     },
@@ -18822,12 +18949,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "kjf",
-      "name": "Khalaj",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "kjg",
       "name": "Khmu",
       "scope": "I",
@@ -19049,7 +19170,7 @@
     },
     {
       "alpha_3": "kkq",
-      "name": "Kaiku",
+      "name": "Kaeku",
       "scope": "I",
       "type": "L"
     },
@@ -19097,7 +19218,7 @@
     },
     {
       "alpha_3": "kky",
-      "name": "Guguyimidjir",
+      "name": "Guugu Yimidhirr",
       "scope": "I",
       "type": "L"
     },
@@ -19163,8 +19284,7 @@
     },
     {
       "alpha_3": "klj",
-      "inverted_name": "Khalaj, Turkic",
-      "name": "Turkic Khalaj",
+      "name": "Khalaj",
       "scope": "I",
       "type": "L"
     },
@@ -19243,7 +19363,7 @@
     },
     {
       "alpha_3": "klw",
-      "name": "Lindu",
+      "name": "Tado",
       "scope": "I",
       "type": "L"
     },
@@ -19601,7 +19721,8 @@
     },
     {
       "alpha_3": "koe",
-      "name": "Kacipo-Balesi",
+      "inverted_name": "Suri, Kacipo-Bale",
+      "name": "Kacipo-Bale Suri",
       "scope": "I",
       "type": "L"
     },
@@ -20101,12 +20222,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "krm",
-      "name": "Krim",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "krn",
       "name": "Sapo",
       "scope": "I",
@@ -20120,7 +20235,7 @@
     },
     {
       "alpha_3": "krr",
-      "name": "Kru'ng 2",
+      "name": "Krung",
       "scope": "I",
       "type": "L"
     },
@@ -20484,7 +20599,7 @@
     },
     {
       "alpha_3": "ktz",
-      "name": "Ju/'hoan",
+      "name": "Juǀʼhoan",
       "scope": "I",
       "type": "L"
     },
@@ -21013,13 +21128,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "kxl",
-      "inverted_name": "Kurux, Nepali",
-      "name": "Nepali Kurux",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "kxm",
       "inverted_name": "Khmer, Northern",
       "name": "Northern Khmer",
@@ -21068,12 +21176,6 @@
     {
       "alpha_3": "kxt",
       "name": "Koiwat",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "kxu",
-      "name": "Kui (India)",
       "scope": "I",
       "type": "L"
     },
@@ -21395,7 +21497,7 @@
       "alpha_3": "kzx",
       "name": "Kamarian",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "kzy",
@@ -21467,12 +21569,6 @@
     {
       "alpha_3": "laj",
       "name": "Lango (Uganda)",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "lak",
-      "name": "Laka (Nigeria)",
       "scope": "I",
       "type": "L"
     },
@@ -21571,12 +21667,6 @@
       "type": "E"
     },
     {
-      "alpha_3": "lba",
-      "name": "Lui",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "lbb",
       "name": "Label",
       "scope": "I",
@@ -21640,7 +21730,7 @@
     },
     {
       "alpha_3": "lbn",
-      "name": "Lamet",
+      "name": "Rmeet",
       "scope": "I",
       "type": "L"
     },
@@ -21700,7 +21790,7 @@
     },
     {
       "alpha_3": "lby",
-      "name": "Lamu-Lamu",
+      "name": "Lamalama",
       "scope": "I",
       "type": "E"
     },
@@ -22068,7 +22158,13 @@
     },
     {
       "alpha_3": "lgn",
-      "name": "Opuuo",
+      "name": "T'apo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lgo",
+      "name": "Lango (South Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -22547,12 +22643,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "llo",
-      "name": "Khlor",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "llp",
       "inverted_name": "Efate, North",
       "name": "North Efate",
@@ -22720,12 +22810,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "lmz",
-      "name": "Lumbee",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "lna",
       "name": "Langbashe",
       "scope": "I",
@@ -22783,12 +22867,6 @@
     {
       "alpha_3": "lnn",
       "name": "Lorediakarkar",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "lno",
-      "name": "Lango (Sudan)",
       "scope": "I",
       "type": "L"
     },
@@ -23001,6 +23079,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "lqr",
+      "name": "Logir",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "lra",
       "name": "Rara Bakati'",
       "scope": "I",
@@ -23094,6 +23178,18 @@
       "type": "L"
     },
     {
+      "alpha_3": "lsb",
+      "name": "Burundian Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lsc",
+      "name": "Albarradas Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "lsd",
       "name": "Lishana Deni",
       "scope": "I",
@@ -23102,12 +23198,6 @@
     {
       "alpha_3": "lse",
       "name": "Lusengo",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "lsg",
-      "name": "Lyons Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -23132,6 +23222,12 @@
     {
       "alpha_3": "lsm",
       "name": "Saamia",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lsn",
+      "name": "Tibetan Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -23166,6 +23262,18 @@
       "type": "L"
     },
     {
+      "alpha_3": "lsv",
+      "name": "Sivia Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lsw",
+      "name": "Seychelles Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "lsy",
       "name": "Mauritian Sign Language",
       "scope": "I",
@@ -23181,6 +23289,12 @@
     {
       "alpha_3": "ltg",
       "name": "Latgalian",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lth",
+      "name": "Thur",
       "scope": "I",
       "type": "L"
     },
@@ -23269,7 +23383,7 @@
       "alpha_3": "lui",
       "name": "Luiseno",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "luj",
@@ -23375,6 +23489,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "lvi",
+      "name": "Lavi",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "lvk",
       "name": "Lavukaleve",
       "scope": "I",
@@ -23438,6 +23558,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "lws",
+      "name": "Malawian Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "lwt",
       "name": "Lewotobi",
       "scope": "I",
@@ -23452,6 +23578,12 @@
     {
       "alpha_3": "lww",
       "name": "Lewo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "lxm",
+      "name": "Lakurumau",
       "scope": "I",
       "type": "L"
     },
@@ -24125,7 +24257,7 @@
     },
     {
       "alpha_3": "mec",
-      "name": "Mara",
+      "name": "Marra",
       "scope": "I",
       "type": "L"
     },
@@ -24200,7 +24332,7 @@
     },
     {
       "alpha_3": "mep",
-      "name": "Miriwung",
+      "name": "Miriwoong",
       "scope": "I",
       "type": "L"
     },
@@ -24366,7 +24498,7 @@
     },
     {
       "alpha_3": "mfr",
-      "name": "Marithiel",
+      "name": "Marrithiyel",
       "scope": "I",
       "type": "L"
     },
@@ -25653,7 +25785,7 @@
     },
     {
       "alpha_3": "moe",
-      "name": "Montagnais",
+      "name": "Innu",
       "scope": "I",
       "type": "L"
     },
@@ -25780,13 +25912,13 @@
     },
     {
       "alpha_3": "mpb",
-      "name": "Mullukmulluk",
+      "name": "Malak Malak",
       "scope": "I",
       "type": "L"
     },
     {
       "alpha_3": "mpc",
-      "name": "Mangarayi",
+      "name": "Mangarrayi",
       "scope": "I",
       "type": "L"
     },
@@ -26757,12 +26889,6 @@
       "type": "E"
     },
     {
-      "alpha_3": "mvm",
-      "name": "Muya",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "mvn",
       "name": "Minaveha",
       "scope": "I",
@@ -26972,18 +27098,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "mwx",
-      "name": "Mediak",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "mwy",
-      "name": "Mosiro",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "mwz",
       "name": "Moingi",
       "scope": "I",
@@ -27043,7 +27157,7 @@
       "alpha_3": "mxi",
       "name": "Mozarabic",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "mxj",
@@ -27176,12 +27290,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "myd",
-      "name": "Maramba",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "mye",
       "name": "Myene",
       "scope": "I",
@@ -27202,12 +27310,6 @@
     {
       "alpha_3": "myh",
       "name": "Makah",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "myi",
-      "name": "Mina (India)",
       "scope": "I",
       "type": "L"
     },
@@ -27474,7 +27576,7 @@
       "alpha_3": "nae",
       "name": "Naka'ela",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "naf",
@@ -27583,7 +27685,7 @@
     },
     {
       "alpha_3": "nay",
-      "name": "Narrinyeri",
+      "name": "Ngarrindjeri",
       "scope": "I",
       "type": "E"
     },
@@ -27647,7 +27749,7 @@
     },
     {
       "alpha_3": "nbj",
-      "name": "Ngarinman",
+      "name": "Ngarinyman",
       "scope": "I",
       "type": "L"
     },
@@ -27697,7 +27799,7 @@
     },
     {
       "alpha_3": "nbr",
-      "name": "Numana-Nunku-Gbantu-Numbu",
+      "name": "Numana",
       "scope": "I",
       "type": "L"
     },
@@ -27805,7 +27907,7 @@
     },
     {
       "alpha_3": "nck",
-      "name": "Nakara",
+      "name": "Na-kara",
       "scope": "I",
       "type": "L"
     },
@@ -27835,8 +27937,9 @@
       "type": "L"
     },
     {
-      "alpha_3": "ncp",
-      "name": "Ndaktup",
+      "alpha_3": "ncq",
+      "inverted_name": "Katang, Northern",
+      "name": "Northern Katang",
       "scope": "I",
       "type": "L"
     },
@@ -27914,7 +28017,7 @@
       "alpha_3": "ndf",
       "name": "Nadruvian",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "ndg",
@@ -28262,7 +28365,7 @@
     },
     {
       "alpha_3": "ngh",
-      "name": "N/u",
+      "name": "Nǁng",
       "scope": "I",
       "type": "L"
     },
@@ -28303,12 +28406,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "ngo",
-      "name": "Ngoni",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "ngp",
       "name": "Ngulu",
       "scope": "I",
@@ -28334,7 +28431,7 @@
     },
     {
       "alpha_3": "ngt",
-      "name": "Ngeq",
+      "name": "Kriang",
       "scope": "I",
       "type": "L"
     },
@@ -28560,7 +28657,7 @@
     },
     {
       "alpha_3": "nig",
-      "name": "Ngalakan",
+      "name": "Ngalakgan",
       "scope": "I",
       "type": "E"
     },
@@ -28990,6 +29087,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "nlm",
+      "name": "Mankiyali",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "nlo",
       "name": "Ngul",
       "scope": "I",
@@ -29124,7 +29227,7 @@
     },
     {
       "alpha_3": "nmn",
-      "name": "!Xóõ",
+      "name": "ǃXóõ",
       "scope": "I",
       "type": "L"
     },
@@ -29315,12 +29418,6 @@
       "name": "Narungga",
       "scope": "I",
       "type": "E"
-    },
-    {
-      "alpha_3": "nns",
-      "name": "Ningye",
-      "scope": "I",
-      "type": "L"
     },
     {
       "alpha_3": "nnt",
@@ -29574,6 +29671,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "npx",
+      "name": "Noipx",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "npy",
       "name": "Napu",
       "scope": "I",
@@ -29590,6 +29693,12 @@
       "alpha_3": "nqk",
       "inverted_name": "Ede Nago, Kura",
       "name": "Kura Ede Nago",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "nql",
+      "name": "Ngendelengo",
       "scope": "I",
       "type": "L"
     },
@@ -29615,6 +29724,12 @@
       "alpha_3": "nqq",
       "inverted_name": "Naga, Kyan-Karyaw",
       "name": "Kyan-Karyaw Naga",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "nqt",
+      "name": "Nteng",
       "scope": "I",
       "type": "L"
     },
@@ -29737,6 +29852,12 @@
       "name": "Sangtam Naga",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "nsb",
+      "name": "Lower Nossob",
+      "scope": "I",
+      "type": "E"
     },
     {
       "alpha_3": "nsc",
@@ -30040,7 +30161,7 @@
       "alpha_3": "nul",
       "name": "Nusa Laut",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "num",
@@ -30203,6 +30324,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "nww",
+      "name": "Ndwewe",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "nwx",
       "inverted_name": "Newar, Middle",
       "name": "Middle Newar",
@@ -30290,12 +30417,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "nxu",
-      "name": "Narau",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "nxx",
       "name": "Nafri",
       "scope": "I",
@@ -30346,7 +30467,7 @@
     },
     {
       "alpha_3": "nyh",
-      "name": "Nyigina",
+      "name": "Nyikina",
       "scope": "I",
       "type": "L"
     },
@@ -30412,7 +30533,7 @@
     },
     {
       "alpha_3": "nys",
-      "name": "Nyunga",
+      "name": "Nyungar",
       "scope": "I",
       "type": "L"
     },
@@ -30462,6 +30583,12 @@
     {
       "alpha_3": "nzb",
       "name": "Njebi",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "nzd",
+      "name": "Nzadi",
       "scope": "I",
       "type": "L"
     },
@@ -30608,6 +30735,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "ocm",
+      "inverted_name": "Cham, Old",
+      "name": "Old Cham",
+      "scope": "I",
+      "type": "H"
+    },
+    {
       "alpha_3": "oco",
       "inverted_name": "Cornish, Old",
       "name": "Old Cornish",
@@ -30723,6 +30857,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "oie",
+      "name": "Okolie",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "oin",
       "inverted_name": "One, Inebu",
       "name": "Inebu One",
@@ -30793,6 +30933,12 @@
     {
       "alpha_3": "okb",
       "name": "Okobo",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "okc",
+      "name": "Kobo",
       "scope": "I",
       "type": "L"
     },
@@ -30895,6 +31041,13 @@
       "name": "Okpe (Northwestern Edo)",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "okz",
+      "inverted_name": "Khmer, Old",
+      "name": "Old Khmer",
+      "scope": "I",
+      "type": "H"
     },
     {
       "alpha_3": "ola",
@@ -31043,6 +31196,13 @@
       "alpha_3": "omx",
       "inverted_name": "Mon, Old",
       "name": "Old Mon",
+      "scope": "I",
+      "type": "H"
+    },
+    {
+      "alpha_3": "omy",
+      "inverted_name": "Malay, Old",
+      "name": "Old Malay",
       "scope": "I",
       "type": "H"
     },
@@ -31343,6 +31503,13 @@
       "type": "L"
     },
     {
+      "alpha_3": "osn",
+      "inverted_name": "Sundanese, Old",
+      "name": "Old Sundanese",
+      "scope": "I",
+      "type": "H"
+    },
+    {
       "alpha_3": "oso",
       "name": "Ososo",
       "scope": "I",
@@ -31535,6 +31702,12 @@
       "type": "E"
     },
     {
+      "alpha_3": "ovd",
+      "name": "Elfdalian",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "owi",
       "name": "Owiniga",
       "scope": "I",
@@ -31682,12 +31855,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "pat",
-      "name": "Papitalai",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "pau",
       "name": "Palauan",
       "scope": "I",
@@ -31770,6 +31937,13 @@
     {
       "alpha_3": "pbl",
       "name": "Mak (Nigeria)",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "pbm",
+      "inverted_name": "Mazatec, Puebla",
+      "name": "Puebla Mazatec",
       "scope": "I",
       "type": "L"
     },
@@ -32109,7 +32283,7 @@
     },
     {
       "alpha_3": "pfe",
-      "name": "Peere",
+      "name": "Pere",
       "scope": "I",
       "type": "L"
     },
@@ -32202,6 +32376,12 @@
     {
       "alpha_3": "phh",
       "name": "Phukha",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "phj",
+      "name": "Pahari",
       "scope": "I",
       "type": "L"
     },
@@ -32320,12 +32500,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "pii",
-      "name": "Pini",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "pij",
       "name": "Pijao",
       "scope": "I",
@@ -32438,7 +32612,7 @@
       "alpha_3": "pkc",
       "name": "Paekche",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "pkg",
@@ -32575,12 +32749,6 @@
       "alpha_3": "plo",
       "inverted_name": "Popoluca, Oluta",
       "name": "Oluta Popoluca",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "plp",
-      "name": "Palpa",
       "scope": "I",
       "type": "L"
     },
@@ -32797,6 +32965,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "pnd",
+      "name": "Mpinda",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "pne",
       "inverted_name": "Penan, Western",
       "name": "Western Penan",
@@ -32805,7 +32979,7 @@
     },
     {
       "alpha_3": "png",
-      "name": "Pongu",
+      "name": "Pangu",
       "scope": "I",
       "type": "L"
     },
@@ -32902,7 +33076,7 @@
     },
     {
       "alpha_3": "pnw",
-      "name": "Panytyima",
+      "name": "Banyjima",
       "scope": "I",
       "type": "L"
     },
@@ -32993,7 +33167,7 @@
       "inverted_name": "Pomo, Central",
       "name": "Central Pomo",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "pop",
@@ -33140,12 +33314,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "prb",
-      "name": "Lua'",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "prc",
       "name": "Parachi",
       "scope": "I",
@@ -33281,7 +33449,7 @@
     },
     {
       "alpha_3": "psc",
-      "name": "Persian Sign Language",
+      "name": "Iranian Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -33406,7 +33574,7 @@
     },
     {
       "alpha_3": "pti",
-      "name": "Pintiini",
+      "name": "Pindiini",
       "scope": "I",
       "type": "L"
     },
@@ -33522,12 +33690,6 @@
     {
       "alpha_3": "puj",
       "name": "Punan Tubu",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "puk",
-      "name": "Pu Ko",
       "scope": "I",
       "type": "L"
     },
@@ -33705,9 +33867,14 @@
       "type": "L"
     },
     {
+      "alpha_3": "pzh",
+      "name": "Pazeh",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "pzn",
-      "inverted_name": "Naga, Para",
-      "name": "Para Naga",
+      "name": "Jejara Naga",
       "scope": "I",
       "type": "L"
     },
@@ -34436,8 +34603,8 @@
       "type": "L"
     },
     {
-      "alpha_3": "rie",
-      "name": "Rien",
+      "alpha_3": "rib",
+      "name": "Bribri Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -34449,7 +34616,7 @@
     },
     {
       "alpha_3": "ril",
-      "name": "Riang (Myanmar)",
+      "name": "Riang Lang",
       "scope": "I",
       "type": "L"
     },
@@ -34473,7 +34640,7 @@
     },
     {
       "alpha_3": "rit",
-      "name": "Ritarungo",
+      "name": "Ritharrngu",
       "scope": "I",
       "type": "L"
     },
@@ -34551,7 +34718,7 @@
     },
     {
       "alpha_3": "rmb",
-      "name": "Rembarunga",
+      "name": "Rembarrnga",
       "scope": "I",
       "type": "L"
     },
@@ -34694,6 +34861,12 @@
     {
       "alpha_3": "rmz",
       "name": "Marma",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "rnb",
+      "name": "Brunca Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -34871,8 +35044,8 @@
       "type": "L"
     },
     {
-      "alpha_3": "rsi",
-      "name": "Rennellese Sign Language",
+      "alpha_3": "rsk",
+      "name": "Ruthenian",
       "scope": "I",
       "type": "L"
     },
@@ -34885,6 +35058,12 @@
     {
       "alpha_3": "rsm",
       "name": "Miriwoong Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "rsn",
+      "name": "Rwandan Sign Language",
       "scope": "I",
       "type": "L"
     },
@@ -35036,6 +35215,12 @@
     {
       "alpha_3": "rwk",
       "name": "Rwa",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "rwl",
+      "name": "Ruwila",
       "scope": "I",
       "type": "L"
     },
@@ -35460,7 +35645,7 @@
     },
     {
       "alpha_3": "scp",
-      "name": "Helambu Sherpa",
+      "name": "Hyolmo",
       "scope": "I",
       "type": "L"
     },
@@ -35474,6 +35659,13 @@
       "alpha_3": "scs",
       "inverted_name": "Slavey, North",
       "name": "North Slavey",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "sct",
+      "inverted_name": "Katang, Southern",
+      "name": "Southern Katang",
       "scope": "I",
       "type": "L"
     },
@@ -35564,12 +35756,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "sdm",
-      "name": "Semandang",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "sdn",
       "inverted_name": "Sardinian, Gallurese",
       "name": "Gallurese Sardinian",
@@ -35586,6 +35772,12 @@
     {
       "alpha_3": "sdp",
       "name": "Sherdukpen",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "sdq",
+      "name": "Semandang",
       "scope": "I",
       "type": "L"
     },
@@ -36390,12 +36582,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "skk",
-      "name": "Sok",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "skm",
       "name": "Kutong",
       "scope": "I",
@@ -36568,7 +36754,7 @@
       "alpha_3": "slq",
       "name": "Salchuq",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "slr",
@@ -36643,12 +36829,6 @@
       "name": "Som",
       "scope": "I",
       "type": "E"
-    },
-    {
-      "alpha_3": "smd",
-      "name": "Sama",
-      "scope": "I",
-      "type": "L"
     },
     {
       "alpha_2": "se",
@@ -36790,12 +36970,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "snb",
-      "name": "Sebuyau",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "snc",
       "name": "Sinaugoro",
       "scope": "I",
@@ -36826,12 +37000,6 @@
       "name": "Sanga (Democratic Republic of Congo)",
       "scope": "I",
       "type": "L"
-    },
-    {
-      "alpha_3": "snh",
-      "name": "Shinabo",
-      "scope": "I",
-      "type": "E"
     },
     {
       "alpha_3": "sni",
@@ -36933,7 +37101,7 @@
     },
     {
       "alpha_3": "snz",
-      "name": "Sinsauru",
+      "name": "Kou",
       "scope": "I",
       "type": "L"
     },
@@ -37288,6 +37456,12 @@
     {
       "alpha_3": "squ",
       "name": "Squamish",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "sqx",
+      "name": "Kufr Qassem Sign Language (KQSL)",
       "scope": "I",
       "type": "L"
     },
@@ -37802,8 +37976,15 @@
       "type": "L"
     },
     {
+      "alpha_3": "suo",
+      "name": "Bouni",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "suq",
-      "name": "Suri",
+      "inverted_name": "Suri, Tirmaga-Chai",
+      "name": "Tirmaga-Chai Suri",
       "scope": "I",
       "type": "L"
     },
@@ -37902,7 +38083,7 @@
       "alpha_3": "svx",
       "name": "Skalvian",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_2": "sw",
@@ -38073,7 +38254,7 @@
     },
     {
       "alpha_3": "sxg",
-      "name": "Shixing",
+      "name": "Shuhi",
       "scope": "I",
       "type": "L"
     },
@@ -38276,6 +38457,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "szs",
+      "name": "Solomon Islands Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "szv",
       "name": "Isu (Fako Division)",
       "scope": "I",
@@ -38284,6 +38471,12 @@
     {
       "alpha_3": "szw",
       "name": "Sawai",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "szy",
+      "name": "Sakizaya",
       "scope": "I",
       "type": "L"
     },
@@ -38452,12 +38645,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "tbb",
-      "name": "Tapeba",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "tbc",
       "name": "Takia",
       "scope": "I",
@@ -38490,7 +38677,7 @@
     },
     {
       "alpha_3": "tbh",
-      "name": "Thurawal",
+      "name": "Dharawal",
       "scope": "I",
       "type": "E"
     },
@@ -39028,6 +39215,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "tez",
+      "name": "Tetserret",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "tfi",
       "inverted_name": "Gbe, Tofin",
       "name": "Tofin Gbe",
@@ -39217,7 +39410,7 @@
     },
     {
       "alpha_3": "thd",
-      "name": "Thayore",
+      "name": "Kuuk Thaayorre",
       "scope": "I",
       "type": "L"
     },
@@ -39314,12 +39507,6 @@
       "alpha_3": "thv",
       "inverted_name": "Tamahaq, Tahaggart",
       "name": "Tahaggart Tamahaq",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "thw",
-      "name": "Thudam",
       "scope": "I",
       "type": "L"
     },
@@ -39499,6 +39686,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "tjj",
+      "name": "Tjungundji",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "tjl",
       "name": "Tai Laing",
       "scope": "I",
@@ -39520,6 +39713,12 @@
       "alpha_3": "tjo",
       "inverted_name": "Tamazight, Temacine",
       "name": "Temacine Tamazight",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "tjp",
+      "name": "Tjupany",
       "scope": "I",
       "type": "L"
     },
@@ -39974,13 +40173,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "tne",
-      "inverted_name": "Kallahan, Tinoc",
-      "name": "Tinoc Kallahan",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "tng",
       "name": "Tobanga",
       "scope": "I",
@@ -40145,10 +40337,16 @@
       "type": "L"
     },
     {
+      "alpha_3": "tok",
+      "name": "Toki Pona",
+      "scope": "I",
+      "type": "C"
+    },
+    {
       "alpha_3": "tol",
       "name": "Tolowa",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "tom",
@@ -40567,7 +40765,7 @@
     },
     {
       "alpha_3": "trv",
-      "name": "Taroko",
+      "name": "Sediq",
       "scope": "I",
       "type": "L"
     },
@@ -40916,7 +41114,7 @@
       "alpha_3": "tub",
       "name": "Tübatulabal",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "tuc",
@@ -40990,7 +41188,7 @@
       "alpha_3": "tun",
       "name": "Tunica",
       "scope": "I",
-      "type": "E"
+      "type": "L"
     },
     {
       "alpha_3": "tuo",
@@ -41120,6 +41318,12 @@
       "name": "Sedoa",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "tvx",
+      "name": "Taivoan",
+      "scope": "I",
+      "type": "E"
     },
     {
       "alpha_3": "tvy",
@@ -41454,6 +41658,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "tyy",
+      "name": "Tiyaa",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "tyz",
       "name": "Tày",
       "scope": "I",
@@ -41642,6 +41852,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "ugh",
+      "name": "Kubachi",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ugn",
       "name": "Ugandan Sign Language",
       "scope": "I",
@@ -41715,6 +41931,18 @@
       "type": "L"
     },
     {
+      "alpha_3": "uki",
+      "name": "Kui (India)",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "ukk",
+      "name": "Muak Sa-aak",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ukl",
       "name": "Ukrainian Sign Language",
       "scope": "I",
@@ -41748,6 +41976,12 @@
     {
       "alpha_3": "uku",
       "name": "Ukue",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "ukv",
+      "name": "Kuku",
       "scope": "I",
       "type": "L"
     },
@@ -41801,7 +42035,7 @@
     },
     {
       "alpha_3": "ulk",
-      "name": "Meriam",
+      "name": "Meriam Mir",
       "scope": "I",
       "type": "L"
     },
@@ -41861,7 +42095,7 @@
     },
     {
       "alpha_3": "umg",
-      "name": "Umbuygamu",
+      "name": "Morrobalama",
       "scope": "I",
       "type": "E"
     },
@@ -41940,6 +42174,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "uni",
+      "name": "Uni",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "unk",
       "name": "Enawené-Nawé",
       "scope": "I",
@@ -41981,6 +42221,12 @@
       "name": "Unde Kaili",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "uon",
+      "name": "Kulon",
+      "scope": "I",
+      "type": "E"
     },
     {
       "alpha_3": "upi",
@@ -42164,6 +42410,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "uss",
+      "name": "us-Saare",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "usu",
       "name": "Uya",
       "scope": "I",
@@ -42178,6 +42430,12 @@
     {
       "alpha_3": "ute",
       "name": "Ute-Southern Paiute",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "uth",
+      "name": "ut-Hun",
       "scope": "I",
       "type": "L"
     },
@@ -42202,12 +42460,6 @@
     {
       "alpha_3": "uum",
       "name": "Urum",
-      "scope": "I",
-      "type": "L"
-    },
-    {
-      "alpha_3": "uun",
-      "name": "Kulon-Pazeh",
       "scope": "I",
       "type": "L"
     },
@@ -42521,12 +42773,6 @@
       "type": "E"
     },
     {
-      "alpha_3": "vki",
-      "name": "Ija-Zuba",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "vkj",
       "name": "Kujarge",
       "scope": "I",
@@ -42551,6 +42797,12 @@
       "type": "E"
     },
     {
+      "alpha_3": "vkn",
+      "name": "Koro Nulu",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "vko",
       "name": "Kodeoha",
       "scope": "I",
@@ -42573,6 +42825,12 @@
     {
       "alpha_3": "vku",
       "name": "Kurrama",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "vkz",
+      "name": "Koro Zuba",
       "scope": "I",
       "type": "L"
     },
@@ -42862,11 +43120,11 @@
       "alpha_3": "wac",
       "name": "Wasco-Wishram",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "wad",
-      "name": "Wandamen",
+      "name": "Wamesa",
       "scope": "I",
       "type": "L"
     },
@@ -42938,7 +43196,7 @@
     },
     {
       "alpha_3": "waq",
-      "name": "Wageman",
+      "name": "Wagiman",
       "scope": "I",
       "type": "L"
     },
@@ -43075,8 +43333,14 @@
       "type": "L"
     },
     {
+      "alpha_3": "wbs",
+      "name": "West Bengal Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "wbt",
-      "name": "Wanman",
+      "name": "Warnman",
       "scope": "I",
       "type": "L"
     },
@@ -43128,6 +43392,12 @@
       "name": "Wadikali",
       "scope": "I",
       "type": "E"
+    },
+    {
+      "alpha_3": "wdt",
+      "name": "Wendat",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "wdu",
@@ -43248,7 +43518,7 @@
     },
     {
       "alpha_3": "wgg",
-      "name": "Wangganguru",
+      "name": "Wangkangurru",
       "scope": "I",
       "type": "E"
     },
@@ -43314,7 +43584,7 @@
       "alpha_3": "wic",
       "name": "Wichita",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "wie",
@@ -43330,7 +43600,7 @@
     },
     {
       "alpha_3": "wig",
-      "name": "Wik-Ngathana",
+      "name": "Wik Ngathan",
       "scope": "I",
       "type": "L"
     },
@@ -43437,6 +43707,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "wkr",
+      "name": "Keerray-Woorroong",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "wku",
       "name": "Kunduvadi",
       "scope": "I",
@@ -43476,6 +43752,12 @@
     {
       "alpha_3": "wlg",
       "name": "Kunbarlang",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "wlh",
+      "name": "Welaun",
       "scope": "I",
       "type": "L"
     },
@@ -43586,6 +43868,13 @@
     {
       "alpha_3": "wme",
       "name": "Wambule",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "wmg",
+      "inverted_name": "Minyag, Western",
+      "name": "Western Minyag",
       "scope": "I",
       "type": "L"
     },
@@ -43730,7 +44019,7 @@
     },
     {
       "alpha_3": "woa",
-      "name": "Tyaraity",
+      "name": "Kuwema",
       "scope": "I",
       "type": "L"
     },
@@ -43839,22 +44128,10 @@
       "type": "L"
     },
     {
-      "alpha_3": "wra",
-      "name": "Warapu",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "wrb",
-      "name": "Warluwara",
+      "name": "Waluwarra",
       "scope": "I",
       "type": "E"
-    },
-    {
-      "alpha_3": "wrd",
-      "name": "Warduji",
-      "scope": "I",
-      "type": "L"
     },
     {
       "alpha_3": "wrg",
@@ -43864,7 +44141,7 @@
     },
     {
       "alpha_3": "wrh",
-      "name": "Wiradhuri",
+      "name": "Wiradjuri",
       "scope": "I",
       "type": "E"
     },
@@ -44165,12 +44442,6 @@
       "type": "E"
     },
     {
-      "alpha_3": "wya",
-      "name": "Wyandot",
-      "scope": "I",
-      "type": "L"
-    },
-    {
       "alpha_3": "wyb",
       "name": "Wangaaybuwan-Ngiyambaa",
       "scope": "I",
@@ -44185,6 +44456,12 @@
     {
       "alpha_3": "wym",
       "name": "Wymysorys",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "wyn",
+      "name": "Wyandot",
       "scope": "I",
       "type": "L"
     },
@@ -44236,7 +44513,7 @@
       "alpha_3": "xag",
       "name": "Aghwan",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "xai",
@@ -44264,7 +44541,7 @@
     },
     {
       "alpha_3": "xam",
-      "name": "/Xam",
+      "name": "ǀXam",
       "scope": "I",
       "type": "E"
     },
@@ -44394,7 +44671,7 @@
       "alpha_3": "xbo",
       "name": "Bolgarian",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "xbp",
@@ -44416,7 +44693,7 @@
     },
     {
       "alpha_3": "xby",
-      "name": "Batyala",
+      "name": "Batjala",
       "scope": "I",
       "type": "L"
     },
@@ -44424,7 +44701,7 @@
       "alpha_3": "xcb",
       "name": "Cumbric",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "xcc",
@@ -44493,7 +44770,7 @@
       "alpha_3": "xcu",
       "name": "Curonian",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "xcv",
@@ -44538,6 +44815,18 @@
       "type": "A"
     },
     {
+      "alpha_3": "xdo",
+      "name": "Kwandu",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "xdq",
+      "name": "Kaitag",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "xdy",
       "inverted_name": "Dayak, Malayic",
       "name": "Malayic Dayak",
@@ -44558,7 +44847,7 @@
     },
     {
       "alpha_3": "xeg",
-      "name": "//Xegwi",
+      "name": "ǁXegwi",
       "scope": "I",
       "type": "E"
     },
@@ -44650,7 +44939,7 @@
       "alpha_3": "xgl",
       "name": "Galindan",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "xgm",
@@ -44686,7 +44975,7 @@
       "alpha_3": "xhc",
       "name": "Hunnic",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "xhd",
@@ -44699,6 +44988,13 @@
       "name": "Khetrani",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "xhm",
+      "inverted_name": "Khmer, Middle (1400 to 1850 CE)",
+      "name": "Middle Khmer (1400 to 1850 CE)",
+      "scope": "I",
+      "type": "H"
     },
     {
       "alpha_2": "xh",
@@ -44849,7 +45145,7 @@
     },
     {
       "alpha_3": "xkk",
-      "name": "Kaco'",
+      "name": "Kachok",
       "scope": "I",
       "type": "L"
     },
@@ -45061,7 +45357,7 @@
     },
     {
       "alpha_3": "xmh",
-      "name": "Kuku-Muminh",
+      "name": "Kugu-Muminh",
       "scope": "I",
       "type": "L"
     },
@@ -45156,7 +45452,7 @@
     },
     {
       "alpha_3": "xmx",
-      "name": "Maden",
+      "name": "Salawati",
       "scope": "I",
       "type": "L"
     },
@@ -45205,8 +45501,20 @@
       "type": "E"
     },
     {
+      "alpha_3": "xnj",
+      "name": "Ngoni (Tanzania)",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "xnk",
       "name": "Nganakarti",
+      "scope": "I",
+      "type": "E"
+    },
+    {
+      "alpha_3": "xnm",
+      "name": "Ngumbarl",
       "scope": "I",
       "type": "E"
     },
@@ -45222,6 +45530,12 @@
       "name": "Anglo-Norman",
       "scope": "I",
       "type": "H"
+    },
+    {
+      "alpha_3": "xnq",
+      "name": "Ngoni (Mozambique)",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "xnr",
@@ -45332,8 +45646,22 @@
       "type": "E"
     },
     {
+      "alpha_3": "xpb",
+      "inverted_name": "Tasmanian, Northeastern",
+      "name": "Northeastern Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
       "alpha_3": "xpc",
       "name": "Pecheneg",
+      "scope": "I",
+      "type": "H"
+    },
+    {
+      "alpha_3": "xpd",
+      "inverted_name": "Tasmanian, Oyster Bay",
+      "name": "Oyster Bay Tasmanian",
       "scope": "I",
       "type": "E"
     },
@@ -45345,16 +45673,30 @@
       "type": "L"
     },
     {
+      "alpha_3": "xpf",
+      "inverted_name": "Tasmanian, Southeast",
+      "name": "Southeast Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
       "alpha_3": "xpg",
       "name": "Phrygian",
       "scope": "I",
       "type": "A"
     },
     {
+      "alpha_3": "xph",
+      "inverted_name": "Tasmanian, North Midlands",
+      "name": "North Midlands Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
       "alpha_3": "xpi",
       "name": "Pictish",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "xpj",
@@ -45368,6 +45710,13 @@
       "name": "Kulina Pano",
       "scope": "I",
       "type": "L"
+    },
+    {
+      "alpha_3": "xpl",
+      "inverted_name": "Tasmanian, Port Sorell",
+      "name": "Port Sorell Tasmanian",
+      "scope": "I",
+      "type": "E"
     },
     {
       "alpha_3": "xpm",
@@ -45391,7 +45740,7 @@
       "alpha_3": "xpp",
       "name": "Puyo-Paekche",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "xpq",
@@ -45409,7 +45758,7 @@
       "alpha_3": "xps",
       "name": "Pisidian",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "xpt",
@@ -45424,8 +45773,36 @@
       "type": "A"
     },
     {
+      "alpha_3": "xpv",
+      "inverted_name": "Tasmanian, Northern",
+      "name": "Northern Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
+      "alpha_3": "xpw",
+      "inverted_name": "Tasmanian, Northwestern",
+      "name": "Northwestern Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
+      "alpha_3": "xpx",
+      "inverted_name": "Tasmanian, Southwestern",
+      "name": "Southwestern Tasmanian",
+      "scope": "I",
+      "type": "E"
+    },
+    {
       "alpha_3": "xpy",
       "name": "Puyo",
+      "scope": "I",
+      "type": "A"
+    },
+    {
+      "alpha_3": "xpz",
+      "inverted_name": "Tasmanian, Bruny Island",
+      "name": "Bruny Island Tasmanian",
       "scope": "I",
       "type": "E"
     },
@@ -45482,17 +45859,11 @@
       "alpha_3": "xrm",
       "name": "Armazic",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "xrn",
       "name": "Arin",
-      "scope": "I",
-      "type": "E"
-    },
-    {
-      "alpha_3": "xrq",
-      "name": "Karranga",
       "scope": "I",
       "type": "E"
     },
@@ -45559,6 +45930,12 @@
     {
       "alpha_3": "xsi",
       "name": "Sio",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "xsj",
+      "name": "Subi",
       "scope": "I",
       "type": "L"
     },
@@ -45775,12 +46152,6 @@
       "name": "Yoloxochitl Mixtec",
       "scope": "I",
       "type": "L"
-    },
-    {
-      "alpha_3": "xtz",
-      "name": "Tasmanian",
-      "scope": "I",
-      "type": "E"
     },
     {
       "alpha_3": "xua",
@@ -46535,7 +46906,7 @@
       "inverted_name": "Yiddish, Western",
       "name": "Western Yiddish",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "yii",
@@ -46571,7 +46942,7 @@
     },
     {
       "alpha_3": "yin",
-      "name": "Yinchia",
+      "name": "Riang Lai",
       "scope": "I",
       "type": "L"
     },
@@ -47174,6 +47545,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "ysm",
+      "name": "Myanmar Sign Language",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "ysn",
       "name": "Sani",
       "scope": "I",
@@ -47337,7 +47714,7 @@
       "alpha_3": "yur",
       "name": "Yurok",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "yut",
@@ -47675,6 +48052,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "zba",
+      "name": "Balaibalan",
+      "scope": "I",
+      "type": "C"
+    },
+    {
       "alpha_3": "zbc",
       "inverted_name": "Berawan, Central",
       "name": "Central Berawan",
@@ -47701,6 +48084,12 @@
       "type": "L"
     },
     {
+      "alpha_3": "zbu",
+      "name": "Bu (Bauchi State)",
+      "scope": "I",
+      "type": "L"
+    },
+    {
       "alpha_3": "zbw",
       "inverted_name": "Berawan, West",
       "name": "West Berawan",
@@ -47711,6 +48100,13 @@
       "alpha_3": "zca",
       "inverted_name": "Zapotec, Coatecas Altas",
       "name": "Coatecas Altas Zapotec",
+      "scope": "I",
+      "type": "L"
+    },
+    {
+      "alpha_3": "zcd",
+      "inverted_name": "Zapotec, Las Delicias",
+      "name": "Las Delicias Zapotec",
       "scope": "I",
       "type": "L"
     },
@@ -47877,12 +48273,6 @@
       "type": "L"
     },
     {
-      "alpha_3": "zir",
-      "name": "Ziriya",
-      "scope": "I",
-      "type": "E"
-    },
-    {
       "alpha_3": "ziw",
       "name": "Zigula",
       "scope": "I",
@@ -47916,13 +48306,13 @@
       "alpha_3": "zkg",
       "name": "Koguryo",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "zkh",
       "name": "Khorezmian",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "zkk",
@@ -47959,13 +48349,13 @@
       "alpha_3": "zkt",
       "name": "Kitan",
       "scope": "I",
-      "type": "E"
+      "type": "H"
     },
     {
       "alpha_3": "zku",
       "name": "Kaurna",
       "scope": "I",
-      "type": "E"
+      "type": "L"
     },
     {
       "alpha_3": "zkv",
@@ -47977,7 +48367,13 @@
       "alpha_3": "zkz",
       "name": "Khazar",
       "scope": "I",
-      "type": "E"
+      "type": "H"
+    },
+    {
+      "alpha_3": "zla",
+      "name": "Zula",
+      "scope": "I",
+      "type": "L"
     },
     {
       "alpha_3": "zlj",
@@ -48074,9 +48470,9 @@
     },
     {
       "alpha_3": "zml",
-      "name": "Madngele",
+      "name": "Matngala",
       "scope": "I",
-      "type": "L"
+      "type": "E"
     },
     {
       "alpha_3": "zmm",
@@ -48433,7 +48829,7 @@
       "alpha_3": "zra",
       "name": "Kara (Korea)",
       "scope": "I",
-      "type": "E"
+      "type": "A"
     },
     {
       "alpha_3": "zrg",
