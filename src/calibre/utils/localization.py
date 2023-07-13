@@ -122,7 +122,7 @@ def zf_exists():
                 allow_user_override=False))
 
 
-_lang_trans = None
+_lang_trans = _country_trans = None
 
 
 def get_all_translators():
@@ -211,7 +211,7 @@ def load_po(path):
 
 
 def translator_for_lang(lang):
-    t = buf = iso639 = lcdata = None
+    t = buf = iso639 = iso3166 = lcdata = None
     if 'CALIBRE_TEST_TRANSLATION' in os.environ:
         buf = load_po(os.path.expanduser(os.environ['CALIBRE_TEST_TRANSLATION']))
 
@@ -232,6 +232,11 @@ def translator_for_lang(lang):
                 iso639 = io.BytesIO(zf.read(isof))
             except:
                 pass  # No iso639 translations for this lang
+            isof = mpath + '/iso3166.mo'
+            try:
+                iso3166 = io.BytesIO(zf.read(isof))
+            except:
+                pass  # No iso3166 translations for this lang
             if buf is not None:
                 from calibre.utils.serialize import msgpack_loads
                 try:
@@ -254,11 +259,19 @@ def translator_for_lang(lang):
             else:
                 if t is not None:
                     t.add_fallback(iso639)
+        if iso3166 is not None:
+            try:
+                iso3166 = GNUTranslations(iso3166)
+            except Exception:
+                iso3166 = None
+            else:
+                if t is not None:
+                    t.add_fallback(iso3166)
 
     if t is None:
         t = NullTranslations()
 
-    return {'translator': t, 'iso639_translator': iso639, 'lcdata': lcdata}
+    return {'translator': t, 'iso639_translator': iso639, 'iso3166_translator': iso3166, 'lcdata': lcdata}
 
 
 default_translator = NullTranslations()
@@ -281,7 +294,7 @@ def pgettext(context: str, msg: str) -> str:
 
 
 def set_translators():
-    global _lang_trans, lcdata, default_translator
+    global _lang_trans, _country_trans, lcdata, default_translator
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
@@ -290,6 +303,7 @@ def set_translators():
         q = translator_for_lang(lang)
         default_translator = q['translator']
         _lang_trans = q['iso639_translator']
+        _country_trans = q['iso3166_translator']
         if q['lcdata']:
             lcdata = q['lcdata']
     else:
@@ -454,6 +468,22 @@ def calibre_langcode_to_name(lc, localize=True):
     except:
         pass
     return lc
+
+
+def countrycode_to_name(cc, localize=True):
+    iso3166 = load_iso3166()
+    q = cc.upper()
+    if len(q) == 3:
+        q = iso3166['three_map'].get(q, q)
+    try:
+        name = iso3166['names'][q]
+    except Exception:
+        return cc
+    translate = _ if localize else lambda x: x
+    try:
+        return translate(name)
+    except Exception:
+        return name
 
 
 def canonicalize_lang(raw):

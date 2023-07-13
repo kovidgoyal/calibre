@@ -370,7 +370,7 @@ class Translations(POT):  # {{{
         files = []
         skip_iso = {
             'si', 'te', 'km', 'en_GB', 'en_AU', 'en_CA', 'yi', 'ku', 'my', 'uz@Latn', 'fil', 'hy', 'ltg', 'km_KH', 'km',
-            'ur', 'ml', 'fo', 'ug', 'nds', 'jv'
+            'ur', 'ml', 'fo', 'ug', 'jv'
         }
 
         def handle_stats(f, data):
@@ -393,6 +393,26 @@ class Translations(POT):  # {{{
                         self.warn('No ISO 639 translations for locale:', locale)
             self.compile_group(files, make_translated_strings_unique=True, handle_stats=handle_stats,
                                keyfunc=lambda x: os.path.join(self.d(self.SRC), 'iso639', os.path.basename(x)))
+
+        self.info('Compiling ISO3166 files...')
+        files = []
+        skip_iso = {
+            'en_GB', 'en_AU', 'en_CA', 'yi', 'ku', 'uz@Latn', 'ltg', 'nds', 'jv'
+        }
+        with tempfile.TemporaryDirectory() as tdir:
+            iso_data.extract_po_files('iso_3166-1', tdir)
+            for f, (locale, dest) in iteritems(fmap):
+                pofile = self.j(tdir, f'{locale}.po')
+                if os.path.exists(pofile):
+                    files.append((pofile, self.j(self.d(dest), 'iso3166.mo')))
+                else:
+                    pofile = self.j(tdir, f'{locale.partition("_")[0]}.po')
+                    if os.path.exists(pofile):
+                        files.append((pofile, self.j(self.d(dest), 'iso3166.mo')))
+                    elif locale not in skip_iso:
+                        self.warn('No ISO 3166 translations for locale:', locale)
+            self.compile_group(files, make_translated_strings_unique=True, handle_stats=lambda f,d:None,
+                               keyfunc=lambda x: os.path.join(self.d(self.SRC), 'iso3166', os.path.basename(x)))
 
         dest = self.stats
         base = self.d(dest)
