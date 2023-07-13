@@ -923,7 +923,7 @@ class ISO3166(ISO639):  # {{{
             if two:
                 two = unicode_type(two)
             codes.add(two)
-            name_map[two] = x.get('name')
+            name_map[two] = x.get('common_name') or x.get('name')
             if name_map[two]:
                 name_map[two] = unicode_type(name_map[two])
             three = x.get('alpha_3')
