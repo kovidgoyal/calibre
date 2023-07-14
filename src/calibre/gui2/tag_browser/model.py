@@ -1249,13 +1249,21 @@ class TagsModel(QAbstractItemModel):  # {{{
             else:
                 use_exact_match = False
                 filter_by = self.filter_categories_by
+
+            if prefs['use_primary_find_in_search']:
+                final_equals = lambda x, y: primary_strcmp(x, y) == 0
+                final_contains = primary_contains
+            else:
+                final_equals = lambda x, y: strcmp(x, y) == 0
+                final_contains = lambda filt, txt: contains(filt, icu_lower(txt))
+
             for category in data.keys():
                 if use_exact_match:
                     data[category] = [t for t in data[category]
-                        if lower(t.name) == filter_by]
+                        if final_equals(t.name, filter_by)]
                 else:
                     data[category] = [t for t in data[category]
-                        if lower(t.name).find(filter_by) >= 0]
+                        if final_contains(filter_by, t.name)]
 
         # Build a dict of the keys that have data.
         # Always add user categories so that the constructed hierarchy works.
@@ -1843,12 +1851,13 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.path_found = None
         if start_path is None:
             start_path = []
+
         if prefs['use_primary_find_in_search']:
-            final_strcmp = primary_strcmp
+            final_equals = lambda x, y: primary_strcmp(x, y) == 0
             final_contains = primary_contains
         else:
-            final_strcmp = strcmp
-            final_contains = contains
+            final_equals = lambda x, y: strcmp(x, y) == 0
+            final_contains = lambda filt, txt: contains(filt, icu_lower(txt))
 
         def process_tag(depth, tag_index, tag_item, start_path):
             path = self.path_for_index(tag_index)
@@ -1858,8 +1867,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             if tag is None:
                 return False
             name = tag.original_name
-            if (equals_match and final_strcmp(name, txt) == 0) or \
-                    (not equals_match and final_contains(txt, name)):
+            if ((equals_match and final_equals(name, txt)) or
+                    (not equals_match and final_contains(txt, name))):
                 self.path_found = path
                 return True
             for i,c in enumerate(tag_item.children):
