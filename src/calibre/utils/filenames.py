@@ -630,6 +630,10 @@ if iswindows:
             return get_long_path_name(lpath)
         except FileNotFoundError:
             return path
+        except OSError as e:
+            if e.winerror == 123: # ERR_INVALID_NAME
+                return path
+            raise
 
 else:
     def make_long_path_useable(path):
