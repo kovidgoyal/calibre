@@ -8,9 +8,14 @@ from datetime import datetime, timedelta
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##
-    # Last Edited:  2023-07-01
+    # Last Edited:  2023-07-14
     #
-    # Remark:       Version 3.0
+    # Remark:   Version 3.1 2023-07-14
+    #               Show crossword on right so clues are continuous down left
+    #               Crossword image scales with ebook reader width
+    #               Link to crossword image removed
+    #               Improve cartoons page layout
+    #           Version 3.0 2023-07-01
     #               Rewrite (by Sophist-UK) to fit latest web pages, correctly identify pages to include
     #               and improve formatting.
     #               Edited to add:  inclusion of About page,
@@ -115,6 +120,20 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         return [('Private Eye', articles)]
 
+    def preprocess_html(self, soup):
+        # Remove <a> tag link to crossword image
+        for tag in soup.findAll('a', {'href': re.compile(r'/pictures/crossword/')}):
+            self.log("Removing link to crossword image...")
+            tag.unwrap()
+
+        # Remove align tag in crossword image (so float right works)
+        for tag in soup.findAll('img', {'src': re.compile(r'/pictures/crossword/')}):
+            if "align" in tag.attrs:
+                self.log("Removing crossword image align attribute...")
+                del tag.attrs['align']
+
+        return soup
+
     # We remove vast swathes of HTML which is not part of the articles.
     # Remove sibling content
     remove_tags_before =  [
@@ -165,11 +184,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # However some is new css to tweak output when part of an ebook.
     extra_css = ' \n '.join([
         '#content img {float: right;}',
-        '#content img.cartoon-left {float: left;}',
-        '#content img.cartoon-right {float: right;}',
+        '#content img.cartoon-left {float: left; margin-right: 15px; margin-bottom: 15px;}',
+        '#content img.cartoon-right {float: none; margin-bottom: 15px;}',
         '#content img:first-child {float: none;}',
         '#content #block-sections img {float: none;}',
-        '#content #block-sections img.crossword {float: none; width: 50%; margin-right: 20px;}',
+        '#content #block-sections img.crossword {float: right; width: 40%; margin-left: 15px; min-width: 350px;}',
         '#article-caption-box {float: right; background: #222222; display: block; width: 40%; max-width: 40%;}',
         '#caption-box {color: #ffffff; text-align: center; padding: 5px 20px 15px 20px;}',
         '#whatsapp {border-left: 5px #8aba60 solid; border-right: 5px #8aba60 solid; border-bottom: 5px #8aba60 solid; padding: 0 20px 20px 20px;}',
