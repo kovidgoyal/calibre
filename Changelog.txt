@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 6.23.0 2023-07-14
+
+:: new features
+
+- [2025942] PDF Output: Add an option to discard the book cover instead of inserting it as the first page of the PDF
+
+- [2025333] Content server: Allow opening the book details page for a matches book from the Full text search results page
+
+:: bug fixes
+
+- Windows: Fix empty data folder getting created in directory calibre is launched from when changing title/author for a book with an existing data folder
+
+- [2026795] LIT Output: Fix error converting anything to LIT on Windows
+
+- Ignore failures to expire old trash during startup
+
+- [2025786] Amazon metadata download: Fix retrieval of publisher information from amazon.fr
+
+:: improved recipes
+- Guardian & Observer
+- Washington Post
+- Private Eye
+- Associated Press
+
+:: new recipes
+- ThePressProject by Sotiris Papatheodorou
+}}}
+
 {{{ 6.22.0 2023-06-30
 
 :: new features
