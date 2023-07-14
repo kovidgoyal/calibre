@@ -190,7 +190,6 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         '#content img.gnitty-right {float: none; width: 160px;}',
         '#content #story > div[align=right] > img:first-child {float: none; width: 15px;}',
         '#content #story > img:first-child {float: none; height: 100px; width: none; minimum-width: none;}',
-        #'#content #block-sections img {float: none; width: 100%;}',
         '#content #block-sections img {float: none; width: none;}',
         '#content #block-sections img.photo-right {float: right; width: 25%; min-width:120px; margin-left: 15px;}',
         '#content #block-sections > p:last-child > img:first-child {float: none; width: 120px;}',
