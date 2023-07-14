@@ -29,11 +29,11 @@
 
 - [2025942] PDF Output: Add an option to discard the book cover instead of inserting it as the first page of the PDF
 
-- [2025333] Content server: Allow opening the book details page for a matches book from the Full text search results page
+- [2025333] Content server: Allow opening the Book details page for a matched book from the Full text search results page
 
 :: bug fixes
 
-- Windows: Fix empty data folder getting created in directory calibre is launched from when changing title/author for a book with an existing data folder
+- Windows: Fix empty data folder getting created in the directory calibre is launched from when changing title/author for a book with an existing data folder
 
 - [2026795] LIT Output: Fix error converting anything to LIT on Windows
 
