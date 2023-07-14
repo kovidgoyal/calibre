@@ -24,9 +24,9 @@ class LiveMint(BasicNewsRecipe):
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         if self.output_profile.short_name.startswith('kindle'):
-            self.title = 'Mint ' + date.today().strftime('%b %d, %Y')
+            self.title = 'Mint | ' + date.today().strftime('%b %d, %Y')
             if is_saturday:
-                self.title = 'Mint Lounge ' + date.today().strftime('%b %d, %Y')
+                self.title = 'Mint Lounge | ' + date.today().strftime('%b %d, %Y')
 
     if is_saturday:
         
@@ -87,18 +87,18 @@ class LiveMint(BasicNewsRecipe):
             h2 {font-size:normal !important;}
             .author-widget {font-size:small; font-style:italic; color:#404040;}
             em, blockquote {color:#202020;}
-            .moreAbout, .articleInfo {font-size:small;}
+            .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag {font-size:small;}
         '''
 
         keep_only_tags = [
-            dict(name='article', attrs={'id':lambda x: x and x.startswith('article_')}),
+            dict(name='article', attrs={'id':lambda x: x and x.startswith(('article_', 'box_'))}),
             classes('contentSec')
         ]
         remove_tags = [
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
                 ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot'
-                ' datePublish sepStory premiumSlider'
+                ' datePublish sepStory premiumSlider moreStory'
             )
         ]
 
