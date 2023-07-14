@@ -577,15 +577,23 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.initialize('tag_browser_search')
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.item_search.setToolTip(
-            '<p>' +_(
-                'Search for items. If the text begins with equals (=) the search is '
-                'exact match, otherwise it is "contains" finding items containing '
-                'the text anywhere in the item name. Both exact and contains '
-                'searches ignore case. You can limit the search to particular '
-                'categories using syntax similar to search. For example, '
-                'tags:foo will find foo in any tag, but not in authors etc. Entering '
-                '*foo will collapse all categories then showing only those categories '
-                'with items containing the text "foo"') + '</p>')
+            _('<p>'
+                'Search for items in the Tag browser. If the search text begins '
+                'with an equals sign (=) then the search is "equals", otherwise '
+                'it is "contains". Both the equals and contains searches ignore '
+                'case. If the preference <em>Preferences -> Searching -> Unaccented '
+                'characters match accented characters ...</em> is checked then a '
+                '<em>Character variant search</em> is used, where characters '
+                'match regardless of accents, and punctuation is significant. See '
+                '<em>The search interface</em> in the calibre manual for more explanation.'
+            '</p><p>'
+                'You can limit the search to particular categories using syntax '
+                "similar to calibre's <em>Search</em>. For example, tags:foo will "
+                'find foo in tags but not in authors etc.'
+            '</p><p>'
+                'Entering *foo will collapse all categories before doing the '
+                'search.'
+            '</p>'))
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
