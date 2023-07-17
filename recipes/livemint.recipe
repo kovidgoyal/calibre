@@ -138,6 +138,9 @@ class LiveMint(BasicNewsRecipe):
                 return raw
 
         def preprocess_html(self, soup):
+            for embed in soup.findAll('div', attrs={'class':'embed'}):
+                if nos := embed.find('noscript'):
+                    nos.name = 'span'
             for span in soup.findAll('figcaption'):
                 span['id'] = 'img-cap'
             for auth in soup.findAll('span', attrs={'class':lambda x: x and 'articleInfo' in x.split()}):

@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import browser
+from html5_parser import parse
 from calibre.ptempfile import PersistentTemporaryFile
 import json
 import re
@@ -21,7 +22,7 @@ class Bloomberg(BasicNewsRecipe):
         #time, .chart {font-size:small;}
         #subhead {font-style:italic; color:#404040;}
         #cat {font-size:small; color:gray;}
-        .news-figure-caption-text, #cap {font-size:small; text-align:center;}
+        .news-figure-caption-text, #cap, #img {font-size:small; text-align:center;}
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
 
@@ -35,7 +36,10 @@ class Bloomberg(BasicNewsRecipe):
             url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
         link = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://www.bloomberg.com')})
-        if '/videos/' in link['href']:
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast'
+        ]
+        if any(x in link['href'] for x in skip_sections):
             self.abort_article('Aborting Video article')
         self.log('Found link: ', link['href'])
         html = br.open(link['href']).read()
@@ -58,18 +62,25 @@ class Bloomberg(BasicNewsRecipe):
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Fnewsletters%2F&hl=en-US&gl=US&ceid=US:en'),
         ('News',
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Farticles%2F&hl=en-US&gl=US&ceid=US:en'),
-        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en')
+        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2F&hl=en-US&gl=US&ceid=US:en')
     ]
 
     def preprocess_raw_html(self, raw, *a):
-        m = re.search('data-component-props="ArticleBody">', raw)
+        root = parse(raw)
+        m = root.xpath('//script[@data-component-props="ArticleBody"]')
         if not m:
-            m = re.search('data-component-props="FeatureBody">', raw)
+            m = root.xpath('//script[@data-component-props="FeatureBody"]')
+            if not m:
+                m2 = root.xpath('//script[@id="__NEXT_DATA__"]')
+                if not m2:
+                    return raw
+        if m:
+            data = json.loads(m[0].text)
+            data = data['story']
 
-        raw = raw[m.start():]
-        raw = raw.split('>', 1)[1]
-        data = json.JSONDecoder().raw_decode(raw)[0]
-        data = data['story']
+        else:
+            data = json.loads(m2[0].text)
+            data = data['props']['pageProps']['story']
 
         title = '<h1>' + data['headline'] + '</h1>'
 
@@ -95,10 +106,38 @@ class Bloomberg(BasicNewsRecipe):
             if data['ledeImageUrl'] is not None:
                 lede = '<p><img src="{}">'.format(data['ledeImageUrl'])
 
-        if data['ledeDescription'] is not None:
-            caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
+        if 'ledeDescription' in data:
+            if data['ledeDescription'] is not None:
+                caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
+        else:
+            if 'lede' in data:
+                if data['lede'] is not None:
+                    if 'alt' in data['lede']:
+                        if data['lede']['alt'] is not None:
+                            caption = '<span id="cap">' + data['lede']['alt'] + '</span>'
 
-        body = data['body']
+        if m:        
+            body = data['body']
+        else:
+            body = ''
+            body_data = data['body']['content']
+            for objects in body_data:
+                if objects['type'] == 'media':
+                    if objects['subType'] == 'photo':
+                        body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
+                        body += '<span id="cap">' + objects['data']['photo']['caption'] + '</span></p>'
+                if objects['type'] == 'paragraph' or 'heading':     # lists are missed :(
+                    body += '<p>'
+                    if not 'content' in objects:
+                        continue
+                    for content in objects['content']:
+                        if 'value' in content:
+                                body += content['value']
+                        elif 'content' in content:
+                            for val_cont in content['content']:
+                                if 'value' in val_cont:
+                                    body += val_cont['value']
+
         html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
         return html
 
