@@ -1251,11 +1251,15 @@ class TagsModel(QAbstractItemModel):  # {{{
                 filter_by = self.filter_categories_by
 
             if prefs['use_primary_find_in_search']:
-                final_equals = lambda x, y: primary_strcmp(x, y) == 0
-                final_contains = primary_contains
+                def final_equals(x, y):
+                    return primary_strcmp(x, y) == 0
+                def final_contains(x, y):
+                    return primary_contains(x, y)
             else:
-                final_equals = lambda x, y: strcmp(x, y) == 0
-                final_contains = lambda filt, txt: contains(filt, icu_lower(txt))
+                def final_equals(x, y):
+                    return strcmp(x, y) == 0
+                def final_contains(filt, txt):
+                    return contains(filt, icu_lower(txt))
 
             for category in data.keys():
                 if use_exact_match:
@@ -1853,11 +1857,15 @@ class TagsModel(QAbstractItemModel):  # {{{
             start_path = []
 
         if prefs['use_primary_find_in_search']:
-            final_equals = lambda x, y: primary_strcmp(x, y) == 0
-            final_contains = primary_contains
+            def final_equals(x, y):
+                return primary_strcmp(x, y) == 0
+            def final_contains(x, y):
+                return primary_contains(x, y)
         else:
-            final_equals = lambda x, y: strcmp(x, y) == 0
-            final_contains = lambda filt, txt: contains(filt, icu_lower(txt))
+            def final_equals(x, y):
+                return strcmp(x, y) == 0
+            def final_contains(filt, txt):
+                return contains(filt, icu_lower(txt))
 
         def process_tag(depth, tag_index, tag_item, start_path):
             path = self.path_for_index(tag_index)

@@ -3,7 +3,6 @@ from calibre import browser
 from html5_parser import parse
 from calibre.ptempfile import PersistentTemporaryFile
 import json
-import re
 
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg'
@@ -14,7 +13,7 @@ class Bloomberg(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
     resolve_internal_links = True
-    
+
     delay = 5 # seconds
 
     extra_css = '''
@@ -116,7 +115,7 @@ class Bloomberg(BasicNewsRecipe):
                         if data['lede']['alt'] is not None:
                             caption = '<span id="cap">' + data['lede']['alt'] + '</span>'
 
-        if m:        
+        if m:
             body = data['body']
         else:
             body = ''
@@ -128,7 +127,7 @@ class Bloomberg(BasicNewsRecipe):
                         body += '<span id="cap">' + objects['data']['photo']['caption'] + '</span></p>'
                 if objects['type'] == 'paragraph' or 'heading':     # lists are missed :(
                     body += '<p>'
-                    if not 'content' in objects:
+                    if 'content' not in objects:
                         continue
                     for content in objects['content']:
                         if 'value' in content:
