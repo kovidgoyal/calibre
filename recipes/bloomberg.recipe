@@ -148,11 +148,12 @@ class Bloomberg(BasicNewsRecipe):
                         
                         if item['type'] == 'entity':
                             if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                if item['subType'] == 'person' or 'security':
-                                    body += item['content'][0]['value']
                                 if item['subType'] == 'story':
-                                    if item['data'] and item['data']['link'] and item['data']['link']['destination'] and item['data']['link']['destination']['web']:
-                                        body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item.content[0].value + '</a>'
+                                    if item['data'] and item['data']['link'] and item['data']['link']['destination']:
+                                        if 'web' in item['data']['link']['destination']:
+                                            body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item['content'][0]['value'] + '</a>'
+                                elif item['subType'] == 'person' or 'security':
+                                    body += item['content'][0]['value']
 
                 if objects['type'] == 'quote':
                     if 'content' not in objects:
