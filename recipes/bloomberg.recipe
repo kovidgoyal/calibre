@@ -140,17 +140,17 @@ class Bloomberg(BasicNewsRecipe):
                         if item['type'] == 'text' and item['value']:
                             body += item['value']
                             
-                        elif item['type'] == 'link' and item['data']:
+                        if item['type'] == 'link' and item['data']:
                             if 'href' not in item['data']:
                                 continue
                             if item['content'] and item['content'][0] and item['content'][0]['value']:
                                 body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
                         
-                        elif item['type'] == 'entity':
+                        if item['type'] == 'entity':
                             if item['content'] and item['content'][0] and item['content'][0]['value']:
                                 if item['subType'] == 'person' or 'security':
                                     body += item['content'][0]['value']
-                                elif item['subType'] == 'story':
+                                if item['subType'] == 'story':
                                     if item['data'] and item['data']['link'] and item['data']['link']['destination'] and item['data']['link']['destination']['web']:
                                         body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item.content[0].value + '</a>'
 
