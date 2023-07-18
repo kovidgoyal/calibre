@@ -560,7 +560,8 @@ class ChooseLibraryAction(InterfaceAction):
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
                 '<p>'+_(
                     'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
-                    'Note that the actual library folder will be renamed.'),
+                        'Note that the actual library folder will be renamed.') + '<p>' + _(
+                            'WARNING: This means that any calibre:// URLs that point to things in this library will stop working.'),
                 text=old_name)
         newname = sanitize_file_name(str(newname))
         if not ok or not newname or newname == old_name:
