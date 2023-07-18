@@ -61,7 +61,7 @@ class Bloomberg(BasicNewsRecipe):
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Fnewsletters%2F&hl=en-US&gl=US&ceid=US:en'),
         ('News',
             'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2Fnews%2Farticles%2F&hl=en-US&gl=US&ceid=US:en'),
-        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com%2F&hl=en-US&gl=US&ceid=US:en')
+        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:bloomberg.com&hl=en-US&gl=US&ceid=US:en')
     ]
 
     def preprocess_raw_html(self, raw, *a):
@@ -71,13 +71,12 @@ class Bloomberg(BasicNewsRecipe):
             m = root.xpath('//script[@data-component-props="FeatureBody"]')
             if not m:
                 m2 = root.xpath('//script[@id="__NEXT_DATA__"]')
-                if not m2:
-                    return raw
+
         if m:
             data = json.loads(m[0].text)
             data = data['story']
 
-        else:
+        elif m2:
             data = json.loads(m2[0].text)
             data = data['props']['pageProps']['story']
 
@@ -103,7 +102,7 @@ class Bloomberg(BasicNewsRecipe):
 
         if 'ledeImageUrl' in data:
             if data['ledeImageUrl'] is not None:
-                lede = '<p><img src="{}">'.format(data['ledeImageUrl'])
+                lede = '<p id="img"><img src="{}">'.format(data['ledeImageUrl'])
 
         if 'ledeDescription' in data:
             if data['ledeDescription'] is not None:
@@ -117,25 +116,52 @@ class Bloomberg(BasicNewsRecipe):
 
         if m:
             body = data['body']
-        else:
+        elif m2:
             body = ''
             body_data = data['body']['content']
+
             for objects in body_data:
-                if objects['type'] == 'media':
-                    if objects['subType'] == 'photo':
-                        body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
-                        body += '<span id="cap">' + objects['data']['photo']['caption'] + '</span></p>'
+
+                if objects['type'] == 'media' and objects['subType'] == 'photo':
+                    body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
+                    body += '<span>' + objects['data']['photo']['caption'] + '</span></p>'
+                if objects['type'] == 'media' and objects['subType'] == 'chart':
+                    if objects['data'] and objects['data']['chart']:
+                        body += '<p id="img"><img src="{}">'.format(objects['data']['chart']['fallback'])
+
                 if objects['type'] == 'paragraph' or 'heading':     # lists are missed :(
                     body += '<p>'
+
                     if 'content' not in objects:
                         continue
-                    for content in objects['content']:
-                        if 'value' in content:
-                                body += content['value']
-                        elif 'content' in content:
-                            for val_cont in content['content']:
-                                if 'value' in val_cont:
-                                    body += val_cont['value']
+
+                    for item in objects['content']:
+                        
+                        if item['type'] == 'text' and item['value']:
+                            body += item['value']
+                            
+                        elif item['type'] == 'link' and item['data']:
+                            if 'href' not in item['data']:
+                                continue
+                            if item['content'] and item['content'][0] and item['content'][0]['value']:
+                                body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
+                        
+                        elif item['type'] == 'entity':
+                            if item['content'] and item['content'][0] and item['content'][0]['value']:
+                                if item['subType'] == 'person' or 'security':
+                                    body += item['content'][0]['value']
+                                elif item['subType'] == 'story':
+                                    if item['data'] and item['data']['link'] and item['data']['link']['destination'] and item['data']['link']['destination']['web']:
+                                        body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item.content[0].value + '</a>'
+
+                if objects['type'] == 'quote':
+                    if 'content' not in objects:
+                        continue
+                    for item in objects['content']:
+                        if item['type'] == 'paragraph' and item['content'] and item['content'][0]:
+                            if 'value' not in item['content'][0]:
+                                continue
+                            body += '<blockquote id="subhead">' + item['content'][0]['value'] + '</blockquote>'
 
         html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
         return html
