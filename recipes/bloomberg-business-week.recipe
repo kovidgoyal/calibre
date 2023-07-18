@@ -14,7 +14,7 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
-    delay = 3 # seconds
+    delay = 7 # seconds
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
         #time, .chart {font-size:small;}

@@ -14,7 +14,7 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url', 'title'}
     resolve_internal_links = True
 
-    delay = 5 # seconds
+    delay = 7 # seconds
 
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
