@@ -323,7 +323,8 @@ class CreateCustomColumn(QDialog):
         self.use_decorations = ud = QCheckBox(_("Show &checkmarks"), self)
         ud.setToolTip(_("Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
             "will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.\n"
-            "Everything else will show nothing."))
+            "Everything else will show nothing. Note that the values of 'true' and 'false' don't\n"
+            "follow calibre's language settings and are always in English."))
         h.addWidget(ud)
         self.is_names = ins = QCheckBox(_("Contains names"), self)
         ins.setToolTip('<p>' + _('Check this box if this column contains names, '
