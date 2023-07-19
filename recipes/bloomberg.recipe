@@ -3,6 +3,8 @@ from calibre import browser
 from html5_parser import parse
 from calibre.ptempfile import PersistentTemporaryFile
 import json
+import random
+import time
 
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg'
@@ -14,7 +16,8 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url', 'title'}
     resolve_internal_links = True
 
-    delay = 7 # seconds
+    # delay = 7 # seconds
+    # simultaneous_downloads = 1
 
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
@@ -121,6 +124,9 @@ class Bloomberg(BasicNewsRecipe):
             body_data = data['body']['content']
 
             for objects in body_data:
+
+                pause = random.choice((0.5, 1, 1.25, 1.5))
+                time.sleep(pause)
 
                 if objects['type'] == 'media' and objects['subType'] == 'photo':
                     body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
