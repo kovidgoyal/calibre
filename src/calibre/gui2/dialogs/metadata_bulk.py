@@ -1221,9 +1221,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
-            pubdate = qt_to_dt(self.pubdate.dateTime())
+            pubdate = qt_to_dt(self.pubdate.dateTime(), as_utc=False)
         if self.apply_adddate.isChecked():
-            adddate = qt_to_dt(self.adddate.dateTime())
+            adddate = qt_to_dt(self.adddate.dateTime(), as_utc=False)
 
         cover_action = None
         if self.cover_remove.isChecked():
