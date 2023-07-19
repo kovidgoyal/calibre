@@ -24,11 +24,11 @@ from calibre import (
 )
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
+from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
-from calibre.library.caches import force_to_bool
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile
