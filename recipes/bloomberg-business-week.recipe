@@ -2,7 +2,8 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre import browser
 from html5_parser import parse
 import json
-
+import random
+import time
 
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg Businessweek'
@@ -14,7 +15,10 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
-    delay = 7 # seconds
+
+    # delay = 7 # seconds
+    # simultaneous_downloads = 1
+
     extra_css = '''
         #auth {font-size:small; font-weight:bold;}
         #time, .chart {font-size:small;}
@@ -127,6 +131,9 @@ class Bloomberg(BasicNewsRecipe):
             body_data = data['body']['content']
 
             for objects in body_data:
+
+                pause = random.choice((0.5, 1, 1.25, 1.5))
+                time.sleep(pause)
 
                 if objects['type'] == 'media' and objects['subType'] == 'photo':
                     body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
