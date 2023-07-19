@@ -41,6 +41,7 @@ def apply_settings_to_ui(overrides):
             if not current_action or allowed_actions.indexOf(current_action) < 0:
                 current_action = 'none'
             select.value = current_action
+            select.dispatchEvent(new Event('change', {'view': window,'bubbles': True}))
 
 def get_overrides_from_ui():
     ans = {}
