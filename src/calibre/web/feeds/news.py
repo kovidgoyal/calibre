@@ -335,7 +335,7 @@ class BasicNewsRecipe(Recipe):
     '''
 
     #: By default, calibre will use a default image for the masthead (Kindle only).
-    #: Override this in your recipe to provide a url to use as a masthead.
+    #: Override this in your recipe to provide a URL to use as a masthead.
     masthead_url = None
 
     #: By default, the cover image returned by get_cover_url() will be used as

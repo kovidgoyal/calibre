@@ -680,7 +680,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         else:
             error_dialog(self, _('Invalid URL'),
-                         _('The url %r is invalid') % link, show=True)
+                         _('The URL %r is invalid') % link, show=True)
 
     def ask_link(self):
 

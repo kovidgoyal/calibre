@@ -497,7 +497,7 @@ class Source(Plugin):
 
     def get_book_urls(self, identifiers):
         '''
-        Override this method if you would like to return multiple urls for this book.
+        Override this method if you would like to return multiple URLs for this book.
         Return a list of 3-tuples. By default this method simply calls :func:`get_book_url`.
         '''
         data = self.get_book_url(identifiers)
