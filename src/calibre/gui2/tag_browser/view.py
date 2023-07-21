@@ -68,15 +68,15 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
     def paint_text(self, painter, rect, flags, text, hover):
-        set_color = hover and QApplication.instance().is_dark_theme
-        if set_color:
-            painter.save()
-            pen = painter.pen()
+        painter.save()
+        pen = painter.pen()
+        if hover and QApplication.instance().is_dark_theme:
             pen.setColor(QColor(Qt.GlobalColor.black))
-            painter.setPen(pen)
+        else:
+            pen.setColor(QColor(Qt.GlobalColor.white))
+        painter.setPen(pen)
         painter.drawText(rect, flags, text)
-        if set_color:
-            painter.restore()
+        painter.restore()
 
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
