@@ -67,14 +67,14 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
-    def paint_text(self, painter, rect, flags, text, hover):
+    def paint_text(self, painter, rect, flags, text, hover, option):
         painter.save()
         pen = painter.pen()
         if QApplication.instance().is_dark_theme:
             if hover:
                 pen.setColor(QColor(Qt.GlobalColor.black))
             else:
-                pen.setColor(QColor(Qt.GlobalColor.white))
+                pen.setColor(option.palette.color(QPalette.ColorRole.WindowText))
         painter.setPen(pen)
         painter.drawText(rect, flags, text)
         painter.restore()
@@ -90,7 +90,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
             r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-            self.paint_text(painter, r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count, hover)
+            self.paint_text(painter, r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count, hover, option)
             tr.setRight(r.left() - 1)
         else:
             tr.setRight(tr.right() - 1)
@@ -111,7 +111,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             pen = QPen()
             pen.setBrush(QBrush(g))
             painter.setPen(pen)
-        self.paint_text(painter, tr, flags, text, hover)
+        self.paint_text(painter, tr, flags, text, hover, option)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
