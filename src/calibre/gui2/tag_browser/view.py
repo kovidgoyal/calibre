@@ -70,10 +70,11 @@ class TagDelegate(QStyledItemDelegate):  # {{{
     def paint_text(self, painter, rect, flags, text, hover):
         painter.save()
         pen = painter.pen()
-        if hover and QApplication.instance().is_dark_theme:
-            pen.setColor(QColor(Qt.GlobalColor.black))
-        else:
-            pen.setColor(QColor(Qt.GlobalColor.white))
+        if QApplication.instance().is_dark_theme:
+            if hover:
+                pen.setColor(QColor(Qt.GlobalColor.black))
+            else:
+                pen.setColor(QColor(Qt.GlobalColor.white))
         painter.setPen(pen)
         painter.drawText(rect, flags, text)
         painter.restore()
