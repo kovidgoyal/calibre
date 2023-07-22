@@ -17,9 +17,10 @@ class Bloomberg(BasicNewsRecipe):
     resolve_internal_links = True
 
     # delay = 7 # seconds
-    # simultaneous_downloads = 1
+    simultaneous_downloads = 3
 
     extra_css = '''
+        #bold {font-weight:bold;}
         #auth {font-size:small; font-weight:bold;}
         #time, .chart {font-size:small;}
         #subhead {font-style:italic; color:#404040;}
@@ -87,37 +88,31 @@ class Bloomberg(BasicNewsRecipe):
 
         cat = subhead = lede = auth = caption = ''
 
-        if 'primaryCategory' in data:
-            if data['primaryCategory'] is not None:
+        if 'primaryCategory' in data and data['primaryCategory'] is not None:
                 cat = '<p id="cat">' + data['primaryCategory'] + '</p>'
 
-        if len(data['abstract']) != 0:
-            if len(data['abstract']) == 2:
+        if len(data['abstract']) != 0 and len(data['abstract']) == 2:
                 subhead = '<div id="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
         else:
             if 'summary' in data:
                 subhead = '<div id="subhead"><p>' + data['summary'] + '</p></div>'
 
-        if 'byline' in data:
-            if data['byline'] is not None:
+        if 'byline' in data and data['byline'] is not None:
                 auth = '<div><span id="auth">' + data['byline']\
                  + '</span> | <span id="time">' + data['publishedAt'][:-14] + '</span></div>'
 
-        if 'ledeImageUrl' in data:
-            if data['ledeImageUrl'] is not None:
+        if 'ledeImageUrl' in data and data['ledeImageUrl'] is not None:
                 lede = '<p id="img"><img src="{}">'.format(data['ledeImageUrl'])
 
-        if 'ledeDescription' in data:
-            if data['ledeDescription'] is not None:
+        if 'ledeDescription' in data and data['ledeDescription'] is not None:
                 caption = '<span id="cap">' + data['ledeDescription'] + '</span>'
         else:
-            if 'lede' in data:
-                if data['lede'] is not None:
-                    if 'alt' in data['lede']:
-                        if data['lede']['alt'] is not None:
+            if 'lede' in data and data['lede'] is not None:
+                    if 'alt' in data['lede'] and data['lede']['alt'] is not None:
                             caption = '<span id="cap">' + data['lede']['alt'] + '</span>'
 
         if m:
+            time.sleep(3)
             body = data['body']
         elif m2:
             body = ''
@@ -125,7 +120,7 @@ class Bloomberg(BasicNewsRecipe):
 
             for objects in body_data:
 
-                pause = random.choice((0.5, 1, 1.25, 1.5))
+                pause = random.choice((0.5, 1, 1.25))
                 time.sleep(pause)
 
                 if objects['type'] == 'media' and objects['subType'] == 'photo':
@@ -135,8 +130,10 @@ class Bloomberg(BasicNewsRecipe):
                     if objects['data'] and objects['data']['chart']:
                         body += '<p id="img"><img src="{}">'.format(objects['data']['chart']['fallback'])
 
-                if objects['type'] == 'paragraph' or 'heading':     # lists are missed :(
+                if objects['type'] == 'paragraph':
                     body += '<p>'
+                    if 'value' in objects:
+                        body += objects['value']
 
                     if 'content' not in objects:
                         continue
@@ -147,21 +144,59 @@ class Bloomberg(BasicNewsRecipe):
                             body += item['value']
                             
                         if item['type'] == 'link' and item['data']:
-                            if 'href' not in item['data']:
-                                continue
                             if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
-                        
+                                if 'href' in item['data']:
+                                    body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
+                                else:
+                                    body += '<i>' + item['content'][0]['value'] + '</i>'
+
                         if item['type'] == 'entity':
                             if item['content'] and item['content'][0] and item['content'][0]['value']:
                                 if item['subType'] == 'story':
                                     if item['data'] and item['data']['link'] and item['data']['link']['destination']:
                                         if 'web' in item['data']['link']['destination']:
                                             body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item['content'][0]['value'] + '</a>'
+                                        else:
+                                            body += '<i>' + item['content'][0]['value'] + '</i>'
+                                            
+                                elif item['subType'] == 'person' or 'security':
+                                    body += item['content'][0]['value']
+
+                if objects['type'] == 'heading':
+                    body += '<p id="bold">'
+                    if 'value' in objects:
+                        body += objects['value']
+                    
+                    if 'content' not in objects:
+                        continue
+
+                    for item in objects['content']:
+                        
+                        if item['type'] == 'text' and item['value']:
+                            body += item['value']
+                            
+                        if item['type'] == 'link' and item['data']:
+                            if item['content'] and item['content'][0] and item['content'][0]['value']:
+                                if 'href' in item['data']:
+                                    body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
+                                else:
+                                    body += '<i>' + item['content'][0]['value'] + '</i>'
+
+                        if item['type'] == 'entity':
+                            if item['content'] and item['content'][0] and item['content'][0]['value']:
+                                if item['subType'] == 'story':
+                                    if item['data'] and item['data']['link'] and item['data']['link']['destination']:
+                                        if 'web' in item['data']['link']['destination']:
+                                            body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item['content'][0]['value'] + '</a>'
+                                        else:
+                                            body += '<i>' + item['content'][0]['value'] + '</i>'
+                                            
                                 elif item['subType'] == 'person' or 'security':
                                     body += item['content'][0]['value']
 
                 if objects['type'] == 'quote':
+                    if 'value' in objects:
+                        body +='<blockquote id="subhead">' + objects['value'] + '</blockquote>'
                     if 'content' not in objects:
                         continue
                     for item in objects['content']:
@@ -170,6 +205,52 @@ class Bloomberg(BasicNewsRecipe):
                                 continue
                             body += '<blockquote id="subhead">' + item['content'][0]['value'] + '</blockquote>'
 
+                if objects['type'] == 'list':
+                    if 'content' not in objects:
+                        continue
+                    body += '<ul>'
+                    for content in objects['content']:
+                        if content['type'] == 'listItem':
+                            body += '<li>'
+                            if 'value' in content:
+                                    body += content['value']
+                            elif 'content' in content:
+                                for val_cont in content['content']:
+                                    if 'value' in val_cont:
+                                        body += val_cont['value']
+                                    elif 'content' in val_cont:
+                                        for cont2 in val_cont['content']:
+                                            if 'value' in cont2:
+                                                body += cont2['value']
+                    body += '</ul>'
+
+                skip = ['ad', 'inline-newsletter', 'inline-recirc', 'tabularData', 'list', 'quote', 'heading', 'paragraph', 'media']
+                if not any(x in objects['type'] for x in skip):
+                    body += '<p>'
+                    if 'value' in objects:
+                        body += objects['value']
+                    if not 'content' in objects:
+                        continue
+                    for content in objects['content']:
+                        if 'value' in content:
+                                body += content['value']
+                        elif 'content' in content:
+                            for cont1 in content['content']:
+                                if 'value' in cont1:
+                                    body += cont1['value']
+                                elif 'content' in val_cont:
+                                    for cont2 in val_cont['content']:
+                                        if 'value' in cont2:
+                                            body += cont2['value']
+                                        elif 'content' in cont2:
+                                            for cont3 in cont2['content']:
+                                                if 'value' in cont3:
+                                                    body += cont3['value']
+                                                elif 'content' in cont3:
+                                                    for cont4 in cont3['content']:
+                                                        if 'value' in cont4:
+                                                            body += cont4['value']
+                                                    
         html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
         return html
 
