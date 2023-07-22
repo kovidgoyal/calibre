@@ -10,7 +10,7 @@ technologyreview.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 from collections import OrderedDict
-
+import re
 
 def absurl(x):
     if x.startswith('//'):
@@ -64,9 +64,9 @@ class MitTechnologyReview(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.technologyreview.com/')
-        div = soup.find('div', attrs={'class':lambda s: s and s.startswith('magazineSidebar__imageWrap')})
-        img = div.find('img', src=True)
-        return img['src']
+        if script := soup.find('script', id='preload'):
+            link = re.findall('https\S+?front_cover-web.png', self.tag_to_string(script))
+            return link[0] + '?fit=572,786'
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
