@@ -2484,7 +2484,7 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
     name = 'extra_file_modtime'
     arg_count = 2
     category = 'Template database functions'
-    __doc__ = doc = _("extra_file_modtime(file_name, format_spec) -- returns the "
+    __doc__ = doc = _("extra_file_modtime(file_name, format_string) -- returns the "
                       "modification time of the extra file 'file_name' in the "
                       "book's '{}/' folder if it exists, otherwise -1.0. The "
                       "modtime is formatted according to 'format_string' "
