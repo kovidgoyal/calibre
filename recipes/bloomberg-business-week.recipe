@@ -5,6 +5,44 @@ import json
 import random
 import time
 
+def get_contents(x):
+    otype = x.get('type', '')
+    if otype == 'text':
+        return x.get('value', '')
+    elif otype == 'paragraph':
+        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</p>'
+    elif otype == 'heading':
+        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</h3>'
+    elif otype == 'list':
+        return '<ul>' + ''.join(map(get_contents, x.get('content'))) + '</ul>'
+    elif otype == 'listItem':
+        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</li>'
+    elif otype == 'quote':
+        return '<blockquote>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</blockquote>'
+    elif otype == 'media':
+        if x['subType'] == 'photo':
+            return '<div><div><img src="{}"></div><div>{}</div></div>'.format(
+                x['data']['photo']['src'], x['data']['photo']['caption'])
+        elif x['subType'] == 'chart':
+            if x['data'] and x['data']['chart']:
+                return '<div><img src="{}"></div>'.format(x['data']['chart']['fallback'])
+    elif otype == 'link':
+        if x['data'] and x['content'] and x['content'][0] and x['content'][0]['value']:
+            if 'href' in x['data']:
+                return '<a href="' + x['data']['href'] + '">' + x['content'][0]['value'] + '</a>'
+            return '<i>' + x['content'][0]['value'] + '</i>'
+    elif otype == 'entity':
+        if x['content'] and x['content'][0] and x['content'][0]['value']:
+            if x['subType'] == 'story':
+                if x['data'] and x['data']['link'] and x['data']['link']['destination']:
+                    if 'web' in x['data']['link']['destination']:
+                        return '<a href="' + x['data']['link']['destination']['web'] + '">' + x['content'][0]['value'] + '</a>'
+                    return '<i>' + x['content'][0]['value'] + '</i>'
+            elif x['subType'] in ('person', 'security'):
+                return '<i>' + x['content'][0]['value'] + '</i>'
+
+    return ''
+
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg Businessweek'
     language = 'en'
@@ -124,142 +162,11 @@ class Bloomberg(BasicNewsRecipe):
         else:
             body = ''
             body_data = data['body']['content']
-
-            for objects in body_data:
-
+            for x in body_data:
                 pause = random.choice((0.5, 1, 1.25))
                 time.sleep(pause)
-
-                if objects['type'] == 'media' and objects['subType'] == 'photo':
-                    body += '<p id="img"><img src="{}">'.format(objects['data']['photo']['src'])
-                    body += '<span>' + objects['data']['photo']['caption'] + '</span></p>'
-                if objects['type'] == 'media' and objects['subType'] == 'chart':
-                    if objects['data'] and objects['data']['chart']:
-                        body += '<p id="img"><img src="{}">'.format(objects['data']['chart']['fallback'])
-
-                if objects['type'] == 'paragraph':
-                    body += '<p>'
-                    if 'value' in objects:
-                        body += objects['value']
-
-                    if 'content' not in objects:
-                        continue
-
-                    for item in objects['content']:
-                        
-                        if item['type'] == 'text' and item['value']:
-                            body += item['value']
-                            
-                        if item['type'] == 'link' and item['data']:
-                            if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                if 'href' in item['data']:
-                                    body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
-                                else:
-                                    body += '<i>' + item['content'][0]['value'] + '</i>'
-
-                        if item['type'] == 'entity':
-                            if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                if item['subType'] == 'story':
-                                    if item['data'] and item['data']['link'] and item['data']['link']['destination']:
-                                        if 'web' in item['data']['link']['destination']:
-                                            body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item['content'][0]['value'] + '</a>'
-                                        else:
-                                            body += '<i>' + item['content'][0]['value'] + '</i>'
-                                            
-                                elif item['subType'] == 'person' or 'security':
-                                    body += item['content'][0]['value']
-
-                if objects['type'] == 'heading':
-                    body += '<p id="bold">'
-                    if 'value' in objects:
-                        body += objects['value']
-                    
-                    if 'content' not in objects:
-                        continue
-
-                    for item in objects['content']:
-                        
-                        if item['type'] == 'text' and item['value']:
-                            body += item['value']
-                            
-                        if item['type'] == 'link' and item['data']:
-                            if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                if 'href' in item['data']:
-                                    body += '<a href="' + item['data']['href'] + '">' + item['content'][0]['value'] + '</a>'
-                                else:
-                                    body += '<i>' + item['content'][0]['value'] + '</i>'
-
-                        if item['type'] == 'entity':
-                            if item['content'] and item['content'][0] and item['content'][0]['value']:
-                                if item['subType'] == 'story':
-                                    if item['data'] and item['data']['link'] and item['data']['link']['destination']:
-                                        if 'web' in item['data']['link']['destination']:
-                                            body += '<a href="' + item['data']['link']['destination']['web'] + '">' + item['content'][0]['value'] + '</a>'
-                                        else:
-                                            body += '<i>' + item['content'][0]['value'] + '</i>'
-                                            
-                                elif item['subType'] == 'person' or 'security':
-                                    body += item['content'][0]['value']
-
-                if objects['type'] == 'quote':
-                    if 'value' in objects:
-                        body +='<blockquote id="subhead">' + objects['value'] + '</blockquote>'
-                    if 'content' not in objects:
-                        continue
-                    for item in objects['content']:
-                        if item['type'] == 'paragraph' and item['content'] and item['content'][0]:
-                            if 'value' not in item['content'][0]:
-                                continue
-                            body += '<blockquote id="subhead">' + item['content'][0]['value'] + '</blockquote>'
-
-                if objects['type'] == 'list':
-                    if 'content' not in objects:
-                        continue
-                    body += '<ul>'
-                    for content in objects['content']:
-                        if content['type'] == 'listItem':
-                            body += '<li>'
-                            if 'value' in content:
-                                    body += content['value']
-                            elif 'content' in content:
-                                for val_cont in content['content']:
-                                    if 'value' in val_cont:
-                                        body += val_cont['value']
-                                    elif 'content' in val_cont:
-                                        for cont2 in val_cont['content']:
-                                            if 'value' in cont2:
-                                                body += cont2['value']
-                    body += '</ul>'
-
-                skip = ['ad', 'inline-newsletter', 'inline-recirc', 'tabularData', 'list', 'quote', 'heading', 'paragraph', 'media']
-                if not any(x in objects['type'] for x in skip):
-                    body += '<p>'
-                    if 'value' in objects:
-                        body += objects['value']
-                    if not 'content' in objects:
-                        continue
-                    for content in objects['content']:
-                        if 'value' in content:
-                                body += content['value']
-                        elif 'content' in content:
-                            for cont1 in content['content']:
-                                if 'value' in cont1:
-                                    body += cont1['value']
-                                elif 'content' in val_cont:
-                                    for cont2 in val_cont['content']:
-                                        if 'value' in cont2:
-                                            body += cont2['value']
-                                        elif 'content' in cont2:
-                                            for cont3 in cont2['content']:
-                                                if 'value' in cont3:
-                                                    body += cont3['value']
-                                                elif 'content' in cont3:
-                                                    for cont4 in cont3['content']:
-                                                        if 'value' in cont4:
-                                                            body += cont4['value']
-                                                    
-        html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body
-        return html
+                body += get_contents(x)
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
 
     def preprocess_html(self, soup):
         for icon in soup.findAll('img', attrs={'class':'video-player__play-icon'}):
