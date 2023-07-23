@@ -22,11 +22,11 @@ def get_contents(x):
         return '<blockquote>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</blockquote>'
     elif otype == 'media':
         if x['subType'] == 'photo':
-            return '<div><div><img src="{}"></div><div>{}</div></div>'.format(
+            return '<div><div class="img"><img src="{}"></div><div class="cap">{}</div></div>'.format(
                 x['data']['photo']['src'], x['data']['photo']['caption'])
         elif x['subType'] == 'chart':
             if x['data'] and x['data']['chart']:
-                return '<div><img src="{}"></div>'.format(x['data']['chart']['fallback'])
+                return '<div class="img"><img src="{}"></div>'.format(x['data']['chart']['fallback'])
     elif otype == 'link':
         if x['data'] and x['content'] and x['content'][0] and x['content'][0]['value']:
             if 'href' in x['data']:
@@ -53,7 +53,6 @@ class Bloomberg(BasicNewsRecipe):
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
-    resolve_internal_links = True
 
     # delay = 7 # seconds
     simultaneous_downloads = 3
