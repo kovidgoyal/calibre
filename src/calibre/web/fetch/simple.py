@@ -180,6 +180,7 @@ class RecursiveFetcher:
         self.compress_news_images = getattr(options, 'compress_news_images', False)
         self.compress_news_images_auto_size = getattr(options, 'compress_news_images_auto_size', 16)
         self.scale_news_images = getattr(options, 'scale_news_images', None)
+        self.get_delay = getattr(options, 'get_delay', lambda url=None: self.delay)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
@@ -268,8 +269,9 @@ class RecursiveFetcher:
             return data
 
         delta = time.monotonic() - self.last_fetch_at
-        if delta < self.delay:
-            time.sleep(self.delay - delta)
+        delay = self.get_delay(url)
+        if delta < delay:
+            time.sleep(delay - delta)
         url = canonicalize_url(url)
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         try:

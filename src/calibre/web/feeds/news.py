@@ -474,6 +474,15 @@ class BasicNewsRecipe(Recipe):
             return self.feeds[:self.test[0]]
         return self.feeds
 
+    def get_delay(self, url=None):
+        '''
+        Return the delay in seconds before downloading `url`. If you want to programmatically
+        determine the delay for the specified url, override this method in your subclass.
+        When overriding, you should cater for when `url` may be `None`.
+        You may return a floating point number to indicate a more precise time.
+        '''
+        return getattr(self, 'delay', 0)
+
     @classmethod
     def print_version(cls, url):
         '''
@@ -934,7 +943,7 @@ class BasicNewsRecipe(Recipe):
         web2disk_cmdline = ['web2disk',
             '--timeout', str(self.timeout),
             '--max-recursions', str(self.recursions),
-            '--delay', str(self.delay),
+            '--delay', str(self.get_delay()),
             ]
 
         if self.verbose:
@@ -966,8 +975,9 @@ class BasicNewsRecipe(Recipe):
         self.web2disk_options.preprocess_image = self.preprocess_image
         self.web2disk_options.encoding = self.encoding
         self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_
+        self.web2disk_options.get_delay = self.get_delay
 
-        if self.delay > 0:
+        if self.get_delay() > 0:
             self.simultaneous_downloads = 1
 
         self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else \
@@ -1711,8 +1721,9 @@ class BasicNewsRecipe(Recipe):
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
-            if self.delay > 0:
-                time.sleep(self.delay)
+            delay = self.get_delay(url)
+            if delay > 0:
+                time.sleep(delay)
 
         remove = [fl for fl in parsed_feeds if len(fl) == 0 and self.remove_empty_feeds]
         for f in remove:
