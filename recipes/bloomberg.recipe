@@ -11,15 +11,15 @@ def get_contents(x):
     if otype == 'text':
         return x.get('value', '')
     elif otype == 'paragraph':
-        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('contents'))) + '</p>'
+        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</p>'
     elif otype == 'heading':
-        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('contents'))) + '</h3>'
+        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</h3>'
     elif otype == 'list':
-        return '<ul>' + ''.join(map(get_contents, x.get('contents'))) + '</ul>'
+        return '<ul>' + ''.join(map(get_contents, x.get('content'))) + '</ul>'
     elif otype == 'listItem':
-        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('contents'))) + '</li>'
+        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</li>'
     elif otype == 'quote':
-        return '<blockquote>' + x.get('value', '') + ''.join(map(get_contents, x.get('contents'))) + '</blockquote>'
+        return '<blockquote>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</blockquote>'
     elif otype == 'media':
         if x['subType'] == 'photo':
             return '<div><div><img src="{}"></div><div>{}</div></div>'.format(
@@ -40,7 +40,7 @@ def get_contents(x):
                         return '<a href="' + x['data']['link']['destination']['web'] + '">' + x['content'][0]['value'] + '</a>'
                     return '<i>' + x['content'][0]['value'] + '</i>'
             elif x['subType'] in ('person', 'security'):
-                return x['content'][0]['value']
+                return '<i>' + x['content'][0]['value'] + '</i>'
 
     return ''
 
