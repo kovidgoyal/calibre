@@ -1,58 +1,107 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.business-standard.com
-'''
-
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from html5_parser import parse
+from datetime import datetime
+import json
 
 class BusinessStandard(BasicNewsRecipe):
     title = 'Business Standard'
-    __author__ = 'Darko Miletic'
+    __author__ = 'unkn0wn'
     description = "India's most respected business daily"
-    oldest_article = 1
-    max_articles_per_feed = 20
-    no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf-8'
-    publisher = 'Business Standard Limited'
-    category = 'news, business, money, india, world'
     language = 'en_IN'
-
     masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['width', 'height', 'style']
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
         for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
             return citem['content']
 
-    remove_attributes = ['width', 'height', 'style']
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
 
-    keep_only_tags = [
-            classes('headline alternativeHeadline full-img article-content__img pubDate'),
-            dict(name='span', attrs={'class':'p-content'}),
-    ]
-    remove_tags = [
-            classes('also-read-panel')
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    simultaneous_downloads = 1
+
+    extra_css = '''
+        .auth, .cat { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+    '''
+    
+    art_url = ''
+    art_desc = ''
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        soup = self.index_to_soup(url)
+        link = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://www.business-standard.com')})
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/multimedia/',
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.abort_article('skipping video links ', link['href'])
+        self.art_url = link['href']
+        self.log('Found ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    feeds = []
+
+    sections = [
+        'india-news', 'economy', 'opinion', 'markets', 'companies', 'industry', 'finance', 'world-news',
+    #    'politics', 'cricket', 'sports', 'technology', 'book', 'education', 'specials'
     ]
 
-    feeds = [
-        (u'Companies', u'https://www.business-standard.com/rss/companies-101.rss'),
-        (u'Economy and Policy', u'https://www.business-standard.com/rss/economy-policy-102.rss'),
-        (u'Finance', u'https://www.business-standard.com/rss/finance-103.rss'),
-        (u'Beyond Business', u'https://www.business-standard.com/rss/beyond-business-104.rss'),
-        (u'Opinion', 'https://www.business-standard.com/rss/opinion-105.rss'),
-        (u'Markets', u'https://www.business-standard.com/rss/markets-106.rss'),
-        (u'Technology', u'https://www.business-standard.com/rss/technology-108.rss'),
-        (u'Personal Finance', u'https://www.business-standard.com/rss/pf-114.rss'),
-        (u'International', u'https://www.business-standard.com/rss/international-116.rss'),
-        # (u'Today\'s Paper', u'https://www.business-standard.com/rss/todays-paper.rss'),
-        # for todays paper - subscrition required
-    ]
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:business-standard.com{}&hl=en-IN&gl=IN&ceid=IN:en'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    # feeds.append(('Others', a.format('')))
+
+    def preprocess_raw_html(self, raw, *a):
+        root = parse(raw)
+        m = root.xpath('//script[@id="__NEXT_DATA__"]')
+        
+        data = json.loads(m[0].text)
+        data = data['props']['pageProps']['data']
+
+        title = '<h1>' + data['pageTitle'] + '</h1>'
+
+        cat = subhead = lede = auth = caption = ''
+
+        if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
+            if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
+                cat = '<div><p class="cat">' + data['defaultArticleCat']['h1_tag'] + '</p></div>'
+
+        if 'metaDescription' in data and data['metaDescription'] is not None:
+            subhead = '<h3>' + data['metaDescription'] + '</h3>'
+            self.art_desc = data['metaDescription']
+
+        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
+
+        if 'multiple_authors_name' in data:
+            auth = '<div><p class="auth">' + data['multiple_authors_name'] + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
+
+        if data['featuredImageObj'] and 'url' in data['featuredImageObj']:
+            lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
+            if 'alt_text' in data['featuredImageObj']:
+                caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
+
+        body = data['htmlContent']
+
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><p></p>' + body + '</div></body></html>'
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = self.art_url
+        article.summary = self.art_desc
+        article.text_summary = self.art_desc
+        article.title = article.title.replace(' - Business Standard', '')
