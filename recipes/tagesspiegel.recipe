@@ -26,8 +26,22 @@ class TagesspiegelRss(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/de/tagesspiegel.750.jpg'
+        return cover
+    
     keep_only_tags = [
-        classes('ts-lead ts-article-body ts-intro ts-title ts-authors')
+        dict(name = 'header', attrs={'class':'Bo'}),
+        dict(name = 'div', attrs={'id':'story-elements'})
+    ]
+
+    remove_tags = [
+        dict(name = 'aside'),
+        classes('iqd_mainAd Bs')
     ]
 
     feeds = [
@@ -42,5 +56,3 @@ class TagesspiegelRss(BasicNewsRecipe):
         (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
     ]
 
-    def get_masthead_url(self):
-        return 'http://www.tagesspiegel.de/images/tsp_logo/3114/6.png'
