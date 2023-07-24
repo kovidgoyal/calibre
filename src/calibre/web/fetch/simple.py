@@ -180,7 +180,7 @@ class RecursiveFetcher:
         self.compress_news_images = getattr(options, 'compress_news_images', False)
         self.compress_news_images_auto_size = getattr(options, 'compress_news_images_auto_size', 16)
         self.scale_news_images = getattr(options, 'scale_news_images', None)
-        self.get_delay = getattr(options, 'get_delay', lambda url=None: self.delay)
+        self.get_delay = getattr(options, 'get_delay', lambda url: self.delay)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []

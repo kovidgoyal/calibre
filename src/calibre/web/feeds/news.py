@@ -103,8 +103,9 @@ class BasicNewsRecipe(Recipe):
     #: Number of levels of links to follow on article webpages
     recursions             = 0
 
-    #: Delay between consecutive downloads in seconds. The argument may be a
-    #: floating point number to indicate a more precise time.
+    #: The default delay between consecutive downloads in seconds. The argument may be a
+    #: floating point number to indicate a more precise time. See :meth:`get_url_specific_delay`
+    #: to implement per URL delays.
     delay                  = 0
 
     #: Publication type
@@ -474,14 +475,15 @@ class BasicNewsRecipe(Recipe):
             return self.feeds[:self.test[0]]
         return self.feeds
 
-    def get_delay(self, url=None):
+    def get_url_specific_delay(self, url):
         '''
-        Return the delay in seconds before downloading `url`. If you want to programmatically
-        determine the delay for the specified url, override this method in your subclass.
-        When overriding, you should cater for when `url` may be `None`.
-        You may return a floating point number to indicate a more precise time.
+        Return the delay in seconds before downloading this URL. If you want to programmatically
+        determine the delay for the specified URL, override this method in your subclass, returning
+        self.delay by default for URLs you do not want to affect.
+
+        :return: A floating point number, the delay in seconds.
         '''
-        return getattr(self, 'delay', 0)
+        return self.delay
 
     @classmethod
     def print_version(cls, url):
@@ -943,7 +945,7 @@ class BasicNewsRecipe(Recipe):
         web2disk_cmdline = ['web2disk',
             '--timeout', str(self.timeout),
             '--max-recursions', str(self.recursions),
-            '--delay', str(self.get_delay()),
+            '--delay', str(self.delay),
             ]
 
         if self.verbose:
@@ -975,9 +977,9 @@ class BasicNewsRecipe(Recipe):
         self.web2disk_options.preprocess_image = self.preprocess_image
         self.web2disk_options.encoding = self.encoding
         self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_
-        self.web2disk_options.get_delay = self.get_delay
+        self.web2disk_options.get_delay = self.get_url_specific_delay
 
-        if self.get_delay() > 0:
+        if self.delay > 0:
             self.simultaneous_downloads = 1
 
         self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else \
@@ -1721,7 +1723,7 @@ class BasicNewsRecipe(Recipe):
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
-            delay = self.get_delay(url)
+            delay = self.get_url_specific_delay(url)
             if delay > 0:
                 time.sleep(delay)
 
