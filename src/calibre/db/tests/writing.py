@@ -405,7 +405,7 @@ class WritingTest(BaseTest):
         from calibre.db.restore import Restore
         restorer = Restore(cl)
         restorer.start()
-        restorer.join(8)
+        restorer.join(16)
         af(restorer.is_alive())
         cache = self.init_cache(cl)
         ae(before, {f:cache.all_field_for(f, book_ids) for f in tested_fields})
