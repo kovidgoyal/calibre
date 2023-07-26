@@ -121,7 +121,11 @@ class Bloomberg(BasicNewsRecipe):
             data = json.loads(m2[0].text)
             data = data['props']['pageProps']['story']
 
-        title = '<h1>' + data['headline'] + '</h1>'
+        art_url = data['url']
+        if not art_url.startswith('http'):
+            art_url = 'https://www.bloomberg.com' + art_url
+
+        title = '<h1 title="{}">'.format(art_url) + data['headline'] + '</h1>'
 
         cat = subhead = lede = auth = caption = ''
 
@@ -129,7 +133,7 @@ class Bloomberg(BasicNewsRecipe):
                 cat = '<p class="cat">' + data['primaryCategory'] + '</p>'
 
         if len(data['abstract']) != 0 and len(data['abstract']) == 2:
-                subhead = '<div class="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
+                subhead = '<div class="subhead"><p>' + data['abstract'][0] + ' </p><p>' + data['abstract'][1] + '</p></div>'
         else:
             if 'summary' in data:
                 subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
@@ -175,3 +179,9 @@ class Bloomberg(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'src':lambda x: x and x.endswith(('-1x-1.jpg', '-1x-1.png'))}):
             img['src'] = img['src'].replace('-1x-1', '750x-1')
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = soup.find('h1')['title']
+        article.summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
+        article.text_summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
+        article.title = article.title.replace(' - Bloomberg', '')
