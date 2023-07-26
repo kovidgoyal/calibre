@@ -23,6 +23,8 @@ def local_url_for_content_server():
     protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
     prefix = opts.url_prefix or ''
     port = opts.port
+    if ':' in interface:
+        interface = f'[{interface}]'
     return f'{protocol}://{interface}:{port}{prefix}'
 
 
