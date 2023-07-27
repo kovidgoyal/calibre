@@ -9,8 +9,13 @@ class EpochTimes(BasicNewsRecipe):
     description = 'US general news'
     language = 'en'
     encoding = 'utf-8'
-    oldest_article = 2
-    max_articles_per_feed = 10
+    oldest_article = 1.2
+    max_articles_per_feed = 20
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['height', 'width']
+    remove_empty_feeds =  True
+    resolve_internal_links = True
+    masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
     extra_css = """
         body{font-family: Arial,sans-serif }
         .featured_caption{font-size: small}
@@ -23,16 +28,20 @@ class EpochTimes(BasicNewsRecipe):
         classes('author_wrapper bottom_row'),
     ]
 
+	# feeds can be found at https://www.theepochtimes.com/rssfeeds
+
     feeds = [
-        ('US', 'https://www.theepochtimes.com/c-us/feed/'),
-        ('World', 'https://www.theepochtimes.com/c-world/feed/'),
-        ('General', 'https://www.theepochtimes.com/feed/'),
-        ('Opinion', 'https://www.theepochtimes.com/c-opinion/feed/'),
-        ('Business and Economy', 'https://www.theepochtimes.com/c-business/feed/'),
-        ('Science', 'https://www.theepochtimes.com/c-science/feed/'),
-        ('Tech', 'https://www.theepochtimes.com/c-tech/feed/'),
-        ('Health', 'https://www.theepochtimes.com/c-wellness/feed/'),
-        ('Entertainment', 'https://www.theepochtimes.com/c-entertainment/feed/'),
+        ('Special Series', 'https://feed.theepochtimes.com/health/special-series/feed'),
+        ('US', 'https://feed.theepochtimes.com/us/feed'),
+        ('China News', 'https://feed.theepochtimes.com/china/feed'),
+        ('World', 'https://feed.theepochtimes.com/world/feed'),
+        ('Opinion', 'https://feed.theepochtimes.com/opinion/feed'),
+        ('Business & Markets', 'https://feed.theepochtimes.com/business/feed'),
+        ('Science', 'https://feed.theepochtimes.com/science/feed'),
+        ('Tech', 'https://feed.theepochtimes.com/tech/feed'),
+        ('Health & Wellness', 'https://feed.theepochtimes.com/wellness/feed'),
+        ('Epoch Taste', 'https://feed.theepochtimes.com/epoch-taste/feed'),
+        ('Entertainment', 'https://feed.theepochtimes.com/entertainment/feed'),
     ]
 
     def preprocess_html(self, soup):
