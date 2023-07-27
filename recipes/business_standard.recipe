@@ -78,7 +78,7 @@ class BusinessStandard(BasicNewsRecipe):
         
         data = data['props']['pageProps']['data']
 
-        title = '<h1 title=art_url>' + data['pageTitle'] + '</h1>'
+        title = '<h1 title="{}">'.format(art_url) + data['pageTitle'] + '</h1>'
 
         cat = subhead = lede = auth = caption = ''
 
