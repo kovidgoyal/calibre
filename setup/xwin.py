@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os
 import shutil
 
 from setup import Command
@@ -22,8 +21,5 @@ class XWin(Command):
             except FileNotFoundError:
                 raise SystemExit('xwin not found install it from https://github.com/Jake-Shadle/xwin/releases')
         subprocess.check_call(cmd + ['splat', '--output', output_dir])
-        base = f'{output_dir}/sdk/include/um'
-        for casefix in 'Ole2.h OleCtl.h OAIdl.h OCIdl.h'.split():
-            os.link(f'{base}/{casefix.lower()}', f'{base}/{casefix}')
         shutil.rmtree(f'{cache_dir}/dl')
         shutil.rmtree(f'{cache_dir}/unpack')
