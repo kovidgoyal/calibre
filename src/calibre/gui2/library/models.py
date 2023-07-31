@@ -1593,6 +1593,8 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.search(self.last_search, reset)
 
     def sort(self, col, order, reset=True):
+        if not isinstance(order, Qt.SortOrder):
+            order = Qt.SortOrder.AscendingOrder if order else Qt.SortOrder.DescendingOrder
         descending = order != Qt.SortOrder.AscendingOrder
         cname = self.column_map[col]
 
