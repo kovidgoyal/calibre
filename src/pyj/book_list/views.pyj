@@ -236,6 +236,11 @@ def create_more_button(more):
 
 # }}}
 
+def fts():
+    q = {'restricted': 'y', 'restriction': library_data.search_result.query}
+    show_panel('fts', q)
+
+
 def show_top_message():
     container = component('top_message')
     q = loaded_books_query()
@@ -254,6 +259,8 @@ def show_top_message():
         if library_data.search_result.total_num:
             c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query), ' ', _('(total matches: {}) ').format(library_data.search_result.total_num)))
             c.appendChild(E.span(' ', E.a(_('Clear search'), class_='blue-link', onclick=def(): search();)))
+            if library_data.fts_enabled:
+                c.appendChild(E.span(_(' or '), E.a(_('Search the text of these books'), class_='blue-link', onclick=def(): fts();)))
         else:
             c.appendChild(E.span(_('No books matching:'), ' ', E.i(library_data.search_result.query)))
 

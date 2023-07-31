@@ -7,7 +7,7 @@ from elementmaker import E
 from ajax import ajax, ajax_send
 from book_list.cover_grid import THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH
 from book_list.globals import get_current_query, get_session_data
-from book_list.library_data import current_library_id, download_url
+from book_list.library_data import current_library_id, download_url, library_data
 from book_list.router import back, home, open_book_url, push_state
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, set_panel_handler
@@ -64,6 +64,7 @@ def enable_indexing():
                 return error_dialog(_('Permission denied'), _(
                     'You do not have permission to enable indexing. Only logged in users with write permission are allowed.'), xhr.error_html)
             return error_dialog(_('Failed to enable indexing'), _('Enabling indexing failed. Click "Show details" for more information.'), xhr.error_html)
+        library_data.fts_enabled = True
         info_dialog(_('Indexing enabled'), _('Indexing of this library has been enabled. Depending on library size it can take a long time to index all books.'))
     ajax_send(f'fts/indexing', True, on_response)
 
@@ -100,11 +101,14 @@ def execute_search_interactive():
     query = component('query').querySelector('input').value
     if not query or query.length < 1:
         error_dialog(_('No search query specified'), _('A search word/phrase must be specified before attempting to search'))
+        clear_to_help()
         return
     q = get_current_query()
     q.fts_panel = 'search'
     q.fts_query = query
     q.fts_use_stemming = 'y' if component('related_words').checked else 'n'
+    if q.restricted is 'y':
+        q.restriction = component('restrict').querySelector('input').value
     current_fts_query = {}
     push_state(q, replace=True)
 
@@ -132,10 +136,15 @@ def build_search_page():
             ' example, in the English language: {0} matches {1} and {2} as well').format(
             'correction', 'correcting', 'corrected')
     )
-    container.appendChild(E.div(style="padding-top: 1ex; border-bottom: solid 1px currentColor; width: 100%", related_words))
+    container.appendChild(E.div(style="padding-top: 1ex;", related_words))
+
+    restrict_bar = create_search_bar(execute_search_interactive, 'search-books-fts-restrict', tooltip=_('Restrict the results to only books matching this query'), placeholder=_('Restrict to books matching...'))
+    set_css(restrict_bar, flex_grow='10', margin_right='0.5em')
+    restrict_bar.dataset.component = 'restrict'
+    container.appendChild(E.div(style="padding-top: 1ex; display: flex; width: 100%; align-items: center", svgicon('search'), E.span('\xa0'), restrict_bar))
 
     # Search help
-    container.appendChild(E.div(data_component='results'))
+    container.appendChild(E.div(style='border-top: 1px currentColor solid; margin-top: 1ex', data_component='results'))
 
 
 def clear_to_waiting_for_results(msg):
@@ -150,17 +159,32 @@ def clear_to_waiting_for_results(msg):
     ))
 
 
+def toggle_restrict():
+    container = component('restrict')
+    if not container:
+        return
+    q = get_current_query()
+    q.restricted = 'n' if q.restricted is 'y' else 'y'
+    push_state(q, replace=True)
+
+
 def clear_to_help():
     container = component('results')
     if not container:
         return
     clear(container)
     container.appendChild(E.div(class_='fts-help-display'))
+    restrict = get_current_query().restricted is 'y'
     container.appendChild(E.div(
         style='margin-top: 1ex',
         E.a(_('Re-index all books in this library'), class_='blue-link', href='javascript:void(0)', onclick=reindex_all),
         E.span('\xa0\xa0'),
         E.a(_('Disable full text search'), class_='blue-link', href='javascript:void(0)', onclick=disable_fts),
+        E.span('\xa0\xa0'),
+        E.a(
+            _('Search all books') if restrict else _('Search a subset of books'),
+             class_='blue-link', href='javascript:void(0)', onclick=toggle_restrict
+        ),
     ))
     container = container.firstChild
     fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
@@ -190,13 +214,16 @@ def clear_to_help():
 
 def apply_search_panel_state():
     q = get_current_query()
-    ftsq = {'query': q.fts_query or '', 'use_stemming': q.fts_use_stemming or 'y'}
+    ftsq = {'query': q.fts_query or '', 'use_stemming': q.fts_use_stemming or 'y', 'restriction': q.restriction if q.restricted is 'y' else ''}
     component('query').querySelector('input').value = ftsq.query
     component('related_words').checked = ftsq.use_stemming is 'y'
+    r = component('restrict')
+    r.parentNode.style.display = 'flex' if ftsq.restriction is not '' else 'none'
+    r.querySelector('input').value = q.restriction or ''
     if not ftsq.query:
         clear_to_help()
         return
-    if current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming:
+    if current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming or current_fts_query.restriction is not ftsq.restriction:
         make_new_fts_query(ftsq)
         clear_to_waiting_for_results(_('Searching for {}, please wait…').format(ftsq.query))
         return
@@ -258,6 +285,7 @@ def disable_fts_backend():
                 return error_dialog(_('Permission denied'), _(
                     'You do not have permission to disable FTS. Only logged in users with write permission are allowed to disable FTS.'), xhr.error_html)
             return error_dialog(_('Disabling FTS failed'), _('Disabling FTS failed. Click "Show details" for more information.'), xhr.error_html)
+        library_data.fts_enabled = False
         info_dialog(_('Full text searching disabled'), _('Full text searching for this library has been disabled. In the future the entire library will have to be re-indexed when re-enabling full text searching.'), on_close=def():
             window.setTimeout(home)
         )
@@ -379,18 +407,19 @@ def show_snippets(snippets):
     container = component('results')
     for book_id in Object.keys(snippets):
         c = container.querySelector(f'[data-book-id="{book_id}"]')
-        v'delete c.dataset.snippetsNeeded'
-        s = c.querySelector('.snippets_container')
-        clear(s)
-        for x in snippets[book_id]:
-            f = ' '.join(x.formats)
-            e = E.div(E.code(
-                style='border: solid 1px currentColor; border-radius: 6px; padding: 0 4px; font-size: smaller',
-                data_formats=f, f)
-            )
-            e.appendChild(E.span(' '))
-            render_text(e, x.text)
-            s.appendChild(e)
+        if c:
+            v'delete c.dataset.snippetsNeeded'
+            s = c.querySelector('.snippets_container')
+            clear(s)
+            for x in snippets[book_id]:
+                f = ' '.join(x.formats)
+                e = E.div(E.code(
+                    style='border: solid 1px currentColor; border-radius: 6px; padding: 0 4px; font-size: smaller',
+                    data_formats=f, f)
+                )
+                e.appendChild(E.span(' '))
+                render_text(e, x.text)
+                s.appendChild(e)
 
 
 def fetch_snippets():

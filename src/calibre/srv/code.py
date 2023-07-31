@@ -232,6 +232,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
+        ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
         mdata = ans['metadata'] = {}
         try:
