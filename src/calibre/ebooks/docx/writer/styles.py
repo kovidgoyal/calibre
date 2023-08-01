@@ -199,6 +199,24 @@ LINE_STYLES = {
     'outset': 'outset',
 }
 
+def convert_underline(items):
+    style = 'solid'
+    has_underline = False
+    color = 'auto'
+    for x in items:
+        if x in {'solid', 'double', 'dotted', 'dashed', 'wavy'}:
+            style = {'solid': 'single', 'wavy': 'wave', 'dashed': 'dash'}.get(x, x)
+        elif x in {'underline', 'overline', 'line-through', 'blink', 'none'}:
+            if x == 'underline':
+                has_underline = True
+            elif x == 'none':
+                has_underline = False
+        else:
+            color = convert_color(x)
+    if has_underline:
+        return style + ' ' + color
+    return ''
+
 
 class TextStyle(DOCXStyle):
 
@@ -221,7 +239,7 @@ class TextStyle(DOCXStyle):
         self.color = convert_color(css['color'])
         self.background_color = None if is_parent_style else convert_color(css.backgroundColor)
         td = set((css.effective_text_decoration or '').split())
-        self.underline = 'underline' in td
+        self.underline = convert_underline(td)
         self.dstrike = 'line-through' in td and 'overline' in td
         self.strike = not self.dstrike and 'line-through' in td
         self.text_transform = css['text-transform']  # TODO: If lowercase or capitalize, transform the actual text
@@ -330,7 +348,11 @@ class TextStyle(DOCXStyle):
         if check_attr('background_color'):
             rPr.append(makeelement(rPr, 'shd', fill=self.background_color or 'auto'))
         if check_attr('underline'):
-            rPr.append(makeelement(rPr, 'u', val='single' if self.underline else 'none'))
+            style, color = self.underline.partition(' ')[::2]
+            if color != 'auto':
+                rPr.append(makeelement(rPr, 'u', val=style, color=color))
+            else:
+                rPr.append(makeelement(rPr, 'u', val=style))
         if check_attr('dstrike'):
             rPr.append(makeelement(rPr, 'dstrike', val=bmap(self.dstrike)))
         if check_attr('strike'):
@@ -389,7 +411,11 @@ class DescendantTextStyle:
         if check('background_color'):
             add('shd', fill=child_style.background_color or 'auto')
         if check('underline'):
-            add('u', val='single' if child_style.underline else 'none')
+            if not child_style.underline:
+                add('u', val='none')
+            else:
+                style, color = child_style.underline.partition(' ')[::2]
+                add('u', val=style, color=color)
         if check('dstrike'):
             add('dstrike', val=bmap(child_style.dstrike))
         if check('strike'):
