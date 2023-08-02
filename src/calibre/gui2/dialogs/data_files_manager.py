@@ -160,6 +160,8 @@ class DataFilesManager(Dialog):
         self.delegate = d = Delegate(self)
         d.rename_requested.connect(self.rename_requested, type=Qt.ConnectionType.QueuedConnection)
         self.fview = v = QListView(self)
+        v.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        v.customContextMenuRequested.connect(self.context_menu)
         set_no_activate_on_click(v)
         v.activated.connect(self.activated)
         v.setItemDelegate(d)
@@ -192,6 +194,22 @@ class DataFilesManager(Dialog):
         self.resize(self.sizeHint())
         self.fview.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def context_menu(self, pos):
+        m = QMenu(self)
+        idx = self.fview.indexAt(pos)
+        if not idx.isValid():
+            return
+        e = self.files.item_at(idx.row())
+        m.addAction(QIcon.ic('modified.png'), _('Rename this file')).triggered.connect(lambda: self.fview.edit(idx))
+        if e:
+            om = self.open_with_menu(e.file_path)
+            if len(om.actions()) == 1:
+                m.addActions(om.actions())
+            else:
+                m.addMenu(om)
+
+        m.exec(self.fview.mapToGlobal(pos))
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key.Key_Return:
             return
@@ -212,7 +230,7 @@ class DataFilesManager(Dialog):
         self.current_label.setText('<p>{} <a href="open_with://{}">{}</a>'.format(txt, idx.row(), prepare_string_for_xml(_('Open with'))))
 
     def open_with_menu(self, file_path):
-        m = QMenu(parent=self)
+        m = QMenu(_('Open with...'), parent=self)
         fmt = file_path.rpartition('.')[-1].lower()
         populate_menu(m, lambda ac, entry:ac.triggered.connect(partial(self.do_open_with, file_path, entry)), fmt)
         if len(m.actions()) == 0:
