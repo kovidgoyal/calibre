@@ -98,6 +98,12 @@ class Files(QAbstractListModel):
     def item_at(self, rownum):
         return self.files[rownum]
 
+    def rownum_for_relpath(self, relpath):
+        for i, e in enumerate(self.files):
+            if e.relpath == relpath:
+                return i
+        return -1
+
     def data(self, index, role):
         row = index.row()
         if row >= len(self.files):
@@ -277,6 +283,12 @@ class DataFilesManager(Dialog):
                 self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=True)
         with self.preserve_state():
             self.files.refresh()
+        row = self.files.rownum_for_relpath(newrelpath)
+        if row > -1:
+            idx = self.files.index(row)
+            self.fview.setCurrentIndex(idx)
+            self.fview.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
+            self.fview.scrollTo(idx)
 
 
 if __name__ == '__main__':
