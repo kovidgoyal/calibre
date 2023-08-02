@@ -219,7 +219,7 @@ class DataFilesManager(Dialog):
         if len(files) == 1:
             msg = _('Send the file "{}" to the Recycle Bin?').format(files[0].relpath.replace('/', os.sep))
         else:
-            msg = _('Send the {} selected filed to the Recycle Bin?').format(len(files))
+            msg = _('Send the {} selected files to the Recycle Bin?').format(len(files))
         if not confirm(msg, 'manage-data-files-confirm-delete'):
             return
         for f in files:
