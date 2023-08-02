@@ -10,7 +10,8 @@ from functools import partial
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
     QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
-    QPushButton, QSize, QStyledItemDelegate, Qt, QTimer, QVBoxLayout, pyqtSignal, sip,
+    QPushButton, QRect, QSize, QSizeF, QStyle, QStyledItemDelegate, Qt, QTextDocument,
+    QTimer, QVBoxLayout, pyqtSignal, sip,
 )
 
 from calibre import human_readable, prepare_string_for_xml
@@ -60,6 +61,26 @@ class Delegate(QStyledItemDelegate):
             editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
         else:
             editor.selectAll()
+
+    def paint(self, painter, option, index):
+        painter.save()
+        if option.state & QStyle.StateFlag.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+        dec = index.data(Qt.ItemDataRole.DecorationRole)
+        sz = QSize(option.rect.height(), option.rect.height())
+        r = option.rect
+        ir = QRect(r.topLeft(), sz)
+        dec.paint(painter, ir)
+        r.adjust(ir.width(), 0, 0, 0)
+        lines = (index.data(Qt.ItemDataRole.DisplayRole) or '').splitlines()
+        d = QTextDocument()
+        d.setDocumentMargin(1)
+        d.setPageSize(QSizeF(r.size()))
+        d.setTextWidth(r.width())
+        d.setHtml(f'<b>{lines[0]}</b><br><small>{lines[1]}')
+        painter.translate(r.topLeft())
+        d.drawContents(painter)
+        painter.restore()
 
 
 class Files(QAbstractListModel):
