@@ -6,13 +6,16 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 from qt.core import (
-    QAbstractItemView, QAbstractListModel, QDialogButtonBox, QIcon, QItemSelectionModel,
-    QLabel, QListView, QPushButton, Qt, QVBoxLayout, QSize
+    QAbstractItemView, QAbstractListModel, QComboBox, QDialogButtonBox, QHBoxLayout,
+    QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QPushButton, QSize,
+    Qt, QVBoxLayout,
 )
 
 from calibre import human_readable
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.gui2 import choose_files, error_dialog, file_icon_provider, question_dialog
+from calibre.gui2 import (
+    choose_files, error_dialog, file_icon_provider, gprefs, question_dialog,
+)
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 
@@ -26,13 +29,27 @@ class Files(QAbstractListModel):
         self.fi = file_icon_provider()
         self.files = sorted(db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN), key=self.file_sort_key)
 
-    def refresh(self):
+    def refresh(self, key=None, reverse=False):
         self.modelAboutToBeReset.emit()
-        self.files = sorted(self.db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN), key=self.file_sort_key)
+        self.files = sorted(self.db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN), key=key or self.file_sort_key, reverse=reverse)
         self.modelReset.emit()
 
     def file_sort_key(self, ef):
         return primary_sort_key(ef.relpath)
+
+    def date_sort_key(self, ef):
+        return ef.stat_result.st_mtime
+
+    def size_sort_key(self, ef):
+        return ef.stat_result.st_size
+
+    def resort(self, which):
+        k, reverse = self.file_sort_key, False
+        if which == 1:
+            k, reverse = self.date_sort_key, True
+        elif which == 2:
+            k, reverse = self.size_sort_key, True
+        self.refresh(key=k, reverse=reverse)
 
     def rowCount(self, parent=None):
         return len(self.files)
@@ -80,6 +97,17 @@ class DataFilesManager(Dialog):
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
 
+        self.sbla = la = QLabel(_('&Sort by:'))
+        self.sort_by = sb = QComboBox(self)
+        sb.addItems((_('Name'), _('Recency'), _('Size')))
+        sb.setCurrentIndex(gprefs.get('manage_data_files_last_sort_idx', 0))
+        sb.currentIndexChanged.connect(self.sort_changed)
+        sb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        la.setBuddy(sb)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(la), h.addWidget(sb)
+
         self.fview = v = QListView(self)
         l.addWidget(v)
         self.files = Files(self.db.new_api, self.book_id, parent=v)
@@ -100,6 +128,12 @@ class DataFilesManager(Dialog):
 
         self.current_changed()
         self.resize(self.sizeHint())
+
+    def sort_changed(self):
+        idx = max(0, self.sort_by.currentIndex())
+        gprefs.set('manage_data_files_last_sort_idx', idx)
+        with self.preserve_state():
+            self.files.resort(idx)
 
     def current_changed(self):
         idx = self.fview.currentIndex()
@@ -129,15 +163,22 @@ class DataFilesManager(Dialog):
             yield
         finally:
             sm = self.fview.selectionModel()
+            sm.clearSelection()
+            current_idx = None
+            s = QItemSelection()
             for i in range(self.files.rowCount()):
                 e = self.files.item_at(i)
-                flags = QItemSelectionModel.SelectionFlag.NoUpdate
                 if current is not None and e.relpath == current.relpath:
-                    flags |= QItemSelectionModel.SelectionFlag.Current
+                    current_idx = i
                 if e.relpath in selected:
+                    ii = self.files.index(i)
+                    s.select(ii, ii)
+            if current_idx is not None:
+                flags = QItemSelectionModel.SelectionFlag.Current
+                if current.relpath in selected:
                     flags |= QItemSelectionModel.SelectionFlag.Select
-                if flags != QItemSelectionModel.SelectionFlag.NoUpdate:
-                    sm.select(self.files.index(i), flags)
+                sm.setCurrentIndex(self.files.index(current_idx), flags)
+            sm.select(s, QItemSelectionModel.SelectionFlag.SelectCurrent)
             self.current_changed()
             vs.setValue(pos)
 
