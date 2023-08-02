@@ -67,7 +67,7 @@ class Delegate(QStyledItemDelegate):
         d = QTextDocument()
         d.setDocumentMargin(0)
         lines = (index.data(Qt.ItemDataRole.DisplayRole) or ' \n ').splitlines()
-        d.setHtml(f'<b>{lines[0]}</b><br><small>{lines[1]}')
+        d.setHtml(f'<b>{prepare_string_for_xml(lines[0])}</b><br><small>{prepare_string_for_xml(lines[1])}')
         return d
 
     def sizeHint(self, option, index):
