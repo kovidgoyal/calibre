@@ -16,12 +16,13 @@ from qt.core import (
 from calibre import human_readable
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.gui2 import (
-    choose_files, error_dialog, file_icon_provider, gprefs, question_dialog,
+    choose_files, error_dialog, file_icon_provider, gprefs, question_dialog, open_local_file
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.recycle_bin import delete_file
+from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 NAME_ROLE = Qt.ItemDataRole.UserRole
 
@@ -155,11 +156,14 @@ class DataFilesManager(Dialog):
         self.delegate = d = Delegate(self)
         d.rename_requested.connect(self.rename_requested, type=Qt.ConnectionType.QueuedConnection)
         self.fview = v = QListView(self)
+        set_no_activate_on_click(v)
+        v.activated.connect(self.activated)
         v.setItemDelegate(d)
         l.addWidget(v)
         self.files = Files(self.db.new_api, self.book_id, parent=v)
         self.files.resort(self.sort_by.currentIndex())
         v.setModel(self.files)
+        v.setEditTriggers(QAbstractItemView.EditTrigger.AnyKeyPressed | QAbstractItemView.EditTrigger.EditKeyPressed)
         v.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         if self.files.rowCount():
             v.setCurrentIndex(self.files.index(0))
@@ -179,6 +183,12 @@ class DataFilesManager(Dialog):
 
         self.current_changed()
         self.resize(self.sizeHint())
+        self.fview.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key.Key_Return:
+            return
+        return super().keyPressEvent(ev)
 
     def sort_changed(self):
         idx = max(0, self.sort_by.currentIndex())
@@ -289,6 +299,10 @@ class DataFilesManager(Dialog):
             self.fview.setCurrentIndex(idx)
             self.fview.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
             self.fview.scrollTo(idx)
+
+    def activated(self, idx):
+        e = self.files.item_at(idx.row())
+        open_local_file(e.file_path)
 
 
 if __name__ == '__main__':
