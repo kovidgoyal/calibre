@@ -16,8 +16,10 @@ from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.gui2 import (
     choose_files, error_dialog, file_icon_provider, gprefs, question_dialog,
 )
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.recycle_bin import delete_file
 
 
 class Files(QAbstractListModel):
@@ -125,6 +127,9 @@ class DataFilesManager(Dialog):
         self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('&Add files'), self)
         b.clicked.connect(self.add_files)
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
+        self.remove_button = b = QPushButton(QIcon.ic('minus.png'), _('&Remove files'), self)
+        b.clicked.connect(self.remove_files)
+        self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
 
         self.current_changed()
         self.resize(self.sizeHint())
@@ -201,6 +206,23 @@ class DataFilesManager(Dialog):
                     'The following files already exist as data files in the book. Replace them?'
             ) + '\n' + '\n'.join(x.partition('/')[2] for x in collisions)):
                 self.db.add_extra_files(self.book_id, m, replace=True, auto_rename=False)
+        with self.preserve_state():
+            self.files.refresh()
+
+    def remove_files(self):
+        files = []
+        for idx in self.fview.selectionModel().selectedRows():
+            files.append(self.files.item_at(idx.row()))
+        if not files:
+            return error_dialog(self, _('Cannot delete'), _('No files selected to remove'), show=True)
+        if len(files) == 1:
+            msg = _('Send the file "{}" to the Recycle Bin?').format(files[0].relpath.replace('/', os.sep))
+        else:
+            msg = _('Send the {} selected filed to the Recycle Bin?').format(len(files))
+        if not confirm(msg, 'manage-data-files-confirm-delete'):
+            return
+        for f in files:
+            delete_file(f.file_path, permanent=False)
         with self.preserve_state():
             self.files.refresh()
 
