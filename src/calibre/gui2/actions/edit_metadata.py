@@ -105,6 +105,8 @@ class EditMetadataAction(InterfaceAction):
         self.action_merge = cm('merge', _('Merge book records'), icon='merge_books.png',
             shortcut=_('M'), triggered=self.merge_books)
         self.action_merge.setMenu(mb)
+        self.action_manage_data_files = cm(
+            'manage_data_files', _('Manage data files'), icon='unpack-book.png', triggered=self.manage_data_files)
 
         self.qaction.triggered.connect(self.edit_metadata)
         ac = QAction(_('Copy URL to show book in calibre'), self.gui)
@@ -123,6 +125,14 @@ class EditMetadataAction(InterfaceAction):
             self.unique_name + ' - ' + 'copy_view_book',
             ac.text(), description=ac.toolTip(),
             action=ac, group=self.action_spec[0])
+
+    def manage_data_files(self):
+        from calibre.gui2.dialogs.data_files_manager import DataFilesManager
+        db = self.gui.current_db
+        ids = [db.id(row.row()) for row in self.gui.library_view.selectionModel().selectedRows()]
+        for book_id in ids:
+            d = DataFilesManager(db, book_id, self.gui)
+            d.exec()
 
     def _copy_links(self, lines):
         urls = QUrl.fromStringList(lines)

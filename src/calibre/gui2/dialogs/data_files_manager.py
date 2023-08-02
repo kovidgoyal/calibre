@@ -188,6 +188,7 @@ class DataFilesManager(Dialog):
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         self.remove_button = b = QPushButton(QIcon.ic('minus.png'), _('&Remove files'), self)
         b.clicked.connect(self.remove_files)
+        b.setToolTip(_('Move all selected files to the system Recycle bin.\nThey can be restored from there if needed'))
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
 
         self.current_changed()
@@ -227,7 +228,10 @@ class DataFilesManager(Dialog):
         if idx.isValid():
             txt = self.files.file_display_name(idx.row())
         txt = prepare_string_for_xml(txt)
-        self.current_label.setText('<p>{} <a href="open_with://{}">{}</a>'.format(txt, idx.row(), prepare_string_for_xml(_('Open with'))))
+        if txt:
+            self.current_label.setText('<p>{} <a href="open_with://{}">{}</a>'.format(txt, idx.row(), prepare_string_for_xml(_('Open with'))))
+        else:
+            self.current_label.setText('')
 
     def open_with_menu(self, file_path):
         m = QMenu(_('Open with...'), parent=self)

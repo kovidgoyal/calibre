@@ -82,3 +82,19 @@ Bulk downloading of metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to download the metadata for multiple books at once, right-click the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata`. You can choose to download only metadata, only covers, or both.
+
+
+.. _data_files:
+
+Adding extra data files to a book
+--------------------------------------
+
+calibre can store any number of extra data files associated to a book. These
+can be alternate covers, supplementary material, etc. They cannot be viewed
+directly or used as conversion sources. Nor are they indexed by the Full text
+search engine in calibre. To view/add/delete them select the book and right
+click the :guilabel:`Edit metadata` button and choose :guilabel:`Manage data
+files`. This will pop-up a window where you can perform operations on these
+files. Alternately, you can right click the :guilabel:`Add books` button and
+choose :guilabel:`Add data files to selected book records` to more quickly add
+data files.

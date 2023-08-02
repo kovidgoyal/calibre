@@ -57,7 +57,7 @@ Add books
 
     6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
 
-    7. **Add data files to selected book records**: Allows you to add any number of extra files that will be stored in a :file:`data` sub-directory in the book directory
+    7. **Add data files to selected book records**: Allows you to add any number of extra files that will be stored in a :file:`data` sub-directory in the book directory. See :ref:`data_files` for details.
 
     8. **Add an empty file to selected book records**: Allows you to add an empty file of the specified format to the selected book records.
 
@@ -72,16 +72,6 @@ To add an additional format for an existing book you can do any of three things:
 
     3. Click the :guilabel:`Add books` button in the top right area of the :guilabel:`Edit metadata` dialog, accessed by the :ref:`edit_meta_information` action.
 
-.. note::
-   The extra data files added to a book will be managed by calibre, as part of
-   the book. However, they cannot be viewed directly or used as conversion
-   sources. Nor are they indexed by the Full text search engine in calibre. To
-   view them select the book and press the :kbd:`O` key which will open up the
-   book folder in your file manager, from where the extra files can be viewed
-   using any program you like. They are most useful to store any auxiliary
-   data associated with a book such as supplementary reading material, digital
-   resources, etc.
-
 .. _edit_meta_information:
 
 Edit metadata
@@ -95,6 +85,7 @@ Edit metadata
     2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simultaneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
+    5. **Manage data files**: Manage the extra data files associated with the selected books.
 
 For more details, see :ref:`metadata`.
 
