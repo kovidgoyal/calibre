@@ -8,17 +8,21 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QAbstractListModel, QComboBox, QDialogButtonBox, QHBoxLayout,
-    QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QPushButton, QSize,
-    QStyledItemDelegate, Qt, QTimer, QVBoxLayout, pyqtSignal, sip,
+    QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
+    QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
+    QPushButton, QSize, QStyledItemDelegate, Qt, QTimer, QVBoxLayout, pyqtSignal, sip,
 )
 
-from calibre import human_readable
+from calibre import human_readable, prepare_string_for_xml
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.gui2 import (
-    choose_files, error_dialog, file_icon_provider, gprefs, question_dialog, open_local_file
+    choose_files, error_dialog, file_icon_provider, gprefs, open_local_file,
+    question_dialog,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.open_with import (
+    choose_program, edit_programs, populate_menu, run_program,
+)
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.recycle_bin import delete_file
@@ -170,6 +174,9 @@ class DataFilesManager(Dialog):
         v.selectionModel().currentChanged.connect(self.current_changed)
 
         self.current_label = la = QLabel(self)
+        la.setOpenExternalLinks(False)
+        la.linkActivated.connect(self.open_with, type=Qt.ConnectionType.QueuedConnection)
+        la.setTextFormat(Qt.TextFormat.RichText)
         la.setWordWrap(True)
         l.addWidget(la)
 
@@ -201,7 +208,36 @@ class DataFilesManager(Dialog):
         txt = ''
         if idx.isValid():
             txt = self.files.file_display_name(idx.row())
-        self.current_label.setText(txt)
+        txt = prepare_string_for_xml(txt)
+        self.current_label.setText('<p>{} <a href="open_with://{}">{}</a>'.format(txt, idx.row(), prepare_string_for_xml(_('Open with'))))
+
+    def open_with_menu(self, file_path):
+        m = QMenu(parent=self)
+        fmt = file_path.rpartition('.')[-1].lower()
+        populate_menu(m, lambda ac, entry:ac.triggered.connect(partial(self.do_open_with, file_path, entry)), fmt)
+        if len(m.actions()) == 0:
+            m.addAction(_('Open %s file with...') % fmt.upper(), partial(self.choose_open_with, file_path, fmt))
+        else:
+            m.addSeparator()
+            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_path, fmt))
+            m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, self))
+        return m
+
+    def choose_open_with(self, file_path, fmt):
+        entry = choose_program(fmt, self)
+        if entry is not None:
+            self.do_open_with(file_path, entry)
+
+    def do_open_with(self, path, entry):
+        run_program(entry, path, self)
+
+    def open_with(self):
+        idx = self.fview.currentIndex()
+        if not idx.isValid():
+            return
+        e = self.files.item_at(idx.row())
+        m = self.open_with_menu(e.file_path)
+        m.exec(QCursor.pos())
 
     @property
     def current_item(self):
