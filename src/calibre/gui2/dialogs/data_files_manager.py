@@ -29,7 +29,7 @@ class Files(QAbstractListModel):
         self.book_id = book_id
         super().__init__(parent=parent)
         self.fi = file_icon_provider()
-        self.files = sorted(db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN), key=self.file_sort_key)
+        self.files = []
 
     def refresh(self, key=None, reverse=False):
         self.modelAboutToBeReset.emit()
@@ -113,6 +113,7 @@ class DataFilesManager(Dialog):
         self.fview = v = QListView(self)
         l.addWidget(v)
         self.files = Files(self.db.new_api, self.book_id, parent=v)
+        self.files.resort(self.sort_by.currentIndex())
         v.setModel(self.files)
         v.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         if self.files.rowCount():
