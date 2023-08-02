@@ -10,8 +10,8 @@ from functools import partial
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
     QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
-    QPushButton, QRect, QSize, QSizeF, QStyle, QStyledItemDelegate, Qt, QTextDocument,
-    QTimer, QVBoxLayout, pyqtSignal, sip,
+    QPushButton, QRect, QSize, QStyle, QStyledItemDelegate, Qt, QTextDocument, QTimer,
+    QVBoxLayout, pyqtSignal, sip,
 )
 
 from calibre import human_readable, prepare_string_for_xml
@@ -64,6 +64,7 @@ class Delegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         painter.save()
+        painter.setClipRect(option.rect)
         if option.state & QStyle.StateFlag.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         dec = index.data(Qt.ItemDataRole.DecorationRole)
@@ -75,8 +76,6 @@ class Delegate(QStyledItemDelegate):
         lines = (index.data(Qt.ItemDataRole.DisplayRole) or '').splitlines()
         d = QTextDocument()
         d.setDocumentMargin(1)
-        d.setPageSize(QSizeF(r.size()))
-        d.setTextWidth(r.width())
         d.setHtml(f'<b>{lines[0]}</b><br><small>{lines[1]}')
         painter.translate(r.topLeft())
         d.drawContents(painter)
