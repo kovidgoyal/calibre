@@ -14,6 +14,7 @@ from qt.core import (
 )
 
 from calibre import human_readable, prepare_string_for_xml
+from calibre.constants import ismacos
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.gui2 import (
     choose_files, error_dialog, file_icon_provider, gprefs, open_local_file,
@@ -188,7 +189,11 @@ class DataFilesManager(Dialog):
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         self.remove_button = b = QPushButton(QIcon.ic('minus.png'), _('&Remove files'), self)
         b.clicked.connect(self.remove_files)
-        b.setToolTip(_('Move all selected files to the system Recycle bin.\nThey can be restored from there if needed'))
+        if ismacos:
+            trash = _('Trash bin')
+        else:
+            trash = _('Recycle bin')
+        b.setToolTip(_('Move all selected files to the system {trash}.\nThey can be restored from there if needed').format(trash=trash))
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
 
         self.current_changed()
