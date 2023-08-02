@@ -48,7 +48,7 @@ from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     ascii_filename, atomic_rename, copyfile_using_links, copytree_using_links,
     hardlink_file, is_case_sensitive, is_fat_filesystem, make_long_path_useable,
-    remove_dir_if_empty, samefile,
+    remove_dir_if_empty, samefile, get_long_path_name
 )
 from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions, load_user_template_functions,
@@ -1497,6 +1497,12 @@ class DB:
         fmt_path = os.path.join(path, COVER_FILE_NAME)
         if os.path.exists(fmt_path):
             return fmt_path
+
+    def is_path_inside_book_dir(self, path, book_relpath, sub_path):
+        book_path = os.path.abspath(os.path.join(self.library_path, book_relpath, sub_path))
+        book_path = os.path.normcase(get_long_path_name(book_path)).rstrip(os.sep)
+        path = os.path.normcase(get_long_path_name(os.path.abspath(path))).rstrip(os.sep)
+        return path.startswith(book_path + os.sep)
 
     def apply_to_format(self, book_id, path, fname, fmt, func, missing_value=None):
         path = self.format_abspath(book_id, fmt, fname, path)
