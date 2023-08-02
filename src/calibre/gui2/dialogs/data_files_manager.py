@@ -3,12 +3,14 @@
 
 
 import os
+import posixpath
 from contextlib import contextmanager
 from datetime import datetime
+from functools import partial
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QComboBox, QDialogButtonBox, QHBoxLayout,
     QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QPushButton, QSize,
-    Qt, QVBoxLayout,
+    QStyledItemDelegate, Qt, QTimer, QVBoxLayout, pyqtSignal, sip,
 )
 
 from calibre import human_readable
@@ -20,6 +22,38 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.recycle_bin import delete_file
+
+NAME_ROLE = Qt.ItemDataRole.UserRole
+
+
+class Delegate(QStyledItemDelegate):
+
+    rename_requested = pyqtSignal(int, str)
+
+    def setModelData(self, editor, model, index):
+        newname = editor.text()
+        oldname = index.data(NAME_ROLE) or ''
+        if newname != oldname:
+            self.rename_requested.emit(index.row(), newname)
+
+    def setEditorData(self, editor, index):
+        name = index.data(NAME_ROLE) or ''
+        # We do this because Qt calls selectAll() unconditionally on the
+        # editor, and we want only a part of the file name to be selected
+        QTimer.singleShot(0, partial(self.set_editor_data, name, editor))
+
+    def set_editor_data(self, name, editor):
+        if sip.isdeleted(editor):
+            return
+        editor.setText(name)
+        ext_pos = name.rfind('.')
+        slash_pos = name.rfind(os.sep)
+        if slash_pos == -1 and ext_pos > 0:
+            editor.setSelection(0, ext_pos)
+        elif ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
+            editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
+        else:
+            editor.selectAll()
 
 
 class Files(QAbstractListModel):
@@ -78,10 +112,12 @@ class Files(QAbstractListModel):
             ef = self.files[row]
             fmt = ef.relpath.rpartition('.')[-1].lower()
             return self.fi.icon_from_ext(fmt)
+        if role == NAME_ROLE:
+            return self.file_display_name(row)
         return None
 
     def flags(self, index):
-        return Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
 
 class DataFilesManager(Dialog):
@@ -110,7 +146,10 @@ class DataFilesManager(Dialog):
         l.addLayout(h)
         h.addWidget(la), h.addWidget(sb)
 
+        self.delegate = d = Delegate(self)
+        d.rename_requested.connect(self.rename_requested, type=Qt.ConnectionType.QueuedConnection)
         self.fview = v = QListView(self)
+        v.setItemDelegate(d)
         l.addWidget(v)
         self.files = Files(self.db.new_api, self.book_id, parent=v)
         self.files.resort(self.sort_by.currentIndex())
@@ -224,6 +263,18 @@ class DataFilesManager(Dialog):
             return
         for f in files:
             delete_file(f.file_path, permanent=False)
+        with self.preserve_state():
+            self.files.refresh()
+
+    def rename_requested(self, idx, new_name):
+        e = self.files.item_at(idx)
+        newrelpath = posixpath.normpath(posixpath.join(DATA_DIR_NAME, new_name.replace(os.sep, '/')))
+        if not newrelpath.startswith(DATA_DIR_NAME + '/'):
+            return error_dialog(self, _('Invalid name'), _('"{}" is not a valid file name').format(new_name), show=True)
+        if e.relpath not in self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=False):
+            if question_dialog(self, _('Replace existing file?'), _(
+                    'Another data file with the name "{}" already exists. Replace it?').format(new_name)):
+                self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=True)
         with self.preserve_state():
             self.files.refresh()
 
