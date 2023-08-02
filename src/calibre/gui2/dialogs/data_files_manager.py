@@ -36,6 +36,7 @@ NAME_ROLE = Qt.ItemDataRole.UserRole
 class Delegate(QStyledItemDelegate):
 
     rename_requested = pyqtSignal(int, str)
+    doc_size = None
 
     def setModelData(self, editor, model, index):
         newname = editor.text()
@@ -62,6 +63,21 @@ class Delegate(QStyledItemDelegate):
         else:
             editor.selectAll()
 
+    def doc_for_index(self, index):
+        d = QTextDocument()
+        d.setDocumentMargin(0)
+        lines = (index.data(Qt.ItemDataRole.DisplayRole) or ' \n ').splitlines()
+        d.setHtml(f'<b>{lines[0]}</b><br><small>{lines[1]}')
+        return d
+
+    def sizeHint(self, option, index):
+        ans = super().sizeHint(option, index)
+        if self.doc_size is None:
+            d = self.doc_for_index(index)
+            self.doc_size = d.size()
+        ans.setHeight(max(self.doc_size.height() + 2, ans.height()))
+        return ans
+
     def paint(self, painter, option, index):
         painter.save()
         painter.setClipRect(option.rect)
@@ -73,10 +89,10 @@ class Delegate(QStyledItemDelegate):
         ir = QRect(r.topLeft(), sz)
         dec.paint(painter, ir)
         r.adjust(ir.width(), 0, 0, 0)
-        lines = (index.data(Qt.ItemDataRole.DisplayRole) or '').splitlines()
-        d = QTextDocument()
-        d.setDocumentMargin(1)
-        d.setHtml(f'<b>{lines[0]}</b><br><small>{lines[1]}')
+        d = self.doc_for_index(index)
+        extra = int(r.height() - d.size().height()) // 2
+        if extra > 0:
+            r.adjust(0, extra, 0, 0)
         painter.translate(r.topLeft())
         d.drawContents(painter)
         painter.restore()
