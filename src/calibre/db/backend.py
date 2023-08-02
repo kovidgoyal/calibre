@@ -1933,6 +1933,22 @@ class DB:
                         with src:
                             yield relpath, src, stat_result
 
+    def rename_extra_file(self, relpath, newrelpath, book_path, replace=True):
+        bookdir = os.path.join(self.library_path, book_path)
+        src = os.path.abspath(os.path.join(bookdir, relpath))
+        dest = os.path.abspath(os.path.join(bookdir, newrelpath))
+        src, dest = make_long_path_useable(src), make_long_path_useable(dest)
+        if src == dest or not os.path.exists(src):
+            return False
+        if not replace and os.path.exists(dest) and not os.path.samefile(src, dest):
+            return False
+        try:
+            os.replace(src, dest)
+        except FileNotFoundError:
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            os.replace(src, dest)
+        return True
+
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)
         dest = os.path.abspath(os.path.join(bookdir, relpath))

@@ -3094,6 +3094,17 @@ class Cache:
         return added
 
     @write_api
+    def rename_extra_files(self, book_id, map_of_relpath_to_new_relpath, replace=False):
+        ' Rename extra data files '
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        renamed = set()
+        for relpath, newrelpath in map_of_relpath_to_new_relpath.items():
+            if self.backend.rename_extra_file(relpath, newrelpath, path, replace):
+                renamed.add(relpath)
+        self._clear_extra_files_cache(book_id)
+        return renamed
+
+    @write_api
     def merge_extra_files(self, dest_id, src_ids, replace=False):
         ' Merge the extra files from src_ids into dest_id. Conflicting files are auto-renamed unless replace=True in which case they are replaced. '
         added = set()

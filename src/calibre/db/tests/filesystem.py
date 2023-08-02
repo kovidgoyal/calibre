@@ -137,6 +137,23 @@ class FilesystemTest(BaseTest):
             if x.is_dir():
                 self.assertTrue(os.listdir(x.path))
 
+    def test_rename_of_extra_files(self):
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        cache.add_extra_files(1, {'a': BytesIO(b'aaa'), 'b': BytesIO(b'bbb')})
+
+        def relpaths():
+            return {e.relpath for e in cache.list_extra_files(1)}
+
+        self.assertEqual(relpaths(), {'a', 'b'})
+        self.assertEqual(cache.rename_extra_files(1, {'a': 'data/c'}), {'a'})
+        self.assertEqual(relpaths(), {'data/c', 'b'})
+        self.assertEqual(cache.rename_extra_files(1, {'b': 'B'}), {'b'})
+        self.assertEqual(relpaths(), {'data/c', 'B'})
+        self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}), set())
+        self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}, replace=True), {'B'})
+
+
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):
         'Test book file open in another process when changing metadata'
