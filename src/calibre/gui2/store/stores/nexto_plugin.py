@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2020, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -81,9 +81,9 @@ class NextoStore(BasicStoreConfig, StorePlugin):
 
                     price = ''.join(data.xpath('.//strong[@class="nprice"]/text()'))
 
-                    cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
+                    cover_url = ''.join(data.xpath('.//picture[@class="cover"]/img/@data-src'))
                     cover_url = re.sub(r'%2F', '/', cover_url)
-                    cover_url = re.sub(r'widthMax=120&heightMax=200', 'widthMax=64&heightMax=64', cover_url)
+                    cover_url = re.sub(r'widthMax=235&heightMax=335', 'widthMax=64&heightMax=64', cover_url)
                     title = ''.join(data.xpath('.//a[@class="title"]/text()'))
                     title = re.sub(r' – ebook', '', title)
                     author = ', '.join(data.xpath('.//div[@class="col-7"]//h4//a/text()'))
