@@ -23,6 +23,46 @@
 # - title by author
 # }}}
 
+{{{ 6.24.0 2023-08-04
+
+:: new features
+
+- [2023509] Easily manage the extra data files associated with a book by right clicking the edit metadata button and choose "Manage data files"
+
+- [2028216] Content server: Full text search: Allow searching a restricted subset of books
+
+- [2029014] E-book viewer: Allow clicking on calibre:// URLs
+
+- [2027727] Support fuzzier searching in the Tag browser find allowing unaccented characters to match accented ones
+
+:: bug fixes
+
+- [2028404] DOCX conversion: Preserve underline style and color
+
+- Fix incorrect sorting of device view after some operations
+
+- [2023737] Fix visit content server in browser not working when the content server is configured to listen on an IPv6 interface
+
+- [2028019] Fix one hour offset in some timezones on Windows for dates before 1970
+
+- [2027763] Windows: HTML Input: Fix error when trying to add HTML files with links to other files that are invalid pathnames
+
+- Get books: Update various Polish language book stores for website changes
+
+:: improved recipes
+- Epoch Times
+- Business Standard
+- Tagesspiegel
+- Bloomberg Business Week
+- MIT Technology Review
+- Live Mint
+- Private Eye
+
+:: new recipes
+- The New Republic Magazine by ping
+- Inc42 by unkn0w7n
+}}}
+
 {{{ 6.23.0 2023-07-14
 
 :: new features
