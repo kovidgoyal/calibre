@@ -1013,5 +1013,13 @@
             "hash": "sha256:1324b66b356051de662ba87d84f73ada062acd42b047ed1246e60a449f833e10",
             "urls": ["pypi"]
         }
+    },
+    {
+        "name": "xxhash",
+        "unix": {
+            "filename": "xxhash-3.3.0.tar.gz",
+            "hash": "sha256:c3f9e322b1ebeebd44e3d9d2d9b124e0c550c1ef41bd552afdcdd719516ee41a",
+            "urls": ["pypi"]
+        }
     }
 ]
