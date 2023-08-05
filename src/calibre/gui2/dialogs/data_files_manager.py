@@ -75,7 +75,7 @@ class Delegate(QStyledItemDelegate):
         if self.doc_size is None:
             d = self.doc_for_index(index)
             self.doc_size = d.size()
-        ans.setHeight(max(self.doc_size.height() + 2, ans.height()))
+        ans.setHeight(max(int(self.doc_size.height() + 2), ans.height()))
         return ans
 
     def paint(self, painter, option, index):
