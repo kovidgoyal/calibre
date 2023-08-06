@@ -16,9 +16,7 @@ class BT(BasicNewsRecipe):
     masthead_url = 'https://akm-img-a-in.tosshub.com/businesstoday/resource/img/logo.png'
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(name='h2'),
-        classes('brand-detial-main main-img story-with-main-sec'),
+        classes('story-heading sab-head-tranlate-sec user-detial-left main-img field--name-body'),
     ]
     remove_tags = [
         dict(name='a', attrs={'title': 'videos'}),
@@ -28,11 +26,11 @@ class BT(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.businesstoday.in/magazine')
-        issue = soup.find(attrs={'class': 'view-id-latest_issue_magzine'})
-        a = issue.findAll('a', href=lambda x: x and x.startswith('/magazine/issue/'))[1]
+        issue = soup.find(attrs={'class': 'swiper-wrapper'})
+        a = issue.findAll('a', href=lambda x: x and '/magazine/issue/' in x)[1]
         url = a['href']
         self.log('issue =', url)
-        soup = self.index_to_soup('https://www.businesstoday.in' + url)
+        soup = self.index_to_soup(url)
         tag = soup.find(attrs={'class': 'issue-image'})
         if tag:
             self.cover_url = tag.find('img')['src']
@@ -62,7 +60,7 @@ class BT(BasicNewsRecipe):
 
         # Insert feeds in specified order, if available
 
-        feedSort = ['Editors Note']
+        feedSort = ['Editor\'s Note']
         for i in feedSort:
             if i in sections:
                 feeds.append((i, sections[i]))

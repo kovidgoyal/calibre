@@ -38,7 +38,7 @@ class IndiaToday(BasicNewsRecipe):
     '''
 
     remove_tags = [
-            classes('checkout__section sharing align-center-button amp-izooto-sub ads__container inline-story-add amp-ad'),
+            classes('checkout__section sharing align-center-button amp-izooto-sub ads__container inline-story-add amp-ad readmore__box'),
             dict(name=(('amp-web-push-widget', 'amp-ad'))),
             dict(attrs={'id':'tab-link-wrapper-plugin'}),
             dict(name='div', attrs={'amp-access':'NOT granted'})
