@@ -7,6 +7,7 @@ import posixpath
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
+from math import ceil
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
     QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
@@ -75,7 +76,7 @@ class Delegate(QStyledItemDelegate):
         if self.doc_size is None:
             d = self.doc_for_index(index)
             self.doc_size = d.size()
-        ans.setHeight(max(int(self.doc_size.height() + 2), ans.height()))
+        ans.setHeight(max(int(ceil(self.doc_size.height()) + 2), ans.height()))
         return ans
 
     def paint(self, painter, option, index):
