@@ -52,6 +52,8 @@ null = object()
 
 class Table:
 
+    supports_notes = False
+
     def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata
         self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
@@ -199,6 +201,7 @@ class ManyToOneTable(Table):
     '''
 
     table_type = MANY_ONE
+    supports_notes = True
 
     def read(self, db):
         self.id_map = {}
@@ -253,8 +256,7 @@ class ManyToOneTable(Table):
                 db.executemany('UPDATE {0} SET {1}=? WHERE {1}=?'.format(
                     self.link_table, self.metadata['link_column']),
                     tuple((main_id, x) for x in v))
-                db.executemany('DELETE FROM {} WHERE id=?'.format(self.metadata['table']),
-                    tuple((x,) for x in v))
+                db.delete_category_items(self.name, self.metadata['table'], v)
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -316,9 +318,7 @@ class ManyToOneTable(Table):
             for book_id in book_ids:
                 self.book_col_map.pop(book_id, None)
             affected_books.update(book_ids)
-        item_ids = tuple((x,) for x in item_ids)
-        db.executemany('DELETE FROM {} WHERE {}=?'.format(self.link_table, self.metadata['link_column']), item_ids)
-        db.executemany('DELETE FROM {} WHERE id=?'.format(self.metadata['table']), item_ids)
+        db.delete_category_items(self.name, self.metadata['table'], item_ids, self.link_table, self.metadata['link_column'])
         return affected_books
 
     def rename_item(self, item_id, new_name, db):
@@ -339,11 +339,7 @@ class ManyToOneTable(Table):
             for book_id in books:
                 self.book_col_map[book_id] = existing_item
             self.col_book_map[existing_item].update(books)
-            # For custom series this means that the series index can
-            # potentially have duplicates/be incorrect, but there is no way to
-            # handle that in this context.
-            db.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
-                self.link_table, lcol, table), (existing_item, item_id, item_id))
+            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item)
         return affected_books, new_id
 
     def set_links(self, link_map, db):
@@ -357,6 +353,8 @@ class ManyToOneTable(Table):
 
 
 class RatingTable(ManyToOneTable):
+
+    supports_notes = False
 
     def read_id_maps(self, db):
         ManyToOneTable.read_id_maps(self, db)
@@ -420,9 +418,7 @@ class ManyToManyTable(ManyToOneTable):
                         if self.id_map.pop(item_id, null) is not null:
                             clean.add(item_id)
         if clean and self.do_clean_on_remove:
-            db.executemany(
-                'DELETE FROM {} WHERE id=?'.format(self.metadata['table']),
-                [(x,) for x in clean])
+            db.delete_category_items(self.name, self.metadata['table'], clean)
         return clean
 
     def remove_items(self, item_ids, db, restrict_to_book_ids=None):
@@ -464,9 +460,7 @@ class ManyToManyTable(ManyToOneTable):
             for book_id in book_ids:
                 self.book_col_map[book_id] = tuple(x for x in self.book_col_map.get(book_id, ()) if x != item_id)
             affected_books.update(book_ids)
-        item_ids = tuple((x,) for x in item_ids)
-        db.executemany('DELETE FROM {} WHERE {}=?'.format(self.link_table, self.metadata['link_column']), item_ids)
-        db.executemany('DELETE FROM {} WHERE id=?'.format(self.metadata['table']), item_ids)
+        db.delete_category_items(self.name, self.metadata['table'], item_ids, self.link_table, self.metadata['link_column'])
         return affected_books
 
     def rename_item(self, item_id, new_name, db):
@@ -492,8 +486,7 @@ class ManyToManyTable(ManyToOneTable):
             self.col_book_map[existing_item].update(books)
             db.executemany(f'DELETE FROM {self.link_table} WHERE book=? AND {lcol}=?', [
                 (book_id, existing_item) for book_id in books])
-            db.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
-                self.link_table, lcol, table), (existing_item, item_id, item_id))
+            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item)
         return affected_books, new_id
 
     def fix_case_duplicates(self, db):
@@ -531,8 +524,7 @@ class ManyToManyTable(ManyToOneTable):
                             db.executemany(
                                 'INSERT INTO {} (book,{}) VALUES (?,?)'.format(self.link_table, self.metadata['link_column']),
                                 tuple((book_id, x) for x in vals))
-                db.executemany('DELETE FROM {} WHERE id=?'.format(self.metadata['table']),
-                    tuple((x,) for x in v))
+                db.delete_category_items(self.name, self.metadata['table'], v)
 
 
 class AuthorsTable(ManyToManyTable):
@@ -590,6 +582,7 @@ class AuthorsTable(ManyToManyTable):
 class FormatsTable(ManyToManyTable):
 
     do_clean_on_remove = False
+    supports_notes = False
 
     def read_id_maps(self, db):
         pass
@@ -674,6 +667,8 @@ class FormatsTable(ManyToManyTable):
 
 
 class IdentifiersTable(ManyToManyTable):
+
+    supports_notes = False
 
     def read_id_maps(self, db):
         pass
