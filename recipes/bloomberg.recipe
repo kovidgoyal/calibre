@@ -60,13 +60,14 @@ class Bloomberg(BasicNewsRecipe):
     extra_css = '''
         .auth {font-size:small; font-weight:bold;}
         .time, .chart {font-size:small;}
-        .subhead {font-style:italic; color:#404040;}
+        .subhead, blockquote {font-style:italic; color:#404040;}
         .cat {font-size:small; color:gray;}
         .news-figure-caption-text, .cap, .img {font-size:small; text-align:center;}
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
 
     articles_are_obfuscated = True
+    resolve_internal_links = True
 
     def get_obfuscated_article(self, url):
         br = self.get_browser()
