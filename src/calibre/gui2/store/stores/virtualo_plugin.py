@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 11  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
@@ -74,7 +74,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//div[@class="info"]//div[@class="price"]/text()'))
+                price = ''.join(data.xpath('.//div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()'))
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                 title = ''.join(data.xpath('.//h3[@class="title"]/a//text()'))
                 author = ', '.join(data.xpath('.//div[@class="info"]//div[@class="authors"]/a//text()'))
