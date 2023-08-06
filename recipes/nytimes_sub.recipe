@@ -200,14 +200,18 @@ class NewYorkTimes(BasicNewsRecipe):
             if article is None:
                 a = li.find('a', href=True)
                 if a is not None:
-                    title = self.tag_to_string(li.find('h3'))
+                    title = self.tag_to_string(li.find(['h3', 'h2'])).strip()
+                    paras = li.findAll('p')
+                    if not title:
+                        title = self.tag_to_string(paras[0]).strip()
+                    if not title:
+                        raise ValueError('No title found in article')
                     url = a['href']
                     if url.startswith('/'):
                         url = 'https://www.nytimes.com' + url
                     desc = ''
-                    p = li.find('p')
-                    if p is not None:
-                        desc = self.tag_to_string(p)
+                    if len(paras) > 0:
+                        desc = self.tag_to_string(paras[-1])
                     date = ''
                     d = date_from_url(url)
                     if d is not None:
@@ -219,7 +223,7 @@ class NewYorkTimes(BasicNewsRecipe):
                             continue
                     yield {'title': title, 'url': url, 'description': desc, 'date': date}
                 continue
-            h2 = article.find('h2')
+            h2 = article.find(['h2', 'h3'])
             if h2 is not None:
                 title = self.tag_to_string(h2)
                 a = h2.find('a', href=True)
