@@ -306,3 +306,6 @@ class FilesystemTest(BaseTest):
                 c(r(match_type='not_startswith', query='IGnored.', action='add'), r(query='ignored.md')),
         ):
             q(['added.epub non-book.other'.split()], find_books_in_directory('', True, compiled_rules=rules, listdir_impl=lambda x: files))
+
+    def test_notes_operations(self):
+        cache = self.init_cache()
