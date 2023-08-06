@@ -27,7 +27,7 @@ from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.constants import (
     BOOK_ID_PATH_TEMPLATE, COVER_FILE_NAME, DEFAULT_TRASH_EXPIRY_TIME_SECONDS,
-    METADATA_FILE_NAME, TRASH_DIR_NAME, TrashEntry,
+    METADATA_FILE_NAME, NOTES_DIR_NAME, TRASH_DIR_NAME, TrashEntry,
 )
 from calibre.db.errors import NoSuchFormat
 from calibre.db.schema_upgrades import SchemaUpgrade
@@ -41,14 +41,13 @@ from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
 from calibre.utils.copy_files import (
-    copy_files, copy_tree, rename_files,
-    windows_check_if_files_in_use,
+    copy_files, copy_tree, rename_files, windows_check_if_files_in_use,
 )
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     ascii_filename, atomic_rename, copyfile_using_links, copytree_using_links,
-    hardlink_file, is_case_sensitive, is_fat_filesystem, make_long_path_useable,
-    remove_dir_if_empty, samefile, get_long_path_name
+    get_long_path_name, hardlink_file, is_case_sensitive, is_fat_filesystem,
+    make_long_path_useable, remove_dir_if_empty, samefile,
 )
 from calibre.utils.formatter_functions import (
     compile_user_template_functions, formatter_functions, load_user_template_functions,
@@ -337,7 +336,7 @@ class Connection(apsw.Connection):  # {{{
         set_ui_language(get_lang())
         super().__init__(path)
         plugins.load_apsw_extension(self, 'sqlite_extension')
-        self.fts_dbpath = None
+        self.fts_dbpath = self.notes_dbpath = None
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
         self.execute('pragma cache_size=-5000')
@@ -509,6 +508,7 @@ class DB:
             self.ensure_trash_dir(during_init=True)
         if load_user_formatter_functions:
             set_global_state(self)
+        self.initialize_notes()
 
     @property
     def last_expired_trash_at(self) -> float:
@@ -944,6 +944,23 @@ class DB:
         self.field_metadata.set_field_record_index('in_tag_browser', base, prefer_custom=False)
 
     # }}}
+
+    def initialize_notes(self):
+        from .notes.connect import Notes
+        self.notes = Notes(self)
+
+    def delete_category_items(self, field_name, table_name, items, link_table_name='', link_col_name=''):
+        bindings = tuple((x,) for x in items)
+        if link_table_name and link_col_name:
+            self.executemany(f'DELETE FROM {link_table_name} WHERE {link_col_name}=?', bindings)
+        self.executemany(f'DELETE FROM {table_name} WHERE id=?', bindings)
+
+    def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id):
+        # For custom series this means that the series index can
+        # potentially have duplicates/be incorrect, but there is no way to
+        # handle that in this context.
+        self.execute(f'UPDATE {link_table_name} SET {link_col_name}=? WHERE {link_col_name}=?; DELETE FROM {table_name} WHERE id=?',
+                     (new_item_id, old_item_id, old_item_id))
 
     def initialize_fts(self, dbref):
         self.fts = None
@@ -2022,7 +2039,7 @@ class DB:
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
         if iswindows:
             import calibre_extensions.winutil as winutil
-            winutil.set_file_attributes(tdir, getattr(winutil, 'FILE_ATTRIBUTE_HIDDEN', 2) | getattr(winutil, 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED', 8192))
+            winutil.set_file_attributes(tdir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash(during_init=during_init)
 
@@ -2454,7 +2471,7 @@ class DB:
     def get_top_level_move_items(self, all_paths):
         items = set(os.listdir(self.library_path))
         paths = set(all_paths)
-        paths.update({'metadata.db', 'full-text-search.db', 'metadata_db_prefs_backup.json'})
+        paths.update({'metadata.db', 'full-text-search.db', 'metadata_db_prefs_backup.json', NOTES_DIR_NAME})
         path_map = {x:x for x in paths}
         if not self.is_case_sensitive:
             for x in items:

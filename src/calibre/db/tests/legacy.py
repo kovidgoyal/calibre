@@ -274,6 +274,8 @@ class LegacyTest(BaseTest):
         def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
             x.discard('metadata_db_prefs_backup.json')
             y.pop('full-text-search.db', None)
+            x.discard('.notes')
+            y.pop('.notes', None)
             return x, y
         self.assertEqual(f(*db.get_top_level_move_items()), f(*ndb.get_top_level_move_items()))
         d1, d2 = BytesIO(), BytesIO()
