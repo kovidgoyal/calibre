@@ -214,11 +214,18 @@ class DataFilesManager(Dialog):
         v.selectionModel().currentChanged.connect(self.current_changed)
 
         self.current_label = la = QLabel(self)
-        la.setOpenExternalLinks(False)
-        la.linkActivated.connect(self.open_with, type=Qt.ConnectionType.QueuedConnection)
-        la.setTextFormat(Qt.TextFormat.RichText)
         la.setWordWrap(True)
-        l.addWidget(la)
+        la.setTextFormat(Qt.TextFormat.PlainText)
+        self.clah = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(la, stretch=100)
+        h.addSpacing(4)
+        self.open_with_label = la = QLabel('<a style="text-decoration:none" href="open_with://current">{}</a>'.format(_('Open with')))
+        la.setOpenExternalLinks(False)
+        la.setTextFormat(Qt.TextFormat.RichText)
+        la.linkActivated.connect(self.open_with, type=Qt.ConnectionType.QueuedConnection)
+        la.setVisible(False)
+        h.addWidget(la)
 
         l.addWidget(self.bb)
         self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('&Add files'), self)
@@ -271,9 +278,11 @@ class DataFilesManager(Dialog):
             txt = self.files.file_display_name(idx.row())
         txt = prepare_string_for_xml(txt)
         if txt:
-            self.current_label.setText('<p>{} <a href="open_with://{}">{}</a>'.format(txt, idx.row(), prepare_string_for_xml(_('Open with'))))
+            self.current_label.setText(txt)
+            self.open_with_label.setVisible(True)
         else:
-            self.current_label.setText('')
+            self.current_label.setText('\xa0')
+            self.open_with_label.setVisible(False)
 
     def open_with_menu(self, file_path):
         m = QMenu(_('Open with...'), parent=self)
