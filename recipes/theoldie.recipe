@@ -4,8 +4,7 @@ Fetch The Oldie (Online Edition)
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime, timedelta
-from collections import OrderedDict
+from datetime import datetime
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##
@@ -15,7 +14,12 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     #               Initial version
 
     title = u'The Oldie (Online Edition)'
-    description = u'The Oldie has been dubbed ‘Private Eye for grown-ups’ and is read by intelligent people who are fed up with the formulaic nature of the celebrity-obsessed national press. The Oldie was cooked up in 1992 by Richard Ingrams (who previously co-founded Private Eye in 1961) as a free-thinking, funny magazine, a light-hearted alternative to a press obsessed with youth and celebrity. The editors claim that the Oldie is ageless and timeless, free of retirement advice, crammed with rejuvenating wit, intelligence and delight.'
+    description = ('The Oldie has been dubbed ‘Private Eye for grown-ups’ and is read by intelligent people who are fed'
+                   ' up with the formulaic nature of the celebrity-obsessed national press. The Oldie was cooked up in'
+                   ' 1992 by Richard Ingrams (who previously co-founded Private Eye in 1961) as a free-thinking,'
+                   ' funny magazine, a light-hearted alternative to a press obsessed with youth and celebrity.'
+                   ' The editors claim that the Oldie is ageless and timeless, free of retirement advice, crammed'
+                   ' with rejuvenating wit, intelligence and delight.')
     publication_type = 'magazine'
     language = 'en_GB'
     encoding = 'utf-8'
