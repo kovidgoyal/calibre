@@ -92,6 +92,11 @@ class MetadataSingleDialogBase(QDialog):
         self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
+        self.data_files_button = QPushButton(QIcon.ic('unpack-book.png'), _('Data files'), self)
+        self.data_files_button.setShortcut(QKeySequence('Alt+Space'))
+        self.data_files_button.setToolTip(_('Manage the extra data files associated with this book [{}]').format(
+            self.data_files_button.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
+        self.data_files_button.clicked.connect(self.manage_data_files)
 
         self.button_box.addButton(self.prev_button, QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.next_button, QDialogButtonBox.ButtonRole.ActionRole)
@@ -106,6 +111,7 @@ class MetadataSingleDialogBase(QDialog):
         self.l.addWidget(self.central_widget)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
+        ll.addWidget(self.data_files_button)
         ll.addSpacing(10)
         ll.addWidget(self.button_box)
 
@@ -382,6 +388,11 @@ class MetadataSingleDialogBase(QDialog):
 
     def data_changed(self):
         self.was_data_edited = True
+
+    def manage_data_files(self):
+        from calibre.gui2.dialogs.data_files_manager import DataFilesManager
+        d = DataFilesManager(self.db, self.book_id, self)
+        d.exec()
 
     def __call__(self, id_):
         self.book_id = id_
