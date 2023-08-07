@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
@@ -68,13 +68,13 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[@class="name"]/a/@href'))
+                id = ''.join(data.xpath('.//a[@class="img seoImage"]/@href'))
                 if not id:
                     continue
 
+                title = ''.join(data.xpath('.//h2[@class="product-title"]/a/strong/text()'))
+                author = ', '.join(data.xpath('.//a[@class="smartAuthor "]/text()'))
                 cover_url = ''.join(data.xpath('.//a/img[@class="lazy"]/@lazy-img'))
-                author = ', '.join(data.xpath('.//a[@class="smartAuthor"]/text()'))
-                title = ''.join(data.xpath('.//div[@class="name"]/a/@title'))
                 price = ''.join(data.xpath('.//div[@class="price ta-price-tile "]/text()'))
 
                 # with closing(br.open('https://empik.com' + id.strip(), timeout=timeout/4)) as nf:
