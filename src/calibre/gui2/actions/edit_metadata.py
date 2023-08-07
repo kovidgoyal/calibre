@@ -33,6 +33,8 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
+DATA_FILES_ICON_NAME = 'unpack-book.png'
+
 
 class EditMetadataAction(InterfaceAction):
 
@@ -106,7 +108,7 @@ class EditMetadataAction(InterfaceAction):
             shortcut=_('M'), triggered=self.merge_books)
         self.action_merge.setMenu(mb)
         self.action_manage_data_files = cm(
-            'manage_data_files', _('Manage data files'), icon='unpack-book.png', triggered=self.manage_data_files)
+            'manage_data_files', _('Manage data files'), icon=DATA_FILES_ICON_NAME, triggered=self.manage_data_files)
 
         self.qaction.triggered.connect(self.edit_metadata)
         ac = QAction(_('Copy URL to show book in calibre'), self.gui)

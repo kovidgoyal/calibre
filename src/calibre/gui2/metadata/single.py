@@ -92,7 +92,8 @@ class MetadataSingleDialogBase(QDialog):
         self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
-        self.data_files_button = QPushButton(QIcon.ic('unpack-book.png'), _('Data files'), self)
+        from calibre.gui2.actions.edit_metadata import DATA_FILES_ICON_NAME
+        self.data_files_button = QPushButton(QIcon.ic(DATA_FILES_ICON_NAME), _('Data files'), self)
         self.data_files_button.setShortcut(QKeySequence('Alt+Space'))
         self.data_files_button.setToolTip(_('Manage the extra data files associated with this book [{}]').format(
             self.data_files_button.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
