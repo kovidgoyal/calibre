@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 11  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
@@ -57,7 +57,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://www.legimi.pl/ebooki/?sort=score&searchphrase=' + quote_plus(query)
+        url = 'https://www.legimi.pl/ebooki/?sort=score&filters=ebooks&searchphrase=' + quote_plus(query)
 
         br = browser()
 
