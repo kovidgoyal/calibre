@@ -31,6 +31,7 @@ class Dialog(QDialog):
         self.msg = m = QLabel(self)
         m.setOpenExternalLinks(True)
         m.setMinimumWidth(350), m.setWordWrap(True), m.setObjectName("msg")
+        m.setMaximumHeight(400)
         m.setText(msg)
 
         h.addWidget(self.icon_widget), h.addSpacing(10), h.addWidget(m)
