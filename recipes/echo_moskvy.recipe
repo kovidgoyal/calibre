@@ -1,26 +1,34 @@
-# vim:fileencoding=utf-8
+﻿from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class EchoMsk(BasicNewsRecipe):
+    title          	  = '\u042D\u0425\u041E'
+    __author__            = 'bugmen00t'
+    description           = ('\u042D\u0425\u041E - \u043A\u0430\u043A \u043D\u0430 \u0441\u0442\u0430\u0440\u043E\u043C'
+                             ' \u0434\u043E\u0431\u0440\u043E\u043C \u0440\u0430\u0434\u0438\u043E')
+    publisher             = 'Radio Echo GmbH'
+    category              = 'news'
+    cover_url = u'https://echofm.online/logo.png'
+    language              = 'ru'
+    no_stylesheets        = True
+    remove_javascript = False
+    auto_cleanup   = False
+    oldest_article = 7
+    max_articles_per_feed = 50
 
-class AdjectiveSpecies(BasicNewsRecipe):
-    title = u'Эхо Москвы'
-    __author__ = 'bug_me_not'
-    cover_url = u'http://echo.msk.ru/i/logo.png'
-    description = 'Радиостанция Эхо Москвы'
-    publisher = 'Эхо Москвы'
-    category = 'news'
-    language = 'ru'
-    no_stylesheets = True
-    remove_javascript = True
-    oldest_article = 300
-    max_articles_per_feed = 100
+    remove_tags_before = dict(name='article')
 
-    remove_tags_before = dict(name='div', attrs={'class': 'topic'})
-    remove_tags_after = dict(name='div', attrs={'class': 'typical'})
-    remove_tags = [dict(name='div', attrs={'class': 'addInNetBlock'}),
-                   dict(name='div', attrs={'class': 'flash'})]
+    remove_tags_after = dict(name='article')
+
+    remove_tags =   [
+        dict(name='span', attrs={'class': 'sc-7b4cbb79-0 guzUFC'}),
+        dict(name='div', attrs={'class': 'sc-f94c4ef5-0 frGiYu'}),
+        dict(name='div', attrs={'class': 'sc-f94c4ef5-0 frGiYu'})
+        ]
 
     feeds = [
-        (u'Интервью и передачи', u'http://echo.msk.ru/interview/rss-fulltext.xml'),
-        (u'Блоги', u'http://echo.msk.ru/blog/rss.xml')
+        ('\u0413\u043B\u0430\u0432\u043D\u043E\u0435', 'https://echofm.online/feed'),
+        ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://echofm.online/news/feed'),
+        ('\u041C\u043D\u0435\u043D\u0438\u044F', 'https://echofm.online/opinions/feed'),
+        ('\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B', 'https://echofm.online/documents/feed')
     ]

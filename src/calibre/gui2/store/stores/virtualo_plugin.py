@@ -74,7 +74,8 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()'))
+                price = ''.join(data.xpath(
+                    './/div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()'))
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                 title = ''.join(data.xpath('.//h3[@class="title"]/a//text()'))
                 author = ', '.join(data.xpath('.//div[@class="info"]//div[@class="authors"]/a//text()'))
