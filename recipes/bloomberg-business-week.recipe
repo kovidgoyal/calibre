@@ -1,45 +1,57 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from calibre import browser
 from html5_parser import parse
 import json
 import random
 import time
 
 def get_contents(x):
+    if x == '':
+        return ''
     otype = x.get('type', '')
     if otype == 'text':
-        return x.get('value', '')
+        if 'attributes' in x:
+            if 'strong' in x['attributes']:
+                return '<b>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</b>'
+            if 'emphasis' in x['attributes']:
+                return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+            return x.get('value', '') + ''.join(map(get_contents, x.get('content', '')))
+        return x.get('value', '') + ''.join(map(get_contents, x.get('content', '')))
+    elif otype == 'br':
+        return '<br>'
     elif otype == 'paragraph':
-        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</p>'
+        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</p>'
     elif otype == 'heading':
-        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</h3>'
+        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</h3>'
     elif otype == 'list':
-        return '<ul>' + ''.join(map(get_contents, x.get('content'))) + '</ul>'
+        return '<ul>' + ''.join(map(get_contents, x.get('content', ''))) + '</ul>'
     elif otype == 'listItem':
-        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</li>'
+        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</li>'
     elif otype == 'quote':
-        return '<blockquote>' + x.get('value', '') + ''.join(map(get_contents, x.get('content'))) + '</blockquote>'
+        return '<blockquote class="col">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</blockquote>'
     elif otype == 'media':
         if x['subType'] == 'photo':
             return '<div><div class="img"><img src="{}"></div><div class="cap">{}</div></div>'.format(
                 x['data']['photo']['src'], x['data']['photo']['caption'])
         elif x['subType'] == 'chart':
             if x['data'] and x['data']['chart']:
-                return '<div><img src="{}"></div>'.format(x['data']['chart']['fallback'])
+                return '<div class="img"><img src="{}"></div>'.format(x['data']['chart']['fallback'])
     elif otype == 'link':
-        if x['data'] and x['content'] and x['content'][0] and x['content'][0]['value']:
+        if 'data' in x:
             if 'href' in x['data']:
-                return '<a href="' + x['data']['href'] + '">' + x['content'][0]['value'] + '</a>'
-            return '<i>' + x['content'][0]['value'] + '</i>'
+                return '<a href="' + x['data']['href'] + '">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</a>'
+            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+        return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
     elif otype == 'entity':
-        if x['content'] and x['content'][0] and x['content'][0]['value']:
-            if x['subType'] == 'story':
-                if x['data'] and x['data']['link'] and x['data']['link']['destination']:
-                    if 'web' in x['data']['link']['destination']:
-                        return '<a href="' + x['data']['link']['destination']['web'] + '">' + x['content'][0]['value'] + '</a>'
-                    return '<i>' + x['content'][0]['value'] + '</i>'
-            elif x['subType'] in ('person', 'security'):
-                return '<i>' + x['content'][0]['value'] + '</i>'
+        if x['subType'] == 'story':
+            if x['data'] and x['data']['link'] and x['data']['link']['destination']:
+                if 'web' in x['data']['link']['destination']:
+                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</a>'
+                return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+        return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+    elif not any(x == otype for x in ['', 'ad', 'inline-newsletter', 'tabularData']):
+        if any(b in x for b in ['value', 'content']):
+            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
 
     return ''
 
@@ -53,26 +65,32 @@ class Bloomberg(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
+    description = (
+        'Bloomberg Businessweek helps global leaders stay ahead with insights and in-depth analysis on the people,'
+        ' companies, events, and trends shaping today\'s complex, global economy.'
+    )
 
-    # delay = 7 # seconds
-    simultaneous_downloads = 3
+    simultaneous_downloads = 1
 
     extra_css = '''
         .auth {font-size:small; font-weight:bold;}
-        .time, .chart {font-size:small;}
+        .time, .chart, .css--lede-byline, .css--lede-timestamp {font-size:small;}
         .subhead {font-style:italic; color:#404040;}
+        i, .col {color:#202020;}
         .cat {font-size:small; color:gray;}
-        .news-figure-caption-text, .cap, .img {font-size:small; text-align:center;}
+        .news-figure-caption-text, .cap, .img, .css--caption-outer-wrapper {font-size:small; text-align:center;}
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
 
     remove_tags = [
+        dict(name=['button', 'svg']),
         dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
-        classes('twitter-logo bb-global-footer')
+        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer')
     ]
 
-    def get_browser(self):
-        br = browser()
+    def get_browser(self, *a, **kw):
+        kw['user_agent'] = 'common_words/based'
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
         br.set_handle_redirect(False)
         return br
 
@@ -163,7 +181,7 @@ class Bloomberg(BasicNewsRecipe):
             body = ''
             body_data = data['body']['content']
             for x in body_data:
-                pause = random.choice((0.5, 1, 1.25))
+                pause = random.choice((0.25, 0.5, 0.75, 1))
                 time.sleep(pause)
                 body += get_contents(x)
         return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
