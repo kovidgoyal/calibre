@@ -52,7 +52,7 @@ class TrashItemDelegate(QStyledItemDelegate):
             c = p.color(group, QPalette.ColorRole.HighlightedText)
             painter.setPen(c)
 
-        text = entry.title + '\n' + entry.author + '\n' + _('Deleted: {}').format(time_spec(entry.mtime))
+        text = entry.title + '\n' + entry.author + '\n' + _('Deleted: {when}').format(when=time_spec(entry.mtime))
         if entry.formats:
             text += '\n' + ', '.join(sorted(entry.formats))
         r = QRectF(option.rect)
