@@ -38,6 +38,7 @@ from calibre.db.listeners import EventDispatcher, EventType
 from calibre.db.locking import (
     DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock,
 )
+from calibre.db.notes.connect import copy_marked_up_text
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.utils import type_safe_sort_key_function
@@ -670,6 +671,20 @@ class Cache:
             process_each_result=process_each_result,
         ))
 
+    # }}}
+
+    # Notes API {{{
+    def notes_for(self, field, item_id) -> str:
+        return self.backend.notes_for(field, item_id)
+
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=()) -> int:
+        return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes)
+
+    def add_notes_resource(self, path_or_stream_or_data) -> str:
+        return self.backend.add_notes_resource(path_or_stream_or_data)
+
+    def get_notes_resource(self, resource_hash) -> bytes:
+        return self.backend.get_notes_resource(resource_hash)
     # }}}
 
     # Cache Layer API {{{
