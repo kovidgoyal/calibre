@@ -601,8 +601,8 @@ rmtree = shutil.rmtree
 if iswindows:
     long_path_prefix = '\\\\?\\'
 
-    def make_long_path_useable(path):
-        if len(path) > 200 and os.path.isabs(path) and not path.startswith(long_path_prefix):
+    def make_long_path_useable(path, threshold=200):
+        if len(path) > threshold and os.path.isabs(path) and not path.startswith(long_path_prefix):
             path = long_path_prefix + os.path.normpath(path)
         return path
 
@@ -636,7 +636,7 @@ if iswindows:
             raise
 
 else:
-    def make_long_path_useable(path):
+    def make_long_path_useable(path, threshold=200):
         return path
 
     def get_long_path_name(path):

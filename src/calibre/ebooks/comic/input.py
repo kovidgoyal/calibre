@@ -115,7 +115,8 @@ class PageProcessor(list):  # {{{
         from qt.core import QImage
 
         from calibre.utils.img import crop_image, image_from_data, scale_image
-        with open(self.path_to_page, 'rb') as f:
+        from calibre.utils.filenames import make_long_path_useable
+        with open(make_long_path_useable(self.path_to_page), 'rb') as f:
             img = image_from_data(f.read())
         width, height = img.width(), img.height()
         if self.num == 0:  # First image so create a thumbnail from it
