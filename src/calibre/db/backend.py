@@ -954,13 +954,28 @@ class DB:
         if link_table_name and link_col_name:
             self.executemany(f'DELETE FROM {link_table_name} WHERE {link_col_name}=?', bindings)
         self.executemany(f'DELETE FROM {table_name} WHERE id=?', bindings)
+        for item_id in items:
+            self.notes.set_note(self.conn, field_name, item_id)
 
     def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id):
+        self.notes.rename_note(self.conn, field_name, old_item_id, new_item_id)
         # For custom series this means that the series index can
         # potentially have duplicates/be incorrect, but there is no way to
         # handle that in this context.
         self.execute(f'UPDATE {link_table_name} SET {link_col_name}=? WHERE {link_col_name}=?; DELETE FROM {table_name} WHERE id=?',
                      (new_item_id, old_item_id, old_item_id))
+
+    def notes_for(self, field_name, item_id):
+        return self.notes.get_note(self.conn, field_name, item_id) or ''
+
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes) -> int:
+        return self.notes.set_note(self.conn, field, item_id, doc, resource_hashes, searchable_text)
+
+    def add_notes_resource(self, path_or_stream) -> str:
+        return self.notes.add_resource(path_or_stream)
+
+    def get_notes_resource(self, resource_hash) -> bytes:
+        return self.notes.get_resource(resource_hash)
 
     def initialize_fts(self, dbref):
         self.fts = None
