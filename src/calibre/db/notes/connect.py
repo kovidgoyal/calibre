@@ -43,6 +43,8 @@ def remove_with_retry(x):
 
 class Notes:
 
+    max_retired_items = 256
+
     def __init__(self, backend):
         conn = backend.get_connection()
         libdir = os.path.dirname(os.path.abspath(conn.db_filename('main')))
@@ -86,11 +88,12 @@ class Notes:
             conn.executemany('''
                 DELETE FROM notes_db.notes_resources_link WHERE note=? AND hash=?
             ''', tuple((note_id, x) for x in resources_to_potentially_remove))
-        for (x,) in conn.execute(
-            '''
-            SELECT value FROM (VALUES {}) AS my_values(value) WHERE value NOT IN (SELECT hash FROM notes_db.notes_resources_link)
-            '''.format(','.join(repeat('(?)', len(resources_to_potentially_remove)))), resources_to_potentially_remove):
-                remove_with_retry(self.path_for_resource(x))
+        stmt = '''
+            WITH resources_table(value) AS (VALUES {})
+            SELECT value FROM resources_table WHERE value NOT IN (SELECT hash FROM notes_db.notes_resources_link)
+        '''.format(','.join(repeat('(?)', len(resources_to_potentially_remove))))
+        for (x,) in conn.execute(stmt, resources_to_potentially_remove):
+            remove_with_retry(self.path_for_resource(x))
 
     def note_id_for(self, conn, field_name, item_id):
         for (ans,) in conn.execute('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)):
@@ -117,7 +120,7 @@ class Notes:
             if os.path.exists(path):
                 dest = make_long_path_useable(os.path.join(self.retired_dir, f'{item_id}_{field_name}'))
                 os.replace(path, dest)
-                self.trim_retire_dir()
+                self.trim_retired_dir()
 
     def set_note(self, conn, field_name, item_id, marked_up_text='', hashes_of_used_resources=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
@@ -134,15 +137,18 @@ class Notes:
         new_resources = frozenset(hashes_of_used_resources)
         resources_to_potentially_remove = old_resources - new_resources
         resources_to_add = new_resources - old_resources
-        inserted_id, = next(conn.execute('''
-            INSERT OR REPLACE INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING id;
-        ''', (item_id, field_name, marked_up_text, searchable_text)))
+        if note_id is None:
+            note_id, = next(conn.execute('''
+                INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING id;
+            ''', (item_id, field_name, marked_up_text, searchable_text)))
+        else:
+            conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=?', (marked_up_text, searchable_text))
         if resources_to_potentially_remove:
-            self.remove_resources(conn, inserted_id, resources_to_potentially_remove)
+            self.remove_resources(conn, note_id, resources_to_potentially_remove)
         if resources_to_add:
             conn.executemany('''
                 INSERT INTO notes_db.notes_resources_link (note,hash) VALUES (?,?);
-            ''', tuple((inserted_id, x) for x in resources_to_add))
+            ''', tuple((note_id, x) for x in resources_to_add))
         self.set_backup_for(field_name, item_id, marked_up_text, searchable_text)
         return note_id
 
