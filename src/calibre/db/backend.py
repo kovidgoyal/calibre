@@ -977,6 +977,12 @@ class DB:
     def get_notes_resource(self, resource_hash) -> bytes:
         return self.notes.get_resource(resource_hash)
 
+    def notes_resources_used_by(self, field, item_id):
+        conn = self.conn
+        note_id = self.notes.note_id_for(conn, field, item_id)
+        if note_id is not None:
+            yield from self.notes.resources_used_by(conn, note_id)
+
     def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
