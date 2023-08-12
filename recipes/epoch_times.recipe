@@ -22,12 +22,13 @@ class EpochTimes(BasicNewsRecipe):
         .author,.date{font-size: small}
     """
     keep_only_tags = [
-        classes('post_title featured_image pricat_name author date post_content'),
+        classes('post-main'),
     ]
     remove_tags = [
-        classes('author_wrapper bottom_row'),
+        classes('print:hidden h-header'),
+        dict(name='button'),
     ]
-
+    #
 	# feeds can be found at https://www.theepochtimes.com/rssfeeds
 
     feeds = [
@@ -52,4 +53,6 @@ class EpochTimes(BasicNewsRecipe):
         if title is not None and fi is not None:
             title.extract()
             fi.insert_before(title)
+        for div in soup.findAll(**classes('post-main'))[1:]:
+            div.extract()
         return soup
