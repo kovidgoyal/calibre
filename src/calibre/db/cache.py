@@ -685,6 +685,9 @@ class Cache:
 
     def get_notes_resource(self, resource_hash) -> bytes:
         return self.backend.get_notes_resource(resource_hash)
+
+    def notes_resources_used_by(self, field, item_id):
+        return frozenset(self.backend.notes_resources_used_by(field, item_id))
     # }}}
 
     # Cache Layer API {{{
