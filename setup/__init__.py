@@ -47,7 +47,7 @@ def newer(targets, sources):
         if not os.path.exists(f):
             return True
     ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-    oldest_target = max(ttimes)
+    oldest_target = min(ttimes)
     try:
         stimes = map(lambda x: os.stat(x).st_mtime, sources)
         newest_source = max(stimes)
