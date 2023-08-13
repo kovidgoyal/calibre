@@ -18,19 +18,16 @@ class EpochTimes(BasicNewsRecipe):
     masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
     extra_css = """
         body{font-family: Arial,sans-serif }
-        .featured_caption{font-size: small}
-        .author,.date{font-size: small}
     """
     keep_only_tags = [
-        classes('post-main'),
+        dict(name='article')
     ]
     remove_tags = [
-        classes('print:hidden h-header'),
+        classes('print:hidden h-header shortcode aspect-square'),
         dict(name='button'),
     ]
-    #
-	# feeds can be found at https://www.theepochtimes.com/rssfeeds
 
+	# feeds can be found at https://www.theepochtimes.com/rssfeeds
     feeds = [
         ('Special Series', 'https://feed.theepochtimes.com/health/special-series/feed'),
         ('US', 'https://feed.theepochtimes.com/us/feed'),
@@ -48,11 +45,4 @@ class EpochTimes(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
-        title = soup.find(attrs={'class': 'post_title'})
-        fi = soup.find(attrs={'class': 'featured_image'})
-        if title is not None and fi is not None:
-            title.extract()
-            fi.insert_before(title)
-        for div in soup.findAll(**classes('post-main'))[1:]:
-            div.extract()
         return soup
