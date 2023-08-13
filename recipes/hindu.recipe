@@ -4,7 +4,6 @@ from collections import defaultdict
 from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-
 def absurl(url):
     if url.startswith('/'):
         url = 'https://www.thehindu.com' + url
@@ -16,11 +15,16 @@ local_edition = None
 # For past editions, set date to, for example, '2023-01-28'
 past_edition = None
 
+is_monday = date.today().weekday() == 0
+is_friday = date.today().weekday() == 4
+is_saturday = date.today().weekday() == 5
 is_sunday = date.today().weekday() == 6
 
 if past_edition:
     year, month, day = (int(x) for x in past_edition.split('-'))    
     dt = date(year, month, day)
+    is_monday = dt.weekday() == 0
+    is_saturday = dt.weekday() == 5
     is_sunday = dt.weekday() == 6
 
 class TheHindu(BasicNewsRecipe):
@@ -75,13 +79,23 @@ class TheHindu(BasicNewsRecipe):
                 today = past_edition
                 self.log('Downloading past edition of', local_edition + ' from ' + today)
             url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
+            if is_monday:
+                mag_url = url + '?supplement=' + local_edition + '-epbs'
+            if is_saturday:
+                mag_url = url + '?supplement=' + local_edition + '-mp'
             if is_sunday:
                 mag_url = url + '?supplement=' + local_edition + '-sm'
         else:
             url = 'https://www.thehindu.com/todays-paper/'
+            if is_monday:
+                mag_url = url + '?supplement=th_chennai-epbs'
+            if is_friday:
+                mag_url = url + '?supplement=th_chennai-fr'
+            if is_saturday:
+                mag_url = url + '?supplement=th_chennai-mp'
             if is_sunday:
                 mag_url = url + '?supplement=th_chennai-sm'
-            
+
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
@@ -93,17 +107,18 @@ class TheHindu(BasicNewsRecipe):
                     'The Hindu Newspaper is not published Today.'
                 )
         if mag_url:
-            self.log('\nFetching Sunday Magazine')
+            self.log('\nFetching Magazine')
             soup = self.index_to_soup(mag_url)
             ans2 = self.hindu_parse_index(soup)
             if ans2:
                 return ans + ans2
+            self.log('\tMagazine not Found')
             return ans
         return ans
 
     def hindu_parse_index(self, soup):
         for script in soup.findAll('script'):
-            if not self.tag_to_string(script).strip().startswith('let grouped_articles = {}'):
+            if not self.tag_to_string(script).__contains__('grouped_articles = {"'):
                 continue
             if script is not None:
                 art = re.search(r'grouped_articles = ({\".*)', self.tag_to_string(script))
