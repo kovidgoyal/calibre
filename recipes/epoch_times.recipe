@@ -12,13 +12,11 @@ class EpochTimes(BasicNewsRecipe):
     oldest_article = 1.2
     max_articles_per_feed = 20
     ignore_duplicate_articles = {'url'}
-    remove_attributes = ['height', 'width']
+    remove_attributes = ['height', 'width', 'style']
     remove_empty_feeds =  True
     resolve_internal_links = True
     masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
-    extra_css = """
-        body{font-family: Arial,sans-serif }
-    """
+
     keep_only_tags = [
         dict(name='article')
     ]
