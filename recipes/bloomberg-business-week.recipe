@@ -45,7 +45,8 @@ def get_contents(x):
         if x['subType'] == 'story':
             if x['data'] and x['data']['link'] and x['data']['link']['destination']:
                 if 'web' in x['data']['link']['destination']:
-                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</a>'
+                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(
+                        map(get_contents, x.get('content', ''))) + '</a>'
                 return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
             return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
         return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'

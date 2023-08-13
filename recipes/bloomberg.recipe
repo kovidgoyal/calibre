@@ -46,7 +46,8 @@ def get_contents(x):
         if x['subType'] == 'story':
             if x['data'] and x['data']['link'] and x['data']['link']['destination']:
                 if 'web' in x['data']['link']['destination']:
-                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</a>'
+                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(
+                        map(get_contents, x.get('content', ''))) + '</a>'
                 return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
             return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
         return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
@@ -66,7 +67,8 @@ class Bloomberg(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
     masthead_url = 'https://assets.bbhub.io/company/sites/70/2022/09/logoBBGblck.svg'
-    description = 'Bloomberg delivers business and markets news, data, analysis, and video to the world, featuring stories from Businessweek and Bloomberg News.'
+    description = ('Bloomberg delivers business and markets news, data, analysis, and video'
+                   ' to the world, featuring stories from Businessweek and Bloomberg News.')
 
     simultaneous_downloads = 1
 
