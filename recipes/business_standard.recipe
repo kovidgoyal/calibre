@@ -95,11 +95,12 @@ class BusinessStandard(BasicNewsRecipe):
         if 'multiple_authors_name' in data:
             auth = '<div><p class="auth">' + data['multiple_authors_name'] + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
 
-        if data['featuredImageObj'] and 'url' in data['featuredImageObj']:
-            if img_url is not None:
-                lede = '<p class="cap"><img src="{}">'.format(img_url)
-            else:
-                lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
+        if 'featuredImageObj' in data:
+            if 'url' in data['featuredImageObj']:
+                if img_url is not None:
+                    lede = '<p class="cap"><img src="{}">'.format(img_url)
+                else:
+                    lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
 

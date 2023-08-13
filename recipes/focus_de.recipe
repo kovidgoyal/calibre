@@ -1,27 +1,35 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 '''
 focus.de
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class AdvancedUserRecipe1305567197(BasicNewsRecipe):
     title = 'Focus (DE)'
-    __author__ = 'Anonymous'
-    description = 'RSS-Feeds von Focus.de'
+    __author__ = 'unkn0wn'
+    description = 'RSS-Feeds von Focus.de, best downloaded at the end of the week.'
     language = 'de'
 
     oldest_article = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 25
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
+    remove_attributes = ['width', 'height', 'style']
+    masthead_url = 'https://www.focus-magazin.de/img/Focus_Logo.jpg'
+    extra_css = '''
+        .posMarker_oh { font-size:small; color:#404040; }
+        .posMarker_he { font-size:large; font-weight:bold; }
+        .leadIn { font-style:italic; color:#202020; }
+        .caption { text-align:center; font-size:small; }
+        .authorMeta, .displayDate { font-size:small; }
+    '''
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.focus-magazin.de/')
+        return soup.find('img', attrs={'class':'main-cover'})['src']
 
     feeds = [
         ('Politik', 'http://rss.focus.de/politik/'),
@@ -29,33 +37,25 @@ class AdvancedUserRecipe1305567197(BasicNewsRecipe):
         ('Gesundheit', 'http://rss.focus.de/gesundheit/'),
         ('Panorama', 'http://rss.focus.de/panorama/'),
         ('Digital', 'http://rss.focus.de/digital/'),
-        ('Reisen', 'http://rss.focus.de/reisen/')
+        ('Reisen', 'http://rss.focus.de/reisen/'),
+        ('Andere', 'http://rss.focus.de')
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'id': 'article'})
+        classes('articleHead articleContent')
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['inimagebuttons',
-                                          'kolumneHead clearfix']})
+        dict(name=['svg', 'script']),
+        classes('socFbLikeShare video social_frame'),
+        dict(attrs={'id': 'article-social-holder'})
     ]
 
-    remove_attributes = ['width', 'height']
-
-    extra_css = 'h1 {font-size: 1.6em; text-align: left; margin-top: 0em} \
-                 h2 {font-size: 1em; text-align: left} \
-                 .overhead {margin-bottom: 0em} \
-                 .caption {font-size: 0.6em}'
-
-    def print_version(self, url):
-        return url + '?drucken=1'
-
     def preprocess_html(self, soup):
-        # remove useless references to videos
-        for item in soup.findAll('h2'):
-            if item.string:
-                txt = item.string.upper()
-                if txt.startswith('IM VIDEO:') or txt.startswith('VIDEO:'):
-                    item.extract()
+        if h1 := soup.find(attrs={'class':'articleIdentH1'}):
+            h1.name = 'h1'
+        if he := soup.find(**classes('posMarker_he')):
+            he.name = 'div'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
         return soup
