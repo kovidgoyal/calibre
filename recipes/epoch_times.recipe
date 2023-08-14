@@ -14,8 +14,10 @@ class EpochTimes(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['height', 'width', 'style']
     remove_empty_feeds =  True
+    no_stylesheets = True
     resolve_internal_links = True
     masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
+    extra_css = '.post_caption, .text-sm {font-size:small;}'
 
     keep_only_tags = [
         dict(name='article')
@@ -23,6 +25,7 @@ class EpochTimes(BasicNewsRecipe):
     remove_tags = [
         classes('print:hidden h-header shortcode aspect-square'),
         dict(name='button'),
+        dict(name='img', attrs={'src':lambda x: x and x.endswith('svg')})
     ]
 
 	# feeds can be found at https://www.theepochtimes.com/rssfeeds
@@ -43,4 +46,6 @@ class EpochTimes(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
+        for fig_c in soup.findAll('figcaption'):
+            fig_c['class'] = 'post_caption'
         return soup

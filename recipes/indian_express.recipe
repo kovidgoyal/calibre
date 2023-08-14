@@ -39,7 +39,7 @@ class IndianExpress(BasicNewsRecipe):
             ' storytags pdsc-related-modify news-guard premium-story append_social_share'
             ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg'
             'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare'
-            ' custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec'
+            ' custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list'
         )
     ]
 
