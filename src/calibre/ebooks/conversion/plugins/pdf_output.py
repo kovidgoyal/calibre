@@ -63,7 +63,7 @@ class PDFOutput(OutputFormatPlugin):
                 'The font family used to render monospace fonts. Will work only if the font is available system-wide.')),
         OptionRecommendation(name='pdf_standard_font', choices=ui_data['font_types'],
             recommended_value='serif', help=_(
-                'The font family used to render monospace fonts')),
+                'The type of font family used to render font for which no font family is specified.')),
         OptionRecommendation(name='pdf_default_font_size',
             recommended_value=20, help=_(
                 'The default font size (in pixels)')),
