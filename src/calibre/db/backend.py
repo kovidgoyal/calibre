@@ -17,6 +17,7 @@ import sys
 import time
 import uuid
 from contextlib import closing, suppress
+from typing import Optional
 from functools import partial
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -339,10 +340,9 @@ class Connection(apsw.Connection):  # {{{
         self.fts_dbpath = self.notes_dbpath = None
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
-        self.execute('pragma cache_size=-5000')
-        self.execute('pragma temp_store=2')
+        self.execute('PRAGMA cache_size=-5000; PRAGMA temp_store=2; PRAGMA foreign_keys=ON;')
 
-        encoding = next(self.execute('pragma encoding'))[0]
+        encoding = next(self.execute('PRAGMA encoding'))[0]
         self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
@@ -968,14 +968,14 @@ class DB:
     def notes_for(self, field_name, item_id):
         return self.notes.get_note(self.conn, field_name, item_id) or ''
 
-    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes) -> int:
-        return self.notes.set_note(self.conn, field, item_id, doc, resource_hashes, searchable_text)
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_ids) -> int:
+        return self.notes.set_note(self.conn, field, item_id, doc, resource_ids, searchable_text)
 
-    def add_notes_resource(self, path_or_stream) -> str:
-        return self.notes.add_resource(path_or_stream)
+    def add_notes_resource(self, path_or_stream, name) -> int:
+        return self.notes.add_resource(self.conn, path_or_stream, name)
 
-    def get_notes_resource(self, resource_hash) -> bytes:
-        return self.notes.get_resource(resource_hash)
+    def get_notes_resource(self, resource_id) -> Optional[dict]:
+        return self.notes.get_resource_data(self.conn, resource_id)
 
     def notes_resources_used_by(self, field, item_id):
         conn = self.conn
@@ -1354,11 +1354,11 @@ class DB:
     @property
     def user_version(self):
         '''The user version of this database'''
-        return self.conn.get('pragma user_version;', all=False)
+        return self.conn.get('PRAGMA user_version;', all=False)
 
     @user_version.setter
     def user_version(self, val):
-        self.execute('pragma user_version=%d'%int(val))
+        self.execute('PRAGMA user_version=%d'%int(val))
 
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
