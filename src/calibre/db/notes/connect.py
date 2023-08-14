@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
+import apsw
 import os
 import time
 import xxhash
+from typing import Union, Optional
 from contextlib import suppress
 from itertools import repeat
 
@@ -76,7 +78,11 @@ class Notes:
         SchemaUpgrade(conn, '\n'.join(triggers))
         conn.notes_dbpath = dbpath
 
-    def path_for_resource(self, resource_hash: str) -> str:
+    def path_for_resource(self, conn, resource_hash_or_resource_id: Union[str,int]) -> str:
+        if isinstance(resource_hash_or_resource_id, str):
+            resource_hash = resource_hash_or_resource_id
+        else:
+            resource_hash = conn.get('SELECT hash FROM notes_db.resources WHERE id=?', (resource_hash_or_resource_id,), all=False)
         idx = resource_hash.index(':')
         prefix = resource_hash[idx + 1: idx + 3]
         return os.path.join(self.resources_dir, prefix, resource_hash)
@@ -86,22 +92,21 @@ class Notes:
             resources_to_potentially_remove = tuple(resources_to_potentially_remove)
         if delete_from_link_table:
             conn.executemany('''
-                DELETE FROM notes_db.notes_resources_link WHERE note=? AND hash=?
+                DELETE FROM notes_db.notes_resources_link WHERE note=? AND resource=?
             ''', tuple((note_id, x) for x in resources_to_potentially_remove))
         stmt = '''
             WITH resources_table(value) AS (VALUES {})
-            SELECT value FROM resources_table WHERE value NOT IN (SELECT hash FROM notes_db.notes_resources_link)
+            SELECT value FROM resources_table WHERE value NOT IN (SELECT resource FROM notes_db.notes_resources_link)
         '''.format(','.join(repeat('(?)', len(resources_to_potentially_remove))))
         for (x,) in conn.execute(stmt, resources_to_potentially_remove):
-            remove_with_retry(self.path_for_resource(x))
+            remove_with_retry(self.path_for_resource(conn, x))
 
     def note_id_for(self, conn, field_name, item_id):
-        for (ans,) in conn.execute('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)):
-            return ans
+        return conn.get('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
 
     def resources_used_by(self, conn, note_id):
         if note_id is not None:
-            for (h,) in conn.execute('SELECT hash from notes_db.notes_resources_link WHERE note=?', (note_id,)):
+            for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
     def set_backup_for(self, field_name, item_id, marked_up_text='', searchable_text=''):
@@ -122,7 +127,7 @@ class Notes:
                 os.replace(path, dest)
                 self.trim_retired_dir()
 
-    def set_note(self, conn, field_name, item_id, marked_up_text='', hashes_of_used_resources=(), searchable_text=copy_marked_up_text):
+    def set_note(self, conn, field_name, item_id, marked_up_text='', used_resource_ids=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
         note_id = self.note_id_for(conn, field_name, item_id)
@@ -134,27 +139,26 @@ class Notes:
                 if old_resources:
                     self.remove_resources(conn, note_id, old_resources, delete_from_link_table=False)
             return
-        new_resources = frozenset(hashes_of_used_resources)
+        new_resources = frozenset(used_resource_ids)
         resources_to_potentially_remove = old_resources - new_resources
         resources_to_add = new_resources - old_resources
         if note_id is None:
-            note_id, = next(conn.execute('''
+            note_id = conn.get('''
                 INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING id;
-            ''', (item_id, field_name, marked_up_text, searchable_text)))
+            ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
         else:
             conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=?', (marked_up_text, searchable_text))
         if resources_to_potentially_remove:
             self.remove_resources(conn, note_id, resources_to_potentially_remove)
         if resources_to_add:
             conn.executemany('''
-                INSERT INTO notes_db.notes_resources_link (note,hash) VALUES (?,?);
+                INSERT INTO notes_db.notes_resources_link (note,resource) VALUES (?,?);
             ''', tuple((note_id, x) for x in resources_to_add))
         self.set_backup_for(field_name, item_id, marked_up_text, searchable_text)
         return note_id
 
     def get_note(self, conn, field_name, item_id):
-        for (doc,) in conn.execute('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)):
-            return doc
+        return conn.get('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
 
     def get_note_data(self, conn, field_name, item_id):
         for (note_id, doc, searchable_text) in conn.execute(
@@ -162,7 +166,7 @@ class Notes:
         ):
             return {
                 'id': note_id, 'doc': doc, 'searchable_text': searchable_text,
-                'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
+                'resource_ids': frozenset(self.resources_used_by(conn, note_id)),
             }
 
     def rename_note(self, conn, field_name, old_item_id, new_item_id):
@@ -175,7 +179,7 @@ class Notes:
         old_note = self.get_note_data(conn, field_name, old_item_id)
         if not old_note or not old_note['doc']:
             return
-        self.set_note(conn, field_name, new_item_id, old_note['doc'], old_note['resource_hashes'], old_note['searchable_text'])
+        self.set_note(conn, field_name, new_item_id, old_note['doc'], old_note['resource_ids'], old_note['searchable_text'])
 
     def trim_retired_dir(self):
         mpath_map = {}
@@ -189,7 +193,7 @@ class Notes:
             for path in items[:extra]:
                 remove_with_retry(path)
 
-    def add_resource(self, path_or_stream_or_data):
+    def add_resource(self, conn, path_or_stream_or_data, name):
         if isinstance(path_or_stream_or_data, bytes):
             data = path_or_stream_or_data
         elif isinstance(path_or_stream_or_data, str):
@@ -198,7 +202,7 @@ class Notes:
         else:
             data = f.read()
         resource_hash = hash_data(data)
-        path = self.path_for_resource(resource_hash)
+        path = self.path_for_resource(conn, resource_hash)
         path = make_long_path_useable(path)
         exists = False
         try:
@@ -207,21 +211,39 @@ class Notes:
             pass
         else:
             exists = s.st_size == len(data)
-        if exists:
-            return resource_hash
+        if not exists:
+            try:
+                f = open(path, 'wb')
+            except FileNotFoundError:
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                f = open(path, 'wb')
+            with f:
+                f.write(data)
+        base_name, ext = os.path.splitext(name)
+        c = 0
+        for (resource_id, existing_name) in conn.execute('SELECT id,name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
+            if existing_name != name:
+                while True:
+                    try:
+                        conn.execute('UPDATE notes_db.resources SET name=? WHERE id=?', (name, resource_id))
+                        break
+                    except apsw.ConstraintError:
+                        c += 1
+                        name = f'{base_name}-{c}{ext}'
+            break
+        else:
+            while True:
+                try:
+                    resource_id = conn.get('INSERT INTO notes_db.resources (hash,name) VALUES (?,?) RETURNING id', (resource_hash, name), all=False)
+                    break
+                except apsw.ConstraintError:
+                    c += 1
+                    name = f'{base_name}-{c}{ext}'
+        return resource_id
 
-        try:
-            f = open(path, 'wb')
-        except FileNotFoundError:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            f = open(path, 'wb')
-        with f:
-            f.write(data)
-        return resource_hash
-
-    def get_resource(self, resource_hash) -> bytes:
-        path = self.path_for_resource(resource_hash)
-        path = make_long_path_useable(path)
-        with suppress(FileNotFoundError), open(path, 'rb') as f:
-            return f.read()
-        return b''
+    def get_resource_data(self, conn, resource_id) -> Optional[dict]:
+        for (name, resource_hash) in conn.execute('SELECT name,hash FROM notes_db.resources WHERE id=?', (resource_id,)):
+            path = self.path_for_resource(conn, resource_hash)
+            path = make_long_path_useable(path)
+            with suppress(FileNotFoundError), open(path, 'rb') as f:
+                return {'name': name, 'data': f.read(), 'hash': resource_hash}

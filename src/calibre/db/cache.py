@@ -20,7 +20,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
 from threading import Lock
 from time import monotonic, sleep, time
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Optional
 
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -677,14 +677,14 @@ class Cache:
     def notes_for(self, field, item_id) -> str:
         return self.backend.notes_for(field, item_id)
 
-    def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=()) -> int:
-        return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes)
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_ids=()) -> int:
+        return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_ids)
 
-    def add_notes_resource(self, path_or_stream_or_data) -> str:
-        return self.backend.add_notes_resource(path_or_stream_or_data)
+    def add_notes_resource(self, path_or_stream_or_data, name: str) -> int:
+        return self.backend.add_notes_resource(path_or_stream_or_data, name)
 
-    def get_notes_resource(self, resource_hash) -> bytes:
-        return self.backend.get_notes_resource(resource_hash)
+    def get_notes_resource(self, resource_id) -> Optional[dict]:
+        return self.backend.get_notes_resource(resource_id)
 
     def notes_resources_used_by(self, field, item_id):
         return frozenset(self.backend.notes_resources_used_by(field, item_id))
