@@ -6,10 +6,17 @@ CREATE TABLE notes_db.notes ( id INTEGER PRIMARY KEY,
     UNIQUE(item, colname)
 );
 
+CREATE TABLE notes_db.resources ( id INTEGER PRIMARY KEY,
+    hash TEXT NOT NULL UNIQUE ON CONFLICT FAIL,
+    name TEXT NOT NULL UNIQUE ON CONFLICT FAIL
+);
+
 CREATE TABLE notes_db.notes_resources_link ( id INTEGER PRIMARY KEY,
     note INTEGER NOT NULL, 
-    hash TEXT NOT NULL, 
-    UNIQUE(note, hash)
+    resource INTEGER NOT NULL, 
+    FOREIGN KEY(note) REFERENCES notes(id),
+    FOREIGN KEY(resource) REFERENCES resources(id),
+    UNIQUE(note, resource)
 );
 
 CREATE VIRTUAL TABLE notes_db.notes_fts USING fts5(searchable_text, content = 'notes', content_rowid = 'id', tokenize = 'calibre remove_diacritics 2');
@@ -21,7 +28,7 @@ BEGIN
     INSERT INTO notes_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
 END;
 
-CREATE TRIGGER notes_db.notes_db_notes_delete_trg AFTER DELETE ON notes_db.notes 
+CREATE TRIGGER notes_db.notes_db_notes_delete_trg BEFORE DELETE ON notes_db.notes 
     BEGIN
         DELETE FROM notes_resources_link WHERE note=OLD.id;
         INSERT INTO notes_fts(notes_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
@@ -36,5 +43,9 @@ BEGIN
     INSERT INTO notes_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
 END;
 
+CREATE TRIGGER notes_db.notes_db_resources_delete_trg BEFORE DELETE ON notes_db.resources 
+BEGIN
+    DELETE FROM notes_resources_link WHERE resource=OLD.id;
+END;
 
 PRAGMA notes_db.user_version=1;
