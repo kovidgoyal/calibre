@@ -3,15 +3,16 @@
 
 import apsw
 import os
+import shutil
 import time
 import xxhash
-from typing import Union, Optional
 from contextlib import suppress
 from itertools import repeat
+from typing import Optional, Union
 
 from calibre.constants import iswindows
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
-from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 
 from ..constants import NOTES_DIR_NAME
 from .schema_upgrade import SchemaUpgrade
@@ -25,22 +26,27 @@ class cmt(str):
 
 copy_marked_up_text = cmt()
 SEP = b'\0\x1c\0'
-
+DOC_NAME = 'doc.html'
 
 def hash_data(data: bytes) -> str:
     return 'xxh64:' + xxhash.xxh3_64_hexdigest(data)
 
 
-def remove_with_retry(x):
+def hash_key(key: str) -> str:
+    return xxhash.xxh3_64_hexdigest(key.encode('utf-8'))
+
+
+def remove_with_retry(x, is_dir=False):
     x = make_long_path_useable(x)
+    f = (shutil.rmtree if is_dir else os.remove)
     try:
-        os.remove(x)
+        f(x)
     except FileNotFoundError:
         return
     except OSError as e:
         if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
-            os.remove(x)
+            f(x)
 
 
 class Notes:
@@ -109,25 +115,56 @@ class Notes:
             for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
-    def set_backup_for(self, field_name, item_id, marked_up_text='', searchable_text=''):
+    def set_backup_for(self, field_name, item_id, marked_up_text, searchable_text):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
-        if marked_up_text:
-            try:
-                f = open(path, 'wb')
-            except FileNotFoundError:
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                f = open(path, 'wb')
-            with f:
-                f.write(marked_up_text.encode('utf-8'))
-                f.write(SEP)
-                f.write(searchable_text.encode('utf-8'))
-        else:
-            if os.path.exists(path):
-                dest = make_long_path_useable(os.path.join(self.retired_dir, f'{item_id}_{field_name}'))
-                os.replace(path, dest)
-                self.trim_retired_dir()
+        try:
+            f = open(path, 'wb')
+        except FileNotFoundError:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            f = open(path, 'wb')
+        with f:
+            f.write(marked_up_text.encode('utf-8'))
+            f.write(SEP)
+            f.write(searchable_text.encode('utf-8'))
 
-    def set_note(self, conn, field_name, item_id, marked_up_text='', used_resource_ids=(), searchable_text=copy_marked_up_text):
+    def retire_entry(self, field_name, item_id, item_value, resources, note_id):
+        path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
+        if os.path.exists(path):
+            key = (item_value or '').lower()
+            destdir = os.path.join(self.retired_dir, hash_key(f'{field_name} {key}'))
+            os.makedirs(make_long_path_useable(destdir), exist_ok=True)
+            dest = os.path.join(destdir, DOC_NAME)
+            os.replace(path, make_long_path_useable(dest))
+            with open(make_long_path_useable(os.path.join(destdir, 'note_id')), 'w') as nif:
+                nif.write(str(note_id))
+            for rhash, rname in resources:
+                rpath = make_long_path_useable(self.path_for_resource(None, rhash))
+                if os.path.exists(rpath):
+                    rdest = os.path.join(destdir, 'res-'+rname)
+                    copyfile_using_links(rpath, make_long_path_useable(rdest), dest_is_dir=False)
+            self.trim_retired_dir()
+
+    def unretire(self, conn, field_name, item_id, item_value) -> int:
+        key = (item_value or '').lower()
+        srcdir = make_long_path_useable(os.path.join(self.retired_dir, hash_key(f'{field_name} {key}')))
+        note_id = -1
+        if not os.path.exists(srcdir) or self.note_id_for(conn, field_name, item_id) is not None:
+            return note_id
+        with open(os.path.join(srcdir, DOC_NAME), 'rb') as src:
+            a, b = src.read().partition(SEP)[::2]
+            marked_up_text, searchable_text = a.decode('utf-8'), b.decode('utf-8')
+        resources = set()
+        for x in os.listdir(srcdir):
+            if x.startswith('res-'):
+                rname = x.split('-', 1)[1]
+                with open(os.path.join(srcdir, x), 'rb') as rsrc:
+                    resources.add(self.add_resource(conn, rsrc, rname))
+        note_id = self.set_note(conn, field_name, item_id, item_value, marked_up_text, resources, searchable_text)
+        if note_id > -1:
+            remove_with_retry(srcdir, is_dir=True)
+        return note_id
+
+    def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_ids=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
         note_id = self.note_id_for(conn, field_name, item_id)
@@ -135,16 +172,21 @@ class Notes:
         if not marked_up_text:
             if note_id is not None:
                 conn.execute('DELETE FROM notes_db.notes WHERE id=?', (note_id,))
-                self.set_backup_for(field_name, item_id)
+                resources = ()
+                if old_resources:
+                    resources = conn.get(
+                        'SELECT hash,name FROM notes_db.resources WHERE id IN ({})'.format(','.join(repeat('?', len(old_resources)))),
+                        tuple(old_resources))
+                self.retire_entry(field_name, item_id, item_value, resources, note_id)
                 if old_resources:
                     self.remove_resources(conn, note_id, old_resources, delete_from_link_table=False)
-            return
+            return -1
         new_resources = frozenset(used_resource_ids)
         resources_to_potentially_remove = old_resources - new_resources
         resources_to_add = new_resources - old_resources
         if note_id is None:
             note_id = conn.get('''
-                INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING id;
+                INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING notes.id;
             ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
         else:
             conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=?', (marked_up_text, searchable_text))
@@ -169,7 +211,7 @@ class Notes:
                 'resource_ids': frozenset(self.resources_used_by(conn, note_id)),
             }
 
-    def rename_note(self, conn, field_name, old_item_id, new_item_id):
+    def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value):
         note_id = self.note_id_for(conn, field_name, old_item_id)
         if note_id is None:
             return
@@ -179,19 +221,22 @@ class Notes:
         old_note = self.get_note_data(conn, field_name, old_item_id)
         if not old_note or not old_note['doc']:
             return
-        self.set_note(conn, field_name, new_item_id, old_note['doc'], old_note['resource_ids'], old_note['searchable_text'])
+        self.set_note(conn, field_name, new_item_id, new_item_value, old_note['doc'], old_note['resource_ids'], old_note['searchable_text'])
 
     def trim_retired_dir(self):
-        mpath_map = {}
         items = []
-        for d in os.scandir(self.retired_dir):
-            mpath_map[d.path] = d.stat(follow_symlinks=False).st_mtime_ns
+        for d in os.scandir(make_long_path_useable(self.retired_dir)):
             items.append(d.path)
         extra = len(items) - self.max_retired_items
         if extra > 0:
-            items.sort(key=mpath_map.__getitem__)
+            def key(path):
+                path = os.path.join(path, 'note_id')
+                with suppress(OSError):
+                    with open(path) as f:
+                        return os.stat(path, follow_symlinks=False).st_mtime_ns, int(f.read())
+            items.sort(key=key)
             for path in items[:extra]:
-                remove_with_retry(path)
+                remove_with_retry(path, is_dir=True)
 
     def add_resource(self, conn, path_or_stream_or_data, name):
         if isinstance(path_or_stream_or_data, bytes):
@@ -200,7 +245,7 @@ class Notes:
             with open(path_or_stream_or_data, 'rb') as f:
                 data = f.read()
         else:
-            data = f.read()
+            data = path_or_stream_or_data.read()
         resource_hash = hash_data(data)
         path = self.path_for_resource(conn, resource_hash)
         path = make_long_path_useable(path)
