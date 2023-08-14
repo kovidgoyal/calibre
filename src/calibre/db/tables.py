@@ -248,15 +248,18 @@ class ManyToOneTable(Table):
             if len(v) > 1:
                 main_id = min(v)
                 v.discard(main_id)
+                item_map = {}
                 for item_id in v:
-                    self.id_map.pop(item_id, None)
+                    val = self.id_map.pop(item_id, null)
+                    if val is not null:
+                        item_map[item_id] = val
                     books = self.col_book_map.pop(item_id, set())
                     for book_id in books:
                         self.book_col_map[book_id] = main_id
                 db.executemany('UPDATE {0} SET {1}=? WHERE {1}=?'.format(
                     self.link_table, self.metadata['link_column']),
                     tuple((main_id, x) for x in v))
-                db.delete_category_items(self.name, self.metadata['table'], v)
+                db.delete_category_items(self.name, self.metadata['table'], item_map)
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -310,20 +313,26 @@ class ManyToOneTable(Table):
                 affected_books |= self.remove_items(items_to_process_normally, db)
             return affected_books
 
+        item_map = {}
         for item_id in item_ids:
             val = self.id_map.pop(item_id, null)
             if val is null:
                 continue
+            item_map[item_id] = val
             book_ids = self.col_book_map.pop(item_id, set())
             for book_id in book_ids:
                 self.book_col_map.pop(book_id, None)
             affected_books.update(book_ids)
-        db.delete_category_items(self.name, self.metadata['table'], item_ids, self.link_table, self.metadata['link_column'])
+        db.delete_category_items(self.name, self.metadata['table'], item_map, self.link_table, self.metadata['link_column'])
         return affected_books
 
     def rename_item(self, item_id, new_name, db):
-        rmap = {icu_lower(v):k for k, v in iteritems(self.id_map)}
-        existing_item = rmap.get(icu_lower(new_name), None)
+        existing_item = None
+        q = icu_lower(new_name)
+        for q_id, q_val in self.id_map.items():
+            if icu_lower(q_val) == q:
+                existing_item = q_id
+                break
         table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
         affected_books = self.col_book_map.get(item_id, set())
         new_id = item_id
@@ -339,7 +348,7 @@ class ManyToOneTable(Table):
             for book_id in books:
                 self.book_col_map[book_id] = existing_item
             self.col_book_map[existing_item].update(books)
-            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item)
+            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item, self.id_map[new_id])
         return affected_books, new_id
 
     def set_links(self, link_map, db):
@@ -403,7 +412,7 @@ class ManyToManyTable(ManyToOneTable):
                 self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
 
     def remove_books(self, book_ids, db):
-        clean = set()
+        clean = {}
         for book_id in book_ids:
             item_ids = self.book_col_map.pop(book_id, ())
             for item_id in item_ids:
@@ -415,11 +424,12 @@ class ManyToManyTable(ManyToOneTable):
                 else:
                     if not self.col_book_map[item_id]:
                         del self.col_book_map[item_id]
-                        if self.id_map.pop(item_id, null) is not null:
-                            clean.add(item_id)
+                        val = self.id_map.pop(item_id, null)
+                        if val is not null:
+                            clean[item_id] = val
         if clean and self.do_clean_on_remove:
             db.delete_category_items(self.name, self.metadata['table'], clean)
-        return clean
+        return set(clean)
 
     def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         affected_books = set()
@@ -452,20 +462,26 @@ class ManyToManyTable(ManyToOneTable):
                 affected_books |= self.remove_items(items_to_process_normally, db)
             return affected_books
 
+        item_map = {}
         for item_id in item_ids:
             val = self.id_map.pop(item_id, null)
             if val is null:
                 continue
+            item_map[item_id] = val
             book_ids = self.col_book_map.pop(item_id, set())
             for book_id in book_ids:
                 self.book_col_map[book_id] = tuple(x for x in self.book_col_map.get(book_id, ()) if x != item_id)
             affected_books.update(book_ids)
-        db.delete_category_items(self.name, self.metadata['table'], item_ids, self.link_table, self.metadata['link_column'])
+        db.delete_category_items(self.name, self.metadata['table'], item_map, self.link_table, self.metadata['link_column'])
         return affected_books
 
     def rename_item(self, item_id, new_name, db):
-        rmap = {icu_lower(v):k for k, v in iteritems(self.id_map)}
-        existing_item = rmap.get(icu_lower(new_name), None)
+        existing_item = None
+        q = icu_lower(new_name)
+        for q_id, q_val in self.id_map.items():
+            if icu_lower(q_val) == q:
+                existing_item = q_id
+                break
         table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
         affected_books = self.col_book_map.get(item_id, set())
         new_id = item_id
@@ -486,7 +502,7 @@ class ManyToManyTable(ManyToOneTable):
             self.col_book_map[existing_item].update(books)
             db.executemany(f'DELETE FROM {self.link_table} WHERE book=? AND {lcol}=?', [
                 (book_id, existing_item) for book_id in books])
-            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item)
+            db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item, self.id_map[new_id])
         return affected_books, new_id
 
     def fix_case_duplicates(self, db):
@@ -500,8 +516,11 @@ class ManyToManyTable(ManyToOneTable):
                 done_books = set()
                 main_id = min(v)
                 v.discard(main_id)
+                item_map = {}
                 for item_id in v:
-                    self.id_map.pop(item_id, None)
+                    val = self.id_map.pop(item_id, null)
+                    if val is not null:
+                        item_map[item_id] = val
                     books = self.col_book_map.pop(item_id, set())
                     for book_id in books:
                         if book_id in done_books:
@@ -524,7 +543,7 @@ class ManyToManyTable(ManyToOneTable):
                             db.executemany(
                                 'INSERT INTO {} (book,{}) VALUES (?,?)'.format(self.link_table, self.metadata['link_column']),
                                 tuple((book_id, x) for x in vals))
-                db.delete_category_items(self.name, self.metadata['table'], v)
+                db.delete_category_items(self.name, self.metadata['table'], item_map)
 
 
 class AuthorsTable(ManyToManyTable):
