@@ -553,8 +553,12 @@ def get_hardlink_function(src, dest):
     if not iswindows:
         return os.link
     from calibre_extensions import winutil
+    if src.startswith(long_path_prefix):
+        src = src[len(long_path_prefix):]
+    if dest.startswith(long_path_prefix):
+        dest = dest[len(long_path_prefix):]
     root = dest[0] + ':\\'
-    if src[0].lower() == dest[0].lower() and hasattr(winutil, 'supports_hardlinks') and winutil.supports_hardlinks(root):
+    if src[0].lower() == dest[0].lower() and winutil.supports_hardlinks(root):
         return windows_fast_hardlink
 
 
@@ -563,6 +567,7 @@ def copyfile_using_links(path, dest, dest_is_dir=True, filecopyfunc=copyfile):
     if dest_is_dir:
         dest = os.path.join(dest, os.path.basename(path))
     hardlink = get_hardlink_function(path, dest)
+    path, dest = make_long_path_useable(path), make_long_path_useable(dest)
     try:
         hardlink(path, dest)
     except Exception:
