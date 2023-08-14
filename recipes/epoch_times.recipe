@@ -17,7 +17,7 @@ class EpochTimes(BasicNewsRecipe):
     no_stylesheets = True
     resolve_internal_links = True
     masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
-    extra_css = '.post_caption, .text-sm {font-size:small;}'
+    extra_css = '.post_caption, .text-sm, .uppercase {font-size:small;}'
 
     keep_only_tags = [
         dict(name='article')
