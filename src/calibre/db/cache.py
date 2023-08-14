@@ -674,20 +674,29 @@ class Cache:
     # }}}
 
     # Notes API {{{
+    @read_api
     def notes_for(self, field, item_id) -> str:
         return self.backend.notes_for(field, item_id)
 
+    @write_api
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_ids=()) -> int:
         return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_ids)
 
+    @write_api
     def add_notes_resource(self, path_or_stream_or_data, name: str) -> int:
         return self.backend.add_notes_resource(path_or_stream_or_data, name)
 
+    @read_api
     def get_notes_resource(self, resource_id) -> Optional[dict]:
         return self.backend.get_notes_resource(resource_id)
 
+    @read_api
     def notes_resources_used_by(self, field, item_id):
         return frozenset(self.backend.notes_resources_used_by(field, item_id))
+
+    @write_api
+    def unretire_note_for(self, field, item_id) -> int:
+        return self.backend.unretire_note_for(field, item_id)
     # }}}
 
     # Cache Layer API {{{

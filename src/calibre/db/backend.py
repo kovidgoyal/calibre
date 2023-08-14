@@ -949,16 +949,16 @@ class DB:
         from .notes.connect import Notes
         self.notes = Notes(self)
 
-    def delete_category_items(self, field_name, table_name, items, link_table_name='', link_col_name=''):
-        bindings = tuple((x,) for x in items)
+    def delete_category_items(self, field_name, table_name, item_map, link_table_name='', link_col_name=''):
+        for item_id, item_val in item_map.items():
+            self.notes.set_note(self.conn, field_name, item_id, item_val or '')
+        bindings = tuple((x,) for x in item_map)
         if link_table_name and link_col_name:
             self.executemany(f'DELETE FROM {link_table_name} WHERE {link_col_name}=?', bindings)
         self.executemany(f'DELETE FROM {table_name} WHERE id=?', bindings)
-        for item_id in items:
-            self.notes.set_note(self.conn, field_name, item_id)
 
-    def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id):
-        self.notes.rename_note(self.conn, field_name, old_item_id, new_item_id)
+    def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id, new_item_value):
+        self.notes.rename_note(self.conn, field_name, old_item_id, new_item_id, new_item_value or '')
         # For custom series this means that the series index can
         # potentially have duplicates/be incorrect, but there is no way to
         # handle that in this context.
@@ -969,7 +969,12 @@ class DB:
         return self.notes.get_note(self.conn, field_name, item_id) or ''
 
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_ids) -> int:
-        return self.notes.set_note(self.conn, field, item_id, doc, resource_ids, searchable_text)
+        id_val = self.tables[field].id_map[item_id]
+        return self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_ids, searchable_text)
+
+    def unretire_note_for(self, field, item_id) -> int:
+        id_val = self.tables[field].id_map[item_id]
+        return self.notes.unretire(self.conn, field, item_id, id_val)
 
     def add_notes_resource(self, path_or_stream, name) -> int:
         return self.notes.add_resource(self.conn, path_or_stream, name)
