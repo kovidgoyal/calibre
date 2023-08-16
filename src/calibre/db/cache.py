@@ -2702,6 +2702,14 @@ class Cache:
                 e.cover_path = self.format_abspath(e.book_id, '__COVER_INTERNAL__')
         return books, formats
 
+    @read_api
+    def copy_format_from_trash(self, book_id, fmt, dest):
+        fmt = fmt.upper()
+        fpath = self.backend.path_for_trash_format(book_id, fmt)
+        if not fpath:
+            raise ValueError(f'No format {fmt} found in book {book_id}')
+        shutil.copyfile(fpath, dest)
+
     @write_api
     def move_format_from_trash(self, book_id, fmt):
         ''' Undelete a format from the trash directory '''
@@ -2721,6 +2729,10 @@ class Cache:
         self.fields['size'].table.update_sizes({book_id: max_size})
         self.event_dispatcher(EventType.format_added, book_id, fmt)
         self.backend.remove_trash_formats_dir_if_empty(book_id)
+
+    @read_api
+    def copy_book_from_trash(self, book_id, dest: str):
+        self.backend.copy_book_from_trash(book_id, dest)
 
     @write_api
     def move_book_from_trash(self, book_id):

@@ -6,14 +6,14 @@ import traceback
 from operator import attrgetter
 from qt.core import (
     QAbstractItemView, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget,
-    QListWidgetItem, QPainter, QPalette, QPixmap, QRectF, QSize, QSpinBox, QStyle,
-    QStyledItemDelegate, Qt, QTabWidget, QVBoxLayout, pyqtSignal,
+    QListWidgetItem, QMenu, QPainter, QPalette, QPixmap, QRectF, QSize, QSpinBox,
+    QStyle, QStyledItemDelegate, Qt, QTabWidget, QVBoxLayout, pyqtSignal,
 )
 from typing import Iterator, List
 
 from calibre import fit_image
 from calibre.db.constants import DEFAULT_TRASH_EXPIRY_TIME_SECONDS, TrashEntry
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_dir, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
@@ -84,8 +84,9 @@ class TrashList(QListWidget):
 
     restore_item = pyqtSignal(object, object)
 
-    def __init__(self, entries: List[TrashEntry], parent: 'TrashView'):
+    def __init__(self, entries: List[TrashEntry], parent: 'TrashView', is_books: bool):
         super().__init__(parent)
+        self.is_books = is_books
         self.db = parent.db
         self.delegate = TrashItemDelegate(self)
         self.setItemDelegate(self.delegate)
@@ -95,6 +96,8 @@ class TrashList(QListWidget):
             i.setData(Qt.ItemDataRole.UserRole, entry)
             self.addItem(i)
         self.itemDoubleClicked.connect(self.double_clicked)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     @property
     def selected_entries(self) -> Iterator[TrashEntry]:
@@ -103,6 +106,33 @@ class TrashList(QListWidget):
 
     def double_clicked(self, item):
         self.restore_item.emit(self, item)
+
+    def show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        if item is None:
+            return
+        m = QMenu(self)
+        entry = item.data(Qt.ItemDataRole.UserRole)
+        m.addAction(QIcon.ic('save.png'), _('Save "{}" to disk').format(entry.title)).triggered.connect(self.save_current_item)
+        m.exec(self.mapToGlobal(pos))
+
+    def save_current_item(self):
+        item = self.currentItem()
+        if item is not None:
+            self.save_entry(item.data(Qt.ItemDataRole.UserRole))
+
+    def save_entry(self, entry: TrashEntry):
+        if self.is_books:
+            dest = choose_dir(self, 'save-trash-book', _('Choose a location to save: {}').format(entry.title))
+            if not dest:
+                return
+            self.db.copy_book_from_trash(entry.book_id, dest)
+        else:
+            for fmt in entry.formats:
+                dest = choose_save_file(self, 'save-trash-format', _('Choose a location to save: {}').format(
+                    entry.title +'.' + fmt.lower()), initial_filename=entry.title + '.' + fmt.lower())
+                if dest:
+                    self.db.copy_format_from_trash(entry.book_id, fmt, dest)
 
 
 class TrashView(Dialog):
@@ -122,9 +152,9 @@ class TrashView(Dialog):
 
         with BusyCursor():
             books, formats = self.db.list_trash_entries()
-        self.books = TrashList(books, self)
+        self.books = TrashList(books, self, True)
         self.books.restore_item.connect(self.restore_item)
-        self.formats = TrashList(formats, self)
+        self.formats = TrashList(formats, self, False)
         self.formats.restore_item.connect(self.restore_item)
 
         self.tabs = t = QTabWidget(self)

@@ -2098,6 +2098,12 @@ class DB:
         dest = os.path.abspath(os.path.join(self.library_path, path))
         copy_tree(bdir, dest, delete_source=True)
 
+    def copy_book_from_trash(self, book_id, dest):
+        bdir = os.path.join(self.trash_dir, 'b', str(book_id))
+        if not os.path.isdir(bdir):
+            raise ValueError(f'The book {book_id} not present in the trash folder')
+        copy_tree(bdir, dest, delete_source=False)
+
     def path_for_trash_format(self, book_id, fmt):
         bdir = os.path.join(self.trash_dir, 'f', str(book_id))
         if not os.path.isdir(bdir):
