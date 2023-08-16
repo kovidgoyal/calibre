@@ -53,8 +53,7 @@ class SaveTemplate(QWidget, Ui_Form):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
         view = get_gui().library_view
-        rows = view.selectionModel().selectedRows()[0:10]  # Maximum of 10 books
-        mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
+        mi = tuple(map(db.new_api.get_proxy_metadata, view.get_selected_ids()[:10]))
         if not mi:
             error_dialog(self, _('Must select books'),
                          _('One or more books must be selected so the template '
