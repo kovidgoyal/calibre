@@ -267,7 +267,7 @@ def mi_to_html(
             else:
                 links = ', '.join(mi.identifiers)
             if links:
-                ans.append((field, row % (_('Ids')+':', links)))
+                ans.append((field, row % (_('Ids')+title_sep, links)))
         elif field == 'authors':
             authors = []
             formatter = EvalFormatter()
