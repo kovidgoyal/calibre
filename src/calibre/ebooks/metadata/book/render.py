@@ -122,6 +122,7 @@ def mi_to_html(
     p = prepare_string_for_xml
     a = partial(prepare_string_for_xml, attribute=True)
     book_id = getattr(mi, 'id', 0)
+    title_sep = '\xa0'
 
     for field in (field for field, display in field_list if display):
         try:
@@ -147,8 +148,7 @@ def mi_to_html(
         name = metadata['name']
         if not name:
             name = field
-        sep = '\xa0'
-        name += sep
+        name += title_sep
         disp = metadata['display']
         if (metadata['datatype'] == 'comments' or field == 'comments'
             or disp.get('composite_show_in_comments', '')):
@@ -225,7 +225,7 @@ def mi_to_html(
                                     num_of_folders = 2
                                     break
                         text = _('Book files')
-                        name = ngettext('Folder', 'Folders', num_of_folders) + sep
+                        name = ngettext('Folder', 'Folders', num_of_folders) + title_sep
                     links = ['<a href="{}" title="{}">{}</a>{}'.format(action(scheme, book_id=book_id, loc=loc),
                         prepare_string_for_xml(path, True), text, extra)]
                     if num_of_folders > 1:
