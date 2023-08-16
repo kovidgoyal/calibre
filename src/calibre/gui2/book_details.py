@@ -8,7 +8,7 @@ from collections import namedtuple
 from contextlib import suppress
 from functools import lru_cache, partial
 from qt.core import (
-    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
+    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon, QPalette,
     QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect,
     QSize, QSizePolicy, QSplitter, Qt, QTimer, QUrl, QWidget, pyqtProperty, pyqtSignal,
 )
@@ -292,11 +292,15 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata),
                                 pref_name=pref_name, mi=mi)
     field_list = [(x, all_fields or display) for x, display in field_list]
+    gray = '#888'
+    app = QApplication.instance()
+    if app is not None and app.is_dark_theme:
+        gray = app.palette().color(QPalette.ColorRole.PlaceholderText).name()
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
-        vertical_fields=vertical_fields, show_links=show_links
+        vertical_fields=vertical_fields, show_links=show_links, gray=gray
     )
 
 # }}}
