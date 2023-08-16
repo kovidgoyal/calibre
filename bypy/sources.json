@@ -155,8 +155,8 @@
     {
         "name": "openssl",
         "unix": {
-            "filename": "openssl-1.1.1l.tar.gz",
-            "hash": "sha256:0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1",
+            "filename": "openssl-1.1.1v.tar.gz",
+            "hash": "sha256:d6697e2871e77238460402e9362d47d18382b15ef9f246aba6c7bd780d38a6b0",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
