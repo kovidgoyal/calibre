@@ -519,7 +519,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         '''
         self.fm = fm
         if mi:
-            if not isinstance(mi, list):
+            if not isinstance(mi, (tuple, list)):
                 mi = (mi, )
         else:
             mi = Metadata(_('Title'), [_('Author')])
