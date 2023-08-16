@@ -292,7 +292,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata),
                                 pref_name=pref_name, mi=mi)
     field_list = [(x, all_fields or display) for x, display in field_list]
-    gray = '#888'
+    gray = '#666'
     app = QApplication.instance()
     if app is not None and app.is_dark_theme:
         gray = app.palette().color(QPalette.ColorRole.PlaceholderText).name()
