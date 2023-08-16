@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
@@ -51,26 +51,22 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//li[@class="Book-item"]'):
+            for data in doc.xpath('//div[@class="l-books__grid"]/article'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[@class="title"]/a/@href'))
+                id = ''.join(data.xpath('.//figure/a/@href'))
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="cover-area"]//img/@src'))
-                title = ''.join(data.xpath('.//div[@class="title"]/a[1]/text()'))
-                author = ', '.join(data.xpath('.//div[@class="author"]/a/text()'))
+                title = ''.join(data.xpath('.//h2/a/text()'))
+                author = ', '.join(data.xpath('.//h3/a/text()'))
+                cover_url = ''.join(data.xpath('.//figure/a/img/@src'))
                 price = '0,00 zł'
 
                 counter -= 1
 
                 s = SearchResult()
-                for link in data.xpath('.//div[@class="book-box-formats"]/span/a'):
-                    ext = ''.join(link.xpath('./text()'))
-                    href = 'https://wolnelektury.pl' + link.get('href')
-                    s.downloads[ext] = href
                 s.cover_url = 'https://wolnelektury.pl' + cover_url.strip()
                 s.title = title.strip()
                 s.author = author
