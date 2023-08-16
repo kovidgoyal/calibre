@@ -176,7 +176,7 @@ class Bloomberg(BasicNewsRecipe):
                             caption = '<span class="cap">' + data['lede']['alt'] + '</span>'
 
         if m:
-            time.sleep(3)
+            time.sleep(10)
             body = data['body']
         else:
             body = ''
