@@ -2,10 +2,9 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from calibre_extensions import speedup
-
 
 utc_tz = timezone.utc
 local_tz = datetime.now().astimezone().tzinfo
@@ -23,7 +22,7 @@ def parse_iso8601(date_string, assume_utc=False, as_utc=True, require_aware=Fals
         else:
             sign = '-' if tzseconds < 0 else '+'
             description = "%s%02d:%02d" % (sign, abs(tzseconds) // 3600, (abs(tzseconds) % 3600) // 60)
-            tz = timezone(tzseconds, description)
+            tz = timezone(timedelta(seconds=tzseconds), description)
     elif require_aware:
         raise ValueError(f'{date_string} does not specify a time zone')
     dt = dt.replace(tzinfo=tz)
