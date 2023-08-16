@@ -55,6 +55,10 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
     self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
 
+
+def test_cache_api(self):
+    cache, notes = self.create_notes_db()
+
 class NotesTest(BaseTest):
 
     ae = BaseTest.assertEqual
@@ -65,4 +69,5 @@ class NotesTest(BaseTest):
         return cache, cache.backend.notes
 
     def test_notes(self):
+        test_cache_api(self)
         test_notes_api(self)
