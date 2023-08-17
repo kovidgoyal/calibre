@@ -703,7 +703,6 @@ class HandleWheel:
             backward = evt.deltaX < 0
             self.do_section_jump(backward)
 
-
     def add_pixel_scroll(self, backward, deltaY):
         now = window.performance.now()
         if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not 'pixel':
@@ -728,7 +727,7 @@ class HandleWheel:
 
     def do_section_jump(self, backward):
         self.reset()
-        next_spine_item(backward)
+        get_boss().send_message('next_section', forward=not backward)
 
 wheel_handler = HandleWheel()
 onwheel = wheel_handler.onwheel
