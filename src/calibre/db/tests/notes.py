@@ -58,13 +58,37 @@ def test_notes_api(self: 'NotesTest'):
 
 def test_cache_api(self):
     cache, notes = self.create_notes_db()
+    authors = cache.field_for('authors', 1)
+    author_id = cache.get_item_id('authors', authors[0])
+    doc = 'simple notes for an author'
+    h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
+    h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
+    cache.set_notes_for('authors', author_id, doc, resource_ids=(h1, h2))
+    # test renaming to a new author preserves notes
+    cache.rename_items('authors', {author_id: 'renamed author'})
+    raid = cache.get_item_id('authors', 'renamed author')
+    self.ae(cache.notes_resources_used_by('authors', raid), frozenset({h1, h2}))
+    self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
+    self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
+    # test renaming to an existing author preserves notes
+    cache.rename_items('authors', {raid: 'Author One'})
+    raid = cache.get_item_id('authors', 'Author One')
+    self.ae(cache.notes_resources_used_by('authors', raid), frozenset({h1, h2}))
+    self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
+    self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
+    # test removing author from db retires notes
+    cache.set_field('authors', {bid:('New Author',) for bid in cache.all_book_ids()})
+    self.ae(len(cache.all_field_ids('authors')), 1)
+    before = os.listdir(notes.retired_dir)
+    self.ae(len(before), 1)
+
 
 class NotesTest(BaseTest):
 
     ae = BaseTest.assertEqual
 
     def create_notes_db(self):
-        cache = self.init_cache()
+        cache = self.init_cache(self.cloned_library)
         cache.backend.notes.max_retired_items = 1
         return cache, cache.backend.notes
 
