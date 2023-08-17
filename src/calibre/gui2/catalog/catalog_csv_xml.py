@@ -5,7 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget, QAbstractItemView
+from qt.core import (
+    QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
+    Qt, QVBoxLayout, QWidget,
+)
 
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs
@@ -48,12 +51,42 @@ class PluginWidget(QWidget):
         self.db_fields = QListWidget(self)
         l.addWidget(self.db_fields)
         self.la2 = la = QLabel(_('Drag and drop to re-arrange fields'))
-        l.addWidget(la)
         self.db_fields.setDragEnabled(True)
         self.db_fields.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.db_fields.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
         self.db_fields.setAlternatingRowColors(True)
         self.db_fields.setObjectName("db_fields")
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(la), h.addStretch(10)
+        self.select_all_button = b = QPushButton(_('Select &all'))
+        b.clicked.connect(self.select_all)
+        h.addWidget(b)
+        self.select_all_button = b = QPushButton(_('Select &none'))
+        b.clicked.connect(self.select_none)
+        h.addWidget(b)
+        self.select_visible_button = b = QPushButton(_('Select &visible'))
+        b.clicked.connect(self.select_visible)
+        b.setToolTip(_('Select the fields currently shown in the book list'))
+        h.addWidget(b)
+
+    def select_all(self):
+        for row in range(self.db_fields.count()):
+            item = self.db_fields.item(row)
+            item.setCheckState(Qt.CheckState.Checked)
+
+    def select_none(self):
+        for row in range(self.db_fields.count()):
+            item = self.db_fields.item(row)
+            item.setCheckState(Qt.CheckState.Unchecked)
+
+    def select_visible(self):
+        state = get_gui().library_view.get_state()
+        hidden = frozenset(state['hidden_columns'])
+        for row in range(self.db_fields.count()):
+            item = self.db_fields.item(row)
+            field = item.data(Qt.ItemDataRole.UserRole)
+            item.setCheckState(Qt.CheckState.Unchecked if field in hidden else Qt.CheckState.Checked)
 
     def initialize(self, catalog_name, db):
         self.name = catalog_name
