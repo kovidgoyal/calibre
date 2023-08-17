@@ -44,6 +44,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_columns, 'item'+signal)
             signal.connect(self.columns_changed)
+        self.show_all_button.clicked.connect(self.show_all)
+        self.hide_all_button.clicked.connect(self.hide_all)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -136,6 +138,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     self.opt_columns.setColumnWidth(i, geom[i])
                 return
         self.opt_columns.resizeColumnsToContents()
+
+    def hide_all(self):
+        for row in range(self.opt_columns.rowCount()):
+            item = self.opt_columns.item(row, 0)
+            if item.checkState() != Qt.CheckState.PartiallyChecked:
+                item.setCheckState(Qt.CheckState.Unchecked)
+        self.changed_signal.emit()
+
+    def show_all(self):
+        for row in range(self.opt_columns.rowCount()):
+            item = self.opt_columns.item(row, 0)
+            if item.checkState() != Qt.CheckState.PartiallyChecked:
+                item.setCheckState(Qt.CheckState.Checked)
+        self.changed_signal.emit()
 
     def setup_row(self, row, key, order, force_checked_to=None):
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
