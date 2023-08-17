@@ -949,9 +949,12 @@ class DB:
         from .notes.connect import Notes
         self.notes = Notes(self)
 
-    def delete_category_items(self, field_name, table_name, item_map, link_table_name='', link_col_name=''):
+    def clear_notes_for_category_items(self, field_name, item_map):
         for item_id, item_val in item_map.items():
             self.notes.set_note(self.conn, field_name, item_id, item_val or '')
+
+    def delete_category_items(self, field_name, table_name, item_map, link_table_name='', link_col_name=''):
+        self.clear_notes_for_category_items(field_name, item_map)
         bindings = tuple((x,) for x in item_map)
         if link_table_name and link_col_name:
             self.executemany(f'DELETE FROM {link_table_name} WHERE {link_col_name}=?', bindings)
