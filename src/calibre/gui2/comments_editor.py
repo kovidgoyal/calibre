@@ -288,7 +288,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
-        self.document().setDefaultStyleSheet(css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
+        self.document().setDefaultStyleSheet(css().replace('palette(placeholder-text)', 'gray') + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1

@@ -29,7 +29,10 @@ table.fields td {
 }
 
 table.fields td.title {
-    font-weight: bold
+    font-weight: normal;
+    font-style: italic;
+    color: palette(placeholder-text);
+    text-align: right;
 }
 
 .series_name {

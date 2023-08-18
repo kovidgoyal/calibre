@@ -547,7 +547,7 @@ class HTMLDisplay(QTextBrowser):
 
     def setDefaultStyleSheet(self, css=''):
         self.external_css = css
-        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+        self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
 
     def palette_changed(self):
         app = QApplication.instance()
@@ -557,8 +557,11 @@ class HTMLDisplay(QTextBrowser):
             self.default_css = 'a { color: %s }\n\n' % col.name(QColor.NameFormat.HexRgb)
         else:
             self.default_css = ''
-        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+        self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
         self.setHtml(self.last_set_html)
+
+    def process_external_css(self, css):
+        return css
 
     def on_anchor_clicked(self, qurl):
         if not qurl.scheme() and qurl.hasFragment() and qurl.toString().startswith('#'):
