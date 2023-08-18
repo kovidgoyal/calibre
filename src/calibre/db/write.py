@@ -297,7 +297,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
             table.asort_map[item_id] = aus
         if hasattr(table, 'link_map'):
             table.link_map[item_id] = ''
-        if table.supports_notes and isinstance(val, str):
+        if table.supports_notes:
             db.unretire_note(table.name, item_id, val)
     elif allow_case_change and val != table.id_map[item_id]:
         case_changes[item_id] = val
