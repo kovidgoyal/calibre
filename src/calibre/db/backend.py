@@ -991,6 +991,9 @@ class DB:
         if note_id is not None:
             yield from self.notes.resources_used_by(conn, note_id)
 
+    def unretire_note(self, field, item_id, item_val):
+        return self.notes.unretire(self.conn, field, item_id, item_val)
+
     def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
