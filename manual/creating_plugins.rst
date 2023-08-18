@@ -292,6 +292,11 @@ with the ``CALIBRE_OVERRIDE_LANG`` environment variable set. For example::
 
 Replace ``de`` with the language code of the language you want to test.
 
+For translations with plurals, use the ``ngettext()`` function instead of
+``_()``. For example::
+
+    ngettext('Delete a book', 'Delete {} books', num_books).format(num_books)
+
 The plugin API
 --------------------------------
 
