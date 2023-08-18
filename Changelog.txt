@@ -23,6 +23,55 @@
 # - title by author
 # }}}
 
+{{{ 6.25.0 2023-08-18
+
+:: new features
+
+- [2029723] Book details panel: De-emphasize titles making the actual data stand out more
+
+- Allow using the new manage data files dialog from within the edit metadata dialog
+
+- [2030342] Trash dialog: Allow right clicking on an entry to save it to disk
+
+- [2027794] When merging books by drag-and-drop add an option to use the dragged cover instead of the cover in the target book
+
+- [2031571] Create catalog: Add buttons to easily select all/non/visible fields when creating CSV/XML catalogs
+
+- [2031570] Preferences->Add your own columns: Add buttons to show/hide all columns
+
+:: bug fixes
+
+- [2031341] Fix a regression in the previous release that broke parsing of some ISO-8601 timestamps
+
+- [2030671] E-book viewer: Mouse wheel horizontal events should jump sections not internal file boundaries
+
+- [2031569] Fix Preferences->Add your own columns changing check state on moving columns
+
+- Get books: update various Polish e-book stores for website changes
+
+- [2029521] E-book viewer: Fix CFI parsing of numbers with trailing zeros causing some bookmarks to not work
+
+- [2029521] E-book viewer: Show an error when creating a bookmark if the bookmark position is not found
+
+- [2031047] CBR Input: Fix comics with extremely long internal filenames not working on Windows
+
+- Edit book: Saved searches: Fix incorrect import in generated source code for some builtin functions
+
+- Data file manager: Fix errors on systems with larger font sizes
+
+:: improved recipes
+- Bloomberg
+- Focus
+- Epoch Times
+- Hindu
+- Business Today
+- NYTimes
+
+:: new recipes
+- The Oldie by Sophist
+- Various new Russian and Ukrainian news sources
+}}}
+
 {{{ 6.24.0 2023-08-04
 
 :: new features
