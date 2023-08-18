@@ -647,7 +647,7 @@ class Cache:
             self._fts_start_measuring_rate()
         return changed
 
-    @write_api  # we need to use write locking as SQLITE gives a locked table error is multiple FTS queries are made at the same time
+    @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
     def fts_search(
         self,
         fts_engine_query,
@@ -697,6 +697,30 @@ class Cache:
     @write_api
     def unretire_note_for(self, field, item_id) -> int:
         return self.backend.unretire_note_for(field, item_id)
+
+    @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
+    def notes_search(
+        self,
+        fts_engine_query,
+        use_stemming=True,
+        highlight_start=None,
+        highlight_end=None,
+        snippet_size=None,
+        restrict_to_fields=(),
+        return_text=True,
+        result_type=tuple,
+        process_each_result=None,
+    ):
+        return result_type(self.backend.notes_search(
+            fts_engine_query,
+            use_stemming=use_stemming,
+            highlight_start=highlight_start,
+            highlight_end=highlight_end,
+            snippet_size=snippet_size,
+            return_text=return_text,
+            restrict_to_fields=restrict_to_fields,
+            process_each_result=process_each_result,
+        ))
     # }}}
 
     # Cache Layer API {{{

@@ -56,7 +56,7 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
 
 
-def test_cache_api(self):
+def test_cache_api(self: 'NotesTest'):
     cache, notes = self.create_notes_db()
     authors = cache.field_for('authors', 1)
     author_id = cache.get_item_id('authors', authors[0])
@@ -89,6 +89,24 @@ def test_cache_api(self):
     self.assertFalse(os.listdir(notes.retired_dir))
 
 
+def test_fts(self: 'NotesTest'):
+    cache, _ = self.create_notes_db()
+    authors = sorted(cache.all_field_ids('authors'))
+    cache.set_notes_for('authors', authors[0], 'Wunderbar wunderkind common')
+    cache.set_notes_for('authors', authors[1], 'Heavens to murgatroyd common')
+    tags = sorted(cache.all_field_ids('tags'))
+    cache.set_notes_for('tags', tags[0], 'Tag me baby, one more time common')
+    cache.set_notes_for('tags', tags[1], 'Jeepers, Batman! common')
+
+    def ids_for_search(x, restrict_to_fields=()):
+        return {
+            (x['field'], x['item_id']) for x in cache.notes_search(x, restrict_to_fields=restrict_to_fields)
+        }
+
+    self.ae(ids_for_search('wunderbar'), {('authors', authors[0])})
+    self.ae(ids_for_search('common'), {('authors', authors[0]), ('authors', authors[1]), ('tags', tags[0]), ('tags', tags[1])})
+    self.ae(ids_for_search('common', ('tags',)), {('tags', tags[0]), ('tags', tags[1])})
+
 class NotesTest(BaseTest):
 
     ae = BaseTest.assertEqual
@@ -99,5 +117,6 @@ class NotesTest(BaseTest):
         return cache, cache.backend.notes
 
     def test_notes(self):
+        test_fts(self)
         test_cache_api(self)
         test_notes_api(self)
