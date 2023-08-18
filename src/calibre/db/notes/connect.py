@@ -13,6 +13,7 @@ from typing import Optional, Union
 from calibre.constants import iswindows
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
+from calibre.utils.icu import lower as icu_lower
 
 from ..constants import NOTES_DIR_NAME
 from .schema_upgrade import SchemaUpgrade
@@ -130,7 +131,7 @@ class Notes:
     def retire_entry(self, field_name, item_id, item_value, resources, note_id):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         if os.path.exists(path):
-            key = (item_value or '').lower()
+            key = icu_lower(item_value or '')
             destdir = os.path.join(self.retired_dir, hash_key(f'{field_name} {key}'))
             os.makedirs(make_long_path_useable(destdir), exist_ok=True)
             dest = os.path.join(destdir, DOC_NAME)
@@ -145,7 +146,7 @@ class Notes:
             self.trim_retired_dir()
 
     def unretire(self, conn, field_name, item_id, item_value) -> int:
-        key = (item_value or '').lower()
+        key = icu_lower(item_value or '')
         srcdir = make_long_path_useable(os.path.join(self.retired_dir, hash_key(f'{field_name} {key}')))
         note_id = -1
         if not os.path.exists(srcdir) or self.note_id_for(conn, field_name, item_id) is not None:
