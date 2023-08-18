@@ -79,8 +79,14 @@ def test_cache_api(self):
     # test removing author from db retires notes
     cache.set_field('authors', {bid:('New Author',) for bid in cache.all_book_ids()})
     self.ae(len(cache.all_field_ids('authors')), 1)
-    before = os.listdir(notes.retired_dir)
-    self.ae(len(before), 1)
+    self.ae(len(os.listdir(notes.retired_dir)), 1)
+    # test re-using of retired note
+    cache.set_field('authors', {1:'Author One'})
+    author_id = cache.get_item_id('authors', 'Author One')
+    self.ae(cache.notes_resources_used_by('authors', author_id), frozenset({h1, h2}))
+    self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
+    self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
+    self.assertFalse(os.listdir(notes.retired_dir))
 
 
 class NotesTest(BaseTest):
