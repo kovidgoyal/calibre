@@ -74,6 +74,11 @@ def css(reset=False):
             css.ans = 'pre { font-family: "Segoe UI Mono", "Consolas", monospace; }\n\n' + css.ans
     return css.ans
 
+def get_theme_class():
+    app = QApplication.instance()
+    is_dark_theme = app is not None and app.is_dark_theme
+    return 'dark_theme' if is_dark_theme else 'light_theme'
+
 
 def copy_all(text_browser):
     mf = getattr(text_browser, 'details', text_browser)
@@ -237,8 +242,6 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
         table, comment_fields = func(mi, all_fields=all_fields, show_links=show_links,
                 use_roman_numbers=config['use_roman_numerals_for_series_number'])
 
-    app = QApplication.instance()
-    is_dark_theme = app is not None and app.is_dark_theme
 
     templ = '''\
     <html>
@@ -249,7 +252,7 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
     <html>
     '''.format(
         align=('vertical' if vertical else 'horizontal'),
-        theme=('dark_theme' if is_dark_theme else 'light_theme'),
+        theme=get_theme_class(),
     )
     comments = ''
     if comment_fields:

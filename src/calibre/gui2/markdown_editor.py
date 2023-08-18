@@ -8,7 +8,7 @@ from qt.core import (
 )
 
 from calibre.gui2 import safe_open_url, gprefs
-from calibre.gui2.book_details import css
+from calibre.gui2.book_details import css, get_theme_class
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown
 
@@ -142,10 +142,12 @@ class Editor(QWidget):  # {{{
 
     def update_preview(self):
         html = get_markdown(self.editor.toPlainText().strip())
+        theme = get_theme_class()
+
         val = f'''\
         <html>
             <head></head>
-            <body class="vertical">
+            <body class="vertical {theme}">
                 <div>{html}</div>
             </body>
         <html>'''
