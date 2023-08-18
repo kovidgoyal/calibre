@@ -237,22 +237,20 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
         table, comment_fields = func(mi, all_fields=all_fields, show_links=show_links,
                 use_roman_numbers=config['use_roman_numerals_for_series_number'])
 
-    def color_to_string(col):
-        ans = '#000000'
-        if col.isValid():
-            col = col.toRgb()
-            if col.isValid():
-                ans = str(col.name())
-        return ans
+    app = QApplication.instance()
+    is_dark_theme = app is not None and app.is_dark_theme
 
     templ = '''\
     <html>
         <head></head>
-        <body class="%s">
-        %%s
+        <body class="{align} {theme}">
+        %s
         </body>
     <html>
-    '''%('vertical' if vertical else 'horizontal')
+    '''.format(
+        align=('vertical' if vertical else 'horizontal'),
+        theme=('dark_theme' if is_dark_theme else 'light_theme'),
+    )
     comments = ''
     if comment_fields:
         comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
@@ -292,15 +290,11 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata),
                                 pref_name=pref_name, mi=mi)
     field_list = [(x, all_fields or display) for x, display in field_list]
-    gray = '#666'
-    app = QApplication.instance()
-    if app is not None and app.is_dark_theme:
-        gray = app.palette().color(QPalette.ColorRole.PlaceholderText).name()
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
-        vertical_fields=vertical_fields, show_links=show_links, gray=gray
+        vertical_fields=vertical_fields, show_links=show_links
     )
 
 # }}}
