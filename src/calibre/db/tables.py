@@ -57,18 +57,20 @@ class Table:
     def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata
         self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
+        dt = metadata['datatype']
 
         # self.unserialize() maps values from the db to python objects
         self.unserialize = {
             'datetime': c_parse,
             'bool': bool
-        }.get(metadata['datatype'], None)
+        }.get(dt)
         if name == 'authors':
             # Legacy
             self.unserialize = lambda x: x.replace('|', ',') if x else ''
-
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
+        if self.supports_notes and dt == 'rating':  # custom ratings table
+            self.supports_notes = False
 
     def remove_books(self, book_ids, db):
         return set()
