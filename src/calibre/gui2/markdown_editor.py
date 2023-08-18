@@ -17,7 +17,7 @@ class Preview(HTMLDisplay):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setDefaultStyleSheet(css().replace('palette(placeholder-text)', 'gray'))
+        self.setDefaultStyleSheet(css().replace('var(--text-color)', 'gray'))
         self.setTabChangesFocus(True)
         self.base_url = None
 

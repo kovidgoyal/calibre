@@ -978,7 +978,7 @@ class BookInfo(HTMLDisplay):
 
     def process_external_css(self, css):
         col = self.palette().color(QPalette.ColorRole.PlaceholderText).name() if QApplication.instance().is_dark_theme else '#666'
-        return css.replace('palette(placeholder-text)', col)
+        return css.replace('var(--text-color)', col)
 
     def mouseDoubleClickEvent(self, ev):
         v = self.viewport()
