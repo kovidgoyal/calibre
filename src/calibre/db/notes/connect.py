@@ -7,10 +7,12 @@ import shutil
 import time
 import xxhash
 from contextlib import suppress
-from itertools import repeat
+from itertools import count, repeat
 from typing import Optional, Union
 
 from calibre.constants import iswindows
+from calibre.db import FTSQueryError
+from calibre.db.annotations import unicode_normalize
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
@@ -56,6 +58,7 @@ class Notes:
 
     def __init__(self, backend):
         conn = backend.get_connection()
+        self.temp_table_counter = count()
         libdir = os.path.dirname(os.path.abspath(conn.db_filename('main')))
         notes_dir = os.path.join(libdir, NOTES_DIR_NAME)
         self.resources_dir = os.path.join(notes_dir, 'resources')
@@ -293,3 +296,42 @@ class Notes:
             path = make_long_path_useable(path)
             with suppress(FileNotFoundError), open(path, 'rb') as f:
                 return {'name': name, 'data': f.read(), 'hash': resource_hash}
+
+    def search(self,
+        conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields=(),
+        return_text=True, process_each_result=None
+    ):
+        fts_engine_query = unicode_normalize(fts_engine_query)
+        fts_table = 'notes_fts' + ('_stemmed' if use_stemming else '')
+        if return_text:
+            text = 'notes.searchable_text'
+            if highlight_start is not None and highlight_end is not None:
+                if snippet_size is not None:
+                    text = f'''snippet("{fts_table}", 0, '{highlight_start}', '{highlight_end}', '…', {max(1, min(snippet_size, 64))})'''
+                else:
+                    text = f'''highlight("{fts_table}", 0, '{highlight_start}', '{highlight_end}')'''
+            text = ', ' + text
+        else:
+            text = ''
+        query = 'SELECT {0}.id, {0}.colname, {0}.item {1} FROM {0} '.format('notes', text)
+        query += f' JOIN {fts_table} ON notes_db.notes.id = {fts_table}.rowid'
+        query += ' WHERE '
+        if restrict_to_fields:
+            query += ' notes_db.notes.colname IN ({}) AND '.format(','.join(repeat('?', len(restrict_to_fields))))
+        query += f' "{fts_table}" MATCH ?'
+        query += f' ORDER BY {fts_table}.rank '
+        try:
+            for record in conn.execute(query, restrict_to_fields+(fts_engine_query,)):
+                result = {
+                    'id': record[0],
+                    'field': record[1],
+                    'item_id': record[2],
+                    'text': record[3] if return_text else '',
+                }
+                if process_each_result is not None:
+                    result = process_each_result(result)
+                ret = yield result
+                if ret is True:
+                    break
+        except apsw.SQLError as e:
+            raise FTSQueryError(fts_engine_query, query, e) from e
