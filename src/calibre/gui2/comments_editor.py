@@ -24,7 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
 )
-from calibre.gui2.book_details import css
+from calibre.gui2.book_details import resolved_css
 from calibre.gui2.flow_toolbar import create_flow_toolbar
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
@@ -288,7 +288,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
-        self.document().setDefaultStyleSheet(css().replace('palette(placeholder-text)', 'gray') + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
+        self.document().setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1

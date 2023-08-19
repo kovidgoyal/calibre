@@ -75,6 +75,16 @@ def css(reset=False):
     return css.ans
 
 
+def resolve_colors(css):
+    app = QApplication.instance()
+    col = app.palette().color(QPalette.ColorRole.PlaceholderText).name() if app.is_dark_theme else '#666'
+    return css.replace('palette(placeholder-text)', col)
+
+
+def resolved_css():
+    return resolve_colors(css())
+
+
 def copy_all(text_browser):
     mf = getattr(text_browser, 'details', text_browser)
     c = QApplication.clipboard()
@@ -977,8 +987,7 @@ class BookInfo(HTMLDisplay):
         set_html(mi, html, self)
 
     def process_external_css(self, css):
-        col = self.palette().color(QPalette.ColorRole.PlaceholderText).name() if QApplication.instance().is_dark_theme else '#666'
-        return css.replace('palette(placeholder-text)', col)
+        return resolve_colors(css)
 
     def mouseDoubleClickEvent(self, ev):
         v = self.viewport()

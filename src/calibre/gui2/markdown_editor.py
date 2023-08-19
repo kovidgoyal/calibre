@@ -8,7 +8,7 @@ from qt.core import (
 )
 
 from calibre.gui2 import safe_open_url, gprefs
-from calibre.gui2.book_details import css
+from calibre.gui2.book_details import resolved_css
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown
 
@@ -17,7 +17,7 @@ class Preview(HTMLDisplay):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setDefaultStyleSheet(css().replace('palette(placeholder-text)', 'gray'))
+        self.setDefaultStyleSheet(resolved_css())
         self.setTabChangesFocus(True)
         self.base_url = None
 
