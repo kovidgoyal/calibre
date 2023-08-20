@@ -312,13 +312,13 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         if compiling_for == 'windows':
             cc = cxx = 'clang-cl'
             linker = 'lld-link'
-            splat = '.build-cache/xwin/splat'
+            splat = '.build-cache/xwin/root'
             cflags.append('-fcolor-diagnostics')
             cflags.append('-fansi-escape-codes')
             for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include'.split():
                 cflags.append('/external:I')
                 cflags.append(f'{splat}/{I}')
-            for L in 'sdk/lib/um/x86_64 crt/lib/x86_64 sdk/lib/ucrt/x86_64'.split():
+            for L in 'sdk/lib/um crt/lib sdk/lib/ucrt'.split():
                 ldflags.append(f'/libpath:{splat}/{L}')
         else:
             for p in win_inc:
@@ -421,7 +421,7 @@ class Build(Command):
         self.compiling_for = 'native'
         if islinux and opts.cross_compile_extensions == 'windows':
             self.compiling_for = 'windows'
-            if not os.path.exists('.build-cache/xwin/splat'):
+            if not os.path.exists('.build-cache/xwin/root'):
                 subprocess.check_call([sys.executable, 'setup.py', 'xwin'])
         self.env = init_env(debug=opts.debug)
         self.windows_cross_env = init_env(debug=opts.debug, compiling_for='windows')
@@ -539,8 +539,6 @@ class Build(Command):
 
             if ext.needs_c_std and not env.std_prefix.startswith('/'):
                 cflags.append(env.std_prefix + 'c' + ext.needs_c_std)
-            if env is self.windows_cross_env:
-                cflags.append('-Wno-deprecated-experimental-coroutine')
 
             cmd = [compiler] + env.cflags + cflags + ext.cflags + einc + sinc + oinc
             return CompileCommand(cmd, src, obj)
