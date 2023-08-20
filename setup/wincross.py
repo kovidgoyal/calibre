@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
+# See https://github.com/mstorsjo/msvc-wine/blob/master/vsdownload.py and
+# https://github.com/Jake-Shadle/xwin/blob/main/src/lib.rs for the basic logic
+# used to download and install the needed VisualStudio packages
+
 import argparse
 import concurrent.futures
 import glob
