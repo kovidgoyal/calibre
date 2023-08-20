@@ -182,7 +182,15 @@ def download(dest_dir, manifest_version=17, manifest_type='release', manifest_pa
         manifest = open(manifest_path, 'rb').read()
     else:
         url = f'https://aka.ms/vs/{manifest_version}/{manifest_type}/channel'
-        manifest = urlopen(url).read()
+        print('Downloading top-level manifest from', url)
+        tm = json.loads(urlopen(url).read())
+        print("Got toplevel manifest for", (tm["info"]["productDisplayVersion"]))
+        for item in tm["channelItems"]:
+            if item.get('type') == "Manifest":
+                url = item["payloads"][0]["url"]
+                print('Downloading actual manifest...')
+                manifest = urlopen(url).read()
+
     pkgs = Packages(manifest, crt_variant, arch)
     os.makedirs(dest_dir, exist_ok=True)
     total = sum(x.size for x in pkgs.files_to_download)
