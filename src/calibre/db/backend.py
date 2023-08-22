@@ -680,11 +680,11 @@ class DB:
 
     def initialize_custom_columns(self):  # {{{
         self.custom_columns_deleted = False
+        self.deleted_fields = []
         with self.conn:
             # Delete previously marked custom columns
-            for record in self.conn.get(
-                    'SELECT id FROM custom_columns WHERE mark_for_delete=1'):
-                num = record[0]
+            for (num, label) in self.conn.get(
+                    'SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
                 table, lt = self.custom_table_names(num)
                 self.execute('''\
                         DROP INDEX   IF EXISTS {table}_idx;
@@ -703,6 +703,7 @@ class DB:
                         '''.format(table=table, lt=lt)
                 )
                 self.prefs.set('update_all_last_mod_dates_on_start', True)
+                self.deleted_fields.append('#'+label)
             self.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns

@@ -87,6 +87,19 @@ def test_cache_api(self: 'NotesTest'):
     self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
     self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
     self.assertFalse(os.listdir(notes.retired_dir))
+    # test delete custom column with notes
+    tags = cache.field_for('#tags', 1)
+    tag_id = cache.get_item_id('#tags', tags[0])
+    h1 = cache.add_notes_resource(b'resource1t', 'r1.jpg')
+    h2 = cache.add_notes_resource(b'resource2t', 'r1.jpg')
+    cache.set_notes_for('#tags', tag_id, doc, resource_ids=(h1, h2))
+    self.ae(cache.notes_for('#tags', tag_id), doc)
+    cache.delete_custom_column('tags')
+    cache.close()
+    cache = self.init_cache(cache.backend.library_path)
+    self.ae(cache.notes_for('#tags', tag_id), '')
+    self.assertIsNone(cache.get_notes_resource(h1))
+    self.assertIsNone(cache.get_notes_resource(h2))
 
 
 def test_fts(self: 'NotesTest'):
