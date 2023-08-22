@@ -87,6 +87,22 @@ class Notes:
             )
         SchemaUpgrade(conn, '\n'.join(triggers))
         conn.notes_dbpath = dbpath
+        for cat in backend.deleted_fields:
+            self.delete_field(conn, cat)
+
+    def delete_field(self, conn, field_name):
+        note_ids = conn.get('SELECT id from notes_db.notes WHERE colname=?', (field_name,))
+        if note_ids:
+            conn.execute(
+                'DELETE FROM notes_db.notes_resources_link WHERE note IN (SELECT id FROM notes_db.notes WHERE colname=?)', (field_name,)
+            )
+            conn.execute('DELETE FROM notes_db.notes WHERE colname=?', (field_name,))
+            self.remove_unreferenced_resources(conn)
+
+    def remove_unreferenced_resources(self, conn):
+        for (rhash,) in conn.get('SELECT hash FROM notes_db.resources WHERE id NOT IN (SELECT resource FROM notes_db.notes_resources_link)'):
+            remove_with_retry(self.path_for_resource(conn, rhash))
+        conn.execute('DELETE FROM notes_db.resources WHERE id NOT IN (SELECT resource FROM notes_db.notes_resources_link)')
 
     def path_for_resource(self, conn, resource_hash_or_resource_id: Union[str,int]) -> str:
         if isinstance(resource_hash_or_resource_id, str):
@@ -162,7 +178,7 @@ class Notes:
             if x.startswith('res-'):
                 rname = x.split('-', 1)[1]
                 with open(os.path.join(srcdir, x), 'rb') as rsrc:
-                    resources.add(self.add_resource(conn, rsrc, rname))
+                    resources.add(self.add_resource(conn, rsrc, rname, update_name=False))
         note_id = self.set_note(conn, field_name, item_id, item_value, marked_up_text, resources, searchable_text)
         if note_id > -1:
             remove_with_retry(srcdir, is_dir=True)
@@ -242,7 +258,7 @@ class Notes:
             for path in items[:extra]:
                 remove_with_retry(path, is_dir=True)
 
-    def add_resource(self, conn, path_or_stream_or_data, name):
+    def add_resource(self, conn, path_or_stream_or_data, name, update_name=True):
         if isinstance(path_or_stream_or_data, bytes):
             data = path_or_stream_or_data
         elif isinstance(path_or_stream_or_data, str):
@@ -271,7 +287,7 @@ class Notes:
         base_name, ext = os.path.splitext(name)
         c = 0
         for (resource_id, existing_name) in conn.execute('SELECT id,name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
-            if existing_name != name:
+            if existing_name != name and update_name:
                 while True:
                     try:
                         conn.execute('UPDATE notes_db.resources SET name=? WHERE id=?', (name, resource_id))
