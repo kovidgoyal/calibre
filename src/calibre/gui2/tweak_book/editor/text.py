@@ -35,7 +35,7 @@ from calibre.gui2.tweak_book.editor.themes import (
 from calibre.gui2.tweak_book.widgets import PARAGRAPH_SEPARATOR, PlainTextEdit
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import (
-    capitalize, lower, safe_chr, string_length, swapcase, upper
+    capitalize, lower, safe_chr, string_length, swapcase, upper, utf16_length
 )
 from calibre.utils.img import image_to_data
 from calibre.utils.titlecase import titlecase
@@ -470,6 +470,7 @@ class TextEdit(PlainTextEdit):
         start, end = m.span()
         if start == end:
             return False
+        end = start + utf16_length(raw[start:end])
         if wrap and not complete:
             if reverse:
                 textpos = c.anchor()
@@ -515,6 +516,7 @@ class TextEdit(PlainTextEdit):
             start, end = m.span()
             if start == end:
                 return False
+        end = start + utf16_length(raw[start:end])
         if reverse:
             start, end = end, start
         c.clearSelection()
