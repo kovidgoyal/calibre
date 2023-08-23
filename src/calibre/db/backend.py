@@ -1002,12 +1002,22 @@ class DB:
             self.conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result)
 
     def export_notes_data(self, outfile):
-        import zipfile, tempfile
+        import zipfile
         with zipfile.ZipFile(outfile, mode='w') as zf:
-            with tempfile.NamedTemporaryFile() as dbf:
-                self.backup_notes_database(dbf.name)
-                dbf.seek(0)
-                zf.writestr('notes.db', dbf.read())
+            pt = PersistentTemporaryFile()
+            try:
+                pt.close()
+                self.backup_notes_database(pt.name)
+                with open(pt.name, 'rb') as dbf:
+                    zf.writestr('notes.db', dbf.read())
+            finally:
+                try:
+                    os.remove(pt.name)
+                except OSError:
+                    if not iswindows:
+                        raise
+                    time.sleep(1)
+                    os.remove(pt.name)
             self.notes.export_non_db_data(zf)
 
     def initialize_fts(self, dbref):
