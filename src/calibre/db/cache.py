@@ -15,12 +15,13 @@ import traceback
 import weakref
 from collections import defaultdict
 from collections.abc import MutableSet, Set
+from contextlib import closing
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
 from threading import Lock
 from time import monotonic, sleep, time
-from typing import NamedTuple, Tuple, Optional
+from typing import NamedTuple, Optional, Tuple
 
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -31,6 +32,7 @@ from calibre.customize.ui import (
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
 from calibre.db.categories import get_categories
+from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
@@ -3009,12 +3011,18 @@ class Cache:
         from polyglot.binary import as_hex_unicode
         key_prefix = as_hex_unicode(library_key)
         book_ids = self._all_book_ids()
-        total = len(book_ids) + 1
+        total = len(book_ids) + 2
         has_fts = self.is_fts_enabled()
         if has_fts:
             total += 1
-        if progress is not None:
-            progress('metadata.db', 0, total)
+        poff = 0
+        def report_progress(fname):
+            nonlocal poff
+            if progress is not None:
+                progress(fname, poff, total)
+            poff += 1
+
+        report_progress('metadata.db')
         pt = PersistentTemporaryFile('-export.db')
         pt.close()
         self.backend.backup_database(pt.name)
@@ -3022,29 +3030,33 @@ class Cache:
         with open(pt.name, 'rb') as f:
             exporter.add_file(f, dbkey)
         os.remove(pt.name)
-        poff = 1
         if has_fts:
-            poff += 1
-            if progress is not None:
-                progress('full-text-search.db', 1, total)
+            report_progress('full-text-search.db')
             pt = PersistentTemporaryFile('-export.db')
             pt.close()
             self.backend.backup_fts_database(pt.name)
-            ftsdbkey = key_prefix + ':::' + 'full-text-search.db'
+            ftsdbkey = key_prefix + ':::full-text-search.db'
             with open(pt.name, 'rb') as f:
                 exporter.add_file(f, ftsdbkey)
             os.remove(pt.name)
+        notesdbkey = key_prefix + ':::notes.db'
+        with PersistentTemporaryFile('-export.db') as pt:
+            self.backend.export_notes_data(pt)
+            pt.flush()
+            pt.seek(0)
+            report_progress('notes.db')
+            exporter.add_file(pt, notesdbkey)
 
         format_metadata = {}
         extra_files = {}
-        metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total, 'extra_files': extra_files}
+        metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'notes.db': notesdbkey, 'total':total, 'extra_files': extra_files}
         if has_fts:
             metadata['full-text-search.db'] = ftsdbkey
         for i, book_id in enumerate(book_ids):
             if abort is not None and abort.is_set():
                 return
             if progress is not None:
-                progress(self._field_for('title', book_id), i + poff, total)
+                report_progress(self._field_for('title', book_id))
             format_metadata[book_id] = fm = {}
             for fmt in self._formats(book_id):
                 mdata = self.format_metadata(book_id, fmt)
@@ -3335,9 +3347,13 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     from calibre.db.backend import DB
     metadata = importer.metadata[library_key]
     total = metadata['total']
-    poff = 1
-    if progress is not None:
-        progress('metadata.db', 0, total)
+    poff = 0
+    def report_progress(fname):
+        nonlocal poff
+        if progress is not None:
+            progress(fname, poff, total)
+            poff += 1
+    report_progress('metadata.db')
     if abort is not None and abort.is_set():
         return
     with open(os.path.join(library_path, 'metadata.db'), 'wb') as f:
@@ -3354,8 +3370,21 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
             src = importer.start_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path)
             shutil.copyfileobj(src, f)
             src.close()
+    if abort is not None and abort.is_set():
+        return
+    if 'notes.db' in metadata:
+        import zipfile
+        notes_dir = os.path.join(library_path, NOTES_DIR_NAME)
+        os.makedirs(notes_dir, exist_ok=True)
+        with closing(importer.start_file(metadata['notes.db'], 'notes.db for ' + library_path)) as stream:
+            stream.check_hash = False
+            with zipfile.ZipFile(stream) as zf:
+                zf.extractall(notes_dir)
+    if abort is not None and abort.is_set():
+        return
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
+
     format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
     extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
     for i, (book_id, fmt_key_map) in enumerate(iteritems(format_data)):
