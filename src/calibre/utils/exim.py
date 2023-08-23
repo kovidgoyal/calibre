@@ -222,10 +222,24 @@ class FileSource:
 
     def __init__(self, f, size, digest, description, mtime, importer):
         self.f, self.size, self.digest, self.description = f, size, digest, description
+        self.seekable = self.f.seekable
         self.mtime = mtime
-        self.end = f.tell() + size
+        self.start = f.tell()
+        self.end = self.start + size
         self.hasher = hashlib.sha1()
         self.importer = importer
+        self.check_hash = True
+
+    def seek(self, amt, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            return self.f.seek(self.start + amt, os.SEEK_SET)
+        if whence == os.SEEK_END:
+            return self.f.seek(self.end + amt, os.SEEK_SET)
+        if whence == os.SEEK_CUR:
+            return self.f.seek(amt, whence)
+
+    def tell(self):
+        return self.f.tell() - self.start
 
     def read(self, size=None):
         if size is not None and size < 1:
@@ -235,11 +249,12 @@ class FileSource:
         if amt < 1:
             return b''
         ans = self.f.read(amt)
-        self.hasher.update(ans)
+        if self.check_hash:
+            self.hasher.update(ans)
         return ans
 
     def close(self):
-        if self.hasher.hexdigest() != self.digest:
+        if self.check_hash and self.hasher.hexdigest() != self.digest:
             self.importer.corrupted_files.append(self.description)
         self.hasher = self.f = None
 
