@@ -1384,10 +1384,12 @@ class DB:
                 finally:
                     self.reopen()
 
-    def vacuum(self, include_fts_db):
+    def vacuum(self, include_fts_db, include_notes_db):
         self.execute('VACUUM')
         if self.fts_enabled and include_fts_db:
             self.fts.vacuum()
+        if include_notes_db:
+            self.notes.vacuum()
 
     @property
     def user_version(self):
