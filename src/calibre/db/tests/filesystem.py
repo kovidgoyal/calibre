@@ -264,7 +264,6 @@ class FilesystemTest(BaseTest):
                 bookdir = os.path.dirname(ic.format_abspath(1, '__COVER_INTERNAL__'))
                 self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
                 self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
-                ic.close()
         r1 = cache.add_notes_resource(b'res1', 'res.jpg')
         r2 = cache.add_notes_resource(b'res2', 'res.jpg')
         cache.set_notes_for('authors', 2, 'some notes', resource_ids=(r1, r2))
@@ -287,8 +286,6 @@ class FilesystemTest(BaseTest):
             self.assertEqual(ic.fts_search('exim')[0]['id'], 1)
             self.assertEqual(cache.notes_for('authors', 2), ic.notes_for('authors', 2))
             self.assertEqual(cache.get_notes_resource(r1), ic.get_notes_resource(r1))
-            ic.close()
-        cache.close()
 
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule
