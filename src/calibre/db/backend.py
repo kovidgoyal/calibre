@@ -1351,6 +1351,7 @@ class DB:
         self.close(force=force, unload_formatter_functions=False)
         self._conn = None
         self.conn
+        self.notes.reopen(self)
 
     def dump_and_restore(self, callback=None, sql=None):
         import codecs

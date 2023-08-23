@@ -57,8 +57,8 @@ class Notes:
     max_retired_items = 256
 
     def __init__(self, backend):
-        conn = backend.get_connection()
         self.temp_table_counter = count()
+        conn = backend.get_connection()
         libdir = os.path.dirname(os.path.abspath(conn.db_filename('main')))
         self.notes_dir = os.path.join(libdir, NOTES_DIR_NAME)
         self.resources_dir = os.path.join(self.notes_dir, 'resources')
@@ -68,11 +68,17 @@ class Notes:
             os.makedirs(self.notes_dir, exist_ok=True)
             if iswindows:
                 winutil.set_file_attributes(self.notes_dir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
-        dbpath = os.path.join(self.notes_dir, 'notes.db')
-        conn.execute("ATTACH DATABASE ? AS notes_db", (dbpath,))
         os.makedirs(self.resources_dir, exist_ok=True)
         os.makedirs(self.backup_dir, exist_ok=True)
         os.makedirs(self.retired_dir, exist_ok=True)
+        self.reopen(backend)
+        for cat in backend.deleted_fields:
+            self.delete_field(conn, cat)
+
+    def reopen(self, backend):
+        conn = backend.get_connection()
+        conn.notes_dbpath = os.path.join(self.notes_dir, 'notes.db')
+        conn.execute("ATTACH DATABASE ? AS notes_db", (conn.notes_dbpath,))
         self.allowed_fields = set()
         triggers = []
         for table in backend.tables.values():
@@ -86,9 +92,6 @@ class Notes:
                 'END;'
             )
         SchemaUpgrade(conn, '\n'.join(triggers))
-        conn.notes_dbpath = dbpath
-        for cat in backend.deleted_fields:
-            self.delete_field(conn, cat)
 
     def delete_field(self, conn, field_name):
         note_ids = conn.get('SELECT id from notes_db.notes WHERE colname=?', (field_name,))
@@ -109,9 +112,10 @@ class Notes:
             resource_hash = resource_hash_or_resource_id
         else:
             resource_hash = conn.get('SELECT hash FROM notes_db.resources WHERE id=?', (resource_hash_or_resource_id,), all=False)
-        idx = resource_hash.index(':')
-        prefix = resource_hash[idx + 1: idx + 3]
-        return os.path.join(self.resources_dir, prefix, resource_hash)
+        hashalg, digest = resource_hash.split(':', 1)
+        prefix = digest[:2]
+        # Cant use colons in filenames on windows safely
+        return os.path.join(self.resources_dir, prefix, f'{hashalg}-{digest}')
 
     def remove_resources(self, conn, note_id, resources_to_potentially_remove, delete_from_link_table=True):
         if not isinstance(resources_to_potentially_remove, tuple):
@@ -310,6 +314,7 @@ class Notes:
         for (name, resource_hash) in conn.execute('SELECT name,hash FROM notes_db.resources WHERE id=?', (resource_id,)):
             path = self.path_for_resource(conn, resource_hash)
             path = make_long_path_useable(path)
+            os.listdir(os.path.dirname(path))
             with suppress(FileNotFoundError), open(path, 'rb') as f:
                 return {'name': name, 'data': f.read(), 'hash': resource_hash}
 
