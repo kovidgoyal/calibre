@@ -1001,6 +1001,15 @@ class DB:
         yield from self.notes.search(
             self.conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result)
 
+    def export_notes_data(self, outfile):
+        import zipfile, tempfile
+        with zipfile.ZipFile(outfile, mode='w') as zf:
+            with tempfile.NamedTemporaryFile() as dbf:
+                self.backup_notes_database(dbf.name)
+                dbf.seek(0)
+                zf.writestr('notes.db', dbf.read())
+            self.notes.export_non_db_data(zf)
+
     def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
@@ -2572,18 +2581,21 @@ class DB:
         self.conn  # Connect to the moved metadata.db
         progress(_('Completed'), total, total)
 
-    def backup_database(self, path):
+    def _backup_database(self, path, name, extra_sql=''):
         with closing(apsw.Connection(path)) as dest_db:
-            with dest_db.backup('main', self.conn, 'main') as b:
+            with dest_db.backup('main', self.conn, name) as b:
                 while not b.done:
                     with suppress(apsw.BusyError):
                         b.step(128)
-            dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
+            if extra_sql:
+                dest_db.cursor().execute(extra_sql)
+
+    def backup_database(self, path):
+        self._backup_database(path, 'main', 'DELETE FROM metadata_dirtied; VACUUM;')
 
     def backup_fts_database(self, path):
-        with closing(apsw.Connection(path)) as dest_db:
-            with dest_db.backup('main', self.conn, 'fts_db') as b:
-                while not b.done:
-                    with suppress(apsw.BusyError):
-                        b.step(128)
+        self._backup_database(path, 'fts_db')
+
+    def backup_notes_database(self, path):
+        self._backup_database(path, 'notes_db')
     # }}}
