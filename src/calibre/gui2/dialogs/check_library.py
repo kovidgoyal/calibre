@@ -52,6 +52,15 @@ class DBCheck(QDialog):  # {{{
             ' depending on the size of the Full text database.'))
         la.setWordWrap(True)
         l.addWidget(la)
+
+        self.notes = n = QCheckBox(_('Also compact the notes database'))
+        l.addWidget(n)
+        la = QLabel('<p style="margin-left: 20px; font-style: italic">' + _(
+            'This can be a very slow and memory intensive operation,'
+            ' depending on the size of the notes database.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
         l.addStretch(10)
         self.bb1 = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         l.addWidget(bb)
@@ -70,6 +79,7 @@ class DBCheck(QDialog):  # {{{
         l.addStretch(10)
         self.resize(self.sizeHint())
         self.db = weakref.ref(db.new_api)
+        self.setMinimumWidth(450)
 
     def start(self):
         self.setWindowTitle(_('Vacuuming...'))
@@ -77,12 +87,12 @@ class DBCheck(QDialog):  # {{{
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.vacuum_started = True
         db = self.db()
-        t = self.thread = Thread(target=self.vacuum, args=(db, self.fts.isChecked()), daemon=True, name='VacuumDB')
+        t = self.thread = Thread(target=self.vacuum, args=(db, self.fts.isChecked(), self.notes.isChecked()), daemon=True, name='VacuumDB')
         t.start()
 
-    def vacuum(self, db, include_fts_db):
+    def vacuum(self, db, include_fts_db, include_notes_db):
         try:
-            db.vacuum(include_fts_db)
+            db.vacuum(include_fts_db, include_notes_db)
         except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
