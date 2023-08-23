@@ -369,3 +369,6 @@ class Notes:
                             shutil.copyfileobj(src, dest)
         add_dir(self.backup_dir)
         add_dir(self.resources_dir)
+
+    def vacuum(self, conn):
+        conn.execute('VACUUM notes_db')
