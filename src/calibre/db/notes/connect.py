@@ -60,15 +60,15 @@ class Notes:
         conn = backend.get_connection()
         self.temp_table_counter = count()
         libdir = os.path.dirname(os.path.abspath(conn.db_filename('main')))
-        notes_dir = os.path.join(libdir, NOTES_DIR_NAME)
-        self.resources_dir = os.path.join(notes_dir, 'resources')
-        self.backup_dir = os.path.join(notes_dir, 'backup')
-        self.retired_dir = os.path.join(notes_dir, 'retired')
-        if not os.path.exists(notes_dir):
-            os.makedirs(notes_dir, exist_ok=True)
+        self.notes_dir = os.path.join(libdir, NOTES_DIR_NAME)
+        self.resources_dir = os.path.join(self.notes_dir, 'resources')
+        self.backup_dir = os.path.join(self.notes_dir, 'backup')
+        self.retired_dir = os.path.join(self.notes_dir, 'retired')
+        if not os.path.exists(self.notes_dir):
+            os.makedirs(self.notes_dir, exist_ok=True)
             if iswindows:
-                winutil.set_file_attributes(notes_dir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
-        dbpath = os.path.join(notes_dir, 'notes.db')
+                winutil.set_file_attributes(self.notes_dir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
+        dbpath = os.path.join(self.notes_dir, 'notes.db')
         conn.execute("ATTACH DATABASE ? AS notes_db", (dbpath,))
         os.makedirs(self.resources_dir, exist_ok=True)
         os.makedirs(self.backup_dir, exist_ok=True)
@@ -351,3 +351,16 @@ class Notes:
                     break
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e) from e
+
+    def export_non_db_data(self, zf):
+        import zipfile
+        def add_dir(which):
+            for dirpath, _, filenames in os.walk(which):
+                for f in filenames:
+                    path = os.path.join(dirpath, f)
+                    with open(path, 'rb') as src:
+                        zi = zipfile.ZipInfo.from_file(path, arcname=os.path.relpath(path, self.notes_dir))
+                        with zf.open(zi, 'w') as dest:
+                            shutil.copyfileobj(src, dest)
+        add_dir(self.backup_dir)
+        add_dir(self.resources_dir)
