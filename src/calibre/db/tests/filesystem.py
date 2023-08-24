@@ -266,7 +266,7 @@ class FilesystemTest(BaseTest):
                 self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
         r1 = cache.add_notes_resource(b'res1', 'res.jpg')
         r2 = cache.add_notes_resource(b'res2', 'res.jpg')
-        cache.set_notes_for('authors', 2, 'some notes', resource_ids=(r1, r2))
+        cache.set_notes_for('authors', 2, 'some notes', resource_hashes=(r1, r2))
         cache.add_format(1, 'TXT', BytesIO(b'testing exim'))
         cache.fts_indexing_sleep_time = 0.001
         cache.enable_fts()
