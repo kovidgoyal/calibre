@@ -1020,6 +1020,9 @@ class DB:
                     os.remove(pt.name)
             self.notes.export_non_db_data(zf)
 
+    def restore_notes(self, report_progress):
+        self.notes.restore(self.conn, self.tables, report_progress)
+
     def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
