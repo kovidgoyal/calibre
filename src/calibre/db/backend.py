@@ -972,9 +972,9 @@ class DB:
     def notes_for(self, field_name, item_id):
         return self.notes.get_note(self.conn, field_name, item_id) or ''
 
-    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_ids) -> int:
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes) -> int:
         id_val = self.tables[field].id_map[item_id]
-        return self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_ids, searchable_text)
+        return self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_hashes, searchable_text)
 
     def unretire_note_for(self, field, item_id) -> int:
         id_val = self.tables[field].id_map[item_id]
@@ -983,8 +983,8 @@ class DB:
     def add_notes_resource(self, path_or_stream, name) -> int:
         return self.notes.add_resource(self.conn, path_or_stream, name)
 
-    def get_notes_resource(self, resource_id) -> Optional[dict]:
-        return self.notes.get_resource_data(self.conn, resource_id)
+    def get_notes_resource(self, resource_hash) -> Optional[dict]:
+        return self.notes.get_resource_data(self.conn, resource_hash)
 
     def notes_resources_used_by(self, field, item_id):
         conn = self.conn
