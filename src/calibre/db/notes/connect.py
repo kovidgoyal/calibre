@@ -8,7 +8,7 @@ import time
 import xxhash
 from contextlib import suppress
 from itertools import count, repeat
-from typing import Optional, Union
+from typing import Optional
 
 from calibre.constants import iswindows
 from calibre.db import FTSQueryError
@@ -103,15 +103,14 @@ class Notes:
             self.remove_unreferenced_resources(conn)
 
     def remove_unreferenced_resources(self, conn):
-        for (rhash,) in conn.get('SELECT hash FROM notes_db.resources WHERE id NOT IN (SELECT resource FROM notes_db.notes_resources_link)'):
+        found = False
+        for (rhash,) in conn.get('SELECT hash FROM notes_db.resources WHERE hash NOT IN (SELECT resource FROM notes_db.notes_resources_link)'):
+            found = True
             remove_with_retry(self.path_for_resource(conn, rhash))
-        conn.execute('DELETE FROM notes_db.resources WHERE id NOT IN (SELECT resource FROM notes_db.notes_resources_link)')
+        if found:
+            conn.execute('DELETE FROM notes_db.resources WHERE hash NOT IN (SELECT resource FROM notes_db.notes_resources_link)')
 
-    def path_for_resource(self, conn, resource_hash_or_resource_id: Union[str,int]) -> str:
-        if isinstance(resource_hash_or_resource_id, str):
-            resource_hash = resource_hash_or_resource_id
-        else:
-            resource_hash = conn.get('SELECT hash FROM notes_db.resources WHERE id=?', (resource_hash_or_resource_id,), all=False)
+    def path_for_resource(self, conn, resource_hash: str) -> str:
         hashalg, digest = resource_hash.split(':', 1)
         prefix = digest[:2]
         # Cant use colons in filenames on windows safely
@@ -188,7 +187,7 @@ class Notes:
             remove_with_retry(srcdir, is_dir=True)
         return note_id
 
-    def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_ids=(), searchable_text=copy_marked_up_text):
+    def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
         note_id = self.note_id_for(conn, field_name, item_id)
@@ -199,13 +198,13 @@ class Notes:
                 resources = ()
                 if old_resources:
                     resources = conn.get(
-                        'SELECT hash,name FROM notes_db.resources WHERE id IN ({})'.format(','.join(repeat('?', len(old_resources)))),
+                        'SELECT hash,name FROM notes_db.resources WHERE hash IN ({})'.format(','.join(repeat('?', len(old_resources)))),
                         tuple(old_resources))
                 self.retire_entry(field_name, item_id, item_value, resources, note_id)
                 if old_resources:
                     self.remove_resources(conn, note_id, old_resources, delete_from_link_table=False)
             return -1
-        new_resources = frozenset(used_resource_ids)
+        new_resources = frozenset(used_resource_hashes)
         resources_to_potentially_remove = old_resources - new_resources
         resources_to_add = new_resources - old_resources
         if note_id is None:
@@ -232,7 +231,7 @@ class Notes:
         ):
             return {
                 'id': note_id, 'doc': doc, 'searchable_text': searchable_text,
-                'resource_ids': frozenset(self.resources_used_by(conn, note_id)),
+                'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
             }
 
     def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value):
@@ -245,7 +244,7 @@ class Notes:
         old_note = self.get_note_data(conn, field_name, old_item_id)
         if not old_note or not old_note['doc']:
             return
-        self.set_note(conn, field_name, new_item_id, new_item_value, old_note['doc'], old_note['resource_ids'], old_note['searchable_text'])
+        self.set_note(conn, field_name, new_item_id, new_item_value, old_note['doc'], old_note['resource_hashes'], old_note['searchable_text'])
 
     def trim_retired_dir(self):
         items = []
@@ -290,11 +289,11 @@ class Notes:
                 f.write(data)
         base_name, ext = os.path.splitext(name)
         c = 0
-        for (resource_id, existing_name) in conn.execute('SELECT id,name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
+        for (existing_name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
             if existing_name != name and update_name:
                 while True:
                     try:
-                        conn.execute('UPDATE notes_db.resources SET name=? WHERE id=?', (name, resource_id))
+                        conn.execute('UPDATE notes_db.resources SET name=? WHERE hash=?', (name, resource_hash))
                         break
                     except apsw.ConstraintError:
                         c += 1
@@ -303,15 +302,15 @@ class Notes:
         else:
             while True:
                 try:
-                    resource_id = conn.get('INSERT INTO notes_db.resources (hash,name) VALUES (?,?) RETURNING id', (resource_hash, name), all=False)
+                    conn.get('INSERT INTO notes_db.resources (hash,name) VALUES (?,?)', (resource_hash, name), all=False)
                     break
                 except apsw.ConstraintError:
                     c += 1
                     name = f'{base_name}-{c}{ext}'
-        return resource_id
+        return resource_hash
 
-    def get_resource_data(self, conn, resource_id) -> Optional[dict]:
-        for (name, resource_hash) in conn.execute('SELECT name,hash FROM notes_db.resources WHERE id=?', (resource_id,)):
+    def get_resource_data(self, conn, resource_hash) -> Optional[dict]:
+        for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
             path = self.path_for_resource(conn, resource_hash)
             path = make_long_path_useable(path)
             os.listdir(os.path.dirname(path))
