@@ -401,6 +401,12 @@ class WritingTest(BaseTest):
         with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
             f.write('recurse')
         ebefore = read_all_extra_files()
+        authors = cache.field_for('authors', 1)
+        author_id = cache.get_item_id('authors', authors[0])
+        doc = 'simple notes for an author'
+        h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
+        h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
+        cache.set_notes_for('authors', author_id, doc, resource_hashes=(h1, h2))
         cache.close()
         from calibre.db.restore import Restore
         restorer = Restore(cl)
@@ -412,6 +418,11 @@ class WritingTest(BaseTest):
         ae(lbefore, tuple(cache.get_all_link_maps_for_book(i) for i in book_ids))
         ae(fbefore, read_all_formats())
         ae(ebefore, read_all_extra_files())
+        ae(cache.notes_for('authors', author_id), doc)
+        ae(cache.notes_resources_used_by('authors', author_id), frozenset({h1, h2}))
+        ae(cache.get_notes_resource(h1)['data'], b'resource1')
+        ae(cache.get_notes_resource(h2)['data'], b'resource2')
+
     # }}}
 
     def test_set_cover(self):  # {{{

@@ -18,7 +18,7 @@ from threading import Thread
 from calibre import force_unicode, isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.db.backend import DB, DBPrefs
-from calibre.db.constants import METADATA_FILE_NAME, TRASH_DIR_NAME
+from calibre.db.constants import METADATA_FILE_NAME, TRASH_DIR_NAME, NOTES_DIR_NAME, NOTES_DB_NAME
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
@@ -53,7 +53,9 @@ def is_ebook_file(filename):
 class Restorer(Cache):
 
     def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y:True):
-        backend = DB(library_path, default_prefs=default_prefs, restore_all_prefs=restore_all_prefs, progress_callback=progress_callback)
+        backend = DB(
+            library_path, default_prefs=default_prefs, restore_all_prefs=restore_all_prefs, progress_callback=progress_callback
+        )
         Cache.__init__(self, backend)
         for x in ('update_path', 'mark_as_dirty'):
             setattr(self, x, self.no_op)
@@ -81,6 +83,7 @@ class Restore(Thread):
         self.conflicting_custom_cols = {}
         self.failed_restores = []
         self.mismatched_dirs = []
+        self.notes_errors = []
         self.successes = 0
         self.tb = None
         self.link_maps = {}
@@ -88,7 +91,7 @@ class Restore(Thread):
     @property
     def errors_occurred(self):
         return (self.failed_dirs or self.mismatched_dirs or
-                self.conflicting_custom_cols or self.failed_restores)
+                self.conflicting_custom_cols or self.failed_restores or self.notes_errors)
 
     @property
     def report(self):
@@ -122,6 +125,11 @@ class Restore(Thread):
             for x in self.mismatched_dirs:
                 ans += '\t' + force_unicode(x, filesystem_encoding) + '\n'
 
+        if self.notes_errors:
+            ans += '\n\n'
+            ans += 'Failed to restore notes for the following items:\n'
+            for x in self.notes_errors:
+                ans += '\t' + x
         return ans
 
     def run(self):
@@ -285,6 +293,9 @@ class Restore(Thread):
         self.progress_callback(None, len(self.books))
         self.books.sort(key=itemgetter('id'))
 
+        shutil.copytree(os.path.join(self.src_library_path, NOTES_DIR_NAME), os.path.join(self.library_path, NOTES_DIR_NAME))
+        with suppress(FileNotFoundError):
+            os.remove(os.path.join(self.library_path, NOTES_DIR_NAME, NOTES_DB_NAME))
         db = Restorer(self.library_path)
 
         for i, book in enumerate(self.books):
@@ -299,6 +310,7 @@ class Restore(Thread):
         for field, lmap in self.link_maps.items():
             with suppress(Exception):
                 db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
+        self.notes_errors = db.backend.restore_notes(self.progress_callback)
         db.close()
 
     def replace_db(self):
@@ -310,7 +322,7 @@ class Restore(Thread):
             os.remove(save_path)
         if os.path.exists(dbpath):
             try:
-                os.rename(dbpath, save_path)
+                os.replace(dbpath, save_path)
             except OSError:
                 time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
                 shutil.copyfile(dbpath, save_path)
