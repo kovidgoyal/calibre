@@ -27,8 +27,8 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(cache.notes_resources_used_by('authors', authors[0]), frozenset({h1}))
     self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
     self.ae(cache.get_notes_resource(h2), None)
-    self.assertTrue(os.path.exists(notes.path_for_resource(cache.backend.conn, h1)))
-    self.assertFalse(os.path.exists(notes.path_for_resource(cache.backend.conn, h2)))
+    self.assertTrue(os.path.exists(notes.path_for_resource(h1)))
+    self.assertFalse(os.path.exists(notes.path_for_resource(h2)))
 
     # check retirement
     h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
