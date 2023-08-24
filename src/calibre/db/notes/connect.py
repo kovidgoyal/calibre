@@ -17,7 +17,7 @@ from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 
-from ..constants import NOTES_DIR_NAME
+from ..constants import NOTES_DB_NAME, NOTES_DIR_NAME
 from .schema_upgrade import SchemaUpgrade
 
 if iswindows:
@@ -30,6 +30,7 @@ class cmt(str):
 copy_marked_up_text = cmt()
 SEP = b'\0\x1c\0'
 DOC_NAME = 'doc.html'
+
 
 def hash_data(data: bytes) -> str:
     return 'xxh64:' + xxhash.xxh3_64_hexdigest(data)
@@ -77,7 +78,7 @@ class Notes:
 
     def reopen(self, backend):
         conn = backend.get_connection()
-        conn.notes_dbpath = os.path.join(self.notes_dir, 'notes.db')
+        conn.notes_dbpath = os.path.join(self.notes_dir, NOTES_DB_NAME)
         conn.execute("ATTACH DATABASE ? AS notes_db", (conn.notes_dbpath,))
         self.allowed_fields = set()
         triggers = []
@@ -106,11 +107,11 @@ class Notes:
         found = False
         for (rhash,) in conn.get('SELECT hash FROM notes_db.resources WHERE hash NOT IN (SELECT resource FROM notes_db.notes_resources_link)'):
             found = True
-            remove_with_retry(self.path_for_resource(conn, rhash))
+            remove_with_retry(self.path_for_resource(rhash))
         if found:
             conn.execute('DELETE FROM notes_db.resources WHERE hash NOT IN (SELECT resource FROM notes_db.notes_resources_link)')
 
-    def path_for_resource(self, conn, resource_hash: str) -> str:
+    def path_for_resource(self, resource_hash: str) -> str:
         hashalg, digest = resource_hash.split(':', 1)
         prefix = digest[:2]
         # Cant use colons in filenames on windows safely
@@ -128,7 +129,9 @@ class Notes:
             SELECT value FROM resources_table WHERE value NOT IN (SELECT resource FROM notes_db.notes_resources_link)
         '''.format(','.join(repeat('(?)', len(resources_to_potentially_remove))))
         for (x,) in conn.execute(stmt, resources_to_potentially_remove):
-            remove_with_retry(self.path_for_resource(conn, x))
+            p = self.path_for_resource(x)
+            remove_with_retry(p)
+            remove_with_retry(p + '.name')
 
     def note_id_for(self, conn, field_name, item_id):
         return conn.get('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
@@ -138,7 +141,7 @@ class Notes:
             for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
-    def set_backup_for(self, field_name, item_id, marked_up_text, searchable_text):
+    def set_backup_for(self, field_name, item_id, marked_up_text, searchable_text, resource_hashes):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         try:
             f = open(path, 'wb')
@@ -149,6 +152,8 @@ class Notes:
             f.write(marked_up_text.encode('utf-8'))
             f.write(SEP)
             f.write(searchable_text.encode('utf-8'))
+            f.write(SEP)
+            f.write('\n'.join(resource_hashes).encode('utf-8'))
 
     def retire_entry(self, field_name, item_id, item_value, resources, note_id):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
@@ -161,7 +166,7 @@ class Notes:
             with open(make_long_path_useable(os.path.join(destdir, 'note_id')), 'w') as nif:
                 nif.write(str(note_id))
             for rhash, rname in resources:
-                rpath = make_long_path_useable(self.path_for_resource(None, rhash))
+                rpath = make_long_path_useable(self.path_for_resource(rhash))
                 if os.path.exists(rpath):
                     rdest = os.path.join(destdir, 'res-'+rname)
                     copyfile_using_links(rpath, make_long_path_useable(rdest), dest_is_dir=False)
@@ -174,7 +179,10 @@ class Notes:
         if not os.path.exists(srcdir) or self.note_id_for(conn, field_name, item_id) is not None:
             return note_id
         with open(os.path.join(srcdir, DOC_NAME), 'rb') as src:
-            a, b = src.read().partition(SEP)[::2]
+            try:
+                a, b, _ = src.read().split(SEP, 2)
+            except Exception:
+                return note_id
             marked_up_text, searchable_text = a.decode('utf-8'), b.decode('utf-8')
         resources = set()
         for x in os.listdir(srcdir):
@@ -219,7 +227,7 @@ class Notes:
             conn.executemany('''
                 INSERT INTO notes_db.notes_resources_link (note,resource) VALUES (?,?);
             ''', tuple((note_id, x) for x in resources_to_add))
-        self.set_backup_for(field_name, item_id, marked_up_text, searchable_text)
+        self.set_backup_for(field_name, item_id, marked_up_text, searchable_text, used_resource_hashes)
         return note_id
 
     def get_note(self, conn, field_name, item_id):
@@ -270,7 +278,7 @@ class Notes:
         else:
             data = path_or_stream_or_data.read()
         resource_hash = hash_data(data)
-        path = self.path_for_resource(conn, resource_hash)
+        path = self.path_for_resource(resource_hash)
         path = make_long_path_useable(path)
         exists = False
         try:
@@ -294,6 +302,8 @@ class Notes:
                 while True:
                     try:
                         conn.execute('UPDATE notes_db.resources SET name=? WHERE hash=?', (name, resource_hash))
+                        with open(path + '.name', 'w') as fn:
+                            fn.write(name)
                         break
                     except apsw.ConstraintError:
                         c += 1
@@ -303,6 +313,8 @@ class Notes:
             while True:
                 try:
                     conn.get('INSERT INTO notes_db.resources (hash,name) VALUES (?,?)', (resource_hash, name), all=False)
+                    with open(path + '.name', 'w') as fn:
+                        fn.write(name)
                     break
                 except apsw.ConstraintError:
                     c += 1
@@ -311,7 +323,7 @@ class Notes:
 
     def get_resource_data(self, conn, resource_hash) -> Optional[dict]:
         for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
-            path = self.path_for_resource(conn, resource_hash)
+            path = self.path_for_resource(resource_hash)
             path = make_long_path_useable(path)
             os.listdir(os.path.dirname(path))
             with suppress(FileNotFoundError), open(path, 'rb') as f:
@@ -359,7 +371,7 @@ class Notes:
     def export_non_db_data(self, zf):
         import zipfile
         def add_dir(which):
-            for dirpath, _, filenames in os.walk(which):
+            for dirpath, _, filenames in os.walk(make_long_path_useable(which)):
                 for f in filenames:
                     path = os.path.join(dirpath, f)
                     with open(path, 'rb') as src:
@@ -371,3 +383,56 @@ class Notes:
 
     def vacuum(self, conn):
         conn.execute('VACUUM notes_db')
+
+    def restore(self, conn, tables, report_progress):
+        resources = {}
+        errors = []
+        for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
+            for rf in os.listdir(make_long_path_useable(os.path.join(self.resources_dir, subdir))):
+                name_path = os.path.join(self.resources_dir, subdir, rf + '.name')
+                name = 'unnamed'
+                with suppress(OSError), open(make_long_path_useable(name_path)) as n:
+                    name = n.read()
+                resources[rf] = name
+        items = {}
+        for f in os.listdir(make_long_path_useable(self.backup_dir)):
+            if f in self.allowed_fields:
+                items[f] = []
+                for x in os.listdir(make_long_path_useable(os.path.join(self.backup_dir, f))):
+                    with suppress(Exception):
+                        items[f].append(int(x))
+        known_resources = frozenset(resources)
+        conn.executemany('INSERT OR REPLACE INTO notes_db.resources (hash,name) VALUES (?,?)', tuple(resources.items()))
+        i, total = 0, sum(len(x) for x in items.values())
+        report_progress(None, total)
+        for field, entries in items.items():
+            table = tables[field]
+            for item_id in entries:
+                item_val = table.id_map.get(item_id)
+                i += 1
+                if item_val is not None:
+                    report_progress(item_val, i)
+                    try:
+                        with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(item_id)))) as f:
+                            raw = f.read()
+                    except OSError as e:
+                        errors.append(_('Failed to read from document for {path} with error: {error}').format(path=item_val, error=e))
+                        continue
+                    try:
+                        doc, searchable_text, res = raw.split(SEP, 2)
+                    except Exception:
+                        errors.append(_('Failed to parse document for: {}').format(item_val))
+                        continue
+                    resources = frozenset(res.splitlines())
+                    missing_resources = resources - known_resources
+                    if missing_resources:
+                        errors.append(_('Some resources for {} were missing').format(item_val))
+                    resources &= known_resources
+                    try:
+                        self.set_note(conn, field, item_id, item_val, doc, resources, searchable_text)
+                    except Exception as e:
+                        errors.append(_('Failed to set note for {path} with error: {error}').format(path=item_val, error=e))
+                else:
+                    errors.append(_('Could not restore item: {} as not present in database').format(f'{field}/{item_id}'))
+                    report_progress('', i)
+        return errors
