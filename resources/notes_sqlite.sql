@@ -6,16 +6,16 @@ CREATE TABLE notes_db.notes ( id INTEGER PRIMARY KEY AUTOINCREMENT,
     UNIQUE(item, colname)
 );
 
-CREATE TABLE notes_db.resources ( id INTEGER PRIMARY KEY AUTOINCREMENT,
-    hash TEXT NOT NULL UNIQUE ON CONFLICT FAIL,
+CREATE TABLE notes_db.resources ( 
+    hash TEXT NOT NULL PRIMARY KEY ON CONFLICT FAIL,
     name TEXT NOT NULL UNIQUE ON CONFLICT FAIL
-);
+) WITHOUT ROWID;
 
 CREATE TABLE notes_db.notes_resources_link ( id INTEGER PRIMARY KEY,
     note INTEGER NOT NULL, 
-    resource INTEGER NOT NULL, 
+    resource TEXT NOT NULL, 
     FOREIGN KEY(note) REFERENCES notes(id),
-    FOREIGN KEY(resource) REFERENCES resources(id),
+    FOREIGN KEY(resource) REFERENCES resources(hash),
     UNIQUE(note, resource)
 );
 
@@ -45,7 +45,7 @@ END;
 
 CREATE TRIGGER notes_db.notes_db_resources_delete_trg BEFORE DELETE ON notes_db.resources 
 BEGIN
-    DELETE FROM notes_resources_link WHERE resource=OLD.id;
+    DELETE FROM notes_resources_link WHERE resource=OLD.hash;
 END;
 
 PRAGMA notes_db.user_version=1;
