@@ -681,16 +681,16 @@ class Cache:
         return self.backend.notes_for(field, item_id)
 
     @write_api
-    def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_ids=()) -> int:
-        return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_ids)
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=()) -> int:
+        return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes)
 
     @write_api
     def add_notes_resource(self, path_or_stream_or_data, name: str) -> int:
         return self.backend.add_notes_resource(path_or_stream_or_data, name)
 
     @read_api
-    def get_notes_resource(self, resource_id) -> Optional[dict]:
-        return self.backend.get_notes_resource(resource_id)
+    def get_notes_resource(self, resource_hash) -> Optional[dict]:
+        return self.backend.get_notes_resource(resource_hash)
 
     @read_api
     def notes_resources_used_by(self, field, item_id):
