@@ -355,6 +355,7 @@ class IframeBoss:
     def on_scroll_to_anchor(self, data):
         frag = data.frag
         if frag:
+            self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)
         else:
             self.to_scroll_fraction(0.0, False)
