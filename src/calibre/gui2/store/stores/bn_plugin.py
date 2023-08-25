@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -28,7 +28,6 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):
     url = 'https://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), quote_plus(query))
-    url = 'file:///t/bn.html'
 
     br = browser()
 
