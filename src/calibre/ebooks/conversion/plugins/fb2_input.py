@@ -122,6 +122,12 @@ class FB2Input(InputFormatPlugin):
         for img in result.xpath('//img[@src]'):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))
+
+        # make paragraphs <p> tags
+        for divp in result.xpath('//body/div[@class="paragraph"]'):
+            if not divp.xpath('descendant::div'):
+                divp.tag = 'p'
+
         index = transform.tostring(result)
         with open('index.xhtml', 'wb') as f:
             f.write(index.encode('utf-8'))

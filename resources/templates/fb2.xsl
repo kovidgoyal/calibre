@@ -55,7 +55,7 @@
                     
                     .epigraph{width:75%; margin-left : 25%; font-style: italic;}
                     
-                    div.paragraph { text-indent: 2em; }
+                    div.paragraph, p.paragraph { text-indent: 2em; margin-top: 0; margin-bottom: 0; }
 
                     .subtitle { text-align: center; }
                 </style>
