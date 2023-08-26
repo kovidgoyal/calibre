@@ -142,7 +142,7 @@ class Plugin:  # {{{
         automatically applied.
         '''
         from qt.core import QDialog, QDialogButtonBox, QVBoxLayout, \
-                QLabel, Qt, QLineEdit
+                QLabel, Qt, QLineEdit, QScrollArea, QFrame
         from calibre.gui2 import gprefs
 
         prefname = 'plugin config dialog:'+self.type + ':' + self.name
@@ -164,8 +164,18 @@ class Plugin:  # {{{
             return False
 
         if config_widget is not None:
-            v.addWidget(config_widget)
+            sa = QScrollArea()
+            sa.setWidget(config_widget)
+            sa.setWidgetResizable(True)
+            v.addWidget(sa)
             v.addWidget(button_box)
+            # try to set a reasonable initial size
+            w = (
+                config_widget.sizeHint().width() +
+                2 * sa.frameWidth() +
+                sa.verticalScrollBar().sizeHint().width()
+            )
+            config_dialog.resize(w, config_widget.sizeHint().height())
             config_dialog.restore_geometry(gprefs, prefname)
             config_dialog.exec()
 
