@@ -468,6 +468,8 @@ class View:
             self.selection_bar.update_position()
 
     def on_handle_shortcut(self, data):
+        if not data.name:
+            return
         if data.name is 'back':
             window.history.back()
         elif data.name is 'forward':

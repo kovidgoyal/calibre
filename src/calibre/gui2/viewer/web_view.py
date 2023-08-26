@@ -709,7 +709,8 @@ class WebView(RestartingWebEngineView):
         self._page.profile().clearHttpCache()
 
     def trigger_shortcut(self, which):
-        self.execute_when_ready('trigger_shortcut', which)
+        if which:
+            self.execute_when_ready('trigger_shortcut', which)
 
     def show_search_result(self, sr):
         self.execute_when_ready('show_search_result', sr)

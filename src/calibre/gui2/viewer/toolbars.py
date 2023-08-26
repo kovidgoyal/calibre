@@ -41,8 +41,8 @@ def all_actions():
     if not hasattr(all_actions, 'ans'):
         amap = {
             'color_scheme': Action('format-fill-color.png', _('Switch color scheme')),
-            'back': Action('back.png', _('Back')),
-            'forward': Action('forward.png', _('Forward')),
+            'back': Action('back.png', _('Back'), 'back'),
+            'forward': Action('forward.png', _('Forward'), 'forward'),
             'open': Action('document_open.png', _('Open e-book')),
             'copy': Action('edit-copy.png', _('Copy to clipboard'), 'copy_to_clipboard'),
             'increase_font_size': Action('font_size_larger.png', _('Increase font size'), 'increase_font_size'),
@@ -66,7 +66,7 @@ def all_actions():
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
             'toggle_read_aloud': Action('bullhorn.png', _('Read aloud'), 'toggle_read_aloud'),
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
-            'select_all': Action('edit-select-all.png', _('Select all text in the current file')),
+            'select_all': Action('edit-select-all.png', _('Select all text in the current file'), 'select_all'),
             'edit_book': Action('edit_book.png', _('Edit this book'), 'edit_book'),
             'reload_book': Action('view-refresh.png', _('Reload this book'), 'reload_book'),
         }
@@ -120,8 +120,10 @@ class ActionsToolBar(ToolBar):
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     def update_action_state(self, book_open):
+        exclude = set(self.web_actions.values())
         for ac in self.shortcut_actions.values():
-            ac.setEnabled(book_open)
+            if ac not in exclude:
+                ac.setEnabled(book_open)
         self.search_action.setEnabled(book_open)
         self.color_scheme_action.setEnabled(book_open)
 
@@ -150,14 +152,19 @@ class ActionsToolBar(ToolBar):
         web_view.customize_toolbar.connect(self.customize, type=Qt.ConnectionType.QueuedConnection)
         web_view.view_created.connect(self.on_view_created)
 
-        self.back_action = page.action(QWebEnginePage.WebAction.Back)
-        self.back_action.setIcon(aa.back.icon)
-        self.back_action.setText(aa.back.text)
-        self.forward_action = page.action(QWebEnginePage.WebAction.Forward)
-        self.forward_action.setIcon(aa.forward.icon)
-        self.forward_action.setText(aa.forward.text)
-        self.select_all_action = a = page.action(QWebEnginePage.WebAction.SelectAll)
-        a.setIcon(aa.select_all.icon), a.setText(aa.select_all.text)
+        self.web_actions = {}
+        self.back_action = a = shortcut_action('back')
+        a.setEnabled(False)
+        self.web_actions[QWebEnginePage.WebAction.Back] = a
+        page.action(QWebEnginePage.WebAction.Back).changed.connect(self.update_web_action)
+        self.forward_action = a = shortcut_action('forward')
+        a.setEnabled(False)
+        self.web_actions[QWebEnginePage.WebAction.Forward] = a
+        page.action(QWebEnginePage.WebAction.Forward).changed.connect(self.update_web_action)
+        self.select_all_action = a = shortcut_action('select_all')
+        a.setEnabled(False)
+        self.web_actions[QWebEnginePage.WebAction.SelectAll] = a
+        page.action(QWebEnginePage.WebAction.SelectAll).changed.connect(self.update_web_action)
 
         self.open_action = a = QAction(aa.open.icon, aa.open.text, self)
         self.open_menu = m = QMenu(self)
@@ -210,6 +217,14 @@ class ActionsToolBar(ToolBar):
         m.aboutToShow.connect(self.populate_color_scheme_menu)
 
         self.add_actions()
+
+    def update_web_action(self):
+        a = self.sender()
+        for x, ac in self.web_actions.items():
+            pa = self.web_view.page().action(x)
+            if a is pa:
+                ac.setEnabled(pa.isEnabled())
+                break
 
     def add_actions(self):
         self.clear()
