@@ -124,8 +124,9 @@ class FB2Input(InputFormatPlugin):
             img.set('src', self.binary_map.get(src, src))
 
         # make paragraphs <p> tags
+        has_block_elements = etree.XPath('descendant::*[name()="div" or name()="table"]')
         for divp in result.xpath('//body/div[@class="paragraph"]'):
-            if not divp.xpath('descendant::div'):
+            if not has_block_elements(divp):
                 divp.tag = 'p'
 
         index = transform.tostring(result)
