@@ -22,8 +22,9 @@ class TheEconomicTimes(BasicNewsRecipe):
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/98/The_Economic_Times_logo.svg'
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = '''
-    .summary {color:#404040; font-style:italic;}
-    time{font-size:small;}
+        .artByline {font-size:small;}
+        .artImg, .imgBox {font-size:small; color:#202020; text-align:center;}
+        img {display:block; margin:0 auto;}
     '''
 
     def get_cover_url(self):
@@ -45,13 +46,14 @@ class TheEconomicTimes(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1'),
         classes(
-            'artByline artSyn artImg artText publisher publish_on slideshowPackage'
+            'artByline pageContent'
         ),
     ]
     remove_tags = [
+        dict(name='button'),
         classes(
-            'story_title storyCollection shareBar sr_widget_free jsSrWidgetFree srwidgetfree_3'
-            ' sr_paid jsSrWidgetPaid ar_wrp arwd_ld_chk adBox custom_ad mgid orn_free_r bold'
+            'story_title storyCollection shareBar sr_widget_free jsSrWidgetFree srwidgetfree_3 showWhatsMsg artSyn'
+            ' sr_paid jsSrWidgetPaid ar_wrp arwd_ld_chk adBox custom_ad mgid orn_free_r bold primeSWrapper external_widget'
         ),
     ]
 
@@ -95,11 +97,8 @@ class TheEconomicTimes(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        h2 = soup.find(**classes('summary'))
-        if h2:
-            h2.name = 'p'
         for image in soup.findAll('img', attrs={'src': True}):
             image['src'] = image['src'].replace("width-300", "width-640")
         for img in soup.findAll('img', attrs={'data-original': True}):
-            img['src'] = img['data-original'].replace('photo', 'thumb').replace('quality-100', 'quality-100,width-600,resizemode-4')
+            img['src'] = img['data-original']
         return soup
