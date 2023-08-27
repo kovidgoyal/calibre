@@ -268,6 +268,7 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
+    insert_images_separately = False
 
     @property
     def readonly(self):
@@ -343,7 +344,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         r('color', 'format-text-color', _('Foreground color'))
         r('background', 'format-fill-color', _('Background color'))
-        r('insert_link', 'insert-link', _('Insert link or image'),
+        r('insert_link', 'insert-link', _('Insert link') if self.insert_images_separately else _('Insert link or image'),
           shortcut=QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText))
         r('insert_hr', 'format-text-hr', _('Insert separator'),)
         r('clear', 'trash', _('Clear'))
