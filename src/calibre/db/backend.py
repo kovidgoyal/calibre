@@ -972,9 +972,12 @@ class DB:
     def notes_for(self, field_name, item_id):
         return self.notes.get_note(self.conn, field_name, item_id) or ''
 
-    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes) -> int:
+    def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes, remove_unused_resources) -> int:
         id_val = self.tables[field].id_map[item_id]
-        return self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_hashes, searchable_text)
+        note_id = self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_hashes, searchable_text)
+        if remove_unused_resources:
+            self.notes.remove_unreferenced_resources(self.conn)
+        return note_id
 
     def unretire_note_for(self, field, item_id) -> int:
         id_val = self.tables[field].id_map[item_id]
