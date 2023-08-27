@@ -226,7 +226,7 @@ def cleanup_qt_markup(root):
 # }}}
 
 
-def fix_html(original_html, original_txt, remove_comments=True):
+def fix_html(original_html, original_txt, remove_comments=True, callback=None):
     raw = original_html
     raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
     if remove_comments:
@@ -248,6 +248,8 @@ def fix_html(original_html, original_txt, remove_comments=True):
     except Exception:
         import traceback
         traceback.print_exc()
+    if callback is not None:
+        callback(root)
     elems = []
     for body in root.xpath('//body'):
         if body.text:
@@ -808,7 +810,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     @property
     def html(self):
-        return fix_html(self.toHtml(), self.toPlainText().strip())
+        return fix_html(self.toHtml(), self.toPlainText().strip(), callback=self.get_html_callback)
+
+    def get_html_callback(self, root):
+        pass
 
     @html.setter
     def html(self, val):
@@ -1137,12 +1142,13 @@ class Editor(QWidget):  # {{{
 
     toolbar_prefs_name = None
     data_changed = pyqtSignal()
+    editor_class = EditorWidget
 
     def __init__(self, parent=None, one_line_toolbar=False, toolbar_prefs_name=None):
         QWidget.__init__(self, parent)
         self.toolbar_prefs_name = toolbar_prefs_name or self.toolbar_prefs_name
         self.toolbar = create_flow_toolbar(self, restrict_to_single_line=one_line_toolbar, icon_size=18)
-        self.editor = EditorWidget(self)
+        self.editor = self.editor_class(self)
         self.editor.data_changed.connect(self.data_changed)
         self.set_base_url = self.editor.set_base_url
         self.set_html = self.editor.set_html
