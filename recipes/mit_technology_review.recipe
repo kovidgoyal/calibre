@@ -65,8 +65,8 @@ class MitTechnologyReview(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.technologyreview.com/')
         if script := soup.find('script', id='preload'):
-            link = re.findall('https\S+?front_cover-web.png', self.tag_to_string(script))
-            return link[0] + '?fit=572,786'
+            link = re.findall('https\S+?front_cover\S+?.png', self.tag_to_string(script))
+            return link[-1] + '?fit=572,786'
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
