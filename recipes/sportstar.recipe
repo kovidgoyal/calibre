@@ -16,22 +16,25 @@ class Sportstar(BasicNewsRecipe):
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
-    masthead_url = 'https://sportstar.thehindu.com/theme/images/ss-online/sslogo.png'
+    masthead_url = 'https://assetsss.thehindu.com/theme/images/SSRX/sportstar-logo.svg'
     remove_attributes = ['height', 'width']
     extra_css = '''
-        .text-secondary{font-style:italic; color:#404040;}
-        .lead-img-caption, .caption-cont{font-size:small; text-align:center;}
-        .auth-name, .datelinew {font-size:small;}
+        .sub-title {font-style:italic; color:#202020;}
+        .caption {font-size:small; text-align:center;}
+        .author, .publish-time {font-size:small;}
     '''
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(name='h2', attrs={'class':'text-secondary'}),
-        classes('lead-img-cont auth-name datelinew art-content')
+        dict(name='h1', attrs={'class':'title'}),
+        dict(name='h2', attrs={'class':'sub-title'}),
+        classes('publish-time author top-pic articlebodycontent')
     ]
 
     remove_tags = [
-        classes('mbot capsletter article-body1')
+        classes(
+            'show-mobile inlineAds related-topics related-stories comments-shares'
+            ' share-page title-patch pic-caption slide-mobile also-read'
+        )
     ]
 
     def parse_index(self):
@@ -42,22 +45,18 @@ class Sportstar(BasicNewsRecipe):
 
         feeds = OrderedDict()
 
-        info = soup.find('div', attrs={'class':'sptar-cover-item'})
-        self.cover_url = info.find('div', attrs={'class':'card'}
+        info = soup.find('div', attrs={'class':lambda x: x and 'left-sticky' in x.split()})
+        self.cover_url = info.find('div', attrs={'class':'sptar-image'}
                                     ).find('img')['data-original'].replace('FREE_320', 'FREE_1200')
-        data = info.find('div', attrs={'class':'cover-content'})
-        self.timefmt = ' (' + self.tag_to_string(data.h3).strip() + ') [' +\
-             self.tag_to_string(data.find('span', attrs={'class':'date'})) + ']'
-        self.description = self.tag_to_string(data.p).strip()
+        self.description = self.tag_to_string(info.find('div', attrs={'class':'sub-text'})).strip()
 
-        for content in soup.findAll('div', attrs={'class':'brief-cnt-wrap'}):
+        for content in soup.findAll('div', attrs={'class':'content'}):
             articles = []
-            h4 = content.find('h4', attrs={'class':'brief-title'})
-            a = h4.find('a', href=True)
-            url = a['href']
-            title = self.tag_to_string(a).strip()
-            desc = self.tag_to_string(content.find('div', attrs={'class':'artbody'})).strip()
-            section_title = self.tag_to_string(content.find('span', attrs={'class':'brief-place'})).strip()
+            h3 = content.find('h3', attrs={'class':'title'})
+            url = h3.find('a', href=True)['href']
+            title = self.tag_to_string(h3).strip()
+            desc = self.tag_to_string(content.find('div', attrs={'class':'sub-text'})).strip()
+            section_title = self.tag_to_string(content.find('div', attrs={'class':'label'})).strip()
             self.log(section_title)
             self.log('\t', title)
             self.log('\t', desc)
@@ -75,25 +74,17 @@ class Sportstar(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
-        h2 = soup.findAll(**classes('text-secondary'))
-        if h2[0]:
-            h2[0].name = 'p'
-        if h2[1]:
-            h2[1].extract()
+        if h2 := soup.find('h2'):
+            h2.name = 'p'
         for img in soup.findAll('img', attrs={'data-original':True}):
             if img['data-original'].endswith('1x1_spacer.png'):
                 source = img.findPrevious('source', srcset=True)
                 img.extract()
                 if source:
-                    source['src'] = source['srcset']
+                    source['src'] = source['srcset'].replace('_320','_1200')
                     source.name = 'img'
             else:
                 img['src'] = img['data-original']
-
-        for cap in soup.findAll('div', attrs={'class':'caption-cont'}):
-            h4 = cap.find('h4')
-            if h4:
-                h4.name='figcaption'
         return soup
 
     def postprocess_html(self, soup, first_fetch):
