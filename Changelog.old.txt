@@ -21133,3 +21133,5 @@ calibre is now able to download social metadata like tags/rating/reviews etc., i
 - Critica Digital
 - Infobae
 - Spiegel International
+
+}}}
