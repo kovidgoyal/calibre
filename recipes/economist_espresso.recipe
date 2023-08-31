@@ -4,6 +4,12 @@ https://www.economist.com/the-world-in-brief
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
 class Espresso(BasicNewsRecipe):
     title = 'The Economist Espresso'
     language = 'en'
@@ -14,13 +20,14 @@ class Espresso(BasicNewsRecipe):
          'Maximise your understanding of the most significant business, '
          'economic, political and cultural developments globally.'
     )
+    cover_url = 'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
     use_embedded_content = False
 
     extra_css = '''
         h1 { text-align:center; }
-        ._main-image, ._description { text-align:center; font-size:small; }
+        ._main-image, ._description, .sub { text-align:center; font-size:small; }
         ._quote-container { font-size:x-large; font-style:italic; color:#202020; }
     '''
 
@@ -46,6 +53,10 @@ class Espresso(BasicNewsRecipe):
         ]
 
     def preprocess_html(self, soup):
-        for h3 in soup.findAll('h3'):
-            h3.name = 'h1'
+        if h1 := soup.find('h1'):
+            if p := h1.find_next_sibling('p'):
+                p['class'] = 'sub'
+        for hr in soup.findAll(attrs={'class':['_gobbet', '_article']}):
+            nt = new_tag(soup, 'hr')
+            hr.append(nt)
         return soup
