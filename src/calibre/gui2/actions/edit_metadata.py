@@ -135,6 +135,8 @@ class EditMetadataAction(InterfaceAction):
         for book_id in ids:
             d = DataFilesManager(db, book_id, self.gui)
             d.exec()
+        cr = self.gui.library_view.currentIndex().row()
+        self.gui.library_view.model().refresh_ids(ids, cr)
 
     def _copy_links(self, lines):
         urls = QUrl.fromStringList(lines)
