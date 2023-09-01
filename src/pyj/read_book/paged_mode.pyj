@@ -679,43 +679,63 @@ def is_return():
     return fsd and fsd.cols_per_screen is cols_per_screen and fsd.spine_index is csi.index and fsd.spine_name is csi.name
 
 
-class HandleWheel:
-
-    def __init__(self):
-        self.reset()
+class WheelState:
+    last_event_mode = 'page'
+    last_event_at = -10000
+    last_event_backwards = False
+    accumulated_scroll = 0
 
     def reset(self):
-        self.last_event_mode = 'page'
-        self.last_event_at = -10000
-        self.last_event_backwards = False
-        self.accumulated_scroll = 0
+        self.last_event_mode = WheelState.last_event_mode
+        self.last_event_at = WheelState.last_event_at
+        self.last_event_backwards = WheelState.last_event_backwards
+        self.accumulated_scroll = WheelState.accumulated_scroll
 
-    def onwheel(self, evt):
-        if not (evt.deltaY or evt.deltaX):
-            return
-        if evt.deltaY:
-            backward = evt.deltaY < 0
-            if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
-                self.add_pixel_scroll(backward, Math.abs(evt.deltaY))
-            else:
-                self.do_scroll(backward)
-        if evt.deltaX:
-            backward = evt.deltaX < 0
-            self.do_section_jump(backward)
-
-    def add_pixel_scroll(self, backward, deltaY):
+    def add_pixel_scroll(self, backward, delta, scroll_func):
         now = window.performance.now()
         if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not 'pixel':
             self.accumulated_scroll = 0
         self.last_event_mode = 'pixel'
         self.last_event_at = now
         self.last_event_backwards = backward
-        self.accumulated_scroll += deltaY
+        self.accumulated_scroll += delta
         if self.accumulated_scroll > opts.paged_pixel_scroll_threshold:
-            self.do_scroll(backward)
+            self.reset()
+            scroll_func(backward)
+
+
+class HandleWheel:
+
+    def __init__(self):
+        self.vertical_state = WheelState()
+        self.horizontal_state = WheelState()
+
+    def onwheel(self, evt):
+        if not (evt.deltaY or evt.deltaX):
+            return
+        major_axis_vertical = True
+        if evt.deltaY:
+            if evt.deltaX:
+                major_axis_vertical = Math.abs(evt.deltaY) >= Math.abs(evt.deltaX)
+        else:
+            major_axis_vertical = False
+        if major_axis_vertical:
+            backward = evt.deltaY < 0
+            if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
+                self.vertical_state.add_pixel_scroll(backward, Math.abs(evt.deltaY), self.do_scroll)
+            else:
+                self.vertical_state.reset()
+                self.do_scroll(backward)
+        else:
+            if opts.paged_wheel_section_jumps:
+                backward = evt.deltaX < 0
+                if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
+                    self.horizontal_state.add_pixel_scroll(backward, Math.abs(evt.deltaX), self.do_section_jump)
+                else:
+                    self.horizontal_state.reset()
+                    self.do_section_jump(backward)
 
     def do_scroll(self, backward):
-        self.reset()
         if opts.paged_wheel_scrolls_by_screen:
             pos = previous_screen_location() if backward else next_screen_location()
         else:
@@ -726,7 +746,6 @@ class HandleWheel:
             scroll_to_pos(pos)
 
     def do_section_jump(self, backward):
-        self.reset()
         get_boss().send_message('next_section', forward=not backward)
 
 wheel_handler = HandleWheel()
