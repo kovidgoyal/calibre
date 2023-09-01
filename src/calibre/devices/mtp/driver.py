@@ -94,7 +94,7 @@ class MTP_DEVICE(BASE):
         # Top level ignores
         if lpath[0] in {
             'alarms', 'dcim', 'movies', 'music', 'notifications',
-            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth',
+            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts', 'system',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
 
