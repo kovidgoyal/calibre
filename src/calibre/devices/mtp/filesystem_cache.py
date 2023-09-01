@@ -66,8 +66,9 @@ class FileOrFolder:
         if self.storage_id == self.object_id:
             self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
 
+        # Ignore non ebook files and AppleDouble files
         self.is_ebook = (not self.is_folder and
-                self.name.rpartition('.')[-1].lower() in bexts)
+                self.name.rpartition('.')[-1].lower() in bexts and not self.name.startswith('._'))
 
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
