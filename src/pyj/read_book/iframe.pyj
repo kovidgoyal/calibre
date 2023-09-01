@@ -402,7 +402,7 @@ class IframeBoss:
                 if cfi:
                     self.jump_to_cfi('/' + cfi)
             self.update_cfi()
-            self.update_toc_position()
+        self.update_toc_position(True)
 
     def number_of_columns_changed(self, data):
         opts.columns_per_screen = data.columns_per_screen
@@ -548,8 +548,8 @@ class IframeBoss:
                     self.send_message(
                         'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
 
-    def update_toc_position(self):
-        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
+    def update_toc_position(self, recalculate_toc_anchor_positions):
+        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs, bool(recalculate_toc_anchor_positions))
         self.send_message('update_toc_position', visible_anchors=visible_anchors)
 
     def onscroll(self):
