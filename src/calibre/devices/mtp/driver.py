@@ -100,6 +100,8 @@ class MTP_DEVICE(BASE):
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts', 'system',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
+        if lpath[0].startswith('.'):
+            return True
 
         if len(lpath) > 1 and lpath[0] == 'android':
             # Ignore everything in Android apart from a few select folders
