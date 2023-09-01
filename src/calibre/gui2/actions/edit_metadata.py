@@ -131,7 +131,7 @@ class EditMetadataAction(InterfaceAction):
     def manage_data_files(self):
         from calibre.gui2.dialogs.data_files_manager import DataFilesManager
         db = self.gui.current_db
-        ids = [db.id(row.row()) for row in self.gui.library_view.selectionModel().selectedRows()]
+        ids = self.gui.library_view.get_selected_ids()
         for book_id in ids:
             d = DataFilesManager(db, book_id, self.gui)
             d.exec()
