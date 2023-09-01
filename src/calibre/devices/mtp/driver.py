@@ -56,6 +56,7 @@ class MTP_DEVICE(BASE):
         self._prefs = None
         self.device_defaults = DeviceDefaults()
         self.current_device_defaults = {}
+        self.current_vid = self.current_pid = -1
         self.calibre_file_paths = {'metadata':self.METADATA_CACHE, 'driveinfo':self.DRIVEINFO}
         self.highlight_ignored_folders = False
 
@@ -88,6 +89,8 @@ class MTP_DEVICE(BASE):
         if storage_id in ignored_folders:
             # Use the users ignored folders settings
             return '/'.join(lpath) in {icu_lower(x) for x in ignored_folders[storage_id]}
+        if self.current_vid == 0x1949 and lpath and lpath[-1].endswith('.sdr'):
+            return True
 
         # Implement the default ignore policy
 
@@ -136,7 +139,7 @@ class MTP_DEVICE(BASE):
                     isoformat(utcnow()))
             self.prefs['history'] = h
 
-        self.current_device_defaults = self.device_defaults(device, self)
+        self.current_device_defaults, self.current_vid, self.current_pid = self.device_defaults(device, self)
         self.calibre_file_paths = self.current_device_defaults.get(
             'calibre_file_paths', {'metadata':self.METADATA_CACHE, 'driveinfo':self.DRIVEINFO})
 

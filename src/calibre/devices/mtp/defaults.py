@@ -68,4 +68,4 @@ class DeviceDefaults:
                     ans['calibre_file_paths'] = {'metadata':'NOOK/metadata.calibre', 'driveinfo':'NOOK/driveinfo.calibre'}
                 return ans
 
-        return {}
+        return {}, vid, pid
