@@ -66,6 +66,6 @@ class DeviceDefaults:
                 ans = rule[1]
                 if vid == 0x2080 and pid == 0x000a:
                     ans['calibre_file_paths'] = {'metadata':'NOOK/metadata.calibre', 'driveinfo':'NOOK/driveinfo.calibre'}
-                return ans
+                return ans, vid, pid
 
         return {}, vid, pid
