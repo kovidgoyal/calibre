@@ -69,7 +69,7 @@ class MTP_DEVICE(BASE):
             p.defaults['send_to'] = [
                 'Calibre_Companion', 'Books', 'eBooks/import', 'eBooks',
                 'wordplayer/calibretransfer', 'sdcard/ebooks',
-                'Android/data/com.amazon.kindle/files', 'kindle', 'NOOK'
+                'Android/data/com.amazon.kindle/files', 'kindle', 'NOOK', 'Documents',
             ]
             p.defaults['send_template'] = '{title} - {authors}'
             p.defaults['blacklist'] = []
