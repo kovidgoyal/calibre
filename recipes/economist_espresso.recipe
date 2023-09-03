@@ -3,12 +3,15 @@ https://www.economist.com/the-world-in-brief
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ebooks.BeautifulSoup import Tag
+
 
 def new_tag(soup, name, attrs=()):
     impl = getattr(soup, 'new_tag', None)
     if impl is not None:
         return impl(name, attrs=dict(attrs))
     return Tag(soup, name, attrs=attrs or None)
+
 
 class Espresso(BasicNewsRecipe):
     title = 'The Economist Espresso'
