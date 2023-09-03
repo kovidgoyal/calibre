@@ -1,0 +1,67 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://asia.nikkei.com' + url
+    return url
+
+class nikkei(BasicNewsRecipe):
+    title = 'Nikkei Asia'
+    __author__ = 'unkn0wn'
+    language = 'en'
+    no_stylesheets = True
+    description = (
+        'Japan, China, India and Southeast Asia news and expert analysis published by Nikkei'
+        ', an award-winning independent provider of quality journalism.'
+    )
+    masthead_url = 'https://www.global-nikkei.com/22ia/images/logo/Nikkei-Asia-Logo.svg'
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+
+    extra_css = '''
+        .article-header__sub-title { font-style:italic; color:#202020; }
+        .article-header__details, .article__details { font-size:small; font-weight:bold; }
+        .timestamp { color:#5c5c5c; }
+        .article-header__topic { font-size:small; font-weight:bold; color:#5c5c5c; }
+        .article__image, .article__caption { font-size:small; text-align:center; color:#202020; }    
+    '''
+
+    keep_only_tags = [
+        classes('article-header__container article')
+    ]
+
+    remove_tags = [
+        dict(name='svg'),
+        classes('article__advert share__container no-print')
+    ]
+
+    def parse_index(self):
+        archives = self.index_to_soup('https://asia.nikkei.com/Print-Edition/Archives')
+        card = archives.find(attrs={'class':'card-article__body'})
+        self.title = 'Nikkei Asia: ' + self.tag_to_string(card.h4).strip()
+        self.description = self.tag_to_string(card.p)
+        self.timefmt = ' [' + self.tag_to_string(card.span.time).strip() + ']'
+        self.log('Downloading ', self.title, self.timefmt, self.description)
+ 
+        soup = self.index_to_soup(absurl(card.h4.a['href']))
+        self.cover_url = soup.find(**classes('print-edition__cover-image')).img['src']
+
+        ans = []
+
+        for art in soup.findAll(**classes('card-article__body')):
+            head = art.find(**classes('card-article__headline'))
+            title = self.tag_to_string(head).strip()
+            url = absurl(head.a['href'])
+            desc = ''
+            if exc := art.find(**classes('card-article__excerpt')):
+                desc = self.tag_to_string(exc).strip()
+            self.log( title, '\n   ', desc,  '\n        ', url )
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', ans)]
+
+    def print_version(self, url):
+        return 'https://webcache.googleusercontent.com/search?q=cache:' + url.split('?')[0]
