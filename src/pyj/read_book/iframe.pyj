@@ -877,8 +877,12 @@ class IframeBoss:
         elif dtype is 'drag-scroll':
             self.scroll_to_extend_annotation(data.backwards)
         elif dtype is 'edit-highlight':
-            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
-            if crw_ and select_crw(crw_):
+            found_highlight_to_edit = False
+            for qcrw, quuid in Object.entries(annot_id_uuid_map):
+                if quuid is data.uuid and select_crw(qcrw):
+                    found_highlight_to_edit = True
+                    break
+            if found_highlight_to_edit:
                 self.ensure_selection_visible()
                 window.setTimeout(def():
                     self.send_message('annotations', type='edit-highlight')
