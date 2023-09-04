@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import apsw
+import json
 import os
 import shutil
 import time
@@ -30,6 +31,7 @@ class cmt(str):
 copy_marked_up_text = cmt()
 SEP = b'\0\x1c\0'
 DOC_NAME = 'doc.html'
+METADATA_EXT = '.metadata'
 
 
 def hash_data(data: bytes) -> str:
@@ -131,7 +133,7 @@ class Notes:
         for (x,) in conn.execute(stmt, resources_to_potentially_remove):
             p = self.path_for_resource(x)
             remove_with_retry(p)
-            remove_with_retry(p + '.name')
+            remove_with_retry(p + METADATA_EXT)
 
     def note_id_for(self, conn, field_name, item_id):
         return conn.get('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
@@ -302,8 +304,8 @@ class Notes:
                 while True:
                     try:
                         conn.execute('UPDATE notes_db.resources SET name=? WHERE hash=?', (name, resource_hash))
-                        with open(path + '.name', 'w') as fn:
-                            fn.write(name)
+                        with open(path + METADATA_EXT, 'w') as fn:
+                            fn.write(json.dumps({'name':name}))
                         break
                     except apsw.ConstraintError:
                         c += 1
@@ -313,8 +315,8 @@ class Notes:
             while True:
                 try:
                     conn.get('INSERT INTO notes_db.resources (hash,name) VALUES (?,?)', (resource_hash, name), all=False)
-                    with open(path + '.name', 'w') as fn:
-                        fn.write(name)
+                    with open(path + METADATA_EXT, 'w') as fn:
+                        fn.write(json.dumps({'name':name}))
                     break
                 except apsw.ConstraintError:
                     c += 1
@@ -389,10 +391,10 @@ class Notes:
         errors = []
         for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
             for rf in os.listdir(make_long_path_useable(os.path.join(self.resources_dir, subdir))):
-                name_path = os.path.join(self.resources_dir, subdir, rf + '.name')
+                name_path = os.path.join(self.resources_dir, subdir, rf + METADATA_EXT)
                 name = 'unnamed'
                 with suppress(OSError), open(make_long_path_useable(name_path)) as n:
-                    name = n.read()
+                    name = json.loads(n.read())['name']
                 resources[rf] = name
         items = {}
         for f in os.listdir(make_long_path_useable(self.backup_dir)):
