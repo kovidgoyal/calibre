@@ -832,8 +832,9 @@ class IframeBoss:
             removed_highlights = {}
             for crw in intersecting_wrappers:
                 unwrap_crw(crw)
-                if annot_id_uuid_map[crw] and annot_id_uuid_map[crw] is not uuid:
-                    removed_highlights[annot_id_uuid_map[crw]] = True
+                if annot_id_uuid_map[crw]:
+                    if annot_id_uuid_map[crw] is not uuid:
+                        removed_highlights[annot_id_uuid_map[crw]] = True
                     v'delete annot_id_uuid_map[crw]'
             removed_highlights = Object.keys(removed_highlights)
             sel.removeAllRanges()
