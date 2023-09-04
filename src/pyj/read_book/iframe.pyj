@@ -891,19 +891,22 @@ class IframeBoss:
                 self.send_message('annotations', type='edit-highlight-failed', uuid=data.uuid)
         elif dtype is 'notes-edited':
             cls = 'crw-has-dot'
-            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
-            if crw_:
-                node = last_span_for_crw(crw_)
-                if node:
-                    if data.has_notes:
-                        node.classList.add(cls)
-                    else:
-                        node.classList.remove(cls)
+            for qcrw, quuid in Object.entries(annot_id_uuid_map):
+                if quuid is data.uuid:
+                    node = last_span_for_crw(qcrw)
+                    if node:
+                        if data.has_notes:
+                            node.classList.add(cls)
+                        else:
+                            node.classList.remove(cls)
         elif dtype is 'remove-highlight':
-            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
-            if crw_:
-                unwrap_crw(crw_)
-                v'delete annot_id_uuid_map[crw_]'
+            found_highlight_to_remove = False
+            for qcrw, quuid in Object.entries(annot_id_uuid_map):
+                if quuid is data.uuid:
+                    found_highlight_to_remove = True
+                    unwrap_crw(qcrw)
+                    v'delete annot_id_uuid_map[crw_]'
+            if found_highlight_to_remove:
                 # have to remove selection otherwise selection bar does
                 # not hide itself on multiline selections
                 window.getSelection().removeAllRanges()
