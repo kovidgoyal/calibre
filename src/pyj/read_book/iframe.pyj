@@ -905,7 +905,7 @@ class IframeBoss:
                 if quuid is data.uuid:
                     found_highlight_to_remove = True
                     unwrap_crw(qcrw)
-                    v'delete annot_id_uuid_map[crw_]'
+                    v'delete annot_id_uuid_map[qcrw]'
             if found_highlight_to_remove:
                 # have to remove selection otherwise selection bar does
                 # not hide itself on multiline selections
