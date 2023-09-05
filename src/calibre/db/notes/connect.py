@@ -200,6 +200,7 @@ class Notes:
     def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
+        searchable_text = item_value + '\n' + searchable_text
         note_id = self.note_id_for(conn, field_name, item_id)
         old_resources = frozenset(self.resources_used_by(conn, note_id))
         if not marked_up_text:
