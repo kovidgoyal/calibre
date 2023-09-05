@@ -120,6 +120,11 @@ def test_fts(self: 'NotesTest'):
     self.ae(ids_for_search('common'), {('authors', authors[0]), ('authors', authors[1]), ('tags', tags[0]), ('tags', tags[1])})
     self.ae(ids_for_search('common', ('tags',)), {('tags', tags[0]), ('tags', tags[1])})
 
+    # test that searching by item value works
+    an = cache.get_item_name('authors', authors[0])
+    self.ae(ids_for_search(' AND '.join(an.split()), ('authors',)), {('authors', authors[0])})
+
+
 class NotesTest(BaseTest):
 
     ae = BaseTest.assertEqual
