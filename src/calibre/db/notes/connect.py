@@ -32,6 +32,7 @@ copy_marked_up_text = cmt()
 SEP = b'\0\x1c\0'
 DOC_NAME = 'doc.html'
 METADATA_EXT = '.metadata'
+RESOURCE_URL_SCHEME = 'calres'
 
 
 def hash_data(data: bytes) -> str:

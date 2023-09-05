@@ -301,6 +301,8 @@ class ImageDropMixin:  # {{{
             self.set_pixmap(pmap)
             self.cover_changed.emit(
                     pixmap_to_data(pmap, format='PNG'))
+            return True
+        return False
 # }}}
 
 
