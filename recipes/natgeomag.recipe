@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json, re
+from datetime import date
 from pprint import pformat
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -108,6 +109,7 @@ class NatGeo(BasicNewsRecipe):
     remove_attributes = ['style']
     remove_javascript = False
     masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
+    remove_empty_feeds = True
 
     extra_css = '''
         .sub { color:#404040; }
@@ -118,12 +120,10 @@ class NatGeo(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        issues = self.index_to_soup('https://www.nationalgeographic.com/magazine')   
-        mag = issues.find('a', attrs={'href':lambda x: x and x.startswith(
-            'https://www.nationalgeographic.com/magazine/issue/'
-        )})
-        self.timefmt = ' [' + self.tag_to_string(mag).replace(' Issue', '') + ']'
-        soup = self.index_to_soup(mag['href'])
+        url = 'https://www.nationalgeographic.com/magazine/issue/' + date.today().strftime('%B-%Y'). lower()
+        self.log('Downloading ', url)
+        self.timefmt = ' [' + date.today().strftime('%B %Y') + ']'
+        soup = self.index_to_soup(url)
         png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-magazine-\S+?\.jpg', soup.decode('utf-8'))
         self.cover_url = png[0] + '?w=1000&h=1000'
 
@@ -140,6 +140,8 @@ class NatGeo(BasicNewsRecipe):
             for article in soup.findAll('article'):
                 a = article.find('a')
                 url = a['href']
+                if '/graphics/' in url:
+                    continue
                 section = self.tag_to_string(article.find(**classes('SectionLabel')))
                 title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
                 articles = ans.setdefault(section, [])
