@@ -346,6 +346,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         r('background', 'format-fill-color', _('Background color'))
         r('insert_link', 'insert-link', _('Insert link') if self.insert_images_separately else _('Insert link or image'),
           shortcut=QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText))
+        r('insert_image', 'view-image', _('Insert image'), shortcut=QKeySequence('Ctrl+p', QKeySequence.SequenceFormat.PortableText))
         r('insert_hr', 'format-text-hr', _('Insert separator'),)
         r('clear', 'trash', _('Clear'))
 
@@ -648,6 +649,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.MoveAnchor)
             c.insertHtml('<hr>')
 
+    def do_insert_image(self):
+        from calibre.gui2 import choose_images
+        files = choose_images(self, 'choose-image-for-comments-editor', _('Choose image'), formats='png jpeg jpg gif svg webp'.split())
+        if files:
+            self.focus_self()
+            with self.editing_cursor() as c:
+                c.insertImage(files[0])
+
     def do_insert_link(self, *args):
         link, name, is_image = self.ask_link()
         if not link:
@@ -907,6 +916,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         menu.addMenu(am)
         am.addAction(self.action_block_style)
         am.addAction(self.action_insert_link)
+        if self.insert_images_separately:
+            am.addAction(self.action_insert_image)
         am.addAction(self.action_background)
         am.addAction(self.action_color)
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
@@ -1206,6 +1217,8 @@ class Editor(QWidget):  # {{{
 
         self.toolbar.add_action(self.editor.action_block_style, popup_mode=QToolButton.ToolButtonPopupMode.InstantPopup)
         self.toolbar.add_action(self.editor.action_insert_link)
+        if self.editor.insert_images_separately:
+            self.toolbar.add_action(self.editor.action_insert_image)
         self.toolbar.add_action(self.editor.action_insert_hr)
         self.toolbar.add_separator()
 
