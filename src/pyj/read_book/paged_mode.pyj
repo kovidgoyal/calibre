@@ -283,7 +283,7 @@ def layout(is_single_page, on_resize):
     n = cols_per_screen = cps
     # Calculate the column size so that cols_per_screen columns fit exactly in
     # the window inline dimension, with their separator margins
-    wi = col_size = screen_inline = scroll_viewport.inline_size()
+    col_size = screen_inline = scroll_viewport.inline_size()
     margin_size = (opts.margin_left + opts.margin_right) if scroll_viewport.horizontal_writing_mode else (opts.margin_top + opts.margin_bottom)
     # a zero margin causes scrolling issues, see https://bugs.launchpad.net/calibre/+bug/1918437
     margin_size = max(1, margin_size)
@@ -291,8 +291,10 @@ def layout(is_single_page, on_resize):
     if n > 1:
         # Adjust the margin so that the window inline dimension satisfies
         # col_size * n + (n-1) * 2 * margin = window_inline
-        gap += ((wi + margin_size) % n)  # Ensure wi + gap is a multiple of n
-        col_size = ((wi + gap) // n) - gap
+        overhang = (screen_inline + gap) % n
+        if overhang is not 0:
+            gap += n - overhang  # now (screen_inline + gap) is a multiple of n
+        col_size = ((screen_inline + gap) // n) - gap
 
     screen_block = scroll_viewport.block_size()
     col_and_gap = col_size + gap
@@ -327,11 +329,11 @@ def layout(is_single_page, on_resize):
         # with height=100% overflow the first column
         is_full_screen_layout = is_single_page
         if not is_full_screen_layout:
-            has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2*wi + 10)
+            has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2*screen_inline + 10)
             if has_no_more_than_two_columns and single_screen:
-                if only_img and imgs.length and imgs[0].getBoundingClientRect().left < wi:
+                if only_img and imgs.length and imgs[0].getBoundingClientRect().left < screen_inline:
                     is_full_screen_layout = True
-                if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < wi:
+                if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < screen_inline:
                     is_full_screen_layout = True
         if is_full_screen_layout and only_img and cols_per_screen > 1:
             cols_per_screen = 1
@@ -342,7 +344,10 @@ def layout(is_single_page, on_resize):
     def check_column_sizes():
         nc = get_number_of_cols(True)
         if Math.floor(nc) is not nc:
-            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':nc}
+            data = {
+                'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(),
+                'ncols':nc, 'screen_inline': screen_inline
+            }
             print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
 
     check_column_sizes()
