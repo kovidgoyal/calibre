@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
+import json, re
 from pprint import pformat
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -94,8 +94,8 @@ def article_parse(data):
 
 
 class NatGeo(BasicNewsRecipe):
-    title = u'National Geographic'
-    description = 'News articles from The National Geographic, Download Monthly.'
+    title = u'National Geographic Magazine'
+    description = 'The National Geographic, an American monthly magazine'
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
@@ -118,36 +118,36 @@ class NatGeo(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        pages = [
-            'https://www.nationalgeographic.com/animals',
-            'https://www.nationalgeographic.com/environment',
-            'https://www.nationalgeographic.com/history',
-            'https://www.nationalgeographic.com/science',
-            'https://www.nationalgeographic.com/travel'
-        ]
+        issues = self.index_to_soup('https://www.nationalgeographic.com/magazine')   
+        mag = issues.find('a', attrs={'href':lambda x: x and x.startswith(
+            'https://www.nationalgeographic.com/magazine/issue/'
+        )})
+        self.timefmt = ' [' + self.tag_to_string(mag).replace(' Issue', '') + ']'
+        soup = self.index_to_soup(mag['href'])
+        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-magazine-\S+?\.jpg', soup.decode('utf-8'))
+        self.cover_url = png[0] + '?w=1000&h=1000'
 
-        feeds = []
-
-        for sec in pages:
-            soup = self.index_to_soup(sec)
-            parsed = self.articles_from_soup(soup)
-            if parsed:
-                feeds += parsed
-        return feeds
-
-    def articles_from_soup(self, soup):
+        name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
+        self.title = 'National Geographic ' + self.tag_to_string(name)
         ans = {}
-        for article in soup.findAll('article'):
-            a = article.find('a')
-            url = a['href']
-            section = self.tag_to_string(article.find(**classes('SectionLabel')))
-            if section.startswith('Paid Content'):
-                continue
-            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
-            articles = ans.setdefault(section, [])
-            articles.append({'title': title, 'url': url})
-        self.log(pformat(ans))
-        return list(ans.items())
+        ans2 = None
+        if photoart := soup.find(attrs={'class':lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):
+            ans2 = []
+            title = self.tag_to_string(photoart)
+            url = 'https://www.nationalgeographic.com' + photoart['href']
+            ans2.append(('Photo Essay', [{'title': title, 'url': url}]))
+        for gird in soup.findAll(attrs={'class':'GridPromoTile'}):
+            for article in soup.findAll('article'):
+                a = article.find('a')
+                url = a['href']
+                section = self.tag_to_string(article.find(**classes('SectionLabel')))
+                title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
+                articles = ans.setdefault(section, [])
+                articles.append({'title': title, 'url': url})
+            self.log(pformat(ans))
+            if ans2:
+                return list(ans.items()) + ans2
+            return list(ans.items())
 
     def preprocess_raw_html(self, raw_html, url):
         data = extract_json(raw_html)
@@ -155,5 +155,5 @@ class NatGeo(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):
-            img['src'] = img['src'] + '?w=700&h=700'
+            img['src'] = img['src'] + '?w=1000&h=1000'
         return soup
