@@ -7,6 +7,7 @@ import re
 import weakref
 from collections import defaultdict
 from contextlib import contextmanager
+from functools import partial
 from html5_parser import parse
 from lxml import html
 from qt.core import (
@@ -14,8 +15,8 @@ from qt.core import (
     QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
     QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QTextFormat, QTextListFormat, QTimer, QToolButton, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
+    QTextCursor, QTextEdit, QTextFormat, QTextFrameFormat, QTextListFormat, QTimer,
+    QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
 )
 
 from calibre import xml_replace_entities
@@ -892,8 +893,36 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         ans.setHtml(html)
         return ans
 
+    def align_image_at(self, cursor_pos, alignment):
+        c = self.textCursor()
+        c.setPosition(cursor_pos)
+        fmt = c.charFormat()
+        if fmt.isImageFormat() and c.currentFrame():
+            cf = c.currentFrame().childFrames()
+            if len(cf) == 1:
+                ff = cf[0].frameFormat()
+                ff.setPosition(alignment)
+                cf[0].setFrameFormat(ff)
+                self.document().markContentsDirty(cursor_pos-2, 5)
+
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
+        c = self.cursorForPosition(ev.pos())
+        fmt = c.charFormat()
+        if fmt.isImageFormat() and c.currentFrame():
+            cf = c.currentFrame().childFrames()
+            if len(cf) == 1:
+                pos = cf[0].frameFormat().position()
+                align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
+                def a(text, epos):
+                    ac = align_menu.addAction(text)
+                    ac.setCheckable(True)
+                    ac.triggered.connect(partial(self.align_image_at, c.position(), epos))
+                    if pos == epos:
+                        ac.setChecked(True)
+                a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
+                a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
+                a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
