@@ -325,6 +325,7 @@ class ImageView(QWidget, ImageDropMixin):
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
+    draw_empty_border = False
 
     def __init__(self, parent=None, show_size_pref_name=None, default_show_size=False):
         QWidget.__init__(self, parent)
@@ -368,30 +369,38 @@ class ImageView(QWidget, ImageDropMixin):
     def paintEvent(self, event):
         QWidget.paintEvent(self, event)
         pmap = self._pixmap
-        if pmap.isNull():
-            return
-        w, h = pmap.width(), pmap.height()
-        ow, oh = w, h
-        cw, ch = self.rect().width(), self.rect().height()
-        scaled, nw, nh = fit_image(w, h, cw, ch)
-        if scaled:
-            pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.AspectRatioMode.IgnoreAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation)
-        w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
-        x = int(abs(cw - w)/2)
-        y = int(abs(ch - h)/2)
-        target = QRect(x, y, w, h)
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
-        p.drawPixmap(target, pmap)
-        if self.draw_border:
-            pen = QPen()
-            pen.setWidth(self.BORDER_WIDTH)
-            p.setPen(pen)
-            p.drawRect(target)
-        if self.show_size:
-            draw_size(p, target, ow, oh)
-        p.end()
+        try:
+            if pmap.isNull():
+                if self.draw_empty_border:
+                    pen = QPen()
+                    pen.setWidth(self.BORDER_WIDTH)
+                    p.setPen(pen)
+                    p.drawRect(self.rect())
+                    p.end()
+                return
+            w, h = pmap.width(), pmap.height()
+            ow, oh = w, h
+            cw, ch = self.rect().width(), self.rect().height()
+            scaled, nw, nh = fit_image(w, h, cw, ch)
+            if scaled:
+                pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.AspectRatioMode.IgnoreAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation)
+            w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
+            x = int(abs(cw - w)/2)
+            y = int(abs(ch - h)/2)
+            target = QRect(x, y, w, h)
+            p.drawPixmap(target, pmap)
+            if self.draw_border:
+                pen = QPen()
+                pen.setWidth(self.BORDER_WIDTH)
+                p.setPen(pen)
+                p.drawRect(target)
+            if self.show_size:
+                draw_size(p, target, ow, oh)
+        finally:
+            p.end()
 # }}}
 
 
