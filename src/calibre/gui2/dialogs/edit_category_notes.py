@@ -80,6 +80,7 @@ class AskImage(Dialog):
 
         self.image_preview = ip = ImageView(self, 'insert-image-for-notes-preview', True)
         ip.cover_changed.connect(self.image_pasted_or_dropped)
+        ip.draw_empty_border = True
         h.addWidget(ip)
 
         self.vr = vr = QVBoxLayout()
