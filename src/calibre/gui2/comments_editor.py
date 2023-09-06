@@ -895,6 +895,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def align_image_at(self, cursor_pos, alignment):
         c = self.textCursor()
+        c.clearSelection()
         c.setPosition(cursor_pos)
         fmt = c.charFormat()
         if fmt.isImageFormat() and c.currentFrame():
@@ -904,25 +905,31 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 ff.setPosition(alignment)
                 cf[0].setFrameFormat(ff)
                 self.document().markContentsDirty(cursor_pos-2, 5)
+            else:
+                c.deleteChar()
+                c.insertImage(fmt.toImageFormat(), alignment)
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
+        # unfortunately there appears to be no way to get the image under the
+        # mouse for floating images.
         c = self.cursorForPosition(ev.pos())
         fmt = c.charFormat()
         if fmt.isImageFormat() and c.currentFrame():
             cf = c.currentFrame().childFrames()
+            pos = QTextFrameFormat.Position.InFlow
             if len(cf) == 1:
                 pos = cf[0].frameFormat().position()
-                align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
-                def a(text, epos):
-                    ac = align_menu.addAction(text)
-                    ac.setCheckable(True)
-                    ac.triggered.connect(partial(self.align_image_at, c.position(), epos))
-                    if pos == epos:
-                        ac.setChecked(True)
-                a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
-                a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
-                a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
+            align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
+            def a(text, epos):
+                ac = align_menu.addAction(text)
+                ac.setCheckable(True)
+                ac.triggered.connect(partial(self.align_image_at, c.position(), epos))
+                if pos == epos:
+                    ac.setChecked(True)
+            a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
+            a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
+            a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
@@ -1353,5 +1360,6 @@ if __name__ == '__main__':
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
     w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p align="justify">\xa0</p><p align="justify">ss</p></div>'
+    w.html = '<p>Testing <img src="file:///home/kovid/work/calibre/resources/images/donate.png"> img</p>'
     app.exec()
     # print w.html
