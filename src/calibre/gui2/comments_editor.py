@@ -16,7 +16,7 @@ from qt.core import (
     QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
     QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
     QTextCursor, QTextEdit, QTextFormat, QTextFrameFormat, QTextListFormat, QTimer,
-    QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
+    QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QPointF, QTextDocument
 )
 
 from calibre import xml_replace_entities
@@ -909,27 +909,42 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 c.deleteChar()
                 c.insertImage(fmt.toImageFormat(), alignment)
 
+    def first_image_replacement_char_position_for(self, image_name):
+        d = self.document()
+        c = self.textCursor()
+        c.setPosition(0)
+        while True:
+            c = d.find('\ufffc', c, QTextDocument.FindFlag.FindCaseSensitively)
+            if c.isNull():
+                break
+            fmt = c.charFormat()
+            if fmt.isImageFormat() and fmt.toImageFormat().name() == image_name:
+                return c.position()
+        return -1
+
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
-        # unfortunately there appears to be no way to get the image under the
-        # mouse for floating images.
-        c = self.cursorForPosition(ev.pos())
-        fmt = c.charFormat()
-        if fmt.isImageFormat() and c.currentFrame():
-            cf = c.currentFrame().childFrames()
-            pos = QTextFrameFormat.Position.InFlow
-            if len(cf) == 1:
-                pos = cf[0].frameFormat().position()
-            align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
-            def a(text, epos):
-                ac = align_menu.addAction(text)
-                ac.setCheckable(True)
-                ac.triggered.connect(partial(self.align_image_at, c.position(), epos))
-                if pos == epos:
-                    ac.setChecked(True)
-            a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
-            a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
-            a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
+        img_name = self.document().documentLayout().imageAt(QPointF(ev.pos()))
+        if img_name:
+            pos = self.first_image_replacement_char_position_for(img_name)
+            if pos > -1:
+                c = self.textCursor()
+                c.clearSelection()
+                c.setPosition(pos)
+                cf = c.currentFrame().childFrames()
+                pos = QTextFrameFormat.Position.InFlow
+                if len(cf) == 1:
+                    pos = cf[0].frameFormat().position()
+                align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
+                def a(text, epos):
+                    ac = align_menu.addAction(text)
+                    ac.setCheckable(True)
+                    ac.triggered.connect(partial(self.align_image_at, c.position(), epos))
+                    if pos == epos:
+                        ac.setChecked(True)
+                a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
+                a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
+                a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
