@@ -395,6 +395,8 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
             href = a.get(attr)
             if href:
                 href = link_replacer(name, href)
+            else:
+                a.set(attr, 'javascript:void(0)')
             if href and href.startswith(link_uid):
                 a.set(attr, 'javascript:void(0)')
                 parts = href.split('|')
@@ -533,6 +535,8 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
         elif href:
             a.set('target', '_blank')
             a.set('rel', 'noopener noreferrer')
+        else:
+            a.set(attr, 'javascript:void(0)')
 
     for a in link_xpath(root):
         handle_link(a)
