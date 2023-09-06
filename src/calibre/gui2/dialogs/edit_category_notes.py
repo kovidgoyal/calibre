@@ -4,14 +4,14 @@
 import os
 from qt.core import (
     QButtonGroup, QByteArray, QDialog, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, Qt, QTextFrameFormat,
-    QTextImageFormat, QVBoxLayout, QWidget, pyqtSlot, QTextDocument,
+    QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, Qt, QTextDocument,
+    QTextFrameFormat, QTextImageFormat, QUrl, QVBoxLayout, QWidget, pyqtSlot,
 )
 from typing import NamedTuple
 
 from calibre.db.notes.connect import RESOURCE_URL_SCHEME, hash_data
 from calibre.gui2 import Application, choose_images, error_dialog
-from calibre.gui2.comments_editor import Editor, EditorWidget
+from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.short_uuid import uuid4
@@ -174,13 +174,16 @@ class NoteEditorWidget(EditorWidget):
     db = field = item_id = item_val = None
     images = None
 
+    def resource_digest_from_qurl(self, qurl):
+        alg = qurl.host()
+        digest = qurl.path()[1:]
+        return f'{alg}:{digest}'
+
     @pyqtSlot(int, 'QUrl', result='QVariant')
     def loadResource(self, rtype, qurl):
         if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
             return
-        alg = qurl.host()
-        digest = qurl.path()[1:]
-        digest = f'{alg}:{digest}'
+        digest = self.resource_digest_from_qurl(qurl)
         ir = self.images.get(digest)
         ans = None
         if ir is not None:
@@ -189,14 +192,22 @@ class NoteEditorWidget(EditorWidget):
             elif ir.path:
                 with open(ir.path, 'rb') as f:
                     ans = f.read()
+        else:
+            res = self.db.get_notes_resource(digest)
+            if res is not None:
+                ans = res['data']
         if ans is not None:
             r = QByteArray(ans)
             self.document().addResource(rtype, qurl, r)  # cache the resource
             return r
 
-    def get_html_callback(self, root):
-        self.searchable_text = ''
+    def get_html_callback(self, root, text):
+        self.searchable_text = text.replace(OBJECT_REPLACEMENT_CHAR, '')
         self.referenced_resources = set()
+        for fmt in self.document().allFormats():
+            if fmt.isImageFormat():
+                digest = self.resource_digest_from_qurl(QUrl(fmt.toImageFormat().name()))
+                self.referenced_resources.add(digest)
 
     def ask_link(self):
         c = self.textCursor()
@@ -224,7 +235,7 @@ class NoteEditor(Editor):
 
     def get_doc(self):
         html = self.editor.html
-        return html, self.editor.searchable_text, self.editor.referenced_resources
+        return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
 
 
@@ -244,8 +255,10 @@ class EditNoteWidget(QWidget):
         return QSize(800, 600)
 
     def commit(self):
-        doc, searchable_text, resources = self.editor.get_doc()
+        doc, searchable_text, resources, resources_to_add = self.editor.get_doc()
         s = self.editor.editor
+        for ir in resources_to_add:
+            s.db.add_notes_resource(ir.data or ir.path, ir.name)
         s.db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
         return True
 
