@@ -13,10 +13,11 @@ from lxml import html
 from qt.core import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
     QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPushButton,
-    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QTextFormat, QTextFrameFormat, QTextListFormat, QTimer,
-    QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QPointF, QTextDocument
+    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPointF,
+    QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat,
+    QTextCharFormat, QTextCursor, QTextDocument, QTextEdit, QTextFormat,
+    QTextFrameFormat, QTextListFormat, QTimer, QToolButton, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal, pyqtSlot,
 )
 
 from calibre import xml_replace_entities
