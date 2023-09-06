@@ -371,36 +371,33 @@ class ImageView(QWidget, ImageDropMixin):
         pmap = self._pixmap
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
-        try:
-            if pmap.isNull():
-                if self.draw_empty_border:
-                    pen = QPen()
-                    pen.setWidth(self.BORDER_WIDTH)
-                    p.setPen(pen)
-                    p.drawRect(self.rect())
-                    p.end()
-                return
-            w, h = pmap.width(), pmap.height()
-            ow, oh = w, h
-            cw, ch = self.rect().width(), self.rect().height()
-            scaled, nw, nh = fit_image(w, h, cw, ch)
-            if scaled:
-                pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.AspectRatioMode.IgnoreAspectRatio,
-                        Qt.TransformationMode.SmoothTransformation)
-            w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
-            x = int(abs(cw - w)/2)
-            y = int(abs(ch - h)/2)
-            target = QRect(x, y, w, h)
-            p.drawPixmap(target, pmap)
-            if self.draw_border:
+        if pmap.isNull():
+            if self.draw_empty_border:
                 pen = QPen()
                 pen.setWidth(self.BORDER_WIDTH)
                 p.setPen(pen)
-                p.drawRect(target)
-            if self.show_size:
-                draw_size(p, target, ow, oh)
-        finally:
-            p.end()
+                p.drawRect(self.rect())
+                p.end()
+            return
+        w, h = pmap.width(), pmap.height()
+        ow, oh = w, h
+        cw, ch = self.rect().width(), self.rect().height()
+        scaled, nw, nh = fit_image(w, h, cw, ch)
+        if scaled:
+            pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.AspectRatioMode.IgnoreAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation)
+        w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
+        x = int(abs(cw - w)/2)
+        y = int(abs(ch - h)/2)
+        target = QRect(x, y, w, h)
+        p.drawPixmap(target, pmap)
+        if self.draw_border:
+            pen = QPen()
+            pen.setWidth(self.BORDER_WIDTH)
+            p.setPen(pen)
+            p.drawRect(target)
+        if self.show_size:
+            draw_size(p, target, ow, oh)
 # }}}
 
 
