@@ -38,6 +38,8 @@ from polyglot.builtins import iteritems, itervalues
 
 # Cleanup Qt markup {{{
 
+OBJECT_REPLACEMENT_CHAR = '\ufffc'
+
 
 def parse_style(style):
     props = filter(None, (x.strip() for x in style.split(';')))
@@ -251,7 +253,7 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
         import traceback
         traceback.print_exc()
     if callback is not None:
-        callback(root)
+        callback(root, original_txt)
     elems = []
     for body in root.xpath('//body'):
         if body.text:
@@ -824,7 +826,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def html(self):
         return fix_html(self.toHtml(), self.toPlainText().strip(), callback=self.get_html_callback)
 
-    def get_html_callback(self, root):
+    def get_html_callback(self, root, text):
         pass
 
     @html.setter
@@ -918,7 +920,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         c = self.textCursor()
         c.setPosition(0)
         while True:
-            c = d.find('\ufffc', c, QTextDocument.FindFlag.FindCaseSensitively)
+            c = d.find(OBJECT_REPLACEMENT_CHAR, c, QTextDocument.FindFlag.FindCaseSensitively)
             if c.isNull():
                 break
             fmt = c.charFormat()
