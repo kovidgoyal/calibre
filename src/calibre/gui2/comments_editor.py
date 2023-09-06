@@ -840,20 +840,23 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if qurl.isRelative():
                 qurl = self.base_url.resolved(qurl)
             if qurl.isLocalFile():
+                data = None
                 path = qurl.toLocalFile()
                 try:
                     with open(path, 'rb') as f:
                         data = f.read()
                 except OSError:
                     if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
-                        return QByteArray(bytearray.fromhex(
+                        data = bytearray.fromhex(
                                     '89504e470d0a1a0a0000000d49484452'
                                     '000000010000000108060000001f15c4'
                                     '890000000a49444154789c6300010000'
                                     '0500010d0a2db40000000049454e44ae'
-                                    '426082'))
-                else:
-                    return QByteArray(data)
+                                    '426082')
+                if data is not None:
+                    r = QByteArray(data)
+                    self.document().addResource(rtype, qurl, r)
+                    return r
 
     def set_html(self, val, allow_undo=True):
         if not allow_undo or self.readonly:
