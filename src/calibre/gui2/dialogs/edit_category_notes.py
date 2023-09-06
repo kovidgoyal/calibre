@@ -118,6 +118,7 @@ class AskImage(Dialog):
         hb.addWidget(b)
 
         vr.addStretch(10)
+        self.add_file_button.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def image_pasted_or_dropped(self, cover_data):
         digest = hash_data(cover_data)
@@ -146,6 +147,7 @@ class AskImage(Dialog):
             self.image_preview.set_pixmap(p)
             self.name_edit.setText(ir.name)
             self.current_digest = digest
+            self.bb.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def paste_image(self):
         if not self.image_preview.paste_from_clipboard():
@@ -202,10 +204,10 @@ class NoteEditorWidget(EditorWidget):
         if d.exec() == QDialog.DialogCode.Accepted and d.current_digest:
             ir = self.images[d.current_digest]
             self.focus_self()
-            with self.editing_cursor() as c:
-                fmt = QTextImageFormat()
-                fmt.setName(RESOURCE_URL_SCHEME + ':///' + ir.digest)
-                c.insertImage(fmt, d.image_layout)
+            c = self.textCursor()
+            fmt = QTextImageFormat()
+            fmt.setName(RESOURCE_URL_SCHEME + ':///' + ir.digest)
+            c.insertImage(fmt, d.image_layout)
 
 
 class NoteEditor(Editor):
