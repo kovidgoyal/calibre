@@ -5,7 +5,7 @@ import os
 from qt.core import (
     QButtonGroup, QByteArray, QDialog, QFormLayout, QHBoxLayout, QIcon, QLabel,
     QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, Qt, QTextFrameFormat,
-    QTextImageFormat, QVBoxLayout, QWidget, pyqtSlot,
+    QTextImageFormat, QVBoxLayout, QWidget, pyqtSlot, QTextDocument,
 )
 from typing import NamedTuple
 
@@ -14,6 +14,7 @@ from calibre.gui2 import Application, choose_images, error_dialog
 from calibre.gui2.comments_editor import Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.short_uuid import uuid4
 
 IMAGE_EXTENSIONS = 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'
 
@@ -175,18 +176,23 @@ class NoteEditorWidget(EditorWidget):
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
     def loadResource(self, rtype, qurl):
-        if self.db is None or self.images is None:
+        if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
             return
-        if qurl.scheme() != RESOURCE_URL_SCHEME:
-            return
+        alg = qurl.host()
         digest = qurl.path()[1:]
+        digest = f'{alg}:{digest}'
         ir = self.images.get(digest)
+        ans = None
         if ir is not None:
             if ir.data:
-                return QByteArray(ir.data)
-            if ir.path:
+                ans = ir.data
+            elif ir.path:
                 with open(ir.path, 'rb') as f:
-                    return QByteArray(f.read())
+                    ans = f.read()
+        if ans is not None:
+            r = QByteArray(ans)
+            self.document().addResource(rtype, qurl, r)  # cache the resource
+            return r
 
     def get_html_callback(self, root):
         self.searchable_text = ''
@@ -207,7 +213,8 @@ class NoteEditorWidget(EditorWidget):
             self.focus_self()
             c = self.textCursor()
             fmt = QTextImageFormat()
-            fmt.setName(RESOURCE_URL_SCHEME + ':///' + ir.digest)
+            alg, digest = ir.digest.split(':', 1)
+            fmt.setName(RESOURCE_URL_SCHEME + f'://{alg}/{digest}?placement={uuid4()}')
             c.insertImage(fmt, d.image_layout)
 
 
