@@ -231,7 +231,7 @@ def common_shortcuts():  # {{{
     ),
 
     'previous_match': desc(
-        v"['Shift+F3']",
+        v"['Shift+F3', 'Shift+Enter']",
         'ui',
         _('Find previous'),
     ),
