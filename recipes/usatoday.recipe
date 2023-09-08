@@ -7,6 +7,7 @@ usatoday.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
 
 
 def classes(classes):
@@ -18,14 +19,14 @@ def classes(classes):
 class USAToday(BasicNewsRecipe):
 
     title = 'USA Today'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal, unkn0wn'
     description = 'newspaper'
     encoding = 'utf-8'
     language = 'en'
 
     use_embedded_content = False
     timefmt = ' [%d %b %Y]'
-    max_articles_per_feed = 15
+    max_articles_per_feed = 25
     no_stylesheets = True
     remove_empty_feeds = True
 
@@ -53,27 +54,54 @@ class USAToday(BasicNewsRecipe):
                         font-size:medium;
                         font-family:Arial,Helvetica,sans-serif;
                     }
+                    .gnt_em_img_ccw__cap {
+                        font-size:small;
+                        text-align:center;
+                    }
                 '''
 
-    feeds = [
-        ('Top Headlines',
-         'http://rssfeeds.usatoday.com/usatoday-newstopstories&x=1'),
-        ('Tech Headlines',
-         'http://rssfeeds.usatoday.com/usatoday-techtopstories&x=1'),
-        ('Personal Tech',
-         'http://rssfeeds.usatoday.com/usatodaycomtech-personaltalk&x=1'),
-        ('Health',
-         'http://rssfeeds.usatoday.com/usatodaycomhealth-topstories&x=1'),
-        ('Travel Headlines',
-         'http://rssfeeds.usatoday.com/usatodaycomtravel-topstories&x=1'),
-        ('Money Headlines',
-         'http://rssfeeds.usatoday.com/usatodaycommoney-topstories&x=1'),
-        ('Entertainment Headlines',
-         'http://rssfeeds.usatoday.com/usatoday-lifetopstories&x=1'),
-        ('Sport Headlines',
-         'http://rssfeeds.usatoday.com/usatodaycomsports-topstories&x=1'),
-        ('Weather Headlines',
-         'http://rssfeeds.usatoday.com/usatoday-weathertopstories&x=1'),
-        ('Most Popular',
-         'http://rssfeeds.usatoday.com/usatoday-mostviewedarticles&x=1'),
+    ignore_duplicate_articles = {'title'}
+    resolve_internal_links  = True
+    remove_empty_feeds = True
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast-'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Downloading ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    feeds = []
+
+    sections = [
+        'news', 'nation', 'politics', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations', 
     ]
+
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fwww.usatoday.com%2Fstory{}&hl=en-US&gl=US&ceid=US:en'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    # feeds.append(('Others', a.format('')))
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', src=True):
+            img['src'] = 'https://www.usatoday.com' + img['src']
+        for div in soup.findAll(attrs={'data-c-caption':True}):
+            div.string = div['data-c-caption']
+        return soup
