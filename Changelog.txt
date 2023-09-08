@@ -23,6 +23,55 @@
 # - title by author
 # }}}
 
+{{{ 6.26.0 2023-09-08
+
+:: new features
+
+- MTP driver: Support the new Kindle Scribe firmware that causes it to act as an MTP device instead of USB disk. Add "Documents" to the list of default folders to send books to
+
+- E-book viewer: Add a new option under scrolling behavior to control horizontal mouse wheel events jumping to next section
+
+- Allow full customization of Book details styling via Preferences->Look & feel->Book details
+
+:: bug fixes
+
+- [2023046] Get books: Update ebooks.com plugin for website changes
+
+- Edit book: Fix searching for non-BMP unicode characters highlighting only half the character
+
+- [2034075] E-book viewer: Fix displaying more than one page per screen causing page layout to be slightly wrong for some books
+
+- [2034404] E-book viewer: Fix clicking on links with empty destinations hanging the viewer
+
+- [2033981] E-book viewer: Fix modifying, then jumping to and then modifying the highlight again from the highlights panel causing the highlight to be deleted
+
+- [2033205] E-book viewer: Fix indication of current section in Table of Contents sometimes wrong after changing font size
+
+- [2033530] E-book viewer/Content server: Disallow browser native context menu when right clicking in sandboxed iframes
+
+- MTP driver: Ignore top level folders whose names start with a leading dot Also ignore AppleDouble files, top level system and fonts folders and sdr folders on Kindle devices
+
+- [2033074] FB2 Input: use the <p> tag for paragraphs that dont contain other block content
+
+- [2033118] E-book viewer: Fix clicking on the back/forward buttons not working in some situations
+
+- [2032974] E-book viewer: Fix scrolling to Table of Contents items that are within a single internal file not activating the back button
+
+- [2032694] E-book viewer: Fix changing the sans-serif font without also changing the monospaced font not working
+
+:: improved recipes
+- National Geographic
+- Sportstar
+- Bangkok Post
+- MIT Technology Review
+- Bloomberg
+- Economic Times India
+- Firstpost
+
+:: new recipes
+- Nikkei Asia (Magazine) and Espresso by unkn0w7n
+}}}
+
 {{{ 6.25.0 2023-08-18
 
 :: new features
