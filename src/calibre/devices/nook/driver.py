@@ -90,8 +90,9 @@ class NOOK_COLOR(NOOK):
         0xc,    # Glowlight from 2019
         0xd,    # Glowlight from 2021
         0xe,    # Glowlight from 2021
+        0xf,    # Glowlight from 2023
     ]
-    BCD         = [0x216, 0x9999, 0x409]
+    BCD         = [0x216, 0x9999, 0x409, 0x440]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
             'NOOK_SIMPLETOUCH', 'NOOK_GLOWLIGHT']
