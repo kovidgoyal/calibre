@@ -112,9 +112,6 @@ class AskImage(Dialog):
         self.add_file_button = b = QPushButton(QIcon.ic('document_open.png'), _('Choose image &file'), self)
         b.clicked.connect(self.add_file)
         hb.addWidget(b)
-        self.existing_button = b = QPushButton(QIcon.ic('view-image.png'), _('Browse &existing'), self)
-        b.clicked.connect(self.browse_existing)
-        hb.addWidget(b)
         self.paste_button = b = QPushButton(QIcon.ic('edit-paste.png'), _('&Paste from clipboard'), self)
         b.clicked.connect(self.paste_image)
         hb.addWidget(b)
@@ -130,9 +127,6 @@ class AskImage(Dialog):
             self.local_images[digest] = ir = ImageResource('unnamed.png', digest, data=cover_data)
         self.name_edit.setText(ir.name)
         self.current_digest = digest
-
-    def browse_existing(self):
-        raise NotImplementedError('TODO: Implement me')
 
     def add_file(self):
         files = choose_images(self, 'choose-image-for-notes', _('Choose image'), formats=IMAGE_EXTENSIONS)
