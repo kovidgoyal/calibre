@@ -4,15 +4,16 @@
 
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QColor, QDialog, QDialogButtonBox, QFrame,
-    QIcon, QItemDelegate, QLabel, QMenu, QSize, Qt, QTableWidgetItem, QTimer,
-    pyqtSignal, sip,
+    QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
+    QDialogButtonBox, QFrame, QHBoxLayout, QIcon, QItemDelegate, QLabel, QMenu,
+    QSize, Qt, QTableWidgetItem, QTimer, QToolButton, QWidget, pyqtSignal, sip,
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.tag_list_editor_table_widget import TleTableWidget
 from calibre.gui2.widgets import EnLineEdit
@@ -144,7 +145,53 @@ class EditColumnDelegate(QItemDelegate):
         QItemDelegate.destroyEditor(self, editor, index)
 
 
+class NotesItemWidget(QWidget):
+
+    clicked = pyqtSignal(object, object, object, object)
+    icon = QIcon.ic('edit_input.png')
+
+    def __init__(self, db, field, item_id, row):
+        super().__init__()
+        self.row = row
+        self.field = field
+        self.item_id = item_id
+        self.db = db
+
+        l = QHBoxLayout()
+        l.setContentsMargins(2, 0, 0, 0)
+        self.setLayout(l)
+        cb = self.cb = QCheckBox()
+        cb.setEnabled(False)
+        l.addWidget(cb)
+        tb = self.tb = QToolButton()
+        tb.setIcon(self.icon)
+        tb.clicked.connect(self.tb_clicked)
+        l.addWidget(tb)
+        l.addStretch(3)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.set_checked()
+
+    def keyPressEvent(self, ev):
+        # Use this instead of focusProxy() because fp() changes selection behavior
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return, Qt.Key.Key_Space):
+            ev.accept()
+            self.tb_clicked()
+            return
+        return super().keyPressEvent(ev)
+
+    def tb_clicked(self):
+        self.clicked.emit(self, self.field, self.item_id, self.db)
+
+    def set_checked(self):
+        t = self.db.notes_for(self.field, self.item_id)
+        self.cb.setChecked(bool(t))
+
+
 class TagListEditor(QDialog, Ui_TagListEditor):
+
+    VALUE_COLUMN = 0
+    LINK_COLUMN = 3
+    NOTES_COLUMN = 4
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
@@ -228,7 +275,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def show_context_menu(self, point):
         idx = self.table.indexAt(point)
-        if idx.column() != 0:
+        if idx.column() != self.VALUE_COLUMN:
             return
         m = self.au_context_menu = QMenu(self)
 
@@ -339,8 +386,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         for _ in range(0, self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
-            if self.string_contains(find_text, self.table.item(r, 0).text()):
-                self.table.setCurrentItem(self.table.item(r, 0))
+            if self.string_contains(find_text, self.table.item(r, self.VALUE_COLUMN).text()):
+                self.table.setCurrentItem(self.table.item(r, self.VALUE_COLUMN))
                 self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
         # Nothing found. Pop up the little dialog for 1.5 seconds
@@ -385,13 +432,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         vh.setDefaultSectionSize(gprefs.get('general_category_editor_row_height', vh.defaultSectionSize()))
         vh.sectionResized.connect(self.row_height_changed)
 
-        self.table.setColumnCount(4)
+        self.table.setColumnCount(5)
 
         self.edit_delegate = EditColumnDelegate(self.table, self.check_for_deleted_items)
         self.edit_delegate.editing_finished.connect(self.stop_editing)
         self.edit_delegate.editing_started.connect(self.start_editing)
-        self.table.setItemDelegateForColumn(0, self.edit_delegate)
-        self.table.setItemDelegateForColumn(3, self.edit_delegate)
+        self.table.setItemDelegateForColumn(self.VALUE_COLUMN, self.edit_delegate)
+        self.table.setItemDelegateForColumn(self.LINK_COLUMN, self.edit_delegate)
 
         self.table.delete_pressed.connect(self.delete_pressed)
         self.table.itemDoubleClicked.connect(self._rename_tag)
@@ -449,13 +496,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         select_item = None
         self.table.blockSignals(True)
         self.name_col = QTableWidgetItem(self.category_name)
-        self.table.setHorizontalHeaderItem(0, self.name_col)
+        self.table.setHorizontalHeaderItem(self.VALUE_COLUMN, self.name_col)
         self.count_col = QTableWidgetItem(_('Count'))
         self.table.setHorizontalHeaderItem(1, self.count_col)
         self.was_col = QTableWidgetItem(_('Was'))
         self.table.setHorizontalHeaderItem(2, self.was_col)
         self.link_col = QTableWidgetItem(_('Link'))
-        self.table.setHorizontalHeaderItem(3, self.link_col)
+        self.table.setHorizontalHeaderItem(self.LINK_COLUMN, self.link_col)
+        self.link_col = QTableWidgetItem(_('Notes'))
+        self.table.setHorizontalHeaderItem(4, self.link_col)
 
         self.table.setRowCount(len(tags))
         for row,tag in enumerate(tags):
@@ -476,7 +525,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                     _("This is not one of this column's permitted values ({0})"
                       ).format(', '.join(self.enum_permitted_values)) + '</p>')
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable)
-            self.table.setItem(row, 0, item)
+            self.table.setItem(row, self.VALUE_COLUMN, item)
             if select_item is None:
                 if ttm_is_first_letter:
                     if primary_startswith(tag, tag_to_match):
@@ -506,7 +555,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                     item.setFlags(item.flags() | (Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
                     item.setIcon(QIcon())
                 item.setText(self.link_map.get(tag, ''))
-            self.table.setItem(row, 3, item)
+            self.table.setItem(row, self.LINK_COLUMN, item)
+
+            if self.category is not None:
+                from calibre.gui2.ui import get_gui
+                nw = NotesItemWidget(get_gui().current_db.new_api, self.category, _id, row)
+                nw.clicked.connect(self.notes_button_clicked)
+                self.table.setCellWidget(row, 4, nw)
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)
@@ -522,6 +577,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.search_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
+
+    def notes_button_clicked(self, w, field, item_id, db):
+        EditNoteDialog(field, item_id, db).exec()
+        w.set_checked()
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
@@ -565,7 +624,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         current_column = self.table.currentItem().column()
         # We don't support editing multiple link rows at the same time. Use
         # the current cell.
-        if current_column != 0:
+        if current_column != self.VALUE_COLUMN:
             self.table.setCurrentItem(self.table.item(on_row, current_column))
         items = self.table.selectedItems()
         self.table.blockSignals(True)
@@ -589,7 +648,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(False)
 
     def finish_editing(self, edited_item):
-        if edited_item.column() != 0:
+        if edited_item.column() != self.VALUE_COLUMN:
             # Nothing to do for link fields
             return
         if not edited_item.text():
@@ -621,7 +680,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(False)
 
     def undo_edit(self):
-        col_zero_items = (self.table.item(item.row(), 0) for item in self.table.selectedItems())
+        col_zero_items = (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems())
         if not col_zero_items:
             error_dialog(self, _('No item selected'),
                          _('You must select one item from the list of available items.')).exec()
@@ -639,7 +698,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_rename.pop(int(col_zero_item.data(Qt.ItemDataRole.UserRole)), None)
             row = col_zero_item.row()
             self.table.item(row, 2).setData(Qt.ItemDataRole.DisplayRole, '')
-            item = self.table.item(row, 3)
+            item = self.table.item(row, self.LINK_COLUMN)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
             item.setIcon(QIcon())
         self.table.blockSignals(False)
@@ -648,12 +707,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if self.table.currentIndex().isValid():
             col = self.table.currentIndex().column()
             self.table.blockSignals(True)
-            for itm in (item for item in self.table.selectedItems() if item.column() != col):
-                itm.setSelected(False)
+            if col == self.NOTES_COLUMN:
+                self.table.setCurrentIndex(self.table.currentIndex())
+            else:
+                for itm in (item for item in self.table.selectedItems() if item.column() != col):
+                    itm.setSelected(False)
             self.table.blockSignals(False)
 
     def check_for_deleted_items(self, show_error=False):
-        for col_zero_item in (self.table.item(item.row(), 0) for item in self.table.selectedItems()):
+        for col_zero_item in (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems()):
             if col_zero_item.is_deleted:
                 if show_error:
                     error_dialog(self, _('Selection contains deleted items'),
@@ -664,9 +726,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         return False
 
     def rename_tag(self):
-        if self.table.currentColumn() != 0:
+        if self.table.currentColumn() != self.VALUE_COLUMN:
             return
-        item = self.table.item(self.table.currentRow(), 0)
+        item = self.table.item(self.table.currentRow(), self.VALUE_COLUMN)
         self._rename_tag(item)
 
     def _rename_tag(self, item):
@@ -680,7 +742,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                            'to do this?')+'<br>'):
                 return
         self.table.blockSignals(True)
-        for col_zero_item in (self.table.item(item.row(), 0) for item in self.table.selectedItems()):
+        for col_zero_item in (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems()):
             # undelete any deleted items
             if col_zero_item.is_deleted:
                 col_zero_item.set_is_deleted(False)
@@ -691,7 +753,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.editItem(item)
 
     def delete_pressed(self):
-        if self.table.currentColumn() == 0:
+        if self.table.currentColumn() == self.VALUE_COLUMN:
             self.delete_tags()
             return
         if not confirm(
@@ -704,7 +766,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def delete_tags(self):
         # This check works because we ensure that the selection is in only one column
-        if self.table.currentItem().column() != 0:
+        if self.table.currentItem().column() != self.VALUE_COLUMN:
             return
         # We know the selected items are in column zero
         deletes = self.table.selectedItems()
@@ -733,14 +795,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             row = item.row()
             orig = self.table.item(row, 2)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
-            link = self.table.item(row, 3)
+            link = self.table.item(row, self.LINK_COLUMN)
             link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
             link.setIcon(QIcon.ic('trash.png'))
         self.table.blockSignals(False)
         if row >= self.table.rowCount():
             row = self.table.rowCount() - 1
         if row >= 0:
-            self.table.scrollToItem(self.table.item(row, 0))
+            self.table.scrollToItem(self.table.item(row, self.VALUE_COLUMN))
 
     def record_sort(self, section):
         # Note what sort was done so we can redo it when the table is rebuilt
@@ -753,7 +815,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # We don't bother with cleaning out the deleted links because the db
         # interface ignores links for values that don't exist. The caller must
         # process deletes and renames first so the names are correct.
-        self.links = {self.table.item(r, 0).text():self.table.item(r, 3).text()
+        self.links = {self.table.item(r, self.VALUE_COLUMN).text():self.table.item(r, self.LINK_COLUMN).text()
                       for r in range(self.table.rowCount())}
         self.save_geometry()
 
