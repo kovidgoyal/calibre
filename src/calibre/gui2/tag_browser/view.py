@@ -24,6 +24,7 @@ from calibre.gui2 import (
     FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data,
     question_dialog, rating_font,
 )
+from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tag_browser.model import (
     COUNT_ROLE, DRAG_IMAGE_ROLE, TAG_SEARCH_STATES, TagsModel, TagTreeItem,
@@ -522,6 +523,9 @@ class TagsView(QTreeView):  # {{{
             return
         from calibre.gui2.ui import get_gui
         try:
+            if action == 'edit_note':
+                EditNoteDialog(category, extra, self.db).exec()
+                return
             if action == 'dont_collapse_category':
                 if key not in extra:
                     extra.append(key)
@@ -843,6 +847,13 @@ class TagsView(QTreeView):  # {{{
                             m.addAction(self.minus_icon,
                                 _('Remove %s from selected books') % display_name(tag),
                                 partial(self.context_menu_handler, action='remove_tag', index=index))
+
+                        item_id = self.db.new_api.get_item_id(tag.category, tag.original_name)
+                        has_note = bool(self.db.new_api.notes_for(tag.category, item_id))
+                        self.context_menu.addAction(self.edit_metadata_icon,
+                            (_('Edit note for %s') if has_note else _('Create note for %s'))%display_name(tag),
+                            partial(self.context_menu_handler, action='edit_note',
+                                    index=index, extra=item_id, category=tag.category))
 
                     elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
