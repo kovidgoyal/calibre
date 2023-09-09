@@ -899,6 +899,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         ans.setHtml(html)
         return ans
 
+    def remove_image_at(self, cursor_pos):
+        c = self.textCursor()
+        c.clearSelection()
+        c.setPosition(cursor_pos)
+        fmt = c.charFormat()
+        if fmt.isImageFormat():
+            c.deletePreviousChar()
+
     def align_image_at(self, cursor_pos, alignment):
         c = self.textCursor()
         c.clearSelection()
@@ -941,7 +949,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 pos = QTextFrameFormat.Position.InFlow
                 if len(cf) == 1:
                     pos = cf[0].frameFormat().position()
-                align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Change image alignment...'))
+                align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Image...'))
                 def a(text, epos):
                     ac = align_menu.addAction(text)
                     ac.setCheckable(True)
@@ -951,6 +959,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
                 a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
                 a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
+                align_menu.addSeparator()
+                align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image')).triggered.connect(partial(self.remove_image_at, c.position()))
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
