@@ -64,6 +64,8 @@ def test_cache_api(self: 'NotesTest'):
     h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
     h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
     cache.set_notes_for('authors', author_id, doc, resource_hashes=(h1, h2))
+    nd = cache.notes_data_for('authors', author_id)
+    self.ae(nd, {'id': 1, 'searchable_text': authors[0] + '\n' + doc, 'doc': doc, 'resource_hashes': frozenset({h1, h2})})
     # test renaming to a new author preserves notes
     cache.rename_items('authors', {author_id: 'renamed author'})
     raid = cache.get_item_id('authors', 'renamed author')
