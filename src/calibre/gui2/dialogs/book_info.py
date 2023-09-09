@@ -15,7 +15,7 @@ from qt.core import (
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import (
-    create_open_cover_with_menu, css, details_context_menu_event, render_html, set_html,
+    create_open_cover_with_menu, resolved_css, details_context_menu_event, render_html, set_html,
 )
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
@@ -123,7 +123,7 @@ class Details(HTMLDisplay):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
         self.edit_metadata = getattr(parent, 'edit_metadata', None)
-        self.setDefaultStyleSheet(css())
+        self.setDefaultStyleSheet(resolved_css())
         self.allow_context_menu = allow_context_menu
         self.is_locked = is_locked
 
