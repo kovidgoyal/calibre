@@ -234,6 +234,8 @@ class NoteEditor(Editor):
     editor_class = NoteEditorWidget
 
     def get_doc(self):
+        self.editor.referenced_resources = set()
+        self.editor.searchable_text = ''
         html = self.editor.html
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
