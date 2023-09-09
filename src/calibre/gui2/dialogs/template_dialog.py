@@ -548,7 +548,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 elif fm[col]['datatype'] == 'bool':
                     mi.set(col, False)
                 elif fm[col]['is_multiple']:
-                    mi.set(col, (col,))
+                    mi.set(col, [col])
                 else:
                     mi.set(col, col, 1)
             mi = (mi, )
