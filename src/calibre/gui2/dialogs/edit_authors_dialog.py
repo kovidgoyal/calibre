@@ -15,6 +15,8 @@ from qt.core import (
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
+from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+from calibre.gui2.dialogs.tag_list_editor import NotesItemWidget
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import (
@@ -207,10 +209,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.blockSignals(True)
         self.table.clear()
-        self.table.setColumnCount(3)
+        self.table.setColumnCount(4)
 
         self.table.setRowCount(len(auts_to_show))
         row = 0
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
@@ -226,13 +230,18 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
 
+            item_id = db.get_item_id('authors', name)
+            nw = NotesItemWidget(get_gui().current_db.new_api, 'authors', item_id, row)
+            nw.clicked.connect(self.notes_button_clicked)
+            self.table.setCellWidget(row, 3, nw)
+
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
             self.set_icon(link_item, id_)
             row += 1
 
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data))
-        self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link')])
+        self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link'), _('Notes')])
 
         if self.last_sorted_by == 'sort':
             self.author_sort_order = 1 - self.author_sort_order
@@ -275,6 +284,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.find_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
+
+    def notes_button_clicked(self, w, field, item_id, db):
+        EditNoteDialog(field, item_id, db).exec()
+        w.set_checked()
 
     def row_height_changed(self, row, old, new):
         self.table.verticalHeader().blockSignals(True)
