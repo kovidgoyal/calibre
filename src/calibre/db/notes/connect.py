@@ -224,7 +224,7 @@ class Notes:
                 INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING notes.id;
             ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
         else:
-            conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=?', (marked_up_text, searchable_text))
+            conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=? WHERE id=?', (marked_up_text, searchable_text, note_id))
         if resources_to_potentially_remove:
             self.remove_resources(conn, note_id, resources_to_potentially_remove)
         if resources_to_add:
