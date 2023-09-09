@@ -680,6 +680,11 @@ class Cache:
     def notes_for(self, field, item_id) -> str:
         return self.backend.notes_for(field, item_id)
 
+    @read_api
+    def notes_data_for(self, field, item_id) -> str:
+        ' Return all notes data as a dict or None if note does not exist '
+        return self.backend.notes_data_for(field, item_id)
+
     @write_api
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=(), remove_unused_resources=False) -> int:
         return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes, remove_unused_resources)
