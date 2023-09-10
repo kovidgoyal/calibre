@@ -230,9 +230,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
 
-            item_id = db.get_item_id('authors', name)
-            nw = NotesItemWidget(get_gui().current_db.new_api, 'authors', item_id, row)
-            nw.clicked.connect(self.notes_button_clicked)
+            nw = NotesItemWidget(get_gui().current_db, 'authors', name)
             self.table.setCellWidget(row, 3, nw)
 
             self.set_icon(name_item, id_)
@@ -284,10 +282,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.find_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
-
-    def notes_button_clicked(self, w, field, item_id, db):
-        EditNoteDialog(field, item_id, db).exec()
-        w.set_checked()
 
     def row_height_changed(self, row, old, new):
         self.table.verticalHeader().blockSignals(True)
