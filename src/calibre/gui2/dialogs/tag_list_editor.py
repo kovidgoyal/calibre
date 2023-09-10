@@ -146,16 +146,40 @@ class EditColumnDelegate(QItemDelegate):
 
 
 class NotesItemWidget(QWidget):
+    '''
+    This is a self-contained widget for manipulating notes. It can be used in a
+    table (as a cellWidget) or in a layout. It currently contains a check box
+    indicating that the item has a note, and buttons to edit/create or delete a
+    note.
+    '''
 
-    clicked = pyqtSignal(object, object, object, object)
-    icon = QIcon.ic('edit_input.png')
+    '''
+    This signal is emitted when a note is edited, after the notes editor
+    returns, or deleted. It is provided in case the using class wants to know if
+    a note has possibly changed. If not then using this signal isn't required.
+    Parameters: self (this widget), field, item_id, note, db (new_api)
+    '''
+    note_edited = pyqtSignal(object, object, object, object, object)
 
-    def __init__(self, db, field, item_id, row):
+    edit_icon = QIcon.ic('edit_input.png')
+    delete_icon = QIcon.ic('trash.png')
+
+    def __init__(self, db, field, item_id):
+        '''
+        :param db: A database instance, either old or new api
+        :param field: the lookup name of a field
+        :param item_id: Either the numeric item_id of an item in the field or
+            the item's string value
+        '''
         super().__init__()
-        self.row = row
+        self.db = db = db.new_api
         self.field = field
-        self.item_id = item_id
-        self.db = db
+        if isinstance(item_id, str):
+            self.item_id = db.get_item_id(field, item_id)
+            if self.item_id is None:
+                raise ValueError(f"The item {item_id} doesn't exist")
+        else:
+            self.item_id = item_id
 
         l = QHBoxLayout()
         l.setContentsMargins(2, 0, 0, 0)
@@ -163,28 +187,62 @@ class NotesItemWidget(QWidget):
         cb = self.cb = QCheckBox()
         cb.setEnabled(False)
         l.addWidget(cb)
-        tb = self.tb = QToolButton()
-        tb.setIcon(self.icon)
-        tb.clicked.connect(self.tb_clicked)
-        l.addWidget(tb)
+
+        editb = self.edit_button = QToolButton()
+        editb.setIcon(self.edit_icon)
+        editb.clicked.connect(self.edit_note)
+        editb.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(editb)
+
+        delb = self.delete_button = QToolButton()
+        delb.setIcon(self.delete_icon)
+        delb.clicked.connect(self.delete_note)
+        delb.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(delb)
+
         l.addStretch(3)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.set_checked()
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
-    def keyPressEvent(self, ev):
-        # Use this instead of focusProxy() because fp() changes selection behavior
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return, Qt.Key.Key_Space):
-            ev.accept()
-            self.tb_clicked()
+    @classmethod
+    def get_item_id(cls, db, field: str, value: str):
+        return db.new_api.get_item_id(field, value)
+
+    def show_context_menu(self, point):
+        m = QMenu()
+        ac = m.addAction(self.edit_icon, _('Edit note') if self.cb.isChecked() else _('Create note'))
+        ac.triggered.connect(self.edit_button_clicked)
+
+        ac = m.addAction(self.delete_icon, _('Delete note'))
+        ac.setEnabled(self.cb.isChecked())
+        ac.triggered.connect(self.delete_button_clicked)
+
+        m.exec(self.mapToGlobal(point))
+
+    def edit_note(self):
+        EditNoteDialog(self.field, self.item_id, self.db).exec()
+        self.set_checked()
+
+    def delete_note(self):
+        if not question_dialog(self, _('Delete note?'),
+               '<p>'+_('The note will be immediately deleted. There is no undo. '
+                       'Do you want to do this?')+'<br>'):
             return
-        return super().keyPressEvent(ev)
-
-    def tb_clicked(self):
-        self.clicked.emit(self, self.field, self.item_id, self.db)
+        self.db.set_notes_for(self.field, self.item_id, '')
+        self.set_checked()
 
     def set_checked(self):
-        t = self.db.notes_for(self.field, self.item_id)
-        self.cb.setChecked(bool(t))
+        notes = self.db.notes_for(self.field, self.item_id)
+        t = bool(notes)
+        self.cb.setChecked(t)
+        self.delete_button.setEnabled(t)
+        self.note_edited.emit(self, self.field, self.item_id, notes, self.db)
+
+    def is_checked(self):
+        # returns True if the checkbox is checked, meaning the note contains text
+        return self.cb.isChecked()
 
 
 class TagListEditor(QDialog, Ui_TagListEditor):
@@ -559,8 +617,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
             if self.category is not None:
                 from calibre.gui2.ui import get_gui
-                nw = NotesItemWidget(get_gui().current_db.new_api, self.category, _id, row)
-                nw.clicked.connect(self.notes_button_clicked)
+                nw = NotesItemWidget(get_gui().current_db, self.category, _id)
                 self.table.setCellWidget(row, 4, nw)
 
         # re-sort the table
@@ -577,10 +634,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.search_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
-
-    def notes_button_clicked(self, w, field, item_id, db):
-        EditNoteDialog(field, item_id, db).exec()
-        w.set_checked()
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
