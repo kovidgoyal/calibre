@@ -152,7 +152,7 @@ class Quickview(QDialog, Ui_Quickview):
     tab_pressed_signal       = pyqtSignal(object, object)
     quickview_closed         = pyqtSignal()
 
-    def __init__(self, gui, row, toggle_shortcut):
+    def __init__(self, gui, row, toggle_shortcut, focus_booklist_shortcut=None):
         self.is_pane = gprefs.get('quickview_is_pane', False)
         if not self.is_pane:
             QDialog.__init__(self, None, flags=Qt.WindowType.Window)
@@ -296,14 +296,24 @@ class Quickview(QDialog, Ui_Quickview):
 
         # Add the quickview toggle as a shortcut for the close button
         # Don't add it if it identical to the current &X shortcut because that
-        # breaks &X
-        if (not self.is_pane and toggle_shortcut and
-                             self.close_button.shortcut() != toggle_shortcut):
-            toggle_sc = QShortcut(toggle_shortcut, self.close_button)
-            toggle_sc.activated.connect(lambda: self.close_button_clicked())
-            toggle_sc.setEnabled(True)
-            self.close_button.setToolTip(_('Alternate shortcut: ') +
-                                         toggle_shortcut.toString())
+        # breaks &X. Also add the focus booklist shortcut
+        if not self.is_pane:
+            if toggle_shortcut and self.close_button.shortcut() != toggle_shortcut:
+                toggle_sc = QShortcut(toggle_shortcut, self.close_button)
+                toggle_sc.activated.connect(lambda: self.close_button_clicked())
+                toggle_sc.setEnabled(True)
+                self.close_button.setToolTip(_('Alternate shortcut: ') +
+                                             toggle_shortcut.toString())
+            if focus_booklist_shortcut is not None:
+                toggle_sc = QShortcut(focus_booklist_shortcut, self)
+                toggle_sc.activated.connect(self.focus_booklist)
+                toggle_sc.setEnabled(True)
+
+    def focus_booklist(self):
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        gui.activateWindow()
+        gui.focus_current_view()
 
     def delayed_slave(self, current, func=None, dex=None):
         self.slave_timers[dex].stop()

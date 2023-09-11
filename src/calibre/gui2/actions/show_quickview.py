@@ -133,7 +133,8 @@ class ShowQuickviewAction(InterfaceAction):
             return
         self.qv_button.set_state_to_hide()
         index = self.gui.library_view.currentIndex()
-        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut())
+        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(),
+                                          focus_booklist_shortcut=self.focus_bl_action.shortcut())
 
         self.current_instance.reopen_after_dock_change.connect(self.open_quickview)
         self.current_instance.show()
