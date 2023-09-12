@@ -127,17 +127,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="4">
-    <widget class="QLabel">
-     <property name="text">
-      <string>Notes changes are immediate</string>
-     </property>
-     <property name="toolTip">
-      <string>Creating or changing a note has immediate effect. They are not
-reverted by undo or canceling this dialog</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
