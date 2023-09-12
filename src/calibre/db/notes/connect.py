@@ -172,7 +172,8 @@ class Notes:
                 rpath = make_long_path_useable(self.path_for_resource(rhash))
                 if os.path.exists(rpath):
                     rdest = os.path.join(destdir, 'res-'+rname)
-                    copyfile_using_links(rpath, make_long_path_useable(rdest), dest_is_dir=False)
+                    with suppress(shutil.SameFileError):
+                        copyfile_using_links(rpath, make_long_path_useable(rdest), dest_is_dir=False)
             self.trim_retired_dir()
 
     def unretire(self, conn, field_name, item_id, item_value) -> int:
