@@ -150,7 +150,7 @@ class NotesItemWidget(QWidget):
     This is a self-contained widget for manipulating notes. It can be used in a
     table (as a cellWidget) or in a layout. It currently contains a check box
     indicating that the item has a note, and buttons to edit/create or delete a
-    note.
+    note, or undo a deletion.
     '''
 
     '''
@@ -163,6 +163,7 @@ class NotesItemWidget(QWidget):
 
     edit_icon = QIcon.ic('edit_input.png')
     delete_icon = QIcon.ic('trash.png')
+    undo_delete_icon = QIcon.ic('edit-undo.png')
 
     def __init__(self, db, field, item_id):
         '''
@@ -180,6 +181,7 @@ class NotesItemWidget(QWidget):
                 raise ValueError(f"The item {item_id} doesn't exist")
         else:
             self.item_id = item_id
+        self.can_undo = False
 
         l = QHBoxLayout()
         l.setContentsMargins(2, 0, 0, 0)
@@ -188,19 +190,20 @@ class NotesItemWidget(QWidget):
         cb.setEnabled(False)
         l.addWidget(cb)
 
-        editb = self.edit_button = QToolButton()
-        editb.setIcon(self.edit_icon)
-        editb.clicked.connect(self.edit_note)
-        editb.setContentsMargins(0, 0, 0, 0)
-        l.addWidget(editb)
-
-        delb = self.delete_button = QToolButton()
-        delb.setIcon(self.delete_icon)
-        delb.clicked.connect(self.delete_note)
-        delb.setContentsMargins(0, 0, 0, 0)
-        l.addWidget(delb)
-
+        self.buttons = {}
+        for button_data in (('edit', 'Edit or create the note. Changes cannot be undone or cancelled'),
+                            ('delete', 'Delete the note'),
+                            ('undo_delete', 'Undo the deletion')):
+            button_name = button_data[0]
+            tool_tip = button_data[1]
+            b = self.buttons[button_name] = QToolButton()
+            b.setIcon(getattr(self, button_name + '_icon'))
+            b.setToolTip(tool_tip)
+            b.clicked.connect(getattr(self, 'do_' + button_name))
+            b.setContentsMargins(0, 0, 0, 0)
+            l.addWidget(b)
         l.addStretch(3)
+
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.set_checked()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -213,31 +216,41 @@ class NotesItemWidget(QWidget):
     def show_context_menu(self, point):
         m = QMenu()
         ac = m.addAction(self.edit_icon, _('Edit note') if self.cb.isChecked() else _('Create note'))
-        ac.triggered.connect(self.edit_button_clicked)
+        ac.triggered.connect(self.do_edit)
 
         ac = m.addAction(self.delete_icon, _('Delete note'))
         ac.setEnabled(self.cb.isChecked())
-        ac.triggered.connect(self.delete_button_clicked)
+        ac.triggered.connect(self.do_delete)
+
+        ac = m.addAction(self.delete_icon, _('Undo delete'))
+        ac.setEnabled(self.can_undo)
+        ac.triggered.connect(self.do_undo_delete)
 
         m.exec(self.mapToGlobal(point))
 
-    def edit_note(self):
-        EditNoteDialog(self.field, self.item_id, self.db).exec()
+    def do_edit(self):
+        accepted = EditNoteDialog(self.field, self.item_id, self.db).exec()
+        # Continue to allow an undo if it was allowed before and the dialog was cancelled.
+        self.can_undo = not accepted and self.can_undo
         self.set_checked()
 
-    def delete_note(self):
-        if not question_dialog(self, _('Delete note?'),
-               '<p>'+_('The note will be immediately deleted. There is no undo. '
-                       'Do you want to do this?')+'<br>'):
-            return
+    def do_delete(self):
         self.db.set_notes_for(self.field, self.item_id, '')
+        self.can_undo = True
         self.set_checked()
+
+    def do_undo_delete(self):
+        if self.can_undo:
+            self.db.unretire_note_for(self.field, self.item_id)
+            self.can_undo = False
+            self.set_checked()
 
     def set_checked(self):
         notes = self.db.notes_for(self.field, self.item_id)
         t = bool(notes)
         self.cb.setChecked(t)
-        self.delete_button.setEnabled(t)
+        self.buttons['delete'].setEnabled(t)
+        self.buttons['undo_delete'].setEnabled(self.can_undo)
         self.note_edited.emit(self, self.field, self.item_id, notes, self.db)
 
     def is_checked(self):
