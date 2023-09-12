@@ -204,6 +204,13 @@ def test_save_to(src, dest):
         print('Wrote PDF of size:', out.tell())
 
 
+def test_roundtrip(src, dest):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    p.open(src)
+    p.save(dest)
+
+
 def test_podofo():
     import tempfile
     from calibre.ebooks.metadata.book.base import Metadata
