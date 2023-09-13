@@ -30,6 +30,7 @@ if past_edition:
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu'
     __author__ = 'unkn0wn'
+    description = 'Articles from The Hindu, Today\'s Paper.'
     language = 'en_IN'
     no_stylesheets = True
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
