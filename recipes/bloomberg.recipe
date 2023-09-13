@@ -170,14 +170,14 @@ class Bloomberg(BasicNewsRecipe):
                             caption = '<span class="cap">' + data['lede']['alt'] + '</span>'
 
         if m:
-            time.sleep(5)
+            time.sleep(3)
             body = data['body']
         elif m2:
             body = ''
             body_data = data['body']['content']
             for x in body_data:
                 body += get_contents(x)
-            pause = random.choice((4, 5, 6, 7, 8, 9))
+            pause = random.choice((3, 4, 5, 6))
             self.log('Delay: ', pause, ' seconds')
             time.sleep(pause)
         return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
