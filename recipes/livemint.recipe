@@ -81,7 +81,7 @@ class LiveMint(BasicNewsRecipe):
         extra_css = '''
             img {display:block; margin:0 auto;}
             #img-cap {font-size:small; text-align:center;}
-            .summary, .highlights {
+            .summary, .highlights, .synopsis {
                 font-weight:normal !important; font-style:italic; color:#202020;
             }
             h2 {font-size:normal !important;}
