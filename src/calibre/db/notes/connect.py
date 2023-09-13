@@ -158,11 +158,14 @@ class Notes:
             f.write(SEP)
             f.write('\n'.join(resource_hashes).encode('utf-8'))
 
+    def path_to_retired_dir_for_item(self, field_name, item_id, item_value):
+        key = icu_lower(item_value or '')
+        return os.path.join(self.retired_dir, hash_key(f'{field_name} {key}'))
+
     def retire_entry(self, field_name, item_id, item_value, resources, note_id):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         if os.path.exists(path):
-            key = icu_lower(item_value or '')
-            destdir = os.path.join(self.retired_dir, hash_key(f'{field_name} {key}'))
+            destdir = self.path_to_retired_dir_for_item(field_name, item_id, item_value)
             os.makedirs(make_long_path_useable(destdir), exist_ok=True)
             dest = os.path.join(destdir, DOC_NAME)
             os.replace(path, make_long_path_useable(dest))
@@ -177,8 +180,7 @@ class Notes:
             self.trim_retired_dir()
 
     def unretire(self, conn, field_name, item_id, item_value) -> int:
-        key = icu_lower(item_value or '')
-        srcdir = make_long_path_useable(os.path.join(self.retired_dir, hash_key(f'{field_name} {key}')))
+        srcdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, item_id, item_value))
         note_id = -1
         if not os.path.exists(srcdir) or self.note_id_for(conn, field_name, item_id) is not None:
             return note_id
@@ -198,6 +200,10 @@ class Notes:
         if note_id > -1:
             remove_with_retry(srcdir, is_dir=True)
         return note_id
+
+    def remove_retired_entry(self, field_name, item_id, item_value):
+        srcdir = self.path_to_retired_dir_for_item(field_name, item_id, item_value)
+        remove_with_retry(srcdir, is_dir=True)
 
     def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(), searchable_text=copy_marked_up_text):
         if searchable_text is copy_marked_up_text:
@@ -221,6 +227,7 @@ class Notes:
         resources_to_potentially_remove = old_resources - new_resources
         resources_to_add = new_resources - old_resources
         if note_id is None:
+            self.remove_retired_entry(field_name, item_id, item_value)
             note_id = conn.get('''
                 INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING notes.id;
             ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
