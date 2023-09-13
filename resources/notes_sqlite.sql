@@ -3,6 +3,8 @@ CREATE TABLE notes_db.notes ( id INTEGER PRIMARY KEY AUTOINCREMENT,
 	colname TEXT NOT NULL COLLATE NOCASE,
     doc TEXT NOT NULL DEFAULT '',
     searchable_text TEXT NOT NULL DEFAULT '',
+    ctime REAL DEFAULT (unixepoch('subsec')),
+    mtime REAL DEFAULT (unixepoch('subsec')),
     UNIQUE(item, colname)
 );
 
@@ -41,6 +43,7 @@ BEGIN
     INSERT INTO notes_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
     INSERT INTO notes_fts_stemmed(notes_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
     INSERT INTO notes_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    UPDATE notes SET mtime=unixepoch('subsec') WHERE id = OLD.id;
 END;
 
 CREATE TRIGGER notes_db.notes_db_resources_delete_trg BEFORE DELETE ON notes_db.resources 
