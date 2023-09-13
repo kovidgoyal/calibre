@@ -55,6 +55,16 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
     self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
 
+    # test that retired entries are removed when setting a non-empty value
+    h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
+    cache.set_notes_for('authors', authors[0], doc2, resource_hashes=(h1,))
+    self.ae(len(os.listdir(notes.retired_dir)), 0)
+    cache.set_notes_for('authors', authors[0], '', resource_hashes=())
+    self.ae(len(os.listdir(notes.retired_dir)), 1)
+    cache.set_notes_for('authors', authors[0], doc2, resource_hashes=(h1,))
+    self.ae(len(os.listdir(notes.retired_dir)), 0)
+    cache.set_notes_for('authors', authors[0], '', resource_hashes=())
+    self.ae(len(os.listdir(notes.retired_dir)), 1)
 
 def test_cache_api(self: 'NotesTest'):
     cache, notes = self.create_notes_db()
