@@ -624,10 +624,10 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     # Set skip_dialog_msg to a message displayed to the user
     skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
     skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
-    # Override icon (QIcon to be used as the icon for this dialog or string for I())
+    # Override icon (QIcon to be used as the icon for this dialog or string for QIcon.ic())
     override_icon=None,
     # Change the text/icons of the yes and no buttons.
-    # The icons must be QIcon objects or strings for I()
+    # The icons must be QIcon objects or strings for QIcon.ic()
     yes_text=None, no_text=None, yes_icon=None, no_icon=None,
     # Add an Abort button which if clicked will cause this function to raise
     # the Aborted exception

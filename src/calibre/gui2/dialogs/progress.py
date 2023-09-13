@@ -9,7 +9,7 @@ from qt.core import (
     QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar, QSize,
     QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
 
-from calibre.gui2 import elided_text
+from calibre.gui2 import elided_text, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 
 
@@ -17,8 +17,9 @@ class ProgressDialog(QDialog):
 
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None):
+    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None, cancel_confirm_msg=''):
         QDialog.__init__(self, parent)
+        self.cancel_confirm_msg = cancel_confirm_msg
         if icon is None:
             self.l = l = QVBoxLayout(self)
         else:
@@ -113,6 +114,12 @@ class ProgressDialog(QDialog):
         self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
 
     def _canceled(self, *args):
+        if self.cancel_confirm_msg:
+            if not question_dialog(
+                self, _('Are you sure?'), self.cancel_confirm_msg, override_icon='dialog_warning.png',
+                yes_text=_('Yes, abort'), no_text=_('No, keep copying')
+            ):
+                return
         self.canceled = True
         self.button_box.setDisabled(True)
         self.title = _('Aborting...')
