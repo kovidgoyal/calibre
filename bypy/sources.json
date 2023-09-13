@@ -767,9 +767,9 @@
     {
         "name": "apsw",
         "unix": {
-            "filename": "apsw-3.36.0-r1.zip",
-            "hash": "sha256:17355c39a8cdb9b9cd75b76d883b624c0dd05f80a6677c693b67c343c2381871",
-            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.36.0-r1/{filename}"]
+            "filename": "apsw-3.43.0.0.zip",
+            "hash": "sha256:7440d5f976a369ab87477e064545a8a62a93e413ead7bfe0be4efc75b1f30bb0",
+            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.43.0.0/{filename}"]
         }
     },
 

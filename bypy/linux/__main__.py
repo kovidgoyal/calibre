@@ -13,13 +13,14 @@ import time
 from functools import partial
 
 from bypy.constants import (
-    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version
+    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version,
 )
 from bypy.freeze import (
-    extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
+    extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
+    path_to_freeze_dir,
 )
 from bypy.utils import (
-    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
+    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk,
 )
 
 j = os.path.join
@@ -90,9 +91,8 @@ def ignore_in_lib(base, items, ignored_dirs=None):
     for name in items:
         path = j(base, name)
         if os.path.isdir(path):
-            if name in ignored_dirs or not os.path.exists(j(path, '__init__.py')):
-                if name != 'plugins':
-                    ans.append(name)
+            if name != 'plugins' and (name in ignored_dirs or not is_package_dir(path)):
+                ans.append(name)
         else:
             if name.rpartition('.')[-1] not in ('so', 'py'):
                 ans.append(name)
@@ -112,7 +112,7 @@ def import_site_packages(srcdir, dest):
                 src = os.path.abspath(j(srcdir, line))
                 if os.path.exists(src) and os.path.isdir(src):
                     import_site_packages(src, dest)
-        elif os.path.exists(j(f, '__init__.py')):
+        elif is_package_dir(f):
             shutil.copytree(f, j(dest, x), ignore=ignore_in_lib)
 
 
