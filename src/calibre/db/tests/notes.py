@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os
+import os, time
 
 from calibre.db.tests.base import BaseTest
 
@@ -75,7 +75,14 @@ def test_cache_api(self: 'NotesTest'):
     h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
     cache.set_notes_for('authors', author_id, doc, resource_hashes=(h1, h2))
     nd = cache.notes_data_for('authors', author_id)
-    self.ae(nd, {'id': 1, 'searchable_text': authors[0] + '\n' + doc, 'doc': doc, 'resource_hashes': frozenset({h1, h2})})
+    self.ae(nd, {'id': 1, 'ctime': nd['ctime'], 'mtime': nd['ctime'], 'searchable_text': authors[0] + '\n' + doc,
+                 'doc': doc, 'resource_hashes': frozenset({h1, h2})})
+    time.sleep(0.01)
+    cache.set_notes_for('authors', author_id, doc, resource_hashes=(h1, h2))
+    n2d = cache.notes_data_for('authors', author_id)
+    self.ae(nd['ctime'], n2d['ctime'])
+    self.assertGreater(n2d['mtime'], nd['mtime'])
+
     # test renaming to a new author preserves notes
     cache.rename_items('authors', {author_id: 'renamed author'})
     raid = cache.get_item_id('authors', 'renamed author')

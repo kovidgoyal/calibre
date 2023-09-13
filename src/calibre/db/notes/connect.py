@@ -205,7 +205,10 @@ class Notes:
         srcdir = self.path_to_retired_dir_for_item(field_name, item_id, item_value)
         remove_with_retry(srcdir, is_dir=True)
 
-    def set_note(self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(), searchable_text=copy_marked_up_text):
+    def set_note(
+            self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(),
+            searchable_text=copy_marked_up_text, ctime=None, mtime=None
+    ):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
         searchable_text = item_value + '\n' + searchable_text
@@ -228,9 +231,19 @@ class Notes:
         resources_to_add = new_resources - old_resources
         if note_id is None:
             self.remove_retired_entry(field_name, item_id, item_value)
-            note_id = conn.get('''
-                INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING notes.id;
-            ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
+            if ctime is not None or mtime is not None:
+                now = time.time()
+                if ctime is None:
+                    ctime = now
+                if mtime is None:
+                    mtime = now
+                note_id = conn.get('''
+                    INSERT INTO notes_db.notes (item,colname,doc,searchable_text,ctime,mtime) VALUES (?,?,?,?,?,?) RETURNING notes.id;
+                ''', (item_id, field_name, marked_up_text, searchable_text, ctime, mtime), all=False)
+            else:
+                note_id = conn.get('''
+                    INSERT INTO notes_db.notes (item,colname,doc,searchable_text) VALUES (?,?,?,?) RETURNING notes.id;
+                ''', (item_id, field_name, marked_up_text, searchable_text), all=False)
         else:
             conn.execute('UPDATE notes_db.notes SET doc=?,searchable_text=? WHERE id=?', (marked_up_text, searchable_text, note_id))
         if resources_to_potentially_remove:
@@ -246,11 +259,12 @@ class Notes:
         return conn.get('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
 
     def get_note_data(self, conn, field_name, item_id):
-        for (note_id, doc, searchable_text) in conn.execute(
-            'SELECT id,doc,searchable_text FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)
+        for (note_id, doc, searchable_text, ctime, mtime) in conn.execute(
+            'SELECT id,doc,searchable_text,ctime,mtime FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)
         ):
             return {
                 'id': note_id, 'doc': doc, 'searchable_text': searchable_text,
+                'ctime': ctime, 'mtime': mtime,
                 'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
             }
 
@@ -427,6 +441,7 @@ class Notes:
                     try:
                         with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(item_id)))) as f:
                             raw = f.read()
+                            st = os.stat(f.fileno())
                     except OSError as e:
                         errors.append(_('Failed to read from document for {path} with error: {error}').format(path=item_val, error=e))
                         continue
@@ -441,7 +456,7 @@ class Notes:
                         errors.append(_('Some resources for {} were missing').format(item_val))
                     resources &= known_resources
                     try:
-                        self.set_note(conn, field, item_id, item_val, doc, resources, searchable_text)
+                        self.set_note(conn, field, item_id, item_val, doc, resources, searchable_text, ctime=st.st_ctime, mtime=st.st_mtime)
                     except Exception as e:
                         errors.append(_('Failed to set note for {path} with error: {error}').format(path=item_val, error=e))
                 else:
