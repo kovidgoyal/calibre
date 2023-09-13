@@ -559,8 +559,8 @@
     {
         "name": "setuptools",
         "unix": {
-            "filename": "setuptools-57.4.0.zip",
-            "hash": "sha256:46bd862894ed22c2edff033c758c2dc026324788d758e96788e8f7c11f4e9707",
+            "filename": "setuptools-68.2.2.tar.gz",
+            "hash": "sha256:4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87",
             "urls": ["pypi"]
         }
     },
