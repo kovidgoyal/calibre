@@ -8,14 +8,16 @@ from collections import namedtuple
 from contextlib import suppress
 from functools import lru_cache, partial
 from qt.core import (
-    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon, QPalette,
-    QKeySequence, QMenu, QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect,
-    QSize, QSizePolicy, QSplitter, Qt, QTimer, QUrl, QWidget, pyqtProperty, pyqtSignal,
+    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
+    QKeySequence, QMenu, QMimeData, QPainter, QPalette, QPen, QPixmap,
+    QPropertyAnimation, QRect, QSize, QSizePolicy, QSplitter, Qt, QTimer, QUrl, QWidget,
+    pyqtProperty, pyqtSignal,
 )
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
+from calibre.db.notes.connect import RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -898,6 +900,7 @@ class BookInfo(HTMLDisplay):
     edit_book = pyqtSignal(int, object)
     edit_identifiers = pyqtSignal()
     find_in_tag_browser = pyqtSignal(object, object)
+    notes_resource_scheme = RESOURCE_URL_SCHEME
 
     def __init__(self, vertical, parent=None):
         HTMLDisplay.__init__(self, parent)
