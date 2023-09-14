@@ -78,7 +78,7 @@ dedup_images(PDFDoc *self, PyObject *args) {
             const PdfReference &canonical_ref = x.first.reference();
             for (auto &ref : x.second) {
                 if (ref != canonical_ref) {
-                    ref_map[ref] = x.first.reference();
+                    ref_map[ref] = canonical_ref;
                     objects.RemoveObject(ref).reset();
                     count++;
                 }
