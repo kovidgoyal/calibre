@@ -9,12 +9,11 @@ from qt.core import (
     QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence, QLabel, QLayout, QMenu,
     QMimeData, QPainter, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
     QSize, QSizePolicy, QStyle, QStyledItemDelegate, QStyleOptionToolButton,
-    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextDocument, QTextCursor, QTimer, QToolButton,
-    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal,
+    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QTextDocument, QTimer,
+    QToolButton, QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal,
 )
 
 from calibre import prepare_string_for_xml
-from calibre.db.notes.connect import RESOURCE_URL_SCHEME
 from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
@@ -519,6 +518,7 @@ class Separator(QWidget):  # {{{
 class HTMLDisplay(QTextBrowser):
 
     anchor_clicked = pyqtSignal(object)
+    notes_resource_scheme = ''  # set to scheme to use to load resources for notes from the current db
 
     def __init__(self, parent=None):
         QTextBrowser.__init__(self, parent)
@@ -590,7 +590,7 @@ class HTMLDisplay(QTextBrowser):
                 return QByteArray(data)
         elif qurl.scheme() == 'calibre-icon':
             return QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
-        elif qurl.scheme() == RESOURCE_URL_SCHEME and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
+        elif self.notes_resource_scheme and qurl.scheme() == self.notes_resource_scheme and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
             gui = get_gui()
             if gui is not None:
