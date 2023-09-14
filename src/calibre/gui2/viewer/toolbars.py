@@ -328,6 +328,12 @@ class ActionsToolBar(ToolBar):
                         self.open_book_at_path.emit, path))
                 else:
                     self.web_view.remove_recently_opened(path)
+        if len(m.actions()) > 0:
+            m.addSeparator()
+            m.addAction(_('Clear list of recently opened books'), self.clear_recently_opened)
+
+    def clear_recently_opened(self):
+        self.web_view.remove_recently_opened()
 
     def on_view_created(self, data):
         self.default_color_schemes = data['default_color_schemes']
