@@ -9,11 +9,12 @@ from qt.core import (
     QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence, QLabel, QLayout, QMenu,
     QMimeData, QPainter, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
     QSize, QSizePolicy, QStyle, QStyledItemDelegate, QStyleOptionToolButton,
-    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QTimer, QToolButton,
+    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextDocument, QTextCursor, QTimer, QToolButton,
     QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal,
 )
 
 from calibre import prepare_string_for_xml
+from calibre.db.notes.connect import RESOURCE_URL_SCHEME
 from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
@@ -589,6 +590,14 @@ class HTMLDisplay(QTextBrowser):
                 return QByteArray(data)
         elif qurl.scheme() == 'calibre-icon':
             return QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
+        elif qurl.scheme() == RESOURCE_URL_SCHEME and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            if gui is not None:
+                db = gui.current_db.new_api
+                resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
+                if resource is not None:
+                    return QByteArray(resource['data'])
         else:
             return QTextBrowser.loadResource(self, rtype, qurl)
 
