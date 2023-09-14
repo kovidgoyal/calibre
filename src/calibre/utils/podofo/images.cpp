@@ -110,10 +110,14 @@ dedup_images(PDFDoc *self, PyObject *args) {
                     }
                 }
                 if (changed) resources.AddKey("XObject", new_xobject);
+            } else if (dictionary_has_key_name(dict, PdfName::KeyType, "XObject") && dictionary_has_key_name(dict, PdfName::KeySubtype, "Image") && dict.HasKey("SMask") && dict.MustGetKey("SMask").IsReference()) {
+                try {
+                    const PdfReference &r = ref_map.at(dict.MustGetKey("SMask").GetReference());
+                    dict.AddKey("SMask", r);
+                } catch (const std::out_of_range &err) { (void)err; }
             }
         }
     }
-
     return Py_BuildValue("k", count);
 
 }
