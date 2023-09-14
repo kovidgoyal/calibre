@@ -261,7 +261,7 @@ class DataFilesManager(Dialog):
         m.exec(self.fview.mapToGlobal(pos))
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Return:
+        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
         return super().keyPressEvent(ev)
 
