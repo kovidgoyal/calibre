@@ -235,8 +235,8 @@
     {
         "name": "libwebp",
         "unix": {
-            "filename": "libwebp-1.2.1.tar.gz",
-            "hash": "sha256:808b98d2f5b84e9b27fdef6c5372dac769c3bda4502febbfa5031bd3c4d7d018",
+            "filename": "libwebp-1.3.2.tar.gz",
+            "hash": "sha256:2a499607df669e40258e53d0ade8035ba4ec0175244869d1025d460562aa09b4",
             "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
         }
     },
