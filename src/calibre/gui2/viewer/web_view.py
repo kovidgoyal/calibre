@@ -22,7 +22,7 @@ from calibre.constants import (
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
-from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor
+from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
@@ -631,7 +631,10 @@ class WebView(RestartingWebEngineView):
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
         key = (set_book_path.path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
-        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url, reading_rates)
+        book_in_library_url = url_for_book_in_library()
+        self.execute_when_ready(
+            'start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url,
+            reading_rates, book_in_library_url)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

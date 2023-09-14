@@ -751,7 +751,7 @@ class Overlay:
         self.hide_current_panel()
         from_read_book = short_uuid()
 
-        def show_metadata_overlay(mi, pathtoebook, lname, book_id, overlay, container):
+        def show_metadata_overlay(mi, pathtoebook, calibre_book_in_library_url, lname, book_id, overlay, container):
             container_id = ensure_id(container)
             container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
             table = E.table(class_='metadata')
@@ -808,12 +808,21 @@ class Overlay:
                         pathtoebook)
                     )
                 )
+            if calibre_book_in_library_url:
+                container.lastChild.appendChild(E.div(
+                    style='margin-top: 1ex; padding-top: 1ex;',
+                    E.a(
+                        href=calibre_book_in_library_url,
+                        class_='blue-link', title=_('Click to see this book in the main calibre program book list'),
+                        _('Show book in the main calibre program'))
+                    )
+                )
 
         book = self.view.book
         key = book.key or v'[null, 0]'
         lname, book_id = key
         book_id = int(book_id or 0)
-        panel = SimpleOverlay(self, show_metadata_overlay.bind(None, book.metadata, book.manifest.pathtoebook, lname, book_id), self.view.book.metadata.title)
+        panel = SimpleOverlay(self, show_metadata_overlay.bind(None, book.metadata, book.manifest.pathtoebook, book.calibre_book_in_library_url, lname, book_id), self.view.book.metadata.title)
         panel.from_read_book = from_read_book
         self.panels.push(panel)
         self.show_current_panel()
