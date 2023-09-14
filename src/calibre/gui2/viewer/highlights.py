@@ -249,7 +249,7 @@ class Highlights(QTreeWidget):
         self.uuid_map = {}
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
         smap = {}
-        title_counts = defaultdict(lambda : 0)
+        repeated_short_titles = defaultdict(set)
 
         @lru_cache
         def tooltip_for(tfam):
@@ -273,18 +273,20 @@ class Highlights(QTreeWidget):
                 lsec = h.get('lowest_level_section_title')
                 key = (tsec or '', lsec or '')
             short_title = lsec or tsec or _('Unknown')
-            title_counts[short_title] += 1
             section = {
                 'title': short_title, 'tfam': tfam, 'tsec': tsec, 'lsec': lsec, 'items': [], 'tooltip': tooltip_for(tfam), 'key': key,
             }
             smap.setdefault(key, section)['items'].append(h)
+            repeated_short_titles[short_title].add(key)
 
-        for section in smap.values():
-            if title_counts[section['title']] > 1:
-                if section['tfam']:
-                    section['title'] = ' ➤ '.join(section['tfam'])
-                elif section['tsec'] and section['lsec']:
-                    section['title'] = ' ➤ '.join((section['tsec'], section['lsec']))
+        for keys in repeated_short_titles.values():
+            if len(keys) > 1:
+                for key in keys:
+                    section = smap[key]
+                    if section['tfam']:
+                        section['title'] = ' ➤ '.join(tfam)
+                    elif section['tsec'] and section['lsec']:
+                        section['title'] = ' ➤ '.join((section['tsec'], section['lsec']))
 
         for secnum, (sec_key, sec) in enumerate(smap.items()):
             section = QTreeWidgetItem([sec['title']], 1)
