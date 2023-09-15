@@ -171,18 +171,19 @@ class IconResourceManager:
             sq = f'{sq}-for-{self.color_palette}-theme{ext}'
             if sq in self.override_items['']:
                 ans = os.path.join(self.override_icon_path, sq)
-        elif len(parts) == 2:
-            entries = self.override_items.get(parts[0], ())
-            if not entries and self.override_icon_path and parts[0] not in self.override_items:
+        else:
+            subfolder = '/'.join(parts[:-1])
+            entries = self.override_items.get(subfolder, ())
+            if not entries and self.override_icon_path and subfolder not in self.override_items:
                 try:
-                    self.override_items[parts[0]] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, parts[0])))
+                    self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, subfolder)))
                 except OSError:
-                    self.override_items[parts[0]] = entries = frozenset()
+                    self.override_items[subfolder] = entries = frozenset()
             if entries:
-                sq, ext = os.path.splitext(parts[1])
+                sq, ext = os.path.splitext(parts[-1])
                 sq = f'{sq}-for-{self.color_palette}-theme{ext}'
                 if sq in entries:
-                    ans = os.path.join(self.override_icon_path, parts[0], sq)
+                    ans = os.path.join(self.override_icon_path, subfolder, sq)
         return ans
 
     def __call__(self, name):
