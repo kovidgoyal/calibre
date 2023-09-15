@@ -173,6 +173,11 @@ class IconResourceManager:
                 ans = os.path.join(self.override_icon_path, sq)
         elif len(parts) == 2:
             entries = self.override_items.get(parts[0], ())
+            if not entries and self.override_icon_path and parts[0] not in self.override_items:
+                try:
+                    self.override_items[parts[0]] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, parts[0])))
+                except OSError:
+                    self.override_items[parts[0]] = entries = frozenset()
             if entries:
                 sq, ext = os.path.splitext(parts[1])
                 sq = f'{sq}-for-{self.color_palette}-theme{ext}'
