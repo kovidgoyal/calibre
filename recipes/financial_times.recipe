@@ -1,6 +1,7 @@
 import json
 import re
 from urllib.parse import quote
+from html5_parser import parse
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -16,9 +17,29 @@ class ft(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
-    extra_css = '#fig-cap{font-style:italic; text-align:left; font-size:small;}'
+
+    extra_css = '''
+        .article-info__time-byline {font-size:small; font-weight:bold; }
+        .o-topper__visual, #fig, .main-image, .n-content-image { text-align:center; font-size:small; }
+        blockquote, i { color:#5c5c5c; }
+        .o-topper__standfirst { font-weight:bold; color:#202020; } 
+        .o-topper__topic { font-size:small; color:#5c5c5c; }
+    '''
+
+    keep_only_tags = [
+        classes(
+            'body_json o-topper__topic o-topper__headline o-topper__standfirst o-topper__visual article-info__time-byline main-image'
+        ),
+        dict(name='article', attrs={'id':'article-body'})
+    ]
+    
+    remove_tags = [
+        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
+        classes('in-article-advert')
+    ]
 
     # needs_subscription = 'optional'
     #
@@ -39,6 +60,10 @@ class ft(BasicNewsRecipe):
         br = super().get_browser(*args, **kw)
         br.set_current_header('Referer',  'https://www.google.com/')
         return br
+
+    # the print_version loads all articles but sometimes it might fail due to too many requests
+    # def print_version(self, url):
+    #     return 'https://webcache.googleusercontent.com/search?q=cache:' + quote(url, safe='')
 
     def get_cover_url(self):
         from datetime import date
@@ -74,6 +99,11 @@ class ft(BasicNewsRecipe):
     def preprocess_raw_html(self, raw, *a):
         # with open('/t/raw.html', 'w') as f:
         #     f.write(raw)
+        root = parse(raw)
+        if x := root.xpath('//article[@id="article-body"]'):
+            self.log('**has article content')
+            return raw
+        self.log('**no article content')
         m = re.search(r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw)
         raw = raw[m.start():]
         raw = raw.split('>', 1)[1]
@@ -114,12 +144,11 @@ class ft(BasicNewsRecipe):
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
-        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        html = '<html><body><div class="body_json"><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
         return html
 
     def preprocess_html(self, soup):
-        for span in soup.findAll('span'):
-            p = span.findParent('p')
-            if p:
-                p['id'] = 'fig-cap'
+        for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
+            if con.find('figure'):
+                con['id'] = 'fig'
         return soup
