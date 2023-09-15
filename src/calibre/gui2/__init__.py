@@ -173,8 +173,8 @@ class IconResourceManager:
                 ans = os.path.join(self.override_icon_path, sq)
         else:
             subfolder = '/'.join(parts[:-1])
-            entries = self.override_items.get(subfolder, ())
-            if not entries and self.override_icon_path and subfolder not in self.override_items:
+            entries = self.override_items.get(subfolder)
+            if entries is None and self.override_icon_path:
                 try:
                     self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, subfolder)))
                 except OSError:
