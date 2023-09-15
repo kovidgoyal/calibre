@@ -66,13 +66,15 @@ class WSJ(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        classes('wsj-article-headline-wrap articleLead bylineWrap bigTop-hero'),
+        classes('wsj-article-headline-wrap articleLead bylineWrap bigTop-hero article-container'),
         dict(name='section', attrs={'subscriptions-section':'content'})
     ]
 
     remove_tags = [
         classes('wsj-ad newsletter-inset media-object-video media-object-podcast podcast--iframe dynamic-inset-overflow-button'),
-        dict(name='amp-iframe')  # interactive graphics
+        dict(role=["toolbar", "complementary"]),
+        dict(attrs={"aria-label": ["Sponsored Offers", "What to Read Next"]}),
+        dict(name='amp-iframe'),  # interactive graphics
     ]
 
     def preprocess_html(self, soup):
@@ -91,7 +93,7 @@ class WSJ(BasicNewsRecipe):
     def get_cover_url(self):
         from datetime import date
         cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/us/wsj.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         try:
             br.open(cover)
         except:
