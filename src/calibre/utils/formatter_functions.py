@@ -2543,6 +2543,57 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
             raise ValueError(e)
 
 
+class BuiltinGetNote(BuiltinFormatterFunction):
+    name = 'get_note'
+    arg_count = 3
+    category = 'Template database functions'
+    __doc__ = doc = _("get_note(field_name, field_value, plain_text) -- fetch the "
+                      "note for field 'field_name' with value 'field_value'. If "
+                      "'plain_text' is empty, return the note's HTML. If 'plain_text' "
+                      "is non-empty, return the note's plain text. If the note "
+                      "doesn't exist, return '' in both cases. Example: "
+                      "get_note('tags', 'Fiction', '') returns the HTML of the "
+                      "note attached to the tag 'Fiction'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
+        db = self.get_database(mi).new_api
+        try:
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                note = db.notes_data_for(field_name, item_id)
+                if note is not None:
+                    if plain_text:
+                        return note['searchable_text'].partition('\n')[2]
+                    return note['doc']
+            return ''
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinHasNote(BuiltinFormatterFunction):
+    name = 'has_note'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _("has_note(field_name, field_value) -- return '1' "
+                      "if the value 'field_value' in the field 'field_name' "
+                      "has an attached note, '' otherwise. Example: "
+                      "has_note('tags', 'Fiction') returns '1' if the tag "
+                      "'fiction' has an attached note, '' otherwise.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+        db = self.get_database(mi).new_api
+        note = None
+        try:
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                note = db.notes_data_for(field_name, item_id)
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+        return '1' if note is not None else ''
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -2558,8 +2609,8 @@ _formatter_builtins = [
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
-    BuiltinGlobals(), BuiltinHasExtraFiles(),
-    BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
+    BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
+    BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
     BuiltinListDifference(), BuiltinListEquals(), BuiltinListIntersection(),
