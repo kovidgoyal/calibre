@@ -6,6 +6,8 @@
  */
 
 #include "global.h"
+#include <functional>
+#include <string>
 
 using namespace pdf;
 
@@ -49,6 +51,10 @@ class Image {
         }
         std::size_t hash() const noexcept { return buf.size(); }
         const PdfReference& reference() const noexcept { return ref; }
+        std::string ToString() const {
+            std::hash<std::string> s;
+            return "Image(ref=" + ref.ToString() + ", width="s + std::to_string(width) + ", height="s + std::to_string(height) + ", smask="s + smask.ToString() + ", digest=" + std::to_string(s(buf)) + ")";
+        }
 };
 
 struct ImageHasher {
