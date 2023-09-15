@@ -12,7 +12,7 @@ from qt.core import (
     QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
     QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
     QPushButton, QRect, QSize, QStyle, QStyledItemDelegate, Qt, QTextDocument, QTimer,
-    QVBoxLayout, pyqtSignal, sip,
+    QVBoxLayout, pyqtSignal, sip, QDropEvent
 )
 
 from calibre import human_readable, prepare_string_for_xml
@@ -169,6 +169,41 @@ class Files(QAbstractListModel):
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
 
+class ListView(QListView):
+
+    files_dropped = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+
+    def is_drop_event_ok(self, ev: QDropEvent):
+        if ev.proposedAction() in (Qt.DropAction.CopyAction, Qt.DropAction.MoveAction, Qt.DropAction.TargetMoveAction):
+            md = ev.mimeData()
+            if md.hasUrls():
+                for url in md.urls():
+                    if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
+                        return True
+        return False
+
+    def dragEnterEvent(self, ev: QDropEvent):
+        if self.is_drop_event_ok(ev):
+            ev.accept()
+
+    def dragMoveEvent(self, ev: QDropEvent):
+        ev.accept()
+
+    def dropEvent(self, ev):
+        files = []
+        if self.is_drop_event_ok(ev):
+            md = ev.mimeData()
+            for url in md.urls():
+                if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
+                    files.append(url.toLocalFile())
+        if files:
+            self.files_dropped.emit(files)
+
+
 class DataFilesManager(Dialog):
 
     def __init__(self, db, book_id, parent=None):
@@ -197,7 +232,8 @@ class DataFilesManager(Dialog):
 
         self.delegate = d = Delegate(self)
         d.rename_requested.connect(self.rename_requested, type=Qt.ConnectionType.QueuedConnection)
-        self.fview = v = QListView(self)
+        self.fview = v = ListView(self)
+        v.files_dropped.connect(self.do_add_files)
         v.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         v.customContextMenuRequested.connect(self.context_menu)
         set_no_activate_on_click(v)
@@ -356,6 +392,9 @@ class DataFilesManager(Dialog):
         files = choose_files(self, 'choose-data-files-to-add', _('Choose files to add'))
         if not files:
             return
+        self.do_add_files(files)
+
+    def do_add_files(self, files):
         q = self.db.are_paths_inside_book_dir(self.book_id, files, DATA_DIR_NAME)
         if q:
             return error_dialog(
