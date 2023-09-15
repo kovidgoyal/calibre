@@ -17,6 +17,7 @@ class ft(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
 
