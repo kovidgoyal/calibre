@@ -196,7 +196,7 @@ class Notes:
                 rname = x.split('-', 1)[1]
                 with open(os.path.join(srcdir, x), 'rb') as rsrc:
                     resources.add(self.add_resource(conn, rsrc, rname, update_name=False))
-        note_id = self.set_note(conn, field_name, item_id, item_value, marked_up_text, resources, searchable_text)
+        note_id = self.set_note(conn, field_name, item_id, item_value, marked_up_text, resources, searchable_text, add_item_value_to_searchable_text=False)
         if note_id > -1:
             remove_with_retry(srcdir, is_dir=True)
         return note_id
@@ -207,11 +207,12 @@ class Notes:
 
     def set_note(
             self, conn, field_name, item_id, item_value, marked_up_text='', used_resource_hashes=(),
-            searchable_text=copy_marked_up_text, ctime=None, mtime=None
+            searchable_text=copy_marked_up_text, ctime=None, mtime=None, add_item_value_to_searchable_text=True
     ):
         if searchable_text is copy_marked_up_text:
             searchable_text = marked_up_text
-        searchable_text = item_value + '\n' + searchable_text
+        if add_item_value_to_searchable_text:
+            searchable_text = item_value + '\n' + searchable_text
         note_id = self.note_id_for(conn, field_name, item_id)
         old_resources = frozenset(self.resources_used_by(conn, note_id))
         if not marked_up_text:
