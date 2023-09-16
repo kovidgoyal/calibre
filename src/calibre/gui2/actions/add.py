@@ -31,7 +31,7 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 
 def get_filters():
-    archives = ['zip', 'rar']
+    archives = ['zip', 'rar', '7z']
     return [
             (_('Books'), [x for x in BOOK_EXTENSIONS if x not in archives]),
             (_('EPUB books'), ['epub', 'kepub']),
