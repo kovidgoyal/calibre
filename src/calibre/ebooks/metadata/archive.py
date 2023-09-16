@@ -104,6 +104,7 @@ class ArchiveExtract(FileTypePlugin):
     on_import = True
 
     def run(self, archive):
+        import shutil
         q = archive.lower()
         if q.endswith('.rar'):
             comic_ext = 'cbr'
@@ -132,10 +133,9 @@ class ArchiveExtract(FileTypePlugin):
             fnames = zf.namelist()
             fnames = list(filter(fname_ok, fnames))
             if is_comic(fnames):
-                ext = comic_ext
-                of = self.temporary_file('_archive_extract'+ext)
+                of = self.temporary_file('_archive_extract.'+comic_ext)
                 with closing(of), open(archive, 'rb') as f:
-                    of.write(f.read())
+                    shutil.copyfileobj(f, of)
                 return of.name
             if len(fnames) > 1 or not fnames:
                 return archive
