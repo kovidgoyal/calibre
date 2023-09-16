@@ -13,8 +13,8 @@ const calibre_device_entry_t calibre_mtp_device_table[] = {
 
     , { "Acer", 0x0502, "MT65xx Android Phone", 0x353c, DEVICE_FLAGS_ANDROID_BUGS }
 
-    , { "Amazon", 0x1949, "Kindle Fire HDX", 0x000c, DEVICE_FLAGS_ANDROID_BUGS }
+    // Remove this once it is added to upstream libmtp
+    , { "Amazon", 0x1949, "Kindle Scribe", 0x9981, DEVICE_FLAGS_ANDROID_BUGS }
 
     , { NULL, 0xffff, NULL, 0xffff, DEVICE_FLAG_NONE }
 };
-
