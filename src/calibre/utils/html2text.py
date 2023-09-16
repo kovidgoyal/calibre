@@ -5,7 +5,7 @@
 from calibre.utils.localization import _
 
 
-def html2text(html, single_line_break=True):
+def html2text(html, single_line_break=True, default_image_alt=''):
     from html2text import HTML2Text
     import re
     if isinstance(html, bytes):
@@ -16,7 +16,7 @@ def html2text(html, single_line_break=True):
             r'<\s*(?P<solidus>/?)\s*[uU]\b(?P<rest>[^>]*)>',
             r'<\g<solidus>span\g<rest>>', html)
     h2t = HTML2Text()
-    h2t.default_image_alt = _('Unnamed image')
+    h2t.default_image_alt = default_image_alt or _('Unnamed image')
     h2t.body_width = 0
     h2t.single_line_break = single_line_break
     h2t.emphasis_mark = '*'
