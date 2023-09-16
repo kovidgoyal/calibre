@@ -1029,6 +1029,13 @@ class DB:
     def restore_notes(self, report_progress):
         self.notes.restore(self.conn, self.tables, report_progress)
 
+    def import_note(self, field, item_id, html_file_path):
+        id_val = self.tables[field].id_map[item_id]
+        return self.notes.import_note(self.conn, field, item_id, id_val, html_file_path)
+
+    def export_note(self, field, item_id, dest_dir):
+        return self.notes.export_note(self.conn, field, item_id, dest_dir)
+
     def initialize_fts(self, dbref):
         self.fts = None
         if not self.prefs['fts_enabled']:
