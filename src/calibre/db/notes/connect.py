@@ -11,6 +11,7 @@ from contextlib import suppress
 from itertools import count, repeat
 from typing import Optional
 
+from calibre import sanitize_file_name
 from calibre.constants import iswindows
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize
@@ -322,6 +323,7 @@ class Notes:
                 f = open(path, 'wb')
             with f:
                 f.write(data)
+        name = sanitize_file_name(name)
         base_name, ext = os.path.splitext(name)
         c = 0
         for (existing_name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
