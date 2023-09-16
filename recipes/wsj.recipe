@@ -66,14 +66,16 @@ class WSJ(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        classes('wsj-article-headline-wrap articleLead bylineWrap bigTop-hero article-container'),
-        dict(name='section', attrs={'subscriptions-section':'content'})
+        dict(attrs={'class': lambda x: x and 'HeadlineContainer' in ''.join(x)}),
+        dict(name='main'),
     ]
 
     remove_tags = [
-        classes('wsj-ad newsletter-inset media-object-video media-object-podcast podcast--iframe dynamic-inset-overflow-button'),
+        classes(
+            'wsj-ad newsletter-inset media-object-video media-object-podcast print-header article-body-tools'
+            ' podcast--iframe dynamic-inset-overflow-button snippet-logo'),
         dict(role=["toolbar", "complementary"]),
-        dict(attrs={"aria-label": ["Sponsored Offers", "What to Read Next"]}),
+        dict(attrs={"aria-label": ["Sponsored Offers", "What to Read Next", "breadcrumbs", "Listen To Article"]}),
         dict(name='amp-iframe'),  # interactive graphics
     ]
 
