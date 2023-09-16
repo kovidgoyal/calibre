@@ -9,7 +9,7 @@ from qt.core import (
     QSize, Qt, QTableWidgetItem, QTimer, QToolButton, QWidget, pyqtSignal, sip,
 )
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre.gui2 import error_dialog, gprefs, question_dialog, choose_dir, choose_files
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -164,6 +164,8 @@ class NotesItemWidget(QWidget):
     edit_icon = QIcon.ic('edit_input.png')
     delete_icon = QIcon.ic('trash.png')
     undo_delete_icon = QIcon.ic('edit-undo.png')
+    export_icon = QIcon.ic('forward.png')
+    import_icon = QIcon.ic('back.png')
 
     def __init__(self, db, field, item_id):
         '''
@@ -193,7 +195,9 @@ class NotesItemWidget(QWidget):
         self.buttons = {}
         for button_data in (('edit', 'Edit or create the note. Changes cannot be undone or cancelled'),
                             ('delete', 'Delete the note'),
-                            ('undo_delete', 'Undo the deletion')):
+                            ('undo_delete', 'Undo the deletion'),
+                            ('export', 'Export an HTML note'),
+                            ('import', 'Import an HTML note')):
             button_name = button_data[0]
             tool_tip = button_data[1]
             b = self.buttons[button_name] = QToolButton()
@@ -226,6 +230,14 @@ class NotesItemWidget(QWidget):
         ac.setEnabled(self.can_undo)
         ac.triggered.connect(self.do_undo_delete)
 
+        ac = m.addAction(self.export_icon, _('Export HTML'))
+        ac.setEnabled(self.cb.isChecked())
+        ac.triggered.connect(self.do_export)
+
+        ac = m.addAction(self.delete_icon, _('Import HTML note'))
+        ac.setEnabled(not self.cb.isChecked())
+        ac.triggered.connect(self.do_import)
+
         m.exec(self.mapToGlobal(point))
 
     def do_edit(self):
@@ -245,11 +257,32 @@ class NotesItemWidget(QWidget):
             self.can_undo = False
             self.set_checked()
 
+    def do_export(self):
+        dest_dir = choose_dir(self, 'notes-category-export-note',
+                              _('Choose folder where the note and images are written'))
+        if dest_dir:
+            self.db.export_note(self.field, self.item_id, dest_dir)
+        pass
+
+    def do_import(self):
+        src_html = choose_files(self, 'notes-category-import-note',
+                                _('Choose the HTML file to import'),
+                                filters=([(_('HTML files'), ('html',))]),
+                                all_files=True,
+                                select_only_single_file=True)
+        print(src_html)
+        if src_html:
+            self.db.import_note(self.field, self.item_id, src_html[0])
+            self.can_undo = False
+            self.set_checked()
+
     def set_checked(self):
         notes = self.db.notes_for(self.field, self.item_id)
         t = bool(notes)
         self.cb.setChecked(t)
         self.buttons['delete'].setEnabled(t)
+        self.buttons['export'].setEnabled(t)
+        self.buttons['import'].setEnabled(not t)
         self.buttons['undo_delete'].setEnabled(self.can_undo)
         self.note_edited.emit(self, self.field, self.item_id, notes, self.db)
 
