@@ -487,6 +487,6 @@ class Notes:
         st = os.stat(html_file_path)
         doc, searchable_text, resources = import_note(html_file_path, add_resource)
         return self.set_note(
-            conn, field_name, item_id, item_value, used_resource_hashes=resources, searchable_text=searchable_text,
+            conn, field_name, item_id, item_value, marked_up_text=doc, used_resource_hashes=resources, searchable_text=searchable_text,
             ctime=st.st_ctime, mtime=st.st_mtime
         )
