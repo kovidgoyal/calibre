@@ -466,3 +466,27 @@ class Notes:
                     errors.append(_('Could not restore item: {} as not present in database').format(f'{field}/{item_id}'))
                     report_progress('', i)
         return errors
+
+    def export_note(self, conn, field_name, item_id, dest_dir):
+        nd = self.get_note_data(conn, field_name, item_id)
+        if nd is None:
+            return ''
+        from .exim import export_note
+        resources = {}
+        for rh in nd['resource_hashes']:
+            p = make_long_path_useable(self.path_for_resource(rh))
+            if os.path.exists(p):
+                for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (rh,)):
+                    resources[rh] = (p, name)
+        return export_note(nd, resources, dest_dir)
+
+    def import_note(self, conn, field_name, item_id, item_value, html_file_path):
+        from .exim import import_note
+        def add_resource(path, name):
+            return self.add_resource(conn, path, name)
+        st = os.stat(html_file_path)
+        doc, searchable_text, resources = import_note(html_file_path, add_resource)
+        return self.set_note(
+            conn, field_name, item_id, item_value, used_resource_hashes=resources, searchable_text=searchable_text,
+            ctime=st.st_ctime, mtime=st.st_mtime
+        )

@@ -705,6 +705,14 @@ class Cache:
     def unretire_note_for(self, field, item_id) -> int:
         return self.backend.unretire_note_for(field, item_id)
 
+    @read_api
+    def export_note(self, field, item_id, dest_dir):
+        return self.backend.export_note(field, item_id, dest_dir)
+
+    @write_api
+    def import_note(self, field, item_id, path_to_html_file):
+        return self.backend.import_note(field, item_id, path_to_html_file)
+
     @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
     def notes_search(
         self,
