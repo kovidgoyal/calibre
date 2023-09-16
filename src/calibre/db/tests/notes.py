@@ -2,9 +2,13 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, time
+import os
+import shutil
+import tempfile
+import time
 
 from calibre.db.tests.base import BaseTest
+from calibre.utils.resources import get_image_path
 
 
 def test_notes_api(self: 'NotesTest'):
@@ -119,6 +123,26 @@ def test_cache_api(self: 'NotesTest'):
     self.ae(cache.notes_for('#tags', tag_id), '')
     self.assertIsNone(cache.get_notes_resource(h1))
     self.assertIsNone(cache.get_notes_resource(h2))
+    # test exim of note
+    doc = '<p>test simple exim <img src="r1.png"> of note with resources <img src="r2.png">. Works or not</p>'
+    with tempfile.TemporaryDirectory() as tdir:
+        idir = os.path.join(tdir, 'i')
+        os.mkdir(idir)
+        with open(os.path.join(idir, 'index.html'), 'w') as f:
+            f.write(doc)
+        shutil.copyfile(get_image_path('lt.png'), os.path.join(idir, 'r1.png'))
+        shutil.copyfile(get_image_path('library.png'), os.path.join(idir, 'r2.png'))
+        note_id = cache.import_note('authors', author_id, f.name)
+        self.assertGreater(note_id, 0)
+        self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
+        edir = os.path.join(tdir, 'e')
+        os.mkdir(edir)
+        index_name = cache.export_note('authors', author_id, edir)
+        with open(os.path.join(edir, index_name)) as f:
+            self.assertIn(doc, f.read())
+        for x in ('r1.png', 'r2.png'):
+            with open(os.path.join(idir, x), 'rb') as a, open(os.path.join(edir, x), 'rb') as b:
+                self.assertEqual(a.read(), b.read())
 
 
 def test_fts(self: 'NotesTest'):

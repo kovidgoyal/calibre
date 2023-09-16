@@ -28,6 +28,7 @@ def export_note(note_data: dict, resources: dict[str, tuple[str, str]], dest_dir
         shutil.copy2(path, d)
     root = parse_html(note_data['doc'])
     for img in root.xpath('//img[@src]'):
+        img.attrib.pop('pre-import-src', None)
         try:
             purl = urlparse(img.get('src'))
         except Exception:
@@ -58,7 +59,7 @@ def import_note(path_to_html_file: str, add_resource) -> dict:
         src = img.attrib.pop('src')
         img.set('pre-import-src', src)
         try:
-            purl = urlparse(img.get('src'))
+            purl = urlparse(src)
         except Exception:
             continue
         if purl.scheme in ('', 'file'):
@@ -66,7 +67,7 @@ def import_note(path_to_html_file: str, add_resource) -> dict:
             if not os.path.isabs(path):
                 path = os.path.join(basedir, path)
             q = os.path.normcase(get_long_path_name(os.path.abspath(path)))
-            if q.startswith(basedir):
+            if q.startswith(basedir) and os.path.exists(make_long_path_useable(path)):
                 rhash = add_resource(make_long_path_useable(path), os.path.basename(path))
                 scheme, digest = rhash.split(':', 1)
                 img.set('src', f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}')
