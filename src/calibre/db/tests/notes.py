@@ -6,6 +6,7 @@ import os
 import shutil
 import tempfile
 import time
+from operator import itemgetter
 
 from calibre.db.tests.base import BaseTest
 from calibre.utils.resources import get_image_path
@@ -135,6 +136,7 @@ def test_cache_api(self: 'NotesTest'):
         note_id = cache.import_note('authors', author_id, f.name)
         self.assertGreater(note_id, 0)
         self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
+        res = tuple(cache.get_notes_resource(x) for x in cache.notes_resources_used_by('authors', author_id))
         exported = cache.export_note('authors', author_id)
         self.assertIn('<p>test simple exim <img src="', exported)
         from html5_parser import parse
@@ -147,10 +149,8 @@ def test_cache_api(self: 'NotesTest'):
         note_id = cache.import_note('authors', author_id, f.name)
         self.assertGreater(note_id, 0)
         self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
-        res = set()
-        for x in cache.notes_resources_used_by('authors', author_id):
-            res.add(cache.get_notes_resource(x)['name'])
-        self.ae(res, {'r 1.png', 'r 2.png'})
+        res2 = tuple(cache.get_notes_resource(x) for x in cache.notes_resources_used_by('authors', author_id))
+        self.ae(sorted(res, key=itemgetter('name')), sorted(res2, key=itemgetter('name')))
 
 
 def test_fts(self: 'NotesTest'):
