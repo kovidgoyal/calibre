@@ -102,31 +102,27 @@ class Bloomberg(BasicNewsRecipe):
         self.log('Downloading ', edition)
         self.cover_url = bw.find('img')['src'].replace('25x19', '600x800')
         soup = self.index_to_soup(edition)
-        timefmt = soup.find(**classes('section-front-header-module__title'))
-        if timefmt:
-            self.timefmt = ' [' + (self.tag_to_string(timefmt).replace('Issue', '')).strip() + ']'
+        if timefmt := soup.find(attrs={'class':lambda x: x and x.startswith('styles_MagazineTitle__')}):
+            self.timefmt = ' [' + (self.tag_to_string(timefmt).replace(' Issue', '')).strip() + ']'
 
         feeds = []
-        for div in soup.findAll('div', attrs={'class':'story-list-module__info'}):
-            h3 = div.find('h3', attrs={'class':'story-list-module__title'})
+        for div in soup.findAll(attrs={'class':lambda x: x and x.startswith(
+                ('styles_MagazineFeatures__', 'styles_MagazineStoryList__')
+            )}):
+            h3 = div.find(attrs={'class':lambda x: x and x.startswith(
+                ('styles_featuresTitle__', 'styles_magazineSectionTitle__')
+            )})
             sec = self.tag_to_string(h3)
             self.log(sec)
             articles = []
-            for art in div.findAll('article'):
-                a = art.find('a', **classes('story-list-story__info__headline-link'))
+            for art in div.findAll(attrs={'data-component':'headline'}):
+                a = art.find('a', href=True)
                 url = a['href']
                 if url.startswith('http') is False:
                     url = 'https://www.bloomberg.com' + a['href']
                 title = self.tag_to_string(a)
-                desc = ''
-                sum = art.find(**classes('story-list-story__info__summary'))
-                if sum:
-                    desc = self.tag_to_string(sum).strip()
-                by = art.find(**classes('story-list-story__info__byline'))
-                if by:
-                    desc = self.tag_to_string(by).strip() + ' | ' + desc
-                articles.append({'title': title, 'url': url, 'description': desc})
-                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+                self.log('\t', title, '\n\t\t', url)
             if articles:
                 feeds.append((sec, articles))
         return feeds
