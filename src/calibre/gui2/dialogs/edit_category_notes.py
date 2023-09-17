@@ -10,10 +10,13 @@ from qt.core import (
 )
 from typing import NamedTuple
 
+from calibre import sanitize_file_name
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.db.notes.connect import hash_data
 from calibre.db.notes.exim import export_note, import_note
-from calibre.gui2 import Application, choose_images, error_dialog, choose_save_file, choose_files
+from calibre.gui2 import (
+    Application, choose_files, choose_images, choose_save_file, error_dialog,
+)
 from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog
@@ -302,7 +305,7 @@ class EditNoteDialog(Dialog):
 
     def export_note(self):
         dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'), filters=[(_('HTML files'), ['html'])],
-                         initial_filename=f'{self.item_val}.html', all_files=False)
+                         initial_filename=f'{sanitize_file_name(self.item_val)}.html', all_files=False)
         if dest:
             html = self.edit_note_widget.editor.export_note()
             with open(dest, 'wb') as f:
