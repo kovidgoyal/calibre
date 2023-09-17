@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
+import base64
 import os
-import shutil
 from html5_parser import parse
 from lxml import html
 from urllib.parse import unquote, urlparse
 
+from calibre import guess_extension, guess_type
+from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.oeb.transforms.rasterize import data_url
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.filenames import get_long_path_name, make_long_path_useable
 from calibre.utils.html2text import html2text
-
-from .connect import DOC_NAME, RESOURCE_URL_SCHEME
 
 
 def parse_html(raw):
@@ -22,42 +23,51 @@ def parse_html(raw):
         return parse(clean_xml_chars(raw), maybe_xhtml=False, sanitize_names=True)
 
 
-def export_note(note_data: dict, resources: dict[str, tuple[str, str]], dest_dir: str) -> str:
-    for rhash, (path, name) in resources.items():
-        d = os.path.join(dest_dir, name)
-        shutil.copy2(path, d)
-    root = parse_html(note_data['doc'])
+def export_note(note_doc: str, get_resource) -> str:
+    root = parse_html(note_doc)
     for img in root.xpath('//img[@src]'):
-        img.attrib.pop('pre-import-src', None)
+        img.attrib.pop('data-pre-import-src', None)
         try:
             purl = urlparse(img.get('src'))
         except Exception:
             continue
         if purl.scheme == RESOURCE_URL_SCHEME:
             rhash = f'{purl.hostname}:{purl.path[1:]}'
-            x = resources.get(rhash)
-            if x is not None:
-                img.set('src', x[1])
+            x = get_resource(rhash)
+            if x:
+                img.set('src', data_url(guess_type(x['name'])[0], x['data']))
+                img.set('data-filename', x['name'])
 
-    shtml = html.tostring(root, encoding='utf-8')
-    with open(os.path.join(dest_dir, DOC_NAME), 'wb') as f:
-        f.write(shtml)
-    os.utime(f.name, times=(note_data['ctime'], note_data['mtime']))
-    return DOC_NAME
+    return html.tostring(root, encoding='unicode')
 
 
-def import_note(path_to_html_file: str, add_resource) -> dict:
-    path_to_html_file = path_to_html_file
-    with open(make_long_path_useable(path_to_html_file), 'rb') as f:
-        raw = f.read()
-    shtml = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
-    basedir = os.path.dirname(os.path.abspath(path_to_html_file))
-    basedir = os.path.normcase(get_long_path_name(basedir) + os.sep)
+def import_note(shtml: str | bytes, basedir: str, add_resource) -> dict:
+    shtml = xml_to_unicode(shtml, strip_encoding_pats=True, assume_utf8=True)[0]
+    basedir = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
     root = parse_html(shtml)
     resources = set()
+
+    def ar(img, path_or_data, name):
+        rhash = add_resource(path_or_data, name)
+        scheme, digest = rhash.split(':', 1)
+        img.set('src', f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}')
+        resources.add(rhash)
+
     for img in root.xpath('//img[@src]'):
         src = img.attrib.pop('src')
-        img.set('pre-import-src', src)
+        img.set('data-pre-import-src', src)
+        if src.startswith('data:'):
+            d = src.split(':', 1)[-1]
+            menc, payload = d.partition(',')
+            mt, enc = menc.partition(';')
+            if enc != 'base64':
+                continue
+            try:
+                d = base64.standard_b64decode(payload)
+            except Exception:
+                continue
+            ar(img, d, img.get('data-filename') or ('image' + guess_extension(mt, strict=False)))
+            continue
         try:
             purl = urlparse(src)
         except Exception:
@@ -65,12 +75,13 @@ def import_note(path_to_html_file: str, add_resource) -> dict:
         if purl.scheme in ('', 'file'):
             path = unquote(purl.path)
             if not os.path.isabs(path):
+                if not basedir:
+                    continue
                 path = os.path.join(basedir, path)
             q = os.path.normcase(get_long_path_name(os.path.abspath(path)))
             if q.startswith(basedir) and os.path.exists(make_long_path_useable(path)):
-                rhash = add_resource(make_long_path_useable(path), os.path.basename(path))
-                scheme, digest = rhash.split(':', 1)
-                img.set('src', f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}')
-                resources.add(rhash)
+                ar(img, make_long_path_useable(path), os.path.basename(path))
     shtml = html.tostring(root, encoding='unicode')
+    for img in root.xpath('//img[@src]'):
+        del img.attrib['src']
     return shtml, html2text(shtml, default_image_alt=' '), resources
