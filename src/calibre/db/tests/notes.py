@@ -135,14 +135,11 @@ def test_cache_api(self: 'NotesTest'):
         note_id = cache.import_note('authors', author_id, f.name)
         self.assertGreater(note_id, 0)
         self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
-        edir = os.path.join(tdir, 'e')
-        os.mkdir(edir)
-        index_name = cache.export_note('authors', author_id, edir)
-        with open(os.path.join(edir, index_name)) as f:
-            self.assertIn(doc.replace('r 1.png', 'r%201.png'), f.read())
-        for x in ('r 1.png', 'r 2.png'):
-            with open(os.path.join(idir, x), 'rb') as a, open(os.path.join(edir, x), 'rb') as b:
-                self.assertEqual(a.read(), b.read())
+        exported = cache.export_note('authors', author_id)
+        self.assertIn('<p>test simple exim <img src="', exported)
+        from html5_parser import parse
+        root = parse(exported)
+        self.ae(root.xpath('//img/@data-filename'), ['r 1.png', 'r 2.png'])
 
 
 def test_fts(self: 'NotesTest'):

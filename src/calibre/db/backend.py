@@ -1029,12 +1029,12 @@ class DB:
     def restore_notes(self, report_progress):
         self.notes.restore(self.conn, self.tables, report_progress)
 
-    def import_note(self, field, item_id, html_file_path):
+    def import_note(self, field, item_id, html, basedir, ctime, mtime):
         id_val = self.tables[field].id_map[item_id]
-        return self.notes.import_note(self.conn, field, item_id, id_val, html_file_path)
+        return self.notes.import_note(self.conn, field, item_id, id_val, html, basedir, ctime, mtime)
 
-    def export_note(self, field, item_id, dest_dir):
-        return self.notes.export_note(self.conn, field, item_id, dest_dir)
+    def export_note(self, field, item_id):
+        return self.notes.export_note(self.conn, field, item_id)
 
     def initialize_fts(self, dbref):
         self.fts = None
