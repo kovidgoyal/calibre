@@ -150,7 +150,6 @@ class EditColumnDelegate(QItemDelegate):
 
 def event(ev, me=None, super_class=None, context_menu_handler=None):
     if not me.isEnabled() and ev.type() == QEvent.MouseButtonRelease:
-        print('here')
         if ev.button() == Qt.MouseButton.RightButton:
             # let the event finish before the context menu is opened.
             QTimer.singleShot(0, partial(context_menu_handler, ev.position().toPoint()))
