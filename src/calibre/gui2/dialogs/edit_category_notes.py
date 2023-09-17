@@ -9,7 +9,9 @@ from qt.core import (
 )
 from typing import NamedTuple
 
-from calibre.db.notes.connect import RESOURCE_URL_SCHEME, hash_data
+from calibre.db.notes.connect import hash_data
+from calibre.db.constants import RESOURCE_URL_SCHEME
+from calibre.db.notes.exim import export_note
 from calibre.gui2 import Application, choose_images, error_dialog
 from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
@@ -173,25 +175,24 @@ class NoteEditorWidget(EditorWidget):
         digest = qurl.path()[1:]
         return f'{alg}:{digest}'
 
+    def get_resource(self, digest):
+        ir = self.images.get(digest)
+        if ir is not None:
+            if ir.data:
+                return {'name': ir.name, 'data': ir.data}
+            elif ir.path:
+                with open(ir.path, 'rb') as f:
+                    return {'name': ir.name, 'data': f.read()}
+        return self.db.get_notes_resource(digest)
+
     @pyqtSlot(int, 'QUrl', result='QVariant')
     def loadResource(self, rtype, qurl):
         if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
             return
         digest = self.resource_digest_from_qurl(qurl)
-        ir = self.images.get(digest)
-        ans = None
-        if ir is not None:
-            if ir.data:
-                ans = ir.data
-            elif ir.path:
-                with open(ir.path, 'rb') as f:
-                    ans = f.read()
-        else:
-            res = self.db.get_notes_resource(digest)
-            if res is not None:
-                ans = res['data']
+        ans = self.get_resource(digest)
         if ans is not None:
-            r = QByteArray(ans)
+            r = QByteArray(ans['data'])
             self.document().addResource(rtype, qurl, r)  # cache the resource
             return r
 
@@ -233,6 +234,9 @@ class NoteEditor(Editor):
         html = self.editor.html
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
+    def export(self):
+        html, _, _ = self.get_doc()
+        return export_note(html, self.editor.get_resource)
 
 
 class EditNoteWidget(QWidget):
