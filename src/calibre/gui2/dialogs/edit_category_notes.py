@@ -3,16 +3,17 @@
 
 import os
 from qt.core import (
-    QButtonGroup, QByteArray, QDialog, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, Qt, QTextDocument,
-    QTextFrameFormat, QTextImageFormat, QUrl, QVBoxLayout, QWidget, pyqtSlot,
+    QButtonGroup, QByteArray, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout,
+    QIcon, QLabel, QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, Qt,
+    QTextDocument, QTextFrameFormat, QTextImageFormat, QUrl, QVBoxLayout, QWidget,
+    pyqtSlot,
 )
 from typing import NamedTuple
 
-from calibre.db.notes.connect import hash_data
 from calibre.db.constants import RESOURCE_URL_SCHEME
-from calibre.db.notes.exim import export_note
-from calibre.gui2 import Application, choose_images, error_dialog
+from calibre.db.notes.connect import hash_data
+from calibre.db.notes.exim import export_note, import_note
+from calibre.gui2 import Application, choose_images, error_dialog, choose_save_file, choose_files
 from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog
@@ -185,6 +186,17 @@ class NoteEditorWidget(EditorWidget):
                     return {'name': ir.name, 'data': f.read()}
         return self.db.get_notes_resource(digest)
 
+    def add_resource(self, path_or_data, name):
+        if isinstance(path_or_data, str):
+            with open(path_or_data, 'rb') as f:
+                data = f.read()
+        else:
+            data = path_or_data
+        digest = hash_data(data)
+        ir = ImageResource(name, digest, data=data)
+        self.images[digest] = ir
+        return digest
+
     @pyqtSlot(int, 'QUrl', result='QVariant')
     def loadResource(self, rtype, qurl):
         if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
@@ -234,9 +246,16 @@ class NoteEditor(Editor):
         html = self.editor.html
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
-    def export(self):
-        html, _, _ = self.get_doc()
+    def export_note(self):
+        html = self.get_doc()[0]
         return export_note(html, self.editor.get_resource)
+
+    def import_note(self, path_to_html_file):
+        self.editor.images = {}
+        self.editor.setPlainText('')
+        with open(path_to_html_file, 'rb') as f:
+            html, _, _ = import_note(f.read(), os.path.dirname(os.path.abspath(path_to_html_file)), self.editor.add_resource)
+        self.editor.html = html
 
 
 class EditNoteWidget(QWidget):
@@ -276,7 +295,24 @@ class EditNoteDialog(Dialog):
         self.l = l = QVBoxLayout(self)
         self.edit_note_widget = EditNoteWidget(self.db, self.field, self.item_id, self.item_val, self)
         l.addWidget(self.edit_note_widget)
+        self.bb.addButton(_('E&xport'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.export_note)
+        self.bb.addButton(_('&Import'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.import_note)
+
         l.addWidget(self.bb)
+
+    def export_note(self):
+        dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'), filters=[(_('HTML files'), ['html'])],
+                         initial_filename=f'{self.item_val}.html', all_files=False)
+        if dest:
+            html = self.edit_note_widget.editor.export_note()
+            with open(dest, 'wb') as f:
+                f.write(html.encode('utf-8'))
+
+    def import_note(self):
+        dest = choose_files(self, 'load-imported-note', _('Import note from a file'), filters=[(_('HTML files'), ['html'])],
+                            all_files=False, select_only_single_file=True)
+        if dest:
+            self.edit_note_widget.editor.import_note(dest[0])
 
     def sizeHint(self):
         return QSize(800, 620)
