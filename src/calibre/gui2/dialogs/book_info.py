@@ -12,7 +12,7 @@ from qt.core import (
 )
 
 from calibre import fit_image
-from calibre.db.notes.connect import RESOURCE_URL_SCHEME
+from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import (
     create_open_cover_with_menu, resolved_css, details_context_menu_event, render_html, set_html,
