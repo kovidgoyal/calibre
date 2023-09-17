@@ -140,6 +140,17 @@ def test_cache_api(self: 'NotesTest'):
         from html5_parser import parse
         root = parse(exported)
         self.ae(root.xpath('//img/@data-filename'), ['r 1.png', 'r 2.png'])
+        cache.set_notes_for('authors', author_id, '')
+        with open(os.path.join(tdir, 'e.html'), 'wb') as f:
+            f.write(exported.encode('utf-8'))
+        cache.import_note('authors', author_id, f.name)
+        note_id = cache.import_note('authors', author_id, f.name)
+        self.assertGreater(note_id, 0)
+        self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
+        res = set()
+        for x in cache.notes_resources_used_by('authors', author_id):
+            res.add(cache.get_notes_resource(x)['name'])
+        self.ae(res, {'r 1.png', 'r 2.png'})
 
 
 def test_fts(self: 'NotesTest'):
