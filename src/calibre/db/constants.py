@@ -13,6 +13,7 @@ NOTES_DB_NAME = 'notes.db'
 DATA_DIR_NAME = 'data'
 DATA_FILE_PATTERN = f'{DATA_DIR_NAME}/**/*'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
+RESOURCE_URL_SCHEME = 'calres'
 
 
 @dataclass
