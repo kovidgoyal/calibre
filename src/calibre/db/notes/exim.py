@@ -58,8 +58,8 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> dict:
         img.set('data-pre-import-src', src)
         if src.startswith('data:'):
             d = src.split(':', 1)[-1]
-            menc, payload = d.partition(',')
-            mt, enc = menc.partition(';')
+            menc, payload = d.partition(',')[::2]
+            mt, enc = menc.partition(';')[::2]
             if enc != 'base64':
                 continue
             try:
