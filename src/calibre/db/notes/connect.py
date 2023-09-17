@@ -33,7 +33,6 @@ copy_marked_up_text = cmt()
 SEP = b'\0\x1c\0'
 DOC_NAME = 'doc.html'
 METADATA_EXT = '.metadata'
-RESOURCE_URL_SCHEME = 'calres'
 
 
 def hash_data(data: bytes) -> str:
@@ -467,26 +466,22 @@ class Notes:
                     report_progress('', i)
         return errors
 
-    def export_note(self, conn, field_name, item_id, dest_dir):
+    def export_note(self, conn, field_name, item_id):
         nd = self.get_note_data(conn, field_name, item_id)
         if nd is None:
             return ''
         from .exim import export_note
-        resources = {}
-        for rh in nd['resource_hashes']:
-            p = make_long_path_useable(self.path_for_resource(rh))
-            if os.path.exists(p):
-                for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (rh,)):
-                    resources[rh] = (p, name)
-        return export_note(nd, resources, dest_dir)
 
-    def import_note(self, conn, field_name, item_id, item_value, html_file_path):
+        def get_resource(rhash):
+            return self.get_resource_data(conn, rhash)
+        return export_note(nd['doc'], get_resource)
+
+    def import_note(self, conn, field_name, item_id, item_value, html, basedir, ctime=None, mtime=None):
         from .exim import import_note
-        def add_resource(path, name):
-            return self.add_resource(conn, path, name)
-        st = os.stat(html_file_path)
-        doc, searchable_text, resources = import_note(html_file_path, add_resource)
+        def add_resource(path_or_stream_or_data, name):
+            return self.add_resource(conn, path_or_stream_or_data, name)
+        doc, searchable_text, resources = import_note(html, basedir, add_resource)
         return self.set_note(
             conn, field_name, item_id, item_value, marked_up_text=doc, used_resource_hashes=resources, searchable_text=searchable_text,
-            ctime=st.st_ctime, mtime=st.st_mtime
+            ctime=ctime, mtime=mtime
         )
