@@ -5,7 +5,7 @@ import os
 import shutil
 from html5_parser import parse
 from lxml import html
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
@@ -63,7 +63,7 @@ def import_note(path_to_html_file: str, add_resource) -> dict:
         except Exception:
             continue
         if purl.scheme in ('', 'file'):
-            path = purl.path
+            path = unquote(purl.path)
             if not os.path.isabs(path):
                 path = os.path.join(basedir, path)
             q = os.path.normcase(get_long_path_name(os.path.abspath(path)))
