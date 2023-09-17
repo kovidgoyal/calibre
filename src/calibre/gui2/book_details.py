@@ -16,8 +16,7 @@ from qt.core import (
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
-from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.db.notes.connect import RESOURCE_URL_SCHEME
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
