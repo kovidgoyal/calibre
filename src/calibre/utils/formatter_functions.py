@@ -1285,6 +1285,40 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
         return s
 
 
+class BuiltinFormatDateField(BuiltinFormatterFunction):
+    name = 'format_date_field'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _("format_date_field(field_name, format_string) -- format "
+            "the value in the field 'field_name', which must be the lookup name "
+            "of date field, either standard or custom. See 'format_date' for "
+            "the formatting codes. This function is much faster than format_date "
+            "and should be used when you are formatting the value in a field "
+            "(column). It can't be used for computed dates or dates in string "
+            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd')")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
+        try:
+            if field not in mi.all_field_keys():
+                return _('Unknown field %s passed to function %s')%(field, 'format_date_field')
+            val = mi.get(field, None)
+            if val is None:
+                s = ''
+            elif format_string == 'to_number':
+                s = val.timestamp()
+            elif format_string.startswith('from_number'):
+                val = datetime.fromtimestamp(float(val))
+                f = format_string[12:]
+                s = format_date(val, f if f else 'iso')
+            else:
+                s = format_date(val, format_string)
+            return s
+        except:
+            traceback.print_exc()
+            s = 'BAD DATE'
+        return s
+
+
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
@@ -2522,7 +2556,7 @@ _formatter_builtins = [
     BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
-    BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
+    BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
     BuiltinGlobals(), BuiltinHasExtraFiles(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
