@@ -5,11 +5,12 @@
 from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
-    QDialogButtonBox, QFrame, QHBoxLayout, QIcon, QItemDelegate, QLabel, QMenu,
+    QDialogButtonBox, QEvent, QFrame, QHBoxLayout, QIcon, QItemDelegate, QLabel, QMenu,
     QSize, Qt, QTableWidgetItem, QTimer, QToolButton, QWidget, pyqtSignal, sip,
 )
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre import sanitize_file_name
+from calibre.gui2 import error_dialog, gprefs, question_dialog, choose_files, choose_save_file
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -145,6 +146,33 @@ class EditColumnDelegate(QItemDelegate):
         QItemDelegate.destroyEditor(self, editor, index)
 
 
+# These My... classes are needed to make context menus work on disabled widgets
+
+def event(ev, me=None, super_class=None, context_menu_handler=None):
+    if not me.isEnabled() and ev.type() == QEvent.MouseButtonRelease:
+        print('here')
+        if ev.button() == Qt.MouseButton.RightButton:
+            # let the event finish before the context menu is opened.
+            QTimer.singleShot(0, partial(context_menu_handler, ev.position().toPoint()))
+            return True
+    # if the widget is enabled then it handles its own context menu events
+    return super_class.event(ev)
+
+
+class MyToolButton(QToolButton):
+
+    def __init__(self, context_menu_handler):
+        QToolButton.__init__(self)
+        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
+
+
+class MyCheckBox(QCheckBox):
+
+    def __init__(self, context_menu_handler):
+        QCheckBox.__init__(self)
+        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
+
+
 class NotesItemWidget(QWidget):
     '''
     This is a self-contained widget for manipulating notes. It can be used in a
@@ -164,6 +192,8 @@ class NotesItemWidget(QWidget):
     edit_icon = QIcon.ic('edit_input.png')
     delete_icon = QIcon.ic('trash.png')
     undo_delete_icon = QIcon.ic('edit-undo.png')
+    export_icon = QIcon.ic('forward.png')
+    import_icon = QIcon.ic('back.png')
 
     def __init__(self, db, field, item_id):
         '''
@@ -181,12 +211,15 @@ class NotesItemWidget(QWidget):
                 raise ValueError(f"The item {item_id} doesn't exist")
         else:
             self.item_id = item_id
+        self.item_val = db.get_item_name(self.field, self.item_id)
         self.can_undo = False
+
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         l = QHBoxLayout()
         l.setContentsMargins(2, 0, 0, 0)
         self.setLayout(l)
-        cb = self.cb = QCheckBox()
+        cb = self.cb = MyCheckBox(self.show_context_menu)
         cb.setEnabled(False)
         l.addWidget(cb)
 
@@ -196,7 +229,7 @@ class NotesItemWidget(QWidget):
                             ('undo_delete', 'Undo the deletion')):
             button_name = button_data[0]
             tool_tip = button_data[1]
-            b = self.buttons[button_name] = QToolButton()
+            b = self.buttons[button_name] = MyToolButton(self.show_context_menu)
             b.setIcon(getattr(self, button_name + '_icon'))
             b.setToolTip(tool_tip)
             b.clicked.connect(getattr(self, 'do_' + button_name))
@@ -206,7 +239,6 @@ class NotesItemWidget(QWidget):
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.set_checked()
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     @classmethod
@@ -222,9 +254,17 @@ class NotesItemWidget(QWidget):
         ac.setEnabled(self.cb.isChecked())
         ac.triggered.connect(self.do_delete)
 
-        ac = m.addAction(self.delete_icon, _('Undo delete'))
+        ac = m.addAction(self.undo_delete_icon, _('Undo delete'))
         ac.setEnabled(self.can_undo)
         ac.triggered.connect(self.do_undo_delete)
+
+        ac = m.addAction(self.export_icon, _('Export note to a file'))
+        ac.setEnabled(self.cb.isChecked())
+        ac.triggered.connect(self.do_export)
+
+        ac = m.addAction(self.import_icon, _('Import note from a file'))
+        ac.setEnabled(not self.cb.isChecked())
+        ac.triggered.connect(self.do_import)
 
         m.exec(self.mapToGlobal(point))
 
@@ -242,6 +282,25 @@ class NotesItemWidget(QWidget):
     def do_undo_delete(self):
         if self.can_undo:
             self.db.unretire_note_for(self.field, self.item_id)
+            self.can_undo = False
+            self.set_checked()
+
+    def do_export(self):
+        dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'),
+                                filters=[(_('HTML files'), ['html'])],
+                                initial_filename=f'{sanitize_file_name(self.item_val)}.html',
+                                all_files=False)
+        if dest:
+            html = self.db.export_note(self.field, self.item_id)
+            with open(dest, 'wb') as f:
+                f.write(html.encode('utf-8'))
+
+    def do_import(self):
+        src = choose_files(self, 'load-imported-note', _('Import note from a file'),
+                           filters=[(_('HTML files'), ['html'])],
+                           all_files=False, select_only_single_file=True)
+        if src:
+            self.db.import_note(self.field, self.item_id, src[0])
             self.can_undo = False
             self.set_checked()
 
