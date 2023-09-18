@@ -58,7 +58,7 @@ class TheWashingtonPost(BasicNewsRecipe):
         # Undocumented feeds.
         (u'White House',
          u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
-        (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
+        (u'Commanders', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
 
     def preprocess_html(self, soup, *a):
