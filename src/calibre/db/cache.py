@@ -2465,6 +2465,18 @@ class Cache:
         return {vm.get(fid):v for fid,v in lm.items() if v}
 
     @read_api
+    def link_for(self, field, item_id):
+        '''
+        Return the link, if any, for the specified item or None if no link is found
+        '''
+        f = self.fields.get(field)
+        if f is not None:
+            table = f.table
+            lm = getattr(table, 'link_map', None)
+            if lm is not None:
+                return lm.get(item_id)
+
+    @read_api
     def get_all_link_maps_for_book(self, book_id):
         '''
         Returns all links for all fields referenced by book identified by book_id.
