@@ -3,7 +3,8 @@
 
 import os
 from qt.core import (
-    QByteArray, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTextDocument, QVBoxLayout,
+    QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTextDocument,
+    QVBoxLayout,
 )
 
 from calibre import prepare_string_for_xml
@@ -11,6 +12,7 @@ from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.ebooks.metadata.book.render import render_author_link
 from calibre.gui2 import Application, default_author_link, safe_open_url
 from calibre.gui2.book_details import resolved_css
+from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
 
@@ -47,6 +49,9 @@ class ShowNoteDialog(Dialog):
         self.field, self.item_id = field, item_id
         super().__init__(self.item_val, 'show-notes-for-category', parent=parent)
         self.setWindowIcon(QIcon.ic('tag.png'))
+        self.refresh()
+
+    def refresh(self):
         self.display.setHtml(self.db.notes_for(self.field, self.item_id))
 
     def setup_ui(self):
@@ -70,6 +75,9 @@ class ShowNoteDialog(Dialog):
 
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
+        b = self.bb.addButton(_('&Edit'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.clicked.connect(self.edit)
+        b.setToolTip(_('Edit this note'))
         l.addWidget(self.bb)
 
     def sizeHint(self):
@@ -77,6 +85,11 @@ class ShowNoteDialog(Dialog):
 
     def open_item_link(self, url):
         safe_open_url(url)
+
+    def edit(self):
+        d = EditNoteDialog(self.field, self.item_id, self.db, self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.refresh()
 
 
 def develop_show_note():
