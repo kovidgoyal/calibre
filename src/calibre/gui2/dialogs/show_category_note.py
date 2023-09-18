@@ -3,12 +3,13 @@
 
 import os
 from qt.core import (
-    QByteArray, QDialogButtonBox, QIcon, QSize, Qt, QTextDocument, QVBoxLayout,
+    QByteArray, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTextDocument, QVBoxLayout,
 )
 
+from calibre import prepare_string_for_xml
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.ebooks.metadata.book.render import render_author_link
-from calibre.gui2 import Application, default_author_link
+from calibre.gui2 import Application, default_author_link, safe_open_url
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
@@ -38,11 +39,11 @@ class ShowNoteDialog(Dialog):
         self.item_val = self.db.get_item_name(field, item_id)
         self.has_links = self.db.has_link_map(field)
         self.item_link = (self.db.link_for(field, item_id) or '') if self.has_links else ''
-        self.author_search_link = self.author_search_tooltip = ''
+        self.extra_link = self.extra_link_tooltip = ''
         if field == 'authors':
             lk = default_author_link()
             if lk != 'calibre':
-                self.author_search_link, self.author_search_tooltip = render_author_link(lk, self.item_val)
+                self.extra_link, self.extra_link_tooltip = render_author_link(lk, self.item_val)
         self.field, self.item_id = field, item_id
         super().__init__(self.item_val, 'show-notes-for-category', parent=parent)
         self.setWindowIcon(QIcon.ic('tag.png'))
@@ -50,6 +51,19 @@ class ShowNoteDialog(Dialog):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
+
+        x = prepare_string_for_xml
+        src = x(self.item_val)
+        if self.item_link:
+            src = f'<a href="{x(self.item_link, True)}">{src}</a>'
+        if self.extra_link:
+            link_markup = '<img valign="bottom" src="calibre-icon:///external-link.png" width=24 height=24>'
+            src += f' <a style="text-decoration: none" href="{x(self.extra_link, True)}" title="{x(self.extra_link_tooltip, True)}">{link_markup}</a>'
+        self.title = t = QLabel(f'<h2>{src}</h2>')
+        t.setResourceProvider(lambda qurl: QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True))
+        t.setOpenExternalLinks(False)
+        t.linkActivated.connect(self.open_item_link)
+        l.addWidget(t)
 
         self.display = d = Display(self)
         l.addWidget(d)
@@ -60,6 +74,9 @@ class ShowNoteDialog(Dialog):
 
     def sizeHint(self):
         return QSize(800, 620)
+
+    def open_item_link(self, url):
+        safe_open_url(url)
 
 
 def develop_show_note():
