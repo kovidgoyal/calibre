@@ -89,6 +89,18 @@ def author_search_href(which, title=None, author=None):
     return func(key, title=title, author=author), tt
 
 
+def render_author_link(default_author_link, author, book_title=None, author_sort=None):
+    book_title = book_title or ''
+    if default_author_link.startswith('search-'):
+        which_src = default_author_link.partition('-')[2]
+        link, lt = author_search_href(which_src, title=book_title, author=author)
+    else:
+        formatter = EvalFormatter()
+        vals = {'author': qquote(author), 'title': qquote(book_title), 'author_sort': qquote(author_sort or author)}
+        link = lt = formatter.safe_format(default_author_link, vals, '', vals)
+    return link, lt
+
+
 def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
@@ -270,21 +282,11 @@ def mi_to_html(
                 ans.append((field, row % (_('Ids')+title_sep, links)))
         elif field == 'authors':
             authors = []
-            formatter = EvalFormatter()
             for aut in mi.authors:
                 link = ''
                 if show_links:
                     if default_author_link:
-                        if default_author_link.startswith('search-'):
-                            which_src = default_author_link.partition('-')[2]
-                            link, lt = author_search_href(which_src, title=mi.title, author=aut)
-                        else:
-                            vals = {'author': qquote(aut), 'title': qquote(mi.title)}
-                            try:
-                                vals['author_sort'] =  qquote(mi.author_sort_map[aut])
-                            except KeyError:
-                                vals['author_sort'] = qquote(aut)
-                            link = lt = formatter.safe_format(default_author_link, vals, '', vals)
+                        link, lt = render_author_link(default_author_link, aut, mi.title, mi.author_sort_map.get(aut) or aut)
                     else:
                         aut = p(aut)
                 if link:
