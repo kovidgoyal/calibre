@@ -10,16 +10,14 @@ from datetime import date
 # for example, replace 'cap' with 'toih', if you want Hyderabad edition.
 le = 'cap' # local edition;
 
-
 date0 = date.today().strftime('%Y/%m/%d')
-date_ = date.today().strftime('%d_%m_%Y')
 
-# for older edition change both date0 and date_ below.
+# for older edition change date0 below.
 # date0 = '2023/09/15'
-# date_ = '15_09_2023'
 
 year, month, day = (int(x) for x in date0.split('/'))
 dt = date(year, month, day)
+date_ = dt.strftime('%d_%m_%Y')
 
 index = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' + date0
 img_index = 'https://cmsimages.timesgroup.com/image-resizer?epaper_s3_path=PublicationData/TOI/' + le + '/' + date0
