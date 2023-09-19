@@ -61,7 +61,7 @@ class ShowNoteDialog(Dialog):
         x = prepare_string_for_xml
         src = x(self.item_val)
         if self.item_link:
-            src = f'<a href="{x(self.item_link, True)}">{src}</a>'
+            src = f'<a href="{x(self.item_link, True)}" style="text-decoration: none">{src}</a>'
         if self.extra_link:
             link_markup = '<img valign="bottom" src="calibre-icon:///external-link.png" width=24 height=24>'
             src += f' <a style="text-decoration: none" href="{x(self.extra_link, True)}" title="{x(self.extra_link_tooltip, True)}">{link_markup}</a>'
