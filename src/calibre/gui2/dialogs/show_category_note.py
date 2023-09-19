@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.book.render import render_author_link
 from calibre.gui2 import Application, default_author_link, safe_open_url
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
 
@@ -76,8 +77,16 @@ class ShowNoteDialog(Dialog):
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('&Edit'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('edit_input.png'))
         b.clicked.connect(self.edit)
         b.setToolTip(_('Edit this note'))
+        b = self.bb.addButton(_('Find &books'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('search.png'))
+        b.clicked.connect(self.find_books)
+        if self.field == 'authors':
+            b.setToolTip(_('Search the calibre library for books by: {}').format(self.item_val))
+        else:
+            b.setToolTip(_('Search the calibre library for books with: {}').format(self.item_val))
         l.addWidget(self.bb)
 
     def sizeHint(self):
@@ -90,6 +99,14 @@ class ShowNoteDialog(Dialog):
         d = EditNoteDialog(self.field, self.item_id, self.db, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.refresh()
+
+    def find_books(self):
+        q = self.item_val.replace('"', r'\"')
+        search_string = f'{self.field}:"={q}"'
+        gui = get_gui()
+        if gui is not None:
+            gui.apply_virtual_library()
+            gui.search.set_search_string(search_string)
 
 
 def develop_show_note():
