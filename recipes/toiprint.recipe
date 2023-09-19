@@ -12,7 +12,7 @@ le = 'cap' # local edition;
 
 date0 = date.today().strftime('%Y/%m/%d')
 
-# for older edition change date0 below. 
+# for older edition change date0 below.
 # date0 = '2023/09/15'
 
 year, month, day = (int(x) for x in date0.split('/'))
