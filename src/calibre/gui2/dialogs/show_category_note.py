@@ -60,11 +60,21 @@ class ShowNoteDialog(Dialog):
 
         x = prepare_string_for_xml
         src = x(self.item_val)
-        if self.item_link:
-            src = f'<a href="{x(self.item_link, True)}" style="text-decoration: none">{src}</a>'
-        if self.extra_link:
+        l1 = l2 = l1tt = l2tt = ''
+        if self.extra_link and self.item_link:
+            l1 = self.extra_link
+            l1tt = self.extra_link_tooltip
+            l2 = self.item_link
+        else:
+            if self.item_link:
+                l1 = self.item_link
+            else:
+                l2, l2tt = self.extra_link, self.extra_link_tooltip
+        if l1:
+            src = f'<a href="{x(l1, True)}" style="text-decoration: none" title="{x(l1tt, True)}">{src}</a>'
+        if l2:
             link_markup = '<img valign="bottom" src="calibre-icon:///external-link.png" width=24 height=24>'
-            src += f' <a style="text-decoration: none" href="{x(self.extra_link, True)}" title="{x(self.extra_link_tooltip, True)}">{link_markup}</a>'
+            src += f' <a style="text-decoration: none" href="{x(l2, True)}" title="{x(l2tt, True)}">{link_markup}</a>'
         self.title = t = QLabel(f'<h2>{src}</h2>')
         t.setResourceProvider(lambda qurl: QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True))
         t.setOpenExternalLinks(False)
