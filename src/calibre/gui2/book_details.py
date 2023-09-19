@@ -169,6 +169,22 @@ def init_manage_action(ac, field, value):
     return ac
 
 
+def add_edit_notes_action(menu, book_info, field, value):
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db.new_api
+    if db.field_supports_notes(field):
+        item_id = db.get_item_id(field, value)
+        if item_id is not None:
+            def edit_note():
+                gui = get_gui()
+                from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+                d = EditNoteDialog(field, item_id, gui.current_db.new_api, parent=book_info)
+                d.exec()
+            ac = menu.addAction(_('Edit notes for {}').format(escape_for_menu(value)))
+            ac.triggered.connect(edit_note)
+            ac.setIcon(QIcon.ic('edit_input.png'))
+
+
 def init_find_in_tag_browser(menu, ac, field, value):
     from calibre.gui2.ui import get_gui
     hidden_cats = get_gui().tags_view.model().hidden_categories
@@ -402,6 +418,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         init_find_in_tag_browser(search_menu, find_action, 'authors', author)
         init_find_in_grouped_search(search_menu, 'authors', author, book_info)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
+        add_edit_notes_action(menu, book_info, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             search_menu.addSeparator()
             search_menu.sim = create_search_internet_menu(book_info.search_internet, author)
@@ -462,6 +479,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 init_find_in_tag_browser(search_menu, find_action, field, value)
                 init_find_in_grouped_search(search_menu, field, value, book_info)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
+                add_edit_notes_action(menu, book_info, field, value)
             elif field == 'languages':
                 remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
                 init_find_in_tag_browser(search_menu, find_action, field, value)
