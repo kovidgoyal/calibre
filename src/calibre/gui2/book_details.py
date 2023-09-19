@@ -1246,6 +1246,8 @@ class BookDetails(DetailsLayout):  # {{{
 
     def handle_click(self, link):
         typ, val = link.partition(':')[::2]
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
 
         def search_term(field, val):
             append = ''
@@ -1270,9 +1272,17 @@ class BookDetails(DetailsLayout):  # {{{
             data = json_loads(from_hex_bytes(val))
             dt = data['type']
             if dt == 'search':
+                field = data.get('field')
+                if field and db.field_supports_notes(field):
+                    item_id = db.get_item_id(field, data['value'])
+                    if item_id is not None and db.notes_for(field, item_id):
+                        return self.show_notes(field, item_id)
                 search_term(data['term'], data['value'])
             elif dt == 'author':
                 url = data['url']
+                item_id = db.get_item_id('authors', data['name'])
+                if item_id is not None and db.notes_for('authors', item_id):
+                    return self.show_notes('authors', item_id)
                 if url == 'calibre':
                     search_term('authors', data['name'])
                 else:
@@ -1291,6 +1301,11 @@ class BookDetails(DetailsLayout):  # {{{
                 self.view_device_book.emit(data['loc'])
         else:
             browse(link)
+
+    def show_notes(self, field, item_id):
+        from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
+        from calibre.gui2.ui import get_gui
+        ShowNoteDialog(field, item_id, get_gui().current_db.new_api, parent=self).show()
 
     def mouseDoubleClickEvent(self, ev):
         ev.accept()
