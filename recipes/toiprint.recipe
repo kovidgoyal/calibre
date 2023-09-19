@@ -4,7 +4,7 @@ from datetime import date
 
 
 # default edition is Delhi i.e., 'cap'
-# Hyderabad - 'toih'; Delhi - 'cap'; Mumbai - 'toim'; Banglore - 'toibgc'; 
+# Hyderabad - 'toih'; Delhi - 'cap'; Mumbai - 'toim'; Banglore - 'toibgc';
 # There are others too, try to figure it out, visit toi epaper link.
 
 # for example, replace 'cap' with 'toih', if you want Hyderabad edition.
@@ -14,7 +14,7 @@ le = 'cap' # local edition;
 date0 = date.today().strftime('%Y/%m/%d')
 date_ = date.today().strftime('%d_%m_%Y')
 
-# for older edition change both date0 and date_ below. 
+# for older edition change both date0 and date_ below.
 # date0 = '2023/09/15'
 # date_ = '15_09_2023'
 
@@ -68,7 +68,7 @@ class toiprint(BasicNewsRecipe):
                 for sec in link['Views']:
                     if 'Articles' in sec:
                         for art in sec['Articles']:
-                            if not 'ArticleName' in art:
+                            if 'ArticleName' not in art:
                                 continue
                             link = art['ArticleName']
                             page = link.split('_')[-3]
@@ -102,6 +102,6 @@ class toiprint(BasicNewsRecipe):
             if x['TagName'] == 'ImageCaption':
                 body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
         return '<html><body><div>' +  body.replace('<br>', '<p>') + '</div></body></html>'
-    
+
     def print_version(self, url):
         return index + '/ArticleZoneJson/' + url.replace('-', '/') + '.json'
