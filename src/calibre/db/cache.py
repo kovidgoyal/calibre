@@ -678,6 +678,7 @@ class Cache:
     # Notes API {{{
     @read_api
     def notes_for(self, field, item_id) -> str:
+        ' Return the notes document or an empty string if not found '
         return self.backend.notes_for(field, item_id)
 
     @read_api
@@ -685,32 +686,48 @@ class Cache:
         ' Return all notes data as a dict or None if note does not exist '
         return self.backend.notes_data_for(field, item_id)
 
+    @read_api
+    def field_supports_notes(self, field) -> bool:
+        ' Return True iff the specified field supports notes '
+        return field in self.backend.notes.allowed_fields
+
     @write_api
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=(), remove_unused_resources=False) -> int:
+        '''
+        Set the notes document. If the searchable text is different from the document, specify it as searchable_text. If the document
+        references resources their hashes must be present in resource_hashes. Set remove_unused_resources to True to cleanup unused
+        resources, note that updating a note automatically cleans up resources pertaining to that note anyway.
+        '''
         return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes, remove_unused_resources)
 
     @write_api
     def add_notes_resource(self, path_or_stream_or_data, name: str) -> int:
+        ' Add the specified resource so it can be referenced by notes and return its content hash '
         return self.backend.add_notes_resource(path_or_stream_or_data, name)
 
     @read_api
     def get_notes_resource(self, resource_hash) -> Optional[dict]:
+        ' Return a dict containing the resource data and name or None if no resource with the specified hash is found '
         return self.backend.get_notes_resource(resource_hash)
 
     @read_api
     def notes_resources_used_by(self, field, item_id):
+        ' Return the set of resource hashes of all resources used by the note for the specified item '
         return frozenset(self.backend.notes_resources_used_by(field, item_id))
 
     @write_api
     def unretire_note_for(self, field, item_id) -> int:
+        ' Unretire a previously retired note for the specified item. Notes are retired when an item is removed from the database '
         return self.backend.unretire_note_for(field, item_id)
 
     @read_api
     def export_note(self, field, item_id):
+        ' Export the note as a single HTML document with embedded images as data: URLs '
         return self.backend.export_note(field, item_id)
 
     @write_api
     def import_note(self, field, item_id, path_to_html_file):
+        ' Import a previously exported note or an arbitrary HTML file as the note for the specified item '
         with open(path_to_html_file, 'rb') as f:
             html = f.read()
             st = os.stat(f.fileno())
@@ -730,6 +747,7 @@ class Cache:
         result_type=tuple,
         process_each_result=None,
     ):
+        ' Search the text of notes using an FTS index '
         return result_type(self.backend.notes_search(
             fts_engine_query,
             use_stemming=use_stemming,
