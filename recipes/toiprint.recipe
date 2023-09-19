@@ -1,0 +1,107 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import json
+from datetime import date
+
+
+# default edition is Delhi i.e., 'cap'
+# Hyderabad - 'toih'; Delhi - 'cap'; Mumbai - 'toim'; Banglore - 'toibgc'; 
+# There are others too, try to figure it out, visit toi epaper link.
+
+# for example, replace 'cap' with 'toih', if you want Hyderabad edition.
+le = 'cap' # local edition;
+
+
+date0 = date.today().strftime('%Y/%m/%d')
+date_ = date.today().strftime('%d_%m_%Y')
+
+# for older edition change both date0 and date_ below. 
+# date0 = '2023/09/15'
+# date_ = '15_09_2023'
+
+year, month, day = (int(x) for x in date0.split('/'))
+dt = date(year, month, day)
+
+index = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' + date0
+img_index = 'https://cmsimages.timesgroup.com/image-resizer?epaper_s3_path=PublicationData/TOI/' + le + '/' + date0
+
+class toiprint(BasicNewsRecipe):
+    title = 'TOI Print Edition'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    masthead_url = 'https://static.toiimg.com/photo/98333929.cms'
+    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+    description = 'Articles from the Times of India epaper, digital edition'
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'TOI Print Edition ' + dt.strftime('%b %d, %Y')
+
+    extra_css = '''
+        .sub { color:#5c5c5c; }
+        .auth { font-size:small; }
+        .cap { text-align:center; font-size:small; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    def get_cover_url(self):
+        cover = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' \
+            + date0 + '/Page/' + date_ + '_001_' + le + '.jpg'
+        self.log('cover_url ', cover)
+        return cover
+
+    def parse_index(self):
+        url = index + '/DayIndex/' + date_ + '_' + le + '.json'
+        raw = self.index_to_soup(url, raw=True)
+        data = json.loads(raw)
+        if 'DigitalIndex' not in data:
+            raise ValueError(
+                    'The Times of India Newspaper is not published today.'
+                )
+        data = data['DigitalIndex']
+        feeds = []
+        for link in data:
+            sec_name = link['PageTitle']
+            self.log(sec_name)
+            articles = []
+            if 'Views' in link:
+                for sec in link['Views']:
+                    if 'Articles' in sec:
+                        for art in sec['Articles']:
+                            if not 'ArticleName' in art:
+                                continue
+                            link = art['ArticleName']
+                            page = link.split('_')[-3]
+                            url =  page + '-' + link
+                            title = art.get('ArticleTitle', 'unknown')
+                            desc = 'Page No.' + page + ' | ' + art.get('ColumnTitle', '')
+                            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                            articles.append({'title': title, 'description':desc, 'url': url})
+            if articles:
+                feeds.append((sec_name, articles))
+        return feeds
+
+    def preprocess_raw_html(self, raw, *a):
+        data = json.loads(raw)
+        body = ''
+        for x in data:
+            if x['TagName'] == 'ArticleTitle':
+                body += '<h1>' + x['ZoneText'] + '</h1>'
+            if x['TagName'] == 'ColumnTitle':
+                body += '<p class="sub"><b>' + x['ZoneText'] + '</b></p>'
+            if x['TagName'] == 'Author':
+                body += '<p class="auth"><i>' + x['ZoneText'].replace('<br>', '') + '</i></p>'
+            if x['TagName'] in {'ArticleBody', 'Information'}:
+                body += x['ZoneText']
+            if x['TagName'] == 'LinkTo':
+                body += '<p><i>' + x['ZoneText'] + '</i></p>'
+            if x['TagName'] == 'Photographs':
+                pag = x['ZoneID'].split('_')[-4]
+                body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
+                     + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
+            if x['TagName'] == 'ImageCaption':
+                body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
+        return '<html><body><div>' +  body.replace('<br>', '<p>') + '</div></body></html>'
+    
+    def print_version(self, url):
+        return index + '/ArticleZoneJson/' + url.replace('-', '/') + '.json'
