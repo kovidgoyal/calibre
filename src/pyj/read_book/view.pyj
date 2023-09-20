@@ -1409,8 +1409,19 @@ class View:
             ui_operations.reference_mode_changed(self.reference_mode_enabled)
 
     def discover_search_result(self, sr):
+        if sr.search_finished:
+            if self.search_result_discovery:
+                self.search_result_discovery.finished = True
+                if not self.search_result_discovery.discovered and self.search_result_discovery.first_search_result and self.search_result_discovery.queue.length is 0:
+                    sr = self.search_result_discovery.first_search_result
+                    sr.force_jump_to = True
+                    self.show_search_result(sr)
+            return
         if sr.result_num is 1:
-            self.search_result_discovery = {'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False}
+            self.search_result_discovery = {
+                'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False,
+                'first_search_result': sr, 'finished': False,
+            }
         if not self.search_result_discovery or self.search_result_discovery.discovered or self.search_result_discovery.on_discovery is not sr.on_discovery:
             return
         self.search_result_discovery.queue.push(sr)
@@ -1426,6 +1437,10 @@ class View:
                     ui_operations.search_result_discovered(sr)
             elif not self.search_result_discovery.discovered and self.search_result_discovery.queue.length:
                 self.show_search_result(self.search_result_discovery.queue.shift())
+            elif not self.search_result_discovery.discovered and self.search_result_discovery.finished:
+                sr = self.search_result_discovery.first_search_result
+                sr.force_jump_to = True
+                self.show_search_result(sr)
 
     def search_result_discovered(self, data):
         self.handle_search_result_discovery(data.search_result, data.discovered)

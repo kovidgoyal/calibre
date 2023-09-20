@@ -817,6 +817,7 @@ class SearchPanel(QWidget):  # {{{
                 self.results.ensure_current_result_visible()
             else:
                 self.show_no_results_found()
+            self.show_search_result.emit({'on_discovery': True, 'search_finished': True, 'result_num': -1})
             return
         self.results.add_result(result)
         obj = result.for_js

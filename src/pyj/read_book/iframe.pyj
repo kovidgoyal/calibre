@@ -781,7 +781,7 @@ class IframeBoss:
                 self.load_search_result_timer = window.setTimeout(self.ensure_search_result_visible.bind(None, before_select_pos), int(3 * ONSCROLL_DEBOUNCE_TIME / 4))
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
-                if progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
+                if sr.force_jump_to or progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
                     self.full_book_search_in_progress.first_result_shown = True
                     discovered = True
                 else:
