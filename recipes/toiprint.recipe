@@ -29,6 +29,7 @@ class toiprint(BasicNewsRecipe):
     masthead_url = 'https://static.toiimg.com/photo/98333929.cms'
     timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
     description = 'Articles from the Times of India epaper, digital edition'
+    encoding = 'utf-8'
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
@@ -37,7 +38,7 @@ class toiprint(BasicNewsRecipe):
 
     extra_css = '''
         .sub { color:#5c5c5c; }
-        .auth { font-size:small; }
+        .auth { font-size:small; font-weight:bold; color:#202020; }
         .cap { text-align:center; font-size:small; }
         img { display:block; margin:0 auto; }
     '''
@@ -72,7 +73,10 @@ class toiprint(BasicNewsRecipe):
                             page = link.split('_')[-3]
                             url =  page + '-' + link
                             title = art.get('ArticleTitle', 'unknown')
-                            desc = 'Page No.' + page + ' | ' + art.get('ColumnTitle', '')
+                            if art.get('ColumnTitle', '') == '':
+                                desc = 'Page No.' + page + ' | ' + art.get('ArticleBody', '')
+                            else:
+                                desc = 'Page No.' + page + ' | ' + art.get('ColumnTitle', '')
                             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                             articles.append({'title': title, 'description':desc, 'url': url})
             if articles:
@@ -88,18 +92,18 @@ class toiprint(BasicNewsRecipe):
             if x['TagName'] == 'ColumnTitle':
                 body += '<p class="sub"><b>' + x['ZoneText'] + '</b></p>'
             if x['TagName'] == 'Author':
-                body += '<p class="auth"><i>' + x['ZoneText'].replace('<br>', '') + '</i></p>'
+                body += '<p class="auth">' + x['ZoneText'].replace('<br>', '') + '</p>'
             if x['TagName'] in {'ArticleBody', 'Information'}:
                 body += x['ZoneText']
-            if x['TagName'] == 'LinkTo':
-                body += '<p><i>' + x['ZoneText'] + '</i></p>'
+            if x['TagName'] in {'LinkTo', 'LinkFrom'}:
+                body += '<p class="auth"><i>' + x['ZoneText'] + '</i></p>'
             if x['TagName'] == 'Photographs':
                 pag = x['ZoneID'].split('_')[-4]
                 body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
                      + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
             if x['TagName'] == 'ImageCaption':
                 body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
-        return '<html><body><div>' +  body.replace('<br>', '<p>') + '</div></body></html>'
+        return '<html><body><div>' +  body.replace('<br>', '<p>').replace('<br/>', '<p>') + '</div></body></html>'
 
     def print_version(self, url):
         return index + '/ArticleZoneJson/' + url.replace('-', '/') + '.json'
