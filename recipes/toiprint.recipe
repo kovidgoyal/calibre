@@ -37,7 +37,7 @@ class toiprint(BasicNewsRecipe):
             self.title = 'TOI Print Edition ' + dt.strftime('%b %d, %Y')
 
     extra_css = '''
-        .sub { color:#5c5c5c; }
+        .sub { color:#202020; }
         .auth { font-size:small; font-weight:bold; color:#202020; }
         .cap { text-align:center; font-size:small; }
         img { display:block; margin:0 auto; }
@@ -71,7 +71,7 @@ class toiprint(BasicNewsRecipe):
                                 continue
                             link = art['ArticleName']
                             page = link.split('_')[-3]
-                            url =  page + '-' + link
+                            url =  page + '/' + link
                             title = art.get('ArticleTitle', 'unknown')
                             if art.get('ColumnTitle', '') == '':
                                 desc = 'Page No.' + page + ' | ' + art.get('ArticleBody', '')
@@ -106,4 +106,4 @@ class toiprint(BasicNewsRecipe):
         return '<html><body><div>' +  body.replace('<br>', '<p>').replace('<br/>', '<p>') + '</div></body></html>'
 
     def print_version(self, url):
-        return index + '/ArticleZoneJson/' + url.replace('-', '/') + '.json'
+        return index + '/ArticleZoneJson/' + url + '.json'
