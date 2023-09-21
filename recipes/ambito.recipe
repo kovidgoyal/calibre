@@ -8,7 +8,7 @@ __copyright__ = '2008-2021, Darko Miletic <darko.miletic at gmail.com>'
 ambito.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Ambito(BasicNewsRecipe):
@@ -17,12 +17,11 @@ class Ambito(BasicNewsRecipe):
     description = 'Ambito.com con noticias del Diario Ambito Financiero de Buenos Aires'
     publisher = 'Editorial Nefir S.A.'
     category = 'news, politics, economy, finances, Argentina'
-    oldest_article = 2
+    oldest_article = 1.2
     no_stylesheets = True
-    encoding = 'utf8'
+    encoding = 'utf-8'
     use_embedded_content = False
     remove_empty_feeds = True
-    handle_gzip = True
     compress_news_images = True
     scale_news_images_to_device = True
     ignore_duplicate_articles = {'url'}
@@ -41,11 +40,14 @@ class Ambito(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'detail-header-wrapper'}),
-        dict(attrs={'class': lambda x: x and 'detail-body' in x.split()}),
+        classes(
+            'detail-highlighted-multimedia news-headline__publication-date news-headline__title'
+            ' news-headline__author-wrapper news-headline__article-summary'
+        ),
+        dict(name='article', attrs={'class': lambda x: x and 'article-body' in x.split()}),
     ]
     remove_tags = [
-        dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link', 'img'])
+        dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])
     ]
 
     feeds = [
@@ -60,3 +62,8 @@ class Ambito(BasicNewsRecipe):
         (u'Espectaculos', u'https://www.ambito.com/rss/espectaculos.xml'),
         (u'Nacional', u'https://www.ambito.com/rss/nacional.xml')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-td-src-property':True}):
+            img['src'] = img['data-td-src-property']
+        return soup
