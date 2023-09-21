@@ -1901,7 +1901,8 @@ class Cache:
         self.fields['size'].table.update_sizes(size_map)
 
         for book_id, fmts in iteritems(formats_map):
-            run_plugins_on_postdelete(self, book_id, fmt)
+            for fmt in fmts:
+                run_plugins_on_postdelete(self, book_id, fmt)
 
         self._update_last_modified(tuple(formats_map))
         self.event_dispatcher(EventType.formats_removed, formats_map)
