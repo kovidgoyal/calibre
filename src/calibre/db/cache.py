@@ -686,6 +686,10 @@ class Cache:
         ' Return all notes data as a dict or None if note does not exist '
         return self.backend.notes_data_for(field, item_id)
 
+    def get_notes_id_map(self) -> dict:
+        ' Return all item_id for each field assosiated to a notes. '
+        return self.backend.get_notes_id_map()
+
     @read_api
     def field_supports_notes(self, field) -> bool:
         ' Return True iff the specified field supports notes '
