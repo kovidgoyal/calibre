@@ -3,8 +3,8 @@
 
 import os
 from qt.core import (
-    QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTextDocument,
-    QVBoxLayout,
+    QApplication, QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData,
+    QSize, Qt, QTextDocument, QUrl, QVBoxLayout,
 )
 
 from calibre import prepare_string_for_xml
@@ -97,6 +97,11 @@ class ShowNoteDialog(Dialog):
             b.setToolTip(_('Search the calibre library for books by: {}').format(self.item_val))
         else:
             b.setToolTip(_('Search the calibre library for books with: {}').format(self.item_val))
+        b = self.bb.addButton(_('Copy &URL'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('insert-link.png'))
+        b.clicked.connect(self.copy_url)
+        b.setToolTip(_('Copy a calibre:// URL to the clipboard that can be used to link to this note from other programs'))
+
         l.addWidget(self.bb)
 
     def sizeHint(self):
@@ -104,6 +109,17 @@ class ShowNoteDialog(Dialog):
 
     def open_item_link(self, url):
         safe_open_url(url)
+
+    def copy_url(self):
+        f = self.field
+        if f.startswith('#'):
+            f = '_' + f[1:]
+        url = f'calibre://show-note/{self.db.server_library_id}/{f}/id_{self.item_id}'
+        cb = QApplication.instance().clipboard()
+        md = QMimeData()
+        md.setText(url)
+        md.setUrls([QUrl(url)])
+        cb.setMimeData(md)
 
     def edit(self):
         d = EditNoteDialog(self.field, self.item_id, self.db, self)
