@@ -117,6 +117,7 @@ def test_cache_api(self: 'NotesTest'):
     h1 = cache.add_notes_resource(b'resource1t', 'r1.jpg')
     h2 = cache.add_notes_resource(b'resource2t', 'r1.jpg')
     cache.set_notes_for('#tags', tag_id, doc, resource_hashes=(h1, h2))
+    self.ae(cache.get_all_items_that_have_notes(), {'#tags': {tag_id}, 'authors': {author_id}})
     self.ae(cache.notes_for('#tags', tag_id), doc)
     cache.delete_custom_column('tags')
     cache.close()
