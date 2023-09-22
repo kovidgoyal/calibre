@@ -127,6 +127,29 @@ This opens a book details window on the specified book from the specified librar
 current library or the selected book.
 
 
+Open the notes associated with an author/tag/etc
+------------------------------------------------------
+
+The URL syntax is::
+
+    calibre://book-details/Library_Name/Field_Name/id_Item_Id
+
+This opens a window showing the notes of the specified item.
+The easiest way to create such URLs is to show the notes you want
+in calibre and click the :guilabel:`Copy URL` button to copy the URL
+to the clipboard and paste it wherever you need.
+
+Here ``Field_Name`` is the name of the columns such as ``authors`` or ``tags``.
+For user created columns, replace the leading ``#`` in the field name with
+an underscore, so ``#mytags`` becomes ``_mytags``.
+
+In addition to specifying items by id using ``Item_Id`` you can also specify
+them by name using either ``val_Item_Name`` or ``hex_Hex_Encoded_Item_Name``.
+For example::
+
+    calibre://book-details/Library_Name/authors/val_John%20Doe
+
+
 .. _hex_encoding:
 
 Hex encoding of URL parameters
