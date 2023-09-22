@@ -179,7 +179,8 @@ def add_edit_notes_action(menu, book_info, field, value):
                 gui = get_gui()
                 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
                 d = EditNoteDialog(field, item_id, gui.current_db.new_api, parent=book_info)
-                d.exec()
+                if d.exec() == QDialog.DialogCode.Accepted:
+                    gui.do_field_item_value_changed()
             ac = menu.addAction(_('Edit notes for {}').format(escape_for_menu(value)))
             ac.triggered.connect(edit_note)
             ac.setIcon(QIcon.ic('edit_input.png'))
@@ -321,8 +322,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = [(x, all_fields or display) for x, display in field_list]
     db, _ = db_for_mi(mi)
     db = db.new_api
-    all_notes = db.get_all_items_that_have_notes()
-    all_notes = {fld: {db.get_item_name(fld, id_) for id_ in all_notes[fld]} for fld in all_notes.keys()}
+    an = db.get_all_items_that_have_notes()
+    all_notes = {fld: {db.get_item_name(fld, id_):id_ for id_ in an[fld]} for fld in an.keys()}
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
@@ -577,6 +578,11 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         create_copy_links(copy_menu, data)
         copy_links_added = True
         reindex_fmt_added = 'reindex_fmt_added' in data
+    elif url and url.startswith('notes:'):
+        copy_links_added = True
+        search_internet_added = True
+        data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
+        add_edit_notes_action(menu, view, data['field'], data['value'])
     elif url and not url.startswith('#'):
         ac = book_info.copy_link_action
         ac.current_url = url
@@ -1296,14 +1302,6 @@ class BookDetails(DetailsLayout):  # {{{
             if dt == 'search':
                 field = data.get('field')
                 search_term(data['term'], data['value'])
-            elif dt == 'note':
-                field = data.get('field')
-                # It shouldn't be possible for the field to be invalid or the
-                # note not to exist, but ...
-                if field and db.field_supports_notes(field):
-                    item_id = db.get_item_id(field, data['value'])
-                    if item_id is not None and db.notes_for(field, item_id):
-                        return self.show_notes(field, item_id)
             elif dt == 'author':
                 url = data['url']
                 if url == 'calibre':
@@ -1322,6 +1320,15 @@ class BookDetails(DetailsLayout):  # {{{
                 self.open_data_folder.emit(int(data['loc']))
             elif dt == 'devpath':
                 self.view_device_book.emit(data['loc'])
+        elif typ == 'notes':
+            data = json_loads(from_hex_bytes(val))
+            field = data.get('field')
+            # It shouldn't be possible for the field to be invalid or the
+            # note not to exist, but ...
+            if field and db.field_supports_notes(field):
+                item_id = data['item_id']
+                if item_id is not None and db.notes_for(field, item_id):
+                    return self.show_notes(field, item_id)
         else:
             browse(link)
 
