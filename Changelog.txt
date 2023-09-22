@@ -23,6 +23,53 @@
 # - title by author
 # }}}
 
+{{{ 6.27.0 2023-09-22
+
+:: new features
+
+- [2034954] Kobo driver: Support updated firmware
+
+- Nook driver: Add support for Nook Glowlight Plus 2023
+
+- Data files manager: Allow drag and drop of files onto the list of files to add new files
+
+- [2036266] Support 7z archives in addition to ZIP and RAR for automatic ebook extraction when adding to calibre
+
+- Linux/macOS: Fix detection of the Kindle Scribe with MTP firmware
+
+- [2034760] E-book viewer: Allow clearing list of recently opened books from the open button's popup menu itself
+
+- [2034905] E-book viewer: Add a link to show the currently viewed book in the calibre library (Go to->Metadata in the viewer controls to access it)
+
+:: bug fixes
+
+- [2034999] Book information dialog: Fix a regression that caused incorrect color for titles in dark mode
+
+- [2034977] E-book viewer: Fix searching does not jump to first match if all matches are before current position in book
+
+- [2035579] EPUB Output: Fix duplicated title page entry in spine for books that define a title page that ends up getting split
+
+- Allow for-light/dark-theme icon overrides to work for plugin icons placed by the user in the override folder
+
+- [2035338] PDF Output: Fix background image + text not rendering correctly if the same background image is used with different text multiple times
+
+- [2034968] E-book viewer: Fix section titles in highlights panel being incorrectly expanded to full titles when the section has multiple highlights
+
+- [2035039] Prevent Quickview window from opening in the background
+
+- [2034900] Edit book: Fix a regression in the previous release that caused an error when doing text based searches
+
+:: improved recipes
+- Ambito
+- Financial Times
+- USA Today
+
+:: new recipes
+- Times of India Print Edition by unkn0wn
+- Hindu Feeds based by unkn0wn
+- Australian Financial Review by unkn0wn
+}}}
+
 {{{ 6.26.0 2023-09-08
 
 :: new features
