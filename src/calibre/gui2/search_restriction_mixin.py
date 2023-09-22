@@ -194,6 +194,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
 
         self.resize(self.sizeHint()+QSize(150, 25))
+        self.restore_geometry(gprefs, 'create-virtual-library-dialog')
 
     def search_text_changed(self, txt):
         db = self.gui.current_db
@@ -315,7 +316,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
         self.library_name = n
         self.library_search = v
+        self.save_geometry(gprefs, 'create-virtual-library-dialog')
         QDialog.accept(self)
+
+    def reject(self):
+        self.save_geometry(gprefs, 'create-virtual-library-dialog')
+        QDialog.reject(self)
 # }}}
 
 
