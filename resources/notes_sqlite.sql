@@ -8,6 +8,8 @@ CREATE TABLE notes_db.notes ( id INTEGER PRIMARY KEY AUTOINCREMENT,
     UNIQUE(item, colname)
 );
 
+CREATE INDEX notes_db.notes_colname_idx ON notes (colname);
+
 CREATE TABLE notes_db.resources ( 
     hash TEXT NOT NULL PRIMARY KEY ON CONFLICT FAIL,
     name TEXT NOT NULL UNIQUE ON CONFLICT FAIL
