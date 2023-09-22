@@ -68,6 +68,10 @@ def search_action_with_data(search_term, value, book_id, field=None, **k):
     return search_action(search_term, value, field=field, book_id=book_id, **k)
 
 
+def notes_action(**keys):
+    return 'notes:' + as_hex_unicode(json_dumps(keys))
+
+
 DEFAULT_AUTHOR_LINK = f'search-{DEFAULT_AUTHOR_SOURCE}'
 
 
@@ -128,7 +132,9 @@ def mi_to_html(
                 link = ''
             if field_value in all_notes.get(field, set()):
                 note = ' <a title="{0}" href="{1}">{2}</a>'.format(_('Click to open note'),
-                                            action('note', field=field, value=field_value), note_markup)
+                                            notes_action(field=field, value=field_value,
+                                                         item_id=all_notes.get(field).get(field_value)),
+                                                         note_markup)
             else:
                 note = ''
             return link + note

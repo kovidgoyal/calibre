@@ -124,6 +124,10 @@ class ShowNoteDialog(Dialog):
     def edit(self):
         d = EditNoteDialog(self.field, self.item_id, self.db, self)
         if d.exec() == QDialog.DialogCode.Accepted:
+            # Tell the rest of calibre that the note has changed
+            gui = get_gui()
+            if gui is not None:
+                gui.do_field_item_value_changed()
             self.refresh()
 
     def find_books(self):
