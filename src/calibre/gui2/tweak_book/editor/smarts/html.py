@@ -275,7 +275,7 @@ def ensure_not_within_tag_definition(cursor, forward=True):
     if boundary.is_start:
         # We are inside a tag
         if forward:
-            block, boundary = next_tag_boundary(block, offset)
+            block, boundary = next_tag_boundary(block, max(0, offset-1))
             if block is not None:
                 cursor.setPosition(block.position() + boundary.offset + 1)
                 return True
