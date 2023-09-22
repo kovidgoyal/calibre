@@ -319,11 +319,15 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata),
                                 pref_name=pref_name, mi=mi)
     field_list = [(x, all_fields or display) for x, display in field_list]
+    db, _ = db_for_mi(mi)
+    db = db.new_api
+    all_notes = db.get_all_items_that_have_notes()
+    all_notes = {fld: {db.get_item_name(fld, id_) for id_ in all_notes[fld]} for fld in all_notes.keys()}
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
-        vertical_fields=vertical_fields, show_links=show_links
+        vertical_fields=vertical_fields, show_links=show_links, all_notes=all_notes
     )
 
 # }}}
@@ -1291,16 +1295,17 @@ class BookDetails(DetailsLayout):  # {{{
             dt = data['type']
             if dt == 'search':
                 field = data.get('field')
+                search_term(data['term'], data['value'])
+            elif dt == 'note':
+                field = data.get('field')
+                # It shouldn't be possible for the field to be invalid or the
+                # note not to exist, but ...
                 if field and db.field_supports_notes(field):
                     item_id = db.get_item_id(field, data['value'])
                     if item_id is not None and db.notes_for(field, item_id):
                         return self.show_notes(field, item_id)
-                search_term(data['term'], data['value'])
             elif dt == 'author':
                 url = data['url']
-                item_id = db.get_item_id('authors', data['name'])
-                if item_id is not None and db.notes_for('authors', item_id):
-                    return self.show_notes('authors', item_id)
                 if url == 'calibre':
                     search_term('authors', data['name'])
                 else:
