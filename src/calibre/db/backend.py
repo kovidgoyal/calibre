@@ -975,6 +975,9 @@ class DB:
     def notes_data_for(self, field_name, item_id):
         return self.notes.get_note_data(self.conn, field_name, item_id)
 
+    def get_notes_id_map(self):
+        return self.notes.get_note_id_map(self.conn)
+
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str, resource_hashes, remove_unused_resources) -> int:
         id_val = self.tables[field].id_map[item_id]
         note_id = self.notes.set_note(self.conn, field, item_id, id_val, doc, resource_hashes, searchable_text)
