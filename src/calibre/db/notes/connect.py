@@ -269,6 +269,14 @@ class Notes:
                 'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
             }
 
+    def get_note_id_map(self, conn):
+        rslt = {}
+        for (note_id, field_name) in conn.execute('SELECT id,colname FROM notes_db.notes'):
+            if field_name not in rslt:
+                rslt[field_name] = []
+            rslt[field_name].append(note_id)
+        return rslt
+
     def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value):
         note_id = self.note_id_for(conn, field_name, old_item_id)
         if note_id is None:
