@@ -189,6 +189,7 @@ class Highlights(QTreeWidget):
     delete_requested = pyqtSignal()
     edit_requested = pyqtSignal()
     edit_notes_requested = pyqtSignal()
+    export_selected_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -225,6 +226,8 @@ class Highlights(QTreeWidget):
                 'Delete this highlight', 'Delete selected highlights', len(self.selectedItems())
             ), self.delete_requested.emit)
         m.addSeparator()
+        if tuple(self.selected_highlights):
+            m.addAction(QIcon.ic('save.png'), _('Export selected highlights'), self.export_selected_requested.emit)
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         self.context_menu.popup(self.mapToGlobal(point))
@@ -508,6 +511,7 @@ class HighlightsPanel(QWidget):
         h.edit_requested.connect(self.edit_highlight)
         h.edit_notes_requested.connect(self.edit_notes)
         h.current_highlight_changed.connect(self.current_highlight_changed)
+        h.export_selected_requested.connect(self.export_selected)
         self.load = h.load
         self.refresh = h.refresh
 
@@ -599,6 +603,12 @@ class HighlightsPanel(QWidget):
         hl = list(self.highlights.all_highlights)
         if not hl:
             return error_dialog(self, _('No highlights'), _('This book has no highlights to export'), show=True)
+        Export(hl, self).exec()
+
+    def export_selected(self):
+        hl = list(self.highlights.selected_highlights)
+        if not hl:
+            return error_dialog(self, _('No highlights'), _('No highlights selected to export'), show=True)
         Export(hl, self).exec()
 
     def selected_text_changed(self, text, annot_id):
