@@ -9,6 +9,7 @@ import time
 import xxhash
 from contextlib import suppress
 from itertools import count, repeat
+from collections import defaultdict
 from typing import Optional
 
 from calibre import sanitize_file_name
@@ -269,13 +270,13 @@ class Notes:
                 'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
             }
 
-    def get_note_id_map(self, conn):
-        rslt = {}
-        for (note_id, field_name) in conn.execute('SELECT id,colname FROM notes_db.notes'):
-            if field_name not in rslt:
-                rslt[field_name] = []
-            rslt[field_name].append(note_id)
-        return rslt
+    def get_all_items_that_have_notes(self, conn, field_name=None):
+        if field_name:
+            return {item_id for (item_id,) in conn.execute('SELECT item FROM notes_db.notes WHERE colname=?', (field_name,))}
+        ans = defaultdict(set)
+        for (note_id, field_name) in conn.execute('SELECT item, colname FROM notes_db.notes'):
+            ans[field_name].add(note_id)
+        return ans
 
     def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value):
         note_id = self.note_id_for(conn, field_name, old_item_id)
