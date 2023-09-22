@@ -580,16 +580,22 @@ class HTMLDisplay(QTextBrowser):
                     data = f.read()
             except OSError:
                 if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
-                    return QByteArray(bytearray.fromhex(
+                    r = QByteArray(bytearray.fromhex(
                         '89504e470d0a1a0a0000000d49484452'
                         '000000010000000108060000001f15c4'
                         '890000000a49444154789c6300010000'
                         '0500010d0a2db40000000049454e44ae'
                         '426082'))
+                    self.document().addResource(rtype, qurl, r)
+                    return r
             else:
-                return QByteArray(data)
+                r = QByteArray(data)
+                self.document().addResource(rtype, qurl, r)
+                return r
         elif qurl.scheme() == 'calibre-icon':
-            return QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
+            r = QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
+            self.document().addResource(rtype, qurl, r)
+            return r
         elif self.notes_resource_scheme and qurl.scheme() == self.notes_resource_scheme and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
             gui = get_gui()
@@ -597,7 +603,9 @@ class HTMLDisplay(QTextBrowser):
                 db = gui.current_db.new_api
                 resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
                 if resource is not None:
-                    return QByteArray(resource['data'])
+                    r = QByteArray(resource['data'])
+                    self.document().addResource(rtype, qurl, r)
+                    return r
         else:
             return QTextBrowser.loadResource(self, rtype, qurl)
 
