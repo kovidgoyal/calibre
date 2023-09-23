@@ -450,11 +450,6 @@ class TagBrowserMixin:  # {{{
         d = EnumValuesEdit(parent, db, key)
         d.exec()
 
-    def do_tag_item_renamed(self):
-        # The method name was changed. Keep the old one here for compatibility,
-        # in case some plugin uses it.
-        self.do_field_item_value_changed()
-
     def do_field_item_value_changed(self):
         # Clean up library view and search, which also cleans up book details
 
@@ -468,6 +463,7 @@ class TagBrowserMixin:  # {{{
         m.research()
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
+    do_tag_item_renamed = do_field_item_value_changed  # alias for backcompat
 
     def do_author_sort_edit(self, parent, id_, select_sort=True,
                             select_link=False, is_first_letter=False,
