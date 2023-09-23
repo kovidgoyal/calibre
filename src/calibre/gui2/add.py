@@ -208,6 +208,9 @@ class Adder(QObject):
             elif source.lower().endswith('.rar'):
                 from calibre.utils.unrar import extract
                 extract(source, tdir)
+            elif source.lower().endswith('.7z'):
+                from calibre.utils.seven_zip import extract
+                extract(source, tdir)
             return tdir
 
         try:

@@ -61,7 +61,7 @@ class AddAction(InterfaceAction):
         self.add_menu = self.qaction.menu()
         ma = partial(self.create_menu_action, self.add_menu)
         ma('recursive-add', _('Add from folders and sub-folders'), icon='mimetypes/dir.png').triggered.connect(self.add_recursive_question)
-        ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR)'), icon='mimetypes/zip.png').triggered.connect(self.add_from_archive)
+        ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR/7z)'), icon='mimetypes/zip.png').triggered.connect(self.add_from_archive)
         self.add_menu.addSeparator()
         ma('add-empty', _('Add empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
@@ -273,7 +273,7 @@ class AddAction(InterfaceAction):
     def add_archive(self, single):
         paths = choose_files(
             self.gui, 'recursive-archive-add', _('Choose archive file'),
-            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
+            filters=[(_('Archives'), ('zip', 'rar', '7z'))], all_files=False, select_only_single_file=False)
         if paths:
             self.do_add_recursive(paths, single, list_of_archives=True)
 
@@ -282,7 +282,7 @@ class AddAction(InterfaceAction):
             'Will the archive have a single book per internal folder?'))
         paths = choose_files(
             self.gui, 'recursive-archive-add', _('Choose archive file'),
-            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
+            filters=[(_('Archives'), ('zip', 'rar', '7z'))], all_files=False, select_only_single_file=False)
         if paths:
             self.do_add_recursive(paths, single, list_of_archives=True)
 
