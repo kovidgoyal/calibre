@@ -16,5 +16,8 @@ const calibre_device_entry_t calibre_mtp_device_table[] = {
     // Remove this once it is added to upstream libmtp
     , { "Amazon", 0x1949, "Kindle Scribe", 0x9981, DEVICE_FLAGS_ANDROID_BUGS }
 
+    // Remove this once it is added to upstream libmtp (Nook Glowlight 2023)
+    , { "BarnesAndNoble", 0x2080, "BNRV1300", 0xf, DEVICE_FLAGS_ANDROID_BUGS }
+
     , { NULL, 0xffff, NULL, 0xffff, DEVICE_FLAG_NONE }
 };
