@@ -322,10 +322,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = [(x, all_fields or display) for x, display in field_list]
     db, _ = db_for_mi(mi)
     db = db.new_api
+    field_maps = {}
 
     def item_id_if_has_note(field, item_val):
         if db.field_supports_notes(field):
-            item_id = db.get_item_id(field, item_val)
+            nmap = field_maps.get(field)
+            if nmap is None:
+                nmap = field_maps[field] = db.get_item_name_map(field)
+            item_id = nmap.get(item_val)
             if item_id is not None:
                 if db.notes_for(field, item_id):
                     return item_id
