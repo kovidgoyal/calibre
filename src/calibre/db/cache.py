@@ -926,11 +926,13 @@ class Cache:
     @read_api
     def get_item_id(self, field, item_name):
         ' Return the item id for item_name (case-insensitive) or None if not found '
+        q = icu_lower(item_name)
         try:
-            rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
+            for item_id, item_val in self.fields[field].table.id_map.items():
+                if icu_lower(item_val) == q:
+                    return item_id
         except KeyError:
             return None
-        return rmap.get(icu_lower(item_name) if isinstance(item_name, str) else item_name, None)
 
     @read_api
     def get_item_ids(self, field, item_names):
