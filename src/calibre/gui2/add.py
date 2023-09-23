@@ -197,10 +197,9 @@ class Adder(QObject):
         def extract(source):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
             if source.lower().endswith('.zip'):
-                from calibre.utils.zipfile import ZipFile
+                from calibre.utils.zipfile import extractall
                 try:
-                    with ZipFile(source) as zf:
-                        zf.extractall(tdir)
+                    extractall(source, tdir)
                 except Exception:
                     prints('Corrupt ZIP file, trying to use local headers')
                     from calibre.utils.localunzip import extractall

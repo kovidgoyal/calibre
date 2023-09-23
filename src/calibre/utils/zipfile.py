@@ -1624,6 +1624,11 @@ class PyZipFile(ZipFile):
         return (fname, archivename)
 
 
+def extractall(source, dest):
+    with ZipFile(source) as zf:
+        zf.extractall(dest)
+
+
 def main(args=None):
     import textwrap
     USAGE=textwrap.dedent("""\
