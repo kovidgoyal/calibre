@@ -109,7 +109,7 @@ def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
         rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
-        for_qt=False, vertical_fields=(), show_links=True, all_notes=None
+        for_qt=False, vertical_fields=(), show_links=True, item_id_if_has_note=None
     ):
 
     link_markup =  '↗️'
@@ -130,13 +130,11 @@ def mi_to_html(
                 link = ' <a title="{0}: {1}" href="{1}">{2}</a>'.format(_('Click to open'), link, link_markup)
             else:
                 link = ''
-            if field_value in all_notes.get(field, set()):
-                note = ' <a title="{0}" href="{1}">{2}</a>'.format(_('Click to open note'),
-                                            notes_action(field=field, value=field_value,
-                                                         item_id=all_notes.get(field).get(field_value)),
-                                                         note_markup)
-            else:
-                note = ''
+            note = ''
+            item_id = None if item_id_if_has_note is None else item_id_if_has_note(field, field_value)
+            if item_id is not None:
+                note = ' <a title="{0}" href="{1}">{2}</a>'.format(
+                    _('Click to open note'), notes_action(field=field, value=field_value, item_id=item_id), note_markup)
             return link + note
         return ''
 
