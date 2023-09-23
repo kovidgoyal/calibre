@@ -322,13 +322,19 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     field_list = [(x, all_fields or display) for x, display in field_list]
     db, _ = db_for_mi(mi)
     db = db.new_api
-    an = db.get_all_items_that_have_notes()
-    all_notes = {fld: {db.get_item_name(fld, id_):id_ for id_ in an[fld]} for fld in an.keys()}
+
+    def item_id_if_has_note(field, item_val):
+        if db.field_supports_notes(field):
+            item_id = db.get_item_id(field, item_val)
+            if item_id is not None:
+                if db.notes_for(field, item_id):
+                    return item_id
+
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
-        vertical_fields=vertical_fields, show_links=show_links, all_notes=all_notes
+        vertical_fields=vertical_fields, show_links=show_links, item_id_if_has_note=item_id_if_has_note
     )
 
 # }}}
