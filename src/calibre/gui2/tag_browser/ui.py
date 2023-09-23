@@ -88,7 +88,7 @@ class TagBrowserMixin:  # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.rebuild_saved_searches.connect(self.do_rebuild_saved_searches)
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
-        self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
+        self.tags_view.tag_item_renamed.connect(self.do_field_item_value_changed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
@@ -321,7 +321,7 @@ class TagBrowserMixin:  # {{{
                 db.new_api.set_link_map(category, d.links)
 
                 # Clean up the library view
-                self.do_tag_item_renamed()
+                self.do_field_item_value_changed()
                 self.tags_view.recount()
 
     def do_tag_item_delete(self, category, item_id, orig_name,
@@ -373,7 +373,7 @@ class TagBrowserMixin:  # {{{
             m.delete_item_from_all_user_categories(orig_name, category)
 
         # Clean up the library view
-        self.do_tag_item_renamed()
+        self.do_field_item_value_changed()
         self.tags_view.recount()
 
     def apply_tag_to_selected(self, field_name, item_name, remove):
@@ -451,7 +451,13 @@ class TagBrowserMixin:  # {{{
         d.exec()
 
     def do_tag_item_renamed(self):
-        # Clean up library view and search
+        # The method name was changed. Keep the old one here for compatibility,
+        # in case some plugin uses it.
+        self.do_field_item_value_changed()
+
+    def do_field_item_value_changed(self):
+        # Clean up library view and search, which also cleans up book details
+
         # get information to redo the selection
         rows = [r.row() for r in
                 self.library_view.selectionModel().selectedRows()]
@@ -495,7 +501,8 @@ class TagBrowserMixin:  # {{{
                 sort_map = {id_map.get(author_id, author_id):new_sort for author_id, old_author, new_author, new_sort, new_link in editor.result}
                 affected_books |= db.set_sort_for_authors(sort_map)
                 self.library_view.model().refresh_ids(affected_books, current_row=self.library_view.currentIndex().row())
-                self.tags_view.recount()
+            self.do_field_item_value_changed()
+            self.tags_view.recount()
 
     def drag_drop_finished(self, ids):
         self.library_view.model().refresh_ids(ids)
