@@ -181,7 +181,7 @@ def add_edit_notes_action(menu, book_info, field, value):
                 d = EditNoteDialog(field, item_id, gui.current_db.new_api, parent=book_info)
                 if d.exec() == QDialog.DialogCode.Accepted:
                     gui.do_field_item_value_changed()
-            ac = menu.addAction(_('Edit notes for {}').format(escape_for_menu(value)))
+            ac = menu.addAction(_('Edit note for {}').format(escape_for_menu(value)))
             ac.triggered.connect(edit_note)
             ac.setIcon(QIcon.ic('edit_input.png'))
 
@@ -530,43 +530,67 @@ def create_copy_links(menu, data=None):
     library_id = '_hex_-' + library_id.encode('utf-8').hex()
     book_id = get_gui().library_view.current_id
 
-    all_links = []
-    def link(text, url):
+    def copy_to_clipboard_action(menu_text, value_text, before_action=None):
         def doit():
-            QApplication.instance().clipboard().setText(url)
+            QApplication.instance().clipboard().setText(value_text)
+        if before_action is not None:
+            action = QWidget(menu).addAction(QIcon.ic('edit-copy.png'), menu_text, doit)
+            menu.insertAction(before_action, action)
+        else:
+            menu.addAction(QIcon.ic('edit-copy.png'), menu_text, doit)
+
+    all_links = []
+    def link_action(text, url):
         nonlocal all_links
         all_links.append(url)
-        menu.addAction(QIcon.ic('edit-copy.png'), text, doit)
+        copy_to_clipboard_action(text, url)
 
-    menu.addSeparator()
-    link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
-    link(_('Link to show book details in a popup window'), f'calibre://book-details/{library_id}/{book_id}')
+    sep = menu.addSeparator() # Note: separators are really actions
+
+    link_action(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
+    link_action(_('Link to show book details in a popup window'),
+                f'calibre://book-details/{library_id}/{book_id}')
     mi = db.new_api.get_proxy_metadata(book_id)
     if mi and mi.path:
         with suppress(Exception):
             data_files = db.new_api.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
             if data_files:
                 data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
-                link(_("Link to open book's data files folder"), bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
+                link_action(_("Link to open book's data files folder"),
+                            bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
     if data:
-        field = data.get('field')
-        if data['type'] == 'author':
-            field = 'authors'
-        if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
-            name = data['name' if data['type'] == 'author' else 'value']
-            eq = f'{field}:"={name}"'.encode().hex()
-            link(_('Link to show books matching {} in calibre').format(name),
-                 f'calibre://search/{library_id}?eq={eq}')
+        if data.get('kind', '') == 'notes':
+            field = data['field']
+            item_id = data['item_id']
+            note_data = db.notes_data_for(field, item_id)
+            if note_data is not None:
+                copy_to_clipboard_action(_('HTML for note'), note_data['doc'], sep)
+                copy_to_clipboard_action(_('Text for note'),
+                                         note_data['searchable_text'].partition('\n')[2], sep)
+            if field.startswith('#'):
+                field = '_' + field[1:]
+            url = f"calibre://show-note/{library_id}/{field}/id_{item_id}"
+            link_action(_('Link to show note in calibre'), url)
+        else:
+            field = data.get('field')
+            if data['type'] == 'author':
+                field = 'authors'
+            if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
+                name = data['name' if data['type'] == 'author' else 'value']
+                eq = f'{field}:"={name}"'.encode().hex()
+                link_action(_('Link to show books matching {} in calibre').format(name),
+                     f'calibre://search/{library_id}?eq={eq}')
 
     for fmt in db.formats(book_id):
         fmt = fmt.upper()
-        link(_('Link to view {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
+        link_action(_('Link to view {} format of book').format(fmt.upper()),
+                    f'calibre://view-book/{library_id}/{book_id}/{fmt}')
 
     if all_links:
         menu.addSeparator()
         all_links.insert(0, '')
         all_links.insert(0, mi.get('title') + ' - ' + ' & '.join(mi.get('authors')))
-        link(_('Copy all the above links'), '\n'.join(all_links))
+        link_action(_('Copy all the above links'), '\n'.join(all_links))
 
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
@@ -582,23 +606,31 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     search_menu = QMenu(_('Search'), menu)
     search_menu.setIcon(QIcon.ic('search.png'))
     reindex_fmt_added = False
-    if url and url.startswith('action:'):
-        data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
-        search_internet_added = add_item_specific_entries(menu, data, book_info, copy_menu, search_menu)
-        create_copy_links(copy_menu, data)
-        copy_links_added = True
-        reindex_fmt_added = 'reindex_fmt_added' in data
-    elif url and url.startswith('notes:'):
-        copy_links_added = True
-        search_internet_added = True
-        data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
-        add_edit_notes_action(menu, view, data['field'], data['value'])
-    elif url and not url.startswith('#'):
-        ac = book_info.copy_link_action
-        ac.current_url = url
-        ac.setText(_('Copy link location'))
-        menu.addAction(ac)
-        menu.addAction(QIcon.ic('external-link'), _('Open associated link'), lambda : book_info.link_clicked.emit(url))
+    if url:
+        def get_data():
+            kind, _, rest = url.partition(':')
+            data = json_loads(from_hex_bytes(rest))
+            data['kind'] = kind
+            return data
+
+        if url.startswith('action:'):
+            data = get_data()
+            search_internet_added = add_item_specific_entries(menu, data, book_info, copy_menu, search_menu)
+            create_copy_links(copy_menu, data)
+            copy_links_added = True
+            reindex_fmt_added = 'reindex_fmt_added' in data
+        elif url.startswith('notes:'):
+            data = get_data()
+            create_copy_links(copy_menu, data)
+            copy_links_added = True
+            search_internet_added = True
+            add_edit_notes_action(menu, view, data['field'], data['value'])
+        elif not url.startswith('#'):
+            ac = book_info.copy_link_action
+            ac.current_url = url
+            ac.setText(_('Copy link location'))
+            menu.addAction(ac)
+            menu.addAction(QIcon.ic('external-link'), _('Open associated link'), lambda : book_info.link_clicked.emit(url))
     if not copy_links_added:
         create_copy_links(copy_menu)
 
