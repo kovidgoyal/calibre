@@ -941,6 +941,13 @@ class Cache:
         return {name:rmap.get(icu_lower(name) if isinstance(name, str) else name, None) for name in item_names}
 
     @read_api
+    def get_item_name_map(self, field, normalize_func=None):
+        ' Return mapping of item values to ids '
+        if normalize_func is None:
+            return {v:k for k, v in self.fields[field].table.id_map.items()}
+        return {normalize_func(v):k for k, v in self.fields[field].table.id_map.items()}
+
+    @read_api
     def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
