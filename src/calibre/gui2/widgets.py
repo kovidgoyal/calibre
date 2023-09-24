@@ -733,6 +733,16 @@ class HistoryLineEdit(QComboBox):  # {{{
     def setPlaceholderText(self, txt):
         return self.lineEdit().setPlaceholderText(txt)
 
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction(_('Clear history'), self.clear_history_default_impl)
+        menu.exec(event.globalPos())
+
+    def clear_history_default_impl(self):
+        self.clear()
+        history.set(self.store_name, [])
+
     @property
     def store_name(self):
         return 'lineedit_history_'+self._name
