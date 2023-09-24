@@ -876,6 +876,16 @@ class FileList(QTreeWidget, OpenWithHandler):
         ans.discard('')
         return ans
 
+    @property
+    def selected_names_in_order(self):
+        root = self.invisibleRootItem()
+        for category_item in (root.child(i) for i in range(root.childCount())):
+            for child in (category_item.child(i) for i in range(category_item.childCount())):
+                if child.isSelected():
+                    name = child.data(0, NAME_ROLE)
+                    if name:
+                        yield name
+
     def move_selected_text_items(self, amt: int) -> bool:
         parent = self.categories['text']
         children = tuple(parent.child(i) for i in range(parent.childCount()))
@@ -906,7 +916,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         return changed
 
     def copy_selected_files(self):
-        self.initiate_file_copy.emit(self.selected_names)
+        self.initiate_file_copy.emit(tuple(self.selected_names_in_order))
 
     def paste_from_other_instance(self):
         self.initiate_file_paste.emit()
