@@ -209,6 +209,9 @@ class Environment(NamedTuple):
     cc: str
     cxx: str
     linker: str
+    base_cflags: List[str]
+    base_cxxflags: List[str]
+    base_ldflags: List[str]
     cflags: List[str]
     ldflags: List[str]
     make: str
@@ -262,8 +265,11 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         cflags = shlex.split(cflags) + ['-fPIC']
         ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
         ldflags = shlex.split(ldflags)
-        cflags += shlex.split(os.environ.get('CFLAGS', ''))
-        ldflags += shlex.split(os.environ.get('LDFLAGS', ''))
+        base_cflags = shlex.split(os.environ.get('CFLAGS', ''))
+        base_cxxflags = shlex.split(os.environ.get('CXXFLAGS', ''))
+        base_ldflags = shlex.split(os.environ.get('LDFLAGS', ''))
+        cflags += base_cflags
+        ldflags += base_ldflags
         cflags += ['-fvisibility=hidden']
         if sanitize:
             cflags.append('-fsanitize-address')
@@ -272,6 +278,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
     if islinux:
         cflags.append('-pthread')
         if sys.stdout.isatty():
+            base_cflags.append('-fdiagnostics-color=always')
             cflags.append('-fdiagnostics-color=always')
         ldflags.append('-shared')
 
@@ -309,6 +316,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         cc = cxx = win_cc
         linker = win_ld
         cflags, ldflags = basic_windows_flags(debug)
+        base_cflags, base_cxxflags, base_ldflags = [], [], []
         if compiling_for == 'windows':
             cc = cxx = 'clang-cl'
             linker = 'lld-link'
@@ -347,6 +355,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
             ldflags.append('/LIBPATH:'+os.path.join(sysconfig.get_config_var('prefix'), 'libs'))
     return Environment(
         platform_name=platform_name, dest_ext=dest_ext, std_prefix=std_prefix,
+        base_cflags=base_cflags, base_cxxflags=base_cxxflags, base_ldflags=base_ldflags,
         cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make', lib_prefix=lib_prefix,
         obj_suffix=obj_suffix, cc_input_c_flag=cc_input_c_flag, cc_input_cpp_flag=cc_input_cpp_flag, cc_output_flag=cc_output_flag,
         internal_inc_prefix=internal_inc_prefix, external_inc_prefix=external_inc_prefix, libdir_prefix=libdir_prefix, lib_suffix=lib_suffix)
@@ -676,6 +685,16 @@ project-factory = "pyqtbuild:PyQtProject"
 [tool.sip.project]
 sip-files-dir = "."
 {abi_version}
+
+[tool.sip.builder]
+qmake-settings = [
+    'QMAKE_CC = {self.env.cc}',
+    'QMAKE_CXX = {self.env.cxx}',
+    'QMAKE_LINK = {self.env.linker or self.env.cxx}',
+    'QMAKE_CFLAGS += {shlex.join(self.env.base_cflags)}',
+    'QMAKE_CXXFLAGS += {shlex.join(self.env.base_cxxflags)}',
+    'QMAKE_LFLAGS += {shlex.join(self.env.base_ldflags)}',
+]
 
 [tool.sip.bindings.{ext.name}]
 headers = {ext.headers}
