@@ -49,7 +49,7 @@ class ShowNoteDialog(Dialog):
                 self.extra_link, self.extra_link_tooltip = render_author_link(lk, self.item_val)
         self.field, self.item_id = field, item_id
         super().__init__(self.item_val, 'show-notes-for-category', parent=parent)
-        self.setWindowIcon(QIcon.ic('tag.png'))
+        self.setWindowIcon(QIcon.ic('notes.png'))
         self.refresh()
 
     def refresh(self):

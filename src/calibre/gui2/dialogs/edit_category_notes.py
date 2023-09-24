@@ -292,7 +292,7 @@ class EditNoteDialog(Dialog):
         self.field, self.item_id = field, item_id
         self.item_val = self.db.get_item_name(field, item_id)
         super().__init__(_('Edit notes for {}').format(self.item_val), 'edit-notes-for-category', parent=parent)
-        self.setWindowIcon(QIcon.ic('edit_input.png'))
+        self.setWindowIcon(QIcon.ic('notes.png'))
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
