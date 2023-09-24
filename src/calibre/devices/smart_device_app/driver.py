@@ -2175,7 +2175,12 @@ def monkeypatch_zeroconf():
     # "monkeypatch" zeroconf with a function without the check
     try:
         from zeroconf._utils.name import service_type_name
-        service_type_name.__kwdefaults__['strict'] = False
     except ImportError:
         import zeroconf
         zeroconf.service_type_name = monkeypatched_service_type_name
+    else:
+        try:
+            # zeroconf 0.73 uses an lru cache
+            service_type_name.__wrapped__.__kwdefaults__['strict'] = False
+        except AttributeError:
+            service_type_name.__kwdefaults__['strict'] = False
