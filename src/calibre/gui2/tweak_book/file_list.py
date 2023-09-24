@@ -98,7 +98,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     l.addRow(la)
     l.addRow(_('&Prefix:'), p)
     d.num = num = QSpinBox(d)
-    num.setMinimum(0), num.setValue(1), num.setMaximum(1000)
+    num.setMinimum(0), num.setValue(1), num.setMaximum(10000)
     l.addRow(_('Starting &number:'), num)
     if allow_spine_order:
         d.spine_order = QCheckBox(_('Rename files according to their book order'))
