@@ -500,12 +500,6 @@ class BooksView(QTableView):  # {{{
             gprefs['book_list_split'] = self.pin_view.isVisible()
             self.save_state()
             return
-        if action in ('lock', 'unlock'):
-            val = action == 'unlock'
-            self.column_header.setSectionsMovable(val)
-            self.pin_view.column_header.setSectionsMovable(val)
-            gprefs.set('allow_column_movement_with_mouse', val)
-
         if not action or not column or not view:
             return
         try:
@@ -514,7 +508,12 @@ class BooksView(QTableView):  # {{{
             return
         h = view.column_header
 
-        if action == 'hide':
+        if action == 'lock':
+            val = not view.column_header.sectionsMovable()
+            self.column_header.setSectionsMovable(val)
+            self.pin_view.column_header.setSectionsMovable(val)
+            gprefs.set('allow_column_movement_with_mouse', val)
+        elif action == 'hide':
             if h.hiddenSectionCount() >= h.count():
                 return error_dialog(self, _('Cannot hide all columns'), _(
                     'You must not hide all columns'), show=True)
@@ -690,23 +689,13 @@ class BooksView(QTableView):  # {{{
                 ac.setText(_('Un-split the book list'))
             else:
                 ac.setText(_('Split the book list'))
-                # QIcon.ic('drm-locked.png'),
-            if not hasattr(m, 'column_mouse_move_action'):
-                m.column_mouse_move_action = m.addAction('xxx')
 
-            def set_action_attributes(icon, text, slot):
-                m.column_mouse_move_action.setText(text)
-                m.column_mouse_move_action.setIcon(icon)
-                m.column_mouse_move_action.triggered.connect(slot)
-
-            if view.column_header.sectionsMovable():
-                set_action_attributes(QIcon.ic('drm-locked.png'),
-                                      _("Don't allow moving columns with the mouse"),
-                                      partial(self.column_header_context_handler, action='lock'))
-            else:
-                set_action_attributes(QIcon.ic('drm-unlocked.png'),
-                                      _("Allow moving columns with the mouse"),
-                                      partial(self.column_header_context_handler, action='unlock'))
+            ac = getattr(m, 'column_mouse_move_action', None)
+            if ac is None:
+                ac = m.column_mouse_move_action = m.addAction(_("Allow moving columns with the mouse"),
+                          partial(self.column_header_context_handler, action='lock', column=col, view=view))
+                ac.setCheckable(True)
+            ac.setChecked(view.column_header.sectionsMovable())
         if has_context_menu:
             view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
