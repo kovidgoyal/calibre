@@ -691,8 +691,10 @@ class Cache:
         return self.backend.get_all_items_that_have_notes(field_name)
 
     @read_api
-    def field_supports_notes(self, field) -> bool:
-        ' Return True iff the specified field supports notes '
+    def field_supports_notes(self, field=None) -> bool:
+        ' Return True iff the specified field supports notes. If field is None return frozenset of all fields that support notes. '
+        if field is None:
+            return self.backend.notes.allowed_fields
         return field in self.backend.notes.allowed_fields
 
     @write_api
