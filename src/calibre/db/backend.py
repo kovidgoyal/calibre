@@ -2040,13 +2040,14 @@ class DB:
         for base in ('b', 'f'):
             base = os.path.join(self.trash_dir, base)
             for x in os.scandir(base):
-                try:
-                    st = x.stat(follow_symlinks=False)
-                    mtime = st.st_mtime
-                except OSError:
-                    mtime = 0
-                if mtime + expire_age_in_seconds <= now or expire_age_in_seconds <= 0:
-                    removals.append(x.path)
+                if x.is_dir(follow_symlinks=False):
+                    try:
+                        st = x.stat(follow_symlinks=False)
+                        mtime = st.st_mtime
+                    except OSError:
+                        mtime = 0
+                    if mtime + expire_age_in_seconds <= now or expire_age_in_seconds <= 0:
+                        removals.append(x.path)
         for x in removals:
             try:
                 rmtree_with_retry(x)
