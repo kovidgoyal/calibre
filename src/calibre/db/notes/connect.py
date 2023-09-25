@@ -96,6 +96,7 @@ class Notes:
                 f"  DELETE FROM notes WHERE colname = '{table.name}' AND item = OLD.id;\n"
                 'END;'
             )
+        self.allowed_fields = frozenset(self.allowed_fields)
         SchemaUpgrade(conn, '\n'.join(triggers))
 
     def delete_field(self, conn, field_name):
