@@ -2,23 +2,90 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from functools import partial
 from qt.core import (
-    QCheckBox, QDialogButtonBox, QHBoxLayout, QIcon, QSize, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QCheckBox, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QMenu, QSize, Qt,
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
+from calibre.db.cache import Cache
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.viewer.widgets import SearchBox
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import Dialog, FlowLayout
 
 
-def current_db():
+def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
 
 
 class RestrictFields(QWidget):
-    pass
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = FlowLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.restrict_label = QLabel(_('Restrict to:'))
+        self.restricted_fields = []
+        self.add_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('plus.png')), b.setText(_('Add')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.fields_menu = m = QMenu()
+        b.setMenu(m)
+        m.aboutToShow.connect(self.build_add_menu)
+        self.remove_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('minus.png')), b.setText(_('Remove')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.remove_fields_menu = m = QMenu()
+        b.setMenu(m)
+        m.aboutToShow.connect(self.build_remove_menu)
+
+        db = current_db()
+        fm = db.field_metadata
+        def field_name(field):
+            return fm[field].get('name') or field
+        self.field_names = {f:field_name(f) for f in db.field_supports_notes()}
+        self.field_labels = {f: QLabel(self.field_names[f], self) for f in sorted(self.field_names, key=self.field_names.get)}
+        for l in self.field_labels.values():
+            l.setVisible(False)
+
+        self.relayout()
+
+    def relayout(self):
+        for i in range(self.l.count()):
+            self.l.removeItem(self.l.itemAt(i))
+        for l in self.field_labels.values():
+            l.setVisible(False)
+        self.l.addWidget(self.restrict_label)
+        self.l.addWidget(self.add_button)
+        for field in self.restricted_fields:
+            w = self.field_labels[field]
+            w.setVisible(True)
+            self.l.addWidget(w)
+        self.l.addWidget(self.remove_button)
+        self.remove_button.setVisible(bool(self.restricted_fields))
+
+    def build_add_menu(self):
+        m = self.fields_menu
+        m.clear()
+        for field in self.field_labels:
+            if field not in self.restricted_fields:
+                m.addAction(self.field_names[field], partial(self.add_field, field))
+
+    def build_remove_menu(self):
+        m = self.remove_fields_menu
+        m.clear()
+
+        for field in self.restricted_fields:
+            m.addAction(self.field_names[field], partial(self.remove_field, field))
+
+    def add_field(self, field):
+        self.restricted_fields.append(field)
+        self.relayout()
+
+    def remove_field(self, field):
+        self.restricted_fields.remove(field)
+        self.relayout()
 
 
 class SearchInput(QWidget):
@@ -54,10 +121,15 @@ class SearchInput(QWidget):
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
+        self.restrict = r = RestrictFields(self)
+        l.addWidget(r)
+
+
     @property
     def current_query(self):
         return {
             'query': self.search_box.lineEdit().text().strip(),
+            'restrict_to_fields': tuple(self.restrict.restricted_fields),
         }
 
     def cleared(self):
