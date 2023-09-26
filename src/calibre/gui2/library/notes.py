@@ -4,8 +4,9 @@
 import os
 from functools import partial
 from qt.core import (
-    QCheckBox, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QMenu, QSize, Qt,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView, QCheckBox, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
+    QKeySequence, QLabel, QMenu, QSize, Qt, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.db.backend import FTSQueryError
@@ -40,6 +41,119 @@ class NotesResultsDelegate(ResultsDelegate):
         else:
             text = parts[0]
         return False, before, text, after, False
+
+
+class ResultsList(QTreeWidget):
+
+    current_result_changed = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderHidden(True)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+        self.delegate = NotesResultsDelegate(self)
+        self.setItemDelegate(self.delegate)
+        self.section_font = QFont(self.font())
+        self.itemDoubleClicked.connect(self.item_activated)
+        self.section_font.setItalic(True)
+        self.currentItemChanged.connect(self.current_item_changed)
+        self.number_of_results = 0
+        self.item_map = []
+
+    def current_item_changed(self, current, previous):
+        if current is not None:
+            r = current.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(r, dict):
+                self.current_result_changed.emit(r)
+        else:
+            self.current_result_changed.emit(None)
+
+    def item_activated(self, item):
+        r = item.data(0, Qt.ItemDataRole.UserRole)
+        if isinstance(r, dict):
+            raise NotImplementedError('TODO: Implement me')
+
+    def show_context_menu(self, pos):
+        raise NotImplementedError('TODO: Implement me')
+
+    def show_next(self, backwards=False):
+        item = self.currentItem()
+        if item is None:
+            return
+        i = int(item.data(0, Qt.ItemDataRole.UserRole + 1))
+        i += -1 if backwards else 1
+        i %= self.number_of_results
+        self.setCurrentItem(self.item_map[i])
+
+    def edit_note(self, item):
+        raise NotImplementedError('TODO: Implement me')
+
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.StandardKey.Delete):
+            self.delete_requested.emit()
+            ev.accept()
+            return
+        if ev.key() == Qt.Key.Key_F2:
+            item = self.currentItem()
+            if item:
+                self.edit_note(item)
+                ev.accept()
+                return
+        return QTreeWidget.keyPressEvent(self, ev)
+
+    @property
+    def tree_state(self):
+        ans = {'closed': set()}
+        item = self.currentItem()
+        if item is not None:
+            ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
+        for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            if not item.isExpanded():
+                ans['closed'].add(item.data(0, Qt.ItemDataRole.UserRole))
+        return ans
+
+    @tree_state.setter
+    def tree_state(self, state):
+        closed = state['closed']
+        for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            if item.data(0, Qt.ItemDataRole.UserRole) in closed:
+                item.setExpanded(False)
+
+        cur = state.get('current')
+        if cur is not None:
+            for item in self.item_map:
+                if item.data(0, Qt.ItemDataRole.UserRole) == cur:
+                    self.setCurrentItem(item)
+                    break
+
+    def set_results(self, results, emphasize_text):
+        self.clear()
+        self.delegate.emphasize_text = emphasize_text
+        self.number_of_results = 0
+        self.item_map = []
+        db = current_db()
+        fm = db.field_metadata
+        field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in db.field_supports_notes()}
+        for result in results:
+            field_map[result['field']]['matches'].append(result)
+        for field, entry in field_map.items():
+            section = QTreeWidgetItem([entry['title']], 1)
+            section.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            section.setFont(0, self.section_font)
+            section.setData(0, Qt.ItemDataRole.UserRole, field)
+            self.addTopLevelItem(section)
+            section.setExpanded(True)
+            for result in entry['matches']:
+                item = QTreeWidgetItem(section, [' '], 2)
+                self.item_map.append(item)
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
+                item.setData(0, Qt.ItemDataRole.UserRole, result)
+                item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
+                self.number_of_results += 1
+        if self.item_map:
+            self.setCurrentItem(self.item_map[0])
 
 
 class RestrictFields(QWidget):
@@ -213,8 +327,6 @@ class NotesBrowser(Dialog):
                 ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
                     err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
                 det_msg=str(err), show=True)
-
-
 
 
 if __name__ == '__main__':
