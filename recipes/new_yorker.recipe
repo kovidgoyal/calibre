@@ -61,6 +61,15 @@ class NewYorker(BasicNewsRecipe):
     ]
     remove_attributes = ['style']
 
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            # Reduce image sizes to get file size below amazon's email
+            # sending threshold
+            self.web2disk_options.compress_news_images = True
+            self.web2disk_options.compress_news_images_auto_size = 5
+            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+
     def preprocess_html(self, soup):
         for noscript in soup.findAll('noscript'):
             noscript.name = 'div'
