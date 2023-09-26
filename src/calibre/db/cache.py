@@ -752,8 +752,9 @@ class Cache:
         return_text=True,
         result_type=tuple,
         process_each_result=None,
+        limit=None,
     ):
-        ' Search the text of notes using an FTS index '
+        ' Search the text of notes using an FTS index. If the query is empty return all notes. '
         return result_type(self.backend.notes_search(
             fts_engine_query,
             use_stemming=use_stemming,
@@ -763,6 +764,7 @@ class Cache:
             return_text=return_text,
             restrict_to_fields=restrict_to_fields,
             process_each_result=process_each_result,
+            limit=limit,
         ))
     # }}}
 
