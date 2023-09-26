@@ -8,15 +8,38 @@ from qt.core import (
     QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
+from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Cache
-from calibre.gui2 import Application, gprefs
-from calibre.gui2.viewer.widgets import SearchBox
+from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, FlowLayout
 
 
 def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
+
+
+class NotesResultsDelegate(ResultsDelegate):
+
+    add_ellipsis = False
+    emphasize_text = False
+
+    def result_data(self, result):
+        if not isinstance(result, dict):
+            return None, None, None, None, None
+        full_text = result['text']
+        parts = full_text.split('\x1d', 2)
+        before = after = ''
+        if len(parts) > 2:
+            before, text = parts[:2]
+            after = parts[2].replace('\x1d', '')
+        elif len(parts) == 2:
+            before, text = parts
+        else:
+            text = parts[0]
+        return False, before, text, after, False
 
 
 class RestrictFields(QWidget):
@@ -28,6 +51,7 @@ class RestrictFields(QWidget):
         self.restrict_label = QLabel(_('Restrict to:'))
         self.restricted_fields = []
         self.add_button = b = QToolButton(self)
+        b.setToolTip(_('Add categories to which to restrict results.\nWhen no categories are specified no restriction is in effect'))
         b.setIcon(QIcon.ic('plus.png')), b.setText(_('Add')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.fields_menu = m = QMenu()
@@ -128,8 +152,9 @@ class SearchInput(QWidget):
     @property
     def current_query(self):
         return {
-            'query': self.search_box.lineEdit().text().strip(),
+            'fts_engine_query': self.search_box.lineEdit().text().strip(),
             'restrict_to_fields': tuple(self.restrict.restricted_fields),
+            'use_stemming': bool(self.parent().use_stemmer.isChecked()),
         }
 
     def cleared(self):
@@ -143,6 +168,8 @@ class SearchInput(QWidget):
 
 
 class NotesBrowser(Dialog):
+
+    current_query = None
 
     def __init__(self, parent=None):
         super().__init__(_('Browse notes'), 'browse-notes-dialog', default_buttons=QDialogButtonBox.StandardButton.Close)
@@ -167,6 +194,26 @@ class NotesBrowser(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
+
+    def do_find(self, backwards=False):
+        q = self.search_input.current_query
+        if q == self.current_query:
+            self.results_list.show_next(backwards)
+            return
+        try:
+            with BusyCursor():
+                results = current_db().search_notes(
+                    highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q
+                )
+                self.results_list.set_results(results, bool(q['fts_engine_query']))
+                self.current_query = q
+        except FTSQueryError as err:
+            return error_dialog(self, _('Invalid search expression'), '<p>' + _(
+                'The search expression: {0} is invalid. The search syntax used is the'
+                ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
+                    err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
+                det_msg=str(err), show=True)
+
 
 
 

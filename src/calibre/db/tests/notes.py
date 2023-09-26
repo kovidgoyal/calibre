@@ -171,6 +171,8 @@ def test_fts(self: 'NotesTest'):
     self.ae(ids_for_search('wunderbar'), {('authors', authors[0])})
     self.ae(ids_for_search('common'), {('authors', authors[0]), ('authors', authors[1]), ('tags', tags[0]), ('tags', tags[1])})
     self.ae(ids_for_search('common', ('tags',)), {('tags', tags[0]), ('tags', tags[1])})
+    self.ae(ids_for_search(''), ids_for_search('common'))
+    self.ae(ids_for_search('', ('tags',)), ids_for_search('common', ('tags',)))
 
     # test that searching by item value works
     an = cache.get_item_name('authors', authors[0])
