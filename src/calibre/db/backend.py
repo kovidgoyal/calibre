@@ -1005,10 +1005,11 @@ class DB:
         return self.notes.unretire(self.conn, field, item_id, item_val)
 
     def notes_search(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result
+        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result, limit
     ):
         yield from self.notes.search(
-            self.conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result)
+            self.conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text,
+            process_each_result, limit)
 
     def export_notes_data(self, outfile):
         import zipfile

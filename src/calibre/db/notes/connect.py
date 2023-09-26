@@ -367,10 +367,37 @@ class Notes:
             with suppress(FileNotFoundError), open(path, 'rb') as f:
                 return {'name': name, 'data': f.read(), 'hash': resource_hash}
 
+    def all_notes(self, conn, restrict_to_fields=(), limit=None, snippet_size=64, return_text=True, process_each_result=None) -> list[dict]:
+        if snippet_size is None:
+            snippet_size = 64
+        char_size = snippet_size * 8
+        query = 'SELECT {0}.id, {0}.colname, {0}.item, substr({0}.searchable_text, 9, {1}) FROM {0} '.format('notes', char_size)
+        if restrict_to_fields:
+            query += ' WHERE notes_db.notes.colname IN ({})'.format(','.join(repeat('?', len(restrict_to_fields))))
+        query += ' ORDER BY ctime DESC'
+        if limit is not None:
+            query += f' LIMIT {limit}'
+        for record in conn.execute(query, tuple(restrict_to_fields)):
+            result = {
+                'id': record[0],
+                'field': record[1],
+                'item_id': record[2],
+                'text': record[3] if return_text else '',
+            }
+            if process_each_result is not None:
+                result = process_each_result(result)
+            ret = yield result
+            if ret is True:
+                break
+
     def search(self,
         conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields=(),
-        return_text=True, process_each_result=None
+        return_text=True, process_each_result=None, limit=None
     ):
+        if not fts_engine_query:
+            yield from self.all_notes(
+                conn, restrict_to_fields, limit=limit, snippet_size=snippet_size, return_text=return_text, process_each_result=process_each_result)
+            return
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'notes_fts' + ('_stemmed' if use_stemming else '')
         if return_text:
@@ -390,6 +417,8 @@ class Notes:
             query += ' notes_db.notes.colname IN ({}) AND '.format(','.join(repeat('?', len(restrict_to_fields))))
         query += f' "{fts_table}" MATCH ?'
         query += f' ORDER BY {fts_table}.rank '
+        if limit is not None:
+            query += f' LIMIT {limit}'
         try:
             for record in conn.execute(query, restrict_to_fields+(fts_engine_query,)):
                 result = {
