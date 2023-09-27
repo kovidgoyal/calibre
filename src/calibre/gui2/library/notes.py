@@ -12,6 +12,7 @@ from qt.core import (
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Cache
 from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2.dialogs.show_category_note import Display
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, FlowLayout
@@ -157,6 +158,9 @@ class ResultsList(QTreeWidget):
         if self.item_map:
             self.setCurrentItem(self.item_map[0])
 
+    def sizeHint(self):
+        return QSize(500, 500)
+
 
 class RestrictFields(QWidget):
 
@@ -288,6 +292,42 @@ class SearchInput(QWidget):
         self.show_previous_signal.emit()
 
 
+class NoteDisplay(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+
+        self.title = la = QLabel('')
+        l.addWidget(la)
+        la.setWordWrap(True)
+
+        self.html_display = hd = Display(self)
+        l.addWidget(hd)
+
+    def sizeHint(self):
+        return QSize(400, 500)
+
+    @property
+    def db(self):
+        return current_db()
+
+    def show_note(self, field='', item_id=0):
+        if field:
+            self.title.setText('<h2>{}</h2>'.format(self.db.get_item_name(field, item_id) or ''))
+            self.html_display.setHtml(self.db.notes_for(field, item_id))
+        else:
+            self.title.setText('')
+            self.html_display.setHtml('')
+
+    def current_result_changed(self, r):
+        if r is None:
+            self.show_note()
+        else:
+            self.show_note(r['field'], r['item_id'])
+
+
 class NotesBrowser(Dialog):
 
     current_query = None
@@ -314,6 +354,10 @@ class NotesBrowser(Dialog):
         si.show_next_signal.connect(rl.show_next)
         si.show_previous_signal.connect(partial(rl.show_next, backwards=True))
         s.addWidget(rl)
+
+        self.notes_display = nd = NoteDisplay(self)
+        rl.current_result_changed.connect(nd.current_result_changed)
+        s.addWidget(nd)
 
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
         us.setChecked(gprefs['browse_notes_use_stemmer'])
