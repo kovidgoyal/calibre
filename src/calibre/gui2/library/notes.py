@@ -160,6 +160,8 @@ class ResultsList(QTreeWidget):
 
 class RestrictFields(QWidget):
 
+    restriction_changed = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.l = l = FlowLayout(self)
@@ -222,17 +224,19 @@ class RestrictFields(QWidget):
     def add_field(self, field):
         self.restricted_fields.append(field)
         self.relayout()
+        self.restriction_changed.emit()
 
     def remove_field(self, field):
         self.restricted_fields.remove(field)
         self.relayout()
+        self.restriction_changed.emit()
 
 
 class SearchInput(QWidget):
 
-    cleared_signal = pyqtSignal()
     show_next_signal = pyqtSignal()
     show_previous_signal = pyqtSignal()
+    search_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -262,6 +266,7 @@ class SearchInput(QWidget):
         nb.setToolTip(_('Find previous match'))
 
         self.restrict = r = RestrictFields(self)
+        r.restriction_changed.connect(self.search_changed)
         l.addWidget(r)
 
 
@@ -274,13 +279,13 @@ class SearchInput(QWidget):
         }
 
     def cleared(self):
-        raise NotImplementedError('TODO: Implement me')
+        self.search_changed.emit()
 
     def show_next(self):
-        raise NotImplementedError('TODO: Implement me')
+        self.show_next_signal.emit()
 
     def show_previous(self):
-        raise NotImplementedError('TODO: Implement me')
+        self.show_previous_signal.emit()
 
 
 class NotesBrowser(Dialog):
@@ -298,6 +303,7 @@ class NotesBrowser(Dialog):
         self.l = l = QVBoxLayout(self)
 
         self.search_input = si = SearchInput(self)
+        si.search_changed.connect(self.search_changed)
         l.addWidget(si)
 
         self.splitter = s = QSplitter(self)
@@ -305,6 +311,8 @@ class NotesBrowser(Dialog):
         s.setChildrenCollapsible(False)
 
         self.results_list = rl = ResultsList(self)
+        si.show_next_signal.connect(rl.show_next)
+        si.show_previous_signal.connect(partial(rl.show_next, backwards=True))
         s.addWidget(rl)
 
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
@@ -318,6 +326,10 @@ class NotesBrowser(Dialog):
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         QTimer.singleShot(0, self.do_find)
+
+    def search_changed(self):
+        if self.search_input.current_query != self.current_query:
+            self.do_find()
 
     def do_find(self, backwards=False):
         q = self.search_input.current_query
