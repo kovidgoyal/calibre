@@ -336,14 +336,19 @@ class ImagePopup:
                 self.dialogs.remove(d)
 
 
-if __name__ == '__main__':
-    import sys
-
+def show_image(path=None):
+    if path is None:
+        import sys
+        path = sys.argv[-1]
     from calibre.gui2 import Application
     app = Application([])
     p = QPixmap()
-    p.load(sys.argv[-1])
-    u = QUrl.fromLocalFile(sys.argv[-1])
+    p.load(path)
+    u = QUrl.fromLocalFile(path)
     d = ImageView(None, p, u)
     d()
     app.exec()
+
+
+if __name__ == '__main__':
+    show_image()
