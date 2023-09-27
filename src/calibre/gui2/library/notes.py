@@ -5,8 +5,8 @@ import os
 from functools import partial
 from qt.core import (
     QAbstractItemView, QCheckBox, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QMenu, QSize, Qt, QToolButton, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QKeySequence, QLabel, QMenu, QSize, QSplitter, Qt, QTimer, QToolButton, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.db.backend import FTSQueryError
@@ -139,6 +139,8 @@ class ResultsList(QTreeWidget):
         for result in results:
             field_map[result['field']]['matches'].append(result)
         for field, entry in field_map.items():
+            if not entry['matches']:
+                continue
             section = QTreeWidgetItem([entry['title']], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
@@ -298,6 +300,13 @@ class NotesBrowser(Dialog):
         self.search_input = si = SearchInput(self)
         l.addWidget(si)
 
+        self.splitter = s = QSplitter(self)
+        l.addWidget(s, stretch=100)
+        s.setChildrenCollapsible(False)
+
+        self.results_list = rl = ResultsList(self)
+        s.addWidget(rl)
+
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
         us.setChecked(gprefs['browse_notes_use_stemmer'])
         us.setToolTip('<p>' + _(
@@ -308,6 +317,7 @@ class NotesBrowser(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
+        QTimer.singleShot(0, self.do_find)
 
     def do_find(self, backwards=False):
         q = self.search_input.current_query
