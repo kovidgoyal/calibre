@@ -4,7 +4,7 @@
 import os
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QCheckBox, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
+    QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QMenu, QSize, QSplitter, Qt, QTimer, QToolButton, QTreeWidget,
     QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
@@ -12,6 +12,7 @@ from qt.core import (
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Cache
 from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.show_category_note import Display
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
@@ -47,6 +48,7 @@ class NotesResultsDelegate(ResultsDelegate):
 class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
+    note_edited = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -63,6 +65,18 @@ class ResultsList(QTreeWidget):
         self.number_of_results = 0
         self.item_map = []
 
+    def update_item(self, field, item_id):
+        nd = current_db().notes_data_for(field, item_id)
+        if nd:
+            for category in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+                for item in (category.child(c) for c in range(category.childCount())):
+                    r = item.data(0, Qt.ItemDataRole.UserRole)
+                    if r['id'] == nd['id']:
+                        r['text'] = nd['searchable_text']
+                        item.setData(0, Qt.ItemDataRole.UserRole, r)
+                        return True
+        return False
+
     def current_item_changed(self, current, previous):
         if current is not None:
             r = current.data(0, Qt.ItemDataRole.UserRole)
@@ -74,7 +88,7 @@ class ResultsList(QTreeWidget):
     def item_activated(self, item):
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
-            raise NotImplementedError('TODO: Implement me')
+            self.edit_note(item)
 
     def show_context_menu(self, pos):
         raise NotImplementedError('TODO: Implement me')
@@ -89,7 +103,11 @@ class ResultsList(QTreeWidget):
         self.setCurrentItem(self.item_map[i])
 
     def edit_note(self, item):
-        raise NotImplementedError('TODO: Implement me')
+        r = item.data(0, Qt.ItemDataRole.UserRole)
+        if isinstance(r, dict):
+            d = EditNoteDialog(r['field'], r['item_id'], current_db())
+            if d.exec() == QDialog.DialogCode.Accepted:
+                self.note_edited.emit(r['field'], r['item_id'])
 
     def keyPressEvent(self, ev):
         if ev.matches(QKeySequence.StandardKey.Delete):
@@ -294,6 +312,8 @@ class SearchInput(QWidget):
 
 class NoteDisplay(QWidget):
 
+    field = item_id = None
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
@@ -314,6 +334,7 @@ class NoteDisplay(QWidget):
         return current_db()
 
     def show_note(self, field='', item_id=0):
+        self.field, self.item_id = field, item_id
         if field:
             self.title.setText('<h2>{}</h2>'.format(self.db.get_item_name(field, item_id) or ''))
             self.html_display.setHtml(self.db.notes_for(field, item_id))
@@ -326,6 +347,10 @@ class NoteDisplay(QWidget):
             self.show_note()
         else:
             self.show_note(r['field'], r['item_id'])
+
+    def refresh(self):
+        if self.field:
+            self.show_note(self.field, self.item_id)
 
 
 class NotesBrowser(Dialog):
@@ -353,6 +378,7 @@ class NotesBrowser(Dialog):
         self.results_list = rl = ResultsList(self)
         si.show_next_signal.connect(rl.show_next)
         si.show_previous_signal.connect(partial(rl.show_next, backwards=True))
+        rl.note_edited.connect(self.note_edited)
         s.addWidget(rl)
 
         self.notes_display = nd = NoteDisplay(self)
@@ -370,6 +396,14 @@ class NotesBrowser(Dialog):
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         QTimer.singleShot(0, self.do_find)
+
+    def note_edited(self, field, item_id):
+        from calibre.gui2.ui import get_gui
+        self.notes_display.refresh()
+        self.results_list.update_item(field, item_id)
+        gui = get_gui()
+        if gui is not None:
+            gui.do_field_item_value_changed()
 
     def search_changed(self):
         if self.search_input.current_query != self.current_query:
