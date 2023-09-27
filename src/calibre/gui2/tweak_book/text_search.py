@@ -17,6 +17,7 @@ from calibre.gui2.tweak_book.search import (
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.startup import connect_lambda
+from calibre.utils.icu import utf16_length
 from polyglot.builtins import error_message, iteritems
 
 # UI {{{
@@ -219,7 +220,7 @@ def find_text_in_chunks(pat, chunks):
                 start_pos = chunk_start + (start - offset)
         if start_pos is not None:
             if contains(clen, after-1):
-                end_pos = chunk_start + (after - offset)
+                end_pos = chunk_start + utf16_length(chunk[:after-offset])
                 return start_pos, end_pos
         offset += clen
         if offset > after:
