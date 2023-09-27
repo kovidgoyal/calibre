@@ -91,7 +91,12 @@ class ResultsList(QTreeWidget):
             self.edit_note(item)
 
     def show_context_menu(self, pos):
-        raise NotImplementedError('TODO: Implement me')
+        # TODO: Add edit and export items
+        m = QMenu(self)
+        m.addSeparator()
+        m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
+        m.exec(self.mapToGlobal(pos))
 
     def show_next(self, backwards=False):
         item = self.currentItem()
@@ -269,7 +274,7 @@ class SearchInput(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.initialize('library-notes-browser-search-box')
         sb.cleared.connect(self.cleared, type=Qt.ConnectionType.QueuedConnection)
-        sb.lineEdit().returnPressed.connect(self.show_next)
+        sb.lineEdit().returnPressed.connect(self.search_changed)
         sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
 
@@ -427,6 +432,13 @@ class NotesBrowser(Dialog):
                 ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
                     err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
                 det_msg=str(err), show=True)
+
+    def keyPressEvent(self, ev):
+        k = ev.key()
+        if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):  # prevent enter from closing dialog
+            ev.ignore()
+            return
+        return super().keyPressEvent(ev)
 
 
 if __name__ == '__main__':
