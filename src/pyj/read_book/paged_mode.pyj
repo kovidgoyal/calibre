@@ -618,19 +618,20 @@ def current_cfi():
                 if yb <= top or ya >= bottom:
                     break
                 yidx += 1
-                xidx = 0
                 ys = v'[ya]' if ya is yb else v'[yb, ya]'
                 for cury in ys:
-                    xb, xa = midx - xidx * deltax, midx + xidx * deltax
-                    if xa <= left or xb >= right:
-                        break
-                    xidx += 1
-                    xs = v'[xa]' if xa is xb else v'[xb, xa]'
-                    for curx in xs:
-                        cfi = cfi_at_point(curx, cury)
-                        if cfi:
-                            # print('Viewport cfi:', cfi)
-                            return cfi
+                    xidx = 0
+                    while True:
+                        xb, xa = midx - xidx * deltax, midx + xidx * deltax
+                        if xb <= left or xa >= right:
+                            break
+                        xidx += 1
+                        xs = v'[xa]' if xa is xb else v'[xb, xa]'
+                        for curx in xs:
+                            cfi = cfi_at_point(curx, cury)
+                            if cfi:
+                                # print('Viewport cfi:', cfi)
+                                return cfi
     else:
         try:
             ans = cfi_at_current() or None
