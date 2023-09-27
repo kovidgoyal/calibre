@@ -24,7 +24,7 @@ def current_db() -> Cache:
 
 class NotesResultsDelegate(ResultsDelegate):
 
-    add_ellipsis = False
+    add_ellipsis = True
     emphasize_text = False
 
     def result_data(self, result):

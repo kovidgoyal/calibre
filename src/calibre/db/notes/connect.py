@@ -371,10 +371,10 @@ class Notes:
         if snippet_size is None:
             snippet_size = 64
         char_size = snippet_size * 8
-        query = 'SELECT {0}.id, {0}.colname, {0}.item, substr({0}.searchable_text, 9, {1}) FROM {0} '.format('notes', char_size)
+        query = 'SELECT {0}.id, {0}.colname, {0}.item, substr({0}.searchable_text, 0, {1}) FROM {0} '.format('notes', char_size)
         if restrict_to_fields:
             query += ' WHERE notes_db.notes.colname IN ({})'.format(','.join(repeat('?', len(restrict_to_fields))))
-        query += ' ORDER BY ctime DESC'
+        query += ' ORDER BY mtime DESC'
         if limit is not None:
             query += f' LIMIT {limit}'
         for record in conn.execute(query, tuple(restrict_to_fields)):
