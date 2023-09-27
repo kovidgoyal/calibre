@@ -165,7 +165,7 @@ def test_fts(self: 'NotesTest'):
 
     def ids_for_search(x, restrict_to_fields=()):
         return {
-            (x['field'], x['item_id']) for x in cache.notes_search(x, restrict_to_fields=restrict_to_fields)
+            (x['field'], x['item_id']) for x in cache.search_notes(x, restrict_to_fields=restrict_to_fields)
         }
 
     self.ae(ids_for_search('wunderbar'), {('authors', authors[0])})

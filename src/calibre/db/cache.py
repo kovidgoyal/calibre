@@ -741,9 +741,9 @@ class Cache:
         return self.backend.import_note(field, item_id, html, basedir, st.st_ctime, st.st_mtime)
 
     @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
-    def notes_search(
+    def search_notes(
         self,
-        fts_engine_query,
+        fts_engine_query='',
         use_stemming=True,
         highlight_start=None,
         highlight_end=None,
@@ -755,7 +755,7 @@ class Cache:
         limit=None,
     ):
         ' Search the text of notes using an FTS index. If the query is empty return all notes. '
-        return result_type(self.backend.notes_search(
+        return result_type(self.backend.search_notes(
             fts_engine_query,
             use_stemming=use_stemming,
             highlight_start=highlight_start,
