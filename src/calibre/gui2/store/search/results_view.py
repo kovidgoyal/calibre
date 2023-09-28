@@ -39,8 +39,8 @@ class ResultsView(QTreeView):
     download_requested = pyqtSignal(object)
     open_requested = pyqtSignal(object)
 
-    def __init__(self, *args):
-        QTreeView.__init__(self,*args)
+    def __init__(self, *args, **kwargs):
+        QTreeView.__init__(self,*args, **kwargs)
 
         self._model = Matches()
         self.setModel(self._model)
