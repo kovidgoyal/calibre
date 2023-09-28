@@ -8,11 +8,11 @@ import sys, glob, os, tempfile, re, codecs
 
 from lxml import etree
 
+from calibre import browser
 from calibre.constants import config_dir
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from calibre.utils.resources import get_path as P
-from calibre.utils.https import get_https_resource_securely
 from polyglot.builtins import iteritems
 
 NS_MAP = {
@@ -154,8 +154,10 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
 def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
+    br = browser()
     def read_file(key):
-        return get_https_resource_securely('/'.join([ONLINE_DICTIONARY_BASE_URL, directory, key]))
+        rp = br.open('/'.join([ONLINE_DICTIONARY_BASE_URL, directory, key]))
+        return rp.read()
 
     return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
