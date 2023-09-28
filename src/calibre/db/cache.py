@@ -727,7 +727,7 @@ class Cache:
         return self.backend.unretire_note_for(field, item_id)
 
     @read_api
-    def export_note(self, field, item_id):
+    def export_note(self, field, item_id) -> str:
         ' Export the note as a single HTML document with embedded images as data: URLs '
         return self.backend.export_note(field, item_id)
 
