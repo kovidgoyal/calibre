@@ -362,17 +362,17 @@
     {
         "name": "openjpeg",
         "unix": {
-            "filename": "openjpeg-2.4.0.tar.gz",
-            "hash": "sha256:8702ba68b442657f11aaeb2b338443ca8d5fb95b0d845757968a7be31ef7f16d",
-            "urls": ["https://github.com/uclouvain/openjpeg/archive/v2.4.0/{filename}"]
+            "filename": "openjpeg-2.5.0.tar.gz",
+            "hash": "sha256:0333806d6adecc6f7a91243b2b839ff4d2053823634d4f6ed7a59bc87409122a",
+            "urls": ["https://github.com/uclouvain/openjpeg/archive/v2.5.0/{filename}"]
         }
     },
 
     {
         "name": "poppler",
         "unix": {
-            "filename": "poppler-21.11.0.tar.xz",
-            "hash": "sha256:31b76b5cac0a48612fdd154c02d9eca01fd38fb8eaa77c1196840ecdeb53a584",
+            "filename": "poppler-23.08.0.tar.xz",
+            "hash": "sha256:4a4bf7fc903b9f1a2ab7d04b7c5d8220db9bc6261cc73fdb9a826dc272f49aa8",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
@@ -390,9 +390,9 @@
         "name": "libgpg-error",
         "os": "linux",
         "unix": {
-            "filename": "libgpg-error-1.43.tar.bz2",
-            "hash": "sha256:a9ab83ca7acc442a5bd846a75b920285ff79bdb4e3d34aa382be88ed2c3aebaf",
-            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgpg-error/{filename}"]
+            "filename": "libgpg-error-1.47.tar.bz2",
+            "hash": "sha256:9e3c670966b96ecc746c28c2c419541e3bcb787d1a73930f5e5f5e1bcbbb9bdb",
+            "urls": ["https://gnupg.org/ftp/gcrypt/libgpg-error/{filename}"]
         }
     },
 
@@ -400,9 +400,9 @@
         "name": "libgcrypt",
         "os": "linux",
         "unix": {
-            "filename": "libgcrypt-1.9.4.tar.bz2",
-            "hash": "sha256:ea849c83a72454e3ed4267697e8ca03390aee972ab421e7df69dfe42b65caaf7",
-            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgcrypt/{filename}"]
+            "filename": "libgcrypt-1.10.2.tar.bz2",
+            "hash": "sha256:3b9c02a004b68c256add99701de00b383accccf37177e0d6c58289664cce0c03",
+            "urls": ["https://gnupg.org/ftp/gcrypt/libgcrypt/{filename}"]
         }
     },
 
@@ -410,9 +410,9 @@
         "name": "glib",
         "os": "linux",
         "unix": {
-            "filename": "glib-2.70.1.tar.xz",
-            "hash": "sha256:f9b7bce7f51753a1f43853bbcaca8bf09e15e994268e29cfd7a76f65636263c0",
-            "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/2.70/{filename}"]
+            "filename": "glib-2.78.0.tar.xz",
+            "hash": "sha256:44eaab8b720877ce303c5540b657b126f12dc94972d9880b52959f43fb537b30",
+            "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/2.78/{filename}"]
         }
     },
 
@@ -420,8 +420,8 @@
         "name": "dbus",
         "os": "linux",
         "unix": {
-            "filename": "dbus-1.12.20.tar.gz",
-            "hash": "md5:dfe8a71f412e0b53be26ed4fbfdc91c4",
+            "filename": "dbus-1.15.8.tar.xz",
+            "hash": "sha256:84fc597e6ec82f05dc18a7d12c17046f95bad7be99fc03c15bc254c4701ed204",
             "urls": ["https://dbus.freedesktop.org/releases/dbus/{filename}"]
         }
     },
@@ -449,14 +449,14 @@
     {
         "name": "hunspell",
         "unix": {
-            "filename": "hunspell-1.7.0.tar.gz",
-            "hash": "sha256:57be4e03ae9dd62c3471f667a0d81a14513e314d4d92081292b90435944ff951",
-            "urls": ["https://github.com/hunspell/hunspell/files/2573619/{filename}"]
+            "filename": "hunspell-1.7.2.tar.gz",
+            "hash": "sha256:11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8",
+            "urls": ["https://github.com/hunspell/hunspell/releases/download/v1.7.2/{filename}"]
         },
         "windows": {
-            "filename": "hunspell-1.7.0.zip",
-            "hash": "sha256:7089cc01ffd9122c960e1f8c7930a75be989ca4e9468773cef1b0a655bfb4368",
-            "urls": ["https://github.com/hunspell/hunspell/archive/v1.7.0.zip"]
+            "filename": "hunspell-1.7.2.zip",
+            "hash": "sha256:1d6b3ea1ab9ad4603335f0a663f260e88814d5f35b0ab69f0f24f6c19c02a3e1",
+            "urls": ["https://github.com/hunspell/hunspell/archive/refs/tags/v1.7.2.zip"]
         }
     },
 
@@ -466,8 +466,8 @@
         "os": "macos,windows",
         "unix": {
             "filename": "ninja-src.tar.gz",
-            "hash": "sha256:ce35865411f0490368a8fc383f29071de6690cbadc27704734978221f25e2bed",
-            "urls": ["https://github.com/ninja-build/ninja/archive/refs/tags/v1.10.2.tar.gz"]
+            "hash": "sha256:31747ae633213f1eda3842686f83c2aa1412e0f5691d1c14dbbcc67fe7400cea",
+            "urls": ["https://github.com/ninja-build/ninja/archive/refs/tags/v1.11.1.tar.gz"]
         }
     },
 
@@ -477,58 +477,58 @@
         "os": "macos,linux",
         "unix": {
             "filename": "nodejs-src.tar.gz",
-            "hash": "sha256:394991ab9c259a68b0a72735d2fcee957a9c78138bf8d9e02cf8c04f6be5c673",
-            "urls": ["https://github.com/nodejs/node/archive/refs/tags/v12.22.8.tar.gz"]
+            "hash": "sha256:059ea8ab31a1a4fe090751e8c82fca16d2f7339f309e15b2c65820dff83b579a",
+            "urls": ["https://github.com/nodejs/node/archive/refs/tags/v20.7.0.tar.gz"]
         }
     },
 
     {
         "name": "qt-base",
-        "version": "6.4.2",
+        "version": "6.5.3",
         "hashes": {
-            "unix": "sha256:a88bc6cedbb34878a49a622baa79cace78cfbad4f95fdbd3656ddb21c705525d"
+            "unix": "md5:9b3b8e45d0923bc6928833d185b29e40"
         }
     },
 
     {
         "name": "qt-svg",
         "hashes": {
-            "unix": "sha256:b746af3cb1793621d8ed7eae38d9ad5a15541dc2742031069f2ae3fe87590314"
+            "unix": "md5:6e29e50c706d1ef870d232f260cf05c2"
         }
     },
 
     {
         "name": "qt-shadertools",
         "hashes": {
-            "unix": "sha256:fa65bff84d4e9c2cb4cbf6fb098207e0e23d863dbe675eb277034a29c226a217"
+            "unix": "md5:e751ba53872f74546e01277b51e0218d"
         }
     },
 
     {
         "name": "qt-declarative",
         "hashes": {
-            "unix": "sha256:a4bdd983de4e9cbca0f85b767dbdd8598711554e370a06da8f509ded4430f5bd"
+            "unix": "md5:c6f3840960803d8c1654ba48f9742814"
         }
     },
 
     {
         "name": "qt-imageformats",
         "hashes": {
-            "unix": "sha256:fc5f999ae0779a67d5507956d4dd315386eb81cf6ccba632de039bb9eee11707"
+            "unix": "md5:47838764e104e7cb2390038989ba91ea"
         }
     },
 
     {
         "name": "qt-webchannel",
         "hashes": {
-            "unix": "sha256:06657b2b2509f26c733b7c40da0dbb8571a215b97f99685a6fc3bc51dcbebd87"
+            "unix": "md5:d92af561c15f5af61656eabcdbaf1d27"
         }
     },
 
     {
         "name": "qt-positioning",
         "hashes": {
-            "unix": "sha256:7f01baf5ba877af5b211c9d32e6075019f00d9d7a2ba81bb0f10ca759e9aef82"
+            "unix": "md5:c1eb22c2cdd18a8228e433e4e5d1577a"
         }
     },
 
@@ -536,21 +536,21 @@
         "name": "qt-wayland",
         "os": "linux",
         "hashes": {
-            "unix": "sha256:24cf1a0af751ab1637b4815d5c5f3704483d5fa7bedbd3519e6fc020d8be135f"
+            "unix": "md5:b73feecf0fef221ed748ea7c984f45be"
         }
     },
 
     {
         "name": "qt-sensors",
         "hashes": {
-            "unix": "sha256:455619ff28a39f4caba49c9e1952fbcfafc8ffc893b437d653d5465a077ee656"
+            "unix": "md5:c4a48b39a3aaba6534f7fa5fbc363b0f"
         }
     },
 
     {
         "name": "qt-webengine",
         "hashes": {
-            "unix": "sha256:ffa945518d1cc8d9ee73523e8d9c2090844f5a2d9c7eac05c4ad079472a119c9"
+            "unix": "md5:b418c1b4e333a06609dac451c4484e23"
         }
     },
 
@@ -584,8 +584,8 @@
     {
         "name": "lxml",
         "unix": {
-            "filename": "lxml-4.9.1.tar.gz",
-            "hash": "sha256:fe749b052bb7233fe5d072fcb549221a8cb1a16725c47c37e42b0b9cb3ff2c3f",
+            "filename": "lxml-4.9.3.tar.gz",
+            "hash": "sha256:48628bd53a426c9eb9bc066a923acaa0878d1e86129fd5359aee99285f4eed9c",
             "urls": ["pypi"]
         }
     },
@@ -602,8 +602,8 @@
     {
         "name": "html5-parser",
         "unix": {
-            "filename": "html5-parser-0.4.10.tar.gz",
-            "hash": "sha256:f9294418c0da95c2d5facc19d3dc32941093a6b8e3b3e4b36cc7b5a1697fbca4",
+            "filename": "html5-parser-0.4.11.tar.gz",
+            "hash": "sha256:85bb16faa3cdf3c6c6842e0cb2ce02807cbaefc6e3bb0f3b8e18dabe51070763",
             "urls": ["pypi"]
         }
     },
@@ -611,8 +611,8 @@
     {
         "name": "css-parser",
         "unix": {
-            "filename": "css-parser-1.0.8.tar.gz",
-            "hash": "sha256:994d6a0115a8f4e2b6648e2b12733036d05fa164278aa234630c9f03e52c8c80",
+            "filename": "css-parser-1.0.9.tar.gz",
+            "hash": "sha256:196db822cef22745af6a58d180cf8206949ced58b48f5f3ee98f1de1627495bb",
             "urls": ["pypi"]
         }
     },
@@ -630,8 +630,8 @@
         "name": "jeepney",
         "os": "linux",
         "unix": {
-            "filename": "jeepney-0.7.1.tar.gz",
-            "hash": "sha256:fa9e232dfa0c498bd0b8a3a73b8d8a31978304dcef0515adc859d4e096f96f4f",
+            "filename": "jeepney-0.8.0.tar.gz",
+            "hash": "sha256:5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806",
             "urls": ["pypi"]
         }
     },
@@ -639,8 +639,8 @@
     {
         "name": "dnspython",
         "unix": {
-            "filename": "dnspython-2.1.0.zip",
-            "hash": "sha256:e4a87f0b573201a0f3727fa18a516b055fd1107e0e5477cded4a2de497df1dd4",
+            "filename": "dnspython-2.4.2.tar.gz",
+            "hash": "sha256:8dcfae8c7460a2f84b4072e26f1c9f4101ca20c071649cb7c34e8b6a93d58984",
             "urls": ["pypi"]
         }
     },
@@ -657,8 +657,8 @@
     {
         "name": "feedparser",
         "unix": {
-            "filename": "feedparser-6.0.8.tar.bz2",
-            "hash": "sha256:5ce0410a05ab248c8c7cfca3a0ea2203968ee9ff4486067379af4827a59f9661",
+            "filename": "feedparser-6.0.10.tar.bz2",
+            "hash": "sha256:27da485f4637ce7163cdeab13a80312b93b7d0c1b775bef4a47629a3110bca51",
             "urls": ["pypi"]
         }
     },
@@ -675,8 +675,8 @@
     {
         "name": "markdown",
         "unix": {
-            "filename": "Markdown-3.3.6.tar.gz",
-            "hash": "sha256:76df8ae32294ec39dcf89340382882dfa12975f87f45c3ed1ecdb1e8cefc7006",
+            "filename": "Markdown-3.4.4.tar.gz",
+            "hash": "sha256:225c6123522495d4119a90b3a3ba31a1e87a70369e03f14799ea9c0d7183a3d6",
             "urls": ["pypi"]
         }
     },
@@ -693,8 +693,8 @@
     {
         "name": "soupsieve",
         "unix": {
-            "filename": "soupsieve-2.3.1.tar.gz",
-            "hash": "sha256:b8d49b1cd4f037c7082a9683dfa1801aa2597fb11c3a1155b7a5b94829b4f1f9",
+            "filename": "soupsieve-2.5.tar.gz",
+            "hash": "sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690",
             "urls": ["pypi"]
         }
     },
@@ -702,8 +702,8 @@
     {
         "name": "beautifulsoup4",
         "unix": {
-            "filename": "beautifulsoup4-4.10.0.tar.gz",
-            "hash": "sha256:c23ad23c521d818955a4151a67d81580319d4bf548d3d49f4223ae041ff98891",
+            "filename": "beautifulsoup4-4.12.2.tar.gz",
+            "hash": "sha256:492bbc69dca35d12daac71c4db1bfff0c876c00ef4a2ffacce226d4638eb72da",
             "urls": ["pypi"]
         }
     },
@@ -711,8 +711,8 @@
     {
         "name": "regex",
         "unix": {
-            "filename": "regex-2021.11.10.tar.gz",
-            "hash": "sha256:f341ee2df0999bfdf7a95e448075effe0db212a59387de1a70690e4acb03d4c6",
+            "filename": "regex-2023.8.8.tar.gz",
+            "hash": "sha256:fcbdc5f2b0f1cd0f6a56cdb46fe41d2cce1e644e3b68832f3eeebc5fb0f7712e",
             "urls": ["pypi"]
         }
     },
@@ -720,8 +720,8 @@
     {
         "name": "chardet",
         "unix": {
-            "filename": "chardet-4.0.0.tar.gz",
-            "hash": "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa",
+            "filename": "chardet-5.2.0.tar.gz",
+            "hash": "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7",
             "urls": ["pypi"]
         }
     },
@@ -729,8 +729,8 @@
     {
         "name": "uchardet",
         "unix": {
-            "filename": "uchardet-0.0.7.tar.xz",
-            "hash": "sha256:3fc79408ae1d84b406922fa9319ce005631c95ca0f34b205fad867e8b30e45b1",
+            "filename": "uchardet-0.0.8.tar.xz",
+            "hash": "sha256:e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0",
             "urls": ["https://www.freedesktop.org/software/uchardet/releases/{filename}"]
         }
     },
@@ -738,8 +738,8 @@
     {
         "name": "msgpack",
         "unix": {
-            "filename": "msgpack-1.0.3.tar.gz",
-            "hash": "sha256:51fdc7fb93615286428ee7758cecc2f374d5ff363bdd884c7ea622a7a327a81e",
+            "filename": "msgpack-1.0.7.tar.gz",
+            "hash": "sha256:572efc93db7a4d27e404501975ca6d2d9775705c2d922390d878fcf768d92c87",
             "urls": ["pypi"]
         }
     },
@@ -747,8 +747,8 @@
     {
         "name": "pygments",
         "unix": {
-            "filename": "Pygments-2.10.0.tar.gz",
-            "hash": "sha256:f398865f7eb6874156579fdf36bc840a03cab64d1cde9e93d68f46a425ec52c6",
+            "filename": "Pygments-2.16.1.tar.gz",
+            "hash": "sha256:1daff0494820c69bc8941e407aa20f577374ee88364ee10a98fdbe0aece96e29",
             "urls": ["pypi"]
         }
     },
@@ -756,8 +756,8 @@
     {
         "name": "pycryptodome",
         "unix": {
-            "filename": "pycryptodome-3.11.0.tar.gz",
-            "hash": "sha256:428096bbf7a77e207f418dfd4d7c284df8ade81d2dc80f010e92753a3e406ad0",
+            "filename": "pycryptodome-3.19.0.tar.gz",
+            "hash": "sha256:bc35d463222cdb4dbebd35e0784155c81e161b9284e567e7e933d722e533331e",
             "urls": ["pypi"]
         }
     },
@@ -792,8 +792,8 @@
     {
         "name": "pillow",
         "unix": {
-            "filename": "Pillow-8.4.0.tar.gz",
-            "hash": "sha256:b8e2f83c56e141920c39464b852de3719dfbfb6e3c99a2d8da0edf4fb33176ed",
+            "filename": "Pillow-10.0.1.tar.gz",
+            "hash": "sha256:d72967b06be9300fed5cfbc8b5bafceec48bf7cdc7dab66b1d2549035287191d",
             "urls": ["pypi"]
         }
     },
@@ -810,8 +810,8 @@
     {
         "name": "psutil",
         "unix": {
-            "filename": "psutil-5.8.0.tar.gz",
-            "hash": "sha256:0c9ccb99ab76025f2f0bbecf341d4656e9c1351db8cc8a03ccd62e318ab4b5c6",
+            "filename": "psutil-5.9.5.tar.gz",
+            "hash": "sha256:5410638e4df39c54d957fc51ce03048acd8e6d60abc0f5107af51e5fb566eb3c",
             "urls": ["pypi"]
         }
     },
@@ -819,8 +819,8 @@
     {
         "name": "ifaddr",
         "unix": {
-            "filename": "ifaddr-0.1.7.tar.gz",
-            "hash": "sha256:1f9e8a6ca6f16db5a37d3356f07b6e52344f6f9f7e806d618537731669eb1a94",
+            "filename": "ifaddr-0.2.0.tar.gz",
+            "hash": "sha256:cc0cbfcaabf765d44595825fb96a99bb12c79716b73b44330ea38ee2b0c4aed4",
             "urls": ["pypi"]
         }
     },
