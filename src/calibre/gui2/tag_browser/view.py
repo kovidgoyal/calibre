@@ -11,7 +11,7 @@ import traceback
 from contextlib import suppress
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QApplication, QBrush, QColor, QCursor, QDrag, QFont, QIcon,
+    QAbstractItemView, QApplication, QBrush, QColor, QCursor, QDialog, QDrag, QFont, QIcon,
     QLinearGradient, QMenu, QModelIndex, QPalette, QPen, QPoint, QPointF, QRect, QSize,
     QStyle, QStyledItemDelegate, QStyleOptionViewItem, Qt, QTimer, QToolTip, QTreeView,
     pyqtSignal,
@@ -524,7 +524,8 @@ class TagsView(QTreeView):  # {{{
         from calibre.gui2.ui import get_gui
         try:
             if action == 'edit_note':
-                EditNoteDialog(category, extra, self.db).exec()
+                if EditNoteDialog(category, extra, self.db).exec() == QDialog.DialogCode.Accepted:
+                    get_gui().do_field_item_value_changed()
                 return
             if action == 'dont_collapse_category':
                 if key not in extra:
