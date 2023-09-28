@@ -3,9 +3,9 @@
         "name": "nasm",
         "os": "macos,windows",
         "unix": {
-            "filename": "nasm-2.15.05.tar.xz",
-            "hash": "sha256:3caf6729c1073bf96629b57cee31eeb54f4f8129b01902c73428836550b30a3f",
-            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/{filename}"]
+            "filename": "nasm-2.16.01.tar.xz",
+            "hash": "sha256:c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558",
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/{filename}"]
         }
     },
 
@@ -13,9 +13,9 @@
         "name": "cmake",
         "os": "macos",
         "unix": {
-            "filename": "cmake-3.22.0.tar.gz",
-            "hash": "sha256:998c7ba34778d2dfdb3df8a695469e24b11e2bfa21fbe41b361a3f45e1c9345e",
-            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0.tar.gz"]
+            "filename": "cmake-3.27.6.tar.gz",
+            "hash": "sha256:ef3056df528569e0e8956f6cf38806879347ac6de6a4ff7e4105dc4578732cfb",
+            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.27.6/{filename}"]
         }
     },
 
@@ -23,9 +23,9 @@
         "name": "autoconf",
         "os": "macos",
         "unix": {
-            "filename": "autoconf-2.69.tar.xz",
-            "hash": "sha256:64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684",
-            "urls": ["ftp://ftp.gnu.org/gnu/autoconf/{filename}"]
+            "filename": "autoconf-2.71.tar.xz",
+            "hash": "sha256:f14c83cfebcc9427f2c3cea7258bd90df972d92eb26752da4ddad81c87a0faa4",
+            "urls": ["https://ftp.gnu.org/gnu/autoconf/{filename}"]
         }
     },
 
@@ -33,9 +33,9 @@
         "name": "automake",
         "os": "macos",
         "unix": {
-            "filename": "automake-1.16.tar.xz",
-            "hash": "sha256:f98f2d97b11851cbe7c2d4b4eaef498ae9d17a3c2ef1401609b7b4ca66655b8a",
-            "urls": ["ftp://ftp.gnu.org/gnu/automake/{filename}"]
+            "filename": "automake-1.16.5.tar.xz",
+            "hash": "sha256:f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469",
+            "urls": ["https://ftp.gnu.org/gnu/automake/{filename}"]
         }
     },
 
@@ -43,9 +43,9 @@
         "name": "libtool",
         "os": "macos",
         "unix": {
-            "filename": "libtool-2.4.6.tar.xz",
-            "hash": "sha256:7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f",
-            "urls": ["ftp://ftp.gnu.org/gnu/libtool/{filename}"]
+            "filename": "libtool-2.4.7.tar.xz",
+            "hash": "sha256:4f7f217f057ce655ff22559ad221a0fd8ef84ad1fc5fcb6990cecc333aa1635d",
+            "urls": ["https://ftp.gnu.org/gnu/libtool/{filename}"]
         }
     },
 
@@ -62,8 +62,8 @@
     {
         "name": "zlib",
         "unix": {
-            "filename": "zlib-1.2.13.tar.xz",
-            "hash": "sha256:d14c38e313afc35a9a8760dadf26042f51ea0f5d154b0630a31da0540107fb98",
+            "filename": "zlib-1.3.tar.xz",
+            "hash": "sha256:8a9ba2898e1d0d774eca6ba5b4627a11e5588ba85c8851336eb38de4683050a7",
             "urls": ["https://zlib.net/{filename}"]
         }
     },
@@ -82,8 +82,8 @@
         "name": "xz",
         "os": "macos,linux",
         "unix": {
-            "filename": "xz-5.2.5.tar.gz",
-            "hash": "md5:0d270c997aff29708c74d53f599ef717",
+            "filename": "xz-5.4.4.tar.gz",
+            "hash": "sha256:aae39544e254cfd27e942d35a048d592959bd7a79f9a624afb0498bb5613bdf8",
             "urls": ["https://tukaani.org/xz/{filename}"]
         }
     },
@@ -91,8 +91,8 @@
     {
         "name": "unrar",
         "unix": {
-            "filename": "unrarsrc-6.1.2.tar.gz",
-            "hash": "sha256:3e96421f568e438af6dcdaef717c48eb93b825d97058ebcb173b9bfc57807be3",
+            "filename": "unrarsrc-6.2.11.tar.gz",
+            "hash": "sha256:a805e150d56445770f71a85c3fbdc9ab4b04fbe61b01cb57182d86fe3e7e6cec",
             "urls": ["https://www.rarlab.com/rar/{filename}"]
         }
     },
@@ -100,9 +100,9 @@
     {
         "name": "brotli",
         "unix": {
-            "filename": "brotli-1.0.9.tar.gz",
-            "hash": "sha256:f9e8d81d0405ba66d181529af42a3354f838c939095ff99930da6aa9cdf6fe46",
-            "urls": ["https://github.com/google/brotli/archive/refs/tags/v1.0.9.tar.gz"]
+            "filename": "brotli-1.1.0.tar.gz",
+            "hash": "sha256:e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
+            "urls": ["https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"]
         }
     },
 
@@ -118,9 +118,9 @@
     {
         "name": "expat",
         "unix": {
-            "filename": "expat-2.4.1.tar.bz2",
-            "hash": "sha256:2f9b6a580b94577b150a7d5617ad4643a4301a6616ff459307df3e225bcfbf40",
-            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_2_4_1/{filename}"]
+            "filename": "expat-2.5.0.tar.bz2",
+            "hash": "sha256:6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67",
+            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_2_5_0/{filename}"]
         }
     },
 
@@ -137,9 +137,9 @@
         "name": "libffi",
         "os": "linux",
         "unix": {
-            "filename": "libffi-3.4.2.tar.gz",
-            "hash": "sha256:540fb721619a6aba3bdeef7d940d8e9e0e6d2c193595bc243241b77ff9e93620",
-            "urls": ["https://github.com/libffi/libffi/releases/download/v3.4.2/{filename}"]
+            "filename": "libffi-3.4.4.tar.gz",
+            "hash": "sha256:d66c56ad259a82cf2a9dfc408b32bf5da52371500b84745f7fb8b645712df676",
+            "urls": ["https://github.com/libffi/libffi/releases/download/v3.4.4/{filename}"]
         }
     },
 
@@ -155,8 +155,8 @@
     {
         "name": "openssl",
         "unix": {
-            "filename": "openssl-1.1.1v.tar.gz",
-            "hash": "sha256:d6697e2871e77238460402e9362d47d18382b15ef9f246aba6c7bd780d38a6b0",
+            "filename": "openssl-3.1.3.tar.gz",
+            "hash": "sha256:f0316a2ebd89e7f2352976445458689f80302093788c466692fb2a188b2eacf6",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
@@ -165,9 +165,9 @@
         "name": "ncurses",
         "os": "linux",
         "unix": {
-            "filename": "ncurses-6.3.tar.gz",
-            "hash": "sha256:97fc51ac2b085d4cde31ef4d2c3122c21abc217e9090a43a30fc5ec21684e059",
-            "urls": ["ftp://ftp.gnu.org/gnu/ncurses/{filename}"]
+            "filename": "ncurses-6.4.tar.gz",
+            "hash": "sha256:6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159",
+            "urls": ["https://ftp.gnu.org/gnu/ncurses/{filename}"]
         }
     },
 
@@ -175,32 +175,32 @@
         "name": "readline",
         "os": "linux",
         "unix": {
-            "filename": "readline-8.1.tar.gz",
-            "hash": "sha256:f8ceb4ee131e3232226a17f51b164afc46cd0b9e6cef344be87c65962cb82b02",
-            "urls": ["http://ftp.gnu.org/gnu/readline/{filename}"]
+            "filename": "readline-8.2.tar.gz",
+            "hash": "sha256:3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35",
+            "urls": ["https://ftp.gnu.org/gnu/readline/{filename}"]
         }
     },
 
     {
         "name": "python",
         "unix": {
-            "filename": "Python-3.10.1.tar.xz",
-            "hash": "sha256:a7f1265b6e1a5de1ec5c3ec7019ab53413469934758311e9d240c46e5ae6e177",
-            "urls": ["https://www.python.org/ftp/python/3.10.1/{filename}"]
+            "filename": "Python-3.11.5.tar.xz",
+            "hash": "sha256:85cd12e9cf1d6d5a45f17f7afe1cebe7ee628d3282281c492e86adf636defa3f",
+            "urls": ["https://www.python.org/ftp/python/3.11.5/{filename}"]
         }
     },
 
     {
         "name": "icu",
         "unix": {
-            "filename": "icu4c-70_1-src.tgz",
-            "hash": "sha256:8d205428c17bf13bb535300669ed28b338a157b1c01ae66d31d0d3e2d47c3fd5",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-70-1/{filename}"]
+            "filename": "icu4c-73_2-src.tgz",
+            "hash": "sha256:818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-73-2/{filename}"]
         },
         "windows": {
-            "filename": "icu4c-70_1-src.zip",
-            "hash": "sha256:0d41e13364af260e330fdc5d2d60531564108d6a1234209f5712f8d9693315a7",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-70-1/{filename}"]
+            "filename": "icu4c-73_2-src.zip",
+            "hash": "sha256:2c4300315141942178502f85f1167c0a6a65847c9b683e95c79535b373c1e369",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-73-2/{filename}"]
         }
 
     },
@@ -217,18 +217,18 @@
     {
         "name": "libjpeg",
         "unix": {
-            "filename": "libjpeg-turbo-2.1.2.tar.gz",
-            "hash": "sha256:09b96cb8cbff9ea556a9c2d173485fd19488844d55276ed4f42240e1e2073ce5",
-            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/2.1.2/{filename}"]
+            "filename": "libjpeg-turbo-3.0.0.tar.gz",
+            "hash": "sha256:c77c65fcce3d33417b2e90432e7a0eb05f59a7fff884022a9d931775d583bfaa",
+            "urls": ["https://downloads.sourceforge.net/project/libjpeg-turbo/3.0.0/{filename}"]
         }
     },
 
     {
         "name": "libpng",
         "unix": {
-            "filename": "libpng-1.6.37.tar.xz",
-            "hash": "sha256:505e70834d35383537b6491e7ae8641f1a4bed1876dbfe361201fc80868d88ca",
-            "urls": ["http://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
+            "filename": "libpng-1.6.40.tar.xz",
+            "hash": "sha256:535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
+            "urls": ["https://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
         }
     },
 
@@ -254,8 +254,8 @@
         "name": "freetype",
         "os": "macos,windows",
         "unix": {
-            "filename": "freetype-2.11.0.tar.xz",
-            "hash": "sha256:8bee39bd3968c4804b70614a0a3ad597299ad0e824bc8aad5ce8aaf48067bde7",
+            "filename": "freetype-2.13.2.tar.xz",
+            "hash": "sha256:12991c4e55c506dd7f9b765933e62fd2be2e06d421505d7950a132e4f1bb484d",
             "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
     },
@@ -270,23 +270,21 @@
         }
     },
 
-
     {
         "name": "fontconfig",
         "os": "macos",
         "unix": {
-            "filename": "fontconfig-2.13.94.tar.xz",
-            "hash": "sha256:a5f052cb73fd479ffb7b697980510903b563bbb55b8f7a2b001fcfb94026003c",
+            "filename": "fontconfig-2.14.2.tar.xz",
+            "hash": "sha256:dba695b57bce15023d2ceedef82062c2b925e51f5d4cc4aef736cf13f60a468b",
             "urls": ["https://www.fontconfig.org/release/{filename}"]
         }
     },
 
-
     {
         "name": "iconv",
         "unix": {
-            "filename": "libiconv-1.16.tar.gz",
-            "hash": "sha256:e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04",
+            "filename": "libiconv-1.17.tar.gz",
+            "hash": "sha256:8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313",
             "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
         },
         "windows": {
@@ -299,17 +297,17 @@
     {
         "name": "libxml2",
         "unix": {
-            "filename": "libxml2-2.9.14.tar.xz",
-            "hash": "sha256:60d74a257d1ccec0475e749cba2f21559e48139efba6ff28224357c7c798dfee",
-            "urls": ["https://download.gnome.org/sources/libxml2/2.9/{filename}"]
+            "filename": "libxml2-2.11.5.tar.xz",
+            "hash": "sha256:3727b078c360ec69fa869de14bd6f75d7ee8d36987b071e6928d4720a28df3a6",
+            "urls": ["https://download.gnome.org/sources/libxml2/2.11/{filename}"]
         }
     },
 
     {
         "name": "libxslt",
         "unix": {
-            "filename": "libxslt-1.1.35.tar.xz",
-            "hash": "sha256:8247f33e9a872c6ac859aa45018bc4c4d00b97e2feac9eebc10c93ce1f34dd79",
+            "filename": "libxslt-1.1.38.tar.xz",
+            "hash": "sha256:1f32450425819a09acaff2ab7a5a7f8a2ec7956e505d7beeb45e843d0e1ecab1",
             "urls": ["https://download.gnome.org/sources/libxslt/1.1/{filename}"]
         }
     },
@@ -335,9 +333,9 @@
     {
         "name": "mozjpeg",
         "unix": {
-            "filename": "mozjpeg-4.0.3.tar.gz",
-            "hash": "sha256:4f22731db2afa14531a5bf2633d8af79ca5cb697a550f678bf43f24e5e409ef0",
-            "urls": ["https://github.com/mozilla/mozjpeg/archive/v4.0.3.tar.gz"]
+            "filename": "mozjpeg-4.1.4.tar.gz",
+            "hash": "sha256:8a5018dc93c08a49fba3aff8d1a0be0a3e26460e315d1db45abb64402935e0db",
+            "urls": ["https://github.com/mozilla/mozjpeg/archive/v4.1.4.tar.gz"]
         }
     },
 
@@ -345,9 +343,9 @@
         "name": "libusb",
         "os": "macos, linux",
         "unix": {
-            "filename": "libusb-1.0.24.tar.bz2",
-            "hash": "sha256:7efd2685f7b327326dcfb85cee426d9b871fd70e22caa15bb68d595ce2a2b12a",
-            "urls": ["https://github.com/libusb/libusb/releases/download/v1.0.24/{filename}"]
+            "filename": "libusb-1.0.26.tar.bz2",
+            "hash": "sha256:12ce7a61fc9854d1d2a1ffe095f7b5fac19ddba095c259e6067a46500381b5a5",
+            "urls": ["https://github.com/libusb/libusb/releases/download/v1.0.26/{filename}"]
         }
     },
 
@@ -355,8 +353,8 @@
         "name": "libmtp",
         "os": "macos, linux",
         "unix": {
-            "filename": "libmtp-1.1.20.tar.gz",
-            "hash": "sha256:c9191dac2f5744cf402e08641610b271f73ac21a3c802734ec2cedb2c6bc56d0",
+            "filename": "libmtp-1.1.21.tar.gz",
+            "hash": "sha256:c4ffa5ab8c8f48c91b0047f2e253c101c418d5696a5ed65c839922a4280872a7",
             "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
         }
     },
