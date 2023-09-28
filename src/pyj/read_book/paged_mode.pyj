@@ -848,12 +848,27 @@ def handle_gesture(gesture):
         scroll_by_page(False, False)
 
 
+def get_bounding_client_rect_using_offset_properties(elem):
+    ans = {'left': 0, 'top': 0, 'width': elem.offsetWidth, 'height': elem.offsetHeight, 'x': 0, 'y': 0}
+    while elem:
+        ans.left += elem.offsetLeft
+        ans.top += elem.offsetTop
+        elem = elem.offsetParent
+    ans.left -= window.scrollX
+    ans.top -= window.scrollTop
+    ans.x, ans.y = ans.left, ans.top
+    return ans
+
+
 anchor_funcs = {
     'pos_for_elem': def pos_for_elem(elem):
         if not elem:
             return 0
         elem = scrollable_element(elem)
         br = elem.getBoundingClientRect()
+        if br.left is 0 and br.top is 0 and br.width is 0 and br.height is 0:
+            # getBoundingClientRect() fails sometimes, see https://bugs.launchpad.net/calibre/+bug/2037543
+            br = get_bounding_client_rect_using_offset_properties(elem)
         pos = scroll_viewport.viewport_to_document_inline(
             scroll_viewport.rect_inline_start(br))
         return column_at(pos)
