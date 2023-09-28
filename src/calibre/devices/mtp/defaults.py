@@ -31,8 +31,9 @@ class DeviceDefaults:
                 # B&N devices
                 ({'vendor':0x2080}, {
                     'format_map': ['epub', 'pdf'],
-                    'send_to': ['NOOK/My Books', 'NOOK/My Files', 'NOOK', 'Calibre_Companion', 'Books',
-                    'eBooks/import', 'eBooks', 'sdcard/ebooks'],
+                    # NOOK does not allow writing files into root
+                    'calibre_file_paths': {'metadata':'NOOK/metadata.calibre', 'driveinfo':'NOOK/driveinfo.calibre'},
+                    'send_to': ['NOOK/My Books', 'NOOK/My Files', 'NOOK', 'Calibre_Companion', 'Books', 'eBooks/import', 'eBooks', 'sdcard/ebooks'],
                     }
                 ),
                 # Supernote A5 and A5X
@@ -64,8 +65,6 @@ class DeviceDefaults:
                     break
             if matches:
                 ans = rule[1]
-                if vid == 0x2080 and pid == 0x000a:
-                    ans['calibre_file_paths'] = {'metadata':'NOOK/metadata.calibre', 'driveinfo':'NOOK/driveinfo.calibre'}
                 return ans, vid, pid
 
         return {}, vid, pid

@@ -86,10 +86,12 @@ class NOOK_COLOR(NOOK):
         0x002, 0x003, 0x004,
         0x005,  # Nook HD+
         0x007,  # Glowlight from 2013
+        # 0xa,    # Glowlight from 2016 is MTP based device
         0xb,    # Glowlight from 2017
         0xc,    # Glowlight from 2019
         0xd,    # Glowlight from 2021
-        0xe,    # Glowlight from 2021
+        0xe,    # Glowlight from 2022
+        # 0xf,    # Glowlight from 2023 is MTP based device
     ]
     BCD         = [0x216, 0x9999, 0x409, 0x440]
 
