@@ -855,6 +855,12 @@ class ActionBrowseAnnotations(InterfaceActionBase):
     description = _('Browse highlights and bookmarks from all books in the library')
 
 
+class ActionBrowseNotes(InterfaceActionBase):
+    name = 'Browse Notes'
+    actual_plugin = 'calibre.gui2.actions.browse_notes:BrowseNotesAction'
+    description = _('Browse notes for authors, tags, etc. in the library')
+
+
 class ActionFullTextSearch(InterfaceActionBase):
     name = 'Full Text Search'
     actual_plugin = 'calibre.gui2.actions.fts:FullTextSearchAction'
@@ -1133,7 +1139,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
         ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches,
-        ActionLayoutActions]
+        ActionLayoutActions, ActionBrowseNotes,]
 
 # }}}
 
