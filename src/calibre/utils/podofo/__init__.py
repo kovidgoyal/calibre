@@ -259,5 +259,13 @@ def test_podofo():
         raise ValueError('Appending failed')
 
 
+def develop(path=sys.argv[-1]):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    p.open(path)
+    p.title = 'test'
+
+
+
 if __name__ == '__main__':
-    get_xmp_metadata(sys.argv[-1])
+    develop()

@@ -739,9 +739,9 @@ static PdfDictionary&
 get_or_create_info(PDFDoc *self) {
     PdfObject *info = self->doc->GetTrailer().GetDictionary().FindKey("Info");
     if (info && info->IsDictionary()) return info->GetDictionary();
-    auto ninfo = self->doc->GetObjects().CreateDictionaryObject();
-    self->doc->GetTrailer().GetDictionary().AddKeyIndirect("Info", ninfo);
-    return ninfo.GetDictionary();
+    info = &self->doc->GetObjects().CreateDictionaryObject();
+    self->doc->GetTrailer().GetDictionary().AddKeyIndirect("Info", *info);
+    return info->GetDictionary();
 }
 
 static inline PyObject*
@@ -797,32 +797,62 @@ string_metadata_setter(PDFDoc *self, const std::string_view name, PyObject *val)
 
 static int
 PDFDoc_title_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Title", val);
+    try {
+        return string_metadata_setter(self, "Title", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static int
 PDFDoc_author_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Author", val);
+    try {
+        return string_metadata_setter(self, "Author", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static int
 PDFDoc_subject_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Subject", val);
+    try {
+        return string_metadata_setter(self, "Subject", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static int
 PDFDoc_keywords_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Keywords", val);
+    try {
+        return string_metadata_setter(self, "Keywords", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static int
 PDFDoc_creator_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Creator", val);
+    try {
+        return string_metadata_setter(self, "Creator", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static int
 PDFDoc_producer_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return string_metadata_setter(self, "Producer", val);
+    try {
+        return string_metadata_setter(self, "Producer", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static PyGetSetDef PDFDoc_getsetters[] = {
