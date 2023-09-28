@@ -5,8 +5,8 @@ import os
 from functools import partial
 from qt.core import (
     QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QMenu, QSize, QSplitter, Qt, QTimer, QToolButton, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QKeySequence, QLabel, QMenu, QPushButton, QSize, QSplitter, Qt, QTimer, QToolButton,
+    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre import sanitize_file_name
@@ -67,6 +67,7 @@ class ResultsList(QTreeWidget):
         self.currentItemChanged.connect(self.current_item_changed)
         self.number_of_results = 0
         self.item_map = []
+        self.fi_map = {}
 
     def update_item(self, field, item_id):
         nd = current_db().notes_data_for(field, item_id)
@@ -131,6 +132,11 @@ class ResultsList(QTreeWidget):
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
 
+    def edit_note_for(self, field, item_id):
+        item = self.fi_map.get((field, item_id))
+        if item is not None:
+            self.edit_note(item)
+
     def edit_note(self, item):
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
@@ -181,6 +187,7 @@ class ResultsList(QTreeWidget):
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
         self.item_map = []
+        self.fi_map = {}
         db = current_db()
         fm = db.field_metadata
         field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in db.field_supports_notes()}
@@ -198,6 +205,7 @@ class ResultsList(QTreeWidget):
             for result in entry['matches']:
                 item = QTreeWidgetItem(section, [' '], 2)
                 self.item_map.append(item)
+                self.fi_map[(field, result['item_id'])] = item
                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
                 item.setData(0, Qt.ItemDataRole.UserRole, result)
                 item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
@@ -342,6 +350,7 @@ class SearchInput(QWidget):
 class NoteDisplay(QWidget):
 
     field = item_id = None
+    edit_requested = pyqtSignal(str, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -355,6 +364,16 @@ class NoteDisplay(QWidget):
         self.html_display = hd = Display(self)
         l.addWidget(hd)
 
+        self.edit_button = eb = QPushButton(QIcon.ic('edit_input.png'), _('Edit'))
+        eb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        l.addWidget(eb)
+        eb.clicked.connect(self.edit)
+        eb.setVisible(False)
+
+    def edit(self):
+        if self.field and self.item_id:
+            self.edit_requested.emit(self.field, self.item_id)
+
     def sizeHint(self):
         return QSize(400, 500)
 
@@ -367,9 +386,11 @@ class NoteDisplay(QWidget):
         if field:
             self.title.setText('<h2>{}</h2>'.format(self.db.get_item_name(field, item_id) or ''))
             self.html_display.setHtml(self.db.notes_for(field, item_id))
+            self.edit_button.setVisible(True)
         else:
             self.title.setText('')
             self.html_display.setHtml('')
+            self.edit_button.setVisible(False)
 
     def current_result_changed(self, r):
         if r is None:
@@ -413,6 +434,7 @@ class NotesBrowser(Dialog):
         self.notes_display = nd = NoteDisplay(self)
         rl.current_result_changed.connect(nd.current_result_changed)
         rl.export_requested.connect(self.export_selected)
+        nd.edit_requested.connect(rl.edit_note_for)
         s.addWidget(nd)
 
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
