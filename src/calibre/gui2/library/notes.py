@@ -51,6 +51,7 @@ class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
     note_edited = pyqtSignal(object, object)
+    export_requested = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -99,12 +100,27 @@ class ResultsList(QTreeWidget):
                 yield r
 
     def show_context_menu(self, pos):
-        # TODO: Add edit and export items
         m = QMenu(self)
+        item = self.itemAt(pos)
+        result = None
+        if item is not None:
+            result = item.data(0, Qt.ItemDataRole.UserRole)
+        if result is not None:
+            name = current_db().get_item_name(result['field'], result['item_id']) or ''
+            m.addAction(QIcon.ic('edit_input.png'), _('Edit notes for {}').format(name), partial(self.edit_note, item))
+        results = tuple(self.selected_results())
+        if len(results):
+            m.addAction(QIcon.ic('save.png'), _('Export selected'), self.export)
+        m.addSeparator()
+        m.addAction(_('Select all'), self.selectAll)
+        m.addAction(_('Select none'), self.clearSelection)
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
+
+    def export(self):
+        self.export_requested.emit()
 
     def show_next(self, backwards=False):
         item = self.currentItem()
@@ -396,6 +412,7 @@ class NotesBrowser(Dialog):
 
         self.notes_display = nd = NoteDisplay(self)
         rl.current_result_changed.connect(nd.current_result_changed)
+        rl.export_requested.connect(self.export_selected)
         s.addWidget(nd)
 
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
