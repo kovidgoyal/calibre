@@ -41,8 +41,9 @@ class horizons(BasicNewsRecipe):
         self.log(self.cover_url)
         issue = a.find('div', attrs={'class':'horizon-gallery-title'})
         if issue:
-            self.timefmt = ' [' + self.tag_to_string(issue).strip() + ']'
-            self.log('Downloading Issue: ', self.timefmt)
+            self.title = self.tag_to_string(issue).strip()
+            self.timefmt = ' [' + self.tag_to_string(issue).strip().replace('Horizons ', '')  + ']'
+            self.log('Downloading Issue: ', self.timefmt, self.title)
         soup = self.index_to_soup(url)
 
         feeds = []
