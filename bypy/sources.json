@@ -829,8 +829,8 @@
         "name": "texttable",
 		"comment": "needed for py7zr",
         "unix": {
-            "filename": "texttable-1.6.4.tar.gz",
-            "hash": "sha256:42ee7b9e15f7b225747c3fa08f43c5d6c83bc899f80ff9bae9319334824076e9",
+            "filename": "texttable-1.6.7.tar.gz",
+            "hash": "sha256:290348fb67f7746931bcdfd55ac7584ecd4e5b0846ab164333f0794b121760f2",
             "urls": ["pypi"]
         }
     },
@@ -849,8 +849,8 @@
         "name": "python-brotli",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "brotli-1.0.9.zip",
-            "hash": "sha256:4d1b810aa0ed773f81dceda2cc7b403d01057458730e309856356d4ef4188438",
+            "filename": "brotli-1.1.0.zip",
+            "hash": "sha256:81de08ac11bcb85841e440c13611c00b67d3bf82698314928d0b676362546724",
             "urls": ["pypi"]
         }
     },
@@ -859,29 +859,27 @@
         "name": "pyzstd",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "pyzstd-0.15.6.tar.gz",
-            "hash": "sha256:32a1b67d5340d8df381e718a788417455edd76bed7e8a4cbd259acdc30b5e17e",
+            "filename": "pyzstd-0.15.9.tar.gz",
+            "hash": "sha256:cbfdde6c5768ffa5d2f14127bbc1d7c3c2d03c0ceaeb0736946197e06275ccc7",
             "urls": ["pypi"]
         }
     },
-
 
     {
         "name": "pyppmd",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "pyppmd-0.17.3.tar.gz",
-            "hash": "sha256:05a4765833623d5cc1c9afc27d9b05fb64f0319711beffe0b44d9695eb1beb0a",
+            "filename": "pyppmd-1.0.0.tar.gz",
+            "hash": "sha256:075c9bd297e3b0a87dd7aeabca7fee668218acbe69ecc1c6511064558de8840f",
             "urls": ["pypi"]
         }
     },
 
-
     {
         "name": "py7zr",
         "unix": {
-            "filename": "py7zr-0.16.3.tar.gz",
-            "hash": "sha256:9ae93b801470c554dc1546a297aafb1dd4dfa799224aa929ad02c443607b9844",
+            "filename": "py7zr-0.20.6.tar.gz",
+            "hash": "sha256:d036dee11fce69ad8d4fa86025ccfc4a3511ec27ee1c6b5bd8d6759313dbd077",
             "urls": ["pypi"]
         }
     },
@@ -889,8 +887,8 @@
     {
         "name": "zeroconf",
         "unix": {
-            "filename": "zeroconf-0.37.0.tar.gz",
-            "hash": "sha256:f901eda390160bc270aeba95ef2d6aa0a736503301dac393e7d5fd95fa17043a",
+            "filename": "zeroconf-0.115.0.tar.gz",
+            "hash": "sha256:da8c12f0a4b15578c22bf274f479fffd90a944407ebad904c891bf771aad83e7",
             "urls": ["pypi"]
         }
     },
@@ -898,8 +896,8 @@
     {
         "name": "fonttools",
         "unix": {
-            "filename": "fonttools-4.39.3.zip",
-            "hash": "sha256:9234b9f57b74e31b192c3fc32ef1a40750a8fbc1cd9837a7b7bfc4ca4a5c51d7",
+            "filename": "fonttools-4.42.1.tar.gz",
+            "hash": "sha256:c391cd5af88aacaf41dd7cfb96eeedfad297b5899a39e12f4c2c3706d0a3329d",
             "urls": ["pypi"]
         }
     },
@@ -918,8 +916,8 @@
         "name": "pyparsing",
 		"comment": "Needed for packaging (build time dependency)",
         "unix": {
-            "filename": "pyparsing-3.0.6.tar.gz",
-            "hash": "sha256:d9bdec0013ef1eb5a84ab39a3b3868911598afa494f5faa038647101504e2b81",
+            "filename": "pyparsing-3.1.1.tar.gz",
+            "hash": "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db",
             "urls": ["pypi"]
         }
     },
@@ -938,8 +936,8 @@
         "name": "packaging",
 		"comment": "Needed for sip (build time dependency)",
         "unix": {
-            "filename": "packaging-21.3.tar.gz",
-            "hash": "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb",
+            "filename": "packaging-23.1.tar.gz",
+            "hash": "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f",
             "urls": ["pypi"]
         }
     },
@@ -948,8 +946,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.7.5.tar.gz",
-            "hash": "sha256:9655d089e1d0c5fbf66bde11558a874980729132b5bd0c2ae355ac1a7b893ab4",
+            "filename": "sip-6.7.11.tar.gz",
+            "hash": "sha256:f0dc3287a0b172e5664931c87847750d47e4fdcda4fe362b514af8edd655b469",
             "urls": ["pypi"]
         }
     },
@@ -958,8 +956,8 @@
         "name": "pyqt-builder",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "PyQt-builder-1.14.0.tar.gz",
-            "hash": "sha256:6755931c6d2f8940553e0334d10c933ce5cc18b64425e94fda1accf4ff774f59",
+            "filename": "PyQt-builder-1.15.2.tar.gz",
+            "hash": "sha256:746cfe83c03ebff4458d478a1c06714790ef93e458ecd5a28bc2837bac88eb74",
             "urls": ["pypi"]
         }
     },
@@ -968,8 +966,8 @@
         "name": "pyqt-sip",
 		"comment": "runtime sip module for PyQt",
         "unix": {
-            "filename": "PyQt6_sip-13.4.0.tar.gz",
-            "hash": "sha256:6d87a3ee5872d7511b76957d68a32109352caf3b7a42a01d9ee20032b350d979",
+            "filename": "PyQt6_sip-13.5.2.tar.gz",
+            "hash": "sha256:ebf6264b6feda01ba37d3b60a4bb87493bdb87be70f7b2a5384a7acd4902d88d",
             "urls": ["pypi"]
         }
     },
@@ -977,8 +975,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.4.0.tar.gz",
-            "hash": "sha256:91392469be1f491905fa9e78fa4e4059a89ab616ddf2ecfd525bc1d65c26bb93",
+            "filename": "PyQt6-6.5.2.tar.gz",
+            "hash": "sha256:1487ee7350f9ffb66d60ab4176519252c2b371762cbe8f8340fd951f63801280",
             "urls": ["pypi"]
         }
     },
@@ -986,8 +984,8 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.4.0.tar.gz",
-            "hash": "sha256:4c71c130860abcd11e04cafb22e33983fa9a3aee8323c51909b15a1701828e21",
+            "filename": "PyQt6_WebEngine-6.5.0.tar.gz",
+            "hash": "sha256:8ba9db56c4c181a2a2fab1673ca35e5b63dc69113f085027ddc43c710b6d6ee9",
             "urls": ["pypi"]
         }
     },
@@ -996,9 +994,9 @@
         "name": "speech-dispatcher-client",
         "os": "linux",
         "unix": {
-            "filename": "speech-dispatcher-0.11.1.tar.gz",
-            "hash": "sha256:d1da12ed3dac84f13799b6a2ec39ba2d3ca21a8493f44dc1855bd0ba96c2ddc6",
-            "urls": ["https://github.com/brailcom/speechd/releases/download/0.11.1/{filename}"]
+            "filename": "speech-dispatcher-0.11.5.tar.gz",
+            "hash": "sha256:1ce4759ffabbaf1aeb433a5ec0739be0676e9bdfbae9444a7b3be1b2af3ec12b",
+            "urls": ["https://github.com/brailcom/speechd/releases/download/0.11.5/{filename}"]
         }
     },
 
@@ -1007,8 +1005,8 @@
         "name": "macfsevents",
         "os": "macos",
         "unix": {
-            "filename": "MacFSEvents-0.8.1.tar.gz",
-            "hash": "sha256:1324b66b356051de662ba87d84f73ada062acd42b047ed1246e60a449f833e10",
+            "filename": "MacFSEvents-0.8.4.tar.gz",
+            "hash": "sha256:bf7283f1d517764ccdc8195b21631dbbac1c506b920bf9a8ea2956b3127651cb",
             "urls": ["pypi"]
         }
     },
