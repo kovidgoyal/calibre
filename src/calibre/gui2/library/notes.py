@@ -9,14 +9,16 @@ from qt.core import (
     QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 
+from calibre import sanitize_file_name
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Cache
-from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2 import Application, choose_dir, error_dialog, gprefs
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.show_category_note import Display
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, FlowLayout
+from calibre.utils.localization import ngettext
 
 
 def current_db() -> Cache:
@@ -89,6 +91,12 @@ class ResultsList(QTreeWidget):
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
             self.edit_note(item)
+
+    def selected_results(self):
+        for item in self.selectedItems():
+            r = item.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(r, dict):
+                yield r
 
     def show_context_menu(self, pos):
         # TODO: Add edit and export items
@@ -399,8 +407,31 @@ class NotesBrowser(Dialog):
 
         h = QHBoxLayout()
         l.addLayout(h)
+        b = self.bb.addButton(_('Export'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('save.png'))
+        b.clicked.connect(self.export_selected)
+        b.setToolTip(_('Export the selected notes as HTML files'))
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         QTimer.singleShot(0, self.do_find)
+
+    def export_selected(self):
+        results = tuple(self.results_list.selected_results())
+        if not results:
+            return error_dialog(self, _('No results selected'), _(
+                'No results selected, nothing to export'), show=True)
+        path = choose_dir(self, 'export-notes-dir', ngettext(
+            'Choose folder for exported note', 'Choose folder for {} exported notes', len(results)).format(len(results)))
+        if not path:
+            return
+        with BusyCursor():
+            db = current_db()
+            for r in results:
+                html = db.export_note(r['field'], r['item_id'])
+                item_val = db.get_item_name(r['field'], r['item_id'])
+                if item_val:
+                    fname = sanitize_file_name(item_val) + '.html'
+                    with open(os.path.join(path, fname), 'wb') as f:
+                        f.write(html.encode('utf-8'))
 
     def note_edited(self, field, item_id):
         from calibre.gui2.ui import get_gui
