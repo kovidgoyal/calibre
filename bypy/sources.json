@@ -849,7 +849,7 @@
         "name": "python-brotli",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "brotli-1.1.0.zip",
+            "filename": "Brotli-1.1.0.tar.gz",
             "hash": "sha256:81de08ac11bcb85841e440c13611c00b67d3bf82698314928d0b676362546724",
             "urls": ["pypi"]
         }
