@@ -5,9 +5,9 @@ from datetime import date
 
 # default edition is Delhi i.e., 'cap'
 # Hyderabad - 'toih'; Delhi - 'cap'; Mumbai - 'toim'; Banglore - 'toibgc';
+# Chennai - 'toich'; Chandigarh - 'toicgct'; Jaipur - 'toijc'; Kolkata - 'toikc';
 # There are others too, try to figure it out, visit toi epaper link.
 
-# for example, replace 'cap' with 'toih', if you want Hyderabad edition.
 le = 'cap' # local edition;
 
 date0 = date.today().strftime('%Y/%m/%d')
@@ -41,6 +41,7 @@ class toiprint(BasicNewsRecipe):
         .auth { font-size:small; font-weight:bold; color:#202020; }
         .cap { text-align:center; font-size:small; }
         img { display:block; margin:0 auto; }
+        .info { font-size:small; color:#404040; }
     '''
 
     def get_cover_url(self):
@@ -69,14 +70,12 @@ class toiprint(BasicNewsRecipe):
                         for art in sec['Articles']:
                             if 'ArticleName' not in art:
                                 continue
-                            link = art['ArticleName']
-                            page = link.split('_')[-3]
-                            url =  page + '/' + link
-                            title = art.get('ArticleTitle', 'unknown')
+                            url = art['ArticleName']
+                            title = art.get('ArticleTitle', 'unknown').replace('<br>', '')
                             if art.get('ColumnTitle', '') == '':
-                                desc = 'Page No.' + page + ' | ' + art.get('ArticleBody', '')
+                                desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ArticleBody', '')
                             else:
-                                desc = 'Page No.' + page + ' | ' + art.get('ColumnTitle', '')
+                                desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ColumnTitle', '')
                             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                             articles.append({'title': title, 'description':desc, 'url': url})
             if articles:
@@ -89,21 +88,27 @@ class toiprint(BasicNewsRecipe):
         for x in data:
             if x['TagName'] == 'ArticleTitle':
                 body += '<h1>' + x['ZoneText'] + '</h1>'
-            if x['TagName'] == 'ColumnTitle':
+            elif x['TagName'] == 'ColumnTitle':
                 body += '<p class="sub"><b>' + x['ZoneText'] + '</b></p>'
-            if x['TagName'] == 'Author':
+            elif x['TagName'] == 'Author':
                 body += '<p class="auth">' + x['ZoneText'].replace('<br>', '') + '</p>'
-            if x['TagName'] in {'ArticleBody', 'Information'}:
+            elif x['TagName'] in 'ArticleBody':
                 body += x['ZoneText']
-            if x['TagName'] in {'LinkTo', 'LinkFrom'}:
+            elif x['TagName'] in 'Information':
+                body += '<p class="info">' + x['ZoneText'] + '</p>'
+            elif x['TagName'] in {'LinkTo', 'LinkFrom'}:
                 body += '<p class="auth"><i>' + x['ZoneText'] + '</i></p>'
-            if x['TagName'] == 'Photographs':
+            elif x['TagName'] == 'Photographs':
                 pag = x['ZoneID'].split('_')[-4]
                 body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
                      + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
-            if x['TagName'] == 'ImageCaption':
+            elif x['TagName'] == 'ImageCaption':
                 body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
-        return '<html><body><div>' +  body.replace('<br>', '<p>').replace('<br/>', '<p>') + '</div></body></html>'
+            elif 'ZoneText' in x:
+                body += '<p><i>' + x['ZoneText'] + '</i></p>'
+        return '<html><body><div>' \
+                    + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<div>') \
+                        + '</div></body></html>'
 
     def print_version(self, url):
-        return index + '/ArticleZoneJson/' + url + '.json'
+        return index + '/ArticleZoneJson/' + url.split('_')[-3] + '/' + url + '.json'
