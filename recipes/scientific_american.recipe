@@ -81,8 +81,8 @@ class ScientificAmerican(BasicNewsRecipe):
         if not issue_info:
             self.abort_recipe_processing("Unable to find issue info")
 
-        image_id, _ = splitext(issue_info["image"])
-        self.cover_url = f"https://static.scientificamerican.com/sciam/cache/file/{image_id}_source.jpg?w=800"
+        image_id, ext = splitext(issue_info["image"])
+        self.cover_url = f"https://static.scientificamerican.com/sciam/cache/file/{image_id}_source{ext}?w=800"
 
         edition_date = datetime.strptime(issue_info["issue_date"], "%Y-%m-%d")
         self.timefmt = f" [{edition_date:%B %Y}]"
