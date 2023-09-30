@@ -11,10 +11,10 @@ def get_contents(x):
     if otype == 'text':
         if 'attributes' in x:
             if 'strong' in x['attributes']:
-                return '<b>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</b>'
+                return '<strong>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</strong>'
             if 'emphasis' in x['attributes']:
-                return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-            return x.get('value', '') + ''.join(map(get_contents, x.get('content', '')))
+                return '<em>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</em>'
+            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
         return x.get('value', '') + ''.join(map(get_contents, x.get('content', '')))
     elif otype == 'br':
         return '<br>'
@@ -30,8 +30,8 @@ def get_contents(x):
         return '<blockquote class="col">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</blockquote>'
     elif otype == 'media':
         if x['subType'] == 'photo':
-            return '<div><div class="img"><img src="{}"></div><div class="cap">{}</div></div>'.format(
-                x['data']['photo']['src'], x['data']['photo']['caption'])
+            return '<div><div class="img"><img src="{}"></div><div class="cap">{}<div>{}</div></div></div>'.format(
+                x['data']['photo']['src'], x['data']['photo']['caption'], x['data']['photo']['credit'])
         elif x['subType'] == 'chart':
             if x['data'] and x['data']['chart']:
                 return '<div class="img"><img src="{}"></div>'.format(x['data']['chart']['fallback'])
@@ -50,6 +50,8 @@ def get_contents(x):
                 return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
             return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
         return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+    elif otype in {'div', 'callout'}:
+        return '<div>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</div>'
     elif not any(x == otype for x in ['', 'ad', 'inline-newsletter', 'tabularData']):
         if any(b in x for b in ['value', 'content']):
             return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
@@ -77,7 +79,7 @@ class Bloomberg(BasicNewsRecipe):
         .auth {font-size:small; font-weight:bold;}
         .time, .chart, .css--lede-byline, .css--lede-timestamp {font-size:small;}
         .subhead {font-style:italic; color:#404040;}
-        i, .col {color:#202020;}
+        em, .col {color:#202020;}
         .cat {font-size:small; color:gray;}
         .news-figure-caption-text, .cap, .img, .css--caption-outer-wrapper {font-size:small; text-align:center;}
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
@@ -179,7 +181,7 @@ class Bloomberg(BasicNewsRecipe):
             body_data = data['body']['content']
             for x in body_data:
                 body += get_contents(x)
-            pause = random.choice((3, 4, 5, 6))
+            pause = random.choice((5, 6, 7, 8, 9))
             self.log('Delay: ', pause, ' seconds')
             time.sleep(pause)
         return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
