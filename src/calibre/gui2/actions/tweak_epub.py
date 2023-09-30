@@ -153,13 +153,12 @@ class TweakEpubAction(InterfaceAction):
             return error_dialog(self.gui, _('File missing'), _(
                 'The %s format is missing from the calibre library. You should run'
                 ' library maintenance.') % fmt, show=True)
-        tweak = 'ebook-edit'
         try:
             self.gui.setCursor(Qt.CursorShape.BusyCursor)
             if tprefs['update_metadata_from_calibre']:
                 db.new_api.embed_metadata((book_id,), only_fmts={fmt})
             notify = '%d:%s:%s:%s' % (book_id, fmt, db.library_id, db.library_path)
-            self.gui.job_manager.launch_gui_app(tweak, kwargs=dict(path=path, notify=notify))
+            self.gui.job_manager.launch_gui_app('ebook-edit', kwargs=dict(path=path, notify=notify))
             time.sleep(2)
         finally:
             self.gui.unsetCursor()
