@@ -54,6 +54,16 @@ def parse_body(item):
         elif c.get('cmsType') == 'image':
             for line in parse_lead_image(c):
                 yield line
+        elif c.get('cmsType') == 'imagegroup':
+            for imgs in c['images']:
+                for line in parse_lead_image(imgs): 
+                    yield line
+        elif c.get('cmsType') == 'pullquote':
+            if 'quote' in c:
+                yield '<blockquote>' + c['quote'] + "</blockquote>"
+        elif c.get('cmsType') == 'editorsNote':
+            if 'note' in c:
+                yield '<blockquote>' + c['note'] + "</blockquote>"
     else:
         if c['mrkup'].strip().startswith('<'):
             yield c['mrkup']
@@ -88,6 +98,10 @@ def article_parse(data):
             continue
         for mod in frm.get('mods', ()):
             for edg in mod.get('edgs', ()):
+                if edg.get('cmsType') == 'ImmersiveLeadTile':
+                    if 'image' in edg.get('cmsImage', {}):
+                        for line in parse_lead_image(edg['cmsImage']):
+                            yield line
                 if edg.get('cmsType') == 'ArticleBodyTile':
                     for line in parse_article(edg):
                         yield line
