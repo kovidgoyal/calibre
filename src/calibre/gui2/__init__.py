@@ -1383,7 +1383,9 @@ def sanitize_env_vars():
     is needed to prevent library conflicts when launching external utilities.'''
 
     if islinux and isfrozen:
-        env_vars = {'LD_LIBRARY_PATH':'/lib'}
+        env_vars = {
+            'LD_LIBRARY_PATH':'/lib', 'OPENSSL_MODULES': '/lib/ossl-modules',
+        }
     elif iswindows:
         env_vars = {}
     elif ismacos:
