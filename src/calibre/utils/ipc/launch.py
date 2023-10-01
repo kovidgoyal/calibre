@@ -29,9 +29,19 @@ def renice(niceness):
         pass
 
 
+def macos_viewer_bundle_path():
+    base = os.path.dirname(sys.executables_location)
+    return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/')
+
+
 def macos_edit_book_bundle_path():
     base = os.path.dirname(sys.executables_location)
     return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/')
+
+
+def macos_headless_bundle_path():
+    base = os.path.dirname(sys.executables_location)
+    return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/headless.app/Contents/MacOS/')
 
 
 def exe_path(exe_name):
@@ -74,16 +84,14 @@ class Worker:
     @property
     def executable(self):
         if ismacos and not hasattr(sys, 'running_from_setup'):
-            base = os.path.dirname(sys.executables_location)
-            return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/headless.app/Contents/MacOS', self.exe_name)
+            return os.path.join(macos_headless_bundle_path(), self.exe_name)
         return exe_path(self.exe_name)
 
     @property
     def gui_executable(self):
         if ismacos and not hasattr(sys, 'running_from_setup'):
             if self.job_name == 'ebook-viewer':
-                base = os.path.dirname(sys.executables_location)
-                return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/', self.exe_name)
+                return os.path.join(macos_viewer_bundle_path(), self.exe_name)
             if self.job_name == 'ebook-edit':
                 return os.path.join(macos_edit_book_bundle_path(), self.exe_name)
 
