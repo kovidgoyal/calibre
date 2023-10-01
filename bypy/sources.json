@@ -555,10 +555,60 @@
     },
 
     {
+        "name": "installer",
+        "comment": "Needed infrastructure for installing pure python packages (wheels)",
+        "unix": {
+            "filename": "installer-0.7.0-py3-none-any.whl",
+            "hash": "sha256:05d1933f0a5ba7d8d6296bb6d5018e7c94fa473ceb10cf198a92ccea19c27b53",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "packaging",
+		"comment": "Needed for build which needed for setuptools based packages",
+        "unix": {
+            "filename": "packaging-23.1-py3-none-any.whl",
+            "hash": "sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyproject_hooks",
+		"comment": "Needed for build which needed for setuptools based packages",
+        "unix": {
+            "filename": "pyproject_hooks-1.0.0-py3-none-any.whl",
+            "hash": "sha256:283c11acd6b928d2f6a7c73fa0d01cb2bdc5f07c57a2eeb6e83d5e56b97976f8",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "wheel",
+		"comment": "Needed for build which needed for setuptools based packages",
+        "unix": {
+            "filename": "wheel-0.41.2-py3-none-any.whl",
+            "hash": "sha256:75909db2664838d015e3d9139004ee16711748a52c8f336b52882266540215d8",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "build",
+		"comment": "Needed for setuptools based packages",
+        "unix": {
+            "filename": "build-1.0.3-py3-none-any.whl",
+            "hash": "sha256:589bf99a67df7c9cf07ec0ac0e5e2ea5d4b37ac63301c4986d1acb126aa83f8f",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "setuptools",
         "unix": {
-            "filename": "setuptools-68.2.2.tar.gz",
-            "hash": "sha256:4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87",
+            "filename": "setuptools-68.2.2-py3-none-any.whl",
+            "hash": "sha256:b454a35605876da60632df1a60f736524eb73cc47bbc9f3f1ef1b644de74fd2a",
             "urls": ["pypi"]
         }
     },
@@ -566,8 +616,8 @@
     {
         "name": "six",
         "unix": {
-            "filename": "six-1.16.0.tar.gz",
-            "hash": "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
+            "filename": "six-1.16.0-py2.py3-none-any.whl",
+            "hash": "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254",
             "urls": ["pypi"]
         }
     },
@@ -611,8 +661,8 @@
     {
         "name": "css-parser",
         "unix": {
-            "filename": "css-parser-1.0.9.tar.gz",
-            "hash": "sha256:196db822cef22745af6a58d180cf8206949ced58b48f5f3ee98f1de1627495bb",
+            "filename": "css_parser-1.0.9-py2.py3-none-any.whl",
+            "hash": "sha256:e18f66961103b61df25aa6df0dc808ab61c23e65ae6c1a8c149fe71911190495",
             "urls": ["pypi"]
         }
     },
@@ -620,8 +670,8 @@
     {
         "name": "dateutil",
         "unix": {
-            "filename": "python-dateutil-2.8.2.tar.gz",
-            "hash": "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+            "filename": "python_dateutil-2.8.2-py2.py3-none-any.whl",
+            "hash": "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9",
             "urls": ["pypi"]
         }
     },
@@ -630,8 +680,8 @@
         "name": "jeepney",
         "os": "linux",
         "unix": {
-            "filename": "jeepney-0.8.0.tar.gz",
-            "hash": "sha256:5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806",
+            "filename": "jeepney-0.8.0-py3-none-any.whl",
+            "hash": "sha256:c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755",
             "urls": ["pypi"]
         }
     },
@@ -639,8 +689,8 @@
     {
         "name": "dnspython",
         "unix": {
-            "filename": "dnspython-2.4.2.tar.gz",
-            "hash": "sha256:8dcfae8c7460a2f84b4072e26f1c9f4101ca20c071649cb7c34e8b6a93d58984",
+            "filename": "dnspython-2.4.2-py3-none-any.whl",
+            "hash": "sha256:57c6fbaaeaaf39c891292012060beb141791735dbb4004798328fc2c467402d8",
             "urls": ["pypi"]
         }
     },
@@ -648,8 +698,8 @@
     {
         "name": "mechanize",
         "unix": {
-            "filename": "mechanize-0.4.8.tar.gz",
-            "hash": "sha256:5e86ac0777357e006eb04cd28f7ed9f811d48dffa603d3891ac6d2b92280dc91",
+            "filename": "mechanize-0.4.8-py2.py3-none-any.whl",
+            "hash": "sha256:961fd171b5eb37a7578fce62ba81ba85803dff3c5ba4ac24f6f569ae27198439",
             "urls": ["pypi"]
         }
     },
@@ -657,8 +707,8 @@
     {
         "name": "feedparser",
         "unix": {
-            "filename": "feedparser-6.0.10.tar.bz2",
-            "hash": "sha256:27da485f4637ce7163cdeab13a80312b93b7d0c1b775bef4a47629a3110bca51",
+            "filename": "feedparser-6.0.10-py3-none-any.whl",
+            "hash": "sha256:79c257d526d13b944e965f6095700587f27388e50ea16fd245babe4dfae7024f",
             "urls": ["pypi"]
         }
     },
@@ -675,8 +725,8 @@
     {
         "name": "markdown",
         "unix": {
-            "filename": "Markdown-3.4.4.tar.gz",
-            "hash": "sha256:225c6123522495d4119a90b3a3ba31a1e87a70369e03f14799ea9c0d7183a3d6",
+            "filename": "Markdown-3.4.4-py3-none-any.whl",
+            "hash": "sha256:a4c1b65c0957b4bd9e7d86ddc7b3c9868fb9670660f6f99f6d1bca8954d5a941",
             "urls": ["pypi"]
         }
     },
@@ -684,8 +734,8 @@
     {
         "name": "html2text",
         "unix": {
-            "filename": "html2text-2020.1.16.tar.gz",
-            "hash": "sha256:e296318e16b059ddb97f7a8a1d6a5c1d7af4544049a01e261731d2d5cc277bbb",
+            "filename": "html2text-2020.1.16-py3-none-any.whl",
+            "hash": "sha256:c7c629882da0cf377d66f073329ccf34a12ed2adf0169b9285ae4e63ef54c82b",
             "urls": ["pypi"]
         }
     },
@@ -693,8 +743,8 @@
     {
         "name": "soupsieve",
         "unix": {
-            "filename": "soupsieve-2.5.tar.gz",
-            "hash": "sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690",
+            "filename": "soupsieve-2.5-py3-none-any.whl",
+            "hash": "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7",
             "urls": ["pypi"]
         }
     },
@@ -702,8 +752,8 @@
     {
         "name": "beautifulsoup4",
         "unix": {
-            "filename": "beautifulsoup4-4.12.2.tar.gz",
-            "hash": "sha256:492bbc69dca35d12daac71c4db1bfff0c876c00ef4a2ffacce226d4638eb72da",
+            "filename": "beautifulsoup4-4.12.2-py3-none-any.whl",
+            "hash": "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a",
             "urls": ["pypi"]
         }
     },
@@ -720,8 +770,8 @@
     {
         "name": "chardet",
         "unix": {
-            "filename": "chardet-5.2.0.tar.gz",
-            "hash": "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7",
+            "filename": "chardet-5.2.0-py3-none-any.whl",
+            "hash": "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970",
             "urls": ["pypi"]
         }
     },
@@ -747,8 +797,8 @@
     {
         "name": "pygments",
         "unix": {
-            "filename": "Pygments-2.16.1.tar.gz",
-            "hash": "sha256:1daff0494820c69bc8941e407aa20f577374ee88364ee10a98fdbe0aece96e29",
+            "filename": "Pygments-2.16.1-py3-none-any.whl",
+            "hash": "sha256:13fc09fa63bc8d8671a6d247e1eb303c4b343eaee81d861f3404db2935653692",
             "urls": ["pypi"]
         }
     },
@@ -774,8 +824,8 @@
     {
         "name": "webencodings",
         "unix": {
-            "filename": "webencodings-0.5.1.tar.gz",
-            "hash": "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923",
+            "filename": "webencodings-0.5.1-py2.py3-none-any.whl",
+            "hash": "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78",
             "urls": ["pypi"]
         }
     },
@@ -783,8 +833,8 @@
     {
         "name": "html5lib",
         "unix": {
-            "filename": "html5lib-1.1.tar.gz",
-            "hash": "sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f",
+            "filename": "html5lib-1.1-py2.py3-none-any.whl",
+            "hash": "sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d",
             "urls": ["pypi"]
         }
     },
@@ -829,8 +879,8 @@
         "name": "texttable",
 		"comment": "needed for py7zr",
         "unix": {
-            "filename": "texttable-1.6.7.tar.gz",
-            "hash": "sha256:290348fb67f7746931bcdfd55ac7584ecd4e5b0846ab164333f0794b121760f2",
+            "filename": "texttable-1.6.7-py2.py3-none-any.whl",
+            "hash": "sha256:b7b68139aa8a6339d2c320ca8b1dc42d13a7831a346b446cb9eb385f0c76310c",
             "urls": ["pypi"]
         }
     },
@@ -839,8 +889,8 @@
         "name": "multivolumefile",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "multivolumefile-0.2.3.tar.gz",
-            "hash": "sha256:a0648d0aafbc96e59198d5c17e9acad7eb531abea51035d08ce8060dcad709d6",
+            "filename": "multivolumefile-0.2.3-py3-none-any.whl",
+            "hash": "sha256:237f4353b60af1703087cf7725755a1f6fcaeeea48421e1896940cd1c920d678",
             "urls": ["pypi"]
         }
     },
@@ -878,8 +928,18 @@
     {
         "name": "py7zr",
         "unix": {
-            "filename": "py7zr-0.20.6.tar.gz",
-            "hash": "sha256:d036dee11fce69ad8d4fa86025ccfc4a3511ec27ee1c6b5bd8d6759313dbd077",
+            "filename": "py7zr-0.20.6-py3-none-any.whl",
+            "hash": "sha256:c7cfb7183fb8f48038f1036a116ca89dc8bd57979d05b75567f00e88a5afe698",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "poetry_core",
+        "comment": "Needed for building zeroconf",
+        "unix": {
+            "filename": "poetry_core-1.7.0-py3-none-any.whl",
+            "hash": "sha256:38e174cdb00a84ee4a1cab66a378b435747f72414f5573bc18cfc3850a94df38",
             "urls": ["pypi"]
         }
     },
@@ -903,41 +963,11 @@
     },
 
     {
-        "name": "toml",
-		"comment": "Needed for sip (build time dependency)",
-        "unix": {
-            "filename": "toml-0.10.2.tar.gz",
-            "hash": "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyparsing",
-		"comment": "Needed for packaging (build time dependency)",
-        "unix": {
-            "filename": "pyparsing-3.1.1.tar.gz",
-            "hash": "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
         "name": "ply",
 		"comment": "Needed for sip (build time dependency)",
         "unix": {
-            "filename": "ply-3.11.tar.gz",
-            "hash": "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "packaging",
-		"comment": "Needed for sip (build time dependency)",
-        "unix": {
-            "filename": "packaging-23.1.tar.gz",
-            "hash": "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f",
+            "filename": "ply-3.11-py2.py3-none-any.whl",
+            "hash": "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce",
             "urls": ["pypi"]
         }
     },
@@ -956,8 +986,8 @@
         "name": "pyqt-builder",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "PyQt-builder-1.15.2.tar.gz",
-            "hash": "sha256:746cfe83c03ebff4458d478a1c06714790ef93e458ecd5a28bc2837bac88eb74",
+            "filename": "PyQt_builder-1.15.2-py3-none-any.whl",
+            "hash": "sha256:9e5acbe6ddffc2b8e7a619c5053d1f7da53f5db0faff8ce2b573f0e6604ad981",
             "urls": ["pypi"]
         }
     },
