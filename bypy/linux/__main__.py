@@ -13,7 +13,7 @@ import time
 from functools import partial
 
 from bypy.constants import (
-    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version,
+    LIBDIR, OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version,
 )
 from bypy.freeze import (
     extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
@@ -125,6 +125,8 @@ def copy_libs(env):
         os.chmod(j(
             dest, os.path.basename(x)),
             stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+    for x in ('ossl-modules',):
+        shutil.copytree(os.path.join(LIBDIR, x), os.path.join(env.lib_dir, x))
 
     base = j(QT_PREFIX, 'plugins')
     dest = j(env.lib_dir, '..', 'plugins')

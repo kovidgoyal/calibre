@@ -42,6 +42,9 @@ int main(int argc, char **argv) {
         if (ret < 0 || ret > (PATHLEN-2)) { fprintf(stderr, "LD_LIBRARY_PATH too long: %s:%s", lib, ldp); return 1; }
     }
     SET("LD_LIBRARY_PATH", buf)
+    ret = snprintf(buf, PATHLEN, "%s/ossl-modules", lib);
+    if (ret < 0 || ret > (PATHLEN-2)) { fprintf(stderr, "OPENSSL_MODULES too long: %s/ossl-modules", lib); return 1; }
+    SET("OPENSSL_MODULES", buf)
 
     argv[0] = exe;
     if (execv(exe, argv) == -1) {
