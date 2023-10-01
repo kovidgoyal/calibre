@@ -305,8 +305,10 @@ class Main(MainWindow):
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
-        self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
+        v = get_version()
+        self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, v, 'Kovid Goyal'))
         la.base_template = str(la.text())
+        la.editing_template = _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v)
         self.status_bar.addWidget(la)
 
         self.boss(self)
@@ -331,6 +333,13 @@ class Main(MainWindow):
 
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))
+
+    def update_status_bar_default_message(self, path=''):
+        m = self.status_bar_default_msg
+        if path:
+            m.setText(m.editing_template.format(path=path))
+        else:
+            m.setText(m.base_template)
 
     def elided_text(self, text, width=300):
         return elided_text(text, font=self.font(), width=width)

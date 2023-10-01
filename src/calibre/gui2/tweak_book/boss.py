@@ -356,6 +356,7 @@ class Boss(QObject):
         self._edit_file_on_open = self._search_text_on_open = None
 
         if job.traceback is not None:
+            self.gui.update_status_bar_default_message()
             if 'DRMError:' in job.traceback:
                 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
                 return DRMErrorMessage(self.gui).exec()
@@ -390,6 +391,7 @@ class Boss(QObject):
             path = os.path.abspath(container.path_to_ebook)
             if path in recent_books:
                 recent_books.remove(path)
+            self.gui.update_status_bar_default_message(path)
             recent_books.insert(0, path)
             tprefs['recent-books'] = recent_books[:10]
             self.gui.update_recent_books()
