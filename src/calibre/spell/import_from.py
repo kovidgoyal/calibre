@@ -137,6 +137,7 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
         num += 1
     return num
 
+
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     with ZipFile(source_path) as zf:
         def read_file(key):
@@ -153,13 +154,15 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
 
         return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
+
 def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
-    br = browser()
+    br = browser(timeout=30)
     def read_file(key):
-        rp = br.open('/'.join([ONLINE_DICTIONARY_BASE_URL, directory, key]))
+        rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
         return rp.read()
 
     return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
+
 
 if __name__ == '__main__':
     import_from_libreoffice_source_tree(sys.argv[-1])

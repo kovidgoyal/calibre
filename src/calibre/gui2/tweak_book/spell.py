@@ -12,10 +12,10 @@ from itertools import chain
 from qt.core import (
     QT_VERSION_STR, QAbstractItemView, QAbstractTableModel, QAction, QApplication,
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout,
-    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit,
-    QListWidget,QListWidgetItem, QMenu, QModelIndex, QPlainTextEdit, QPushButton,
-    QSize, QStackedLayout, Qt, QTableView, QTimer, QToolButton, QTreeWidget,
-    QTabWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize,
+    QStackedLayout, Qt, QTableView, QTabWidget, QTimer, QToolButton, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Thread
 
@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book import (
     current_container, dictionaries, editors, set_book_locale, tprefs,
 )
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
 from calibre.spell.break_iterator import split_into_words
@@ -40,7 +41,7 @@ from calibre.spell.dictionary import (
     best_locale_for_language, builtin_dictionaries, catalog_online_dictionaries,
     custom_dictionaries, dprefs, get_dictionary, remove_dictionary, rename_dictionary,
 )
-from calibre.spell.import_from import import_from_oxt, import_from_online
+from calibre.spell.import_from import import_from_online, import_from_oxt
 from calibre.startup import connect_lambda
 from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
 from calibre.utils.localization import (
@@ -90,8 +91,8 @@ class AddDictionary(QDialog):  # {{{
 
         self.web_download = QWidget(self)
         self.oxt_import = QWidget(self)
-        tabs.addTab(self.web_download, _('Download online'))
-        tabs.addTab(self.oxt_import, _('Import from OXT file'))
+        tabs.setTabIcon(tabs.addTab(self.web_download, _('&Download')), QIcon.ic('download-metadata.png'))
+        tabs.setTabIcon(tabs.addTab(self.oxt_import, _('&Import from OXT file')), QIcon.ic('unpack-book.png'))
         tabs.currentChanged.connect(self.tab_changed)
 
         # Download online tab
@@ -100,16 +101,16 @@ class AddDictionary(QDialog):  # {{{
         self.web_download.setLayout(l)
 
         la = QLabel('<p>' + _(
-        '''{0} supports the use of LibreOffice dictionaries for spell checking. You can
-            download some of them from <a href="{1}">the LibreOffice dictionaries repository</a>.'''
-            ).format(__appname__, 'https://github.com/LibreOffice/dictionaries')+'<p>')  # noqa
+        '''{0} supports the use of LibreOffice dictionaries for spell checking. Choose the language you
+        want below and click OK to download the dictionary from the <a href="{1}">LibreOffice dictionaries repository</a>.'''
+            ).format(__appname__, 'https://github.com/LibreOffice/dictionaries')+'<p>')
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         la.setMinimumWidth(450)
         l.addRow(la)
 
         self.combobox_online = c = QComboBox(self)
-        l.addRow(_('Langue to download:'), c)
+        l.addRow(_('&Language to download:'), c)
 
         c.addItem('', None)
         languages = current_languages_dictionaries(reread=False)
@@ -218,8 +219,9 @@ class AddDictionary(QDialog):  # {{{
 
     def accept(self):
         idx = self.tabs.currentIndex()
-        if idx== 0:
-            self._process_online_download()
+        if idx == 0:
+            with BusyCursor():
+                self._process_online_download()
         elif idx == 1:
             self._process_oxt_import()
         QDialog.accept(self)
@@ -1603,7 +1605,8 @@ def find_next_error(current_editor, current_editor_name, gui_parent, show_editor
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     dictionaries.initialize()
     ManageDictionaries.test()
     del app
