@@ -105,13 +105,18 @@ def initialize_calibre():
     spawn.get_command_line = get_command_line
     orig_spawn_passfds = util.spawnv_passfds
 
+    def wrapped_orig_spawn_fds(args, passfds):
+        # as of python 3.11 util.spawnv_passfds expects bytes args
+        args = [x.encode('utf-8') if isinstance(x, str) else x for x in args]
+        return orig_spawn_passfds(args[0], args, passfds)
+
     def spawnv_passfds(path, args, passfds):
         try:
             idx = args.index('-c')
         except ValueError:
-            return orig_spawn_passfds(args[0], args, passfds)
+            return wrapped_orig_spawn_fds(args, passfds)
         patched_args = get_debug_executable() + ['--fix-multiprocessing', '--'] + args[idx + 1:]
-        return orig_spawn_passfds(patched_args[0], patched_args, passfds)
+        return wrapped_orig_spawn_fds(patched_args, passfds)
     util.spawnv_passfds = spawnv_passfds
 
     #
