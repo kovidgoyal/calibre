@@ -233,6 +233,25 @@
     },
 
     {
+        "name": "libjbig",
+        "comment": "Needed for libtiff",
+        "unix": {
+            "filename": "jbigkit-2.1.tar.gz",
+            "hash": "sha256:de7106b6bfaf495d6865c7dd7ac6ca1381bd12e0d81405ea81e7f2167263d932",
+            "urls": ["https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/{filename}"]
+        }
+    },
+
+    {
+        "name": "libtiff",
+        "unix": {
+            "filename": "tiff-4.6.0.tar.xz",
+            "hash": "sha256:e178649607d1e22b51cf361dd20a3753f244f022eefab1f2f218fc62ebaf87d2",
+            "urls": ["http://download.osgeo.org/libtiff/{filename}"]
+        }
+    },
+
+    {
         "name": "libwebp",
         "unix": {
             "filename": "libwebp-1.3.2.tar.gz",
