@@ -2175,6 +2175,8 @@ def monkeypatch_zeroconf():
     # "monkeypatch" zeroconf with a function without the check
     try:
         from zeroconf._utils.name import service_type_name
+        # zeroconf 0.73 uses an lru cache so we need __wrapped__
+        service_type_name = getattr(service_type_name, '__wrapped__', service_type_name)
         service_type_name.__kwdefaults__['strict'] = False
     except ImportError:
         import zeroconf
