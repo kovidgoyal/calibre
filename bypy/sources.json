@@ -926,6 +926,26 @@
     },
 
     {
+        "name": "pybcj",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "pybcj-1.0.1.tar.gz",
+            "hash": "sha256:8b682ed08caabfb7c042d4be083e28ddc692afb1deff5567111f8855071b75c3",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "inflate64",
+		"comment": "Needed by py7zr",
+        "unix": {
+            "filename": "inflate64-0.3.1.tar.gz",
+            "hash": "sha256:b52dd8fefd2ba179e5dfa18d6eca7e2fc822584616271c039d5ef1f9ca90c71c",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "py7zr",
         "unix": {
             "filename": "py7zr-0.20.6-py3-none-any.whl",
