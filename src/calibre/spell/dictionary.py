@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import sys
+import json
 from collections import defaultdict, namedtuple
 from functools import partial
 from itertools import chain
@@ -60,6 +61,18 @@ def builtin_dictionaries():
                 os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
+
+
+def catalog_online_dictionaries():
+    loaded = json.loads(P('dictionaries/online-catalog.json', allow_user_override=False, data=True))
+    try:
+        loaded.update(json.loads(P('dictionaries/online-catalog.json', data=True)))
+    except:
+        pass
+    rslt = []
+    for lang, directory in loaded.items():
+        rslt.append({'primary_locale':parse_lang_code(lang), 'name':lang,'directory':directory})
+    return rslt
 
 
 def custom_dictionaries(reread=False):

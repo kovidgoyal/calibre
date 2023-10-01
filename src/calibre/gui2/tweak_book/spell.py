@@ -12,10 +12,10 @@ from itertools import chain
 from qt.core import (
     QT_VERSION_STR, QAbstractItemView, QAbstractTableModel, QAction, QApplication,
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout,
-    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize,
-    QStackedLayout, Qt, QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QHBoxLayout, QIcon, QInputDialog, QKeySequence, QLabel, QLineEdit,
+    QListWidget,QListWidgetItem, QMenu, QModelIndex, QPlainTextEdit, QPushButton,
+    QSize, QStackedLayout, Qt, QTableView, QTimer, QToolButton, QTreeWidget,
+    QTabWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Thread
 
@@ -37,10 +37,10 @@ from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
 from calibre.spell.break_iterator import split_into_words
 from calibre.spell.dictionary import (
-    best_locale_for_language, builtin_dictionaries, custom_dictionaries, dprefs,
-    get_dictionary, remove_dictionary, rename_dictionary,
+    best_locale_for_language, builtin_dictionaries, catalog_online_dictionaries,
+    custom_dictionaries, dprefs, get_dictionary, remove_dictionary, rename_dictionary,
 )
-from calibre.spell.import_from import import_from_oxt
+from calibre.spell.import_from import import_from_oxt, import_from_online
 from calibre.startup import connect_lambda
 from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
 from calibre.utils.localization import (
@@ -64,17 +64,74 @@ def country_map():
         _country_map = msgpack_loads(P('localization/iso3166.calibre_msgpack', data=True, allow_user_override=False))
     return _country_map
 
+def current_languages_dictionaries(reread=False):
+    all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
+    languages = defaultdict(lambda : defaultdict(set))
+    for d in all_dictionaries:
+        for locale in d.locales | {d.primary_locale}:
+            languages[locale.langcode][locale.countrycode].add(d)
+    return languages
 
 class AddDictionary(QDialog):  # {{{
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Add a dictionary'))
-        self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        l = QVBoxLayout(self)
         self.setLayout(l)
 
-        self.la = la = QLabel('<p>' + _(
+        self.tabs = tabs = QTabWidget(self)
+        l.addWidget(self.tabs)
+
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+
+        self.web_download = QWidget(self)
+        self.oxt_import = QWidget(self)
+        tabs.addTab(self.web_download, _('Download online'))
+        tabs.addTab(self.oxt_import, _('Import from OXT file'))
+        tabs.currentChanged.connect(self.tab_changed)
+
+        # Download online tab
+        l = QFormLayout(self.web_download)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        self.web_download.setLayout(l)
+
+        la = QLabel('<p>' + _(
+        '''{0} supports the use of LibreOffice dictionaries for spell checking. You can
+            download some of them from <a href="{1}">the LibreOffice dictionaries repository</a>.'''
+            ).format(__appname__, 'https://github.com/LibreOffice/dictionaries')+'<p>')  # noqa
+        la.setWordWrap(True)
+        la.setOpenExternalLinks(True)
+        la.setMinimumWidth(450)
+        l.addRow(la)
+
+        self.combobox_online = c = QComboBox(self)
+        l.addRow(_('Langue to download:'), c)
+
+        c.addItem('', None)
+        languages = current_languages_dictionaries(reread=False)
+
+        def k(dictionary):
+            return sort_key(calibre_langcode_to_name(dictionary['primary_locale'].langcode))
+
+        for data in sorted(catalog_online_dictionaries(), key=lambda x:k(x)):
+            if languages.get(data['primary_locale'].langcode, {}).get(data['primary_locale'].countrycode, None):
+                continue
+            local = calibre_langcode_to_name(data['primary_locale'].langcode)
+            country = country_map()['names'].get(data['primary_locale'].countrycode, None)
+            text = f'{local} ({country})' if country else local
+            data['text'] = text
+            c.addItem(text, data)
+
+        # Oxt import tab
+        l = QFormLayout(self.oxt_import)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        self.oxt_import.setLayout(l)
+
+        la = QLabel('<p>' + _(
         '''{0} supports the use of LibreOffice dictionaries for spell checking. You can
             download more dictionaries from <a href="{1}">the LibreOffice extensions repository</a>.
             The dictionary will download as an .oxt file. Simply specify the path to the
@@ -85,12 +142,12 @@ class AddDictionary(QDialog):  # {{{
         la.setMinimumWidth(450)
         l.addRow(la)
 
-        self.h = h = QHBoxLayout()
+        h = QHBoxLayout()
         self.path = p = QLineEdit(self)
         p.setPlaceholderText(_('Path to OXT file'))
         h.addWidget(p)
 
-        self.b = b = QToolButton(self)
+        self.button_open_oxt = b = QToolButton(self)
         b.setIcon(QIcon.ic('document_open.png'))
         b.setToolTip(_('Browse for an OXT file'))
         b.clicked.connect(self.choose_file)
@@ -102,11 +159,11 @@ class AddDictionary(QDialog):  # {{{
         n.setPlaceholderText(_('Choose a nickname for this dictionary'))
         l.addRow(_('&Nickname:'), n)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        bb.accepted.connect(self.accept)
-        bb.rejected.connect(self.reject)
-        l.addRow(bb)
-        b.setFocus(Qt.FocusReason.OtherFocusReason)
+    def tab_changed(self, idx):
+        if idx == 0:
+            self.combobox_online.setFocus(Qt.FocusReason.OtherFocusReason)
+        elif idx == 1:
+            self.button_open_oxt.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def choose_file(self):
         path = choose_files(self, 'choose-dict-for-import', _('Choose OXT Dictionary'), filters=[
@@ -121,7 +178,7 @@ class AddDictionary(QDialog):  # {{{
     def nickname(self):
         return str(self.nick.text()).strip()
 
-    def accept(self):
+    def _process_oxt_import(self):
         nick = self.nickname
         if not nick:
             return error_dialog(self, _('Must specify nickname'), _(
@@ -140,6 +197,31 @@ class AddDictionary(QDialog):  # {{{
         if num == 0:
             return error_dialog(self, _('No dictionaries'), _(
                 'No dictionaries were found in %s') % oxt, show=True)
+
+    def _process_online_download(self):
+        data = self.combobox_online.currentData()
+        nick = 'online-'+data['name']
+        directory = data['directory']
+        if nick in {d.name for d in custom_dictionaries()}:
+            return error_dialog(self, _('Nickname already used'), _(
+                'A dictionary with the nick name "%s" already exists.') % nick, show=True)
+        try:
+            num = import_from_online(directory, nick)
+        except:
+            import traceback
+            return error_dialog(self, _('Failed to download dictionaries'), _(
+                'Failed to download dictionaries for "{:s}". Click "Show details" for more information').format(data['text']),
+                                det_msg=traceback.format_exc(), show=True)
+        if num == 0:
+            return error_dialog(self, _('No dictionaries'), _(
+                'No dictionary was found for "{:s}"').format(data['text']), show=True)
+
+    def accept(self):
+        idx = self.tabs.currentIndex()
+        if idx== 0:
+            self._process_online_download()
+        elif idx == 1:
+            self._process_oxt_import()
         QDialog.accept(self)
 # }}}
 
@@ -481,11 +563,7 @@ class ManageDictionaries(Dialog):  # {{{
                 rename_dictionary(d, str(item.text(0)))
 
     def build_dictionaries(self, reread=False):
-        all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
-        languages = defaultdict(lambda : defaultdict(set))
-        for d in all_dictionaries:
-            for locale in d.locales | {d.primary_locale}:
-                languages[locale.langcode][locale.countrycode].add(d)
+        languages = current_languages_dictionaries(reread=reread)
         bf = QFont(self.dictionaries.font())
         bf.setBold(True)
         itf = QFont(self.dictionaries.font())
@@ -1527,5 +1605,5 @@ def find_next_error(current_editor, current_editor_name, gui_parent, show_editor
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    ManageUserDictionaries.test()
+    ManageDictionaries.test()
     del app
