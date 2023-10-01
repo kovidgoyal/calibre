@@ -614,6 +614,16 @@
     },
 
     {
+        "name": "setuptools_scm",
+        "comment": "Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even though it is needed only for sdist not building wheels",
+        "unix": {
+            "filename": "setuptools_scm-8.0.3-py3-none-any.whl",
+            "hash": "sha256:813822234453438a13c78d05c8af29918fbc06f88efb33d38f065340bbb48c39",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "six",
         "unix": {
             "filename": "six-1.16.0-py2.py3-none-any.whl",
