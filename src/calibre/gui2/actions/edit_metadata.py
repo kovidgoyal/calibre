@@ -18,7 +18,6 @@ from qt.core import (
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.book.merge_book_metadata import merge_book_metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import Dispatcher, error_dialog, gprefs, question_dialog
@@ -732,8 +731,7 @@ class EditMetadataAction(InterfaceAction):
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
     def merge_metadata(self, dest_id, src_ids, replace_cover=False):
-        db = self.gui.library_view.model().db
-        merge_book_metadata(db, dest_id, src_ids, replace_cover)
+        self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover)
     # }}}
 
     def edit_device_collections(self, view, oncard=None):

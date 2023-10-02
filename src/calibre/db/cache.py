@@ -3165,6 +3165,100 @@ class Cache:
         path = self._field_for('path', book_id).replace('/', os.sep)
         self.backend.copy_extra_file_to(book_id, path, relpath, stream_or_path)
 
+    @write_api
+    def merge_book_metadata(self, dest_id, src_ids, replace_cover=False):
+        dest_mi = self.get_metadata(dest_id)
+        merged_identifiers = self._field_for('identifiers', dest_id) or {}
+        orig_dest_comments = dest_mi.comments
+        dest_cover = orig_dest_cover = self.cover(dest_id)
+        had_orig_cover = bool(dest_cover)
+        from calibre.utils.date import is_date_undefined
+
+        def is_null_date(x):
+            return x is None or is_date_undefined(x)
+
+        for src_id in src_ids:
+            src_mi = self.get_metadata(src_id)
+
+            if src_mi.comments and orig_dest_comments != src_mi.comments:
+                if not dest_mi.comments:
+                    dest_mi.comments = src_mi.comments
+                else:
+                    dest_mi.comments = str(dest_mi.comments) + '\n\n' + str(src_mi.comments)
+            if src_mi.title and dest_mi.is_null('title'):
+                dest_mi.title = src_mi.title
+                dest_mi.title_sort = src_mi.title_sort
+            if (src_mi.authors and src_mi.authors[0] != _('Unknown')) and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
+                dest_mi.authors = src_mi.authors
+                dest_mi.author_sort = src_mi.author_sort
+            if src_mi.tags:
+                if not dest_mi.tags:
+                    dest_mi.tags = src_mi.tags
+                else:
+                    dest_mi.tags.extend(src_mi.tags)
+            if not dest_cover or replace_cover:
+                src_cover = self.cover(src_id)
+                if src_cover:
+                    dest_cover = src_cover
+                    replace_cover = False
+            if not dest_mi.publisher:
+                dest_mi.publisher = src_mi.publisher
+            if not dest_mi.rating:
+                dest_mi.rating = src_mi.rating
+            if not dest_mi.series:
+                dest_mi.series = src_mi.series
+                dest_mi.series_index = src_mi.series_index
+            if is_null_date(dest_mi.pubdate) and not is_null_date(src_mi.pubdate):
+                dest_mi.pubdate = src_mi.pubdate
+
+            src_identifiers = self.field_for('identifier', src_id) or {}
+            src_identifiers.update(merged_identifiers)
+            merged_identifiers = src_identifiers.copy()
+
+        if merged_identifiers:
+            dest_mi.set_identifiers(merged_identifiers)
+        self._set_metadata(dest_id, dest_mi, ignore_errors=False)
+
+        if dest_cover and (not had_orig_cover or dest_cover is not orig_dest_cover):
+            self._set_cover({dest_id: dest_cover})
+
+        for key in self.field_metadata:  # loop thru all defined fields
+            fm = self.field_metadata[key]
+            if not fm['is_custom']:
+                continue
+            dt = fm['datatype']
+            label = fm['label']
+            try:
+                field = self.field_metadata.label_to_key(label)
+            except ValueError:
+                continue
+            # Get orig_dest_comments before it gets changed
+            if dt == 'comments':
+                orig_dest_value = self._field_for(field, dest_id)
+
+            for src_id in src_ids:
+                dest_value = self._field_for(field, dest_id)
+                src_value = self._field_for(field, src_id)
+                if (dt == 'comments' and src_value and src_value != orig_dest_value):
+                    if not dest_value:
+                        self._set_field(field, {dest_id: src_value})
+                    else:
+                        dest_value = str(dest_value) + '\n\n' + str(src_value)
+                        self._set_field(field, {dest_id: dest_value})
+                if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
+                    self._set_field(field, {dest_id: src_value})
+                if (dt == 'series' and not dest_value and src_value):
+                    src_index = self._field_for(field + '_index', src_id)
+                    self._set_field(field, {dest_id:src_value})
+                    self._set_field(field + '_index', {dest_id:src_index})
+                if ((dt == 'enumeration' or (dt == 'text' and not fm['is_multiple'])) and not dest_value):
+                    self._set_field(field, {dest_id:src_value})
+                if (dt == 'text' and fm['is_multiple'] and src_value):
+                    if not dest_value:
+                        dest_value = src_value
+                    else:
+                        dest_value.extend(src_value)
+                    self._set_field(field, {dest_id: dest_value})
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
