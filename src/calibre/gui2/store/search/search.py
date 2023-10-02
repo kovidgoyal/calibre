@@ -384,7 +384,14 @@ class SearchDialog(QDialog, Ui_Dialog):
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()
             if res:
-                self.results_view.model().add_result(res, store_plugin)
+                try:
+                    self.results_view.model().add_result(res, store_plugin)
+                except TypeError as err:
+                    error_message = (
+                            _("An error occurred when processing result: %s of store plugin: %s: %s")
+                            % (str(res), str(store_plugin), str(err))
+                    )
+                    error_dialog(self, _('Error'), error_message, show=True)
 
         if not self.search_pool.threads_running() and not self.results_view.model().has_results():
             info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
