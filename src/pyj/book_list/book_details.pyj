@@ -220,7 +220,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 else:
                     parent.appendChild(document.createTextNode(v))
 
-        table.appendChild(E.tr(E.td(name + ':'), E.td()))
+        table.appendChild(E.tr(E.td(name), E.td()))
         if is_html and /[<>]/.test(val + ''):
             table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + '', iframe_css))
         else:
@@ -254,7 +254,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_formats(field, fm, name, val):
         if val.length and book_id?:
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             td = table.lastChild.lastChild
             for fmt in val:
                 fmt = fmt.toUpperCase()
@@ -285,7 +285,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                     td.appendChild(document.createTextNode(', '))
                 td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=url, text))
             if td.childNodes.length:
-                table.appendChild(E.tr(E.td(name + ':'), td))
+                table.appendChild(E.tr(E.td(name), td))
 
     def process_size(field, fm, name, val):
         if val:
@@ -296,7 +296,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_languages(field, fm, name, val):
         if val and val.length:
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             td = table.lastChild.lastChild
             for k in val:
                 if mi.lang_names:
@@ -326,7 +326,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             except Exception:
                 ival = 1.0
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             s = safe_set_inner_html(E.span(), _('{0} of <a>{1}</a>').format(ival, val))
             a = s.getElementsByTagName('a')
             if a and a.length:
@@ -439,7 +439,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
-    style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
+    style += build_rule(sel + 'table.metadata td:first-of-type', font_style='italic', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
     return style
 

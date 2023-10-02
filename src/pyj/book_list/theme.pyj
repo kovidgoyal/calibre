@@ -25,6 +25,7 @@ DEFAULT_COLORS = {
     'window-error-foreground': c('red', '#C40233'),
     'window-hover-foreground': c('red', '#C40233'),
     'link-foreground': c('blue', '#6cb4ee'),
+    'faded-text': c('#666', '#7f7f7f'),
 
     # Top bar specific colors
     'bar-background': c(DARK, DT_DARK_LIGHTER),
