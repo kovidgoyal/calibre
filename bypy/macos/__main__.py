@@ -87,7 +87,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
 gcc = os.environ.get('CC', 'clang')
 
 
-def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
+def compile_launchers(contents_dir, inc_dir, xprograms, pyver, rpath):
     base = dirname(abspath(__file__))
     lib = compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir)
     src = join(base, 'launcher.c')
@@ -100,7 +100,7 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
         is_gui = 'true' if ptype == 'gui' else 'false'
         cmd = [gcc] + ARCH_FLAGS + [
             '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
-            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names'
+            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names', '-rpath', rpath,
         ]
         # print('\t'+' '.join(cmd))
         sys.stdout.flush()
@@ -246,7 +246,7 @@ class Freeze:
             progs += list(zip(basenames[x], main_modules[x], main_functions[x], repeat(x)))
         for program, module, func, ptype in progs:
             programs[program] = (module, func, ptype)
-        programs = compile_launchers(self.contents_dir, self.inc_dir, programs, py_ver)
+        programs = compile_launchers(self.contents_dir, self.inc_dir, programs, py_ver, self.FID)
         for out in programs:
             self.fix_dependencies_in_lib(out)
 
@@ -271,9 +271,7 @@ class Freeze:
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            if x.startswith('@rpath/Qt') or x.startswith('@rpath/libexpat') or x.startswith('@rpath/libpodofo') or x.startswith('@rpath/libzstd'):
-                yield x, x[len('@rpath/'):], is_id
-            elif x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib') and not is_id:
+            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib') and not is_id:
                 yield x, x, is_id
             else:
                 for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
@@ -396,7 +394,7 @@ class Freeze:
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='pdftohtml',
-                LSMinimumSystemVersion='10.15.0',
+                LSMinimumSystemVersion='11.0.0',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 CFBundleIconFile='',
@@ -446,7 +444,7 @@ class Freeze:
             CFBundleExecutable='calibre',
             CFBundleDocumentTypes=docs,
             CFBundleURLTypes=url_handlers,
-            LSMinimumSystemVersion='10.15.0',
+            LSMinimumSystemVersion='11.0.0',
             LSRequiresNativeExecution=True,
             NSAppleScriptEnabled=False,
             NSSupportsAutomaticGraphicsSwitching=True,
