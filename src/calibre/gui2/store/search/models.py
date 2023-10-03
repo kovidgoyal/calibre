@@ -22,6 +22,8 @@ from calibre.utils.search_query_parser import SearchQueryParser
 def comparable_price(text):
     if isinstance(text, (int, float)):
         text = str(text)
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', 'ignore')
     text = text or ''
     # this keep thousand and fraction separators
     match = re.search(r'(?:\d|[,.](?=\d))(?:\d*(?:[,.\' ](?=\d))?)+', text)
