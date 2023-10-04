@@ -23,6 +23,9 @@ def parse_lang_code(raw):
     if lc is None:
         raise ValueError('Invalid language code: %r' % raw)
     cc = None
+    for sc in ['Cyrl', 'Latn']:
+        if sc in parts:
+            parts.remove(sc)
     if len(parts) > 1:
         ccodes, ccodemap = get_codes()[:2]
         q = parts[1].upper()
