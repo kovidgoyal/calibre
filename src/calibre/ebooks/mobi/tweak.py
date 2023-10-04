@@ -105,4 +105,3 @@ def rebuild(src_dir, dest_path):
     #     do_rebuild(*args)
     fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
             no_output=True)
-

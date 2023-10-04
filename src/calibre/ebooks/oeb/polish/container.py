@@ -1472,6 +1472,26 @@ def opf_to_azw3(opf, outpath, container):
 
 def epub_to_azw3(epub, outpath=None):
     container = get_container(epub, tweak_mode=True)
+    changed = False
+    for item in container.opf_xpath('//opf:manifest/opf:item[@properties and @href]'):
+        p = item.get('properties').split()
+        if 'cover-image' in p:
+            href = item.get('href')
+            guides = container.opf_xpath('//opf:guide')
+            if not guides:
+                guides = (container.opf.makeelement(OPF('guide')),)
+                container.opf.append(guides[0])
+            for guide in guides:
+                for child in guide:
+                    if child.get('type') == 'cover':
+                        break
+                else:
+                    guide.append(guide.makeelement(OPF('reference'), type='cover', href=href))
+                    changed = True
+            break
+    if changed:
+        container.dirty(container.opf_name)
+        container.commit_item(container.opf_name)
     outpath = outpath or (epub.rpartition('.')[0] + '.azw3')
     opf_to_azw3(container.name_to_abspath(container.opf_name), outpath, container)
 
