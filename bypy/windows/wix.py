@@ -9,6 +9,7 @@ import shutil
 from bypy.constants import is64bit
 from bypy.utils import run
 
+# TODO: Migrate to Wix 4 see https://wixtoolset.org/docs/fourthree/
 WIXP = r'C:\Program Files (x86)\WiX Toolset v3.14'
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
