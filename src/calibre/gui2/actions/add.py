@@ -40,7 +40,7 @@ def get_filters():
             (_('HTML books'), ['htm', 'html', 'xhtm', 'xhtml']),
             (_('LIT books'), ['lit']),
             (_('Text books'), ['txt', 'text', 'rtf', 'md', 'markdown', 'textile', 'txtz']),
-            (_('Comics'), ['cbz', 'cbr', 'cbc']),
+            (_('Comics'), ['cbz', 'cbr', 'cbc', 'cb7']),
             (_('Archives'), archives),
             (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
