@@ -158,8 +158,16 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
 def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
     br = browser(timeout=30)
     def read_file(key):
-        rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
-        return rp.read()
+        try:
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
+            return rp.read()
+        except:
+            # Some dictionaries apparently put the dic and aff file in a
+            # sub-directory dictionaries and incorrectly make paths relative
+            # to that directory instead of the root, for example:
+            # https://github.com/LibreOffice/dictionaries/tree/master/ca
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, 'dictionaries', key)))
+            return rp.read()
 
     return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
