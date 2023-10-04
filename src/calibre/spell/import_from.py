@@ -45,6 +45,8 @@ def parse_xcu(raw, origin='%origin%'):
             paths = [c.text.replace('%origin%', origin) for v in value for c in v.iterchildren('*') if c.text]
         aff, dic = paths if paths[0].endswith('.aff') else reversed(paths)
         locales = ''.join(XPath('descendant::prop[@oor:name="Locales"]/value/text()')(node)).split()
+        if not locales:
+            locales = [str(item) for item in XPath('descendant::prop[@oor:name="Locales"]/value/it/text()')(node)]
         ans[(dic, aff)] = locales
     return ans
 
