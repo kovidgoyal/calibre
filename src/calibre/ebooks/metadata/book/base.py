@@ -247,6 +247,8 @@ class Metadata:
         needed is large. Also, we don't want any manipulations of the returned
         dict to show up in the book.
         '''
+        if hasattr(self, '_proxy_metadata'):
+            return self.get('identifiers', {})
         ans = object.__getattribute__(self,
             '_data')['identifiers']
         if not ans:
