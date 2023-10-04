@@ -60,7 +60,7 @@ builtin_colors_light = {
     'purple': '#d9b2ff',
 }
 builtin_colors_dark = {
-    'yellow': '#c18d18',
+    'yellow': '#906e00',
     'green': '#306f50',
     'blue': '#265589',
     'red': '#a23e5a',
