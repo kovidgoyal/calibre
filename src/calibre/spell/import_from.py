@@ -163,7 +163,9 @@ def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
         try:
             rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
             return rp.read()
-        except:
+        except Exception as err:
+            if getattr(err, 'code', -1) != 404:
+                raise
             # Some dictionaries apparently put the dic and aff file in a
             # sub-directory dictionaries and incorrectly make paths relative
             # to that directory instead of the root, for example:
