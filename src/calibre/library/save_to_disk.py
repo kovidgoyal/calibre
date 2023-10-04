@@ -10,7 +10,7 @@ import re
 import traceback
 
 from calibre import prints, sanitize_file_name, strftime
-from calibre.constants import DEBUG, preferred_encoding
+from calibre.constants import DEBUG, iswindows, preferred_encoding
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatsList
 from calibre.ebooks.metadata import fmt_sidx, title_sort
@@ -342,13 +342,13 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
             cdata = db.cover(book_id)
             if cdata:
                 cpath = base_path + '.jpg'
-                with open(cpath, 'wb') as f:
+                with open(make_long_path_useable(cpath), 'wb') as f:
                     f.write(cdata)
                 mi.cover = base_name+'.jpg'
         if opts.write_opf:
             from calibre.ebooks.metadata.opf2 import metadata_to_opf
             opf = metadata_to_opf(mi)
-            with open(base_path+'.opf', 'wb') as f:
+            with open(make_long_path_useable(base_path+'.opf'), 'wb') as f:
                 f.write(opf)
     finally:
         mi.cover, mi.pubdate, mi.timestamp = originals
@@ -372,7 +372,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         except NoSuchFormat:
             continue
         if opts.update_metadata:
-            with open(fmt_path, 'r+b') as stream:
+            with open(make_long_path_useable(fmt_path), 'r+b') as stream:
                 update_metadata(mi, fmt, stream, plugboards, cdata)
 
     return not formats_written, book_id, mi.title
@@ -384,7 +384,8 @@ def sanitize_args(root, opts):
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)
-    length = 240
+    length = 255 if iswindows else 1024
+    length -= 15
     length -= len(root)
     if length < 5:
         raise ValueError('%r is too long.'%root)

@@ -1707,7 +1707,7 @@ class DB:
                         # Ensure that the file has the same case as dest
                         try:
                             os.rename(path, dest)
-                        except:
+                        except OSError:
                             pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     if use_hardlink:
@@ -1716,7 +1716,7 @@ class DB:
                             return True
                         except:
                             pass
-                    with open(path, 'rb') as f, open(dest, 'wb') as d:
+                    with open(path, 'rb') as f, open(make_long_path_useable(dest), 'wb') as d:
                         shutil.copyfileobj(f, d)
         return True
 

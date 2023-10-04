@@ -442,6 +442,7 @@ class WindowsAtomicFolderMove:
 
 
 def hardlink_file(src, dest):
+    src, dest = make_long_path_useable(src), make_long_path_useable(dest)
     if iswindows:
         windows_hardlink(src, dest)
         return
