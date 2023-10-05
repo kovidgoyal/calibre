@@ -377,13 +377,13 @@ class ProxyMetadata(Metadata):
 
     def _unimplemented_exception(self, method, add_txt):
         raise NotImplementedError(f"{method}() cannot be used in this context. "
-                                   "{'ProxyMetadata is read only' if add_txt else ''}")
+                                   f"{'ProxyMetadata is read only' if add_txt else ''}")
 
     # Metadata returns a seemingly arbitrary set of items. Rather than attempt
     # compatibility, flag __iter__ as unimplemented. This won't break anything
     # because the Metadata version raises AttributeError
     def __iter__(self):
-        raise NotImplementedError(f"__iter__() cannot be used in this context. "
+        raise NotImplementedError("__iter__() cannot be used in this context. "
                                    "Use the explicit methods such as all_field_keys()")
 
     def has_key(self, key):
