@@ -3257,6 +3257,7 @@ class Cache:
                     if not dest_value:
                         dest_value = src_value
                     else:
+                        dest_value = list(dest_value)
                         dest_value.extend(src_value)
                     self._set_field(field, {dest_id: dest_value})
 
