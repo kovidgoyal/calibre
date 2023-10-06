@@ -22,18 +22,23 @@
 #include <openssl/err.h>
 #include <openssl/conf.h>
 
-static PyObject* set_error(const char *where) {
-    char *buf = NULL;
+static PyObject*
+set_error_with_detail(const char *where, const char* detail) {
+    char *suffix = NULL, buf[1024];
     unsigned long err = ERR_get_error();
     if (err == 0) {
-        return PyErr_Format(PyExc_RuntimeError, "Error calling: %s: OpenSSL error queue is empty", where);
+        suffix = "OpenSSL error queue is empty";
+    } else {
+        ERR_error_string_n(err, buf, sizeof(buf));
+        suffix = buf;
     }
-    buf = ERR_error_string(err, NULL);
-    if (!buf) {
-        PyErr_SetString(PyExc_RuntimeError, "An unknown error occurred (OpenSSL error string returned NULL)");
-        return NULL;
-    }
-    return PyErr_Format(PyExc_ValueError, "Error calling: %s: %s", where, buf);
+    if (detail && detail[0]) return PyErr_Format(PyExc_ValueError, "Error calling: %s %s: %s", where, detail, suffix);
+    return PyErr_Format(PyExc_ValueError, "Error calling: %s: %s", where, suffix);
+}
+
+static PyObject*
+set_error(const char *where) {
+    return set_error_with_detail(where, NULL);
 }
 
 static void free_rsa_keypair(PyObject *capsule) {
@@ -97,9 +102,8 @@ static void free_req(PyObject *capsule) {
 static int
 add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, const char *value, char *item_type) {
   X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, NULL, nid, value);
-  char ebuf[256] = {0};
-  if (!ex) { snprintf(ebuf, sizeof(ebuf), "%s: %s", item_type, "X509V3_EXT_conf_nid"); set_error(ebuf); return 0;}
-  if (!sk_X509_EXTENSION_push(sk, ex)) { snprintf(ebuf, sizeof(ebuf), "%s: %s", item_type, "sk_X509_EXTENSION_push"); set_error(ebuf); return 0; }
+  if (!ex) { set_error_with_detail("X509V3_EXT_conf_nid", value); return 0;}
+  if (!sk_X509_EXTENSION_push(sk, ex)) { set_error_with_detail("sk_X509_EXTENSION_push", item_type); return 0; }
   return 1;
 }
 

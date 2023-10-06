@@ -18,7 +18,7 @@ def create_cert_request(
     organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None
 ):
     return certgen.create_rsa_cert_req(
-        key_pair, tuple(f'DNS:{x}' for x in alt_names), common_name,
+        key_pair, tuple(alt_names), common_name,
         country, state, locality, organization, organizational_unit, email_address, basic_constraints
     )
 
@@ -91,7 +91,7 @@ def create_server_cert(
 
 
 if __name__ == '__main__':
-    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['moose.cat', 'huge.bat'])
+    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['DNS:moose.cat', 'DNS:huge.bat'])
     print("CA Certificate")
     print(cert_info(cacert))
     print(), print(), print()
