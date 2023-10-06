@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 6.28.0 2023-10-06
+
+:: new features
+
+- Edit book: Show full path to book being edited in the status bar
+
+- Edit book: When adding dictionaries allow directly a LibreOffice adding the dictionary just by choosing the language
+
+- Edit book: When saving a copy add some convenience actions to edit the copy immediately either in the current editor window or a new window
+
+- E-book viewer: Highlights panel: Allow right clicking to export only selected highlights
+
+:: bug fixes
+
+- [2034900] Edit book: Fix a regression in the previous release that caused Text search to sometimes not select matches correctly
+
+- [2037198] Edit book: When copying files do it in order so that the files are pasted in the same order when pasting into another editor instance
+
+- Edit book: Fix smart tag insert not working correctly if the selected text starts with the closing angle bracket of a tag
+
+- [2038238] Save to disk: Do not limit the total path length to 240 characters on non-Windows platforms
+
+- [2037898] Fix incorrect cover for AZW3 version of calibre User Manual
+
+- [2029723] Content server: Change formatting of book details to match new de-emphasized titles based formatting in the main calibre program
+
+- PDF metadata: Fix a regression that broke updating metadata in PDF files without an /Info dictionary
+
+- NOOK driver: For the Glowlight 2023 write the calibre metadata files into the NOOK sub-folder as the firmware does not allow writing files into the root folder
+
+- NOOK driver: Fix Glowlight 2023 not being detected on Linux and macOS
+
+- [2037454] E-book viewer: Make CFI calculation more robust especially on pages with very little content
+
+- [2037543] E-book viewer: Workaround bug in Chromium where getBoundingClientRect() fails sometimes leading to incorrect calculation of anchor positions
+
+- [2037237] Fix errors caused by .DS_Store files inserted into the .caltrash directory on macOS if the user happens to open .caltrash in Finder
+
+:: improved recipes
+- National Geographic
+- Bloomberg
+- Endgadget
+- Times of India
+- Horizons
+
+:: new recipes
+- Business Standard Print Edition by unkn0wn
+
+}}}
+
 {{{ 6.27.0 2023-09-22
 
 :: new features
