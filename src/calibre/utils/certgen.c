@@ -94,9 +94,9 @@ static void free_req(PyObject *capsule) {
     if (Cert) X509_REQ_free(Cert);
 }
 
-static int add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, char *value, char *item_type) {
-  X509_EXTENSION *ex = NULL;
-  ex = X509V3_EXT_conf_nid(NULL, NULL, nid, value);
+static int
+add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, const char *value, char *item_type) {
+  X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, NULL, nid, value);
   char ebuf[256] = {0};
   if (!ex) { snprintf(ebuf, sizeof(ebuf), "%s: %s", item_type, "X509V3_EXT_conf_nid"); set_error(ebuf); return 0;}
   if (!sk_X509_EXTENSION_push(sk, ex)) { snprintf(ebuf, sizeof(ebuf), "%s: %s", item_type, "sk_X509_EXTENSION_push"); set_error(ebuf); return 0; }
@@ -106,16 +106,15 @@ static int add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, char *value, char *ite
 static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL, *t = NULL;
     X509_NAME *Name = NULL;
-    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL, buf[1024];
+    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL;
     X509_REQ *Cert = NULL;
     PyObject *alt_names = NULL;
     int ok = 0, signature_length = 0;
     Py_ssize_t i = 0;
     STACK_OF(X509_EXTENSION) *exts = NULL;
 
-    if(!PyArg_ParseTuple(args, "OOszzzzzzz", &capsule, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email, &basic_constraints)) return NULL;
+    if(!PyArg_ParseTuple(args, "OO!szzzzzzz", &capsule, &PyTuple_Type, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email, &basic_constraints)) return NULL;
     if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
-    if(!PySequence_Check(alt_names)) return PyErr_Format(PyExc_TypeError, "alt_names must be a sequence");
     EVP_PKEY *KeyPair = PyCapsule_GetPointer(capsule, NULL);
     if (!KeyPair) return PyErr_Format(PyExc_TypeError, "The key capsule is NULL");
     Cert = X509_REQ_new();
@@ -131,15 +130,15 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     if (!add_entry(Name, "emailAddress", email)) goto error;
     if (!add_entry(Name, "CN", common_name)) goto error;
 
-    if (PySequence_Length(alt_names) > 0 || basic_constraints) {
+    if (PyTuple_GET_SIZE(alt_names) > 0 || basic_constraints) {
         exts = sk_X509_EXTENSION_new_null();
         if (!exts) { set_error("sk_X509_EXTENSION_new_null"); goto error; }
-        for (i = 0; i < PySequence_Length(alt_names); i++) {
-            t = PySequence_ITEM(alt_names, i);
-            memset(buf, 0, 1024);
-            snprintf(buf, 1023, "%s", PyBytes_AS_STRING(t));
-            Py_XDECREF(t);
-            if(!add_ext(exts, NID_subject_alt_name, buf, "alt_names")) goto error;
+        for (i = 0; i < PyTuple_GET_SIZE(alt_names); i++) {
+            t = PyTuple_GET_ITEM(alt_names, i);
+            if (!PyUnicode_Check(t)) {
+                PyErr_SetString(PyExc_TypeError, "ALT names must be unicode objects"); goto error;
+            }
+            if (!add_ext(exts, NID_subject_alt_name, PyUnicode_AsUTF8(t), "alt_names")) goto error;
         }
         if (basic_constraints) {
             if(!add_ext(exts, NID_basic_constraints, basic_constraints, "basic_constraints")) goto error;
