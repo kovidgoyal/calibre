@@ -45,7 +45,7 @@ def serialize_key(key_pair, password=None):
 
 
 def cert_info(cert):
-    return certgen.cert_info(cert).decode('utf-8')
+    return certgen.cert_info(cert)
 
 
 def create_server_cert(
@@ -96,9 +96,9 @@ def create_server_cert(
 
 
 if __name__ == '__main__':
-    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['1.test.me', '*.all.test.me'])
+    cacert, cakey, cert, pkey = create_server_cert('test.me')
     print("CA Certificate")
-    print(cert_info(cacert).encode('utf-8'))
+    print(cert_info(cacert))
     print(), print(), print()
     print('Server Certificate')
-    print(cert_info(cert).encode('utf-8'))
+    print(cert_info(cert))
