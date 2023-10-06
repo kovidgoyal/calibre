@@ -41,6 +41,26 @@ static void free_rsa_keypair(PyObject *capsule) {
     EVP_PKEY_free(pkey);
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+static EVP_PKEY *
+EVP_RSA_gen(int keysize) {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+    if (!ctx) return NULL;
+    if (EVP_PKEY_keygen_init(ctx) <= 0) { EVP_PKEY_CTX_free(ctx); return NULL; }
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, keysize) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return NULL;
+    }
+    EVP_PKEY *key = NULL;
+    if (EVP_PKEY_keygen(ctx, &key) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return NULL;
+    }
+    EVP_PKEY_CTX_free(ctx);
+    return key;
+}
+#endif
+
 static PyObject*
 create_rsa_keypair(PyObject *self, PyObject *args) {
     int keysize = 0;
