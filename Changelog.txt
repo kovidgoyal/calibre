@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 6.28.0 2023-10-06
+{{{ 6.28.1 2023-10-07
 
 :: new features
 
@@ -60,6 +60,8 @@
 - [2037543] E-book viewer: Workaround bug in Chromium where getBoundingClientRect() fails sometimes leading to incorrect calculation of anchor positions
 
 - [2037237] Fix errors caused by .DS_Store files inserted into the .caltrash directory on macOS if the user happens to open .caltrash in Finder
+
+- Version 6.28.1 fixes a regression in 6.28.0 that could cause errors when merging some book records in calibre
 
 :: improved recipes
 - National Geographic
