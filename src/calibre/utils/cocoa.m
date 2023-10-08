@@ -109,7 +109,7 @@ set_notification_activated_callback(PyObject *self, PyObject *callback) {
 }
 
 static void
-schedule_notification(const char *identifier, const char *title, const char *body, const char *subtitle) {
+schedule_notification(const char *identifier, const char *title, const char *body, const char *subtitle, bool use_sound) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     if (!center) return;
     // Configure the notification's payload.
@@ -117,7 +117,7 @@ schedule_notification(const char *identifier, const char *title, const char *bod
     if (title) content.title = @(title);
     if (body) content.body = @(body);
     if (subtitle) content.subtitle = @(subtitle);
-    content.sound = [UNNotificationSound defaultSound];
+    if (use_sound) content.sound = [UNNotificationSound defaultSound];
     // Deliver the notification
     static unsigned long counter = 1;
     UNNotificationRequest* request = [
@@ -133,6 +133,7 @@ schedule_notification(const char *identifier, const char *title, const char *bod
 
 typedef struct {
     char *identifier, *title, *body, *subtitle;
+    bool use_sound;
 } QueuedNotification;
 
 typedef struct {
@@ -151,13 +152,14 @@ static NotificationQueue notification_queue = {0};
 
 
 static void
-queue_notification(const char *identifier, const char *title, const char* body, const char* subtitle) {
+queue_notification(const char *identifier, const char *title, const char* body, const char* subtitle, bool use_sound) {
     ensure_space_for((&notification_queue), notifications, QueuedNotification, notification_queue.count + 16, capacity, 16, true);
     QueuedNotification *n = notification_queue.notifications + notification_queue.count++;
     n->identifier = identifier ? strdup(identifier) : NULL;
     n->title = title ? strdup(title) : NULL;
     n->body = body ? strdup(body) : NULL;
     n->subtitle = subtitle ? strdup(subtitle) : NULL;
+    n->use_sound = use_sound;
 }
 
 static void
@@ -165,7 +167,7 @@ drain_pending_notifications(BOOL granted) {
     if (granted) {
         for (size_t i = 0; i < notification_queue.count; i++) {
             QueuedNotification *n = notification_queue.notifications + i;
-            schedule_notification(n->identifier, n->title, n->body, n->subtitle);
+            schedule_notification(n->identifier, n->title, n->body, n->subtitle, n->use_sound);
         }
     }
     while(notification_queue.count) {
@@ -180,12 +182,13 @@ static PyObject*
 send_notification(PyObject *self, PyObject *args) {
 	(void)self;
     char *identifier = NULL, *title = NULL, *subtitle = NULL, *informativeText = NULL;
-    if (!PyArg_ParseTuple(args, "zsz|z", &identifier, &title, &informativeText, &subtitle)) return NULL;
+    int use_sound = 0;
+    if (!PyArg_ParseTuple(args, "zsz|pz", &identifier, &title, &informativeText, &use_sound, &subtitle)) return NULL;
 
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     if (!center) Py_RETURN_NONE;
     if (!center.delegate) center.delegate = [[NotificationDelegate alloc] init];
-    queue_notification(identifier, title, informativeText, subtitle);
+    queue_notification(identifier, title, informativeText, subtitle, use_sound ? YES : NO);
 
     // The badge permission needs to be requested as well, even though it is not used,
     // otherwise macOS refuses to show the preference checkbox for enable/disable notification sound.
