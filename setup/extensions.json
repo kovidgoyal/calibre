@@ -218,7 +218,7 @@
         "name": "cocoa",
         "only": "macos",
         "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m",
-        "ldflags": "-framework Cocoa"
+        "ldflags": "-framework Cocoa -framework UserNotifications"
     },
     {
         "name": "libusb",
