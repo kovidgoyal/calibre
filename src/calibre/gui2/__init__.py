@@ -1390,13 +1390,13 @@ def sanitize_env_vars():
         env_vars = {}
     elif ismacos:
         env_vars = {k:None for k in (
-                    'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE').split()}
+                    'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE OPENSSL_ENGINES OPENSSL_MODULES').split()}
     else:
         env_vars = {}
 
     originals = {x:os.environ.get(x, '') for x in env_vars}
     changed = {x:False for x in env_vars}
-    for var, suffix in iteritems(env_vars):
+    for var, suffix in env_vars.items():
         paths = [x for x in originals[var].split(os.pathsep) if x]
         npaths = [] if suffix is None else [x for x in paths if x != (sys.frozen_path + suffix)]
         if len(npaths) < len(paths):
@@ -1409,7 +1409,7 @@ def sanitize_env_vars():
     try:
         yield
     finally:
-        for var, orig in iteritems(originals):
+        for var, orig in originals.items():
             if changed[var]:
                 if orig:
                     os.environ[var] = orig
