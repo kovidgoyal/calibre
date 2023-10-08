@@ -308,8 +308,8 @@
         },
         "windows": {
             "filename": "libiconv-for-Windows-1.16.zip",
-            "hash": "sha256:d542e635cad954a62a2b451b5644e855b848398917e93adf46d8da4c9cc88b6d",
-            "urls": ["https://github.com/pffang/libiconv-for-Windows/archive/v1.16.zip"]
+            "hash": "sha256:61b4445e67a3855945f88908c3c86801ef328feac15ef558b7e471269eca49fb",
+            "urls": ["https://github.com/pffang/libiconv-for-Windows/archive/1353455a6c4e15c9db6865fd9c2bf7203b59c0ec.zip"]
         }
     },
 
