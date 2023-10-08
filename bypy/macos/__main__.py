@@ -45,6 +45,8 @@ ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
     SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
+    OPENSSL_ENGINES='@executable_path/../Frameworks/engines-3',
+    OPENSSL_MODULES='@executable_path/../Frameworks/ossl-modules',
 )
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
@@ -87,7 +89,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
 gcc = os.environ.get('CC', 'clang')
 
 
-def compile_launchers(contents_dir, inc_dir, xprograms, pyver, rpath):
+def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
     base = dirname(abspath(__file__))
     lib = compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir)
     src = join(base, 'launcher.c')
@@ -100,7 +102,7 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver, rpath):
         is_gui = 'true' if ptype == 'gui' else 'false'
         cmd = [gcc] + ARCH_FLAGS + [
             '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
-            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names', '-rpath', rpath,
+            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names',
         ]
         # print('\t'+' '.join(cmd))
         sys.stdout.flush()
@@ -246,7 +248,7 @@ class Freeze:
             progs += list(zip(basenames[x], main_modules[x], main_functions[x], repeat(x)))
         for program, module, func, ptype in progs:
             programs[program] = (module, func, ptype)
-        programs = compile_launchers(self.contents_dir, self.inc_dir, programs, py_ver, self.FID)
+        programs = compile_launchers(self.contents_dir, self.inc_dir, programs, py_ver)
         for out in programs:
             self.fix_dependencies_in_lib(out)
 
@@ -271,10 +273,10 @@ class Freeze:
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib') and not is_id:
+            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib', 'libjbig.2.1.dylib') and not is_id:
                 yield x, x, is_id
             else:
-                for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
+                for y in ('@rpath/', PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
                     if x.startswith(y):
                         if y == PREFIX + '/python/Python.framework/':
                             y = PREFIX + '/python/'
@@ -478,7 +480,7 @@ class Freeze:
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.115.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.130.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdftotext'):
             self.install_dylib(
@@ -523,10 +525,10 @@ class Freeze:
     def add_misc_libraries(self):
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
-            'icudata.70', 'icui18n.70', 'icuio.70', 'icuuc.70', 'hyphen.0', 'uchardet.0',
+            'icudata.73', 'icui18n.73', 'icuio.73', 'icuuc.73', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
             'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
-            'crypto.1.1', 'ssl.1.1', 'iconv.2',  # 'ltdl.7'
+            'crypto.3', 'ssl.3', 'iconv.2',  # 'ltdl.7'
         ):
             print('\nAdding', x)
             x = 'lib%s.dylib' % x
@@ -535,6 +537,16 @@ class Freeze:
             dest = join(self.frameworks_dir, x)
             self.set_id(dest, self.FID + '/' + x)
             self.fix_dependencies_in_lib(dest)
+
+        # OpenSSL modules and engines
+        for x in ('ossl-modules', 'engines-3'):
+            dest = join(self.frameworks_dir, x)
+            shutil.copytree(join(PREFIX, 'lib', x), dest)
+            for dylib in os.listdir(dest):
+                if dylib.endswith('.dylib'):
+                    dylib = join(dest, dylib)
+                    self.set_id(dylib, self.FID + '/' + x + '/' + os.path.basename(dylib))
+                    self.fix_dependencies_in_lib(dylib)
 
     @flush
     def add_site_packages(self):
