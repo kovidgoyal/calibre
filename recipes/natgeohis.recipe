@@ -32,10 +32,10 @@ def parse_contributors(grp):
 
 def parse_lead_image(media):
     if 'dsc' in media['image']:
-        yield '<div><img src="{}" alt="{}"></div>'.format(
+        yield '<p><div><img src="{}" alt="{}"></div>'.format(
             escape(media['image']['src'], True), escape(media['image']['dsc'], True))
     else:
-        yield '<div><img src="{}"></div>'.format(escape(media['image']['src'], True))
+        yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
     if 'caption' in media:
         yield '<div class="cap">' + media['caption'] + '</div>'
     if 'credit' in media:
