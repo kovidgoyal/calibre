@@ -16,9 +16,9 @@ if python_msc_version < 1920:
 if python_msc_version > 1929:
     raise SystemExit(f'Python MSC version {python_msc_version} too new, needs Visual studio 2019')
 
-# The values are for VisualStudio 2019 (python_msc_version 192_)
-VS_VERSION = '16.0'
-COMN_TOOLS_VERSION = '160'
+# The values are for VisualStudio 2022 (python_msc_version 192_)
+VS_VERSION = '17.0'
+COMN_TOOLS_VERSION = '170'
 
 CSIDL_PROGRAM_FILES = 38
 CSIDL_PROGRAM_FILESX86 = 42
