@@ -124,9 +124,10 @@ class NatGeo(BasicNewsRecipe):
     remove_attributes = ['style']
     remove_javascript = False
     masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
+    resolve_internal_links = True
 
     extra_css = '''
-        .sub { color:#404040; }
+        .sub, blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap {text-align:center; font-size:small; }
         .cred {text-align:center; font-size:small; color:#404040; }
