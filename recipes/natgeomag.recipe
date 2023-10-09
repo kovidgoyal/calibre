@@ -10,6 +10,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
 
+edition = date.today().strftime('%B-%Y')
+
+# edition = 'March-2023'
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -34,10 +37,10 @@ def parse_contributors(grp):
 
 def parse_lead_image(media):
     if 'dsc' in media['image']:
-        yield '<div><img src="{}" alt="{}"></div>'.format(
+        yield '<p><div><img src="{}" alt="{}"></div>'.format(
             escape(media['image']['src'], True), escape(media['image']['dsc'], True))
     else:
-        yield '<div><img src="{}"></div>'.format(escape(media['image']['src'], True))
+        yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
     if 'caption' in media:
         yield '<div class="cap">' + media['caption'] + '</div>'
     if 'credit' in media:
@@ -124,9 +127,10 @@ class NatGeo(BasicNewsRecipe):
     remove_javascript = False
     masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
     remove_empty_feeds = True
+    resolve_internal_links = True
 
     extra_css = '''
-        .sub { color:#404040; }
+        .sub, blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap {text-align:center; font-size:small; }
         .cred {text-align:center; font-size:small; color:#404040; }
@@ -134,9 +138,9 @@ class NatGeo(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        url = 'https://www.nationalgeographic.com/magazine/issue/' + date.today().strftime('%B-%Y'). lower()
+        url = 'https://www.nationalgeographic.com/magazine/issue/' + edition.lower()
         self.log('Downloading ', url)
-        self.timefmt = ' [' + date.today().strftime('%B %Y') + ']'
+        self.timefmt = ' [' + edition + ']'
         soup = self.index_to_soup(url)
         png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-magazine-\S+?\.jpg', soup.decode('utf-8'))
         self.cover_url = png[0] + '?w=1000&h=1000'
