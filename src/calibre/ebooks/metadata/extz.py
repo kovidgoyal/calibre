@@ -35,7 +35,7 @@ def get_metadata(stream, extract_cover=True):
                             cover_href = val
                             break
                     else:
-                        for val in opf.guide_cover_path(opf.root):
+                        for val in opf.guide_cover_path(opf.root):  # this is needed because the cover is not in the manifest
                             if val.rpartition('.')[2].lower() in {'jpeg', 'jpg', 'png'}:
                                 cover_href = val
                                 break
