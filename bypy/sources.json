@@ -6,6 +6,11 @@
             "filename": "nasm-2.16.01.tar.xz",
             "hash": "sha256:c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558",
             "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/{filename}"]
+        },
+        "windows": {
+            "filename": "nasm-2.16.01-win64.zip",
+            "hash": "sha256:029eed31faf0d2c5f95783294432cbea6c15bf633430f254bb3c1f195c67ca3a",
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/{filename}"]
         }
     },
 
