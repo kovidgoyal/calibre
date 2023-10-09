@@ -2,7 +2,9 @@
 washingtonpost.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
+from html5_parser import parse
+import json
 
 class wapoprint(BasicNewsRecipe):
     title = 'The Washington Post | Print Edition'
@@ -22,18 +24,11 @@ class wapoprint(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
     ignore_duplicate_articles = {'title', 'url'}
-
-    keep_only_tags = [
-        dict(name=['h1', 'figure']),
-        dict(attrs={'data-qa': 'lede-art'}),
-        classes('byline article-body'),
-    ]
-
-    remove_tags = [
-        dict(name=['meta', 'link', 'svg']),
-        classes('inline-video author-tooltip author-image powa-wrapper'),
-        dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
-    ]
+    extra_css = '''
+        .img { text-align:center; font-size:small; }
+        .auth { font-weight:bold; font-size:small; }
+        .time { font-size:small; color: #202020; }
+    '''
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
@@ -58,7 +53,36 @@ class wapoprint(BasicNewsRecipe):
                 feeds.append((secname, articles))
         return feeds
 
+    def preprocess_raw_html(self, raw, *a):
+        root = parse(raw)
+        m = root.xpath('//script[@id="__NEXT_DATA__"]')
+
+        data = json.loads(m[0].text)
+        data = data['props']['pageProps']['globalContent']
+
+        title = '<h1>' + data['headlines']['basic'] + '</h1>'
+        subhead = '<h3>' + data['description'].get('basic', '') + '</h3>'
+
+        author = ''
+        if 'credits' in data:
+            author = '<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) \
+                 + '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>'
+
+        body = ''
+        for x in data['content_elements']:
+            if x['type'] == 'text':
+                body += '<p>' + x['content'] + '</p>'
+            elif x['type'] == 'video':
+                if 'promo_image' in x:
+                    body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                        x['promo_image']['url'], x['description'].get('basic', '')
+                    )
+            elif x['type'] == 'image':
+                body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(x['url'], x['credits_caption_display'])
+
+        return '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', srcset=True):
-            img['src'] = img['srcset'].split()[0]
+        for img in soup.findAll('img', attrs={'src':True}):
+            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=540'
         return soup
