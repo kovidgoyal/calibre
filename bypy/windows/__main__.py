@@ -575,7 +575,7 @@ def main():
         run_tests(os.path.join(env.base, 'calibre-debug.exe'), env.base)
     if args.sign_installers:
         sign_executables(env)
-    create_installer(env)
+    create_installer(env, args.compression_level)
     build_portable(env)
     build_portable_installer(env)
     if args.sign_installers:
