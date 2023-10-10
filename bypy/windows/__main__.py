@@ -128,10 +128,10 @@ def freeze(env, ext_dir, incdir):
 
     printf('\tAdding misc binary deps')
 
-    def copybin(x):
-        shutil.copy2(x, env.dll_dir)
+    def copybin(x, dest=env.dll_dir):
+        shutil.copy2(x, dest)
         with contextlib.suppress(FileNotFoundError):
-            shutil.copy2(x + '.manifest', env.dll_dir)
+            shutil.copy2(x + '.manifest', dest)
 
     bindir = os.path.join(PREFIX, 'bin')
     for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'jpegtran-calibre', 'cjpeg-calibre', 'optipng-calibre', 'cwebp-calibre', 'JXRDecApp-calibre'):
@@ -139,6 +139,10 @@ def freeze(env, ext_dir, incdir):
     for f in glob.glob(os.path.join(bindir, '*.dll')):
         if re.search(r'(easylzma|icutest)', f.lower()) is None:
             copybin(f)
+    ossm = os.path.join(env.dll_dir, 'ossl-modules')
+    os.mkdir(ossm)
+    for f in glob.glob(os.path.join(PREFIX, 'lib', 'ossl-modules', '*.dll')):
+        copybin(f, ossm)
 
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver.replace('.', '')))
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver[0]))
