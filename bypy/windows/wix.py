@@ -58,11 +58,8 @@ def create_installer(env):
     license = j(env.src_root, 'LICENSE.rtf')
     banner = j(env.src_root, 'icons', 'wix-banner.bmp')
     dialog = j(env.src_root, 'icons', 'wix-dialog.bmp')
-    cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf, '-o', installer,
-           '-dWixUILicenseRtf=' + license,
-           '-dWixUIBannerBmp=' + banner,
-           '-dWixUIDialogBmp=' + dialog]
-    cmd.append('-sval')  # Disable all checks since they fail when running under ssh
+    cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf,
+           '-d', 'WixUILicenseRtf=' + license, '-d', 'WixUIBannerBmp=' + banner, '-d', 'WixUIDialogBmp=' + dialog, '-o', installer]
     run(*cmd)
 
 
