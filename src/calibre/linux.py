@@ -1321,7 +1321,8 @@ def cli_index_strings():
     return _('Command Line Interface'), _(
         'On macOS, the command line tools are inside the calibre bundle, for example,'
     ' if you installed calibre in :file:`/Applications` the command line tools'
-    ' are in :file:`/Applications/calibre.app/Contents/MacOS/`.'), _(
+        ' are in :file:`/Applications/calibre.app/Contents/MacOS/`. So, for example, to run :file:`ebook-convert`'
+        'you would use: :file:`/Applications/calibre.app/Contents/MacOS/ebook-convert`.'), _(
         'Documented commands'), _('Undocumented commands'), _(
         'You can see usage for undocumented commands by executing them without arguments in a terminal.'), _(
             'Change language'), _('Search')
