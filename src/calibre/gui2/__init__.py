@@ -1387,7 +1387,7 @@ def sanitize_env_vars():
             'LD_LIBRARY_PATH':'/lib', 'OPENSSL_MODULES': '/lib/ossl-modules',
         }
     elif iswindows:
-        env_vars = {}
+        env_vars = {'OPENSSL_MODULES': None}
     elif ismacos:
         env_vars = {k:None for k in (
                     'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE OPENSSL_ENGINES OPENSSL_MODULES').split()}
