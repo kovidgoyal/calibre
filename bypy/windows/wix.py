@@ -9,7 +9,6 @@ import shutil
 from bypy.constants import is64bit
 from bypy.utils import run
 
-# TODO: Migrate to Wix 4 see https://wixtoolset.org/docs/fourthree/
 WIX = os.path.expanduser('~/.dotnet/tools/wix.exe')
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
@@ -20,7 +19,12 @@ calibre_constants = globals()['calibre_constants']
 j, d, a, b = os.path.join, os.path.dirname, os.path.abspath, os.path.basename
 
 
-def create_installer(env):
+def create_installer(env, compression_level='9'):
+    cl = int(compression_level)
+    if cl > 4:
+        dcl = 'high'
+    else:
+        dcl = {1: 'none', 2: 'low', 3: 'medium', 4: 'mszip'}[cl]
     if os.path.exists(env.installer_dir):
         shutil.rmtree(env.installer_dir)
     os.makedirs(env.installer_dir)
@@ -58,8 +62,12 @@ def create_installer(env):
     license = j(env.src_root, 'LICENSE.rtf')
     banner = j(env.src_root, 'icons', 'wix-banner.bmp')
     dialog = j(env.src_root, 'icons', 'wix-dialog.bmp')
-    cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf,
-           '-d', 'WixUILicenseRtf=' + license, '-d', 'WixUIBannerBmp=' + banner, '-d', 'WixUIDialogBmp=' + dialog, '-o', installer]
+    run(WIX, 'extension', 'add', '-g', 'WixToolset.Util.wixext')
+    run(WIX, 'extension', 'add', '-g', 'WixToolset.UI.wixext')
+    cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf, '-dcl', dcl,
+           '-ext', 'WixToolset.Util.wixext', '-ext',  'WixToolset.UI.wixext',
+           '-d', 'WixUILicenseRtf=' + license, '-d', 'WixUIBannerBmp=' + banner, '-d', 'WixUIDialogBmp=' + dialog,
+           '-o', installer, wxsf]
     run(*cmd)
 
 
