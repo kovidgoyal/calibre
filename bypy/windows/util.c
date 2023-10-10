@@ -43,6 +43,8 @@ get_app_dirw(void) {
 static void
 get_install_locations(void) {
     get_app_dirw();
+    _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\ossl-modules", interpreter_data.executables_path);
+    _wputenv_s(L"OPENSSL_MODULES", qt_prefix_dir);
     _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\app", interpreter_data.app_dir);
     _wputenv_s(L"CALIBRE_QT_PREFIX", qt_prefix_dir);
 }
