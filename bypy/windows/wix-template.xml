@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi' xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
 >		
 
@@ -60,12 +60,8 @@
     </Property>
 
     <Directory Id='TARGETDIR' Name='SourceDir'>
-        <Directory Id='{ProgramFilesFolder}' Name='PFiles'>
-            <!-- The name must be calibre on 32 bit to ensure
-                that the component guids dont change compared to previous msis.
-                However, on 64 bit it must be Calibre2 otherwise by default it
-                will install to C:\Program Files\calibre -->
-            <Directory Id='APPLICATIONFOLDER' Name="{appfolder}" />
+        <Directory Id='ProgramFiles64Folder' Name='PFiles'>
+            <Directory Id='APPLICATIONFOLDER' Name="Calibre2" />
         </Directory>
         <Directory Id="ProgramMenuFolder">
             <Directory Id="ApplicationProgramsFolder" Name="{app}{x64} - E-book Management"/>
@@ -195,12 +191,12 @@
 
     <InstallExecuteSequence>
         <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-        {fix_wix}
+        <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" /> 
         <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
     <InstallUISequence>
         <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-        {fix_wix}
+        <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" /> 
     </InstallUISequence>
 
     <UI>
