@@ -159,7 +159,7 @@ def sort_key_for_rating(x, hierarchical_categories=None):
 # sort above "foo a.bar". Without this substitution "foo.bar" sorts below "foo
 # a.bar" because '.' sorts higher than space.
 
-def sort_key_for_name_and_first_letter(x, hierarchical_categories={}):
+def sort_key_for_name_and_first_letter(x, hierarchical_categories=set()):
     v1 = icu_upper(x.sort or x.name)
     if x.category in hierarchical_categories:
         v1 = v1.replace('.', '\t')
@@ -170,7 +170,7 @@ def sort_key_for_name_and_first_letter(x, hierarchical_categories={}):
     return (c if numeric_collation and c.isdigit() else '9999999999',
             collation_order(v2), sort_key(v1))
 
-def sort_key_for_name(x, hierarchical_categories={}):
+def sort_key_for_name(x, hierarchical_categories=set()):
     v = x.sort or x.name
     if x.category not in hierarchical_categories:
         return sort_key(v)
