@@ -697,6 +697,23 @@ class Cache:
             return self.backend.notes.allowed_fields
         return field in self.backend.notes.allowed_fields
 
+    @read_api
+    def items_with_notes_in_book(self, book_id: int) -> dict[str, dict[int, str]]:
+        ' Return a dict of field to items that have associated notes for that field for the specified book '
+        ans = {}
+        for k in self.backend.notes.allowed_fields:
+            try:
+                field = self.fields[k]
+            except KeyError:
+                continue
+            v = {}
+            for item_id in field.ids_for_book(book_id):
+                if self.backend.notes_for(k, item_id):
+                    v[item_id] = field.table.id_map[item_id]
+            if v:
+                ans[k] = v
+        return ans
+
     @write_api
     def set_notes_for(self, field, item_id, doc: str, searchable_text: str = copy_marked_up_text, resource_hashes=(), remove_unused_resources=False) -> int:
         '''
