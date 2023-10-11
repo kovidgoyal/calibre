@@ -90,6 +90,9 @@ def book_as_json(db, book_id):
         link_maps = db.get_all_link_maps_for_book(book_id)
         if link_maps:
             ans['link_maps'] = link_maps
+        x = db.items_with_notes_in_book(book_id)
+        if x:
+            ans['items_with_notes'] = {field: {v: k for k, v in items.items()} for field, items in x.items()}
     return ans
 
 

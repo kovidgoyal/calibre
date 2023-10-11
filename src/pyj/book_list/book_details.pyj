@@ -14,7 +14,7 @@ from book_list.library_data import (
     current_virtual_library, download_url, library_data, load_status,
     set_book_metadata
 )
-from book_list.router import back, home, open_book, report_a_load_failure
+from book_list.router import back, home, open_book, report_a_load_failure, show_note_url
 from book_list.theme import (
     color_scheme, get_color, get_color_as_rgba, get_font_size
 )
@@ -192,6 +192,13 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     comments = v'[]'
     link_maps = mi.link_maps or v'{}'
 
+    def add_note_link(field, name, val, parent):
+        if mi.items_with_notes[field] and mi.items_with_notes[field][val]:
+            parent.appendChild(document.createTextNode(' '))
+            parent.appendChild(E.a(
+                svgicon('pencil'), title=_('Show notes for: {}').format(val), href=show_note_url(
+                    book_id, field, val, close_action='close_window'), target='_new', class_='blue-link'))
+
     def add_row(field, name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
             return
@@ -219,6 +226,8 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                     parent.appendChild(v)
                 else:
                     parent.appendChild(document.createTextNode(v))
+            if jstype(v) is 'string' and not is_html:
+                add_note_link(field, name, v, parent)
 
         table.appendChild(E.tr(E.td(name), E.td()))
         if is_html and /[<>]/.test(val + ''):
@@ -337,6 +346,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             else:
                 print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
             table.lastChild.lastChild.appendChild(s)
+            add_note_link(field, name, val, table.lastChild.lastChild)
 
     def process_field(field, fm):
         name = fm.name or field
