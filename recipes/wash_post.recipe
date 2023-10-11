@@ -15,7 +15,7 @@ class TheWashingtonPost(BasicNewsRecipe):
     description = 'Leading source for news, video and opinion on politics, business, world and national news, science, travel, entertainment and more. Our local coverage includes reporting on education, crime, weather, traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing, entertainment information and restaurant reviews.'  # noqa
     publisher = 'The Washington Post Company'
     category = 'news, politics, USA'
-    oldest_article = 2
+    oldest_article = 1.2
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf8'
