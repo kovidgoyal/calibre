@@ -319,6 +319,7 @@ def build_portable_installer(env):
         'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib', 'Psapi.lib']
     run(*cmd)
     os.remove(zf)
+    os.remove(manifest)
 
 
 def build_portable(env):
