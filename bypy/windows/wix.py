@@ -69,6 +69,8 @@ def create_installer(env, compression_level='9'):
            '-d', 'WixUILicenseRtf=' + license, '-d', 'WixUIBannerBmp=' + banner, '-d', 'WixUIDialogBmp=' + dialog,
            '-o', installer, wxsf]
     run(*cmd)
+    pdb = installer.rsplit('.')[0] + '.wixpdb'
+    os.remove(pdb)
 
 
 def get_components_from_files(env):
