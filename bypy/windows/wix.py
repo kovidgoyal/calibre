@@ -45,6 +45,9 @@ def create_installer(env, compression_level='9'):
         viewer_icon=j(env.src_root, 'icons', 'viewer.ico'),
         editor_icon=j(env.src_root, 'icons', 'ebook-edit.ico'),
         web_icon=j(env.src_root, 'icons', 'web.ico'),
+        license=j(env.src_root, 'LICENSE.rtf'),
+        banner=j(env.src_root, 'icons', 'wix-banner.bmp'),
+        dialog=j(env.src_root, 'icons', 'wix-dialog.bmp'),
     )
     with open(j(d(__file__), 'en-us.xml'), 'rb') as f:
         template = f.read().decode('utf-8')
@@ -59,17 +62,12 @@ def create_installer(env, compression_level='9'):
     arch = 'x64' if is64bit else 'x86'
     installer = j(env.dist, '%s%s-%s.msi' % (
         calibre_constants['appname'], ('-64bit' if is64bit else ''), calibre_constants['version']))
-    license = j(env.src_root, 'LICENSE.rtf')
-    banner = j(env.src_root, 'icons', 'wix-banner.bmp')
-    dialog = j(env.src_root, 'icons', 'wix-dialog.bmp')
     run(WIX, 'extension', 'add', '-g', 'WixToolset.Util.wixext')
     run(WIX, 'extension', 'add', '-g', 'WixToolset.UI.wixext')
     cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf, '-dcl', dcl,
-           '-ext', 'WixToolset.Util.wixext', '-ext',  'WixToolset.UI.wixext',
-           '-d', 'WixUILicenseRtf=' + license, '-d', 'WixUIBannerBmp=' + banner, '-d', 'WixUIDialogBmp=' + dialog,
-           '-o', installer, wxsf]
+           '-ext', 'WixToolset.Util.wixext', '-ext',  'WixToolset.UI.wixext', '-o', installer, wxsf]
     run(*cmd)
-    pdb = installer.rsplit('.')[0] + '.wixpdb'
+    pdb = installer.rpartition('.')[0] + '.wixpdb'
     os.remove(pdb)
 
 

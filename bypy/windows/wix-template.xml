@@ -170,6 +170,10 @@
     <Property Id="WixShellExecTarget" Value="[#{exe_map[calibre]}]" />
     <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X86" />
 
+    <!-- UI -->
+    <WixVariable Id="WixUILicenseRtf" Value="{license}" />
+    <WixVariable Id="WixUIBannerBmp" Value="{banner}" />
+    <WixVariable Id="WixUIDialogBmp" Value="{dialog}" />
 
     </Package>
 </Wix>
