@@ -2,10 +2,32 @@
 # License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from ajax import ajax
+from book_list.details_list import sandbox_css
 from book_list.router import back, home
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
-from utils import parse_url_params
+from gettext import gettext as _
+from utils import parse_url_params, sandboxed_html
+
+
+def make_iframe(html):
+    iframe = sandboxed_html(html, sandbox_css() + '\n\nhtml { overflow: visible; margin: 0.5rem; }')
+    iframe.style.width = '100%'
+    iframe.style.flexGrow = '10'
+    return iframe
+
+
+def on_notes_fetched(load_type, xhr, ev):
+    if load_type is 'load':
+        html = xhr.responseText
+    else:
+        html = xhr.error_html
+    iframe = make_iframe(html)
+    container = document.getElementById(this)
+    old = container.getElementsByTagName('iframe')[0]
+    old.parentNode.appendChild(iframe)
+    old.parentNode.removeChild(old)
 
 
 def init(container_id):
@@ -16,6 +38,14 @@ def init(container_id):
     if ca is 'home':
         close_action, close_icon = def(): home();, 'home'
     create_top_bar(container, title=q.item, action=close_action, icon=close_icon)
+    url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
+    if q.library_id:
+        url += '/' + encodeURIComponent(q.library_id)
+    container.style.height = '100vh'
+    container.style.display = 'flex'
+    container.style.flexDirection = 'column'
+    container.appendChild(make_iframe(_('Loading') +  '…'))
+    ajax(url, on_notes_fetched.bind(container_id), bypass_cache=False).send()
 
 
 set_panel_handler('show_note', init)
