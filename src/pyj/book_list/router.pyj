@@ -87,13 +87,21 @@ def open_book_url(book_id, fmt, extra_query):
     return ans + encode_query(q, '#')
 
 
-def show_note_url(book_id, field, item_value, close_action='back'):
-    lid = current_library_id()
+def show_note_url(book_id, field, item_id, item_value, library_id=None, close_action='back'):
+    lid = library_id or current_library_id()
     ans = absolute_path('')
-    q = {'book_id':book_id, 'field': field, 'item':item_value, 'panel': 'show_note', 'close_action': close_action}
+    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': 'show_note', 'close_action': close_action}
     if lid:
         q.library_id = lid
     return ans + encode_query(q, '#')
+
+
+def show_note(book_id, field, item_id, item_value, replace=False, library_id=None, close_action='back'):
+    lid = library_id or current_library_id()
+    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': 'show_note', 'close_action': close_action}
+    if lid:
+        q.library_id = lid
+    push_state(q, replace=replace)
 
 
 def push_state(query, replace=False, mode='book_list', call_handler=True):
