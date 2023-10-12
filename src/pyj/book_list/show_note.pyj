@@ -1,0 +1,21 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from book_list.router import back, home
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler
+from utils import parse_url_params
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    close_action, close_icon = back, 'close'
+    q = parse_url_params()
+    ca = q.close_action
+    if ca is 'home':
+        close_action, close_icon = def(): home();, 'home'
+    create_top_bar(container, title=q.item, action=close_action, icon=close_icon)
+
+
+set_panel_handler('show_note', init)
