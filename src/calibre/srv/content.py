@@ -11,8 +11,9 @@ from functools import partial
 from io import BytesIO
 from threading import Lock
 
-from calibre import fit_image, sanitize_file_name
+from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
+from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import (
     cprefs, generate_cover, override_prefs, scale_cover, set_use_roman,
@@ -160,17 +161,22 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
 
-def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
-    au = authors_to_string(mi.authors or [_('Unknown')])
-    title = mi.title or _('Unknown')
-    ext = (fmt or '').lower()
-    fname = f'{title[:30]} - {au[:30]}_{book_id}.{ext}'
+def fname_for_content_disposition(fname, as_encoded_unicode=False):
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
         fname = sanitize_file_name(fname).encode('utf-8')
         fname = str(quote(fname))
     else:
         fname = ascii_filename(fname).replace('"', '_')
+    return fname
+
+
+def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
+    au = authors_to_string(mi.authors or [_('Unknown')])
+    title = mi.title or _('Unknown')
+    ext = (fmt or '').lower()
+    fname = f'{title[:30]} - {au[:30]}_{book_id}.{ext}'
+    fname = fname_for_content_disposition(fname, as_encoded_unicode)
     if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
         fname = fname.replace('!', '_')
         fname += '.epub'
@@ -347,3 +353,48 @@ def get(ctx, rd, what, book_id, library_id):
                 return book_fmt(ctx, rd, library_id, db, book_id, what.lower())
             except NoSuchFormat:
                 raise HTTPNotFound(f'No {what.lower()} format for the book {book_id!r}')
+
+
+@endpoint('/get-note/{field}/{item_id}/{library_id=None}')
+def get_note(ctx, rd, field, item_id, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    note_data = db.notes_data_for(field, item_id)
+    if not note_data:
+        raise HTTPNotFound(f'Note for {field!r}:{item_id!r} not found')
+    note_data.pop('searchable_text', None)
+    resources = note_data.pop('resource_hashes', None)
+    if resources:
+        import re
+        html = note_data['doc']
+        def r(x):
+            scheme, digest = x.split(':', 1)
+            return f'{scheme}/{digest}'
+        pat = re.compile(rf'{RESOURCE_URL_SCHEME}://({{}})'.format('|'.join(map(r, resources))))
+        def sub(m):
+            s, d = m.group(1).split('/', 1)
+            kw = {'scheme': s, 'digest': d}
+            if library_id:
+                kw['library_id'] = library_id
+            return ctx.url_for('/get-note-resource', **kw)
+        note_data['doc'] = pat.sub(sub, html)
+    rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
+    rd.outheaders['Last-Modified'] = http_date(note_data['mtime'])
+    return note_data['doc']
+
+
+@endpoint('/get-note-resource/{scheme}/{digest}/{library_id=None}')
+def get_note_resource(ctx, rd, scheme, digest, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    d = db.get_notes_resource(f'{scheme}:{digest}')
+    if not d:
+        raise HTTPNotFound(f'Notes resource {scheme}:{digest} not found')
+    name = d['name']
+    rd.outheaders['Content-Type'] = guess_type(name)[0] or 'application/octet-stream'
+    rd.outheaders['Content-Disposition'] = '''inline; filename="{}"; filename*=utf-8''{}'''.format(
+        fname_for_content_disposition(name), fname_for_content_disposition(name, as_encoded_unicode=True))
+    rd.outheaders['Last-Modified'] = http_date(d['mtime'])
+    return d['data']
