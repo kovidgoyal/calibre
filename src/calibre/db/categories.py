@@ -159,7 +159,7 @@ def sort_key_for_rating(x, hierarchical_categories=None):
 # sort above "foo a.bar". Without this substitution "foo.bar" sorts below "foo
 # a.bar" because '.' sorts higher than space.
 
-def sort_key_for_name_and_first_letter(x, hierarchical_categories=set()):
+def sort_key_for_name_and_first_letter(x, hierarchical_categories=()):
     v1 = icu_upper(x.sort or x.name)
     if x.category in hierarchical_categories:
         v1 = v1.replace('.', '\t')
@@ -170,7 +170,7 @@ def sort_key_for_name_and_first_letter(x, hierarchical_categories=set()):
     return (c if numeric_collation and c.isdigit() else '9999999999',
             collation_order(v2), sort_key(v1))
 
-def sort_key_for_name(x, hierarchical_categories=set()):
+def sort_key_for_name(x, hierarchical_categories=()):
     v = x.sort or x.name
     if x.category not in hierarchical_categories:
         return sort_key(v)
@@ -184,7 +184,7 @@ category_sort_keys[True]['name'] = sort_key_for_name_and_first_letter
 category_sort_keys[False]['name'] = sort_key_for_name
 
 
-# Various parts of calibre depend on the the order of fields in the returned
+# Various parts of calibre depend on the order of fields in the returned
 # dict being in the default display order: standard fields, custom in alpha order,
 # user categories, then saved searches. This works because the backend adds
 # custom columns to field metadata in the right order.
@@ -192,7 +192,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
     if sort not in CATEGORY_SORTS:
         raise ValueError('sort ' + sort + ' not a valid value')
 
-    hierarchical_categories = set(dbcache.pref('categories_using_hierarchy', []))
+    hierarchical_categories = frozenset(dbcache.pref('categories_using_hierarchy', ()))
     fm = dbcache.field_metadata
     book_rating_map = dbcache.fields['rating'].book_value_map
     lang_map = dbcache.fields['languages'].book_value_map
