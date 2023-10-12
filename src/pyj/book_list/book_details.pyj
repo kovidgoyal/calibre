@@ -14,7 +14,7 @@ from book_list.library_data import (
     current_virtual_library, download_url, library_data, load_status,
     set_book_metadata
 )
-from book_list.router import back, home, open_book, report_a_load_failure, show_note_url
+from book_list.router import back, home, open_book, report_a_load_failure, show_note
 from book_list.theme import (
     color_scheme, get_color, get_color_as_rgba, get_font_size
 )
@@ -192,12 +192,15 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     comments = v'[]'
     link_maps = mi.link_maps or v'{}'
 
+    def show_note_action(field, name, item_id, item_val):
+        show_note(book_id, field, item_id, item_val)
+
     def add_note_link(field, name, val, parent):
         if mi.items_with_notes[field] and mi.items_with_notes[field][val]:
             parent.appendChild(document.createTextNode(' '))
             parent.appendChild(E.a(
-                svgicon('pencil'), title=_('Show notes for: {}').format(val), href=show_note_url(
-                    book_id, field, val, close_action='close_window'), target='_new', class_='blue-link'))
+                svgicon('pencil'), title=_('Show notes for: {}').format(val), href='javascript:void(0)', onclick=show_note_action.bind(
+                    None, book_id, field, mi.items_with_notes[field][val], val), class_='blue-link'))
 
     def add_row(field, name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
