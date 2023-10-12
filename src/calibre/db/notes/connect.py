@@ -365,7 +365,8 @@ class Notes:
             path = make_long_path_useable(path)
             os.listdir(os.path.dirname(path))
             with suppress(FileNotFoundError), open(path, 'rb') as f:
-                return {'name': name, 'data': f.read(), 'hash': resource_hash}
+                mtime = os.stat(f.fileno()).st_mtime
+                return {'name': name, 'data': f.read(), 'hash': resource_hash, 'mtime': mtime}
 
     def all_notes(self, conn, restrict_to_fields=(), limit=None, snippet_size=64, return_text=True, process_each_result=None) -> list[dict]:
         if snippet_size is None:
