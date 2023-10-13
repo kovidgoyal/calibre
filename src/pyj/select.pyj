@@ -54,6 +54,30 @@ def first_visible_word():
                 return r
 
 
+def span_at_point(x, y):
+    p = caret_position_from_point(x, y)
+    if p:
+        # Get the container element and offset within the container
+        container = p.offsetNode
+        offset = p.offset
+        if container.nodeType == 3:  # Text node
+            spanElement = container.parentNode
+            if spanElement.tagName == 'SPAN':
+                return spanElement.id
+
+
+def first_visible_span():
+    width = window.innerWidth
+    height = window.innerHeight
+    xdelta = width // 10
+    ydelta = height // 10
+    for y in range(0, height, ydelta):
+        for x in range(0, width, xdelta):
+            r = span_at_point(x, y)
+            if r?:
+                return r
+
+
 def empty_range_extents():
     return {
         'start': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False},

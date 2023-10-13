@@ -66,7 +66,7 @@ from read_book.touch import (
 from read_book.viewport import scroll_viewport
 from select import (
     first_visible_word, is_start_closer_to_point, move_end_of_selection,
-    selection_extents, word_at_point
+    selection_extents, word_at_point, span_at_point, first_visible_span
 )
 from utils import debounce, is_ios
 
@@ -163,6 +163,7 @@ class IframeBoss:
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
             'tts': self.tts_msg_received,
+            'audio_ebook': self.audio_ebook_msg_received,
             'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
@@ -1000,6 +1001,40 @@ class IframeBoss:
         self.last_search_at = window.performance.now()
         if select_tts_mark(occurrence_number):
             self.ensure_selection_boundary_visible()
+
+
+    def audio_ebook_msg_received(self, data):
+        if data.type is 'mark':
+            self.color_spanID(data.old_spanID, data.spanID)
+        elif data.type is 'play':
+            if data.pos:
+                spanID = span_at_point(data.pos.x, data.pos.y)
+                self.send_message('audio_ebook', type='container-clicked', spanID=spanID)
+            else:
+                spanID = first_visible_span()
+
+        elif data.type is 'trigger-shortcut':
+            self.on_handle_navigation_shortcut(data)
+        elif data.type is 'scroll':
+            self.no_latency_onscroll()
+
+    def color_spanID(self, old_spanId, spanId):
+        element = document.getElementById(spanId)
+        old_element = document.getElementById(old_spanId)
+
+        if old_element:
+            old_element.style.backgroundColor = ''
+
+        if element:
+            element.style.backgroundColor = window.getComputedStyle(document.documentElement, '::selection').backgroundColor
+            self.scroll_to_element_if_out_of_view(element)
+
+    def scroll_to_element_if_out_of_view(self, element):
+
+        rect = element.getBoundingClientRect()
+        if rect.top < 0 or rect.bottom > window.innerHeight:
+
+            element.scrollIntoView({"behavior": "smooth", "block": "start", "inline": "nearest"})
 
     def hints_msg_received(self, data):
         if data.type is 'show':

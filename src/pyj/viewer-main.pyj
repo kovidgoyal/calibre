@@ -61,7 +61,7 @@ def get_file(book, name, proceed):
     if not entry:
         raise ValueError(f'No file named {name} in the book manifest')
     xhr = ajax('book/' + name, file_received.bind(None, name, entry, proceed), ok_code=0)
-    if entry.is_html or entry.mimetype.startswith('text/') or entry.mimetype is 'application/javascript':
+    if entry.is_html or entry.mimetype.startswith('text/') or entry.mimetype is 'application/javascript' or "smil" in entry.mimetype:
         xhr.responseType = 'text'
     else:
         xhr.responseType = 'blob'
