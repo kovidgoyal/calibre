@@ -101,3 +101,8 @@ class Reuters(BasicNewsRecipe):
             article['url'] = 'https://{}{}'.format(base, article['url'])
             yield article
             self.log('\t', article['title'], article['url'])
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'srcset':True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup
