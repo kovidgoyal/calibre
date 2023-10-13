@@ -1,20 +1,19 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2023, DO LE DUY <duy.dole.00ece at gmail.com>
 
-'''
-The key difference between an ePub with SMIL audio synchronization (EPUB3 with Media Overlays) and a regular ePub is the inclusion of SMIL files and audio content:
 
-SMIL Files: ePub with SMIL includes SMIL (Synchronized Multimedia Integration Language) files, XML documents that define audio and text synchronization.
+# The key difference between an ePub with SMIL audio synchronization (EPUB3 with Media Overlays) and a regular ePub is the inclusion of SMIL files and audio content:
 
-Audio Content: It contains audio files that match eBook sections, referenced in SMIL files for synchronized playback.
+# SMIL Files: ePub with SMIL includes SMIL (Synchronized Multimedia Integration Language) files, XML documents that define audio and text synchronization.
 
-Text Content: The textual content, often in HTML or XHTML files, remains similar to regular ePub. Text and audio are linked using <span> tags with unique IDs.
+# Audio Content: It contains audio files that match eBook sections, referenced in SMIL files for synchronized playback.
 
-SMIL, audio, and text files are organized into folders, usually inside the epub/ or OEBPS/ folder. Sometimes, SMIL files may be placed in text folders. In this program we assume that each spoken text file corresponds to one audio file and one SMIL file.  
+# Text Content: The textual content, often in HTML or XHTML files, remains similar to regular ePub. Text and audio are linked using <span> tags with unique IDs.
 
-Public domain audio eBooks can be found on https://www.readbeyond.it/ebooks.html. ReadBeyond also offers Aeneas (https://github.com/readbeyond/aeneas), an open-source tool for force-alignment of audio and text to generate smil files. Another notable tool is https://github.com/r4victor/syncabook, builds upon Aeneas to complete a workflow for creating EPUB3 with Media Overlays.
+# SMIL, audio, and text files are organized into folders, usually inside the epub/ or OEBPS/ folder. Sometimes, SMIL files may be placed in text folders. In this program we assume that each spoken text file corresponds to one audio file and one SMIL file.  
 
-'''
+# Public domain audio eBooks can be found on https://www.readbeyond.it/ebooks.html. ReadBeyond also offers Aeneas (https://github.com/readbeyond/aeneas), an open-source tool for force-alignment of audio and text to generate smil files. Another notable tool is https://github.com/r4victor/syncabook, builds upon Aeneas to complete a workflow for creating EPUB3 with Media Overlays.
+
 
 from __python__ import bound_methods, hash_literals
 
