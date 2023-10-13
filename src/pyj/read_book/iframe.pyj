@@ -67,7 +67,7 @@ from read_book.touch import (
 from read_book.viewport import scroll_viewport
 from select import (
     first_visible_word, is_start_closer_to_point, move_end_of_selection,
-    selection_extents, word_at_point
+    selection_extents, word_at_point, span_id_at_point, id_of_first_visible_span
 )
 from utils import debounce, is_ios
 
@@ -164,6 +164,7 @@ class IframeBoss:
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
             'tts': self.tts_msg_received,
+            'audio-ebook': self.audio_ebook_msg_received,
             'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
@@ -1005,6 +1006,38 @@ class IframeBoss:
         self.last_search_at = window.performance.now()
         if select_tts_mark(occurrence_number):
             self.ensure_selection_boundary_visible()
+
+    def audio_ebook_msg_received(self, data):
+        if data.type is 'mark':
+            self.color_span_id(data.old_span_id, data.span_id)
+        elif data.type is 'play':
+            if data.pos:
+                span_id = span_id_at_point(data.pos.x, data.pos.y)
+                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
+            else:
+                span_id = id_of_first_visible_span()
+                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
+
+        elif data.type is 'trigger-shortcut':
+            self.on_handle_navigation_shortcut(data)
+
+    def color_span_id(self, old_span_id, span_id):
+        def element_in_viewport(element):
+            rect = element.getBoundingClientRect()
+            return (
+                rect.top >= 0 and
+                rect.left >= 0 and
+                rect.bottom <= (window.innerHeight or document.documentElement.clientHeight) and
+                rect.right <= (window.innerWidth or document.documentElement.clientWidth)
+            )
+        element = document.getElementById(span_id)
+        old_element = document.getElementById(old_span_id)
+        if old_element:
+            old_element.style.backgroundColor = ''
+        if element:
+            element.style.backgroundColor = window.getComputedStyle(document.documentElement, '::selection').backgroundColor
+            if not element_in_viewport(element):
+                scroll_to_elem(element)
 
     def hints_msg_received(self, data):
         if data.type is 'show':

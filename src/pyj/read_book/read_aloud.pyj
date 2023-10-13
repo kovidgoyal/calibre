@@ -144,7 +144,7 @@ class ReadAloud:
         bar.appendChild(cb('slower', 'slower', _('Slow down speech')))
         bar.appendChild(cb('faster', 'faster', _('Speed up speech')))
         bar.appendChild(cb('configure', 'cogs', _('Configure Read aloud')))
-        bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
+        bar.appendChild(cb('hide', 'off', _('Close Read aloud')))
         if self.state is not WAITING_FOR_PLAY_TO_START:
             notes_container = bar_container.lastChild
             notes_container.style.display = notes_container.previousSibling.style.display = 'block'
