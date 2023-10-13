@@ -14,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElDiplo2023(BasicNewsRecipe):
     title = "Le Monde Diplomatique - cono sur"
-    __author__ = "Tomás Di Domenico"
+    __author__ = "Darko Miletic and Tomás Di Domenico"
     description = "Publicación de Le Monde Diplomatique para el cono sur."
     publisher = "Capital Intelectual"
     category = "news, politics, Argentina, Uruguay, Paraguay, South America, World"
