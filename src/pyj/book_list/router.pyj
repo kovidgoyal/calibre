@@ -96,9 +96,9 @@ def show_note_url(book_id, field, item_id, item_value, library_id=None, close_ac
     return ans + encode_query(q, '#')
 
 
-def show_note(book_id, field, item_id, item_value, replace=False, library_id=None, close_action='back'):
+def show_note(book_id, field, item_id, item_value, replace=False, library_id=None, close_action='back', panel='show_note'):
     lid = library_id or current_library_id()
-    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': 'show_note', 'close_action': close_action}
+    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': panel, 'close_action': close_action}
     if lid:
         q.library_id = lid
     push_state(q, replace=replace)
