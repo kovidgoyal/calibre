@@ -61,9 +61,11 @@ class BuildTest(unittest.TestCase):
         ldr = importlib.import_module('calibre').__spec__.loader.get_resource_reader()
         self.assertIn('ebooks', ldr.contents())
         try:
-            raw = ldr.open_resource('__init__.py').read()
+            with ldr.open_resource('__init__.py') as f:
+                raw = f.read()
         except FileNotFoundError:
-            raw = ldr.open_resource('__init__.pyc').read()
+            with ldr.open_resource('__init__.pyc') as f:
+                raw = f.read()
         self.assertGreater(len(raw), 1024)
 
     def test_regex(self):
