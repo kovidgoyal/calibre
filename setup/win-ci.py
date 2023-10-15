@@ -84,6 +84,7 @@ def setup_env():
     os.environ['QMAKE'] = os.path.join(SW, r'qt\bin\qmake')
     os.environ['CALIBRE_QT_PREFIX'] = os.path.join(SW, r'qt')
     os.environ['CI'] = 'true'
+    os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
 
 
 def main():
