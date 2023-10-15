@@ -56,33 +56,14 @@ class ft(BasicNewsRecipe):
     #         br.submit()
     #     return br
 
-    def get_browser(self, *args, **kw):
-        br = super().get_browser(*args, **kw)
-        br.set_current_header('Referer',  'https://www.google.com/')
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
         return br
-
-    # the print_version loads all articles but sometimes it might fail due to too many requests
-    # def print_version(self, url):
-    #     return 'https://webcache.googleusercontent.com/search?q=cache:' + quote(url, safe='')
-
-    def get_cover_url(self):
-        from datetime import date
-        cover = 'http://img.kiosko.net/' + str(
-            date.today().year
-        ) + '/' + date.today().strftime('%m') + '/' + date.today(
-        ).strftime('%d') + '/uk/ft_uk.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
-        try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/uk/np/ft_uk.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
 
     feeds = [
         ('World', 'https://www.ft.com/world?format=rss'),
