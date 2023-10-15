@@ -163,7 +163,7 @@ class IframeBoss:
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
             'tts': self.tts_msg_received,
-            'audio_ebook': self.audio_ebook_msg_received,
+            'audio-ebook': self.audio_ebook_msg_received,
             'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
@@ -1009,14 +1009,15 @@ class IframeBoss:
         elif data.type is 'play':
             if data.pos:
                 spanID = span_at_point(data.pos.x, data.pos.y)
-                self.send_message('audio_ebook', type='container-clicked', spanID=spanID)
+                self.send_message('audio_ebook_message', type='report-spanID', spanID=spanID)
             else:
                 spanID = first_visible_span()
+                self.send_message('audio_ebook_message', type='report-spanID', spanID=spanID)
 
         elif data.type is 'trigger-shortcut':
             self.on_handle_navigation_shortcut(data)
-        elif data.type is 'scroll':
-            self.no_latency_onscroll()
+        # elif data.type is 'scroll':
+        #     self.no_latency_onscroll()
 
     def color_spanID(self, old_spanId, spanId):
         element = document.getElementById(spanId)

@@ -20,16 +20,13 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from book_list.globals import get_session_data
-from dom import svgicon, unique_id
+from dom import svgicon, unique_id, change_icon_image
 from gettext import gettext as _
 from read_book.globals import runtime, ui_operations, current_spine_item, current_book
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
 
-HIDDEN = 0
-PAUSED = 1
-PLAYING = 2
 
 
 class ReadAudioEbook:
@@ -39,7 +36,7 @@ class ReadAudioEbook:
     def __init__(self, view):
         self.view = view
         self.parser = new window.DOMParser()
-        self._state = HIDDEN
+        self._state = "HIDDEN"
         self.bar_id = unique_id("bar")
         
         container = self.container
@@ -50,35 +47,22 @@ class ReadAudioEbook:
         )) 
         
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
-        container.addEventListener("click", self.container_clicked, {"passive": False})
+        container.addEventListener("click", self.on_container_clicked, {"passive": False})
         container.addEventListener("contextmenu", self.toggle, {"passive": False})
-        document.addEventListener("scroll", self.on_scrolled, {"passive": False})
 
         bar_container = self.bar = document.getElementById(self.bar_id)
 
-        if self.state is PLAYING:
+        if self.state is "PLAYING":
             bar_container.classList.add("speaking")
         else:
             bar_container.classList.remove("speaking")
 
-        def cb(name, icon, text):
-            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
-            if name:
-                ans.addEventListener("click", def(ev):
-                    ev.stopPropagation(), ev.preventDefault()
-                    self[name](ev)
-                    self.view.focus_iframe()
-                )
-            ans.classList.add("simple-link")
-            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
-            return ans
-
         for x in [
             E.div (
+                id="audioButtons",
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                cb("pause", "pause", _("Pause audio")),
-                cb("play", "play", _("Play audio")),
-                cb("overlay", "cogs", _("Toggle overlay")),
+                self.create_buttons("toggle", "pause", _("Pause audio")),
+                self.create_buttons("overlay", "overlay-off", _("Toggle overlay")),
             ),
             E.div(
                 id="timeDisplay",
@@ -92,21 +76,21 @@ class ReadAudioEbook:
             ),
             E.div(
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                cb("slower", "slower", _("Slow down speech")),
-                cb("faster", "faster", _("Speed up speech")),
-                cb("hide", "close", _("Close Read aloud"))
+                self.create_buttons("slower", "slower", _("Slow down speech")),
+                self.create_buttons("faster", "faster", _("Speed up speech")),
+                self.create_buttons("hide", "off", _("Close Read aloud"))
             )
             
         ]:
             bar_container.appendChild(x)
 
+        self.audioButtons = document.getElementById("audioButtons") 
         self.progressBar = document.getElementById("progressBar") 
         self.timeDisplay = document.getElementById("timeDisplay")
 
         self.audio_id = unique_id("audio")
         self.container.appendChild(E.audio(
             id=self.audio_id,
-            src="",
             # src="book/OEBPS/Audio/01.mp3",
             # src="book/OEBPS" + audioFile[1:],
             # src=clbr://internal.sandbox/book/OEBPS/Audio/01.mp3
@@ -121,17 +105,29 @@ class ReadAudioEbook:
         )
 
         self.audioplayer.addEventListener("timeupdate", def():
-            audioCurrentTime = self.audioplayer.currentTime
-            progress = (audioCurrentTime / self.audioplayer.duration) * 100
-            self.progressBar.firstChild.style.width = progress + "%"
-            self.timeDisplay.textContent = f"{self.secondsToMS(audioCurrentTime)}/{self.secondsToMS(self.audioplayer.duration)}"
-            if self.state == PLAYING:
-                spanID = self.findSpanIDForTime(audioCurrentTime)  
-                if spanID != self.spanID:
-                    old_spanID = self.spanID
-                    self.spanID = spanID
-                    self.send_message("mark", old_spanID=old_spanID, spanID = self.spanID)
+            if self.state != "HIDDEN":
+                if self.audioplayer.duration:
+                    audioCurrentTime = self.audioplayer.currentTime
+
+                    progress = (audioCurrentTime / self.audioplayer.duration) * 100
+                    self.progressBar.firstChild.style.width = progress + "%"
+
+                    self.timeDisplay.textContent = f"{self.secondsToMS(audioCurrentTime)}/{self.secondsToMS(self.audioplayer.duration)}"
+
+                    spanID = self.findSpanIDForTime(audioCurrentTime)
+                    if spanID != self.spanID:
+                        old_spanID = self.spanID
+                        self.spanID = spanID
+                        self.send_message("mark", old_spanID=old_spanID, spanID = self.spanID)
+                else:
+                    self.timeDisplay.textContent = "00:00"
+                    self.progressBar.firstChild.style.width = "0%"
+
         )
+
+        self.audioplayer.addEventListener("ended", def():
+            self.view.show_next_spine_item()
+        )  
 
         self.progressBar.addEventListener("click", def(event):
             rect = self.progressBar.getBoundingClientRect()
@@ -140,10 +136,6 @@ class ReadAudioEbook:
             skipTime = (clickX / totalWidth) * self.audioplayer.duration
             self.audioplayer.currentTime = skipTime
         )
-
-        self.audioplayer.addEventListener("ended", def():
-            view.show_next_spine_item()
-        )    
 
 
     def parse_smil_file(self, smil_content, smil_name, mimetype):
@@ -170,14 +162,11 @@ class ReadAudioEbook:
                 # audioFiles.add(audioElement.getAttribute("src"))
 
         self.audioMaps[smil_name[:-5].replace("smil", "text")] = [audioMap, audioFile]
-        
+
 
     def change_audio_src(self):
-
         if self.audioMaps[current_spine_item()]:
-            self.send_message("mark", spanID = self.spanID)
             self.audioMap = self.audioMaps[current_spine_item()]
-
             link = self.audioFiles[0].split("/")[0] + self.audioMaps[current_spine_item()][1][2:]
 
             # print(link)
@@ -186,20 +175,30 @@ class ReadAudioEbook:
             #         blob = new window.Blob([blob], {"type": "audio/mpeg"})
             #         blobURL = window.URL.createObjectURL(blob)
             #         self.audioplayer.src = blobURL
-            #         self.play()
-            #         self.send_message("play")
             # )
             # TODO More logics to handle unexpected folder structures
             # TODO Prove src for Calibre content server viewer
-
+            self.pause()
             self.audioplayer.src = "book/" + link
-            self.play()
             self.send_message("play")
 
         else:
             self.audioplayer.src = ""
             self.view.show_next_spine_item()
-            
+
+
+    def create_buttons(self, name, icon, text):
+        ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+        if name:
+            ans.addEventListener("click", def(ev):
+                ev.stopPropagation(), ev.preventDefault()
+                self[name](ev)
+                self.view.focus_iframe()
+            )
+        ans.id = "audio-ebook-bt-" + name
+        ans.classList.add("simple-link")
+        ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
+        return ans
 
     @property
     def container(self):
@@ -224,21 +223,21 @@ class ReadAudioEbook:
 
 
     def hide(self):
-        if self.state is not HIDDEN:
+        if self.state is not "HIDDEN":
             self.send_message("mark", old_spanID=self.spanID)
             self.pause()
             self.container.style.display = "none"
             self.view.focus_iframe()
-            self.state = HIDDEN
+            self.state = "HIDDEN"
             if ui_operations.read_aloud_state_changed:
                 ui_operations.read_aloud_state_changed(False)
 
     def show(self):
-        if self.state is HIDDEN:
+        if self.state is "HIDDEN":
+            self.state = "PLAYING"
             self.change_audio_src()
             self.container.style.display = "block"
             self.focus()
-            self.state = PAUSED
             if ui_operations.read_aloud_state_changed:
                 ui_operations.read_aloud_state_changed(True)
 
@@ -252,29 +251,34 @@ class ReadAudioEbook:
         self.audioplayer.playbackRate += 0.1
 
     def play(self):
-        self.audioplayer.play()
-        self.state = PLAYING
+        if self.audioplayer.src:
+            self.audioplayer.play()
+        self.state = "PLAYING" 
+        change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
 
     def pause(self):
-        self.audioplayer.pause()
-        self.state = PAUSED
+        if self.audioplayer.src:
+            self.audioplayer.pause()
+        self.state = "PAUSED"
+        change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "play")
 
     def toggle(self):
-        if self.state is PLAYING:
+        if self.state is "PLAYING":
             self.pause()
-        elif self.state is PAUSED:
+        elif self.state is "PAUSED":
             self.play()
 
     def overlay(self):
         if self.overlay_off:
             self.overlay_off = False
             self.container.style.height = "calc(100% - 1em)"
+            change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-off")
         else:
             self.overlay_off = True
             self.container.style.height = "3ex"
+            change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-on")
             
-    def container_clicked(self, ev):
-        self.play()
+    def on_container_clicked(self, ev):
         if ev.button is not 0:
             return
         ev.stopPropagation(), ev.preventDefault()
@@ -330,9 +334,13 @@ class ReadAudioEbook:
 
 
     def send_message(self, type, **kw):
-        self.view.iframe_wrapper.send_message("audio_ebook", type=type, **kw)
+        self.view.iframe_wrapper.send_message("audio-ebook", type=type, **kw)
 
     def handle_message(self, msg):
-        if msg.type is "container-clicked":
+        if msg.type is "report-spanID":
             if msg.spanID:
-                self.audioplayer.currentTime = self.convertTimeToSeconds(self.audioMap[0][msg.spanID]["clipBegin"])
+                old_spanID = self.spanID
+                self.spanID = msg.spanID
+                self.send_message("mark", old_spanID=old_spanID, spanID = self.spanID)
+                self.audioplayer.currentTime = self.convertTimeToSeconds(self.audioMap[0][self.spanID]["clipBegin"])
+                self.play()

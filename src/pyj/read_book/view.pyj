@@ -267,7 +267,7 @@ class View:
             'search_result_discovered': self.search_result_discovered,
             'annotations': self.on_annotations_message,
             'tts': self.on_tts_message,
-            'audio_ebook': self.on_audio_ebook_message,
+            'audio_ebook_message': self.on_audio_ebook_message,
             'hints': self.on_hints_message,
             'copy_text_to_clipboard': def(data):
                 ui_operations.copy_selection(data.text, data.html)
@@ -685,8 +685,6 @@ class View:
                 if x is not self.read_audio_ebook:
                     x.hide()
             self.read_audio_ebook.show()
-            if not dont_start_talking:
-                self.read_audio_ebook.play()
         else:
             for x in self.modal_overlays:
                 if x is not self.read_aloud:
@@ -1087,8 +1085,8 @@ class View:
             self.loaded_resources = resource_data
             done_callback(resource_data)
         load_resources(self.book, name, self.loaded_resources, cb)
-        if self.is_audio_ebook and self.read_audio_ebook.state == 2:
-            window.setTimeout(self.read_audio_ebook.change_audio_src, 1000) # wait for current_spine_item() to update
+        if self.is_audio_ebook and self.read_audio_ebook.state != 'HIDDEN':
+            window.setTimeout(self.read_audio_ebook.change_audio_src, 1000) # wait for previous spine to update to update
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
