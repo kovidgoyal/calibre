@@ -158,11 +158,13 @@ username = api
         run(sys.executable, 'setup.py', 'pot')
     elif action == 'test':
         os.environ['CI'] = 'true'
+        os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
         if ismacos:
             os.environ['SSL_CERT_FILE'] = os.path.abspath(
                 'resources/mozilla-ca-certs.pem')
             # needed to ensure correct libxml2 is loaded
             os.environ['DYLD_INSERT_LIBRARIES'] = ':'.join(os.path.join(SW, 'lib', x) for x in 'libxml2.dylib libxslt.dylib libexslt.dylib'.split())
+            os.environ['OPENSSL_ENGINES'] = os.path.join(SW, 'lib', 'engines-3')
 
         install_env()
         run_python('setup.py test')
