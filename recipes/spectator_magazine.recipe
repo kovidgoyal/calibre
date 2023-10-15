@@ -46,10 +46,14 @@ class spectator(BasicNewsRecipe):
             fc['id'] = 'fig-c'
         return soup
     
-    # the print_version loads all articles but sometimes it might fail due to too many requests
-    def print_version(self, url):
-        from urllib.parse import quote
-        return 'https://webcache.googleusercontent.com/search?q=cache:' + quote(url, safe='')
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.spectator.co.uk/magazine')
