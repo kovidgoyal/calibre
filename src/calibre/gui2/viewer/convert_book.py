@@ -311,7 +311,8 @@ def find_tests():
             def convert_mock(path, temp_path, key, instance):
                 self.ae(instance['status'], 'working')
                 self.ae(instance['key'], key)
-                open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb').write(b'test')
+                with open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb') as f:
+                    f.write(b'test')
 
             def set_data(x):
                 if not isinstance(x, bytes):

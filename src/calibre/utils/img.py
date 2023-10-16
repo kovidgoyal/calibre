@@ -578,10 +578,17 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             outw.start()
         raw = force_unicode(stderr.read())
         if p.wait() != 0:
+            p.stdout.close()
+            if as_filter:
+                p.stderr.close()
+                p.stdin.close()
             return raw
         else:
             if as_filter:
                 outw.join(60.0), inw.join(60.0)
+                p.stdin.close()
+                p.stderr.close()
+            p.stdout.close()
             try:
                 sz = os.path.getsize(outfile)
             except OSError:
@@ -645,7 +652,9 @@ def encode_jpeg(file_path, quality=80):
     buf.open(QIODevice.OpenModeFlag.WriteOnly)
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
-    return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
+    data = ReadOnlyFileBuffer(ba.data())
+    buf.close()
+    return run_optimizer(file_path, cmd, as_filter=True, input_data=data)
 
 
 def encode_webp(file_path, quality=75, m=6, metadata='all'):
@@ -684,9 +693,11 @@ def test():  # {{{
     despeckle_image(img)
     remove_borders_from_image(img)
     image_to_data(img, fmt='GIF')
-    raw = subprocess.Popen([get_exe_path('JxrDecApp'), '-h'],
+    p = subprocess.Popen([get_exe_path('JxrDecApp'), '-h'],
                            creationflags=subprocess.DETACHED_PROCESS if iswindows else 0,
-                           stdout=subprocess.PIPE).stdout.read()
+                           stdout=subprocess.PIPE)
+    raw, _ = p.communicate()
+    p.wait()
     if b'JPEG XR Decoder Utility' not in raw:
         raise SystemExit('Failed to run JxrDecApp')
 # }}}

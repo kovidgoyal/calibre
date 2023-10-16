@@ -419,10 +419,10 @@ class BuildTest(unittest.TestCase):
         --- ZLIB (PNG/ZIP) support ok
         '''.splitlines():
             self.assertIn(line.strip(), out)
-        i = Image.open(I('lt.png', allow_user_override=False))
-        self.assertGreaterEqual(i.size, (20, 20))
-        i = Image.open(P('catalog/DefaultCover.jpg', allow_user_override=False))
-        self.assertGreaterEqual(i.size, (20, 20))
+        with Image.open(I('lt.png', allow_user_override=False)) as i:
+            self.assertGreaterEqual(i.size, (20, 20))
+        with Image.open(P('catalog/DefaultCover.jpg', allow_user_override=False)) as i:
+            self.assertGreaterEqual(i.size, (20, 20))
 
     @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-integration)')
     def test_file_dialog_helper(self):
