@@ -39,6 +39,12 @@ def get_metadata(stream, extract_cover=True):
                             if val.rpartition('.')[2].lower() in {'jpeg', 'jpg', 'png'}:
                                 cover_href = val
                                 break
+                        else:
+                            # txtz files use a special element for cover
+                            for cpath in opf.root.xpath('//cover-relpath-from-base'):
+                                if cpath.text:
+                                    cover_href = cpath.text
+                                    break
                 if cover_href:
                     try:
                         mi.cover_data = (os.path.splitext(cover_href)[1], zf.read(cover_href))

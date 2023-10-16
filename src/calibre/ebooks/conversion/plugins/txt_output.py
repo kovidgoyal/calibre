@@ -137,6 +137,11 @@ class TXTZOutput(TXTOutput):
                 shutil.copy(tf, os.path.join(tdir, txt_name))
 
             # Images
+            try:
+                cover_href = oeb_book.guide[oeb_book.metadata.cover[0].term].href
+            except Exception:
+                cover_href = None
+            cover_relhref = None
             for item in oeb_book.manifest:
                 if item.media_type in OEB_IMAGES:
                     if hasattr(self.writer, 'images'):
@@ -148,10 +153,11 @@ class TXTZOutput(TXTOutput):
                     else:
                         path = os.path.join(tdir, os.path.dirname(item.href))
                         href = os.path.basename(item.href)
-                    if not os.path.exists(path):
-                        os.makedirs(path)
+                    os.makedirs(path, exist_ok=True)
                     with open(os.path.join(path, href), 'wb') as imgf:
                         imgf.write(item.data)
+                    if item.href == cover_href:
+                        cover_relhref = os.path.relpath(imgf.name, tdir).replace(os.sep, '/')
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
@@ -159,6 +165,10 @@ class TXTZOutput(TXTOutput):
                 elem = root.makeelement('text-formatting')
                 elem.text = opts.txt_output_formatting
                 root.append(elem)
+                if cover_relhref:
+                    elem = root.makeelement('cover-relpath-from-base')
+                    elem.text = cover_relhref
+                    root.append(elem)
                 mdataf.write(xml2str(root, pretty_print=True))
 
             txtz = ZipFile(output_path, 'w')
