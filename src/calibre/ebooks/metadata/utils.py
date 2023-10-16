@@ -32,9 +32,14 @@ def parse_opf_version(raw):
 
 def parse_opf(stream_or_path):
     stream = stream_or_path
-    if not hasattr(stream, 'read'):
+    needs_close = not hasattr(stream, 'read')
+    if needs_close:
         stream = open(stream, 'rb')
-    raw = stream.read()
+    try:
+        raw = stream.read()
+    finally:
+        if needs_close:
+            stream.close()
     if not raw:
         raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
     raw, encoding = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)
