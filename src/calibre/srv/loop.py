@@ -488,6 +488,7 @@ class ServerLoop:
 
     def initialize_socket(self):
         if self.pre_activated_socket is None:
+            self.socket_was_preactivated = False
             try:
                 self.do_bind()
             except OSError as err:
