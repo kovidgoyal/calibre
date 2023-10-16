@@ -270,7 +270,11 @@ class ReadingTest(BaseTest):
         for book_id, cdata in iteritems(covers):
             self.assertEqual(cdata, cache.cover(book_id), 'Reading of cover failed')
             f = cache.cover(book_id, as_file=True)
-            self.assertEqual(cdata, f.read() if f else f, 'Reading of cover as file failed')
+            try:
+                self.assertEqual(cdata, f.read() if f else f, 'Reading of cover as file failed')
+            finally:
+                if f:
+                    f.close()
             if cdata:
                 with open(cache.cover(book_id, as_path=True), 'rb') as f:
                     self.assertEqual(cdata, f.read(), 'Reading of cover as path failed')
@@ -441,9 +445,9 @@ class ReadingTest(BaseTest):
                 old = formats[book_id][fmt]
                 self.assertEqual(old, cache.format(book_id, fmt),
                                  'Old and new format disagree')
-                f = cache.format(book_id, fmt, as_file=True)
-                self.assertEqual(old, f.read(),
-                                 'Failed to read format as file')
+                with cache.format(book_id, fmt, as_file=True) as f:
+                    self.assertEqual(old, f.read(),
+                                    'Failed to read format as file')
                 with open(cache.format(book_id, fmt, as_path=True,
                                        preserve_filename=True), 'rb') as f:
                     self.assertEqual(old, f.read(),
