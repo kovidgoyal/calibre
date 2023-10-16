@@ -499,22 +499,22 @@ class ServerLoop:
                     self.bind_address[0], as_unicode(err), ip))
                 self.bind_address = (ip, self.bind_address[1])
                 self.do_bind()
+            self.socket.listen(min(socket.SOMAXCONN, 128))
         else:
             self.socket = self.pre_activated_socket
             self.pre_activated_socket = None
             self.setup_socket()
-
-    def serve(self):
-        self.connection_map = {}
-        self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(str, ba))
+        if self.LISTENING_MSG:
+            self.log(self.LISTENING_MSG, ba)
+
+    def serve(self):
+        self.connection_map = {}
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
-            if self.LISTENING_MSG:
-                self.log(self.LISTENING_MSG, ba)
             self.plugin_pool.start()
             self.ready = True
 

@@ -131,7 +131,8 @@ class Server:
                 pass
         reset_caches()  # we reset the cache as the server tdir has changed
         try:
-            self.loop.serve_forever()
+            # self.loop.initialize_socket() already called in self.start()
+            self.loop.serve()
         except BaseException as e:
             self.exception = e
         if self.state_callback is not None:
