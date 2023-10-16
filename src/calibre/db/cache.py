@@ -20,7 +20,7 @@ from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
 from threading import Lock
-from time import monotonic, sleep, time
+from time import mktime, monotonic, sleep, time
 from typing import NamedTuple, Optional, Tuple
 
 from calibre import as_unicode, detect_ncpus, isbytestring
@@ -724,9 +724,9 @@ class Cache:
         return self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes, remove_unused_resources)
 
     @write_api
-    def add_notes_resource(self, path_or_stream_or_data, name: str) -> int:
+    def add_notes_resource(self, path_or_stream_or_data, name: str, mtime: float = None) -> int:
         ' Add the specified resource so it can be referenced by notes and return its content hash '
-        return self.backend.add_notes_resource(path_or_stream_or_data, name)
+        return self.backend.add_notes_resource(path_or_stream_or_data, name, mtime)
 
     @read_api
     def get_notes_resource(self, resource_hash) -> Optional[dict]:
@@ -3460,7 +3460,10 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         with closing(importer.start_file(metadata['notes.db'], 'notes.db for ' + library_path)) as stream:
             stream.check_hash = False
             with zipfile.ZipFile(stream) as zf:
-                zf.extractall(notes_dir)
+                for zi in zf.infolist():
+                    tpath = zf._extract_member(zi, notes_dir, None)
+                    date_time = mktime(zi.date_time + (0, 0, -1))
+                    os.utime(tpath, (date_time, date_time))
     if abort is not None and abort.is_set():
         return
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
