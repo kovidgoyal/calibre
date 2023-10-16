@@ -1570,25 +1570,27 @@ class DB:
             return fmt_path
         if not fmt:
             return
-        candidates = ()
-        with suppress(OSError):
-            candidates = os.scandir(path)
         q = fmt.lower()
-        for x in candidates:
-            if x.name.endswith(q) and x.is_file():
-                if not do_file_rename:
-                    return x.path
-                x = x.path
-                with suppress(OSError):
-                    atomic_rename(x, fmt_path)
+        try:
+            candidates = os.scandir(path)
+        except OSError:
+            return
+        with candidates:
+            for x in candidates:
+                if x.name.endswith(q) and x.is_file():
+                    if not do_file_rename:
+                        return x.path
+                    x = x.path
+                    with suppress(OSError):
+                        atomic_rename(x, fmt_path)
+                        return fmt_path
+                    try:
+                        shutil.move(x, fmt_path)
+                    except (shutil.SameFileError, OSError):
+                        # some other process synced in the file since the last
+                        # os.path.exists()
+                        return x
                     return fmt_path
-                try:
-                    shutil.move(x, fmt_path)
-                except (shutil.SameFileError, OSError):
-                    # some other process synced in the file since the last
-                    # os.path.exists()
-                    return x
-                return fmt_path
 
     def cover_abspath(self, book_id, path):
         path = os.path.join(self.library_path, path)

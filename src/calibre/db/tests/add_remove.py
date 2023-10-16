@@ -370,6 +370,10 @@ class AddRemoveTest(BaseTest):
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
 
+        def read(x, mode='r'):
+            with open(x, mode) as f:
+                return f.read()
+
         def a(**kw):
             ts = utcnow()
             kw['timestamp'] = utcnow().isoformat()
@@ -401,8 +405,8 @@ class AddRemoveTest(BaseTest):
 
         def assert_has_extra_files(book_id):
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
-            self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
-            self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
+            self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
+            self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
 
         def assert_does_not_have_extra_files(book_id):
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
