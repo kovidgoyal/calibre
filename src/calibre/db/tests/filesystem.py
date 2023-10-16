@@ -264,8 +264,8 @@ class FilesystemTest(BaseTest):
                 bookdir = os.path.dirname(ic.format_abspath(1, '__COVER_INTERNAL__'))
                 self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
                 self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
-        r1 = cache.add_notes_resource(b'res1', 'res.jpg')
-        r2 = cache.add_notes_resource(b'res2', 'res.jpg')
+        r1 = cache.add_notes_resource(b'res1', 'res.jpg', mtime=time.time()-113)
+        r2 = cache.add_notes_resource(b'res2', 'res.jpg', mtime=time.time()-1115)
         cache.set_notes_for('authors', 2, 'some notes', resource_hashes=(r1, r2))
         cache.add_format(1, 'TXT', BytesIO(b'testing exim'))
         cache.fts_indexing_sleep_time = 0.001
@@ -285,7 +285,10 @@ class FilesystemTest(BaseTest):
             ic = import_library('l', importer, idir)
             self.assertEqual(ic.fts_search('exim')[0]['id'], 1)
             self.assertEqual(cache.notes_for('authors', 2), ic.notes_for('authors', 2))
-            self.assertEqual(cache.get_notes_resource(r1), ic.get_notes_resource(r1))
+            a, b = cache.get_notes_resource(r1), ic.get_notes_resource(r1)
+            at, bt, = a.pop('mtime'), b.pop('mtime')
+            self.assertEqual(a, b)
+            self.assertLess(abs(at-bt), 2)
 
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule
