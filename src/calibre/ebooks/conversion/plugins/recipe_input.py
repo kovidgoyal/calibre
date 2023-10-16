@@ -134,8 +134,12 @@ class RecipeInput(InputFormatPlugin):
             disabled = getattr(recipe, 'recipe_disabled', None)
             if disabled is not None:
                 raise RecipeDisabled(disabled)
-            ro = recipe(opts, log, self.report_progress)
-            ro.download()
+            try:
+                ro = recipe(opts, log, self.report_progress)
+                ro.download()
+            finally:
+                from calibre.scraper.simple import cleanup_overseers
+                cleanup_overseers()
             self.recipe_object = ro
 
         for key, val in self.recipe_object.conversion_options.items():
