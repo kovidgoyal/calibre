@@ -22,6 +22,7 @@ from elementmaker import E
 from book_list.globals import get_session_data
 from dom import svgicon, unique_id, change_icon_image
 from gettext import gettext as _
+from book_list.theme import get_color
 from read_book.globals import runtime, ui_operations, current_spine_item, current_book
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
@@ -43,26 +44,33 @@ class ReadAudioEbook:
         container.setAttribute("tabindex", "0")
         container.appendChild(E.div(
             id=self.bar_id,
-            style="position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: rgba(51, 51, 51, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); "
+            style="position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: rgba(127, 127, 127, 0.3); "
         )) 
-        
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
         container.addEventListener("click", self.on_container_clicked, {"passive": False})
         container.addEventListener("contextmenu", self.toggle, {"passive": False})
 
         bar_container = self.bar = document.getElementById(self.bar_id)
 
-        if self.state is "PLAYING":
-            bar_container.classList.add("speaking")
-        else:
-            bar_container.classList.remove("speaking")
+        def create_button(name, icon, text):
+            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+            if name:
+                ans.addEventListener("click", def(ev):
+                    ev.stopPropagation(), ev.preventDefault()
+                    self[name](ev)
+                    self.view.focus_iframe()
+                )
+            ans.id = "audio-ebook-bt-" + name
+            ans.classList.add("simple-link")
+            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
+            return ans
 
         for x in [
             E.div (
                 id="audioButtons",
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                self.create_buttons("toggle", "pause", _("Pause audio")),
-                self.create_buttons("overlay", "overlay-off", _("Toggle overlay")),
+                create_button("toggle", "pause", _("Pause audio")),
+                create_button("overlay", "overlay-off", _("Toggle overlay")),
             ),
             E.div(
                 id="timeDisplay",
@@ -72,13 +80,13 @@ class ReadAudioEbook:
                 id="progressBar",
                 style="height:1.5em; display:block; background-color:rgba(255, 255, 255, 0.7); width:70%; margin:1em",
                 E.div(
-                style="display:block; background-color:rgba(0, 0, 0, 0.9); height:100%")
+                style="display:block; background-color:rgba(0, 0, 0, 0.3); height:100%")
             ),
             E.div(
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                self.create_buttons("slower", "slower", _("Slow down speech")),
-                self.create_buttons("faster", "faster", _("Speed up speech")),
-                self.create_buttons("hide", "off", _("Close Read aloud"))
+                create_button("slower", "slower", _("Slow down speech")),
+                create_button("faster", "faster", _("Speed up speech")),
+                create_button("hide", "off", _("Close Read aloud"))
             )
             
         ]:
@@ -91,9 +99,6 @@ class ReadAudioEbook:
         self.audio_id = unique_id("audio")
         self.container.appendChild(E.audio(
             id=self.audio_id,
-            # src="book/OEBPS/Audio/01.mp3",
-            # src="book/OEBPS" + audioFile[1:],
-            # src=clbr://internal.sandbox/book/OEBPS/Audio/01.mp3
             style="display:none"
         )) 
 
@@ -140,65 +145,51 @@ class ReadAudioEbook:
 
     def parse_smil_file(self, smil_content, smil_name, mimetype):
         # Extract information from the parsed XML
-        xmlDoc = self.parser.parseFromString(smil_content, "text/xml")
-        audioMap = {}
-        # audioFiles = set()
+        # In content server viewer, the smil file is uploaded as blob
+        smil_content.text().then(def(data): 
+            xmlDoc = self.parser.parseFromString(data, "text/xml")
+            audioMap = {}
+            parElements = xmlDoc.getElementsByTagName("par")
 
-        parElements = xmlDoc.getElementsByTagName("par")
+            audioElement = parElements[0].getElementsByTagName("audio")[0]
+            audioFile = audioElement.getAttribute("src")
 
-        audioElement = parElements[0].getElementsByTagName("audio")[0]
-        audioFile = audioElement.getAttribute("src")
+            for parElement in parElements:
+                textElement = parElement.getElementsByTagName("text")[0]
+                audioElement = parElement.getElementsByTagName("audio")[0]
+                if textElement and audioElement:
+                    spanID = textElement.getAttribute("src").split("#")[1]
+                    audioDetails = {
+                        "clipBegin": audioElement.getAttribute("clipBegin"),
+                        "clipEnd": audioElement.getAttribute("clipEnd")
+                    }
+                    audioMap[spanID] = audioDetails
 
-        for parElement in parElements:
-            textElement = parElement.getElementsByTagName("text")[0]
-            audioElement = parElement.getElementsByTagName("audio")[0]
-            if textElement and audioElement:
-                spanID = textElement.getAttribute("src").split("#")[1]
-                audioDetails = {
-                    "clipBegin": audioElement.getAttribute("clipBegin"),
-                    "clipEnd": audioElement.getAttribute("clipEnd")
-                }
-                audioMap[spanID] = audioDetails
-                # audioFiles.add(audioElement.getAttribute("src"))
-
-        self.audioMaps[smil_name[:-5].replace("smil", "text")] = [audioMap, audioFile]
-
+            self.audioMaps[smil_name[:-5].replace("smil", "text")] = [audioMap, audioFile]
+        )
 
     def change_audio_src(self):
         if self.audioMaps[current_spine_item()]:
             self.audioMap = self.audioMaps[current_spine_item()]
             link = self.audioFiles[0].split("/")[0] + self.audioMaps[current_spine_item()][1][2:]
 
-            # print(link)
-            # ui_operations.get_file(
-            #     current_book(), link, def(blob, name, mimetype):
-            #         blob = new window.Blob([blob], {"type": "audio/mpeg"})
-            #         blobURL = window.URL.createObjectURL(blob)
-            #         self.audioplayer.src = blobURL
-            # )
-            # TODO More logics to handle unexpected folder structures
-            # TODO Prove src for Calibre content server viewer
-            self.pause()
-            self.audioplayer.src = "book/" + link
-            self.send_message("play")
+            ui_operations.get_file(
+                current_book(), link, def(blob, name, mimetype):
+                    # blob = new window.Blob([blob], {"type": "audio/mpeg"})
+                    blobURL = window.URL.createObjectURL(blob)
+                    self.audioplayer.src = blobURL
+                    print(blobURL)
+                    self.pause()
+                    self.send_message("play")
+            )
+
+            # self.pause()
+            # self.audioplayer.src = "book/" + link
+            # self.send_message("play")
 
         else:
             self.audioplayer.src = ""
             self.view.show_next_spine_item()
-
-
-    def create_buttons(self, name, icon, text):
-        ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
-        if name:
-            ans.addEventListener("click", def(ev):
-                ev.stopPropagation(), ev.preventDefault()
-                self[name](ev)
-                self.view.focus_iframe()
-            )
-        ans.id = "audio-ebook-bt-" + name
-        ans.classList.add("simple-link")
-        ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
-        return ans
 
     @property
     def container(self):
@@ -220,7 +211,6 @@ class ReadAudioEbook:
     def state(self, val):
         if val is not self._state:
             self._state = val
-
 
     def hide(self):
         if self.state is not "HIDDEN":
@@ -331,7 +321,6 @@ class ReadAudioEbook:
         minutes = Math.floor(seconds / 60)
         remainingSeconds = int(seconds % 60)
         return str(minutes) + ':' + (str(remainingSeconds).zfill(2))
-
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message("audio-ebook", type=type, **kw)
