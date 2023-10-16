@@ -1130,6 +1130,7 @@ class Cache:
         if as_file:
             ret = SpooledTemporaryFile(SPOOL_SIZE)
             if not self.copy_cover_to(book_id, ret):
+                ret.close()
                 return
             ret.seek(0)
         elif as_path:
@@ -1379,6 +1380,7 @@ class Cache:
             try:
                 self.copy_format_to(book_id, fmt, ret)
             except NoSuchFormat:
+                ret.close()
                 return None
             ret.seek(0)
             # Various bits of code try to use the name as the default
@@ -1953,6 +1955,8 @@ class Cache:
                 name = None
 
             if name and not replace:
+                if needs_close:
+                    stream_or_path.close()
                 return False
 
             if hasattr(stream_or_path, 'read'):
@@ -1961,7 +1965,6 @@ class Cache:
                 stream = open(stream_or_path, 'rb')
                 needs_close = True
             try:
-                stream = stream_or_path if hasattr(stream_or_path, 'read') else open(stream_or_path, 'rb')
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
             finally:
                 if needs_close:
