@@ -28,6 +28,22 @@ def available_translations():
     return _available_translations
 
 
+default_envvars_for_langcode = ('LANGUAGE', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'LANG')
+
+
+def getlangcode_from_envvars(envvars=default_envvars_for_langcode):
+    lookup = os.environ.get
+    for k in envvars:
+        localename = lookup(k)
+        if localename:
+            if k == 'LANGUAGE':
+                localename = localename.split(':')[0]
+            break
+    else:
+        localename = 'C'
+    return locale._parse_localename(localename)[0]
+
+
 def get_system_locale():
     from calibre.constants import ismacos, iswindows
     lang = None
@@ -50,13 +66,12 @@ def get_system_locale():
             traceback.print_exc()
     if lang is None:
         try:
-            envvars = ['LANGUAGE', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'LANG']
-            lang = locale.getdefaultlocale(envvars)[0]
+            lang = getlangcode_from_envvars()
 
             # lang is None in two cases: either the environment variable is not
             # set or it's "C". Stop looking for a language in the latter case.
             if lang is None:
-                for var in envvars:
+                for var in default_envvars_for_langcode:
                     if os.environ.get(var) == 'C':
                         lang = 'en_US'
                         break
