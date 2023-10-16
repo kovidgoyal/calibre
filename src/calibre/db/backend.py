@@ -989,8 +989,8 @@ class DB:
         id_val = self.tables[field].id_map[item_id]
         return self.notes.unretire(self.conn, field, item_id, id_val)
 
-    def add_notes_resource(self, path_or_stream, name) -> int:
-        return self.notes.add_resource(self.conn, path_or_stream, name)
+    def add_notes_resource(self, path_or_stream, name, mtime=None) -> int:
+        return self.notes.add_resource(self.conn, path_or_stream, name, mtime=mtime)
 
     def get_notes_resource(self, resource_hash) -> Optional[dict]:
         return self.notes.get_resource_data(self.conn, resource_hash)
