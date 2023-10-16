@@ -127,6 +127,9 @@ class TXTZOutput(TXTOutput):
         from calibre.ebooks.oeb.base import OEB_IMAGES, xml2str
         from calibre.utils.zipfile import ZipFile
 
+        can_reference_images = opts.txt_output_formatting.lower() in ('markdown', 'textile')
+        can_reference_images = can_reference_images and opts.keep_image_references
+
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
             txt_name = 'index.txt'
@@ -153,11 +156,14 @@ class TXTZOutput(TXTOutput):
                     else:
                         path = os.path.join(tdir, os.path.dirname(item.href))
                         href = os.path.basename(item.href)
-                    os.makedirs(path, exist_ok=True)
-                    with open(os.path.join(path, href), 'wb') as imgf:
-                        imgf.write(item.data)
-                    if item.href == cover_href:
-                        cover_relhref = os.path.relpath(imgf.name, tdir).replace(os.sep, '/')
+                    ipath = os.path.join(path, href)
+                    is_cover = item.href == cover_href
+                    if can_reference_images or is_cover:
+                        os.makedirs(path, exist_ok=True)
+                        with open(ipath, 'wb') as imgf:
+                            imgf.write(item.data)
+                    if is_cover:
+                        cover_relhref = os.path.relpath(ipath, tdir).replace(os.sep, '/')
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
