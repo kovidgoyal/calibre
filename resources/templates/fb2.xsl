@@ -291,7 +291,7 @@
                 <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
             </xsl:element>
         </xsl:if>
-        <h3>Annotation</h3>
+        <h1>Annotation</h1>
         <xsl:apply-templates/>
     </xsl:template>
     <!-- tables -->
