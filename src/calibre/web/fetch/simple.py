@@ -185,6 +185,7 @@ class RecursiveFetcher:
         self.show_progress = True
         self.failed_links = []
         self.job_info = job_info
+        self.preloaded_urls = {}
 
     def get_soup(self, src, url=None):
         nmassage = []
@@ -245,6 +246,11 @@ class RecursiveFetcher:
 
     def fetch_url(self, url):
         data = None
+        q = self.preloaded_urls.pop(url, None)
+        if q is not None:
+            ans = response(q)
+            ans.newurl = url
+            return ans
         self.log.debug('Fetching', url)
         st = time.monotonic()
 
