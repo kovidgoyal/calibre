@@ -151,6 +151,10 @@ def test_cache_api(self: 'NotesTest'):
         self.assertGreater(note_id, 0)
         self.assertIn('<p>test simple exim <img', cache.notes_for('authors', author_id))
         res2 = tuple(cache.get_notes_resource(x) for x in cache.notes_resources_used_by('authors', author_id))
+        for x in res:
+            del x['mtime']
+        for x in res2:
+            del x['mtime']
         self.ae(sorted(res, key=itemgetter('name')), sorted(res2, key=itemgetter('name')))
 
 

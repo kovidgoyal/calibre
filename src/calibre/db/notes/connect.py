@@ -306,7 +306,7 @@ class Notes:
             for path in items[:extra]:
                 remove_with_retry(path, is_dir=True)
 
-    def add_resource(self, conn, path_or_stream_or_data, name, update_name=True):
+    def add_resource(self, conn, path_or_stream_or_data, name, update_name=True, mtime=None):
         if isinstance(path_or_stream_or_data, bytes):
             data = path_or_stream_or_data
         elif isinstance(path_or_stream_or_data, str):
@@ -332,6 +332,9 @@ class Notes:
                 f = open(path, 'wb')
             with f:
                 f.write(data)
+            if mtime is not None:
+                os.utime(f.name, (mtime, mtime))
+
         name = sanitize_file_name(name)
         base_name, ext = os.path.splitext(name)
         c = 0
