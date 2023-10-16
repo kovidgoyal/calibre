@@ -3480,18 +3480,17 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         cache._update_path((book_id,), mark_as_dirtied=False)
         for fmt, fmtkey in iteritems(fmt_key_map):
             if fmt == '.cover':
-                stream = importer.start_file(fmtkey, _('Cover for %s') % title)
-                path = cache._field_for('path', book_id).replace('/', os.sep)
-                cache.backend.set_cover(book_id, path, stream, no_processing=True)
+                with closing(importer.start_file(fmtkey, _('Cover for %s') % title)) as stream:
+                    path = cache._field_for('path', book_id).replace('/', os.sep)
+                    cache.backend.set_cover(book_id, path, stream, no_processing=True)
             else:
-                stream = importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title))
-                size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
-                cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
-            stream.close()
+                with closing(importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title))) as stream:
+                    size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
+                    cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
         for relpath, efkey in extra_files.get(book_id, {}).items():
-            stream = importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title))
-            path = cache._field_for('path', book_id).replace('/', os.sep)
-            cache.backend.add_extra_file(relpath, stream, path)
+            with closing(importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title))) as stream:
+                path = cache._field_for('path', book_id).replace('/', os.sep)
+                cache.backend.add_extra_file(relpath, stream, path)
         cache.dump_metadata({book_id})
     if progress is not None:
         progress(_('Completed'), total, total)
