@@ -239,6 +239,10 @@ class FilesystemTest(BaseTest):
     def test_export_import(self):
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
+        def read(x, mode='r'):
+            with open(x, mode) as f:
+                return f.read()
+
         cache = self.init_cache()
         bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
         with open(os.path.join(bookdir, 'exf'), 'w') as f:
@@ -262,8 +266,8 @@ class FilesystemTest(BaseTest):
                         self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))
                         self.assertEqual(cache.format_metadata(book_id, fmt)['mtime'], cache.format_metadata(book_id, fmt)['mtime'])
                 bookdir = os.path.dirname(ic.format_abspath(1, '__COVER_INTERNAL__'))
-                self.assertEqual('exf', open(os.path.join(bookdir, 'exf')).read())
-                self.assertEqual('recurse', open(os.path.join(bookdir, 'sub', 'recurse')).read())
+                self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
+                self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
         r1 = cache.add_notes_resource(b'res1', 'res.jpg', mtime=time.time()-113)
         r2 = cache.add_notes_resource(b'res2', 'res.jpg', mtime=time.time()-1115)
         cache.set_notes_for('authors', 2, 'some notes', resource_hashes=(r1, r2))

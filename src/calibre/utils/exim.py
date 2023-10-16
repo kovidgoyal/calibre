@@ -256,6 +256,7 @@ class FileSource:
     def close(self):
         if self.check_hash and self.hasher.hexdigest() != self.digest:
             self.importer.corrupted_files.append(self.description)
+        self.f.close()
         self.hasher = self.f = None
 
 
