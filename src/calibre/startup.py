@@ -6,10 +6,13 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os
+import locale
+import os
+import sys
 
 # Default translation is NOOP
 from polyglot.builtins import builtins
+
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
@@ -19,7 +22,7 @@ builtins.__dict__['__'] = lambda s: s
 # For backwards compat with some third party plugins
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
-from calibre.constants import iswindows, ismacos, islinux, DEBUG, isfreebsd
+from calibre.constants import DEBUG, isfreebsd, islinux, ismacos, iswindows
 
 
 def get_debug_executable(headless=False):
@@ -127,7 +130,7 @@ def initialize_calibre():
 
     #
     # Setup translations
-    from calibre.utils.localization import set_translators
+    from calibre.utils.localization import getlangcode_from_envvars, set_translators
 
     set_translators()
 
@@ -141,16 +144,16 @@ def initialize_calibre():
     string
     try:
         locale.setlocale(locale.LC_ALL, '')  # set the locale to the user's default locale
-    except:
-        dl = locale.getdefaultlocale()
+    except Exception:
         try:
+            dl = getlangcode_from_envvars()
             if dl:
-                locale.setlocale(locale.LC_ALL, dl[0])
-        except:
+                locale.setlocale(locale.LC_ALL, dl)
+        except Exception:
             pass
 
     builtins.__dict__['lopen'] = open  # legacy compatibility
-    from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
+    from calibre.utils.icu import lower as icu_lower, title_case, upper as icu_upper
     builtins.__dict__['icu_lower'] = icu_lower
     builtins.__dict__['icu_upper'] = icu_upper
     builtins.__dict__['icu_title'] = title_case
@@ -161,6 +164,7 @@ def initialize_calibre():
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
         import threading
+
         from calibre_extensions import speedup
 
         orig_start = threading.Thread.start
