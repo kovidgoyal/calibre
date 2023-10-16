@@ -1478,7 +1478,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     f = open(path, 'rb')
                 except OSError:
                     time.sleep(0.2)
-                f = open(path, 'rb')
+                    f = open(path, 'rb')
                 with f:
                     if hasattr(dest, 'write'):
                         shutil.copyfileobj(f, dest)
