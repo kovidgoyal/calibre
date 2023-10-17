@@ -1420,7 +1420,7 @@ class View:
         if sr.result_num is 1:
             self.search_result_discovery = {
                 'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False,
-                'first_search_result': sr, 'finished': False,
+                'first_search_result': sr, 'finished': False, 'jump_forced': False,
             }
         if not self.search_result_discovery or self.search_result_discovery.discovered or self.search_result_discovery.on_discovery is not sr.on_discovery:
             return
@@ -1437,9 +1437,10 @@ class View:
                     ui_operations.search_result_discovered(sr)
             elif not self.search_result_discovery.discovered and self.search_result_discovery.queue.length:
                 self.show_search_result(self.search_result_discovery.queue.shift())
-            elif not self.search_result_discovery.discovered and self.search_result_discovery.finished:
+            elif not self.search_result_discovery.discovered and self.search_result_discovery.finished and not self.search_result_discovery.jump_forced:
                 sr = self.search_result_discovery.first_search_result
                 sr.force_jump_to = True
+                self.search_result_discovery.jump_forced = True
                 self.show_search_result(sr)
 
     def search_result_discovered(self, data):
