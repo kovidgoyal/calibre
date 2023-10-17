@@ -855,7 +855,9 @@ def get_bounding_client_rect_using_offset_properties(elem):
         ans.top += elem.offsetTop
         elem = elem.offsetParent
     ans.left -= window.scrollX
-    ans.top -= window.scrollTop
+    ans.top -= window.scrollY
+    ans.right = ans.left + ans.width
+    ans.bottom = ans.top + ans.height
     ans.x, ans.y = ans.left, ans.top
     return ans
 
