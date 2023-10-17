@@ -86,7 +86,8 @@ def get_split_book(fmt='epub'):
     src = os.path.join(os.path.dirname(__file__), 'split.html')
     if needs_recompile(ans, src):
         x = src.replace('split.html', 'index.html')
-        raw = open(src, 'rb').read().decode('utf-8')
+        with open(src, 'rb') as sf:
+            raw = sf.read().decode('utf-8')
         try:
             with open(x, 'wb') as f:
                 f.write(raw.encode('utf-8'))
