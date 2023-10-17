@@ -1415,6 +1415,7 @@ class View:
                 if not self.search_result_discovery.discovered and self.search_result_discovery.first_search_result and self.search_result_discovery.queue.length is 0:
                     sr = self.search_result_discovery.first_search_result
                     sr.force_jump_to = True
+                    self.search_result_discovery.jump_forced = True
                     self.show_search_result(sr)
             return
         if sr.result_num is 1:
