@@ -330,8 +330,9 @@ def run_test(test_name, verbosity=4, buffer=False):
 
 def run_cli(suite, verbosity=4, buffer=True):
     r = unittest.TextTestRunner
-    r.resultclass = unittest.TextTestResult if verbosity < 2 else TestResult
+    # r.resultclass = unittest.TextTestResult if verbosity < 2 else TestResult
     init_env()
     result = r(verbosity=verbosity, buffer=buffer and not is_ci).run(suite)
-    if not result.wasSuccessful():
-        raise SystemExit(1)
+    print(111111111, result, flush=True)
+    rc = 0 if result.wasSuccessful() else 1
+    os._exit(rc)
