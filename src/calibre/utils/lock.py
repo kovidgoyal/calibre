@@ -87,10 +87,14 @@ def lock_file(path, timeout=15, sleep_time=0.2):
             timeout, sleep_time, windows_open, windows_retry, path
         )
     f = unix_open(path)
-    retry_for_a_time(
-        timeout, sleep_time, fcntl.flock, unix_retry,
-        f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
-    )
+    try:
+        retry_for_a_time(
+            timeout, sleep_time, fcntl.flock, unix_retry,
+            f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+        )
+    except Exception:
+        f.close()
+        raise
     return f
 
 
