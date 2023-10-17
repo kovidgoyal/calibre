@@ -109,6 +109,7 @@ class IPCLockTest(unittest.TestCase):
         finally:
             if child.poll() is None:
                 child.kill()
+                child.wait()
 
     def test_exclusive_file_other_process_clean(self):
         self.run_other_ef_op(True)

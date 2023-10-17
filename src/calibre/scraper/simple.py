@@ -97,6 +97,8 @@ class Overseer:
             for w in self.workers.values():
                 w.stdin.write(b'EXIT:0\n')
                 w.stdin.flush()
+                w.stdin.close()
+                w.stdout.close()
             for w in self.workers.values():
                 if self.safe_wait(w, 0.2) is None:
                     w.terminate()
