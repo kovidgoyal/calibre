@@ -63,7 +63,11 @@ def run(*args):
     if len(args) == 1:
         args = shlex.split(args[0])
     print(' '.join(args), flush=True)
-    ret = subprocess.Popen(args).wait()
+    try:
+        ret = subprocess.Popen(args).wait(timeout=600)
+    except subprocess.TimeoutExpired as err:
+        print(err, file=sys.stderr, flush=True)
+        print('Timed out running:', ' '.join(args), flush=True, file=sys.stderr)
     if ret != 0:
         raise SystemExit(ret)
 
