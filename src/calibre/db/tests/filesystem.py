@@ -13,6 +13,11 @@ from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
 
 
+def read(x, mode='r'):
+    with open(x, mode) as f:
+        return f.read()
+
+
 class FilesystemTest(BaseTest):
 
     def get_filesystem_data(self, cache, book_id):
@@ -82,8 +87,8 @@ class FilesystemTest(BaseTest):
         def side_data(book_id=1):
             bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
             return {
-                'a.side': open(os.path.join(bookdir, 'a.side')).read(),
-                'a.fmt1': open(os.path.join(bookdir, 'subdir', 'a.fmt1')).read(),
+                'a.side': read(os.path.join(bookdir, 'a.side')),
+                'a.fmt1': read(os.path.join(bookdir, 'subdir', 'a.fmt1')),
             }
 
         def check_that_filesystem_and_db_entries_match(book_id):
@@ -183,8 +188,8 @@ class FilesystemTest(BaseTest):
             wam.delete_originals()
             self.assertEqual([], os.listdir(tdir1))
             self.assertEqual({'a', 'b'}, set(os.listdir(tdir2)))
-            self.assertEqual(raw, open(os.path.join(tdir2, 'a'), 'rb').read())
-            self.assertEqual(raw, open(os.path.join(tdir2, 'b'), 'rb').read())
+            self.assertEqual(raw, read(os.path.join(tdir2, 'a'), 'rb'))
+            self.assertEqual(raw, read(os.path.join(tdir2, 'b'), 'rb'))
 
     def test_library_move(self):
         ' Test moving of library '
@@ -239,10 +244,6 @@ class FilesystemTest(BaseTest):
     def test_export_import(self):
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
-        def read(x, mode='r'):
-            with open(x, mode) as f:
-                return f.read()
-
         cache = self.init_cache()
         bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
         with open(os.path.join(bookdir, 'exf'), 'w') as f:

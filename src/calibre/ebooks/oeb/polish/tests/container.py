@@ -59,7 +59,8 @@ class ContainerTests(BaseTest):
             c2.commit_item(text)
             for c in (c1, c2):
                 self.assertEqual(1, nlinks_file(c.name_path_map[text]))
-            self.assertNotEqual(c1.open(text).read(), c2.open(text).read())
+            with c1.open(text) as c1f, c2.open(text) as c2f:
+                self.assertNotEqual(c1f.read(), c2f.read())
 
             name = spine_names[1]
             with c1.open(name, mode='r+b') as f:
@@ -67,7 +68,8 @@ class ContainerTests(BaseTest):
                 f.write(b'    ')
             for c in (c1, c2):
                 self.assertEqual(1, nlinks_file(c.name_path_map[name]))
-            self.assertNotEqual(c1.open(name).read(), c2.open(name).read())
+            with c1.open(text) as c1f, c2.open(text) as c2f:
+                self.assertNotEqual(c1f.read(), c2f.read())
 
             x = base + 'out.' + fmt
             for c in (c1, c2):
