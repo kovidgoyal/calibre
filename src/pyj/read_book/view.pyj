@@ -313,8 +313,7 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
-
-                        E.div(style='position: absolute; bottom:0em; left:1.5em; right:1.5em; width: calc(100% - 3em); height: 100%; display:none', id='audio-ebooks-overlay'),  
+                        E.div(style='position: absolute; bottom:0em; width: 100%; height: 100%; display:none', id='audio-ebooks-overlay'),  # read audio ebook overlay
                     )
                 ),
             ),

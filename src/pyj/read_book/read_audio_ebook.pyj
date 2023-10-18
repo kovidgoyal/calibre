@@ -43,6 +43,8 @@ class ReadAudioEbook:
         self.container.style.height = "100%"
         
         container = self.container
+        container.style.transition = "height 0.5s ease-in-out"
+        container.style.backgroundColor = "rgba(127, 127, 127, 0.05)"
         container.setAttribute("tabindex", "0")
         container.appendChild(E.div(
             id=self.bar_id,
@@ -265,7 +267,7 @@ class ReadAudioEbook:
             change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-off")
         else:
             self.overlay_off = True
-            self.container.style.height = "3ex"
+            self.container.style.height = "3em"
             change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-on")
             
     def on_container_clicked(self, ev):
