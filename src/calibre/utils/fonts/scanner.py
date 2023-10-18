@@ -368,6 +368,7 @@ class FontScanner(Thread):
         self.font_family_map, self.font_families = build_families(self.cached_fonts, self.folders)
 
     def write_cache(self):
+        # writing to the cache is atomic thanks to JSONConfig
         with self.cache:
             self.cache['version'] = self.CACHE_VERSION
             self.cache['fonts'] = self.cached_fonts
