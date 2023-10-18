@@ -55,15 +55,10 @@ def first_visible_word():
 
 
 def span_at_point(x, y):
-    p = caret_position_from_point(x, y)
-    if p:
-        # Get the container element and offset within the container
-        container = p.offsetNode
-        offset = p.offset
-        if container.nodeType == 3:  # Text node
-            spanElement = container.parentNode
-            if spanElement.tagName == 'SPAN':
-                return spanElement.id
+    element = document.elementFromPoint(x, y)
+    if element and element.tagName is 'SPAN':
+        return element.id
+    return None
 
 
 def first_visible_span():

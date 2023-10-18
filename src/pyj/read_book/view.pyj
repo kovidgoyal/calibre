@@ -938,6 +938,10 @@ class View:
         self.book = current_book.book = book
         hl = None
         if not is_redisplay:
+            self.is_audio_ebook = undefined
+            if self.read_audio_ebook:
+                self.read_audio_ebook.hide()
+                clear(self.read_audio_ebook.container)
             if runtime.is_standalone_viewer:
                 hl = book.highlights
                 v'delete book.highlights'
@@ -990,7 +994,7 @@ class View:
                 show_controls_help()
                 sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
 
-        if jstype(self.is_audio_ebook) is "undefined":
+        if self.is_audio_ebook is undefined:
             smil_files = []
             audio_files = []
             for filename in book.manifest.files:

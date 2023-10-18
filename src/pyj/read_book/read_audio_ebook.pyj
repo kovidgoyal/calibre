@@ -20,7 +20,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from book_list.globals import get_session_data
-from dom import svgicon, unique_id, change_icon_image
+from dom import svgicon, unique_id, change_icon_image, clear
 from gettext import gettext as _
 from book_list.theme import get_color
 from read_book.globals import runtime, ui_operations, current_spine_item, current_book
@@ -39,7 +39,9 @@ class ReadAudioEbook:
         self.parser = new window.DOMParser()
         self._state = "HIDDEN"
         self.bar_id = unique_id("bar")
-
+        self.overlay_off = False
+        self.container.style.height = "100%"
+        
         container = self.container
         container.setAttribute("tabindex", "0")
         container.appendChild(E.div(
@@ -259,7 +261,7 @@ class ReadAudioEbook:
     def overlay(self):
         if self.overlay_off:
             self.overlay_off = False
-            self.container.style.height = "calc(100% - 1em)"
+            self.container.style.height = "100%"
             change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-off")
         else:
             self.overlay_off = True

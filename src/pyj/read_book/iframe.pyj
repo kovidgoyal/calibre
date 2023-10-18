@@ -1016,8 +1016,6 @@ class IframeBoss:
 
         elif data.type is 'trigger-shortcut':
             self.on_handle_navigation_shortcut(data)
-        # elif data.type is 'scroll':
-        #     self.no_latency_onscroll()
 
     def color_span_id(self, old_span_id, span_id):
         def element_in_viewport(element):
