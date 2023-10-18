@@ -990,23 +990,23 @@ class View:
                 show_controls_help()
                 sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
 
-        if str(self.is_audio_ebook) == "undefined":
+        if jstype(self.is_audio_ebook) is "undefined":
             smil_files = []
             audio_files = []
             for filename in book.manifest.files:
                 if filename.endswith(".smil"):
                     smil_files.append(filename)
-                elif book.manifest.files[filename].mimetype == "audio/mpeg":
+                elif book.manifest.files[filename].mimetype is "audio/mpeg":
                     audio_files.append(filename)
             if len(smil_files) > 0:
                 self.is_audio_ebook = True
                 self.read_audio_ebook = ReadAudioEbook(self)
-                self.read_audio_ebook.smilFiles = smil_files
-                self.read_audio_ebook.audioFiles = audio_files
-                self.read_audio_ebook.audioMaps = {}
-                for smilFile in smil_files:
+                self.read_audio_ebook.smil_files = smil_files
+                self.read_audio_ebook.audio_files = audio_files
+                self.read_audio_ebook.audio_maps = {}
+                for smil_file in smil_files:
                     ui_operations.get_file(
-                        self.book, smilFile, self.read_audio_ebook.parse_smil_file)
+                        self.book, smil_file, self.read_audio_ebook.parse_smil_file)
             else:
                 self.is_audio_ebook = False
 
@@ -1086,7 +1086,7 @@ class View:
             done_callback(resource_data)
         load_resources(self.book, name, self.loaded_resources, cb)
         if self.is_audio_ebook and self.read_audio_ebook.state != 'HIDDEN':
-            window.setTimeout(self.read_audio_ebook.change_audio_src, 1000) # wait for previous spine to update to update
+            window.setTimeout(self.read_audio_ebook.change_audio_src, 1000) # wait for previous spine to update
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]

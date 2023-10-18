@@ -1005,23 +1005,23 @@ class IframeBoss:
 
     def audio_ebook_msg_received(self, data):
         if data.type is 'mark':
-            self.color_spanID(data.old_spanID, data.spanID)
+            self.color_span_id(data.old_span_id, data.span_id)
         elif data.type is 'play':
             if data.pos:
-                spanID = span_at_point(data.pos.x, data.pos.y)
-                self.send_message('audio_ebook_message', type='report-spanID', spanID=spanID)
+                span_id = span_at_point(data.pos.x, data.pos.y)
+                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
             else:
-                spanID = first_visible_span()
-                self.send_message('audio_ebook_message', type='report-spanID', spanID=spanID)
+                span_id = first_visible_span()
+                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
 
         elif data.type is 'trigger-shortcut':
             self.on_handle_navigation_shortcut(data)
         # elif data.type is 'scroll':
         #     self.no_latency_onscroll()
 
-    def color_spanID(self, old_spanId, spanId):
-        element = document.getElementById(spanId)
-        old_element = document.getElementById(old_spanId)
+    def color_span_id(self, old_span_id, span_id):
+        element = document.getElementById(span_id)
+        old_element = document.getElementById(old_span_id)
 
         if old_element:
             old_element.style.backgroundColor = ''

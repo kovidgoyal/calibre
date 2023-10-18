@@ -31,7 +31,7 @@ from read_book.shortcuts import shortcut_for_key_event
 
 
 class ReadAudioEbook:
-    
+
     dont_hide_on_content_loaded = True
 
     def __init__(self, view):
@@ -39,7 +39,7 @@ class ReadAudioEbook:
         self.parser = new window.DOMParser()
         self._state = "HIDDEN"
         self.bar_id = unique_id("bar")
-        
+
         container = self.container
         container.setAttribute("tabindex", "0")
         container.appendChild(E.div(
@@ -69,8 +69,8 @@ class ReadAudioEbook:
             E.div (
                 id="audioButtons",
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                create_button("toggle", "pause", _("Pause audio")),
-                create_button("overlay", "overlay-off", _("Toggle overlay")),
+                create_button("toggle", "pause", _("Toggle pause & play")),
+                create_button("overlay", "overlay-off", _("Toggle overlay for scrolling & text selection")),
             ),
             E.div(
                 id="timeDisplay",
@@ -84,17 +84,17 @@ class ReadAudioEbook:
             ),
             E.div(
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                create_button("slower", "slower", _("Slow down speech")),
-                create_button("faster", "faster", _("Speed up speech")),
-                create_button("hide", "off", _("Close Read aloud"))
+                create_button("slower", "slower", _("Slow down audio")),
+                create_button("faster", "faster", _("Speed up audio")),
+                create_button("hide", "off", _("Close Read Audio-Ebook"))
             )
             
         ]:
             bar_container.appendChild(x)
 
-        self.audioButtons = document.getElementById("audioButtons") 
-        self.progressBar = document.getElementById("progressBar") 
-        self.timeDisplay = document.getElementById("timeDisplay")
+        self.audio_buttons = document.getElementById("audioButtons") 
+        self.progress_bar = document.getElementById("progressBar") 
+        self.time_display = document.getElementById("timeDisplay")
 
         self.audio_id = unique_id("audio")
         self.container.appendChild(E.audio(
@@ -102,44 +102,44 @@ class ReadAudioEbook:
             style="display:none"
         )) 
 
-        self.audioplayer = document.getElementById(self.audio_id) 
+        self.audio_player = document.getElementById(self.audio_id) 
 
-        self.audioplayer.addEventListener("play", def():
-            self.audioMap = self.audioMaps[current_spine_item()]
-            self.send_message("mark", spanID = self.spanID)
+        self.audio_player.addEventListener("play", def():
+            self.audio_map = self.audio_maps[current_spine_item()]
+            self.send_message("mark", span_id = self.span_id)
         )
 
-        self.audioplayer.addEventListener("timeupdate", def():
+        self.audio_player.addEventListener("timeupdate", def():
             if self.state != "HIDDEN":
-                if self.audioplayer.duration:
-                    audioCurrentTime = self.audioplayer.currentTime
+                if self.audio_player.duration:
+                    audio_current_time = self.audio_player.currentTime
 
-                    progress = (audioCurrentTime / self.audioplayer.duration) * 100
-                    self.progressBar.firstChild.style.width = progress + "%"
+                    progress = (audio_current_time / self.audio_player.duration) * 100
+                    self.progress_bar.firstChild.style.width = progress + "%"
 
-                    self.timeDisplay.textContent = f"{self.secondsToMS(audioCurrentTime)}/{self.secondsToMS(self.audioplayer.duration)}"
+                    self.time_display.textContent = f"{self.seconds_to_ms(audio_current_time)}/{self.seconds_to_ms(self.audio_player.duration)}"
 
-                    spanID = self.findSpanIDForTime(audioCurrentTime)
-                    if spanID != self.spanID:
-                        old_spanID = self.spanID
-                        self.spanID = spanID
-                        self.send_message("mark", old_spanID=old_spanID, spanID = self.spanID)
+                    span_id = self.find_span_id_for_time(audio_current_time)
+                    if span_id != self.span_id:
+                        old_span_id = self.span_id
+                        self.span_id = span_id
+                        self.send_message("mark", old_span_id=old_span_id, span_id = self.span_id)
                 else:
-                    self.timeDisplay.textContent = "00:00"
-                    self.progressBar.firstChild.style.width = "0%"
+                    self.time_display.textContent = "00:00"
+                    self.progress_bar.firstChild.style.width = "0%"
 
         )
 
-        self.audioplayer.addEventListener("ended", def():
+        self.audio_player.addEventListener("ended", def():
             self.view.show_next_spine_item()
         )  
 
-        self.progressBar.addEventListener("click", def(event):
-            rect = self.progressBar.getBoundingClientRect()
+        self.progress_bar.addEventListener("click", def(event):
+            rect = self.progress_bar.getBoundingClientRect()
             clickX = event.clientX - rect.left
-            totalWidth = rect.width
-            skipTime = (clickX / totalWidth) * self.audioplayer.duration
-            self.audioplayer.currentTime = skipTime
+            total_width = rect.width
+            skip_time = (clickX / total_width) * self.audio_player.duration
+            self.audio_player.currentTime = skip_time
         )
 
 
@@ -147,48 +147,46 @@ class ReadAudioEbook:
         # Extract information from the parsed XML
         # In content server viewer, the smil file is uploaded as blob
         smil_content.text().then(def(data): 
-            xmlDoc = self.parser.parseFromString(data, "text/xml")
-            audioMap = {}
-            parElements = xmlDoc.getElementsByTagName("par")
+            xml_doc = self.parser.parseFromString(data, "text/xml")
+            audio_map = {}
+            par_elements = xml_doc.getElementsByTagName("par")
 
-            audioElement = parElements[0].getElementsByTagName("audio")[0]
-            audioFile = audioElement.getAttribute("src")
+            audio_element = par_elements[0].getElementsByTagName("audio")[0]
+            audio_file = audio_element.getAttribute("src")
 
-            for parElement in parElements:
-                textElement = parElement.getElementsByTagName("text")[0]
-                audioElement = parElement.getElementsByTagName("audio")[0]
-                if textElement and audioElement:
-                    spanID = textElement.getAttribute("src").split("#")[1]
-                    audioDetails = {
-                        "clipBegin": audioElement.getAttribute("clipBegin"),
-                        "clipEnd": audioElement.getAttribute("clipEnd")
+            for par_element in par_elements:
+                text_element = par_element.getElementsByTagName("text")[0]
+                audio_element = par_element.getElementsByTagName("audio")[0]
+                if text_element and audio_element:
+                    span_id = text_element.getAttribute("src").split("#")[1]
+                    audio_details = {
+                        "clipBegin": audio_element.getAttribute("clipBegin"),
+                        "clipEnd": audio_element.getAttribute("clipEnd")
                     }
-                    audioMap[spanID] = audioDetails
+                    audio_map[span_id] = audio_details
 
-            self.audioMaps[smil_name[:-5].replace("smil", "text")] = [audioMap, audioFile]
+            self.audio_maps[smil_name[:-5].replace("smil", "text")] = [audio_map, audio_file]
         )
 
     def change_audio_src(self):
-        if self.audioMaps[current_spine_item()]:
-            self.audioMap = self.audioMaps[current_spine_item()]
-            link = self.audioFiles[0].split("/")[0] + self.audioMaps[current_spine_item()][1][2:]
+        if self.audio_maps[current_spine_item()]:
+            self.audio_map = self.audio_maps[current_spine_item()]
+            link = self.audio_files[0].split("/")[0] + self.audio_maps[current_spine_item()][1][2:]
 
             ui_operations.get_file(
                 current_book(), link, def(blob, name, mimetype):
-                    # blob = new window.Blob([blob], {"type": "audio/mpeg"})
-                    blobURL = window.URL.createObjectURL(blob)
-                    self.audioplayer.src = blobURL
-                    print(blobURL)
+                    blob_url = window.URL.createObjectURL(blob)
+                    self.audio_player.src = blob_url
                     self.pause()
                     self.send_message("play")
             )
 
             # self.pause()
-            # self.audioplayer.src = "book/" + link
+            # self.audio_player.src = "book/" + link
             # self.send_message("play")
 
         else:
-            self.audioplayer.src = ""
+            self.audio_player.src = ""
             self.view.show_next_spine_item()
 
     @property
@@ -214,7 +212,7 @@ class ReadAudioEbook:
 
     def hide(self):
         if self.state is not "HIDDEN":
-            self.send_message("mark", old_spanID=self.spanID)
+            self.send_message("mark", old_span_id=self.span_id)
             self.pause()
             self.container.style.display = "none"
             self.view.focus_iframe()
@@ -235,20 +233,20 @@ class ReadAudioEbook:
         self.container.focus()
 
     def slower(self):
-        self.audioplayer.playbackRate -= 0.1
+        self.audio_player.playbackRate -= 0.1
         
     def faster(self):
-        self.audioplayer.playbackRate += 0.1
+        self.audio_player.playbackRate += 0.1
 
     def play(self):
-        if self.audioplayer.src:
-            self.audioplayer.play()
+        if self.audio_player.src:
+            self.audio_player.play()
         self.state = "PLAYING" 
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
 
     def pause(self):
-        if self.audioplayer.src:
-            self.audioplayer.pause()
+        if self.audio_player.src:
+            self.audio_player.pause()
         self.state = "PAUSED"
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "play")
 
@@ -301,35 +299,35 @@ class ReadAudioEbook:
         elif sc_name in ("up", "down", "pageup", "pagedown", "left", "right"):
             self.send_message("trigger-shortcut", name=sc_name)
     
-    def findSpanIDForTime(self, currentTime):
-        if self.audioMap:
-            for spanID in self.audioMap[0]:
-                clipBeginTime = self.convertTimeToSeconds(self.audioMap[0][spanID]["clipBegin"])
-                clipEndTime = self.convertTimeToSeconds(self.audioMap[0][spanID]["clipEnd"])               
-                if clipBeginTime <= currentTime < clipEndTime:
-                    return spanID
+    def find_span_id_for_time(self, current_time):
+        if self.audio_map:
+            for span_id in self.audio_map[0]:
+                clip_begin_time = self.convert_time_to_seconds(self.audio_map[0][span_id]["clipBegin"])
+                clip_end_time = self.convert_time_to_seconds(self.audio_map[0][span_id]["clipEnd"])               
+                if clip_begin_time <= current_time < clip_end_time:
+                    return span_id
         return None
 
-    def convertTimeToSeconds(self, timeString):
-        parts = timeString.split(":")
+    def convert_time_to_seconds(self, time_string):
+        parts = time_string.split(":")
         if len(parts) != 3:
             return 0
         hours, minutes, seconds = map(float, parts)
         return hours * 3600 + minutes * 60 + seconds
 
-    def secondsToMS(self, seconds):
+    def seconds_to_ms(self, seconds):
         minutes = Math.floor(seconds / 60)
-        remainingSeconds = int(seconds % 60)
-        return str(minutes) + ':' + (str(remainingSeconds).zfill(2))
+        remaining_seconds = int(seconds % 60)
+        return str(minutes) + ':' + (str(remaining_seconds).zfill(2))
 
-    def send_message(self, type, **kw):
-        self.view.iframe_wrapper.send_message("audio-ebook", type=type, **kw)
+    def send_message(self, message_type, **kw):
+        self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
 
-    def handle_message(self, msg):
-        if msg.type is "report-spanID":
-            if msg.spanID:
-                old_spanID = self.spanID
-                self.spanID = msg.spanID
-                self.send_message("mark", old_spanID=old_spanID, spanID = self.spanID)
-                self.audioplayer.currentTime = self.convertTimeToSeconds(self.audioMap[0][self.spanID]["clipBegin"])
+    def handle_message(self, message):
+        if message.type is "report-span-id":
+            if message.span_id:
+                old_span_id = self.span_id
+                self.span_id = message.span_id
+                self.send_message("mark", old_span_id=old_span_id, span_id=self.span_id)
+                self.audio_player.currentTime = self.convert_time_to_seconds(self.audio_map[0][self.span_id]["clipBegin"])
                 self.play()
