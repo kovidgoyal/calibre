@@ -132,7 +132,7 @@
       <item>
        <widget class="QLabel" name="image_note_label">
         <property name="text">
-         <string>Note that images will not be preserved. For that, convert to TXTZ, with output format Markdown.</string>
+         <string>Note that images will not be preserved. For that, convert to TXTZ, with the Output format set to markdown.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
