@@ -22,6 +22,8 @@ try:
 except ImportError:
     from urllib import quote
 
+from calibre.scraper.simple import read_url
+from calibre.ptempfile import PersistentTemporaryFile
 
 needs_subscription = True
 
@@ -59,55 +61,59 @@ class WSJ(BasicNewsRecipe):
     needs_subscription = needs_subscription
     WSJ_ITP = 'https://www.wsj.com/print-edition/today'
 
+    storage = []
+
     extra_css = '''
-        .imageCaption{font-size:small; text-align:center;}
-        .sub-head{font-style:italic; color:#404040;}
-        .bylineWrap{font-size:small; text-align:left;}
+        #big-top-caption { font-size:small; text-align:center; }
+        [data-type:"tagline"] { font-style:italic; color:#202020; }
     '''
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and 'HeadlineContainer' in ''.join(x)}),
-        dict(name='main'),
+        dict(name=['h1', 'h2']),
+        dict(attrs={'aria-describedby':'big-top-caption'}),
+        dict(attrs={'id':'big-top-caption'}),
+        dict(name='article')
     ]
 
     remove_tags = [
-        classes(
-            'wsj-ad newsletter-inset media-object-video media-object-podcast print-header article-body-tools'
-            ' podcast--iframe dynamic-inset-overflow-button snippet-logo'),
-        dict(role=["toolbar", "complementary"]),
-        dict(attrs={"aria-label": ["Sponsored Offers", "What to Read Next", "breadcrumbs", "Listen To Article"]}),
-        dict(name='amp-iframe'),  # interactive graphics
+        dict(name=['button', 'svg', 'ufc-follow-author-widget']),
+        dict(attrs={'aria-label':['Sponsored Offers', 'Listen To Article', 'What to Read Next']}),
+        dict(attrs={'data-type':'inset'}),
+        dict(attrs={'id':lambda x: x and x.startswith(('wrapper-INLINE', 'audio-tag-inner-audio-'))})
     ]
 
-    def preprocess_html(self, soup):
-        for by in soup.findAll(**classes('bylineWrap')):
-            for p in by.findAll('p'):
-                p.name = 'span'
-        for img in soup.findAll('amp-img'):
-            img.name = 'img'
-            if img['src'] == 'https://s.wsj.net/img/meta/wsj-social-share.png':
-                img.extract()
-        h2 = soup.find('h2', attrs={'class':'sub-head'})
-        if h2:
-            h2.name = 'p'
-        return soup
-
-    def get_cover_url(self):
-        from datetime import date
-        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/us/wsj.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+    articles_are_obfuscated = True
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.set_handle_redirect(False)
         try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/us/np/wsj.html'
-            soup = self.index_to_soup(index)
-            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
-                if image['src'].startswith('/'):
-                    return 'https:' + image['src']
-                return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        raw = read_url(self.storage, 'https://archive.is/latest/' + url)
+        pt = PersistentTemporaryFile('.html')
+        pt.write(raw.encode('utf-8'))
+        pt.close()
+        return pt.name
+
+   def preprocess_html(self, soup):                     
+        for img in soup.findAll('img', attrs={'old-src':True}):
+            img['src'] = img['old-src']
+        for p in soup.findAll('div', attrs={'data-type':['paragraph', 'image']}):
+            p.name = 'p'
+        for a in soup.findAll('a', href=True):
+            a['href'] = 'http' + a['href'].split('http')[-1]
+        for fig in soup.findAll('figure'):
+            if fig.find('video'):
+                fig.extract()
+        for figc in soup.findAll('figcaption'):
+            figc['id'] = 'big-top-caption'
+        if name:= soup.find('h2', attrs={'itemprop':'name'}):
+                name.extract()
+        for h2 in soup.findAll('h2'):
+            if self.tag_to_string(h2).startswith('What to Read Next'):
+                h2.extract()
+        return soup
 
     # login {{{
 
@@ -212,10 +218,10 @@ class WSJ(BasicNewsRecipe):
 
     def abs_wsj_url(self, href, modify_query=True):
         if not href.startswith('http'):
-            href = 'https://www.wsj.com' + href.replace('/articles/', '/amp/articles/')
+            href = 'https://www.wsj.com' + href
         if modify_query:
-            href = href.replace('/articles/', '/amp/articles/')
-        return href
+            href = href
+        return href.split('?')[0]
 
     def wsj_find_articles(self, url, ahed=False):
         root = self.index_to_soup(url, as_tree=True)
@@ -240,30 +246,6 @@ class WSJ(BasicNewsRecipe):
             self.log('\t\t', desc + " " + url)
             if self.test and len(articles) >= self.test[1]:
                 break
-
-        return articles
-
-    def wsj_find_wn_articles(self, feeds, root, CSSSelect):
-        articles = []
-        for a in CSSSelect('.style--strap--ND8Cuaip'):
-            if 'WHAT\'S NEWS' in self.tag_to_string(a).upper():
-                whats_news = a.getparent()
-                break
-        else:
-            self.log.error('Failed to find Whats News section')
-            return
-        for li in CSSSelect('li', whats_news):
-            a = next(CSSSelect('a', li))
-            if '/articles/' not in a.get('href', ''):
-                continue
-            title = self.tag_to_string(a).strip()
-            url = self.abs_wsj_url(a.get('href'))
-            desc = self.tag_to_string(li)
-            articles.append({'title': title, 'url': url,
-                                'description': desc, 'date': ''})
-
-            self.log('\tFound WN article:', title)
-            self.log('\t\t', desc + " " + url)
 
         return articles
 
@@ -299,17 +281,12 @@ class WSJ(BasicNewsRecipe):
         feeds = []
         for container in root.xpath('descendant::*[contains(@class, "WSJTheme--top-menu-item--")]'):
             for a in container.xpath('descendant::a[contains(@class, "WSJTheme--section-link--")]'):
-                frontpage = a.get('href').endswith('frontpage')
                 title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
                 if not title:
                     continue
                 url = self.abs_wsj_url(a.get('href'), modify_query=False)
                 self.log('Found section:', title, 'at', url)
                 self.wsj_add_feed(feeds, title, url)
-                if frontpage:
-                    articles = self.wsj_find_wn_articles(feeds, root, CSSSelect)
-                    if articles:
-                        feeds.append(("What's News", articles))
                 if self.test and len(feeds) >= self.test[0]:
                     break
         return feeds
@@ -318,6 +295,6 @@ class WSJ(BasicNewsRecipe):
         return [
             ('Testing', [
                 {'title': 'Subscriber Article',
-                 'url': self.abs_wsj_url('https://www.wsj.com/articles/egg-prices-jump-as-bird-flu-hits-poultry-flocks-11648900800')},
+                 'url': self.abs_wsj_url('https://www.wsj.com/articles/remington-gun-call-of-duty-video-game-93059a66')},
             ]),
         ]
