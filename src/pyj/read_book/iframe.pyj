@@ -1020,22 +1020,22 @@ class IframeBoss:
         #     self.no_latency_onscroll()
 
     def color_span_id(self, old_span_id, span_id):
+        def element_in_viewport(element):
+            rect = element.getBoundingClientRect()
+            return (
+                rect.top >= 0 and
+                rect.left >= 0 and
+                rect.bottom <= (window.innerHeight or document.documentElement.clientHeight) and
+                rect.right <= (window.innerWidth or document.documentElement.clientWidth)
+            )
         element = document.getElementById(span_id)
         old_element = document.getElementById(old_span_id)
-
         if old_element:
             old_element.style.backgroundColor = ''
-
         if element:
             element.style.backgroundColor = window.getComputedStyle(document.documentElement, '::selection').backgroundColor
-            self.scroll_to_element_if_out_of_view(element)
-
-    def scroll_to_element_if_out_of_view(self, element):
-
-        rect = element.getBoundingClientRect()
-        if rect.top < 0 or rect.bottom > window.innerHeight:
-
-            element.scrollIntoView({"behavior": "smooth", "block": "start", "inline": "nearest"})
+            if not element_in_viewport(element):
+                scroll_to_elem(element)
 
     def hints_msg_received(self, data):
         if data.type is 'show':
