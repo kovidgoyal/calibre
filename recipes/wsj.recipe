@@ -10,7 +10,8 @@ from base64 import standard_b64encode
 from datetime import date, timedelta
 from mechanize import Request
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
 try:
@@ -22,10 +23,8 @@ try:
 except ImportError:
     from urllib import quote
 
-from calibre.scraper.simple import read_url
-from calibre.ptempfile import PersistentTemporaryFile
 
-needs_subscription = True
+needs_subscription = 'optional'
 
 
 def substring_classes(classes):
@@ -84,6 +83,7 @@ class WSJ(BasicNewsRecipe):
 
     articles_are_obfuscated = True
     def get_obfuscated_article(self, url):
+        from calibre.scraper.simple import read_url
         br = self.get_browser()
         br.set_handle_redirect(False)
         try:
@@ -96,7 +96,7 @@ class WSJ(BasicNewsRecipe):
         pt.close()
         return pt.name
 
-   def preprocess_html(self, soup):                     
+    def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'old-src':True}):
             img['src'] = img['old-src']
         for p in soup.findAll('div', attrs={'data-type':['paragraph', 'image']}):
@@ -124,7 +124,7 @@ class WSJ(BasicNewsRecipe):
         br.set_cookie('ccpaApplies', 'false', '.wsj.com')
         return br
 
-    if needs_subscription:
+    if False and needs_subscription:  # disabled as we currently use archive.is
         def get_browser(self, *a, **kw):
             from pprint import pprint
             pprint
