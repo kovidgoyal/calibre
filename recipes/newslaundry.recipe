@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class newslaundry(BasicNewsRecipe):
     title = 'Newslaundry'
@@ -32,5 +32,6 @@ class newslaundry(BasicNewsRecipe):
     #    return soup
 
     def print_version(self, url):
-        if 'hindi.newslaundry' in url: self.abort_article('Skipping hindi article') # remove this line if you want hindi articles.
+        if 'hindi.newslaundry' in url:
+            self.abort_article('Skipping hindi article') # remove this line if you want hindi articles.
         return url

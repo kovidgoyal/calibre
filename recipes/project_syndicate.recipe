@@ -1,4 +1,4 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.scraper.simple import read_url
 from calibre.ptempfile import PersistentTemporaryFile
 
@@ -41,7 +41,7 @@ class projectsynd(BasicNewsRecipe):
         dict(attrs={'itemprop':lambda x: x and 'associatedMedia' in x.split()}),
         dict(attrs={'itemprop':['headline', 'datePublished', 'author', 'abstract', 'articleBody']}),
     ]
-    
+
     remove_tags = [
         dict(name=['button', 'svg']),
         dict(attrs={'data-message-area':True}),
