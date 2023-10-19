@@ -64,7 +64,8 @@ class WSJ(BasicNewsRecipe):
 
     extra_css = '''
         #big-top-caption { font-size:small; text-align:center; }
-        [data-type:"tagline"] { font-style:italic; color:#202020; }
+        [data-type:"tagline"], em { font-style:italic; color:#202020; }
+        .auth { font-size:small; }
     '''
 
     keep_only_tags = [
@@ -113,6 +114,14 @@ class WSJ(BasicNewsRecipe):
         for h2 in soup.findAll('h2'):
             if self.tag_to_string(h2).startswith('What to Read Next'):
                 h2.extract()
+        for ph in soup.findAll('a', attrs={'data-type':['phrase', 'link']}):
+            if div := ph.findParent('div'):
+                div.name = 'span'
+        for auth in soup.findAll('a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}):
+            if div := auth.find_previous_sibling('div'):
+                div.name = 'span'
+            if parent := auth.findParent('div'):
+                parent['class'] = 'auth'
         return soup
 
     # login {{{
