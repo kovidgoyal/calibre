@@ -1077,6 +1077,7 @@ class View:
             'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
             'loading':True, 'spine_index': idx, 'selection': {'empty': True},
         }
+        self.show_loading()
         set_current_spine_item(name)
         if idx > -1:
             self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))

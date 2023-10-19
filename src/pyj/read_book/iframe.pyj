@@ -66,7 +66,7 @@ from read_book.touch import (
 from read_book.viewport import scroll_viewport
 from select import (
     first_visible_word, is_start_closer_to_point, move_end_of_selection,
-    selection_extents, word_at_point, span_at_point, first_visible_span
+    selection_extents, word_at_point, span_id_at_point, id_of_first_visible_span
 )
 from utils import debounce, is_ios
 
@@ -1002,16 +1002,15 @@ class IframeBoss:
         if select_tts_mark(occurrence_number):
             self.ensure_selection_boundary_visible()
 
-
     def audio_ebook_msg_received(self, data):
         if data.type is 'mark':
             self.color_span_id(data.old_span_id, data.span_id)
         elif data.type is 'play':
             if data.pos:
-                span_id = span_at_point(data.pos.x, data.pos.y)
+                span_id = span_id_at_point(data.pos.x, data.pos.y)
                 self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
             else:
-                span_id = first_visible_span()
+                span_id = id_of_first_visible_span()
                 self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
 
         elif data.type is 'trigger-shortcut':

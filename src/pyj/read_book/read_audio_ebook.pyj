@@ -149,7 +149,6 @@ class ReadAudioEbook:
 
     def parse_smil_file(self, smil_content, smil_name, mimetype):
         # Extract information from the parsed XML
-        # In content server viewer, the smil file is uploaded as blob
         smil_content.text().then(def(data): 
             xml_doc = self.parser.parseFromString(data, "text/xml")
             audio_map = {}
