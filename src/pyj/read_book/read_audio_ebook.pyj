@@ -27,7 +27,7 @@ from read_book.globals import runtime, ui_operations, current_spine_item, curren
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
-
+from modals import question_dialog
 
 
 class ReadAudioEbook:
@@ -189,8 +189,19 @@ class ReadAudioEbook:
             # self.send_message("play")
 
         else:
-            self.audio_player.src = ""
-            self.view.show_next_spine_item()
+            self.audio_player.setAttribute("src", "")
+            if self.state is "PLAYING":
+                if self.skip_section:
+                    self.view.show_next_spine_item()
+                else:
+                    self.pause()
+                    question_dialog(_('Skip Section'), _('Do you want to automatically skip sections without audio?'), def (yes):
+                        if yes:
+                            self.skip_section = True
+                            self.play()
+                        else:
+                            self.hide()
+                    )
 
     @property
     def container(self):
@@ -226,6 +237,7 @@ class ReadAudioEbook:
     def show(self):
         if self.state is "HIDDEN":
             self.state = "PLAYING"
+            change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
             self.change_audio_src()
             self.container.style.display = "block"
             self.focus()
@@ -242,16 +254,18 @@ class ReadAudioEbook:
         self.audio_player.playbackRate += 0.1
 
     def play(self):
-        if self.audio_player.src:
-            self.audio_player.play()
         self.state = "PLAYING" 
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
-
+        if self.audio_player.getAttribute("src"):
+            self.audio_player.play()
+        else:
+            self.view.show_next_spine_item()
+        
     def pause(self):
-        if self.audio_player.src:
-            self.audio_player.pause()
         self.state = "PAUSED"
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "play")
+        if self.audio_player.getAttribute("src"):
+            self.audio_player.pause()
 
     def toggle(self):
         if self.state is "PLAYING":
