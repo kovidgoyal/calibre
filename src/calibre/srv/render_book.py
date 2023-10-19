@@ -635,7 +635,7 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
     return name in changed
 
 
-__smil_file_names__ = None
+__smil_file_names__ = ''
 
 
 def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, data_for_clone, container=None):
