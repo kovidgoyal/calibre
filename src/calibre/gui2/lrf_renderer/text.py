@@ -401,7 +401,7 @@ class Line(QGraphicsItem):
         matches = self.__class__.whitespace.finditer(phrase)
         font = QFont(ts.font)
         if self.valign is not None:
-            font.setPixelSize(font.pixelSize()/1.5)
+            font.setPixelSize(int(font.pixelSize()/1.5))
         fm = QFontMetrics(font)
         single_space_width = fm.horizontalAdvance(' ')
         height, descent = fm.height(), fm.descent()
