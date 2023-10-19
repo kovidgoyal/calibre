@@ -635,13 +635,16 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
     return name in changed
 
 
+__smil_file_names__ = None
+
+
 def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, data_for_clone, container=None):
     if container is None:
         container = SimpleContainer(container_dir, opfpath, default_log, clone_data=data_for_clone)
         container.cloned = False
     link_to_map = {}
     html_data = {}
-    smil_map = {'__smil_file_names__': []}
+    smil_map = {__smil_file_names__: []}
     virtualized_names = set()
     for name in names:
         if name is None:
@@ -660,7 +663,7 @@ def process_book_files(names, container_dir, opfpath, virtualize_resources, link
         elif mt == 'image/svg+xml':
             transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names)
         elif mt in ('application/smil', 'application/smil+xml'):
-            smil_map['__smil_file_names__'].append(name)
+            smil_map[__smil_file_names__].append(name)
             transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map)
     return link_to_map, html_data, virtualized_names, smil_map
 
@@ -761,7 +764,7 @@ def process_exploded_book(
     final_smil_map = {}
 
     def merge_smil_map(smil_map):
-        for n in smil_map.pop('__smil_file_names__'):
+        for n in smil_map.pop(__smil_file_names__):
             excluded_names.add(n)
         for n, d in smil_map.items():
             if d:
