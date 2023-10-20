@@ -60,6 +60,67 @@ def insert_heading(editor_id, cmd):
     editor.focus()
 
 
+def insert_image():
+    acceptable_image_types = v'["image/png", "image/jpeg", "image/gif", "image/webp"]'
+    create_custom_dialog(_('Insert image'), def(parent, close_modal):
+        container = parent.closest('.modal_height_container')
+        max_container_height = container.style.maxHeight
+
+        def action(ok, evt):
+            close_modal()
+
+        def handle_files(files):
+            img = parent.getElementsByTagName('img')[0]
+            if img.src:
+                window.URL.revokeObjectURL(img.src)
+            img.src = ''
+            for f in files:
+                if acceptable_image_types.indexOf(f.type) > -1:
+                    h = parent.querySelector('.button-box').offsetHeight
+                    non_content_height = (container.offsetHeight - parent.offsetHeight) + 'px'
+                    img.style.maxHeight = f'calc({max_container_height} - {non_content_height} - {h}px - 1rem)'
+                    img.src = window.URL.createObjectURL(f)
+                    return
+            alert(_('No valid image file found'))
+
+        parent.appendChild(E.div(class_='moose',
+            ondragenter=def(e):
+                e.stopPropagation(), e.preventDefault()
+            ,
+            ondragover=def(e):
+                e.stopPropagation(), e.preventDefault()
+            ,
+            ondrop=def(e):
+                e.stopPropagation(), e.preventDefault()
+                handle_files(e.dataTransfer.files)
+            ,
+            E.div(
+                style='display: flex;',
+                E.div(
+                    style='min-width: 40%; max-width: 40%; margin-right: 0.5rem',
+                    E.img(style='max-width: 100%'),
+                ),
+                E.div(
+                    E.input(
+                        type='file', accept=','.join(acceptable_image_types),
+                        onchange=def(e): handle_files(e.target.files);, style='display: none'
+                    ),
+                    E.a(
+                        _('Select an image from your files'),
+                        class_='blue-link', href='javascript:void(0)', onclick=def ():
+                        parent.querySelector('input[type=file]').click()
+                    ), E.span(_(' or drag and drop an image onto this dialog.'))
+                ),
+            ),
+            E.div(class_='button-box',
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
+                  '\xa0',
+                  create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+            ),
+
+        ))
+    )
+
 def insert_link(title, msg, proceed):
     create_custom_dialog(title, def(parent, close_modal):
 
@@ -258,7 +319,10 @@ def all_editor_actions():  # {{{
                 'icon': 'image',
                 'title': _('Insert an image'),
                 'execute': def (editor, activated):
-                    insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
+                    if editor.insert_image_files:
+                        insert_image()
+                    else:
+                        insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
             },
             'fg': {
                 'icon': 'fg',
@@ -325,7 +389,12 @@ class CommentsEditorBoss:
         document.body.lastChild.innerHTML = data.html
 
     def get_html(self, data):
-        self.comm.send_message('html', html=document.body.lastChild.innerHTML)
+        c = document.body.lastChild
+        img_urls = v'[]'
+        for img in c.getElementByTagName('img'):
+            if img.src:
+                img_urls.push(img.src)
+        self.comm.send_message('html', html=c.innerHTML, extra_data={'img_urls': img_urls})
 
     def exec_command(self, data):
         document.execCommand(data.name, False, data.value)
@@ -406,7 +475,7 @@ class Editor:
     def on_html_received(self, data):
         if self.get_html_callbacks.length:
             for f in self.get_html_callbacks:
-                f(data.html)
+                f(data.html, data.img_urls)
             self.get_html_callbacks = v'[]'
 
     def exec_command(self, name, value=None):
@@ -452,8 +521,9 @@ def add_action(toolbar, ac_name, action, editor_id):
     toolbar.appendChild(b)
 
 
-def create_comments_editor(container):
+def create_comments_editor(container, options):
     iframe, editor = create_editor()
+    editor.insert_image_files = v'!!options.insert_image_files'
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbar2 = E.div(class_=TOOLBAR_CLASS)
