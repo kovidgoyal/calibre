@@ -144,8 +144,9 @@ def save(container_id):
     c = document.getElementById(container_id)
     if not c:
         return
-    get_comments_html(c, def(html):
+    get_comments_html(c, def(html, extra_data):
         print(html)
+        console.log(extra_data)
         print('TODO: Implement saving')
     )
 
@@ -171,7 +172,7 @@ def init_edit(container_id):
 
 def create_editor(container, html):
     c = container.appendChild(E.div(style='flex-grow:10'))
-    editor = create_comments_editor(c)
+    editor = create_comments_editor(c, {'insert_image_files': True})
     set_comments_html(c, html)
     focus_comments_editor(c)
     editor.init()
