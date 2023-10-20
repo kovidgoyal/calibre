@@ -1,5 +1,5 @@
-project(headless)
 cmake_minimum_required(VERSION 3.21)
+project(headless)
 set(CMAKE_AUTOMOC ON)
 find_package(Qt6Gui REQUIRED)
 add_library(headless MODULE main.cpp headless_backingstore.cpp headless_integration.cpp)

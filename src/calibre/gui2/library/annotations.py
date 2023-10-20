@@ -76,6 +76,42 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append('')
 
 
+class ChapterGroup:
+
+    def __init__(self, title='', level=0):
+        self.title = title
+        self.subgroups = {}
+        self.annotations = []
+        self.level = level
+
+    def add_annot(self, a):
+        titles = a.get('toc_family_titles', (_('Unknown chapter'),))
+        node = self
+        for title in titles:
+            node = node.group_for_title(title)
+        node.annotations.append(a)
+
+    def group_for_title(self, title):
+        ans = self.subgroups.get(title)
+        if ans is None:
+            ans = ChapterGroup(title, self.level+1)
+            self.subgroups[title] = ans
+        return ans
+
+    def render_as_text(self, lines, as_markdown, link_prefix):
+        if self.title:
+            lines.append('#' * self.level + ' ' + self.title)
+            lines.append('')
+        for hl in self.annotations:
+            atype = hl.get('type', 'highlight')
+            if atype == 'bookmark':
+                render_bookmark_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+            else:
+                render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+        for sg in self.subgroups.values():
+            sg.render_as_text(lines, as_markdown, link_prefix)
+
+
 url_prefixes = 'http', 'https'
 url_delimiters = (
     '\x00-\x09\x0b-\x20\x7f-\xa0\xad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u1680\u180e\u2000-\u200f\u2028-\u202f'
@@ -298,29 +334,17 @@ class Export(Dialog):  # {{{
         for a in self.annotations:
             bid_groups.setdefault(a['book_id'], []).append(a)
         for book_id, group in bid_groups.items():
-            chapter_groups = {}
-            def_chap = (_('Unknown chapter'),)
+            root = ChapterGroup(level=1)
             for a in group:
-                toc_titles = a.get('toc_family_titles', def_chap)
-                chapter_groups.setdefault(toc_titles[0], []).append(a)
+                root.add_annot(a)
+            if library_id:
+                link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
+            else:
+                link_prefix = None
 
-            lines.append('## ' + db.field_for('title', book_id))
+            lines.append('# ' + db.field_for('title', book_id))
             lines.append('')
-
-            for chapter, group in chapter_groups.items():
-                if len(chapter_groups) > 1:
-                    lines.append('### ' + chapter)
-                    lines.append('')
-                for a in group:
-                    atype = a['type']
-                    if library_id:
-                        link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
-                    else:
-                        link_prefix = None
-                    if atype == 'highlight':
-                        render_highlight_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
-                    elif atype == 'bookmark':
-                        render_bookmark_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+            root.render_as_text(lines, as_markdown, link_prefix)
             lines.append('')
         return '\n'.join(lines).strip()
 # }}}

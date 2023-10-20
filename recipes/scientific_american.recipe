@@ -53,7 +53,7 @@ class ScientificAmerican(BasicNewsRecipe):
     def get_browser(self, *args):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
-            br.open("https://www.scientificamerican.com/my-account/login/")
+            br.open("https://www.scientificamerican.com/account/login/")
             br.select_form(predicate=lambda f: f.attrs.get("id") == "login")
             br["emailAddress"] = self.username
             br["password"] = self.password

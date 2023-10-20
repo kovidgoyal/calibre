@@ -195,6 +195,7 @@ class DeviceManager(Thread):  # {{{
         self.keep_going     = True
         self.job_manager    = job_manager
         self.reported_errors = set()
+        self.shown_open_popups = set()
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
@@ -233,7 +234,8 @@ class DeviceManager(Thread):  # {{{
             opm = dev.get_open_popup_message()
             if opm is not None:
                 skip_key = f'do_not_show_device_open_popup_message_{dev.__class__.__name__}'
-                if not gprefs.get(skip_key, False):
+                if skip_key not in self.shown_open_popups and not gprefs.get(skip_key, False):
+                    self.shown_open_popups.add(skip_key)
                     self.open_feedback_msg(dev.get_gui_name(), convert_open_popup(opm, skip_key))
             try:
                 dev.reset(detected_device=detected_device,

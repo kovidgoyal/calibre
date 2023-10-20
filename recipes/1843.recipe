@@ -2,14 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class E1843(BasicNewsRecipe):
@@ -20,34 +13,41 @@ class E1843(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
 
     keep_only_tags = [
         dict(id='content')
     ]
     remove_tags = [
-        classes('advert ad ds-share-list article__wordmark related-articles newsletter-signup')
+        classes('advert ad ds-share-list article__wordmark related-articles newsletter-signup'),
+        dict(attrs={'data-test-id':'sharing-modal'}),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup('https://economist.com/1843')
         ans = []
+        main = soup.find(id='content')
 
-        for a in soup.findAll(**classes('headline-link')):
+        for h3 in main.find_all('h3'):
+            a = h3.find('a')
             url = a['href']
             if url.startswith('/'):
                 url = 'https://economist.com' + url
             title = self.tag_to_string(a)
             self.log(title, ' at ', url)
             desc = ''
-            d = a.parent.findNextSibling(itemprop='description')
+            d = a.parent.findNextSibling('p')
             if d is not None:
                 desc = self.tag_to_string(d)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
 
     def postprocess_html(self, soup, *a):
-        main = soup.find(id='content')
-        header = soup.find(**classes('article__header'))
-        header.extract()
-        main.insert(0, header)
+        a = soup.find('a', string='More from 1843 magazine')
+        if a is not None:
+            more = a.parent.parent
+            more.extract()
         return soup

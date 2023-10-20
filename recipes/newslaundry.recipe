@@ -1,0 +1,37 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class newslaundry(BasicNewsRecipe):
+    title = 'Newslaundry'
+    __author__ = 'unkn0wn'
+    description = (
+        'Newslaundry is a reader-supported, independent news media company. In an industry driven by corporate'
+        ' and government interests, we strongly believe in the need for an independent news model, and a free'
+        ' and accountable press.'
+    )
+    language = 'en_IN'
+    masthead_url = 'https://images.assettype.com/newslaundry/2020-01/d91cad07-9650-47e9-8bdc-9a6247354d95/Header_logo_NL__2_New.png'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    oldest_article = 7 # days
+    resolve_internal_links = True
+
+    ignore_duplicate_articles = {'url'}
+
+    # keep_only_tags = [classes('headline subheadline authorWithTimeStamp story-card')]
+
+    feeds = [
+        ('Articles', 'https://www.newslaundry.com/stories.rss?time-period=last-7-days')
+    ]
+
+    # def preprocess_html(self, soup):
+    #     if h1 := soup.find(**classes('headline')):
+    #        h1.name = 'h1'
+    #     if h3 := soup.find(**classes('subheadline')):
+    #        h3.name = 'h3'
+    #    return soup
+
+    def print_version(self, url):
+        if 'hindi.newslaundry' in url:
+            self.abort_article('Skipping hindi article') # remove this line if you want hindi articles.
+        return url

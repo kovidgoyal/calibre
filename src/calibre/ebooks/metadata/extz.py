@@ -23,17 +23,28 @@ def get_metadata(stream, extract_cover=True):
     try:
         with ZipFile(stream) as zf:
             opf_name = get_first_opf_name(zf)
-            opf_stream = io.BytesIO(zf.read(opf_name))
-            opf = OPF(opf_stream)
+            with zf.open(opf_name) as opf_stream:
+                opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
             if extract_cover:
-                cover_href = opf.raster_cover
+                cover_href = opf.raster_cover or opf.guide_raster_cover
                 if not cover_href:
                     for meta in opf.metadata.xpath('//*[local-name()="meta" and @name="cover"]'):
                         val = meta.get('content')
                         if val.rpartition('.')[2].lower() in {'jpeg', 'jpg', 'png'}:
                             cover_href = val
                             break
+                    else:
+                        for val in opf.guide_cover_path(opf.root):  # this is needed because the cover is not in the manifest
+                            if val.rpartition('.')[2].lower() in {'jpeg', 'jpg', 'png'}:
+                                cover_href = val
+                                break
+                        else:
+                            # txtz files use a special element for cover
+                            for cpath in opf.root.xpath('//cover-relpath-from-base'):
+                                if cpath.text:
+                                    cover_href = cpath.text
+                                    break
                 if cover_href:
                     try:
                         mi.cover_data = (os.path.splitext(cover_href)[1], zf.read(cover_href))

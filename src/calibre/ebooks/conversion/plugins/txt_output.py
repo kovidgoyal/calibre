@@ -127,6 +127,9 @@ class TXTZOutput(TXTOutput):
         from calibre.ebooks.oeb.base import OEB_IMAGES, xml2str
         from calibre.utils.zipfile import ZipFile
 
+        can_reference_images = opts.txt_output_formatting.lower() in ('markdown', 'textile')
+        can_reference_images = can_reference_images and opts.keep_image_references
+
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
             txt_name = 'index.txt'
@@ -137,6 +140,11 @@ class TXTZOutput(TXTOutput):
                 shutil.copy(tf, os.path.join(tdir, txt_name))
 
             # Images
+            try:
+                cover_href = oeb_book.guide[oeb_book.metadata.cover[0].term].href
+            except Exception:
+                cover_href = None
+            cover_relhref = None
             for item in oeb_book.manifest:
                 if item.media_type in OEB_IMAGES:
                     if hasattr(self.writer, 'images'):
@@ -148,10 +156,14 @@ class TXTZOutput(TXTOutput):
                     else:
                         path = os.path.join(tdir, os.path.dirname(item.href))
                         href = os.path.basename(item.href)
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-                    with open(os.path.join(path, href), 'wb') as imgf:
-                        imgf.write(item.data)
+                    ipath = os.path.join(path, href)
+                    is_cover = item.href == cover_href
+                    if can_reference_images or is_cover:
+                        os.makedirs(path, exist_ok=True)
+                        with open(ipath, 'wb') as imgf:
+                            imgf.write(item.data)
+                    if is_cover:
+                        cover_relhref = os.path.relpath(ipath, tdir).replace(os.sep, '/')
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
@@ -159,6 +171,10 @@ class TXTZOutput(TXTOutput):
                 elem = root.makeelement('text-formatting')
                 elem.text = opts.txt_output_formatting
                 root.append(elem)
+                if cover_relhref:
+                    elem = root.makeelement('cover-relpath-from-base')
+                    elem.text = cover_relhref
+                    root.append(elem)
                 mdataf.write(xml2str(root, pretty_print=True))
 
             txtz = ZipFile(output_path, 'w')

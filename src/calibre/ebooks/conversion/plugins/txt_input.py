@@ -126,21 +126,23 @@ class TXTInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
         from calibre.ebooks.chardet import detect
+        from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis
+        from calibre.ebooks.txt.processor import (
+            block_to_single_line, convert_basic, convert_markdown_with_metadata,
+            convert_textile, detect_formatting_type, detect_paragraph_type,
+            normalize_line_endings, preserve_spaces, remove_indents,
+            separate_hard_scene_breaks, separate_paragraphs_print_formatted,
+            separate_paragraphs_single_line,
+        )
         from calibre.utils.zipfile import ZipFile
-        from calibre.ebooks.txt.processor import (convert_basic,
-                convert_markdown_with_metadata, separate_paragraphs_single_line,
-                separate_paragraphs_print_formatted, preserve_spaces,
-                detect_paragraph_type, detect_formatting_type,
-                normalize_line_endings, convert_textile, remove_indents,
-                block_to_single_line, separate_hard_scene_breaks)
 
         self.log = log
         txt = b''
         log.debug('Reading text from file...')
         length = 0
         base_dir = self.output_dir = os.getcwd()
+        cover_path = None
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -171,6 +173,10 @@ class TXTInput(InputFormatPlugin):
                             options.formatting_type = txt_formatting
                             if txt_formatting != 'plain':
                                 options.paragraph_type = 'off'
+                    crelpath = root.find('cover-relpath-from-base')
+                    if crelpath is not None and crelpath.text:
+                        cover_path = os.path.abspath(crelpath.text)
+
             if options.formatting_type == 'auto':
                 if file_ext == 'textile':
                     options.formatting_type = txt_formatting
@@ -250,6 +256,7 @@ class TXTInput(InputFormatPlugin):
             txt = block_to_single_line(txt)
         elif options.paragraph_type == 'unformatted':
             from calibre.ebooks.conversion.utils import HeuristicProcessor
+
             # unwrap lines based on punctuation
             docanalysis = DocAnalysis('txt', txt)
             length = docanalysis.line_length(.5)
@@ -318,9 +325,17 @@ class TXTInput(InputFormatPlugin):
         if input_mi is None:
             from calibre.customize.ui import get_file_type_metadata
             input_mi = get_file_type_metadata(stream, file_ext)
+        from calibre import guess_type
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         meta_info_to_oeb_metadata(input_mi, oeb.metadata, log)
         self.html_postprocess_title = input_mi.title
+        if cover_path and os.path.exists(cover_path):
+            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
+                cdata = cf.read()
+            cover_name = os.path.basename(cover_path)
+            id, href = oeb.manifest.generate('cover', cover_name)
+            oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
+            oeb.guide.add('cover', 'Cover', href)
 
         return oeb
 

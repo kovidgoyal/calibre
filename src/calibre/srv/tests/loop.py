@@ -214,6 +214,7 @@ class LoopTest(BaseTest):
         os.closerange(3, 4)  # Ensure the socket gets fileno == 3
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         s.bind(('localhost', 0))
+        s.listen()  # pre-activated sockets are already listening
         port = s.getsockname()[1]
         self.ae(s.fileno(), 3)
         os.environ['LISTEN_PID'] = str(os.getpid())

@@ -137,6 +137,8 @@ View an e-book.
     ))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading the last opened book'))
+    a('--new-instance', default=False, action='store_true', help=_(
+        'Open a new viewer window even when the option to use only a single viewer window is set'))
 
     setup_gui_option_parser(parser)
     return parser
@@ -204,7 +206,7 @@ def main(args=sys.argv):
             oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:') or oat.startswith('search:') or oat.startswith('regex:')):
         raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
-    if get_session_pref('singleinstance', False):
+    if not opts.new_instance and get_session_pref('singleinstance', False):
         from calibre.gui2.listener import Listener
         from calibre.utils.lock import SingleInstance
         with SingleInstance(singleinstance_name) as si:

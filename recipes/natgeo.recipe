@@ -33,10 +33,10 @@ def parse_contributors(grp):
 
 def parse_lead_image(media):
     if 'dsc' in media['image']:
-        yield '<div><img src="{}" alt="{}"></div>'.format(
+        yield '<p><div><img src="{}" alt="{}"></div>'.format(
             escape(media['image']['src'], True), escape(media['image']['dsc'], True))
     else:
-        yield '<div><img src="{}"></div>'.format(escape(media['image']['src'], True))
+        yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
     if 'caption' in media:
         yield '<div class="cap">' + media['caption'] + '</div>'
     if 'credit' in media:
@@ -122,9 +122,11 @@ class NatGeo(BasicNewsRecipe):
     remove_attributes = ['style']
     remove_javascript = False
     masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
+    remove_empty_feeds = True
+    resolve_internal_links = True
 
     extra_css = '''
-        .sub { color:#404040; }
+        .sub, blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap {text-align:center; font-size:small; }
         .cred {text-align:center; font-size:small; color:#404040; }

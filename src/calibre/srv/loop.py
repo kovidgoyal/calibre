@@ -411,6 +411,7 @@ class ServerLoop:
             self.ssl_context.set_servername_callback(self.on_ssl_servername)
 
         self.pre_activated_socket = None
+        self.socket_was_preactivated = False
         if self.opts.allow_socket_preallocation:
             from calibre.srv.pre_activated import pre_activated_socket
             self.pre_activated_socket = pre_activated_socket()
@@ -487,6 +488,7 @@ class ServerLoop:
 
     def initialize_socket(self):
         if self.pre_activated_socket is None:
+            self.socket_was_preactivated = False
             try:
                 self.do_bind()
             except OSError as err:
@@ -501,12 +503,14 @@ class ServerLoop:
                 self.do_bind()
         else:
             self.socket = self.pre_activated_socket
+            self.socket_was_preactivated = True
             self.pre_activated_socket = None
             self.setup_socket()
 
     def serve(self):
         self.connection_map = {}
-        self.socket.listen(min(socket.SOMAXCONN, 128))
+        if not self.socket_was_preactivated:
+            self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(str, ba))

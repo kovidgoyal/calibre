@@ -1489,6 +1489,8 @@ def epub_to_azw3(epub, outpath=None):
                     guide.append(guide.makeelement(OPF('reference'), type='cover', href=href))
                     changed = True
             break
+        elif 'calibre:title-page' in p:
+            item.getparent().remove(item)
     if changed:
         container.dirty(container.opf_name)
         container.commit_item(container.opf_name)

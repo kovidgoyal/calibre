@@ -54,13 +54,14 @@ RE_NS        = 'http://exslt.org/regular-expressions'
 MBP_NS       = 'http://www.mobipocket.com'
 EPUB_NS      = 'http://www.idpf.org/2007/ops'
 MATHML_NS    = 'http://www.w3.org/1998/Math/MathML'
+SMIL_NS      = 'http://www.w3.org/ns/SMIL'
 
 XPNSMAP      = {
-        'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS, 'd09': DC09_NS,
-        'd10': DC10_NS, 'd11': DC11_NS, 'xsi': XSI_NS, 'dt': DCTERMS_NS,
-        'ncx': NCX_NS, 'svg': SVG_NS, 'xl': XLINK_NS, 're': RE_NS,
-        'mathml': MATHML_NS, 'mbp': MBP_NS, 'calibre': CALIBRE_NS,
-        'epub':EPUB_NS
+    'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS, 'd09': DC09_NS,
+    'd10': DC10_NS, 'd11': DC11_NS, 'xsi': XSI_NS, 'dt': DCTERMS_NS,
+    'ncx': NCX_NS, 'svg': SVG_NS, 'xl': XLINK_NS, 're': RE_NS,
+    'mathml': MATHML_NS, 'mbp': MBP_NS, 'calibre': CALIBRE_NS,
+    'epub':EPUB_NS, 'smil': SMIL_NS,
 }
 
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
@@ -98,6 +99,14 @@ def SVG(name):
 
 def XLINK(name):
     return f'{{{XLINK_NS}}}{name}'
+
+
+def SMIL(name):
+    return f'{{{SMIL_NS}}}{name}'
+
+
+def EPUB(name):
+    return f'{{{EPUB_NS}}}{name}'
 
 
 def CALIBRE(name):

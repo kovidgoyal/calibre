@@ -115,7 +115,7 @@ def fit_images():
     img_tags = document.getElementsByTagName('img')
     bounding_rects = v'[]'
     for img_tag in img_tags:
-        bounding_rects.push(img_tag.getBoundingClientRect())
+        bounding_rects.push(get_bounding_client_rect(img_tag))
     maxb = screen_block
     for i in range(img_tags.length):
         img = img_tags[i]
@@ -331,9 +331,9 @@ def layout(is_single_page, on_resize):
         if not is_full_screen_layout:
             has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2*screen_inline + 10)
             if has_no_more_than_two_columns and single_screen:
-                if only_img and imgs.length and imgs[0].getBoundingClientRect().left < screen_inline:
+                if only_img and imgs.length and get_bounding_client_rect(imgs[0]).left < screen_inline:
                     is_full_screen_layout = True
-                if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < screen_inline:
+                if has_svg and svgs.length == 1 and get_bounding_client_rect(svgs[0]).left < screen_inline:
                     is_full_screen_layout = True
         if is_full_screen_layout and only_img and cols_per_screen > 1:
             cols_per_screen = 1
@@ -533,7 +533,7 @@ def scroll_to_elem(elem):
         # mode, this position can be inaccurate, see
         # https://bugs.launchpad.net/calibre/+bug/1132641 for a test case.
         # The usual symptom of the inaccuracy is br.top is highly negative.
-        br = elem.getBoundingClientRect()
+        br = get_bounding_client_rect(elem)
         if br.top < -100:
             # This only works because of the preceding call to
             # elem.scrollIntoView(). However, in some cases it gives
@@ -848,16 +848,14 @@ def handle_gesture(gesture):
         scroll_by_page(False, False)
 
 
-def get_bounding_client_rect_using_offset_properties(elem):
-    ans = {'left': 0, 'top': 0, 'width': elem.offsetWidth, 'height': elem.offsetHeight, 'x': 0, 'y': 0}
-    while elem:
-        ans.left += elem.offsetLeft
-        ans.top += elem.offsetTop
-        elem = elem.offsetParent
-    ans.left -= window.scrollX
-    ans.top -= window.scrollTop
-    ans.x, ans.y = ans.left, ans.top
-    return ans
+def get_bounding_client_rect(elem):
+    br = elem.getBoundingClientRect()
+    if br.width is 0 and br.height is 0:
+        # getBoundingClientRect() fails sometimes, see https://bugs.launchpad.net/calibre/+bug/2037543
+        r = document.createRange()
+        r.selectNodeContents(elem)
+        br = r.getBoundingClientRect()
+    return br
 
 
 anchor_funcs = {
@@ -865,10 +863,7 @@ anchor_funcs = {
         if not elem:
             return 0
         elem = scrollable_element(elem)
-        br = elem.getBoundingClientRect()
-        if br.left is 0 and br.top is 0 and br.width is 0 and br.height is 0:
-            # getBoundingClientRect() fails sometimes, see https://bugs.launchpad.net/calibre/+bug/2037543
-            br = get_bounding_client_rect_using_offset_properties(elem)
+        br = get_bounding_client_rect(elem)
         pos = scroll_viewport.viewport_to_document_inline(
             scroll_viewport.rect_inline_start(br))
         return column_at(pos)

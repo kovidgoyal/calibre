@@ -146,8 +146,23 @@ def category_display_order(ordered_cats, all_cats):
 numeric_collation = prefs['numeric_collation']
 
 
-def sort_key_for_name_and_first_letter(x):
+def sort_key_for_popularity(x, hierarchical_categories=None):
+    return (-getattr(x, 'count', 0), sort_key(x.sort or x.name))
+
+
+def sort_key_for_rating(x, hierarchical_categories=None):
+    return (-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
+
+
+# When sorting by name, treat the period in hierarchical categories as a tab so
+# that the value sorts above similarly-named items. Example: "foo.bar" should
+# sort above "foo a.bar". Without this substitution "foo.bar" sorts below "foo
+# a.bar" because '.' sorts higher than space.
+
+def sort_key_for_name_and_first_letter(x, hierarchical_categories=()):
     v1 = icu_upper(x.sort or x.name)
+    if x.category in hierarchical_categories:
+        v1 = v1.replace('.', '\t')
     v2 = v1 or ' '
     # The idea is that '9999999999' is larger than any digit so all digits
     # will sort in front. Non-digits will sort according to their ICU first letter
@@ -155,19 +170,21 @@ def sort_key_for_name_and_first_letter(x):
     return (c if numeric_collation and c.isdigit() else '9999999999',
             collation_order(v2), sort_key(v1))
 
+def sort_key_for_name(x, hierarchical_categories=()):
+    v = x.sort or x.name
+    if x.category not in hierarchical_categories:
+        return sort_key(v)
+    return sort_key(v.replace('.', '\t'))
+
 
 category_sort_keys = {True:{}, False: {}}
-category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = \
-    lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
-category_sort_keys[True]['rating'] = category_sort_keys[False]['rating'] = \
-    lambda x:(-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
-category_sort_keys[True]['name'] = \
-    sort_key_for_name_and_first_letter
-category_sort_keys[False]['name'] = \
-    lambda x:sort_key(x.sort or x.name)
+category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = sort_key_for_popularity
+category_sort_keys[True]['rating'] = category_sort_keys[False]['rating'] = sort_key_for_rating
+category_sort_keys[True]['name'] = sort_key_for_name_and_first_letter
+category_sort_keys[False]['name'] = sort_key_for_name
 
 
-# Various parts of calibre depend on the the order of fields in the returned
+# Various parts of calibre depend on the order of fields in the returned
 # dict being in the default display order: standard fields, custom in alpha order,
 # user categories, then saved searches. This works because the backend adds
 # custom columns to field metadata in the right order.
@@ -175,6 +192,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
     if sort not in CATEGORY_SORTS:
         raise ValueError('sort ' + sort + ' not a valid value')
 
+    hierarchical_categories = frozenset(dbcache.pref('categories_using_hierarchy', ()))
     fm = dbcache.field_metadata
     book_rating_map = dbcache.fields['rating'].book_value_map
     lang_map = dbcache.fields['languages'].book_value_map
@@ -217,7 +235,9 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        cats.sort(key=category_sort_keys[first_letter_sort][sort_on], reverse=reverse)
+        cats.sort(key=partial(category_sort_keys[first_letter_sort][sort_on],
+                              hierarchical_categories=hierarchical_categories),
+                  reverse=reverse)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
@@ -295,7 +315,8 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            items.sort(key=category_sort_keys[False][sort])
+            items.sort(key=partial(category_sort_keys[False][sort],
+                                   hierarchical_categories=hierarchical_categories))
             categories[cat_name] = items
 
     # ### Finally, the saved searches category ####
