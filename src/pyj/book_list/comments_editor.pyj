@@ -74,16 +74,18 @@ def insert_image():
             if img.src:
                 window.URL.revokeObjectURL(img.src)
             img.src = ''
+            img.parentElement.style.display = 'none'
             for f in files:
                 if acceptable_image_types.indexOf(f.type) > -1:
                     h = parent.querySelector('.button-box').offsetHeight
+                    img.parentElement.style.display = 'block'
                     non_content_height = (container.offsetHeight - parent.offsetHeight) + 'px'
                     img.style.maxHeight = f'calc({max_container_height} - {non_content_height} - {h}px - 1rem)'
                     img.src = window.URL.createObjectURL(f)
                     return
             alert(_('No valid image file found'))
 
-        parent.appendChild(E.div(class_='moose',
+        parent.appendChild(E.div(
             ondragenter=def(e):
                 e.stopPropagation(), e.preventDefault()
             ,
@@ -97,7 +99,7 @@ def insert_image():
             E.div(
                 style='display: flex;',
                 E.div(
-                    style='min-width: 40%; max-width: 40%; margin-right: 0.5rem',
+                    style='display: none; min-width: 40%; max-width: 40%; margin-right: 0.5rem',
                     E.img(style='max-width: 100%'),
                 ),
                 E.div(
@@ -109,7 +111,7 @@ def insert_image():
                         _('Select an image from your files'),
                         class_='blue-link', href='javascript:void(0)', onclick=def ():
                         parent.querySelector('input[type=file]').click()
-                    ), E.span(_(' or drag and drop an image onto this dialog.'))
+                    ), E.span(_(' or drag and drop an image here.'))
                 ),
             ),
             E.div(class_='button-box',
