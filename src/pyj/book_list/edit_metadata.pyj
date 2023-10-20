@@ -187,7 +187,9 @@ def text_edit(container_id, book_id, field, fm, div, mi, get_name):
 
 
 def html_edit_get_value(container, proceed):
-    get_comments_html(container, proceed)
+    get_comments_html(container, def (html, data):
+        proceed(html)
+    )
 
 
 def html_edit(container_id, book_id, field, fm, div, mi):
