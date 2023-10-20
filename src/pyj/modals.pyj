@@ -44,7 +44,7 @@ class ModalContainer:
         div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
                 E.div(),  # content area
-                E.a(svgicon('close'), title=_('Close'))
+                E.a(svgicon('close'), title=_('Close'), onclick=self.close_current_modal.bind(self))
             )
         )
         div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
@@ -73,8 +73,6 @@ class ModalContainer:
             background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
             border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black'
         )
-        div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_current_modal(event);)
-
         # Content container style
         # need padding: 1px to avoid scrollbar in modal on Qt WebEngine 6.3
         set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto', padding='1px')
