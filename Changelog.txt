@@ -23,6 +23,48 @@
 # - title by author
 # }}}
 
+{{{ 6.29.0 2023-10-20
+
+:: new features
+
+- [2038760] E-book viewer: Add a command line flag --new-instance to force the viewer to open a new window even if the option to always use a single viewer window is set
+
+- [2038862] E-book viewer: Image popup: Add a checkbox to remember the last used zoom level
+
+:: bug fixes
+
+- [2039336] Annotations browser: Fix exporting highlights in markdown not including all chapter titles for books with only a single highlight per chapter or a multi level ToC
+
+- [2038747] E-book viewer: Fix a regression that could cause the viewer to enter an infinite loop when displaying the result of a search that has only one match that is not found
+
+- [2038747] E-book viewer: Fix the occasional search result being marked as not found even though it is found
+
+- [2039474] TXTZ Output plugin: Only keep images if the text format is one that can reference images
+
+- [2038848] TXTZ Output: Fix cover not being properly identified in the generated TXTZ metadata
+
+- [2038575] FB2 Input: Fix the "Annotations" section not showing up in the Table of Contents
+
+- [2039395] Linux: Content server: Do not call listen on pre-activated sockets
+
+- Fix sort order of similarly-named hierarchical categories
+
+- [2038778] Fix a regression that broke reading of covers from HTMLZ and TXTZ files
+
+:: improved recipes
+- Wall Street Journal
+- Scientific American
+- 1843
+- Financial Times
+- Spectator Magazine
+- El Diplo
+- Wasshington Post
+- national Geographic
+
+:: new recipes
+- Project Syndicate, Scroll.in and Newslaundry by unkn0wn
+}}}
+
 {{{ 6.28.1 2023-10-07
 
 :: new features
