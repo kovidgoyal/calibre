@@ -108,11 +108,6 @@ class ReadAudioEbook:
 
         self.audio_player = document.getElementById(self.audio_id) 
 
-        self.audio_player.addEventListener("play", def():
-            self.audio_map = self.audio_maps[current_spine_item()]
-            self.send_message("mark", span_id = self.span_id)
-        )
-
         self.audio_player.addEventListener("timeupdate", def():
             if self.state != "HIDDEN":
                 if self.audio_player.duration:
@@ -139,11 +134,12 @@ class ReadAudioEbook:
         )  
 
         self.progress_bar.addEventListener("click", def(event):
-            rect = self.progress_bar.getBoundingClientRect()
-            clickX = event.clientX - rect.left
-            total_width = rect.width
-            skip_time = (clickX / total_width) * self.audio_player.duration
-            self.audio_player.currentTime = skip_time
+            if self.audio_player.duration:
+                rect = self.progress_bar.getBoundingClientRect()
+                clickX = event.clientX - rect.left
+                total_width = rect.width
+                skip_time = (clickX / total_width) * self.audio_player.duration
+                self.audio_player.currentTime = skip_time
         )
 
 
@@ -172,24 +168,23 @@ class ReadAudioEbook:
         )
 
     def change_audio_src(self):
+        window.URL.revokeObjectURL(self.audio_player.src)
+        self.audio_player.setAttribute("src", "")
         if self.audio_maps[current_spine_item()]:
             self.audio_map = self.audio_maps[current_spine_item()]
             link = self.audio_files[0].split("/")[0] + self.audio_maps[current_spine_item()][1][2:]
-
             ui_operations.get_file(
                 current_book(), link, def(blob, name, mimetype):
+                    self.pause()
                     blob_url = window.URL.createObjectURL(blob)
                     self.audio_player.src = blob_url
-                    self.pause()
                     self.send_message("play")
             )
-
             # self.pause()
             # self.audio_player.src = "book/" + link
             # self.send_message("play")
 
         else:
-            self.audio_player.setAttribute("src", "")
             if self.state is "PLAYING":
                 if self.skip_section:
                     self.view.show_next_spine_item()
