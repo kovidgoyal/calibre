@@ -1207,7 +1207,7 @@ class BasicNewsRecipe(Recipe):
             data = x['data']
             if isinstance(data, str):
                 data = data.encode(self.encoding or 'utf-8')
-            url = data.get('url', url)
+            url = x.get('url', url)
         else:
             with open(x, 'rb') as of:
                 data = of.read()
