@@ -9,6 +9,7 @@ from range_utils import (
     all_annots_in_selection, highlight_associated_with_selection, last_span_for_crw,
     reset_highlight_counter, select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
+from read_book.anchor_visibility import invalidate_anchor_position_cache
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -402,6 +403,7 @@ class IframeBoss:
                 if cfi:
                     self.jump_to_cfi('/' + cfi)
             self.update_cfi()
+        invalidate_anchor_position_cache()
         self.update_toc_position(True)
 
     def number_of_columns_changed(self, data):
@@ -435,6 +437,7 @@ class IframeBoss:
             self.apply_highlights_on_load(self.highlights_to_apply)
             self.highlights_to_apply = None
         apply_settings()
+        invalidate_anchor_position_cache()
         fix_fullscreen_svg_images()
         self.do_layout(self.is_titlepage)
         if self.mathjax:
@@ -549,7 +552,7 @@ class IframeBoss:
                         'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
 
     def update_toc_position(self, recalculate_toc_anchor_positions):
-        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs, bool(recalculate_toc_anchor_positions))
+        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, bool(recalculate_toc_anchor_positions))
         self.send_message('update_toc_position', visible_anchors=visible_anchors)
 
     def onscroll(self):
@@ -815,7 +818,7 @@ class IframeBoss:
         sel = window.getSelection()
         if not sel.rangeCount:
             return
-        anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
+        anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map)
         text = sel.toString()
         bounds = cfi_for_selection()
         style = highlight_style_as_css(style, opts.is_dark_theme, opts.color_scheme.foreground)

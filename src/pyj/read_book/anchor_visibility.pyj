@@ -1,0 +1,40 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.globals import current_layout_mode, get_boss
+from read_book.viewport import scroll_viewport
+
+anchor_position_cache = {}
+
+def invalidate_anchor_position_cache():
+    nonlocal anchor_position_cache
+    anchor_position_cache = {
+        'layout_mode': current_layout_mode(), 'width': scroll_viewport.width(), 'height': scroll_viewport.height(),
+        'positions': v'{}',
+    }
+
+
+def ensure_anchor_cache_valid():
+    a = anchor_position_cache
+    if a.layout_mode is not current_layout_mode() or a.width is not scroll_viewport.width() or a.height is not scroll_viewport.height():
+        invalidate_anchor_position_cache()
+
+
+def position_for_anchor(anchor):
+    ensure_anchor_cache_valid()
+    cache = anchor_position_cache.positions
+    val = cache[anchor]
+    if val?:
+        return val
+    anchor_funcs = get_boss().anchor_funcs
+    elem = document.getElementById(anchor)
+    val = anchor_funcs.pos_for_elem(elem) if elem else anchor_funcs.pos_for_elem()
+    cache[anchor] = val
+    return val
+
+
+def is_anchor_on_screen(anchor):
+    pos = position_for_anchor(anchor)
+    anchor_funcs = get_boss().anchor_funcs
+    return anchor_funcs.visibility(pos) is 0

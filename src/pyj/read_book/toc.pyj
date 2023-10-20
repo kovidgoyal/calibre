@@ -2,14 +2,19 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from complete import create_search_bar
-from dom import set_css, svgicon, ensure_id
 from elementmaker import E
+
+from complete import create_search_bar
+from dom import ensure_id, set_css, svgicon
 from gettext import gettext as _
 from modals import error_dialog
-from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
-from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book
+from read_book.anchor_visibility import position_for_anchor
+from read_book.globals import (
+    current_book, current_layout_mode, current_spine_item, get_boss, set_toc_anchor_map,
+    toc_anchor_map
+)
 from read_book.viewport import scroll_viewport
+from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
 
 
 def update_visible_toc_nodes(visible_anchors):
@@ -198,20 +203,16 @@ def create_toc_panel(book, container, onclick):
     toc_panel.style.flexShrink = '1'
     toc_panel.style.overflow = 'auto'
 
-def recalculate_toc_anchor_positions(tam, anchor_funcs):
+def recalculate_toc_anchor_positions(tam):
     name = current_spine_item().name
     am = {}
     anchors = v'[]'
     pos_map = {}
     for i, anchor in enumerate(tam[name] or v'[]'):
-        val = anchor_funcs.pos_for_elem()
-        if anchor.frag:
-            elem = document.getElementById(anchor.frag)
-            if elem:
-                val = anchor_funcs.pos_for_elem(elem)
-        am[anchor.id] = val
+        am[anchor.id] = position_for_anchor(anchor.frag)
         anchors.push(anchor.id)
         pos_map[anchor.id] = i
+    anchor_funcs = get_boss().anchor_funcs
     # stable sort by position in document
     anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
@@ -220,20 +221,21 @@ def recalculate_toc_anchor_positions(tam, anchor_funcs):
     return current_map
 
 
-def current_toc_anchor_map(tam, anchor_funcs):
+def current_toc_anchor_map(tam):
     current_map = toc_anchor_map()
     if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
-        current_map = recalculate_toc_anchor_positions(tam, anchor_funcs)
+        current_map = recalculate_toc_anchor_positions(tam)
     return current_map
 
 
-def update_visible_toc_anchors(toc_anchor_map, anchor_funcs, recalculate):
+def update_visible_toc_anchors(toc_anchor_map, recalculate):
     if recalculate:
-        recalculate_toc_anchor_positions(toc_anchor_map, anchor_funcs)
-    tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
+        recalculate_toc_anchor_positions(toc_anchor_map)
+    tam = current_toc_anchor_map(toc_anchor_map)
     before = after = None
     visible_anchors = {}
     has_visible = False
+    anchor_funcs = get_boss().anchor_funcs
 
     for anchor_id in tam.sorted_anchors:
         pos = tam.pos_map[anchor_id]
@@ -250,10 +252,10 @@ def update_visible_toc_anchors(toc_anchor_map, anchor_funcs, recalculate):
     return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
 
 
-def find_anchor_before_range(r, toc_anchor_map, anchor_funcs):
+def find_anchor_before_range(r, toc_anchor_map):
     name = current_spine_item().name
     prev_anchor = None
-    tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
+    tam = current_toc_anchor_map(toc_anchor_map)
     anchors = toc_anchor_map[name]
     if anchors:
         amap = {x.id: x for x in anchors}
