@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from book_list.theme import color_scheme, get_color, get_color_as_rgba
-from dom import add_extra_css, build_rule, clear, svgicon
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from gettext import gettext as _
 from iframe_comm import IframeClient, create_wrapped_iframe
 from modals import create_custom_dialog
@@ -62,14 +62,37 @@ def insert_heading(editor_id, cmd):
 
 def insert_image():
     acceptable_image_types = v'["image/png", "image/jpeg", "image/gif", "image/webp"]'
-    create_custom_dialog(_('Insert image'), def(parent, close_modal):
+    parent_id = ''
+    accepted = False
+
+    def on_close(evt):
+        parent = document.getElementById(parent_id)
+        if parent:
+            img = parent.querySelector('img')
+            if img:
+                if accepted:
+                    pass
+                else:
+                    if img.src:
+                        window.URL.revokeObjectURL(img.src)
+
+    def dialog(parent, close_modal):
+        nonlocal parent_id
+        parent_id = ensure_id(parent)
         container = parent.closest('.modal_height_container')
         max_container_height = container.style.maxHeight
 
         def action(ok, evt):
+            nonlocal accepted
+            img = parent.getElementsByTagName('img')[0]
+            if ok and not img.src:
+                parent.querySelector('.no-image-selected').style.display = 'inline'
+                return
+            accepted = ok
             close_modal()
 
         def handle_files(files):
+            parent.querySelector('.no-image-selected').style.display = 'none'
             img = parent.getElementsByTagName('img')[0]
             if img.src:
                 window.URL.revokeObjectURL(img.src)
@@ -111,7 +134,9 @@ def insert_image():
                         _('Select an image from your files'),
                         class_='blue-link', href='javascript:void(0)', onclick=def ():
                         parent.querySelector('input[type=file]').click()
-                    ), E.span(_(' or drag and drop an image here.'))
+                    ), E.span(_(' or drag and drop an image here.')),
+                    E.br(),
+                    E.span(_('No image selected!'), class_='no-image-selected', style='color:red; display:none'),
                 ),
             ),
             E.div(class_='button-box',
@@ -121,7 +146,8 @@ def insert_image():
             ),
 
         ))
-    )
+    create_custom_dialog(_('Insert image'), dialog, on_close=on_close)
+
 
 def insert_link(title, msg, proceed):
     create_custom_dialog(title, def(parent, close_modal):
