@@ -176,7 +176,7 @@ class ImageView(QDialog):
         i.setToolTip(_('Fit image inside the available space'))
         i.setChecked(bool(self.prefs.get('image_popup_fit_image')))
         i.stateChanged.connect(self.fit_changed)
-        self.remember_zoom = z = QCheckBox(_('&Remember zoom'))
+        self.remember_zoom = z = QCheckBox(_('Remember &zoom'))
         z.setChecked(not i.isChecked() and bool(self.prefs.get('image_popup_remember_zoom', False)))
         z.stateChanged.connect(self.remember_zoom_changed)
         h.addWidget(i), h.addWidget(z), h.addStretch(), h.addWidget(bb)
