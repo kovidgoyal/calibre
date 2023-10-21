@@ -213,6 +213,13 @@ def cleanup_qt_markup(root):
                 if ts:
                     remove_margins(li, ts)
                     remove_zero_indents(ts)
+    for img in root.xpath('//img[@style]'):
+        s = style_map.get(img)
+        if s:
+            if s == {'float': 'left'}:
+                s['margin-right'] = '0.5em'
+            elif s == {'float': 'right'}:
+                s['margin-left'] = '0.5em'
     for style in itervalues(style_map):
         filter_qt_styles(style)
         fw = style.get('font-weight')
