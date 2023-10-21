@@ -443,17 +443,24 @@ class CommentsEditorBoss:
 
 registry = {}
 
-def add_editor(editor):
+def destroy_removed_editors():
     for k in Object.keys(registry):
         if not document.getElementById(k):
             registry[k].destroy()
             v'delete registry[k]'
+
+def add_editor(editor):
+    destroy_removed_editors()
     registry[editor.id] = editor
+
+
+def destroy_editor(container):
+    v'delete registry[container.querySelector("iframe").id]'
 
 
 class Editor:
 
-    def __init__(self, iframe_kw):
+    def __init__(self, iframe_kw, insert_image_files):
         handlers = {
             'ready': self.on_iframe_ready,
             'html': self.on_html_received,
@@ -467,6 +474,7 @@ class Editor:
         self.pending_get_html = v'[]'
         self.get_html_callbacks = v'[]'
         self.iframe_obj = iframe
+        self.insert_image_files = v'!!insert_image_files'
 
     def init(self):
         self.iframe_wrapper.init()
@@ -494,7 +502,7 @@ class Editor:
             self.pending_set_html = None
         if self.pending_get_html.length > 0:
             for x in self.pending_get_html:
-                self.get_html(x.proceed, x.extract_images)
+                self.get_html(x)
 
     def set_html(self, html):
         if not self.ready:
@@ -503,12 +511,12 @@ class Editor:
         rgba = get_color_as_rgba('window-foreground')
         self.iframe_wrapper.send_message('set_html', html=html, color_scheme=color_scheme(), color=f'rgba({rgba[0]},{rgba[1]},{rgba[2]},{rgba[3]})')
 
-    def get_html(self, proceed, extract_images):
+    def get_html(self, proceed):
         self.get_html_callbacks.push(proceed)
         if self.ready:
-            self.iframe_wrapper.send_message('get_html', extract_images=v'!!extract_images')
+            self.iframe_wrapper.send_message('get_html', extract_images=self.insert_image_files)
         else:
-            self.pending_get_html.push({'proceed': proceed, 'extract_images': v'!!extract_images'})
+            self.pending_get_html.push(proceed)
 
     def on_html_received(self, data):
         if self.get_html_callbacks.length:
@@ -531,11 +539,11 @@ class Editor:
                     div.classList.remove('activated')
 
 
-def create_editor():
+def create_editor(insert_image_files):
     iframe_kw = {
         'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: solid 1px currentColor'
     }
-    editor = Editor(iframe_kw)
+    editor = Editor(iframe_kw, insert_image_files)
     iframe = editor.iframe_obj
     v'delete editor.iframe_obj'
     add_editor(editor)
@@ -560,8 +568,7 @@ def add_action(toolbar, ac_name, action, editor_id):
 
 
 def create_comments_editor(container, options):
-    iframe, editor = create_editor()
-    editor.insert_image_files = v'!!options.insert_image_files'
+    iframe, editor = create_editor(options.insert_image_files)
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbar2 = E.div(class_=TOOLBAR_CLASS)
@@ -606,11 +613,11 @@ def set_comments_html(container, html):
     editor.set_html(html or '')
 
 
-def get_comments_html(container, proceed, extract_images):
+def get_comments_html(container, proceed):
     iframe = container.querySelector('iframe')
     eid = iframe.getAttribute('id')
     editor = registry[eid]
-    editor.get_html(proceed, extract_images)
+    editor.get_html(proceed)
 
 
 def develop(container):
