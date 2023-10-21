@@ -10,6 +10,7 @@ from gettext import gettext as _
 from iframe_comm import IframeClient, create_wrapped_iframe
 from modals import create_custom_dialog
 from utils import html_escape
+from uuid import short_uuid4
 from widgets import create_button
 
 CLASS_NAME = 'comments-editor'
@@ -60,7 +61,7 @@ def insert_heading(editor_id, cmd):
     editor.focus()
 
 
-def insert_image():
+def insert_image(editor):
     acceptable_image_types = v'["image/png", "image/jpeg", "image/gif", "image/webp"]'
     parent_id = ''
     accepted = False
@@ -70,11 +71,9 @@ def insert_image():
         if parent:
             img = parent.querySelector('img')
             if img:
-                if accepted:
-                    pass
-                else:
-                    if img.src:
-                        window.URL.revokeObjectURL(img.src)
+                if accepted and img.src:
+                    markup = f'<img src="{img.src}" data-filename="{html_escape(img.dataset.filename)}"></img>'
+                    editor.exec_command('insertHTML', markup)
 
     def dialog(parent, close_modal):
         nonlocal parent_id
@@ -94,17 +93,21 @@ def insert_image():
         def handle_files(files):
             parent.querySelector('.no-image-selected').style.display = 'none'
             img = parent.getElementsByTagName('img')[0]
-            if img.src:
-                window.URL.revokeObjectURL(img.src)
             img.src = ''
+            img.dataset.filename = ''
             img.parentElement.style.display = 'none'
             for f in files:
                 if acceptable_image_types.indexOf(f.type) > -1:
+                    r = new FileReader()
+                    r.onload = def():
+                        img.src = r.result
+                    r.readAsDataURL(f)
                     h = parent.querySelector('.button-box').offsetHeight
                     img.parentElement.style.display = 'block'
                     non_content_height = (container.offsetHeight - parent.offsetHeight) + 'px'
                     img.style.maxHeight = f'calc({max_container_height} - {non_content_height} - {h}px - 1rem)'
-                    img.src = window.URL.createObjectURL(f)
+                    if f.name:
+                        img.dataset.filename = f.name
                     return
             alert(_('No valid image file found'))
 
@@ -178,7 +181,7 @@ def insert_link_or_image(editor_id, is_image, ok, url, title):
     editor = registry[editor_id]
     if ok:
         if title:
-            markup = '<img src="{}" title="{}"></img>' if is_image else '<a href="{}">{}</a>'
+            markup = '<img src="{}" alt="{}"></img>' if is_image else '<a href="{}">{}</a>'
             editor.exec_command('insertHTML', markup.format(html_escape(url), html_escape(title)))
         else:
             cmd = 'insertImage' if is_image else 'createLink'
@@ -348,7 +351,7 @@ def all_editor_actions():  # {{{
                 'title': _('Insert an image'),
                 'execute': def (editor, activated):
                     if editor.insert_image_files:
-                        insert_image()
+                        insert_image(editor)
                     else:
                         insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
             },
@@ -388,10 +391,9 @@ class CommentsEditorBoss:
         document.execCommand("styleWithCSS", False, False)
         document.body.style.margin = '0'
         document.body.style.padding = '0'
-        document.documentElement.style.height = document.body.style.height = '100%'
-        document.documentElement.style.overflow = document.body.style.overflow = 'hidden'
         document.body.style.fontFamily = window.default_font_family
-        document.body.appendChild(E.div(style='width: 100%; height: 100%; padding: 0; margin: 0; border: solid 3px transparent; box-sizing: border-box'))
+        document.body.appendChild(E.style('div:focus { outline: none }'))
+        document.body.appendChild(E.div(style='width: 100%; padding: 0.5rem; margin: 0; border-width: 0; box-sizing: border-box'))
         document.body.lastChild.contentEditable = True
         document.body.lastChild.addEventListener('keyup', self.update_state)
         document.body.lastChild.addEventListener('mouseup', self.update_state)
@@ -418,11 +420,20 @@ class CommentsEditorBoss:
 
     def get_html(self, data):
         c = document.body.lastChild
-        img_urls = v'[]'
+        images = v'{}'
+        for img in c.getElementByTagName('img'):
+            if img.src and img.src.startsWith('data:'):
+                key = short_uuid4()
+                images[key] = {'data': img.src, 'filename': img.dataset.filename}
+                img.src = key
+                v'delete img.dataset.filename'
+        self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images})
         for img in c.getElementByTagName('img'):
             if img.src:
-                img_urls.push(img.src)
-        self.comm.send_message('html', html=c.innerHTML, extra_data={'img_urls': img_urls})
+                d = images[img.src]
+                if d:
+                    img.src = d.data
+                    img.dataset.filename = d.filename
 
     def exec_command(self, data):
         document.execCommand(data.name, False, data.value)
