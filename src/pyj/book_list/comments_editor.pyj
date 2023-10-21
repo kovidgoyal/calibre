@@ -65,6 +65,7 @@ def insert_image(editor):
     acceptable_image_types = v'["image/png", "image/jpeg", "image/gif", "image/webp"]'
     parent_id = ''
     accepted = False
+    align_name = 'align-radio-button'
 
     def on_close(evt):
         parent = document.getElementById(parent_id)
@@ -72,7 +73,12 @@ def insert_image(editor):
             img = parent.querySelector('img')
             if img:
                 if accepted and img.src:
-                    markup = f'<img src="{img.src}" data-filename="{html_escape(img.dataset.filename)}"></img>'
+                    align = parent.querySelector(f'input[name="{align_name}"]:checked').value
+                    s = style_from_align(align)
+                    markup = (
+                        f'<img src="{img.src}" data-filename="{html_escape(img.dataset.filename)}"' +
+                        f' data-align="{html_escape(align)}" style="{s}"></img>'
+                    )
                     editor.exec_command('insertHTML', markup)
 
     def dialog(parent, close_modal):
@@ -85,16 +91,18 @@ def insert_image(editor):
             nonlocal accepted
             img = parent.getElementsByTagName('img')[0]
             if ok and not img.src:
-                parent.querySelector('.no-image-selected').style.display = 'inline'
+                parent.querySelector('.no-image-selected').style.display = 'block'
                 return
             accepted = ok
             close_modal()
 
         def handle_files(files):
             parent.querySelector('.no-image-selected').style.display = 'none'
+            parent.querySelector('.image-alignment').style.display = 'none'
             img = parent.getElementsByTagName('img')[0]
             img.src = ''
             img.dataset.filename = ''
+            img.dataset.align = ''
             img.parentElement.style.display = 'none'
             for f in files:
                 if acceptable_image_types.indexOf(f.type) > -1:
@@ -108,6 +116,7 @@ def insert_image(editor):
                     img.style.maxHeight = f'calc({max_container_height} - {non_content_height} - {h}px - 1rem)'
                     if f.name:
                         img.dataset.filename = f.name
+                    parent.querySelector('.image-alignment').style.display = 'block'
                     return
             alert(_('No valid image file found'))
 
@@ -133,13 +142,25 @@ def insert_image(editor):
                         type='file', accept=','.join(acceptable_image_types),
                         onchange=def(e): handle_files(e.target.files);, style='display: none'
                     ),
-                    E.a(
+
+                    E.p(E.a(
                         _('Select an image from your files'),
                         class_='blue-link', href='javascript:void(0)', onclick=def ():
                         parent.querySelector('input[type=file]').click()
-                    ), E.span(_(' or drag and drop an image here.')),
-                    E.br(),
-                    E.span(_('No image selected!'), class_='no-image-selected', style='color:red; display:none'),
+                    ), E.span(_(' or drag and drop an image here.'))),
+
+                    E.div(
+                        style='display: none; margin-top: 0.5rem', class_='image-alignment',
+                        _('Place image:'), E.br(),
+                        E.label(E.input(type='radio', name=align_name, value='left'), _('Float left'), style='margin-right: 0.5rem'),
+                        ' ',
+                        E.label(E.input(type='radio', name=align_name, value='inline', checked=True), _('Inline'),
+                                title=_('Place the image inline with surrounding text'), style='margin-right: 0.5rem'
+                        ),
+                        ' ',
+                        E.label(E.input(type='radio', name=align_name, value='right'), _('Float right')),
+                    ),
+                    E.p(_('No image selected!'), class_='no-image-selected', style='color:red; display:none'),
                 ),
             ),
             E.div(class_='button-box',
@@ -372,6 +393,14 @@ def all_editor_actions():  # {{{
 # }}}
 
 
+def style_from_align(align):
+    if align is 'left':
+        return 'float: left; margin-right: 0.5em'
+    if align is 'right':
+        return 'float: right; margin-left: 0.5em'
+    return ''
+
+
 class CommentsEditorBoss:
 
     def __init__(self):
@@ -426,8 +455,15 @@ class CommentsEditorBoss:
                 if img.src:
                     key = short_uuid4()
                     images[key] = {'data': img.src, 'filename': img.dataset.filename}
+                    if img.dataset.filename:  # this is an added image
+                        s = style_from_align(img.dataset.align)
+                        if s:
+                            img.setAttribute('style', s)
+                        else:
+                            img.removeAttribute('style')
                     img.src = key
                     v'delete img.dataset.filename'
+                    v'delete img.dataset.align'
         self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images, 'text': c.innerText})
 
     def exec_command(self, data):
