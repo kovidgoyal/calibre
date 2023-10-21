@@ -695,8 +695,8 @@
     {
         "name": "css-parser",
         "unix": {
-            "filename": "css_parser-1.0.9-py2.py3-none-any.whl",
-            "hash": "sha256:e18f66961103b61df25aa6df0dc808ab61c23e65ae6c1a8c149fe71911190495",
+            "filename": "css_parser-1.0.10-py2.py3-none-any.whl",
+            "hash": "sha256:d2e955a114829f0a327cc5535c2e65fe2e40b883b892881017d419a3b6dd05b7",
             "urls": ["pypi"]
         }
     },
