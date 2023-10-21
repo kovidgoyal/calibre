@@ -4,11 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import base64
 import errno
 import os
+import re
 from contextlib import suppress
 from functools import partial
 from io import BytesIO
+from json import load as load_json_file
 from threading import Lock
 
 from calibre import fit_image, guess_type, sanitize_file_name
@@ -22,7 +25,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
-from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, http_date
 from calibre.utils.config_base import tweaks
@@ -355,7 +358,14 @@ def get(ctx, rd, what, book_id, library_id):
                 raise HTTPNotFound(f'No {what.lower()} format for the book {book_id!r}')
 
 
-@endpoint('/get-note/{field}/{item_id}/{library_id=None}')
+def resource_hash_to_url(ctx, scheme, digest, library_id):
+    kw = {'scheme': scheme, 'digest': digest}
+    if library_id:
+        kw['library_id'] = library_id
+    return ctx.url_for('/get-note-resource', **kw)
+
+
+@endpoint('/get-note/{field}/{item_id}/{library_id=None}', types={'item_id': int})
 def get_note(ctx, rd, field, item_id, library_id):
     db = get_db(ctx, rd, library_id)
     if db is None:
@@ -374,10 +384,7 @@ def get_note(ctx, rd, field, item_id, library_id):
         pat = re.compile(rf'{RESOURCE_URL_SCHEME}://({{}})'.format('|'.join(map(r, resources))))
         def sub(m):
             s, d = m.group(1).split('/', 1)
-            kw = {'scheme': s, 'digest': d}
-            if library_id:
-                kw['library_id'] = library_id
-            return ctx.url_for('/get-note-resource', **kw)
+            return resource_hash_to_url(ctx, s, d, library_id)
         note_data['doc'] = pat.sub(sub, html)
     rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
     rd.outheaders['Last-Modified'] = http_date(note_data['mtime'])
@@ -398,3 +405,50 @@ def get_note_resource(ctx, rd, scheme, digest, library_id):
         fname_for_content_disposition(name), fname_for_content_disposition(name, as_encoded_unicode=True))
     rd.outheaders['Last-Modified'] = http_date(d['mtime'])
     return d['data']
+
+
+@endpoint('/set-note/{field}/{item_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'item_id': int})
+def set_note(ctx, rd, field, item_id, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    try:
+        data = load_json_file(rd.request_body_file)
+        if not isinstance(data, dict):
+            raise Exception('note data must be a dict')
+        html, searchable_text, images = data['html'], data['searchable_text'], data['images']
+    except Exception as err:
+        raise HTTPBadRequest(f'Invalid query: {err}')
+    srv_replacements = {}
+    db_replacements = {}
+    resources = []
+    res_pat = re.compile(r'get-note-resource/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)')
+    for key, img in images.items():
+        try:
+            is_new_image = img['data'].startswith('data:')
+            if is_new_image:
+                d = img['data'].encode('ascii')
+                idx = d.index(b',')
+                d = memoryview(d)[idx:]
+                img_data = base64.standard_b64decode(d)
+                fname = img['filename']
+            else:
+                m = res_pat.search(img['data'])
+                scheme, digest = m.group(1), m.group(2)
+                resources.append(f'{scheme}:{digest}')
+        except Exception as err:
+            raise HTTPBadRequest(f'Invalid query: {err}')
+        if is_new_image:
+            chash = db.add_notes_resource(img_data, fname)
+            scheme, digest = chash.split(':', 1)
+            resources.append(chash)
+        srv_replacements[key] = resource_hash_to_url(ctx, scheme, digest, library_id)
+        db_replacements[key] = f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}'
+    db_html = srv_html = html
+    if db_replacements:
+        db_html = re.sub('|'.join(map(re.escape, db_replacements)), lambda m: db_replacements[m.group()], html)
+    if srv_replacements:
+        srv_html = re.sub('|'.join(map(re.escape, srv_replacements)), lambda m: srv_replacements[m.group()], html)
+    db.set_notes_for(field, item_id, db_html, searchable_text, resources, True)
+    rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
+    return srv_html

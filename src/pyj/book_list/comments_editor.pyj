@@ -419,21 +419,16 @@ class CommentsEditorBoss:
         document.body.lastChild.innerHTML = data.html
 
     def get_html(self, data):
-        c = document.body.lastChild
+        c = document.body.lastChild.cloneNode(True)
         images = v'{}'
-        for img in c.getElementByTagName('img'):
-            if img.src and img.src.startsWith('data:'):
-                key = short_uuid4()
-                images[key] = {'data': img.src, 'filename': img.dataset.filename}
-                img.src = key
-                v'delete img.dataset.filename'
-        self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images})
-        for img in c.getElementByTagName('img'):
-            if img.src:
-                d = images[img.src]
-                if d:
-                    img.src = d.data
-                    img.dataset.filename = d.filename
+        if data.extract_images:
+            for img in c.getElementsByTagName('img'):
+                if img.src:
+                    key = short_uuid4()
+                    images[key] = {'data': img.src, 'filename': img.dataset.filename}
+                    img.src = key
+                    v'delete img.dataset.filename'
+        self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images, 'text': c.innerText})
 
     def exec_command(self, data):
         document.execCommand(data.name, False, data.value)
@@ -469,6 +464,7 @@ class Editor:
         self.id = iframe.id
         self.ready = False
         self.pending_set_html = None
+        self.pending_get_html = v'[]'
         self.get_html_callbacks = v'[]'
         self.iframe_obj = iframe
 
@@ -496,8 +492,9 @@ class Editor:
         if self.pending_set_html is not None:
             self.set_html(self.pending_set_html)
             self.pending_set_html = None
-        if self.get_html_callbacks.length:
-            self.get_html(self.get_html_callback)
+        if self.pending_get_html.length > 0:
+            for x in self.pending_get_html:
+                self.get_html(x.proceed, x.extract_images)
 
     def set_html(self, html):
         if not self.ready:
@@ -506,15 +503,17 @@ class Editor:
         rgba = get_color_as_rgba('window-foreground')
         self.iframe_wrapper.send_message('set_html', html=html, color_scheme=color_scheme(), color=f'rgba({rgba[0]},{rgba[1]},{rgba[2]},{rgba[3]})')
 
-    def get_html(self, proceed):
+    def get_html(self, proceed, extract_images):
         self.get_html_callbacks.push(proceed)
         if self.ready:
-            self.iframe_wrapper.send_message('get_html')
+            self.iframe_wrapper.send_message('get_html', extract_images=v'!!extract_images')
+        else:
+            self.pending_get_html.push({'proceed': proceed, 'extract_images': v'!!extract_images'})
 
     def on_html_received(self, data):
         if self.get_html_callbacks.length:
             for f in self.get_html_callbacks:
-                f(data.html, data.img_urls)
+                f(data.html, data.extra_data)
             self.get_html_callbacks = v'[]'
 
     def exec_command(self, name, value=None):
@@ -607,11 +606,11 @@ def set_comments_html(container, html):
     editor.set_html(html or '')
 
 
-def get_comments_html(container, proceed):
+def get_comments_html(container, proceed, extract_images):
     iframe = container.querySelector('iframe')
     eid = iframe.getAttribute('id')
     editor = registry[eid]
-    editor.get_html(proceed)
+    editor.get_html(proceed, extract_images)
 
 
 def develop(container):
