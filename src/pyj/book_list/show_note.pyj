@@ -13,6 +13,7 @@ from book_list.router import back, home, show_note
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_panel_handler
 from gettext import gettext as _
+from modals import ajax_send_progress_dialog, error_dialog
 from utils import parse_url_params, safe_set_inner_html, sandboxed_html
 
 
@@ -144,11 +145,29 @@ def save(container_id):
     c = document.getElementById(container_id)
     if not c:
         return
-    get_comments_html(c, def(html, extra_data):
-        print(html)
-        console.log(extra_data)
-        print('TODO: Implement saving')
-    )
+    q = parse_url_params()
+    url = 'set-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
+    if q.library_id:
+        url += '/' + encodeURIComponent(q.library_id)
+    close_action = get_close_action()[0]
+
+    def on_complete(end_type, xhr, evt):
+        nonlocal current_note_markup
+        if end_type is 'abort':
+            close_action()
+            return
+        if end_type is not 'load':
+            error_dialog(_('Failed to send notes to server'), _(
+                'Updating the notes for: {} failed.').format(q.item), xhr.error_html)
+            return
+        q.html = xhr.responseText
+        current_note_markup = q
+        close_action()
+
+    def on_got_html(html, extra_data):
+        ajax_send_progress_dialog(url, {'html': html, 'searchable_text': extra_data.text, 'images': extra_data.images}, on_complete, _('Sending note data to calibre server...'))
+
+    get_comments_html(c, on_got_html, True)
 
 
 def init_edit(container_id):
