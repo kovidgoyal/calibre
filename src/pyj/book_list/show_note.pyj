@@ -6,7 +6,8 @@ from elementmaker import E
 
 from ajax import ajax
 from book_list.comments_editor import (
-    create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
+    create_comments_editor, destroy_editor, focus_comments_editor, get_comments_html,
+    set_comments_html
 )
 from book_list.details_list import sandbox_css
 from book_list.router import back, home, show_note
@@ -162,12 +163,13 @@ def save(container_id):
             return
         q.html = xhr.responseText
         current_note_markup = q
+        destroy_editor(c)
         close_action()
 
     def on_got_html(html, extra_data):
         ajax_send_progress_dialog(url, {'html': html, 'searchable_text': extra_data.text, 'images': extra_data.images}, on_complete, _('Sending note data to calibre server...'))
 
-    get_comments_html(c, on_got_html, True)
+    get_comments_html(c, on_got_html)
 
 
 def init_edit(container_id):
