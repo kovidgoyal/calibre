@@ -913,11 +913,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         c.setPosition(cursor_pos)
         fmt = c.charFormat()
         if fmt.isImageFormat() and c.currentFrame():
-            cf = c.currentFrame().childFrames()
-            if len(cf) == 1:
-                ff = cf[0].frameFormat()
+            f = self.frame_for_cursor(c)
+            if f is not None:
+                ff = f.frameFormat()
                 ff.setPosition(alignment)
-                cf[0].setFrameFormat(ff)
+                f.setFrameFormat(ff)
                 self.document().markContentsDirty(cursor_pos-2, 5)
             else:
                 c.deleteChar()
@@ -936,6 +936,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 return c.position()
         return -1
 
+    def frame_for_cursor(self, c):
+        q = c.position()
+        for cf in c.currentFrame().childFrames():
+            a, b = cf.firstPosition(), cf.lastPosition()
+            a, b = min(a, b), max(a, b)
+            if a <= q <= b:
+                return cf
+
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
         img_name = self.document().documentLayout().imageAt(QPointF(ev.pos()))
@@ -945,10 +953,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 c = self.textCursor()
                 c.clearSelection()
                 c.setPosition(pos)
-                cf = c.currentFrame().childFrames()
                 pos = QTextFrameFormat.Position.InFlow
-                if len(cf) == 1:
-                    pos = cf[0].frameFormat().position()
+                ff = self.frame_for_cursor(c)
+                if ff is not None:
+                    pos = ff.frameFormat().position()
                 align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Image...'))
                 def a(text, epos):
                     ac = align_menu.addAction(text)
@@ -1391,6 +1399,7 @@ if __name__ == '__main__':
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
     w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p align="justify">\xa0</p><p align="justify">ss</p></div>'
-    w.html = '<p>Testing <img src="file:///home/kovid/work/calibre/resources/images/donate.png"> img</p>'
+    i = 'file:///home/kovid/work/calibre/resources/images/'
+    w.html = f'<p>Testing <img src="{i}/donate.png"> img and another <img src="{i}/lt.png">file</p>'
     app.exec()
     # print w.html
