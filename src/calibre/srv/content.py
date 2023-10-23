@@ -368,7 +368,9 @@ def resource_hash_to_url(ctx, scheme, digest, library_id):
 def _get_note(ctx, rd, db, field, item_id, library_id):
     note_data = db.notes_data_for(field, item_id)
     if not note_data:
-        raise HTTPNotFound(f'Note for {field!r}:{item_id!r} not found')
+        if db.get_item_name(field, item_id):
+            return ''
+        raise HTTPNotFound(f'Item {field!r}:{item_id!r} not found')
     note_data.pop('searchable_text', None)
     resources = note_data.pop('resource_hashes', None)
     if resources:

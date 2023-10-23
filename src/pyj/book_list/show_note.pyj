@@ -69,7 +69,7 @@ def on_item_val_based_notes_fetched(load_type, xhr, ev):
         q.html = data.html
         q.item_id = str(data.item_id)
         current_note_markup = q
-        show_note(q.book_id, q.field, q.item_id, q.item, replace=True, library_id=q.library_id or None, close_action=q.close_action, panel=q.panel)
+        show_note(q.field, q.item_id, q.item, replace=True, library_id=q.library_id or None, close_action=q.close_action, panel=q.panel)
         return
     old = container.querySelector('div.loading')
     p = old.parentNode
@@ -106,7 +106,7 @@ def on_notes_fetched(load_type, xhr, ev):
 
 def edit_note():
     q = parse_url_params()
-    show_note(q.book_id, q.field, q.item_id, q.item, library_id=q.library_id, panel='edit_note')
+    show_note(q.field, q.item_id, q.item, library_id=q.library_id, panel='edit_note')
 
 
 def onkeydown(container_id, close_action, ev):
@@ -215,7 +215,7 @@ def init_edit(container_id):
     container = document.getElementById(container_id)
     q = parse_url_params()
     close_action, close_icon = get_close_action()
-    create_top_bar(container, title=_('Edit notes for:') + ' ' + q.item, action=close_action, icon=close_icon, tooltip=_('Discard any changes'))
+    create_top_bar(container, title=_('Edit {}').format(q.item), action=close_action, icon=close_icon, tooltip=_('Discard any changes'))
     setup_container(container, close_action)
     if q.item_id is '0' or q.item_id is 0 or not q.item_id:
         return reroute_with_item_id(container, q)
