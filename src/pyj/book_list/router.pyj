@@ -90,7 +90,10 @@ def open_book_url(book_id, fmt, extra_query):
 def show_note_url(book_id, field, item_id, item_value, library_id=None, close_action='back'):
     lid = library_id or current_library_id()
     ans = absolute_path('')
-    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': 'show_note', 'close_action': close_action}
+    q = {
+        'book_id':book_id + '', 'field': field, 'item':item_value + '',
+        'item_id': item_id + '', 'panel': 'show_note', 'close_action': close_action
+    }
     if lid:
         q.library_id = lid
     return ans + encode_query(q, '#')
@@ -98,7 +101,7 @@ def show_note_url(book_id, field, item_id, item_value, library_id=None, close_ac
 
 def show_note(book_id, field, item_id, item_value, replace=False, library_id=None, close_action='back', panel='show_note'):
     lid = library_id or current_library_id()
-    q = {'book_id':book_id, 'field': field, 'item':item_value, 'item_id': item_id, 'panel': panel}
+    q = {'book_id':book_id + '', 'field': field, 'item':item_value + '', 'item_id': item_id + '', 'panel': panel}
     if panel is 'show_note':
         q.close_action = close_action
     if lid:
