@@ -61,9 +61,10 @@ class projectsynd(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'old-src':True}):
             img['src'] = img['old-src'].replace('medium', 'xlarge')
-        if abst := soup.find(attrs={'itemprop':'abstract'}).find('div'):
-            abst.name = 'p'
-            abst['class'] = 'sub'
+        if abst := soup.find(attrs={'itemprop':'abstract'}):
+            if div := abst.find('div'):
+                div.name = 'p'
+                div['class'] = 'sub'
         for div in soup.findAll('div', attrs={'data-line-id':True}):
             div.name = 'p'
         for a in soup.findAll('a', href=True):

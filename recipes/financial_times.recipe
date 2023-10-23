@@ -132,4 +132,6 @@ class ft(BasicNewsRecipe):
         for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
             if con.find('figure'):
                 con['id'] = 'fig'
+        if h3 := soup.find(**classes('o-topper__standfirst')):
+            h3.name = 'h3'
         return soup
