@@ -365,11 +365,7 @@ def resource_hash_to_url(ctx, scheme, digest, library_id):
     return ctx.url_for('/get-note-resource', **kw)
 
 
-@endpoint('/get-note/{field}/{item_id}/{library_id=None}', types={'item_id': int})
-def get_note(ctx, rd, field, item_id, library_id):
-    db = get_db(ctx, rd, library_id)
-    if db is None:
-        raise HTTPNotFound(f'Library {library_id} not found')
+def _get_note(ctx, rd, db, field, item_id, library_id):
     note_data = db.notes_data_for(field, item_id)
     if not note_data:
         raise HTTPNotFound(f'Note for {field!r}:{item_id!r} not found')
@@ -386,13 +382,40 @@ def get_note(ctx, rd, field, item_id, library_id):
             s, d = m.group(1).split('/', 1)
             return resource_hash_to_url(ctx, s, d, library_id)
         note_data['doc'] = pat.sub(sub, html)
-    rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
     rd.outheaders['Last-Modified'] = http_date(note_data['mtime'])
     return note_data['doc']
 
 
+@endpoint('/get-note/{field}/{item_id}/{library_id=None}', types={'item_id': int})
+def get_note(ctx, rd, field, item_id, library_id):
+    '''
+    Get the note as text/html for the specified field and item id.
+    '''
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    html = _get_note(ctx, rd, db, field, item_id, library_id)
+    rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
+    return html
+
+
+@endpoint('/get-note-from-item-val/{field}/{item}/{library_id=None}', postprocess=json)
+def get_note_from_val(ctx, rd, field, item, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    item_id = db.get_item_id(field, item)
+    if not item_id:
+        raise HTTPNotFound(f'Item {field!r}:{item!r} not found')
+    html = _get_note(ctx, rd, db, field, item_id, library_id)
+    return {'item_id': item_id, 'html': html}
+
+
 @endpoint('/get-note-resource/{scheme}/{digest}/{library_id=None}')
 def get_note_resource(ctx, rd, scheme, digest, library_id):
+    '''
+    Get the data for a resource in a field note, such as an image.
+    '''
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
@@ -409,6 +432,9 @@ def get_note_resource(ctx, rd, scheme, digest, library_id):
 
 @endpoint('/set-note/{field}/{item_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'item_id': int})
 def set_note(ctx, rd, field, item_id, library_id):
+    '''
+    Set the note for a field  as HTML + text + resources.
+    '''
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')

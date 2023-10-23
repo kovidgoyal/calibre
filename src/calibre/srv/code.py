@@ -444,5 +444,21 @@ def field_names(ctx, rd, field):
         ans = all_lang_names()
     else:
         db, library_id = get_library_data(ctx, rd)[:2]
-        ans = tuple(sorted(db.all_field_names(field), key=numeric_sort_key))
+        try:
+            ans = tuple(sorted(db.all_field_names(field), key=numeric_sort_key))
+        except ValueError:
+            raise HTTPNotFound(f'{field} is not a one-one or many-one field')
     return ans
+
+
+@endpoint('/interface-data/field-id-map/{field}', postprocess=json)
+def field_id_map(ctx, rd, field):
+    '''
+    Get a map of all ids:names for the specified field
+    Optional: ?library_id=<default library>
+    '''
+    db, library_id = get_library_data(ctx, rd)[:2]
+    try:
+        return db.get_id_map(field)
+    except ValueError:
+        raise HTTPNotFound(f'{field} is not a one-one or many-one field')
