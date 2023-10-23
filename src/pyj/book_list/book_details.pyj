@@ -193,7 +193,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     link_maps = mi.link_maps or v'{}'
 
     def show_note_action(field, item_id, item_val):
-        show_note(book_id, field, item_id, item_val)
+        show_note(field, item_id, item_val)
 
     def add_note_link(field, name, val, parent):
         if mi.items_with_notes[field] and mi.items_with_notes[field][val]:
