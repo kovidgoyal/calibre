@@ -55,7 +55,7 @@ class ModalContainer:
         set_css(div,
             position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
             background_color='rgba(0,0,0,0.8)', z_index=MODAL_Z_INDEX + '',
-            display='none', text_align='center', user_select='none'
+            display='none', user_select='none'
         )
 
         # Popup style

@@ -233,8 +233,8 @@ def menu_clicked(i):
 
         title = E.h2(
             style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
-            E.img(src=icon_for_node(node), style='height:2ex'),
-            E.span('\xa0' + name + suffix)
+            E.img(src=icon_for_node(node), style='height:2ex; margin-right: 0.5rem'),
+            E.span(name + suffix)
         )
         container.appendChild(title)
         container.appendChild(E.div(
@@ -257,8 +257,8 @@ def menu_clicked(i):
         for text, search_type in items:
             li = E.li(
                 style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
-                E.img(src=absolute_path('{}/{}.png'.format(interface_data.icon_path, search_type)), style='max-height: 2.5ex'),
-                E.span('\xa0' + text)
+                E.img(src=absolute_path('{}/{}.png'.format(interface_data.icon_path, search_type)), style='max-height: 2.5ex; margin-right:0.5rem'),
+                E.span(text)
             )
             li.addEventListener('click', add_to_search.bind(None, node, search_type))
             li.addEventListener('click', hide_modal)
