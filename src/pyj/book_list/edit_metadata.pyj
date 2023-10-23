@@ -11,29 +11,24 @@ from book_list.book_details import (
     report_load_failure
 )
 from book_list.comments_editor import (
-    create_comments_editor, focus_comments_editor, get_comments_html,
-    set_comments_html
+    create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
 )
 from book_list.globals import get_current_query
 from book_list.library_data import (
     book_metadata, cover_url, current_library_id, field_names_for, library_data,
     load_status, loaded_book_ids, set_book_metadata
 )
-from book_list.router import back
+from book_list.router import back, push_state, show_note
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
-from file_uploads import (
-    update_status_widget, upload_files_widget, upload_status_widget
-)
+from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
 from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from session import get_interface_data
-from utils import (
-    conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
-)
+from utils import conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
 from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
@@ -687,6 +682,14 @@ def formats_edit(container_id, book_id, field, fm, div, mi):
 
 # }}}
 
+def switch_to_edit_panel(container):
+    d = container.querySelector('div[data-ctype="edit"]')
+    d.style.display = 'block'
+    d.previousSibling.style.display = 'none'
+    clear(d)
+    return d
+
+
 def edit_field(container_id, book_id, field):
     nonlocal value_to_json
     fm = library_data.field_metadata[field]
@@ -694,10 +697,7 @@ def edit_field(container_id, book_id, field):
     mi = book_metadata(book_id)
     if not c or not fm or not mi:
         return
-    d = c.querySelector('div[data-ctype="edit"]')
-    d.style.display = 'block'
-    d.previousSibling.style.display = 'none'
-    clear(d)
+    d = switch_to_edit_panel(c)
     update_completions.ui_to_list = None
     update_completions.list_to_ui = None
     update_completions.names = v'[]'
@@ -1004,6 +1004,52 @@ def on_progress(container_id, book_id, loaded, total, xhr):
         update_status_widget(container, loaded, total)
 
 
+def edit_note(field, item):
+    show_note(field, 0, item, panel='edit_note')
+
+
+def show_select_panel():
+    q = parse_url_params()
+    q.panel = 'select_item_for_edit_notes'
+    push_state(q, replace=False)
+
+
+def select_item_for_edit_notes(container, mi):
+    set_title(container, _('Edit notes'))
+    field_metadata = library_data.field_metadata
+
+    def allowed_fields(field):
+        fm = field_metadata[field]
+        if not fm:
+            return False
+        return library_data.fields_that_support_notes.indexOf(field) > -1
+
+    container.appendChild(E.div(style='padding: 0.5rem'))
+    d = container.lastChild
+    d.appendChild(E.div(svgicon('pencil'), ' ' , _('Tap on an item below to edit the notes associated with it.'), style='margin-bottom: 0.5rem'))
+    dl = E.dl()
+    fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+    for field in fields:
+        val = resolved_metadata(mi, field)
+        fm = field_metadata[field]
+        if val:
+            dl.appendChild(E.dt(fm.name))
+            if jstype(val) is 'string':
+                val = v'[val]'
+            dd = E.dd(style='text-indent: 1em; margin-bottom: 0.5em')
+            dl.appendChild(dd)
+            for i, x in enumerate(val):
+                a = E.a(x, href='javascript:void(0)', class_='blue-link', onclick=edit_note.bind(None, field, x))
+                dd.appendChild(a)
+                if i < val.length - 1:
+                    dd.appendChild(document.createTextNode(fm.is_multiple.list_to_ui))
+
+    if dl.firstChild:
+        d.appendChild(dl)
+    else:
+        d.appendChild(E.div(_('This book has no authors/series/etc. that can have notes added to them')))
+
+
 def submit_changes(container_id, book_id):
     c = document.getElementById(container_id)
     d = c.querySelector('div[data-ctype="show"]')
@@ -1025,12 +1071,16 @@ def show_book(container_id, book_id):
     if not div:
         return
     clear(div)
+    cq = get_current_query()
     if has_changes:
         b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
         div.appendChild(E.div(style='margin: 1ex 1rem', b))
     else:
-        div.appendChild(E.div(style='margin: 1ex 1rem', _(
-            'Tap any field below to edit it')))
+        div.appendChild(E.div(
+            style='margin: 1ex 1rem',
+            E.div(_('Tap any field below to edit that field.')),
+            E.div(E.a(svgicon('pencil'), '\xa0', _('Add notes for authors, series, etc.'), href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'), style='display:' + ('none' if cq.from_read_book else 'block')),
+        ))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
     if has_changes:
@@ -1038,20 +1088,31 @@ def show_book(container_id, book_id):
         div.appendChild(E.div(style='margin: 1ex 1rem', b))
 
 
+def is_edit_panel_showing(container):
+    d = container.querySelector('div[data-ctype="edit"]')
+    return bool(d and d.style.display is 'block')
+
+
+def close_edit_panel(container):
+    d = container.querySelector('div[data-ctype="edit"]')
+    d.style.display = 'none'
+    d.previousSibling.style.display = 'block'
+    clear(d), clear(d.previousSibling)
+
+
 def on_close(container_id):
+    cq = get_current_query()
+    if cq.panel is 'select_item_for_edit_notes':
+        back()
+        return
     c = document.getElementById(container_id)
     if c:
-        d = c.querySelector('div[data-ctype="edit"]')
-        if d:
-            if d.style.display is 'block':
-                d.style.display = 'none'
-                d.previousSibling.style.display = 'block'
-                clear(d), clear(d.previousSibling)
-                q = parse_url_params()
-                show_book(container_id, int(q.book_id))
-                c.querySelector(f'.{CLASS_NAME}').focus()
-                return
-        cq = get_current_query()
+        if is_edit_panel_showing(c):
+            close_edit_panel(c)
+            q = parse_url_params()
+            show_book(container_id, int(q.book_id))
+            c.querySelector(f'.{CLASS_NAME}').focus()
+            return
         if cq.from_read_book:
             window.parent.postMessage(
                 {'type': 'edit_metadata_closed', 'from_read_book': cq.from_read_book},
@@ -1081,8 +1142,12 @@ def proceed_after_succesful_fetch_metadata(container_id, book_id):
             return
         show_panel('book_details', query=parse_url_params(), replace=True)
         return
-    set_title(container, _('Edit metadata for {}').format(mi.title))
+    cq = get_current_query()
     clear(container.lastChild)
+    if cq.panel is 'select_item_for_edit_notes':
+        select_item_for_edit_notes(container, mi)
+        return
+    set_title(container, _('Edit metadata for {}').format(mi.title))
     container.lastChild.appendChild(E.div(data_ctype='show', style='display:block'))
     container.lastChild.appendChild(E.div(data_ctype='edit', style='display:none'))
     show_book(container_id, book_id)
@@ -1131,4 +1196,14 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
+def init_select_item_for_edit_notes(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
+    container.lastChild.focus()
+    container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_books_loaded)
+
+
 set_panel_handler('edit_metadata', init)
+set_panel_handler('select_item_for_edit_notes', init_select_item_for_edit_notes)
