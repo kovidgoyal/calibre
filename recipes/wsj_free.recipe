@@ -54,7 +54,7 @@ class WSJ(BasicNewsRecipe):
         #big-top-caption { font-size:small; text-align:center; }
         [data-type:"tagline"] { font-style:italic; color:#202020; }
     '''
-    
+
     keep_only_tags = [
         dict(name=['h1', 'h2']),
         dict(attrs={'aria-describedby':'big-top-caption'}),
@@ -68,7 +68,7 @@ class WSJ(BasicNewsRecipe):
         dict(attrs={'data-type':'inset'}),
         dict(attrs={'data-spotim-app':'conversation'}),
         dict(attrs={'data-spot-im-class':['message-text', 'conversation-root']}),
-        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', wrapper-INLINE', 'audio-tag-inner-audio-'))}),
+        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-'))}),
     ]
 
     articles_are_obfuscated = True
@@ -85,7 +85,7 @@ class WSJ(BasicNewsRecipe):
         pt.close()
         return pt.name
 
-    def preprocess_html(self, soup):                     
+    def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'old-src':True}):
             img['src'] = img['old-src']
         for p in soup.findAll('div', attrs={'data-type':['paragraph', 'image']}):

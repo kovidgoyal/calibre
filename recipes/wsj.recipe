@@ -67,7 +67,7 @@ class WSJ(BasicNewsRecipe):
         dict(attrs={'data-type':'inset'}),
         dict(attrs={'data-spotim-app':'conversation'}),
         dict(attrs={'data-spot-im-class':['message-text', 'conversation-root']}),
-        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', wrapper-INLINE', 'audio-tag-inner-audio-'))}),
+        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-'))}),
     ]
 
     articles_are_obfuscated = True
