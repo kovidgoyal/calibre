@@ -10,7 +10,8 @@ from base64 import standard_b64encode
 from datetime import date, timedelta
 from mechanize import Request
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
 try:
@@ -23,21 +24,7 @@ except ImportError:
     from urllib import quote
 
 
-needs_subscription = True
-
-
-def substring_classes(classes):
-    q = frozenset(classes.split(' '))
-
-    def matcher(x):
-        if x:
-            for candidate in frozenset(x.split()):
-                for x in q:
-                    if x in candidate:
-                        return True
-        return False
-    return {'attrs': {'class': matcher}}
-
+needs_subscription = 'optional'
 
 class WSJ(BasicNewsRecipe):
 
@@ -59,33 +46,70 @@ class WSJ(BasicNewsRecipe):
     needs_subscription = needs_subscription
     WSJ_ITP = 'https://www.wsj.com/print-edition/today'
 
+    storage = []
+
     extra_css = '''
-        .imageCaption{font-size:small; text-align:center;}
-        .sub-head{font-style:italic; color:#404040;}
-        .bylineWrap{font-size:small; text-align:left;}
+        #big-top-caption { font-size:small; text-align:center; }
+        [data-type:"tagline"], em { font-style:italic; color:#202020; }
+        .auth { font-size:small; }
     '''
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and 'HeadlineContainer' in ''.join(x)}),
-        dict(name='main'),
+        dict(name=['h1', 'h2']),
+        dict(attrs={'aria-describedby':'big-top-caption'}),
+        dict(attrs={'id':'big-top-caption'}),
+        dict(name='article')
     ]
 
     remove_tags = [
-        classes(
-            'wsj-ad newsletter-inset media-object-video media-object-podcast print-header article-body-tools'
-            ' podcast--iframe dynamic-inset-overflow-button snippet-logo'),
-        dict(role=["toolbar", "complementary"]),
-        dict(attrs={"aria-label": ["Sponsored Offers", "What to Read Next", "breadcrumbs", "Listen To Article"]}),
-        dict(name='amp-iframe'),  # interactive graphics
+        dict(name=['button', 'svg', 'ufc-follow-author-widget', 'old-script']),
+        dict(attrs={'aria-label':['Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar', 'Conversation']}),
+        dict(attrs={'data-type':'inset'}),
+        dict(attrs={'data-spotim-app':'conversation'}),
+        dict(attrs={'data-spot-im-class':['message-text', 'conversation-root']}),
+        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', wrapper-INLINE', 'audio-tag-inner-audio-'))}),
     ]
 
+    articles_are_obfuscated = True
+    def get_obfuscated_article(self, url):
+        from calibre.scraper.simple import read_url
+        br = self.get_browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        raw = read_url(self.storage, 'https://archive.is/latest/' + url)
+        pt = PersistentTemporaryFile('.html')
+        pt.write(raw.encode('utf-8'))
+        pt.close()
+        return pt.name
+
     def preprocess_html(self, soup):
-        for by in soup.findAll(**classes('bylineWrap')):
-            for p in by.findAll('p'):
-                p.name = 'span'
-        h2 = soup.find('h2', attrs={'class':'sub-head'})
-        if h2:
-            h2.name = 'p'
+        for img in soup.findAll('img', attrs={'old-src':True}):
+            img['src'] = img['old-src']
+        for p in soup.findAll('div', attrs={'data-type':['paragraph', 'image']}):
+            p.name = 'p'
+        for a in soup.findAll('a', href=True):
+            a['href'] = 'http' + a['href'].split('http')[-1]
+        for fig in soup.findAll('figure'):
+            if fig.find('video'):
+                fig.extract()
+        for figc in soup.findAll('figcaption'):
+            figc['id'] = 'big-top-caption'
+        if name:= soup.find('h2', attrs={'itemprop':'name'}):
+                name.extract()
+        for h2 in soup.findAll('h2'):
+            if self.tag_to_string(h2).startswith(('What to Read Next', 'Conversation')):
+                h2.extract()
+        for ph in soup.findAll('a', attrs={'data-type':['phrase', 'link']}):
+            if div := ph.findParent('div'):
+                div.name = 'span'
+        for auth in soup.findAll('a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}):
+            if div := auth.find_previous_sibling('div'):
+                div.name = 'span'
+            if parent := auth.findParent('div'):
+                parent['class'] = 'auth'
         return soup
 
     # login {{{
@@ -97,7 +121,7 @@ class WSJ(BasicNewsRecipe):
         br.set_cookie('ccpaApplies', 'false', '.wsj.com')
         return br
 
-    if needs_subscription:
+    if False and needs_subscription:  # disabled as we currently use archive.is
         def get_browser(self, *a, **kw):
             from pprint import pprint
             pprint
@@ -268,6 +292,6 @@ class WSJ(BasicNewsRecipe):
         return [
             ('Testing', [
                 {'title': 'Subscriber Article',
-                 'url': self.abs_wsj_url('https://www.wsj.com/articles/egg-prices-jump-as-bird-flu-hits-poultry-flocks-11648900800')},
+                 'url': self.abs_wsj_url('https://www.wsj.com/articles/remington-gun-call-of-duty-video-game-93059a66')},
             ]),
         ]
