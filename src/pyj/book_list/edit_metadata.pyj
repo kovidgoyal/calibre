@@ -47,7 +47,7 @@ has_changes = False
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
-    style += build_rule(sel + 'table.metadata', margin_left='1rem')
+    style += build_rule(sel + 'table.metadata', width='100%')
     style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
     style += build_rule(sel + 'table.metadata tr:hover td:first-of-type', color='green')
     style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
@@ -950,7 +950,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     current_edit_action = edit_field.bind(None, container_id, book_id, 'cover')
     table.appendChild(E.tr(onclick=current_edit_action, E.td(_('Cover')), E.td()))
     img = E.img(
-        style='max-width: 300px; max-height: 400px',
+        style='max-width: 100%; max-height: 400px',
     )
     if changes.cover:
         if changes.cover is '--remove--':
