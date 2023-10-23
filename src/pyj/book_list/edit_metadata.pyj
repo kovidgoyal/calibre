@@ -49,7 +49,7 @@ add_extra_css(def():
     style = basic_table_rules(sel)
     style += build_rule(sel + 'table.metadata', margin_left='1rem')
     style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
-    style += build_rule(sel + 'table.metadata tr:hover', color='green')
+    style += build_rule(sel + 'table.metadata tr:hover td:first-of-type', color='green')
     style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
 
     style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex')
