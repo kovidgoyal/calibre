@@ -948,7 +948,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             traceback.print_exc()
 
     current_edit_action = edit_field.bind(None, container_id, book_id, 'cover')
-    table.appendChild(E.tr(onclick=current_edit_action, E.td(_('Cover') + ':'), E.td()))
+    table.appendChild(E.tr(onclick=current_edit_action, E.td(_('Cover')), E.td()))
     img = E.img(
         style='max-width: 300px; max-height: 400px',
     )
