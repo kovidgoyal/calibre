@@ -49,7 +49,7 @@ add_extra_css(def():
     style = basic_table_rules(sel)
     style += build_rule(sel + 'table.metadata', margin_left='1rem')
     style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
-    style += build_rule(sel + 'table.metadata tr:hover', color='red')
+    style += build_rule(sel + 'table.metadata tr:hover', color='green')
     style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
 
     style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex')
@@ -794,7 +794,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             else:
                 table.lastChild.lastChild.appendChild(document.createTextNode(v))
 
-        table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+        table.appendChild(E.tr(onclick=current_edit_action, E.td(name), E.td()))
         if is_html:
             table.lastChild.lastChild.appendChild(document.createTextNode(truncated_html(val + '')))
         else:
@@ -838,7 +838,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
         if val:
             keys = Object.keys(val)
             if keys.length:
-                table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+                table.appendChild(E.tr(onclick=current_edit_action, E.td(name), E.td()))
                 td = table.lastChild.lastChild
                 for k in keys:
                     if td.childNodes.length:
@@ -849,7 +849,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 
     def process_languages(field, fm, name, val):
         if val and val.length:
-            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name), E.td()))
             td = table.lastChild.lastChild
             for k in val:
                 lang = mi.lang_names[k] or k
@@ -874,7 +874,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             except Exception:
                 ival = 1.0
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
-            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name), E.td()))
             s = safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, val))
             table.lastChild.lastChild.appendChild(s)
         else:
