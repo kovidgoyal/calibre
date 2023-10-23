@@ -57,6 +57,27 @@ current_note_markup = None
 current_container_id = ''
 
 
+def on_item_val_based_notes_fetched(load_type, xhr, ev):
+    nonlocal current_note_markup
+    container = document.getElementById(this)
+    if not container:
+        return
+    q = parse_url_params()
+    current_note_markup = None
+    if load_type is 'load':
+        data = JSON.parse(xhr.responseText)
+        q.html = data.html
+        q.item_id = str(data.item_id)
+        current_note_markup = q
+        show_note(q.book_id, q.field, q.item_id, q.item, replace=True, library_id=q.library_id or None, close_action=q.close_action, panel=q.panel)
+        return
+    old = container.querySelector('div.loading')
+    p = old.parentNode
+    p.removeChild(old)
+    container.appendChild(E.div())
+    safe_set_inner_html(container.lastChild, xhr.error_html)
+
+
 def on_notes_fetched(load_type, xhr, ev):
     nonlocal current_note_markup
     q = parse_url_params()
@@ -68,12 +89,13 @@ def on_notes_fetched(load_type, xhr, ev):
         current_note_markup = None
         html = xhr.error_html
     container = document.getElementById(this)
+    if not container:
+        return
     old = container.querySelector('div.loading')
     p = old.parentNode
     p.removeChild(old)
     if q.panel is 'show_note':
-        iframe = make_iframe(html)
-        p.appendChild(iframe)
+        create_note_display(container)
     elif q.panel is 'edit_note':
         if current_note_markup:
             create_editor(container.lastChild, current_note_markup.html)
@@ -122,6 +144,21 @@ def get_close_action():
     return close_action, close_icon
 
 
+def create_note_display(container):
+    add_button(container, 'edit', action=edit_note, tooltip=_('Edit this note [E]'))
+    html = current_note_markup.html
+    container.lastChild.appendChild(make_iframe(html))
+
+
+def reroute_with_item_id(container, q):
+    container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+    url = 'get-note-from-item-val/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item)
+    if q.library_id:
+        url += '/' + encodeURIComponent(q.library_id)
+    ajax(url, on_item_val_based_notes_fetched.bind(container.id), bypass_cache=False).send()
+    return
+
+
 def init_display_note(container_id):
     nonlocal current_container_id
     current_container_id = container_id
@@ -129,11 +166,11 @@ def init_display_note(container_id):
     close_action, close_icon = get_close_action()
     q = parse_url_params()
     create_top_bar(container, title=q.item, action=close_action, icon=close_icon)
-    add_button(container, 'edit', action=edit_note, tooltip=_('Edit this note [E]'))
     setup_container(container, close_action)
+    if q.item_id is '0' or q.item_id is 0 or not q.item_id:
+        return reroute_with_item_id(container, q)
     if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
-        html = current_note_markup.html
-        container.lastChild.appendChild(make_iframe(html))
+        create_note_display(container)
     else:
         container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
         url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
@@ -176,11 +213,12 @@ def init_edit(container_id):
     nonlocal current_container_id
     current_container_id = container_id
     container = document.getElementById(container_id)
-    close_action, close_icon = get_close_action()
     q = parse_url_params()
+    close_action, close_icon = get_close_action()
     create_top_bar(container, title=_('Edit notes for:') + ' ' + q.item, action=close_action, icon=close_icon, tooltip=_('Discard any changes'))
-    add_button(container, 'check', action=save.bind(None, container_id), tooltip=_('Save the changes'))
     setup_container(container, close_action)
+    if q.item_id is '0' or q.item_id is 0 or not q.item_id:
+        return reroute_with_item_id(container, q)
     if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
         create_editor(container.lastChild, current_note_markup.html)
     else:
@@ -192,6 +230,9 @@ def init_edit(container_id):
 
 
 def create_editor(container, html):
+    bar_container = document.getElementById(current_container_id)
+    if bar_container:
+        add_button(bar_container, 'check', action=save.bind(None, bar_container.id), tooltip=_('Save the changes'))
     c = container.appendChild(E.div(style='flex-grow:10'))
     editor = create_comments_editor(c, {'insert_image_files': True})
     set_comments_html(c, html)
