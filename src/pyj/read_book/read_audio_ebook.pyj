@@ -87,8 +87,8 @@ class ReadAudioEbook:
             ),
             E.div(
                 data_component="progress_bar",
-                style=f'height:1.5em; display:block; background-color:{get_color("window-background2")}; width:70%; margin:1em',
-                E.div(style=f'display:block; background-color:{get_color("window-foreground")}; height:100%'),
+                style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block; background-color:{get_color("window-background2")}; margin:1em',
+                E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),
             ),
             E.div(
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
