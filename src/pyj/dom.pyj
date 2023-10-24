@@ -104,11 +104,18 @@ def create_keyframes(animation_name, *frames):
         ans.push('}')
     return ans.join('\n') + '\n'
 
-def change_icon_image(icon_element, new_name):
+def change_icon_image(icon_element, new_name, tooltip):
     if new_name:
         icon_element.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + new_name)
     else:
         icon_element.firstChild.removeAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href')
+    if tooltip?:
+        x = icon_element.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'title')
+        if not x.length:
+            tt = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+            icon_element.appendChild(tt)
+            x = v'[tt]'
+        x[0].textContent = tooltip
 
 def svgicon(name, height, width, tooltip):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')

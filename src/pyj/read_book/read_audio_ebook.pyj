@@ -12,7 +12,8 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from dom import change_icon_image, svgicon, unique_id
+from book_list.theme import get_color
+from dom import change_icon_image, svgicon
 from gettext import gettext as _
 from modals import error_dialog
 from read_book.globals import ui_operations
@@ -24,6 +25,13 @@ from read_book.smil import (
 )
 
 HIDDEN, PLAYING, PAUSED = 'HIDDEN', 'PLAYING', 'PAUSED'
+
+
+def seconds_to_ms(seconds):
+    minutes = Math.floor(seconds / 60)
+    remaining_seconds = int(seconds % 60)
+    return str(minutes) + ':' + (str(remaining_seconds).zfill(2))
+
 
 
 class ReadAudioEbook:
@@ -40,21 +48,20 @@ class ReadAudioEbook:
         if self.initialized:
             return
         self.initialized = True
-        self.bar_id = unique_id("bar")
 
         container = self.container
         container.style.transition = "height 0.5s ease-in-out"
         container.style.backgroundColor = "rgba(127, 127, 127, 0.05)"
         container.setAttribute("tabindex", "0")
+        bg = get_color("window-background")
         container.appendChild(E.div(
-            id=self.bar_id,
-            style="position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: rgba(127, 127, 127, 0.3); "
+            data_component='bar',
+            style=f'position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {bg};'
         ))
+        bar_container = container.lastChild
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
         container.addEventListener("click", self.on_container_clicked, {"passive": False})
         container.addEventListener("contextmenu", self.toggle, {"passive": False})
-
-        bar_container = self.bar = document.getElementById(self.bar_id)
 
         def create_button(name, icon, text):
             ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
@@ -71,37 +78,29 @@ class ReadAudioEbook:
 
         for x in [
             E.div (
-                id="audioButtons",
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                create_button("toggle", "pause", _("Toggle pause & play")),
+                create_button("toggle", "pause", _('Pause audio')),
             ),
             E.div(
-                id="timeDisplay",
-                E.text("")
+                data_component="time_display", E.text("")
             ),
             E.div(
-                id="progressBar",
-                style="height:1.5em; display:block; background-color:rgba(255, 255, 255, 0.7); width:70%; margin:1em",
-                E.div(
-                style="display:block; background-color:rgba(0, 0, 0, 0.3); height:100%")
+                data_component="progress_bar",
+                style=f'height:1.5em; display:block; background-color:{get_color("window-background2")}; width:70%; margin:1em',
+                E.div(style=f'display:block; background-color:{get_color("window-foreground")}; height:100%'),
             ),
             E.div(
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
                 create_button("slower", "slower", _("Slow down audio")),
                 create_button("faster", "faster", _("Speed up audio")),
-                create_button("hide", "off", _("Close Read Audio-Ebook"))
+                create_button("hide", "off", _("Close Read aloud"))
             )
 
         ]:
             bar_container.appendChild(x)
 
-        self.audio_buttons = document.getElementById("audioButtons")
-        self.progress_bar = document.getElementById("progressBar")
-        self.time_display = document.getElementById("timeDisplay")
-
-        self.container.appendChild(E.audio(id=unique_id('audio'), style="display:none"))
+        self.container.appendChild(E.audio(data_component='audio', style="display:none"))
         ap = self.container.lastChild
-        self.audio_player_id = ap.id
 
         ap.addEventListener("timeupdate", def():
             if self.state is not HIDDEN:
@@ -110,7 +109,7 @@ class ReadAudioEbook:
                     audio_current_time = ap.currentTime
                     progress = (audio_current_time / ap.duration) * 100
                     self.progress_bar.firstChild.style.width = progress + "%"
-                    self.time_display.textContent = f"{self.seconds_to_ms(audio_current_time)}/{self.seconds_to_ms(ap.duration)}"
+                    self.time_display.textContent = f'{seconds_to_ms(audio_current_time)}/{seconds_to_ms(ap.duration)}'
                     self.mark_for_timeupdate(audio_current_time)
                 else:
                     self.time_display.textContent = "00:00"
@@ -131,6 +130,18 @@ class ReadAudioEbook:
                 skip_time = (clickX / total_width) * ap.duration
                 ap.currentTime = skip_time
         )
+
+    @property
+    def bar(self):
+        return self.container.querySelector('[data-component=bar]')
+
+    @property
+    def time_display(self):
+        return self.container.querySelector('[data-component=time_display]')
+
+    @property
+    def progress_bar(self):
+        return self.container.querySelector('[data-component=progress_bar]')
 
     def mark_for_timeupdate(self, audio_time):
         sam = self.view.currently_showing.smil_audio_map
@@ -207,7 +218,7 @@ class ReadAudioEbook:
 
     @property
     def audio_player(self):
-        return document.getElementById(self.audio_player_id)
+        return self.container.querySelector('[data-component=audio]')
 
     @property
     def is_visible(self):
@@ -245,7 +256,7 @@ class ReadAudioEbook:
         if self.state is HIDDEN:
             self.initialize()
             self.state = PLAYING
-            change_icon_image(self.play_pause_button, "pause")
+            change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
             self.start_playback()
             self.container.style.display = "block"
             self.focus()
@@ -263,14 +274,14 @@ class ReadAudioEbook:
 
     def play(self):
         self.state = PLAYING
-        change_icon_image(self.play_pause_button, "pause")
+        change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
         ap = self.audio_player
         if ap.getAttribute("src"):
             ap.play()
 
     def pause(self):
         self.state = PAUSED
-        change_icon_image(self.play_pause_button, "play")
+        change_icon_image(self.play_pause_button, "play", _('Play audio'))
         ap = self.audio_player
         if ap.getAttribute("src"):
             ap.pause()
@@ -313,11 +324,6 @@ class ReadAudioEbook:
             self.hide()
         elif sc_name in ("up", "down", "pageup", "pagedown", "left", "right"):
             self.send_message("trigger_shortcut", name=sc_name)
-
-    def seconds_to_ms(self, seconds):
-        minutes = Math.floor(seconds / 60)
-        remaining_seconds = int(seconds % 60)
-        return str(minutes) + ':' + (str(remaining_seconds).zfill(2))
 
     def send_message(self, message_type, **kw):
         self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
