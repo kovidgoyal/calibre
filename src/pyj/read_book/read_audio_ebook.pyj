@@ -37,6 +37,7 @@ def seconds_to_ms(seconds):
 class ReadAudioEbook:
 
     dont_hide_on_content_loaded = True
+    CONTAINER_DISPLAY = 'flex'
 
     def __init__(self, view):
         self.view = view
@@ -50,13 +51,13 @@ class ReadAudioEbook:
         self.initialized = True
 
         container = self.container
-        container.style.transition = "height 0.5s ease-in-out"
-        container.style.backgroundColor = "rgba(127, 127, 127, 0.05)"
+        container.style.backgroundColor = "rgba(0, 0, 0, 0)"
+        container.style.justifyContent = 'center'
+        container.style.alignItems = 'flex-end'
         container.setAttribute("tabindex", "0")
-        bg = get_color("window-background")
         container.appendChild(E.div(
             data_component='bar',
-            style=f'position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {bg};'
+            style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'
         ))
         bar_container = container.lastChild
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
@@ -258,7 +259,7 @@ class ReadAudioEbook:
             self.state = PLAYING
             change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
             self.start_playback()
-            self.container.style.display = "block"
+            self.container.style.display = self.CONTAINER_DISPLAY
             self.focus()
             if ui_operations.read_aloud_state_changed:
                 ui_operations.read_aloud_state_changed(True)
