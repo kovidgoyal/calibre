@@ -100,6 +100,7 @@ class ReadAudioEbook:
         ]:
             bar_container.appendChild(x)
 
+        bar_container.addEventListener("click", self.on_bar_clicked, {"passive": False})
         self.container.appendChild(E.audio(data_component='audio', style="display:none"))
         ap = self.container.lastChild
 
@@ -126,10 +127,11 @@ class ReadAudioEbook:
             ap = self.audio_player
             if ap.duration:
                 rect = self.progress_bar.getBoundingClientRect()
-                clickX = event.clientX - rect.left
+                x = event.clientX - rect.left
                 total_width = rect.width
-                skip_time = (clickX / total_width) * ap.duration
-                ap.currentTime = skip_time
+                if total_width:
+                    skip_time = (x / total_width) * ap.duration
+                    ap.currentTime = skip_time
         )
 
     @property
@@ -292,6 +294,10 @@ class ReadAudioEbook:
             self.pause()
         elif self.state is PAUSED:
             self.play()
+
+    def on_bar_clicked(self, ev):
+        # prevent the container click handler from handling this
+        ev.stopPropagation(), ev.preventDefault()
 
     def on_container_clicked(self, ev):
         if ev.button is not 0:
