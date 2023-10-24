@@ -748,7 +748,8 @@ class EbookViewer(MainWindow):
             exe = os.path.join(macos_edit_book_bundle_path(), exe)
         else:
             exe = exe_path(exe)
-        cmd = [exe]
+
+        cmd = [exe] if isinstance(exe, str) else list(exe)
         if selected_text:
             cmd += ['--select-text', selected_text]
         from calibre.gui2.widgets import BusyCursor
