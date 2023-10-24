@@ -147,7 +147,7 @@ class ReadAudioEbook:
                 self.play()
             )
             return
-        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.name, self.view.book.manifest)
+        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
         if spine_name:
             self.view.show_name(spine_name, initial_position={'type': 'smil_id', 'anchor': par.anchor})
         else:
@@ -188,7 +188,18 @@ class ReadAudioEbook:
         )
 
     def start_playback(self):
-        self.send_message('play')
+        cn = self.view.currently_showing.name
+        if self.view.book.manifest.files[cn]?.smil_map:
+            self.send_message('play')
+        else:
+            spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
+        if not spine_name:
+            spine_name, par = find_next_audio_in_spine(-1, self.view.book.manifest)
+        if spine_name:
+            self.view.show_name(spine_name, initial_position={'type': 'smil_id', 'anchor': par.anchor})
+        else:
+            self.hide()
+            error_dialog(_('No audio'), _('No audio found in this book'))
 
     @property
     def container(self):
