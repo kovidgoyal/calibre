@@ -41,7 +41,6 @@ class ReadAudioEbook:
             return
         self.initialized = True
         self.bar_id = unique_id("bar")
-        self.overlay_off = False
 
         container = self.container
         container.style.transition = "height 0.5s ease-in-out"
@@ -75,7 +74,6 @@ class ReadAudioEbook:
                 id="audioButtons",
                 style='height: 3ex; display: flex; align-items: center; justify-content: center',
                 create_button("toggle", "pause", _("Toggle pause & play")),
-                create_button("overlay", "overlay-off", _("Toggle overlay for scrolling & text selection")),
             ),
             E.div(
                 id="timeDisplay",
@@ -267,16 +265,6 @@ class ReadAudioEbook:
             self.pause()
         elif self.state is PAUSED:
             self.play()
-
-    def overlay(self):
-        if self.overlay_off:
-            self.overlay_off = False
-            self.container.style.height = "100%"
-            change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-off")
-        else:
-            self.overlay_off = True
-            self.container.style.height = "3em"
-            change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-on")
 
     def on_container_clicked(self, ev):
         if ev.button is not 0:
