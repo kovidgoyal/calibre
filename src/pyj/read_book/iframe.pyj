@@ -1004,8 +1004,6 @@ class IframeBoss:
             sel = window.getSelection()
             sel.removeAllRanges()
             self.send_message('tts', type='text-extracted', marked_text=marked_text, pos=data.pos)
-        elif data.type is 'trigger-shortcut':
-            self.on_handle_navigation_shortcut(data)
 
     def mark_word_being_spoken(self, occurrence_number):
         self.last_search_at = window.performance.now()
@@ -1034,8 +1032,6 @@ class IframeBoss:
             else:
                 par = smil_element_at(data.pos, self.smil_anchor_map, self.smil_par_list)
             self.send_message('audio_ebook_message', type='start_play_at', par=par or None, anchor=data.anchor or None)
-        elif data.type is 'trigger_shortcut':
-            self.on_handle_navigation_shortcut(data)
         else:
             console.error(f'Unknown audio ebook message type from main: {data.type}')
 
