@@ -50,7 +50,7 @@ class WSJ(BasicNewsRecipe):
 
     extra_css = '''
         #big-top-caption { font-size:small; text-align:center; }
-        [data-type:"tagline"], em { font-style:italic; color:#202020; }
+        [data-type:"tagline"] { font-style:italic; color:#202020; }
         .auth { font-size:small; }
         .sub, em, i { color: #202020; }
     '''
@@ -64,11 +64,12 @@ class WSJ(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['button', 'svg', 'ufc-follow-author-widget', 'old-script']),
-        dict(attrs={'aria-label':['Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar', 'Conversation']}),
+        dict(attrs={'aria-label':['Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar', 'Conversation', 'List of Comments']}),
         dict(attrs={'data-type':'inset'}),
+        dict(attrs={'data-testid':'ad-container'}),
         dict(attrs={'data-spotim-app':'conversation'}),
-        dict(attrs={'data-spot-im-class':['message-text', 'conversation-root']}),
-        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-'))}),
+        dict(attrs={'data-spot-im-class':['message-text', 'messages-list', 'conversation-root']}),
+        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-', 'article-comments-tool'))}),
     ]
 
     articles_are_obfuscated = True
