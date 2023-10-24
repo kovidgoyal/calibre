@@ -329,8 +329,6 @@ class ReadAudioEbook:
             self.hide()
         elif sc_name is "quit":
             self.hide()
-        elif sc_name in ("up", "down", "pageup", "pagedown", "left", "right"):
-            self.send_message("trigger_shortcut", name=sc_name)
 
     def send_message(self, message_type, **kw):
         self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
