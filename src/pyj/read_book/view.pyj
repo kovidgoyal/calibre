@@ -40,6 +40,7 @@ from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay
 from read_book.selection_bar import SelectionBar
 from read_book.shortcuts import create_shortcut_map
+from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
@@ -328,8 +329,9 @@ class View:
         self.overlay = Overlay(self)
         self.selection_bar = SelectionBar(self)
         self.read_aloud = ReadAloud(self)
+        self.read_audio_ebook = ReadAudioEbook(self)
         self.hints = Hints(self)
-        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints]'
+        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints, self.read_audio_ebook]'
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {'selection': {'empty': True}, 'on_load':v'[]'}
@@ -679,7 +681,7 @@ class View:
         self.iframe.contentWindow.focus()
 
     def start_read_aloud(self, dont_start_talking):
-        if self.is_audio_ebook:
+        if self.book.manifest.has_smil:
             for x in self.modal_overlays:
                 if x is not self.read_audio_ebook:
                     x.hide()
@@ -937,7 +939,6 @@ class View:
         self.book = current_book.book = book
         hl = None
         if not is_redisplay:
-            self.is_audio_ebook = undefined
             if self.read_audio_ebook:
                 self.read_audio_ebook.hide()
                 clear(self.read_audio_ebook.container)
@@ -992,26 +993,6 @@ class View:
             if c < 2:
                 show_controls_help()
                 sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
-
-        if self.is_audio_ebook is undefined:
-            smil_files = []
-            audio_files = []
-            for filename in book.manifest.files:
-                if filename.endswith(".smil"):
-                    smil_files.append(filename)
-                elif book.manifest.files[filename].mimetype is "audio/mpeg":
-                    audio_files.append(filename)
-            if len(smil_files) > 0:
-                self.is_audio_ebook = True
-                self.read_audio_ebook = ReadAudioEbook(self)
-                self.read_audio_ebook.smil_files = smil_files
-                self.read_audio_ebook.audio_files = audio_files
-                self.read_audio_ebook.audio_maps = {}
-                for smil_file in smil_files:
-                    ui_operations.get_file(
-                        self.book, smil_file, self.read_audio_ebook.parse_smil_file)
-            else:
-                self.is_audio_ebook = False
 
     def preferences_changed(self):
         self.set_margins()
@@ -1089,8 +1070,6 @@ class View:
             self.loaded_resources = resource_data
             done_callback(resource_data)
         load_resources(self.book, name, self.loaded_resources, cb)
-        if self.is_audio_ebook and self.read_audio_ebook.state != 'HIDDEN':
-            window.setTimeout(self.read_audio_ebook.change_audio_src, 1000) # wait for previous spine to update
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
@@ -1396,9 +1375,14 @@ class View:
         self.processing_spine_item_display = True
         self.current_status_message = ''
         self.iframe.style.visibility = 'hidden'
+        fdata = self.book.manifest.files[self.currently_showing.name]
+        smil_map = None
+        if self.book.manifest.has_smil and fdata:
+            smil_map = fdata.smil_map
+            self.currently_showing.smil_audio_map = get_smil_audio_map(smil_map)
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
-            initial_position=self.currently_showing.initial_position,
+            initial_position=self.currently_showing.initial_position, smil_map=smil_map or None,
             settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
             highlights=self.annotations_manager.highlights_for_currently_showing(),

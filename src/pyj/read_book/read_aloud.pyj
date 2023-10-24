@@ -8,7 +8,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from gettext import gettext as _
-from read_book.globals import runtime, ui_operations
+from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
@@ -58,7 +58,7 @@ class ReadAloud:
 
     @property
     def supports_css_min_max(self):
-        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+        return True
 
     @property
     def bar(self):

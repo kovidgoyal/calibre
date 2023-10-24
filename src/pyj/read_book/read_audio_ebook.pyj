@@ -2,32 +2,28 @@
 # License: GPL v3 Copyright: 2023, DO LE DUY <duy.dole.00ece at gmail.com>
 
 
-# The key difference between an ePub with SMIL audio synchronization (EPUB3 with Media Overlays) and a regular ePub is the inclusion of SMIL files and audio content:
-
-# SMIL Files: ePub with SMIL includes SMIL (Synchronized Multimedia Integration Language) files, XML documents that define audio and text synchronization.
-
-# Audio Content: It contains audio files that match eBook sections, referenced in SMIL files for synchronized playback.
-
-# Text Content: The textual content, often in HTML or XHTML files, remains similar to regular ePub. Text and audio are linked using <span> tags with unique IDs.
-
-# SMIL, audio, and text files are organized into folders, usually inside the epub/ or OEBPS/ folder. Sometimes, SMIL files may be placed in text folders. In this program we assume that each spoken text file corresponds to one audio file and one SMIL file.  
-
-# Public domain audio eBooks can be found on https://www.readbeyond.it/ebooks.html. ReadBeyond also offers Aeneas (https://github.com/readbeyond/aeneas), an open-source tool for force-alignment of audio and text to generate smil files. Another notable tool is https://github.com/r4victor/syncabook, builds upon Aeneas to complete a workflow for creating EPUB3 with Media Overlays.
-
+# Public domain audio eBooks can be found on https://www.readbeyond.it/ebooks.html.
+# ReadBeyond also offers Aeneas (https://github.com/readbeyond/aeneas),
+# an open-source tool for force-alignment of audio and text to generate smil files.
+# Another notable tool is https://github.com/r4victor/syncabook,
+# builds upon Aeneas to complete a workflow for creating EPUB3 with Media Overlays.
 
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from book_list.globals import get_session_data
-from dom import svgicon, unique_id, change_icon_image, clear
+from dom import change_icon_image, svgicon, unique_id
 from gettext import gettext as _
-from book_list.theme import get_color
-from read_book.globals import runtime, ui_operations, current_spine_item, current_book
+from modals import error_dialog
+from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
-from modals import question_dialog
+from read_book.smil import (
+    find_next_audio_in_spine, get_smil_id_for_timestamp, next_audio_file_for_spine_item
+)
+
+HIDDEN, PLAYING, PAUSED = 'HIDDEN', 'PLAYING', 'PAUSED'
 
 
 class ReadAudioEbook:
@@ -36,12 +32,17 @@ class ReadAudioEbook:
 
     def __init__(self, view):
         self.view = view
-        self.parser = new window.DOMParser()
-        self._state = "HIDDEN"
+        self._state = HIDDEN
+        self.initialized = False
+        self.current_audio_src = ''
+
+    def initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
         self.bar_id = unique_id("bar")
         self.overlay_off = False
-        self.container.style.height = "100%"
-        
+
         container = self.container
         container.style.transition = "height 0.5s ease-in-out"
         container.style.backgroundColor = "rgba(127, 127, 127, 0.05)"
@@ -49,7 +50,7 @@ class ReadAudioEbook:
         container.appendChild(E.div(
             id=self.bar_id,
             style="position: absolute; bottom: 0; width: 90%; height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: rgba(127, 127, 127, 0.3); "
-        )) 
+        ))
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
         container.addEventListener("click", self.on_container_clicked, {"passive": False})
         container.addEventListener("contextmenu", self.toggle, {"passive": False})
@@ -92,119 +93,112 @@ class ReadAudioEbook:
                 create_button("faster", "faster", _("Speed up audio")),
                 create_button("hide", "off", _("Close Read Audio-Ebook"))
             )
-            
+
         ]:
             bar_container.appendChild(x)
 
-        self.audio_buttons = document.getElementById("audioButtons") 
-        self.progress_bar = document.getElementById("progressBar") 
+        self.audio_buttons = document.getElementById("audioButtons")
+        self.progress_bar = document.getElementById("progressBar")
         self.time_display = document.getElementById("timeDisplay")
 
-        self.audio_id = unique_id("audio")
-        self.container.appendChild(E.audio(
-            id=self.audio_id,
-            style="display:none"
-        )) 
+        self.container.appendChild(E.audio(id=unique_id('audio'), style="display:none"))
+        ap = self.container.lastChild
+        self.audio_player_id = ap.id
 
-        self.audio_player = document.getElementById(self.audio_id) 
-
-        self.audio_player.addEventListener("timeupdate", def():
-            if self.state != "HIDDEN":
-                if self.audio_player.duration:
-                    audio_current_time = self.audio_player.currentTime
-
-                    progress = (audio_current_time / self.audio_player.duration) * 100
+        ap.addEventListener("timeupdate", def():
+            if self.state is not HIDDEN:
+                ap = self.audio_player
+                if ap.duration:
+                    audio_current_time = ap.currentTime
+                    progress = (audio_current_time / ap.duration) * 100
                     self.progress_bar.firstChild.style.width = progress + "%"
-
-                    self.time_display.textContent = f"{self.seconds_to_ms(audio_current_time)}/{self.seconds_to_ms(self.audio_player.duration)}"
-
-                    span_id = self.find_span_id_for_time(audio_current_time)
-                    if span_id != self.span_id:
-                        old_span_id = self.span_id
-                        self.span_id = span_id
-                        self.send_message("mark", old_span_id=old_span_id, span_id = self.span_id)
+                    self.time_display.textContent = f"{self.seconds_to_ms(audio_current_time)}/{self.seconds_to_ms(ap.duration)}"
+                    self.mark_for_timeupdate(audio_current_time)
                 else:
                     self.time_display.textContent = "00:00"
                     self.progress_bar.firstChild.style.width = "0%"
 
         )
 
-        self.audio_player.addEventListener("ended", def():
-            self.view.show_next_spine_item()
-        )  
+        ap.addEventListener("ended", def():
+            self.play_next_audio_file()
+        )
 
         self.progress_bar.addEventListener("click", def(event):
-            if self.audio_player.duration:
+            ap = self.audio_player
+            if ap.duration:
                 rect = self.progress_bar.getBoundingClientRect()
                 clickX = event.clientX - rect.left
                 total_width = rect.width
-                skip_time = (clickX / total_width) * self.audio_player.duration
-                self.audio_player.currentTime = skip_time
+                skip_time = (clickX / total_width) * ap.duration
+                ap.currentTime = skip_time
         )
 
+    def mark_for_timeupdate(self, audio_time):
+        sam = self.view.currently_showing.smil_audio_map
+        if sam:
+            smil_id, idx = get_smil_id_for_timestamp(self.current_audio_src, audio_time, sam, self.last_marked_smil_idx)
+            if smil_id and smil_id is not self.last_marked_smil_id:
+                self.send_message('mark', anchor=smil_id, idx=idx)
 
-    def parse_smil_file(self, smil_content, smil_name, mimetype):
-        # Extract information from the parsed XML
-        smil_content.text().then(def(data): 
-            xml_doc = self.parser.parseFromString(data, "text/xml")
-            audio_map = {}
-            par_elements = xml_doc.getElementsByTagName("par")
-
-            audio_element = par_elements[0].getElementsByTagName("audio")[0]
-            audio_file = audio_element.getAttribute("src")
-
-            for par_element in par_elements:
-                text_element = par_element.getElementsByTagName("text")[0]
-                audio_element = par_element.getElementsByTagName("audio")[0]
-                if text_element and audio_element:
-                    span_id = text_element.getAttribute("src").split("#")[1]
-                    audio_details = {
-                        "clipBegin": audio_element.getAttribute("clipBegin"),
-                        "clipEnd": audio_element.getAttribute("clipEnd")
-                    }
-                    audio_map[span_id] = audio_details
-
-            self.audio_maps[smil_name[:-5].replace("smil", "text")] = [audio_map, audio_file]
-        )
-
-    def change_audio_src(self):
-        window.URL.revokeObjectURL(self.audio_player.src)
-        self.audio_player.setAttribute("src", "")
-        if self.audio_maps[current_spine_item()]:
-            self.audio_map = self.audio_maps[current_spine_item()]
-            link = self.audio_files[0].split("/")[0] + self.audio_maps[current_spine_item()][1][2:]
-            ui_operations.get_file(
-                current_book(), link, def(blob, name, mimetype):
-                    self.pause()
-                    blob_url = window.URL.createObjectURL(blob)
-                    self.audio_player.src = blob_url
-                    self.send_message("play")
+    def play_next_audio_file(self):
+        next_audio_file, par = next_audio_file_for_spine_item(self.current_audio_src, self.view.currently_showing.smil_audio_map)
+        if next_audio_file:
+            self.set_audio_src(next_audio_file, def():
+                self.audio_player.currentTime = par.audio?.start or 0
+                self.play()
             )
-            # self.pause()
-            # self.audio_player.src = "book/" + link
-            # self.send_message("play")
-
+            return
+        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.name, self.view.book.manifest)
+        if spine_name:
+            self.view.show_name(spine_name, initial_position={'type': 'smil_id', 'anchor': par.anchor})
         else:
-            if self.state is "PLAYING":
-                if self.skip_section:
-                    self.view.show_next_spine_item()
-                else:
-                    self.pause()
-                    question_dialog(_('Skip Section'), _('Do you want to automatically skip sections without audio?'), def (yes):
-                        if yes:
-                            self.skip_section = True
-                            self.play()
-                        else:
-                            self.hide()
-                    )
+            self.hide()
+
+    def set_audio_src(self, name, proceed):
+        if self.current_audio_src is name:
+            proceed()
+            return
+        self.last_marked_smil_id = self.last_marked_smil_idx = None
+        self.current_audio_src = name
+        ap = self.audio_player
+        if ui_operations.get_url_for_book_file_name:
+            ap.onloadeddata = def():
+                proceed()
+            ap.onerror = def(evt):
+                console.error(evt)
+                error_dialog(_('Could not load audio'), _(
+                    'Could not load the audio file: {} with error: {}').format(name, evt.message))
+            ap.src = ui_operations.get_url_for_book_file_name(name)
+            return
+        if ap.src:
+            ap.onloadeddata = def():
+                pass
+            ap.onerror = def():
+                pass
+            window.URL.revokeObjectURL(ap.src)
+            ap.src = ''
+        ui_operations.get_file(self.view.book, name, def(blob, name, mimetype):
+            ap = self.audio_player
+            ap.onloadeddata = def():
+                proceed()
+            ap.onerror = def(evt):
+                console.error(evt)
+                error_dialog(_('Could not load audio'), _(
+                    'Could not load the audio file: {} with error: {}').format(name, evt.message))
+            ap.src = window.URL.createObjectURL(blob)
+        )
+
+    def start_playback(self):
+        self.send_message('play')
 
     @property
     def container(self):
         return document.getElementById("audio-ebooks-overlay")
 
     @property
-    def supports_css_min_max(self):
-        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+    def audio_player(self):
+        return document.getElementById(self.audio_player_id)
 
     @property
     def is_visible(self):
@@ -216,24 +210,30 @@ class ReadAudioEbook:
 
     @state.setter
     def state(self, val):
-        if val is not self._state:
-            self._state = val
+        if val is not self._state :
+            if val is HIDDEN:
+                self._state = HIDDEN
+            elif val is PLAYING:
+                self._state = PLAYING
+            elif val is PAUSED:
+                self._state = PAUSED
 
     def hide(self):
-        if self.state is not "HIDDEN":
-            self.send_message("mark", old_span_id=self.span_id)
+        if self.state is not HIDDEN:
+            self.send_message("mark")
             self.pause()
             self.container.style.display = "none"
             self.view.focus_iframe()
-            self.state = "HIDDEN"
+            self.state = HIDDEN
             if ui_operations.read_aloud_state_changed:
                 ui_operations.read_aloud_state_changed(False)
 
     def show(self):
-        if self.state is "HIDDEN":
-            self.state = "PLAYING"
+        if self.state is HIDDEN:
+            self.initialize()
+            self.state = PLAYING
             change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
-            self.change_audio_src()
+            self.start_playback()
             self.container.style.display = "block"
             self.focus()
             if ui_operations.read_aloud_state_changed:
@@ -244,28 +244,28 @@ class ReadAudioEbook:
 
     def slower(self):
         self.audio_player.playbackRate -= 0.1
-        
+
     def faster(self):
         self.audio_player.playbackRate += 0.1
 
     def play(self):
-        self.state = "PLAYING" 
+        self.state = PLAYING
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
-        if self.audio_player.getAttribute("src"):
-            self.audio_player.play()
-        else:
-            self.view.show_next_spine_item()
-        
+        ap = self.audio_player
+        if ap.getAttribute("src"):
+            ap.play()
+
     def pause(self):
-        self.state = "PAUSED"
+        self.state = PAUSED
         change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "play")
-        if self.audio_player.getAttribute("src"):
-            self.audio_player.pause()
+        ap = self.audio_player
+        if ap.getAttribute("src"):
+            ap.pause()
 
     def toggle(self):
-        if self.state is "PLAYING":
+        if self.state is PLAYING:
             self.pause()
-        elif self.state is "PAUSED":
+        elif self.state is PAUSED:
             self.play()
 
     def overlay(self):
@@ -277,7 +277,7 @@ class ReadAudioEbook:
             self.overlay_off = True
             self.container.style.height = "3em"
             change_icon_image(document.getElementById("audio-ebook-bt-overlay"), "overlay-on")
-            
+
     def on_container_clicked(self, ev):
         if ev.button is not 0:
             return
@@ -309,23 +309,7 @@ class ReadAudioEbook:
         elif sc_name is "quit":
             self.hide()
         elif sc_name in ("up", "down", "pageup", "pagedown", "left", "right"):
-            self.send_message("trigger-shortcut", name=sc_name)
-    
-    def find_span_id_for_time(self, current_time):
-        if self.audio_map:
-            for span_id in self.audio_map[0]:
-                clip_begin_time = self.convert_time_to_seconds(self.audio_map[0][span_id]["clipBegin"])
-                clip_end_time = self.convert_time_to_seconds(self.audio_map[0][span_id]["clipEnd"])               
-                if clip_begin_time <= current_time < clip_end_time:
-                    return span_id
-        return None
-
-    def convert_time_to_seconds(self, time_string):
-        parts = time_string.split(":")
-        if len(parts) != 3:
-            return 0
-        hours, minutes, seconds = map(float, parts)
-        return hours * 3600 + minutes * 60 + seconds
+            self.send_message("trigger_shortcut", name=sc_name)
 
     def seconds_to_ms(self, seconds):
         minutes = Math.floor(seconds / 60)
@@ -336,10 +320,26 @@ class ReadAudioEbook:
         self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
 
     def handle_message(self, message):
-        if message.type is "report-span-id":
-            if message.span_id:
-                old_span_id = self.span_id
-                self.span_id = message.span_id
-                self.send_message("mark", old_span_id=old_span_id, span_id=self.span_id)
-                self.audio_player.currentTime = self.convert_time_to_seconds(self.audio_map[0][self.span_id]["clipBegin"])
-                self.play()
+        if message.type is 'start_play_at':
+            if message.par:
+                self.set_audio_src(
+                    message.par.audio, def():
+                        self.audio_player.currentTime = message.par.start or 0
+                        self.play()
+                )
+            else:
+                if message.anchor:
+                    # start playing from where we are
+                    self.send_message('play')
+                    return
+                self.pause()
+                error_dialog(_('Audio element not found'), _(
+                    'Could not play audio as no associated audio was found'))
+        elif message.type is 'marked':
+            if message.anchor:
+                self.last_marked_smil_id = message.anchor
+                self.last_marked_smil_idx = message.idx
+            else:
+                self.last_marked_smil_id = self.last_marked_smil_idx = None
+        else:
+            console.error(f'Unknown audio ebook message type from iframe: {message.type}')
