@@ -81,10 +81,9 @@ def first_par(smil_map):
     return None
 
 
-def find_next_audio_in_spine(current_name, book_manifest):
+def find_next_audio_in_spine(spine_idx, book_manifest):
     spine = book_manifest.spine
     file_map = book_manifest.files
-    spine_idx = spine.indexOf(current_name)
 
     for i in range(spine_idx + 1, spine.length):
         q = spine[i]
