@@ -60,6 +60,7 @@ from read_book.settings import (
 from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
+from read_book.smil import flatten_smil_map, smil_element_at, mark_smil_element
 from read_book.toc import find_anchor_before_range, update_visible_toc_anchors
 from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
@@ -67,7 +68,7 @@ from read_book.touch import (
 from read_book.viewport import scroll_viewport
 from select import (
     first_visible_word, is_start_closer_to_point, move_end_of_selection,
-    selection_extents, word_at_point, span_id_at_point, id_of_first_visible_span
+    selection_extents, word_at_point
 )
 from utils import debounce, is_ios
 
@@ -259,6 +260,8 @@ class IframeBoss:
         set_toc_anchor_map()
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.smil_map = data.smil_map
+        self.smil_anchor_map, self.smil_par_list = flatten_smil_map(self.smil_map)
         self.link_attr = 'data-' + self.book.manifest.link_uid
         self.reference_mode_enabled = data.reference_mode_enabled
         self.is_titlepage = data.is_titlepage
@@ -475,6 +478,8 @@ class IframeBoss:
                 window.setTimeout(def():
                     self.annotations_msg_received({'type': 'edit-highlight', 'uuid': ipos.uuid})
                 , 5)
+            elif ipos.type is 'smil_id':
+                self.audio_ebook_msg_received({'type': 'play', 'anchor': ipos.anchor})
         spine = self.book.manifest.spine
         files = self.book.manifest.files
         spine_index = csi.index
@@ -1009,35 +1014,30 @@ class IframeBoss:
 
     def audio_ebook_msg_received(self, data):
         if data.type is 'mark':
-            self.color_span_id(data.old_span_id, data.span_id)
-        elif data.type is 'play':
-            if data.pos:
-                span_id = span_id_at_point(data.pos.x, data.pos.y)
-                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
+            if data.anchor:
+                self.last_search_at = window.performance.now()
+                if mark_smil_element(data.anchor):
+                    self.ensure_selection_boundary_visible()
+                    self.send_message('audio_ebook_message', type='marked', anchor=data.anchor, idx=data.idx)
+                else:
+                    self.send_message('audio_ebook_message', type='marked')
             else:
-                span_id = id_of_first_visible_span()
-                self.send_message('audio_ebook_message', type='report-span-id', span_id=span_id)
-
-        elif data.type is 'trigger-shortcut':
+                window.getSelection().removeAllRanges()
+                self.send_message('audio_ebook_message', type='marked')
+        elif data.type is 'play':
+            if data.anchor:
+                pos = self.smil_anchor_map[data.anchor]
+                if pos?:
+                    par = self.smil_par_list[pos]
+                else:
+                    par = None
+            else:
+                par = smil_element_at(data.pos, self.smil_anchor_map, self.smil_par_list)
+            self.send_message('audio_ebook_message', type='start_play_at', par=par or None, anchor=data.anchor or None)
+        elif data.type is 'trigger_shortcut':
             self.on_handle_navigation_shortcut(data)
-
-    def color_span_id(self, old_span_id, span_id):
-        def element_in_viewport(element):
-            rect = element.getBoundingClientRect()
-            return (
-                rect.top >= 0 and
-                rect.left >= 0 and
-                rect.bottom <= (window.innerHeight or document.documentElement.clientHeight) and
-                rect.right <= (window.innerWidth or document.documentElement.clientWidth)
-            )
-        element = document.getElementById(span_id)
-        old_element = document.getElementById(old_span_id)
-        if old_element:
-            old_element.style.backgroundColor = ''
-        if element:
-            element.style.backgroundColor = window.getComputedStyle(document.documentElement, '::selection').backgroundColor
-            if not element_in_viewport(element):
-                scroll_to_elem(element)
+        else:
+            console.error(f'Unknown audio ebook message type from main: {data.type}')
 
     def hints_msg_received(self, data):
         if data.type is 'show':

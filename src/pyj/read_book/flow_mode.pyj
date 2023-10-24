@@ -597,6 +597,9 @@ anchor_funcs = {
     'cmp': def cmp(a, b):
         return (a.block - b.block) or (a.inline - b.inline)
     ,
+    'get_bounding_client_rect': def(elem):
+        return elem.getBoundingClientRect()
+    ,
 }
 
 

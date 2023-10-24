@@ -354,9 +354,12 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
     text_tag, audio_tag = SMIL('text'), SMIL('audio')
     body_tag, seq_tag, par_tag = SMIL('body'), SMIL('seq'), SMIL('par')
     type_attr, textref_attr = EPUB('type'), EPUB('textref')
+    parnum = 0
 
-    def make_par(par):
-        ans = {}
+    def make_par(par, target):
+        nonlocal parnum
+        parnum += 1
+        ans = {'num': parnum}
         t = par.get(type_attr)
         if t:
             ans['type'] = t
@@ -364,7 +367,10 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
             if child.tag == text_tag:
                 src = child.get('src')
                 if src:
-                    ans['text'] = [container.href_to_name(child.get('src'), name), src.partition('#')[2]]
+                    q = container.href_to_name(src, name)
+                    if q != target:
+                        return {}  # the par must match the textref of the parent seq
+                    ans['anchor'] = src.partition('#')[2]
             elif child.tag == audio_tag:
                 src = child.get('src')
                 if src:
@@ -386,10 +392,15 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
             parent_seq = smil_map.get(target)
             if parent_seq is None:
                 smil_map[target] = parent_seq = {'textref': [target, ''], 'par':[], 'seq':[], 'type': 'root'}
+        else:
+            if parent_seq['textref'][0] != target:
+                return  # child seqs must be in the same HTML file as parent
         parent_seq['seq'].append(seq)
         for child in seq_xml_element.iterchildren('*'):
             if child.tag == par_tag:
-                seq['par'].append(make_par(child))
+                p = make_par(child, target)
+                if p.get('audio'):
+                    seq['par'].append(p)
             elif child.tag == seq_tag:
                 tref = child.get(textref_attr)
                 if tref:
