@@ -879,6 +879,7 @@ anchor_funcs = {
     'cmp': def cmp(a, b):
         return a - b
     ,
+    'get_bounding_client_rect': get_bounding_client_rect,
 }
 
 
