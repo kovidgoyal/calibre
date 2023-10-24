@@ -60,6 +60,10 @@ class ReadAudioEbook:
             style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'
         ))
         bar_container = container.lastChild
+        container.appendChild(E.style(
+            f'#{container.id} .speaking '+'{ opacity: 0.5 }\n\n',
+            f'#{container.id} .speaking:hover '+'{ opacity: 1.0 }\n\n',
+        ))
         container.addEventListener("keydown", self.on_keydown, {"passive": False})
         container.addEventListener("click", self.on_container_clicked, {"passive": False})
         container.addEventListener("contextmenu", self.toggle, {"passive": False})
@@ -233,13 +237,19 @@ class ReadAudioEbook:
 
     @state.setter
     def state(self, val):
-        if val is not self._state :
+        if val is not self._state:
+            speaking = False
             if val is HIDDEN:
                 self._state = HIDDEN
             elif val is PLAYING:
                 self._state = PLAYING
+                speaking = True
             elif val is PAUSED:
                 self._state = PAUSED
+            if speaking:
+                self.bar.classList.add('speaking')
+            else:
+                self.bar.classList.remove('speaking')
 
     def hide(self):
         if self.state is not HIDDEN:
