@@ -196,7 +196,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         show_note(field, item_id, item_val)
 
     def add_note_link(field, name, val, parent):
-        if mi.items_with_notes[field] and mi.items_with_notes[field][val]:
+        if mi.items_with_notes and mi.items_with_notes[field] and mi.items_with_notes[field][val]:
             parent.appendChild(document.createTextNode(' '))
             parent.appendChild(E.a(
                 svgicon('pencil'), title=_('Show notes for: {}').format(val), href='javascript:void(0)', onclick=show_note_action.bind(
