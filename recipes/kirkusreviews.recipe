@@ -5,7 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class KirkusReviews(BasicNewsRecipe):
     title = "Kirkus Reviews"
-    description = "Kirkus Reviews is an American book review magazine founded in 1933 by Virginia Kirkus. The magazine is headquartered in New York City. Released twice monthly on the 1st/15th. https://www.kirkusreviews.com/magazine/current/"
+    description = ("Kirkus Reviews is an American book review magazine founded in 1933 by Virginia Kirkus."
+                   " The magazine is headquartered in New York City. Released twice monthly on the 1st/15th.")
     language = "en"
     __author__ = "ping"
     publication_type = "magazine"
