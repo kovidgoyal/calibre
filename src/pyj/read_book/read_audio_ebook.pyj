@@ -205,8 +205,8 @@ class ReadAudioEbook:
         cn = self.view.currently_showing.name
         if self.view.book.manifest.files[cn]?.smil_map:
             self.send_message('play')
-        else:
-            spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
+            return
+        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
         if not spine_name:
             spine_name, par = find_next_audio_in_spine(-1, self.view.book.manifest)
         if spine_name:
