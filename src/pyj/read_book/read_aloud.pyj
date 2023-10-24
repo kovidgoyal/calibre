@@ -226,8 +226,6 @@ class ReadAloud:
         elif sc_name is 'quit':
             self.hide()
             ui_operations.quit()
-        elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
-            self.send_message('trigger-shortcut', name=sc_name)
 
     def handle_tts_event(self, which, data):
         if which is 'mark':
