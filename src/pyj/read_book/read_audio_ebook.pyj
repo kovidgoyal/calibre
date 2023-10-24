@@ -64,7 +64,7 @@ class ReadAudioEbook:
                     self[name](ev)
                     self.view.focus_iframe()
                 )
-            ans.id = "audio-ebook-bt-" + name
+            ans.dataset.button = name
             ans.classList.add("simple-link")
             ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
             return ans
@@ -226,11 +226,15 @@ class ReadAudioEbook:
             if ui_operations.read_aloud_state_changed:
                 ui_operations.read_aloud_state_changed(False)
 
+    @property
+    def play_pause_button(self):
+        return self.container.querySelector('[data-button="toggle"]')
+
     def show(self):
         if self.state is HIDDEN:
             self.initialize()
             self.state = PLAYING
-            change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
+            change_icon_image(self.play_pause_button, "pause")
             self.start_playback()
             self.container.style.display = "block"
             self.focus()
@@ -248,14 +252,14 @@ class ReadAudioEbook:
 
     def play(self):
         self.state = PLAYING
-        change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "pause")
+        change_icon_image(self.play_pause_button, "pause")
         ap = self.audio_player
         if ap.getAttribute("src"):
             ap.play()
 
     def pause(self):
         self.state = PAUSED
-        change_icon_image(document.getElementById("audio-ebook-bt-toggle"), "play")
+        change_icon_image(self.play_pause_button, "play")
         ap = self.audio_player
         if ap.getAttribute("src"):
             ap.pause()
