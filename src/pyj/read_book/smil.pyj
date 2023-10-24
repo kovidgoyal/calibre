@@ -41,9 +41,10 @@ def get_smil_audio_map(smil_map):
         if seq.seq:
             for child in seq.seq:
                 flatten(child)
-    flatten(smil_map)
-    for v in Object.values(audio_map):
-        v.sort(def(a, b): return a.start - b.start;)
+    if smil_map:
+        flatten(smil_map)
+        for v in Object.values(audio_map):
+            v.sort(def(a, b): return a.start - b.start;)
     return {'audio_files': audio_map}
 
 
