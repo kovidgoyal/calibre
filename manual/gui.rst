@@ -759,9 +759,12 @@ browser` you can change the number of covers displayed, and even have the
 Adding notes for authors, series, etc.
 ------------------------------------------
 
+.. image:: images/notes.png
+   :class: float-left-img
+
 You can add notes for an author/series/tag/publisher/etc. to your calibre
 library. To do so right click on the author name in the :guilabel:`Tag browser` on the left
-or the :gui:`Book details` panel on the right and choose :guilabel:`Create note`
+or the :guilabel:`Book details` panel on the right and choose :guilabel:`Create note`
 or :guilabel:`Edit note`.
 
 A simple popup window will allow you to enter your notes using simple
@@ -772,6 +775,11 @@ clicking the little pencil icon next to the author name.
 You can search through all the notes in your library using the
 :guilabel:`Browse notes` tool that can be added to the toolbar via
 :guilabel:`Preferences->Toolbars & menus`.
+
+.. raw:: html epub
+
+    <div style="clear:both"></div>
+
 
 Quickview
 ----------
