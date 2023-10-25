@@ -756,6 +756,23 @@ corner of the main window. In :guilabel:`Preferences->Interface->Look & feel->Co
 browser` you can change the number of covers displayed, and even have the
 :guilabel:`Cover browser` display itself in a separate popup window.
 
+Adding notes for authors, series, etc.
+------------------------------------------
+
+You can add notes for an author/series/tag/publisher/etc. to your calibre
+library. To do so right click on the author name in the :guilabel:`Tag browser` on the left
+or the :gui:`Book details` panel on the right and choose :guilabel:`Create note`
+or :guilabel:`Edit note`.
+
+A simple popup window will allow you to enter your notes using simple
+formatting and supporting links and images. Once a note for an author is
+created, it can be viewed easily from the :guilabel:`Book details` panel by
+clicking the little pencil icon next to the author name.
+
+You can search through all the notes in your library using the
+:guilabel:`Browse notes` tool that can be added to the toolbar via
+:guilabel:`Preferences->Toolbars & menus`.
+
 Quickview
 ----------
 
@@ -930,3 +947,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`Ctrl+Alt+Shift+F`
       - Restrict the displayed books to only those books that are in a category
         currently displayed in the :guilabel:`Tag browser`
+    * - :kbd:`B`
+      - Browse annotations (highlights and bookmarks) made in the calibre viewer for all books in the library
+    * - :kbd:`Ctrl+Shift+N`
+      - Browse notes associated with authors/series/tags/etc.
