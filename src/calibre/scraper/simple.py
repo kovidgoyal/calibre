@@ -170,3 +170,7 @@ def find_tests():
             self.assertFalse(w)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
+
+
+if __name__ == '__main__':
+    print(read_url([], sys.argv[-1]))
