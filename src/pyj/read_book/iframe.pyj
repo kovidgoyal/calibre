@@ -1031,7 +1031,7 @@ class IframeBoss:
                     par = None
             else:
                 par = smil_element_at(data.pos, self.smil_anchor_map, self.smil_par_list)
-            self.send_message('audio_ebook_message', type='start_play_at', par=par or None, anchor=data.anchor or None)
+            self.send_message('audio_ebook_message', type='start_play_at', par=par or None, anchor=data.anchor or None, pos=data.pos or None)
         else:
             console.error(f'Unknown audio ebook message type from main: {data.type}')
 

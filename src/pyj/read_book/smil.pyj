@@ -110,8 +110,7 @@ def smil_element_at(pos, anchor_map, par_list):
                     br = af.get_bounding_client_rect(elem)
                     if br.x <= pos.x <= (br.x + br.width) and br.y <= pos.y <= (br.y + br.height):
                         return par
-        # fallback to first visible anchor
-        return smil_element_at(None, anchor_map, par_list)
+        return None
     else: # use first visible anchor
         for par in par_list:
             if par.anchor and par.audio and is_anchor_on_screen(par.anchor):

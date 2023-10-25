@@ -356,9 +356,14 @@ class ReadAudioEbook:
                     # start playing from where we are
                     self.send_message('play')
                     return
-                self.pause()
-                error_dialog(_('Audio element not found'), _(
-                    'Could not play audio as no associated audio was found'))
+                if message.pos:
+                    # this is a click ignore it as no smil element was found at
+                    # click location
+                    pass
+                else:
+                    self.pause()
+                    error_dialog(_('Audio element not found'), _(
+                        'Could not play audio as no associated audio was found'))
         elif message.type is 'marked':
             if message.anchor:
                 self.last_marked_smil_id = message.anchor
