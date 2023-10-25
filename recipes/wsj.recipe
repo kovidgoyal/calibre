@@ -59,17 +59,23 @@ class WSJ(BasicNewsRecipe):
         dict(name=['h1', 'h2']),
         dict(attrs={'aria-describedby':'big-top-caption'}),
         dict(attrs={'id':'big-top-caption'}),
-        dict(name='article')
+        dict(name='article', attrs={'style':lambda x: x and 'article-body' in x})
     ]
 
     remove_tags = [
-        dict(name=['button', 'svg', 'ufc-follow-author-widget', 'old-script']),
-        dict(attrs={'aria-label':['Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar', 'Conversation', 'List of Comments']}),
         dict(attrs={'data-type':'inset'}),
         dict(attrs={'data-testid':'ad-container'}),
         dict(attrs={'data-spotim-app':'conversation'}),
-        dict(attrs={'data-spot-im-class':['message-text', 'messages-list', 'conversation-root']}),
-        dict(attrs={'id':lambda x: x and x.startswith(('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-', 'article-comments-tool'))}),
+        dict(name=['button', 'svg', 'old-script', 'video']),
+        dict(attrs={'aria-label':[
+            'Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar', 
+            'Conversation', 'List of Comments', 'Comment', 'JR More Articles'
+        ]}),
+        dict(attrs={'data-spot-im-class':['message-text', 'messages-list', 'message-view', 'conversation-root']}),
+        dict(attrs={'id':lambda x: x and x.startswith(
+            ('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-', 'article-comments-tool')
+        )}),
+        dict(name='div', attrs={'data-message-depth':True})
     ]
 
     articles_are_obfuscated = True
@@ -94,9 +100,6 @@ class WSJ(BasicNewsRecipe):
             p.name = 'p'
         for a in soup.findAll('a', href=True):
             a['href'] = 'http' + a['href'].split('http')[-1]
-        for fig in soup.findAll('figure'):
-            if fig.find('video'):
-                fig.extract()
         for figc in soup.findAll('figcaption'):
             figc['id'] = 'big-top-caption'
         if name:= soup.find('h2', attrs={'itemprop':'name'}):
@@ -114,6 +117,9 @@ class WSJ(BasicNewsRecipe):
                 div.name = 'span'
             if parent := auth.findParent('div'):
                 parent['class'] = 'auth'
+        for x in soup.findAll('ufc-follow-author-widget'):
+            if y := x.findParent('div'):
+                y.extract()
         return soup
 
     # login {{{
