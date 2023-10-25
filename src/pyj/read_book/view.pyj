@@ -673,6 +673,13 @@ class View:
         self.content_popup_overlay.hide()
         self.focus_iframe()
 
+    @property
+    def overlay_prevents_navigation(self):
+        for x in self.modal_overlays:
+            if x.is_visible and x.prevent_navigation:
+                return True
+        return False
+
     def focus_iframe(self):
         for x in self.modal_overlays:
             if x.is_visible:
@@ -1159,6 +1166,8 @@ class View:
         return True
 
     def goto_toc_node(self, node_id):
+        if self.overlay_prevents_navigation:
+            return
         toc = self.book.manifest.toc
         found = False
 
