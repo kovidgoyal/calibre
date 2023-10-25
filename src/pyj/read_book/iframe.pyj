@@ -691,7 +691,7 @@ class IframeBoss:
         self.comm.send_message(action, data)
 
     def connect_links(self):
-        for a in document.body.querySelectorAll(f'a[{self.link_attr}]'):
+        for a in document.body.querySelectorAll(f'a[{self.link_attr}],area[{self.link_attr}]'):
             a.addEventListener('click', self.link_activated)
         if runtime.is_standalone_viewer:
             # links with a target get turned into requests to open a new window by Qt

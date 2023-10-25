@@ -432,7 +432,7 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
 
 
 def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names):
-    link_xpath = XPath('//h:a[@href]')
+    link_xpath = XPath('//h:*[@href and (self::h:a or self::h:area)]')
     svg_link_xpath = XPath('//svg:a')
     img_xpath = XPath('//h:img[@src]')
     svg_img_xpath = XPath('//svg:image[@xl:href]')
@@ -604,7 +604,7 @@ def worker_main():
 def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
 
     changed = set()
-    link_xpath = XPath('//h:a[@href]')
+    link_xpath = XPath('//h:*[@href and (self::h:a or self::h:area)]')
     svg_link_xpath = XPath('//svg:a')
     link_replacer = create_link_replacer(container, link_uid, changed)
 
