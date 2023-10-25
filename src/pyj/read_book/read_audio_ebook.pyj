@@ -37,6 +37,7 @@ def seconds_to_ms(seconds):
 class ReadAudioEbook:
 
     dont_hide_on_content_loaded = True
+    prevent_navigation = True
     CONTAINER_DISPLAY = 'flex'
 
     def __init__(self, view):
