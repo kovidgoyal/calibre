@@ -228,6 +228,8 @@ class NoteEditorWidget(EditorWidget):
         return '', '', False
 
     def do_insert_image(self):
+        # See https://bugreports.qt.io/browse/QTBUG-118537
+        # for why we cant have a nice margin for floating images
         d = AskImage(self.images, self.db)
         if d.exec() == QDialog.DialogCode.Accepted and d.current_digest:
             ir = self.images[d.current_digest]
