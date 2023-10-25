@@ -127,7 +127,7 @@ This opens a book details window on the specified book from the specified librar
 current library or the selected book.
 
 
-Open the notes associated with an author/tag/etc
+Open the notes associated with an author/series/etc.
 ------------------------------------------------------
 
 The URL syntax is::
