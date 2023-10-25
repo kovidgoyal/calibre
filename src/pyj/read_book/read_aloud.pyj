@@ -29,6 +29,7 @@ def is_flow_mode():
 class ReadAloud:
 
     dont_hide_on_content_loaded = True
+    prevent_navigation = True
 
     def __init__(self, view):
         self.view = view

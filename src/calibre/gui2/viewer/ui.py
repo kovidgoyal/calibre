@@ -25,7 +25,7 @@ from calibre.gui2 import (
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.viewer import get_current_book_data, performance_monitor
+from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
 from calibre.gui2.viewer.annotations import (
     AnnotationsSaveWorker, annotations_dir, parse_annotations,
 )
@@ -90,6 +90,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None, force_reload=False, calibre_book_data=None):
         MainWindow.__init__(self, None)
+        get_boss(self)
         self.annotations_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
@@ -171,7 +172,7 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.show_search.connect(self.show_search)
         self.web_view.find_next.connect(self.search_widget.find_next_requested)
-        self.search_widget.show_search_result.connect(self.web_view.show_search_result)
+        self.search_widget.show_search_result.connect(self.show_search_result)
         self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
         self.web_view.search_result_discovered.connect(self.search_widget.search_result_discovered)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
@@ -314,6 +315,9 @@ class EbookViewer(MainWindow):
         if not is_visible:
             self.toc.scroll_to_current_toc_node()
 
+    def show_search_result(self, sr):
+        self.web_view.show_search_result(sr)
+
     def show_search(self, text, trigger=False, search_type=None, case_sensitive=None):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
@@ -364,7 +368,16 @@ class EbookViewer(MainWindow):
         if force_show and self.lookup_dock.isVisible():
             self.lookup_widget.on_forced_show()
 
+    def check_for_read_aloud(self, where: str):
+        if self.actions_toolbar.toggle_read_aloud_action.isChecked():
+            error_dialog(self, _('Cannot jump to location'), _(
+                'The Read aloud feature is active, cannot jump to {}. Close it first.').format(where), show=True)
+            return True
+        return False
+
     def toc_clicked(self, index):
+        if self.check_for_read_aloud(_('Table of Contents locations')):
+            return
         item = self.toc_model.itemFromIndex(index)
         self.web_view.goto_toc_node(item.node_id)
         self.force_focus_on_web_view()
@@ -386,6 +399,8 @@ class EbookViewer(MainWindow):
         self.web_view.goto_cfi(cfi, add_to_history=add_to_history)
 
     def bookmark_activated(self, cfi):
+        if self.check_for_read_aloud(_('bookmark')):
+            return
         self.goto_cfi(cfi, add_to_history=True)
 
     def view_image(self, name):

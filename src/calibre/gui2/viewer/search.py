@@ -15,6 +15,7 @@ from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
 from calibre.gui2 import warning_dialog
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.viewer import get_boss
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -505,6 +506,9 @@ class SearchInput(QWidget):  # {{{
             )
 
     def emit_search(self, backwards=False):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('search result location')):
+            return
         vprefs[f'viewer-{self.panel_name}-case-sensitive'] = self.case_sensitive.isChecked()
         vprefs[f'viewer-{self.panel_name}-mode'] = self.query_type.currentData()
         sq = self.search_query(backwards)
@@ -632,6 +636,9 @@ class Results(QTreeWidget):  # {{{
         self.count_changed.emit(n)
 
     def item_activated(self):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('search result location')):
+            return
         i = self.currentItem()
         if i:
             sr = i.data(0, SEARCH_RESULT_ROLE)

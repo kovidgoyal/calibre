@@ -23,7 +23,7 @@ from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.annotations import (
     ChapterGroup, Details, Export as ExportBase, render_notes,
 )
-from calibre.gui2.viewer import link_prefix_for_location_links
+from calibre.gui2.viewer import get_boss, link_prefix_for_location_links
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
@@ -453,7 +453,6 @@ class NotesDisplay(Details):
 
 class HighlightsPanel(QWidget):
 
-    jump_to_cfi = pyqtSignal(object)
     request_highlight_action = pyqtSignal(object, object)
     web_action = pyqtSignal(object, object)
     toggle_requested = pyqtSignal()
@@ -531,6 +530,9 @@ class HighlightsPanel(QWidget):
         self.highlights.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def jump_to_highlight(self, highlight):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('highlight location')):
+            return
         self.request_highlight_action.emit(highlight['uuid'], 'goto')
 
     def current_highlight_changed(self, highlight):
@@ -545,6 +547,9 @@ class HighlightsPanel(QWidget):
             'No highlight is currently selected'), show=True)
 
     def edit_highlight(self):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('highlight location')):
+            return
         h = self.highlights.current_highlight
         if h is None:
             return self.no_selected_highlight()

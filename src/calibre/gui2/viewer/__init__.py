@@ -14,6 +14,12 @@ def get_current_book_data(set_val=False):
     return getattr(get_current_book_data, 'ans', {})
 
 
+def get_boss(set_val=False):
+    if set_val:
+        get_boss.ans = set_val
+    return get_boss.ans
+
+
 def link_prefix_for_location_links(add_open_at=True):
     cbd = get_current_book_data()
     link_prefix = library_id = None
