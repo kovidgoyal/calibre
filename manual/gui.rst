@@ -773,8 +773,8 @@ created, it can be viewed easily from the :guilabel:`Book details` panel by
 clicking the little pencil icon next to the author name.
 
 You can search through all the notes in your library using the
-:guilabel:`Browse notes` tool that can be added to the toolbar via
-:guilabel:`Preferences->Toolbars & menus`.
+:guilabel:`Browse notes` tool by pressing :kbd:`Ctrl+Shift+N` or adding
+it to the toolbar via :guilabel:`Preferences->Toolbars & menus`.
 
 .. raw:: html epub
 
