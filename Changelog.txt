@@ -652,7 +652,7 @@
 
 - [2009304] Allow display of columns built from other columns as comments in Book details
 
-- Comments editor: Add a shortcut for "Paste and match style" (Ctrl+Shift+v)
+- Comments editor: Add a shortcut for "Paste and match style" (Ctrl+Shift+V)
 
 :: bug fixes
 
@@ -1665,7 +1665,7 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 
 - [1959207] E-book viewer: When using Read aloud do not automatically lookup the highlighted word until read aloud is paused or stopped
 
-- E-book viewer: Fix Ctrl+p shortcut for printing not working
+- E-book viewer: Fix Ctrl+P shortcut for printing not working
 
 - [1958882] Show an error when viewing a specific format and the file is missing
 

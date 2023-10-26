@@ -622,7 +622,7 @@ learn how to create and use Virtual libraries, see the tutorial:
 Temporarily marking books
 ----------------------------
 
-You can temporarily mark arbitrary sets of books. Marked books will have a pin on them and can be found with the search ``marked:true``. To mark a book press :kbd:`Ctrl+m` or go to :guilabel:`Preferences->Toolbars & menus` and add the :guilabel:`Mark books` button to the main toolbar.
+You can temporarily mark arbitrary sets of books. Marked books will have a pin on them and can be found with the search ``marked:true``. To mark a book press :kbd:`Ctrl+M` or go to :guilabel:`Preferences->Toolbars & menus` and add the :guilabel:`Mark books` button to the main toolbar.
 
 You can mark books with a specific text label by right clicking the :guilabel:`Mark books` button and choosing :guilabel:`Mark books with text label`. Books marked with text labels can later be found using the search ``marked:"=the-text-you-entered"``.
 
