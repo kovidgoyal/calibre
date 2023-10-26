@@ -767,7 +767,7 @@ library. To do so right click on the author name in the :guilabel:`Tag browser` 
 or the :guilabel:`Book details` panel on the right and choose :guilabel:`Create note`
 or :guilabel:`Edit note`.
 
-A simple popup window will allow you to enter your notes using simple
+A simple popup window will allow you to enter your notes using basic
 formatting and supporting links and images. Once a note for an author is
 created, it can be viewed easily from the :guilabel:`Book details` panel by
 clicking the little pencil icon next to the author name.
