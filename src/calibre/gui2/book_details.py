@@ -1314,7 +1314,8 @@ class BookDetails(DetailsLayout):  # {{{
                 url = url_for_author_search(data.where, author=data.author)
             safe_open_url(url)
 
-    def handle_click(self, link):
+    def handle_click_from_popup(self, link, parent=None):
+        parent = parent or self
         typ, val = link.partition(':')[::2]
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
@@ -1370,14 +1371,17 @@ class BookDetails(DetailsLayout):  # {{{
             if field and db.field_supports_notes(field):
                 item_id = data['item_id']
                 if item_id is not None and db.notes_for(field, item_id):
-                    return self.show_notes(field, item_id)
+                    return self.show_notes(field, item_id, parent)
         else:
             browse(link)
 
-    def show_notes(self, field, item_id):
+    def handle_click(self, link):
+        self.handle_click_from_popup(link)
+
+    def show_notes(self, field, item_id, parent=None):
         from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
         from calibre.gui2.ui import get_gui
-        ShowNoteDialog(field, item_id, get_gui().current_db.new_api, parent=self).show()
+        ShowNoteDialog(field, item_id, get_gui().current_db.new_api, parent=parent or self).show()
 
     def mouseDoubleClickEvent(self, ev):
         ev.accept()

@@ -303,7 +303,7 @@ class BookInfo(QDialog):
 
     def on_link_clicked(self, qurl):
         link = str(qurl.toString(NO_URL_FORMATTING))
-        self.link_delegate(link)
+        self.link_delegate(link, self)
 
     def done(self, r):
         self.save_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
