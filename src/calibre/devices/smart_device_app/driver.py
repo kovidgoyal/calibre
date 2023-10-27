@@ -392,7 +392,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.debug_time = time.time()
         self.is_connected = False
-        monkeypatch_zeroconf()
 
     # Don't call this method from the GUI unless you are sure that there is no
     # network traffic in progress. Otherwise the gui might hang waiting for the
@@ -1957,7 +1956,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 ip_addr = self.settings().extra_customization[self.OPT_FORCE_IP_ADDRESS]
                 publish_zeroconf('calibre smart device client',
                                  '_calibresmartdeviceapp._tcp', port, {},
-                                 use_ip_address=ip_addr)
+                                 use_ip_address=ip_addr, strict=False)
             except:
                 self._debug('registration with bonjour failed')
                 traceback.print_exc()
@@ -2037,147 +2036,3 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def is_running(self):
         return getattr(self, 'listen_socket', None) is not None
-
-# Function to monkeypatch zeroconf to remove the 15 character name length restriction.
-# Copied from https://github.com/jstasiak/python-zeroconf version 0.28.1
-
-
-def monkeypatched_service_type_name(type_: str, *, strict: bool = True) -> str:
-    """
-    Validate a fully qualified service name, instance or subtype. [rfc6763]
-
-    Returns fully qualified service name.
-
-    Domain names used by mDNS-SD take the following forms:
-
-                   <sn> . <_tcp|_udp> . local.
-      <Instance> . <sn> . <_tcp|_udp> . local.
-      <sub>._sub . <sn> . <_tcp|_udp> . local.
-
-    1) must end with 'local.'
-
-      This is true because we are implementing mDNS and since the 'm' means
-      multi-cast, the 'local.' domain is mandatory.
-
-    2) local is preceded with either '_udp.' or '_tcp.' unless
-       strict is False
-
-    3) service name <sn> precedes <_tcp|_udp> unless
-       strict is False
-
-      The rules for Service Names [RFC6335] state that they may be no more
-      than fifteen characters long (not counting the mandatory underscore),
-      consisting of only letters, digits, and hyphens, must begin and end
-      with a letter or digit, must not contain consecutive hyphens, and
-      must contain at least one letter.
-
-    The instance name <Instance> and sub type <sub> may be up to 63 bytes.
-
-    The portion of the Service Instance Name is a user-
-    friendly name consisting of arbitrary Net-Unicode text [RFC5198]. It
-    MUST NOT contain ASCII control characters (byte values 0x00-0x1F and
-    0x7F) [RFC20] but otherwise is allowed to contain any characters,
-    without restriction, including spaces, uppercase, lowercase,
-    punctuation -- including dots -- accented characters, non-Roman text,
-    and anything else that may be represented using Net-Unicode.
-
-    :param type_: Type, SubType or service name to validate
-    :return: fully qualified service name (eg: _http._tcp.local.)
-    """
-
-    from zeroconf import (
-        _HAS_A_TO_Z, _HAS_ASCII_CONTROL_CHARS, _HAS_ONLY_A_TO_Z_NUM_HYPHEN,
-        _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE, _LOCAL_TRAILER,
-        _NONTCP_PROTOCOL_LOCAL_TRAILER, _TCP_PROTOCOL_LOCAL_TRAILER,
-        BadTypeInNameException
-    )
-
-    if type_.endswith(_TCP_PROTOCOL_LOCAL_TRAILER) or type_.endswith(_NONTCP_PROTOCOL_LOCAL_TRAILER):
-        remaining = type_[: -len(_TCP_PROTOCOL_LOCAL_TRAILER)].split('.')
-        trailer = type_[-len(_TCP_PROTOCOL_LOCAL_TRAILER) :]
-        has_protocol = True
-    elif strict:
-        raise BadTypeInNameException(
-            "Type '%s' must end with '%s' or '%s'"
-            % (type_, _TCP_PROTOCOL_LOCAL_TRAILER, _NONTCP_PROTOCOL_LOCAL_TRAILER)
-        )
-    elif type_.endswith(_LOCAL_TRAILER):
-        remaining = type_[: -len(_LOCAL_TRAILER)].split('.')
-        trailer = type_[-len(_LOCAL_TRAILER) + 1 :]
-        has_protocol = False
-    else:
-        raise BadTypeInNameException(f"Type '{type_}' must end with '{_LOCAL_TRAILER}'")
-
-    if strict or has_protocol:
-        service_name = remaining.pop()
-        if not service_name:
-            raise BadTypeInNameException("No Service name found")
-
-        if len(remaining) == 1 and len(remaining[0]) == 0:
-            raise BadTypeInNameException("Type '%s' must not start with '.'" % type_)
-
-        if service_name[0] != '_':
-            raise BadTypeInNameException("Service name (%s) must start with '_'" % service_name)
-
-        test_service_name = service_name[1:]
-
-        # if len(test_service_name) > 15:
-        #     raise BadTypeInNameException("Service name (%s) must be <= 15 bytes" % test_service_name)
-
-        if '--' in test_service_name:
-            raise BadTypeInNameException("Service name (%s) must not contain '--'" % test_service_name)
-
-        if '-' in (test_service_name[0], test_service_name[-1]):
-            raise BadTypeInNameException(
-                "Service name (%s) may not start or end with '-'" % test_service_name
-            )
-
-        if not _HAS_A_TO_Z.search(test_service_name):
-            raise BadTypeInNameException(
-                "Service name (%s) must contain at least one letter (eg: 'A-Z')" % test_service_name
-            )
-
-        allowed_characters_re = (
-            _HAS_ONLY_A_TO_Z_NUM_HYPHEN if strict else _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE
-        )
-
-        if not allowed_characters_re.search(test_service_name):
-            raise BadTypeInNameException(
-                "Service name (%s) must contain only these characters: "
-                "A-Z, a-z, 0-9, hyphen ('-')%s" % (test_service_name, "" if strict else ", underscore ('_')")
-            )
-    else:
-        service_name = ''
-
-    if remaining and remaining[-1] == '_sub':
-        remaining.pop()
-        if len(remaining) == 0 or len(remaining[0]) == 0:
-            raise BadTypeInNameException("_sub requires a subtype name")
-
-    if len(remaining) > 1:
-        remaining = ['.'.join(remaining)]
-
-    if remaining:
-        length = len(remaining[0].encode('utf-8'))
-        if length > 63:
-            raise BadTypeInNameException("Too long: '%s'" % remaining[0])
-
-        if _HAS_ASCII_CONTROL_CHARS.search(remaining[0]):
-            raise BadTypeInNameException(
-                "Ascii control character 0x00-0x1F and 0x7F illegal in '%s'" % remaining[0]
-            )
-
-    return service_name + trailer
-
-
-def monkeypatch_zeroconf():
-    # Hack to work around the newly-enforced 15 character service name limit.
-    # "monkeypatch" zeroconf with a function without the check
-    try:
-        from zeroconf._utils.name import service_type_name
-        # zeroconf 0.73 uses an lru cache so we need __wrapped__
-        service_type_name = getattr(service_type_name, '__wrapped__', service_type_name)
-        service_type_name.__kwdefaults__['strict'] = False
-    except ImportError:
-        import zeroconf
-        zeroconf.service_type_name = monkeypatched_service_type_name
