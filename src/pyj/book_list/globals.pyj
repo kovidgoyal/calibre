@@ -33,3 +33,11 @@ def get_translations(val):
     if val:
         get_translations.ans = val
     return get_translations.ans
+
+
+def book_whose_metadata_is_being_edited(set_book_id=''):
+    if jstype(set_book_id) is 'number':
+        book_whose_metadata_is_being_edited.ans = set_book_id
+    elif set_book_id is None:
+        book_whose_metadata_is_being_edited.ans = None
+    return book_whose_metadata_is_being_edited.ans
