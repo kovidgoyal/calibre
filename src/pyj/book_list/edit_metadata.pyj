@@ -13,7 +13,7 @@ from book_list.book_details import (
 from book_list.comments_editor import (
     create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
 )
-from book_list.globals import get_current_query
+from book_list.globals import get_current_query, book_whose_metadata_is_being_edited
 from book_list.library_data import (
     book_metadata, cover_url, current_library_id, field_names_for, library_data,
     load_status, loaded_book_ids, set_book_metadata
@@ -1197,6 +1197,8 @@ def init(container_id):
 
 
 def init_select_item_for_edit_notes(container_id):
+    q = parse_url_params()
+    book_whose_metadata_is_being_edited(int(q.book_id))
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
