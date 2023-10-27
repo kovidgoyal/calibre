@@ -1,123 +1,182 @@
+import json
 import re
 from collections import OrderedDict
+from urllib.parse import urlencode, urljoin
 
-from calibre import browser
+from calibre import browser, random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from mechanize import Request
 
-
-def absurl(url):
-    if url.startswith('/'):
-        url = 'https://www.hbr.org' + url
-    return url
+_issue_url = ""  # custom issue url
 
 
 class HBR(BasicNewsRecipe):
-    title = 'Harvard Business Review'
-    __author__ = 'unkn0wn'
+    title = "Harvard Business Review"
+    __author__ = "unkn0wn, updated by ping"
     description = (
-        'Harvard Business Review is the leading destination for smart management thinking.'
-        ' Through its flagship magazine, books, and digital content and tools published on HBR.org,'
-        ' Harvard Business Review aims to provide professionals around the world with rigorous insights'
-        ' and best practices to help lead themselves and their organizations more effectively and to make a positive impact.')
-    language = 'en'
-    use_embedded_content = False
-    no_stylesheets = True
+        "Harvard Business Review is the leading destination for smart management thinking. "
+        "Through its flagship magazine, books, and digital content and tools published on HBR.org, "
+        "Harvard Business Review aims to provide professionals around the world with rigorous insights "
+        "and best practices to help lead themselves and their organizations more effectively and to "
+        "make a positive impact."
+    )
+    language = "en"
+    masthead_url = "https://hbr.org/resources/css/images/hbr_logo.svg"
+    publication_type = "magazine"
+    encoding = "utf-8"
     remove_javascript = True
-    masthead_url = 'http://hbr.org/resources/css/images/hbr_logo.svg'
-    remove_attributes = ['height', 'width', 'style']
-    encoding = 'utf-8'
-    ignore_duplicate_articles = {'url'}
-    resolve_internal_links = True
+    no_stylesheets = True
+    auto_cleanup = False
+    compress_news_images = True
+    ignore_duplicate_articles = {"url"}
+    base_url = "https://hbr.org"
 
-    extra_css = '''
-        .article-summary, .article-ideainbrief, .description-text, .link--black {font-size:small; color:#202020;}
-        .credits--hero-image, .credits--inline-image, .caption--inline-image {font-size:small; text-align:center;}
-        .article-byline-list {font-size:small; font-weight:bold;}
-        .question {font-weight:bold;}
-        .right-rail--container {font-size:small; color:#404040;}
-        .article-callout, .slug-content {color:#404040;}
-        .article-sidebar {color:#202020;}
-    '''
+    remove_attributes = ["height", "width", "style"]
+    extra_css = """
+        h1.article-hed { font-size: x-large; margin-bottom: 0.4rem; }
+        .article-dek {  font-size: large; font-style: italic; margin-bottom: 1rem; }
+        .article-byline { margin-top: 0.7rem; font-size: medium; font-style: normal; font-weight: bold; }
+        .pub-date { font-size: small; margin-bottom: 1rem; }
+        img {
+            display: block; margin-bottom: 0.3rem; max-width: 100%; height: auto;
+            box-sizing: border-box;
+        }
+        .container--caption-credits-hero, .container--caption-credits-inline, span.credit { font-size: small; }
+        .question { font-weight: bold; }
+        .description-text {
+            margin: 1rem 0;
+            border-top: 1px solid gray;
+            padding-top: 0.5rem;
+            font-style: italic;
+        }
+        """
 
     keep_only_tags = [
         classes(
-            'slug-container headline-container hero-image-content article-summary article-body '
-            'standard-content article-dek-group article-dek'
-        )
+            "headline-container article-dek-group pub-date hero-image-content "
+            "article-body standard-content"
+        ),
     ]
 
     remove_tags = [
         classes(
-            'left-rail--container translate-message follow-topic newsletter-container'
-        )
+            "left-rail--container translate-message follow-topic "
+            "newsletter-container by-prefix related-topics--common"
+        ),
+        dict(name=["article-sidebar"]),
     ]
 
+    def preprocess_raw_html(self, raw_html, article_url):
+        soup = self.soup(raw_html)
+
+        # break author byline out of list
+        byline_list = soup.find("ul", class_="article-byline-list")
+        if byline_list:
+            byline = byline_list.parent
+            byline.append(
+                ", ".join(
+                    [
+                        self.tag_to_string(author)
+                        for author in byline_list.find_all(class_="article-author")
+                    ]
+                )
+            )
+            byline_list.decompose()
+
+        # Extract full article content
+        content_ele = soup.find(
+            "content",
+            attrs={
+                "data-index": True,
+                "data-page-year": True,
+                "data-page-month": True,
+                "data-page-seo-title": True,
+                "data-page-slug": True,
+            },
+        )
+        endpoint_url = "https://hbr.org/api/article/piano/content?" + urlencode(
+            {
+                "year": content_ele["data-page-year"],
+                "month": content_ele["data-page-month"],
+                "seotitle": content_ele["data-page-seo-title"],
+            }
+        )
+        data = {
+            "contentKey": content_ele["data-index"],
+            "pageSlug": content_ele["data-page-slug"],
+        }
+        headers = {
+            "User-Agent": random_user_agent(),
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache",
+            "Content-Type": "application/json",
+            "Referer": article_url,
+        }
+        br = browser()
+        req = Request(
+            endpoint_url,
+            headers=headers,
+            data=json.dumps(data),
+            method="POST",
+            timeout=self.timeout,
+        )
+        res = br.open(req)
+        article = json.loads(res.read())
+        new_soup = self.soup(article["content"])
+        # clear out existing partial content
+        for c in list(content_ele.children):
+            c.extract()  # use extract() instead of decompose() because of strings
+        content_ele.append(new_soup.body)
+        return str(soup)
+
     def parse_index(self):
-        soup = self.index_to_soup('https://hbr.org/magazine')
-        div = soup.find(**classes('backdrop-lightest'))
-        a = div.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
-        index = absurl(a['href'])
-        self.timefmt = ' [' + self.tag_to_string(div.find('h2')) + ']'
-        self.log('Downloading issue: ', index, self.timefmt)
-        cov_url = a.find('img', src=True)
-        if cov_url:
-            self.cover_url = absurl(cov_url['src'])
-        soup = self.index_to_soup(index)
+        if not _issue_url:
+            soup = self.index_to_soup(f"{self.base_url}/magazine")
+            a = soup.find("a", href=lambda x: x and x.startswith("/archive-toc/"))
+            cov_url = a.find("img", attrs={"src": True})["src"]
+            self.cover_url = urljoin(self.base_url, cov_url)
+            issue_url = urljoin(self.base_url, a["href"])
+        else:
+            issue_url = _issue_url
+            mobj = re.search(r"archive-toc/(?P<issue>(BR)?\d+)\b", issue_url)
+            if mobj:
+                self.cover_url = f'https://hbr.org/resources/images/covers/{mobj.group("issue")}_500.png'
+
+        self.log("Downloading issue:", issue_url)
+        soup = self.index_to_soup(issue_url)
+        issue_title = soup.find("h1")
+        if issue_title:
+            self.timefmt = f" [{self.tag_to_string(issue_title)}]"
 
         feeds = OrderedDict()
+        for h3 in soup.find_all("h3", attrs={"class": "hed"}):
+            article_link_ele = h3.find("a")
+            if not article_link_ele:
+                continue
 
-        for h3 in soup.findAll('h3', attrs={'class': 'hed'}):
-            articles = []
-            a = h3.find('a')
-            title = self.tag_to_string(a)
-            url = absurl(a['href'])
-            auth = ''
-            div = h3.find_next_sibling('div', attrs={'class': 'stream-item-info'})
-            if div:
-                aut = self.tag_to_string(div).replace('Magazine Article ', '')
-                auth = re.sub(r"(?<=\w)([A-Z])", r", \1", aut)
-            des = ''
-            dek = h3.find_next_sibling('div', attrs={'class': 'dek'})
-            if dek:
-                des = self.tag_to_string(dek)
-            desc = des + ' |' + auth.title()
-            section_title = 'Articles'
-            sec = h3.findParent('li').find_previous_sibling('div', **classes('stream-section-label')).find('h4')
-            if sec:
-                section_title = self.tag_to_string(sec).title()
-            self.log(section_title, '\n\t', title, '\n\t', desc, '\n\t\t', url)
-            articles.append({'title': title, 'url': url, 'description': desc})
-            if articles:
-                if section_title not in feeds:
-                    feeds[section_title] = []
-                feeds[section_title] += articles
-        ans = [(key, val) for key, val in feeds.items()]
-        return ans
+            article_ele = h3.find_next_sibling(
+                "div", attrs={"class": "stream-item-info"}
+            )
+            if not article_ele:
+                continue
 
-    def preprocess_html(self, soup):
-        for slug in soup.findAll(**classes('slug-content')):
-            del slug['href']
-        for dek in soup.findAll(**classes('article-byline')):
-            for by in dek.findAll('span', attrs={'class':'by-prefix'}):
-                by.extract()
-            for li in dek.findAll('li'):
-                li.name = 'span'
-        for div in soup.findAll('div', attrs={'class':['article-summary', 'article-callout']}):
-            div.name = 'blockquote'
-        for sidebar in soup.findAll(('article-sidebar', 'article-ideainbrief')):
-            sidebar.name = 'blockquote'
-        return soup
+            title = self.tag_to_string(article_link_ele)
+            url = urljoin(self.base_url, article_link_ele["href"])
 
-    # HBR changes the content it delivers based on cookies, so the
-    # following ensures that we send no cookies
-    def get_browser(self, *args, **kwargs):
-        return self
+            authors_ele = article_ele.select("ul.byline li")
+            authors = ", ".join([self.tag_to_string(a) for a in authors_ele])
 
-    def clone_browser(self, *args, **kwargs):
-        return self.get_browser()
-
-    def open_novisit(self, *args, **kwargs):
-        br = browser()
-        return br.open_novisit(*args, **kwargs)
-
-    open = open_novisit
+            article_desc = ""
+            dek_ele = h3.find_next_sibling("div", attrs={"class": "dek"})
+            if dek_ele:
+                article_desc = self.tag_to_string(dek_ele) + " | " + authors
+            section_ele = (
+                h3.findParent("li")
+                .find_previous_sibling("div", **classes("stream-section-label"))
+                .find("h4")
+            )
+            section_title = self.tag_to_string(section_ele).title()
+            feeds.setdefault(section_title, []).append(
+                {"title": title, "url": url, "description": article_desc}
+            )
+        return feeds.items()
