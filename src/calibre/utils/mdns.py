@@ -154,7 +154,7 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
         server=server_name)
 
 
-def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None):
+def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None, strict=True):
     '''
     Publish a service.
 
@@ -167,7 +167,7 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname,
                              use_ip_address)
-    server.register_service(service)
+    server.register_service(service, strict=strict)
     return service
 
 
