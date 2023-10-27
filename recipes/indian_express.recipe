@@ -23,6 +23,7 @@ class IndianExpress(BasicNewsRecipe):
         em{font-style:italic; color:#202020;}
         #sub-d{color:#202020; font-style:italic;}
         .ie-authorbox{font-size:small;}
+        img {display:block; margin:0 auto;}
     '''
 
     resolve_internal_links = True
