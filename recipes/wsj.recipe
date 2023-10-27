@@ -51,7 +51,7 @@ class WSJ(BasicNewsRecipe):
     extra_css = '''
         #big-top-caption { font-size:small; text-align:center; }
         [data-type:"tagline"] { font-style:italic; color:#202020; }
-        .auth { font-size:small; }
+        .auth, time { font-size:small; }
         .sub, em, i { color: #202020; }
     '''
 
@@ -63,7 +63,7 @@ class WSJ(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(attrs={'data-type':'inset'}),
+        dict(attrs={'data-type':['inset', 'video']}),
         dict(attrs={'data-testid':'ad-container'}),
         dict(attrs={'data-spotim-app':'conversation'}),
         dict(name=['button', 'svg', 'old-script', 'video']),

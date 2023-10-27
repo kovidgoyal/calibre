@@ -61,7 +61,7 @@ class TheHindufeeds(BasicNewsRecipe):
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         if self.output_profile.short_name.startswith('kindle'):
-            self.title = 'The Hindu (Feeds)' + date.today().strftime('%b %d, %Y')
+            self.title = 'The Hindu (Feeds) ' + date.today().strftime('%b %d, %Y')
            
 
     def get_cover_url(self):
