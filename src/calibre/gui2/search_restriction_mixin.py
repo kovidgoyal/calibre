@@ -369,7 +369,7 @@ class SearchRestrictionMixin:
         virt_libs[name] = search
         db.new_api.set_pref('virtual_libraries', virt_libs)
         db.new_api.clear_search_caches()
-        self.library_view.model().db.refresh()
+        self.library_view.model().refresh()
 
     def do_create_edit(self, name=None):
         db = self.library_view.model().db
@@ -514,7 +514,7 @@ class SearchRestrictionMixin:
             'confirm_vl_removal', parent=self):
             return
         self._remove_vl(name, reapply=True)
-        self.library_view.model().db.refresh()
+        self.library_view.model().refresh()
 
     def choose_vl_triggerred(self):
         from calibre.gui2.tweak_book.widgets import QuickOpen, emphasis_style
