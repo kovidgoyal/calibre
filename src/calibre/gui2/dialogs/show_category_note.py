@@ -129,6 +129,7 @@ class ShowNoteDialog(Dialog):
             if gui is not None:
                 gui.do_field_item_value_changed()
             self.refresh()
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def find_books(self):
         q = self.item_val.replace('"', r'\"')
