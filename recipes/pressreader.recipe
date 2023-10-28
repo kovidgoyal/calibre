@@ -1,0 +1,603 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+#
+# Copyright (c) 2023 https://github.com/ping/
+#
+# This software is released under the GNU General Public License v3.0
+# https://opensource.org/licenses/GPL-3.0
+#
+import json
+import math
+import os
+import shutil
+from collections import OrderedDict
+from datetime import datetime
+from http import HTTPStatus
+from typing import Dict, Optional
+from urllib.parse import urlencode, urljoin
+
+from calibre import browser, random_user_agent
+from calibre.constants import DEBUG
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+from mechanize import Request
+
+#
+# This recipe downloads a periodical from pressreader with access from your library / subscription.
+#
+# This recipe only works for:
+# 1. periodicals that support text-view
+# 2. libraries that you can sign in with your account directly on pressreader.com
+#     (does not require redirecting to your library site), OR
+#     if you have a direct pressreader login and subscription (NOT TESTED)
+#
+# If using a library account, you will need to find your library_id which you can search using this url,
+# and substitute "mylibrary" with your library name. Paste the response into a json viewer
+# if it's difficult to parse
+# https://ingress.pressreader.com/services/libraries/?withLogo=true&limit=30&offset=0&filter=mylibrary
+#
+# Because the library_id is needed, this value should be stuffed into the username passed to the recipe.
+# Example:
+# - username: "<library ID>|<library access barcode/userid>", e.g. "9876|CARD20202020" (no quotes)
+#     where 9876 is the pressreader library ID and CARD20202020 is the library barcode/username
+# - password: "<library access pin>", e.g. "1234" (no quotes) where 1234 is the card pin or password.
+#
+# If using a pressreader account, just supply your username and password as usual.
+# But this is not tested, since I don't have a pressreader subscription.
+#
+
+# [TODO] Customisations Here
+# This can also be overwritten by env variables if executing from CLI
+# env var keys: PR_COUNTRY, PR_SLUG, PR_ISSUEDATE, PR_TYPE, PR_NAME
+_periodical_country = "usa"
+_periodical_slug = "the-wall-street-journal"
+_periodical_issuedate = None
+_publication_type = "newspaper"
+_ignore_duplicate_articles = None
+#
+# For example:
+# For periodical url https://www.pressreader.com/usa/the-wall-street-journal
+#     _periodical_country = "usa"
+#     _periodical_slug = "the-wall-street-journal"
+#     _periodical_issuedate = None
+#    _publication_type = "newspaper"
+#
+# For periodical url https://www.pressreader.com/uk/the-economist-eu/20231007/details
+#     _periodical_country = "uk"
+#     _periodical_slug = "the-economist-eu"
+#     _periodical_issuedate = "20231007"
+#     _publication_type = "magazine"
+#
+
+
+class PressReaderRecipe(BasicNewsRecipe):
+    title = os.environ.get("PR_NAME", "") or "PressReader"
+    description = (
+        "This is an example PressReader recipe that you should customize for the periodical you want. "
+        "See source code for detailed instructions."
+    )
+    __author__ = "ping"
+    encoding = "utf-8"
+    language = "en"
+    remove_javascript = True
+    no_stylesheets = True
+    auto_cleanup = False
+    needs_subscription = True
+
+    ignore_duplicate_articles = _ignore_duplicate_articles
+
+    publication_type = os.environ.get("PR_TYPE", "") or _publication_type
+    periodical_country = os.environ.get("PR_COUNTRY", "") or _periodical_country
+    periodical_slug = os.environ.get("PR_SLUG", "") or _periodical_slug
+    periodical_issuedate = os.environ.get("PR_ISSUEDATE", None) or _periodical_issuedate
+
+    pub_date: Optional[datetime] = None  # custom publication date
+    temp_dir: Optional[PersistentTemporaryDirectory] = None
+    api_base = "https://ingress.pressreader.com"
+    br = browser()
+    user_agent = random_user_agent(allow_ie=False)
+
+    library_id = None
+    library_or_pr_username = None
+    library_or_pr_password = None
+    access_token = None
+    bearer_token = None
+
+    extra_css = """
+    div.section { font-size: 0.85rem; text-transform: uppercase; }
+    h1.title { font-size: 2rem; line-height: 1.2; margin-top: 1rem; margin-bottom: 0.4rem; }
+    h2.subtitle { font-size: 1.5rem; line-height: 1.1; font-style: italic; font-weight: normal; margin-top: 0; }
+    .byline { margin-top: 0.8rem; margin-bottom: 1rem; }
+    .image-container { margin-top: 1rem; margin-bottom: 1rem; }
+    .caption { font-size: 0.85rem; margin-top: 0.2rem; }
+    blockquote.pullquote { font-size: 1.25rem; font-style: italic; }
+    """
+
+    def publication_date(self) -> Optional[datetime]:
+        return self.pub_date
+
+    def cleanup(self) -> None:
+        if self.temp_dir:
+            self.log("Deleting temp files...")
+            shutil.rmtree(self.temp_dir)
+
+    def api_request_headers(self, authenticated: bool = True):
+        headers = {
+            "User-Agent": self.user_agent,
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache",
+            "Referer": "https://www.pressreader.com/",
+        }
+        if authenticated and self.bearer_token:
+            headers["Authorization"] = f"Bearer {self.bearer_token}"
+        return headers
+
+    def make_api_request(
+        self,
+        endpoint: str,
+        params: Optional[Dict] = None,
+        data: Optional[Dict] = None,
+        json_data: Optional[Dict] = None,
+        headers: Optional[Dict] = None,
+        method: Optional[str] = None,
+        authenticated: bool = True,
+    ):
+        endpoint_url = urljoin(self.api_base, endpoint)
+        if params:
+            query_qs = ("?" if "?" not in endpoint_url else "&") + urlencode(
+                params, True
+            )
+            endpoint_url += query_qs
+
+        if headers is None:
+            headers = self.api_request_headers(authenticated)
+        if not method:
+            # try to set an HTTP method
+            if data is not None or json_data is not None:
+                method = "POST"
+                headers[
+                    "Content-Type"
+                ] = "application/x-www-form-urlencoded;charset=UTF-8"
+            else:
+                method = "GET"
+        request_data = data
+        if json_data is not None:
+            request_data = json.dumps(json_data)
+            headers["Content-Type"] = "application/json"
+
+        if DEBUG:
+            self.log.debug(f"REQ {method}: {endpoint_url}")
+            for k, v in headers.items():
+                if k == "Authorization":
+                    continue
+                self.log.debug(f"REQ HDR {k}: {v}")
+
+        req = Request(
+            endpoint_url,
+            headers=headers,
+            data=request_data,
+            method=method,
+            timeout=self.timeout,
+        )
+        res = self.br.open(req)
+
+        if DEBUG:
+            self.log.debug(f"RES: {res.getcode()} {res.geturl()}")
+            res_headers = res.info()
+            for k, v in res_headers.items():
+                self.log.debug(f"RES HDR {k}: {v}")
+
+        content = res.read()
+        if DEBUG:
+            self.log.debug(f"RES BODY: {content}")
+
+        if res.getcode() == HTTPStatus.NO_CONTENT:
+            raise RuntimeError(f"HTTP {res.getcode()} No Content")
+
+        return json.loads(content)
+
+    def init(self):
+        confirm_cookie = self.make_api_request(
+            "https://www.pressreader.com/Authentication/ConfirmCookies",
+            authenticated=False,
+        )
+        if not (
+            confirm_cookie.get("BearerToken") and confirm_cookie.get("AccessToken")
+        ):
+            # raise error
+            raise RuntimeError("Unable to get tokens")
+
+        self.access_token = confirm_cookie["AccessToken"]
+        self.bearer_token = confirm_cookie["BearerToken"]
+        service_auth = self.make_api_request("/services/preload")
+        if not service_auth.get("auth", {}):
+            raise RuntimeError("Unable to get service preload tokens")
+
+        auth = service_auth["auth"]
+        self.access_token = auth["Token"]
+        self.bearer_token = auth["BearerToken"]
+
+    def library_login(self, library_id: str, barcode: str, pin: str) -> dict:
+        """
+        Login with library provider.
+
+        :param library_id:
+        :param barcode:
+        :param pin:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/external/library/signin",
+            data={
+                "barcode": barcode,
+                "pin": pin,
+                "library": library_id,
+                "provider": "library",
+                "reCaptchaVersion": "3",
+                "reCaptchaToken": "",
+            },
+        )
+
+    def login(self, username: str, password: str):
+        signin_info = self.make_api_request(
+            "/services/auth/Signin",
+            data={
+                "userName": username,
+                "password": password,
+                "reCaptchaVersion": "3",
+                "reCaptchaToken": "",
+            },
+        )
+        if not (signin_info.get("UserKey") and signin_info.get("Token")):
+            raise RuntimeError("Invalid username or password")
+
+        signin_check = self.make_api_request(
+            "https://www.pressreader.com/Authentication/SignIn",
+            json_data={"token": signin_info["Token"], "enableAutologin": True},
+            method="POST",
+        )
+        cookie_jar = self.br.cookiejar
+        cookies = {}
+        for cookie in cookie_jar:
+            if cookie.name in ("PDAuth", "PDPAuth", "Profile", "AProfile"):
+                cookies[cookie.name] = cookie.value
+        if not (
+            signin_check.get("Status", "") == "success"
+            and cookies.get("PDAuth")
+            and cookies.get("PDPAuth")
+            and cookies.get("Profile")
+            and cookies.get("AProfile")
+        ):
+            raise RuntimeError("Unable to get signin cookies")
+
+        auth = self.make_api_request(
+            "/services/auth/",
+            params={
+                "ticket[]": [
+                    cookies["PDAuth"],
+                    cookies["PDPAuth"],
+                    cookies["Profile"],
+                    cookies["AProfile"],
+                ],
+                "lng": "en-us",
+            },
+            authenticated=False,
+        )
+        self.access_token = auth["Token"]
+        self.bearer_token = auth["BearerToken"]
+        return auth
+
+    def update_auth(self):
+        update_auth = self.make_api_request(
+            "/services/auth/update",
+            json_data={"accessToken": self.access_token},
+            method="POST",
+        )
+        self.access_token = update_auth["Token"]
+        self.bearer_token = update_auth["BearerToken"]
+        return update_auth
+
+    def publication_route(self, country_code: str, slug: str) -> dict:
+        """
+        Get publication info by route. Returns the cid needed to get publication info.
+
+        :param country_code:
+        :param slug:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/catalog/v1/routes/country/publication",
+            params={"country": country_code, "publication": slug},
+        )
+
+    def publication_info(self, cid: str) -> dict:
+        """
+        Get publication information.
+
+        :param cid:
+        :return:
+        """
+        return self.make_api_request(f"/services/catalog/publications/{cid}")
+
+    def issue_info(self, issue_key: str) -> dict:
+        """
+        Get issue info.
+
+        :param issue_key:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/IssueInfo/GetIssueInfo", params={"issue": issue_key}
+        )
+
+    def issue_info_by_cid(self, cid: str, issue_date: str) -> dict:
+        """
+        Get issue info.
+
+        :param cid:
+        :param issue_date:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/IssueInfo/GetIssueInfoByCid",
+            params={"cid": cid, "issueDate": issue_date},
+        )
+
+    def issue_pages_metadata(self, issue_key: str, page_numbers: list[int]) -> dict:
+        """
+        Gets issue pages metadata.
+
+        :param issue_key:
+        :param page_numbers:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/pagesMetadata/",
+            params={
+                "issue": issue_key,
+                "pageNumbers": ",".join([str(p) for p in page_numbers]),
+            },
+        )
+
+    def issue_toc(
+        self, issue_key: str, layout_version: str, expunge_version=None
+    ) -> dict:
+        return self.make_api_request(
+            "https://s.prcdn.co/services/toc/",
+            params={
+                "issue": issue_key,
+                "version": layout_version,
+                "expungeVersion": expunge_version or "",
+            },
+        )
+
+    def articles(self, article_ids: list[int | str]) -> dict:
+        """
+        Get articles information.
+
+        :param article_ids:
+        :return:
+        """
+        return self.make_api_request(
+            "/services/articles/GetItems",
+            params={
+                "comment": "LatestByAll",
+                "viewType": "text",
+                "options": "1",
+                "articles": ",".join([str(aid) for aid in article_ids]),
+            },
+        )
+
+    def parse_index(self):
+        if not (self.username and self.password):
+            self.abort_recipe_processing("Credentials required")
+            return
+        if not (self.periodical_country and self.periodical_slug):
+            self.abort_recipe_processing("Periodical details required")
+            return
+
+        # do init sequence and login
+        self.log.debug("Initialising pr...")
+        username_parts = self.username.split("|")
+        if len(username_parts) == 2:
+            self.library_id, self.library_or_pr_username = username_parts
+        elif len(username_parts) == 1:
+            self.library_or_pr_username = username_parts[0]
+        else:
+            self.abort_recipe_processing("Invalid username configuration")
+        self.library_or_pr_password = self.password
+
+        try:
+            self.init()
+        except RuntimeError as run_err:
+            self.abort_recipe_processing(str(run_err))
+
+        if self.library_id:
+            self.log.info("Logging into library...")
+            login_info = self.library_login(
+                self.library_id,
+                self.library_or_pr_username,
+                self.library_or_pr_password,
+            )
+            if not (
+                login_info.get("isAuthorized")
+                or login_info.get("patronInfo", {}).get("isAuthorized")
+            ):
+                # raise error
+                self.abort_recipe_processing(
+                    "Unable to login with credentials supplied."
+                )
+            self.log.info("Login to library successful")
+            self.update_auth()
+        else:
+            self.log.info("Logging into pressreader...")
+            self.login(self.library_or_pr_username, self.library_or_pr_password)
+            self.log.info("Login to pressreader successful")
+
+        periodical_route = self.publication_route(
+            self.periodical_country, self.periodical_slug
+        )
+        pub_cid = periodical_route["cid"]
+        publication_info = self.publication_info(pub_cid)
+        if publication_info.get("mastheads") and publication_info.get(
+            "mastheads", {}
+        ).get("colorImageId"):
+            if not self.masthead_url:
+                self.log.info(
+                    f'Set masthead_url: https://ingress-cdn.pressreader.com/imageserver/v1/image/?{publication_info["mastheads"]["colorImageId"]}?scale=800'
+                )
+
+        if not self.periodical_issuedate:
+            issue_key = publication_info["latestIssue"]["key"]
+            issue_info = self.issue_info(issue_key)
+        else:
+            issue_info = self.issue_info_by_cid(pub_cid, self.periodical_issuedate)
+            issue_key = issue_info["Issue"]["Issue"]
+
+        self.cover_url = "https://i.prcdn.co/img?" + urlencode(
+            {"file": issue_key, "page": "1", "retina": "1", "width": "800"}
+        )
+        issue_title = f'{issue_info["Newspaper"]["Name"]}: {issue_info["Issue"]["IssueDateDisplayName"]}'
+        self.title = issue_info["Newspaper"]["Name"]
+        self.timefmt = f' {issue_info["Issue"]["IssueDateDisplayName"]}'
+        issue_date = datetime.fromisoformat(issue_info["Issue"]["IssueDate"])
+        self.pub_date = issue_date
+
+        self.log.info(f'Found periodical: "{issue_title}"')
+        toc = self.issue_toc(
+            issue_key,
+            issue_info["Layout"]["LayoutVersion"],
+            issue_info["Issue"]["ExpungeVersion"],
+        )
+        article_ids = []
+        section_articles = OrderedDict()
+        for page in toc.get("Pages", []):
+            if not page.get("Articles"):
+                continue
+            section_articles.setdefault(page["UnhyphenatedSectionName"], [])
+            for article in page["Articles"]:
+                article_id = article.get("Id")
+                if not article_id:
+                    continue
+                if article_id in article_ids:
+                    continue
+                article_ids.append(article_id)
+                section_articles.setdefault(page["UnhyphenatedSectionName"], []).append(
+                    article_id
+                )
+        if not article_ids:
+            self.abort_recipe_processing("No text-view articles found.")
+
+        self.temp_dir = PersistentTemporaryDirectory()
+
+        min_image_side = 640
+        recipe_articles = {}
+        dedup_article_ids = []
+        for section_name, sect_article_ids in section_articles.items():
+            fetched_sect_articles = self.articles(list(sect_article_ids)).get(
+                "Articles", []
+            )
+            fetched_article_ids = []
+            for a in fetched_sect_articles:
+                if a["ArticleId"] in fetched_article_ids:
+                    continue
+                fetched_article_ids.append(a["ArticleId"])
+
+            # refetch articles with the parent article ID so that we get whole texts
+            sect_articles = [
+                a
+                for a in self.articles(fetched_article_ids).get("Articles", [])
+                if a.get("Blocks") and a["CurrentTextLength"] == a["TotalTextLength"]
+            ]
+
+            self.log.info(f"SECTION: {section_name}")
+            for article in sect_articles:
+                if (
+                    self.ignore_duplicate_articles
+                    and article["ArticleId"] in dedup_article_ids
+                ):
+                    self.log.debug(f'Skip dupe article: "{article["Title"]}"')
+                    continue
+                dedup_article_ids.append(article["ArticleId"])
+
+                article_title = article["Title"]
+                self.log.info(f"Article: {article_title}")
+                # construct the html for the article
+                with PersistentTemporaryFile(suffix=".html", dir=self.temp_dir) as f:
+                    soup = BeautifulSoup("<html><head></head><body></body></html>")
+                    title_ele = soup.new_tag("title")
+                    title_ele.append(article_title)
+                    soup.head.append(title_ele)
+
+                    section_ele = soup.new_tag("div", attrs={"class": "section"})
+                    section_ele.append(section_name)
+                    soup.body.append(section_ele)
+
+                    h1 = soup.new_tag("h1", attrs={"class": "title"})
+                    h1.append(article_title)
+                    soup.body.append(h1)
+
+                    if article.get("Subtitle"):
+                        h2 = soup.new_tag("h2", attrs={"class": "subtitle"})
+                        h2.append(article["Subtitle"])
+                        soup.body.append(h2)
+
+                    if article.get("Byline"):
+                        byline = soup.new_tag("div", attrs={"class": "byline"})
+                        byline.append(article["Byline"])
+                        soup.body.append(byline)
+
+                    images = article.get("Images", []) or []
+                    for i, image in enumerate(images):
+                        image_url = image["Url"]
+                        image_shortest_side = min(image["Width"], image["Height"])
+                        if min_image_side > image_shortest_side:
+                            # calc scale
+                            scale = min(
+                                math.ceil((min_image_side / image_shortest_side) * 100),
+                                400,
+                            )
+                            image_url += f"&scale={scale}"
+
+                        img_container = soup.new_tag(
+                            "div", attrs={"class": "image-container"}
+                        )
+                        img = soup.new_tag("img", attrs={"src": image_url})
+                        img_container.append(img)
+                        image_title = image.get("Title")
+                        if image_title:
+                            caption = soup.new_tag("div", attrs={"class": "caption"})
+                            caption.append(image_title)
+                            img_container.append(caption)
+                        soup.body.append(img_container)
+
+                    for block in article.get("Blocks", []) or []:
+                        block_role = block.get("Role", "")
+                        if block_role == "paratitle":
+                            h3 = soup.new_tag("h3", attrs={"class": block_role})
+                            h3.append(block["Text"])
+                            soup.body.append(h3)
+                        elif block_role == "text":
+                            p = soup.new_tag("p", attrs={"class": block_role})
+                            p.append(block["Text"])
+                            soup.body.append(p)
+                        elif block_role == "annotation":
+                            blockquote = soup.new_tag(
+                                "blockquote", attrs={"class": "pullquote"}
+                            )
+                            blockquote.append(block["Text"])
+                            soup.body.append(blockquote)
+                        else:
+                            self.log.warning(f"Unknown block type: {json.dumps(block)}")
+
+                    f.write(str(soup).encode("utf-8"))
+                    recipe_articles.setdefault(section_name, []).append(
+                        {
+                            "title": article_title,
+                            "url": "file://" + f.name,
+                            "description": article.get("Subtitle") or "",
+                        }
+                    )
+
+        return recipe_articles.items()
