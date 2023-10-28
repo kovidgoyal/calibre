@@ -63,7 +63,7 @@ class TXTInput(InputFormatPlugin):
                    '* heuristic: {heuristic}\n'
                    '* textile: {textile}\n'
                    '* markdown: {markdown}\n'
-                   'To learn more about markdown see {url}').format(
+                   'To learn more about Markdown see {url}').format(
                        url='https://daringfireball.net/projects/markdown/', **ui_data['formatting_types'])
         ),
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
