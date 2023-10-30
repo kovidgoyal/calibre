@@ -1,5 +1,6 @@
 import json
 import re
+from calibre import browser
 from urllib.parse import quote
 from html5_parser import parse
 
@@ -20,6 +21,7 @@ class ft(BasicNewsRecipe):
     resolve_internal_links = True
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
+    simultaneous_downloads = 1
 
     extra_css = '''
         .article-info__time-byline {font-size:small; font-weight:bold; }
@@ -38,6 +40,7 @@ class ft(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
+        dict(attrs={'data-layout-name':'card'}),
         classes('in-article-advert')
     ]
 
@@ -57,13 +60,20 @@ class ft(BasicNewsRecipe):
     #     return br
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser(user_agent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
         br.addheaders += [
             ('Referer', 'https://www.google.com/'),
             ('X-Forwarded-For', '66.249.66.1')
         ]
-        return br
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
 
     feeds = [
         ('World', 'https://www.ft.com/world?format=rss'),
