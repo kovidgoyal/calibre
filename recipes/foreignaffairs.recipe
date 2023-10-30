@@ -180,9 +180,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         return html.tostring(root, encoding='unicode')
 
     def preprocess_html(self, soup):
-        for attr in ('ng-src', 'data-blazy', 'data-src'):
-            for img in soup.findAll('img', attrs={attr: True}):
-                img['src'] = img[attr]
+        for img in soup.find_all('img', attrs={'srcset': True}):
+            img['src'] = img['srcset'].split(',')[-1].strip().split(' ')[0].strip()
         return soup
 
     def get_browser(self):
