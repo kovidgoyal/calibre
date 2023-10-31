@@ -24,18 +24,18 @@ from calibre.utils.icu import (
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
-CHECK_MARK = '✓'
 
 
 class NameTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self, sort_key):
+    def __init__(self, sort_key, parent):
         QTableWidgetItem.__init__(self)
         self.initial_value = ''
         self.current_value = ''
         self.is_deleted = False
         self.is_placeholder = False
         self.sort_key = sort_key
+        self._parent = parent
 
     def data(self, role):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -87,6 +87,65 @@ class NameTableWidgetItem(QTableWidgetItem):
         if self.is_placeholder:
             self.setText(self.text_before_placeholder)
 
+    def build_context_menu(self):
+        m = QMenu()
+        disable_copy_paste_search = len(self._parent.table.selectedItems()) != 1 or self.is_deleted
+        ca = m.addAction(_('Copy'))
+        ca.triggered.connect(partial(self._parent.copy_to_clipboard, self))
+        ca.setIcon(QIcon.ic('edit-copy.png'))
+        if disable_copy_paste_search:
+            ca.setEnabled(False)
+        ca = m.addAction(_('Paste'))
+        ca.setIcon(QIcon.ic('edit-paste.png'))
+        ca.triggered.connect(partial(self._parent.paste_from_clipboard, self))
+        if disable_copy_paste_search:
+            ca.setEnabled(False)
+        ca = m.addAction(_('Undo'))
+        ca.setIcon(QIcon.ic('edit-undo.png'))
+        ca.triggered.connect(self._parent.undo_edit)
+        ca.setEnabled(False)
+        for item in self._parent.table.selectedItems():
+            if (item.text() != self._parent.original_names[int(item.data(Qt.ItemDataRole.UserRole))] or item.is_deleted):
+                ca.setEnabled(True)
+                break
+        ca = m.addAction(_('Edit'))
+        ca.setIcon(QIcon.ic('edit_input.png'))
+        ca.triggered.connect(self._parent.rename_tag)
+        ca = m.addAction(_('Delete'))
+        ca.setIcon(QIcon.ic('trash.png'))
+        ca.triggered.connect(self._parent.delete_tags)
+        item_name = str(self.text())
+        ca = m.addAction(_('Search for {}').format(item_name))
+        ca.setIcon(QIcon.ic('search.png'))
+        ca.triggered.connect(partial(self._parent.set_search_text, item_name))
+        item_name = str(self.text())
+        ca = m.addAction(_('Filter by {}').format(item_name))
+        ca.setIcon(QIcon.ic('filter.png'))
+        ca.triggered.connect(partial(self._parent.set_filter_text, item_name))
+        if self._parent.category is not None:
+            ca = m.addAction(_("Search the library for {0}").format(item_name))
+            ca.setIcon(QIcon.ic('lt.png'))
+            ca.triggered.connect(partial(self._parent.search_for_books, self))
+            if disable_copy_paste_search:
+                ca.setEnabled(False)
+        if self._parent.table.state() == QAbstractItemView.State.EditingState:
+            m.addSeparator()
+            case_menu = QMenu(_('Change case'))
+            case_menu.setIcon(QIcon.ic('font_size_larger.png'))
+            action_upper_case = case_menu.addAction(_('Upper case'))
+            action_lower_case = case_menu.addAction(_('Lower case'))
+            action_swap_case = case_menu.addAction(_('Swap case'))
+            action_title_case = case_menu.addAction(_('Title case'))
+            action_capitalize = case_menu.addAction(_('Capitalize'))
+            action_upper_case.triggered.connect(partial(self._parent.do_case, icu_upper))
+            action_lower_case.triggered.connect(partial(self._parent.do_case, icu_lower))
+            action_swap_case.triggered.connect(partial(self._parent.do_case, self._parent.swap_case))
+            action_title_case.triggered.connect(partial(self._parent.do_case, titlecase))
+            action_capitalize.triggered.connect(partial(self._parent.do_case, capitalize))
+            m.addMenu(case_menu)
+
+        return m
+
     def __ge__(self, other):
         return (self.sort_key(str(self.text())) >=
                     self.sort_key(str(other.text())))
@@ -109,6 +168,133 @@ class CountTableWidgetItem(QTableWidgetItem):
         return self._count < other._count
 
 
+class NoteTableWidgetItem(QTableWidgetItem):
+    '''
+    This is a self-contained table widget for manipulating notes.
+    The main purpose is to define a custom context menu and some function.
+    '''
+
+    edit_icon = QIcon.ic('edit_input.png')
+    delete_icon = QIcon.ic('trash.png')
+    undo_delete_icon = QIcon.ic('edit-undo.png')
+    export_icon = QIcon.ic('forward.png')
+    import_icon = QIcon.ic('back.png')
+
+    @property
+    def db(self):
+        from calibre.gui2.ui import get_gui
+        return get_gui().current_db.new_api
+
+    @property
+    def item_val(self):
+        if self._item_val is None:
+            self._item_val = self.db.get_item_name(self.field, self._item_id)
+        return self._item_val
+
+    @property
+    def item_id(self):
+        if self._item_id is None:
+            self._item_id = self.db.get_item_id(self.field, self._item_val)
+            if self._item_id is None:
+                raise KeyError(f'The value: {self._item_val} is not found in the field: {self.field}')
+        return self._item_id
+
+    def __init__(self, field, item_id_or_val, has_notes):
+        '''
+        :param field: the lookup name of a field
+        :param item_id_or_val: Either the numeric item_id of an item in the field or
+            the item's string value
+        :param has_notes: A boolean if this item has a note
+        '''
+        super().__init__()
+        self.field = field
+        self._item_val = self._item_id = None
+        self.has_notes = has_notes
+        if isinstance(item_id_or_val, str):
+            self._item_val = item_id_or_val
+        else:
+            self._item_id = item_id_or_val
+        self.can_undo = False
+
+        self.set_checked(refresh=False)
+
+
+    @classmethod
+    def get_item_id(cls, db, field: str, value: str):
+        return db.new_api.get_item_id(field, value)
+
+    def build_context_menu(self):
+        is_checked = self.is_checked()
+        m = QMenu()
+        ac = m.addAction(self.edit_icon, _('Edit note') if is_checked else _('Create note'))
+        ac.triggered.connect(self.do_edit)
+
+        ac = m.addAction(self.delete_icon, _('Delete note'))
+        ac.setEnabled(is_checked)
+        ac.triggered.connect(self.do_delete)
+
+        ac = m.addAction(self.undo_delete_icon, _('Undo delete'))
+        ac.setEnabled(self.can_undo)
+        ac.triggered.connect(self.do_undo_delete)
+
+        ac = m.addAction(self.export_icon, _('Export note to a file'))
+        ac.setEnabled(is_checked)
+        ac.triggered.connect(self.do_export)
+
+        ac = m.addAction(self.import_icon, _('Import note from a file'))
+        ac.setEnabled(not is_checked)
+        ac.triggered.connect(self.do_import)
+
+        return m
+
+    def do_edit(self):
+        from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+        accepted = EditNoteDialog(self.field, self.item_id, self.db).exec()
+        # Continue to allow an undo if it was allowed before and the dialog was cancelled.
+        self.can_undo = not accepted and self.can_undo
+        self.set_checked()
+        return accepted
+
+    def do_delete(self):
+        self.db.set_notes_for(self.field, self.item_id, '')
+        self.can_undo = True
+        self.set_checked()
+
+    def do_undo_delete(self):
+        if self.can_undo:
+            self.db.unretire_note_for(self.field, self.item_id)
+            self.can_undo = False
+            self.set_checked()
+
+    def do_export(self):
+        dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'),
+                                filters=[(_('HTML files'), ['html'])],
+                                initial_filename=f'{sanitize_file_name(self.item_val)}.html',
+                                all_files=False)
+        if dest:
+            html = self.db.export_note(self.field, self.item_id)
+            with open(dest, 'wb') as f:
+                f.write(html.encode('utf-8'))
+
+    def do_import(self):
+        src = choose_files(self, 'load-imported-note', _('Import note from a file'),
+                           filters=[(_('HTML files'), ['html'])],
+                           all_files=False, select_only_single_file=True)
+        if src:
+            self.db.import_note(self.field, self.item_id, src[0])
+            self.can_undo = False
+            self.set_checked()
+
+    def set_checked(self, refresh=True):
+        if refresh:
+            self.has_notes = bool(self.db.notes_for(self.field, self.item_id))
+        self.setText('✓' if self.has_notes else '')
+
+    def is_checked(self):
+        # returns True if the widget has a text, meaning the note contains text
+        return bool(self.text())
+
+
 class EditColumnDelegate(QStyledItemDelegate):
     editing_finished = pyqtSignal(int)
     editing_started  = pyqtSignal(int)
@@ -123,7 +309,7 @@ class EditColumnDelegate(QStyledItemDelegate):
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
-        if index.column() == 0:
+        if index.column() == TagListEditor.VALUE_COLUMN:
             if self.check_for_deleted_items(show_error=True):
                 return None
             self.editing_started.emit(index.row())
@@ -135,6 +321,11 @@ class EditColumnDelegate(QStyledItemDelegate):
             else:
                 editor = EnLineEdit(parent)
             return editor
+        if index.column() == TagListEditor.NOTES_COLUMN:
+            self.editing_started.emit(index.row())
+            self.item = self.table.itemFromIndex(index)
+            self.item.do_edit()
+            return None
         self.editing_started.emit(index.row())
         editor = EnLineEdit(parent)
         editor.setClearButtonEnabled(True)
@@ -157,23 +348,11 @@ def event(ev, me=None, super_class=None, context_menu_handler=None):
     return super_class.event(ev)
 
 
-class MyToolButton(QToolButton):
-
-    def __init__(self, context_menu_handler):
-        QToolButton.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
-
-
-class MyCheckBox(QCheckBox):
-
-    def __init__(self, context_menu_handler):
-        QCheckBox.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
-
-
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     VALUE_COLUMN = 0
+    COUNT_COLUMN = 1
+    WAS_COLUMN = 2
     LINK_COLUMN = 3
     NOTES_COLUMN = 4
 
@@ -261,64 +440,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def show_context_menu(self, point):
         item = self.table.itemAt(point)
-        if item is None or item.column() != self.VALUE_COLUMN:
+        if item is None or not hasattr(item, 'build_context_menu'):
             return
-        m = self.au_context_menu = QMenu(self)
 
-        disable_copy_paste_search = len(self.table.selectedItems()) != 1 or item.is_deleted
-        ca = m.addAction(_('Copy'))
-        ca.triggered.connect(partial(self.copy_to_clipboard, item))
-        ca.setIcon(QIcon.ic('edit-copy.png'))
-        if disable_copy_paste_search:
-            ca.setEnabled(False)
-        ca = m.addAction(_('Paste'))
-        ca.setIcon(QIcon.ic('edit-paste.png'))
-        ca.triggered.connect(partial(self.paste_from_clipboard, item))
-        if disable_copy_paste_search:
-            ca.setEnabled(False)
-        ca = m.addAction(_('Undo'))
-        ca.setIcon(QIcon.ic('edit-undo.png'))
-        ca.triggered.connect(self.undo_edit)
-        ca.setEnabled(False)
-        for item in self.table.selectedItems():
-            if (item.text() != self.original_names[int(item.data(Qt.ItemDataRole.UserRole))] or item.is_deleted):
-                ca.setEnabled(True)
-                break
-        ca = m.addAction(_('Edit'))
-        ca.setIcon(QIcon.ic('edit_input.png'))
-        ca.triggered.connect(self.rename_tag)
-        ca = m.addAction(_('Delete'))
-        ca.setIcon(QIcon.ic('trash.png'))
-        ca.triggered.connect(self.delete_tags)
-        item_name = str(item.text())
-        ca = m.addAction(_('Search for {}').format(item_name))
-        ca.setIcon(QIcon.ic('search.png'))
-        ca.triggered.connect(partial(self.set_search_text, item_name))
-        item_name = str(item.text())
-        ca = m.addAction(_('Filter by {}').format(item_name))
-        ca.setIcon(QIcon.ic('filter.png'))
-        ca.triggered.connect(partial(self.set_filter_text, item_name))
-        if self.category is not None:
-            ca = m.addAction(_("Search the library for {0}").format(item_name))
-            ca.setIcon(QIcon.ic('lt.png'))
-            ca.triggered.connect(partial(self.search_for_books, item))
-            if disable_copy_paste_search:
-                ca.setEnabled(False)
-        if self.table.state() == QAbstractItemView.State.EditingState:
-            m.addSeparator()
-            case_menu = QMenu(_('Change case'))
-            case_menu.setIcon(QIcon.ic('font_size_larger.png'))
-            action_upper_case = case_menu.addAction(_('Upper case'))
-            action_lower_case = case_menu.addAction(_('Lower case'))
-            action_swap_case = case_menu.addAction(_('Swap case'))
-            action_title_case = case_menu.addAction(_('Title case'))
-            action_capitalize = case_menu.addAction(_('Capitalize'))
-            action_upper_case.triggered.connect(partial(self.do_case, icu_upper))
-            action_lower_case.triggered.connect(partial(self.do_case, icu_lower))
-            action_swap_case.triggered.connect(partial(self.do_case, self.swap_case))
-            action_title_case.triggered.connect(partial(self.do_case, titlecase))
-            action_capitalize.triggered.connect(partial(self.do_case, capitalize))
-            m.addMenu(case_menu)
+        m = item.build_context_menu()
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def search_for_books(self, item):
@@ -424,6 +549,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(self.VALUE_COLUMN, self.edit_delegate)
         self.table.setItemDelegateForColumn(self.LINK_COLUMN, self.edit_delegate)
+        self.table.setItemDelegateForColumn(self.NOTES_COLUMN, self.edit_delegate)
 
         self.table.delete_pressed.connect(self.delete_pressed)
         self.table.itemDoubleClicked.connect(self._rename_tag)
@@ -483,9 +609,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.name_col = QTableWidgetItem(self.category_name)
         self.table.setHorizontalHeaderItem(self.VALUE_COLUMN, self.name_col)
         self.count_col = QTableWidgetItem(_('Count'))
-        self.table.setHorizontalHeaderItem(1, self.count_col)
+        self.table.setHorizontalHeaderItem(self.COUNT_COLUMN, self.count_col)
         self.was_col = QTableWidgetItem(_('Was'))
-        self.table.setHorizontalHeaderItem(2, self.was_col)
+        self.table.setHorizontalHeaderItem(self.WAS_COLUMN, self.was_col)
         self.link_col = QTableWidgetItem(_('Link'))
         self.table.setHorizontalHeaderItem(self.LINK_COLUMN, self.link_col)
         if self.supports_notes:
@@ -497,7 +623,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             from calibre.gui2.ui import get_gui
             all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
         for row,tag in enumerate(tags):
-            item = NameTableWidgetItem(self.sorter)
+            item = NameTableWidgetItem(self.sorter, self)
             is_deleted = self.all_tags[tag]['is_deleted']
             item.set_is_deleted(is_deleted)
             _id = self.all_tags[tag]['key']
@@ -524,13 +650,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             item = CountTableWidgetItem(self.all_tags[tag]['count'])
             # only the name column can be selected
             item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            self.table.setItem(row, 1, item)
+            self.table.setItem(row, self.COUNT_COLUMN, item)
 
             item = QTableWidgetItem()
             item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
             if _id in self.to_rename or _id in self.to_delete:
                 item.setData(Qt.ItemDataRole.DisplayRole, tag)
-            self.table.setItem(row, 2, item)
+            self.table.setItem(row, self.WAS_COLUMN, item)
 
             item = QTableWidgetItem()
             if self.link_map is None:
@@ -547,7 +673,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.supports_notes:
-                self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem(CHECK_MARK if _id in all_items_that_have_notes else ''))
+                self.table.setItem(row, self.NOTES_COLUMN, NoteTableWidgetItem(self.category, _id, _id in all_items_that_have_notes))
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)
@@ -656,7 +782,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for item in items:
             id_ = int(item.data(Qt.ItemDataRole.UserRole))
             self.to_rename[id_] = new_text
-            orig = self.table.item(item.row(), 2)
+            orig = self.table.item(item.row(), self.WAS_COLUMN)
             item.setText(new_text)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
         self.table.blockSignals(False)
@@ -679,7 +805,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
             self.to_rename.pop(int(col_zero_item.data(Qt.ItemDataRole.UserRole)), None)
             row = col_zero_item.row()
-            self.table.item(row, 2).setData(Qt.ItemDataRole.DisplayRole, '')
+            self.table.item(row, self.WAS_COLUMN).setData(Qt.ItemDataRole.DisplayRole, '')
             item = self.table.item(row, self.LINK_COLUMN)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
             item.setIcon(QIcon())
@@ -729,7 +855,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if col_zero_item.is_deleted:
                 col_zero_item.set_is_deleted(False)
                 self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
-                orig = self.table.item(col_zero_item.row(), 2)
+                orig = self.table.item(col_zero_item.row(), self.WAS_COLUMN)
                 orig.setData(Qt.ItemDataRole.DisplayRole, '')
         self.table.blockSignals(False)
         self.table.editItem(item)
@@ -775,7 +901,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.add(id_)
             item.set_is_deleted(True)
             row = item.row()
-            orig = self.table.item(row, 2)
+            orig = self.table.item(row, self.WAS_COLUMN)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
             link = self.table.item(row, self.LINK_COLUMN)
             link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
