@@ -205,7 +205,7 @@ class NotesItemWidget(QWidget):
                 raise KeyError(f'The value: {self._item_val} is not found in the field: {self.field}')
         return self._item_id
 
-    def __init__(self, field, item_id_or_val):
+    def __init__(self, field, item_id_or_val, has_notes):
         '''
         :param db: A database instance, either old or new api
         :param field: the lookup name of a field
@@ -215,6 +215,7 @@ class NotesItemWidget(QWidget):
         super().__init__()
         self.field = field
         self._item_val = self._item_id = None
+        self.has_notes = has_notes
         if isinstance(item_id_or_val, str):
             self._item_val = item_id_or_val
         else:
@@ -245,7 +246,7 @@ class NotesItemWidget(QWidget):
         l.addStretch(3)
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.set_checked()
+        self.set_checked(refresh=False)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     @classmethod
@@ -311,11 +312,11 @@ class NotesItemWidget(QWidget):
             self.can_undo = False
             self.set_checked()
 
-    def set_checked(self):
-        notes = self.db.notes_for(self.field, self.item_id)
-        t = bool(notes)
-        self.cb.setChecked(t)
-        self.buttons['delete'].setEnabled(t)
+    def set_checked(self, refresh=True):
+        if refresh:
+            self.has_notes = bool(self.db.notes_for(self.field, self.item_id))
+        self.cb.setChecked(self.has_notes)
+        self.buttons['delete'].setEnabled(self.has_notes)
         self.buttons['undo_delete'].setEnabled(self.can_undo)
 
     def is_checked(self):
@@ -643,6 +644,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setHorizontalHeaderItem(4, self.link_col)
 
         self.table.setRowCount(len(tags))
+        from calibre.gui2.ui import get_gui
+        all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
         for row,tag in enumerate(tags):
             item = NameTableWidgetItem(self.sorter)
             is_deleted = self.all_tags[tag]['is_deleted']
@@ -694,7 +697,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.category is not None:
-                nw = NotesItemWidget(self.category, _id)
+                nw = NotesItemWidget(self.category, _id, _id in all_items_that_have_notes)
                 self.table.setCellWidget(row, 4, nw)
 
         # re-sort the table
