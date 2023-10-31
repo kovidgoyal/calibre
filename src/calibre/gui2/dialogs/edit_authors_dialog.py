@@ -55,14 +55,14 @@ class EditColumnDelegate(QStyledItemDelegate):
         self.modified_notes = {}
 
     def createEditor(self, parent, option, index):
-        if index.column() == 0:
+        if index.column() == EditAuthorsDialog.NAME_COLUMN:
             if self.completion_data:
                 from calibre.gui2.complete2 import EditWithComplete
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
                 return editor
-        if index.column() == 3:
+        if index.column() == EditAuthorsDialog.NOTE_COLUMN:
             self.edit_note(self.table.itemFromIndex(index))
             return None
 
@@ -79,7 +79,7 @@ class EditColumnDelegate(QStyledItemDelegate):
         return item_id in self.modified_notes
 
     def undo_note_edit(self, item):
-        item_id = int(self.table.item(item.row(), 0).data(Qt.ItemDataRole.UserRole))
+        item_id = int(self.table.item(item.row(), EditAuthorsDialog.NAME_COLUMN).data(Qt.ItemDataRole.UserRole))
         before = self.modified_notes.pop(item_id, None)
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
@@ -101,7 +101,7 @@ class EditColumnDelegate(QStyledItemDelegate):
         self.modified_notes.clear()
 
     def edit_note(self, item):
-        item_id = int(self.table.item(item.row(), 0).data(Qt.ItemDataRole.UserRole))
+        item_id = int(self.table.item(item.row(), EditAuthorsDialog.NAME_COLUMN).data(Qt.ItemDataRole.UserRole))
         from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
@@ -117,6 +117,11 @@ class EditColumnDelegate(QStyledItemDelegate):
 
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
+
+    NAME_COLUMN = 0
+    SORT_COLUMN = 1
+    LINK_COLUMN = 2
+    NOTE_COLUMN = 3
 
     def __init__(self, parent, db, id_to_select, select_sort, select_link,
                  find_aut_func, is_first_letter=False):
@@ -279,14 +284,14 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             sort_item = tableItem(sort)
             link_item = tableItem(link)
 
-            self.table.setItem(row, 0, name_item)
-            self.table.setItem(row, 1, sort_item)
-            self.table.setItem(row, 2, link_item)
+            self.table.setItem(row, self.NAME_COLUMN, name_item)
+            self.table.setItem(row, self.SORT_COLUMN, sort_item)
+            self.table.setItem(row, self.LINK_COLUMN, link_item)
             if id_ in all_items_that_have_notes:
                 note_item = tableItem(yes, yes_skey)
             else:
                 note_item = tableItem(no, no_skey)
-            self.table.setItem(row, 3, note_item)
+            self.table.setItem(row, self.NOTE_COLUMN, note_item)
 
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
@@ -315,19 +320,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             use_as = tweaks['categories_use_field_for_author_name'] == 'author_sort'
             for row in range(0, len(auts_to_show)):
                 if is_first_letter:
-                    item_txt = str(self.table.item(row, 1).text() if use_as
-                                                else self.table.item(row, 0).text())
+                    item_txt = str(self.table.item(row, self.SORT_COLUMN).text() if use_as
+                                                else self.table.item(row, self.NAME_COLUMN).text())
                     if primary_startswith(item_txt, id_to_select):
-                        select_item = self.table.item(row, 1 if use_as else 0)
+                        select_item = self.table.item(row, self.SORT_COLUMN if use_as else self.NAME_COLUMN)
                         break
-                elif id_to_select == self.table.item(row, 0).data(Qt.ItemDataRole.UserRole):
+                elif id_to_select == self.table.item(row, self.NAME_COLUMN).data(Qt.ItemDataRole.UserRole):
                     if select_sort:
-                        select_item = self.table.item(row, 1)
+                        select_item = self.table.item(row, self.SORT_COLUMN)
                     elif select_link:
-                        select_item = self.table.item(row, 2)
+                        select_item = self.table.item(row, self.LINK_COLUMN)
                     else:
-                        select_item = (self.table.item(row, 1) if use_as
-                                        else self.table.item(row, 0))
+                        select_item = (self.table.item(row, self.SORT_COLUMN) if use_as
+                                        else self.table.item(row, self.NAME_COLUMN))
                     break
         if select_item:
             self.table.setCurrentItem(select_item)
@@ -403,7 +408,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         m = self.au_context_menu = QMenu(self)
         idx = self.table.indexAt(point)
-        id_ = int(self.table.item(idx.row(), 0).data(Qt.ItemDataRole.UserRole))
+        id_ = int(self.table.item(idx.row(), self.NAME_COLUMN).data(Qt.ItemDataRole.UserRole))
         sub = self.get_column_name(idx.column())
         if self.context_item is not None and self.item_is_modified(self.context_item, id_):
             ca = m.addAction(QIcon.ic('edit-undo.png'), _('Undo'))
@@ -429,7 +434,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def undo_cell(self, old_value):
-        if self.context_item.column() == 3:
+        if self.context_item.column() == self.NOTE_COLUMN:
             self.table.itemDelegate().undo_note_edit(self.context_item)
         else:
             self.context_item.setText(old_value)
@@ -438,7 +443,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         from calibre.gui2.ui import get_gui
         row = self.context_item.row()
         get_gui().search.set_search_string('authors:="%s"' %
-                           str(self.table.item(row, 0).text()).replace(r'"', r'\"'))
+                           str(self.table.item(row, self.NAME_COLUMN).text()).replace(r'"', r'\"'))
 
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
@@ -467,12 +472,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def copy_aus_to_au(self):
         row = self.context_item.row()
-        dest = self.table.item(row, 0)
+        dest = self.table.item(row, self.NAME_COLUMN)
         dest.setText(self.context_item.text())
 
     def copy_au_to_aus(self):
         row = self.context_item.row()
-        dest = self.table.item(row, 1)
+        dest = self.table.item(row, self.SORT_COLUMN)
         dest.setText(self.context_item.text())
 
     def not_found_label_timer_event(self):
@@ -518,22 +523,22 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
         self.author_order = 1 - self.author_order
-        self.table.sortByColumn(0, Qt.SortOrder(self.author_order))
+        self.table.sortByColumn(self.NAME_COLUMN, Qt.SortOrder(self.author_order))
 
     def do_sort_by_author_sort(self):
         self.last_sorted_by = 'sort'
         self.author_sort_order = 1 - self.author_sort_order
-        self.table.sortByColumn(1, Qt.SortOrder(self.author_sort_order))
+        self.table.sortByColumn(self.SORT_COLUMN, Qt.SortOrder(self.author_sort_order))
 
     def do_sort_by_link(self):
         self.last_sorted_by = 'link'
         self.link_order = 1 - self.link_order
-        self.table.sortByColumn(2, Qt.SortOrder(self.link_order))
+        self.table.sortByColumn(self.LINK_COLUMN, Qt.SortOrder(self.link_order))
 
     def do_sort_by_notes(self):
         self.last_sorted_by = 'notes'
         self.notes_order = 1 - self.notes_order
-        self.table.sortByColumn(3, Qt.SortOrder(self.notes_order))
+        self.table.sortByColumn(self.NOTE_COLUMN, Qt.SortOrder(self.notes_order))
 
     def accepted(self):
         self.save_state()
@@ -549,11 +554,11 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def do_recalc_author_sort(self):
         with self.no_cell_changed():
-            for row in range(0,self.table.rowCount()):
-                item_aut = self.table.item(row, 0)
+            for row in range(0, self.table.rowCount()):
+                item_aut = self.table.item(row, self.NAME_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
                 aut  = str(item_aut.text()).strip()
-                item_aus = self.table.item(row, 1)
+                item_aus = self.table.item(row, self.SORT_COLUMN)
                 # Sometimes trailing commas are left by changing between copy algs
                 aus = str(author_to_author_sort(aut)).rstrip(',')
                 item_aus.setText(aus)
@@ -563,9 +568,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def do_auth_sort_to_author(self):
         with self.no_cell_changed():
-            for row in range(0,self.table.rowCount()):
-                aus  = str(self.table.item(row, 1).text()).strip()
-                item_aut = self.table.item(row, 0)
+            for row in range(0, self.table.rowCount()):
+                aus  = str(self.table.item(row, self.SORT_COLUMN).text()).strip()
+                item_aut = self.table.item(row, self.NAME_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
                 item_aut.setText(aus)
                 self.authors[id_]['name'] = aus
@@ -580,20 +585,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.ignore_cell_changed:
             return
         with self.no_cell_changed():
-            id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
-            if col == 0:
-                item = self.table.item(row, 0)
+            id_ = int(self.table.item(row, self.NAME_COLUMN).data(Qt.ItemDataRole.UserRole))
+            if col == self.NAME_COLUMN:
+                item = self.table.item(row, self.NAME_COLUMN)
                 aut  = str(item.text()).strip()
                 aut_list = string_to_authors(aut)
                 if len(aut_list) != 1:
                     error_dialog(self.parent(), _('Invalid author name'),
                             _('You cannot change an author to multiple authors.')).exec()
                     aut = ' % '.join(aut_list)
-                    self.table.item(row, 0).setText(aut)
+                    self.table.item(row, self.NAME_COLUMN).setText(aut)
                 item.set_sort_key()
                 self.authors[id_]['name'] = aut
                 self.set_icon(item, id_)
-                c = self.table.item(row, 1)
+                c = self.table.item(row, self.SORT_COLUMN)
                 txt = author_to_author_sort(aut)
                 self.authors[id_]['sort'] = txt
                 c.setText(txt)  # This triggers another cellChanged event

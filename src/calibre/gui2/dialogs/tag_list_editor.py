@@ -123,7 +123,7 @@ class EditColumnDelegate(QStyledItemDelegate):
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
-        if index.column() == 0:
+        if index.column() == TagListEditor.VALUE_COLUMN:
             if self.check_for_deleted_items(show_error=True):
                 return None
             self.editing_started.emit(index.row())
@@ -174,6 +174,8 @@ class MyCheckBox(QCheckBox):
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     VALUE_COLUMN = 0
+    COUNT_COLUMN = 1
+    WAS_COLUMN = 2
     LINK_COLUMN = 3
     NOTES_COLUMN = 4
 
@@ -483,9 +485,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.name_col = QTableWidgetItem(self.category_name)
         self.table.setHorizontalHeaderItem(self.VALUE_COLUMN, self.name_col)
         self.count_col = QTableWidgetItem(_('Count'))
-        self.table.setHorizontalHeaderItem(1, self.count_col)
+        self.table.setHorizontalHeaderItem(self.COUNT_COLUMN, self.count_col)
         self.was_col = QTableWidgetItem(_('Was'))
-        self.table.setHorizontalHeaderItem(2, self.was_col)
+        self.table.setHorizontalHeaderItem(self.WAS_COLUMN, self.was_col)
         self.link_col = QTableWidgetItem(_('Link'))
         self.table.setHorizontalHeaderItem(self.LINK_COLUMN, self.link_col)
         if self.supports_notes:
@@ -524,13 +526,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             item = CountTableWidgetItem(self.all_tags[tag]['count'])
             # only the name column can be selected
             item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            self.table.setItem(row, 1, item)
+            self.table.setItem(row, self.COUNT_COLUMN, item)
 
             item = QTableWidgetItem()
             item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
             if _id in self.to_rename or _id in self.to_delete:
                 item.setData(Qt.ItemDataRole.DisplayRole, tag)
-            self.table.setItem(row, 2, item)
+            self.table.setItem(row, self.WAS_COLUMN, item)
 
             item = QTableWidgetItem()
             if self.link_map is None:
@@ -656,7 +658,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for item in items:
             id_ = int(item.data(Qt.ItemDataRole.UserRole))
             self.to_rename[id_] = new_text
-            orig = self.table.item(item.row(), 2)
+            orig = self.table.item(item.row(), self.WAS_COLUMN)
             item.setText(new_text)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
         self.table.blockSignals(False)
@@ -679,7 +681,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
             self.to_rename.pop(int(col_zero_item.data(Qt.ItemDataRole.UserRole)), None)
             row = col_zero_item.row()
-            self.table.item(row, 2).setData(Qt.ItemDataRole.DisplayRole, '')
+            self.table.item(row, self.WAS_COLUMN).setData(Qt.ItemDataRole.DisplayRole, '')
             item = self.table.item(row, self.LINK_COLUMN)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
             item.setIcon(QIcon())
@@ -729,7 +731,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if col_zero_item.is_deleted:
                 col_zero_item.set_is_deleted(False)
                 self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
-                orig = self.table.item(col_zero_item.row(), 2)
+                orig = self.table.item(col_zero_item.row(), self.WAS_COLUMN)
                 orig.setData(Qt.ItemDataRole.DisplayRole, '')
         self.table.blockSignals(False)
         self.table.editItem(item)
@@ -775,7 +777,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.add(id_)
             item.set_is_deleted(True)
             row = item.row()
-            orig = self.table.item(row, 2)
+            orig = self.table.item(row, self.WAS_COLUMN)
             orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
             link = self.table.item(row, self.LINK_COLUMN)
             link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
