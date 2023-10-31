@@ -15,7 +15,6 @@ from qt.core import (
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.tag_list_editor import NotesItemWidget
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
@@ -214,7 +213,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.setRowCount(len(auts_to_show))
         row = 0
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
