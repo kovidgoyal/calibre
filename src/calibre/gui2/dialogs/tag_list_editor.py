@@ -270,8 +270,8 @@ class NoteTableWidgetItem(QTableWidgetItem):
         # Continue to allow an undo if it was allowed before and the dialog was cancelled.
         if accepted:
             self._backup_note(note)
-        self.can_undo = not accepted and self.can_undo
         self.set_checked()
+        self.can_undo = not accepted and self.can_undo or bool(note) and not self.has_notes
         return accepted
 
     def do_delete(self):
