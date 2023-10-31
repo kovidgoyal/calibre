@@ -4,12 +4,15 @@
 
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
-    QDialogButtonBox, QEvent, QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate,
-    Qt, QTableWidgetItem, QTimer, QToolButton, pyqtSignal, sip,
+    QAbstractItemView, QAction, QApplication, QColor, QDialog, QDialogButtonBox, QEvent,
+    QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate, Qt, QTableWidgetItem,
+    QTimer, pyqtSignal, sip,
 )
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre import sanitize_file_name
+from calibre.gui2 import (
+    choose_files, choose_save_file, error_dialog, gprefs, question_dialog,
+)
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -29,7 +32,7 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 class NameTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, sort_key, parent):
-        QTableWidgetItem.__init__(self)
+        super().__init__()
         self.initial_value = ''
         self.current_value = ''
         self.is_deleted = False
@@ -89,46 +92,47 @@ class NameTableWidgetItem(QTableWidgetItem):
 
     def build_context_menu(self):
         m = QMenu()
-        disable_copy_paste_search = len(self._parent.table.selectedItems()) != 1 or self.is_deleted
+        parent = self._parent
+        disable_copy_paste_search = len(parent.table.selectedItems()) != 1 or self.is_deleted
         ca = m.addAction(_('Copy'))
-        ca.triggered.connect(partial(self._parent.copy_to_clipboard, self))
+        ca.triggered.connect(partial(parent.copy_to_clipboard, self))
         ca.setIcon(QIcon.ic('edit-copy.png'))
         if disable_copy_paste_search:
             ca.setEnabled(False)
         ca = m.addAction(_('Paste'))
         ca.setIcon(QIcon.ic('edit-paste.png'))
-        ca.triggered.connect(partial(self._parent.paste_from_clipboard, self))
+        ca.triggered.connect(partial(parent.paste_from_clipboard, self))
         if disable_copy_paste_search:
             ca.setEnabled(False)
         ca = m.addAction(_('Undo'))
         ca.setIcon(QIcon.ic('edit-undo.png'))
-        ca.triggered.connect(self._parent.undo_edit)
+        ca.triggered.connect(parent.undo_edit)
         ca.setEnabled(False)
-        for item in self._parent.table.selectedItems():
-            if (item.text() != self._parent.original_names[int(item.data(Qt.ItemDataRole.UserRole))] or item.is_deleted):
+        for item in parent.table.selectedItems():
+            if (item.text() != parent.original_names[int(item.data(Qt.ItemDataRole.UserRole))] or item.is_deleted):
                 ca.setEnabled(True)
                 break
         ca = m.addAction(_('Edit'))
         ca.setIcon(QIcon.ic('edit_input.png'))
-        ca.triggered.connect(self._parent.rename_tag)
+        ca.triggered.connect(parent.rename_tag)
         ca = m.addAction(_('Delete'))
         ca.setIcon(QIcon.ic('trash.png'))
-        ca.triggered.connect(self._parent.delete_tags)
+        ca.triggered.connect(parent.delete_tags)
         item_name = str(self.text())
         ca = m.addAction(_('Search for {}').format(item_name))
         ca.setIcon(QIcon.ic('search.png'))
-        ca.triggered.connect(partial(self._parent.set_search_text, item_name))
+        ca.triggered.connect(partial(parent.set_search_text, item_name))
         item_name = str(self.text())
         ca = m.addAction(_('Filter by {}').format(item_name))
         ca.setIcon(QIcon.ic('filter.png'))
-        ca.triggered.connect(partial(self._parent.set_filter_text, item_name))
-        if self._parent.category is not None:
+        ca.triggered.connect(partial(parent.set_filter_text, item_name))
+        if parent.category is not None:
             ca = m.addAction(_("Search the library for {0}").format(item_name))
             ca.setIcon(QIcon.ic('lt.png'))
-            ca.triggered.connect(partial(self._parent.search_for_books, self))
+            ca.triggered.connect(partial(parent.search_for_books, self))
             if disable_copy_paste_search:
                 ca.setEnabled(False)
-        if self._parent.table.state() == QAbstractItemView.State.EditingState:
+        if parent.table.state() == QAbstractItemView.State.EditingState:
             m.addSeparator()
             case_menu = QMenu(_('Change case'))
             case_menu.setIcon(QIcon.ic('font_size_larger.png'))
@@ -137,11 +141,11 @@ class NameTableWidgetItem(QTableWidgetItem):
             action_swap_case = case_menu.addAction(_('Swap case'))
             action_title_case = case_menu.addAction(_('Title case'))
             action_capitalize = case_menu.addAction(_('Capitalize'))
-            action_upper_case.triggered.connect(partial(self._parent.do_case, icu_upper))
-            action_lower_case.triggered.connect(partial(self._parent.do_case, icu_lower))
-            action_swap_case.triggered.connect(partial(self._parent.do_case, self._parent.swap_case))
-            action_title_case.triggered.connect(partial(self._parent.do_case, titlecase))
-            action_capitalize.triggered.connect(partial(self._parent.do_case, capitalize))
+            action_upper_case.triggered.connect(partial(parent.do_case, icu_upper))
+            action_lower_case.triggered.connect(partial(parent.do_case, icu_lower))
+            action_swap_case.triggered.connect(partial(parent.do_case, parent.swap_case))
+            action_title_case.triggered.connect(partial(parent.do_case, titlecase))
+            action_capitalize.triggered.connect(partial(parent.do_case, capitalize))
             m.addMenu(case_menu)
 
         return m

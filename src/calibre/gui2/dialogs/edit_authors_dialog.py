@@ -67,7 +67,6 @@ class EditColumnDelegate(QStyledItemDelegate):
             before = item.db.notes_for('authors', item_id)
             note = item.db.export_note('authors', item_id) if before else ''
             if item.do_edit() == QDialog.DialogCode.Accepted:
-                after = item.db.notes_for('authors', item_id)
                 if item_id not in self.modified_notes:
                     self.modified_notes[item_id] = note
                 item.set_checked()
