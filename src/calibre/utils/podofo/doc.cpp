@@ -6,12 +6,8 @@
  */
 
 #include "global.h"
-#include <iostream>
 #include <algorithm>
 #include <new>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
 
 using namespace pdf;
 
