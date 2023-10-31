@@ -410,6 +410,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.sorter = sorter
         self.get_book_ids = get_book_ids
         self.text_before_editing = ''
+        self.modified_notes = {}
 
         self.sort_names = ('name', 'count', 'was', 'link', 'notes')
         self.last_sorted_by = 'name'
@@ -695,7 +696,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.supports_notes:
-                self.table.setItem(row, self.NOTES_COLUMN, NoteTableWidgetItem(self.category, _id, _id in all_items_that_have_notes, None))
+                self.table.setItem(row, self.NOTES_COLUMN, NoteTableWidgetItem(self.category, _id, _id in all_items_that_have_notes, self.modified_notes))
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)
@@ -950,4 +951,16 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.save_geometry()
 
     def rejected(self):
+        self._restore_all_notes()
         self.save_geometry()
+
+    def _restore_all_notes(self):
+        # should only be called from reject()
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        for item_id, before in self.modified_notes.items():
+            if before:
+                db.import_note(self.category, item_id, before.encode('utf-8'), path_is_data=True)
+            else:
+                db.set_notes_for(self.category, item_id, '')
+        self.modified_notes.clear()
