@@ -212,7 +212,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.setRowCount(len(auts_to_show))
         row = 0
-        from calibre.gui2.ui import get_gui
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
@@ -228,7 +227,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
 
-            nw = NotesItemWidget(get_gui().current_db, 'authors', name)
+            nw = NotesItemWidget('authors', id_)
             self.table.setCellWidget(row, 3, nw)
 
             self.set_icon(name_item, id_)
