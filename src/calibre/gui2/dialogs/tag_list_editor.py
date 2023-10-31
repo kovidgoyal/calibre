@@ -348,20 +348,6 @@ def event(ev, me=None, super_class=None, context_menu_handler=None):
     return super_class.event(ev)
 
 
-class MyToolButton(QToolButton):
-
-    def __init__(self, context_menu_handler):
-        QToolButton.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
-
-
-class MyCheckBox(QCheckBox):
-
-    def __init__(self, context_menu_handler):
-        QCheckBox.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
-
-
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     VALUE_COLUMN = 0
@@ -454,13 +440,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def show_context_menu(self, point):
         item = self.table.itemAt(point)
-        if item is None:
-            return
-        elif hasattr(item, 'build_context_menu'):
-            m = item.build_context_menu()
-        else:
+        if item is None or not hasattr(item, 'build_context_menu'):
             return
 
+        m = item.build_context_menu()
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def search_for_books(self, item):
