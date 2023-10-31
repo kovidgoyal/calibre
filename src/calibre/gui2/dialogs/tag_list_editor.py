@@ -5,16 +5,14 @@
 from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
-    QDialogButtonBox, QEvent, QFrame, QHBoxLayout, QIcon, QItemDelegate, QLabel, QMenu,
-    QSize, Qt, QTableWidgetItem, QTimer, QToolButton, QWidget, pyqtSignal, sip,
+    QDialogButtonBox, QEvent, QFrame, QIcon, QItemDelegate, QLabel, QMenu,
+    QSize, Qt, QTableWidgetItem, QTimer, QToolButton, pyqtSignal, sip,
 )
 
-from calibre import sanitize_file_name
-from calibre.gui2 import error_dialog, gprefs, question_dialog, choose_files, choose_save_file
+from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.tag_list_editor_table_widget import TleTableWidget
 from calibre.gui2.widgets import EnLineEdit
@@ -172,158 +170,6 @@ class MyCheckBox(QCheckBox):
         self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
 
 
-class NotesItemWidget(QWidget):
-    '''
-    This is a self-contained widget for manipulating notes. It can be used in a
-    table (as a cellWidget) or in a layout. It currently contains a check box
-    indicating that the item has a note, and buttons to edit/create or delete a
-    note, or undo a deletion.
-    '''
-
-    edit_icon = QIcon.ic('edit_input.png')
-    delete_icon = QIcon.ic('trash.png')
-    undo_delete_icon = QIcon.ic('edit-undo.png')
-    export_icon = QIcon.ic('forward.png')
-    import_icon = QIcon.ic('back.png')
-
-    @property
-    def db(self):
-        from calibre.gui2.ui import get_gui
-        return get_gui().current_db.new_api
-
-    @property
-    def item_val(self):
-        if self._item_val is None:
-            self._item_val = self.db.get_item_name(self.field, self._item_id)
-        return self._item_val
-
-    @property
-    def item_id(self):
-        if self._item_id is None:
-            self._item_id = self.db.get_item_id(self.field, self._item_val)
-            if self._item_id is None:
-                raise KeyError(f'The value: {self._item_val} is not found in the field: {self.field}')
-        return self._item_id
-
-    def __init__(self, field, item_id_or_val, has_notes):
-        '''
-        :param db: A database instance, either old or new api
-        :param field: the lookup name of a field
-        :param item_id_or_val: Either the numeric item_id of an item in the field or
-            the item's string value
-        '''
-        super().__init__()
-        self.field = field
-        self._item_val = self._item_id = None
-        self.has_notes = has_notes
-        if isinstance(item_id_or_val, str):
-            self._item_val = item_id_or_val
-        else:
-            self._item_id = item_id_or_val
-        self.can_undo = False
-
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-        l = QHBoxLayout()
-        l.setContentsMargins(2, 0, 0, 0)
-        self.setLayout(l)
-        cb = self.cb = MyCheckBox(self.show_context_menu)
-        cb.setEnabled(False)
-        l.addWidget(cb)
-
-        self.buttons = {}
-        for button_data in (('edit', 'Edit or create the note. Changes cannot be undone or cancelled'),
-                            ('delete', 'Delete the note'),
-                            ('undo_delete', 'Undo the deletion')):
-            button_name = button_data[0]
-            tool_tip = button_data[1]
-            b = self.buttons[button_name] = MyToolButton(self.show_context_menu)
-            b.setIcon(getattr(self, button_name + '_icon'))
-            b.setToolTip(tool_tip)
-            b.clicked.connect(getattr(self, 'do_' + button_name))
-            b.setContentsMargins(0, 0, 0, 0)
-            l.addWidget(b)
-        l.addStretch(3)
-
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.set_checked(refresh=False)
-        self.customContextMenuRequested.connect(self.show_context_menu)
-
-    @classmethod
-    def get_item_id(cls, db, field: str, value: str):
-        return db.new_api.get_item_id(field, value)
-
-    def show_context_menu(self, point):
-        m = QMenu()
-        ac = m.addAction(self.edit_icon, _('Edit note') if self.cb.isChecked() else _('Create note'))
-        ac.triggered.connect(self.do_edit)
-
-        ac = m.addAction(self.delete_icon, _('Delete note'))
-        ac.setEnabled(self.cb.isChecked())
-        ac.triggered.connect(self.do_delete)
-
-        ac = m.addAction(self.undo_delete_icon, _('Undo delete'))
-        ac.setEnabled(self.can_undo)
-        ac.triggered.connect(self.do_undo_delete)
-
-        ac = m.addAction(self.export_icon, _('Export note to a file'))
-        ac.setEnabled(self.cb.isChecked())
-        ac.triggered.connect(self.do_export)
-
-        ac = m.addAction(self.import_icon, _('Import note from a file'))
-        ac.setEnabled(not self.cb.isChecked())
-        ac.triggered.connect(self.do_import)
-
-        m.exec(self.mapToGlobal(point))
-
-    def do_edit(self):
-        accepted = EditNoteDialog(self.field, self.item_id, self.db).exec()
-        # Continue to allow an undo if it was allowed before and the dialog was cancelled.
-        self.can_undo = not accepted and self.can_undo
-        self.set_checked()
-
-    def do_delete(self):
-        self.db.set_notes_for(self.field, self.item_id, '')
-        self.can_undo = True
-        self.set_checked()
-
-    def do_undo_delete(self):
-        if self.can_undo:
-            self.db.unretire_note_for(self.field, self.item_id)
-            self.can_undo = False
-            self.set_checked()
-
-    def do_export(self):
-        dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'),
-                                filters=[(_('HTML files'), ['html'])],
-                                initial_filename=f'{sanitize_file_name(self.item_val)}.html',
-                                all_files=False)
-        if dest:
-            html = self.db.export_note(self.field, self.item_id)
-            with open(dest, 'wb') as f:
-                f.write(html.encode('utf-8'))
-
-    def do_import(self):
-        src = choose_files(self, 'load-imported-note', _('Import note from a file'),
-                           filters=[(_('HTML files'), ['html'])],
-                           all_files=False, select_only_single_file=True)
-        if src:
-            self.db.import_note(self.field, self.item_id, src[0])
-            self.can_undo = False
-            self.set_checked()
-
-    def set_checked(self, refresh=True):
-        if refresh:
-            self.has_notes = bool(self.db.notes_for(self.field, self.item_id))
-        self.cb.setChecked(self.has_notes)
-        self.buttons['delete'].setEnabled(self.has_notes)
-        self.buttons['undo_delete'].setEnabled(self.can_undo)
-
-    def is_checked(self):
-        # returns True if the checkbox is checked, meaning the note contains text
-        return self.cb.isChecked()
-
-
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     VALUE_COLUMN = 0
@@ -361,9 +207,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.get_book_ids = get_book_ids
         self.text_before_editing = ''
 
-        self.sort_names = ('name', 'count', 'was', 'link')
+        self.sort_names = ('name', 'count', 'was', 'link', 'notes')
         self.last_sorted_by = 'name'
-        self.name_order = self.count_order = self.was_order = self.link_order = 0
+        self.name_order = self.count_order = self.was_order = self.link_order = self.notes_order = 0
 
         if prefs['case_sensitive']:
             self.string_contains = contains
@@ -644,8 +490,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setHorizontalHeaderItem(4, self.link_col)
 
         self.table.setRowCount(len(tags))
-        from calibre.gui2.ui import get_gui
-        all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
+        if self.category is not None:
+            from calibre.gui2.ui import get_gui
+            all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
         for row,tag in enumerate(tags):
             item = NameTableWidgetItem(self.sorter)
             is_deleted = self.all_tags[tag]['is_deleted']
@@ -697,8 +544,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.category is not None:
-                nw = NotesItemWidget(self.category, _id, _id in all_items_that_have_notes)
-                self.table.setCellWidget(row, 4, nw)
+                self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem('✓' if _id in all_items_that_have_notes else ''))
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)
