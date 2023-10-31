@@ -181,6 +181,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
+        from calibre.gui2.ui import get_gui
+        self.supports_notes = bool(category and get_gui().current_db.new_api.field_supports_notes(category))
         self.setupUi(self)
         self.verticalLayout_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.search_box.setMinimumContentsLength(25)
@@ -486,11 +488,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setHorizontalHeaderItem(2, self.was_col)
         self.link_col = QTableWidgetItem(_('Link'))
         self.table.setHorizontalHeaderItem(self.LINK_COLUMN, self.link_col)
-        self.link_col = QTableWidgetItem(_('Notes'))
-        self.table.setHorizontalHeaderItem(4, self.link_col)
+        if self.supports_notes:
+            self.notes_col = QTableWidgetItem(_('Notes'))
+            self.table.setHorizontalHeaderItem(4, self.notes_col)
 
         self.table.setRowCount(len(tags))
-        if self.category is not None:
+        if self.supports_notes:
             from calibre.gui2.ui import get_gui
             all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
         for row,tag in enumerate(tags):
@@ -543,7 +546,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setText(self.link_map.get(tag, ''))
             self.table.setItem(row, self.LINK_COLUMN, item)
 
-            if self.category is not None:
+            if self.supports_notes:
                 self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem(CHECK_MARK if _id in all_items_that_have_notes else ''))
 
         # re-sort the table
