@@ -203,17 +203,21 @@ class NoteTableWidgetItem(QTableWidgetItem):
                 raise KeyError(f'The value: {self._item_val} is not found in the field: {self.field}')
         return self._item_id
 
-    def __init__(self, field, item_id_or_val, has_notes):
+    def __init__(self, field, item_id_or_val, has_notes, modified_notes):
         '''
         :param field: the lookup name of a field
         :param item_id_or_val: Either the numeric item_id of an item in the field or
             the item's string value
         :param has_notes: A boolean if this item has a note
+        :param modified_notes: Dictionary of current edited notes for the field
         '''
         super().__init__()
         self.field = field
         self._item_val = self._item_id = None
         self.has_notes = has_notes
+        if modified_notes is None:
+            modified_notes = {}
+        self.modified_notes = modified_notes
         if isinstance(item_id_or_val, str):
             self._item_val = item_id_or_val
         else:
@@ -251,15 +255,27 @@ class NoteTableWidgetItem(QTableWidgetItem):
 
         return m
 
+    def _original_note(self):
+        before = self.db.notes_for(self.field, self.item_id)
+        return self.db.export_note(self.field, self.item_id) if before else ''
+
+    def _backup_note(self, note):
+        if self.item_id not in self.modified_notes:
+            self.modified_notes[self.item_id] = note
+
     def do_edit(self):
         from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+        note = self._original_note()
         accepted = EditNoteDialog(self.field, self.item_id, self.db).exec()
         # Continue to allow an undo if it was allowed before and the dialog was cancelled.
+        if accepted:
+            self._backup_note(note)
         self.can_undo = not accepted and self.can_undo
         self.set_checked()
         return accepted
 
     def do_delete(self):
+        self._backup_note(self._original_note())
         self.db.set_notes_for(self.field, self.item_id, '')
         self.can_undo = True
         self.set_checked()
@@ -281,11 +297,13 @@ class NoteTableWidgetItem(QTableWidgetItem):
                 f.write(html.encode('utf-8'))
 
     def do_import(self):
+        note = self._original_note()
         src = choose_files(self, 'load-imported-note', _('Import note from a file'),
                            filters=[(_('HTML files'), ['html'])],
                            all_files=False, select_only_single_file=True)
         if src:
             self.db.import_note(self.field, self.item_id, src[0])
+            self._backup_note(note)
             self.can_undo = False
             self.set_checked()
 
@@ -677,7 +695,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.supports_notes:
-                self.table.setItem(row, self.NOTES_COLUMN, NoteTableWidgetItem(self.category, _id, _id in all_items_that_have_notes))
+                self.table.setItem(row, self.NOTES_COLUMN, NoteTableWidgetItem(self.category, _id, _id in all_items_that_have_notes, None))
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)

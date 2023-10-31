@@ -63,13 +63,7 @@ class EditColumnDelegate(QStyledItemDelegate):
                 return editor
         if index.column() == EditAuthorsDialog.NOTE_COLUMN:
             item = self.table.itemFromIndex(index)
-            item_id = int(self.table.item(item.row(), EditAuthorsDialog.NAME_COLUMN).data(Qt.ItemDataRole.UserRole))
-            before = item.db.notes_for('authors', item_id)
-            note = item.db.export_note('authors', item_id) if before else ''
             if item.do_edit() == QDialog.DialogCode.Accepted:
-                if item_id not in self.modified_notes:
-                    self.modified_notes[item_id] = note
-                item.set_checked()
                 self.table.cellChanged.emit(item.row(), item.column())
             return None
 
@@ -273,7 +267,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             name_item.setData(Qt.ItemDataRole.UserRole, id_)
             sort_item = tableItem(sort)
             link_item = tableItem(link)
-            note_item = NoteTableWidgetItem('authors', id_, id_ in all_items_that_have_notes)
+            note_item = NoteTableWidgetItem('authors', id_, id_ in all_items_that_have_notes, self.table.itemDelegate().modified_notes)
 
             self.table.setItem(row, self.NAME_COLUMN, name_item)
             self.table.setItem(row, self.SORT_COLUMN, sort_item)
