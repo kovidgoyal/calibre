@@ -15,7 +15,6 @@ from qt.core import (
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.gui2.dialogs.tag_list_editor import NotesItemWidget
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import (
@@ -28,9 +27,9 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 class tableItem(QTableWidgetItem):
 
-    def __init__(self, txt):
+    def __init__(self, txt, skey=None):
         QTableWidgetItem.__init__(self, txt)
-        self.sort_key = sort_key(str(txt))
+        self.sort_key = sort_key(str(txt)) if skey is None else skey
 
     def setText(self, txt):
         self.sort_key = sort_key(str(txt))
@@ -177,6 +176,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.author_order = 1
         self.author_sort_order = 0
         self.link_order = 1
+        self.notes_order = 1
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
 
     @contextmanager
@@ -214,6 +214,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         row = 0
         from calibre.gui2.ui import get_gui
         all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes('authors')
+        yes, yes_skey = '✓', sort_key('✓')
+        no, no_skey = '', sort_key('')
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
@@ -228,9 +230,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 0, name_item)
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
-
-            nw = NotesItemWidget('authors', id_, id_ in all_items_that_have_notes)
-            self.table.setCellWidget(row, 3, nw)
+            if id_ in all_items_that_have_notes:
+                self.table.setItem(row, 3, tableItem(yes, yes_skey))
+            else:
+                self.table.setItem(row, 3, tableItem(no, no_skey))
 
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
@@ -246,9 +249,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         elif self.last_sorted_by == 'author':
             self.author_order = 1 - self.author_order
             self.do_sort_by_author()
-        else:
+        elif self.last_sorted_by == 'link':
             self.link_order = 1 - self.link_order
             self.do_sort_by_link()
+        else:
+            self.notes_order = 1 - self.notes_order
+            self.do_sort_by_notes()
 
         # Position on the desired item
         select_item = None
@@ -443,7 +449,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label_timer.start(1500)
 
     def do_sort(self, section):
-        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_link)[section]()
+        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_link, self.do_sort_by_notes)[section]()
 
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
@@ -459,6 +465,11 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.last_sorted_by = 'link'
         self.link_order = 1 - self.link_order
         self.table.sortByColumn(2, Qt.SortOrder(self.link_order))
+
+    def do_sort_by_notes(self):
+        self.last_sorted_by = 'notes'
+        self.notes_order = 1 - self.notes_order
+        self.table.sortByColumn(3, Qt.SortOrder(self.notes_order))
 
     def accepted(self):
         self.save_state()
