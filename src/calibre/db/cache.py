@@ -749,13 +749,19 @@ class Cache:
         return self.backend.export_note(field, item_id)
 
     @write_api
-    def import_note(self, field, item_id, path_to_html_file):
+    def import_note(self, field, item_id, path_to_html_file, path_is_data=False):
         ' Import a previously exported note or an arbitrary HTML file as the note for the specified item '
-        with open(path_to_html_file, 'rb') as f:
-            html = f.read()
-            st = os.stat(f.fileno())
-        basedir = os.path.dirname(os.path.abspath(path_to_html_file))
-        return self.backend.import_note(field, item_id, html, basedir, st.st_ctime, st.st_mtime)
+        if path_is_data:
+            html = path_to_html_file
+            ctime = mtime = time()
+            basedir = base_dir()
+        else:
+            with open(path_to_html_file, 'rb') as f:
+                html = f.read()
+                st = os.stat(f.fileno())
+                ctime, mtime = st.st_ctime, st.st_mtime
+            basedir = os.path.dirname(os.path.abspath(path_to_html_file))
+        return self.backend.import_note(field, item_id, html, basedir, ctime, mtime)
 
     @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
     def search_notes(
