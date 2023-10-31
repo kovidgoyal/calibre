@@ -180,37 +180,45 @@ class NotesItemWidget(QWidget):
     note, or undo a deletion.
     '''
 
-    '''
-    This signal is emitted when a note is edited, after the notes editor
-    returns, or deleted. It is provided in case the using class wants to know if
-    a note has possibly changed. If not then using this signal isn't required.
-    Parameters: self (this widget), field, item_id, note, db (new_api)
-    '''
-    note_edited = pyqtSignal(object, object, object, object, object)
-
     edit_icon = QIcon.ic('edit_input.png')
     delete_icon = QIcon.ic('trash.png')
     undo_delete_icon = QIcon.ic('edit-undo.png')
     export_icon = QIcon.ic('forward.png')
     import_icon = QIcon.ic('back.png')
 
-    def __init__(self, db, field, item_id):
+    @property
+    def db(self):
+        from calibre.gui2.ui import get_gui
+        return get_gui().current_db.new_api
+
+    @property
+    def item_val(self):
+        if self._item_val is None:
+            self._item_val = self.db.get_item_name(self.field, self._item_id)
+        return self._item_val
+
+    @property
+    def item_id(self):
+        if self._item_id is None:
+            self._item_id = self.db.get_item_id(self.field, self._item_val)
+            if self._item_id is None:
+                raise KeyError(f'The value: {self._item_val} is not found in the field: {self.field}')
+        return self._item_id
+
+    def __init__(self, field, item_id_or_val):
         '''
         :param db: A database instance, either old or new api
         :param field: the lookup name of a field
-        :param item_id: Either the numeric item_id of an item in the field or
+        :param item_id_or_val: Either the numeric item_id of an item in the field or
             the item's string value
         '''
         super().__init__()
-        self.db = db = db.new_api
         self.field = field
-        if isinstance(item_id, str):
-            self.item_id = db.get_item_id(field, item_id)
-            if self.item_id is None:
-                raise ValueError(f"The item {item_id} doesn't exist")
+        self._item_val = self._item_id = None
+        if isinstance(item_id_or_val, str):
+            self._item_val = item_id_or_val
         else:
-            self.item_id = item_id
-        self.item_val = db.get_item_name(self.field, self.item_id)
+            self._item_id = item_id_or_val
         self.can_undo = False
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -309,7 +317,6 @@ class NotesItemWidget(QWidget):
         self.cb.setChecked(t)
         self.buttons['delete'].setEnabled(t)
         self.buttons['undo_delete'].setEnabled(self.can_undo)
-        self.note_edited.emit(self, self.field, self.item_id, notes, self.db)
 
     def is_checked(self):
         # returns True if the checkbox is checked, meaning the note contains text
@@ -687,8 +694,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.category is not None:
-                from calibre.gui2.ui import get_gui
-                nw = NotesItemWidget(get_gui().current_db, self.category, _id)
+                nw = NotesItemWidget(self.category, _id)
                 self.table.setCellWidget(row, 4, nw)
 
         # re-sort the table
