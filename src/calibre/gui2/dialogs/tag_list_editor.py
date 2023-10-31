@@ -5,16 +5,16 @@
 from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
-    QDialogButtonBox, QEvent, QFrame, QIcon, QItemDelegate, QLabel, QMenu,
-    QSize, Qt, QTableWidgetItem, QTimer, QToolButton, pyqtSignal, sip,
+    QDialogButtonBox, QEvent, QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate,
+    Qt, QTableWidgetItem, QTimer, QToolButton, pyqtSignal, sip,
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.tag_list_editor_table_widget import TleTableWidget
+from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.config import prefs
 from calibre.utils.icu import (
@@ -108,12 +108,12 @@ class CountTableWidgetItem(QTableWidgetItem):
         return self._count < other._count
 
 
-class EditColumnDelegate(QItemDelegate):
+class EditColumnDelegate(QStyledItemDelegate):
     editing_finished = pyqtSignal(int)
     editing_started  = pyqtSignal(int)
 
-    def __init__(self, table, check_for_deleted_items):
-        QItemDelegate.__init__(self)
+    def __init__(self, table, check_for_deleted_items, parent=None):
+        super().__init__(table)
         self.table = table
         self.completion_data = None
         self.check_for_deleted_items = check_for_deleted_items
@@ -141,7 +141,7 @@ class EditColumnDelegate(QItemDelegate):
 
     def destroyEditor(self, editor, index):
         self.editing_finished.emit(index.row())
-        QItemDelegate.destroyEditor(self, editor, index)
+        super().destroyEditor(editor, index)
 
 
 # These My... classes are needed to make context menus work on disabled widgets
@@ -257,12 +257,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         return super().sizeHint() + QSize(150, 100)
 
     def show_context_menu(self, point):
-        idx = self.table.indexAt(point)
-        if idx.column() != self.VALUE_COLUMN:
+        item = self.table.itemAt(point)
+        if item is None or item.column() != self.VALUE_COLUMN:
             return
         m = self.au_context_menu = QMenu(self)
 
-        item = self.table.itemAt(point)
         disable_copy_paste_search = len(self.table.selectedItems()) != 1 or item.is_deleted
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(partial(self.copy_to_clipboard, item))
@@ -317,7 +316,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             action_title_case.triggered.connect(partial(self.do_case, titlecase))
             action_capitalize.triggered.connect(partial(self.do_case, capitalize))
             m.addMenu(case_menu)
-        m.exec(self.table.mapToGlobal(point))
+        m.exec(self.table.viewport().mapToGlobal(point))
 
     def search_for_books(self, item):
         from calibre.gui2.ui import get_gui
