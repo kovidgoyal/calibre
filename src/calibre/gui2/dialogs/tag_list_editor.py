@@ -24,6 +24,7 @@ from calibre.utils.icu import (
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
+CHECK_MARK = '✓'
 
 
 class NameTableWidgetItem(QTableWidgetItem):
@@ -543,7 +544,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, self.LINK_COLUMN, item)
 
             if self.category is not None:
-                self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem('✓' if _id in all_items_that_have_notes else ''))
+                self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem(CHECK_MARK if _id in all_items_that_have_notes else ''))
 
         # re-sort the table
         column = self.sort_names.index(self.last_sorted_by)
