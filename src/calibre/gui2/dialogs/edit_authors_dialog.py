@@ -9,12 +9,13 @@ from contextlib import contextmanager
 from functools import partial
 from qt.core import (
     QAbstractItemView, QAction, QApplication, QDialog, QDialogButtonBox, QFrame, QIcon,
-    QLabel, QMenu, QStyledItemDelegate, Qt, QTableWidget, QTableWidgetItem, QTimer,
+    QLabel, QMenu, QStyledItemDelegate, Qt, QTableWidgetItem, QTimer,
 )
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
+from calibre.gui2.dialogs.tag_list_editor import NotesUtilities
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import (
@@ -25,7 +26,7 @@ from calibre.utils.icu import (
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
-class tableItem(QTableWidgetItem):
+class TableItem(QTableWidgetItem):
 
     def __init__(self, txt, skey=None):
         QTableWidgetItem.__init__(self, txt)
@@ -46,23 +47,30 @@ class tableItem(QTableWidgetItem):
 
 
 CHECK_MARK = '✓'
+AUTHOR_COLUMN = 0
+AUTHOR_SORT_COLUMN = 1
+LINK_COLUMN = 2
+NOTES_COLUMN = 3
+
 
 class EditColumnDelegate(QStyledItemDelegate):
 
-    def __init__(self, completion_data, parent):
-        super().__init__(parent)
+    def __init__(self, completion_data, table, modified_notes, item_id_getter):
+        super().__init__(table)
+        self.table = table
         self.completion_data = completion_data
-        self.modified_notes = {}
+        self.modified_notes = modified_notes
+        self.item_id_getter = item_id_getter
 
     def createEditor(self, parent, option, index):
-        if index.column() == 0:
+        if index.column() == AUTHOR_COLUMN:
             if self.completion_data:
                 from calibre.gui2.complete2 import EditWithComplete
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
                 return editor
-        if index.column() == 3:
+        if index.column() == NOTES_COLUMN:
             self.edit_note(self.table.itemFromIndex(index))
             return None
 
@@ -71,37 +79,8 @@ class EditColumnDelegate(QStyledItemDelegate):
         editor.setClearButtonEnabled(True)
         return editor
 
-    @property
-    def table(self) -> QTableWidget:
-        return self.parent()
-
-    def is_note_modified(self, item_id) -> bool:
-        return item_id in self.modified_notes
-
-    def undo_note_edit(self, item):
-        item_id = int(self.table.item(item.row(), 0).data(Qt.ItemDataRole.UserRole))
-        before = self.modified_notes.pop(item_id, None)
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
-        if before is not None:
-            if before:
-                db.import_note('authors', item_id, before.encode('utf-8'), path_is_data=True)
-            else:
-                db.set_notes_for('authors', item_id, '')
-
-    def restore_all_notes(self):
-        # should only be called from reject()
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
-        for item_id, before in self.modified_notes.items():
-            if before:
-                db.import_note('authors', item_id, before.encode('utf-8'), path_is_data=True)
-            else:
-                db.set_notes_for('authors', item_id, '')
-        self.modified_notes.clear()
-
     def edit_note(self, item):
-        item_id = int(self.table.item(item.row(), 0).data(Qt.ItemDataRole.UserRole))
+        item_id = self.item_id_getter(item)
         from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
@@ -135,6 +114,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.restore_geometry(gprefs, 'manage_authors_dialog_geometry')
         except Exception:
             pass
+
+        self.modified_notes = {}
+        self.notes_utilities = NotesUtilities(self.table, self.modified_notes, "authors",
+                  lambda item: int(self.table.item(item.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole)))
 
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
@@ -228,8 +211,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.author_sort_order = 0
         self.link_order = 1
         self.notes_order = 1
-        self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table))
+        self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table,
+                                                      self.modified_notes, self.get_item_id))
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
+
+    def get_item_id(self, item):
+        return int(self.table.item(item.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole))
 
     @contextmanager
     def no_cell_changed(self):
@@ -274,19 +261,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             name, sort, link = (v['name'], v['sort'], v['link'])
             name = name.replace('|', ',')
 
-            name_item = tableItem(name)
+            name_item = TableItem(name)
             name_item.setData(Qt.ItemDataRole.UserRole, id_)
-            sort_item = tableItem(sort)
-            link_item = tableItem(link)
+            sort_item = TableItem(sort)
+            link_item = TableItem(link)
 
-            self.table.setItem(row, 0, name_item)
-            self.table.setItem(row, 1, sort_item)
-            self.table.setItem(row, 2, link_item)
+            self.table.setItem(row, AUTHOR_COLUMN, name_item)
+            self.table.setItem(row, AUTHOR_SORT_COLUMN, sort_item)
+            self.table.setItem(row, LINK_COLUMN, link_item)
             if id_ in all_items_that_have_notes:
-                note_item = tableItem(yes, yes_skey)
+                note_item = TableItem(yes, yes_skey)
             else:
-                note_item = tableItem(no, no_skey)
-            self.table.setItem(row, 3, note_item)
+                note_item = TableItem(no, no_skey)
+            self.table.setItem(row, NOTES_COLUMN, note_item)
 
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
@@ -315,19 +302,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             use_as = tweaks['categories_use_field_for_author_name'] == 'author_sort'
             for row in range(0, len(auts_to_show)):
                 if is_first_letter:
-                    item_txt = str(self.table.item(row, 1).text() if use_as
-                                                else self.table.item(row, 0).text())
+                    item_txt = str(self.table.item(row, AUTHOR_SORT_COLUMN).text() if use_as
+                                                else self.table.item(row, AUTHOR_COLUMN).text())
                     if primary_startswith(item_txt, id_to_select):
-                        select_item = self.table.item(row, 1 if use_as else 0)
+                        select_item = self.table.item(row, AUTHOR_SORT_COLUMN if use_as else 0)
                         break
-                elif id_to_select == self.table.item(row, 0).data(Qt.ItemDataRole.UserRole):
+                elif id_to_select == self.table.item(row, AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole):
                     if select_sort:
-                        select_item = self.table.item(row, 1)
+                        select_item = self.table.item(row, AUTHOR_SORT_COLUMN)
                     elif select_link:
-                        select_item = self.table.item(row, 2)
+                        select_item = self.table.item(row, LINK_COLUMN)
                     else:
-                        select_item = (self.table.item(row, 1) if use_as
-                                        else self.table.item(row, 0))
+                        select_item = (self.table.item(row, AUTHOR_SORT_COLUMN) if use_as
+                                        else self.table.item(row, AUTHOR_COLUMN))
                     break
         if select_item:
             self.table.setCurrentItem(select_item)
@@ -380,8 +367,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def item_is_modified(self, item, id_):
         sub = self.get_column_name(item.column())
         if sub == 'notes':
-            return self.table.itemDelegate().is_note_modified(id_)
-        item.text() != self.original_authors[id_][sub]
+            return self.notes_utilities.is_note_modified(id_)
+        return item.text() != self.original_authors[id_][sub]
 
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
@@ -403,34 +390,43 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         m = self.au_context_menu = QMenu(self)
         idx = self.table.indexAt(point)
-        id_ = int(self.table.item(idx.row(), 0).data(Qt.ItemDataRole.UserRole))
+        id_ = int(self.table.item(idx.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole))
         sub = self.get_column_name(idx.column())
-        if self.context_item is not None and self.item_is_modified(self.context_item, id_):
+        if sub == 'notes':
+            self.notes_utilities.context_menu(m, self.context_item,
+                                              self.table.item(idx.row(), AUTHOR_COLUMN).text())
+        else:
+            ca = m.addAction(QIcon.ic('edit-copy.png'), _('Copy'))
+            ca.triggered.connect(self.copy_to_clipboard)
+            ca = m.addAction(QIcon.ic('edit-paste.png'), _('Paste'))
+            ca.triggered.connect(self.paste_from_clipboard)
+
             ca = m.addAction(QIcon.ic('edit-undo.png'), _('Undo'))
             ca.triggered.connect(partial(self.undo_cell,
                                          old_value=self.original_authors[id_].get(sub)))
-            m.addSeparator()
-        ca = m.addAction(QIcon.ic('edit-copy.png'), _('Copy'))
-        ca.triggered.connect(self.copy_to_clipboard)
-        ca = m.addAction(QIcon.ic('edit-paste.png'), _('Paste'))
-        ca.triggered.connect(self.paste_from_clipboard)
-        m.addSeparator()
-        if self.context_item is not None and sub == 'name':
-            ca = m.addAction(_('Copy to author sort'))
-            ca.triggered.connect(self.copy_au_to_aus)
-            m.addSeparator()
-            ca = m.addAction(QIcon.ic('lt.png'), _("Show books by author in book list"))
-            ca.triggered.connect(self.search_in_book_list)
-        else:
-            ca = m.addAction(_('Copy to author'))
-            ca.triggered.connect(self.copy_aus_to_au)
-        m.addSeparator()
-        m.addMenu(case_menu)
+            ca.setEnabled(self.context_item is not None and self.item_is_modified(self.context_item, id_))
+
+            ca = m.addAction(QIcon.ic('edit_input.png'), _('Edit'))
+            ca.triggered.connect(partial(self.table.editItem, self.context_item))
+
+            if sub != 'link':
+                m.addSeparator()
+                if self.context_item is not None and sub == 'name':
+                    ca = m.addAction(_('Copy to author sort'))
+                    ca.triggered.connect(self.copy_au_to_aus)
+                    m.addSeparator()
+                    ca = m.addAction(QIcon.ic('lt.png'), _("Show books by author in book list"))
+                    ca.triggered.connect(self.search_in_book_list)
+                else:
+                    ca = m.addAction(_('Copy to author'))
+                    ca.triggered.connect(self.copy_aus_to_au)
+                m.addSeparator()
+                m.addMenu(case_menu)
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def undo_cell(self, old_value):
         if self.context_item.column() == 3:
-            self.table.itemDelegate().undo_note_edit(self.context_item)
+            self.notes_utilities.undo_note_edit(self.context_item)
         else:
             self.context_item.setText(old_value)
 
@@ -438,7 +434,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         from calibre.gui2.ui import get_gui
         row = self.context_item.row()
         get_gui().search.set_search_string('authors:="%s"' %
-                           str(self.table.item(row, 0).text()).replace(r'"', r'\"'))
+                           str(self.table.item(row, AUTHOR_COLUMN).text()).replace(r'"', r'\"'))
 
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
@@ -467,12 +463,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def copy_aus_to_au(self):
         row = self.context_item.row()
-        dest = self.table.item(row, 0)
+        dest = self.table.item(row, AUTHOR_COLUMN)
         dest.setText(self.context_item.text())
 
     def copy_au_to_aus(self):
         row = self.context_item.row()
-        dest = self.table.item(row, 1)
+        dest = self.table.item(row, AUTHOR_SORT_COLUMN)
         dest.setText(self.context_item.text())
 
     def not_found_label_timer_event(self):
@@ -544,16 +540,16 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.result.append((id_, orig['name'], v['name'], v['sort'], v['link']))
 
     def rejected(self):
-        self.table.itemDelegate().restore_all_notes()
+        self.notes_utilities.restore_all_notes()
         self.save_state()
 
     def do_recalc_author_sort(self):
         with self.no_cell_changed():
             for row in range(0,self.table.rowCount()):
-                item_aut = self.table.item(row, 0)
+                item_aut = self.table.item(row, AUTHOR_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
                 aut  = str(item_aut.text()).strip()
-                item_aus = self.table.item(row, 1)
+                item_aus = self.table.item(row, AUTHOR_SORT_COLUMN)
                 # Sometimes trailing commas are left by changing between copy algs
                 aus = str(author_to_author_sort(aut)).rstrip(',')
                 item_aus.setText(aus)
@@ -564,8 +560,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def do_auth_sort_to_author(self):
         with self.no_cell_changed():
             for row in range(0,self.table.rowCount()):
-                aus  = str(self.table.item(row, 1).text()).strip()
-                item_aut = self.table.item(row, 0)
+                aus  = str(self.table.item(row, AUTHOR_SORT_COLUMN).text()).strip()
+                item_aut = self.table.item(row, AUTHOR_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
                 item_aut.setText(aus)
                 self.authors[id_]['name'] = aus
@@ -580,20 +576,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.ignore_cell_changed:
             return
         with self.no_cell_changed():
-            id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
-            if col == 0:
-                item = self.table.item(row, 0)
+            id_ = int(self.table.item(row, AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole))
+            if col == AUTHOR_COLUMN:
+                item = self.table.item(row, AUTHOR_COLUMN)
                 aut  = str(item.text()).strip()
                 aut_list = string_to_authors(aut)
                 if len(aut_list) != 1:
                     error_dialog(self.parent(), _('Invalid author name'),
                             _('You cannot change an author to multiple authors.')).exec()
                     aut = ' % '.join(aut_list)
-                    self.table.item(row, 0).setText(aut)
+                    self.table.item(row, AUTHOR_COLUMN).setText(aut)
                 item.set_sort_key()
                 self.authors[id_]['name'] = aut
                 self.set_icon(item, id_)
-                c = self.table.item(row, 1)
+                c = self.table.item(row, AUTHOR_SORT_COLUMN)
                 txt = author_to_author_sort(aut)
                 self.authors[id_]['sort'] = txt
                 c.setText(txt)  # This triggers another cellChanged event
