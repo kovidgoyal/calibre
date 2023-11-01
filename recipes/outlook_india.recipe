@@ -28,12 +28,12 @@ class outlook(BasicNewsRecipe):
     remove_tags = [
         classes(
             'social_sharing_article left_trending left-sticky __tag_links next_prev_stories '
-            'downarrow uparrow more_from_author_links next prev __related_stories_thumbs'
+            'downarrow uparrow more_from_author_links next prev __related_stories_thumbs home_ad_title'
         )
     ]
 
     def get_browser(self):
-        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based', verify_ssl_certificates=False)
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.outlookindia.com/magazine')
