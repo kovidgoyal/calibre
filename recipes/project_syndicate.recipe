@@ -10,7 +10,8 @@ class projectsynd(BasicNewsRecipe):
         'Featuring exclusive contributions by prominent political leaders, policymakers, scholars, business '
         'leaders, and civic activists from around the world, we provide news media and their readers with cutting-edge '
         'analysis and insight, regardless of ability to pay. Our membership includes over 500 media outlets – more '
-        'than half of which receive our commentaries for free or at subsidized rates – in 156 countries.'
+        'than half of which receive our commentaries for free or at subsidized rates – in 156 countries. '
+        'Download Weekly.'
     )
     language = 'en'
     no_stylesheets = True
@@ -35,17 +36,20 @@ class projectsynd(BasicNewsRecipe):
         [itemprop^="associatedMedia"]{ font-size:small; text-align:center; }
         [itemprop="author"], time { font-size:small; }
         .sub, em { font-style:italic; color:#202020; }
+        [data-page-area="article-bottom"] { font-size:small; color:#202020; }
     '''
 
     keep_only_tags = [
         dict(attrs={'itemprop':lambda x: x and 'associatedMedia' in x.split()}),
         dict(attrs={'itemprop':['headline', 'datePublished', 'author', 'abstract', 'articleBody']}),
+        dict(name = 'aside', attrs={'data-page-area':'article-bottom'})
     ]
 
     remove_tags = [
         dict(name=['button', 'svg']),
         dict(attrs={'data-message-area':True}),
         dict(attrs={'id':['editorspicks', 'movie_player']}),
+        dict(name='aside', attrs={'id':lambda x: x and x.startswith('comments-')})
     ]
 
     feeds = [
