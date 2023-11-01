@@ -2,14 +2,18 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import copy
+from contextlib import contextmanager
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QCheckBox, QColor, QDialog,
-    QDialogButtonBox, QEvent, QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate,
-    Qt, QTableWidgetItem, QTimer, QToolButton, pyqtSignal, sip,
+    QAbstractItemView, QAction, QApplication, QColor, QDialog,
+    QDialogButtonBox, QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate,
+    Qt, QTableWidgetItem, QTimer, pyqtSignal, sip,
 )
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre import sanitize_file_name
+from calibre.gui2 import error_dialog, gprefs, question_dialog, choose_files, choose_save_file
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -66,6 +70,9 @@ class NameTableWidgetItem(QTableWidgetItem):
     def initial_text(self):
         return self.initial_value
 
+    def text_is_modified(self):
+        return not self.is_deleted and self.current_value != self.initial_value
+
     def text(self):
         return self.current_value
 
@@ -109,21 +116,137 @@ class CountTableWidgetItem(QTableWidgetItem):
         return self._count < other._count
 
 
+class NotesUtilities():
+
+    def __init__(self, table, modified_notes, category, item_id_getter):
+        self.table = table
+        self.modified_notes = modified_notes
+        self.category = category
+        self.item_id_getter = item_id_getter
+
+    def is_note_modified(self, item_id) -> bool:
+        return item_id in self.modified_notes
+
+    def get_db(self):
+        from calibre.gui2.ui import get_gui
+        return get_gui().current_db.new_api
+
+    def restore_all_notes(self):
+        # should only be called from reject()
+        db = self.get_db()
+        for item_id, before in self.modified_notes.items():
+            if before:
+                db.import_note(self.category, item_id, before.encode('utf-8'), path_is_data=True)
+            else:
+                db.set_notes_for(self.category, item_id, '')
+        self.modified_notes.clear()
+
+    def undo_note_edit(self, item):
+        item_id = self.item_id_getter(item)
+        before = self.modified_notes.pop(item_id, None)
+        db = self.get_db()
+        if before is not None:
+            if before:
+                db.import_note(self.category, item_id, before.encode('utf-8'), path_is_data=True)
+            else:
+                db.set_notes_for(self.category, item_id, '')
+        item.setText(CHECK_MARK if before else '')
+        item.setIcon(QIcon())
+
+    def delete_note(self, item):
+        item_id = self.item_id_getter(item)
+        db = self.get_db()
+        if item_id not in self.modified_notes:
+            self.modified_notes[item_id] = db.notes_for(self.category, item_id)
+        db.set_notes_for(self.category, item_id, '')
+        item.setText('')
+        self.table.cellChanged.emit(item.row(), item.column())
+        self.table.itemChanged.emit(item)
+
+    def do_export(self, item, item_name):
+        item_id = self.item_id_getter(item)
+        dest = choose_save_file(self.table, 'save-exported-note', _('Export note to a file'),
+                                filters=[(_('HTML files'), ['html'])],
+                                initial_filename=f'{sanitize_file_name(item_name)}.html',
+                                all_files=False)
+        if dest:
+            html = self.get_db().export_note(self.category, item_id)
+            with open(dest, 'wb') as f:
+                f.write(html.encode('utf-8'))
+
+    def do_import(self, item):
+        src = choose_files(self.table, 'load-imported-note', _('Import note from a file'),
+                           filters=[(_('HTML files'), ['html'])],
+                           all_files=False, select_only_single_file=True)
+        if src:
+            item_id = self.item_id_getter(item)
+            db = self.get_db()
+            before = db.notes_for(self.category, item_id)
+            if item_id not in self.modified_notes:
+                self.modified_notes[item_id] = before
+            db.import_note(self.category, item_id, src[0])
+            after = db.notes_for(self.category, item_id)
+            item.setText(CHECK_MARK if after else '')
+            self.table.cellChanged.emit(item.row(), item.column())
+            self.table.itemChanged.emit(item)
+
+    edit_icon = QIcon.ic('edit_input.png')
+    delete_icon = QIcon.ic('trash.png')
+    undo_delete_icon = QIcon.ic('edit-undo.png')
+    export_icon = QIcon.ic('forward.png')
+    import_icon = QIcon.ic('back.png')
+
+    def context_menu(self, menu, item, item_name):
+        m = menu
+        item_id = self.item_id_getter(item)
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        has_note = bool(db.notes_for(self.category, item_id))
+
+        ac = m.addAction(self.undo_delete_icon, _('Undo'))
+        ac.setEnabled(item_id in self.modified_notes)
+        ac.triggered.connect(partial(self.undo_note_edit, item))
+
+        ac = m.addAction(self.edit_icon, _('Edit note') if has_note else _('Create note'))
+        ac.triggered.connect(partial(self.table.editItem, item))
+
+        ac = m.addAction(self.delete_icon, _('Delete note'))
+        ac.setEnabled(has_note)
+        ac.triggered.connect(partial(self.delete_note, item))
+
+        ac = m.addAction(self.export_icon, _('Export note to a file'))
+        ac.setEnabled(has_note)
+        ac.triggered.connect(partial(self.do_export, item, item_name))
+
+        ac = m.addAction(self.import_icon, _('Import note from a file'))
+        ac.triggered.connect(partial(self.do_import, item))
+
+
+VALUE_COLUMN = 0
+COUNT_COLUMN = 1
+WAS_COLUMN = 2
+LINK_COLUMN = 3
+NOTES_COLUMN = 4
+
+
 class EditColumnDelegate(QStyledItemDelegate):
     editing_finished = pyqtSignal(int)
     editing_started  = pyqtSignal(int)
 
-    def __init__(self, table, check_for_deleted_items, parent=None):
+    def __init__(self, table, check_for_deleted_items, category, modified_notes, item_id_getter, parent=None):
         super().__init__(table)
         self.table = table
         self.completion_data = None
         self.check_for_deleted_items = check_for_deleted_items
+        self.category = category
+        self.modified_notes = modified_notes
+        self.item_id_getter = item_id_getter
 
     def set_completion_data(self, data):
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
-        if index.column() == 0:
+        if index.column() == VALUE_COLUMN:
             if self.check_for_deleted_items(show_error=True):
                 return None
             self.editing_started.emit(index.row())
@@ -135,6 +258,9 @@ class EditColumnDelegate(QStyledItemDelegate):
             else:
                 editor = EnLineEdit(parent)
             return editor
+        if index.column() == NOTES_COLUMN:
+            self.edit_note(self.table.itemFromIndex(index))
+            return None
         self.editing_started.emit(index.row())
         editor = EnLineEdit(parent)
         editor.setClearButtonEnabled(True)
@@ -144,38 +270,33 @@ class EditColumnDelegate(QStyledItemDelegate):
         self.editing_finished.emit(index.row())
         super().destroyEditor(editor, index)
 
-
-# These My... classes are needed to make context menus work on disabled widgets
-
-def event(ev, me=None, super_class=None, context_menu_handler=None):
-    if not me.isEnabled() and ev.type() == QEvent.MouseButtonRelease:
-        if ev.button() == Qt.MouseButton.RightButton:
-            # let the event finish before the context menu is opened.
-            QTimer.singleShot(0, partial(context_menu_handler, ev.position().toPoint()))
-            return True
-    # if the widget is enabled then it handles its own context menu events
-    return super_class.event(ev)
-
-
-class MyToolButton(QToolButton):
-
-    def __init__(self, context_menu_handler):
-        QToolButton.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
+    def edit_note(self, item):
+        item_id = self.item_id_getter(item)
+        from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        before = db.notes_for(self.category, item_id)
+        note = db.export_note(self.category, item_id) if before else ''
+        d = EditNoteDialog(self.category, item_id, db, parent=self.table)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            after = db.notes_for(self.category, item_id)
+            if item_id not in self.modified_notes:
+                self.modified_notes[item_id] = note
+            item.setText(CHECK_MARK if after else '')
+            self.table.cellChanged.emit(item.row(), item.column())
+            self.table.itemChanged.emit(item)
 
 
-class MyCheckBox(QCheckBox):
-
-    def __init__(self, context_menu_handler):
-        QCheckBox.__init__(self)
-        self.event = partial(event, me=self, super_class=super(), context_menu_handler=context_menu_handler)
+@contextmanager
+def block_signals(widget):
+    old = widget.blockSignals(True)
+    try:
+        yield
+    finally:
+        widget.blockSignals(old)
 
 
 class TagListEditor(QDialog, Ui_TagListEditor):
-
-    VALUE_COLUMN = 0
-    LINK_COLUMN = 3
-    NOTES_COLUMN = 4
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
@@ -186,7 +307,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setupUi(self)
         self.verticalLayout_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.search_box.setMinimumContentsLength(25)
-        self.link_map = link_map
+        if category is not None:
+            item_map = get_gui().current_db.new_api.get_item_name_map(category)
+            self.original_links = {item_map[k]:v for k,v in link_map.items()}
+            self.current_links = copy.copy(self.original_links)
+        else:
+            self.original_links = {}
+            self.current_links = {}
 
         # Put the category name into the title bar
         t = self.windowTitle()
@@ -198,12 +325,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
+        self.edited_icon = QIcon.ic('modified.png')
+
         # initialization
         self.to_rename = {}
         self.to_delete = set()
         self.all_tags = {}
         self.original_names = {}
         self.links = {}
+        self.modified_notes = {}
 
         self.ordered_tags = []
         self.sorter = sorter
@@ -259,51 +389,88 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def sizeHint(self):
         return super().sizeHint() + QSize(150, 100)
 
-    def show_context_menu(self, point):
-        item = self.table.itemAt(point)
-        if item is None or item.column() != self.VALUE_COLUMN:
-            return
-        m = self.au_context_menu = QMenu(self)
+    def link_context_menu(self, menu, item):
+        m = menu
+        is_deleted = bool(self.table.item(item.row(), VALUE_COLUMN).is_deleted)
+        item_id = self.get_item_id(item)
 
-        disable_copy_paste_search = len(self.table.selectedItems()) != 1 or item.is_deleted
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(partial(self.copy_to_clipboard, item))
         ca.setIcon(QIcon.ic('edit-copy.png'))
-        if disable_copy_paste_search:
-            ca.setEnabled(False)
+        ca.setEnabled(not is_deleted)
+
         ca = m.addAction(_('Paste'))
         ca.setIcon(QIcon.ic('edit-paste.png'))
         ca.triggered.connect(partial(self.paste_from_clipboard, item))
-        if disable_copy_paste_search:
-            ca.setEnabled(False)
+        ca.setEnabled(not is_deleted)
+
         ca = m.addAction(_('Undo'))
         ca.setIcon(QIcon.ic('edit-undo.png'))
-        ca.triggered.connect(self.undo_edit)
-        ca.setEnabled(False)
-        for item in self.table.selectedItems():
-            if (item.text() != self.original_names[int(item.data(Qt.ItemDataRole.UserRole))] or item.is_deleted):
-                ca.setEnabled(True)
-                break
+        ca.triggered.connect(partial(self.undo_link_edit, item, item_id))
+        ca.setEnabled(not is_deleted and self.link_is_edited(item_id))
+
+        ca = m.addAction(_('Edit'))
+        ca.setIcon(QIcon.ic('edit_input.png'))
+        ca.triggered.connect(partial(self.table.editItem, item))
+        ca.setEnabled(not is_deleted)
+
+        ca = m.addAction(_('Delete link'))
+        ca.setIcon(QIcon.ic('trash.png'))
+        def delete_link_text(item):
+            item.setText('')
+        ca.triggered.connect(partial(delete_link_text, item))
+        ca.setEnabled(not is_deleted)
+
+    def value_context_menu(self, menu, item):
+        m = menu
+        self.table.setCurrentItem(item)
+
+        ca = m.addAction(_('Copy'))
+        ca.triggered.connect(partial(self.copy_to_clipboard, item))
+        ca.setIcon(QIcon.ic('edit-copy.png'))
+        ca.setEnabled(not item.is_deleted)
+
+        ca = m.addAction(_('Paste'))
+        ca.setIcon(QIcon.ic('edit-paste.png'))
+        ca.triggered.connect(partial(self.paste_from_clipboard, item))
+        ca.setEnabled(not item.is_deleted)
+
+        ca = m.addAction(_('Undo'))
+        ca.setIcon(QIcon.ic('edit-undo.png'))
+        if item.is_deleted:
+            ca.triggered.connect(self.undo_edit)
+        else:
+            ca.triggered.connect(partial(self.undo_value_edit, item, self.get_item_id(item)))
+        ca.setEnabled(item.is_deleted or item.text() != self.original_names[self.get_item_id(item)])
+
         ca = m.addAction(_('Edit'))
         ca.setIcon(QIcon.ic('edit_input.png'))
         ca.triggered.connect(self.rename_tag)
+        ca.setEnabled(not item.is_deleted)
+
         ca = m.addAction(_('Delete'))
         ca.setIcon(QIcon.ic('trash.png'))
         ca.triggered.connect(self.delete_tags)
         item_name = str(item.text())
+        ca.setEnabled(not item.is_deleted)
+
         ca = m.addAction(_('Search for {}').format(item_name))
         ca.setIcon(QIcon.ic('search.png'))
         ca.triggered.connect(partial(self.set_search_text, item_name))
         item_name = str(item.text())
+        ca.setEnabled(not item.is_deleted)
+
         ca = m.addAction(_('Filter by {}').format(item_name))
         ca.setIcon(QIcon.ic('filter.png'))
         ca.triggered.connect(partial(self.set_filter_text, item_name))
+        ca.setEnabled(not item.is_deleted)
+
         if self.category is not None:
             ca = m.addAction(_("Search the library for {0}").format(item_name))
             ca.setIcon(QIcon.ic('lt.png'))
             ca.triggered.connect(partial(self.search_for_books, item))
-            if disable_copy_paste_search:
-                ca.setEnabled(False)
+            ca.setEnabled(not item.is_deleted)
+
         if self.table.state() == QAbstractItemView.State.EditingState:
             m.addSeparator()
             case_menu = QMenu(_('Change case'))
@@ -319,6 +486,18 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             action_title_case.triggered.connect(partial(self.do_case, titlecase))
             action_capitalize.triggered.connect(partial(self.do_case, capitalize))
             m.addMenu(case_menu)
+
+    def show_context_menu(self, point):
+        item = self.table.itemAt(point)
+        if item is None or item.column() in (WAS_COLUMN, COUNT_COLUMN):
+            return
+        m = QMenu()
+        if item.column() == NOTES_COLUMN:
+            self.notes_utilities.context_menu(m, item, self.table.item(item.row(), VALUE_COLUMN).text())
+        elif item.column() == VALUE_COLUMN:
+            self.value_context_menu(m, item)
+        elif item.column() == LINK_COLUMN:
+            self.link_context_menu(m, item)
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def search_for_books(self, item):
@@ -352,10 +531,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def do_case(self, func):
         items = self.table.selectedItems()
         # block signals to avoid the "edit one changes all" behavior
-        self.table.blockSignals(True)
-        for item in items:
-            item.setText(func(str(item.text())))
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for item in items:
+                item.setText(func(str(item.text())))
 
     def swap_case(self, txt):
         return txt.swapcase()
@@ -371,8 +549,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         for _ in range(0, self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
-            if self.string_contains(find_text, self.table.item(r, self.VALUE_COLUMN).text()):
-                self.table.setCurrentItem(self.table.item(r, self.VALUE_COLUMN))
+            if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()):
+                self.table.setCurrentItem(self.table.item(r, VALUE_COLUMN))
                 self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
         # Nothing found. Pop up the little dialog for 1.5 seconds
@@ -419,11 +597,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setColumnCount(5)
 
-        self.edit_delegate = EditColumnDelegate(self.table, self.check_for_deleted_items)
+        self.edit_delegate = EditColumnDelegate(self.table, self.check_for_deleted_items,
+                                                self.category, self.modified_notes, self.get_item_id)
         self.edit_delegate.editing_finished.connect(self.stop_editing)
         self.edit_delegate.editing_started.connect(self.start_editing)
-        self.table.setItemDelegateForColumn(self.VALUE_COLUMN, self.edit_delegate)
-        self.table.setItemDelegateForColumn(self.LINK_COLUMN, self.edit_delegate)
+        self.table.setItemDelegateForColumn(VALUE_COLUMN, self.edit_delegate)
+        self.table.setItemDelegateForColumn(LINK_COLUMN, self.edit_delegate)
+        self.table.setItemDelegateForColumn(NOTES_COLUMN, self.edit_delegate)
 
         self.table.delete_pressed.connect(self.delete_pressed)
         self.table.itemDoubleClicked.connect(self._rename_tag)
@@ -454,9 +634,23 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+        self.notes_utilities = NotesUtilities(self.table, self.modified_notes, self.category, self.get_item_id)
+
+    def get_item_id(self, item):
+        return int(self.table.item(item.row(), VALUE_COLUMN).data(Qt.ItemDataRole.UserRole))
 
     def row_height_changed(self, row, old, new):
         self.table.verticalHeader().setDefaultSectionSize(new)
+
+    def link_is_edited(self, item_id):
+        return self.current_links.get(item_id, None) != self.original_links.get(item_id)
+
+    def set_link_icon(self, id_, item):
+        with block_signals(self.table):
+            if self.link_is_edited(id_):
+                item.setIcon(self.edited_icon)
+            else:
+                item.setIcon(QIcon())
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
@@ -479,90 +673,96 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             tags = self.ordered_tags
 
         select_item = None
-        self.table.blockSignals(True)
-        self.name_col = QTableWidgetItem(self.category_name)
-        self.table.setHorizontalHeaderItem(self.VALUE_COLUMN, self.name_col)
-        self.count_col = QTableWidgetItem(_('Count'))
-        self.table.setHorizontalHeaderItem(1, self.count_col)
-        self.was_col = QTableWidgetItem(_('Was'))
-        self.table.setHorizontalHeaderItem(2, self.was_col)
-        self.link_col = QTableWidgetItem(_('Link'))
-        self.table.setHorizontalHeaderItem(self.LINK_COLUMN, self.link_col)
-        if self.supports_notes:
-            self.notes_col = QTableWidgetItem(_('Notes'))
-            self.table.setHorizontalHeaderItem(4, self.notes_col)
-
-        self.table.setRowCount(len(tags))
-        if self.supports_notes:
-            from calibre.gui2.ui import get_gui
-            all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
-        for row,tag in enumerate(tags):
-            item = NameTableWidgetItem(self.sorter)
-            is_deleted = self.all_tags[tag]['is_deleted']
-            item.set_is_deleted(is_deleted)
-            _id = self.all_tags[tag]['key']
-            item.setData(Qt.ItemDataRole.UserRole, _id)
-            item.set_initial_text(tag)
-            if _id in self.to_rename:
-                item.setText(self.to_rename[_id])
-            else:
-                item.setText(tag)
-            if self.is_enumerated and str(item.text()) not in self.enum_permitted_values:
-                item.setBackground(QColor('#FF2400'))
-                item.setToolTip(
-                    '<p>' +
-                    _("This is not one of this column's permitted values ({0})"
-                      ).format(', '.join(self.enum_permitted_values)) + '</p>')
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable)
-            self.table.setItem(row, self.VALUE_COLUMN, item)
-            if select_item is None:
-                if ttm_is_first_letter:
-                    if primary_startswith(tag, tag_to_match):
-                        select_item = item
-                elif tag == tag_to_match:
-                    select_item = item
-            item = CountTableWidgetItem(self.all_tags[tag]['count'])
-            # only the name column can be selected
-            item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            self.table.setItem(row, 1, item)
-
-            item = QTableWidgetItem()
-            item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            if _id in self.to_rename or _id in self.to_delete:
-                item.setData(Qt.ItemDataRole.DisplayRole, tag)
-            self.table.setItem(row, 2, item)
-
-            item = QTableWidgetItem()
-            if self.link_map is None:
-                item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-                item.setText(_('no links available'))
-            else:
-                if is_deleted:
-                    item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-                    item.setIcon(QIcon.ic('trash.png'))
-                else:
-                    item.setFlags(item.flags() | (Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-                    item.setIcon(QIcon())
-                item.setText(self.link_map.get(tag, ''))
-            self.table.setItem(row, self.LINK_COLUMN, item)
-
+        with block_signals(self.table):
+            self.name_col = QTableWidgetItem(self.category_name)
+            self.table.setHorizontalHeaderItem(VALUE_COLUMN, self.name_col)
+            self.count_col = QTableWidgetItem(_('Count'))
+            self.table.setHorizontalHeaderItem(1, self.count_col)
+            self.was_col = QTableWidgetItem(_('Was'))
+            self.table.setHorizontalHeaderItem(2, self.was_col)
+            self.link_col = QTableWidgetItem(_('Link'))
+            self.table.setHorizontalHeaderItem(LINK_COLUMN, self.link_col)
             if self.supports_notes:
-                self.table.setItem(row, self.NOTES_COLUMN, QTableWidgetItem(CHECK_MARK if _id in all_items_that_have_notes else ''))
+                self.notes_col = QTableWidgetItem(_('Notes'))
+                self.table.setHorizontalHeaderItem(4, self.notes_col)
 
-        # re-sort the table
-        column = self.sort_names.index(self.last_sorted_by)
-        sort_order = getattr(self, self.last_sorted_by + '_order')
-        self.table.sortByColumn(column, Qt.SortOrder(sort_order))
+            self.table.setRowCount(len(tags))
+            if self.supports_notes:
+                from calibre.gui2.ui import get_gui
+                all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
+            for row,tag in enumerate(tags):
+                item = NameTableWidgetItem(self.sorter)
+                is_deleted = self.all_tags[tag]['is_deleted']
+                item.set_is_deleted(is_deleted)
+                id_ = self.all_tags[tag]['key']
+                item.setData(Qt.ItemDataRole.UserRole, id_)
+                item.set_initial_text(tag)
+                if id_ in self.to_rename:
+                    item.setText(self.to_rename[id_])
+                else:
+                    item.setText(tag)
+                if self.is_enumerated and str(item.text()) not in self.enum_permitted_values:
+                    item.setBackground(QColor('#FF2400'))
+                    item.setToolTip(
+                        '<p>' +
+                        _("This is not one of this column's permitted values ({0})"
+                          ).format(', '.join(self.enum_permitted_values)) + '</p>')
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable)
+                self.table.setItem(row, VALUE_COLUMN, item)
+                if select_item is None:
+                    if ttm_is_first_letter:
+                        if primary_startswith(tag, tag_to_match):
+                            select_item = item
+                    elif tag == tag_to_match:
+                        select_item = item
+                if item.text_is_modified():
+                    item.setIcon(self.edited_icon)
 
-        if select_item is not None:
-            self.table.setCurrentItem(select_item)
-            self.table.setFocus(Qt.FocusReason.OtherFocusReason)
-            self.start_find_pos = select_item.row()
-        else:
-            self.table.setCurrentCell(0, 0)
-            self.search_box.setFocus()
-            self.start_find_pos = -1
-        self.table.blockSignals(False)
+                item = CountTableWidgetItem(self.all_tags[tag]['count'])
+                item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                self.table.setItem(row, COUNT_COLUMN, item)
+
+                item = QTableWidgetItem()
+                item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                if id_ in self.to_rename or id_ in self.to_delete:
+                    item.setData(Qt.ItemDataRole.DisplayRole, tag)
+                self.table.setItem(row, WAS_COLUMN, item)
+
+                item = QTableWidgetItem()
+                if self.original_links is None:
+                    item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                    item.setText(_('no links available'))
+                else:
+                    if is_deleted:
+                        item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                    else:
+                        item.setFlags(item.flags() | (Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                        self.set_link_icon(id_, item)
+                    item.setText(self.current_links.get(id_, ''))
+                self.table.setItem(row, LINK_COLUMN, item)
+
+                if self.supports_notes:
+                    item = QTableWidgetItem(CHECK_MARK if id_ in all_items_that_have_notes else '')
+                    if is_deleted:
+                        item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                    else:
+                        item.setFlags(item.flags() | (Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                    item.setIcon(self.edited_icon if id_ in self.modified_notes else QIcon())
+                    self.table.setItem(row, NOTES_COLUMN, item)
+
+            # re-sort the table
+            column = self.sort_names.index(self.last_sorted_by)
+            sort_order = getattr(self, self.last_sorted_by + '_order')
+            self.table.sortByColumn(column, Qt.SortOrder(sort_order))
+
+            if select_item is not None:
+                self.table.setCurrentItem(select_item)
+                self.table.setFocus(Qt.FocusReason.OtherFocusReason)
+                self.start_find_pos = select_item.row()
+            else:
+                self.table.setCurrentCell(0, 0)
+                self.search_box.setFocus()
+                self.start_find_pos = -1
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
@@ -597,48 +797,54 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
-    def save_geometry(self):
-        gprefs['general_category_editor_row_height'] = self.table.verticalHeader().defaultSectionSize()
-        gprefs['tag_list_editor_table_widths'] = self.table_column_widths
-        super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
-
     def start_editing(self, on_row):
         current_column = self.table.currentItem().column()
-        # We don't support editing multiple link rows at the same time. Use
-        # the current cell.
-        if current_column != self.VALUE_COLUMN:
+        # We don't support editing multiple link or notes rows at the same time.
+        # Use the current cell.
+        if current_column != VALUE_COLUMN:
             self.table.setCurrentItem(self.table.item(on_row, current_column))
         items = self.table.selectedItems()
-        self.table.blockSignals(True)
-        self.table.setSortingEnabled(False)
-        for item in items:
-            if item.row() != on_row:
-                item.set_placeholder(_('Editing...'))
-            else:
-                self.text_before_editing = item.text()
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            self.table.setSortingEnabled(False)
+            for item in items:
+                if item.row() != on_row:
+                    item.set_placeholder(_('Editing...'))
+                else:
+                    self.text_before_editing = item.text()
 
     def stop_editing(self, on_row):
-        # This works because the link field doesn't support editing on multiple
-        # lines, so the on_row check will always be false.
+        # This works because the link and notes fields doesn't support editing
+        # on multiple lines, so the on_row check will always be false.
         items = self.table.selectedItems()
-        self.table.blockSignals(True)
-        for item in items:
-            if item.row() != on_row and item.is_placeholder:
-                item.reset_placeholder()
-        self.table.setSortingEnabled(True)
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for item in items:
+                if item.row() != on_row and item.is_placeholder:
+                    item.reset_placeholder()
+            self.table.setSortingEnabled(True)
 
     def finish_editing(self, edited_item):
-        if edited_item.column() != self.VALUE_COLUMN:
-            # Nothing to do for link fields
+        if edited_item.column() == LINK_COLUMN:
+            id_ = self.get_item_id(edited_item)
+            txt = edited_item.text()
+            if txt:
+                self.current_links[id_] = txt
+            else:
+                self.current_links.pop(id_, None)
+            self.set_link_icon(id_, edited_item)
             return
+
+        if edited_item.column() == NOTES_COLUMN:
+            id_ = self.get_item_id(edited_item)
+            with block_signals(self.table):
+                edited_item.setIcon(self.edited_icon if id_ in self.modified_notes else QIcon())
+            return
+
+        # Item value column
         if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
                 'An item cannot be set to nothing. Delete it instead.'), show=True)
-            self.table.blockSignals(True)
-            edited_item.setText(self.text_before_editing)
-            self.table.blockSignals(False)
+            with block_signals(self.table):
+                edited_item.setText(self.text_before_editing)
             return
         new_text = str(edited_item.text())
         if self.is_enumerated and new_text not in self.enum_permitted_values:
@@ -646,58 +852,84 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 "This column has a fixed set of permitted values. The entered "
                 "text must be one of ({0}).").format(', '.join(self.enum_permitted_values)) +
                 '</p>', show=True)
-            self.table.blockSignals(True)
-            edited_item.setText(self.text_before_editing)
-            self.table.blockSignals(False)
+            with block_signals(self.table):
+                edited_item.setText(self.text_before_editing)
             return
 
         items = self.table.selectedItems()
-        self.table.blockSignals(True)
-        for item in items:
-            id_ = int(item.data(Qt.ItemDataRole.UserRole))
-            self.to_rename[id_] = new_text
-            orig = self.table.item(item.row(), 2)
-            item.setText(new_text)
-            orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for item in items:
+                id_ = int(item.data(Qt.ItemDataRole.UserRole))
+                self.to_rename[id_] = new_text
+                orig = self.table.item(item.row(), WAS_COLUMN)
+                item.setText(new_text)
+                if item.text_is_modified():
+                    item.setIcon(self.edited_icon)
+                    orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
+                else:
+                    item.setIcon(QIcon())
+                    orig.setData(Qt.ItemDataRole.DisplayRole, '')
+
+    def undo_link_edit(self, item, item_id):
+        if item_id in self.original_links:
+            link_txt = self.current_links[item_id] = self.original_links[item_id]
+        else:
+            self.current_links.pop(item_id, None)
+            link_txt = ''
+        item = self.table.item(item.row(), LINK_COLUMN)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
+        item.setText(link_txt)
+        item.setIcon(QIcon())
+
+    def undo_value_edit(self, item, item_id):
+        with block_signals(self.table):
+            item.setText(item.initial_text())
+            self.to_rename.pop(item_id, None)
+            row = item.row()
+            self.table.item(row, WAS_COLUMN).setData(Qt.ItemDataRole.DisplayRole, '')
+            item.setIcon(self.edited_icon if item.text_is_modified() else QIcon())
 
     def undo_edit(self):
-        col_zero_items = (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems())
+        col_zero_items = (self.table.item(item.row(), VALUE_COLUMN) for item in self.table.selectedItems())
         if not col_zero_items:
             error_dialog(self, _('No item selected'),
                          _('You must select one item from the list of available items.')).exec()
             return
 
         if not confirm(
-            _('Do you really want to undo your changes?'),
+            _('Do you really want to undo all your changes on selected rows?'),
             'tag_list_editor_undo'):
             return
-        self.table.blockSignals(True)
-        for col_zero_item in col_zero_items:
-            col_zero_item.setText(col_zero_item.initial_text())
-            col_zero_item.set_is_deleted(False)
-            self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
-            self.to_rename.pop(int(col_zero_item.data(Qt.ItemDataRole.UserRole)), None)
-            row = col_zero_item.row()
-            self.table.item(row, 2).setData(Qt.ItemDataRole.DisplayRole, '')
-            item = self.table.item(row, self.LINK_COLUMN)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
-            item.setIcon(QIcon())
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for col_zero_item in col_zero_items:
+                id_ = self.get_item_id(col_zero_item)
+                row = col_zero_item.row()
+
+                # item value column
+                self.undo_value_edit(col_zero_item, id_)
+                col_zero_item.set_is_deleted(False)
+                self.to_delete.discard(id_)
+
+                # Link column
+                self.undo_link_edit(self.table.item(row, LINK_COLUMN), id_)
+                # Notes column
+                item = self.table.item(row, NOTES_COLUMN)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
+                if id_ in self.modified_notes:
+                    self.notes_utilities.undo_note_edit(item)
 
     def selection_changed(self):
         if self.table.currentIndex().isValid():
             col = self.table.currentIndex().column()
-            self.table.blockSignals(True)
-            if col == self.NOTES_COLUMN:
-                self.table.setCurrentIndex(self.table.currentIndex())
-            else:
-                for itm in (item for item in self.table.selectedItems() if item.column() != col):
-                    itm.setSelected(False)
-            self.table.blockSignals(False)
+            with block_signals(self.table):
+                if col != VALUE_COLUMN:
+                    self.table.setCurrentIndex(self.table.currentIndex())
+                else:
+                    for itm in (item for item in self.table.selectedItems() if item.column() != col):
+                        itm.setSelected(False)
 
     def check_for_deleted_items(self, show_error=False):
-        for col_zero_item in (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems()):
+        for col_zero_item in (self.table.item(item.row(), VALUE_COLUMN) for item in self.table.selectedItems()):
             if col_zero_item.is_deleted:
                 if show_error:
                     error_dialog(self, _('Selection contains deleted items'),
@@ -708,9 +940,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         return False
 
     def rename_tag(self):
-        if self.table.currentColumn() != self.VALUE_COLUMN:
+        if self.table.currentColumn() != VALUE_COLUMN:
             return
-        item = self.table.item(self.table.currentRow(), self.VALUE_COLUMN)
+        item = self.table.item(self.table.currentRow(), VALUE_COLUMN)
         self._rename_tag(item)
 
     def _rename_tag(self, item):
@@ -723,19 +955,19 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                    '<p>'+_('Items must be undeleted to continue. Do you want '
                            'to do this?')+'<br>'):
                 return
-        self.table.blockSignals(True)
-        for col_zero_item in (self.table.item(item.row(), self.VALUE_COLUMN) for item in self.table.selectedItems()):
-            # undelete any deleted items
-            if col_zero_item.is_deleted:
-                col_zero_item.set_is_deleted(False)
-                self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
-                orig = self.table.item(col_zero_item.row(), 2)
-                orig.setData(Qt.ItemDataRole.DisplayRole, '')
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for col_zero_item in (self.table.item(item.row(), VALUE_COLUMN)
+                                  for item in self.table.selectedItems()):
+                # undelete any deleted items
+                if col_zero_item.is_deleted:
+                    col_zero_item.set_is_deleted(False)
+                    self.to_delete.discard(int(col_zero_item.data(Qt.ItemDataRole.UserRole)))
+                    orig = self.table.item(col_zero_item.row(), WAS_COLUMN)
+                    orig.setData(Qt.ItemDataRole.DisplayRole, '')
         self.table.editItem(item)
 
     def delete_pressed(self):
-        if self.table.currentColumn() == self.VALUE_COLUMN:
+        if self.table.currentColumn() == VALUE_COLUMN:
             self.delete_tags()
             return
         if not confirm(
@@ -748,7 +980,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def delete_tags(self):
         # This check works because we ensure that the selection is in only one column
-        if self.table.currentItem().column() != self.VALUE_COLUMN:
+        if self.table.currentItem().column() != VALUE_COLUMN:
             return
         # We know the selected items are in column zero
         deletes = self.table.selectedItems()
@@ -769,22 +1001,22 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 return
 
         row = self.table.row(deletes[0])
-        self.table.blockSignals(True)
-        for item in deletes:
-            id_ = int(item.data(Qt.ItemDataRole.UserRole))
-            self.to_delete.add(id_)
-            item.set_is_deleted(True)
-            row = item.row()
-            orig = self.table.item(row, 2)
-            orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
-            link = self.table.item(row, self.LINK_COLUMN)
-            link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-            link.setIcon(QIcon.ic('trash.png'))
-        self.table.blockSignals(False)
+        with block_signals(self.table):
+            for item in deletes:
+                id_ = int(item.data(Qt.ItemDataRole.UserRole))
+                self.to_delete.add(id_)
+                item.set_is_deleted(True)
+                row = item.row()
+                orig = self.table.item(row, WAS_COLUMN)
+                orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
+                link = self.table.item(row, LINK_COLUMN)
+                link.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+                note = self.table.item(row, NOTES_COLUMN)
+                note.setFlags(link.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
         if row >= self.table.rowCount():
             row = self.table.rowCount() - 1
         if row >= 0:
-            self.table.scrollToItem(self.table.item(row, self.VALUE_COLUMN))
+            self.table.scrollToItem(self.table.item(row, VALUE_COLUMN))
 
     def record_sort(self, section):
         # Note what sort was done so we can redo it when the table is rebuilt
@@ -793,13 +1025,22 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         setattr(self, sort_order_attr, 1 - getattr(self, sort_order_attr))
         self.last_sorted_by = sort_name
 
+    def save_geometry(self):
+        gprefs['general_category_editor_row_height'] = self.table.verticalHeader().defaultSectionSize()
+        gprefs['tag_list_editor_table_widths'] = self.table_column_widths
+        super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
+
     def accepted(self):
-        # We don't bother with cleaning out the deleted links because the db
-        # interface ignores links for values that don't exist. The caller must
-        # process deletes and renames first so the names are correct.
-        self.links = {self.table.item(r, self.VALUE_COLUMN).text():self.table.item(r, self.LINK_COLUMN).text()
-                      for r in range(self.table.rowCount())}
+        for t in self.all_tags.values():
+            if t['is_deleted']:
+                continue
+            if t['key'] in self.to_rename:
+                name = self.to_rename[t['key']]
+            else:
+                name = t['cur_name']
+            self.links[name] = self.current_links.get(t['key'], '')
         self.save_geometry()
 
     def rejected(self):
+        self.notes_utilities.restore_all_notes()
         self.save_geometry()
