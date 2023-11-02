@@ -24,6 +24,7 @@ class wapoprint(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
     ignore_duplicate_articles = {'title', 'url'}
+    masthead_url = 'https://www.washingtonpost.com/pb/resources/img/twp-masthead-415x57.svg'
     extra_css = '''
         .img { text-align:center; font-size:small; }
         .auth { font-weight:bold; font-size:small; }
@@ -34,6 +35,8 @@ class wapoprint(BasicNewsRecipe):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
         if img := soup.find('img', attrs={'src':lambda x: x and x.endswith('_FrontPage.png')}):
             self.cover_url  = img['src']
+        if h2 := soup.find('h2', attrs={'class':lambda x: x and 'font--subhead' in x.split()}):
+            self.title = 'WaPo Print | ' + self.tag_to_string(h2)
 
         feeds = []
 
@@ -84,5 +87,9 @@ class wapoprint(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src':True}):
-            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=540'
+            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=916'
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        article.summary = self.tag_to_string(soup.find('h3'))
+        article.text_summary = self.tag_to_string(soup.find('h3'))

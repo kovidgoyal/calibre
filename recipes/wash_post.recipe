@@ -23,6 +23,7 @@ class TheWashingtonPost(BasicNewsRecipe):
     language = 'en'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.washingtonpost.com/pb/resources/img/twp-masthead-415x57.svg'
     publication_type = 'newspaper'
     remove_attributes = ['style', 'width', 'height']
 
@@ -83,5 +84,5 @@ class TheWashingtonPost(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src':True}):
-            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=540'
+            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=916'
         return soup
