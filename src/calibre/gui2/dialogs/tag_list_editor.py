@@ -118,9 +118,9 @@ class CountTableWidgetItem(QTableWidgetItem):
 
 class NotesUtilities():
 
-    def __init__(self, table, modified_notes, category, item_id_getter):
+    def __init__(self, table, category, item_id_getter):
         self.table = table
-        self.modified_notes = modified_notes
+        self.modified_notes = {}
         self.category = category
         self.item_id_getter = item_id_getter
 
@@ -141,6 +141,25 @@ class NotesUtilities():
                 db.set_notes_for(self.category, item_id, '')
         self.modified_notes.clear()
 
+    def change_text(self, item, val):
+        with block_signals(self.table):
+            item.setText(CHECK_MARK if bool(val) else '')
+        self.table.cellChanged.emit(item.row(), item.column())
+        self.table.itemChanged.emit(item)
+
+    def edit_note(self, item):
+        item_id = self.item_id_getter(item)
+        from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
+        db = self.get_db()
+        before = db.notes_for(self.category, item_id)
+        note = db.export_note(self.category, item_id) if before else ''
+        d = EditNoteDialog(self.category, item_id, db, parent=self.table)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            after = db.notes_for(self.category, item_id)
+            if item_id not in self.modified_notes:
+                self.modified_notes[item_id] = note
+            self.change_text(item, after)
+
     def undo_note_edit(self, item):
         item_id = self.item_id_getter(item)
         before = self.modified_notes.pop(item_id, None)
@@ -150,8 +169,7 @@ class NotesUtilities():
                 db.import_note(self.category, item_id, before.encode('utf-8'), path_is_data=True)
             else:
                 db.set_notes_for(self.category, item_id, '')
-        item.setText(CHECK_MARK if before else '')
-        item.setIcon(QIcon())
+        self.change_text(item, before)
 
     def delete_note(self, item):
         item_id = self.item_id_getter(item)
@@ -159,9 +177,7 @@ class NotesUtilities():
         if item_id not in self.modified_notes:
             self.modified_notes[item_id] = db.notes_for(self.category, item_id)
         db.set_notes_for(self.category, item_id, '')
-        item.setText('')
-        self.table.cellChanged.emit(item.row(), item.column())
-        self.table.itemChanged.emit(item)
+        self.change_text(item, False)
 
     def do_export(self, item, item_name):
         item_id = self.item_id_getter(item)
@@ -186,9 +202,7 @@ class NotesUtilities():
                 self.modified_notes[item_id] = before
             db.import_note(self.category, item_id, src[0])
             after = db.notes_for(self.category, item_id)
-            item.setText(CHECK_MARK if after else '')
-            self.table.cellChanged.emit(item.row(), item.column())
-            self.table.itemChanged.emit(item)
+            self.change_text(item, after)
 
     edit_icon = QIcon.ic('edit_input.png')
     delete_icon = QIcon.ic('trash.png')
@@ -233,13 +247,13 @@ class EditColumnDelegate(QStyledItemDelegate):
     editing_finished = pyqtSignal(int)
     editing_started  = pyqtSignal(int)
 
-    def __init__(self, table, check_for_deleted_items, category, modified_notes, item_id_getter, parent=None):
+    def __init__(self, table, check_for_deleted_items, category, notes_utilities, item_id_getter, parent=None):
         super().__init__(table)
         self.table = table
         self.completion_data = None
         self.check_for_deleted_items = check_for_deleted_items
         self.category = category
-        self.modified_notes = modified_notes
+        self.notes_utilities = notes_utilities
         self.item_id_getter = item_id_getter
 
     def set_completion_data(self, data):
@@ -259,7 +273,7 @@ class EditColumnDelegate(QStyledItemDelegate):
                 editor = EnLineEdit(parent)
             return editor
         if index.column() == NOTES_COLUMN:
-            self.edit_note(self.table.itemFromIndex(index))
+            self.notes_utilities.edit_note(self.table.itemFromIndex(index))
             return None
         self.editing_started.emit(index.row())
         editor = EnLineEdit(parent)
@@ -269,22 +283,6 @@ class EditColumnDelegate(QStyledItemDelegate):
     def destroyEditor(self, editor, index):
         self.editing_finished.emit(index.row())
         super().destroyEditor(editor, index)
-
-    def edit_note(self, item):
-        item_id = self.item_id_getter(item)
-        from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
-        before = db.notes_for(self.category, item_id)
-        note = db.export_note(self.category, item_id) if before else ''
-        d = EditNoteDialog(self.category, item_id, db, parent=self.table)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            after = db.notes_for(self.category, item_id)
-            if item_id not in self.modified_notes:
-                self.modified_notes[item_id] = note
-            item.setText(CHECK_MARK if after else '')
-            self.table.cellChanged.emit(item.row(), item.column())
-            self.table.itemChanged.emit(item)
 
 
 @contextmanager
@@ -297,6 +295,8 @@ def block_signals(widget):
 
 
 class TagListEditor(QDialog, Ui_TagListEditor):
+
+    edited_icon = QIcon.ic('modified.png')
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
@@ -325,15 +325,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        self.edited_icon = QIcon.ic('modified.png')
-
         # initialization
         self.to_rename = {}
         self.to_delete = set()
         self.all_tags = {}
         self.original_names = {}
         self.links = {}
-        self.modified_notes = {}
+        self.notes_utilities = NotesUtilities(None, self.category, self.get_item_id)
 
         self.ordered_tags = []
         self.sorter = sorter
@@ -597,8 +595,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setColumnCount(5)
 
+        self.notes_utilities.table = self.table
         self.edit_delegate = EditColumnDelegate(self.table, self.check_for_deleted_items,
-                                                self.category, self.modified_notes, self.get_item_id)
+                                                self.category, self.notes_utilities, self.get_item_id)
         self.edit_delegate.editing_finished.connect(self.stop_editing)
         self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(VALUE_COLUMN, self.edit_delegate)
@@ -634,7 +633,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
-        self.notes_utilities = NotesUtilities(self.table, self.modified_notes, self.category, self.get_item_id)
 
     def get_item_id(self, item):
         return int(self.table.item(item.row(), VALUE_COLUMN).data(Qt.ItemDataRole.UserRole))
@@ -742,12 +740,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.table.setItem(row, LINK_COLUMN, item)
 
                 if self.supports_notes:
-                    item = QTableWidgetItem(CHECK_MARK if id_ in all_items_that_have_notes else '')
+                    item = QTableWidgetItem()
+                    self.notes_utilities.change_text(item, id_ in all_items_that_have_notes)
                     if is_deleted:
                         item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
                     else:
                         item.setFlags(item.flags() | (Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
-                    item.setIcon(self.edited_icon if id_ in self.modified_notes else QIcon())
+                    item.setIcon(self.edited_icon if id_ in self.notes_utilities.modified_notes else QIcon())
                     self.table.setItem(row, NOTES_COLUMN, item)
 
             # re-sort the table
@@ -836,7 +835,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if edited_item.column() == NOTES_COLUMN:
             id_ = self.get_item_id(edited_item)
             with block_signals(self.table):
-                edited_item.setIcon(self.edited_icon if id_ in self.modified_notes else QIcon())
+                edited_item.setIcon(self.edited_icon if id_ in self.notes_utilities.modified_notes else QIcon())
             return
 
         # Item value column
@@ -915,8 +914,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 # Notes column
                 item = self.table.item(row, NOTES_COLUMN)
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
-                if id_ in self.modified_notes:
+                if id_ in self.notes_utilities.modified_notes:
                     self.notes_utilities.undo_note_edit(item)
+                    item.setIcon(QIcon())
 
     def selection_changed(self):
         if self.table.currentIndex().isValid():
