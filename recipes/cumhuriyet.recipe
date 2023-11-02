@@ -13,6 +13,7 @@ class Cumhuriyet(BasicNewsRecipe):
     encoding = 'utf-8'
     use_embedded_content = False
     timefmt = ' [%d %b %Y]'
+    ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'baslik'}),
