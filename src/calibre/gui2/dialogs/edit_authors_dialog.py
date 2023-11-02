@@ -15,7 +15,7 @@ from qt.core import (
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.gui2.dialogs.tag_list_editor import NotesUtilities
+from calibre.gui2.dialogs.tag_list_editor import CHECK_MARK, NotesUtilities
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import (
@@ -46,7 +46,6 @@ class TableItem(QTableWidgetItem):
         return self.sort_key < other.sort_key
 
 
-CHECK_MARK = '✓'
 AUTHOR_COLUMN = 0
 AUTHOR_SORT_COLUMN = 1
 LINK_COLUMN = 2
@@ -55,11 +54,11 @@ NOTES_COLUMN = 3
 
 class EditColumnDelegate(QStyledItemDelegate):
 
-    def __init__(self, completion_data, table, modified_notes, item_id_getter):
+    def __init__(self, completion_data, table, notes_utilities, item_id_getter):
         super().__init__(table)
         self.table = table
         self.completion_data = completion_data
-        self.modified_notes = modified_notes
+        self.notes_utilities = notes_utilities
         self.item_id_getter = item_id_getter
 
     def createEditor(self, parent, option, index):
@@ -71,7 +70,7 @@ class EditColumnDelegate(QStyledItemDelegate):
                 editor.update_items_cache(self.completion_data)
                 return editor
         if index.column() == NOTES_COLUMN:
-            self.edit_note(self.table.itemFromIndex(index))
+            self.notes_utilities.edit_note(self.table.itemFromIndex(index))
             return None
 
         from calibre.gui2.widgets import EnLineEdit
@@ -79,23 +78,10 @@ class EditColumnDelegate(QStyledItemDelegate):
         editor.setClearButtonEnabled(True)
         return editor
 
-    def edit_note(self, item):
-        item_id = self.item_id_getter(item)
-        from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
-        from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
-        before = db.notes_for('authors', item_id)
-        note = db.export_note('authors', item_id) if before else ''
-        d = EditNoteDialog('authors', item_id, db, parent=self.table)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            after = db.notes_for('authors', item_id)
-            if item_id not in self.modified_notes:
-                self.modified_notes[item_id] = note
-            item.setText(CHECK_MARK if after else '')
-            self.table.cellChanged.emit(item.row(), item.column())
-
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
+
+    edited_icon = QIcon.ic('modified.png')
 
     def __init__(self, parent, db, id_to_select, select_sort, select_link,
                  find_aut_func, is_first_letter=False):
@@ -115,8 +101,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         except Exception:
             pass
 
-        self.modified_notes = {}
-        self.notes_utilities = NotesUtilities(self.table, self.modified_notes, "authors",
+        self.notes_utilities = NotesUtilities(self.table, "authors",
                   lambda item: int(self.table.item(item.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole)))
 
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
@@ -199,8 +184,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.original_authors[id_] = {'name': name, 'sort': v['sort'],
                                           'link': v['link']}
 
-        self.edited_icon = QIcon.ic('modified.png')
-        self.empty_icon = QIcon()
         if prefs['use_primary_find_in_search']:
             self.string_contains = primary_contains
         else:
@@ -212,7 +195,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.link_order = 1
         self.notes_order = 1
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table,
-                                                      self.modified_notes, self.get_item_id))
+                                                      self.notes_utilities, self.get_item_id))
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
 
     def get_item_id(self, item):
@@ -570,7 +553,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def set_icon(self, item, id_):
         modified = self.item_is_modified(item, id_)
-        item.setIcon(self.edited_icon if modified else self.empty_icon)
+        item.setIcon(self.edited_icon if modified else QIcon())
 
     def cell_changed(self, row, col):
         if self.ignore_cell_changed:
