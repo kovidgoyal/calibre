@@ -262,14 +262,17 @@ class Notes:
         return conn.get('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)
 
     def get_note_data(self, conn, field_name, item_id):
+        ans = None
         for (note_id, doc, searchable_text, ctime, mtime) in conn.execute(
             'SELECT id,doc,searchable_text,ctime,mtime FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name)
         ):
-            return {
+            ans = {
                 'id': note_id, 'doc': doc, 'searchable_text': searchable_text,
                 'ctime': ctime, 'mtime': mtime,
                 'resource_hashes': frozenset(self.resources_used_by(conn, note_id)),
             }
+            break
+        return ans
 
     def get_all_items_that_have_notes(self, conn, field_name=None):
         if field_name:
