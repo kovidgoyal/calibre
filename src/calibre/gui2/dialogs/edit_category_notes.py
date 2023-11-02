@@ -283,7 +283,10 @@ class NoteEditor(Editor):
     def get_doc(self):
         self.editor.referenced_resources = set()
         self.editor.searchable_text = ''
+        idx = self.tabs.currentIndex()
+        self.tabs.setCurrentIndex(0)
         html = self.editor.html
+        self.tabs.setCurrentIndex(idx)
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
     def export_note(self):
