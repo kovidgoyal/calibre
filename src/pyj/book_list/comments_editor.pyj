@@ -631,6 +631,7 @@ def add_action(toolbar, ac_name, action, editor_id):
 
 
 def create_comments_editor(container, options):
+    options = options or {}
     iframe, editor = create_editor(options.insert_image_files)
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
