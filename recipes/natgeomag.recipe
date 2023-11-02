@@ -45,6 +45,7 @@ def parse_lead_image(media):
         yield '<div class="cap">' + media['caption'] + '</div>'
     if 'credit' in media:
         yield '<div class="cred">' + media['credit'] + '</div>'
+    yield '</p>'
 
 
 def parse_body(item):
@@ -175,5 +176,6 @@ class NatGeo(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):
-            img['src'] = img['src'] + '?w=1000&h=1000'
+            # for high res images use '?w=2000&h=2000'
+            img['src'] = img['src'] + '?w=1200&h=1200'
         return soup
