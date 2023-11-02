@@ -366,13 +366,16 @@ class Notes:
         return resource_hash
 
     def get_resource_data(self, conn, resource_hash) -> Optional[dict]:
+        ans = None
         for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
             path = self.path_for_resource(resource_hash)
             path = make_long_path_useable(path)
             os.listdir(os.path.dirname(path))
             with suppress(FileNotFoundError), open(path, 'rb') as f:
                 mtime = os.stat(f.fileno()).st_mtime
-                return {'name': name, 'data': f.read(), 'hash': resource_hash, 'mtime': mtime}
+                ans = {'name': name, 'data': f.read(), 'hash': resource_hash, 'mtime': mtime}
+                break
+        return ans
 
     def all_notes(self, conn, restrict_to_fields=(), limit=None, snippet_size=64, return_text=True, process_each_result=None) -> list[dict]:
         if snippet_size is None:
