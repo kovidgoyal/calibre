@@ -92,7 +92,7 @@ class Bloomberg(BasicNewsRecipe):
     ]
 
     def get_browser(self, *a, **kw):
-        kw['user_agent'] = 'common_words/based'
+        kw['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/119.0'
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         br.set_handle_redirect(False)
         return br
