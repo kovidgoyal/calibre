@@ -24,6 +24,10 @@ class Display(HTMLDisplay):
         super().__init__(parent)
         self.document().setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.anchor_clicked.connect(self.handle_link_click)
+
+    def handle_link_click(self, qurl):
+        safe_open_url(qurl)
 
     def loadResource(self, rtype, qurl):
         if qurl.scheme() == RESOURCE_URL_SCHEME and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
