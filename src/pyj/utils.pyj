@@ -240,12 +240,5 @@ def sandboxed_html(html, style, sandbox):
     css = 'html, body { margin: 0; padding: 0; font-family: __FONT__ } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'.replace('__FONT__', get_font_family())
     css += style or ''
     final_html = f'<!DOCTYPE html><html><head><style>{css}</style></head><body>{html}</body></html>'
-    # prevent context menu on right click in iframe
-    ans.addEventListener('load', def(ev):
-        try:
-            ev.target.contentWindow.addEventListener('contextmenu', def(e): e.preventDefault();)
-        except:
-            pass
-    )
     ans.srcdoc = final_html
     return ans
