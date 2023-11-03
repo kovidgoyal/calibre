@@ -124,7 +124,7 @@ def adjust_iframe_height(iframe):
 def setup_iframe(iframe):
     de = adjust_iframe_height(iframe)
     for a in de.querySelectorAll('a[href]'):
-        a.setAttribute('target', '_blank')
+        a.setAttribute('target', '_parent')
 
     def forward_touch_events(ev):
         container = window.top.document.getElementById(render_book.container_id)
@@ -158,9 +158,9 @@ def adjusting_sandboxed_html(html, extra_css):
     css =  f'\n\n:root {{ color-scheme: {color_scheme()} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
     if extra_css:
         css += '\n\n' + extra_css
-    # allow-same-origin is needed for resizing and allow-popups is needed for
-    # target="_blank"
-    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups allow-popups-to-escape-sandbox')
+    # allow-same-origin is needed for resizing and allow-top-navigation is
+    # needed for links with target="_parent"
+    ans = sandboxed_html(html, css, 'allow-same-origin allow-top-navigation-by-user-activation')
     ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
