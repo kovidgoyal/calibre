@@ -34,46 +34,84 @@ class TagBrowserMixin:  # {{{
         pass
 
     def populate_tb_manage_menu(self, db):
-        self.populate_manage_categories_menu(db, self.alter_tb.manage_menu)
+        self.populate_manage_categories_menu(db, self.alter_tb.manage_menu, add_column_items=False)
 
-    def populate_manage_categories_menu(self, db, menu):
+    def populate_manage_categories_menu(self, db, menu, add_column_items=False):
         from calibre.db.categories import find_categories
+        fm = db.new_api.field_metadata
+
+        # Get the custom categories
+        cust_cats = [x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])]
+        cust_cats = [c for c in cust_cats if fm[c]['datatype'] != 'composite']
+
         m = menu
         m.clear()
-        for text, func, args, cat_name in (
-             (_('Authors'),
-                        self.do_author_sort_edit, (self, None), 'authors'),
-             (ngettext('Series', 'Series', 2),
-                        self.do_tags_list_edit, (None, 'series'), 'series'),
-             (_('Publishers'),
-                        self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
-             (_('Tags'),
-                        self.do_tags_list_edit, (None, 'tags'), 'tags'),
-             (_('User categories'),
-                        self.do_edit_user_categories, (None,), 'user:'),
-             (_('Saved searches'),
-                        self.do_saved_search_edit, (None,), 'search')
-            ):
-            m.addAction(QIcon.ic(category_icon_map[cat_name]), text,
-                    partial(func, *args))
-        fm = db.new_api.field_metadata
-        categories = [x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])]
-        categories = [c for c in categories if fm[c]['datatype'] != 'composite']
-        if categories:
-            if len(categories) > 5:
-                m = m.addMenu(_('Custom columns'))
-            else:
-                m.addSeparator()
 
-            def cat_key(x):
-                try:
-                    return fm[x]['name']
-                except Exception:
-                    return ''
-            for cat in sorted(categories, key=cat_key):
-                name = cat_key(cat)
-                if name:
-                    m.addAction(name, partial(self.do_tags_list_edit, None, cat))
+        def cat_display_name(x):
+            try:
+                if x == 'series':
+                    return ngettext('Series', 'Series', 2)
+                if x == 'user:':
+                    return _('User categories')
+                return fm[x]['name']
+            except Exception:
+                return ''
+
+        def get_icon(cat_name):
+            icon_name = (category_icon_map[cat_name] if cat_name in category_icon_map
+                         else category_icon_map['custom:'])
+            return QIcon.ic(icon_name)
+
+        def menu_func(cat_name, item):
+            if cat_name == 'authors':
+                return partial(self.do_author_sort_edit, self,
+                               None if item is None else db.new_api.get_item_id('authors', item),
+                               select_sort=False)
+            elif cat_name == 'user:':
+                return partial(self.do_edit_user_categories, None)
+            elif cat_name == 'search':
+                return partial(self.do_saved_search_edit, None)
+            else:
+                return partial(self.do_tags_list_edit, item, cat_name)
+
+        # Check if the current cell is a category. If so, show an action for it
+        # and its items on the current book.
+        current_cat = None
+        idx = self.library_view.currentIndex() if add_column_items else None
+        if idx is not None and idx.isValid():
+            col = idx.column()
+            model = self.library_view.model()
+            if col in range(0, len(model.column_map)):
+                current_cat = model.column_map[col]
+                if current_cat in ('authors', 'series' 'publishers', 'tags') or current_cat in cust_cats:
+                    m.addAction(get_icon(current_cat), cat_display_name(current_cat),
+                                menu_func(current_cat, None))
+                    proxy_md = db.new_api.get_proxy_metadata(db.id(idx.row()))
+                    items = proxy_md.get(current_cat)
+                    if items:
+                        if len(items) > 4:
+                            im = QMenu(_('Items on book'), m)
+                            im.setIcon(get_icon(current_cat))
+                            m.addMenu(im)
+                        else:
+                            m.addSection(_('Items on book'))
+                            im = m
+                        for item in sorted(items, key=sort_key):
+                            im.addAction(get_icon(current_cat), item, menu_func(current_cat, item))
+                    m.addSection(_('Other categories'))
+        # Standard columns
+        for key in ('authors', 'series', 'publisher', 'tags', 'user:', 'search'):
+            if cat_display_name(key) and key != current_cat:
+                m.addAction(get_icon(key), cat_display_name(key), menu_func(key, None))
+
+        # Custom columns
+        if cust_cats:
+            if len(cust_cats) > 5:
+                m = m.addMenu(_('Custom categories'))
+            for cat in sorted(cust_cats, key=lambda v: sort_key(cat_display_name(v))):
+                if cat == current_cat:
+                    continue
+                m.addAction(get_icon(cat), cat_display_name(cat), menu_func(cat, None))
 
     def init_tag_browser_mixin(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
@@ -471,7 +509,6 @@ class TagBrowserMixin:  # {{{
         '''
         Open the manage authors dialog
         '''
-
         db = self.library_view.model().db
         get_authors_func = partial(self.get_book_ids, db=db, category='authors')
         if lookup_author:
