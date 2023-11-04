@@ -50,6 +50,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         #cre-d{font-size:xx-small; text-align:center; color:gray;}
         #cap-d{font-size:small; text-align:center;}
         blockquote{text-align:center; color:#404040;}
+        em { color:#202020;}
     '''
     keep_only_tags = [
         prefixed_classes('contentHeader contentArticleHeader contentBody')
@@ -65,14 +66,15 @@ class MitTechnologyReview(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.technologyreview.com/')
         if script := soup.find('script', id='preload'):
-            link = re.findall('https\S+?front_cover\S+?.png', self.tag_to_string(script))
-            return link[-1] + '?fit=572,786'
+            link = re.search('(https\S+?front_cover\S+?(jpg|png))', self.tag_to_string(script))
+            return link.group(1) + '?fit=572,786'
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
-        issue = soup.find('h1', attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
+        issue = soup.find(attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
         time = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__date')})
-        self.timefmt = ' (' + self.tag_to_string(issue) + ') [' + self.tag_to_string(time) + ']'
+        self.title = 'MIT Tech Review ' + self.tag_to_string(issue)
+        self.timefmt = ' [' + self.tag_to_string(time) + ']'
         self.log('Downloading issue: ', self.timefmt)
 
         # parse articles
