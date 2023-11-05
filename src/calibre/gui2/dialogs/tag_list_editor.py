@@ -372,9 +372,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             ac.triggered.connect(self.clear_filter)
         le.returnPressed.connect(self.do_filter)
         self.filter_button.clicked.connect(self.do_filter)
-        self.apply_vl_checkbox.setAutoExclusive(False)
+        self.show_button_layout.setSpacing(0)
+        self.show_button_layout.setContentsMargins(0, 0, 0, 0)
+        self.apply_all_checkbox.setContentsMargins(0, 0, 0, 0)
+        self.apply_all_checkbox.setChecked(True)
         self.apply_vl_checkbox.toggled.connect(self.vl_box_changed)
-        self.apply_selection_checkbox.setAutoExclusive(False)
+        self.apply_selection_checkbox.setContentsMargins(0, 0, 0, 0)
         self.apply_selection_checkbox.toggled.connect(self.apply_selection_box_changed)
 
         self.is_enumerated = False
@@ -540,14 +543,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         return txt.swapcase()
 
     def vl_box_changed(self):
-        if self.apply_vl_checkbox.isChecked():
-            self.apply_selection_checkbox.setChecked(False)
         self.search_item_row = -1
         self.fill_in_table(None, None, False)
 
     def apply_selection_box_changed(self):
-        if self.apply_selection_checkbox.isChecked():
-            self.apply_vl_checkbox.setChecked(False)
         self.search_item_row = -1
         self.fill_in_table(None, None, False)
 
