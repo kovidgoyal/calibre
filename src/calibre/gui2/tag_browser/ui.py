@@ -21,7 +21,6 @@ from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.widgets import HistoryLineEdit
-from calibre.library.field_metadata import category_icon_map
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
@@ -58,9 +57,12 @@ class TagBrowserMixin:  # {{{
                 return ''
 
         def get_icon(cat_name):
-            icon_name = (category_icon_map[cat_name] if cat_name in category_icon_map
-                         else category_icon_map['custom:'])
-            return QIcon.ic(icon_name)
+            from calibre.gui2.ui import get_gui
+            icon = get_gui().tags_view.model().category_custom_icons.get(cat_name, None)
+            if not icon:
+                from calibre.library.field_metadata import category_icon_map
+                icon = QIcon.ic(category_icon_map.get(cat_name, 'custom:'))
+            return icon
 
         def menu_func(cat_name, item):
             if cat_name == 'authors':
