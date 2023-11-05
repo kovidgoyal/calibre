@@ -24,7 +24,7 @@ class EpochTimes(BasicNewsRecipe):
     ]
     remove_tags = [
         classes('print:hidden h-header shortcode aspect-square'),
-        dict(name='button', 'svg'),
+        dict(name=['button', 'svg']),
         dict(name='img', attrs={'src':lambda x: x and x.endswith('svg')})
     ]
 

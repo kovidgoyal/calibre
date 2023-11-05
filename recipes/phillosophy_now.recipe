@@ -35,7 +35,8 @@ class PhilosophyNow(BasicNewsRecipe):
         soup = self.index_to_soup('https://philosophynow.org/')
         div = soup.find('div', attrs={'id': 'aside_issue_cover'})
         url = div.find('a', href=True)['href']
-        if issue := div.find('div', attrs={'id':'aside_issue_text'}):
+        issue = div.find('div', attrs={'id':'aside_issue_text'})
+        if issue:
             self.log('Downloading issue:', self.tag_to_string(issue).strip())
             self.timefmt = ' [' + self.tag_to_string(issue.find(attrs={'id':'aside_issue_date'})) + ']'
             self.title = 'Philosophy Now ' + self.tag_to_string(issue.find(attrs={'id':'aside_issue_number'}))
