@@ -654,8 +654,13 @@ def get_tarball_info(version):
     global dl_url, signature, calibre_version
     print('Downloading tarball signature securely...')
     if version:
-        signature = get_https_resource_securely(
-                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + arch + '.txz.sha512')
+        sigfname = 'calibre-' + version + '-' + arch + '.txz.sha512'
+        try:
+            signature = get_https_resource_securely('https://code.calibre-ebook.com/signatures/' + sigfname)
+        except HTTPError as err:
+            if err.code != 404:
+                raise
+            signature = get_https_resource_securely('https://code.calibre-ebook.com/signatures/old/' + sigfname)
         calibre_version = version
         dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + arch + '.txz'
     else:
@@ -815,7 +820,7 @@ except NameError:
 
 
 def update_intaller_wrapper():
-    # To run: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
+    # To update: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
     with open(__file__, 'rb') as f:
         src = f.read().decode('utf-8')
     wrapper = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'linux-installer.sh')

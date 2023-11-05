@@ -89,7 +89,8 @@ if py3:
     from urllib.parse import urlparse
     from urllib.request import BaseHandler, build_opener, Request, urlopen, getproxies, addinfourl
     import http.client as httplib
-    encode_for_subprocess = lambda x: x
+    def encode_for_subprocess(x):
+        return x
 else:
     from future_builtins import map
     from urlparse import urlparse
@@ -702,8 +703,13 @@ def get_tarball_info(version):
     global dl_url, signature, calibre_version
     print('Downloading tarball signature securely...')
     if version:
-        signature = get_https_resource_securely(
-                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + arch + '.txz.sha512')
+        sigfname = 'calibre-' + version + '-' + arch + '.txz.sha512'
+        try:
+            signature = get_https_resource_securely('https://code.calibre-ebook.com/signatures/' + sigfname)
+        except HTTPError as err:
+            if err.code != 404:
+                raise
+            signature = get_https_resource_securely('https://code.calibre-ebook.com/signatures/old/' + sigfname)
         calibre_version = version
         dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + arch + '.txz'
     else:
