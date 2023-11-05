@@ -779,6 +779,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.table.setCurrentCell(0, 0)
                 self.search_box.setFocus()
                 self.start_find_pos = -1
+        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)

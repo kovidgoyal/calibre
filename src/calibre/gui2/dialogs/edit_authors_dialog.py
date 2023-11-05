@@ -326,6 +326,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.find_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
+        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def row_height_changed(self, row, old, new):
         self.table.verticalHeader().blockSignals(True)
