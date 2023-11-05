@@ -43,7 +43,7 @@ class ManageCategoriesAction(InterfaceAction):
 
     def about_to_show_menu(self):
         db = self.gui.current_db
-        self.gui.populate_manage_categories_menu(db, self.menu)
+        self.gui.populate_manage_categories_menu(db, self.menu, add_column_items=True)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
