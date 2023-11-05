@@ -372,7 +372,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             ac.triggered.connect(self.clear_filter)
         le.returnPressed.connect(self.do_filter)
         self.filter_button.clicked.connect(self.do_filter)
-        self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
+        self.apply_vl_checkbox.setAutoExclusive(False)
+        self.apply_vl_checkbox.toggled.connect(self.vl_box_changed)
+        self.apply_selection_checkbox.setAutoExclusive(False)
+        self.apply_selection_checkbox.toggled.connect(self.apply_selection_box_changed)
 
         self.is_enumerated = False
         if fm:
@@ -537,8 +540,23 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         return txt.swapcase()
 
     def vl_box_changed(self):
+        if self.apply_vl_checkbox.isChecked():
+            self.apply_selection_checkbox.setChecked(False)
         self.search_item_row = -1
         self.fill_in_table(None, None, False)
+
+    def apply_selection_box_changed(self):
+        if self.apply_selection_checkbox.isChecked():
+            self.apply_vl_checkbox.setChecked(False)
+        self.search_item_row = -1
+        self.fill_in_table(None, None, False)
+
+    def selection_to_apply(self):
+        if self.apply_selection_checkbox.isChecked():
+            return 'selection'
+        if self.apply_vl_checkbox.isChecked():
+            return 'virtual_library'
+        return None
 
     def do_search(self):
         self.not_found_label.setVisible(False)
@@ -653,7 +671,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
 
-        data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
+        data = self.get_book_ids(self.selection_to_apply())
         self.all_tags = {}
         filter_text = icu_lower(str(self.filter_box.text()))
         for k,v,count in data:

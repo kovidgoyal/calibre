@@ -72,7 +72,7 @@
     </spacer>
    </item>
    <item row="0" column="4">
-    <widget class="QCheckBox" name="apply_vl_checkbox">
+    <widget class="QRadioButton" name="apply_vl_checkbox">
      <property name="toolTip">
       <string>&lt;p&gt;Show items only if they appear in the
           current Virtual library. Edits already done may be hidden but will
@@ -84,6 +84,22 @@
      </property>
      <property name="text">
       <string>Only show items in the current &amp;Virtual library</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QRadioButton" name="apply_selection_checkbox">
+     <property name="toolTip">
+      <string>&lt;p&gt;Show items only if they appear in the
+          currently selected books. Edits already done may be hidden but will
+          not be forgotten.
+          &lt;/p&gt;&lt;p&gt;
+          Note that this box affects only what is displayed. Changes
+          will affect all books in your library even if this box
+          is checked.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string>O&amp;nly show items in the currently selected books</string>
      </property>
     </widget>
    </item>

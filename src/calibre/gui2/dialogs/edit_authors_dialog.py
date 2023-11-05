@@ -108,7 +108,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.rejected.connect(self.rejected)
-        self.apply_vl_checkbox.stateChanged.connect(self.use_vl_changed)
+        self.apply_vl_checkbox.setAutoExclusive(False)
+        self.apply_vl_checkbox.toggled.connect(self.use_vl_changed)
+        self.apply_selection_checkbox.setAutoExclusive(False)
+        self.apply_selection_checkbox.toggled.connect(self.apply_selection_box_changed)
 
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -211,7 +214,21 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.ignore_cell_changed = orig
 
     def use_vl_changed(self, x):
+        if self.apply_vl_checkbox.isChecked():
+            self.apply_selection_checkbox.setChecked(False)
         self.show_table(None, None, None, False)
+
+    def apply_selection_box_changed(self, x):
+        if self.apply_selection_checkbox.isChecked():
+            self.apply_vl_checkbox.setChecked(False)
+        self.show_table(None, None, None, False)
+
+    def selection_to_apply(self):
+        if self.apply_selection_checkbox.isChecked():
+            return 'selection'
+        if self.apply_vl_checkbox.isChecked():
+            return 'virtual_library'
+        return None
 
     def clear_filter(self):
         self.filter_box.setText('')
@@ -221,8 +238,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.show_table(None, None, None, False)
 
     def show_table(self, id_to_select, select_sort, select_link, is_first_letter):
-        auts_to_show = {t[0] for t in
-                   self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked())}
+        auts_to_show = {t[0] for t in self.find_aut_func(self.selection_to_apply())}
         filter_text = icu_lower(str(self.filter_box.text()))
         if filter_text:
             auts_to_show = {id_ for id_ in auts_to_show
