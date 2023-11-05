@@ -108,9 +108,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.rejected.connect(self.rejected)
-        self.apply_vl_checkbox.setAutoExclusive(False)
+        self.show_button_layout.setSpacing(0)
+        self.show_button_layout.setContentsMargins(0, 0, 0, 0)
+        self.apply_all_checkbox.setContentsMargins(0, 0, 0, 0)
+        self.apply_all_checkbox.setChecked(True)
+        self.apply_vl_checkbox.setContentsMargins(0, 0, 0, 0)
         self.apply_vl_checkbox.toggled.connect(self.use_vl_changed)
-        self.apply_selection_checkbox.setAutoExclusive(False)
+        self.apply_selection_checkbox.setContentsMargins(0, 0, 0, 0)
         self.apply_selection_checkbox.toggled.connect(self.apply_selection_box_changed)
 
         self.table.setAlternatingRowColors(True)
@@ -214,13 +218,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.ignore_cell_changed = orig
 
     def use_vl_changed(self, x):
-        if self.apply_vl_checkbox.isChecked():
-            self.apply_selection_checkbox.setChecked(False)
         self.show_table(None, None, None, False)
 
     def apply_selection_box_changed(self, x):
-        if self.apply_selection_checkbox.isChecked():
-            self.apply_vl_checkbox.setChecked(False)
         self.show_table(None, None, None, False)
 
     def selection_to_apply(self):
