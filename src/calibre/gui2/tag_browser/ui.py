@@ -15,7 +15,7 @@ from qt.core import (
 )
 
 from calibre.ebooks.metadata import title_sort
-from calibre.gui2 import config, error_dialog, gprefs, question_dialog
+from calibre.gui2 import config, error_dialog, gprefs, question_dialog, warning_dialog
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
@@ -156,7 +156,6 @@ class TagBrowserMixin:  # {{{
         self.library_view.model().refresh(reset=True)
         self.library_view.model().research(reset=False)
         self.library_view.current_id = current_row_id # the setter checks for None
-
 
     def do_restriction_error(self, e):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -312,8 +311,22 @@ class TagBrowserMixin:  # {{{
         db.new_api.clear_search_caches()
         self.user_categories_edited()
 
+    # Keep this for compatibility. It isn't used here but could be used in a plugin
     def get_book_ids(self, use_virtual_library, db, category):
-        book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
+        return self.get_book_ids_in_vl_or_selection(
+            ('virtual_library' if use_virtual_library else None), db, category)
+
+    def get_book_ids_in_vl_or_selection(self, use_what, db, category):
+        if use_what is None:
+            book_ids = None
+        elif use_what == 'virtual_library':
+            book_ids = self.tags_view.model().get_book_ids_to_use()
+        else:
+            book_ids = self.library_view.get_selected_ids()
+            if not book_ids:
+                warning_dialog(self.tags_view, _('No books selected'),
+                               _('No books are selected. Showing all items.'), show=True)
+                book_ids = None
         data = db.new_api.get_categories(book_ids=book_ids)
         if category in data:
             result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
@@ -337,7 +350,7 @@ class TagBrowserMixin:  # {{{
         d = TagListEditor(self, category=category,
                           cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag,
-                          get_book_ids=partial(self.get_book_ids, db=db, category=category),
+                          get_book_ids=partial(self.get_book_ids_in_vl_or_selection, db=db, category=category),
                           sorter=key, ttm_is_first_letter=is_first_letter,
                           fm=db.field_metadata[category],
                           link_map=db.new_api.get_link_map(category))
@@ -514,7 +527,7 @@ class TagBrowserMixin:  # {{{
         Open the manage authors dialog
         '''
         db = self.library_view.model().db
-        get_authors_func = partial(self.get_book_ids, db=db, category='authors')
+        get_authors_func = partial(self.get_book_ids_in_vl_or_selection, db=db, category='authors')
         if lookup_author:
             for t in get_authors_func(use_virtual_library=False):
                 if t[1] == id_:
