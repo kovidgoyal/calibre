@@ -988,6 +988,8 @@ class IframeBoss:
             text_node, offset = None, 0
             if data.pos:
                 r = word_at_point(data.pos.x, data.pos.y)
+                if not r:
+                    return
             else:
                 r = first_visible_word()
             if r and r.startContainer?.nodeType is Node.TEXT_NODE:
