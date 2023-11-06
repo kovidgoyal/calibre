@@ -59,6 +59,7 @@ class IconResourceManager:
         self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
         self.registered_user_resource_files = ()
         self.color_palette = 'light'
+        self.icon_cache = {}
 
     def user_theme_resource_file(self, which):
         return os.path.join(config_dir, f'icons-{which}.rcc')
@@ -125,6 +126,7 @@ class IconResourceManager:
     def initialize(self):
         if self.initialized:
             return
+        self.icon_cache = {}
         self.initialized = True
         QResource.registerResource(P('icons.rcc', allow_user_override=False))
         QIcon.setFallbackSearchPaths([])
@@ -186,6 +188,19 @@ class IconResourceManager:
                     ans = os.path.join(self.override_icon_path, subfolder, sq)
         return ans
 
+    def cached_icon(self, name=''):
+        '''
+        Keep these icons in a cache. This is intended to be used in dialogs like
+        manage categories where thousands of icon instances can be needed.
+
+        It is a new method to avoid breaking QIcon.ic() if names are reused
+        in different contexts. It isn't clear if this can ever happen.
+        '''
+        icon = self.icon_cache.get(name)
+        if icon is None:
+            icon = self.icon_cache[name] = self(name)
+        return icon
+
     def __call__(self, name):
         if isinstance(name, QIcon):
             return name
@@ -221,6 +236,7 @@ class IconResourceManager:
         return ba if as_bytearray else ba.data()
 
     def set_theme(self):
+        self.icon_cache = {}
         current = QIcon.themeName()
         is_dark = QApplication.instance().is_dark_theme
         self.color_palette = 'dark' if is_dark else 'light'
@@ -236,6 +252,7 @@ icon_resource_manager = IconResourceManager()
 QIcon.ic = icon_resource_manager
 QIcon.icon_as_png = icon_resource_manager.icon_as_png
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
+QIcon.cached_icon = icon_resource_manager.cached_icon
 
 
 # Setup gprefs {{{

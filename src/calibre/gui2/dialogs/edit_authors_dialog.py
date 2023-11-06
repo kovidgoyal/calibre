@@ -8,8 +8,8 @@ __license__   = 'GPL v3'
 from contextlib import contextmanager
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QDialog, QDialogButtonBox, QFrame, QIcon,
-    QLabel, QMenu, QStyledItemDelegate, Qt, QTableWidgetItem, QTimer,
+    QAbstractItemView, QAction, QApplication, QDialog, QDialogButtonBox, QFrame,
+    QIcon, QLabel, QMenu, QStyledItemDelegate, Qt, QTableWidgetItem, QTimer,
 )
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
@@ -80,8 +80,6 @@ class EditColumnDelegate(QStyledItemDelegate):
 
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
-
-    edited_icon = QIcon.ic('modified.png')
 
     def __init__(self, parent, db, id_to_select, select_sort, select_link,
                  find_aut_func, is_first_letter=False):
@@ -375,7 +373,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.context_item is None:
             return
         case_menu = QMenu(_('Change case'))
-        case_menu.setIcon(QIcon.ic('font_size_larger.png'))
+        case_menu.setIcon(QIcon.cached_icon('font_size_larger.png'))
         action_upper_case = case_menu.addAction(_('Upper case'))
         action_lower_case = case_menu.addAction(_('Lower case'))
         action_swap_case = case_menu.addAction(_('Swap case'))
@@ -396,17 +394,17 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.notes_utilities.context_menu(m, self.context_item,
                                               self.table.item(idx.row(), AUTHOR_COLUMN).text())
         else:
-            ca = m.addAction(QIcon.ic('edit-copy.png'), _('Copy'))
+            ca = m.addAction(QIcon.cached_icon('edit-copy.png'), _('Copy'))
             ca.triggered.connect(self.copy_to_clipboard)
-            ca = m.addAction(QIcon.ic('edit-paste.png'), _('Paste'))
+            ca = m.addAction(QIcon.cached_icon('edit-paste.png'), _('Paste'))
             ca.triggered.connect(self.paste_from_clipboard)
 
-            ca = m.addAction(QIcon.ic('edit-undo.png'), _('Undo'))
+            ca = m.addAction(QIcon.cached_icon('edit-undo.png'), _('Undo'))
             ca.triggered.connect(partial(self.undo_cell,
                                          old_value=self.original_authors[id_].get(sub)))
             ca.setEnabled(self.context_item is not None and self.item_is_modified(self.context_item, id_))
 
-            ca = m.addAction(QIcon.ic('edit_input.png'), _('Edit'))
+            ca = m.addAction(QIcon.cached_icon('edit_input.png'), _('Edit'))
             ca.triggered.connect(partial(self.table.editItem, self.context_item))
 
             if sub != 'link':
@@ -415,7 +413,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     ca = m.addAction(_('Copy to author sort'))
                     ca.triggered.connect(self.copy_au_to_aus)
                     m.addSeparator()
-                    ca = m.addAction(QIcon.ic('lt.png'), _("Show books by author in book list"))
+                    ca = m.addAction(QIcon.cached_icon('lt.png'), _("Show books by author in book list"))
                     ca.triggered.connect(self.search_in_book_list)
                 else:
                     ca = m.addAction(_('Copy to author'))
@@ -572,7 +570,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if item.column() == NOTES_COLUMN:
             raise ValueError('got set_icon on notes column')
         modified = self.item_is_modified(item, id_)
-        item.setIcon(self.edited_icon if modified else QIcon())
+        item.setIcon(QIcon.cached_icon('modified.png') if modified
+                     else QIcon.cached_icon())
 
     def cell_changed(self, row, col):
         if self.ignore_cell_changed:
