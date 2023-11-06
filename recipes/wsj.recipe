@@ -55,6 +55,10 @@ class WSJ(BasicNewsRecipe):
         .sub, em, i { color: #202020; }
     '''
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/the-wall-street-journal/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+
     keep_only_tags = [
         dict(name=['h1', 'h2']),
         dict(attrs={'aria-describedby':'big-top-caption'}),

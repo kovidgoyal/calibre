@@ -44,6 +44,10 @@ class ft(BasicNewsRecipe):
         classes('in-article-advert')
     ]
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/financial-times/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+
     # needs_subscription = 'optional'
     #
     # def get_browser(self, *args, **kw):
