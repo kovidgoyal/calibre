@@ -140,15 +140,6 @@ class NotesTableWidgetItem(QTableWidgetItem):
 
 class NotesUtilities():
 
-    edit_icon = QIcon.cached_icon('edit_input.png')
-    edited_icon = QIcon.cached_icon('modified.png')
-    empty_icon = QIcon.cached_icon()
-    export_icon = QIcon.cached_icon('forward.png')
-    import_icon = QIcon.cached_icon('back.png')
-    pencil_icon = QIcon.cached_icon('notes.png')
-    trash_icon = QIcon.cached_icon('trash.png')
-    undo_delete_icon = QIcon.cached_icon('edit-undo.png')
-
     def __init__(self, table, category, item_id_getter):
         self.table = table
         self.modified_notes = {}
@@ -176,17 +167,17 @@ class NotesUtilities():
         with block_signals(self.table):
             if id_ not in self.modified_notes:
                 if not has_value:
-                    item.setIcon(self.empty_icon)
+                    item.setIcon(QIcon.cached_icon())
                     item.set_sort_val(NotesTableWidgetItem.EMPTY)
                 else:
-                    item.setIcon(self.pencil_icon)
+                    item.setIcon(QIcon.cached_icon('notes.png'))
                     item.set_sort_val(NotesTableWidgetItem.UNCHANGED)
             else:
                 if has_value:
-                    item.setIcon(self.edited_icon)
+                    item.setIcon(QIcon.cached_icon('modified.png'))
                     item.set_sort_val(NotesTableWidgetItem.EDITED)
                 elif not bool(self.modified_notes[id_]):
-                    item.setIcon(self.empty_icon)
+                    item.setIcon(QIcon.cached_icon())
                     item.set_sort_val(NotesTableWidgetItem.EMPTY)
                 else:
                     item.setIcon(QIcon.cached_icon('trash.png'))
@@ -258,22 +249,22 @@ class NotesUtilities():
         db = get_gui().current_db.new_api
         has_note = bool(db.notes_for(self.category, item_id))
 
-        ac = m.addAction(self.undo_delete_icon, _('Undo'))
+        ac = m.addAction(QIcon.cached_icon('edit-undo.png'), _('Undo'))
         ac.setEnabled(item_id in self.modified_notes)
         ac.triggered.connect(partial(self.undo_note_edit, item))
 
-        ac = m.addAction(self.edit_icon, _('Edit note') if has_note else _('Create note'))
+        ac = m.addAction(QIcon.cached_icon('edit_input.png'), _('Edit note') if has_note else _('Create note'))
         ac.triggered.connect(partial(self.table.editItem, item))
 
         ac = m.addAction(QIcon.cached_icon('trash.png'), _('Delete note'))
         ac.setEnabled(has_note)
         ac.triggered.connect(partial(self.delete_note, item))
 
-        ac = m.addAction(self.export_icon, _('Export note to a file'))
+        ac = m.addAction(QIcon.cached_icon('forward.png'), _('Export note to a file'))
         ac.setEnabled(has_note)
         ac.triggered.connect(partial(self.do_export, item, item_name))
 
-        ac = m.addAction(self.import_icon, _('Import note from a file'))
+        ac = m.addAction(QIcon.cached_icon('back.png'), _('Import note from a file'))
         ac.triggered.connect(partial(self.do_import, item))
 
 
