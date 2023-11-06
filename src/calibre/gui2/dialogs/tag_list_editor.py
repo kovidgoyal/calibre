@@ -13,7 +13,8 @@ from qt.core import (
 )
 
 from calibre import sanitize_file_name
-from calibre.gui2 import error_dialog, gprefs, question_dialog, choose_files, choose_save_file
+from calibre.gui2 import (error_dialog, gprefs, question_dialog, choose_files,
+                          choose_save_file)
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -28,23 +29,9 @@ from calibre.utils.icu import (
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
-CHECK_MARK = '✓'
-icon_cache = {}
-
-
-def icon(name=''):
-    def gi(self):
-        ans = icon_cache.get(name)
-        if ans is None:
-            icon_cache[name] = ans = QIcon.ic(name)
-        return ans
-    return property(fget=gi)
 
 
 class NameTableWidgetItem(QTableWidgetItem):
-
-    empty_icon = icon()
-    trash_icon = icon('trash.png')
 
     def __init__(self, sort_key):
         QTableWidgetItem.__init__(self)
@@ -66,9 +53,9 @@ class NameTableWidgetItem(QTableWidgetItem):
 
     def set_is_deleted(self, to_what):
         if to_what:
-            self.setIcon(self.trash_icon)
+            self.setIcon(QIcon.cached_icon('trash.png'))
         else:
-            self.setIcon(self.empty_icon)
+            self.setIcon(QIcon.cached_icon())
             self.current_value = self.initial_value
         self.is_deleted = to_what
 
@@ -153,14 +140,14 @@ class NotesTableWidgetItem(QTableWidgetItem):
 
 class NotesUtilities():
 
-    edit_icon = icon('edit_input.png')
-    edited_icon = icon('modified.png')
-    empty_icon = icon()
-    export_icon = icon('forward.png')
-    import_icon = icon('back.png')
-    pencil_icon = icon('notes.png')
-    trash_icon = icon('trash.png')
-    undo_delete_icon = icon('edit-undo.png')
+    edit_icon = QIcon.cached_icon('edit_input.png')
+    edited_icon = QIcon.cached_icon('modified.png')
+    empty_icon = QIcon.cached_icon()
+    export_icon = QIcon.cached_icon('forward.png')
+    import_icon = QIcon.cached_icon('back.png')
+    pencil_icon = QIcon.cached_icon('notes.png')
+    trash_icon = QIcon.cached_icon('trash.png')
+    undo_delete_icon = QIcon.cached_icon('edit-undo.png')
 
     def __init__(self, table, category, item_id_getter):
         self.table = table
@@ -202,7 +189,7 @@ class NotesUtilities():
                     item.setIcon(self.empty_icon)
                     item.set_sort_val(NotesTableWidgetItem.EMPTY)
                 else:
-                    item.setIcon(self.trash_icon)
+                    item.setIcon(QIcon.cached_icon('trash.png'))
                     item.set_sort_val(NotesTableWidgetItem.DELETED)
         self.table.cellChanged.emit(item.row(), item.column())
         self.table.itemChanged.emit(item)
@@ -278,7 +265,7 @@ class NotesUtilities():
         ac = m.addAction(self.edit_icon, _('Edit note') if has_note else _('Create note'))
         ac.triggered.connect(partial(self.table.editItem, item))
 
-        ac = m.addAction(self.trash_icon, _('Delete note'))
+        ac = m.addAction(QIcon.cached_icon('trash.png'), _('Delete note'))
         ac.setEnabled(has_note)
         ac.triggered.connect(partial(self.delete_note, item))
 
@@ -350,16 +337,14 @@ def block_signals(widget):
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    edited_icon = icon('modified.png')
-    empty_icon = icon()
-
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
+        self.setupUi(self)
+
         from calibre.gui2.ui import get_gui
         self.supports_notes = bool(category and get_gui().current_db.new_api.field_supports_notes(category))
-        self.setupUi(self)
         self.verticalLayout_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.search_box.setMinimumContentsLength(25)
         if category is not None:
@@ -455,26 +440,26 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(partial(self.copy_to_clipboard, item))
-        ca.setIcon(QIcon.ic('edit-copy.png'))
+        ca.setIcon(QIcon.cached_icon('edit-copy.png'))
         ca.setEnabled(not is_deleted)
 
         ca = m.addAction(_('Paste'))
-        ca.setIcon(QIcon.ic('edit-paste.png'))
+        ca.setIcon(QIcon.cached_icon('edit-paste.png'))
         ca.triggered.connect(partial(self.paste_from_clipboard, item))
         ca.setEnabled(not is_deleted)
 
         ca = m.addAction(_('Undo'))
-        ca.setIcon(QIcon.ic('edit-undo.png'))
+        ca.setIcon(QIcon.cached_icon('edit-undo.png'))
         ca.triggered.connect(partial(self.undo_link_edit, item, item_id))
         ca.setEnabled(not is_deleted and self.link_is_edited(item_id))
 
         ca = m.addAction(_('Edit'))
-        ca.setIcon(QIcon.ic('edit_input.png'))
+        ca.setIcon(QIcon.cached_icon('edit_input.png'))
         ca.triggered.connect(partial(self.table.editItem, item))
         ca.setEnabled(not is_deleted)
 
         ca = m.addAction(_('Delete link'))
-        ca.setIcon(QIcon.ic('trash.png'))
+        ca.setIcon(QIcon.cached_icon('trash.png'))
         def delete_link_text(item):
             item.setText('')
         ca.triggered.connect(partial(delete_link_text, item))
@@ -486,16 +471,16 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(partial(self.copy_to_clipboard, item))
-        ca.setIcon(QIcon.ic('edit-copy.png'))
+        ca.setIcon(QIcon.cached_icon('edit-copy.png'))
         ca.setEnabled(not item.is_deleted)
 
         ca = m.addAction(_('Paste'))
-        ca.setIcon(QIcon.ic('edit-paste.png'))
+        ca.setIcon(QIcon.cached_icon('edit-paste.png'))
         ca.triggered.connect(partial(self.paste_from_clipboard, item))
         ca.setEnabled(not item.is_deleted)
 
         ca = m.addAction(_('Undo'))
-        ca.setIcon(QIcon.ic('edit-undo.png'))
+        ca.setIcon(QIcon.cached_icon('edit-undo.png'))
         if item.is_deleted:
             ca.triggered.connect(self.undo_edit)
         else:
@@ -503,37 +488,37 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.setEnabled(item.is_deleted or item.text() != self.original_names[self.get_item_id(item)])
 
         ca = m.addAction(_('Edit'))
-        ca.setIcon(QIcon.ic('edit_input.png'))
+        ca.setIcon(QIcon.cached_icon('edit_input.png'))
         ca.triggered.connect(self.edit_button_clicked)
         ca.setEnabled(not item.is_deleted)
 
         ca = m.addAction(_('Delete'))
-        ca.setIcon(QIcon.ic('trash.png'))
+        ca.setIcon(QIcon.cached_icon('trash.png'))
         ca.triggered.connect(self.delete_tags)
         item_name = str(item.text())
         ca.setEnabled(not item.is_deleted)
 
         ca = m.addAction(_('Search for {}').format(item_name))
-        ca.setIcon(QIcon.ic('search.png'))
+        ca.setIcon(QIcon.cached_icon('search.png'))
         ca.triggered.connect(partial(self.set_search_text, item_name))
         item_name = str(item.text())
         ca.setEnabled(not item.is_deleted)
 
         ca = m.addAction(_('Filter by {}').format(item_name))
-        ca.setIcon(QIcon.ic('filter.png'))
+        ca.setIcon(QIcon.cached_icon('filter.png'))
         ca.triggered.connect(partial(self.set_filter_text, item_name))
         ca.setEnabled(not item.is_deleted)
 
         if self.category is not None:
             ca = m.addAction(_("Search the library for {0}").format(item_name))
-            ca.setIcon(QIcon.ic('lt.png'))
+            ca.setIcon(QIcon.cached_icon('lt.png'))
             ca.triggered.connect(partial(self.search_for_books, item))
             ca.setEnabled(not item.is_deleted)
 
         if self.table.state() == QAbstractItemView.State.EditingState:
             m.addSeparator()
             case_menu = QMenu(_('Change case'))
-            case_menu.setIcon(QIcon.ic('font_size_larger.png'))
+            case_menu.setIcon(QIcon.cached_icon('font_size_larger.png'))
             action_upper_case = case_menu.addAction(_('Upper case'))
             action_lower_case = case_menu.addAction(_('Lower case'))
             action_swap_case = case_menu.addAction(_('Swap case'))
@@ -718,9 +703,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def set_link_icon(self, id_, item):
         with block_signals(self.table):
             if self.link_is_edited(id_):
-                item.setIcon(self.edited_icon)
+                item.setIcon(QIcon.cached_icon('modified.png'))
             else:
-                item.setIcon(self.empty_icon)
+                item.setIcon(QIcon.cached_icon())
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
@@ -786,7 +771,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                     elif tag == tag_to_match:
                         select_item = item
                 if item.text_is_modified():
-                    item.setIcon(self.edited_icon)
+                    item.setIcon(QIcon.cached_icon('modified.png'))
 
                 item = CountTableWidgetItem(self.all_tags[tag]['count'])
                 item.setFlags(item.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
@@ -933,10 +918,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 orig = self.table.item(item.row(), WAS_COLUMN)
                 item.setText(new_text)
                 if item.text_is_modified():
-                    item.setIcon(self.edited_icon)
+                    item.setIcon(QIcon.cached_icon('modified.png'))
                     orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
                 else:
-                    item.setIcon(self.empty_icon)
+                    item.setIcon(QIcon.cached_icon())
                     orig.setData(Qt.ItemDataRole.DisplayRole, '')
 
     def undo_link_edit(self, item, item_id):
@@ -948,7 +933,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         item = self.table.item(item.row(), LINK_COLUMN)
         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
         item.setText(link_txt)
-        item.setIcon(self.empty_icon)
+        item.setIcon(QIcon.cached_icon())
 
     def undo_value_edit(self, item, item_id):
         with block_signals(self.table):
@@ -956,7 +941,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_rename.pop(item_id, None)
             row = item.row()
             self.table.item(row, WAS_COLUMN).setData(Qt.ItemDataRole.DisplayRole, '')
-            item.setIcon(self.edited_icon if item.text_is_modified() else self.empty_icon)
+            item.setIcon(QIcon.cached_icon('modified.png') if item.text_is_modified() else QIcon.cached_icon())
 
     def undo_edit(self):
         col_zero_items = (self.table.item(item.row(), VALUE_COLUMN) for item in self.table.selectedItems())
@@ -986,7 +971,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
                 if id_ in self.notes_utilities.modified_notes:
                     self.notes_utilities.undo_note_edit(item)
-                    item.setIcon(self.empty_icon)
+                    item.setIcon(QIcon.cached_icon())
 
     def selection_changed(self):
         if self.table.currentIndex().isValid():
