@@ -29,12 +29,22 @@ from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 CHECK_MARK = '✓'
+icon_cache = {}
+
+
+def icon(name=''):
+    def gi(self):
+        ans = icon_cache.get(name)
+        if ans is None:
+            icon_cache[name] = ans = QIcon.ic(name)
+        return ans
+    return property(fget=gi)
 
 
 class NameTableWidgetItem(QTableWidgetItem):
 
-    empty_icon = QIcon()
-    trash_icon = QIcon.ic('trash.png')
+    empty_icon = icon()
+    trash_icon = icon('trash.png')
 
     def __init__(self, sort_key):
         QTableWidgetItem.__init__(self)
@@ -143,14 +153,14 @@ class NotesTableWidgetItem(QTableWidgetItem):
 
 class NotesUtilities():
 
-    edit_icon = QIcon.ic('edit_input.png')
-    edited_icon = QIcon.ic('modified.png')
-    empty_icon = QIcon()
-    export_icon = QIcon.ic('forward.png')
-    import_icon = QIcon.ic('back.png')
-    pencil_icon = QIcon.ic('notes.png')
-    trash_icon = QIcon.ic('trash.png')
-    undo_delete_icon = QIcon.ic('edit-undo.png')
+    edit_icon = icon('edit_input.png')
+    edited_icon = icon('modified.png')
+    empty_icon = icon()
+    export_icon = icon('forward.png')
+    import_icon = icon('back.png')
+    pencil_icon = icon('notes.png')
+    trash_icon = icon('trash.png')
+    undo_delete_icon = icon('edit-undo.png')
 
     def __init__(self, table, category, item_id_getter):
         self.table = table
@@ -340,8 +350,8 @@ def block_signals(widget):
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    edited_icon = QIcon.ic('modified.png')
-    empty_icon = QIcon()
+    edited_icon = icon('modified.png')
+    empty_icon = icon()
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
