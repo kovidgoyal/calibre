@@ -182,7 +182,19 @@ after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorith
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="edit_current_cell">
+       <property name="toolTip">
+        <string>&lt;p&gt;Edit the currently selected cell. If an author is edited then it is renamed
+                in every book where it is used. Double-clicking and pressing the edit
+                key also work.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Edi&amp;t current cell</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

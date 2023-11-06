@@ -15,7 +15,7 @@ from qt.core import (
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.gui2.dialogs.tag_list_editor import CHECK_MARK, NotesUtilities
+from calibre.gui2.dialogs.tag_list_editor import NotesUtilities, NotesTableWidgetItem
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import (
@@ -116,6 +116,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.apply_vl_checkbox.toggled.connect(self.use_vl_changed)
         self.apply_selection_checkbox.setContentsMargins(0, 0, 0, 0)
         self.apply_selection_checkbox.toggled.connect(self.apply_selection_box_changed)
+        self.edit_current_cell.clicked.connect(self.edit_cell)
 
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -205,6 +206,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                                                       self.notes_utilities, self.get_item_id))
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
 
+    def edit_cell(self):
+        if self.table.currentIndex().isValid():
+            self.table.editItem(self.table.currentItem())
+
     def get_item_id(self, item):
         return int(self.table.item(item.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole))
 
@@ -252,8 +257,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         row = 0
         from calibre.gui2.ui import get_gui
         all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes('authors')
-        yes, yes_skey = CHECK_MARK, sort_key(CHECK_MARK)
-        no, no_skey = '', sort_key('')
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
@@ -268,16 +271,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, AUTHOR_COLUMN, name_item)
             self.table.setItem(row, AUTHOR_SORT_COLUMN, sort_item)
             self.table.setItem(row, LINK_COLUMN, link_item)
-            if id_ in all_items_that_have_notes:
-                note_item = TableItem(yes, yes_skey)
-            else:
-                note_item = TableItem(no, no_skey)
+            note_item = NotesTableWidgetItem()
             self.table.setItem(row, NOTES_COLUMN, note_item)
 
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
             self.set_icon(link_item, id_)
-            self.set_icon(note_item, id_)
+            self.notes_utilities.set_icon(note_item, id_, id_ in all_items_that_have_notes)
             row += 1
 
         self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link'), _('Notes')])
@@ -569,6 +569,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def set_icon(self, item, id_):
+        if item.column() == NOTES_COLUMN:
+            raise ValueError('got set_icon on notes column')
         modified = self.item_is_modified(item, id_)
         item.setIcon(self.edited_icon if modified else QIcon())
 
@@ -596,10 +598,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 item = c
             else:
                 item  = self.table.item(row, col)
-                item.set_sort_key()
-                self.set_icon(item, id_)
                 name = self.get_column_name(col)
                 if name != 'notes':
+                    item.set_sort_key()
+                    self.set_icon(item, id_)
                     self.authors[id_][self.get_column_name(col)] = str(item.text())
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)

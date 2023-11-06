@@ -172,7 +172,9 @@
      <item>
       <widget class="QToolButton" name="delete_button">
        <property name="toolTip">
-        <string>Delete selected items from the database. This will unapply the items from all books and then remove them from the database.</string>
+        <string>&lt;p&gt;Delete selected items from the database.
+                This will unapply the items from all books and then remove them
+                from the database. This button's shortcut is Ctrl+D&lt;/p&gt;</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -208,7 +210,9 @@
      <item>
       <widget class="QToolButton" name="rename_button">
        <property name="toolTip">
-        <string>Rename the items in every book where they are used</string>
+        <string>&lt;p&gt;Edit the currently selected cell. If a tag is edited then it is renamed
+                in every book where it is used. Double-clicking and pressing the edit
+                key also work. This button's shortcut is Ctrl+E&lt;/p&gt;</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -224,7 +228,7 @@
         </size>
        </property>
        <property name="shortcut">
-        <string>Ctrl+R</string>
+        <string>Ctrl+E</string>
        </property>
       </widget>
      </item>
@@ -244,7 +248,9 @@
      <item>
       <widget class="QToolButton" name="undo_button">
        <property name="toolTip">
-        <string>Undo any deletes or edits on the selected lines</string>
+        <string>&lt;p&gt;Undo all deletes or edits on the selected lines.
+                This button's shortcut is Ctrl+U&lt;/p&gt;
+        </string>
        </property>
        <property name="text">
         <string>...</string>
