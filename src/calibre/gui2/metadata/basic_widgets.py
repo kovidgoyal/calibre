@@ -36,7 +36,9 @@ from calibre.gui2.comments_editor import Editor
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit as LE
-from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView, LineEditIndicators
+from calibre.gui2.widgets import (
+    EnLineEdit, FormatList as _FormatList, ImageView, LineEditIndicators,
+)
 from calibre.gui2.widgets2 import (
     DateTimeEdit, Dialog, RatingEditor, RightClickButton, access_key,
     populate_standard_spinbox_context_menu,
@@ -46,7 +48,7 @@ from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import (
     UNDEFINED_DATE, as_local_time, internal_iso_format_string, is_date_undefined,
-    local_tz, parse_only_date, qt_to_dt, utcfromtimestamp,
+    local_tz, parse_only_date, qt_from_dt, qt_to_dt, utcfromtimestamp,
 )
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import sort_key, strcmp
@@ -188,6 +190,8 @@ def make_undoable(spinbox):
             if hasattr(self, 'setDateTime'):
                 if isinstance(val, date) and not isinstance(val, datetime) and not is_date_undefined(val):
                     val = parse_only_date(val.isoformat(), assume_utc=False, as_utc=False)
+                if isinstance(val, datetime):
+                    val = qt_from_dt(val)
                 self.setDateTime(val)
             elif hasattr(self, 'setValue'):
                 self.setValue(val)

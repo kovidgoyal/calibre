@@ -15,8 +15,8 @@ import traceback
 from collections import defaultdict, namedtuple
 from itertools import groupby
 from qt.core import (
-    QAbstractTableModel, QApplication, QColor, QDateTime, QFont, QFontMetrics, QIcon,
-    QImage, QModelIndex, QPainter, QPixmap, Qt, pyqtSignal,
+    QAbstractTableModel, QApplication, QColor, QFont, QFontMetrics, QIcon, QImage,
+    QModelIndex, QPainter, QPixmap, Qt, pyqtSignal,
 )
 
 from calibre import (
@@ -34,7 +34,7 @@ from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
 from calibre.utils.date import (
-    UNDEFINED_DATE, as_local_time, dt_factory, is_date_undefined, qt_to_dt,
+    UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt,
 )
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
@@ -919,7 +919,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif dt == 'datetime':
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE)
-                    return None if is_date_undefined(val) else QDateTime(as_local_time(val))
+                    return None if is_date_undefined(val) else qt_from_dt(val)
             elif dt == 'rating':
                 rating_fields[field] = m['display'].get('allow_half_stars', False)
 

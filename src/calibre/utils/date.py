@@ -178,6 +178,17 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 
+def qt_from_dt(d, as_utc=False, assume_utc=False):
+    from qt.core import QDateTime, QTimeZone
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    d = d.astimezone(utc_tz)
+    ans = QDateTime.fromMSecsSinceEpoch(int(d.timestamp() * 1000), QTimeZone.utc())
+    if not as_utc:
+        ans = ans.toLocalTime()
+    return ans
+
+
 def fromtimestamp(ctime, as_utc=True):
     dt = datetime.utcfromtimestamp(ctime).replace(tzinfo=_utc_tz)
     if not as_utc:

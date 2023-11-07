@@ -9,7 +9,7 @@ import os
 from collections import OrderedDict
 from functools import partial
 from qt.core import (
-    QApplication, QCheckBox, QComboBox, QDateTime, QDialog, QDoubleSpinBox, QGridLayout,
+    QApplication, QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGridLayout,
     QGroupBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QPlainTextEdit,
     QSizePolicy, QSpacerItem, QSpinBox, QStyle, Qt, QToolButton, QUrl, QVBoxLayout,
     QWidget,
@@ -18,15 +18,16 @@ from qt.core import (
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import UNDEFINED_QDATETIME, elided_text, error_dialog, gprefs
 from calibre.gui2.comments_editor import Editor as CommentsEditor
-from calibre.gui2.markdown_editor import Editor as MarkdownEditor
 from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
+from calibre.gui2.markdown_editor import Editor as MarkdownEditor
 from calibre.gui2.widgets2 import DateTimeEdit as DateTimeEditBase, RatingEditor
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
 from calibre.utils.date import (
-    as_local_time, as_utc, internal_iso_format_string, is_date_undefined, now, qt_to_dt,
+    as_local_time, as_utc, internal_iso_format_string, is_date_undefined, now,
+    qt_from_dt, qt_to_dt,
 )
 from calibre.utils.icu import lower as icu_lower, sort_key
 
@@ -349,7 +350,7 @@ class DateTimeEdit(DateTimeEditBase):
         DateTimeEditBase.focusOutEvent(self, x)
 
     def set_to_today(self):
-        self.setDateTime(now())
+        self.setDateTime(qt_from_dt(now()))
 
     def set_to_clear(self):
         self.setDateTime(UNDEFINED_QDATETIME)
@@ -400,12 +401,12 @@ class DateTime(Base):
         if val is None:
             val = self.dte.minimumDateTime()
         else:
-            val = QDateTime(val)
+            val = qt_from_dt(val)
         self.dte.setDateTime(val)
 
     def getter(self):
         val = self.dte.dateTime()
-        if val <= UNDEFINED_QDATETIME:
+        if is_date_undefined(val):
             val = None
         else:
             val = qt_to_dt(val)
@@ -1251,13 +1252,13 @@ class BulkDateTime(BulkBase):
         if val is None:
             val = self.main_widget.minimumDateTime()
         else:
-            val = QDateTime(val)
+            val = qt_from_dt(val)
         self.main_widget.setDateTime(val)
         self.ignore_change_signals = False
 
     def getter(self):
         val = self.main_widget.dateTime()
-        if val <= UNDEFINED_QDATETIME:
+        if is_date_undefined(val):
             val = None
         else:
             val = qt_to_dt(val)
