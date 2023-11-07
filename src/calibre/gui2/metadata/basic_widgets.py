@@ -136,6 +136,8 @@ def make_undoable(spinbox):
                 self.undo_val = widget.value()
             if isinstance(val, date) and not isinstance(val, datetime):
                 val = parse_only_date(val.isoformat(), assume_utc=False, as_utc=False)
+            if isinstance(val, datetime):
+                val = qt_from_dt(val)
             self.redo_val = val
 
         def undo(self):

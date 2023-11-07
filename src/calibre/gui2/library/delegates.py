@@ -5,28 +5,38 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import os
+import sys
+from datetime import datetime
+from qt.core import (
+    QAbstractTextDocumentLayout, QApplication, QComboBox, QDate, QDateTime,
+    QDateTimeEdit, QDialog, QDoubleSpinBox, QEvent, QFont, QFontInfo, QIcon,
+    QKeySequence, QLineEdit, QLocale, QMenu, QPalette, QSize, QSpinBox, QStyle,
+    QStyledItemDelegate, QStyleOptionComboBox, QStyleOptionSpinBox,
+    QStyleOptionViewItem, Qt, QTextDocument, QUrl,
+)
 
-from qt.core import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
-        QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence, QUrl,
-        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime, QEvent,
-        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit, QDialog, QPalette)
-
-from calibre.ebooks.metadata import rating_to_stars, title_sort
-from calibre.gui2 import UNDEFINED_QDATETIME, rating_font, gprefs
 from calibre.constants import iswindows
-from calibre.gui2.markdown_editor import MarkdownEditDialog
-from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor, DateTimeEdit as DateTimeEditBase
+from calibre.ebooks.metadata import rating_to_stars, title_sort
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined, internal_iso_format_string
-
-from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
+from calibre.gui2.markdown_editor import MarkdownEditDialog
+from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2.widgets2 import (
+    DateTimeEdit as DateTimeEditBase, RatingEditor,
+    populate_standard_spinbox_context_menu,
+)
 from calibre.library.comments import markdown
+from calibre.utils.config import tweaks
+from calibre.utils.date import (
+    format_date, internal_iso_format_string, is_date_undefined, now, qt_from_dt,
+    qt_to_dt,
+)
+from calibre.utils.icu import sort_key
+
 
 class UpdateEditorGeometry:
 
@@ -252,6 +262,8 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = index.data(Qt.ItemDataRole.EditRole)
             if is_date_undefined(val):
                 val = now()
+        if isinstance(val, datetime):
+            val = qt_from_dt(val)
         editor.setDateTime(val)
 
 # }}}
@@ -450,6 +462,8 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = index.data(Qt.ItemDataRole.EditRole)
             if is_date_undefined(val):
                 val = now()
+        if isinstance(val, datetime):
+            val = qt_from_dt(val)
         editor.setDateTime(val)
 
     def setModelData(self, editor, model, index):
