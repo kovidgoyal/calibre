@@ -300,6 +300,22 @@ def interface_data(ctx, rd):
     return ans
 
 
+@endpoint('/interface-data/newly-added', postprocess=json)
+def newly_added(ctx, rd):
+    '''
+    Get newly added books.
+
+    Optional: ?num=3&library_id=<default library>
+    '''
+    db, library_id = get_library_data(ctx, rd)[:2]
+    count = int(rd.query.get('num', 3))
+    with db.safe_read_lock:
+        nbids = db._newly_added_book_ids(count)
+        titles = db._all_field_for('title', nbids)
+        authors = db._all_field_for('authors', nbids)
+        return {'library_id': library_id, 'books': nbids, 'titles': titles, 'authors': authors}
+
+
 @endpoint('/interface-data/more-books', postprocess=json, methods=POSTABLE)
 def more_books(ctx, rd):
     '''

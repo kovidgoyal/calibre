@@ -1405,6 +1405,12 @@ class Cache:
         return ret
 
     @read_api
+    def newly_added_book_ids(self, count=5) -> list[int]:
+        ids_to_sort = self._all_book_ids(list)
+        ids_to_sort.sort(reverse=True)
+        return ids_to_sort[:count]
+
+    @read_api
     def multisort(self, fields, ids_to_sort=None, virtual_fields=None):
         '''
         Return a list of sorted book ids. If ids_to_sort is None, all book ids

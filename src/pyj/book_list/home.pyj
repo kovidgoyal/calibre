@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from ajax import absolute_path, ajax_send
+from ajax import absolute_path, ajax_send, ajax
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
 from book_list.library_data import (
@@ -27,7 +27,7 @@ add_extra_css(def():
     sel = f'.{CLASS_NAME} '
     ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
     sel += '.recently-read img'
-    ans += build_rule(sel, max_width='25vw', max_height='40vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
+    ans += build_rule(sel, max_width='25vw', max_height='30vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
     return ans
@@ -59,6 +59,10 @@ def show_cover(blob, name, mt, book):
 
 def read_book(library_id, book_id, fmt, extra_query):
     open_book(book_id, fmt, library_id, extra_query=extra_query)
+
+
+def view_book_page(library_id, book_id):
+    show_panel('book_details', {'library_id': library_id, 'book_id': book_id + ''}, replace=False)
 
 
 def get_last_read_position(last_read_positions, prev_last_read):
@@ -196,6 +200,29 @@ def show_recent():
     else:
         print(db.initialize_error_msg)
 
+
+def newly_added_received(newly_container_id, end_type, xhr, ev):
+    container = document.getElementById(newly_container_id)
+    if not container or end_type is not 'load':
+        return
+    data = JSON.parse(xhr.responseText)
+    if not data.books or not data.books.length:
+        return
+    container.style.display = 'block'
+    container.appendChild(E.div(style='display:flex'))
+    images = container.lastChild
+
+    for book_id in data.books:
+        authors = data.authors[book_id].join(' & ')
+        alt=_('{} by {}').format(data.titles[book_id], authors)
+        img = E.img(alt=alt, src=absolute_path(f'get/cover/{book_id}/{data.library_id}'))
+        images.appendChild(E.div(style='margin: 0 1em',
+            E.a(img, href='javascript: void(0)', title=img.alt,
+                onclick=view_book_page.bind(None, data.library_id, book_id)
+            ),
+        ))
+
+
 # User account {{{
 
 def change_password():
@@ -313,5 +340,12 @@ def init(container_id):
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
+
+    # Newly added
+    newly = E.div(style='border-top: solid 1px currentColor; padding-top: 1em; display: none', class_='recently-read')
+    newly.appendChild(E.h2(_('Newly added…')))
+    newly_container_id = ensure_id(newly)
+    container.appendChild(newly)
+    ajax('interface-data/newly-added', newly_added_received.bind(None, newly_container_id)).send()
 
 set_default_panel_handler(init)
