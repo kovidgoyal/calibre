@@ -55,12 +55,12 @@ class ModalContainer:
         set_css(div,
             position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
             background_color='rgba(0,0,0,0.8)', z_index=MODAL_Z_INDEX + '',
-            display='none', user_select='none'
+            display='none', user_select='none', justify_content='center', align_items='center',
         )
 
         # Popup style
         set_css(div.firstChild,
-            position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
+            position='relative', display='inline-block',
             min_width='25vw', max_width='70vw',  # Needed for iPhone 5
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
@@ -115,7 +115,7 @@ class ModalContainer:
                 self.current_modal = None
                 raise
             if c.style.display is 'none':
-                set_css(c, display='block')
+                c.style.display = 'flex'
             c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
 
     def clear_current_modal(self):
