@@ -197,12 +197,12 @@ class MetadataSingleDialogBase(QDialog):
         self.manage_authors_button = QToolButton(self)
         self.manage_authors_button.setIcon(QIcon.ic('user_profile.png'))
         self.manage_authors_button.setToolTip('<p>' + _(
-            'Open the Authors Category editor. Use to rename authors and correct '
+            'Open the Manage Authors editor. Use to rename authors and correct '
             'individual author\'s sort values') + '</p>')
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series_editor_button = QToolButton(self)
-        self.series_editor_button.setToolTip(_('Open the Series Category editor'))
+        self.series_editor_button.setToolTip(_('Open the Manage Series editor'))
         self.series_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.series_editor_button.clicked.connect(self.series_editor)
         self.series = SeriesEdit(self)
@@ -239,7 +239,7 @@ class MetadataSingleDialogBase(QDialog):
 
         self.tags = TagsEdit(self)
         self.tags_editor_button = QToolButton(self)
-        self.tags_editor_button.setToolTip(_('Open the Tag editor. If Ctrl or Shift is pressed, open the Tags Category editor'))
+        self.tags_editor_button.setToolTip(_('Open the Tag editor. If Ctrl or Shift is pressed, open the Manage Tags editor'))
         self.tags_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.tags_editor_button.clicked.connect(self.tags_editor)
         self.tags.tag_editor_requested.connect(self.tags_editor)
@@ -267,7 +267,7 @@ class MetadataSingleDialogBase(QDialog):
         self.update_paste_identifiers_menu()
 
         self.publisher_editor_button = QToolButton(self)
-        self.publisher_editor_button.setToolTip(_('Open the Publishers Category editor'))
+        self.publisher_editor_button.setToolTip(_('Open the Manage Publishers editor'))
         self.publisher_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.publisher_editor_button.clicked.connect(self.publisher_editor)
         self.publisher = PublisherEdit(self)

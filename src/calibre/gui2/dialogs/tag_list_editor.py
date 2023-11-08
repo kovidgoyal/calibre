@@ -347,10 +347,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.current_links = {}
 
         # Put the category name into the title bar
-        t = self.windowTitle()
         self.category_name = cat_name
         self.category = category
-        self.setWindowTitle(t + ' (' + cat_name + ')')
+        self.setWindowTitle(_('Manage {}').format(cat_name))
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
