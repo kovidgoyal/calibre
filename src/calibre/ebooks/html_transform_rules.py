@@ -243,7 +243,10 @@ def empty(tag):
 
 
 def parse_start_tag(text):
-    tag = parse(text, namespace_elements=True, fragment_context='div')[0]
+    try:
+        tag = parse(text, namespace_elements=True, fragment_context='div')[0]
+    except IndexError as e:
+        raise ValueError(_('No tag found in: {}. The tag specification must be of the form <tag> for example: <p>')) from e
     return {'tag': tag.tag, 'attrib': tag.items()}
 
 
