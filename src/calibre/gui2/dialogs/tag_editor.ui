@@ -38,7 +38,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>&amp;Add item:</string>
+        <string>&amp;Apply item:</string>
        </property>
        <property name="buddy">
         <cstring>add_tag_input</cstring>

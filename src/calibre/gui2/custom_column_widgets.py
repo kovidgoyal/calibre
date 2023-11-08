@@ -524,10 +524,10 @@ class MultipleWidget(QWidget):
         if name is None:
             name = _('items')
         if only_manage_items:
-            self.editor_button.setToolTip(_('Open the {} Category editor').format(name))
+            self.editor_button.setToolTip(_('Open the Manage {} window').format(name))
         else:
-            self.editor_button.setToolTip(_('Open the {} editor. If Ctrl or Shift '
-                                            'is pressed, open the {} Category editor').format(name, name))
+            self.editor_button.setToolTip(_('Open the {0} editor. If Ctrl or Shift '
+                                            'is pressed, open the Manage {0} window').format(name))
         self.editor_button.setIcon(QIcon.ic('chapters.png'))
         layout.addWidget(self.editor_button)
         self.setLayout(layout)
