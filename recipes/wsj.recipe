@@ -35,6 +35,7 @@ class WSJ(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'News and current affairs'
     language = 'en'
+    masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
 
     compress_news_images = True
     compress_news_images_auto_size = 7
