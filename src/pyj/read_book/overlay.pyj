@@ -319,7 +319,8 @@ class MainOverlay:  # {{{
                     ui_operations.close_book()
             , 'home')
             library_action = ac(_('Library'), _('Return to the library page'), self.overlay.show_library, 'library')
-            actions_div.insertBefore(E.ul(home_action, library_action), actions_div.firstChild)
+            book_action = ac(_('Book'), _('Return to the book\'s page'), self.overlay.show_book_page, 'book')
+            actions_div.insertBefore(E.ul(home_action, library_action, book_action), actions_div.firstChild)
         full_screen_actions = []
         if runtime.is_standalone_viewer:
             text = _('Exit full screen') if runtime.viewer_in_full_screen else _('Enter full screen')
@@ -846,6 +847,11 @@ class Overlay:
         self.hide_current_panel()
         book = self.view.book
         show_panel('book_list', {'library_id': book.key[0], 'book_id': book.key[1] + ''}, replace=False)
+        ui_operations.close_book()
+
+    def show_book_page(self):
+        self.hide_current_panel()
+        self.view.open_book_page()
         ui_operations.close_book()
 
     def show_font_size_chooser(self):
