@@ -529,7 +529,7 @@ class TagBrowserMixin:  # {{{
         db = self.library_view.model().db
         get_authors_func = partial(self.get_book_ids_in_vl_or_selection, db=db, category='authors')
         if lookup_author:
-            for t in get_authors_func(use_virtual_library=False):
+            for t in get_authors_func(None):
                 if t[1] == id_:
                     id_ = t[0]
                     break
