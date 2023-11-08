@@ -26,6 +26,7 @@ from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
+    safe_open_url,
 )
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.flow_toolbar import create_flow_toolbar
@@ -1030,6 +1031,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
                 align_menu.addSeparator()
                 align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image')).triggered.connect(partial(self.remove_image_at, c.position()))
+        link_name = self.document().documentLayout().anchorAt(QPointF(ev.pos()))
+        if link_name:
+            menu.addAction(QIcon.ic('insert-link.png'), _('Open link'), partial(safe_open_url, QUrl(link_name)))
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
