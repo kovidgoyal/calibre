@@ -302,9 +302,9 @@ Similarly, you can start the E-book viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
 
-The e-book-editor can be started as::
+The e-book editor can be started as::
 
-    calibre-debug -t /path/to/be/edited
+    calibre-debug --edit-book /path/to/be/edited
 
 Using an interactive Python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
