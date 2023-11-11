@@ -143,7 +143,7 @@ class NatGeo(BasicNewsRecipe):
         self.log('Downloading ', url)
         self.timefmt = ' [' + edition + ']'
         soup = self.index_to_soup(url)
-        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-magazine-\S+?\.jpg', soup.decode('utf-8'))
+        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
         self.cover_url = png[0] + '?w=1000&h=1000'
 
         name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
@@ -179,3 +179,9 @@ class NatGeo(BasicNewsRecipe):
             # for high res images use '?w=2000&h=2000'
             img['src'] = img['src'] + '?w=1200&h=1200'
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        summ = soup.find(attrs={'class':'byline'})
+        if summ:
+            article.summary = self.tag_to_string(summ)
+            article.text_summary = self.tag_to_string(summ)

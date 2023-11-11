@@ -52,6 +52,10 @@ class toiprint(BasicNewsRecipe):
         return cover
 
     def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
         url = index + '/DayIndex/' + date_ + '_' + le + '.json'
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
@@ -73,7 +77,7 @@ class toiprint(BasicNewsRecipe):
                     if 'ArticleName' not in art:
                         continue
                     url = art['ArticleName']
-                    title = art.get('ArticleTitle', 'unknown').replace('<br>', '')
+                    title = art.get('ArticleTitle', 'unknown').replace('<br>', '').replace('<br/>', '')
                     if art.get('ColumnTitle', '') == '':
                         desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ArticleBody', '')
                     else:
