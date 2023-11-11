@@ -2902,7 +2902,26 @@ class Cache:
                 except:
                     continue
                 if name and path:
-                    new_size = self.backend.apply_to_format(book_id, path, name, fmt, partial(doit, fmt, mi))
+                    try:
+                        new_size = self.backend.apply_to_format(book_id, path, name, fmt, partial(doit, fmt, mi))
+                    except Exception as e:
+                        if report_error is not None:
+                            tb = traceback.format_exc()
+                            if iswindows and isinstance(e, PermissionError) and e.filename and isinstance(e.filename, str):
+                                from calibre_extensions import winutil
+                                try:
+                                    p = winutil.get_processes_using_files(e.filename)
+                                except OSError:
+                                    pass
+                                else:
+                                    path_map = {x['path']: x for x in p}
+                                    tb = _('Could not open the file: "{}". It is already opened in the following programs:').format(e.filename)
+                                    for path, x in path_map.items():
+                                        tb += '\n' + f'{x["app_name"]}: {path}'
+                            report_error(mi, fmt, tb)
+                            new_size = None
+                        else:
+                            raise
                     if new_size is not None:
                         self.format_metadata_cache[book_id].get(fmt, {})['size'] = new_size
                         max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, new_size, self.backend)

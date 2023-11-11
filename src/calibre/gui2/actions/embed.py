@@ -124,5 +124,10 @@ class EmbedAction(InterfaceAction):
         def report_error(mi, fmt, tb):
             mi.book_id = book_id
             errors.append((mi, fmt, tb))
-        db.embed_metadata((book_id,), only_fmts=only_fmts, report_error=report_error)
+        try:
+            db.embed_metadata((book_id,), only_fmts=only_fmts, report_error=report_error)
+        except Exception:
+            import traceback
+            mi = db.get_metadata(book_id)
+            report_error(mi, '', traceback.format_exc())
         self.job_data = (i + 1, book_ids, pd, only_fmts, errors)
