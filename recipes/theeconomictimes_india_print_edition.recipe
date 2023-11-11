@@ -58,6 +58,10 @@ class TheEconomicTimes(BasicNewsRecipe):
     ]
 
     def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
         soup = self.index_to_soup(
             'https://economictimes.indiatimes.com/print_edition.cms'
         )

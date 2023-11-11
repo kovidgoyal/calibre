@@ -135,6 +135,11 @@ class NatGeo(BasicNewsRecipe):
         .auth, .time { font-size:small; color:#5c5c5c; }
     '''
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.nationalgeographic.com/magazine/')
+        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
+        return png[0] + '?w=1000&h=1000'
+
     def parse_index(self):
         pages = [
             'https://www.nationalgeographic.com/animals',
@@ -176,3 +181,9 @@ class NatGeo(BasicNewsRecipe):
             # for high res images use '?w=2000&h=2000'
             img['src'] = img['src'] + '?w=1000&h=1000'
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        summ = soup.find(attrs={'class':'byline'})
+        if summ:
+            article.summary = self.tag_to_string(summ)
+            article.text_summary = self.tag_to_string(summ)
