@@ -523,7 +523,7 @@ the color of the blinking cursor.</p>
     Namespace prefixes in XML and constants in CSS
 
 {}
-    Non-breaking spaces/hyphens in HTML
+    Non–breaking\xa0spaces/hyphens in HTML
 
 {}
     Syntax errors such as <this <>
