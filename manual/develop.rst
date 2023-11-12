@@ -179,7 +179,7 @@ Setting this environment variable means that calibre will now load all its Pytho
 That's it! You are now ready to start hacking on the calibre code. For example, open the file :file:`src\\calibre\\__init__.py`
 in your favorite editor and add the line::
 
-    print ("Hello, world!")
+    print("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -259,7 +259,7 @@ Setting this environment variable means that calibre will now load all its Pytho
 That's it! You are now ready to start hacking on the calibre code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
 
-    print ("Hello, world!")
+    print("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -406,7 +406,7 @@ you can also directly import calibre, as follows::
     import init_calibre
     import calibre
 
-    print calibre.__version__
+    print(calibre.__version__)
 
 It is essential that you import the init_calibre module before any other calibre modules/packages as
 it sets up the interpreter to run calibre code.
