@@ -57,8 +57,7 @@ class TagBrowserMixin:  # {{{
                 return ''
 
         def get_icon(cat_name):
-            from calibre.gui2.ui import get_gui
-            icon = get_gui().tags_view.model().category_custom_icons.get(cat_name, None)
+            icon = self.tags_view.model().category_custom_icons.get(cat_name, None)
             if not icon:
                 from calibre.library.field_metadata import category_icon_map
                 icon = QIcon.ic(category_icon_map.get(cat_name) or category_icon_map['custom:'])
