@@ -331,7 +331,7 @@ class TextEdit(PlainTextEdit):
     def update_extra_selections(self, instant=True):
         sel = []
         if self.current_cursor_line is not None:
-            sel.append(self.current_cursor_line)
+            sel.extend(self.current_cursor_line)
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
         if instant and not self.highlighter.has_requests and self.smarts is not None:
@@ -627,7 +627,24 @@ class TextEdit(PlainTextEdit):
         sel.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
-        self.current_cursor_line = sel
+        self.current_cursor_line = [sel]
+
+        # apply any formats that have a backgroud over the cursor line format
+        # to ensure they are visible
+        c = self.textCursor()
+        block = c.block()
+        c.clearSelection()
+        c.select(QTextCursor.SelectionType.LineUnderCursor)
+        start = min(c.anchor(), c.position())
+        length = max(c.anchor(), c.position()) - start
+        for f in self.highlighter.formats_for_line(block, start, length):
+            sel = QTextEdit.ExtraSelection()
+            c = self.textCursor()
+            c.setPosition(f.start + block.position())
+            c.setPosition(c.position() + f.length, QTextCursor.MoveMode.KeepAnchor)
+            sel.cursor, sel.format = c, f.format
+            self.current_cursor_line.append(sel)
+
         self.update_extra_selections(instant=False)
         # Update the cursor line's line number in the line number area
         try:

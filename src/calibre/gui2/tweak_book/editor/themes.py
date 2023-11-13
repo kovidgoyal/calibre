@@ -66,7 +66,7 @@ SOLARIZED = \
     Statement    fg={green} bold
     Keyword      fg={green}
     Special      fg={red}
-    SpecialCharacter bg={base02}
+    SpecialCharacter bg={base03}
 
     Error        us=wave uc={red}
     SpellError   us=wave uc={orange}
@@ -113,7 +113,7 @@ THEMES = {
     Special      fg={special}
     Error        us=wave uc=red
     SpellError   us=wave uc=orange
-    SpecialCharacter bg={cursor_loc}
+    SpecialCharacter bg=666666
     Link         fg=cyan
     BadLink      fg={string} us=wave uc=red
 
@@ -160,7 +160,7 @@ THEMES = {
     Statement    fg={keyword}
     Keyword      fg={keyword}
     Special      fg={special} italic
-    SpecialCharacter bg={cursor_loc}
+    SpecialCharacter bg=afafaf
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
     Link         fg=blue

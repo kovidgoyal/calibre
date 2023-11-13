@@ -4,13 +4,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict, deque
+from qt.core import (
+    QTextBlock, QTextBlockUserData, QTextCursor, QTextFormat, QTextLayout, QTimer,
+)
 
-from qt.core import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
-
-from ..themes import highlight_to_char_format
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
 from polyglot.builtins import iteritems
+
+from ..themes import highlight_to_char_format
 
 
 def run_loop(user_data, state_map, formats, text):
@@ -240,3 +242,11 @@ class SyntaxHighlighter:
                 elif r.start + r.length >= preedit_start:
                     r.length += preedit_length
         layout.setFormats(formats)
+
+    def formats_for_line(self, block: QTextBlock, start, length):
+        layout = block.layout()
+        start_in_block = start - block.position()
+        limit = start_in_block + length
+        for f in layout.formats():
+            if f.start >= start_in_block and f.start < limit and f.format.hasProperty(QTextFormat.Property.BackgroundBrush):
+                yield f
