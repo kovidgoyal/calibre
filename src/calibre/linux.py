@@ -166,7 +166,7 @@ except NameError:
 sys.stdin = open('/dev/tty')
 
 if os.geteuid() != euid:
-    print ('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
+    print('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
     if raw_input('Proceed anyway? [y/n]:').lower() != 'y':
         raise SystemExit(1)
 
@@ -181,23 +181,23 @@ for f in {mime_resources!r}:
     file = os.path.join(dummy_mime_path, f)
     open(file, 'w').close()
     cmd = ['xdg-mime', 'uninstall', file]
-    print ('Removing mime resource:', f)
+    print('Removing mime resource:', f)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove mime resource', f)
+        print('WARNING: Failed to remove mime resource', f)
 
 for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (sys.argv[-1], frozen_path, dummy_mime_path):
     if not x or not os.path.exists(x):
         continue
-    print ('Removing', x)
+    print('Removing', x)
     try:
         if os.path.isdir(x):
             shutil.rmtree(x)
         else:
             os.unlink(x)
     except Exception as e:
-        print ('Failed to delete', x)
-        print ('\t', e)
+        print('Failed to delete', x)
+        print('\t', e)
 
 icr = {icon_resources!r}
 mimetype_icons = []
@@ -206,10 +206,10 @@ def remove_icon(context, name, size, update=False):
     cmd = ['xdg-icon-resource', 'uninstall', '--context', context, '--size', size, name]
     if not update:
         cmd.insert(2, '--noupdate')
-    print ('Removing icon:', name, 'from context:', context, 'at size:', size)
+    print('Removing icon:', name, 'from context:', context, 'at size:', size)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove icon', name)
+        print('WARNING: Failed to remove icon', name)
 
 for i, (context, name, size) in enumerate(icr):
     if context == 'mimetypes':
@@ -220,12 +220,12 @@ for i, (context, name, size) in enumerate(icr):
 mr = {menu_resources!r}
 for f in mr:
     cmd = ['xdg-desktop-menu', 'uninstall', f]
-    print ('Removing desktop file:', f)
+    print('Removing desktop file:', f)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove menu item', f)
+        print('WARNING: Failed to remove menu item', f)
 
-print ()
+print()
 
 if mimetype_icons and raw_input('Remove the e-book format icons? [y/n]:').lower() in ['', 'y']:
     for i, (name, size) in enumerate(mimetype_icons):

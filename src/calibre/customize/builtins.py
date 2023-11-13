@@ -1964,12 +1964,12 @@ if __name__ == '__main__':
         ):
             if x in sys.modules:
                 ret = 1
-                print (x, 'has been loaded by a plugin')
+                print(x, 'has been loaded by a plugin')
         if ret:
-            print ('\\nA good way to track down what is loading something is to run'
+            print('\\nA good way to track down what is loading something is to run'
             ' python -c "import init_calibre; import calibre.customize.builtins"')
             print()
-        print ('Time taken to import all plugins: %.2f'%t)
+        print('Time taken to import all plugins: %.2f'%t)
         sys.exit(ret)
 
         ''')])
