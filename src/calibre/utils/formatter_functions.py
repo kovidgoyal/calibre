@@ -2046,6 +2046,29 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
         return ascii_text(source)
 
 
+class BuiltinGetLink(BuiltinFormatterFunction):
+    name = 'get_link'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _("get_link(field_name, field_value) -- fetch the link for "
+                      "field 'field_name' with value 'field_value'. If there is "
+                      "no attached link, return ''. Example: "
+                      "get_link('tags', 'Fiction') returns the link attached to "
+                      "the tag 'Fiction'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+        db = self.get_database(mi).new_api
+        try:
+            link = None
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                link = db.link_for(field_name, item_id)
+            return link if link is not None else ''
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
 class BuiltinAuthorLinks(BuiltinFormatterFunction):
     name = 'author_links'
     arg_count = 2
@@ -2609,6 +2632,7 @@ _formatter_builtins = [
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
+    BuiltinGetLink(),
     BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
     BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),

@@ -561,6 +561,24 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``formats_paths()`` -- return a comma-separated list of colon-separated items ``FMT:PATH`` giving the full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_sizes()`` -- return a comma-separated list of colon-separated ``FMT:SIZE`` items giving the sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``fractional_part(x)`` -- returns the value after the decimal point. For example, ``fractional_part(3.14)`` returns ``0.14``. Throws an exception if ``x`` is not a number.
+* ``get_link(field_name, field_value)`` -- fetch the link for field ``field_name`` with value ``field_value``. If there is no attached link, return the empty string. Examples:
+
+ * The following returns the link attached to the tag ``Fiction``::
+
+    get_link('tags', 'Fiction')
+
+ * This template makes a list of the links for all the tags associated with a book in the form ``value:link, ...``::
+
+    program:
+     ans = '';
+     for t in $tags:
+         l = get_link('tags', t);
+         if l then
+             ans = list_join(', ', ans, ',', t & ':' & get_link('tags', t), ',')
+         fi
+     rof;
+     ans
+
 * ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
 * ``has_extra_files([pattern])`` -- returns the count of extra files, otherwise '' (the empty string). If the optional parameter ``pattern`` (a regular expression) is supplied then the list is filtered to files that match ``pattern`` before the files are counted. The pattern match is case insensitive. See also the functions ``extra_file_names()``, ``extra_file_size()`` and ``extra_file_modtime()``. This function can be used only in the GUI.
 * ``identifier_in_list(val, id_name [, found_val, not_found_val])`` -- treat ``val`` as a list of identifiers separated by commas. An identifier has the format ``id_name:value``. The ``id_name`` parameter is the id_name text to search for, either ``id_name`` or ``id_name:regexp``. The first case matches if there is any identifier matching that id_name. The second case matches if id_name matches an identifier and the regexp matches the identifier's value. If ``found_val`` and ``not_found_val`` are provided then if there is a match then return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and ``not_found_val`` are not provided then if there is a match then return the ``identifier:value`` pair, otherwise the empty string (``''``).
