@@ -268,8 +268,10 @@ def add_catalog(cache, path, title, dbapi=None):
                 db_id = cache._create_book_entry(mi, apply_import_tags=False)
                 new_book_added = True
             else:
-                if not mi.tags or _('Catalog') not in mi.tags:
-                    mi.tags.append(_('Catalog'))
+                tags = list(cache._field_for('tags', db_id) or ())
+                if _('Catalog') not in tags:
+                    tags.append(_('Catalog'))
+                mi.tags = tags
                 cache._set_metadata(db_id, mi)
         cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
 
