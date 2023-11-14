@@ -27,7 +27,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 2)
+current_version = (1, 2, 3)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -368,7 +368,9 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
 def google_specialize_browser(br):
     with webcache_lock:
         if not hasattr(br, 'google_consent_cookie_added'):
-            br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+            # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
+            br.set_simple_cookie('CONSENT', 'PENDING+987', '.google.com', path='/')
+            br.set_simple_cookie('SOCS','CAESHAgBEhJnd3NfMjAyMzA4MTAtMF9SQzIaAmRlIAEaBgiAo_CmBg', '.google.com', path='/')
             br.google_consent_cookie_added = True
     return br
 
