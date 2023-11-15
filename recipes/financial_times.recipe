@@ -39,6 +39,7 @@ class ft(BasicNewsRecipe):
     ]
 
     remove_tags = [
+        dict(name=['source', 'svg', 'button']),
         dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
         dict(attrs={'data-layout-name':'card'}),
         classes('in-article-advert')
@@ -80,13 +81,13 @@ class ft(BasicNewsRecipe):
     open = open_novisit
 
     feeds = [
+        ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('World', 'https://www.ft.com/world?format=rss'),
         ('US', 'https://www.ft.com/us?format=rss'),
         ('Companies', 'https://www.ft.com/companies?format=rss'),
         ('Tech', 'https://www.ft.com/technology?format=rss'),
         ('Markets', 'https://www.ft.com/markets?format=rss'),
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
-        ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
         ('How to spend it', 'https://www.ft.com/htsi?format=rss'),
     ]
