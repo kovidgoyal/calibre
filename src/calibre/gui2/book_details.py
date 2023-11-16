@@ -972,7 +972,7 @@ class BookInfo(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
     def __init__(self, vertical, parent=None):
-        HTMLDisplay.__init__(self, parent)
+        HTMLDisplay.__init__(self, parent=parent, save_resources_in_document=False)
         self.vertical = vertical
         self.anchor_clicked.connect(self.link_activated)
         for x, icon in [

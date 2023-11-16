@@ -520,8 +520,9 @@ class HTMLDisplay(QTextBrowser):
     anchor_clicked = pyqtSignal(object)
     notes_resource_scheme = ''  # set to scheme to use to load resources for notes from the current db
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, save_resources_in_document=True):
         QTextBrowser.__init__(self, parent)
+        self.save_resources_in_document = save_resources_in_document
         self.last_set_html = ''
         self.default_css = self.external_css = ''
         app = QApplication.instance()
@@ -586,11 +587,13 @@ class HTMLDisplay(QTextBrowser):
                         '890000000a49444154789c6300010000'
                         '0500010d0a2db40000000049454e44ae'
                         '426082'))
-                    self.document().addResource(rtype, qurl, r)
+                    if self.save_resources_in_document:
+                        self.document().addResource(rtype, qurl, r)
                     return r
             else:
                 r = QByteArray(data)
-                self.document().addResource(rtype, qurl, r)
+                if self.save_resources_in_document:
+                    self.document().addResource(rtype, qurl, r)
                 return r
         elif qurl.scheme() == 'calibre-icon':
             r = QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
@@ -604,7 +607,8 @@ class HTMLDisplay(QTextBrowser):
                 resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
                 if resource is not None:
                     r = QByteArray(resource['data'])
-                    self.document().addResource(rtype, qurl, r)
+                    if self.save_resources_in_document:
+                        self.document().addResource(rtype, qurl, r)
                     return r
         else:
             return QTextBrowser.loadResource(self, rtype, qurl)
