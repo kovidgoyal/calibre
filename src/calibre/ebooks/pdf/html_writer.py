@@ -75,7 +75,15 @@ def create_skeleton(container):
     spine_name = tuple(container.spine_names)[-1][0]
     root = container.parsed(spine_name)
     root = copy.deepcopy(root)
-    body = last_tag(root)
+    body = None
+    for child in tuple(root.iterchildren('*')):
+        if body is None:
+            if child.tag == XHTML('body') or child.tag == 'body':
+                body = child
+        else:
+            root.remove(child)
+    if body is None:
+        body = last_tag(root)
     body.text = body.tail = None
     del body[:]
     name = container.add_file(spine_name, b'', modify_name_if_needed=True)
@@ -899,7 +907,7 @@ def test_merge_fonts():
 PAGE_NUMBER_TEMPLATE = '<footer><div style="margin: auto">_PAGENUM_</div></footer>'
 
 
-def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress, toc=None):
+def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress, toc, log):
     header_template, footer_template = opts.pdf_header_template, opts.pdf_footer_template
     if not footer_template and opts.pdf_page_numbers:
         footer_template = PAGE_NUMBER_TEMPLATE
@@ -1055,7 +1063,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             div.append(format_template(footer_template, page_num, margins.bottom))
 
     container.commit()
-    # print(open(job[0]).read())
+    # print(container.raw_data(name))
     results = manager.convert_html_files([job], settle_time=1)
     data = results[name]
     if not isinstance(data, bytes):
@@ -1065,8 +1073,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     first_page_num = pdf_doc.page_count()
     num_pages = doc.page_count()
     if first_page_num != num_pages:
-        raise ValueError('The number of header/footers pages ({}) != number of document pages ({})'.format(
-            num_pages, first_page_num))
+        raise ValueError(f'The number of header/footers pages ({num_pages}) < number of document pages ({first_page_num})')
     pdf_doc.append(doc)
     pdf_doc.impose(1, first_page_num + 1, num_pages)
     report_progress(0.9, _('Headers and footers added'))
@@ -1176,7 +1183,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     add_header_footer(
         manager, opts, pdf_doc, container,
         page_number_display_map, page_layout, page_margins_map,
-        pdf_metadata, report_progress, toc if has_toc else None)
+        pdf_metadata, report_progress, toc if has_toc else None, log)
 
     num_removed = remove_unused_fonts(pdf_doc)
     if num_removed:
