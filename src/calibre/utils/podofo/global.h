@@ -130,8 +130,7 @@ object_as_reference(const PdfObject *o) {
 }
 
 // NoMetadataUpdate needed to avoid PoDoFo clobbering the /Info and XMP metadata with its own nonsense
-// NoCollectGarbage needed to avoid slowdowns on writing, see https://github.com/podofo/podofo/issues/108
-static const PdfSaveOptions save_options = PdfSaveOptions::NoMetadataUpdate | PdfSaveOptions::NoCollectGarbage;
+static const PdfSaveOptions save_options = PdfSaveOptions::NoMetadataUpdate;
 
 class PdfReferenceHasher {
     public:
