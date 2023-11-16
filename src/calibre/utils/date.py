@@ -104,7 +104,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     if isinstance(date_string, bytes):
         date_string = date_string.decode(preferred_encoding, 'replace')
     if default is None:
-        func = datetime.utcnow if assume_utc else datetime.now
+        func = utcnow if assume_utc else now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
     if iso_pat().match(date_string) is not None:
@@ -190,10 +190,7 @@ def qt_from_dt(d, as_utc=False, assume_utc=False):
 
 
 def fromtimestamp(ctime, as_utc=True):
-    dt = datetime.utcfromtimestamp(ctime).replace(tzinfo=_utc_tz)
-    if not as_utc:
-        dt = dt.astimezone(_local_tz)
-    return dt
+    return datetime.fromtimestamp(ctime, _utc_tz if as_utc else _local_tz)
 
 
 def fromordinal(day, as_utc=True):
@@ -250,16 +247,16 @@ def as_utc(date_time, assume_utc=True):
 
 
 def now():
-    return datetime.now().replace(tzinfo=_local_tz)
+    return datetime.now(_local_tz)
 
 
 def utcnow():
-    return datetime.utcnow().replace(tzinfo=_utc_tz)
+    return datetime.now(_utc_tz)
 
 
 def utcfromtimestamp(stamp):
     try:
-        return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+        return datetime.fromtimestamp(stamp, _utc_tz)
     except Exception:
         # Raised if stamp is out of range for the platforms gmtime function
         # For example, this happens with negative values on windows

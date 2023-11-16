@@ -26,7 +26,7 @@ Change Log:
 2011/12/29 -- first version done
 '''
 
-from calibre.utils.date import now as nowf
+from calibre.utils.date import now as nowf, utcnow
 import os
 import datetime
 import re
@@ -82,7 +82,7 @@ class STHKRecipe(BasicNewsRecipe):
     auto_cleanup = False
 
     def get_dtlocal(self):
-        dt_utc = datetime.datetime.utcnow()
+        dt_utc = utcnow()
         # convert UTC to local hk time - at HKT 4.00am, all news are available
         dt_local = dt_utc + \
             datetime.timedelta(8.0 / 24) - datetime.timedelta(4.0 / 24)
