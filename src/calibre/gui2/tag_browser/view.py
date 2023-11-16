@@ -881,11 +881,8 @@ class TagsView(QTreeView):  # {{{
 
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
-                            _('Remove %(item)s from category %(cat)s')%
-                            dict(item=display_name(tag), cat=item.py_name),
-                            partial(self.context_menu_handler,
-                                    action='delete_item_from_user_category',
-                                    key=key, index=tag_item))
+                            _('Remove {item} from category: {cat}').format(item=display_name(tag), cat=item.py_name),
+                            partial(self.context_menu_handler, action='delete_item_from_user_category', key=key, index=tag_item))
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addSeparator()
