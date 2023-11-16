@@ -70,7 +70,6 @@ class toiprint(BasicNewsRecipe):
             if sec_name == 'Advertisement':
                 continue
             self.log(sec_name)
-            articles = []
             if 'Articles' in link:
                 for art in link['Articles']:
                     section = sec_name

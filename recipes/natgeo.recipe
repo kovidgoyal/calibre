@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+import re
 from pprint import pformat
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -48,7 +49,7 @@ def parse_body(item):
     c = item['cntnt']
     if item.get('type') == 'inline':
         if c.get('cmsType') == 'listicle':
-            if 'title' in c:	
+            if 'title' in c:
                 yield '<h3>' + escape(c['title']) + '</h3>'
             yield c['text']
         elif c.get('cmsType') == 'image':
@@ -56,7 +57,7 @@ def parse_body(item):
                 yield line
         elif c.get('cmsType') == 'imagegroup':
             for imgs in c['images']:
-                for line in parse_lead_image(imgs): 
+                for line in parse_lead_image(imgs):
                     yield line
         elif c.get('cmsType') == 'pullquote':
             if 'quote' in c:
