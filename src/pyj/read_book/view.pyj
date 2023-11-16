@@ -719,6 +719,10 @@ class View:
             self.hints.show()
 
     def show_chrome(self, data):
+        if self.content_popup_overlay.is_visible:
+            self.content_popup_overlay.hide()
+            return
+        self.content_popup_overlay
         elements = {}
         if data and data.elements:
             elements = data.elements
