@@ -85,19 +85,20 @@ class TagBrowserMixin:  # {{{
             if col in range(0, len(model.column_map)):
                 current_cat = model.column_map[col]
                 if current_cat in ('authors', 'series', 'publisher', 'tags') or current_cat in cust_cats:
-                    m.addAction(get_icon(current_cat), cat_display_name(current_cat),
-                                menu_func(current_cat, None))
+                    cdn = cat_display_name(current_cat) or current_cat
+                    m.addAction(get_icon(current_cat), cdn, menu_func(current_cat, None))
                     proxy_md = db.new_api.get_proxy_metadata(db.id(idx.row()))
                     items = proxy_md.get(current_cat)
                     if isinstance(items, str):
                         items = list((items,))
                     if items:
+                        items_title = _('{category} for current book').format(category=cdn)
                         if len(items) > 4:
-                            im = QMenu(_('Items on book'), m)
+                            im = QMenu(items_title, m)
                             im.setIcon(get_icon(current_cat))
                             m.addMenu(im)
                         else:
-                            m.addSection(_('Items on book'))
+                            m.addSection(items_title)
                             im = m
                         for item in sorted(items, key=sort_key):
                             im.addAction(get_icon(current_cat), item, menu_func(current_cat, item))
