@@ -32,7 +32,7 @@ from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_li
 from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
@@ -542,6 +542,16 @@ class Background(QWidget):  # {{{
 # }}}
 
 
+class LanguageSetting(Setting):
+
+    def commit(self):
+        val = self.get_gui_val()
+        oldval = self.get_config_val()
+        if val != oldval:
+            gprefs.set('last_used_language', oldval)
+        return super().commit()
+
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     size_calculated = pyqtSignal(object)
@@ -630,7 +640,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one
         choices = [(get_language(lang), lang)] + choices
-        r('language', prefs, choices=choices, restart_required=True)
+        lul = gprefs.get('last_used_language')
+        if lul and (lul in available_translations() or lul in ('en', 'eng')):
+            choices.insert(1, ((get_language(lul), lul)))
+        r('language', prefs, choices=choices, restart_required=True, setting=LanguageSetting)
 
         r('show_avg_rating', config)
         r('disable_animations', config)
