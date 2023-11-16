@@ -142,7 +142,10 @@ class FTSTest(BaseTest):
         self.ae(conn.search("mess"), [("你don't叫>mess<",)])
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
-        self.ae(conn.search("叫"), [("你don't>叫<mess",)])
+        import apsw
+        if apsw.sqlitelibversion() != '3.44.0':
+            # see https://www.sqlite.org/forum/forumpost/d16aeb397d
+            self.ae(conn.search("叫"), [("你don't>叫<mess",)])
     # }}}
 
     def test_fts_stemming(self):  # {{{
