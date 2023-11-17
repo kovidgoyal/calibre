@@ -5,7 +5,7 @@
 import bz2
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.request import urlopen
 
 
@@ -49,7 +49,7 @@ def get_data():
     ans = {
         'common_user_agents': common,
         'user_agents_popularity': ua_freq_map,
-        'timestamp': datetime.utcnow().isoformat() + '+00:00',
+        'timestamp': datetime.now(timezone.utc).isoformat(),
     }
     ans['desktop_platforms'] = list(all_desktop_platforms(ans['common_user_agents']))
     return ans

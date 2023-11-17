@@ -16,7 +16,7 @@ from collections import OrderedDict
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.BeautifulSoup import NavigableString
-from calibre.utils.date import dt_factory, local_tz
+from calibre.utils.date import dt_factory, local_tz, utcfromtimestamp
 
 regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|
@@ -216,7 +216,7 @@ class HoustonChronicle(BasicNewsRecipe):
         summary = self.get_article_description_from_doc(soup)
         article_date = self.get_published_time_from_doc(soup)
         if article_date is not None:
-            article_timestamp = float((article_date - datetime.utcfromtimestamp(0)).total_seconds())
+            article_timestamp = float((article_date - utcfromtimestamp(0)).total_seconds())
             article.date = article_timestamp
             article.utctime = dt_factory(article_date.timetuple(), assume_utc=True, as_utc=True)
             article.localtime = article.utctime.astimezone(local_tz)

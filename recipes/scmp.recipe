@@ -182,9 +182,8 @@ class SCMP(BasicNewsRecipe):
             body = v
 
         authors = [content_service[a["id"]]["name"] for a in content["authors"]]
-        date_published = datetime.utcfromtimestamp(
-            content["publishedDate"] / 1000
-        ).replace(tzinfo=timezone.utc)
+        date_published = datetime.fromtimestamp(
+            content["publishedDate"] / 1000, timezone.utc)
         date_published_loc = date_published.astimezone(
             timezone(offset=timedelta(hours=8))  # HK time
         )

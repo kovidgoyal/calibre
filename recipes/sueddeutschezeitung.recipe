@@ -11,6 +11,7 @@ www.sueddeutsche.de/sz/
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
 import datetime
+from calibre.utils.date import utcnow
 
 
 class SueddeutcheZeitung(BasicNewsRecipe):
@@ -26,7 +27,7 @@ class SueddeutcheZeitung(BasicNewsRecipe):
     remove_empty_feeds = True
     delay = 1
     cover_url = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + \
-        (datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        (utcnow() + datetime.timedelta(hours=1)
          ).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
     PREFIX = 'http://epaper.sueddeutsche.de'
     INDEX = PREFIX + '/app/epaper/textversion/'
