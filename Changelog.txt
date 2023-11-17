@@ -23,6 +23,71 @@
 # - title by author
 # }}}
 
+{{{ 7.0.0 2023-11-17
+
+:: new features
+
+- [major] For details on the major changes in calibre between 7.0 and 6.0, see https://calibre-ebook.com/new-in/sixteen
+
+- [major] The ability to add notes to any author, tag, series, etc. in calibre with links and images
+
+- [2040487] E-book viewer: Add support for HTML image maps
+
+- Content server home page: Show the three most recently added books in the default library
+
+- Content server: Add button to return to book details page at top level of controls
+
+- Content server: Book details: Open links in comments fields in the same window rather than a new window
+
+- Add a "Show items in selected books" choice to Manage tags and Manage authors
+
+- [2042804] Show the previously used language, if any, second in the language selection drop down
+
+:: bug fixes
+
+- [2043415] Metadata download: Fix downloads from Google not working in Europe because of the GDPR
+
+- [2042815] Fix editing dates with days sometimes off by one day
+
+- Edit book: Fix highlighting for special characters not visible when the cursor is on the line with the special character
+
+- [2043248] Fix embedding metadata showing infinite error dialogs on windows if a file is locked by another program
+
+- [2040074] PDF Output: Fix an error when trying to set header or footer with an input document that has invalid content after the main body
+
+- [2042791] E-book viewer: Read aloud: Fix clicking on empty spaces causing read aloud to restart from beginning of chapter
+
+- Book details: Fix Manage authors via context menu not working
+
+- [2041848] E-book viewer: Showing chrome should close an active footnote popup first and only show chrome if the user repeats the action
+
+- [2041745] Fix very slow metadata updates on some PDF files
+
+- [1262875] Catalogs: Do not erase any tags the user adds to a catalog book entry when the catalog is re-generated
+
+- [2042748] Linux installer: Fix downloading of signatures for older versions
+
+- [2041357] Fix editing non-active Virtual library changes sort of book list
+
+:: improved recipes
+- Financial Times
+- National Geographic
+- Hamilton Spectator
+- Times of India
+- MIT Tech Review
+- Bloomberg
+- Washington Post
+- Project Syndicate
+- Cumhuriyet
+- Foreign Affairs
+- Harvard Business Review
+- Wall Street Journal
+
+:: new recipes
+- Bookforum, Kirkus Reviews and Poetry Magazine by ping
+
+}}}
+
 {{{ 6.29.0 2023-10-20
 
 :: new features
