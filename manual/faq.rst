@@ -1085,7 +1085,7 @@ a modern Linux distribution, you should have no problems installing calibre onto
     because of Qt, which is used for various image processing tasks, and links
     against these libraries. If you get an ImportError about some Qt modules,
     you are likely missing some X libraries. Typical candidates are:
-    ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
+    ``libxcb-cursor0``, ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
 
 You can run the calibre server via the command::
 
