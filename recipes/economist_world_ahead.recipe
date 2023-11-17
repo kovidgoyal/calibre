@@ -69,15 +69,12 @@ def load_article_from_json(raw, root):
     E(article, 'div', data['description'], style='font-style: italic; color: #202020;')
     E(article, 'div', (data['datePublishedString'] or '') + ' | ' + (data['dateline'] or ''), style='color: gray; margin: 1em')
     main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
-    main_img_desc = safe_dict(data, 'image', 'main').get('description', '')
     if main_image_url:
         div = E(article, 'div')
         try:
             E(div, 'img', src=main_image_url)
         except Exception:
             pass
-    if main_img_desc != '':
-        div = E(article, 'figcaption', main_img_desc)
     for node in data.get('text') or ():
         process_node(node, article)
 
@@ -133,10 +130,10 @@ class Economist(BasicNewsRecipe):
     )
     extra_css = '''
         .headline {font-size: x-large;}
-        h2 { font-size: medium;  }
-        h1 { font-size: large;  }
-        em.Bold {font-weight:bold;font-style:normal; color:#202020;}
-        em.Italic {font-style:italic; color:#202020;}
+        h2 { font-size: small;  }
+        h1 { font-size: medium;  }
+        em.Bold {font-weight:bold;font-style:normal;}
+        em.Italic {font-style:italic;}
         p.xhead {font-weight:bold;}
         .pullquote {
             float: right;
@@ -185,7 +182,7 @@ class Economist(BasicNewsRecipe):
     remove_attributes = ['data-reactid', 'width', 'height']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
-    simultaneous_downloads = 1
+    delay = 1
 
     needs_subscription = False
 
@@ -254,6 +251,8 @@ class Economist(BasicNewsRecipe):
                 x.set('style', 'font-variant: small-caps')
         for x in root.xpath('//figcaption'):
             x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
