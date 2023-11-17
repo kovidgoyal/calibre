@@ -83,7 +83,15 @@ class toiprint(BasicNewsRecipe):
                         desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ColumnTitle', '')
                     self.log('\t', title, '\n\t', desc.replace('\n', ''))
                     feeds_dict[section].append({"title": title, "url": url, "description": desc})
-        return [(section, articles) for section, articles in feeds_dict.items()]
+        def sort_key(x):
+            section = x[0]
+            try:
+                return (
+                    'Front Page', 'Times Nation', 'Times Region', 'Times City'
+                ).index(section)
+            except Exception:
+                return 99999999
+        return (sorted(feeds_dict.items(), key=sort_key))
 
     def preprocess_raw_html(self, raw, *a):
         data = json.loads(raw)
