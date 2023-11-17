@@ -9,11 +9,9 @@ except ImportError:
 import json
 from html5_parser import parse
 from lxml import etree
-from collections import defaultdict
 
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
-from calibre.utils.date import parse_only_date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -131,6 +129,7 @@ class Economist(BasicNewsRecipe):
     description = (
         'The World Ahead is The Economist’s future-gazing publication. It prepares audiences for what is to '
         'come with mind-stretching insights and expert analysis—all in The Economist’s clear, elegant style.'
+        ' Best downloaded in late November.'
     )
     extra_css = '''
         .headline {font-size: x-large;}
