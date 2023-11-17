@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os
 
 
-def check_version_info(minver=(3, 7, 0)):
+def check_version_info(minver=(3, 8, 0)):
     vi = sys.version_info
     if vi < minver:
         def fmt(v):
