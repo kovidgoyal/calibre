@@ -31,7 +31,7 @@ from calibre.library.catalogs import (
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import (
-    as_local_time, format_date, is_date_undefined, now as nowf,
+    as_local_time, format_date, is_date_undefined, now as nowf, utcfromtimestamp,
 )
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
@@ -1015,7 +1015,7 @@ class CatalogBuilder:
                                     index_is_id=True)
 
                 if record_genres:
-                    if type(record_genres) is not list:
+                    if not isinstance(record_genres, list):
                         record_genres = [record_genres]
 
                     this_title['genres'] = self.filter_excluded_genres(record_genres,
@@ -2053,13 +2053,13 @@ class CatalogBuilder:
         current_date = datetime.date.fromordinal(1)
         todays_list = []
         for book in self.bookmarked_books_by_date_read:
-            bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+            bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
             if bookmark_time.day != current_date.day or \
                 bookmark_time.month != current_date.month or \
                 bookmark_time.year != current_date.year:
                 dtc = _add_books_to_html_by_day(todays_list, dtc)
                 todays_list = []
-                current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                current_date = utcfromtimestamp(book['bookmark_timestamp']).date()
             todays_list.append(book)
 
         # Add the last day's list
@@ -3509,7 +3509,7 @@ class CatalogBuilder:
                 date_range = 'Last %d days' % (self.DATE_RANGE[i])
             date_range_limit = self.DATE_RANGE[i]
             for book in self.bookmarked_books_by_date_read:
-                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
                 if (today_time - bookmark_time).days <= date_range_limit:
                     # print "generate_ncx_by_date_added: %s added %d days ago" % (book['title'], (today_time-book_time).days)
                     current_titles_list.append(book['title'])
@@ -3525,10 +3525,10 @@ class CatalogBuilder:
         # master_month_list(list,date,count)
         current_titles_list = []
         master_day_list = []
-        current_date = datetime.datetime.utcfromtimestamp(self.bookmarked_books_by_date_read[0]['bookmark_timestamp'])
+        current_date = utcfromtimestamp(self.bookmarked_books_by_date_read[0]['bookmark_timestamp'])
 
         for book in self.bookmarked_books_by_date_read:
-            bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+            bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
             if bookmark_time.day != current_date.day or \
                 bookmark_time.month != current_date.month or \
                 bookmark_time.year != current_date.year:
@@ -3536,7 +3536,7 @@ class CatalogBuilder:
                 _add_to_master_day_list(current_titles_list)
 
                 # Start the new list
-                current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                current_date = utcfromtimestamp(book['bookmark_timestamp']).date()
                 current_titles_list = [book['title']]
             else:
                 current_titles_list.append(book['title'])
@@ -4172,7 +4172,7 @@ class CatalogBuilder:
                                         index_is_id=True)
             if addendum is None:
                 addendum = ''
-            elif type(addendum) is list:
+            elif isinstance(addendum, list):
                 addendum = (', '.join(addendum))
             include_hr = eval(self.merge_comments_rule['hr'])
             if self.merge_comments_rule['position'] == 'before':
@@ -4194,7 +4194,7 @@ class CatalogBuilder:
             merged = self.db.get_field(record['id'],
                                         self.merge_comments_rule['field'],
                                         index_is_id=True)
-            if type(merged) is list:
+            if isinstance(merged, list):
                 merged = (', '.join(merged))
 
         return merged
