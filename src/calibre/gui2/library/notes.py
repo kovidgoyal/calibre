@@ -255,16 +255,17 @@ class RestrictFields(QWidget):
     def relayout(self):
         for i in range(self.l.count()):
             self.l.removeItem(self.l.itemAt(i))
-        for l in self.field_labels.values():
-            l.setVisible(False)
+        for la in self.field_labels.values():
+            la.setVisible(False)
         self.l.addWidget(self.restrict_label)
         self.l.addWidget(self.add_button)
         for field in self.restricted_fields:
             w = self.field_labels[field]
             w.setVisible(True)
             self.l.addWidget(w)
-        self.l.addWidget(self.remove_button)
         self.remove_button.setVisible(bool(self.restricted_fields))
+        self.l.addWidget(self.remove_button)
+        self.l.update()
 
     def build_add_menu(self):
         m = self.fields_menu
