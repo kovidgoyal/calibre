@@ -28,6 +28,7 @@ class Substack(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup   = True
     needs_subscription = 'optional'
+    use_embedded_content = False
 
 # Every Substack publication has an RSS feed at https://{name}.substack.com/feed.
 # The same URL provides either all posts, or all free posts + previews of paid posts,
