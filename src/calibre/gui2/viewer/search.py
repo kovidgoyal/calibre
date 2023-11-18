@@ -507,7 +507,7 @@ class SearchInput(QWidget):  # {{{
 
     def emit_search(self, backwards=False):
         boss = get_boss()
-        if boss.check_for_read_aloud(_('search result location')):
+        if boss.check_for_read_aloud(_('the location of this search result')):
             return
         vprefs[f'viewer-{self.panel_name}-case-sensitive'] = self.case_sensitive.isChecked()
         vprefs[f'viewer-{self.panel_name}-mode'] = self.query_type.currentData()
@@ -637,7 +637,7 @@ class Results(QTreeWidget):  # {{{
 
     def item_activated(self):
         boss = get_boss()
-        if boss.check_for_read_aloud(_('search result location')):
+        if boss.check_for_read_aloud(_('the location of this search result')):
             return
         i = self.currentItem()
         if i:
