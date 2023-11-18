@@ -498,8 +498,13 @@ class Notes:
                     errors.append(_('Failed to read from document for {path} with error: {error}').format(path=f'{field}:{old_item_id}', error=e))
                     report_progress('', i)
                     continue
+                parts = raw.split(SEP, 3)
                 try:
-                    doc, searchable_text, res, old_item_val = (str(x, 'utf-8') for x in raw.split(SEP, 3))
+                    if len(parts) == 4:
+                        doc, searchable_text, res, old_item_val = (str(x, 'utf-8') for x in parts)
+                    else:
+                        doc, searchable_text, res = (str(x, 'utf-8') for x in parts)
+                        old_item_val = searchable_text.split('\n')[0]
                 except Exception as err:
                     errors.append(_('Failed to parse document for: {0} with error: {1}').format(old_item_id, err))
                     report_progress('', i)
