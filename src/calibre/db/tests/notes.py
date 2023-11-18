@@ -12,6 +12,16 @@ from calibre.db.tests.base import BaseTest
 from calibre.utils.resources import get_image_path
 
 
+def test_notes_restore(self: 'NotesTest'):
+    cache, notes = self.create_notes_db()
+    authors = sorted(cache.all_field_ids('authors'))
+    doc = 'simple notes for an author'
+    h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
+    h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
+    cache.set_notes_for('authors', authors[0], doc, resource_hashes=(h1, h2))
+    doc2 = 'simple notes for an author2'
+    cache.set_notes_for('authors', authors[1], doc2, resource_hashes=(h2,))
+
 def test_notes_api(self: 'NotesTest'):
     cache, notes = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))

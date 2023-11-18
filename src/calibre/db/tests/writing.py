@@ -10,11 +10,12 @@ from collections import namedtuple
 from functools import partial
 from io import BytesIO
 
+from calibre.db.backend import FTSQueryError
+from calibre.db.constants import RESOURCE_URL_SCHEME
+from calibre.db.tests.base import IMG, BaseTest
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
-from calibre.db.tests.base import BaseTest, IMG
-from calibre.db.backend import FTSQueryError
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -322,8 +323,9 @@ class WritingTest(BaseTest):
         af(self.init_cache(cl).dirtied_cache)
 
         prev = cache.field_for('last_modified', 3)
-        import calibre.db.cache as c
         from datetime import timedelta
+
+        import calibre.db.cache as c
         utime = prev+timedelta(days=1)
         onowf = c.nowf
         c.nowf = lambda: utime
@@ -401,12 +403,14 @@ class WritingTest(BaseTest):
         with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
             f.write('recurse')
         ebefore = read_all_extra_files()
-        authors = cache.field_for('authors', 1)
-        author_id = cache.get_item_id('authors', authors[0])
-        doc = 'simple notes for an author'
+        authors = sorted(cache.all_field_ids('authors'))
         h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
-        h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
-        cache.set_notes_for('authors', author_id, doc, resource_hashes=(h1, h2))
+        h2 = cache.add_notes_resource(b'resource2', 'r2.jpg')
+        doc = f'simple notes for an author <img src="{RESOURCE_URL_SCHEME}://{h1.replace(":", "/",1)}"> '
+        cache.set_notes_for('authors', authors[0], doc, resource_hashes=(h1,))
+        doc += f'2 <img src="{RESOURCE_URL_SCHEME}://{h2.replace(":", "/",1)}">'
+        cache.set_notes_for('authors', authors[1], doc, resource_hashes=(h1,h2))
+        notes_before = {cache.get_item_name('authors', aid): cache.export_note('authors', aid) for aid in authors}
         cache.close()
         from calibre.db.restore import Restore
         restorer = Restore(cl)
@@ -418,11 +422,9 @@ class WritingTest(BaseTest):
         ae(lbefore, tuple(cache.get_all_link_maps_for_book(i) for i in book_ids))
         ae(fbefore, read_all_formats())
         ae(ebefore, read_all_extra_files())
-        ae(cache.notes_for('authors', author_id), doc)
-        ae(cache.notes_resources_used_by('authors', author_id), frozenset({h1, h2}))
-        ae(cache.get_notes_resource(h1)['data'], b'resource1')
-        ae(cache.get_notes_resource(h2)['data'], b'resource2')
-
+        authors = sorted(cache.all_field_ids('authors'))
+        notes_after = {cache.get_item_name('authors', aid): cache.export_note('authors', aid) for aid in authors}
+        ae(notes_before, notes_after)
     # }}}
 
     def test_set_cover(self):  # {{{
@@ -821,7 +823,7 @@ class WritingTest(BaseTest):
 
     def test_annotations(self):  # {{{
         'Test handling of annotations'
-        from calibre.utils.date import utcnow, EPOCH
+        from calibre.utils.date import EPOCH, utcnow
         cl = self.cloned_library
         cache = self.init_cache(cl)
         # First empty dirtied

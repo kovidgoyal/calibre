@@ -16,7 +16,7 @@ from operator import itemgetter
 from threading import Thread
 
 from calibre import force_unicode, isbytestring
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.db.backend import DB, DBPrefs
 from calibre.db.constants import METADATA_FILE_NAME, TRASH_DIR_NAME, NOTES_DIR_NAME, NOTES_DB_NAME
 from calibre.db.cache import Cache
@@ -293,9 +293,12 @@ class Restore(Thread):
         self.progress_callback(None, len(self.books))
         self.books.sort(key=itemgetter('id'))
 
-        shutil.copytree(os.path.join(self.src_library_path, NOTES_DIR_NAME), os.path.join(self.library_path, NOTES_DIR_NAME))
+        notes_dest = os.path.join(self.library_path, NOTES_DIR_NAME)
+        if os.path.exists(notes_dest):  # created by load_preferences()
+            shutil.rmtree(notes_dest)
+        shutil.copytree(os.path.join(self.src_library_path, NOTES_DIR_NAME), notes_dest)
         with suppress(FileNotFoundError):
-            os.remove(os.path.join(self.library_path, NOTES_DIR_NAME, NOTES_DB_NAME))
+            os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
 
         for i, book in enumerate(self.books):
@@ -316,6 +319,7 @@ class Restore(Thread):
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
         ndbpath = os.path.join(self.library_path, 'metadata.db')
+        sleep_time = 30 if iswindows else 0
 
         save_path = self.olddb = os.path.splitext(dbpath)[0]+'_pre_restore.db'
         if os.path.exists(save_path):
@@ -324,7 +328,33 @@ class Restore(Thread):
             try:
                 os.replace(dbpath, save_path)
             except OSError:
-                time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
+                if iswindows:
+                    time.sleep(sleep_time)  # Wait a little for dropbox or the antivirus or whatever to release the file
                 shutil.copyfile(dbpath, save_path)
                 os.remove(dbpath)
         shutil.copyfile(ndbpath, dbpath)
+
+        old_notes_path = os.path.join(self.src_library_path, NOTES_DIR_NAME)
+        new_notes_path = os.path.join(self.library_path, NOTES_DIR_NAME)
+        temp = old_notes_path + '-staging'
+        try:
+            shutil.move(new_notes_path, temp)
+        except OSError:
+            if not iswindows:
+                raise
+            time.sleep(sleep_time)  # Wait a little for dropbox or the antivirus or whatever to release the file
+            shutil.move(new_notes_path, temp)
+        try:
+            shutil.rmtree(old_notes_path)
+        except OSError:
+            if not iswindows:
+                raise
+            time.sleep(sleep_time)  # Wait a little for dropbox or the antivirus or whatever to release the file
+            shutil.rmtree(old_notes_path)
+        try:
+            shutil.move(temp, old_notes_path)
+        except OSError:
+            if not iswindows:
+                raise
+            time.sleep(sleep_time)  # Wait a little for dropbox or the antivirus or whatever to release the file
+            shutil.move(temp, old_notes_path)

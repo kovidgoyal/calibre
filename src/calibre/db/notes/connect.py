@@ -146,7 +146,7 @@ class Notes:
             for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
-    def set_backup_for(self, field_name, item_id, marked_up_text, searchable_text, resource_hashes):
+    def set_backup_for(self, field_name, item_id, item_value, marked_up_text, searchable_text, resource_hashes):
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         try:
             f = open(path, 'wb')
@@ -159,6 +159,8 @@ class Notes:
             f.write(searchable_text.encode('utf-8'))
             f.write(SEP)
             f.write('\n'.join(resource_hashes).encode('utf-8'))
+            f.write(SEP)
+            f.write(item_value.encode('utf-8'))
 
     def path_to_retired_dir_for_item(self, field_name, item_id, item_value):
         key = icu_lower(item_value or '')
@@ -255,7 +257,7 @@ class Notes:
             conn.executemany('''
                 INSERT INTO notes_db.notes_resources_link (note,resource) VALUES (?,?);
             ''', tuple((note_id, x) for x in resources_to_add))
-        self.set_backup_for(field_name, item_id, marked_up_text, searchable_text, used_resource_hashes)
+        self.set_backup_for(field_name, item_id, item_value, marked_up_text, searchable_text, used_resource_hashes)
         return note_id
 
     def get_note(self, conn, field_name, item_id):
@@ -466,11 +468,12 @@ class Notes:
         errors = []
         for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
             for rf in os.listdir(make_long_path_useable(os.path.join(self.resources_dir, subdir))):
-                name_path = os.path.join(self.resources_dir, subdir, rf + METADATA_EXT)
-                name = 'unnamed'
-                with suppress(OSError), open(make_long_path_useable(name_path)) as n:
-                    name = json.loads(n.read())['name']
-                resources[rf] = name
+                if not rf.endswith(METADATA_EXT):
+                    name_path = os.path.join(self.resources_dir, subdir, rf + METADATA_EXT)
+                    name = 'unnamed'
+                    with suppress(OSError), open(make_long_path_useable(name_path)) as n:
+                        name = json.loads(n.read())['name']
+                    resources[rf.replace('-', ':', 1)] = name
         items = {}
         for f in os.listdir(make_long_path_useable(self.backup_dir)):
             if f in self.allowed_fields:
@@ -484,35 +487,40 @@ class Notes:
         report_progress(None, total)
         for field, entries in items.items():
             table = tables[field]
-            for item_id in entries:
-                item_val = table.id_map.get(item_id)
+            rmap = {v: k for k, v in table.id_map.items()}
+            for old_item_id in entries:
                 i += 1
-                if item_val is not None:
-                    report_progress(item_val, i)
-                    try:
-                        with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(item_id)))) as f:
-                            raw = f.read()
-                            st = os.stat(f.fileno())
-                    except OSError as e:
-                        errors.append(_('Failed to read from document for {path} with error: {error}').format(path=item_val, error=e))
-                        continue
-                    try:
-                        doc, searchable_text, res = raw.split(SEP, 2)
-                    except Exception:
-                        errors.append(_('Failed to parse document for: {}').format(item_val))
-                        continue
-                    resources = frozenset(res.splitlines())
-                    missing_resources = resources - known_resources
-                    if missing_resources:
-                        errors.append(_('Some resources for {} were missing').format(item_val))
-                    resources &= known_resources
-                    try:
-                        self.set_note(conn, field, item_id, item_val, doc, resources, searchable_text, ctime=st.st_ctime, mtime=st.st_mtime)
-                    except Exception as e:
-                        errors.append(_('Failed to set note for {path} with error: {error}').format(path=item_val, error=e))
-                else:
-                    errors.append(_('Could not restore item: {} as not present in database').format(f'{field}/{item_id}'))
+                try:
+                    with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(old_item_id))), 'rb') as f:
+                        raw = f.read()
+                        st = os.stat(f.fileno())
+                except OSError as e:
+                    errors.append(_('Failed to read from document for {path} with error: {error}').format(path=f'{field}:{old_item_id}', error=e))
                     report_progress('', i)
+                    continue
+                try:
+                    doc, searchable_text, res, old_item_val = (str(x, 'utf-8') for x in raw.split(SEP, 3))
+                except Exception as err:
+                    errors.append(_('Failed to parse document for: {0} with error: {1}').format(old_item_id, err))
+                    report_progress('', i)
+                    continue
+                item_id = rmap.get(old_item_val)
+                if item_id is None:
+                    errors.append(_(
+                        'The item {old_item_val} does not exist in the {field} column in the restored database, could not restore its notes'
+                    ).format(old_item_val=old_item_val, field=field))
+                    report_progress('', i)
+                    continue
+                report_progress(old_item_val, i)
+                resources = frozenset(res.splitlines())
+                missing_resources = resources - known_resources
+                if missing_resources:
+                    errors.append(_('Some resources for {} were missing').format(old_item_val))
+                resources &= known_resources
+                try:
+                    self.set_note(conn, field, item_id, old_item_val, doc, resources, searchable_text, ctime=st.st_ctime, mtime=st.st_mtime)
+                except Exception as e:
+                    errors.append(_('Failed to set note for {path} with error: {error}').format(path=old_item_val, error=e))
         return errors
 
     def export_note(self, conn, field_name, item_id):
