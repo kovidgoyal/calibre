@@ -531,7 +531,7 @@ class HighlightsPanel(QWidget):
 
     def jump_to_highlight(self, highlight):
         boss = get_boss()
-        if boss.check_for_read_aloud(_('highlight location')):
+        if boss.check_for_read_aloud(_('the location of this highlight')):
             return
         self.request_highlight_action.emit(highlight['uuid'], 'goto')
 
@@ -548,7 +548,7 @@ class HighlightsPanel(QWidget):
 
     def edit_highlight(self):
         boss = get_boss()
-        if boss.check_for_read_aloud(_('highlight location')):
+        if boss.check_for_read_aloud(_('the location of this highlight')):
             return
         h = self.highlights.current_highlight
         if h is None:
