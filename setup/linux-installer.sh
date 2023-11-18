@@ -817,6 +817,16 @@ def check_for_libOpenGl():
     raise SystemExit('You are missing the system library libOpenGL.so.0. Try installing packages such as libopengl0')
 
 
+def check_for_libxcb_cursor():
+    import ctypes
+    try:
+        ctypes.CDLL('libxcb-cursor.so.0')
+        return
+    except Exception:
+        pass
+    raise SystemExit('You are missing the system library libxcb-cursor.so.0. Try installing packages such as libxcb-cursor0 or xcb-cursor')
+
+
 def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
     # See https://sourceware.org/glibc/wiki/Glibc%20Timeline
     import ctypes
@@ -858,6 +868,8 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
     if q[0] >= 6:
         check_for_libEGL()
         check_for_libOpenGl()
+    if q[0] >= 7:
+        check_for_libxcb_cursor()
     run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
@@ -869,7 +881,7 @@ except NameError:
 
 
 def update_intaller_wrapper():
-    # To run: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
+    # To update: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
     with open(__file__, 'rb') as f:
         src = f.read().decode('utf-8')
     wrapper = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'linux-installer.sh')
