@@ -309,11 +309,11 @@ def newly_added(ctx, rd):
     '''
     db, library_id = get_library_data(ctx, rd)[:2]
     count = int(rd.query.get('num', 3))
+    nbids = ctx.newest_book_ids(rd, db, count=count)
     with db.safe_read_lock:
-        nbids = db._newly_added_book_ids(count)
         titles = db._all_field_for('title', nbids)
         authors = db._all_field_for('authors', nbids)
-        return {'library_id': library_id, 'books': nbids, 'titles': titles, 'authors': authors}
+    return {'library_id': library_id, 'books': nbids, 'titles': titles, 'authors': authors}
 
 
 @endpoint('/interface-data/more-books', postprocess=json, methods=POSTABLE)

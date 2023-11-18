@@ -1405,8 +1405,8 @@ class Cache:
         return ret
 
     @read_api
-    def newly_added_book_ids(self, count=5) -> list[int]:
-        ids_to_sort = self._all_book_ids(list)
+    def newly_added_book_ids(self, count=5, book_ids=None) -> list[int]:
+        ids_to_sort = self._all_book_ids(list) if book_ids is None else list(book_ids)
         ids_to_sort.sort(reverse=True)
         return ids_to_sort[:count]
 
