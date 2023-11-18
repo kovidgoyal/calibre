@@ -831,7 +831,7 @@ except NameError:
     from_file = False
 
 
-def update_intaller_wrapper():
+def update_installer_wrapper():
     # To update: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
     with open(__file__, 'rb') as f:
         src = f.read().decode('utf-8')
@@ -839,7 +839,7 @@ def update_intaller_wrapper():
     with open(wrapper, 'r+b') as f:
         raw = f.read().decode('utf-8')
         nraw = re.sub(r'^# HEREDOC_START.+^# HEREDOC_END', lambda m: '# HEREDOC_START\n{}\n# HEREDOC_END'.format(src), raw, flags=re.MULTILINE | re.DOTALL)
-        if 'update_intaller_wrapper()' not in nraw:
+        if 'update_installer_wrapper()' not in nraw:
             raise SystemExit('regex substitute of HEREDOC failed')
         f.seek(0), f.truncate()
         f.write(nraw.encode('utf-8'))
@@ -871,4 +871,4 @@ def script_launch():
 if __name__ == '__main__' and from_file:
     main()
 elif __name__ == 'update_wrapper':
-    update_intaller_wrapper()
+    update_installer_wrapper()
