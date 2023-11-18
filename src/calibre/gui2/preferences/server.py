@@ -1299,13 +1299,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
-        def is_ipv6_addr(addr):
-            import socket
-            try:
-                socket.inet_pton(socket.AF_INET6, addr)
-                return True
-            except OSError:
-                return False
+        from calibre.utils.network import is_ipv6_addr
 
         prefix = self.advanced_tab.get('url_prefix') or ''
         protocol = 'https' if self.advanced_tab.has_ssl else 'http'

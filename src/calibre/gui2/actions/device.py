@@ -16,15 +16,9 @@ from calibre.utils.smtp import config as email_config
 
 
 def local_url_for_content_server():
-    def is_ipv6_addr(addr):
-        import socket
-        try:
-            socket.inet_pton(socket.AF_INET6, addr)
-            return True
-        except OSError:
-            return False
-
     from calibre.srv.opts import server_config
+    from calibre.utils.network import is_ipv6_addr
+
     opts = server_config()
     interface = opts.listen_on or '0.0.0.0'
 

@@ -508,13 +508,7 @@ class ServerLoop:
             self.setup_socket()
 
     def serve(self):
-        def is_ipv6_addr(addr):
-            import socket
-            try:
-                socket.inet_pton(socket.AF_INET6, addr)
-                return True
-            except OSError:
-                return False
+        from calibre.utils.network import is_ipv6_addr
 
         self.connection_map = {}
         if not self.socket_was_preactivated:
