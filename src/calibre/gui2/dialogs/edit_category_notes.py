@@ -245,8 +245,10 @@ class NoteEditorWidget(EditorWidget):
         self.referenced_resources = set()
         for fmt in self.document().allFormats():
             if fmt.isImageFormat():
-                digest = self.resource_digest_from_qurl(QUrl(fmt.toImageFormat().name()))
-                self.referenced_resources.add(digest)
+                qurl = QUrl(fmt.toImageFormat().name())
+                if qurl.scheme() == RESOURCE_URL_SCHEME:
+                    digest = self.resource_digest_from_qurl()
+                    self.referenced_resources.add(digest)
 
     def ask_link(self):
         c = self.textCursor()
