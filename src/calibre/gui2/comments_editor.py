@@ -7,6 +7,7 @@ import re
 import sys
 import weakref
 from collections import defaultdict
+from threading import Thread
 from contextlib import contextmanager
 from functools import partial
 from html5_parser import parse
@@ -21,14 +22,16 @@ from qt.core import (
     QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
 )
 
-from calibre import fit_image, xml_replace_entities
+from calibre import browser, fit_image, xml_replace_entities
 from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
-    safe_open_url,
+    question_dialog, safe_open_url,
 )
+from calibre.gui2 import FunctionDispatcher
 from calibre.gui2.book_details import resolved_css
+from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.flow_toolbar import create_flow_toolbar
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
@@ -282,6 +285,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
     insert_images_separately = False
+    can_store_images = False
 
     @property
     def readonly(self):
@@ -561,8 +565,86 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.focus_self()
 
     def do_paste(self):
+        images_before = set()
+        for fmt in self.document().allFormats():
+            if fmt.isImageFormat():
+                images_before.add(fmt.toImageFormat().name())
         self.paste()
+        if self.can_store_images:
+            added = set()
+            for fmt in self.document().allFormats():
+                if fmt.isImageFormat():
+                    name = fmt.toImageFormat().name()
+                    if name not in images_before and name.partition(':')[0] in ('https', 'http'):
+                        added.add(name)
+            if added and question_dialog(
+                self, _('Download images'), _(
+                    'Download all remote images in the pasted content?')):
+                self.download_images(added)
         self.focus_self()
+
+    def download_images(self, urls):
+        from calibre.web import get_download_filename_from_response
+        br = browser()
+        d = self.document()
+        c = self.textCursor()
+        c.setPosition(0)
+        pos_map = {}
+        while True:
+            c = d.find(OBJECT_REPLACEMENT_CHAR, c, QTextDocument.FindFlag.FindCaseSensitively)
+            if c.isNull():
+                break
+            fmt = c.charFormat()
+            if fmt.isImageFormat():
+                name = fmt.toImageFormat().name()
+                if name in urls:
+                    pos_map[name] = c.position()
+
+        pd = ProgressDialog(title=_('Downloading images...'), min=0, max=0, parent=self)
+        pd.canceled_signal.connect(pd.accept)
+        data_map = {}
+        error_map = {}
+        set_msg = FunctionDispatcher(pd.set_msg, parent=pd)
+        accept = FunctionDispatcher(pd.accept, parent=pd)
+
+        def do_download():
+            for url, pos in pos_map.items():
+                if pd.canceled:
+                    return
+                set_msg(_('Downloading {}...').format(url))
+                try:
+                    res = br.open_novisit(url, timeout=30)
+                    fname = get_download_filename_from_response(res)
+                    data = res.read()
+                except Exception as err:
+                    error_map[url] = err
+                else:
+                    data_map[url] = fname, data
+            accept()
+        Thread(target=do_download, daemon=True).start()
+        pd.exec()
+        if pd.canceled:
+            return
+
+        for url, pos in pos_map.items():
+            fname, data = data_map[url]
+            newname = self.commit_downloaded_image(data, fname)
+            c = self.textCursor()
+            c.setPosition(pos)
+            alignment = QTextFrameFormat.Position.InFlow
+            f = self.frame_for_cursor(c)
+            if f is not None:
+                alignment = f.frameFormat().position()
+            fmt = c.charFormat()
+            i = fmt.toImageFormat()
+            i.setName(newname)
+            c.deletePreviousChar()
+            c.insertImage(i, alignment)
+        if error_map:
+            m = '\n'.join(
+                _('Could not download {0} with error:').format(url) + '\n\t' + str(err) + '\n\n' for url, err in error_map.items())
+            error_dialog(self, _('Failed to download some images'), _(
+                'Some images could not be downloaded, click "Show details" to see which ones'), det_msg=m, show=True)
 
     def do_paste_and_match_style(self):
         text = QApplication.instance().clipboard().text()
