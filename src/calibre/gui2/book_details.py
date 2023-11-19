@@ -1333,8 +1333,14 @@ class BookDetails(DetailsLayout):  # {{{
             )
 
         def browse(url):
+            if url.startswith(DATA_DIR_NAME + '/') and self.last_data.get('book_id'):
+                base = get_gui().current_db.abspath(self.last_data['book_id'], index_is_id=True)
+                path = os.path.join(base, url)
+                qurl = QUrl.fromLocalFile(path)
+            else:
+                qurl = QUrl(url, QUrl.ParsingMode.TolerantMode)
             try:
-                safe_open_url(QUrl(url, QUrl.ParsingMode.TolerantMode))
+                safe_open_url(qurl)
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -1389,7 +1395,7 @@ class BookDetails(DetailsLayout):  # {{{
 
     def show_data(self, data):
         try:
-            self.last_data = {'title':data.title, 'authors':data.authors}
+            self.last_data = {'title':data.title, 'authors':data.authors, 'book_id': getattr(data, 'id', None)}
         except Exception:
             self.last_data = {}
         self.book_info.show_data(data)

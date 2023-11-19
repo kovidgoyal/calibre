@@ -1003,6 +1003,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if a <= q <= b:
                 return cf
 
+    def open_link(self, link: str) -> None:
+        qurl = QUrl(link, QUrl.ParsingMode.TolerantMode)
+        if qurl.isRelative() and self.base_url:
+            qurl = QUrl.fromLocalFile(os.path.join(os.path.dirname(self.base_url.toLocalFile()), qurl.path()))
+        safe_open_url(qurl)
+
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
         img_name = self.document().documentLayout().imageAt(QPointF(ev.pos()))
@@ -1033,7 +1039,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image')).triggered.connect(partial(self.remove_image_at, c.position()))
         link_name = self.document().documentLayout().anchorAt(QPointF(ev.pos()))
         if link_name:
-            menu.addAction(QIcon.ic('insert-link.png'), _('Open link'), partial(safe_open_url, QUrl(link_name)))
+            menu.addAction(QIcon.ic('insert-link.png'), _('Open link'), partial(self.open_link, link_name))
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
             if ac == '--':
                 menu.addSeparator()
