@@ -116,3 +116,10 @@ def is_ipv6_addr(addr):
         return True
     except OSError:
         return False
+
+def get_fallback_server_addr():
+    from socket import has_dualstack_ipv6
+    if has_dualstack_ipv6():
+        return '::'
+    else:
+        return '0.0.0.0'

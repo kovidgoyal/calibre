@@ -11,7 +11,6 @@ from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import zip_longest
 from operator import attrgetter
-from socket import has_dualstack_ipv6
 
 from calibre.constants import config_dir
 from calibre.utils.localization import _
@@ -111,7 +110,7 @@ raw_options = (
     ' there are more than this number of items. Set to zero to disable.'),
 
     _('The interface on which to listen for connections'),
-    'listen_on', '::' if has_dualstack_ipv6() else '0.0.0.0',
+    'listen_on', '',
     _('The default is to listen on all available IPv6 and IPv4 interfaces. You can change this to, for'
     ' example, "127.0.0.1" to only listen for connections from the local machine, or'
     ' to "::" to listen to all incoming IPv6 and IPv4 connections.'),
