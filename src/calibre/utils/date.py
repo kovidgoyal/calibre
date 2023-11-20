@@ -196,6 +196,8 @@ def qt_from_dt(d: datetime, as_utc=False, assume_utc=False):
         ans = QDateTime.fromMSecsSinceEpoch(int(d.timestamp() * 1000), QTimeZone.utc())
     else:
         d = d.astimezone(local_tz)
+        # not setting a time zone means this QDateTime has timeSpec() ==
+        # LocalTime which is what we want for display/editing.
         ans = QDateTime(QDate(d.year, d.month, d.day), QTime(d.hour, d.minute, d.second, int(d.microsecond / 1000)))
     return ans
 
