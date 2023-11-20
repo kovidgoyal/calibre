@@ -135,7 +135,7 @@ class NewYorker(BasicNewsRecipe):
                     # Get description
                     body = story.find(attrs={'class': 'River__dek___CayIg'})
                     if body is not None:
-                        desc = body.contents[0]
+                        desc = str(body.contents[0])
 
                 self.log('Found article:', title)
                 self.log('\t' + url)
