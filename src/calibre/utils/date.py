@@ -187,21 +187,17 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 
-def qt_from_dt(d: datetime, as_utc=False, assume_utc=False):
-    from qt.core import QDate, QDateTime, QTime, QTimeZone
+def qt_from_dt(d: datetime, assume_utc=False):
+    from qt.core import QDate, QDateTime, QTime
     if is_date_undefined(d):
         from calibre.gui2 import UNDEFINED_QDATETIME
         return UNDEFINED_QDATETIME
     if d.tzinfo is None:
         d = d.replace(tzinfo=utc_tz if assume_utc else local_tz)
-    if as_utc:
-        d = d.astimezone(utc_tz)
-        ans = QDateTime.fromMSecsSinceEpoch(int(d.timestamp() * 1000), QTimeZone.utc())
-    else:
-        d = d.astimezone(local_tz)
-        # not setting a time zone means this QDateTime has timeSpec() ==
-        # LocalTime which is what we want for display/editing.
-        ans = QDateTime(QDate(d.year, d.month, d.day), QTime(d.hour, d.minute, d.second, int(d.microsecond / 1000)))
+    d = d.astimezone(local_tz)
+    # not setting a time zone means this QDateTime has timeSpec() ==
+    # LocalTime which is what we want for display/editing.
+    ans = QDateTime(QDate(d.year, d.month, d.day), QTime(d.hour, d.minute, d.second, int(d.microsecond / 1000)))
     return ans
 
 
