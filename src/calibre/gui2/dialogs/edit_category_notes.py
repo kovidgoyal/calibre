@@ -257,7 +257,7 @@ class NoteEditorWidget(EditorWidget):
             if fmt.isImageFormat():
                 qurl = QUrl(fmt.toImageFormat().name())
                 if qurl.scheme() == RESOURCE_URL_SCHEME:
-                    digest = self.resource_digest_from_qurl()
+                    digest = self.resource_digest_from_qurl(qurl)
                     self.referenced_resources.add(digest)
 
     def ask_link(self):
