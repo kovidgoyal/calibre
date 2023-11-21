@@ -29,6 +29,7 @@ from calibre.utils.localization import _
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.mdns import get_external_ip
 from calibre.utils.monotonic import monotonic
+from calibre.utils.network import get_fallback_server_addr
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Full
@@ -399,7 +400,7 @@ class ServerLoop:
         ba = (self.opts.listen_on, int(self.opts.port))
         if not ba[0]:
             # AI_PASSIVE does not work with host of '' or None
-            ba = ('0.0.0.0', ba[1])
+            ba = (get_fallback_server_addr(), ba[1])
         self.bind_address = ba
         self.bound_address = None
         self.connection_map = {}
