@@ -27,15 +27,13 @@ def local_url_for_content_server():
     if interface in addr_map:
         interface = addr_map[interface]
 
-    if is_ipv6_addr(interface):
-        interface = f'[{interface}]'
-
     protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
     prefix = opts.url_prefix or ''
+
     port = opts.port
-    if ':' in interface:
-        interface = f'[{interface}]'
-    return f'{protocol}://{interface}:{port}{prefix}'
+    addr = f'[{interface}]' if is_ipv6_addr(interface) else f'{interface}'
+
+    return f'{protocol}://{addr}:{port}{prefix}'
 
 
 def open_in_browser():
