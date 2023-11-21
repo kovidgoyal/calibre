@@ -392,6 +392,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
+            QTimer.singleShot(0, self.hide_windows)
+            show_gui = False
+            setattr(self, '__systray_minimized', True)
         if show_gui:
             self.show()
         self.read_settings()
@@ -413,8 +417,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
-        if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
-            self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
         self.listener = Listener(parent=self)
