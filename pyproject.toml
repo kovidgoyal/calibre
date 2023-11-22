@@ -1,6 +1,6 @@
 [tool.ruff]
 line-length = 160
-target-version = 'py37'
+target-version = 'py38'
 select = ['E', 'F']
 ignore = ['E741', 'E402', 'E722', 'E401']
 builtins = ['_']
@@ -10,7 +10,7 @@ builtins = ['_']
 "src/qt/__init__.py" = ["E501"]
 
 [tool.black]
-target-version = ['py37']
+target-version = ['py38']
 
 [tool.isort]
 profile = "black"
