@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import QUrl
@@ -48,8 +47,7 @@ class AmazonStore:
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        for result in get_method('search_amazon')(self, query, max_results=max_results, timeout=timeout):
-            yield result
+        yield from get_method('search_amazon')(self, query, max_results=max_results, timeout=timeout)
 
     def get_details(self, search_result, timeout):
         return get_method('get_details_amazon')(self, search_result, timeout)

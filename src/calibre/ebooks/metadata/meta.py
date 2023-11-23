@@ -12,7 +12,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values
-METADATA_PRIORITIES = collections.defaultdict(lambda:0)
+METADATA_PRIORITIES = collections.defaultdict(int)
 for i, ext in enumerate((
     'html', 'htm', 'xhtml', 'xhtm',
     'rtf', 'fb2', 'pdf', 'prc', 'odt',

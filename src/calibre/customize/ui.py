@@ -759,7 +759,7 @@ def initialize_plugins(perf=False):
     if perf:
         from collections import defaultdict
         import time
-        times = defaultdict(lambda:0)
+        times = defaultdict(int)
 
     for zfp, installation_type in chain(
             zip_value(external_plugins.items(), PluginInstallationType.EXTERNAL),

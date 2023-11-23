@@ -59,7 +59,7 @@ class BackupProgress:
                 )
             else:
                 prints(
-                    '{:.1f}% {} failed'.format((self.count * 100) / float(self.total), book_id))
+                    f'{(self.count * 100) / float(self.total):.1f}% {book_id} failed')
 
 
 def main(opts, args, dbctx):

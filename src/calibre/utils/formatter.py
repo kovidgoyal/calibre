@@ -845,7 +845,7 @@ class StopException(Exception):
         super().__init__('Template evaluation stopped')
 
 
-class PythonTemplateContext(object):
+class PythonTemplateContext:
 
     def __init__(self):
         # Set attributes we already know must exist.

@@ -189,7 +189,7 @@ class TestImports(unittest.TestCase):
         if not isbsd:
             exclude_modules.add('calibre.devices.usbms.hal')
         d = os.path.dirname
-        SRC = d(d(d((os.path.abspath(__file__)))))
+        SRC = d(d(d(os.path.abspath(__file__))))
         self.assertGreater(self.base_check(os.path.join(SRC, 'odf'), exclude_packages, exclude_modules), 10)
         base = os.path.join(SRC, 'calibre')
         self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)

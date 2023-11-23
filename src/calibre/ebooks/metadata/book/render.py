@@ -133,7 +133,7 @@ def mi_to_html(
             note = ''
             item_id = None if item_id_if_has_note is None else item_id_if_has_note(field, field_value)
             if item_id is not None:
-                note = ' <a title="{0}" href="{1}">{2}</a>'.format(
+                note = ' <a title="{}" href="{}">{}</a>'.format(
                     _('Show notes for: {}').format(field_value), notes_action(field=field, value=field_value, item_id=item_id), note_markup)
             return link + note
         return ''

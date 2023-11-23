@@ -277,7 +277,7 @@ class HTMLInput(InputFormatPlugin):
         if not q.startswith(self.root_dir_of_input):
             if not self.opts.allow_local_files_outside_root:
                 if os.path.exists(q):
-                    self.log.warn('Not adding {} as it is outside the document root: {}'.format(q, self.root_dir_of_input))
+                    self.log.warn(f'Not adding {q} as it is outside the document root: {self.root_dir_of_input}')
                 return None, None
         return link, frag
 

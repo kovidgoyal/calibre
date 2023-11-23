@@ -401,7 +401,7 @@ class WinSpeech:
         if DEBUG:
             with suppress(Exception):
                 print('winspeech:\x1b[31m->\x1b[39m', cmd, flush=True)
-        w.stdin.write(f'{cmd}\n'.encode('utf-8'))
+        w.stdin.write(f'{cmd}\n'.encode())
         w.stdin.flush()
         return cmd_id
 

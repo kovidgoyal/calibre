@@ -96,7 +96,7 @@ def serialize_collection(mapping_of_recipe_classes):
     return f'''<?xml version='1.0' encoding='utf-8'?>
 <recipe_collection xmlns="http://calibre-ebook.com/recipe_collection" count="{len(collection)}">
 {items}
-</recipe_collection>'''.encode('utf-8')
+</recipe_collection>'''.encode()
 
 
 def serialize_builtin_recipes():

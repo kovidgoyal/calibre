@@ -212,7 +212,7 @@ class KOBO(USBMS):
             debug_print(f"device_version_info - version_file={version_file}")
             if os.path.isfile(version_file):
                 debug_print("device_version_info - have opened version_file")
-                vf = open(version_file, "r")
+                vf = open(version_file)
                 self._device_version_info = vf.read().strip().split(",")
                 vf.close()
                 debug_print("device_version_info - self._device_version_info=", self._device_version_info)

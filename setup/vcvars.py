@@ -13,7 +13,7 @@ CSIDL_PROGRAM_FILES = 38
 CSIDL_PROGRAM_FILESX86 = 42
 
 
-@lru_cache()
+@lru_cache
 def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
     SHGFP_TYPE_CURRENT = 0
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
@@ -22,7 +22,7 @@ def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
     return buf.value
 
 
-@lru_cache()
+@lru_cache
 def find_vswhere():
     for which in (CSIDL_PROGRAM_FILESX86, CSIDL_PROGRAM_FILES):
         root = get_program_files_location(which)
@@ -37,7 +37,7 @@ def get_output(*cmd):
     return subprocess.check_output(cmd, encoding='mbcs', errors='strict')
 
 
-@lru_cache()
+@lru_cache
 def find_visual_studio():
     path = get_output(
         find_vswhere(),
@@ -52,7 +52,7 @@ def find_visual_studio():
     return os.path.join(path, "VC", "Auxiliary", "Build")
 
 
-@lru_cache()
+@lru_cache
 def find_msbuild():
     base_path = get_output(
         find_vswhere(),
@@ -113,12 +113,12 @@ def query_process(cmd, is64bit):
     return result
 
 
-@lru_cache()
+@lru_cache
 def query_vcvarsall(is64bit=True):
     plat = 'amd64' if is64bit else 'amd64_x86'
     vcvarsall = find_vcvarsall()
     env = query_process(f'"{vcvarsall}" {plat} & set', is64bit)
-    pat = re.compile('vs(\d+)comntools', re.I)
+    pat = re.compile(r'vs(\d+)comntools', re.I)
 
     comn_tools = {}
 

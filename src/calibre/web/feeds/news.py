@@ -800,7 +800,7 @@ class BasicNewsRecipe(Recipe):
         `weights`: A dictionary that maps weights to titles. If any titles
         in index are not in weights, they are assumed to have a weight of 0.
         '''
-        weights = defaultdict(lambda: 0, weights)
+        weights = defaultdict(int, weights)
         index.sort(key=lambda x: weights[x])
         return index
 
