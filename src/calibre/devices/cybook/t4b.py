@@ -22,7 +22,7 @@ def write_t4b(t4bfile, coverdata=None):
     if coverdata is not None:
         coverdata = BytesIO(coverdata)
         cover = Image.open(coverdata).convert("L")
-        cover.thumbnail((96, 144), Image.ANTIALIAS)
+        cover.thumbnail((96, 144), Image.Resampling.LANCZOS)
         t4bcover = Image.new('L', (96, 144), 'white')
 
         x, y = cover.size

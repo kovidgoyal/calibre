@@ -135,7 +135,7 @@ class Writer(FormatWriter):
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 try:
                     im = Image.open(io.BytesIO(item.data)).convert('P')
-                    im.thumbnail((300,300), Image.ANTIALIAS)
+                    im.thumbnail((300,300), Image.Resampling.LANCZOS)
 
                     data = io.BytesIO()
                     im.save(data, 'PNG')

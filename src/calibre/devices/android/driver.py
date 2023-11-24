@@ -390,7 +390,7 @@ class WEBOS(USBMS):
 
             cover = Image.new('RGB', (120,160), 'black')
             im = Image.open(io.BytesIO(coverdata))
-            im.thumbnail((120, 160), Image.ANTIALIAS)
+            im.thumbnail((120, 160), Image.Resampling.LANCZOS)
 
             x, y = im.size
             cover.paste(im, ((120-x)/2, (160-y)/2))
@@ -415,12 +415,12 @@ class WEBOS(USBMS):
 
             cover = Image.new('RGB', (52,69), 'black')
             im = Image.open(io.BytesIO(coverdata))
-            im.thumbnail((52, 69), Image.ANTIALIAS)
+            im.thumbnail((52, 69), Image.Resampling.LANCZOS)
 
             x, y = im.size
             cover.paste(im, ((52-x)//2, (69-y)//2))
 
-        cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
+        cover2 = cover.resize((52, 69), Image.Resampling.LANCZOS).convert('RGB')
 
         data = io.BytesIO()
         cover2.save(data, 'JPEG')

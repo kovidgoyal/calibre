@@ -263,7 +263,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
             logo = Image.open(logo_file, 'r')
             width, height = logo.size
             logo = logo.resize(
-                (self.COVER_WIDTH, (self.COVER_WIDTH * height / width)), Image.ANTIALIAS)
+                (self.COVER_WIDTH, (self.COVER_WIDTH * height / width)), Image.Resampling.LANCZOS)
             width, height = logo.size
             left = max(int((self.COVER_WIDTH - width) / 2.), 0)
             top = max(int((self.COVER_HEIGHT - height) / 2.), 0)

@@ -57,7 +57,7 @@ class NOOK(USBMS):
 
             cover = Image.new('RGB', (96, 144), 'black')
             im = Image.open(io.BytesIO(coverdata))
-            im.thumbnail((96, 144), Image.ANTIALIAS)
+            im.thumbnail((96, 144), Image.Resampling.LANCZOS)
 
             x, y = im.size
             cover.paste(im, ((96-x)/2, (144-y)/2))

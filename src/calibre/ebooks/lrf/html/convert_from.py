@@ -939,7 +939,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt)  # Necessary, trust me ;-)
             try:
-                im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, encoding)
+                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt, encoding)
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
