@@ -256,7 +256,7 @@ class GitHub(Base):  # {{{
                 'tag_name': self.current_tag_name,
                 'target_commitish': 'master',
                 'name': 'version %s' % self.version,
-                'body': 'Release version %s' % self.version,
+                'body': self.build_body_for_release(),
                 'draft': False,
                 'prerelease': False
             })
@@ -265,6 +265,62 @@ class GitHub(Base):  # {{{
             self.fail(r, 'Failed to create release for version: %s' % self.version)
         return r.json()
 
+    def build_body_for_release(self):
+        from changelog import parse
+
+        with open('Changelog.txt', encoding='utf-8') as f:
+            lst_log = parse(f.read(), parse_dates=False)
+
+        log = None
+        for l in lst_log:
+            if l['version'] == self.version:
+                log = l
+
+        if not log:
+            return 'Release version %' % self.version
+
+        def parse_md(txt):
+            return txt.replace('&','&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br/>')
+
+        rslt = {}
+        for section,name in [('new features','New features'), ('bug fixes', 'Bug fixes')]:
+            if section in log:
+                rslt['## '+ name] = lines = []
+                for feature in log[section]:
+                    entry = ['-']
+                    type = feature.get('type', '').lower()
+                    title = parse_md(feature['title'])
+                    if type == 'major':
+                        title = '<b>' + title + '</b>'
+                    description = parse_md(feature.get('description', ''))
+                    tickets = ', '.join([f'[{t}](https://bugs.launchpad.net/calibre/+bug/{t})' for t in feature.get('tickets', [])])
+
+                    entry.append(title)
+                    if description:
+                        entry[-1] = entry[-1]+'<br>'+description
+                    if tickets:
+                        entry.append('<sup>['+tickets+']</sup>')
+                    lines.append(' '.join(entry))
+
+        new_recipes = log.get('new recipes', None)
+        if new_recipes:
+            rslt['## New news sources'] = lines = []
+            for r in new_recipes:
+                lines.append('- '+r['title'])
+                if 'author' in r:
+                    lines[-1]= lines[-1]+' by '+r['author']
+
+        improved_recipes = log.get('improved recipes', None)
+        if improved_recipes:
+            rslt['## Improved news sources'] = ['- '+ r for r in improved_recipes]
+
+        output = []
+        for k,v in rslt.items():
+            output.append(k)
+            output.append('')
+            output.extend(v)
+            output.append('')
+        return '\n'.join(output).strip()
 
 # }}}
 
