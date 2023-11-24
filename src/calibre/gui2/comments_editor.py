@@ -838,7 +838,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     is_image = q in {'jpeg', 'png', 'gif', 'webp'}
                     d.treat_as_image.setChecked(is_image)
                 if data_dir:
-                    path = os.path.relpath(path, base)
+                    path = os.path.relpath(path, base).replace(os.sep, '/')
                     d.url.setText(path)
         b.clicked.connect(lambda: cf())
         d.brdf = b = QPushButton(_('&Data file'))

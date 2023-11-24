@@ -268,8 +268,7 @@ def choose_files(window, name, title,
     ans = run_file_dialog(window, title, allow_multiple=not select_only_single_file, initial_folder=initial_folder, file_types=file_types)
     if ans and not no_save_dir:
         dynamic.set(name, os.path.dirname(ans[0]))
-        return ans
-    return None
+    return ans or None
 
 
 def choose_images(window, name, title, select_only_single_file=True, formats=None):
