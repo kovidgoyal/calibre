@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 6.x.0 2023-xx-xx
+# {{{ 7.x.0 2023-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,38 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 7.1.0 2023-11-23
+
+:: new features
+
+- Notes editor: When pasting HTML with images offer to download remote images in the pasted content
+
+:: bug fixes
+
+- Fix regression in 7.0 that broke restore of db from backups
+
+- Content server: Fix newly added books on homepage not restricted to the books the logged in user is allowed to access
+
+- [2044118] When starting in system tray do not flash the main window briefly
+
+- Notes editor: Fix spurious error message when saving a note that contains pasted HTML that refers to an image
+
+- [2043998] Fix a regression that caused the unknown/unset date to incorrectly be displayed/edited as a date in the year AD 101 in some timezones
+
+- Comments editor: Fix data file links not working
+
+- Linux installer: Check that the user has libxcb-cursor.so.0 installed. If not quit early with an error message asking them to install it
+
+- [2044408] LRF Output: Fix a regression in 7.0 that broke conversion to LRF
+
+:: improved recipes
+- Substack
+
+:: new recipes
+- The World Ahead by unkn0wn
+
+}}}
 
 {{{ 7.0.0 2023-11-17
 
