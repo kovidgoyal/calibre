@@ -1809,7 +1809,7 @@ def process_file(path, options, logger):
                 cim.convert('RGB').save(cf.name)
                 options.cover = cf.name
 
-                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
+                tim = im.resize((int(0.75*th), th), PILImage.Resampling.LANCZOS).convert('RGB')
                 tf = PersistentTemporaryFile(prefix=__appname__+'_', suffix=".jpg")
                 tf.close()
                 tim.save(tf.name)
