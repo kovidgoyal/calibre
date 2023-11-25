@@ -1467,6 +1467,7 @@ def open_url(qurl):
                 # this happens a lot with Qt 6.5.3 on some Linux distros
                 print('QDesktopServices.openUrl() failed for url:', qurl, file=sys.stderr)
                 if islinux:
+                    import subprocess
                     if qurl.isLocalFile():
                         cmd = ['xdg-open', qurl.toLocalFile()]
                     else:
