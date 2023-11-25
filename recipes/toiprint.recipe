@@ -95,6 +95,13 @@ class toiprint(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw, *a):
         data = json.loads(raw)
+
+        tags = []
+        for x in data:
+            tags.append(x['TagName'])
+        if not any(x in {'ArticleBody', 'Photographs'} for x in tags):
+            self.abort_article('not an article')
+
         body = ''
         for x in data:
             if x['TagName'] == 'ArticleTitle':
