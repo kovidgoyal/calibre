@@ -505,6 +505,21 @@ class BuildTest(unittest.TestCase):
             cafile = ssl.get_default_verify_paths().cafile
             if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
                 raise AssertionError('Mozilla CA certs not loaded')
+        # On Fedora create_default_context() succeeds in the main thread but
+        # not in other threads, because upstream OpenSSL cannot read whatever
+        # shit Fedora puts in /etc/ssl, so this check makes sure our bundled
+        # OpenSSL is built with ssl dir that is not /etc/ssl
+        from threading import Thread
+        certs_loaded = False
+        def check_ssl_loading_certs():
+            nonlocal certs_loaded
+            ssl.create_default_context()
+            certs_loaded = True
+        t = Thread(target=check_ssl_loading_certs)
+        t.start()
+        t.join()
+        if not certs_loaded:
+            raise AssertionError('Failed to load SSL certificates')
 
 
 def test_multiprocessing():
