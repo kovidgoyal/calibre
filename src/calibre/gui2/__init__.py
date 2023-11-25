@@ -1464,14 +1464,13 @@ def open_url(qurl):
             ensure_app()
             ok = QDesktopServices.openUrl(qurl)
             if not ok:
-                # this happens a lot with Qt 6.5.3 on some Linux distros
-                print('QDesktopServices.openUrl() failed for url:', qurl, file=sys.stderr)
+                # this happens a lot with Qt 6.5.3. On Wayland, Qt requires
+                # BOTH a QApplication AND a top level window so it can use the
+                # xdg activation token system Wayland imposes.
+                print('QDesktopServices::openUrl() failed for url:', qurl, file=sys.stderr)
                 if islinux:
                     import subprocess
-                    if qurl.isLocalFile():
-                        cmd = ['xdg-open', qurl.toLocalFile()]
-                    else:
-                        cmd = ['xdg-open', qurl.toString()]
+                    cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString()]
                     if DEBUG:
                         print('Running opener:', cmd)
                     subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
