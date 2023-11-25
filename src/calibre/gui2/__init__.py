@@ -1462,7 +1462,18 @@ def open_url(qurl):
             # Qt 5 requires QApplication to be constructed before trying to use
             # QDesktopServices::openUrl()
             ensure_app()
-            QDesktopServices.openUrl(qurl)
+            ok = QDesktopServices.openUrl(qurl)
+            if not ok:
+                # this happens a lot with Qt 6.5.3 on some Linux distros
+                print('QDesktopServices.openUrl() failed for url:', qurl, file=sys.stderr)
+                if islinux:
+                    if qurl.isLocalFile():
+                        cmd = ['xdg-open', qurl.toLocalFile()]
+                    else:
+                        cmd = ['xdg-open', qurl.toString()]
+                    if DEBUG:
+                        print('Running opener:', cmd)
+                    subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def safe_open_url(qurl):
