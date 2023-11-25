@@ -1464,6 +1464,7 @@ def open_url(qurl):
             ensure_app()
             cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
             if isfrozen and QApplication.instance().platformName() == "wayland":
+                import subprocess
                 # See https://bugreports.qt.io/browse/QTBUG-119438
                 subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 ok = True
