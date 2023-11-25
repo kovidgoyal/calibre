@@ -1462,7 +1462,13 @@ def open_url(qurl):
             # Qt 5 requires QApplication to be constructed before trying to use
             # QDesktopServices::openUrl()
             ensure_app()
-            ok = QDesktopServices.openUrl(qurl)
+            cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
+            if isfrozen and QApplication.instance().platformName() == "wayland":
+                # See https://bugreports.qt.io/browse/QTBUG-119438
+                subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                ok = True
+            else:
+                ok = QDesktopServices.openUrl(qurl)
             if not ok:
                 # this happens a lot with Qt 6.5.3. On Wayland, Qt requires
                 # BOTH a QApplication AND a top level window so it can use the
@@ -1470,7 +1476,6 @@ def open_url(qurl):
                 print('QDesktopServices::openUrl() failed for url:', qurl, file=sys.stderr)
                 if islinux:
                     import subprocess
-                    cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
                     if DEBUG:
                         print('Running opener:', cmd)
                     subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
