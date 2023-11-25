@@ -1451,22 +1451,25 @@ def open_url(qurl):
                     import shlex
                     opener = shlex.split(spec)
                     break
+
+    def run_cmd(cmd):
+        import subprocess
+        subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     with sanitize_env_vars():
         if opener:
-            import subprocess
             cmd = [x.replace('%u', qurl.toString()) for x in opener]
             if DEBUG:
                 print('Running opener:', cmd)
-            subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            run_cmd(cmd)
         else:
             # Qt 5 requires QApplication to be constructed before trying to use
             # QDesktopServices::openUrl()
             ensure_app()
             cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
             if isfrozen and QApplication.instance().platformName() == "wayland":
-                import subprocess
                 # See https://bugreports.qt.io/browse/QTBUG-119438
-                subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                run_cmd(cmd)
                 ok = True
             else:
                 ok = QDesktopServices.openUrl(qurl)
@@ -1476,10 +1479,9 @@ def open_url(qurl):
                 # xdg activation token system Wayland imposes.
                 print('QDesktopServices::openUrl() failed for url:', qurl, file=sys.stderr)
                 if islinux:
-                    import subprocess
                     if DEBUG:
-                        print('Running opener:', cmd)
-                    subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        print('Opening with xdg-open:', cmd)
+                    run_cmd(cmd)
 
 
 def safe_open_url(qurl):
