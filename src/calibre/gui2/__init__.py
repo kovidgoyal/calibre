@@ -1470,7 +1470,7 @@ def open_url(qurl):
                 print('QDesktopServices::openUrl() failed for url:', qurl, file=sys.stderr)
                 if islinux:
                     import subprocess
-                    cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString()]
+                    cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
                     if DEBUG:
                         print('Running opener:', cmd)
                     subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
