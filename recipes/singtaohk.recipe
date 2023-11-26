@@ -5,12 +5,15 @@ class STHKRecipe(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = 'The Sing Tao Daily is among Hong Kong\'s oldest Chinese language newspapers. (https://std.stheadline.com/)'
     category = 'Chinese, News, Hong Kong'
+    language = 'zh'
+    encoding = 'utf-8'
     masthead_url = 'https://std.stheadline.com/dist/images/logo-v2@2x.png'
     no_stylesheets = True
     remove_javascript = True
     ignore_duplicate_articles = {'title'}
-    resolve_internal_links  = True
     remove_empty_feeds = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
 
     extra_css = '''
         img {display:block; margin:0 auto;}
