@@ -1,6 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import json
 
+def json_to_html(raw, link):
+    data = json.loads(raw)
+    data = data['data']['content']
+    title = '<h1 title="{}">'.format(link) + data['subject'] + '</h1>'
+    auth = '<p><b>' + data['author'] + '</b></p>'
+    sub = '<p class="intro"><i>' + data['introtext'] + '</i></p>'
+    body = data['fulltext']
+    return '<html><body><div>' + title + auth + sub + body + '</div></body></html>'
+
+
 class infzm(BasicNewsRecipe):
     title = '南方周末'
     __author__ = 'unkn0wn'
@@ -13,6 +23,7 @@ class infzm(BasicNewsRecipe):
     remove_empty_feeds = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'http://ssimg.kkod.cn/web/02/14227.gif'
 
     articles_are_obfuscated = True
 
@@ -28,15 +39,9 @@ class infzm(BasicNewsRecipe):
         link = soup.find('a', href=True)['href'].split('?')[0]
         res_link = link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') \
             + '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type='
+        # if article is paywalled, add code to figure out machine_id
         raw = br.open(res_link).read()
-        data = json.loads(raw)
-        data = data['data']
-        content = data['content']
-        title = '<h1 title="{}">'.format(link) + content['subject'] + '</h1>'
-        auth = '<p><b>' + content['author'] + '</b></p>'
-        sub = '<p class="intro"><i>' + content['introtext'] + '</i></p>'
-        body = content['fulltext']
-        html = '<html><body><div>' + title + auth + body + '</div></body></html>'
+        html = json_to_html(raw, link)
         return ({ 'data': html, 'url': link })
 
     extra_css = '''
