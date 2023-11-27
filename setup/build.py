@@ -688,12 +688,12 @@ sip-files-dir = "."
 
 [tool.sip.builder]
 qmake-settings = [
-    'QMAKE_CC = {self.env.cc}',
-    'QMAKE_CXX = {self.env.cxx}',
-    'QMAKE_LINK = {self.env.linker or self.env.cxx}',
-    'QMAKE_CFLAGS += {shlex.join(self.env.base_cflags)}',
-    'QMAKE_CXXFLAGS += {shlex.join(self.env.base_cxxflags)}',
-    'QMAKE_LFLAGS += {shlex.join(self.env.base_ldflags)}',
+    """QMAKE_CC = {self.env.cc}""",
+    """QMAKE_CXX = {self.env.cxx}""",
+    """QMAKE_LINK = {self.env.linker or self.env.cxx}""",
+    """QMAKE_CFLAGS += {shlex.join(self.env.base_cflags)}""",
+    """QMAKE_CXXFLAGS += {shlex.join(self.env.base_cxxflags)}""",
+    """QMAKE_LFLAGS += {shlex.join(self.env.base_ldflags)}""",
 ]
 
 [tool.sip.bindings.{ext.name}]
@@ -702,7 +702,7 @@ sources = {ext.sources}
 exceptions = {needs_exceptions}
 include-dirs = {ext.inc_dirs}
 qmake-QT = {ext.qt_modules}
-sip-file = "{os.path.basename(sipf)}"
+sip-file = {os.path.basename(sipf)!r}
 ''')
         shutil.copy2(sipf, src_dir)
 
