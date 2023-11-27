@@ -100,7 +100,8 @@ class MTP_DEVICE(BASE):
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts', 'system',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
-        if lpath[0].startswith('.'):
+        if lpath[0].startswith('.') and lpath[0] != '.tolino':
+            # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
             return True
 
         if len(lpath) > 1 and lpath[0] == 'android':
