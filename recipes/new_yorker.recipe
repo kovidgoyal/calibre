@@ -58,6 +58,7 @@ class NewYorker(BasicNewsRecipe):
         ),
         prefixed_classes('ConsentBannerWrapper- ResponsiveCartoonCTA-'),
         dict(childtypes='iframe'),
+        dict(name='svg'),
     ]
     remove_attributes = ['style']
 
