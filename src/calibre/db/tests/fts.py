@@ -143,7 +143,7 @@ class FTSTest(BaseTest):
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
         import apsw
-        if apsw.sqlitelibversion() not in ('3.44.0', '3.44.1'):
+        if apsw.sqlitelibversion() not in ('3.44.0', '3.44.1', '3.44.2'):
             # see https://www.sqlite.org/forum/forumpost/d16aeb397d
             self.ae(conn.search("叫"), [("你don't>叫<mess",)])
     # }}}
