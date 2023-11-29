@@ -6,7 +6,7 @@ from datetime import datetime
 from os.path import splitext
 from urllib.parse import urljoin
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class ScientificAmerican(BasicNewsRecipe):
@@ -25,29 +25,23 @@ class ScientificAmerican(BasicNewsRecipe):
         "https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png"
     )
     extra_css = """
-        .image-captioned{font-size:small;}
-        .feature-article__byline-authors{font-size:small;}
-        .article-header__inner__category{font-size:small; color:gray;}
-        .t_caption{font-size:small; text-align:center;}
-        .author-bio{font-size:small;}
-        .opinion-article__byline-authors{font-size:small;}
-        .article-author{font-size:small;}
-        [role="presentation"]{font-size:small;}
+        [class^="article_dek-"] { font-style:italic; color:#202020; }
+        [class^="article_authors-"] {font-size:small; color:#202020; }
+        [class^="article__image-"] { font-size:small; text-align:center; }
+        [class^="lead_image-"] { font-size:small; text-align:center; }
+        [class^="bio-"] { font-size:small; color:#404040; }
+        em { color:#202020; }
     """
 
     needs_subscription = "optional"
 
     keep_only_tags = [
-        classes(
-            "article-header article-content article-media article-author article-text feature-article--header"
-            " feature-article--header-title opinion-article__header-title author-bio"
+        prefixed_classes(
+            'article_hed- article_dek- article_authors- lead_image- article__content- bio-'
         ),
     ]
     remove_tags = [
-        classes(
-            "aside-banner moreToExplore article-footer flex-column--25 article-author__suggested medium-up-hide"
-        ),
-        dict(id=["seeAlsoLinks"]),
+        dict(name=['button', 'svg', 'iframe', 'source'])
     ]
 
     def get_browser(self, *args):
