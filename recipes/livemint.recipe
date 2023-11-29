@@ -98,7 +98,7 @@ class LiveMint(BasicNewsRecipe):
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
                 ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot'
-                ' datePublish sepStory premiumSlider moreStory Joinus'
+                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout'
             )
         ]
 
