@@ -60,6 +60,16 @@ def set_quit():
     builtins.exit = _sitebuiltins.Quitter('exit', eof)
 
 
+def workaround_lxml_bug():
+    # Without calling xmlInitParser() import lxml causes a segfault
+    import ctypes
+    x = ctypes.WinDLL('libxml2.dll')
+    x.xmlInitParser()
+    workaround_lxml_bug.libxml2 = x
+    from lxml import etree
+    del etree
+
+
 def main():
     sys.meta_path.insert(0, PydImporter())
     os.add_dll_directory(os.path.abspath(os.path.join(sys.app_dir, 'app', 'bin')))
@@ -74,6 +84,8 @@ def main():
 
     set_helper()
     set_quit()
+
+    workaround_lxml_bug()
 
     return run_entry_point()
 
