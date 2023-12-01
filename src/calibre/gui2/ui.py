@@ -373,7 +373,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         # ########################## Cover Flow ################################
 
-        self.init_cover_flow_mixin()
+        CoverFlowMixin.__init__(self)
 
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
