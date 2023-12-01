@@ -17,6 +17,7 @@ import sys
 import textwrap
 import time
 from collections import OrderedDict, deque
+from functools import partial
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
@@ -392,18 +393,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         if config['autolaunch_server']:
             self.start_content_server()
-
+        do_hide_windows = False
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
-            QTimer.singleShot(0, self.hide_windows)
+            do_hide_windows = True
             show_gui = False
             setattr(self, '__systray_minimized', True)
+        QTimer.singleShot(0, partial(self.post_initialize_actions, show_gui, do_hide_windows))
         self.read_settings()
 
         self.finalize_layout()
         self.bars_manager.start_animation()
         self.set_window_title()
-        if show_gui:
-            self.show()
 
         for ac in self.iactions.values():
             try:
@@ -422,10 +422,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         self.listener = Listener(parent=self)
         self.listener.message_received.connect(self.message_from_another_instance)
-        QTimer.singleShot(0, self.listener.start_listening)
-
-        # Collect cycles now
-        gc.collect()
 
         QApplication.instance().shutdown_signal_received.connect(self.quit)
         if show_gui and self.gui_debug is not None:
@@ -435,14 +431,25 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         QTimer.singleShot(1, self.start_smartdevice)
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
 
+    def post_initialize_actions(self, show_gui, do_hide_windows):
+        # Various post-initialization actions after an event loop tick
+
+        # Collect cycles now
+        gc.collect()
+
+        self.listener.start_listening()
         # Once the gui is initialized we can restore the quickview state
         # The same thing will be true for any action-based operation with a
         # layout button. We need to let a book be selected in the book list
         # before initializing quickview, so run it after an event loop tick
-        QTimer.singleShot(0, self.start_quickview)
+        self.start_quickview()
+        if do_hide_windows:
+            self.hide_windows()
+        if show_gui:
+            self.show()
         # Force repaint of the book details splitter because it otherwise ends
         # up with the wrong size. I don't know why.
-        QTimer.singleShot(0, self.bd_splitter.repaint)
+        self.bd_splitter.repaint()
 
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
