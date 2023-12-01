@@ -446,6 +446,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if do_hide_windows:
             self.hide_windows()
         if show_gui:
+            timed_print('GUI main window shown')
             self.show()
         # Force repaint of the book details splitter because it otherwise ends
         # up with the wrong size. I don't know why.
