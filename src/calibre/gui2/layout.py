@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from qt.core import (
     QActionGroup, QCoreApplication, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QMenu, QObject, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QMenu, QObject, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre import human_readable
@@ -16,6 +16,7 @@ from calibre.constants import __appname__
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
+from calibre.utils.localization import pgettext
 
 
 class LocationManager(QObject):  # {{{
@@ -263,7 +264,7 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)
-        x.setText(_('Highlight'))
+        x.setText(pgettext('mark books matching search result instead of filtering them', 'Highlight'))
         x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         x.setIcon(QIcon.ic('arrow-down.png'))

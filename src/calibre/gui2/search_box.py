@@ -5,20 +5,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, time
+import re
+import time
 from functools import partial
-
-
 from qt.core import (
-    QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, QEvent,
-    pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
-    QIcon, QApplication, QKeyEvent)
+    QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent,
+    QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot,
+)
 
-from calibre.gui2 import config, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
-from calibre.gui2.widgets import stylesheet_for_lineedit
+from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION, config, gprefs, question_dialog
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import pgettext
 from polyglot.builtins import native_string_type, string_or_bytes
 
 
@@ -401,7 +401,7 @@ class SearchBoxMixin:  # {{{
         else:
             b.setIcon(QIcon.ic('highlight_only_off.png'))
             if gprefs['search_tool_bar_shows_text']:
-                b.setText(_('Highlight'))
+                b.setText(pgettext('mark books matching search result instead of filtering them', 'Highlight'))
                 b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             else:
                 b.setText(None)

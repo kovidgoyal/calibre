@@ -30,7 +30,7 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 from calibre.startup import connect_lambda
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import ngettext, pgettext
 
 
 def render_timestamp(ts):
@@ -182,7 +182,7 @@ def friendly_username(user_type, user):
 
 def annotation_title(atype, singular=False):
     if singular:
-        return {'bookmark': _('Bookmark'), 'highlight': _('Highlight')}.get(atype, atype)
+        return {'bookmark': _('Bookmark'), 'highlight': pgettext('type of annotation', 'Highlight')}.get(atype, atype)
     return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
 
 
