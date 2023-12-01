@@ -1667,3 +1667,12 @@ def make_view_use_window_background(view):
     p.setColor(QPalette.ColorRole.AlternateBase, p.color(QPalette.ColorRole.Window))
     view.setPalette(p)
     return view
+
+
+def timed_print(*a, **kw):
+    if not DEBUG:
+        return
+    from time import monotonic
+    if not hasattr(timed_print, 'startup_time'):
+        timed_print.startup_time = monotonic()
+    print(f'[{monotonic() - timed_print.startup_time:.2f}]', *a, **kw)
