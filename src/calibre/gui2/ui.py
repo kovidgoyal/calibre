@@ -397,13 +397,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             QTimer.singleShot(0, self.hide_windows)
             show_gui = False
             setattr(self, '__systray_minimized', True)
-        if show_gui:
-            self.show()
         self.read_settings()
 
         self.finalize_layout()
         self.bars_manager.start_animation()
         self.set_window_title()
+        if show_gui:
+            self.show()
 
         for ac in self.iactions.values():
             try:
