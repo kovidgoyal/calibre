@@ -292,7 +292,7 @@ def check_xml_parsing(name, mt, raw):
     except XMLSyntaxError as err:
         try:
             line, col = err.position
-        except:
+        except Exception:
             line = col = None
         return errors + [errcls(error_message(err), name, line, col)]
     except Exception as err:

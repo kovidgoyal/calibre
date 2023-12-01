@@ -321,17 +321,17 @@
     {
         "name": "libxml2",
         "unix": {
-            "filename": "libxml2-2.11.5.tar.xz",
-            "hash": "sha256:3727b078c360ec69fa869de14bd6f75d7ee8d36987b071e6928d4720a28df3a6",
-            "urls": ["https://download.gnome.org/sources/libxml2/2.11/{filename}"]
+            "filename": "libxml2-2.12.1.tar.xz",
+            "hash": "sha256:8982b9ccdf7f456e30d8f7012d50858c6623e495333b6191def455c7e95427eb",
+            "urls": ["https://download.gnome.org/sources/libxml2/2.12/{filename}"]
         }
     },
 
     {
         "name": "libxslt",
         "unix": {
-            "filename": "libxslt-1.1.38.tar.xz",
-            "hash": "sha256:1f32450425819a09acaff2ab7a5a7f8a2ec7956e505d7beeb45e843d0e1ecab1",
+            "filename": "libxslt-1.1.39.tar.xz",
+            "hash": "sha256:2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0",
             "urls": ["https://download.gnome.org/sources/libxslt/1.1/{filename}"]
         }
     },
