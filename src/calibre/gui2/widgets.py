@@ -1246,6 +1246,11 @@ class Splitter(QSplitter):
             # when the event loop ticks
             self.reapply_sizes.emit(sizes)
 
+    def ignore_child_paints(self, ignore=True):
+        for widget in self:
+            if hasattr(widget, 'ignore_paint_events'):
+                widget.ignore_paint_events = ignore
+
     def do_resize(self, *args):
         orig = self.desired_side_size
         super().resizeEvent(self._resize_ev)
@@ -1254,10 +1259,14 @@ class Splitter(QSplitter):
             while abs(self.side_index_size - orig) > 10 and c < 5:
                 self.apply_state(self.get_state(), save_desired=False)
                 c += 1
+        self.ignore_child_paints(False)
+
+    def __iter__(self):
+        for i in range(self.count()):
+            yield self.widget(i)
 
     def resizeEvent(self, ev):
-        if self.resize_timer.isActive():
-            self.resize_timer.stop()
+        self.ignore_child_paints()
         self._resize_ev = ev
         self.resize_timer.start()
 
