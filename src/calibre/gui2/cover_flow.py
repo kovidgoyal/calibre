@@ -13,12 +13,13 @@ import os
 import sys
 import time
 from qt.core import (
-    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel,
-    QKeySequence, QLabel, QSize, QSizePolicy, QStackedLayout, Qt, QTimer, pyqtSignal
+    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel, QKeySequence,
+    QLabel, QPainter, QPalette, QSize, QSizePolicy, QStackedLayout, Qt, QTimer,
+    pyqtSignal,
 )
 
 from calibre.constants import islinux
-from calibre.ebooks.metadata import rating_to_stars, authors_to_string
+from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, rating_font
 from calibre_extensions import pictureflow
 
@@ -186,10 +187,32 @@ class CoverFlow(pictureflow.PictureFlow):
 
     dc_signal = pyqtSignal()
     context_menu_requested = pyqtSignal()
+    _ignore_paint_events = False
+
+    @property
+    def ignore_paint_events(self):
+        return self._ignore_paint_events
+
+    @ignore_paint_events.setter
+    def ignore_paint_events(self, val):
+        if val != self._ignore_paint_events:
+            self._ignore_paint_events = val
+            if not val:
+                self.update()
+
+    def paintEvent(self, ev):
+        if self.ignore_paint_events and time.monotonic() - self.created_at < 1:
+            # Paint blank during startup to avoid flashing
+            p = QPainter(self)
+            p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Window))
+            p.end()
+        else:
+            super().paintEvent(ev)
 
     def __init__(self, parent=None):
         pictureflow.PictureFlow.__init__(self, parent,
                             config['cover_flow_queue_length']+1)
+        self.created_at = time.monotonic()
         self.setMinimumSize(QSize(300, 150))
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
