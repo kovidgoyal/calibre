@@ -30,10 +30,9 @@ from calibre.constants import (
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.gui2.extra_files_watcher import ExtraFilesWatcher
 from calibre.gui2 import (
     Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog,
-    max_available_height, open_url, question_dialog, warning_dialog,
+    max_available_height, open_url, question_dialog, timed_print, warning_dialog,
 )
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
@@ -42,6 +41,7 @@ from calibre.gui2.device import DeviceMixin
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.ebook_download import EbookDownloadMixin
 from calibre.gui2.email import EmailMixin
+from calibre.gui2.extra_files_watcher import ExtraFilesWatcher
 from calibre.gui2.init import LayoutMixin, LibraryViewMixin
 from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.jobs import JobManager, JobsButton, JobsDialog
@@ -448,8 +448,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
         qv = get_quickview_action_plugin()
         if qv:
-            if DEBUG:
-                prints('Starting QuickView')
+            timed_print('Starting QuickView')
             qv.qv_button.restore_state()
         self.save_layout_state()
         self.focus_library_view()
