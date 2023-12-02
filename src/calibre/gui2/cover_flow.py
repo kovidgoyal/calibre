@@ -20,7 +20,7 @@ from qt.core import (
 
 from calibre.constants import islinux
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
-from calibre.gui2 import config, gprefs, rating_font
+from calibre.gui2 import config, gprefs, rating_font, timed_print
 from calibre_extensions import pictureflow
 
 
@@ -208,6 +208,13 @@ class CoverFlow(pictureflow.PictureFlow):
             p.end()
         else:
             super().paintEvent(ev)
+
+    def resizeEvent(self, ev):
+        timed_print('cover flow resize_event', ev.oldSize())
+        if ev.oldSize() == QSize(-1, -1):
+            timed_print(f'cover flow reset counter - reset self.created_at: old={self.created_at} new={time.monotonic()}')
+            self.created_at = time.monotonic()
+        super().resizeEvent(ev)
 
     def __init__(self, parent=None):
         pictureflow.PictureFlow.__init__(self, parent,

@@ -428,7 +428,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             QTimer.singleShot(10, self.show_gui_debug_msg)
 
         self.iactions['Connect Share'].check_smartdevice_menus()
-        QTimer.singleShot(1, self.start_smartdevice)
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
 
     def post_initialize_actions(self, show_gui, do_hide_windows):
@@ -451,6 +450,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # Force repaint of the book details splitter because it otherwise ends
         # up with the wrong size. I don't know why.
         self.bd_splitter.repaint()
+
+        # Start the smartdevice later so that the network time doesn't affect
+        # the gui repaint debouncing. Wait 2 seconds before starting.
+        QTimer.singleShot(2000, self.start_smartdevice)
 
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
@@ -490,7 +493,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         message = None
         if self.device_manager.get_option('smartdevice', 'autostart'):
             try:
+                timed_print('Starting smartdevice')
                 message = self.device_manager.start_plugin('smartdevice')
+                timed_print('Finished starting smartdevice')
             except:
                 message = 'start smartdevice unknown exception'
                 prints(message)
