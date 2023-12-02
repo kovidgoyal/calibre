@@ -209,6 +209,11 @@ class CoverFlow(pictureflow.PictureFlow):
         else:
             super().paintEvent(ev)
 
+    def resizeEvent(self, ev):
+        if ev.oldSize() == QSize(-1, -1):
+            self.created_at = time.monotonic()
+        super().resizeEvent(ev)
+
     def __init__(self, parent=None):
         pictureflow.PictureFlow.__init__(self, parent,
                             config['cover_flow_queue_length']+1)
