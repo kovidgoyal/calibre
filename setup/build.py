@@ -721,8 +721,7 @@ sip-file = {os.path.basename(sipf)!r}
             self.create_sip_build_skeleton(src_dir, ext)
             cwd = src_dir
             cmd = [
-                sys.executable, '-c',
-                '''from sipbuild.tools.build import main; main();''',
+                sys.executable, '-m', 'sipbuild.tools.build',
                 '--verbose', '--no-make', '--qmake', QMAKE
             ]
         return cmd, sbf, cwd
