@@ -19,7 +19,6 @@ import time
 from collections import OrderedDict, deque
 from functools import partial
 from io import BytesIO
-from threading import Thread
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
     QUrl, pyqtSignal,
@@ -35,7 +34,6 @@ from calibre.db.legacy import LibraryDatabase
 from calibre.gui2 import (
     Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog,
     max_available_height, open_url, question_dialog, timed_print, warning_dialog,
-    FunctionDispatcher,
 )
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
@@ -455,7 +453,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         # Start the smartdevice later so that the network time doesn't affect
         # the gui repaint debouncing. Wait 2 seconds before starting.
-        self.start_smartdevice()
+        QTimer.singleShot(2000, self.start_smartdevice)
 
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
@@ -491,10 +489,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.apply_virtual_library()
         self.focus_current_view()
 
-    # smart device startup. Start it in a thread to avoid the network stuff
-    # slowing down GUI initialization
-    def start_smartdevice_callback(self, message):
-        timed_print(f'smartdevice started: message={message}')
+    def start_smartdevice(self):
+        message = None
+        if self.device_manager.get_option('smartdevice', 'autostart'):
+            try:
+                timed_print('Starting smartdevice')
+                message = self.device_manager.start_plugin('smartdevice')
+                timed_print('Finished starting smartdevice')
+            except:
+                message = 'start smartdevice unknown exception'
+                prints(message)
+                import traceback
+                traceback.print_exc()
         if message:
             if not self.device_manager.is_running('Wireless Devices'):
                 error_dialog(self, _('Problem starting the wireless device'),
@@ -502,27 +508,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                                'It said "%s"')%message, show=True)
         self.iactions['Connect Share'].set_smartdevice_action_state()
 
-    def start_smartdevice(self):
-        if self.device_manager.get_option('smartdevice', 'autostart'):
-            # Must use FunctionDispatcher here instead of Dispatcher because the
-            # device manager dynamic plugin interface expects the call to be on
-            # the GUI thread.
-            callback = FunctionDispatcher(self.start_smartdevice_callback)
-            def start_sd():
-                try:
-                    message = self.device_manager.start_plugin('smartdevice')
-                except:
-                    message = 'start smartdevice unknown exception'
-                    prints(message)
-                    import traceback
-                    traceback.print_exc()
-                callback(message)
-
-            t = Thread(target=start_sd)
-            timed_print('Starting smartdevice')
-            t.start()
-
-    # content server startup
     def start_content_server(self, check_started=True):
         from calibre.srv.embedded import Server
         if not gprefs.get('server3_warning_done', False):
