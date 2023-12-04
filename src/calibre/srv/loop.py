@@ -515,9 +515,10 @@ class ServerLoop:
         if not self.socket_was_preactivated:
             self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
+        ba_str = ''
         if isinstance(ba, tuple):
             addr = format_addr_for_url(str(ba[0]))
-            ba_str = f'{addr}:' + ':'.join(map(str, ba[1:]))
+            ba_str = f'{addr}:{ba[1]}'
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
