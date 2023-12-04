@@ -83,12 +83,12 @@ class ShareConnMenu(QMenu):  # {{{
             r(prefix + ' open server in browser', self.open_server_in_browser_action.text(), action=self.open_server_in_browser_action, group=gr)
 
     def server_state_changed(self, running):
-        from calibre.utils.mdns import get_external_ip, verify_ipV4_address
+        from calibre.utils.mdns import get_external_ip, verify_ip_address
         text = _('Start Content server')
         if running:
             from calibre.srv.opts import server_config
             opts = server_config()
-            listen_on = verify_ipV4_address(opts.listen_on) or get_external_ip()
+            listen_on = verify_ip_address(opts.listen_on) or get_external_ip()
             protocol = 'HTTPS' if opts.ssl_certfile and opts.ssl_keyfile else 'HTTP'
             try:
                 ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(
