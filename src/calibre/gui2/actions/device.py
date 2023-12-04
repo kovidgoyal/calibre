@@ -17,23 +17,15 @@ from calibre.utils.smtp import config as email_config
 
 def local_url_for_content_server():
     from calibre.srv.opts import server_config
-    from calibre.utils.network import is_ipv6_addr, get_fallback_server_addr
+    from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
 
     opts = server_config()
-    interface = opts.listen_on or get_fallback_server_addr()
-
-    addr_map = {'0.0.0.0': '127.0.0.1',
-                '::':      '::1'}
-    if interface in addr_map:
-        interface = addr_map[interface]
-
+    addr = opts.listen_on or get_fallback_server_addr()
+    addr = {'0.0.0.0': '127.0.0.1', '::': '::1'}.get(addr, addr)
     protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
     prefix = opts.url_prefix or ''
-
     port = opts.port
-    addr = f'[{interface}]' if is_ipv6_addr(interface) else f'{interface}'
-
-    return f'{protocol}://{addr}:{port}{prefix}'
+    return f'{protocol}://{format_addr_for_url(addr)}:{port}{prefix}'
 
 
 def open_in_browser():

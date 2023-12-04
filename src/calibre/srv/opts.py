@@ -112,8 +112,8 @@ raw_options = (
     _('The interface on which to listen for connections'),
     'listen_on', None,
     _('The default is to listen on all available IPv6 and IPv4 interfaces. You can change this to, for'
-    ' example, "127.0.0.1" to only listen for connections from the local machine, or'
-    ' to "::" to listen to all incoming IPv6 and IPv4 connections.'),
+    ' example, "127.0.0.1" to only listen for IPv4 connections from the local machine, or'
+    ' to "0.0.0.0" to listen to all incoming IPv4 connections.'),
 
     _('Fallback to auto-detected interface'),
     'fallback_to_detected_interface', True,

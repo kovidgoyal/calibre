@@ -1299,23 +1299,12 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
-        from calibre.utils.network import is_ipv6_addr, get_fallback_server_addr
-
+        from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
         prefix = self.advanced_tab.get('url_prefix') or ''
         protocol = 'https' if self.advanced_tab.has_ssl else 'http'
-        lo = self.advanced_tab.get('listen_on') or get_fallback_server_addr()
-
-        addr_map = {'0.0.0.0': '127.0.0.1',
-                    '::':      '::1'}
-        if lo in addr_map:
-            lo = addr_map[lo]
-
-        if is_ipv6_addr(lo):
-            lo = f'[{lo}]'
-
-        url = '{protocol}://{interface}:{port}{prefix}'.format(
-            protocol=protocol, interface=lo,
-            port=self.main_tab.opt_port.value(), prefix=prefix)
+        addr = self.advanced_tab.get('listen_on') or get_fallback_server_addr()
+        addr = {'0.0.0.0': '127.0.0.1', '::': '::1'}.get(addr, addr)
+        url = f'{protocol}://{format_addr_for_url(addr)}:{self.main_tab.opt_port.value()}{prefix}'
         open_url(QUrl(url))
 
     def view_server_logs(self):

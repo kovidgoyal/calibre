@@ -509,17 +509,14 @@ class ServerLoop:
             self.setup_socket()
 
     def serve(self):
-        from calibre.utils.network import is_ipv6_addr
+        from calibre.utils.network import format_addr_for_url
 
         self.connection_map = {}
         if not self.socket_was_preactivated:
             self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            if is_ipv6_addr(ba[0]):
-                addr = f'[{ba[0]}]'
-            else:
-                addr = f'{ba[0]}'
+            addr = format_addr_for_url(str(ba[0]))
             ba_str = f'{addr}:' + ':'.join(map(str, ba[1:]))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
