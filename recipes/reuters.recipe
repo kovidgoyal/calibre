@@ -14,7 +14,7 @@ country_defs = {
         'Business': 'business',
         'Markets': 'markets',
         'Tech': 'technology',
-        'Sports': 'lifestyle/sports',
+        # 'Sports': 'lifestyle/sports',
         'Wealth': 'markets/wealth',
     })
 }
