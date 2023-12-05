@@ -41,6 +41,7 @@
 #include <qxmlstream.h>
 
 #include <algorithm>
+#include <utility>
 
 // Note: A copy of this file is used in Qt Designer (qttools/src/designer/src/lib/shared/rcc.cpp)
 
@@ -693,7 +694,7 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
     for (auto it = cbegin; it != cend; ++it) {
         if (it.key() == filename && it.value()->m_language == s->m_language &&
             it.value()->m_territory == s->m_territory) {
-            for (const QString &name : qAsConst(m_fileNames)) {
+            for (const QString &name : std::as_const(m_fileNames)) {
                 qWarning("%s: Warning: potential duplicate alias detected: '%s'",
                 qPrintable(name), qPrintable(filename));
             }
