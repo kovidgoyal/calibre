@@ -163,7 +163,7 @@ def copy_python(env, ext_dir):
         elif os.path.isfile(c):
             shutil.copy2(c, j(dest, x))
     shutil.copytree(j(env.src_root, 'resources'), j(env.base, 'resources'))
-    for pak in glob.glob(j(QT_PREFIX, 'resources', '*.pak')):
+    for pak in glob.glob(j(QT_PREFIX, 'resources', '*')):
         shutil.copy2(pak, j(env.base, 'resources'))
     os.mkdir(j(env.base, 'translations'))
     shutil.copytree(j(QT_PREFIX, 'translations', 'qtwebengine_locales'), j(env.base, 'translations', 'qtwebengine_locales'))
