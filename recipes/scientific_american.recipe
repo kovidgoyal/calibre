@@ -44,6 +44,12 @@ class ScientificAmerican(BasicNewsRecipe):
         dict(name=['button', 'svg', 'iframe', 'source'])
     ]
 
+    def preprocess_html(self, soup):
+        for fig in soup.findAll('figcaption'):
+            for p in fig.findAll('p'):
+                p.name = 'span'
+        return soup
+
     def get_browser(self, *args):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
