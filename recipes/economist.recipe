@@ -126,6 +126,7 @@ class Economist(BasicNewsRecipe):
     title = 'The Economist'
     language = 'en'
     encoding = 'utf-8'
+    masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
     __author__ = "Kovid Goyal"
     description = (
@@ -156,6 +157,7 @@ class Economist(BasicNewsRecipe):
             font-size: smaller;
             color: red;
         }
+        img {display:block; margin:0 auto;}
         '''
     oldest_article = 7.0
     resolve_internal_links = True
@@ -251,6 +253,11 @@ class Economist(BasicNewsRecipe):
                 x.text = x.text.upper()
                 x.tag = 'span'
                 x.set('style', 'font-variant: small-caps')
+        for x in root.xpath('//figcaption'):
+            x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
@@ -295,6 +302,8 @@ class Economist(BasicNewsRecipe):
         if script_tag is not None:
             data = json.loads(script_tag.string)
             # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+            self.title = 'The Economist | ' + safe_dict(data, "props", "pageProps", "content", "image", "main", "headline")
+            self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "datePublishedString") + ']'
             self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical")
             self.log('Got cover:', self.cover_url)
 
