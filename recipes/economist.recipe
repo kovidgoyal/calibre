@@ -302,7 +302,7 @@ class Economist(BasicNewsRecipe):
         if script_tag is not None:
             data = json.loads(script_tag.string)
             # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-            self.title = 'The Economist | ' + safe_dict(data, "props", "pageProps", "content", "image", "main", "headline")
+            # self.title = 'The Economist | ' + safe_dict(data, "props", "pageProps", "content", "image", "main", "headline")
             self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "datePublishedString") + ']'
             self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical")
             self.log('Got cover:', self.cover_url)
