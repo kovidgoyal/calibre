@@ -437,11 +437,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         gc.collect()
 
         self.listener.start_listening()
-        # Once the gui is initialized we can restore the quickview state
-        # The same thing will be true for any action-based operation with a
-        # layout button. We need to let a book be selected in the book list
-        # before initializing quickview, so run it after an event loop tick
-        self.start_quickview()
         if do_hide_windows:
             self.hide_windows()
         if show_gui:
@@ -450,6 +445,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # Force repaint of the book details splitter because it otherwise ends
         # up with the wrong size. I don't know why.
         self.bd_splitter.repaint()
+
+        # Once the gui is initialized we can restore the quickview state
+        # The same thing will be true for any action-based operation with a
+        # layout button. We need to let a book be selected in the book list
+        # before initializing quickview, so run it after an event loop tick
+        QTimer.singleShot(0, self.start_quickview)
 
         # Start the smartdevice later so that the network time doesn't affect
         # the gui repaint debouncing. Wait 3 seconds before starting to be sure
@@ -462,8 +463,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
         qv = get_quickview_action_plugin()
         if qv:
-            timed_print('Starting QuickView')
+            timed_print('QuickView starting')
             qv.qv_button.restore_state()
+            timed_print('QuickView started')
         self.save_layout_state()
         self.focus_library_view()
 
