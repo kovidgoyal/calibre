@@ -314,9 +314,10 @@ class BuildTest(unittest.TestCase):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         from qt.core import (
-            QApplication, QFontDatabase, QImageReader, QNetworkAccessManager,
-            QSslSocket, QTimer,
+            QApplication, QFontDatabase, QImageReader, QLoggingCategory,
+            QNetworkAccessManager, QSslSocket, QTimer,
         )
+        QLoggingCategory.setFilterRules('''qt.webenginecontext.debug=true''')
         from qt.webengine import QWebEnginePage
 
         from calibre.utils.img import image_from_data, image_to_data, test
@@ -405,8 +406,8 @@ class BuildTest(unittest.TestCase):
         except ImportError:
             from PIL import _imaging, _imagingft, _imagingmath
         _imaging, _imagingmath, _imagingft
-        from PIL import features
         from io import StringIO
+        from PIL import features
         out = StringIO()
         features.pilinfo(out=out, supported_formats=False)
         out = out.getvalue()
