@@ -880,7 +880,7 @@ incompatibility with your system's GPU (graphics) drivers. Try updating these
 first, and reboot. If that does not fix it, you can set the
 ``QTWEBENGINE_CHROMIUM_FLAGS`` environment variable to the value
 ``--disable-gpu`` to turn off hardware acceleration. See
-`this page <https://doc.qt.io/qt-5/qtwebengine-debugging.html>`_ for details.
+`this page <https://doc.qt.io/qt-6/qtwebengine-debugging.html>`_ for details.
 
 
 Using the viewer or doing any conversions results in a permission denied error on Windows

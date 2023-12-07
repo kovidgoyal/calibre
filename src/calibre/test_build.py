@@ -373,7 +373,12 @@ class BuildTest(unittest.TestCase):
                 p.runJavaScript('1 + 1', callback)
                 p.printToPdf(print_callback)
 
+            def render_process_crashed(status, exit_code):
+                print('Qt WebEngine Render process crashed with status:', status, 'and exit code:', exit_code)
+                QApplication.instance().quit()
+
             p.titleChanged.connect(do_webengine_test)
+            p.renderProcessTerminated.connect(render_process_crashed)
             p.runJavaScript(f'document.title = "test-run-{os.getpid()}";')
             timeout = 10
             QTimer.singleShot(timeout * 1000, lambda: QApplication.instance().quit())
