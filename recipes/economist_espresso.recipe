@@ -63,3 +63,8 @@ class Espresso(BasicNewsRecipe):
             nt = new_tag(soup, 'hr')
             hr.append(nt)
         return soup
+    
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        return br
