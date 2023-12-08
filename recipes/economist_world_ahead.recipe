@@ -196,31 +196,9 @@ class Economist(BasicNewsRecipe):
             self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
 
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        # Add a cookie indicating we have accepted Economist's cookie
-        # policy (needed when running from some European countries)
-        ck = Cookie(
-            version=0,
-            name='notice_preferences',
-            value='2:',
-            port=None,
-            port_specified=False,
-            domain='.economist.com',
-            domain_specified=False,
-            domain_initial_dot=True,
-            path='/',
-            path_specified=False,
-            secure=False,
-            expires=None,
-            discard=False,
-            comment=None,
-            comment_url=None,
-            rest={'HttpOnly': None},
-            rfc2109=False
-        )
-        br.cookiejar.set_cookie(ck)
-        br.set_handle_gzip(True)
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
     def preprocess_raw_html(self, raw, url):
@@ -253,6 +231,7 @@ class Economist(BasicNewsRecipe):
             x.set('style', 'text-align:center; font-size:small;')
         for x in root.xpath('//cite'):
             x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
