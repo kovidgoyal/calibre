@@ -26,7 +26,7 @@ from calibre.ebooks.metadata.search_internet import (
 )
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    pixmap_to_data, rating_font, safe_open_url,
+    pixmap_to_data, question_dialog, rating_font, safe_open_url,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm, confirm as confirm_delete
 from calibre.gui2.dnd import (
@@ -169,21 +169,36 @@ def init_manage_action(ac, field, value):
     return ac
 
 
-def add_edit_notes_action(menu, book_info, field, value):
+def add_notes_context_menu_actions(menu, book_info, field, value):
     from calibre.gui2.ui import get_gui
     db = get_gui().current_db.new_api
     if db.field_supports_notes(field):
         item_id = db.get_item_id(field, value)
         if item_id is not None:
+            val = escape_for_menu(value)
             def edit_note():
                 gui = get_gui()
                 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
                 d = EditNoteDialog(field, item_id, gui.current_db.new_api, parent=book_info)
                 if d.exec() == QDialog.DialogCode.Accepted:
                     gui.do_field_item_value_changed()
-            ac = menu.addAction(_('Edit note for {}').format(escape_for_menu(value)))
+            ac = menu.addAction(_('Edit note for {}').format(val))
             ac.triggered.connect(edit_note)
             ac.setIcon(QIcon.ic('edit_input.png'))
+
+            def delete_note():
+                gui = get_gui()
+                if question_dialog(gui, _('Are you sure?'),
+                        _('Are you sure you want to delete the note for {} from this library? '
+                          'There is no undo.').format(val),
+                        skip_dialog_name='book_details_delete_note_context_menu'):
+                    print('here to delete')
+                    db = gui.current_db.new_api
+                    db.set_notes_for(field, item_id, '')
+                    gui.do_field_item_value_changed()
+            ac = menu.addAction(_('Delete note for {}').format(escape_for_menu(value)))
+            ac.triggered.connect(delete_note)
+            ac.setIcon(QIcon.ic('trash.png'))
 
 
 def init_find_in_tag_browser(menu, ac, field, value):
@@ -433,7 +448,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         init_find_in_tag_browser(search_menu, find_action, 'authors', author)
         init_find_in_grouped_search(search_menu, 'authors', author, book_info)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
-        add_edit_notes_action(menu, book_info, 'authors', author)
+        add_notes_context_menu_actions(menu, book_info, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             search_menu.addSeparator()
             search_menu.sim = create_search_internet_menu(book_info.search_internet, author)
@@ -494,7 +509,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 init_find_in_tag_browser(search_menu, find_action, field, value)
                 init_find_in_grouped_search(search_menu, field, value, book_info)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
-                add_edit_notes_action(menu, book_info, field, value)
+                add_notes_context_menu_actions(menu, book_info, field, value)
             elif field == 'languages':
                 remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
                 init_find_in_tag_browser(search_menu, find_action, field, value)
@@ -624,7 +639,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
             create_copy_links(copy_menu, data)
             copy_links_added = True
             search_internet_added = True
-            add_edit_notes_action(menu, view, data['field'], data['value'])
+            add_notes_context_menu_actions(menu, view, data['field'], data['value'])
         elif not url.startswith('#'):
             ac = book_info.copy_link_action
             ac.current_url = url
