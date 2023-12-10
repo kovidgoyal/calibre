@@ -63,8 +63,10 @@ class Espresso(BasicNewsRecipe):
             nt = new_tag(soup, 'hr')
             hr.append(nt)
         return soup
-    
+
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+        # Needed to bypass cloudflare
+        kwargs['user_agent'] = 'common_words/based'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
         return br
