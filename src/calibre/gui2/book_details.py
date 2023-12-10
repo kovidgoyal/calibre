@@ -192,7 +192,6 @@ def add_notes_context_menu_actions(menu, book_info, field, value):
                         _('Are you sure you want to delete the note for {} from this library? '
                           'There is no undo.').format(val),
                         skip_dialog_name='book_details_delete_note_context_menu'):
-                    print('here to delete')
                     db = gui.current_db.new_api
                     db.set_notes_for(field, item_id, '')
                     gui.do_field_item_value_changed()
