@@ -108,14 +108,6 @@ QPalette.unserialize_from_bytes = unserialize_palette
 
 
 def fix_palette_colors(p):
-    if iswindows:
-        # On Windows the highlighted colors for inactive widgets are the
-        # same as non highlighted colors. This is a regression from Qt 4.
-        # Possibly fixed in Qt 6.5 need to test
-        # https://bugreports.qt-project.org/browse/QTBUG-41060
-        for role in (QPalette.ColorRole.Highlight, QPalette.ColorRole.HighlightedText, QPalette.ColorRole.Base, QPalette.ColorRole.AlternateBase):
-            p.setColor(QPalette.ColorGroup.Inactive, role, p.color(QPalette.ColorGroup.Active, role))
-        return True
     return False
 
 
