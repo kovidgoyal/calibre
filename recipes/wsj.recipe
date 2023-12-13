@@ -46,6 +46,7 @@ class WSJ(BasicNewsRecipe):
     remove_attributes = ['style','height','width']
     needs_subscription = needs_subscription
     WSJ_ITP = 'https://www.wsj.com/print-edition/today'
+    delay = 1
 
     storage = []
 
