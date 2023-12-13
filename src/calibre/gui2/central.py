@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
+from copy import copy
 from enum import Enum, auto
+from dataclasses import dataclass
 from qt.core import (
     QDialog, QLabel, QPalette, QPointF, QSize, QSizePolicy, QStyle, QStyleOption,
     QStylePainter, Qt, QVBoxLayout, QWidget, pyqtSignal
@@ -33,6 +35,7 @@ class SplitterHandle(QWidget):
     drag_ended = pyqtSignal()
     dragged_to = pyqtSignal(QPointF)
     drag_start = None
+    COLLAPSED_SIZE = 2  # pixels
 
     def __init__(self, parent: QWidget=None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
         super().__init__(parent)
@@ -76,7 +79,7 @@ class SplitterHandle(QWidget):
         opt.initFrom(self)
         if self.orientation is Qt.Orientation.Vertical:
             opt.state |= QStyle.StateFlag.State_Horizontal
-        if self.state is HandleState.only_side_visible:
+        if min(opt.rect.width(), opt.rect.height()) == self.COLLAPSED_SIZE:
             p.fillRect(opt.rect, opt.palette.color(QPalette.ColorRole.Window))
         else:
             p.drawControl(QStyle.ControlElement.CE_Splitter, opt)
@@ -89,14 +92,21 @@ class Layout(Enum):
     narrow = auto()
 
 
+@dataclass
 class WideDesires:
-    tag_browser_width = book_details_width = None
-    cover_browser_height = quickview_height = None
+    tag_browser_width: int = None
+    book_details_width: int = None
+    cover_browser_height: int = None
+    quickview_height: int = None
 
 
+@dataclass
 class Visibility:
-    tag_browser = book_details = book_list = True
-    cover_browser = quick_view = False
+    tag_browser: bool = True
+    book_details: bool = True
+    book_list: bool = True
+    cover_browser: bool = False
+    quick_view: bool = False
 
 
 class Central(QWidget):
@@ -110,6 +120,7 @@ class Central(QWidget):
         self.tag_browser = Placeholder('tag browser', self)
         self.book_list = Placeholder('book list', self)
         self.cover_browser = Placeholder('cover browser', self)
+        self.cover_browser.setMinimumSize(QSize(300, 150))
         self.book_details = Placeholder('book details', self)
         self.quick_view = Placeholder('quick view', self)
 
@@ -130,10 +141,17 @@ class Central(QWidget):
 
     def splitter_handle_dragged(self, pos):
         handle = self.sender()
+        bv = copy(self.is_visible)
         if self.layout is Layout.wide:
+            bd = copy(self.wide_desires)
             self.wide_move_splitter_handle_to(handle, pos)
+            ad = self.wide_desires
         else:
+            bd = copy(self.narrow_desires)
             self.narrow_move_splitter_handle_to(handle, pos)
+            ad = self.narrow_desires
+        if (bv, bd) != (self.is_visible, ad):
+            self.relayout()
 
     def refresh_after_config_change(self):
         self.layout = Layout.narrow if config.get('gui_layout') == 'narrow' else Layout.wide
@@ -168,12 +186,15 @@ class Central(QWidget):
         if handle is self.bottom_handle:
             return HandleState.both_visible if self.is_visible.quick_view else HandleState.only_main_visible
 
+    def min_central_width(self):
+        return max(200, self.cover_browser.minimumWidth())
+
     def do_wide_layout(self):
         s = self.style()
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_width = self.width()
         for h in (self.left_handle, self.right_handle):
-            width = 1
+            width = h.COLLAPSED_SIZE
             hs = h.state
             if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
                 width = normal_handle_width
@@ -186,9 +207,9 @@ class Central(QWidget):
         bd = self.wide_desires.book_details_width or default_width
         if not self.is_visible.book_details:
             bd = 0
-        min_book_list_width = max(200, self.cover_browser.minimumWidth(), available_width // 10)
-        if tb + bd > available_width - min_book_list_width:
-            width_to_share = max(0, available_width - min_book_list_width)
+        min_central_width = self.min_central_width()
+        if tb + bd > available_width - min_central_width:
+            width_to_share = max(0, available_width - min_central_width)
             tb = int(tb * width_to_share / (tb + bd))
             bd = width_to_share - tb
         central_width = available_width - (tb + bd)
@@ -200,13 +221,13 @@ class Central(QWidget):
 
         available_height = self.height()
         for h in (self.top_handle, self.bottom_handle):
-            height = 1
+            height = h.COLLAPSED_SIZE
             hs = h.state
             if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
                 height = normal_handle_width
             if h is self.bottom_handle and hs is HandleState.only_main_visible:
                 height = 0
-            h.resize(self.width(), height)
+            h.resize(central_width, height)
             available_height -= height
 
         cb = max(self.cover_browser.minimumHeight(), self.wide_desires.cover_browser_height or (2 * available_height // 5))
@@ -230,7 +251,41 @@ class Central(QWidget):
         self.quick_view.setGeometry(central_x, self.bottom_handle.y() + self.bottom_handle.height(), central_width, qv)
 
     def wide_move_splitter_handle_to(self, handle: SplitterHandle, pos: QPointF):
-        raise NotImplementedError('TODO: Implement me')
+        if handle is self.left_handle:
+            x = int(pos.x())
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width()
+            self.is_visible.tag_browser = True
+            if x < 10:
+                self.is_visible.tag_browser = False
+                self.wide_desires.tag_browser_width = 10
+            elif x > available_width - self.min_central_width():
+                self.wide_desires.tag_browser_width = available_width - self.min_central_width()
+            else:
+                self.wide_desires.tag_browser_width = x
+        elif handle is self.right_handle:
+            x = int(pos.x())
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width()
+            self.is_visible.book_details = True
+            w = self.width() - x - self.right_handle.width()
+            if w < 10:
+                self.is_visible.book_details = False
+                self.wide_desires.book_details_width = 10
+            elif w > available_width - self.min_central_width():
+                self.wide_desires.book_details_width = available_width - self.min_central_width()
+            else:
+                self.wide_desires.book_details_width = w
+        elif handle is self.top_handle:
+            y = int(pos.y())
+            self.is_visible.cover_browser = True
+            if y < max(self.cover_browser.minimumHeight(), 10):
+                self.is_visible.cover_browser = False
+                self.wide_desires.cover_browser_height = max(10, self.cover_browser.minimumHeight())
+            else:
+                self.wide_desires.cover_browser_height = max(y, self.cover_browser.minimumHeight())
+        elif handle is self.bottom_handle:
+            y = int(pos.y())
+            available_height = self.height() - self.top_handle.height() - self.bottom_handle.height()
+            available_height
     # }}}
 
     # Narrow {{{
