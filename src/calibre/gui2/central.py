@@ -10,6 +10,7 @@ from qt.core import (
 )
 
 from calibre.gui2 import Application, config
+from calibre.gui2.cover_flow import MIN_SIZE
 
 
 class Placeholder(QLabel):
@@ -94,10 +95,10 @@ class Layout(Enum):
 
 @dataclass
 class WideDesires:
-    tag_browser_width: int = None
-    book_details_width: int = None
-    cover_browser_height: int = None
-    quickview_height: int = None
+    tag_browser_width: int = 0
+    book_details_width: int = 0
+    cover_browser_height: int = 0
+    quickview_height: int = 0
 
 
 @dataclass
@@ -120,9 +121,10 @@ class Central(QWidget):
         self.tag_browser = Placeholder('tag browser', self)
         self.book_list = Placeholder('book list', self)
         self.cover_browser = Placeholder('cover browser', self)
-        self.cover_browser.setMinimumSize(QSize(300, 150))
+        self.cover_browser.setMinimumSize(MIN_SIZE)
         self.book_details = Placeholder('book details', self)
         self.quick_view = Placeholder('quick view', self)
+        self.setMinimumSize(MIN_SIZE + QSize(200, 100))
 
         def h(orientation: Qt.Orientation = Qt.Orientation.Vertical):
             ans = SplitterHandle(self, orientation)
@@ -133,6 +135,29 @@ class Central(QWidget):
         self.right_handle = h()
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
+
+    def toggle_panel(self, which):
+        was_visible = getattr(self.is_visible, which)
+        setattr(self.is_visible, which, was_visible ^ True)
+        if not was_visible:
+            if self.layout is Layout.wide:
+                self.size_panel_on_initial_show_wide(which)
+            else:
+                self.size_panel_on_initial_show_narrow(which)
+        self.relayout()
+
+    def toggle_tag_browser(self):
+        self.toggle_panel('tag_browser')
+
+    def toggle_book_details(self):
+        self.toggle_panel('book_details')
+
+    def toggle_cover_browser(self):
+        self.toggle_panel('cover_browser')
+
+    def toggle_quick_view(self):
+        self.toggle_panel('quick_view')
+        self.relayout()
 
     def handle_state(self, handle):
         if self.layout is Layout.wide:
@@ -189,6 +214,10 @@ class Central(QWidget):
     def min_central_width(self):
         return max(200, self.cover_browser.minimumWidth())
 
+    def default_wide_side_panel_width(self):
+        available_width = self.width() - 2 * int(self.style().pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
+        return min(300, (3 * available_width) // 10)
+
     def do_wide_layout(self):
         s = self.style()
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
@@ -200,7 +229,7 @@ class Central(QWidget):
                 width = normal_handle_width
             h.resize(width, self.height())
             available_width -= width
-        default_width = min(300, (3 * available_width) // 10)
+        default_width = self.default_wide_side_panel_width()
         tb = self.wide_desires.tag_browser_width or default_width
         if not self.is_visible.tag_browser:
             tb = 0
@@ -241,9 +270,11 @@ class Central(QWidget):
             min_bl_height = 50
             if available_height <= min_bl_height:
                 bl = available_height
-            else:
-                qv = min(available_height - min_bl_height, qv)
+            elif self.is_visible.quick_view:
+                qv = min(available_height - min_bl_height, self.wide_desires.quickview_height or min(200, available_height // 2))
                 bl = available_height - qv
+            else:
+                bl = available_height
         self.cover_browser.setGeometry(central_x, 0, central_width, cb)
         self.top_handle.move(central_x, cb)
         self.book_list.setGeometry(central_x, self.top_handle.y() + self.top_handle.height(), central_width, bl)
@@ -253,27 +284,23 @@ class Central(QWidget):
     def wide_move_splitter_handle_to(self, handle: SplitterHandle, pos: QPointF):
         if handle is self.left_handle:
             x = int(pos.x())
-            available_width = self.width() - self.left_handle.width() - self.right_handle.width()
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width()
             self.is_visible.tag_browser = True
             if x < 10:
                 self.is_visible.tag_browser = False
                 self.wide_desires.tag_browser_width = 10
-            elif x > available_width - self.min_central_width():
-                self.wide_desires.tag_browser_width = available_width - self.min_central_width()
             else:
-                self.wide_desires.tag_browser_width = x
+                self.wide_desires.tag_browser_width = min(available_width, x)
         elif handle is self.right_handle:
             x = int(pos.x())
-            available_width = self.width() - self.left_handle.width() - self.right_handle.width()
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width()
             self.is_visible.book_details = True
             w = self.width() - x - self.right_handle.width()
             if w < 10:
                 self.is_visible.book_details = False
                 self.wide_desires.book_details_width = 10
-            elif w > available_width - self.min_central_width():
-                self.wide_desires.book_details_width = available_width - self.min_central_width()
             else:
-                self.wide_desires.book_details_width = w
+                self.wide_desires.book_details_width = min(available_width, w)
         elif handle is self.top_handle:
             y = int(pos.y())
             self.is_visible.cover_browser = True
@@ -284,8 +311,23 @@ class Central(QWidget):
                 self.wide_desires.cover_browser_height = max(y, self.cover_browser.minimumHeight())
         elif handle is self.bottom_handle:
             y = int(pos.y())
-            available_height = self.height() - self.top_handle.height() - self.bottom_handle.height()
-            available_height
+            h = self.height() - y - self.bottom_handle.height()
+            if h < 10:
+                self.is_visible.quick_view = False
+                self.wide_desires.quickview_height = 10
+            else:
+                available_height = max(0, self.height() - self.top_handle.height() - self.bottom_handle.height() - self.cover_browser.minimumHeight() - 50)
+                self.wide_desires.quickview_height = max(10, min(h, available_height))
+
+    def size_panel_on_initial_show_wide(self, which):
+        if which in ('tag_browser', 'book_details'):
+            current = getattr(self.wide_desires, which)
+            if current and current < 50:
+                setattr(self.wide_desires, which, self.default_wide_side_panel_width())
+        elif which == 'cover_browser':
+            self.wide_desires.cover_browser_height = max(self.wide_desires.cover_browser_height, self.cover_browser.minimumHeight())
+        else:
+            self.wide_desires.quickview_height = max(self.wide_desires.quickview_height, 150)
     # }}}
 
     # Narrow {{{
@@ -296,6 +338,9 @@ class Central(QWidget):
         raise NotImplementedError('TODO: Implement me')
 
     def do_narrow_layout(self):
+        raise NotImplementedError('TODO: Implement me')
+
+    def size_panel_on_initial_show_narrow(self, which):
         raise NotImplementedError('TODO: Implement me')
     # }}}
 
@@ -313,6 +358,15 @@ def develop():
             self.central = Central(self)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
+        def keyPressEvent(self, ev):
+            if ev.key() == Qt.Key.Key_Q:
+                self.central.toggle_quick_view()
+            elif ev.key() == Qt.Key.Key_T:
+                self.central.toggle_tag_browser()
+            elif ev.key() == Qt.Key.Key_C:
+                self.central.toggle_cover_browser()
+            elif ev.key() == Qt.Key.Key_D:
+                self.central.toggle_book_details()
 
     d = d()
     d.show()

@@ -24,6 +24,9 @@ from calibre.gui2 import config, gprefs, rating_font
 from calibre_extensions import pictureflow
 
 
+MIN_SIZE = QSize(300, 150)
+
+
 class EmptyImageList(pictureflow.FlowImages):
 
     def __init__(self):
@@ -218,7 +221,7 @@ class CoverFlow(pictureflow.PictureFlow):
         pictureflow.PictureFlow.__init__(self, parent,
                             config['cover_flow_queue_length']+1)
         self.created_at = time.monotonic()
-        self.setMinimumSize(QSize(300, 150))
+        self.setMinimumSize(MIN_SIZE)
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding))
