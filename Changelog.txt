@@ -23,6 +23,36 @@
 # - title by author
 # }}}
 
+{{{ 7.2.0 2023-12-14
+
+:: new features
+
+- Content server: Also listen for all incoming IPv6 connections by default, not just IPv4
+
+- Book details: Allow deleting notes from the right click menu easily
+
+:: bug fixes
+
+- [2045133] Windows: Edit book: Fix a crash when using the check book tool with a book that contains malformed markup, in calibre 7
+
+- Windows: Improve flickering at startup due to a Qt regression in calibre 7
+
+- Windows: Fix moving the main window causing popup/floating windows to be resized in calibre 7 due to yet another Qt regression
+
+- [2044659] Fix detection of existing books on the Tolino Vision 6
+
+- Linux: Fix external applications not being launched under Wayland in calibre 7 because of a bug in Qt
+
+:: improved recipes
+- Reuters
+- Scientific American
+- New Yorker
+- Times of India
+- infzm
+- singtaohk
+
+}}}
+
 {{{ 7.1.0 2023-11-23
 
 :: new features
