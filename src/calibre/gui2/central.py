@@ -98,7 +98,7 @@ class WideDesires:
     tag_browser_width: int = 0
     book_details_width: int = 0
     cover_browser_height: int = 0
-    quickview_height: int = 0
+    quick_view_height: int = 0
 
 
 @dataclass
@@ -286,7 +286,7 @@ class Central(QWidget):
             if available_height <= min_bl_height:
                 bl = available_height
             elif self.is_visible.quick_view:
-                qv = min(available_height - min_bl_height, self.wide_desires.quickview_height or min(200, available_height // 2))
+                qv = min(available_height - min_bl_height, self.wide_desires.quick_view_height or min(200, available_height // 2))
                 bl = available_height - qv
             else:
                 bl = available_height
@@ -332,20 +332,21 @@ class Central(QWidget):
             h = self.height() - y - self.bottom_handle.height()
             if h < 10:
                 self.is_visible.quick_view = False
-                self.wide_desires.quickview_height = 10
+                self.wide_desires.quick_view_height = 10
             else:
                 available_height = max(0, self.height() - self.top_handle.height() - self.bottom_handle.height() - self.cover_browser.minimumHeight() - 50)
-                self.wide_desires.quickview_height = max(10, min(h, available_height))
+                self.wide_desires.quick_view_height = max(10, min(h, available_height))
 
     def size_panel_on_initial_show_wide(self, which):
         if which in ('tag_browser', 'book_details'):
+            which += '_width'
             current = getattr(self.wide_desires, which)
             if current and current < 50:
                 setattr(self.wide_desires, which, self.default_wide_side_panel_width())
         elif which == 'cover_browser':
             self.wide_desires.cover_browser_height = max(self.wide_desires.cover_browser_height, self.cover_browser.minimumHeight())
         else:
-            self.wide_desires.quickview_height = max(self.wide_desires.quickview_height, 150)
+            self.wide_desires.quick_view_height = max(self.wide_desires.quick_view_height, 150)
     # }}}
 
     # Narrow {{{
@@ -416,7 +417,7 @@ class Central(QWidget):
             self.tag_browser.setGeometry(0, 0, tb, self.height())
         self.left_handle.move(tb, 0)
         central_x = self.left_handle.x() + self.left_handle.width()
-        self.right_handle.move(cb + central_width + self.left_handle.width(), 0)
+        self.right_handle.move(tb + central_width + self.left_handle.width(), 0)
         if self.is_visible.cover_browser:
             self.cover_browser.setGeometry(self.right_handle.x() + self.right_handle.width(), 0, cb, self.height())
         self.top_handle.resize(central_width, normal_handle_width if self.is_visible.quick_view else 0)
@@ -434,13 +435,22 @@ class Central(QWidget):
         raise NotImplementedError('TODO: Implement me')
 
     def size_panel_on_initial_show_narrow(self, which):
-        raise NotImplementedError('TODO: Implement me')
+        if which in ('tag_browser', 'cover_browser'):
+            which += '_width'
+            current = getattr(self.narrow_desires, which)
+            if current and current < 50:
+                setattr(self.narrow_desires, which, self.default_wide_side_panel_width())
+        elif which == 'book_details':
+            self.narrow_desires.book_details_height = max(self.narrow_desires.book_details_height, 350)
+        else:
+            self.narrow_desires.quick_view_height = max(self.narrow_desires.quick_view_height, 200)
     # }}}
 
     def sizeHint(self):
         return QSize(800, 600)
 
 
+# develop {{{
 def develop():
     app = Application([])
     class d(QDialog):
@@ -472,3 +482,4 @@ def develop():
 
 if __name__ == '__main__':
     develop()
+# }}}
