@@ -43,6 +43,8 @@
 
 - Linux: Fix external applications not being launched under Wayland in calibre 7 because of a bug in Qt
 
+- Linux: Fix network requests failing under Fedora in calibre 7
+
 :: improved recipes
 - Reuters
 - Scientific American
