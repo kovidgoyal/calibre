@@ -514,6 +514,7 @@ class TagBrowserMixin:  # {{{
         m = self.library_view.model()
         ids = [m.id(r) for r in rows]
 
+        self.tags_view.model().reset_notes_and_link_maps()
         m.refresh(reset=False)
         m.research()
         self.library_view.select_rows(ids)

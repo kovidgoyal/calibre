@@ -22,7 +22,7 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import (
     FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data,
-    question_dialog, rating_font,
+    question_dialog, rating_font, safe_open_url,
 )
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.complete2 import EditWithComplete
@@ -43,6 +43,9 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
         self.rating_font = QFont(rating_font())
         self.tags_view = tags_view
+        self.links_icon = QIcon.ic('external-link.png')
+        self.notes_icon = QIcon.ic('notes.png')
+        self.blank_icon = QIcon()
 
     def draw_average_rating(self, item, style, painter, option, widget):
         rating = item.average_rating
@@ -86,6 +89,30 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         hover = option.state & QStyle.StateFlag.State_MouseOver
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
+
+        show_notes = gprefs['show_notes_in_tag_brouser']
+        show_links = gprefs['show_links_in_tag_brouser']
+        if item.type == TagTreeItem.TAG:
+            category = item.tag.category
+            name = item.tag.original_name
+            m = self.tags_view._model
+            if show_notes and m.category_has_notes(category):
+                icon = self.notes_icon if m.item_has_note(category, name) else self.blank_icon
+                width = int(tr.height()/2)
+                r = QRect(tr)
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
+                self.tags_view.current_note_button_position = (r.left(), r.left()+r.width())
+                icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
+                tr.setRight(r.left() - 1)
+
+            if show_links and m.category_has_links(category):
+                icon = self.links_icon if m.item_has_link(category, name) else self.blank_icon
+                width = int(tr.height()/2)
+                r = QRect(tr)
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
+                self.tags_view.current_link_button_position = (r.left(), r.left()+r.width())
+                icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
+                tr.setRight(r.left() - 1)
         if not is_search and (hover or gprefs['tag_browser_show_counts']):
             count = str(index.data(COUNT_ROLE))
             width = painter.fontMetrics().boundingRect(count).width()
@@ -202,6 +229,8 @@ class TagsView(QTreeView):  # {{{
         self.setTabKeyNavigation(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
+        self.current_note_button_position = (-1, -1)
+        self.current_link_button_position = (-1, -1)
         self.setItemDelegate(TagDelegate(tags_view=self))
         self.made_connections = False
         self.setAcceptDrops(True)
@@ -428,10 +457,29 @@ class TagsView(QTreeView):  # {{{
         except:
             pass
 
+    def number_in_range(self, val, range_tuple):
+        return range_tuple[0] <= val <= range_tuple[1]
+
     def mousePressEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton:
             # Only remember a possible drag start if the item is drag enabled
             dex = self.indexAt(event.pos())
+            t = self._model.data(dex, Qt.UserRole)
+            if t.type == TagTreeItem.TAG:
+                db = self._model.db.new_api
+                tag = t.tag
+                x = event.pos().x()
+                if self.number_in_range(x, self.current_note_button_position):
+                    from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
+                    item_id = db.get_item_id(tag.category, tag.original_name)
+                    if db.notes_for(tag.category, item_id):
+                        ShowNoteDialog(tag.category, item_id, db, parent=self).show()
+                        return
+                elif self.number_in_range(x, self.current_link_button_position):
+                    link = db.get_link_map(tag.category).get(tag.original_name)
+                    if link:
+                        safe_open_url(link)
+                        return
             if self._model.flags(dex) & Qt.ItemFlag.ItemIsDragEnabled:
                 self.possible_drag_start = event.pos()
             else:
@@ -811,6 +859,19 @@ class TagsView(QTreeView):  # {{{
                             self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
                                             action='edit_author_link', index=tag.id)).setIcon(QIcon.ic('insert-link.png'))
+                        elif self.db.new_api.has_link_map(key):
+                            self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
+                                    partial(self.context_menu_handler, action='open_editor',
+                                            category=tag.original_name if tag else None,
+                                            key=key))
+
+                        if self.db.new_api.field_supports_notes(key):
+                            item_id = self.db.new_api.get_item_id(tag.category, tag.original_name)
+                            has_note = self._model.item_has_note(key, tag.original_name) #bool(self.db.new_api.notes_for(tag.category, item_id))
+                            self.context_menu.addAction(self.edit_metadata_icon,
+                                (_('Edit note for %s') if has_note else _('Create note for %s'))%display_name(tag),
+                                partial(self.context_menu_handler, action='edit_note',
+                                        index=index, extra=item_id, category=tag.category))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a User category'
@@ -848,14 +909,6 @@ class TagsView(QTreeView):  # {{{
                             m.addAction(self.minus_icon,
                                 _('Remove %s from selected books') % display_name(tag),
                                 partial(self.context_menu_handler, action='remove_tag', index=index))
-
-                        item_id = self.db.new_api.get_item_id(tag.category, tag.original_name)
-                        has_note = bool(self.db.new_api.notes_for(tag.category, item_id))
-                        self.context_menu.addAction(self.edit_metadata_icon,
-                            (_('Edit note for %s') if has_note else _('Create note for %s'))%display_name(tag),
-                            partial(self.context_menu_handler, action='edit_note',
-                                    index=index, extra=item_id, category=tag.category))
-
                     elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),

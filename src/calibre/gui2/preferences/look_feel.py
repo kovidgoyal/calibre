@@ -646,6 +646,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('language', prefs, choices=choices, restart_required=True, setting=LanguageSetting)
 
         r('show_avg_rating', config)
+        r('show_links_in_tag_brouser', gprefs)
+        r('show_notes_in_tag_brouser', gprefs)
         r('disable_animations', config)
         r('systray_icon', config, restart_required=True)
         r('show_splash_screen', gprefs)
