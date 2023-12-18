@@ -873,11 +873,11 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
         ac.setIcon(QIcon.ic('minus.png' if config['show_avg_rating'] else 'plus.png'))
         ac = self.alter_tb.m.show_notes_icon_action
-        ac.setText(_('Hide notes icon') if gprefs['show_notes_in_tag_brouser'] else _('Show notes icon'))
-        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_notes_in_tag_brouser'] else 'plus.png'))
+        ac.setText(_('Hide notes icon') if gprefs['show_notes_in_tag_browser'] else _('Show notes icon'))
+        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_notes_in_tag_browser'] else 'plus.png'))
         ac = self.alter_tb.m.show_links_icon_action
-        ac.setText(_('Hide links icon') if gprefs['show_links_in_tag_brouser'] else _('Show links icon'))
-        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_links_in_tag_brouser'] else 'plus.png'))
+        ac.setText(_('Hide links icon') if gprefs['show_links_in_tag_browser'] else _('Show links icon'))
+        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_links_in_tag_browser'] else 'plus.png'))
 
     def filter_book_list(self):
         self.tags_view.model().set_in_tag_browser()
@@ -892,11 +892,11 @@ class TagBrowserWidget(QFrame):  # {{{
         self.tags_view.recount_with_position_based_index()
 
     def toggle_notes_icon(self):
-        gprefs['show_notes_in_tag_brouser'] ^= True
+        gprefs['show_notes_in_tag_browser'] ^= True
         self.tags_view.recount_with_position_based_index()
 
     def toggle_links_icon(self):
-        gprefs['show_links_in_tag_brouser'] ^= True
+        gprefs['show_links_in_tag_browser'] ^= True
         self.tags_view.recount_with_position_based_index()
 
     def save_state(self):

@@ -91,8 +91,8 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
 
-        show_notes = gprefs['show_notes_in_tag_brouser']
-        show_links = gprefs['show_links_in_tag_brouser']
+        show_notes = gprefs['show_notes_in_tag_browser']
+        show_links = gprefs['show_links_in_tag_browser']
         if item.type == TagTreeItem.TAG:
             category = item.tag.category
             name = item.tag.original_name

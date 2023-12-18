@@ -1306,7 +1306,7 @@ structure and you want to use the same column order for each one.&lt;/p&gt;</str
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QCheckBox" name="opt_show_links_in_tag_brouser">
+           <widget class="QCheckBox" name="opt_show_links_in_tag_browser">
             <property name="text">
              <string>Show &amp;links icons</string>
             </property>
@@ -1338,7 +1338,7 @@ see the counts by hovering your mouse over any item.&lt;/p&gt;</string>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QCheckBox" name="opt_show_notes_in_tag_brouser">
+           <widget class="QCheckBox" name="opt_show_notes_in_tag_browser">
             <property name="text">
              <string>Show &amp;notes icons</string>
             </property>
