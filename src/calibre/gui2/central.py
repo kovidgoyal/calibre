@@ -432,7 +432,46 @@ class Central(QWidget):
             self.quick_view.setGeometry(central_x, self.top_handle.y() + self.top_handle.height(), central_width, qv)
 
     def narrow_move_splitter_handle_to(self, handle: SplitterHandle, pos: QPointF):
-        raise NotImplementedError('TODO: Implement me')
+        if handle is self.left_handle:
+            x = int(pos.x())
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_narrow()
+            self.is_visible.tag_browser = True
+            if x < 10:
+                self.is_visible.tag_browser = False
+                self.narrow_desires.tag_browser_width = 10
+            else:
+                self.narrow_desires.tag_browser_width = min(available_width, x)
+        elif handle is self.right_handle:
+            x = int(pos.x())
+            available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_narrow()
+            self.is_visible.cover_browser = True
+            w = min(available_width, self.width() - x - self.right_handle.width())
+            if w < 10:
+                self.is_visible.cover_browser = False
+                self.narrow_desires.book_details_width = 10
+            else:
+                self.narrow_desires.cover_browser_width = max(self.cover_browser.minimumWidth(), w)
+        elif handle is self.bottom_handle:
+            y = int(pos.y())
+            h = self.height() - y - self.bottom_handle.height()
+            if h < 10:
+                self.is_visible.book_details = False
+                self.narrow_desires.book_details_height = 10
+            else:
+                self.is_visible.book_details = True
+                available_height = max(0, self.height() - self.bottom_handle.height() - self.min_central_height_narrow())
+                self.narrow_desires.book_details_height = max(10, min(h, available_height))
+        elif handle is self.top_handle:
+            y = int(pos.y())
+            available_height = self.bottom_handle.y() if self.is_visible.book_details else self.height()
+            available_height -= self.top_handle.height()
+            h = available_height - y
+            if h < 10 or available_height < 5:
+                self.is_visible.quick_view = False
+                self.narrow_desires.quick_view_height = 10
+            else:
+                self.is_visible.quick_view = True
+                self.narrow_desires.quick_view_height = max(0, available_height - y)
 
     def size_panel_on_initial_show_narrow(self, which):
         if which in ('tag_browser', 'cover_browser'):
