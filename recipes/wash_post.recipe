@@ -33,6 +33,9 @@ class TheWashingtonPost(BasicNewsRecipe):
         .time { font-size:small; color: #202020; }
     '''
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False, user_agent='common_words/based')
+
     # Official feeds: https://www.washingtonpost.com/discussions/2018/10/12/washington-post-rss-feeds/
     feeds = [
         (u'Politics', u'http://feeds.washingtonpost.com/rss/politics'),

@@ -31,6 +31,9 @@ class wapoprint(BasicNewsRecipe):
         .time { font-size:small; color: #202020; }
     '''
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     def parse_index(self):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
         if img := soup.find('img', attrs={'src':lambda x: x and x.endswith('_FrontPage.png')}):
