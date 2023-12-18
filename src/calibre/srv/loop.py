@@ -145,6 +145,7 @@ def parse_trusted_ips(spec):
 
 
 def is_ip_trusted(remote_addr, trusted_ips):
+    remote_addr = getattr(remote_addr, 'ipv4_mapped', remote_addr)
     for tip in trusted_ips:
         if hasattr(tip, 'hosts'):
             if remote_addr in tip:
