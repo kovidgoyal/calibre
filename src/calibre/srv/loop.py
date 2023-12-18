@@ -13,6 +13,7 @@ import traceback
 from contextlib import suppress
 from functools import lru_cache, partial
 from io import BytesIO
+from typing import Union
 
 from calibre import as_unicode
 from calibre.constants import iswindows
@@ -154,6 +155,15 @@ def is_ip_trusted(remote_addr, trusted_ips):
     return False
 
 
+def is_local_address(addr: Union[ipaddress.IPv4Address, ipaddress.IPv6Address, None]):
+    if addr is None:
+        return False
+    if addr.is_loopback:
+        return True
+    ipv4_mapped = getattr(addr, 'ipv4_mapped', None)
+    return getattr(ipv4_mapped, 'is_loopback', False)
+
+
 class Connection:  # {{{
 
     def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
@@ -165,7 +175,7 @@ class Connection:  # {{{
         except Exception:
             # In case addr is None, which can occasionally happen
             self.remote_addr = self.remote_port = self.parsed_remote_addr = None
-        self.is_trusted_ip = bool(self.opts.local_write and getattr(self.parsed_remote_addr, 'is_loopback', False))
+        self.is_trusted_ip = bool(self.opts.local_write and is_local_address(self.parsed_remote_addr))
         if not self.is_trusted_ip and self.opts.trusted_ips and self.parsed_remote_addr is not None:
             self.is_trusted_ip = is_ip_trusted(self.parsed_remote_addr, parsed_trusted_ips(self.opts.trusted_ips))
         self.orig_send_bufsize = self.send_bufsize = 4096
