@@ -235,10 +235,16 @@ class TagTreeItem:  # {{{
                 ar = self.average_rating
                 if ar:
                     tt.append(_('Average rating for books in this category: %.1f') % ar)
-                elif self.type == self.TAG and ar is not None:
-                    tt.append(_('Books in this category are unrated'))
-                if self.type == self.TAG and tag.category != 'search':
-                    tt.append(_('Number of books: %s') % self.item_count)
+                elif self.type == self.TAG:
+                    if ar is not None:
+                        tt.append(_('Books in this category are unrated'))
+                    if tag.category != 'search':
+                        tt.append(_('Number of books: %s') % self.item_count)
+                    from calibre.gui2.ui import get_gui
+                    db = get_gui().current_db.new_api
+                    link = db.get_link_map(tag.category).get(tag.original_name)
+                    if link:
+                        tt.append(_('Link: %s') % link)
                 return '\n'.join(tt)
             return None
         if role == DRAG_IMAGE_ROLE:
@@ -365,6 +371,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
         self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.ConnectionType.QueuedConnection)
+        self.reset_notes_and_link_maps()
 
     @property
     def gui_parent(self):
@@ -441,6 +448,43 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._run_rebuild()
         self.endResetModel()
 
+    def _cached_notes_map(self, category):
+        if self.notes_map is None:
+            self.notes_map = {}
+        if category not in self.notes_map:
+            try:
+                self.notes_map[category] = (self.db.new_api.get_all_items_that_have_notes(category),
+                                            self.db.new_api.get_item_name_map(category))
+            except:
+                self.notes_map[category] = (frozenset(), {})
+        return self.notes_map[category]
+
+    def _cached_link_map(self, category):
+        if self.link_map is None:
+            self.link_map = {}
+        if category not in self.link_map:
+            try:
+                self.link_map[category] = self.db.new_api.get_link_map(category)
+            except Exception:
+                self.link_map[category] = {}
+        return self.link_map[category]
+
+    def category_has_notes(self, category):
+        return len(self._cached_notes_map(category)[0]) > 0
+
+    def item_has_note(self, category, item_name):
+        notes_map, item_id_map = self._cached_notes_map(category)
+        return item_id_map.get(item_name) in notes_map
+
+    def category_has_links(self, category):
+        return len(self._cached_link_map(category)) > 0
+
+    def item_has_link(self, category, item_name):
+        return item_name in self._cached_link_map(category)
+
+    def reset_notes_and_link_maps(self):
+        self.link_map = self.notes_map = None
+
     def rebuild_node_tree(self, state_map={}):
         if self._build_in_progress:
             print('Tag browser build already in progress')
@@ -455,6 +499,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
+        self.reset_notes_and_link_maps()
         for node in itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame

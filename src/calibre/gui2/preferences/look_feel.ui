@@ -1290,66 +1290,99 @@ structure and you want to use the same column order for each one.&lt;/p&gt;</str
           </item>
          </layout>
         </item>
-        <item row="5" column="0">
-         <widget class="QCheckBox" name="opt_show_avg_rating">
-          <property name="text">
-           <string>Show &amp;average ratings</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
-          <property name="text">
-           <string>Show &amp;tooltips</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QCheckBox" name="opt_tag_browser_show_counts">
-          <property name="toolTip">
-           <string>&lt;p&gt;Show counts for items in the Tag browser. Such as the number of books
+        <item row="5" column="0" colspan="3">
+         <layout class="QGridLayout" name="gridlayout_22">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="opt_show_avg_rating">
+            <property name="text">
+             <string>Show &amp;average ratings</string>
+            </property>
+            <property name="toolTip">
+             <string>Show the average rating per item indication in the Tag browser</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="opt_show_links_in_tag_brouser">
+            <property name="text">
+             <string>Show &amp;links icons</string>
+            </property>
+            <property name="toolTip">
+             <string>Show an icon if the item has an attached link</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
+            <property name="text">
+             <string>Show &amp;tooltips</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="opt_tag_browser_show_counts">
+            <property name="toolTip">
+             <string>&lt;p&gt;Show counts for items in the Tag browser. Such as the number of books
 by each author, the number of authors, etc. If you turn it off, you can still
 see the counts by hovering your mouse over any item.&lt;/p&gt;</string>
-          </property>
-          <property name="text">
-           <string>Show &amp;counts</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
-         <widget class="QCheckBox" name="opt_tag_browser_old_look">
-          <property name="text">
-           <string>Use &amp;alternating row colors</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
-          <property name="toolTip">
-           <string>&lt;p&gt;When checked, calibre will automatically hide any category
+            </property>
+            <property name="text">
+             <string>Show &amp;counts</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="opt_show_notes_in_tag_brouser">
+            <property name="text">
+             <string>Show &amp;notes icons</string>
+            </property>
+            <property name="toolTip">
+             <string>Show an icon if the item has an attached note</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="opt_tag_browser_old_look">
+            <property name="text">
+             <string>Use &amp;alternating row colors</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
+            <property name="toolTip">
+             <string>&lt;p&gt;When checked, calibre will automatically hide any category
 (a column, custom or standard) that has no items to show. For example, some
 categories might not have values when using Virtual libraries. Checking this
 box will cause these empty categories to be hidden.&lt;/p&gt;</string>
-          </property>
-          <property name="text">
-           <string>Hide empt&amp;y categories (columns)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="2">
-         <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
-          <property name="toolTip">
-           <string>&lt;p&gt;When checked, Find in the Tag browser will show all items
+            </property>
+            <property name="text">
+             <string>Hide empt&amp;y categories (columns)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
+            <property name="toolTip">
+             <string>&lt;p&gt;When checked, Find in the Tag browser will show all items
 that match the search instead of the first one. If Hide empty categories is
 also checked then only categories containing a matched item will be shown.&lt;/p&gt;</string>
-          </property>
-          <property name="text">
-           <string>Find &amp;shows all items that match</string>
-          </property>
-         </widget>
+            </property>
+            <property name="text">
+             <string>Find &amp;shows all items that match</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item row="8" column="0" colspan="3">
          <layout class="QVBoxLayout" name="verticalLayout">

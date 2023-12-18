@@ -514,6 +514,7 @@ class TagBrowserMixin:  # {{{
         m = self.library_view.model()
         ids = [m.id(r) for r in rows]
 
+        self.tags_view.model().reset_notes_and_link_maps()
         m.refresh(reset=False)
         m.research()
         self.library_view.select_rows(ids)
@@ -778,12 +779,26 @@ class TagBrowserWidget(QFrame):  # {{{
                 _('Configure Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
-
         l.m.aboutToShow.connect(self.about_to_show_configure_menu)
+        # Show/hide counts
         l.m.show_counts_action = ac = l.m.addAction('counts')
         ac.triggered.connect(self.toggle_counts)
+        # Show/hide average rating
         l.m.show_avg_rating_action = ac = l.m.addAction(QIcon.ic('rating.png'), 'avg rating')
         ac.triggered.connect(self.toggle_avg_rating)
+        # Show/hide notes icon
+        l.m.show_notes_icon_action = ac = l.m.addAction(QIcon.ic('notes.png'), 'notes icon')
+        ac.triggered.connect(self.toggle_notes_icon)
+        parent.keyboard.register_shortcut('tag browser toggle notes',
+                _('Toggle notes icons'), default_keys=(),
+                action=ac, group=_('Tag browser'))
+        # Show/hide links icon
+        l.m.show_links_icon_action = ac = l.m.addAction(QIcon.ic('external-link.png'), 'links icon')
+        ac.triggered.connect(self.toggle_links_icon)
+        parent.keyboard.register_shortcut('tag browser toggle links',
+                _('Toggle links icons'), default_keys=(),
+                action=ac, group=_('Tag browser'))
+
         sb = l.m.addAction(QIcon.ic('sort.png'), _('Sort by'))
         sb.m = l.sort_menu = QMenu(l.m)
         sb.setMenu(sb.m)
@@ -857,6 +872,12 @@ class TagBrowserWidget(QFrame):  # {{{
         ac = self.alter_tb.m.show_avg_rating_action
         ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
         ac.setIcon(QIcon.ic('minus.png' if config['show_avg_rating'] else 'plus.png'))
+        ac = self.alter_tb.m.show_notes_icon_action
+        ac.setText(_('Hide notes icon') if gprefs['show_notes_in_tag_brouser'] else _('Show notes icon'))
+        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_notes_in_tag_brouser'] else 'plus.png'))
+        ac = self.alter_tb.m.show_links_icon_action
+        ac.setText(_('Hide links icon') if gprefs['show_links_in_tag_brouser'] else _('Show links icon'))
+        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_links_in_tag_brouser'] else 'plus.png'))
 
     def filter_book_list(self):
         self.tags_view.model().set_in_tag_browser()
@@ -864,9 +885,19 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def toggle_counts(self):
         gprefs['tag_browser_show_counts'] ^= True
+        self.tags_view.recount_with_position_based_index()
 
     def toggle_avg_rating(self):
         config['show_avg_rating'] ^= True
+        self.tags_view.recount_with_position_based_index()
+
+    def toggle_notes_icon(self):
+        gprefs['show_notes_in_tag_brouser'] ^= True
+        self.tags_view.recount_with_position_based_index()
+
+    def toggle_links_icon(self):
+        gprefs['show_links_in_tag_brouser'] ^= True
+        self.tags_view.recount_with_position_based_index()
 
     def save_state(self):
         gprefs.set('tag browser search box visible', self.toggle_search_button.isChecked())
