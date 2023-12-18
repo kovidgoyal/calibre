@@ -881,7 +881,7 @@ class TagsView(QTreeView):  # {{{
 
                         if self.db.new_api.field_supports_notes(key):
                             item_id = self.db.new_api.get_item_id(tag.category, tag.original_name)
-                            has_note = self._model.item_has_note(key, tag.original_name) #bool(self.db.new_api.notes_for(tag.category, item_id))
+                            has_note = self._model.item_has_note(key, tag.original_name)
                             self.context_menu.addAction(self.edit_metadata_icon,
                                 (_('Edit note for %s') if has_note else _('Create note for %s'))%display_name(tag),
                                 partial(self.context_menu_handler, action='edit_note',

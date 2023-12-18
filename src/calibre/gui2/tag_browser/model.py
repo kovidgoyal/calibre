@@ -451,33 +451,35 @@ class TagsModel(QAbstractItemModel):  # {{{
     def _cached_notes_map(self, category):
         if self.notes_map is None:
             self.notes_map = {}
-        if category not in self.notes_map:
+        ans = self.notes_map.get(category)
+        if ans is None:
             try:
-                self.notes_map[category] = (self.db.new_api.get_all_items_that_have_notes(category),
+                self.notes_map[category] = ans = (self.db.new_api.get_all_items_that_have_notes(category),
                                             self.db.new_api.get_item_name_map(category))
-            except:
-                self.notes_map[category] = (frozenset(), {})
-        return self.notes_map[category]
+            except Exception:
+                self.notes_map[category] = ans = (frozenset(), {})
+        return ans
 
     def _cached_link_map(self, category):
         if self.link_map is None:
             self.link_map = {}
-        if category not in self.link_map:
+        ans = self.link_map.get(category)
+        if ans is None:
             try:
-                self.link_map[category] = self.db.new_api.get_link_map(category)
+                self.link_map[category] = ans = self.db.new_api.get_link_map(category)
             except Exception:
-                self.link_map[category] = {}
-        return self.link_map[category]
+                self.link_map[category] = ans = {}
+        return ans
 
     def category_has_notes(self, category):
-        return len(self._cached_notes_map(category)[0]) > 0
+        return bool(self._cached_notes_map(category)[0])
 
     def item_has_note(self, category, item_name):
         notes_map, item_id_map = self._cached_notes_map(category)
         return item_id_map.get(item_name) in notes_map
 
     def category_has_links(self, category):
-        return len(self._cached_link_map(category)) > 0
+        return bool(self._cached_link_map(category))
 
     def item_has_link(self, category, item_name):
         return item_name in self._cached_link_map(category)
