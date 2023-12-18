@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 import traceback
+from collections import defaultdict
 from contextlib import suppress
 from functools import partial
 from qt.core import (
@@ -95,22 +96,22 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         if item.type == TagTreeItem.TAG:
             category = item.tag.category
             name = item.tag.original_name
-            m = self.tags_view._model
-            if show_notes and m.category_has_notes(category):
-                icon = self.notes_icon if m.item_has_note(category, name) else self.blank_icon
-                width = int(tr.height()/2)
-                r = QRect(tr)
-                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-                self.tags_view.current_note_button_position = (r.left(), r.left()+r.width())
-                icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
-                tr.setRight(r.left() - 1)
-
+            tv = self.tags_view
+            m = tv._model
             if show_links and m.category_has_links(category):
                 icon = self.links_icon if m.item_has_link(category, name) else self.blank_icon
                 width = int(tr.height()/2)
                 r = QRect(tr)
                 r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-                self.tags_view.current_link_button_position = (r.left(), r.left()+r.width())
+                tv.category_button_positions[category]['links'] = (r.left(), r.left()+r.width())
+                icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
+                tr.setRight(r.left() - 1)
+            if show_notes and m.category_has_notes(category):
+                icon = self.notes_icon if m.item_has_note(category, name) else self.blank_icon
+                width = int(tr.height()/2)
+                r = QRect(tr)
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
+                tv.category_button_positions[category]['notes'] = (r.left(), r.left()+r.width())
                 icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
                 tr.setRight(r.left() - 1)
         if not is_search and (hover or gprefs['tag_browser_show_counts']):
@@ -229,8 +230,6 @@ class TagsView(QTreeView):  # {{{
         self.setTabKeyNavigation(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
-        self.current_note_button_position = (-1, -1)
-        self.current_link_button_position = (-1, -1)
         self.setItemDelegate(TagDelegate(tags_view=self))
         self.made_connections = False
         self.setAcceptDrops(True)
@@ -247,6 +246,12 @@ class TagsView(QTreeView):  # {{{
         self.rename_icon = QIcon.ic('edit-undo.png')
         self.plus_icon = QIcon.ic('plus.png')
         self.minus_icon = QIcon.ic('minus.png')
+
+        # Dict for recording the positions of the fake buttons for category tag
+        # lines. It is recorded per category because we can't guarantee the
+        # order that items are painted. The numbers get updated whenever an item
+        # is painted, which deals with resizing.
+        self.category_button_positions = defaultdict(dict)
 
         self._model = TagsModel(self)
         self._model.search_item_renamed.connect(self.search_item_renamed)
@@ -361,7 +366,7 @@ class TagsView(QTreeView):  # {{{
             match_pop = 0
         self.alter_tb.match_menu.actions()[match_pop].setChecked(True)
         if not self.made_connections:
-            self.clicked.connect(self.toggle)
+            self.clicked.connect(self.toggle_on_mouse_click)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.ConnectionType.QueuedConnection)
             self.alter_tb.sort_menu.triggered.connect(self.sort_changed)
@@ -457,29 +462,12 @@ class TagsView(QTreeView):  # {{{
         except:
             pass
 
-    def number_in_range(self, val, range_tuple):
-        return range_tuple[0] <= val <= range_tuple[1]
-
     def mousePressEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton:
+            # Record the press point for processing during the clicked signal
+            self.mouse_clicked_point = event.pos()
             # Only remember a possible drag start if the item is drag enabled
             dex = self.indexAt(event.pos())
-            t = self._model.data(dex, Qt.UserRole)
-            if t.type == TagTreeItem.TAG:
-                db = self._model.db.new_api
-                tag = t.tag
-                x = event.pos().x()
-                if self.number_in_range(x, self.current_note_button_position):
-                    from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
-                    item_id = db.get_item_id(tag.category, tag.original_name)
-                    if db.notes_for(tag.category, item_id):
-                        ShowNoteDialog(tag.category, item_id, db, parent=self).show()
-                        return
-                elif self.number_in_range(x, self.current_link_button_position):
-                    link = db.get_link_map(tag.category).get(tag.original_name)
-                    if link:
-                        safe_open_url(link)
-                        return
             if self._model.flags(dex) & Qt.ItemFlag.ItemIsDragEnabled:
                 self.possible_drag_start = event.pos()
             else:
@@ -534,10 +522,36 @@ class TagsView(QTreeView):  # {{{
         joiner = ' and ' if self.match_all else ' or '
         return joiner.join(tokens)
 
+    def click_in_button_range(self, val, category, kind):
+        range_tuple = self.category_button_positions[category].get(kind)
+        return range_tuple and range_tuple[0] <= val <= range_tuple[1]
+
     def toggle_current_index(self):
         ci = self.currentIndex()
         if ci.isValid():
             self.toggle(ci)
+
+    def toggle_on_mouse_click(self, index):
+        # Check if one of the link or note icons was clicked. If so, deal with
+        # it here and don't do the real toggle
+        t = self._model.data(index, Qt.UserRole)
+        if t.type == TagTreeItem.TAG:
+            db = self._model.db.new_api
+            category = t.tag.category
+            orig_name = t.tag.original_name
+            x = self.mouse_clicked_point.x()
+            if self.click_in_button_range(x, category, 'notes'):
+                from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
+                item_id = db.get_item_id(category, orig_name)
+                if db.notes_for(category, item_id):
+                    ShowNoteDialog(category, item_id, db, parent=self).show()
+                    return
+            if self.click_in_button_range(x, category, 'links'):
+                link = db.get_link_map(category).get(orig_name)
+                if link:
+                    safe_open_url(link)
+                    return
+        self._toggle(index, None)
 
     def toggle(self, index):
         self._toggle(index, None)
