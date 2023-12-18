@@ -792,6 +792,10 @@ calibre is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There can be several causes for this:
 
+    * If you get no errors but the calibre window does not appear, it has
+      probably just appeared off screen. You can gather all windows onto the
+      current screen using one of the techniques described `here <https://www.wikihow.com/Bring-an-Off-Screen-Window-Back-on-Windows>`__.
+
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
 
        * Uninstall calibre
