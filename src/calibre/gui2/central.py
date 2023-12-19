@@ -34,9 +34,9 @@ class HandleState(Enum):
 
 class SplitterHandle(QWidget):
 
-    drag_started = pyqtSignal()
-    drag_ended = pyqtSignal()
     dragged_to = pyqtSignal(QPointF)
+    toggle_requested = pyqtSignal()
+
     drag_start = None
     COLLAPSED_SIZE = 2  # pixels
 
@@ -62,13 +62,18 @@ class SplitterHandle(QWidget):
         super().mousePressEvent(ev)
         if ev.button() is Qt.MouseButton.LeftButton:
             self.drag_start = ev.position()
-            self.drag_started.emit()
 
     def mouseReleaseEvent(self, ev):
         super().mouseReleaseEvent(ev)
         if ev.button() is Qt.MouseButton.LeftButton:
             self.drag_start = None
-            self.drag_started.emit()
+
+    def mouseDoubleClickEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            self.toggle_requested.emit()
+            ev.accept()
+            return
+        return super().mouseDoubleClickEvent(ev)
 
     def mouseMoveEvent(self, ev):
         super().mouseMoveEvent(ev)
@@ -184,6 +189,7 @@ class Central(QWidget):
         def h(orientation: Qt.Orientation = Qt.Orientation.Vertical):
             ans = SplitterHandle(self, orientation)
             ans.dragged_to.connect(self.splitter_handle_dragged)
+            ans.toggle_requested.connect(self.toggle_handle)
             return ans
 
         self.left_handle = h()
@@ -235,7 +241,23 @@ class Central(QWidget):
                 self.size_panel_on_initial_show_wide(which)
             else:
                 self.size_panel_on_initial_show_narrow(which)
+        self.update_button_states_from_visibility()
         self.relayout()
+
+    def set_visibility_of(self, which, visible):
+        setattr(self.is_visible, which, visible)
+        self.update_button_states_from_visibility()
+
+    def panel_name_for_handle(self, handle):
+        return self.panel_name_for_handle_wide(handle) if self.layout is Layout.wide else self.panel_name_for_handle_narrow(handle)
+
+    def toggle_handle(self):
+        panel = self.panel_name_for_handle(self.sender())
+        self.set_visibility_of(panel, getattr(self.is_visible, panel) ^ True)
+        self.relayout()
+
+    def update_button_states_from_visibility(self):
+        pass  # TODO: Implement me
 
     def toggle_tag_browser(self):
         self.toggle_panel('tag_browser')
@@ -248,7 +270,6 @@ class Central(QWidget):
 
     def toggle_quick_view(self):
         self.toggle_panel('quick_view')
-        self.relayout()
 
     def handle_state(self, handle):
         if self.layout is Layout.wide:
@@ -267,6 +288,8 @@ class Central(QWidget):
             self.narrow_move_splitter_handle_to(handle, pos)
             ad = self.narrow_desires
         if (bv, bd) != (self.is_visible, ad):
+            if bv != self.is_visible:
+                self.update_button_states_from_visibility()
             self.relayout()
 
     def refresh_after_config_change(self):
@@ -421,6 +444,9 @@ class Central(QWidget):
                                                          self.cover_browser.minimumHeight()) / self.height()
         else:
             self.wide_desires.quick_view_height = max(int(self.height() * self.wide_desires.quick_view_height), 150) / self.height()
+
+    def panel_name_for_handle_wide(self, handle):
+        return {self.left_handle: 'tag_browser', self.right_handle: 'book_details', self.top_handle: 'cover_browser', self.bottom_handle: 'quick_view'}[handle]
     # }}}
 
     # Narrow {{{
@@ -552,6 +578,9 @@ class Central(QWidget):
             current = self.height() * self.narrow_desires.quick_view_height
             if current < 50:
                 self.narrow_desires.quick_view_height = NarrowDesires.quick_view_height
+
+    def panel_name_for_handle_narrow(self, handle):
+        return {self.left_handle: 'tag_browser', self.right_handle: 'cover_browser', self.top_handle: 'quick_view', self.bottom_handle: 'book_details'}[handle]
     # }}}
 
     def sizeHint(self):
