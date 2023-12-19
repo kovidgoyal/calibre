@@ -13,6 +13,9 @@ from calibre.gui2 import Application, config
 from calibre.gui2.cover_flow import MIN_SIZE
 
 
+HIDE_THRESHOLD = 10
+
+
 class Placeholder(QLabel):
     backgrounds = 'yellow', 'lightgreen', 'grey', 'cyan', 'magenta'
     bgcount = 0
@@ -100,6 +103,16 @@ class WideDesires:
     cover_browser_height: int = 0
     quick_view_height: int = 0
 
+    def rescale(self, x_factor, y_factor):
+        if self.tag_browser_width > HIDE_THRESHOLD:
+            self.tag_browser_width = int(self.tag_browser_width * x_factor)
+        if self.book_details_width > HIDE_THRESHOLD:
+            self.book_details_width = int(self.book_details_width * x_factor)
+        if self.cover_browser_height > HIDE_THRESHOLD:
+            self.cover_browser_height = int(self.cover_browser_height * y_factor)
+        if self.quick_view_height > HIDE_THRESHOLD:
+            self.quick_view_height = int(self.quick_view_height * y_factor)
+
 
 @dataclass
 class NarrowDesires:
@@ -107,6 +120,16 @@ class NarrowDesires:
     quick_view_height: int = 0
     tag_browser_width: int = 0
     cover_browser_width: int = 0
+
+    def rescale(self, x_factor, y_factor):
+        if self.book_details_height > HIDE_THRESHOLD:
+            self.book_details_height = int(self.book_details_height * y_factor)
+        if self.quick_view_height > HIDE_THRESHOLD:
+            self.quick_view_height = int(self.quick_view_height * y_factor)
+        if self.tag_browser_width > HIDE_THRESHOLD:
+            self.tag_browser_width = int(self.tag_browser_width * x_factor)
+        if self.cover_browser_width > HIDE_THRESHOLD:
+            self.cover_browser_width = int(self.cover_browser_width * x_factor)
 
 
 @dataclass
@@ -193,7 +216,13 @@ class Central(QWidget):
 
     def resizeEvent(self, ev):
         super().resizeEvent(ev)
+        a, b = ev.oldSize(), ev.size()
+        self.rescale_desires(b.width() / a.width(), b.height() / a.height())
         self.relayout()
+
+    def rescale_desires(self, x_factor, y_factor):
+        self.wide_desires.rescale(x_factor, y_factor)
+        self.narrow_desires.rescale(x_factor, y_factor)
 
     def relayout(self):
         self.tag_browser.setVisible(self.is_visible.tag_browser)
@@ -229,7 +258,7 @@ class Central(QWidget):
 
     def default_wide_side_panel_width(self):
         available_width = self.width() - 2 * int(self.style().pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
-        return min(300, (3 * available_width) // 10)
+        return min(300, (3 * available_width) // HIDE_THRESHOLD)
 
     def do_wide_layout(self):
         s = self.style()
@@ -240,7 +269,7 @@ class Central(QWidget):
             hs = h.state
             if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
                 width = normal_handle_width
-            h.resize(width, self.height())
+            h.resize(int(width), int(self.height()))
             available_width -= width
         default_width = self.default_wide_side_panel_width()
         tb = self.wide_desires.tag_browser_width or default_width
@@ -256,12 +285,12 @@ class Central(QWidget):
             bd = max(0, width_to_share - tb)
         central_width = available_width - (tb + bd)
         if self.is_visible.tag_browser:
-            self.tag_browser.setGeometry(0, 0, tb, self.height())
+            self.tag_browser.setGeometry(0, 0, int(tb), int(self.height()))
         self.left_handle.move(tb, 0)
         central_x = self.left_handle.x() + self.left_handle.width()
         self.right_handle.move(tb + central_width + self.left_handle.width(), 0)
         if self.is_visible.book_details:
-            self.book_details.setGeometry(self.right_handle.x() + self.right_handle.width(), 0, bd, self.height())
+            self.book_details.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(bd), int(self.height()))
 
         available_height = self.height()
         for h in (self.top_handle, self.bottom_handle):
@@ -271,7 +300,7 @@ class Central(QWidget):
                 height = normal_handle_width
             if h is self.bottom_handle and hs is HandleState.only_main_visible:
                 height = 0
-            h.resize(central_width, height)
+            h.resize(int(central_width), int(height))
             available_height -= height
 
         cb = max(self.cover_browser.minimumHeight(), self.wide_desires.cover_browser_height or (2 * available_height // 5))
@@ -291,22 +320,22 @@ class Central(QWidget):
             else:
                 bl = available_height
         if self.is_visible.cover_browser:
-            self.cover_browser.setGeometry(central_x, 0, central_width, cb)
+            self.cover_browser.setGeometry(int(central_x), 0, int(central_width), int(cb))
         self.top_handle.move(central_x, cb)
         if self.is_visible.book_list:
-            self.book_list.setGeometry(central_x, self.top_handle.y() + self.top_handle.height(), central_width, bl)
+            self.book_list.setGeometry(int(central_x), int(self.top_handle.y() + self.top_handle.height()), int(central_width), int(bl))
         self.bottom_handle.move(central_x, self.book_list.y() + self.book_list.height())
         if self.is_visible.quick_view:
-            self.quick_view.setGeometry(central_x, self.bottom_handle.y() + self.bottom_handle.height(), central_width, qv)
+            self.quick_view.setGeometry(int(central_x), int(self.bottom_handle.y() + self.bottom_handle.height()), int(central_width), int(qv))
 
     def wide_move_splitter_handle_to(self, handle: SplitterHandle, pos: QPointF):
         if handle is self.left_handle:
             x = int(pos.x())
             available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_wide()
             self.is_visible.tag_browser = True
-            if x < 10:
+            if x < HIDE_THRESHOLD:
                 self.is_visible.tag_browser = False
-                self.wide_desires.tag_browser_width = 10
+                self.wide_desires.tag_browser_width = HIDE_THRESHOLD
             else:
                 self.wide_desires.tag_browser_width = min(available_width, x)
         elif handle is self.right_handle:
@@ -314,28 +343,28 @@ class Central(QWidget):
             available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_wide()
             self.is_visible.book_details = True
             w = self.width() - x - self.right_handle.width()
-            if w < 10:
+            if w < HIDE_THRESHOLD:
                 self.is_visible.book_details = False
-                self.wide_desires.book_details_width = 10
+                self.wide_desires.book_details_width = HIDE_THRESHOLD
             else:
                 self.wide_desires.book_details_width = min(available_width, w)
         elif handle is self.top_handle:
             y = int(pos.y())
             self.is_visible.cover_browser = True
-            if y < max(self.cover_browser.minimumHeight(), 10):
+            if y < max(self.cover_browser.minimumHeight(), HIDE_THRESHOLD):
                 self.is_visible.cover_browser = False
-                self.wide_desires.cover_browser_height = max(10, self.cover_browser.minimumHeight())
+                self.wide_desires.cover_browser_height = max(HIDE_THRESHOLD, self.cover_browser.minimumHeight())
             else:
                 self.wide_desires.cover_browser_height = max(y, self.cover_browser.minimumHeight())
         elif handle is self.bottom_handle:
             y = int(pos.y())
             h = self.height() - y - self.bottom_handle.height()
-            if h < 10:
+            if h < HIDE_THRESHOLD:
                 self.is_visible.quick_view = False
-                self.wide_desires.quick_view_height = 10
+                self.wide_desires.quick_view_height = HIDE_THRESHOLD
             else:
                 available_height = max(0, self.height() - self.top_handle.height() - self.bottom_handle.height() - self.cover_browser.minimumHeight() - 50)
-                self.wide_desires.quick_view_height = max(10, min(h, available_height))
+                self.wide_desires.quick_view_height = max(HIDE_THRESHOLD, min(h, available_height))
 
     def size_panel_on_initial_show_wide(self, which):
         if which in ('tag_browser', 'book_details'):
@@ -376,7 +405,7 @@ class Central(QWidget):
         height = self.bottom_handle.COLLAPSED_SIZE
         if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
             height = normal_handle_width
-        self.bottom_handle.resize(self.width(), height)
+        self.bottom_handle.resize(int(self.width()), int(height))
         available_height -= height
         bd = self.narrow_desires.book_details_height or min(350, available_height // 3)
         if not self.is_visible.book_details:
@@ -385,7 +414,7 @@ class Central(QWidget):
         bd = available_height - central_height
         self.bottom_handle.move(0, central_height)
         if self.is_visible.book_details:
-            self.book_details.setGeometry(0, central_height + self.bottom_handle.height(), self.width(), bd)
+            self.book_details.setGeometry(0, int(central_height + self.bottom_handle.height()), int(self.width()), int(bd))
 
         available_width = self.width()
         for h in (self.left_handle, self.right_handle):
@@ -393,7 +422,7 @@ class Central(QWidget):
             hs = h.state
             if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
                 width = normal_handle_width
-            h.resize(width, central_height)
+            h.resize(int(width), int(central_height))
             available_width -= width
         default_width = self.default_wide_side_panel_width()
         tb = self.narrow_desires.tag_browser_width or default_width
@@ -414,31 +443,31 @@ class Central(QWidget):
             tb = max(0, width_to_share - cb)
         central_width = available_width - (tb + cb)
         if self.is_visible.tag_browser:
-            self.tag_browser.setGeometry(0, 0, tb, self.height())
+            self.tag_browser.setGeometry(0, 0, int(tb), int(self.height()))
         self.left_handle.move(tb, 0)
         central_x = self.left_handle.x() + self.left_handle.width()
         self.right_handle.move(tb + central_width + self.left_handle.width(), 0)
         if self.is_visible.cover_browser:
-            self.cover_browser.setGeometry(self.right_handle.x() + self.right_handle.width(), 0, cb, self.height())
-        self.top_handle.resize(central_width, normal_handle_width if self.is_visible.quick_view else 0)
+            self.cover_browser.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(cb), int(self.height()))
+        self.top_handle.resize(int(central_width), int(normal_handle_width if self.is_visible.quick_view else 0))
         central_height -= self.top_handle.height()
         qv = 0
         if self.is_visible.quick_view:
             qv = self.narrow_desires.quick_view_height or min(250, central_height // 2)
             qv = max(0, min(qv, central_height - 50))
-        self.book_list.setGeometry(central_x, 0, central_width, max(0, central_height - qv))
+        self.book_list.setGeometry(int(central_x), 0, int(central_width), int(max(0, central_height - qv)))
         self.top_handle.move(central_x, self.book_list.y() + self.book_list.height())
         if self.is_visible.quick_view:
-            self.quick_view.setGeometry(central_x, self.top_handle.y() + self.top_handle.height(), central_width, qv)
+            self.quick_view.setGeometry(int(central_x), int(self.top_handle.y() + self.top_handle.height()), int(central_width), int(qv))
 
     def narrow_move_splitter_handle_to(self, handle: SplitterHandle, pos: QPointF):
         if handle is self.left_handle:
             x = int(pos.x())
             available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_narrow()
             self.is_visible.tag_browser = True
-            if x < 10:
+            if x < HIDE_THRESHOLD:
                 self.is_visible.tag_browser = False
-                self.narrow_desires.tag_browser_width = 10
+                self.narrow_desires.tag_browser_width = HIDE_THRESHOLD
             else:
                 self.narrow_desires.tag_browser_width = min(available_width, x)
         elif handle is self.right_handle:
@@ -446,29 +475,29 @@ class Central(QWidget):
             available_width = self.width() - self.left_handle.width() - self.right_handle.width() - self.min_central_width_narrow()
             self.is_visible.cover_browser = True
             w = min(available_width, self.width() - x - self.right_handle.width())
-            if w < 10:
+            if w < HIDE_THRESHOLD:
                 self.is_visible.cover_browser = False
-                self.narrow_desires.book_details_width = 10
+                self.narrow_desires.book_details_width = HIDE_THRESHOLD
             else:
                 self.narrow_desires.cover_browser_width = max(self.cover_browser.minimumWidth(), w)
         elif handle is self.bottom_handle:
             y = int(pos.y())
             h = self.height() - y - self.bottom_handle.height()
-            if h < 10:
+            if h < HIDE_THRESHOLD:
                 self.is_visible.book_details = False
-                self.narrow_desires.book_details_height = 10
+                self.narrow_desires.book_details_height = HIDE_THRESHOLD
             else:
                 self.is_visible.book_details = True
                 available_height = max(0, self.height() - self.bottom_handle.height() - self.min_central_height_narrow())
-                self.narrow_desires.book_details_height = max(10, min(h, available_height))
+                self.narrow_desires.book_details_height = max(HIDE_THRESHOLD, min(h, available_height))
         elif handle is self.top_handle:
             y = int(pos.y())
             available_height = self.bottom_handle.y() if self.is_visible.book_details else self.height()
             available_height -= self.top_handle.height()
             h = available_height - y
-            if h < 10 or available_height < 5:
+            if h < HIDE_THRESHOLD or available_height < 5:
                 self.is_visible.quick_view = False
-                self.narrow_desires.quick_view_height = 10
+                self.narrow_desires.quick_view_height = HIDE_THRESHOLD
             else:
                 self.is_visible.quick_view = True
                 self.narrow_desires.quick_view_height = max(0, available_height - y)
@@ -497,7 +526,7 @@ def develop():
             super().__init__()
             l = QVBoxLayout(self)
             l.setContentsMargins(0, 0, 0, 0)
-            self.central = Central(self, initial_layout='narrow')
+            self.central = Central(self, initial_layout='wide')
             l.addWidget(self.central)
             self.resize(self.sizeHint())
         def keyPressEvent(self, ev):
