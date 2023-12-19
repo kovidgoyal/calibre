@@ -2,16 +2,15 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 from copy import copy
+from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
-from dataclasses import dataclass
 from qt.core import (
     QDialog, QLabel, QPalette, QPointF, QSize, QSizePolicy, QStyle, QStyleOption,
-    QStylePainter, Qt, QVBoxLayout, QWidget, pyqtSignal
+    QStylePainter, Qt, QVBoxLayout, QWidget, pyqtSignal,
 )
 
-from calibre.gui2 import Application, config
+from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
-
 
 HIDE_THRESHOLD = 10
 
@@ -103,6 +102,20 @@ class WideDesires:
     cover_browser_height: float = 0.4
     quick_view_height: float = 0.2
 
+    def serialize(self):
+        return {k: v for k, v in asdict(self).items() if v > 0}
+
+    def unserialize(self, x):
+        for field in fields(self):
+            v = x.get(field.name, 0)
+            if isinstance(v, (int, float)) and 0 < v <= 1:
+                setattr(self, field.name, v)
+
+    def reset_to_defaults(self):
+        c = type(self)
+        for f in fields(self):
+            setattr(self, f.name, getattr(c, f.name))
+
 
 @dataclass
 class NarrowDesires:
@@ -110,6 +123,20 @@ class NarrowDesires:
     quick_view_height: int = 0.2
     tag_browser_width: int = 0.25
     cover_browser_width: int = 0.35
+
+    def serialize(self):
+        return {k: v for k, v in asdict(self).items() if v > 0}
+
+    def unserialize(self, x):
+        for field in fields(self):
+            v = x.get(field.name, 0)
+            if isinstance(v, (int, float)) and 0 < v <= 1:
+                setattr(self, field.name, v)
+
+    def reset_to_defaults(self):
+        c = type(self)
+        for f in fields(self):
+            setattr(self, f.name, getattr(c, f.name))
 
 
 @dataclass
@@ -120,16 +147,32 @@ class Visibility:
     cover_browser: bool = False
     quick_view: bool = False
 
+    def serialize(self):
+        return asdict(self)
+
+    def unserialize(self, x):
+        for f in fields(self):
+            v = x.get(f.name)
+            if isinstance(v, bool):
+                setattr(self, f.name, v)
+
+    def reset_to_defaults(self):
+        c = type(self)
+        for f in fields(self):
+            setattr(self, f.name, getattr(c, f.name))
+
 
 class Central(QWidget):
 
-    def __init__(self, parent=None, initial_layout=''):
+    layout: Layout = Layout.wide
+
+    def __init__(self, parent=None, prefs_name='main_window_central_widget_state'):
+        self.prefs_name = prefs_name
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.wide_desires = WideDesires()
         self.narrow_desires = NarrowDesires()
         self.is_visible = Visibility()
-        self.layout = Layout.narrow if (initial_layout or config.get('gui_layout')) == 'narrow' else Layout.wide
         self.tag_browser = Placeholder('tag browser', self)
         self.book_list = Placeholder('book list', self)
         self.cover_browser = Placeholder('cover browser', self)
@@ -147,6 +190,42 @@ class Central(QWidget):
         self.right_handle = h()
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
+
+    def serialized_settings(self):
+        return {
+            'layout': self.layout.name,
+            'visibility': self.is_visible.serialize(),
+            'wide_desires': self.wide_desires.serialize(),
+            'narrow_desires': self.narrow_desires.serialize()
+        }
+
+    def unserialize_settings(self, s):
+        l = s.get('layout')
+        if l == 'wide':
+            self.layout = Layout.wide
+        elif l == 'narrow':
+            self.layout = Layout.narrow
+        self.is_visible.unserialize(s.get('visibility') or {})
+        self.wide_desires.unserialize(s.get('wide_desires') or {})
+        self.narrow_desires.unserialize(s.get('narrow_desires') or {})
+
+    def write_settings(self):
+        gprefs.set(self.prefs_name, self.serialized_settings())
+
+    def read_settings(self):
+        before = self.serialized_settings()
+        self.unserialize_settings(gprefs.get(self.prefs_name) or {})
+        if self.serialized_settings() != before:
+            self.relayout()
+
+    def reset_to_defaults(self):
+        before = self.serialized_settings()
+        self.layout = Layout.wide
+        self.is_visible.reset_to_defaults()
+        self.wide_desires.reset_to_defaults()
+        self.narrow_desires.reset_to_defaults()
+        if self.serialized_settings() != before:
+            self.relayout()
 
     def toggle_panel(self, which):
         was_visible = getattr(self.is_visible, which)
@@ -487,7 +566,7 @@ def develop():
             super().__init__()
             l = QVBoxLayout(self)
             l.setContentsMargins(0, 0, 0, 0)
-            self.central = Central(self, initial_layout='wide')
+            self.central = Central(self, prefs_name='develop_central_layout_widget_state')
             l.addWidget(self.central)
             self.resize(self.sizeHint())
         def keyPressEvent(self, ev):
@@ -501,12 +580,16 @@ def develop():
                 self.central.toggle_book_details()
             elif ev.key() == Qt.Key.Key_L:
                 self.central.toggle_layout()
+            elif ev.key() == Qt.Key.Key_R:
+                self.central.reset_to_defaults()
             elif ev.key() == Qt.Key.Key_Escape:
                 self.reject()
 
     d = d()
+    d.central.read_settings()
     d.show()
     app.exec()
+    d.central.write_settings()
 
 
 if __name__ == '__main__':
