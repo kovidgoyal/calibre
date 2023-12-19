@@ -13,6 +13,7 @@ from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
 
 HIDE_THRESHOLD = 10
+SHOW_THRESHOLD = 50
 
 
 class Placeholder(QLabel):
@@ -437,7 +438,7 @@ class Central(QWidget):
         if which in ('tag_browser', 'book_details'):
             which += '_width'
             current = int(getattr(self.wide_desires, which) * self.width())
-            if current < 50:
+            if current < SHOW_THRESHOLD:
                 setattr(self.wide_desires, which, getattr(WideDesires, which))
         elif which == 'cover_browser':
             self.wide_desires.cover_browser_height = max(int(self.height() * self.wide_desires.cover_browser_height),
@@ -568,15 +569,15 @@ class Central(QWidget):
         if which in ('tag_browser', 'cover_browser'):
             which += '_width'
             current = getattr(self.narrow_desires, which) * self.width()
-            if current < 50:
+            if current < SHOW_THRESHOLD:
                 setattr(self.narrow_desires, which, getattr(NarrowDesires, which))
         elif which == 'book_details':
             current = self.height() * self.narrow_desires.book_details_height
-            if current < 50:
+            if current < SHOW_THRESHOLD:
                 self.narrow_desires.book_details_height = NarrowDesires.book_details_height
         else:
             current = self.height() * self.narrow_desires.quick_view_height
-            if current < 50:
+            if current < SHOW_THRESHOLD:
                 self.narrow_desires.quick_view_height = NarrowDesires.quick_view_height
 
     def panel_name_for_handle_narrow(self, handle):
