@@ -5,8 +5,9 @@ from copy import copy
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
 from qt.core import (
-    QDialog, QLabel, QPalette, QPointF, QSize, QSizePolicy, QStyle, QStyleOption,
-    QStylePainter, Qt, QVBoxLayout, QWidget, pyqtSignal,
+    QDialog, QHBoxLayout, QIcon, QKeySequence, QLabel, QPalette, QPointF, QSize,
+    QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolButton, QVBoxLayout,
+    QWidget, pyqtSignal,
 )
 
 from calibre.gui2 import Application, config, gprefs
@@ -25,6 +26,67 @@ class Placeholder(QLabel):
         bg = self.backgrounds[Placeholder.bgcount]
         Placeholder.bgcount = (Placeholder.bgcount + 1) % len(self.backgrounds)
         self.setStyleSheet(f'QLabel {{ background: {bg} }}')
+
+
+class LayoutButton(QToolButton):
+
+    def __init__(self, name: str, icon: str, label: str, central: 'Central', shortcut=None):
+        super().__init__(central)
+        self.central = central
+        self.label = label
+        self.name = name
+        self.shortcut = shortcut
+        self.setIcon(QIcon.ic(icon))
+        self.setCheckable(True)
+        self.setChecked(self.is_visible)
+        self.toggled.connect(central.layout_button_toggled)
+
+    @property
+    def is_visible(self):
+        return getattr(self.central.is_visible, self.name)
+
+    def update_shortcut(self, action_toggle=None):
+        action_toggle = action_toggle or getattr(self, 'action_toggle', None)
+        if action_toggle:
+            sc = ', '.join(sc.toString(QKeySequence.SequenceFormat.NativeText)
+                                for sc in action_toggle.shortcuts())
+            self.shortcut = sc or ''
+            self.update_text()
+
+    def update_text(self):
+        t = _('Hide {}') if self.isChecked() else _('Show {}')
+        t = t.format(self.label)
+        if self.shortcut:
+            t += f' [{self.shortcut}]'
+        self.setText(t), self.setToolTip(t), self.setStatusTip(t)
+
+    def set_state_to_show(self, *args):
+        self.setChecked(False)
+        self.update_text()
+
+    def set_state_to_hide(self, *args):
+        self.setChecked(True)
+        self.update_text()
+
+    def update_state(self, *args):
+        self.set_state_to_show() if self.is_visible else self.set_state_to_hide()
+
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.MouseButton.RightButton:
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            if self.name == 'search':
+                gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
+                ev.accept()
+                return
+            tab_name = {'book_details':'book_details', 'cover_grid':'cover_grid', 'cover_browser':'cover_browser',
+                        'tag_browser':'tag_browser', 'quick_view':'quickview'}.get(self.name)
+            if tab_name:
+                if gui is not None:
+                    gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
+                    ev.accept()
+                    return
+        return QToolButton.mouseReleaseEvent(self, ev)
 
 
 class HandleState(Enum):
@@ -185,6 +247,11 @@ class Central(QWidget):
         self.cover_browser.setMinimumSize(MIN_SIZE)
         self.book_details = Placeholder('book details', self)
         self.quick_view = Placeholder('quick view', self)
+        self.ignore_button_toggles = False
+        self.tag_browser_button = LayoutButton('tag_browser', 'tags.png', _('Tag browser'), self, 'Shift+Alt+T')
+        self.book_details_button = LayoutButton('book_details', 'book.png', _('Book details'), self, 'Shift+Alt+D')
+        self.cover_browser_button = LayoutButton('cover_browser', 'cover_flow.png', _('Cover browser'), self, 'Shift+Alt+B')
+        self.quick_view_button = LayoutButton('quick_view', 'quickview.png', _('Quickview'), self)
         self.setMinimumSize(MIN_SIZE + QSize(200, 100))
 
         def h(orientation: Qt.Orientation = Qt.Orientation.Vertical):
@@ -205,6 +272,12 @@ class Central(QWidget):
             'wide_desires': self.wide_desires.serialize(),
             'narrow_desires': self.narrow_desires.serialize()
         }
+
+    def layout_button_toggled(self):
+        if not self.ignore_button_toggles:
+            b = self.sender()
+            self.set_visibility_of(b.name, b.isChecked())
+            self.relayout()
 
     def unserialize_settings(self, s):
         l = s.get('layout')
@@ -258,7 +331,15 @@ class Central(QWidget):
         self.relayout()
 
     def update_button_states_from_visibility(self):
-        pass  # TODO: Implement me
+        orig = self.ignore_button_toggles
+        self.ignore_button_toggles = True
+        try:
+            self.tag_browser_button.setChecked(self.is_visible.tag_browser)
+            self.book_details_button.setChecked(self.is_visible.book_details)
+            self.cover_browser_button.setChecked(self.is_visible.cover_browser)
+            self.quick_view_button.setChecked(self.is_visible.quick_view)
+        finally:
+            self.ignore_button_toggles = orig
 
     def toggle_tag_browser(self):
         self.toggle_panel('tag_browser')
@@ -596,7 +677,13 @@ def develop():
             super().__init__()
             l = QVBoxLayout(self)
             l.setContentsMargins(0, 0, 0, 0)
+            h = QHBoxLayout()
+            l.addLayout(h)
             self.central = Central(self, prefs_name='develop_central_layout_widget_state')
+            h.addWidget(self.central.tag_browser_button)
+            h.addWidget(self.central.book_details_button)
+            h.addWidget(self.central.cover_browser_button)
+            h.addWidget(self.central.quick_view_button)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
         def keyPressEvent(self, ev):
