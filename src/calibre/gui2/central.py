@@ -10,7 +10,7 @@ from qt.core import (
     QWidget, pyqtSignal,
 )
 
-from calibre.gui2 import Application, config, gprefs
+from calibre.gui2 import Application, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
 
 HIDE_THRESHOLD = 10
@@ -373,10 +373,6 @@ class Central(QWidget):
             if bv != self.is_visible:
                 self.update_button_states_from_visibility()
             self.relayout()
-
-    def refresh_after_config_change(self):
-        self.layout = Layout.narrow if config.get('gui_layout') == 'narrow' else Layout.wide
-        self.relayout()
 
     def resizeEvent(self, ev):
         super().resizeEvent(ev)
