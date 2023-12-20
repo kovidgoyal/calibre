@@ -648,6 +648,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('show_avg_rating', config)
         r('show_links_in_tag_browser', gprefs)
         r('show_notes_in_tag_browser', gprefs)
+        r('icons_on_right_in_tag_browser', gprefs)
         r('disable_animations', config)
         r('systray_icon', config, restart_required=True)
         r('show_splash_screen', gprefs)

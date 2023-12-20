@@ -782,10 +782,16 @@ class TagBrowserWidget(QFrame):  # {{{
         l.m.aboutToShow.connect(self.about_to_show_configure_menu)
         # Show/hide counts
         l.m.show_counts_action = ac = l.m.addAction('counts')
+        parent.keyboard.register_shortcut('tag browser toggle counts',
+                _('Toggle counts'), default_keys=(),
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_counts)
         # Show/hide average rating
         l.m.show_avg_rating_action = ac = l.m.addAction(QIcon.ic('rating.png'), 'avg rating')
         ac.triggered.connect(self.toggle_avg_rating)
+        parent.keyboard.register_shortcut('tag browser toggle average ratings',
+                _('Toggle average ratings'), default_keys=(),
+                action=ac, group=_('Tag browser'))
         # Show/hide notes icon
         l.m.show_notes_icon_action = ac = l.m.addAction(QIcon.ic('notes.png'), 'notes icon')
         ac.triggered.connect(self.toggle_notes_icon)
