@@ -405,14 +405,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.bars_manager.start_animation()
         self.set_window_title()
 
-        for ac in self.iactions.values():
-            try:
-                ac.initialization_complete()
-            except:
-                import traceback
-                traceback.print_exc()
-                if ac.installation_type is PluginInstallationType.BUILTIN:
-                    raise
         self.set_current_library_information(current_library_name(), db.library_id,
                                              db.field_metadata)
 
@@ -452,6 +444,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # before initializing quickview, so run it after an event loop tick
         QTimer.singleShot(0, self.start_quickview)
 
+        # Tell all the plugins that initialization has finished. Some networking
+        # stuff may remain to do, but that shouldn't affect the plugins
+        QTimer.singleShot(0, self.call_plugin_initialization_complete)
+
         # Start the smartdevice later so that the network time doesn't affect
         # the gui repaint debouncing. Wait 3 seconds before starting to be sure
         # that all other initialization (plugins etc) has completed. Yes, 3
@@ -459,11 +455,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # until the underlying structure changes to make it unnecessary.
         QTimer.singleShot(3000, self.start_smartdevice)
 
+    def call_plugin_initialization_complete(self):
+        timed_print('Calling plugin initialization_complete')
+        for ac in self.iactions.values():
+            try:
+                ac.initialization_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.installation_type is PluginInstallationType.BUILTIN:
+                    raise
+
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
         qv = get_quickview_action_plugin()
         if qv:
-            timed_print('QuickView starting')
             qv.qv_button.restore_state()
             timed_print('QuickView started')
         self.save_layout_state()
@@ -495,7 +501,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.focus_current_view()
 
     def start_smartdevice(self):
-        timed_print('Starting the smartdevice driver')
+        timed_print('Starting the smartdevice driver if needed')
         message = None
         if self.device_manager.get_option('smartdevice', 'autostart'):
             try:
