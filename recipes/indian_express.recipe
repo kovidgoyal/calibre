@@ -17,13 +17,10 @@ class IndianExpress(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     extra_css = '''
-        #storycenterbyline {font-size:small;}
-        #img-cap {font-size:small;}
-        blockquote{color:#404040;}
-        em{font-style:italic; color:#202020;}
-        #sub-d{color:#202020; font-style:italic;}
-        .ie-authorbox{font-size:small;}
-        img {display:block; margin:0 auto;}
+        #img-cap, .ie-authorbox, .author-block, #storycenterbyline { font-size:small; }
+        blockquote { color:#404040; }
+        em, #sub-d { color:#202020; font-style:italic; }
+        img { display:block; margin:0 auto; }
     '''
 
     resolve_internal_links = True
@@ -36,11 +33,12 @@ class IndianExpress(BasicNewsRecipe):
         dict(name='img', attrs={'src':lambda x: x and x.endswith('-button-300-ie.jpeg')}),
         dict(name='a', attrs={'href':lambda x: x and x.endswith('/?utm_source=newbanner')}),
         classes(
-            'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
-            ' storytags pdsc-related-modify news-guard premium-story append_social_share'
-            ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg'
-            'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare'
-            ' custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list'
+            'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright '
+            'storytags pdsc-related-modify news-guard premium-story append_social_share ie-int-campign-ad '
+            'digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg '
+            'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare osv-ad-class '
+            'custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list subscriber_hide '
+            'author-social author-follow author-img '
         )
     ]
 
