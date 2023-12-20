@@ -1370,6 +1370,21 @@ box will cause these empty categories to be hidden.&lt;/p&gt;</string>
             </property>
            </widget>
           </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="opt_icons_on_right_in_tag_browser">
+            <property name="text">
+             <string>Place icons on the &amp;right, in columns</string>
+            </property>
+            <property name="toolTip">
+             <string>If checked the notes and links icons will be placed at the right, after
+the count and in columns. If unchecked, the icons will be placed immediately after the text,
+to the left of the count and not in columns.</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="2">
            <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
             <property name="toolTip">

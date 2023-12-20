@@ -425,6 +425,7 @@ def create_defs():
     defs['allow_keyboard_search_in_library_views'] = True
     defs['show_links_in_tag_browser'] = False
     defs['show_notes_in_tag_browser'] = False
+    defs['icons_on_right_in_tag_browser'] = True
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
