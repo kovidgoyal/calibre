@@ -1156,9 +1156,9 @@ class DetailsLayout(QSplitter):  # {{{
             self.restoreState(s)
         self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
 
-    def setGeometry(self, r):
-        super().setGeometry(r)
-        self.do_layout(r)
+    def setGeometry(self, *a):
+        super().setGeometry(*a)
+        self.do_layout(self.geometry())
 
     def do_splitter_moved(self, *args):
         gprefs['book_details_widget_splitter_state'] = bytearray(self.saveState())

@@ -10,38 +10,7 @@ from qt.core import QAction, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
-from calibre.gui2 import error_dialog, gprefs
-from calibre.gui2.widgets import LayoutButton
-
-
-class QuickviewButton(LayoutButton):  # {{{
-
-    def __init__(self, gui, quickview_manager):
-        self.qv = quickview_manager
-        qaction = quickview_manager.qaction
-        LayoutButton.__init__(self, 'quickview.png', _('Quickview'),
-                              parent=gui, shortcut=qaction.shortcut().toString())
-        self.toggled.connect(self.update_state)
-        self.action_toggle = qaction
-        self.action_toggle.triggered.connect(self.toggle)
-        self.action_toggle.changed.connect(self.update_shortcut)
-
-    def update_state(self, checked):
-        if checked:
-            self.set_state_to_hide()
-            self.qv._show_quickview()
-        else:
-            self.set_state_to_show()
-            self.qv._hide_quickview()
-
-    def save_state(self):
-        gprefs['quickview visible'] = bool(self.isChecked())
-
-    def restore_state(self):
-        if gprefs.get('quickview visible', False):
-            self.toggle()
-
-# }}}
+from calibre.gui2 import error_dialog
 
 
 current_qv_action_pi = None
@@ -104,10 +73,13 @@ class ShowQuickviewAction(InterfaceAction):
                      group=self.action_spec[0])
         self.search_action.triggered.connect(self.search_quickview)
 
-        self.qv_button = QuickviewButton(self.gui, self)
+    @property
+    def qv_button(self):
+        return self.gui.layout_container.quick_view_button
 
     def initialization_complete(self):
         set_quickview_action_plugin(self)
+        self.qv_button.update_shortcut(self.qaction)
 
     def _hide_quickview(self):
         '''

@@ -7,23 +7,21 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 from qt.core import (
-    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap, QSizePolicy,
-    QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, QStylePainter, Qt,
-    QTabBar, QTimer, QToolButton, QUrl, QVBoxLayout, QWidget,
+    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap,
+    QStackedWidget, QStatusBar, QStyle, QStyleOption, QStylePainter, Qt, QTabBar,
+    QTimer, QToolButton, QUrl,
 )
 
 from calibre.constants import get_appname_for_display, get_version, ismacos
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import (
-    config, error_dialog, gprefs, is_widescreen, open_local_file, open_url,
-)
+from calibre.gui2 import config, error_dialog, gprefs, open_local_file, open_url
 from calibre.gui2.book_details import BookDetails
+from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
-from calibre.gui2.widgets import LayoutButton, Splitter
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_website_link, ngettext
@@ -111,105 +109,6 @@ class LibraryViewMixin:  # {{{
 
     # }}}
 
-
-class QuickviewSplitter(QSplitter):  # {{{
-
-    def __init__(self, parent=None, orientation=Qt.Orientation.Vertical, qv_widget=None):
-        super().__init__(parent=parent, orientation=orientation)
-        self.splitterMoved.connect(self.splitter_moved)
-        self.setChildrenCollapsible(False)
-        self.qv_widget = qv_widget
-
-    def splitter_moved(self):
-        gprefs['quickview_dialog_heights'] = self.sizes()
-
-    def resizeEvent(self, *args):
-        super().resizeEvent(*args)
-        if self.sizes()[1] != 0:
-            gprefs['quickview_dialog_heights'] = self.sizes()
-
-    def set_sizes(self):
-        sizes =  gprefs.get('quickview_dialog_heights', [])
-        if len(sizes) == 2:
-            self.setSizes(sizes)
-
-    def add_quickview_dialog(self, qv_dialog):
-        self.qv_widget.layout().addWidget(qv_dialog)
-
-    def show_quickview_widget(self):
-        self.qv_widget.show()
-
-    def hide_quickview_widget(self):
-        self.qv_widget.hide()
-# }}}
-
-
-class LibraryWidget(Splitter):  # {{{
-
-    def __init__(self, parent):
-        orientation = Qt.Orientation.Vertical
-        if config['gui_layout'] == 'narrow':
-            orientation = Qt.Orientation.Horizontal if is_widescreen() else Qt.Orientation.Vertical
-        idx = 0 if orientation == Qt.Orientation.Vertical else 1
-        size = 300 if orientation == Qt.Orientation.Vertical else 550
-        Splitter.__init__(self, 'cover_browser_splitter', _('Cover browser'),
-                'cover_flow.png',
-                orientation=orientation, parent=parent,
-                connect_button=not config['separate_cover_flow'],
-                side_index=idx, initial_side_size=size, initial_show=False,
-                shortcut='Shift+Alt+B')
-
-        quickview_widget = QWidget()
-        parent.quickview_splitter = QuickviewSplitter(
-                parent=self, orientation=Qt.Orientation.Vertical, qv_widget=quickview_widget)
-        parent.library_view = BooksView(parent)
-        parent.library_view.setObjectName('library_view')
-        stack = QStackedWidget(self)
-        av = parent.library_view.alternate_views
-        parent.pin_container = av.set_stack(stack)
-        parent.grid_view = GridView(parent)
-        parent.grid_view.setObjectName('grid_view')
-        av.add_view('grid', parent.grid_view)
-        parent.quickview_splitter.addWidget(stack)
-
-        l = QVBoxLayout()
-        l.setContentsMargins(4, 0, 0, 0)
-        quickview_widget.setLayout(l)
-        parent.quickview_splitter.addWidget(quickview_widget)
-        parent.quickview_splitter.hide_quickview_widget()
-
-        self.addWidget(parent.quickview_splitter)
-# }}}
-
-
-class Stack(QStackedWidget):  # {{{
-
-    def __init__(self, parent):
-        QStackedWidget.__init__(self, parent)
-
-        parent.cb_splitter = LibraryWidget(parent)
-        self.tb_widget = TagBrowserWidget(parent)
-        parent.tb_splitter = Splitter('tag_browser_splitter',
-                _('Tag browser'), 'tags.png',
-                parent=parent, side_index=0, initial_side_size=200,
-                shortcut='Shift+Alt+T')
-        parent.tb_splitter.state_changed.connect(
-                        self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
-        parent.tb_splitter.addWidget(self.tb_widget)
-        parent.tb_splitter.addWidget(parent.cb_splitter)
-        parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
-
-        self.addWidget(parent.tb_splitter)
-        for x in ('memory', 'card_a', 'card_b'):
-            name = x+'_view'
-            w = DeviceBooksView(parent)
-            setattr(parent, name, w)
-            self.addWidget(w)
-            w.setObjectName(name)
-
-
-# }}}
-
 class UpdateLabel(QLabel):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -219,7 +118,6 @@ class UpdateLabel(QLabel):  # {{{
     def contextMenuEvent(self, e):
         pass
 # }}}
-
 
 class VersionLabel(QLabel):  # {{{
 
@@ -257,7 +155,6 @@ class VersionLabel(QLabel):  # {{{
             p.end()
         return QLabel.paintEvent(self, ev)
 # }}}
-
 
 class StatusBar(QStatusBar):  # {{{
 
@@ -327,12 +224,11 @@ class StatusBar(QStatusBar):  # {{{
 
 # }}}
 
-
 class GridViewButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
         sc = 'Alt+Shift+G'
-        LayoutButton.__init__(self, 'grid.png', _('Cover grid'), parent=gui, shortcut=sc)
+        LayoutButton.__init__(self, 'cover_grid', 'grid.png', _('Cover grid'), gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
@@ -341,6 +237,10 @@ class GridViewButton(LayoutButton):  # {{{
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
+
+    @property
+    def is_visible(self):
+        return self.isChecked()
 
     def update_state(self, checked):
         if checked:
@@ -362,7 +262,7 @@ class SearchBarButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
         sc = 'Alt+Shift+F'
-        LayoutButton.__init__(self, 'search.png', _('Search bar'), parent=gui, shortcut=sc)
+        LayoutButton.__init__(self, 'search', 'search.png', _('Search bar'), gui, shortcut=sc)
         self.set_state_to_hide()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
@@ -371,6 +271,10 @@ class SearchBarButton(LayoutButton):  # {{{
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
+
+    @property
+    def is_visible(self):
+        return self.isChecked()
 
     def update_state(self, checked):
         if checked:
@@ -560,7 +464,6 @@ class VLTabs(QTabBar):  # {{{
 
 # }}}
 
-
 class LayoutMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -569,35 +472,34 @@ class LayoutMixin:  # {{{
     def init_layout_mixin(self):
         self.vl_tabs = VLTabs(self)
         self.centralwidget.layout().addWidget(self.vl_tabs)
+        self.layout_container = CentralContainer(self)
+        self.centralwidget.layout().addWidget(self.layout_container)
+        self.book_details = BookDetails(self.layout_container.is_wide, self)
+        self.stack = QStackedWidget(self)
+        self.library_view = BooksView(self)
+        self.library_view.setObjectName('library_view')
+        stack = QStackedWidget(self)
+        self.stack.addWidget(stack)
+        av = self.library_view.alternate_views
+        self.pin_container = av.set_stack(stack)
+        self.grid_view = GridView(self)
+        self.grid_view.setObjectName('grid_view')
+        av.add_view('grid', self.grid_view)
+        self.tb_widget = TagBrowserWidget(self)
+        self.memory_view = DeviceBooksView(self)
+        self.stack.addWidget(self.memory_view)
+        self.memory_view.setObjectName('memory_view')
+        self.card_a_view = DeviceBooksView(self)
+        self.stack.addWidget(self.card_a_view)
+        self.card_a_view.setObjectName('card_a_view')
+        self.card_b_view = DeviceBooksView(self)
+        self.stack.addWidget(self.card_b_view)
+        self.card_b_view.setObjectName('card_b_view')
 
-        if config['gui_layout'] == 'narrow':  # narrow {{{
-            self.book_details = BookDetails(False, self)
-            self.stack = Stack(self)
-            self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book details'), 'book.png',
-                    orientation=Qt.Orientation.Vertical, parent=self, side_index=1,
-                    shortcut='Shift+Alt+D')
-            self.bd_splitter.addWidget(self.stack)
-            self.bd_splitter.addWidget(self.book_details)
-            self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
-            self.centralwidget.layout().addWidget(self.bd_splitter)
-            self.button_order = button_order = ('sb', 'tb', 'bd', 'gv', 'cb', 'qv')
-        # }}}
-        else:  # wide {{{
-            self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book details'), 'book.png', initial_side_size=200,
-                    orientation=Qt.Orientation.Horizontal, parent=self, side_index=1,
-                    shortcut='Shift+Alt+D')
-            self.stack = Stack(self)
-            self.bd_splitter.addWidget(self.stack)
-            self.book_details = BookDetails(True, self)
-            self.bd_splitter.addWidget(self.book_details)
-            self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
-            self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Expanding))
-            self.centralwidget.layout().addWidget(self.bd_splitter)
-            self.button_order = button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
-        # }}}
+        if self.layout_container.is_wide:
+            self.button_order = 'sb', 'tb', 'cb', 'gv', 'qv', 'bd'
+        else:
+            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'qv'
 
         # This must use the base method to find the plugin because it hasn't
         # been fully initialized yet
@@ -605,6 +507,9 @@ class LayoutMixin:  # {{{
         if self.qv and self.qv.actual_plugin_:
             self.qv = self.qv.actual_plugin_
 
+        self.layout_container.initialize_with_gui(self, self.stack)
+        self.layout_container.tag_browser_button.toggled.connect(
+            self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
         self.status_bar = StatusBar(self)
         stylename = str(self.style().objectName())
         self.grid_view_button = GridViewButton(self)
@@ -613,40 +518,33 @@ class LayoutMixin:  # {{{
         self.search_bar_button.toggled.connect(self.toggle_search_bar)
 
         self.layout_buttons = []
-        for x in button_order:
-            if hasattr(self, x + '_splitter'):
-                button = getattr(self, x + '_splitter').button
+        for x in self.button_order:
+            if x == 'gv':
+                button = self.grid_view_button
+            elif x == 'sb':
+                button = self.search_bar_button
             else:
-                if x == 'gv':
-                    button = self.grid_view_button
-                elif x == 'qv':
-                    if self.qv is None:
-                        continue
-                    button = self.qv.qv_button
-                else:
-                    button = self.search_bar_button
+                button = self.layout_container.button_for({
+                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view'
+                }[x])
             self.layout_buttons.append(button)
-            button.setVisible(False)
+            button.setVisible(gprefs['show_layout_buttons'])
             if ismacos and stylename != 'Calibre':
                 button.setStyleSheet('''
                         QToolButton { background: none; border:none; padding: 0px; }
                         QToolButton:checked { background: rgba(0, 0, 0, 25%); }
                 ''')
             self.status_bar.addPermanentWidget(button)
-        if gprefs['show_layout_buttons']:
-            for b in self.layout_buttons:
-                b.setVisible(True)
-                self.status_bar.addPermanentWidget(b)
-        else:
-            self.layout_button = b = QToolButton(self)
-            b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
-            b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-            b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-            b.setText(_('Layout')), b.setIcon(QIcon.ic('layout.png'))
-            b.setMenu(LayoutMenu(self))
-            b.setToolTip(_(
-                'Show and hide various parts of the calibre main window'))
-            self.status_bar.addPermanentWidget(b)
+        self.layout_button = b = QToolButton(self)
+        b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setText(_('Layout')), b.setIcon(QIcon.ic('layout.png'))
+        b.setMenu(LayoutMenu(self))
+        b.setToolTip(_(
+            'Show and hide various parts of the calibre main window'))
+        self.status_bar.addPermanentWidget(b)
+        b.setVisible(not gprefs['show_layout_buttons'])
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
@@ -698,6 +596,12 @@ class LayoutMixin:  # {{{
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def show_panel(self, name):
+        self.layout_container.show_panel(name)
+
+    def hide_panel(self, name):
+        self.layout_container.hide_panel(name)
+
     def set_search_string_with_append(self, expression, append=''):
         current = self.search.text().strip()
         if append:
@@ -727,7 +631,7 @@ class LayoutMixin:  # {{{
 
     def find_in_tag_browser_triggered(self, field, value):
         if field and value:
-            tb = self.stack.tb_widget
+            tb = self.tb_widget
             tb.set_focus_to_find_box()
             tb.item_search.lineEdit().setText(field + ':=' + value)
             tb.do_find()
@@ -812,22 +716,15 @@ class LayoutMixin:  # {{{
         for x in ('library', 'memory', 'card_a', 'card_b'):
             getattr(self, x+'_view').save_state()
 
-        for x in ('cb', 'tb', 'bd'):
-            s = getattr(self, x+'_splitter')
-            s.update_desired_state()
-            s.save_state()
+        self.layout_container.write_settings()
         self.grid_view_button.save_state()
         self.search_bar_button.save_state()
-        if self.qv:
-            self.qv.qv_button.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
-        for x in ('cb', 'tb', 'bd'):
-            getattr(self, x+'_splitter').restore_state()
+        self.layout_container.read_settings()
         self.grid_view_button.restore_state()
         self.search_bar_button.restore_state()
-        # Can't do quickview here because the gui isn't totally set up. Do it in ui
 
     def update_status_bar(self, *args):
         v = self.current_view()

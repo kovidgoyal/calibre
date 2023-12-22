@@ -269,7 +269,7 @@ class Quickview(QDialog, Ui_Quickview):
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.refresh_button.setText(_('Refresh'))
-            self.gui.quickview_splitter.add_quickview_dialog(self)
+            self.gui.layout_container.set_widget('quick_view', self)
             self.close_button.setVisible(False)
         else:
             self.dock_button.setToolTip(_('Embed the Quickview panel into the main calibre window'))
@@ -324,7 +324,7 @@ class Quickview(QDialog, Ui_Quickview):
         t.start()
 
     def item_doubleclicked(self, item):
-        tb = self.gui.stack.tb_widget
+        tb = self.gui.tb_widget
         tb.set_focus_to_find_box()
         tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
         tb.do_find()
@@ -456,7 +456,7 @@ class Quickview(QDialog, Ui_Quickview):
     def show(self):
         QDialog.show(self)
         if self.is_pane:
-            self.gui.quickview_splitter.show_quickview_widget()
+            self.gui.show_panel('quick_view')
 
     def show_as_pane_changed(self):
         gprefs['quickview_is_pane'] = not gprefs.get('quickview_is_pane', False)
@@ -707,10 +707,6 @@ class Quickview(QDialog, Ui_Quickview):
     def resizeEvent(self, *args):
         QDialog.resizeEvent(self, *args)
 
-        # Do this if we are resizing for the first time to reset state.
-        if self.is_pane and self.height() == 0:
-            self.gui.quickview_splitter.set_sizes()
-
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):
                 self.books_table.setColumnWidth(c, w)
@@ -868,7 +864,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def _reject(self):
         if self.is_pane:
-            self.gui.quickview_splitter.hide_quickview_widget()
+            self.gui.hide_panel('quick_view')
         self.gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)

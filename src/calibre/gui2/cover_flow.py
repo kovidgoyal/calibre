@@ -353,8 +353,12 @@ class CoverFlowMixin:
 
     disable_cover_browser_refresh = False
 
+    @property
+    def cb_button(self):
+        return self.layout_container.cover_browser_button
+
     def one_auto_scroll(self):
-        cb_visible = self.cover_flow is not None and self.cb_splitter.button.isChecked()
+        cb_visible = self.cover_flow is not None and self.cb_button.isChecked()
         if cb_visible:
             self.cover_flow.one_auto_scroll()
         else:
@@ -388,18 +392,17 @@ class CoverFlowMixin:
         self.cover_flow.setImages(self.db_images)
         self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
         self.update_cover_flow_subtitle_font()
+        button = self.cb_button
         if self.separate_cover_browser:
-            self.separate_cover_browser = True
-            self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
-            self.cb_splitter.button.set_state_to_show()
-            self.cb_splitter.action_toggle.triggered.connect(self.toggle_cover_browser)
+            button.clicked.connect(self.toggle_cover_browser)
+            button.set_state_to_show()
+            button.on_action_trigger.connect(self.toggle_cover_browser)
             self.cover_flow.stop.connect(self.hide_cover_browser)
             self.cover_flow.setVisible(False)
         else:
-            self.separate_cover_browser = False
-            self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
-            self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
-        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled, type=Qt.ConnectionType.QueuedConnection)
+            self.cover_flow.stop.connect(button.set_state_to_hide)
+            self.layout_container.set_widget('cover_browser', self.cover_flow)
+        button.toggled.connect(self.cover_browser_toggled, type=Qt.ConnectionType.QueuedConnection)
 
     def update_cover_flow_subtitle_font(self):
         db = self.current_db.new_api
@@ -419,7 +422,7 @@ class CoverFlowMixin:
             self.show_cover_browser()
 
     def cover_browser_toggled(self, *args):
-        if self.cb_splitter.button.isChecked():
+        if self.cb_button.isChecked():
             self.cover_browser_shown()
         else:
             self.cover_browser_hidden()
@@ -447,25 +450,25 @@ class CoverFlowMixin:
 
     def show_cover_browser(self):
         d = CBDialog(self, self.cover_flow)
-        d.addAction(self.cb_splitter.action_toggle)
+        d.addAction(self.cb_button.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
-        self.cb_splitter.button.set_state_to_hide()
+        self.cb_button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d
-        self.cb_splitter.button.set_state_to_hide()
+        self.cb_button.set_state_to_hide()
 
     def cover_browser_closed(self, *args):
         self.cb_dialog = None
-        self.cb_splitter.button.set_state_to_show()
+        self.cb_button.set_state_to_show()
 
     def hide_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             cbd.accept()
             self.cb_dialog = None
-        self.cb_splitter.button.set_state_to_show()
+        self.cb_button.set_state_to_show()
 
     def is_cover_browser_visible(self):
         try:
@@ -473,7 +476,7 @@ class CoverFlowMixin:
                 return self.cover_flow.isVisible()
         except AttributeError:
             return False  # called before init_cover_flow_mixin
-        return not self.cb_splitter.is_side_index_hidden
+        return self.cb_button.isChecked()
 
     def refresh_cover_browser(self):
         if self.disable_cover_browser_refresh:

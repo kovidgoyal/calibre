@@ -3,7 +3,7 @@
 
 from enum import Enum
 from functools import partial
-from qt.core import QIcon, QToolButton
+from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -33,7 +33,7 @@ class LayoutActions(InterfaceAction):
         m.addAction(_('Hide all'), self.hide_all)
         for button, name in zip(self.gui.layout_buttons, self.gui.button_order):
             m.addSeparator()
-            ic = QIcon.ic(button.icname)
+            ic = button.icon()
             m.addAction(ic, _('Show {}').format(button.label), partial(self.set_visible, Panel(name), True))
             m.addAction(ic, _('Hide {}').format(button.label), partial(self.set_visible, Panel(name), False))
 

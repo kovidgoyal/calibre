@@ -17,7 +17,6 @@ import sys
 import textwrap
 import time
 from collections import OrderedDict, deque
-from functools import partial
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
@@ -56,7 +55,7 @@ from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.update import UpdateMixin
-from calibre.gui2.widgets import ProgressIndicator
+from calibre.gui2.widgets import ProgressIndicator, BusyCursor
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker, db_matches
 from calibre.utils.config import dynamic, prefs
@@ -398,7 +397,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             do_hide_windows = True
             show_gui = False
             setattr(self, '__systray_minimized', True)
-        QTimer.singleShot(0, partial(self.post_initialize_actions, show_gui, do_hide_windows))
+        if do_hide_windows:
+            self.hide_windows()
+        if show_gui:
+            timed_print('GUI main window shown')
+            self.show()
+        self.layout_container.relayout()
+        QTimer.singleShot(0, self.post_initialize_actions)
         self.read_settings()
 
         self.finalize_layout()
@@ -430,43 +435,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions['Connect Share'].check_smartdevice_menus()
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
 
-    def post_initialize_actions(self, show_gui, do_hide_windows):
+    def post_initialize_actions(self):
         # Various post-initialization actions after an event loop tick
-
+        self.listener.start_listening()
+        self.start_smartdevice()
         # Collect cycles now
         gc.collect()
-
-        self.listener.start_listening()
-        if do_hide_windows:
-            self.hide_windows()
-        if show_gui:
-            timed_print('GUI main window shown')
-            self.show()
-        # Force repaint of the book details splitter because it otherwise ends
-        # up with the wrong size. I don't know why.
-        self.bd_splitter.repaint()
-
-        # Once the gui is initialized we can restore the quickview state
-        # The same thing will be true for any action-based operation with a
-        # layout button. We need to let a book be selected in the book list
-        # before initializing quickview, so run it after an event loop tick
-        QTimer.singleShot(0, self.start_quickview)
-
-        # Start the smartdevice later so that the network time doesn't affect
-        # the gui repaint debouncing. Wait 3 seconds before starting to be sure
-        # that all other initialization (plugins etc) has completed. Yes, 3
-        # seconds is an arbitrary value and probably too long, but it will do
-        # until the underlying structure changes to make it unnecessary.
-        QTimer.singleShot(3000, self.start_smartdevice)
-
-    def start_quickview(self):
-        from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-        qv = get_quickview_action_plugin()
-        if qv:
-            timed_print('QuickView starting')
-            qv.qv_button.restore_state()
-            timed_print('QuickView started')
-        self.save_layout_state()
         self.focus_library_view()
 
     def show_gui_debug_msg(self):
@@ -498,14 +472,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         timed_print('Starting the smartdevice driver')
         message = None
         if self.device_manager.get_option('smartdevice', 'autostart'):
-            try:
-                message = self.device_manager.start_plugin('smartdevice')
-                timed_print('Finished starting smartdevice')
-            except Exception as e:
-                message = str(e)
-                timed_print(f'Starting smartdevice driver failed: {message}')
-                import traceback
-                traceback.print_exc()
+            with BusyCursor():
+                try:
+                    message = self.device_manager.start_plugin('smartdevice')
+                    timed_print('Finished starting smartdevice')
+                except Exception as e:
+                    message = str(e)
+                    timed_print(f'Starting smartdevice driver failed: {message}')
+                    import traceback
+                    traceback.print_exc()
         if message:
             if not self.device_manager.is_running('Wireless Devices'):
                 error_dialog(self, _('Problem starting the wireless device'),
@@ -1043,9 +1018,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         self.book_details.reset_info()
-        for x in ('tb', 'cb'):
-            splitter = getattr(self, x+'_splitter')
-            splitter.button.setEnabled(location == 'library')
+        self.layout_container.tag_browser_button.setEnabled(location == 'library')
+        self.layout_container.cover_browser_button.setEnabled(location == 'library')
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
@@ -1168,7 +1142,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.save_geometry(gprefs, 'calibre_main_window_geometry')
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
-            self.stack.tb_widget.save_state()
+            self.tb_widget.save_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True, no_plugins_on_restart=False):
