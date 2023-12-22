@@ -469,6 +469,36 @@ class LayoutMixin:  # {{{
     def __init__(self, *args, **kwargs):
         pass
 
+    def place_layout_buttons(self):
+        if getattr(self, 'layout_buttons', None):
+            for x in self.layout_buttons:
+                self.status_bar.removeWidget(x)
+        if self.layout_container.is_wide:
+            self.button_order = 'sb', 'tb', 'cb', 'gv', 'qv', 'bd'
+        else:
+            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'qv'
+        self.layout_buttons = []
+        stylename = str(self.style().objectName())
+        for x in self.button_order:
+            if x == 'gv':
+                button = self.grid_view_button
+            elif x == 'sb':
+                button = self.search_bar_button
+            else:
+                button = self.layout_container.button_for({
+                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view'
+                }[x])
+            self.layout_buttons.append(button)
+            button.setVisible(gprefs['show_layout_buttons'])
+            if ismacos and stylename != 'Calibre':
+                button.setStyleSheet('''
+                        QToolButton { background: none; border:none; padding: 0px; }
+                        QToolButton:checked { background: rgba(0, 0, 0, 25%); }
+                ''')
+        for button in reversed(self.layout_buttons):
+            self.status_bar.insertPermanentWidget(1, button)
+        self.layout_button.setMenu(LayoutMenu(self))
+
     def init_layout_mixin(self):
         self.vl_tabs = VLTabs(self)
         self.centralwidget.layout().addWidget(self.vl_tabs)
@@ -496,11 +526,6 @@ class LayoutMixin:  # {{{
         self.stack.addWidget(self.card_b_view)
         self.card_b_view.setObjectName('card_b_view')
 
-        if self.layout_container.is_wide:
-            self.button_order = 'sb', 'tb', 'cb', 'gv', 'qv', 'bd'
-        else:
-            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'qv'
-
         # This must use the base method to find the plugin because it hasn't
         # been fully initialized yet
         self.qv = find_plugin('Quickview')
@@ -511,36 +536,16 @@ class LayoutMixin:  # {{{
         self.layout_container.tag_browser_button.toggled.connect(
             self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
         self.status_bar = StatusBar(self)
-        stylename = str(self.style().objectName())
         self.grid_view_button = GridViewButton(self)
         self.search_bar_button = SearchBarButton(self)
         self.grid_view_button.toggled.connect(self.toggle_grid_view)
         self.search_bar_button.toggled.connect(self.toggle_search_bar)
 
-        self.layout_buttons = []
-        for x in self.button_order:
-            if x == 'gv':
-                button = self.grid_view_button
-            elif x == 'sb':
-                button = self.search_bar_button
-            else:
-                button = self.layout_container.button_for({
-                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view'
-                }[x])
-            self.layout_buttons.append(button)
-            button.setVisible(gprefs['show_layout_buttons'])
-            if ismacos and stylename != 'Calibre':
-                button.setStyleSheet('''
-                        QToolButton { background: none; border:none; padding: 0px; }
-                        QToolButton:checked { background: rgba(0, 0, 0, 25%); }
-                ''')
-            self.status_bar.addPermanentWidget(button)
         self.layout_button = b = QToolButton(self)
         b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setText(_('Layout')), b.setIcon(QIcon.ic('layout.png'))
-        b.setMenu(LayoutMenu(self))
         b.setToolTip(_(
             'Show and hide various parts of the calibre main window'))
         self.status_bar.addPermanentWidget(b)
@@ -729,6 +734,7 @@ class LayoutMixin:  # {{{
         # View states are restored automatically when set_database is called
         self.layout_container.read_settings()
         self.book_details.vertical = self.layout_container.is_wide
+        self.place_layout_buttons()
         self.grid_view_button.restore_state()
         self.search_bar_button.restore_state()
 

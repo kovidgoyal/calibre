@@ -315,8 +315,8 @@ class CentralContainer(QWidget):
             return False
         gui.book_details.vertical = is_wide
         self.layout = layout
+        gui.place_layout_buttons()
         self.write_settings()
-        # TODO: Also change the button order
         self.relayout()
         return True
 

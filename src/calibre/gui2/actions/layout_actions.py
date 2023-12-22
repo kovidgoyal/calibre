@@ -30,6 +30,11 @@ class LayoutActions(InterfaceAction):
 
     def gui_layout_complete(self):
         m = self.qaction.menu()
+        m.aboutToShow.connect(self.populate_layout_menu)
+
+    def populate_layout_menu(self):
+        m = self.qaction.menu()
+        m.clear()
         m.addAction(_('Hide all'), self.hide_all)
         for button, name in zip(self.gui.layout_buttons, self.gui.button_order):
             m.addSeparator()
