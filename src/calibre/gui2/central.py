@@ -25,7 +25,7 @@ class Placeholder(QLabel):
         super().__init__(text, parent)
         bg = self.backgrounds[Placeholder.bgcount]
         Placeholder.bgcount = (Placeholder.bgcount + 1) % len(self.backgrounds)
-        self.setStyleSheet(f'QLabel {{ background: {bg} }}')
+        self.setStyleSheet(f'QLabel {{ background: {bg};\nborder: 1px solid red; }}')
 
 
 class LayoutButton(QToolButton):
