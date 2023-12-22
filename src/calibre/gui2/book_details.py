@@ -1114,7 +1114,6 @@ class DetailsLayout(QSplitter):  # {{{
         super().__init__(orientation, parent)
         self.vertical = vertical
         self._children = []
-        self.min_size = QSize(190, 200) if vertical else QSize(120, 120)
         self.setContentsMargins(0, 0, 0, 0)
         self.splitterMoved.connect(self.do_splitter_moved,
                                    type=Qt.ConnectionType.QueuedConnection)
@@ -1134,7 +1133,7 @@ class DetailsLayout(QSplitter):  # {{{
         self.resize_timer.start()
 
     def minimumSize(self):
-        return QSize(self.min_size)
+        return QSize(190, 200) if self.vertical else QSize(120, 120)
 
     def addWidget(self, child):
         if len(self._children) > 2:
@@ -1145,7 +1144,7 @@ class DetailsLayout(QSplitter):  # {{{
         return len(self._children)
 
     def sizeHint(self):
-        return QSize(self.min_size)
+        return self.minimumSize()
 
     def restore_splitter_state(self):
         s = gprefs.get('book_details_widget_splitter_state')
@@ -1288,7 +1287,7 @@ class BookDetails(DetailsLayout):  # {{{
     # }}}
 
     def __init__(self, vertical, parent=None):
-        DetailsLayout.__init__(self, vertical, parent)
+        super().__init__(vertical, parent)
         self.last_data = {}
         self.setAcceptDrops(True)
         self._layout = self
