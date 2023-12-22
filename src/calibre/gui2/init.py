@@ -597,9 +597,15 @@ class LayoutMixin:  # {{{
         self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def show_panel(self, name):
+        if name == 'search_bar':
+            self.search_bar_button.setChecked(True)
+            return
         self.layout_container.show_panel(name)
 
     def hide_panel(self, name):
+        if name == 'search_bar':
+            self.search_bar_button.setChecked(False)
+            return
         self.layout_container.hide_panel(name)
 
     def set_search_string_with_append(self, expression, append=''):
