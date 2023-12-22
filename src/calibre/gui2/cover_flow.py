@@ -366,9 +366,8 @@ class CoverFlowMixin:
         self.update_cover_flow_subtitle_font()
         button = self.cb_button
         if self.separate_cover_browser:
-            button.clicked.connect(self.toggle_cover_browser)
+            button.toggled.connect(self.toggle_cover_browser)
             button.set_state_to_show()
-            button.on_action_trigger.connect(self.toggle_cover_browser)
             self.cover_flow.stop.connect(self.hide_cover_browser)
             self.cover_flow.setVisible(False)
         else:

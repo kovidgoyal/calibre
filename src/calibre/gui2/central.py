@@ -49,14 +49,10 @@ class LayoutButton(QToolButton):
         if self.shortcut is not None:
             self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
             self.action_toggle.changed.connect(self.update_shortcut)
-            self.action_toggle.triggered.connect(self.toggle_triggered)
+            self.action_toggle.triggered.connect(self.toggle)
             gui.addAction(self.action_toggle)
             gui.keyboard.register_shortcut(
                 f'toggle_central_panel_{self.name}', self.action_toggle.text(), default_keys=(self.shortcut,), action=self.action_toggle)
-
-    def toggle_triggered(self):
-        self.toggle()
-        self.on_action_trigger.emit(self.isChecked())
 
     @property
     def is_visible(self):
