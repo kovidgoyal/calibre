@@ -309,6 +309,17 @@ class CentralContainer(QWidget):
     def is_wide(self):
         return self.layout is Layout.wide
 
+    def change_layout(self, gui, is_wide):
+        layout = Layout.wide if is_wide else Layout.narrow
+        if layout is self.layout:
+            return False
+        gui.book_details.vertical = is_wide
+        self.layout = layout
+        self.write_settings()
+        # TODO: Also change the button order
+        self.relayout()
+        return True
+
     def serialized_settings(self):
         return {
             'layout': self.layout.name,
@@ -344,6 +355,8 @@ class CentralContainer(QWidget):
         if self.serialized_settings() != before:
             self.update_button_states_from_visibility()
             self.relayout()
+            return True
+        return False
 
     def reset_to_defaults(self):
         before = self.serialized_settings()
@@ -650,12 +663,12 @@ class CentralContainer(QWidget):
             tb = max(0, width_to_share - cb)
         central_width = available_width - (tb + cb)
         if self.is_visible.tag_browser:
-            self.tag_browser.setGeometry(0, 0, int(tb), int(self.height()))
+            self.tag_browser.setGeometry(0, 0, int(tb), int(central_height))
         self.left_handle.move(tb, 0)
         central_x = self.left_handle.x() + self.left_handle.width()
         self.right_handle.move(tb + central_width + self.left_handle.width(), 0)
         if self.is_visible.cover_browser and not self.separate_cover_browser:
-            self.cover_browser.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(cb), int(self.height()))
+            self.cover_browser.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(cb), int(central_height))
         self.top_handle.resize(int(central_width), int(normal_handle_width if self.is_visible.quick_view else 0))
         central_height -= self.top_handle.height()
         qv = 0

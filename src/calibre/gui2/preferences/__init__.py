@@ -273,7 +273,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         Register a setting.
 
         :param name: The setting name
-        :param config: The config object that reads/writes the setting
+        :param config_obj: The config object that reads/writes the setting
         :param gui_name: The name of the GUI object that presents an interface
                          to change the setting. By default it is assumed to be
                          ``'opt_' + name``.

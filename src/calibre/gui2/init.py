@@ -721,7 +721,6 @@ class LayoutMixin:  # {{{
     def save_layout_state(self):
         for x in ('library', 'memory', 'card_a', 'card_b'):
             getattr(self, x+'_view').save_state()
-
         self.layout_container.write_settings()
         self.grid_view_button.save_state()
         self.search_bar_button.save_state()
@@ -729,6 +728,7 @@ class LayoutMixin:  # {{{
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         self.layout_container.read_settings()
+        self.book_details.vertical = self.layout_container.is_wide
         self.grid_view_button.restore_state()
         self.search_bar_button.restore_state()
 
