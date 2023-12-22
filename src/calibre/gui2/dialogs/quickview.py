@@ -863,9 +863,10 @@ class Quickview(QDialog, Ui_Quickview):
             self._reject()
 
     def _reject(self):
+        gui = self.gui
         if self.is_pane:
-            self.gui.hide_panel('quick_view')
-        self.gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
+            gui.hide_panel('quick_view')
+        gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)
 

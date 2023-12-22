@@ -437,6 +437,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def post_initialize_actions(self):
         # Various post-initialization actions after an event loop tick
+        if self.layout_container.is_visible.quick_view:
+            self.iactions['Quickview'].show_on_startup()
         self.listener.start_listening()
         self.start_smartdevice()
         # Collect cycles now

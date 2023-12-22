@@ -28,17 +28,15 @@ def get_quickview_action_plugin():
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Quickview'
-    action_spec = (_('Quickview'), 'quickview.png', None, None)
+    action_spec = (_('Quickview'), 'quickview.png', _('Toggle Quickview'), 'Q')
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     current_instance = None
 
     def genesis(self):
-        self.gui.keyboard.register_shortcut('Toggle Quickview', _('Toggle Quickview'),
-                     description=_('Open/close the Quickview panel/window'),
-                     default_keys=('Q',), action=self.qaction,
-                     group=self.action_spec[0])
+        self.menuless_qaction.changed.connect(self.update_layout_button)
+        self.qaction.triggered.connect(self.toggle_quick_view)
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
         self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
@@ -73,13 +71,26 @@ class ShowQuickviewAction(InterfaceAction):
                      group=self.action_spec[0])
         self.search_action.triggered.connect(self.search_quickview)
 
+    def update_layout_button(self):
+        self.qv_button.update_shortcut(self.menuless_qaction)
+
+    def toggle_quick_view(self):
+        if self.current_instance and not self.current_instance.is_closed:
+            self._hide_quickview()
+        else:
+            self._show_quickview()
+
     @property
     def qv_button(self):
         return self.gui.layout_container.quick_view_button
 
     def initialization_complete(self):
         set_quickview_action_plugin(self)
-        self.qv_button.update_shortcut(self.qaction)
+        self.qv_button.toggled.connect(self.toggle_quick_view)
+
+    def show_on_startup(self):
+        self.gui.hide_panel('quick_view')
+        self._show_quickview()
 
     def _hide_quickview(self):
         '''
@@ -103,7 +114,9 @@ class ShowQuickviewAction(InterfaceAction):
                 _('Quickview is not available for books '
                   'on the device.')).exec()
             return
+        self.qv_button.blockSignals(True)
         self.qv_button.set_state_to_hide()
+        self.qv_button.blockSignals(False)
         index = self.gui.library_view.currentIndex()
         self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(),
                                           focus_booklist_shortcut=self.focus_bl_action.shortcut())

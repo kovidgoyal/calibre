@@ -320,6 +320,8 @@ class CentralContainer(QWidget):
     def layout_button_toggled(self):
         if not self.ignore_button_toggles:
             b = self.sender()
+            if b.name == 'quick_view':
+                return
             self.set_visibility_of(b.name, b.isChecked())
             self.relayout()
 
