@@ -18,31 +18,73 @@ HIDE_THRESHOLD = 10
 SHOW_THRESHOLD = 50
 
 
-def migrate_settings():
+def migrate_settings(width=-1, height=-1):
+    if width < 100:
+        width = 1200
+    if height < 100:
+        height = 600
+    wd, nd = WideDesires(), NarrowDesires()
     ans = {
         'layout': config['gui_layout'],
         'wide_visibility': Visibility().serialize(),
         'narrow_visibility': Visibility().serialize(),
-        'wide_desires': WideDesires().serialize(),
-        'narrow_desires': NarrowDesires().serialize(),
+        'wide_desires': wd.serialize(),
+        'narrow_desires': nd.serialize(),
     }
-    for old, (new, hor_is_wide) in {
-        'tag_browser': ('tag_browser', True),
-        'book_details': ('book_details', True),
-        'cover_browser': ('cover_browser', False),
+    sizes = {
+        'wide': {
+            'tag_browser': int(width * wd.tag_browser_width),
+            'book_details': int(width * wd.book_details_width),
+            'cover_browser': int(height * wd.cover_browser_height),
+            'quick_view': int(height * wd.quick_view_height),
+        },
+        'narrow': {
+            'tag_browser': int(width * nd.tag_browser_width),
+            'book_details': int(height * nd.book_details_height),
+            'cover_browser': int(width * nd.cover_browser_width),
+            'quick_view': int(height * nd.quick_view_height),
+        }
+    }
+    for which, hor_is_wide in {
+        'tag_browser': True,
+        'book_details': True,
+        'cover_browser': False,
     }.items():
         key = 'wide' if hor_is_wide else 'narrow'
-        val = gprefs.get(f'{old}_splitter_horizontal_state')
+        val = gprefs.get(f'{which}_splitter_horizontal_state')
         if val:
             with suppress(Exception):
-                ans[f'{key}_visibility'][new] = bool(val[0])
+                ans[f'{key}_visibility'][which] = bool(val[0])
+                sizes[key][which] = val[1]
         key = 'narrow' if hor_is_wide else 'wide'
-        val = gprefs.get(f'{old}_splitter_vertical_state')
+        val = gprefs.get(f'{which}_splitter_vertical_state')
         if val:
             with suppress(Exception):
-                ans[f'{key}_visibility'][new] = bool(val[0])
+                ans[f'{key}_visibility'][which] = bool(val[0])
+                sizes[key][which] = val[1]
     if gprefs.get('quickview visible'):
         ans['wide_visibility']['quick_view'] = ans['narrow_visibility']['quick_view'] = True
+    qdh = gprefs.get('quickview_dialog_heights') or (int(2*height/3), int(height/3))
+
+    # Migrate wide sizes
+    s, a = sizes['wide'], ans['wide_desires']
+    a['tag_browser_width'] = min(0.45, s['tag_browser'] / width)
+    a['book_details_width'] = min(0.45, s['book_details'] / width)
+    theight = s['cover_browser'] + qdh[0] + qdh[1]
+    if theight == s['cover_browser']:
+        theight *= 3
+    a['cover_browser_height'] = s['cover_browser'] / theight
+    a['quick_view_height'] = qdh[1] / theight
+
+    # Migrate narrow sizes
+    s, a = sizes['narrow'], ans['narrow_desires']
+    a['tag_browser_width'] = min(0.45, s['tag_browser'] / width)
+    a['cover_browser_width'] = min(0.45, s['cover_browser'] / width)
+    theight = s['book_details'] + qdh[0] + qdh[1]
+    if theight == s['book_details']:
+        theight *= 3
+    a['book_details_height'] = s['book_details'] / theight
+    a['quick_view_height'] = qdh[1] / theight
     return ans
 
 
@@ -384,7 +426,8 @@ class CentralContainer(QWidget):
 
     def read_settings(self):
         before = self.serialized_settings()
-        settings = gprefs.get(self.prefs_name) or migrate_settings()
+        sz = self.size()
+        settings = gprefs.get(self.prefs_name) or migrate_settings(sz.width(), sz.height())
         self.unserialize_settings(settings)
         if self.serialized_settings() != before:
             self.update_button_states_from_visibility()
