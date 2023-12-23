@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 from copy import copy
+from contextlib import suppress
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
 from qt.core import (
@@ -15,6 +16,34 @@ from calibre.gui2.cover_flow import MIN_SIZE
 
 HIDE_THRESHOLD = 10
 SHOW_THRESHOLD = 50
+
+
+def migrate_settings():
+    ans = {
+        'layout': config['gui_layout'],
+        'wide_visibility': Visibility().serialize(),
+        'narrow_visibility': Visibility().serialize(),
+        'wide_desires': WideDesires().serialize(),
+        'narrow_desires': NarrowDesires().serialize(),
+    }
+    for old, (new, hor_is_wide) in {
+        'tag_browser': ('tag_browser', True),
+        'book_details': ('book_details', True),
+        'cover_browser': ('cover_browser', False),
+    }.items():
+        key = 'wide' if hor_is_wide else 'narrow'
+        val = gprefs.get(f'{old}_splitter_horizontal_state')
+        if val:
+            with suppress(Exception):
+                ans[f'{key}_visibility'][new] = bool(val[0])
+        key = 'narrow' if hor_is_wide else 'wide'
+        val = gprefs.get(f'{old}_splitter_vertical_state')
+        if val:
+            with suppress(Exception):
+                ans[f'{key}_visibility'][new] = bool(val[0])
+    if gprefs.get('quickview visible'):
+        ans['wide_visibility']['quick_view'] = ans['narrow_visibility']['quick_view'] = True
+    return ans
 
 
 class Placeholder(QLabel):
@@ -251,11 +280,12 @@ class CentralContainer(QWidget):
     def __init__(self, parent=None, prefs_name='main_window_central_widget_state', separate_cover_browser=None, for_develop=False):
         self.separate_cover_browser = config['separate_cover_flow'] if separate_cover_browser is None else separate_cover_browser
         self.prefs_name = prefs_name
-        super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.wide_desires = WideDesires()
         self.narrow_desires = NarrowDesires()
-        self.is_visible = Visibility()
+        self.wide_is_visible = Visibility()
+        self.narrow_is_visible = Visibility()
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         if for_develop:
             self.tag_browser = Placeholder('tag browser', self)
             self.book_list = Placeholder('book list', self)
@@ -286,6 +316,10 @@ class CentralContainer(QWidget):
         self.right_handle = h()
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
+
+    @property
+    def is_visible(self):
+        return self.wide_is_visible if self.layout is Layout.wide else self.narrow_is_visible
 
     def set_widget(self, which, w):
         existing = getattr(self, which)
@@ -323,7 +357,8 @@ class CentralContainer(QWidget):
     def serialized_settings(self):
         return {
             'layout': self.layout.name,
-            'visibility': self.is_visible.serialize(),
+            'wide_visibility': self.wide_is_visible.serialize(),
+            'narrow_visibility': self.narrow_is_visible.serialize(),
             'wide_desires': self.wide_desires.serialize(),
             'narrow_desires': self.narrow_desires.serialize()
         }
@@ -338,11 +373,9 @@ class CentralContainer(QWidget):
 
     def unserialize_settings(self, s):
         l = s.get('layout')
-        if l == 'wide':
-            self.layout = Layout.wide
-        elif l == 'narrow':
-            self.layout = Layout.narrow
-        self.is_visible.unserialize(s.get('visibility') or {})
+        self.layout = Layout.narrow if l == 'narrow' else Layout.wide
+        self.wide_is_visible.unserialize(s.get('wide_visibility') or {})
+        self.narrow_is_visible.unserialize(s.get('narrow_visibility') or {})
         self.wide_desires.unserialize(s.get('wide_desires') or {})
         self.narrow_desires.unserialize(s.get('narrow_desires') or {})
 
@@ -351,7 +384,8 @@ class CentralContainer(QWidget):
 
     def read_settings(self):
         before = self.serialized_settings()
-        self.unserialize_settings(gprefs.get(self.prefs_name) or {})
+        settings = gprefs.get(self.prefs_name) or migrate_settings()
+        self.unserialize_settings(settings)
         if self.serialized_settings() != before:
             self.update_button_states_from_visibility()
             self.relayout()
