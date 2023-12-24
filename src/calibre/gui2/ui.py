@@ -399,9 +399,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             setattr(self, '__systray_minimized', True)
         if do_hide_windows:
             self.hide_windows()
-        if show_gui:
-            timed_print('GUI main window shown')
-            self.show()
         self.layout_container.relayout()
         QTimer.singleShot(0, self.post_initialize_actions)
         self.read_settings()
@@ -409,6 +406,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.finalize_layout()
         self.bars_manager.start_animation()
         self.set_window_title()
+
+        if show_gui:
+            timed_print('GUI main window shown')
+            self.show()
 
         for ac in self.iactions.values():
             try:
