@@ -582,7 +582,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
-        r('show_layout_buttons', gprefs, restart_required=True)
+        r('show_layout_buttons', gprefs)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
@@ -1182,6 +1182,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def refresh_gui(self, gui):
         gui.book_details.book_info.refresh_css()
+        gui.place_layout_buttons()
         m = gui.library_view.model()
         m.update_db_prefs_cache()
         m.beginResetModel(), m.endResetModel()

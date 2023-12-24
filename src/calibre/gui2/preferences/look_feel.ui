@@ -31,7 +31,7 @@
        <item row="7" column="1">
         <widget class="QCheckBox" name="opt_show_layout_buttons">
          <property name="text">
-          <string>Show &amp;layout buttons in the status bar (needs restart)</string>
+          <string>Show &amp;layout buttons in the status bar</string>
          </property>
         </widget>
        </item>

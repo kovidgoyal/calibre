@@ -498,6 +498,7 @@ class LayoutMixin:  # {{{
         for button in reversed(self.layout_buttons):
             self.status_bar.insertPermanentWidget(1, button)
         self.layout_button.setMenu(LayoutMenu(self))
+        self.layout_button.setVisible(not gprefs['show_layout_buttons'])
 
     def init_layout_mixin(self):
         self.vl_tabs = VLTabs(self)
@@ -549,7 +550,6 @@ class LayoutMixin:  # {{{
         b.setToolTip(_(
             'Show and hide various parts of the calibre main window'))
         self.status_bar.addPermanentWidget(b)
-        b.setVisible(not gprefs['show_layout_buttons'])
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
