@@ -471,9 +471,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.focus_current_view()
 
     def start_smartdevice(self):
-        timed_print('Starting the smartdevice driver')
         message = None
         if self.device_manager.get_option('smartdevice', 'autostart'):
+            timed_print('Starting the smartdevice driver')
             with BusyCursor():
                 try:
                     message = self.device_manager.start_plugin('smartdevice')
