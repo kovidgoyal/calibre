@@ -1010,8 +1010,8 @@
     {
         "name": "fonttools",
         "unix": {
-            "filename": "fonttools-4.42.1.tar.gz",
-            "hash": "sha256:c391cd5af88aacaf41dd7cfb96eeedfad297b5899a39e12f4c2c3706d0a3329d",
+            "filename": "fonttools-4.47.0-py3-none-any.whl",
+            "hash": "sha256:d6477ba902dd2d7adda7f0fd3bfaeb92885d45993c9e1928c9f28fc3961415f7",
             "urls": ["pypi"]
         }
     },
