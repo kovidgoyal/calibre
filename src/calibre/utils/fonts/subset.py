@@ -15,6 +15,7 @@ def subset(input_file_object_or_path, output_file_object_or_path, container_type
     log.addHandler(log_handler)
     try:
         s = Subsetter()
+        s.options.layout_features.append('*')
         s.options.recommended_glyphs = True
         container_type = container_type.lower()
         if 'woff' in container_type:
