@@ -10,7 +10,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.magick import Image
 from datetime import date, timedelta
 
 dates = [ date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d') ]
@@ -79,7 +78,7 @@ class IlPost(BasicNewsRecipe):
                 if not title:
                     continue
                 self.log('\t', title)
-                entries.append({ 
+                entries.append({
                     "url": link["href"],
                     "title": title,
                     "description": desc
