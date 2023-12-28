@@ -541,6 +541,7 @@ class Build(Command):
                 cflags = [
                     '-DCALIBRE_MODINIT_FUNC='
                     '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
+                cflags.append('-O3')
             if ext.needs_cxx and ext.needs_cxx_std:
                 if env.cc_output_flag.startswith('/') and ext.needs_cxx == "11":
                     ext.needs_cxx = "14"
