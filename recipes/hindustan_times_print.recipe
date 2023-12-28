@@ -1,0 +1,113 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import json
+from datetime import date
+from collections import defaultdict
+
+# figure out your local_edition from the fetch news log of this recipe
+local_edition = 'Delhi'
+
+today = date.today().strftime('%d/%m/%Y')
+
+# for older edition, change today
+# today = '22/12/2023'
+
+day, month, year = (int(x) for x in today.split('/'))
+dt = date(year, month, day)
+today = today.replace('/', '%2F')
+
+index = 'https://epaper.hindustantimes.com'
+
+class ht(BasicNewsRecipe):
+    title = 'Hindustan Times Print Edition'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    masthead_url = 'https://www.htmedia.in/wp-content/uploads/2020/08/HT-dot-com-logo-product.png'
+    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+    description = 'Articles from the Hindustan Times epaper, digital edition'
+    encoding = 'utf-8'
+    delay = 1
+    ignore_duplicate_articles = {'title'}
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'HT Print Edition ' + dt.strftime('%b %d, %Y')
+
+    extra_css = '''
+        .cap { text-align:center; font-size:small; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    def parse_index(self):
+
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
+
+        get_edition = index + '/Home/GetEditionSupplementHierarchy?EditionDate=' + today
+        edi_data = json.loads(self.index_to_soup(get_edition, raw=True))
+        cities = []
+        for edi in edi_data:
+            cities.append(edi['EditionName'])
+        self.log('## For your local_edition, modify this recipe to match your city from the names below\n(', ', '.join(cities), ')\n')
+        for edi in edi_data:
+            if edi['EditionName'] == local_edition:
+                edi_name = edi['EditionName']
+                edi_id = str(edi['EditionId'])
+        self.log('Downloading', edi_name, 'Edition')
+
+        url = index + '/Home/GetAllpages?editionid=' + edi_id + '&editiondate=' + today
+        main_data = json.loads(self.index_to_soup(url, raw=True))
+
+        feeds_dict = defaultdict(list)
+
+        for page in main_data:
+            page_no = page['PageNumber']
+            sec_name = page['NewsProPageTitle']
+            if sec_name == 'Full Page Ad':
+                continue
+            if sec_name.startswith('Front'):
+                self.cover_url = page['HighResolution']
+            art = index + '/Home/getingRectangleObject?pageid=' + str(page['PageId'])
+            self.log(sec_name, ' ', page_no)
+            art_data = json.loads(self.index_to_soup(art, raw=True))
+            for snaps in art_data:
+                section = sec_name
+                url = str(snaps['OrgId'])
+                title = ' '.join(snaps['StoryTitle'].split()[:15])
+                if not title:
+                    continue
+                desc = page_no
+                self.log('\t', title, ' ', desc)
+                feeds_dict[section].append({"title": title, "description": desc, "url": url})
+        return [(section, articles) for section, articles in feeds_dict.items()]
+
+
+    def preprocess_raw_html(self, raw, *a):
+        data = json.loads(raw)
+        body = ''
+        for x in data['StoryContent']:
+            if x['Headlines']:
+                if len(x['Headlines']) > 0:
+                    body += '<h1>' + x['Headlines'][0].replace('\n', ' ') + '</h1>'
+                for y in x['Headlines'][1:]:
+                    body += '<h4>' + y.replace('\n', ' ') + '</h4>'
+        if data['LinkPicture']:
+            for pics in data['LinkPicture']:
+                if pics['fullpathlinkpic']:
+                    body += '<div><img src="{}"></div>'.format(pics['fullpathlinkpic'])
+                if pics['caption']:
+                    body += '<div class="cap">' + pics['caption'] + '</div><p>'
+        for x in data['StoryContent']:
+            if x['Body']:
+                body += x['Body']
+        # if data['filepathstorypic']: # this gives you a snap image of the article from page
+        #     body += '<div><img src="{}"></div>'.format(data['filepathstorypic'].replace('\\', '/'))
+        return '<html><body><div>' + body + '</div></body></html>'
+
+    def print_version(self, url):
+        return index + '/User/ShowArticleView?OrgId=' + url
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = '***'
