@@ -192,7 +192,7 @@ is_macos_universal_build = ismacos and 'universal2' in sysconfig.get_platform()
 
 
 def basic_windows_flags(debug=False):
-    cflags = '/c /nologo /W3 /EHsc /utf-8'.split()
+    cflags = '/c /nologo /W3 /EHsc /O2 /utf-8'.split()
     cflags.append('/Zi' if debug else '/DNDEBUG')
     suffix = ('d' if debug else '')
     cflags.append('/MD' + suffix)
@@ -261,7 +261,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         cxx = os.environ.get('CXX', 'g++')
         debug = '-ggdb' if debug else ''
         cflags = os.environ.get('OVERRIDE_CFLAGS',
-            f'-Wall -DNDEBUG {debug} -fno-strict-aliasing -pipe')
+            f'-Wall -DNDEBUG {debug} -fno-strict-aliasing -pipe -O3')
         cflags = shlex.split(cflags) + ['-fPIC']
         ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
         ldflags = shlex.split(ldflags)
