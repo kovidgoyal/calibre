@@ -353,6 +353,9 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         else:
             cflags.extend('-I' + x for x in get_python_include_paths())
             ldflags.append('/LIBPATH:'+os.path.join(sysconfig.get_config_var('prefix'), 'libs'))
+
+    cflags.append('-O3')
+
     return Environment(
         platform_name=platform_name, dest_ext=dest_ext, std_prefix=std_prefix,
         base_cflags=base_cflags, base_cxxflags=base_cxxflags, base_ldflags=base_ldflags,
@@ -541,7 +544,6 @@ class Build(Command):
                 cflags = [
                     '-DCALIBRE_MODINIT_FUNC='
                     '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
-                cflags.append('-O3')
             if ext.needs_cxx and ext.needs_cxx_std:
                 if env.cc_output_flag.startswith('/') and ext.needs_cxx == "11":
                     ext.needs_cxx = "14"
