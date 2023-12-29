@@ -14,10 +14,10 @@ from threading import Lock
 from functools import partial
 
 try:
-    from urllib.parse import parse_qs, quote_plus, unquote, urlencode, quote, urlparse
+    from urllib.parse import parse_qs, quote_plus, urlencode, quote, urlparse
 except ImportError:
     from urlparse import parse_qs, urlparse
-    from urllib import quote_plus, urlencode, unquote, quote
+    from urllib import quote_plus, urlencode, quote
 
 from lxml import etree
 
@@ -27,7 +27,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 4)
+current_version = (1, 2, 5)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -271,19 +271,22 @@ def google_url_processor(url):
     return url
 
 
-def google_get_cached_url(url, br=None, log=prints, timeout=60):
-    ourl = url
+def google_cache_url_for_url(url):
     if not isinstance(url, bytes):
         url = url.encode('utf-8')
     cu = quote(url, safe='')
     if isinstance(cu, bytes):
         cu = cu.decode('utf-8')
-    cached_url = 'https://webcache.googleusercontent.com/search?q=cache:' + cu
+    return 'https://webcache.googleusercontent.com/search?q=cache:' + cu
+
+
+def google_get_cached_url(url, br=None, log=prints, timeout=60):
+    cached_url = google_cache_url_for_url(url)
     br = google_specialize_browser(br or browser())
     try:
         raw = query(br, cached_url, 'google-cache', parser=lambda x: x.encode('utf-8'), timeout=timeout)
     except Exception as err:
-        log('Failed to get cached URL from google for URL: {} with error: {}'.format(ourl, err))
+        log('Failed to get cached URL from google for URL: {} with error: {}'.format(url, err))
     else:
         with webcache_lock:
             webcache[cached_url] = raw
@@ -300,42 +303,7 @@ def canonicalize_url_for_cache_map(url):
     return url
 
 
-def google_extract_cache_urls(raw):
-    if isinstance(raw, bytes):
-        raw = raw.decode('utf-8', 'replace')
-    pat = re.compile(r'\\x22(https://webcache\.googleusercontent\.com/.+?)\\x22')
-    upat = re.compile(r'\\\\u([0-9a-fA-F]{4})')
-    xpat = re.compile(r'\\x([0-9a-fA-F]{2})')
-    cache_pat = re.compile('cache:([^:]+):(.+)')
-
-    def urepl(m):
-        return chr(int(m.group(1), 16))
-
-    seen = set()
-    ans = {}
-    for m in pat.finditer(raw):
-        cache_url = upat.sub(urepl, m.group(1))
-        # print(1111111, cache_url)
-        # the following two are necessary for results from Portugal
-        cache_url = xpat.sub(urepl, cache_url)
-        cache_url = cache_url.replace('&amp;', '&')
-
-        m = cache_pat.search(cache_url)
-        cache_id, src_url = m.group(1), m.group(2)
-        if cache_id in seen:
-            continue
-        seen.add(cache_id)
-        src_url = src_url.split('+')[0]
-        src_url = unquote(src_url)
-        curl = canonicalize_url_for_cache_map(src_url)
-        # print(22222, cache_id, src_url, curl)
-        ans[curl] = cache_url
-    return ans
-
-
 def google_parse_results(root, raw, log=prints, ignore_uncached=True):
-    cache_url_map = google_extract_cache_urls(raw)
-    # print('\n'.join(cache_url_map))
     ans = []
     seen = set()
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
@@ -351,17 +319,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
         if curl in seen:
             continue
         seen.add(curl)
-        if curl in cache_url_map:
-            cached_url = cache_url_map[curl]
-        else:
-            try:
-                c = div.xpath('descendant::*[@role="menuitem"]//a[@class="fl"]')[0]
-            except IndexError:
-                if ignore_uncached:
-                    log('Ignoring {!r} as it has no cached page'.format(title))
-                    continue
-                c = {'href': ''}
-            cached_url = c.get('href')
+        cached_url = google_cache_url_for_url(curl)
         ans.append(Result(a.get('href'), title, cached_url))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
