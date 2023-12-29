@@ -337,6 +337,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
     cache_url_map = google_extract_cache_urls(raw)
     # print('\n'.join(cache_url_map))
     ans = []
+    seen = set()
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
         try:
             a = div.xpath('descendant::a[@href]')[0]
@@ -347,6 +348,9 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
         src_url = a.get('href')
         # print(f'{src_url=}')
         curl = canonicalize_url_for_cache_map(src_url)
+        if curl in seen:
+            continue
+        seen.add(curl)
         if curl in cache_url_map:
             cached_url = cache_url_map[curl]
         else:
