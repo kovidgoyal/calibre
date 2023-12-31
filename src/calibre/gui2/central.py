@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-from copy import copy
 from contextlib import suppress
+from copy import copy
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
 from qt.core import (
-    QAction, QDialog, QHBoxLayout, QIcon, QKeySequence, QLabel, QPalette, QPointF,
-    QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolButton,
+    QAction, QDialog, QHBoxLayout, QIcon, QKeySequence, QLabel, QMainWindow, QPalette,
+    QPointF, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolButton,
     QVBoxLayout, QWidget, pyqtSignal,
 )
 
@@ -425,7 +425,16 @@ class CentralContainer(QWidget):
 
     def read_settings(self):
         before = self.serialized_settings()
+        # sadly self.size() doesnt always return sensible values so look at
+        # the size of the main window which works perfectly for width, not so
+        # perfectly for height
         sz = self.size()
+        p = self.parent()
+        while p is not None and not isinstance(p, QMainWindow):
+            p = p.parent()
+        if p is not None:
+            psz = p.size()
+            sz = QSize(max(sz.width(), psz.width()), max(sz.height(), psz.height() - 50))
         settings = gprefs.get(self.prefs_name) or migrate_settings(sz.width(), sz.height())
         self.unserialize_settings(settings)
         if self.serialized_settings() != before:
