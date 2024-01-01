@@ -285,9 +285,6 @@ class Economist(BasicNewsRecipe):
                     sub = safe_dict(part, "subheadline") or ''
                     if sub:
                         desc = sub + ' :: ' + desc
-                    if '/interactive/' in url:
-                        self.log('\tSkipping interactive article:', title, url)
-                        continue
                     self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                     articles.append({'title': title, 'description':desc, 'url': url})
                 if articles:
