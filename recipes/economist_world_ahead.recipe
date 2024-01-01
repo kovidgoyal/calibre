@@ -201,6 +201,10 @@ class Economist(BasicNewsRecipe):
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root = parse(raw)
+        if '/interactive/' in url:
+            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
+                        + 'This article is supposed to be read in a browser' \
+                            + '</em></article></body></html>'
         script = root.xpath('//script[@id="__NEXT_DATA__"]')
         if script:
             try:
@@ -281,9 +285,6 @@ class Economist(BasicNewsRecipe):
                     sub = safe_dict(part, "subheadline") or ''
                     if sub:
                         desc = sub + ' :: ' + desc
-                    if '/interactive/' in url:
-                        self.log('\tSkipping interactive article:', title, url)
-                        continue
                     self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                     articles.append({'title': title, 'description':desc, 'url': url})
                 if articles:
