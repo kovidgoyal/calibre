@@ -137,8 +137,12 @@ class NatGeo(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.nationalgeographic.com/magazine/')
-        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
+        # soup = self.index_to_soup('https://www.nationalgeographic.com/magazine/')
+        # png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
+        from datetime import date
+        url = 'https://www.nationalgeographic.com/magazine/issue/' + (date.today().strftime('%B-%Y')).lower()
+        soup = self.index_to_soup(url)
+        png = soup.find('meta', attrs={'property':'og:image'})['content'].split('?')
         return png[0] + '?w=1000&h=1000'
 
     def parse_index(self):

@@ -143,8 +143,9 @@ class NatGeo(BasicNewsRecipe):
         self.log('Downloading ', url)
         self.timefmt = ' [' + edition + ']'
         soup = self.index_to_soup(url)
-        png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
-        self.cover_url = png[0] + '?w=1000&h=1000'
+        # png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
+        # self.cover_url = png[0] + '?w=1000&h=1000'
+        self.cover_url = soup.find('meta', attrs={'property':'og:image'})['content'].split('?')[0] + '?w=1000'
 
         name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
         self.title = 'National Geographic ' + self.tag_to_string(name)
