@@ -23,7 +23,7 @@ class BusinessStandardPrint(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-    remove_attributes = ['width', 'height', 'style']
+    remove_attributes = ['width', 'height', 'float', 'style']
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
@@ -43,6 +43,11 @@ class BusinessStandardPrint(BasicNewsRecipe):
         .cap { font-size:small; text-align:center; }
     '''
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
     def parse_index(self):
         if dt.weekday() == 6:
             self.log.warn(
@@ -58,7 +63,6 @@ class BusinessStandardPrint(BasicNewsRecipe):
 
         for section in data:
             if section == 'EpaperImage':
-                self.cover_url = data[section]['url']
                 continue
             self.log(section)
             articles = []
@@ -100,8 +104,11 @@ class BusinessStandardPrint(BasicNewsRecipe):
 
         date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
 
-        if 'multiple_authors_name' in data:
-            auth = '<div><p class="auth">' + data['multiple_authors_name'] + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
+        authors = []
+        if 'articleMappedMultipleAuthors' in data:	
+            for aut in data['articleMappedMultipleAuthors']:
+                authors.append(data['articleMappedMultipleAuthors'][str(aut)]) 
+        auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
 
         if 'featuredImageObj' in data:
             if 'url' in data['featuredImageObj']:
