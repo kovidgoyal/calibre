@@ -9,6 +9,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
+                # windows is disabled because webenging is crashing when compiling rapydscript in CI, try re-enabling after next Qt update
                 os: [ubuntu-latest, macos-latest]
         steps:
             - name: Checkout source code
