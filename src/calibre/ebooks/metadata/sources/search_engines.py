@@ -351,7 +351,21 @@ def google_specialize_browser(br):
     return br
 
 
+def is_probably_book_asin(t):
+    return t and len(t) == 10 and t.startswith('B') and t.upper() == t
+
+
+def is_asin_or_isbn(t):
+    from calibre.ebooks.metadata import check_isbn
+    return bool(check_isbn(t) or is_probably_book_asin(t))
+
+
 def google_format_query(terms, site=None, tbm=None):
+    prevent_spelling_correction = False
+    for t in terms:
+        if is_asin_or_isbn(t):
+            prevent_spelling_correction = True
+            break
     terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
@@ -359,6 +373,8 @@ def google_format_query(terms, site=None, tbm=None):
     url = 'https://www.google.com/search?q={q}'.format(q=q)
     if tbm:
         url += '&tbm=' + tbm
+    if prevent_spelling_correction:
+        url += '&nfpr=1'
     return url
 
 
