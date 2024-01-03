@@ -426,7 +426,6 @@ class Worker(Thread):  # Get details {{{
 
     def parse_details(self, raw, root):
         asin = parse_asin(root, self.log, self.url)
-        self.log('ORIO asin:', asin)
         if not asin and root.xpath('//form[@action="/errors/validateCaptcha"]'):
             raise CaptchaError(
                 'Amazon returned a CAPTCHA page, probably because you downloaded too many books. Wait for some time and try again.')
@@ -443,14 +442,12 @@ class Worker(Thread):  # Get details {{{
         except:
             self.log.exception('Error parsing title for url: %r' % self.url)
             title = None
-            self.log('ORIO title:', title)                          
 
         try:
             authors = self.parse_authors(root)
         except:
             self.log.exception('Error parsing authors for url: %r' % self.url)
             authors = []
-        self.log('ORIO authors:', authors)
 
         if not title or not authors or not asin:
             self.log.error(
@@ -468,13 +465,11 @@ class Worker(Thread):  # Get details {{{
             mi.rating = self.parse_rating(root)
         except:
             self.log.exception('Error parsing ratings for url: %r' % self.url)
-        self.log('ORIO rating:', mi.rating)
 
         try:
             mi.comments = self.parse_comments(root, raw)
         except:
             self.log.exception('Error parsing comments for url: %r' % self.url)
-        self.log('ORIO comments:', mi.comments)
 
         try:
             series, series_index = self.parse_series(root)
@@ -484,13 +479,11 @@ class Worker(Thread):  # Get details {{{
                 mi.series, mi.series_index = 'Dummy series for testing', 1
         except:
             self.log.exception('Error parsing series for url: %r' % self.url)
-        self.log('ORIO series, series_index:', series, series_index)
 
         try:
             mi.tags = self.parse_tags(root)
         except:
             self.log.exception('Error parsing tags for url: %r' % self.url)
-        self.log('ORIO tags:', mi.tags)
 
         try:
             self.cover_url = self.parse_cover(root, raw)
@@ -499,17 +492,14 @@ class Worker(Thread):  # Get details {{{
         if self.cover_url_processor is not None and self.cover_url and self.cover_url.startswith('/'):
             self.cover_url = self.cover_url_processor(self.cover_url)
         mi.has_cover = bool(self.cover_url)
-        self.log('ORIO cover_url:', self.cover_url)
 
         detail_bullets = root.xpath('//*[@data-feature-name="detailBullets"]')
         non_hero = tuple(self.selector(
             'div#bookDetails_container_div div#nonHeroSection')) or tuple(self.selector(
                 '#productDetails_techSpec_sections'))
         if detail_bullets:
-            self.log('ORIO parse_detail_bullets')
             self.parse_detail_bullets(root, mi, detail_bullets[0])
         elif non_hero:
-            self.log('ORIO parse_new_details')
             try:
                 self.parse_new_details(root, mi, non_hero[0])
             except:
@@ -519,7 +509,6 @@ class Worker(Thread):  # Get details {{{
         else:
             pd = root.xpath(self.pd_xpath)
             if pd:
-                self.log('ORIO Dettagli prodotto')
                 pd = pd[0]
 
                 try:
@@ -529,21 +518,18 @@ class Worker(Thread):  # Get details {{{
                 except:
                     self.log.exception(
                         'Error parsing ISBN for url: %r' % self.url)
-                self.log('ORIO isbn:', mi.isbn)
 
                 try:
                     mi.publisher = self.parse_publisher(pd)
                 except:
                     self.log.exception(
                         'Error parsing publisher for url: %r' % self.url)
-                self.log('ORIO publisher:', mi.publisher)
 
                 try:
                     mi.pubdate = self.parse_pubdate(pd)
                 except:
                     self.log.exception(
                         'Error parsing publish date for url: %r' % self.url)
-                self.log('ORIO pubdate:', mi.pubdate)
 
                 try:
                     lang = self.parse_language(pd)
@@ -552,7 +538,6 @@ class Worker(Thread):  # Get details {{{
                 except:
                     self.log.exception(
                         'Error parsing language for url: %r' % self.url)
-                self.log('ORIO language:', mi.language)
 
             else:
                 self.log.warning(
@@ -736,21 +721,18 @@ class Worker(Thread):  # Get details {{{
         except ImportError:
             from urllib import unquote
         ans = ''
-        # ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div'))
-        # ovr = tuple(self.selector('#drengr_DesktopTabbedDescriptionOverviewContent_feature_div'))
-        ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div')) or tuple(self.selector('#drengr_DesktopTabbedDescriptionOverviewContent_feature_div'))
+        ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div')) or tuple(
+            self.selector('#drengr_DesktopTabbedDescriptionOverviewContent_feature_div'))
         if ovr:
             ovr = ovr[0]
             ovr.tag = 'div'
             ans = self._render_comments(ovr)
-            # ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionEditorialsContent_feature_div'))
-            # ovr = tuple(self.selector('#drengr_DesktopTabbedDescriptionEditorialsContent_feature_div'))
-            ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionEditorialsContent_feature_div')) or tuple(self.selector('#drengr_DesktopTabbedDescriptionEditorialsContent_feature_div'))
+            ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionEditorialsContent_feature_div')) or tuple(
+                self.selector('#drengr_DesktopTabbedDescriptionEditorialsContent_feature_div'))
             if ovr:
                 ovr = ovr[0]
                 ovr.tag = 'div'
                 ans += self._render_comments(ovr)
-            self.log('ORIO comments ovr:', ans)                
         else:
             ns = tuple(self.selector('#bookDescription_feature_div noscript'))
             if ns:
@@ -764,23 +746,19 @@ class Worker(Thread):  # Get details {{{
                 else:
                     ns.tag = 'div'
                 ans = self._render_comments(ns)
-                self.log('ORIO comments not ovr - ns:', ans)                
             else:
                 desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
                 if desc:
                     ans = self._render_comments(desc[0])
-                    self.log('ORIO comments desc:', ans)                
                 else:
                     ns = tuple(self.selector('#bookDescription_feature_div .a-expander-content'))
                     if ns:
                         ans = self._render_comments(ns[0])
-                    self.log('ORIO comments not ovr - else:', ans)                
 
         desc = root.xpath(
             '//div[@id="productDescription"]/*[@class="content"]')
         if desc:
             ans += self._render_comments(desc[0])
-            self.log('ORIO comments 2 desc:', ans)                
         else:
             # Idiot chickens from amazon strike again. This data is now stored
             # in a JS variable inside a script tag URL encoded.
@@ -793,7 +771,6 @@ class Worker(Thread):  # Get details {{{
                         '//div[@id="productDescription"]/*[@class="content"]')
                     if desc:
                         ans += self._render_comments(desc[0])
-                        self.log('ORIO comments 2 m_desc:', ans)                
                 except Exception as e:
                     self.log.warn(
                         'Parsing of obfuscated product description failed with error: %s' % as_unicode(e))
@@ -801,7 +778,6 @@ class Worker(Thread):  # Get details {{{
                 desc = root.xpath('//div[@id="productDescription_fullView"]')
                 if desc:
                     ans += self._render_comments(desc[0])
-                    self.log('ORIO comments 2 else - desc:', ans)                
 
         return ans
 
@@ -903,20 +879,19 @@ class Worker(Thread):  # Get details {{{
         # Look for the image URL in javascript, using the first image in the
         # image gallery as the cover
         import json
-        # imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
         imgpat = re.compile(r'"hiRes":"(.+?)","thumb"')
         for script in root.xpath('//script'):
-            # self.log('ORIO parse_cover - script_text:', script.text)
             m = imgpat.search(script.text or '')
             if m is not None:
-                # self.log('ORIO parse_cover - script_text:', m.group(1))
                 return m.group(1)
-            '''
+        imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
+        for script in root.xpath('//script'):
+            m = imgpat.search(script.text or '')
+            if m is not None:
                 try:
                     return json.loads(m.group(1))[0]['mainUrl']
                 except Exception:
-                    continue   
-            '''
+                    continue
 
         def clean_img_src(src):
             parts = src.split('/')
@@ -934,7 +909,6 @@ class Worker(Thread):  # Get details {{{
                 src = m.group(1)
                 url = clean_img_src(src)
                 if url:
-                    # self.log('ORIO parse_cover - script url:', url)
                     return url
 
         imgs = root.xpath(
@@ -960,7 +934,6 @@ class Worker(Thread):  # Get details {{{
                                 mwidth = width
                                 url = iurl
 
-                        # self.log('ORIO parse_cover - not img_url:', url)
                         return url
                     except Exception:
                         pass
@@ -977,7 +950,6 @@ class Worker(Thread):  # Get details {{{
                 self.log('Found image: %s' % src)
                 url = clean_img_src(src)
                 if url:
-                    # self.log('ORIO parse_cover - img_url:', url)
                     return url
 
     def parse_detail_bullets(self, root, mi, container):
@@ -998,7 +970,6 @@ class Worker(Thread):  # Get details {{{
         name = self.totext(c1, only_printable=True).strip().strip(':').strip()
         val = self.totext(c2).strip()
         val = val.replace('\u200e', '').replace('\u200f', '')
-        self.log('ORIO parse_detail_cells:', name, val)
         if not val:
             return
         if name in self.language_names:
@@ -1081,7 +1052,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 5)
+    version = (1, 3, 6)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1761,7 +1732,7 @@ def manual_tests(domain, **kw):  # {{{
     all_tests['com'] = [  # {{{
         (   # Paperback with series
             {'identifiers': {'amazon': '1423146786'}},
-            [title_test('The Heroes of Olympus, Book Five The Blood of Olympus',
+            [title_test('The Blood of Olympus',
                         exact=True), series_test('The Heroes of Olympus', 5)]
         ),
 
