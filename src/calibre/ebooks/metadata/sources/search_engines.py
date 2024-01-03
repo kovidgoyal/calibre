@@ -165,6 +165,9 @@ def wayback_url_processor(url):
     return url
 
 
+ddg_scraper_storage = []
+
+
 def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
     terms = [quote_term(ddg_term(t)) for t in terms]
@@ -174,8 +177,9 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     url = 'https://duckduckgo.com/html/?q={q}&kp={kp}'.format(
         q=q, kp=1 if safe_search else -1)
     log('Making ddg query: ' + url)
+    from calibre.scraper.simple import read_url
     br = br or browser()
-    root = query(br, url, 'ddg', dump_raw, timeout=timeout)
+    root = query(br, url, 'ddg', dump_raw, timeout=timeout, simple_scraper=partial(read_url, ddg_scraper_storage))
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
         try:
