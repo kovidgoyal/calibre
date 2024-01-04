@@ -38,8 +38,9 @@ class ForeignPolicy(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
-        img = soup.find('img', attrs={'data-lazy-src': lambda x: x and '-cover' in x})
-        self.cover_url = img['data-lazy-src']
+        img = soup.find('img', attrs={'src': lambda x: x and '-cover' in x})
+        if img:
+            self.cover_url = img['src']
         current_section = None
         amap = OrderedDict()
         for x in soup.findAll(name=('h2', 'h3')):
