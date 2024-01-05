@@ -959,3 +959,5 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Browse annotations (highlights and bookmarks) made in the calibre viewer for all books in the library
     * - :kbd:`Ctrl+Shift+N`
       - Browse notes associated with authors/series/tags/etc.
+    * - :kbd:`Alt+Shift+L`
+      - Toggle the layout between wide and narrow views

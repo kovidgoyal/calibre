@@ -28,6 +28,9 @@ class LayoutActions(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset({'context-menu-device', 'menubar-device'})
 
+    def toggle_layout(self):
+        self.gui.layout_container.toggle_layout()
+
     def gui_layout_complete(self):
         m = self.qaction.menu()
         m.aboutToShow.connect(self.populate_layout_menu)

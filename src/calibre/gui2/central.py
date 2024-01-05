@@ -327,6 +327,8 @@ class CentralContainer(QWidget):
         self.wide_is_visible = Visibility()
         self.narrow_is_visible = Visibility()
         super().__init__(parent)
+        self.action_toggle_layout = QAction(self)
+        self.action_toggle_layout.triggered.connect(self.toggle_layout)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         if for_develop:
             self.tag_browser = Placeholder('tag browser', self)
@@ -378,6 +380,9 @@ class CentralContainer(QWidget):
         self.set_widget('book_details', gui.book_details)
         self.set_widget('tag_browser', gui.tb_widget)
         self.set_widget('book_list', book_list_widget)
+        gui.keyboard.register_shortcut(
+            'toggle_layout_type', _('Toggle layout between wide and narrow'), default_keys=('Alt+Shift+L',), action=self.action_toggle_layout)
+        gui.addAction(self.action_toggle_layout)
         # cover browser is set in CoverFlowMixin
         # Quickview is set in quickview.py code
 
@@ -547,8 +552,13 @@ class CentralContainer(QWidget):
         self.update()
 
     def toggle_layout(self):
-        self.layout = Layout.narrow if self.layout is Layout.wide else Layout.wide
-        self.relayout()
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        if gui:
+            self.change_layout(gui, self.layout is Layout.narrow)
+        else:
+            self.layout = Layout.narrow if self.layout is Layout.wide else Layout.wide
+            self.relayout()
 
     def button_for(self, which):
         return getattr(self, which + '_button')
