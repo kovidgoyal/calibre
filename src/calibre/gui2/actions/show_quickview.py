@@ -117,6 +117,9 @@ class ShowQuickviewAction(InterfaceAction):
         self.qv_button.blockSignals(True)
         self.qv_button.set_state_to_hide()
         self.qv_button.blockSignals(False)
+        self._create_current_instance()
+
+    def _create_current_instance(self):
         index = self.gui.library_view.currentIndex()
         self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(),
                                           focus_booklist_shortcut=self.focus_bl_action.shortcut())

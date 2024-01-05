@@ -396,10 +396,27 @@ class CentralContainer(QWidget):
         layout = Layout.wide if is_wide else Layout.narrow
         if layout is self.layout:
             return False
+        ss = self.serialized_settings()
+        before = ss[self.layout.name + '_visibility']
+        after = ss[layout.name + '_visibility']
         gui.book_details.vertical = is_wide
         self.layout = layout
         self.write_settings()
-        self.relayout()
+        # apply visibility changes by clicking buttons to ensure button
+        # state is correct and also deals with the case of the QV widget not
+        # being initialised
+        changes = set()
+        if before != after:
+            for k in before:
+                if before[k] != after[k]:
+                    changes.add(k)
+                    setattr(self.is_visible, k, before[k])
+        if changes:
+            for k in changes:
+                button = getattr(self, k + '_button')
+                button.click()
+        else:
+            self.relayout()
         return True
 
     def serialized_settings(self):
