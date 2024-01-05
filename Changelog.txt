@@ -23,6 +23,39 @@
 # - title by author
 # }}}
 
+{{{ 7.3.0 2024-01-05
+
+:: new features
+
+- Tag browser: Allow displaying buttons next to items that have notes or links for easy access. To enable these use Preferences->Look & feel->Tag browser
+
+- Font subsetting: Preserve all OpenType layout features. This makes the subset font files larger but ensures there is no visual degradation when using the subsetted font files in different contexts.
+
+:: bug fixes
+
+- macOS: Fix main calibre window not remembering its size on restart
+
+- Edit book: Fix the "Show changes" window moving down by a few pixels every time it is opened
+
+- [2047257] Amazon metadata download: Fixes for various changes to amazon website markup
+
+- [2047181] E-book viewer: When looking up words via Google in Europe pre-approve the GDPR consent cookie
+
+- [2046673] Windows: Content server: Fix regression in previous release that broke testing for local connections
+
+- Windows: Fix a regression that caused selections in the Book details panel to be invisible
+
+:: improved recipes
+- Foreign Policy
+- Business Standard
+- Il Post
+- Indian Express
+- Washington Post
+
+:: new recipes
+- Hindustan Times Print Edition by unkn0wn
+}}}
+
 {{{ 7.2.0 2023-12-15
 
 :: new features
