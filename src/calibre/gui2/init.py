@@ -233,7 +233,7 @@ class GridViewButton(LayoutButton):  # {{{
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
         gui.keyboard.register_shortcut('grid view toggle' + self.label, str(self.action_toggle.text()),
-                                    default_keys=(sc,), action=self.action_toggle)
+                                    default_keys=(sc,), action=self.action_toggle, group=_('Main window layout'))
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
@@ -267,7 +267,7 @@ class SearchBarButton(LayoutButton):  # {{{
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
         gui.keyboard.register_shortcut('search bar toggle' + self.label, str(self.action_toggle.text()),
-                                    default_keys=(sc,), action=self.action_toggle)
+                                    default_keys=(sc,), action=self.action_toggle, group=_('Main window layout'))
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)

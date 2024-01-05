@@ -123,7 +123,8 @@ class LayoutButton(QToolButton):
             self.action_toggle.triggered.connect(self.toggle)
             gui.addAction(self.action_toggle)
             gui.keyboard.register_shortcut(
-                f'toggle_central_panel_{self.name}', self.action_toggle.text(), default_keys=(self.shortcut,), action=self.action_toggle)
+                f'toggle_central_panel_{self.name}', self.action_toggle.text(), group=_('Main window layout'),
+                default_keys=(self.shortcut,), action=self.action_toggle)
 
     @property
     def is_visible(self):
@@ -381,7 +382,8 @@ class CentralContainer(QWidget):
         self.set_widget('tag_browser', gui.tb_widget)
         self.set_widget('book_list', book_list_widget)
         gui.keyboard.register_shortcut(
-            'toggle_layout_type', _('Toggle layout between wide and narrow'), default_keys=('Alt+Shift+L',), action=self.action_toggle_layout)
+            'toggle_layout_type', _('Toggle layout between wide and narrow'), group=_('Main window layout'),
+            default_keys=('Alt+Shift+L',), action=self.action_toggle_layout)
         gui.addAction(self.action_toggle_layout)
         # cover browser is set in CoverFlowMixin
         # Quickview is set in quickview.py code
