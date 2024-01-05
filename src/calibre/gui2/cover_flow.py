@@ -431,7 +431,6 @@ class CoverFlowMixin:
         self.cb_button.set_state_to_hide()
 
     def cover_browser_closed(self, *args):
-        self.cb_dialog = None
         self.cb_button.set_state_to_show()
 
     def hide_cover_browser(self, *args):
