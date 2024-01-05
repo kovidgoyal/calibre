@@ -814,6 +814,10 @@ class TagBrowserWidget(QFrame):  # {{{
         for i, x in enumerate((_('Name'), _('Number of books'),
                   _('Average rating'))):
             a = sb.m.addAction(x)
+            parent.keyboard.register_shortcut(
+                    f"tag browser sort by {('notes', 'number of books', 'average rating')[i]}",
+                    (_('Sort by name'), _('Sort by number of books'), _('Sort by average rating'))[i],
+                    default_keys=(), action=a, group=_('Tag browser'))
             sb.bg.addAction(a)
             a.setCheckable(True)
             if i == 0:
