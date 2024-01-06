@@ -1142,7 +1142,6 @@ class DetailsLayout(QSplitter):  # {{{
 
     def change_layout(self, vertical):
         self.vertical = vertical
-        self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
         self.restore_splitter_state()
 
     def do_resize(self, *args):
