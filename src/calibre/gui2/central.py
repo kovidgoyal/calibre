@@ -399,7 +399,7 @@ class CentralContainer(QWidget):
         ss = self.serialized_settings()
         before = ss[self.layout.name + '_visibility']
         after = ss[layout.name + '_visibility']
-        gui.book_details.vertical = is_wide
+        gui.book_details.change_layout(is_wide)
         self.layout = layout
         self.write_settings()
         # apply visibility changes by clicking buttons to ensure button

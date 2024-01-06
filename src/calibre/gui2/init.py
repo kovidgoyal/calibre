@@ -733,7 +733,7 @@ class LayoutMixin:  # {{{
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         self.layout_container.read_settings()
-        self.book_details.vertical = self.layout_container.is_wide
+        self.book_details.change_layout(self.layout_container.is_wide)
         self.place_layout_buttons()
         self.grid_view_button.restore_state()
         self.search_bar_button.restore_state()

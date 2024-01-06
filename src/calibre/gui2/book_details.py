@@ -287,6 +287,17 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
                 ans = str(col.name())
         return ans
 
+    comments = ''
+    if comment_fields:
+        comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
+        # Comments cause issues with rendering in QTextBrowser
+        comments = comments_pat().sub('', comments)
+
+    html = render_parts(table, comments, vertical)
+    return html, table, comments
+
+
+def render_parts(table, comments, vertical):
     templ = '''\
     <html>
         <head></head>
@@ -295,11 +306,6 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
         </body>
     <html>
     '''%('vertical' if vertical else 'horizontal')
-    comments = ''
-    if comment_fields:
-        comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
-        # Comments cause issues with rendering in QTextBrowser
-        comments = comments_pat().sub('', comments)
     right_pane = comments
 
     if vertical:
@@ -712,7 +718,7 @@ class CoverView(QWidget):  # {{{
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
         self._current_pixmap_size = QSize(120, 120)
-        self.vertical = vertical
+        self.change_layout(vertical)
 
         self.animation = QPropertyAnimation(self, b'current_pixmap_size', self)
         self.animation.setEasingCurve(QEasingCurve(QEasingCurve.Type.OutExpo))
@@ -720,9 +726,6 @@ class CoverView(QWidget):  # {{{
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
 
-        self.setSizePolicy(
-                QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Policy.Minimum,
-                QSizePolicy.Policy.Expanding)
 
         self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         self.pixmap = self.default_pixmap
@@ -731,6 +734,12 @@ class CoverView(QWidget):  # {{{
         self.last_trim_id = self.last_trim_pixmap = None
 
         self.do_layout()
+
+    def change_layout(self, vertical):
+        self.vertical = vertical
+        self.setSizePolicy(
+                QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Policy.Minimum,
+                QSizePolicy.Policy.Expanding)
 
     def value_changed(self, val):
         self.update()
@@ -988,6 +997,7 @@ class BookInfo(HTMLDisplay):
     def __init__(self, vertical, parent=None):
         HTMLDisplay.__init__(self, parent=parent, save_resources_in_document=False)
         self.vertical = vertical
+        self.last_rendered_html = '', '', ''
         self.anchor_clicked.connect(self.link_activated)
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
@@ -1014,6 +1024,14 @@ class BookInfo(HTMLDisplay):
         ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
+
+    def change_layout(self, vertical):
+        if vertical != self.vertical:
+            self.vertical = vertical
+            if self.last_rendered_html[0]:
+                html = render_parts(self.last_rendered_html[1], self.last_rendered_html[2], self.vertical)
+                self.last_rendered_html = html, self.last_rendered_html[1], self.last_rendered_html[2]
+                self.setHtml(html)
 
     def refresh_css(self):
         self.setDefaultStyleSheet(css(True))
@@ -1069,7 +1087,7 @@ class BookInfo(HTMLDisplay):
         self.link_clicked.emit(link)
 
     def show_data(self, mi):
-        html = render_html(mi, self.vertical, self.parent())
+        html, table, comments = self.last_rendered_html = render_html(mi, self.vertical, self.parent())
         set_html(mi, html, self)
 
     def process_external_css(self, css):
@@ -1318,6 +1336,14 @@ class BookDetails(DetailsLayout):  # {{{
         self.book_info.find_in_tag_browser.connect(self.find_in_tag_browser)
         self.book_info.edit_identifiers.connect(self.edit_identifiers)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def change_layout(self, vertical):
+        if vertical != self.vertical:
+            self.vertical = vertical
+            self.cover_view.change_layout(vertical)
+            self.book_info.change_layout(vertical)
+            self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
+            self.do_layout(self.rect())
 
     def search_internet(self, data):
         if self.last_data:
