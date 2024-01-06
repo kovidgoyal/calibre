@@ -367,7 +367,10 @@ class CentralContainer(QWidget):
 
     @property
     def narrow_cb_on_top(self):
-        return self.width() / self.height() <= 1.4
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        ratio = self.width() / self.height() if gui is None else gui.width() / gui.height()
+        return ratio <= 1.4
 
     @property
     def is_visible(self):
