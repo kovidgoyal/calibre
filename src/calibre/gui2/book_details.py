@@ -1140,6 +1140,11 @@ class DetailsLayout(QSplitter):  # {{{
         self.resize_timer.setInterval(5)
         self.resize_timer.timeout.connect(self.do_resize)
 
+    def change_layout(self, vertical):
+        self.vertical = vertical
+        self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
+        self.restore_splitter_state()
+
     def do_resize(self, *args):
         super().resizeEvent(self._resize_ev)
         self.do_layout(self.rect())
@@ -1164,8 +1169,14 @@ class DetailsLayout(QSplitter):  # {{{
     def sizeHint(self):
         return self.minimumSize()
 
+    @property
+    def splitter_state_pref_name(self):
+        return 'book_details_widget_splitter_state_' + ('vertical' if self.vertical else 'horizontal')
+
     def restore_splitter_state(self):
-        s = gprefs.get('book_details_widget_splitter_state')
+        s = gprefs.get(self.splitter_state_pref_name)
+        if s is None:
+            s = gprefs.get('book_details_widget_splitter_state')
         if s is None:
             # Without this on first start the splitter is rendered over the cover
             self.setSizes([20, 80])
@@ -1178,7 +1189,7 @@ class DetailsLayout(QSplitter):  # {{{
         self.do_layout(self.geometry())
 
     def do_splitter_moved(self, *args):
-        gprefs['book_details_widget_splitter_state'] = bytearray(self.saveState())
+        gprefs[self.splitter_state_pref_name] = bytearray(self.saveState())
         self._children[0].do_layout()
 
     def cover_height(self, r):
@@ -1339,10 +1350,9 @@ class BookDetails(DetailsLayout):  # {{{
 
     def change_layout(self, vertical):
         if vertical != self.vertical:
-            self.vertical = vertical
+            super().change_layout(vertical)
             self.cover_view.change_layout(vertical)
             self.book_info.change_layout(vertical)
-            self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
             self.do_layout(self.rect())
 
     def search_internet(self, data):
