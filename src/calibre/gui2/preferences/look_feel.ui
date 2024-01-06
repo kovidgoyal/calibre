@@ -1846,7 +1846,7 @@ that don't have children.&lt;/p&gt;</string>
        <string>Cover &amp;browser</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
-       <item row="1" column="0">
+       <item row="0" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
           <string>When showing in a separate window, show it &amp;fullscreen</string>
@@ -1860,10 +1860,10 @@ that don't have children.&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" colspan="2">
+       <item row="6" column="1" colspan="2">
         <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
        </item>
-       <item row="3" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>&amp;Number of covers to show in browse mode (needs restart):</string>
@@ -1904,7 +1904,19 @@ empty template for no text.&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="3">
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="opt_cover_browser_on_right">
+         <property name="text">
+          <string>Show the cover &amp;browser on the right</string>
+         </property>
+         <property name="toolTip">
+          <string>When using the Narrow user interface layout, when this option
+is checked the cover browser is shown to the right the book list instead of on
+top of it. This option cannot be changed when using the Wide layout.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_cover_browser_reflections">
          <property name="text">
           <string>Show &amp;reflections</string>
@@ -1945,7 +1957,7 @@ them to all have the same width and height</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="1" column="1" colspan="2">
         <widget class="QLabel" name="fs_help_msg">
          <property name="styleSheet">
           <string notr="true">margin-left: 1.5em</string>
@@ -1984,7 +1996,7 @@ them to all have the same width and height</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="2">
+       <item row="5" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_cb_double_click_to_activate">
          <property name="text">
           <string>&amp;Double click to view the central book, instead of single click</string>
