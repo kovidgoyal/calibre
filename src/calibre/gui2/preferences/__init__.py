@@ -98,6 +98,16 @@ class ConfigWidgetInterface:
         pass
 
 
+def set_help_tips(gui_obj, tt):
+    if tt:
+        if not str(gui_obj.whatsThis()):
+            gui_obj.setWhatsThis(tt)
+        if not str(gui_obj.statusTip()):
+            gui_obj.setStatusTip(tt)
+        tt = '\n'.join(textwrap.wrap(tt, 70))
+        gui_obj.setToolTip(tt)
+
+
 class Setting:
 
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
@@ -138,13 +148,7 @@ class Setting:
             if h:
                 self.gui_obj.setToolTip(h)
         tt = str(self.gui_obj.toolTip())
-        if tt:
-            if not str(self.gui_obj.whatsThis()):
-                self.gui_obj.setWhatsThis(tt)
-            if not str(self.gui_obj.statusTip()):
-                self.gui_obj.setStatusTip(tt)
-            tt = '\n'.join(textwrap.wrap(tt, 70))
-            self.gui_obj.setToolTip(tt)
+        set_help_tips(self.gui_obj, tt)
 
     def changed(self, *args):
         self.widget.changed_signal.emit()

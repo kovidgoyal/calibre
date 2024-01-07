@@ -32,7 +32,9 @@ from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_li
 from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
-from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
+from calibre.gui2.preferences import (
+    ConfigWidgetBase, Setting, set_help_tips, test_widget,
+)
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
@@ -833,6 +835,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.addItem(_('Wide'), 'wide')
         self.opt_gui_layout.addItem(_('Narrow'), 'narrow')
         self.opt_gui_layout.currentIndexChanged.connect(self.changed_signal)
+        set_help_tips(self.opt_gui_layout, config.help('gui_layout'))
 
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
