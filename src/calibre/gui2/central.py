@@ -489,17 +489,17 @@ class CentralContainer(QWidget):
 
     def toggle_panel(self, which):
         was_visible = getattr(self.is_visible, which)
-        setattr(self.is_visible, which, was_visible ^ True)
+        self.set_visibility_of(which, was_visible ^ True)
+        self.relayout()
+
+    def set_visibility_of(self, which, visible):
+        was_visible = getattr(self.is_visible, which)
+        setattr(self.is_visible, which, visible)
         if not was_visible:
             if self.layout is Layout.wide:
                 self.size_panel_on_initial_show_wide(which)
             else:
                 self.size_panel_on_initial_show_narrow(which)
-        self.update_button_states_from_visibility()
-        self.relayout()
-
-    def set_visibility_of(self, which, visible):
-        setattr(self.is_visible, which, visible)
         self.update_button_states_from_visibility()
 
     def show_panel(self, which):
