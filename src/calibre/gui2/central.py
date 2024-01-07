@@ -912,11 +912,15 @@ class CentralContainer(QWidget):
                 self.narrow_desires.quick_view_height = max(0, available_height - y) / self.height()
 
     def size_panel_on_initial_show_narrow(self, which):
-        if which in ('tag_browser', 'cover_browser'):
-            which += '_width'
-            current = getattr(self.narrow_desires, which) * self.width()
+        if which == 'tag_browser':
+            current = self.narrow_desires.tag_browser_width * self.width()
             if current < SHOW_THRESHOLD:
-                setattr(self.narrow_desires, which, getattr(NarrowDesires, which))
+                self.narrow_desires.tag_browser_width = NarrowDesires.tag_browser_width
+        elif which == 'cover_browser':
+            d = self.height() if self.narrow_cb_on_top else self.width()
+            current = self.narrow_desires.cover_browser_width * d
+            if current < SHOW_THRESHOLD:
+                self.narrow_desires.cover_browser_width = NarrowDesires.cover_browser_width
         elif which == 'book_details':
             current = self.height() * self.narrow_desires.book_details_height
             if current < SHOW_THRESHOLD:
