@@ -330,6 +330,7 @@ class CentralContainer(QWidget):
         self.narrow_desires = NarrowDesires()
         self.wide_is_visible = Visibility()
         self.narrow_is_visible = Visibility()
+        self._last_cb_position = self.gui = None
         super().__init__(parent)
         self.action_toggle_layout = QAction(self)
         self.action_toggle_layout.triggered.connect(self.toggle_layout)
@@ -364,8 +365,6 @@ class CentralContainer(QWidget):
         self.right_handle = h()
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
-
-    _last_cb_position = gui = None
 
     @property
     def narrow_cb_on_top(self):
