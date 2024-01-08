@@ -36,6 +36,11 @@ def safe_xml_fromstring(string_or_bytes, recover=True):
     return ans
 
 
+def unsafe_xml_fromstring(string_or_bytes):
+    parser = etree.XMLParser(resolve_entities=True)
+    return fs(string_or_bytes, parser=parser)
+
+
 def find_tests():
     import unittest, tempfile, os
     from calibre.constants import iswindows
@@ -61,7 +66,7 @@ def find_tests():
                 raw = templ.format(id=tid, val=val)
                 err = None
                 try:
-                    root = safe_xml_fromstring(raw) if safe else etree.fromstring(raw)
+                    root = safe_xml_fromstring(raw) if safe else unsafe_xml_fromstring(raw)
                 except Exception as e:
                     err = str(e)
                     root = None
