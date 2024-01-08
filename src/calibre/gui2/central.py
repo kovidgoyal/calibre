@@ -365,12 +365,26 @@ class CentralContainer(QWidget):
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
 
+    _last_cb_position = None
+
     @property
     def narrow_cb_on_top(self):
-        from calibre.gui2.ui import get_gui
-        gui = get_gui()
-        ratio = self.width() / self.height() if gui is None else gui.width() / gui.height()
-        return ratio <= 1.4
+        from calibre.gui2 import gui_prefs
+        prefs = gui_prefs()
+        p = self._last_cb_position = prefs['cover_browser_narrow_view_position']
+        if p == 'automatic':
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            ratio = self.width() / self.height() if gui is None else gui.width() / gui.height()
+            return ratio <= 1.4
+        return bool(self._last_cb_position == 'on_top')
+
+    @property
+    def cb_on_top_changed(self):
+        from calibre.gui2 import gui_prefs
+        prefs = gui_prefs()
+        return (self._last_cb_position is None or
+                prefs['cover_browser_narrow_view_position'] != self._last_cb_position)
 
     @property
     def is_visible(self):
@@ -404,7 +418,7 @@ class CentralContainer(QWidget):
 
     def change_layout(self, gui, is_wide):
         layout = Layout.wide if is_wide else Layout.narrow
-        if layout is self.layout:
+        if layout is self.layout and not self.cb_on_top_changed:
             return False
         ss = self.serialized_settings()
         before = ss[self.layout.name + '_visibility']
