@@ -840,15 +840,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.addItem(_('Narrow'), 'narrow')
         self.opt_gui_layout.currentIndexChanged.connect(self.changed_signal)
         set_help_tips(self.opt_gui_layout, config.help('gui_layout'))
-        self.opt_gui_layout.currentIndexChanged.connect(self.gui_layout_changed)
-
-    def set_cover_browser_position_enabled(self, is_wide):
-        self.opt_cover_browser_narrow_view_position.setEnabled(not is_wide)
-        if is_wide:
-            self.opt_cover_browser_narrow_view_position.setCurrentIndex(0)
-
-    def gui_layout_changed(self, dex):
-        self.set_cover_browser_position_enabled(dex == 0) #0 == wide
 
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
@@ -1057,7 +1048,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
         self.update_color_palette_state()
         self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
-        self.set_cover_browser_position_enabled(self.gui.layout_container.is_wide)
+        set_help_tips(self.opt_cover_browser_narrow_view_position, _(
+            'This option controls the position of the cover browser when using the Narrow user interface layout.'
+            ' "Automatic" will place the cover browser on top or on the right of the book list depending on the'
+            ' aspect ratio of the calibre window. "On top" places it over the book list, and "On right" places'
+            ' it to the right of the book list. This option cannot be changed when using the Wide user interface layout.'))
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)

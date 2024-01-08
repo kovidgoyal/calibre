@@ -1927,14 +1927,6 @@ them to all have the same width and height</string>
          <property name="text">
           <string>Cover browser &amp;position in the narrow layout:</string>
          </property>
-         <property name="toolTip">
-          <string>&lt;p&gt;This option controls the position of the cover browser when
-using the Narrow user interface layout. "Automatic" will place the cover browser
-on top or on the right of the book list depending on the aspect ratio of the
-calibre window. "On top" places it over the book list, and "On right" places it
-to the right of the book list. This option cannot be changed when using the
-Wide user interface layout.&lt;/p&gt;</string>
-         </property>
          <property name="buddy">
           <cstring>opt_cover_browser_narrow_view_position</cstring>
          </property>

@@ -365,26 +365,21 @@ class CentralContainer(QWidget):
         self.top_handle = h(Qt.Orientation.Horizontal)
         self.bottom_handle = h(Qt.Orientation.Horizontal)
 
-    _last_cb_position = None
+    _last_cb_position = gui = None
 
     @property
     def narrow_cb_on_top(self):
-        from calibre.gui2 import gui_prefs
-        prefs = gui_prefs()
-        p = self._last_cb_position = prefs['cover_browser_narrow_view_position']
+        p = self._last_cb_position = gprefs['cover_browser_narrow_view_position']
         if p == 'automatic':
-            from calibre.gui2.ui import get_gui
-            gui = get_gui()
-            ratio = self.width() / self.height() if gui is None else gui.width() / gui.height()
+            gui = self.gui or self
+            ratio = gui.width() / gui.height()
             return ratio <= 1.4
-        return bool(self._last_cb_position == 'on_top')
+        return p == 'on_top'
 
     @property
     def cb_on_top_changed(self):
-        from calibre.gui2 import gui_prefs
-        prefs = gui_prefs()
         return (self._last_cb_position is None or
-                prefs['cover_browser_narrow_view_position'] != self._last_cb_position)
+                gprefs['cover_browser_narrow_view_position'] != self._last_cb_position)
 
     @property
     def is_visible(self):
@@ -398,6 +393,7 @@ class CentralContainer(QWidget):
         w.setParent(self)
 
     def initialize_with_gui(self, gui, book_list_widget):
+        self.gui = gui
         self.tag_browser_button.initialize_with_gui(gui)
         self.book_details_button.initialize_with_gui(gui)
         self.cover_browser_button.initialize_with_gui(gui)
@@ -597,10 +593,8 @@ class CentralContainer(QWidget):
         self.update()
 
     def toggle_layout(self):
-        from calibre.gui2.ui import get_gui
-        gui = get_gui()
-        if gui:
-            self.change_layout(gui, self.layout is Layout.narrow)
+        if self.gui:
+            self.change_layout(self.gui, self.layout is Layout.narrow)
         else:
             self.layout = Layout.narrow if self.layout is Layout.wide else Layout.wide
             self.relayout()
