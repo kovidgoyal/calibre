@@ -294,9 +294,9 @@ def create_defs():
         defs['action-layout-menubar-device'] = ()
         defs['action-layout-toolbar'] = (
             'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-            'Store', 'Donate', 'Fetch News', 'Help', None,
-            'Remove Books', 'Choose Library', 'Save To Disk',
-            'Connect Share', 'Tweak ePub', 'Preferences',
+            'Store', 'Donate', 'Fetch News', 'Help', None, 'Preferences',
+            'Remove Books', 'Choose Library', 'Save To Disk', 'Connect Share',
+            'Tweak ePub',
             )
         defs['action-layout-toolbar-device'] = (
             'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
