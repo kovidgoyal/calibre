@@ -103,7 +103,7 @@ class NewScientist(BasicNewsRecipe):
         if time:
             time.name = 'div'
         for img in soup.findAll('img', attrs={'data-src':True}):
-            img['src'] = img['data-src'].replace('?width=1200', '?width=700')
+            img['src'] = img['data-src'].split('?')[0] + '?width=700'
         for figc in soup.findAll('figcaption'):
             for p in figc.findAll('p'):
                 p.name = 'div'
