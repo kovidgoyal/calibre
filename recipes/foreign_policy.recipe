@@ -62,7 +62,6 @@ class ForeignPolicy(BasicNewsRecipe):
                 if current_section.lower() == 'recent issues':
                     break
             else:
-                articles = []
                 title = self.tag_to_string(x)
                 a = x.parent
                 url = a['href']
@@ -76,4 +75,3 @@ class ForeignPolicy(BasicNewsRecipe):
                 self.log('\t', title, url, '\n\t', desc)
                 feeds_dict[current_section].append({"title": title, "url": url, "description": desc})
         return [(section, articles) for section, articles in feeds_dict.items()]
-
