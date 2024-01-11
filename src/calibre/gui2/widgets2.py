@@ -613,6 +613,20 @@ class HTMLDisplay(QTextBrowser):
         else:
             return QTextBrowser.loadResource(self, rtype, qurl)
 
+    def anchorAt(self, pos):
+        # Anchors in a document can be "focused" with the tab key.
+        # Unfortunately, the focus point that Qt provides when using the context
+        # menu key can be 1 pixel out of the anchor's focus rectangle. We
+        # correct for that here by checking if there is an anchor under the
+        # point, moving the point a pixel one direction then the other if there
+        # isn't. This process also slightly dejitters the mouse FWIW.
+        url = super().anchorAt(pos)
+        if not url:
+            url = super().anchorAt(QPoint(pos.x()-1, pos.y()-1))
+        if not url:
+            url = super().anchorAt(QPoint(pos.x()+1, pos.y()+1))
+        return url
+
 
 class ScrollingTabWidget(QTabWidget):
 
