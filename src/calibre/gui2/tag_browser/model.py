@@ -242,7 +242,8 @@ class TagTreeItem:  # {{{
                         tt.append(_('Number of books: %s') % self.item_count)
                     from calibre.gui2.ui import get_gui
                     db = get_gui().current_db.new_api
-                    link = db.get_link_map(tag.category).get(tag.original_name)
+                    link = (None if not db.has_link_map(tag.category)
+                                 else db.get_link_map(tag.category).get(tag.original_name))
                     if link:
                         tt.append(_('Link: %s') % link)
                 return '\n'.join(tt)
