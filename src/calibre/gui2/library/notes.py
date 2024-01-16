@@ -34,7 +34,7 @@ class NotesResultsDelegate(ResultsDelegate):
     def result_data(self, result):
         if not isinstance(result, dict):
             return None, None, None, None, None
-        full_text = result['text']
+        full_text = result['text'].replace('\n', ': ', 1)
         parts = full_text.split('\x1d', 2)
         before = after = ''
         if len(parts) > 2:
@@ -44,6 +44,8 @@ class NotesResultsDelegate(ResultsDelegate):
             before, text = parts
         else:
             text = parts[0]
+        if len(parts) > 1 and before:
+            before = before.replace('\n', ': ', 1)
         return False, before, text, after, False
 
 
@@ -519,4 +521,5 @@ if __name__ == '__main__':
     br = NotesBrowser()
     br.exec()
     del br
+
     del app
