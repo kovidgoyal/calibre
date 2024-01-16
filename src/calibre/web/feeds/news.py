@@ -1148,7 +1148,7 @@ class BasicNewsRecipe(Recipe):
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:
-                        img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
+                        img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)[-1]))
                         try:
                             with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url, timeout=self.timeout)) as r:
                                 fi.write(r.read())
