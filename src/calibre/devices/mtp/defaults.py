@@ -36,9 +36,10 @@ class DeviceDefaults:
                     'send_to': ['NOOK/My Books', 'NOOK/My Files', 'NOOK', 'Calibre_Companion', 'Books', 'eBooks/import', 'eBooks', 'sdcard/ebooks'],
                     }
                 ),
-                # Supernote A5 and A5X
+                # Supernote A5 and A5X and A6X2
                 ({'vendor': 0x2207, 'product': 0x0031}, supernote_settings),
                 ({'vendor': 0x2207, 'product': 0x0011}, supernote_settings),
+                ({'vendor': 0x2207, 'product': 0x0007}, supernote_settings),  # A6X2
         )
 
     def __call__(self, device, driver):
