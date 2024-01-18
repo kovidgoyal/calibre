@@ -625,6 +625,13 @@ class TextEdit(PlainTextEdit):
 
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):
+        self._highlight_cursor_line()
+
+    def _highlight_cursor_line(self, highlight_now=True):
+        if self.highlighter.is_working:
+            QTimer.singleShot(10, self.highlight_cursor_line)
+            if not highlight_now:
+                return
         sel = QTextEdit.ExtraSelection()
         sel.format.setBackground(self.palette().alternateBase())
         sel.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
@@ -632,7 +639,7 @@ class TextEdit(PlainTextEdit):
         sel.cursor.clearSelection()
         self.current_cursor_line = [sel]
 
-        # apply any formats that have a backgroud over the cursor line format
+        # apply any formats that have a background over the cursor line format
         # to ensure they are visible
         c = self.textCursor()
         block = c.block()
