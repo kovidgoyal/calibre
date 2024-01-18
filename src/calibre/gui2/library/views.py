@@ -361,9 +361,10 @@ class BooksView(QTableView):  # {{{
             elif tval == 'open_viewer':
                 wv.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked|wv.editTriggers())
                 wv.doubleClicked.connect(parent.iactions['View'].view_triggered)
-            elif tval == 'show_book_details':
+            elif tval in ('show_book_details', 'show_locked_book_details'):
                 wv.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked|wv.editTriggers())
-                wv.doubleClicked.connect(parent.iactions['Show Book Details'].show_book_info)
+                wv.doubleClicked.connect(partial(parent.iactions['Show Book Details'].show_book_info,
+                                                 locked=tval == 'show_locked_book_details'))
             elif tval == 'edit_metadata':
                 # Must not enable single-click to edit, or the field will remain
                 # open in edit mode underneath the edit metadata dialog

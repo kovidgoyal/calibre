@@ -69,6 +69,10 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
                 gui.iactions['Edit Metadata'].edit_metadata(False)
             elif tweak == 'do_nothing':
                 pass
+            elif tweak == 'show_locked_book_details':
+                self.gui.iactions['Show Book Details'].show_book_info(locked=True)
+            elif tweak == 'show_book_details':
+                self.gui.iactions['Show Book Details'].show_book_info()
             else:
                 if special_action is not None:
                     special_action(self.currentIndex())
