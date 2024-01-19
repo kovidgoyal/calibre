@@ -63,10 +63,10 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_index(self):
         # Get the cover, date and issue URL
         fp_soup = self.index_to_soup("https://www.scientificamerican.com")
-        curr_issue_link = fp_soup.select(".tout_current-issue__cover a")
+        curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
         if not curr_issue_link:
             self.abort_recipe_processing("Unable to find issue link")
-        issue_url = curr_issue_link[0]["href"]
+        issue_url = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
         soup = self.index_to_soup(issue_url)
         script = soup.find("script", id="__NEXT_DATA__")
         if not script:
@@ -90,6 +90,7 @@ class ScientificAmerican(BasicNewsRecipe):
         feeds = {}
         for section in ("featured", "departments"):
             for article in issue_info.get("article_previews", {}).get(section, []):
+                self.log('\t', article["title"])
                 if section == "featured":
                     feed_name = "Features"
                 else:
