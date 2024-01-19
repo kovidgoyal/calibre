@@ -150,4 +150,8 @@ def create_location_overlay(current_position_data, book, overlay, container):
         display_and_copy(_('URL for this position:'), calibre_book_url)
     elif not runtime.is_standalone_viewer:
         display_and_copy(_('URL for this position:'), window.top.location.toString())
-    container.querySelector('[name=newpos]').focus()
+    window.setTimeout(def():
+        container = document.getElementById(container_id)
+        if container:
+            container.querySelector('[name=newpos]').focus()
+    , 10)
