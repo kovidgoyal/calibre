@@ -23,6 +23,37 @@
 # - title by author
 # }}}
 
+{{{ 7.4.0 2024-01-19
+
+:: new features
+
+- Add support for the Supernote A6X2
+
+- Narrow layout: Place the cover browser above the book list when the window has a narrow aspect ratio. Can be controlled via Preferences->Look & feel->Cover browser
+
+- [2046825] Category notes browser: Add a button to search for books in the currently selected category
+
+- Keyboard shortcut to toggle main window layout (Alt+Shift+L)
+
+- Add the possibility to assign keyboard shortcuts to the tag browser sort functions
+
+:: bug fixes
+
+- Fix a regression in the previous release that caused the cover browser to not close when it is used as a separate window
+
+- Fix a regression in the previous release that caused comments in the Book details panel to be rendered below rather than at the side of the other information
+
+- Edit book: Fix highlighting of special character not changed immediately after it is edited, only after a subsequent action
+
+- Move Preferences to the left in the default toolbar, making it less likely to be hidden behind an expander button on small screens
+
+:: improved recipes
+- LiveMint
+- Foreign Policy
+- New Scientist
+
+}}}
+
 {{{ 7.3.0 2024-01-05
 
 :: new features
