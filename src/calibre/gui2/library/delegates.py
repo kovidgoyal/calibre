@@ -86,7 +86,7 @@ class UpdateEditorGeometry:
             max_width = pin_view.horizontalScrollBar().geometry().width()
         else:
             view = self.table_widget
-            max_width = view.horizontalScrollBar().geometry().width() - view.verticalHeader().width()
+            max_width = view.rect().width() - view.verticalHeader().width()
         # What we have to display might not fit. If so, adjust down
         new_width = new_width if new_width < max_width else max_width
 
