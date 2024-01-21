@@ -424,6 +424,9 @@ the viewer will set the following classes on the ``body`` element:
 ``body.calibre-viewer-scrolling``
     Set when in flow (non-paginated) mode
 
+``body.calibre-footnote-container``
+    Set when displaying a popup footnote
+
 Finally, you can use the calibre color scheme colors via `CSS variables
 <https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties>`_.
 The calibre viewer defines the following variables:
