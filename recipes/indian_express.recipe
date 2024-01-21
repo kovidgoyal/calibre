@@ -38,7 +38,7 @@ class IndianExpress(BasicNewsRecipe):
             'digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg '
             'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare osv-ad-class '
             'custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list subscriber_hide '
-            'author-social author-follow author-img '
+            'author-social author-follow author-img premium_widget_below_article'
         )
     ]
 

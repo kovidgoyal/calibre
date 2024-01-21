@@ -27,6 +27,7 @@ class Espresso(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
     use_embedded_content = False
+    masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
     extra_css = '''
         h1 { text-align:center; }

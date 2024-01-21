@@ -49,6 +49,7 @@ class LiveMint(BasicNewsRecipe):
             classes('storyPageHeading storyContent innerBanner author')
         ]
         remove_tags = [
+            dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
             classes('hidden-article-url sidebarAdv similarStoriesClass moreFromSecClass linkStories publishDetail'),
             dict(attrs={'id':['hidden-article-id-0', 'hidden-article-type-0']})
         ]
