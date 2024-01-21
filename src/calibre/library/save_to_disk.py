@@ -20,6 +20,7 @@ from calibre.utils.filenames import (
     ascii_filename, make_long_path_useable, shorten_components_to,
 )
 from calibre.utils.formatter import TemplateFormatter
+from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.localization import _
 
 plugboard_any_device_value = 'any device'
@@ -439,8 +440,10 @@ def read_serialized_metadata(data):
 
 
 def update_serialized_metadata(book, common_data=None):
+    # This is called from a worker process. It must not open the database.
     result = []
-    plugboard_cache = common_data
+    plugboard_cache = common_data['plugboard_cache']
+    load_user_template_functions(common_data['library_id'], common_data['template_functions'])
     from calibre.customize.ui import apply_null_metadata
     with apply_null_metadata:
         fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]

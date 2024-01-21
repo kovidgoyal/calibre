@@ -26,7 +26,6 @@ from calibre.library.save_to_disk import (
 )
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
-from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.ipc.pool import Failure, Pool
 from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Empty
@@ -80,7 +79,13 @@ class Saver(QObject):
         self.db = db.new_api
         self.plugboards = self.db.pref('plugboards', {})
         self.template_functions = self.db.pref('user_template_functions', [])
-        load_user_template_functions('', self.template_functions)
+        self.library_id = self.db.library_id
+        # This call to load_user_template_functions isn't needed because
+        # __init__ is running on the GUI thread. It must be done in the separate
+        # process by the worker
+        # from calibre.gui2 import is_gui_thread
+        # print(f'Saver __init__ is_gui_thread: {is_gui_thread()}')
+        # load_user_template_functions('', self.template_functions)
         self.collected_data = {}
         self.errors = defaultdict(list)
         self._book_id_data = {}
@@ -111,7 +116,8 @@ class Saver(QObject):
         if self.pool is not None:
             self.pool.shutdown()
         self.setParent(None)
-        self.jobs = self.pool = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
+        self.jobs = self.pool = self.plugboards = self.template_functions = self.library_id =\
+                self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
         self.deleteLater()
 
     def book_id_data(self, book_id):
@@ -155,7 +161,9 @@ class Saver(QObject):
             plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
             try:
-                self.pool.set_common_data(plugboards_cache)
+                self.pool.set_common_data({'plugboard_cache': plugboards_cache,
+                                           'template_functions': self.template_functions,
+                                           'library_id': self.library_id})
             except Failure as err:
                 error_dialog(self.pd, _('Critical failure'), _(
                     'Could not save books to disk, click "Show details" for more information'),
