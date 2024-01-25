@@ -181,12 +181,9 @@ class LeMonde(BasicNewsRecipe):
     def preprocess_html(self, soup):
         # when an image is available in multiple sizes, select the smallest one
         for img in soup.find_all('img', {'data-srcset': True}):
-            # print ("IMGDDPYL0 = ", img)
             data_srcset = img['data-srcset'].split()
-            # print ("IMGDDPYL1 = ", data_srcset)
             if len(data_srcset) > 1:
                 img['src'] = data_srcset[0]
-                # print("IMGDDPYL2 = " ,img['src'])
                 del img['data-srcset']
         return soup
 
