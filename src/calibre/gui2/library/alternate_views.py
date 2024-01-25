@@ -8,15 +8,16 @@ import itertools
 import math
 import operator
 import os
+import weakref
 from collections import namedtuple
 from functools import wraps
 from qt.core import (
-    QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag,
-    QEasingCurve, QEvent, QFont, QHelpEvent, QIcon, QImage, QItemSelection,
-    QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPixmap,
-    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate, QPalette,
-    QStyleOptionViewItem, Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl,
-    pyqtProperty, pyqtSignal, pyqtSlot, qBlue, qGreen, qRed, QIODevice
+    QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag, QEasingCurve,
+    QEvent, QFont, QHelpEvent, QIcon, QImage, QIODevice, QItemSelection,
+    QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPalette, QPixmap,
+    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate, QStyleOptionViewItem,
+    Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl, pyqtProperty, pyqtSignal,
+    pyqtSlot, qBlue, qGreen, qRed,
 )
 from textwrap import wrap
 from threading import Event, Thread
@@ -24,7 +25,9 @@ from threading import Event, Thread
 from calibre import fit_image, human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.gui2 import config, empty_index, gprefs, rating_font, is_gui_thread, FunctionDispatcher
+from calibre.gui2 import (
+    FunctionDispatcher, config, empty_index, gprefs, is_gui_thread, rating_font,
+)
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
@@ -953,14 +956,17 @@ class GridView(QListView):
         '''
         if self.ignore_render_requests.is_set():
             return
+        db = self.dbref()
+        if db is None:
+            return
         cdata, timestamp = self.thumbnail_cache[book_id] # None, None if not cached.
         if timestamp is None:
             # Cover not in cache Get the cover from the file system if it exists.
-            has_cover, cdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, 0)
+            has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0)
             cache_valid = False if has_cover else None
         else:
             # A cover is in the cache. Check whether it is up to date.
-            has_cover, tcdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, timestamp)
+            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp)
             if has_cover:
                 if tcdata is None:
                     # The cached cover is up-to-date.
@@ -1062,6 +1068,7 @@ class GridView(QListView):
         self.thumbnail_cache.shutdown()
 
     def set_database(self, newdb, stage=0):
+        self.dbref = weakref.ref(newdb)
         if stage == 0:
             self.ignore_render_requests.set()
             try:
