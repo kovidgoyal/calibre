@@ -16,18 +16,20 @@ import re
 
 class LeMonde(BasicNewsRecipe):
     title = 'Le Monde'
-    __author__ = 'veezh'
+    __author__ = 'veezh, Martin Villard'
     description = 'Les flux RSS du Monde.fr'
     publisher = 'Société Editrice du Monde'
     publication_type = 'newspaper'
     needs_subscription = 'optional'
     language = 'fr'
+    encoding = 'utf-8'
 
-    oldest_article = 2
-    max_articles_per_feed = 15
+    oldest_article = 1
     no_stylesheets = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
+    reverse_article_order = True
+    remove_empty_feeds = True
 
     conversion_options = {
         'publisher': publisher
@@ -36,30 +38,87 @@ class LeMonde(BasicNewsRecipe):
     masthead_url = 'http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Le_monde_logo.svg/800px-Le_monde_logo.svg.png'
 
     feeds = [
-        ('A la une', 'https://www.lemonde.fr/rss/une.xml'),
-        ('International', 'https://www.lemonde.fr/international/rss_full.xml'),
-        ('Politique', 'https://www.lemonde.fr/politique/rss_full.xml'),
-        ('Société', 'https://www.lemonde.fr/societe/rss_full.xml'),
-        ('Economie', 'https://www.lemonde.fr/economie/rss_full.xml'),
-        ('Planète', 'https://www.lemonde.fr/planete/rss_full.xml'),
-        ('Sciences', 'https://www.lemonde.fr/sciences/rss_full.xml'),
-        ('Pixels', 'https://www.lemonde.fr/pixels/rss_full.xml'),
-        ('Culture', 'https://www.lemonde.fr/culture/rss_full.xml'),
-        ('Idées', 'https://www.lemonde.fr/idees/rss_full.xml')
+        ('International : Europe ', 'https://www.lemonde.fr/europe/rss_full.xml'),
+        ('International : Amériques ', 'https://www.lemonde.fr/ameriques/rss_full.xml'),
+        ('International : Afrique ', 'https://www.lemonde.fr/afrique/rss_full.xml'),
+        ('International : Asie Pacifique', 'https://www.lemonde.fr/asie-pacifique/rss_full.xml'),
+        ('International : Proche-Orient', 'https://www.lemonde.fr/proche-orient/rss_full.xml'),
+        ('International : Royaume-Uni', 'https://www.lemonde.fr/royaume-uni/rss_full.xml'),
+        ('International : Etats-Unis', 'https://www.lemonde.fr/etats-unis/rss_full.xml'),
+        ('International : La une', 'https://www.lemonde.fr/international/rss_full.xml'),
+        ('France : Politique ', 'https://www.lemonde.fr/politique/rss_full.xml'),
+        ('France : Société ', 'https://www.lemonde.fr/societe/rss_full.xml'),
+        ('France : Les décodeurs', 'https://www.lemonde.fr/les-decodeurs/rss_full.xml'),
+        ('France : Justice ', 'https://www.lemonde.fr/justice/rss_full.xml'),
+        ('France : Police ', 'https://www.lemonde.fr/police/rss_full.xml'),
+        ('France : Campus ', 'https://www.lemonde.fr/campus/rss_full.xml'),
+        ('France : Education', 'https://www.lemonde.fr/education/rss_full.xml'),
+        ('Economie : Entreprises ', 'https://www.lemonde.fr/entreprises/rss_full.xml'),
+        ('Economie : Argent ', 'https://www.lemonde.fr/argent/rss_full.xml'),
+        ('Economie : Économie française', 'https://www.lemonde.fr/economie-francaise/rss_full.xml'),
+        ('Economie : Industrie', 'https://www.lemonde.fr/industrie/rss_full.xml'),
+        ('Economie : Emploi ', 'https://www.lemonde.fr/emploi/rss_full.xml'),
+        ('Economie : Immobilier ', 'https://www.lemonde.fr/immobilier/rss_full.xml'),
+        ('Economie : Médias', 'https://www.lemonde.fr/medias/rss_full.xml'),
+        ('Economie : La une', 'https://www.lemonde.fr/economie/rss_full.xml'),
+        ('Planète: Climat ', 'https://www.lemonde.fr/climat/rss_full.xml'),
+        ('Planète: Agriculture ', 'https://www.lemonde.fr/agriculture/rss_full.xml'),
+        ('Planète: Environnement', 'https://www.lemonde.fr/environnement/rss_full.xml'),
+        ('Planète: La une', 'https://www.lemonde.fr/planete/rss_full.xml'),
+        ('Sciences : Espace ', 'https://www.lemonde.fr/espace/rss_full.xml'),
+        ('Sciences : Biologie ', 'https://www.lemonde.fr/biologie/rss_full.xml'),
+        ('Sciences : Médecine ', 'https://www.lemonde.fr/medecine/rss_full.xml'),
+        ('Sciences : Physique ', 'https://www.lemonde.fr/physique/rss_full.xml'),
+        ('Sciences : Santé', 'https://www.lemonde.fr/sante/rss_full.xml'),
+        ('Sciences : La une', 'https://www.lemonde.fr/sciences/rss_full.xml'),
+        ('Culture : Cinéma ', 'https://www.lemonde.fr/cinema/rss_full.xml'),
+        ('Culture : Musiques ', 'https://www.lemonde.fr/musiques/rss_full.xml'),
+        ('Culture : Télévision et radio', 'https://www.lemonde.fr/televisions-radio/rss_full.xml'),
+        ('Culture : Le Monde des livres', 'https://www.lemonde.fr/livres/rss_full.xml'),
+        ('Culture : Arts ', 'https://www.lemonde.fr/arts/rss_full.xml'),
+        ('Culture : Scènes', 'https://www.lemonde.fr/scenes/rss_full.xml'),
+        ('Culture : La une', 'https://www.lemonde.fr/culture/rss_full.xml'),
+        ('Opinions : La une', 'https://www.lemonde.fr/idees/rss_full.xml'),
+        ('Opinions : éditoriaux', 'https://www.lemonde.fr/editoriaux/rss_full.xml'),
+        ('Opinions : chroniques ', 'https://www.lemonde.fr/chroniques/rss_full.xml'),
+        ('Opinions : tribunes', 'https://www.lemonde.fr/tribunes/rss_full.xml'),
+        ('Pixels : Jeux vidéo', 'https://www.lemonde.fr/jeux-video/rss_full.xml'),
+        ('Pixels : Culture web', 'https://www.lemonde.fr/cultures-web/rss_full.xml'),
+        ('Pixels : La une', 'https://www.lemonde.fr/pixels/rss_full.xml'),
+        ('Sport : Football ', 'https://www.lemonde.fr/football/rss_full.xml'),
+        ('Sport : Rugby ', 'https://www.lemonde.fr/rugby/rss_full.xml'),
+        ('Sport : Tennis ', 'https://www.lemonde.fr/tennis/rss_full.xml'),
+        ('Sport : Cyclisme ', 'https://www.lemonde.fr/cyclisme/rss_full.xml'),
+        ('Sport : Basket', 'https://www.lemonde.fr/basket/rss_full.xml'),
+        ('Sport : La une', 'https://www.lemonde.fr/sport/rss_full.xml'),
+        ('M le mag : L’époque ', 'https://www.lemonde.fr/m-perso/rss_full.xml'),
+        ('M le mag : Styles ', 'https://www.lemonde.fr/m-styles/rss_full.xml'),
+        ('M le mag : Gastronomie ', 'https://www.lemonde.fr/gastronomie/rss_full.xml'),
+        ('M le mag : Recettes du Monde', 'https://www.lemonde.fr/les-recettes-du-monde/rss_full.xml'),
+        ('M le mag : Sexo', 'https://www.lemonde.fr/sexo/rss_full.xml'),
+        ('M le mag : La une', 'https://www.lemonde.fr/m-le-mag/rss_full.xml'),
+        ('Actualités : A la une', 'https://www.lemonde.fr/rss/une.xml'),
+        ('Actualités : En continu', 'https://www.lemonde.fr/rss/en_continu.xml'),
+        ('Actualités : Vidéos ', 'https://www.lemonde.fr/videos/rss_full.xml'),
+        ('Actualités : Portfolios', 'https://www.lemonde.fr/photo/rss_full.xml'),
     ]
 
     keep_only_tags = [
         classes('article__header'),
-        dict(name='section', attrs={'class': ['article__content', 'article__heading',
+        dict(name='section', attrs={'class': ['article__cover', 'article__content', 'article__heading',
                                               'article__wrapper']})
     ]
 
     remove_tags = [
-        classes('article__status meta__date meta__reading-time meta__social multimedia-embed'),
-        dict(name=['footer', 'link']),
+        classes('article__status meta__reading-time meta__social multimedia-embed'),
+        dict(name=['footer', 'link', 'meta', 'svg', 'button']),
         dict(name='img', attrs={'class': ['article__author-picture']}),
-        dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher',
-                                              'portfolio', 'services-inread']})
+        dict(name='section', attrs={'class': 
+			[
+				'inread js-services-inread', 'catcher catcher--inline', 'inread inread--NL js-services-inread', 
+				'article__reactions', 'author', 'catcher', 'portfolio', 'services-inread'
+			]
+		})
     ]
 
     remove_attributes = [
@@ -101,13 +160,13 @@ class LeMonde(BasicNewsRecipe):
     def get_cover_url(self):
         # today's date is a reasonable guess for the ID of the cover
         cover_id = date.today().strftime('%Y%m%d')
-        soup = self.index_to_soup('https://www.lemonde.fr/')
-        a = soup.find('a', {'id': 'jelec_link', 'style': True})
-        if a and a['style']:
-            url = a['style'].split('/')
-            if len(url) > 5 and url[3].isdigit():
+        # soup = self.index_to_soup('https://www.lemonde.fr/')
+        # a = soup.find('a', {'id': 'jelec_link', 'style': True})
+        # if a and a['style']:
+            # url = a['style'].split('/')
+            # if len(url) > 5 and url[3].isdigit():
                 # overwrite guess if actual cover ID was found
-                cover_id = url[3]
+                # cover_id = url[3]
         return 'https://www.lemonde.fr/thumbnail/journal/' + cover_id + '/1000/1490'
 
     def get_article_url(self, article):
@@ -124,7 +183,7 @@ class LeMonde(BasicNewsRecipe):
         for img in soup.find_all('img', {'data-srcset': True}):
             data_srcset = img['data-srcset'].split()
             if len(data_srcset) > 1:
-                img['src'] = data_srcset[-2]
+                img['src'] = data_srcset[0]
                 del img['data-srcset']
         return soup
 
