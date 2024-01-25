@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import errno
 import os
 import re
+import shutil
 import sys
 from collections import OrderedDict, namedtuple
 from locale import localeconv
@@ -116,7 +117,10 @@ class ThumbnailCache:
                  thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
                  location=None,   # The location for this cache, if None cache_dir() is used
                  test_mode=False,  # Used for testing
-                 min_disk_cache=0):  # If the size is set less than or equal to this value, the cache is disabled.
+                 min_disk_cache=0, # If the size is set less than or equal to this value, the cache is disabled.
+                 version=0 # Increase this if the cache content format might have changed.
+                 ):
+        self.version = version
         self.location = os.path.join(location or cache_dir(), name)
         if max_size <= min_disk_cache:
             max_size = 0
@@ -144,9 +148,31 @@ class ThumbnailCache:
             self.log('Failed to delete cached thumbnail file:', as_unicode(err))
 
     def _load_index(self):
-        'Load the index, automatically removing incorrectly sized thumbnails and pruning to fit max_size'
+        '''
+        Load the index, automatically removing incorrectly sized thumbnails and
+        pruning to fit max_size
+        '''
+
+        # Remove the cache if it isn't the current version
+        version_path = os.path.join(self.location, 'version')
+        current_version = 0
+        if os.path.exists(version_path):
+            try:
+                with open(version_path) as f:
+                    current_version = int(f.read())
+            except:
+                pass
+        if current_version != self.version:
+            # The version number changed. Delete the cover cache. Can't delete
+            # it if it isn't there (first time). Note that this will not work
+            # well if the same cover cache name is used with different versions.
+            if os.path.exists(self.location):
+                shutil.rmtree(self.location)
+
         try:
             os.makedirs(self.location)
+            with open(version_path, 'w') as f:
+                f.write(str(self.version))
         except OSError as err:
             if err.errno != errno.EEXIST:
                 self.log('Failed to make thumbnail cache dir:', as_unicode(err))
