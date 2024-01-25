@@ -724,6 +724,7 @@ class GridView(QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        self.dbref = lambda: None
         self._ncols = None
         self.gesture_manager = GestureManager(self)
         setup_dnd_interface(self)
