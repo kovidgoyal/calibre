@@ -10,6 +10,7 @@ import re
 import shutil
 import sys
 from collections import OrderedDict, namedtuple
+from contextlib import suppress
 from locale import localeconv
 from threading import Lock
 
@@ -156,12 +157,8 @@ class ThumbnailCache:
         # Remove the cache if it isn't the current version
         version_path = os.path.join(self.location, 'version')
         current_version = 0
-        if os.path.exists(version_path):
-            try:
-                with open(version_path) as f:
-                    current_version = int(f.read())
-            except:
-                pass
+        with suppress(Exception), open(version_path) as f:
+            current_version = int(f.read())
         if current_version != self.version:
             # The version number changed. Delete the cover cache. Can't delete
             # it if it isn't there (first time). Note that this will not work
