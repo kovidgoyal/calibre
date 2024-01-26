@@ -1005,16 +1005,16 @@ class GridView(QListView):
     def make_thumbnail(self, cover_tuple):
         # Render the cover image data to the thumbnail size and correct format.
         # Rendering isn't needed if the cover came from the cache and the cache
-        # is valid. Put a newly rendered image into the cache. Returns a
-        # QPixmap. This method is called on the cover thread.
+        # is valid. Put a newly rendered image into the cache. Returns the
+        # thumbnail as a PIL Image. This method is called on the cover thread.
 
         cdata = cover_tuple.cdata
         book_id = cover_tuple.book_id
         tc = self.thumbnail_cache
-        thumb = None
+        # thumb = None
         if cover_tuple.has_cover:
-            # The book has a cover. Render the cover data as needed to get the
-            # thumbnail that will be cached.
+            # cdata contains either the resized thumbnail, the full cover.jpg,
+            # or None if cover.jpg isn't valid
             if cdata.getbbox() is None and cover_tuple.cache_valid:
                 # Something wrong with the cover data in the cache. Remove it
                 # from the cache and render it again.
@@ -1040,13 +1040,14 @@ class GridView(QListView):
                         # The PIL thumbnail operation works in-place, changing
                         # the source image.
                         cdata.thumbnail((int(nwidth), int(nheight)))
+                        thumb = cdata
                     # Put the new thumbnail into the cache.
                     try:
                         with BytesIO() as buf:
                             cdata.save(buf, format=CACHE_FORMAT)
                             # use getbuffer() instead of getvalue() to avoid a copy
                             tc.insert(book_id, cover_tuple.timestamp, buf.getbuffer())
-                        thumb = convert_PIL_image_to_pixmap(cdata)
+                        thumb = cdata
                     except Exception:
                         tc.invalidate((book_id,))
                         import traceback
@@ -1055,22 +1056,27 @@ class GridView(QListView):
                     # The cover data isn't valid. Remove it from the cache
                     tc.invalidate((book_id,))
             else:
-                # The data from the cover cache is valid. the QPixmap to pass to
-                # the GUI
-                thumb = convert_PIL_image_to_pixmap(cdata)
-        elif cover_tuple.cache_valid is not None:
-            # Cover was removed, but it exists in cache. Remove it from the cache
-            tc.invalidate((book_id,))
-        # Return the thumbnail, which is either None or a QPixmap. This can
-        # result in putting None into the cache so re-rendering doesn't try
-        # again.
+                # The data from the cover cache is valid and is already a thumb.
+                thumb = cdata
+        else:
+            # The book doesn't have a cover.
+            if cover_tuple.cache_valid is not None:
+                # Cover was removed, but it exists in cache. Remove it from the cache
+                tc.invalidate((book_id,))
+            thumb = None
+        # Return the thumbnail, which is either None or a PIL Image. If not None
+        # the image will be converted to a QPixmap on the GUI thread. Putting
+        # None into the CoverCache ensures re-rendering won't try again.
         return thumb
 
     def re_render(self, book_id, thumb):
         # This is called on the GUI thread when a cover thumbnail is not in the
-        # CoverCache. The parameter "thumb" is None if there is no cover or a
-        # QPixmap of the correctly scaled cover
+        # CoverCache. The parameter "thumb" is either None if there is no cover
+        # or a PIL Image of the thumbnail.
         self.delegate.cover_cache.clear_staging()
+        if thumb is not None:
+            # Convert the image to a QPixmap
+            thumb = convert_PIL_image_to_pixmap(thumb)
         self.delegate.cover_cache.set(book_id, thumb)
         m = self.model()
         try:
