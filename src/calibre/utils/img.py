@@ -12,7 +12,7 @@ from contextlib import suppress
 from io import BytesIO
 from qt.core import (
     QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap,
-    Qt, QTransform,
+    Qt, QTransform, qRgba
 )
 from threading import Thread
 
@@ -659,6 +659,66 @@ def encode_jpeg(file_path, quality=80):
 
 def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
+# }}}
+
+
+# PIL images {{{
+def align8to32(bytes, width, mode):
+    """
+    converts each scanline of data from 8 bit to 32 bit aligned
+    """
+
+    bits_per_pixel = {"1": 1, "L": 8, "P": 8, "I;16": 16}[mode]
+
+    # calculate bytes per line and the extra padding if needed
+    bits_per_line = bits_per_pixel * width
+    full_bytes_per_line, remaining_bits_per_line = divmod(bits_per_line, 8)
+    bytes_per_line = full_bytes_per_line + (1 if remaining_bits_per_line else 0)
+
+    extra_padding = -bytes_per_line % 4
+
+    # already 32 bit aligned by luck
+    if not extra_padding:
+        return bytes
+
+    new_data = [
+        bytes[i * bytes_per_line : (i + 1) * bytes_per_line] + b"\x00" * extra_padding
+        for i in range(len(bytes) // bytes_per_line)
+    ]
+
+    return b"".join(new_data)
+
+
+def convert_PIL_image_to_pixmap(im):
+    data = None
+    colortable = None
+    if im.mode == "1":
+        format = QImage.Format.Format_Mono
+    elif im.mode == "L":
+        format = QImage.Format.Format_Indexed8
+        colortable = [qRgba(i, i, i, 255) & 0xFFFFFFFF for i in range(256)]
+    elif im.mode == "P":
+        format = QImage.Format.Format_Indexed8
+        palette = im.getpalette()
+        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
+    elif im.mode == "RGB":
+        format = QImage.Format.Format_RGBX8888
+        data = im.convert("RGBA").tobytes("raw", "RGBA")
+    elif im.mode == "RGBA":
+        format = QImage.Format.Format_RGBA8888
+        data = im.tobytes("raw", "RGBA")
+    elif im.mode == "I;16":
+        im = im.point(lambda i: i * 256)
+        format = QImage.Format.Format_Grayscale16
+    else:
+        raise ValueError(f"unsupported image mode {repr(im.mode)}")
+
+    size = im.size
+    data = data or align8to32(im.tobytes(), size[0], im.mode)
+    qimg = QImage(data, size[0], size[1], format)
+    if colortable:
+        qimg.setColorTable(colortable)
+    return QPixmap.fromImage(qimg)
 # }}}
 
 
