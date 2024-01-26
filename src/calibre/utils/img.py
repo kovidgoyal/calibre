@@ -661,7 +661,6 @@ def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
 # }}}
 
-
 # PIL images {{{
 def align8to32(bytes, width, mode):
     """
@@ -720,7 +719,6 @@ def convert_PIL_image_to_pixmap(im):
         qimg.setColorTable(colortable)
     return QPixmap.fromImage(qimg)
 # }}}
-
 
 def test():  # {{{
     from glob import glob
