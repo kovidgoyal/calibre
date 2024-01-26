@@ -692,29 +692,29 @@ def convert_PIL_image_to_pixmap(im):
     data = None
     colortable = None
     if im.mode == "1":
-        format = QImage.Format.Format_Mono
+        fmt = QImage.Format.Format_Mono
     elif im.mode == "L":
-        format = QImage.Format.Format_Indexed8
+        fmt = QImage.Format.Format_Indexed8
         colortable = [qRgba(i, i, i, 255) & 0xFFFFFFFF for i in range(256)]
     elif im.mode == "P":
-        format = QImage.Format.Format_Indexed8
+        fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
         colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
     elif im.mode == "RGB":
-        format = QImage.Format.Format_RGBX8888
+        fmt = QImage.Format.Format_RGBX8888
         data = im.convert("RGBA").tobytes("raw", "RGBA")
     elif im.mode == "RGBA":
-        format = QImage.Format.Format_RGBA8888
+        fmt = QImage.Format.Format_RGBA8888
         data = im.tobytes("raw", "RGBA")
     elif im.mode == "I;16":
         im = im.point(lambda i: i * 256)
-        format = QImage.Format.Format_Grayscale16
+        fmt = QImage.Format.Format_Grayscale16
     else:
         raise ValueError(f"unsupported image mode {repr(im.mode)}")
 
     size = im.size
     data = data or align8to32(im.tobytes(), size[0], im.mode)
-    qimg = QImage(data, size[0], size[1], format)
+    qimg = QImage(data, size[0], size[1], fmt)
     if colortable:
         qimg.setColorTable(colortable)
     return QPixmap.fromImage(qimg)
