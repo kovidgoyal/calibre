@@ -34,6 +34,7 @@ from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.img import convert_PIL_image_to_pixmap
 from polyglot.builtins import itervalues
 from polyglot.queue import LifoQueue
 
@@ -959,7 +960,8 @@ class GridView(QListView):
         db = self.dbref()
         if db is None:
             return
-        cdata, timestamp = self.thumbnail_cache[book_id] # None, None if not cached.
+        tc = self.thumbnail_cache
+        cdata, timestamp = tc[book_id] # None, None if not cached.
         if timestamp is None:
             # Cover not in cache. Try to read the cover from the library.
             has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0)
@@ -992,7 +994,7 @@ class GridView(QListView):
                 # source code don't have this problem because the cache UUID is
                 # set when the database changes instead of when the cache thread
                 # is created.
-                self.thumbnail_cache.invalidate((book_id,))
+                tc.invalidate((book_id,))
                 cache_valid = None
                 cdata = None
         if has_cover and cdata is None:
@@ -1003,27 +1005,20 @@ class GridView(QListView):
     def make_thumbnail(self, cover_tuple):
         # Render the cover image data to the thumbnail size and correct format.
         # Rendering isn't needed if the cover came from the cache and the cache
-        # is valid. Put a newly rendered image into the cache. Returns a byte
-        # string for the thumbnail image that can be rendered in the GUI. This
-        # method is called on the cover thread.
-
-        def pil_image_to_data():
-            # Convert the image to a byte string. We don't use the global
-            # image_to_data() because it uses Qt types that might not be thread
-            # safe.
-            bio = BytesIO()
-            cdata.save(bio, format=CACHE_FORMAT)
-            return bio.getvalue()
+        # is valid. Put a newly rendered image into the cache. Returns a
+        # QPixmap. This method is called on the cover thread.
 
         cdata = cover_tuple.cdata
         book_id = cover_tuple.book_id
+        tc = self.thumbnail_cache
+        thumb = None
         if cover_tuple.has_cover:
             # The book has a cover. Render the cover data as needed to get the
             # thumbnail that will be cached.
             if cdata.getbbox() is None and cover_tuple.cache_valid:
                 # Something wrong with the cover data in the cache. Remove it
                 # from the cache and render it again.
-                self.thumbnail_cache.invalidate((book_id,))
+                tc.invalidate((book_id,))
                 self.render_queue.put(book_id)
                 return None
             if not cover_tuple.cache_valid:
@@ -1047,43 +1042,36 @@ class GridView(QListView):
                         cdata.thumbnail((int(nwidth), int(nheight)))
                     # Put the new thumbnail into the cache.
                     try:
-                        cdata = pil_image_to_data()
-                        self.thumbnail_cache.insert(book_id, cover_tuple.timestamp, cdata)
+                        with BytesIO() as buf:
+                            cdata.save(buf, format=CACHE_FORMAT)
+                            # use getbuffer() instead of getvalue() to avoid a copy
+                            tc.insert(book_id, cover_tuple.timestamp, buf.getbuffer())
+                        thumb = convert_PIL_image_to_pixmap(cdata)
                     except Exception:
-                        self.thumbnail_cache.invalidate((book_id,))
+                        tc.invalidate((book_id,))
                         import traceback
                         traceback.print_exc()
                 else:
                     # The cover data isn't valid. Remove it from the cache
-                    self.thumbnail_cache.invalidate((book_id,))
+                    tc.invalidate((book_id,))
             else:
-                # The data from the cover cache is valid. Get its byte string to
-                # pass to the GUI
-                cdata = pil_image_to_data()
+                # The data from the cover cache is valid. the QPixmap to pass to
+                # the GUI
+                thumb = convert_PIL_image_to_pixmap(cdata)
         elif cover_tuple.cache_valid is not None:
             # Cover was removed, but it exists in cache. Remove it from the cache
-            self.thumbnail_cache.invalidate((book_id,))
-            cdata = None
-        # Return the thumbnail, which is either None or an image byte string.
-        # This can result in putting None into the cache so re-rendering doesn't
-        # try again.
-        return cdata
+            tc.invalidate((book_id,))
+        # Return the thumbnail, which is either None or a QPixmap. This can
+        # result in putting None into the cache so re-rendering doesn't try
+        # again.
+        return thumb
 
     def re_render(self, book_id, thumb):
         # This is called on the GUI thread when a cover thumbnail is not in the
-        # CoverCache. The parameter "thumb" is a byte string representation of
-        # the correctly-sized thumbnail.
+        # CoverCache. The parameter "thumb" is None if there is no cover or a
+        # QPixmap of the correctly scaled cover
         self.delegate.cover_cache.clear_staging()
-        if thumb is None:
-            self.delegate.cover_cache.set(book_id, None)
-        else:
-            # There seems to be deadlock or memory corruption problems when
-            # using loadFromData in a non-GUI thread. Avoid these by doing the
-            # conversion here instead of in the cover thread.
-            p = QPixmap()
-            p.setDevicePixelRatio(self.device_pixel_ratio)
-            p.loadFromData(thumb, CACHE_FORMAT)
-            self.delegate.cover_cache.set(book_id, p)
+        self.delegate.cover_cache.set(book_id, thumb)
         m = self.model()
         try:
             index = m.db.row(book_id)
