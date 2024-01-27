@@ -7,6 +7,8 @@ class BT(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     no_stylesheets = True
     use_embedded_content = False
+    remove_javascript = True
+    encoding = 'utf-8'
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     description = (
@@ -16,24 +18,36 @@ class BT(BasicNewsRecipe):
     masthead_url = 'https://akm-img-a-in.tosshub.com/businesstoday/resource/img/logo.png'
 
     keep_only_tags = [
-        classes('story-heading sab-head-tranlate-sec user-detial-left main-img field--name-body'),
+        classes('story-heading sab-head-tranlate-sec brand-detial-main main-img field--name-body'),
     ]
+
     remove_tags = [
+        dict(name=['link', 'meta', 'svg', 'button', 'script']),
         dict(name='a', attrs={'title': 'videos'}),
-        classes('tranding-topics-main newsltter-iframe hedlineteg')
+        classes(
+            'tranding-topics-main newsltter-iframe hedlineteg stoybday-ad story-recommended-chunk '
+            'banner_content'
+        )
     ]
-    extra_css = 'a[href^="https://www.businesstoday.in/videos"]{display: none;}'
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        em { color:#202020; }
+        .main-img { font-size:small; text-align:center; }
+        .summary {font-style:italic; color:#202020; }
+    '''
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.businesstoday.in/magazine')
-        issue = soup.find(attrs={'class': 'swiper-wrapper'})
-        a = issue.findAll('a', href=lambda x: x and '/magazine/issue/' in x)[1]
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
+        soup = self.index_to_soup('https://www.businesstoday.in')
+        a = soup.findAll('a', attrs={'class':'mag_sld_img'})[1]
+        self.cover_url = a.img['data-src'].split('?')[0]
         url = a['href']
         self.log('issue =', url)
+        self.timefmt = ' [' + url.split('/')[-1] + ']'
         soup = self.index_to_soup(url)
-        tag = soup.find(attrs={'class': 'issue-image'})
-        if tag:
-            self.cover_url = tag.find('img')['src']
         section = None
         sections = {}
 
@@ -78,6 +92,20 @@ class BT(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
+        auth = soup.find(**classes('brand-detial-main'))
+        if auth:
+            ul = auth.find('ul')
+            if ul:
+                ul.decompose()
+        for vid in soup.findAll('a', attrs={
+                'href': lambda x: x and 'businesstoday.in/videos' in x
+            }):
+            vid.decompose()
+        summ = soup.find(**classes('summary'))
+        if summ:
+            h2 = summ.find('h2')
+            if h2:
+                h2.name = 'p'
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0]
         return soup
