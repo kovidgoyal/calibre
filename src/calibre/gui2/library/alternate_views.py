@@ -777,10 +777,7 @@ class GridView(QListView):
 
     @property
     def device_pixel_ratio(self):
-        try:
-            return self.devicePixelRatioF()
-        except AttributeError:
-            return self.devicePixelRatio()
+        return self.devicePixelRatioF()
 
     @property
     def first_visible_row(self):
@@ -964,17 +961,16 @@ class GridView(QListView):
         cdata, timestamp = tc[book_id] # None, None if not cached.
         if timestamp is None:
             # Cover not in cache. Try to read the cover from the library.
-            has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0)
+            has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
             if has_cover:
                 # There is a cover.jpg. Convert the byte string to an image.
                 cache_valid = False
-                cdata = Image.open(BytesIO(cdata))
             else:
                 # No cover.jpg
                 cache_valid = None
         else:
             # A cover is in the cache. Check whether it is up to date.
-            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp)
+            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp, as_what='pil_image')
             if has_cover:
                 if tcdata is None:
                     # The cached cover is up-to-date.
@@ -983,9 +979,6 @@ class GridView(QListView):
                 else:
                     # The cached cover is stale
                     cache_valid = False
-                    # Convert the bytes from the cover.jpg. The image will be
-                    # resized later.
-                    cdata = Image.open(BytesIO(tcdata))
             else:
                 # We found a cached cover for a book without a cover. This can
                 # happen in older version of calibre that can reuse book_ids
@@ -1067,6 +1060,10 @@ class GridView(QListView):
         # Return the thumbnail, which is either None or a PIL Image. If not None
         # the image will be converted to a QPixmap on the GUI thread. Putting
         # None into the CoverCache ensures re-rendering won't try again.
+        if getattr(thumb, 'mode', None) == 'RGB':
+            # Conversion to QPixmap needs RGBA data so do it here rather than
+            # in the GUI thread
+            thumb = thumb.convert('RGBA')
         return thumb
 
     def re_render(self, book_id, thumb):
@@ -1076,7 +1073,7 @@ class GridView(QListView):
         self.delegate.cover_cache.clear_staging()
         if thumb is not None:
             # Convert the image to a QPixmap
-            thumb = convert_PIL_image_to_pixmap(thumb)
+            thumb = convert_PIL_image_to_pixmap(thumb, self.device_pixel_ratio)
         self.delegate.cover_cache.set(book_id, thumb)
         m = self.model()
         try:

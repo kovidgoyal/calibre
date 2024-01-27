@@ -688,10 +688,16 @@ def align8to32(bytes, width, mode):
     return b"".join(new_data)
 
 
-def convert_PIL_image_to_pixmap(im):
+def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     data = None
     colortable = None
-    if im.mode == "1":
+    if im.mode == "RGBA":
+        fmt = QImage.Format.Format_RGBA8888
+        data = im.tobytes("raw", "RGBA")
+    elif im.mode == "RGB":
+        fmt = QImage.Format.Format_RGBX8888
+        data = im.convert("RGBA").tobytes("raw", "RGBA")
+    elif im.mode == "1":
         fmt = QImage.Format.Format_Mono
     elif im.mode == "L":
         fmt = QImage.Format.Format_Indexed8
@@ -700,12 +706,6 @@ def convert_PIL_image_to_pixmap(im):
         fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
         colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
-    elif im.mode == "RGB":
-        fmt = QImage.Format.Format_RGBX8888
-        data = im.convert("RGBA").tobytes("raw", "RGBA")
-    elif im.mode == "RGBA":
-        fmt = QImage.Format.Format_RGBA8888
-        data = im.tobytes("raw", "RGBA")
     elif im.mode == "I;16":
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16
@@ -715,6 +715,8 @@ def convert_PIL_image_to_pixmap(im):
     size = im.size
     data = data or align8to32(im.tobytes(), size[0], im.mode)
     qimg = QImage(data, size[0], size[1], fmt)
+    if device_pixel_ratio != 1.0:
+        qimg.setDevicePixelRatio(device_pixel_ratio)
     if colortable:
         qimg.setColorTable(colortable)
     return QPixmap.fromImage(qimg)

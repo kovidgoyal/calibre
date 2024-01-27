@@ -1708,7 +1708,7 @@ class DB:
                         return True
         return False
 
-    def cover_or_cache(self, path, timestamp):
+    def cover_or_cache(self, path, timestamp, as_what='bytes'):
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         try:
             stat = os.stat(path)
@@ -1723,7 +1723,13 @@ class DB:
                 time.sleep(0.2)
         f = open(path, 'rb')
         with f:
-            return True, f.read(), stat.st_mtime
+            if as_what == 'pil_image':
+                from PIL import Image
+                data = Image.open(f)
+                data.load()
+            else:
+                data = f.read()
+        return True, data, stat.st_mtime
 
     def compress_covers(self, path_map, jpeg_quality, progress_callback):
         cpath_map = {}

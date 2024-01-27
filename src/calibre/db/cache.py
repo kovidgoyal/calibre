@@ -1161,12 +1161,12 @@ class Cache:
         return ret
 
     @read_api
-    def cover_or_cache(self, book_id, timestamp):
+    def cover_or_cache(self, book_id, timestamp, as_what='bytes'):
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
         except AttributeError:
             return False, None, None
-        return self.backend.cover_or_cache(path, timestamp)
+        return self.backend.cover_or_cache(path, timestamp, as_what)
 
     @read_api
     def cover_last_modified(self, book_id):
