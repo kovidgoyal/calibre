@@ -919,15 +919,13 @@ class GridView(QListView):
                 try:
                     # Fetch the cover from the cache or file system
                     cover_tuple = self.fetch_cover_from_cache(book_id)
-                    # Render/resize the cover.
-                    thumb = self.make_thumbnail(cover_tuple)
+                    if cover_tuple is not None:
+                        # Render/resize the cover.
+                        thumb = self.make_thumbnail(cover_tuple)
                 except Exception:
                     import traceback
                     traceback.print_exc()
-                # Tell the GUI to redisplay the cover. These can queue, but
-                # the work is limited to painting the cover if it is visible
-                # so there shouldn't be much performance lag. Using a
-                # dispatcher to eliminate the queue would probably be worse.
+                # Tell the GUI to redisplay the thumbnail with the new image
                 self.update_item.emit(book_id, thumb)
 
             finally:
@@ -953,27 +951,29 @@ class GridView(QListView):
                    otherwise None.
         '''
         if self.ignore_render_requests.is_set():
-            return
+            return None
         db = self.dbref()
         if db is None:
-            return
+            return None
         tc = self.thumbnail_cache
         cdata, timestamp = tc[book_id] # None, None if not cached.
         if timestamp is None:
             # Cover not in cache. Try to read the cover from the library.
             has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
             if has_cover:
-                # There is a cover.jpg. Convert the byte string to an image.
+                # There is a cover.jpg, already rendered as a pil_image
                 cache_valid = False
             else:
                 # No cover.jpg
                 cache_valid = None
         else:
             # A cover is in the cache. Check whether it is up to date.
-            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp, as_what='pil_image')
+            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp,
+                                                                     as_what='pil_image')
             if has_cover:
                 if tcdata is None:
-                    # The cached cover is up-to-date.
+                    # The cached cover is up-to-date. Convert the cached bytes
+                    # to a PIL image
                     cache_valid = True
                     cdata = Image.open(BytesIO(cdata))
                 else:
@@ -983,10 +983,9 @@ class GridView(QListView):
                 # We found a cached cover for a book without a cover. This can
                 # happen in older version of calibre that can reuse book_ids
                 # between libraries and books in one library have covers where
-                # they don't in another library. Versions of calibre with this
-                # source code don't have this problem because the cache UUID is
-                # set when the database changes instead of when the cache thread
-                # is created.
+                # they don't in another library. This version doesn't have the
+                # problem because the cache UUID is set when the database
+                # changes instead of when the cache thread is created.
                 tc.invalidate((book_id,))
                 cache_valid = None
                 cdata = None
@@ -998,7 +997,7 @@ class GridView(QListView):
     def make_thumbnail(self, cover_tuple):
         # Render the cover image data to the thumbnail size and correct format.
         # Rendering isn't needed if the cover came from the cache and the cache
-        # is valid. Put a newly rendered image into the cache. Returns the
+        # is valid. Put newly rendered images into the cache. Returns the
         # thumbnail as a PIL Image. This method is called on the cover thread.
 
         cdata = cover_tuple.cdata
@@ -1006,11 +1005,11 @@ class GridView(QListView):
         tc = self.thumbnail_cache
         thumb = None
         if cover_tuple.has_cover:
-            # cdata contains either the resized thumbnail, the full cover.jpg,
-            # or None if cover.jpg isn't valid
+            # cdata contains either the resized thumbnail, the full cover.jpg
+            # rendered as a PIL image, or None if cover.jpg isn't valid
             if cdata.getbbox() is None and cover_tuple.cache_valid:
                 # Something wrong with the cover data in the cache. Remove it
-                # from the cache and render it again.
+                # from the cache and queue it to render again.
                 tc.invalidate((book_id,))
                 self.render_queue.put(book_id)
                 return None
@@ -1019,8 +1018,7 @@ class GridView(QListView):
                 # image. We might have the image from cover.jpg, in which case
                 # make it into a thumbnail.
                 if cdata is not None:
-                    # We have a cover from the file system. Scale it by creating
-                    # a thumbnail
+                    # We have an image from cover.jpg. Scale it by creating a thumbnail
                     dpr = self.device_pixel_ratio
                     page_width = int(dpr * self.delegate.cover_size.width())
                     page_height = int(dpr * self.delegate.cover_size.height())
@@ -1029,7 +1027,7 @@ class GridView(QListView):
                     if scaled:
                         # The image is the wrong size. Scale it.
                         if self.ignore_render_requests.is_set():
-                            return
+                            return None
                         # The PIL thumbnail operation works in-place, changing
                         # the source image.
                         cdata.thumbnail((int(nwidth), int(nheight)))
@@ -1057,13 +1055,15 @@ class GridView(QListView):
                 # Cover was removed, but it exists in cache. Remove it from the cache
                 tc.invalidate((book_id,))
             thumb = None
+        # Conversion to QPixmap needs RGBA data. Do it here rather than in the
+        # GUI thread. This check doesn't need to be wrapped in
+        #     if thumb is not None:
+        # because None is a first-class object with no attributes.
+        if getattr(thumb, 'mode', None) == 'RGB':
+            thumb = thumb.convert('RGBA')
         # Return the thumbnail, which is either None or a PIL Image. If not None
         # the image will be converted to a QPixmap on the GUI thread. Putting
         # None into the CoverCache ensures re-rendering won't try again.
-        if getattr(thumb, 'mode', None) == 'RGB':
-            # Conversion to QPixmap needs RGBA data so do it here rather than
-            # in the GUI thread
-            thumb = thumb.convert('RGBA')
         return thumb
 
     def re_render(self, book_id, thumb):
