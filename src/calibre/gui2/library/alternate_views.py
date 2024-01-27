@@ -915,21 +915,21 @@ class GridView(QListView):
                     return
                 if self.ignore_render_requests.is_set():
                     continue
+                thumb = None
                 try:
                     # Fetch the cover from the cache or file system
                     cover_tuple = self.fetch_cover_from_cache(book_id)
-
                     # Render/resize the cover.
                     thumb = self.make_thumbnail(cover_tuple)
-
-                    # Tell the GUI to redisplay the cover. These can queue, but
-                    # the work is limited to painting the cover if it is visible
-                    # so there shouldn't be much performance lag. Using a
-                    # dispatcher to eliminate the queue would probably be worse.
-                    self.update_item.emit(book_id, thumb)
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
+                # Tell the GUI to redisplay the cover. These can queue, but
+                # the work is limited to painting the cover if it is visible
+                # so there shouldn't be much performance lag. Using a
+                # dispatcher to eliminate the queue would probably be worse.
+                self.update_item.emit(book_id, thumb)
+
             finally:
                 q.task_done()
 
@@ -1004,7 +1004,7 @@ class GridView(QListView):
         cdata = cover_tuple.cdata
         book_id = cover_tuple.book_id
         tc = self.thumbnail_cache
-        # thumb = None
+        thumb = None
         if cover_tuple.has_cover:
             # cdata contains either the resized thumbnail, the full cover.jpg,
             # or None if cover.jpg isn't valid
