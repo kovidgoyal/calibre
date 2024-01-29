@@ -271,6 +271,7 @@ class SearchBarButton(LayoutButton):  # {{{
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
+        self.update_shortcut()
 
     @property
     def is_visible(self):
