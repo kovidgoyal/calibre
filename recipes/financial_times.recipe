@@ -40,7 +40,7 @@ class ft(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['source', 'svg', 'button']),
-        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
+        dict(name='aside', attrs={'class':'n-content-recommended--single-story flourish-disclaimer'}),
         dict(attrs={'data-layout-name':'card'}),
         classes('in-article-advert')
     ]
@@ -81,6 +81,7 @@ class ft(BasicNewsRecipe):
     open = open_novisit
 
     feeds = [
+        ('FirstFT', 'https://www.ft.com/firstft?format=rss'),
         ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('World', 'https://www.ft.com/world?format=rss'),
         ('US', 'https://www.ft.com/us?format=rss'),
@@ -90,6 +91,7 @@ class ft(BasicNewsRecipe):
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
         ('How to spend it', 'https://www.ft.com/htsi?format=rss'),
+        ('Others', 'https://www.ft.com/rss/home/uk')
     ]
 
     def preprocess_raw_html(self, raw, *a):
