@@ -40,7 +40,7 @@ class ft(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['source', 'svg', 'button']),
-        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
+        dict(name='aside', attrs={'class':'n-content-recommended--single-story flourish-disclaimer'}),
         dict(attrs={'data-layout-name':'card'}),
         classes('in-article-advert')
     ]
