@@ -284,6 +284,12 @@ def copy_tree(
     if delete_source and os.path.exists(make_long_path_useable(src)):
         try:
             shutil.rmtree(make_long_path_useable(src))
+        except FileNotFoundError:
+            # some kind of delayed folder removal on handle close on Windows? Or exists() is succeeding but
+            # rmdir() is failing? Or something deleted the
+            # folder between the call to exists() and rmtree(). Windows is full
+            # of nanny programs that keep users safe from "themselves".
+            pass
         except OSError:
             if iswindows:
                 time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
