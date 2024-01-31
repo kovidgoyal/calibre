@@ -89,6 +89,10 @@ class Plugin:  # {{{
     #: care.
     can_be_disabled = True
 
+    #: The maximum number of results which can be returned by the plugin
+    #: Default relevant results is 1.
+    maximum_relevant_results = 1
+
     #: The type of this plugin. Used for categorizing plugins in the
     #: GUI
     type = _('Base')

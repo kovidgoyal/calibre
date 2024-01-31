@@ -161,14 +161,17 @@ class ISBNMerge:
         # result with an ISBN
         results = [r for r in results if r.identify_plugin not in isbn_sources or not r.identify_plugin.prefer_results_with_isbn]
         if results:
-            # Pick only the most relevant result from each source
+            # By default, pick only the most relevant result from each source
             seen = set()
+            results_added = 0
             for result in results:
                 if msprefs['keep_dups'] or result.identify_plugin not in seen:
-                    seen.add(result.identify_plugin)
-                    self.results.append(result)
-                    result.average_source_relevance = \
-                        result.relevance_in_source
+                    if results_added < result.identify_plugin.maximum_relevant_results:
+                        self.results.append(result)
+                        result.average_source_relevance = result.relevance_in_source
+                        results_added += 1
+                    else:
+                        seen.add(result.identify_plugin)
 
         self.merge_metadata_results()
 
