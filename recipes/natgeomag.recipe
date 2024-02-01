@@ -154,7 +154,9 @@ class NatGeo(BasicNewsRecipe):
         if photoart := soup.find(attrs={'class':lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):
             ans2 = []
             title = self.tag_to_string(photoart)
-            url = 'https://www.nationalgeographic.com' + photoart['href']
+            url = photoart['href']
+            if url.startswith('/'):
+                url = 'https://www.nationalgeographic.com' + photoart['href']
             ans2.append(('Photo Essay', [{'title': title, 'url': url}]))
         for gird in soup.findAll(attrs={'class':'GridPromoTile'}):
             for article in soup.findAll('article'):
