@@ -146,6 +146,8 @@ class NatGeo(BasicNewsRecipe):
         for article in soup.findAll('article'):
             a = article.find('a')
             url = a['href']
+            if url.startswith('/'):
+                url = 'https://www.nationalgeographic.com' + url
             title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
             ans.append({'title': title, 'url': url})
             self.log(title, '  ', url)
