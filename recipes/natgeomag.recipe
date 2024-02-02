@@ -156,12 +156,14 @@ class NatGeo(BasicNewsRecipe):
             title = self.tag_to_string(photoart)
             url = photoart['href']
             if url.startswith('/'):
-                url = 'https://www.nationalgeographic.com' + photoart['href']
+                url = 'https://www.nationalgeographic.com' + url
             ans2.append(('Photo Essay', [{'title': title, 'url': url}]))
         for gird in soup.findAll(attrs={'class':'GridPromoTile'}):
             for article in soup.findAll('article'):
                 a = article.find('a')
                 url = a['href']
+                if url.startswith('/'):
+                    url = 'https://www.nationalgeographic.com' + url
                 if '/graphics/' in url:
                     continue
                 section = self.tag_to_string(article.find(**classes('SectionLabel')))

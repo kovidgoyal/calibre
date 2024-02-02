@@ -167,6 +167,8 @@ class NatGeo(BasicNewsRecipe):
         for article in soup.findAll('article'):
             a = article.find('a')
             url = a['href']
+            if url.startswith('/'):
+                url = 'https://www.nationalgeographic.com' + url
             section = self.tag_to_string(article.find(**classes('SectionLabel')))
             if section.startswith('Paid Content'):
                 continue
