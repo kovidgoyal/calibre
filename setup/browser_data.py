@@ -5,14 +5,16 @@
 import bz2
 import os
 import sys
+import ssl
 from datetime import datetime, timezone
 from urllib.request import urlopen
 
 
 def download_from_calibre_server(url):
     ca = os.path.join(sys.resources_location, 'calibre-ebook-root-CA.crt')
-    with urlopen(url, cafile=ca) as f:
-        return f.read()
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ssl_context.load_verify_locations(ca)
+    return urlopen(url, context=ssl_context).read()
 
 
 def filter_ans(ans):

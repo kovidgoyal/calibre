@@ -166,8 +166,8 @@ class RecentUAs(Command):  # {{{
     def run(self, opts):
         from setup.browser_data import get_data
         data = get_data()
-        with open(self.UA_PATH, 'wb') as f:
-            f.write(json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True).encode('utf-8'))
+        with open(self.UA_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
 # }}}
 
 
