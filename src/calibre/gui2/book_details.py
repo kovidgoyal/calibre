@@ -998,6 +998,7 @@ class BookInfo(HTMLDisplay):
         HTMLDisplay.__init__(self, parent=parent, save_resources_in_document=False)
         self.vertical = vertical
         self.last_rendered_html = '', '', ''
+        self.base_url_for_current_book = None
         self.anchor_clicked.connect(self.link_activated)
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
@@ -1088,7 +1089,12 @@ class BookInfo(HTMLDisplay):
 
     def show_data(self, mi):
         html, table, comments = self.last_rendered_html = render_html(mi, self.vertical, self.parent())
+        path = getattr(mi, 'path', None)
+        self.base_url_for_current_book = QUrl.fromLocalFile(os.path.join(path, 'metadata.opf')) if path else None
         set_html(mi, html, self)
+
+    def get_base_qurl(self):
+        return self.base_url_for_current_book
 
     def process_external_css(self, css):
         return resolve_colors(css)

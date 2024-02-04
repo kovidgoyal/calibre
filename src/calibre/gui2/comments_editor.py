@@ -7,7 +7,6 @@ import re
 import sys
 import weakref
 from collections import defaultdict
-from threading import Thread
 from contextlib import contextmanager
 from functools import partial
 from html5_parser import parse
@@ -21,15 +20,16 @@ from qt.core import (
     QTextFrameFormat, QTextImageFormat, QTextListFormat, QTimer, QToolButton, QUrl,
     QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
 )
+from threading import Thread
 
 from calibre import browser, fit_image, xml_replace_entities
+from calibre.constants import iswindows
 from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
-    NO_URL_FORMATTING, choose_dir, choose_files, error_dialog, gprefs, is_dark_theme,
-    question_dialog, safe_open_url,
+    NO_URL_FORMATTING, FunctionDispatcher, choose_dir, choose_files, error_dialog,
+    gprefs, is_dark_theme, local_path_for_resource, question_dialog, safe_open_url,
 )
-from calibre.gui2 import FunctionDispatcher
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.flow_toolbar import create_flow_toolbar
@@ -38,6 +38,7 @@ from calibre.gui2.widgets2 import to_plain_text
 from calibre.startup import connect_lambda
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, itervalues
 
@@ -929,27 +930,24 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
     def loadResource(self, rtype, qurl):
-        if self.base_url:
-            if qurl.isRelative():
-                qurl = self.base_url.resolved(qurl)
-            if qurl.isLocalFile():
-                data = None
-                path = qurl.toLocalFile()
-                try:
-                    with open(path, 'rb') as f:
-                        data = f.read()
-                except OSError:
-                    if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
-                        data = bytearray.fromhex(
-                                    '89504e470d0a1a0a0000000d49484452'
-                                    '000000010000000108060000001f15c4'
-                                    '890000000a49444154789c6300010000'
-                                    '0500010d0a2db40000000049454e44ae'
-                                    '426082')
-                if data is not None:
-                    r = QByteArray(data)
-                    self.document().addResource(rtype, qurl, r)
-                    return r
+        path = local_path_for_resource(qurl, base_qurl=self.base_url)
+        if path:
+            data = None
+            try:
+                with open(make_long_path_useable(path), 'rb') as f:
+                    data = f.read()
+            except OSError:
+                if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+                    data = bytearray.fromhex(
+                                '89504e470d0a1a0a0000000d49484452'
+                                '000000010000000108060000001f15c4'
+                                '890000000a49444154789c6300010000'
+                                '0500010d0a2db40000000049454e44ae'
+                                '426082')
+            if data is not None:
+                r = QByteArray(data)
+                self.document().addResource(rtype, qurl, r)
+                return r
 
     def set_html(self, val, allow_undo=True):
         if not allow_undo or self.readonly:

@@ -1680,3 +1680,23 @@ def timed_print(*a, **kw):
     if not hasattr(timed_print, 'startup_time'):
         timed_print.startup_time = monotonic()
     print(f'[{monotonic() - timed_print.startup_time:.2f}]', *a, **kw)
+
+
+def local_path_for_resource(qurl: QUrl, base_qurl: 'QUrl | None' = None) -> str:
+    import re
+
+    def fix_qt_bodging_windows_paths(path: str) -> str:
+        # When loading <img src="file:///c:/path/to/img.png"> Qt gives us the
+        # URL: //c/path/to/img.png  Le bubbling sigh
+        if iswindows and re.match(r'//[a-zA-Z]/', path) is not None and not os.path.exists(path):
+            path = os.path.normpath(path[2] + ':' + path[3:])
+        return path
+
+    if base_qurl and qurl.isRelative():
+        qurl = base_qurl.resolved(qurl)
+
+    if qurl.isLocalFile():
+        return fix_qt_bodging_windows_paths(qurl.toLocalFile())
+    if qurl.isRelative():  # this means has no scheme
+        return fix_qt_bodging_windows_paths(qurl.path())
+    return ''

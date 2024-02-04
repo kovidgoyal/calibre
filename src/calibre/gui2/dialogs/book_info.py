@@ -129,6 +129,9 @@ class Details(HTMLDisplay):
         self.allow_context_menu = allow_context_menu
         self.is_locked = is_locked
 
+    def get_base_qurl(self):
+        return getattr(self.book_info, 'base_url_for_current_book', None)
+
     def sizeHint(self):
         return QSize(350, 350)
 

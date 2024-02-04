@@ -16,7 +16,9 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
+from calibre.gui2 import (
+    UNDEFINED_QDATETIME, gprefs, local_path_for_resource, rating_font,
+)
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
@@ -543,6 +545,9 @@ class HTMLDisplay(QTextBrowser):
         self.setAcceptDrops(False)
         self.anchorClicked.connect(self.on_anchor_clicked)
 
+    def get_base_qurl(self):
+        return None
+
     def setHtml(self, html):
         self.last_set_html = html
         QTextBrowser.setHtml(self, html)
@@ -573,29 +578,34 @@ class HTMLDisplay(QTextBrowser):
                 return
         self.anchor_clicked.emit(qurl)
 
-    def loadResource(self, rtype, qurl):
-        if qurl.isLocalFile():
-            path = qurl.toLocalFile()
-            try:
-                with open(path, 'rb') as f:
-                    data = f.read()
-            except OSError:
-                if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
-                    r = QByteArray(bytearray.fromhex(
-                        '89504e470d0a1a0a0000000d49484452'
-                        '000000010000000108060000001f15c4'
-                        '890000000a49444154789c6300010000'
-                        '0500010d0a2db40000000049454e44ae'
-                        '426082'))
-                    if self.save_resources_in_document:
-                        self.document().addResource(rtype, qurl, r)
-                    return r
-            else:
-                r = QByteArray(data)
+    def load_local_file_resource(self, rtype, qurl, path):
+        from calibre.utils.filenames import make_long_path_useable
+        try:
+            with open(make_long_path_useable(path), 'rb') as f:
+                data = f.read()
+        except OSError:
+            if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+                r = QByteArray(bytearray.fromhex(
+                    '89504e470d0a1a0a0000000d49484452'
+                    '000000010000000108060000001f15c4'
+                    '890000000a49444154789c6300010000'
+                    '0500010d0a2db40000000049454e44ae'
+                    '426082'))
                 if self.save_resources_in_document:
                     self.document().addResource(rtype, qurl, r)
                 return r
-        elif qurl.scheme() == 'calibre-icon':
+        else:
+            r = QByteArray(data)
+            if self.save_resources_in_document:
+                self.document().addResource(rtype, qurl, r)
+            return r
+        return super().loadResource(rtype, qurl)
+
+    def loadResource(self, rtype, qurl):
+        path = local_path_for_resource(qurl, base_qurl=self.get_base_qurl())
+        if path:
+            return self.load_local_file_resource(rtype, qurl, path)
+        if qurl.scheme() == 'calibre-icon':
             r = QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
             self.document().addResource(rtype, qurl, r)
             return r
@@ -611,7 +621,7 @@ class HTMLDisplay(QTextBrowser):
                         self.document().addResource(rtype, qurl, r)
                     return r
         else:
-            return QTextBrowser.loadResource(self, rtype, qurl)
+            return super().loadResource(rtype, qurl)
 
     def anchorAt(self, pos):
         # Anchors in a document can be "focused" with the tab key.
