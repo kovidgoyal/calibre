@@ -392,6 +392,12 @@ QTabBar::tab:only-one {
                     self.set_palette(pal)
             self.on_palette_change()
 
+    def refresh_palette(self):
+        is_dark = QApplication.instance().palette().is_dark_theme()
+        pal = dark_palette() if is_dark else light_palette()
+        self.set_palette(pal)
+        self.on_palette_change()
+
     def tree_view_hover_style(self):
         g1, g2 = '#e7effd', '#cbdaf1'
         border_size = '1px'

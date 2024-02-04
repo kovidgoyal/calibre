@@ -38,7 +38,7 @@ class Color(QWidget):
         l.addWidget(la)
 
     def restore_defaults(self):
-        self.button.color = self.default_palette.color(*self.color_key)
+        self.button.color = self.default_palette.color(*self.color_key).name()
 
     def color_changed(self):
         self.changed.emit()
@@ -178,6 +178,7 @@ class PaletteConfig(Dialog):
         with gprefs:
             self.light_tab.apply_settings()
             self.dark_tab.apply_settings()
+        Application.instance().palette_manager.refresh_palette()
 
     def restore_defaults(self):
         self.light_tab.restore_defaults()
