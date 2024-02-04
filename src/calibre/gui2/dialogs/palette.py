@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from contextlib import suppress
 from qt.core import (
     QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPalette, QScrollArea,
     QSize, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, pyqtSignal,
@@ -129,8 +130,9 @@ class PaletteWidget(QWidget):
         uc.toggled.connect(self.use_custom_toggled)
 
         pdata = gprefs[f'{mode_name}_palettes'].get('__current__', {})
-        default_palette = default_dark_palette() if mode_name == 'dark' else default_light_palette()
-        palette = palette_from_dict(pdata, default_palette)
+        default_palette = palette = default_dark_palette() if mode_name == 'dark' else default_light_palette()
+        with suppress(Exception):
+            palette = palette_from_dict(pdata, default_palette)
         self.sa = sa = QScrollArea(self)
         l.addWidget(sa)
         self.palette_colors = pc = PaletteColors(palette, default_palette, mode_name, self)
