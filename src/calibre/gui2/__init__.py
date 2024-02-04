@@ -427,6 +427,10 @@ def create_defs():
     defs['show_notes_in_tag_browser'] = False
     defs['icons_on_right_in_tag_browser'] = True
     defs['cover_browser_narrow_view_position'] = 'automatic'
+    defs['dark_palette_name'] = ''
+    defs['light_palette_name'] = ''
+    defs['dark_palettes'] = {}
+    defs['light_palettes'] = {}
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so

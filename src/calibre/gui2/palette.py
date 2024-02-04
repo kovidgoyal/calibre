@@ -3,10 +3,11 @@
 
 import os
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
+from functools import lru_cache
 from qt.core import (
     QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject,
-    QPalette, QProxyStyle, QStyle, Qt
+    QPalette, QProxyStyle, QStyle, Qt,
 )
 
 from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
@@ -64,7 +65,7 @@ QPalette.serialize_as_python = serialize_palette_as_python
 QPalette.unserialize_from_bytes = unserialize_palette
 
 
-def dark_palette():
+def default_dark_palette():
     p = QPalette()
     disabled_color = QColor(127,127,127)
     p.setColor(QPalette.ColorRole.Window, dark_color)
@@ -75,22 +76,22 @@ def dark_palette():
     p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
     p.setColor(QPalette.ColorRole.ToolTipText, dark_text_color)
     p.setColor(QPalette.ColorRole.Text, dark_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
     p.setColor(QPalette.ColorRole.Button, dark_color)
     p.setColor(QPalette.ColorRole.ButtonText, dark_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, dark_link_color)
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.darkMagenta)
-
     p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
     p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
+
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
 
     return p
 
 
-def light_palette():  # {{{
+def default_light_palette():
     p = QPalette()
     disabled_color = QColor(120,120,120)
     p.setColor(QPalette.ColorRole.Window, light_color)
@@ -101,21 +102,81 @@ def light_palette():  # {{{
     p.setColor(QPalette.ColorRole.ToolTipBase, light_color)
     p.setColor(QPalette.ColorRole.ToolTipText, light_text_color)
     p.setColor(QPalette.ColorRole.Text, light_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
     p.setColor(QPalette.ColorRole.Button, light_color)
     p.setColor(QPalette.ColorRole.ButtonText, light_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, light_link_color)
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.magenta)
-
     p.setColor(QPalette.ColorRole.Highlight, QColor(48, 140, 198))
     p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
 
     return p
 
-# }}}
+
+@lru_cache
+def palette_colors():
+    return {
+        'WindowText': _('A general foreground color'),
+        'Text': _('The foreground color for text input widgets'),
+        'ButtonText': _('The foreground color for buttons'),
+        'PlaceholderText': _('Placeholder text in text input widgets'),
+        'ToolTipText': _('The foreground color for tool tips'),
+        'BrightText': _('A "bright" text color'),
+        'HighlightedText': _('The foreground color for highlighted items'),
+
+        'Window': _('A general background color'),
+        'Base': _('The background color for text input widgets'),
+        'Button': _('The background color for buttons'),
+        'AlternateBase': _('The background color for alternate rows in tables and lists'),
+        'ToolTipBase': _('The background color for tool tips'),
+        'Highlight': _('The background color for highlighted items'),
+
+        'Link': _('The color for links'),
+        'LinkVisited': _('The color for visited links'),
+    }
+
+
+def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalette:
+
+    def s(key, group=QPalette.ColorGroup.All):
+        role = getattr(QPalette.ColorRole, key)
+        grp = ''
+        if group == QPalette.ColorGroup.Disabled:
+            grp = 'disabled-'
+        c = QColor.fromString(data.get(grp + key, ''))
+        if c.isValid():
+            p.setColor(group, role, c)
+
+    p = QPalette()
+    for key in palette_colors():
+        s(key)
+    for key in ('Text', 'ButtonText', 'HighlightedText'):
+        s(key, QPalette.ColorGroup.Disabled)
+    return p.resolve(default_palette)
+
+
+def dark_palette():
+    from calibre.gui2 import gprefs
+    ans = default_dark_palette()
+    if gprefs['dark_palette_name']:
+        pdata = gprefs['dark_palettes'].get(gprefs['dark_palette_name'])
+        with suppress(Exception):
+            return palette_from_dict(pdata, ans)
+    return ans
+
+
+def light_palette():
+    from calibre.gui2 import gprefs
+    ans = default_light_palette()
+    if gprefs['light_palette_name']:
+        pdata = gprefs['light_palettes'].get(gprefs['light_palette_name'])
+        with suppress(Exception):
+            return palette_from_dict(pdata, ans)
+    return ans
 
 
 standard_pixmaps = {  # {{{
