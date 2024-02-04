@@ -609,7 +609,7 @@ class HTMLDisplay(QTextBrowser):
             r = QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
             self.document().addResource(rtype, qurl, r)
             return r
-        elif self.notes_resource_scheme and qurl.scheme() == self.notes_resource_scheme and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
+        if self.notes_resource_scheme and qurl.scheme() == self.notes_resource_scheme and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
             gui = get_gui()
             if gui is not None:
