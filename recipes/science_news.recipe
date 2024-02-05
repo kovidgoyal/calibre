@@ -6,7 +6,6 @@ sciencenews.org
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
-import datetime
 import re
 
 
