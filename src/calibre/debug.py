@@ -171,6 +171,7 @@ def print_basic_debug_info(out=None):
     except:
         pass
     out('Interface language:', str(set_translators.lang))
+    out('EXE path:', sys.executable)
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
         from calibre.customize import PluginInstallationType
