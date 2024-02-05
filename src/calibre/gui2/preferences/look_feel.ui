@@ -28,38 +28,53 @@
        <string>&amp;Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="7" column="1">
-        <widget class="QCheckBox" name="opt_show_layout_buttons">
+       <item row="11" column="0">
+        <widget class="QCheckBox" name="opt_row_numbers_in_book_list">
          <property name="text">
-          <string>Show &amp;layout buttons in the status bar</string>
+          <string>Show &amp;row numbers in the book list</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QCheckBox" name="opt_systray_icon">
+       <item row="14" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="opt_color_palette_label">
          <property name="text">
-          <string>Enable s&amp;ystem tray icon (needs restart)</string>
+          <string>User interface &amp;colors:</string>
+         </property>
+         <property name="buddy">
+          <cstring>button_adjust_colors</cstring>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="icon_theme">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_17">
          <property name="text">
-          <string/>
+          <string>&amp;User interface layout:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_gui_layout</cstring>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QPushButton" name="change_font_button">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_widget_style">
          <property name="text">
-          <string>Change &amp;font (needs restart)</string>
+          <string>User interface style (&amp;needs restart):</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="icon_theme_button">
-         <property name="text">
-          <string>Change &amp;icon theme</string>
+         <property name="buddy">
+          <cstring>opt_ui_style</cstring>
          </property>
         </widget>
        </item>
@@ -73,50 +88,24 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
-        <widget class="QCheckBox" name="opt_show_splash_screen">
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="opt_systray_icon">
          <property name="text">
-          <string>Show the &amp;splash screen at startup</string>
+          <string>Enable s&amp;ystem tray icon (needs restart)</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="opt_language">
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       <item row="5" column="2">
+        <widget class="QCheckBox" name="opt_disable_animations">
+         <property name="toolTip">
+          <string>Disable all animations. Useful if you have a slow/old computer.</string>
          </property>
-         <property name="minimumContentsLength">
-          <number>20</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="opt_gui_layout">
-         <property name="maximumSize">
-          <size>
-           <width>250</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-         </property>
-         <property name="minimumContentsLength">
-          <number>20</number>
+         <property name="text">
+          <string>Disable &amp;animations</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
-        <widget class="QSpinBox" name="opt_book_list_extra_row_spacing">
-         <property name="suffix">
-          <string> px</string>
-         </property>
-         <property name="minimum">
-          <number>-20</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
+       <item row="0" column="2">
         <widget class="QComboBox" name="opt_ui_style"/>
        </item>
        <item row="8" column="0">
@@ -140,71 +129,28 @@
          </item>
         </layout>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_17">
+       <item row="8" column="2">
+        <widget class="QPushButton" name="change_font_button">
          <property name="text">
-          <string>&amp;User interface layout:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_gui_layout</cstring>
+          <string>Change &amp;font (needs restart)</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_booklist_grid">
+       <item row="7" column="0">
+        <widget class="QCheckBox" name="opt_book_list_tooltips">
          <property name="text">
-          <string>Draw a &amp;grid in the book list</string>
+          <string>Show &amp;tooltips in the book list</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_widget_style">
+       <item row="1" column="0">
+        <widget class="QLabel" name="icon_theme">
          <property name="text">
-          <string>User interface style (&amp;needs restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_ui_style</cstring>
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="opt_disable_animations">
-         <property name="toolTip">
-          <string>Disable all animations. Useful if you have a slow/old computer.</string>
-         </property>
-         <property name="text">
-          <string>Disable &amp;animations</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QCheckBox" name="opt_dnd_merge">
-         <property name="text">
-          <string>Allow using &amp;drag and drop to merge books</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QCheckBox" name="opt_row_numbers_in_book_list">
-         <property name="text">
-          <string>Show &amp;row numbers in the book list</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0" colspan="2">
+       <item row="9" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Toolbar</string>
@@ -246,13 +192,19 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0">
-        <widget class="QCheckBox" name="opt_disable_tray_notification">
-         <property name="toolTip">
-          <string>Disable popup notifications when calibre completes jobs such a conversion, sending to device etc. The notifications are sent via the operating system notification facility, if available. Note that on Windows, you have to enable the system tray icon for notifications to work.</string>
+       <item row="3" column="2">
+        <widget class="QComboBox" name="opt_gui_layout">
+         <property name="maximumSize">
+          <size>
+           <width>250</width>
+           <height>16777215</height>
+          </size>
          </property>
-         <property name="text">
-          <string>Disable n&amp;otifications on job completion</string>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+         </property>
+         <property name="minimumContentsLength">
+          <number>20</number>
          </property>
         </widget>
        </item>
@@ -266,29 +218,75 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
-        <widget class="QCheckBox" name="opt_book_list_tooltips">
+       <item row="1" column="2">
+        <widget class="QPushButton" name="icon_theme_button">
          <property name="text">
-          <string>Show &amp;tooltips in the book list</string>
+          <string>Change &amp;icon theme</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="opt_color_palette_label">
-         <property name="text">
-          <string>Color &amp;palette (needs restart):</string>
+       <item row="10" column="2">
+        <widget class="QSpinBox" name="opt_book_list_extra_row_spacing">
+         <property name="suffix">
+          <string> px</string>
          </property>
-         <property name="buddy">
-          <cstring>opt_color_palette</cstring>
+         <property name="minimum">
+          <number>-20</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="opt_color_palette">
+       <item row="13" column="0">
+        <widget class="QCheckBox" name="opt_dnd_merge">
+         <property name="text">
+          <string>Allow using &amp;drag and drop to merge books</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QCheckBox" name="opt_show_layout_buttons">
+         <property name="text">
+          <string>Show &amp;layout buttons in the status bar</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QCheckBox" name="opt_show_splash_screen">
+         <property name="text">
+          <string>Show the &amp;splash screen at startup</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QCheckBox" name="opt_disable_tray_notification">
          <property name="toolTip">
-          <string>&lt;p&gt;The colors to use for the calibre interface. By default the system colors are used. You can change this to force a light or dark color scheme. Note that if this is not set to system default then if the system wide color scheme is changed calibre will not follow it.
-
-&lt;p&gt;Also, if you set the calibre &lt;i&gt;User interface style&lt;/i&gt; to &lt;i&gt;System default&lt;/i&gt;, then this setting will not take effect and system colors will always be used.</string>
+          <string>Disable popup notifications when calibre completes jobs such a conversion, sending to device etc. The notifications are sent via the operating system notification facility, if available. Note that on Windows, you have to enable the system tray icon for notifications to work.</string>
+         </property>
+         <property name="text">
+          <string>Disable n&amp;otifications on job completion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QComboBox" name="opt_language">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+         </property>
+         <property name="minimumContentsLength">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="3">
+        <widget class="QCheckBox" name="opt_booklist_grid">
+         <property name="text">
+          <string>Draw a &amp;grid in the book list</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="button_adjust_colors">
+         <property name="text">
+          <string>Adjust &amp;colors</string>
          </property>
         </widget>
        </item>
@@ -821,8 +819,8 @@ A value of zero means calculate automatically.</string>
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>&lt;p&gt;Note: &lt;b&gt;comments&lt;/b&gt;-like columns will always
-                     be displayed at the end unless their "Heading position" is
-                     "Show heading to the side".&lt;/p&gt;</string>
+                     be displayed at the end unless their &quot;Heading position&quot; is
+                     &quot;Show heading to the side&quot;.&lt;/p&gt;</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -1294,11 +1292,11 @@ structure and you want to use the same column order for each one.&lt;/p&gt;</str
          <layout class="QGridLayout" name="gridlayout_22">
           <item row="0" column="0">
            <widget class="QCheckBox" name="opt_show_avg_rating">
-            <property name="text">
-             <string>Show &amp;average ratings</string>
-            </property>
             <property name="toolTip">
              <string>Show the average rating per item indication in the Tag browser</string>
+            </property>
+            <property name="text">
+             <string>Show &amp;average ratings</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -1307,11 +1305,11 @@ structure and you want to use the same column order for each one.&lt;/p&gt;</str
           </item>
           <item row="0" column="1">
            <widget class="QCheckBox" name="opt_show_links_in_tag_browser">
-            <property name="text">
-             <string>Show &amp;links icons</string>
-            </property>
             <property name="toolTip">
              <string>Show an icon if the item has an attached link</string>
+            </property>
+            <property name="text">
+             <string>Show &amp;links icons</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -1339,11 +1337,11 @@ see the counts by hovering your mouse over any item.&lt;/p&gt;</string>
           </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="opt_show_notes_in_tag_browser">
-            <property name="text">
-             <string>Show &amp;notes icons</string>
-            </property>
             <property name="toolTip">
              <string>Show an icon if the item has an attached note</string>
+            </property>
+            <property name="text">
+             <string>Show &amp;notes icons</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -1372,13 +1370,13 @@ box will cause these empty categories to be hidden.&lt;/p&gt;</string>
           </item>
           <item row="2" column="1">
            <widget class="QCheckBox" name="opt_icons_on_right_in_tag_browser">
-            <property name="text">
-             <string>Place icons on the &amp;right, in columns</string>
-            </property>
             <property name="toolTip">
              <string>If checked the notes and links icons will be placed at the right, after
 the count and in columns. If unchecked, the icons will be placed immediately after the text,
 to the left of the count and not in columns.</string>
+            </property>
+            <property name="text">
+             <string>Place icons on the &amp;right, in columns</string>
             </property>
             <property name="checked">
              <bool>true</bool>

@@ -215,13 +215,14 @@ standard_pixmaps = {  # {{{
 class PaletteManager(QObject):
 
     color_palette: str
-    has_fixed_palette: bool
     using_calibre_style: bool
     is_dark_theme: bool
 
-    def __init__(self, color_palette, ui_style, force_calibre_style, headless):
+    def __init__(self, force_calibre_style, headless):
+        from calibre.gui2 import gprefs
         super().__init__()
-        self.color_palette = color_palette
+        self.color_palette = gprefs['color_palette']
+        ui_style = gprefs['ui_style']
         self.is_dark_theme = False
         self.ignore_palette_changes = False
 
@@ -232,13 +233,12 @@ class PaletteManager(QObject):
                 self.using_calibre_style = ui_style != 'system'
             else:
                 self.using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
-        self.has_fixed_palette = self.color_palette != 'system' and self.using_calibre_style
 
         args = []
         self.args_to_qt = tuple(args)
-        if ismacos and not headless and self.has_fixed_palette:
+        if ismacos and not headless:
             from calibre_extensions.cocoa import set_appearance
-            set_appearance(color_palette)
+            set_appearance(self.color_palette)
 
     def initialize(self):
         app = QApplication.instance()
@@ -252,23 +252,9 @@ class PaletteManager(QObject):
             app = QApplication.instance()
             system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
             app.styleHints().colorSchemeChanged.connect(self.color_scheme_changed)
-            if iswindows:
-                use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
-            elif ismacos:
-                use_dark_palette = self.color_palette == 'dark'
-            else:
-                use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
-            if use_dark_palette:
-                self.set_dark_mode_palette()
-            else:
-                self.set_light_mode_palette()
-            if self.has_fixed_palette and (self.color_palette == 'dark') != QApplication.instance().palette().is_dark_theme():
-                if self.color_palette == 'dark':
-                    self.set_dark_mode_palette()
-                else:
-                    self.set_light_mode_palette()
-            if self.has_fixed_palette:
-                QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
+            use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
+            self.set_dark_mode_palette() if use_dark_palette else self.set_light_mode_palette()
+            QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
 
         if DEBUG:
             print('Using calibre Qt style:', self.using_calibre_style, file=sys.stderr)
@@ -354,7 +340,7 @@ QTabBar::tab:only-one {
     def color_scheme_changed(self, new_color_scheme):
         if DEBUG:
             print('System Color Scheme changed to:', new_color_scheme, file=sys.stderr)
-        if self.has_fixed_palette:
+        if self.color_palette != 'system' or not self.using_calibre_style:
             return
         if new_color_scheme == Qt.ColorScheme.Dark:
             self.set_dark_mode_palette()
@@ -384,7 +370,7 @@ QTabBar::tab:only-one {
         else:
             if DEBUG:
                 print('ApplicationPaletteChange event received', file=sys.stderr)
-            if self.has_fixed_palette:
+            if self.using_calibre_style:
                 pal = dark_palette() if self.color_palette == 'dark' else light_palette()
                 if QApplication.instance().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
                     if DEBUG:
@@ -393,7 +379,13 @@ QTabBar::tab:only-one {
             self.on_palette_change()
 
     def refresh_palette(self):
-        is_dark = QApplication.instance().palette().is_dark_theme()
+        from calibre.gui2 import gprefs
+        self.color_palette = gprefs['color_palette']
+        if ismacos:
+            from calibre_extensions.cocoa import set_appearance
+            set_appearance(self.color_palette)
+        system_is_dark = QApplication.instance().styleHints().colorScheme() == Qt.ColorScheme.Dark
+        is_dark = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
         pal = dark_palette() if is_dark else light_palette()
         self.set_palette(pal)
         self.on_palette_change()

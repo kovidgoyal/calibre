@@ -580,7 +580,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.default_author_link = DefaultAuthorLink(self.default_author_link_container)
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
-        r('color_palette', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Light'), 'light'), (_('Dark'), 'dark')])
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
@@ -840,6 +839,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.addItem(_('Narrow'), 'narrow')
         self.opt_gui_layout.currentIndexChanged.connect(self.changed_signal)
         set_help_tips(self.opt_gui_layout, config.help('gui_layout'))
+        self.button_adjust_colors.clicked.connect(self.adjust_colors)
+
+    def adjust_colors(self):
+        from calibre.gui2.dialogs.palette import PaletteConfig
+        d = PaletteConfig(self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            d.apply_settings()
+            self.changed_signal.emit()
 
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
@@ -907,8 +914,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def update_color_palette_state(self):
         if self.ui_style_available:
             enabled = self.opt_ui_style.currentData() == 'calibre'
-            self.opt_color_palette.setEnabled(enabled)
-            self.opt_color_palette_label.setEnabled(enabled)
+            self.button_adjust_colors.setEnabled(enabled)
 
     def export_layout(self, model=None):
         filename = choose_save_file(self, 'em_import_export_field_list',

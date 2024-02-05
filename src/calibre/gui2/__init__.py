@@ -1144,7 +1144,7 @@ class Application(QApplication):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
-        self.palette_manager = PaletteManager(gprefs['color_palette'], gprefs['ui_style'], force_calibre_style, headless)
+        self.palette_manager = PaletteManager(force_calibre_style, headless)
         if headless:
             args.extend(('-platformpluginpath', plugins_loc, '-platform', 'headless'))
         else:

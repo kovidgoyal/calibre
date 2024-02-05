@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import textwrap
 from contextlib import suppress
 from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPalette, QScrollArea,
-    QSize, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, pyqtSignal,
+    QCheckBox, QComboBox, QDialog, QHBoxLayout, QIcon, QLabel, QPalette, QPushButton,
+    QScrollArea, QSize, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.gui2 import Application, gprefs
@@ -121,7 +122,8 @@ class PaletteWidget(QWidget):
         self.mode_name = mode_name
         self.mode_title = {'dark': _('dark'), 'light': _('light')}[mode_name]
         self.l = l = QVBoxLayout(self)
-        self.la = la = QLabel(_('These colors will be used for the calibre interface when calibre is in "{}" mode').format(self.mode_title))
+        self.la = la = QLabel(_('These colors will be used for the calibre interface when calibre is in "{}" mode.'
+                                ' You can adjust individual colors below by enabling the "Use a custom color scheme" setting.').format(self.mode_title))
         l.addWidget(la)
         la.setWordWrap(True)
         self.use_custom = uc = QCheckBox(_('Use a &custom color scheme'))
@@ -164,18 +166,38 @@ class PaletteConfig(Dialog):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
+        h = QHBoxLayout()
+        self.la = la = QLabel(_('Color &palette'))
+        self.palette = p = QComboBox(self)
+        p.addItem(_('System default'), 'system')
+        p.addItem(_('Light'), 'light')
+        p.addItem(_('Dark'), 'dark')
+        idx = p.findData(gprefs['color_palette'])
+        p.setCurrentIndex(idx)
+        la.setBuddy(p)
+        h.addWidget(la), h.addWidget(p)
+        tt = textwrap.fill(_(
+            'The style of colors to use, either light or dark. By default, the system setting for light/dark is used.'
+            ' This means that calibre will change from light to dark and vice versa as the system changes colors.'
+        ))
+        la.setToolTip(tt), p.setToolTip(tt)
+        l.addLayout(h)
+
         self.tabs = tabs = QTabWidget(self)
         l.addWidget(tabs)
         self.light_tab = lt = PaletteWidget(parent=self)
         tabs.addTab(lt, _('&Light mode colors'))
         self.dark_tab = dt = PaletteWidget('dark', parent=self)
         tabs.addTab(dt, _('&Dark mode colors'))
-        l.addWidget(self.bb)
-        b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        h = QHBoxLayout()
+        self.rd = b = QPushButton(QIcon.ic('clear_left.png'), _('Restore &defaults'))
         b.clicked.connect(self.restore_defaults)
+        h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
+        l.addLayout(h)
 
     def apply_settings(self):
         with gprefs:
+            gprefs['color_palette'] = str(self.palette.currentData())
             self.light_tab.apply_settings()
             self.dark_tab.apply_settings()
         Application.instance().palette_manager.refresh_palette()
