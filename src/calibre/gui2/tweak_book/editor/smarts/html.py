@@ -480,6 +480,7 @@ class Smarts(NullSmarts):
         template = template.replace('_TEXT_', text or '')
         editor.highlighter.join()
         c = editor.textCursor()
+        c.beginEditBlock()
         if c.hasSelection():
             c.insertText('')  # delete any existing selected text
         ensure_not_within_tag_definition(c)
@@ -487,6 +488,7 @@ class Smarts(NullSmarts):
         c.insertText(template)
         c.setPosition(p)  # ensure cursor is positioned inside the newly created tag
         editor.setTextCursor(c)
+        c.endEditBlock()
 
     def insert_tag(self, editor, name):
         m = re.match(r'[a-zA-Z0-9:-]+', name)
