@@ -166,6 +166,12 @@ class PaletteConfig(Dialog):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
+        app = Application.instance()
+        if not app.palette_manager.using_calibre_style:
+            self.wla = la = QLabel('<p>' + _('<b>WARNING:</b> You have configured calibre to use "System" user interface style.'
+                                        ' The settings below will be ignored unless you switch back to using the "calibre" interface style.'))
+            la.setWordWrap(True)
+            l.addWidget(la)
         h = QHBoxLayout()
         self.la = la = QLabel(_('Color &palette'))
         self.palette = p = QComboBox(self)
