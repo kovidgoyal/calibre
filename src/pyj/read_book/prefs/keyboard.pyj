@@ -55,10 +55,12 @@ def remove_key(evt):
 
 
 def key_widget(key):
+    icon = svgicon('remove')
+    icon.style.verticalAlign = 'baseline'
     return E.tr(
         data_shortcut=JSON.stringify(keyevent_as_shortcut(key)),
-        E.td(style="padding: 0.5rem; border-right: solid 3px; margin-right: 0.5rem; margin-top: 0.5rem", key_as_text(key)),
-        E.td(E.a(class_='simple-link', '\xa0', svgicon('remove'), ' ', _('Remove'), onclick=remove_key)),
+        E.td(style="padding: 0.5rem; border-right: solid 1px; margin-right: 0.5rem; margin-top: 0.5rem", key_as_text(key)),
+        E.td(style="padding: 0.5rem; margin-top: 0.5rem; vertical-align: bottom", E.a(class_='simple-link', '\xa0', icon, ' ', _('Remove'), onclick=remove_key)),
     )
 
 
