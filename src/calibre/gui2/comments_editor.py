@@ -23,7 +23,6 @@ from qt.core import (
 from threading import Thread
 
 from calibre import browser, fit_image, xml_replace_entities
-from calibre.constants import iswindows
 from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
