@@ -14,10 +14,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElDiplo2023(BasicNewsRecipe):
     title = "Le Monde Diplomatique - cono sur"
-    __author__ = "Darko Miletic and Tomás Di Domenico"
+    __author__ = "Tomás Di Domenico"
     description = "Publicación de Le Monde Diplomatique para el cono sur."
     publisher = "Capital Intelectual"
-    category = "news, politics, Argentina, Uruguay, Paraguay, South America, World"
+    category = "News, Politics, Argentina, Uruguay, Paraguay, South America, World"
     oldest_article = 31
     no_stylesheets = True
     encoding = "utf8"
@@ -25,13 +25,11 @@ class ElDiplo2023(BasicNewsRecipe):
     language = "es_AR"
     remove_empty_feeds = True
     publication_type = "magazine"
-    auto_cleanup = True
     delay = 1
     simultaneous_downloads = 1
     timeout = 8
     needs_subscription = True
     ignore_duplicate_articles = {"url"}
-    articles_are_obfuscated = True
     temp_files = []
     fetch_retries = 10
     handle_gzip = True
@@ -41,6 +39,36 @@ class ElDiplo2023(BasicNewsRecipe):
         "https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png"
     )
     INDEX = "https://www.eldiplo.org/"
+
+    conversion_options = {"series": "El Dipló", "publisher": publisher, "base_font_size": 8, "tags": category}
+
+    keep_only_tags = [dict(name=["article"])]
+
+    remove_tags = [dict(name=["button"])]
+
+    extra_css = """
+        .entry-title {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .bajada {
+            display: block;
+            font-family: sans-serif;
+            text-align: center;
+            font-size: 110%;
+            padding: 2%;
+        }
+        .Destacado{
+            display: block;
+            font-size: 120%;
+            font-weight: bold;
+            font-style: italic;
+            padding-left: 10%;
+            padding-right: 10%;
+        }
+    """
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -76,12 +104,13 @@ class ElDiplo2023(BasicNewsRecipe):
         return {"title": title, "url": url, "description": authors, "date": ""}
 
     def preprocess_html(self, soup):
-        # cleanup internal references' anchor links, leave the inner text
-        # it would be nice to eventually make the internal links work
         import re
 
-        for l in soup.find_all(name="a", attrs={"href": re.compile(r"#")}):
-            l.replaceWithChildren()
+        font_size = "90%"
+
+        # make the footnotes smaller
+        for p in soup.find("div", id="nota_pie").findChildren("p", recursive=False):
+            p["style"] = f"font-size: {font_size};"
 
         return soup
 
@@ -119,21 +148,3 @@ class ElDiplo2023(BasicNewsRecipe):
         feeds += dossiers
 
         return feeds
-
-    def get_obfuscated_article(self, url):
-        result = None
-        count = 0
-        while count < self.fetch_retries:
-            try:
-                response = self.browser.open(url, timeout=self.timeout)
-                html = response.read()
-                count = self.fetch_retries
-                tfile = PersistentTemporaryFile("_fa.html")
-                tfile.write(html)
-                tfile.close()
-                self.temp_files.append(tfile)
-                result = tfile.name
-            except:
-                self.info("Retrying download...")
-            count += 1
-        return result
