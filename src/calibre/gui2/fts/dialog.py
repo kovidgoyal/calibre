@@ -118,6 +118,9 @@ class FTSDialog(Dialog):
     def clear_search_history(self):
         self.results_panel.clear_history()
 
+    def set_search_text(self, text):
+        self.results_panel.set_search_text(text)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

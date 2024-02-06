@@ -519,6 +519,9 @@ class SearchInputPanel(QWidget):
     def clear_history(self):
         self.search_box.clear_history()
 
+    def set_search_text(self, text):
+        self.search_box.setText(text)
+
     def start(self):
         self.pi.start()
 
@@ -812,6 +815,9 @@ class ResultsPanel(QWidget):
 
     def clear_history(self):
         self.sip.clear_history()
+
+    def set_search_text(self, text):
+        self.sip.set_search_text(text)
 
     def remove_book_from_results(self, book_id):
         self.results_view.m.remove_book(book_id)

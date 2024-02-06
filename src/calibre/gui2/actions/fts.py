@@ -25,6 +25,9 @@ class FullTextSearchAction(InterfaceAction):
         return self._dialog
 
     def show_fts(self):
+        text = self.gui.search.text()
+        if text and ':' not in text:
+            self.dialog.set_search_text(text)
         self.dialog.show()
         self.dialog.raise_()
 
