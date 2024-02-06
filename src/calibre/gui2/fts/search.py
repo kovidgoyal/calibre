@@ -57,6 +57,31 @@ def jump_to_book(book_id, parent=None):
                     ' only search currently visible books.'), show=True)
 
 
+def show_in_viewer(book_id, text, fmt):
+    text = text.strip('…').replace('\x1d', '').replace('\xa0', ' ')
+    text = sanitize_text_pat.sub(' ', text)
+    gui = get_gui()
+    if gui is not None:
+        if fmt in config['internally_viewed_formats']:
+            gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
+        else:
+            gui.iactions['View'].view_format_by_id(book_id, fmt)
+
+
+def open_book(results, match_index=None):
+    gui = get_gui()
+    if gui is None:
+        return
+    book_id = results.book_id
+    if match_index is None:
+        gui.iactions['View'].view_historical(book_id)
+        return
+    result_dict = results.result_dicts[match_index]
+    formats = results.formats[match_index]
+    from calibre.gui2.actions.view import preferred_format
+    show_in_viewer(book_id, result_dict['text'], preferred_format(formats))
+
+
 class SearchDelegate(ResultsDelegate):
 
     def result_data(self, result):
@@ -429,10 +454,26 @@ class ResultsView(QTreeView):
         if results:
             m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
+            if match is not None:
+                match = index.row()
+                m.addAction(QIcon.ic('view.png'), _('Open this book at this search result'), partial(open_book, results, match_index=match))
+            else:
+                m.addAction(QIcon.ic('view.png'), _('Open this book'), partial(open_book, results))
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
+
+    def view_current_result(self):
+        idx = self.currentIndex()
+        if idx.isValid():
+            results, match = self.m.data_for_index(idx)
+            if results:
+                if match is not None:
+                    match = idx.row()
+                open_book(results, match)
+                return True
+        return False
 
 
 class Spinner(ProgressIndicator):
@@ -813,6 +854,9 @@ class ResultsPanel(QWidget):
         if st is not None:
             s.restoreState(st)
 
+    def view_current_result(self):
+        return self.results_view.view_current_result()
+
     def clear_history(self):
         self.sip.clear_history()
 
@@ -824,14 +868,7 @@ class ResultsPanel(QWidget):
 
     def show_in_viewer(self, book_id, result_num, fmt):
         r = self.results_view.m.get_result(book_id, result_num)
-        text = r['text'].strip('…').replace('\x1d', '').replace('\xa0', ' ')
-        text = sanitize_text_pat.sub(' ', text)
-        gui = get_gui()
-        if gui is not None:
-            if fmt in config['internally_viewed_formats']:
-                gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
-            else:
-                gui.iactions['View'].view_format_by_id(book_id, fmt)
+        show_in_viewer(book_id, r['text'], fmt)
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):

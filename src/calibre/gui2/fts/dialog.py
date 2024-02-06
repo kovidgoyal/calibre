@@ -4,13 +4,15 @@
 
 import os
 from qt.core import (
-    QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, QVBoxLayout, Qt
+    QAction, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, Qt,
+    QVBoxLayout,
 )
 
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.fts.scan import ScanStatus
 from calibre.gui2.fts.search import ResultsPanel
 from calibre.gui2.fts.utils import get_db
+from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 
 
@@ -21,6 +23,16 @@ class FTSDialog(Dialog):
                          default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setWindowIcon(QIcon.ic('fts.png'))
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMinMaxButtonsHint)
+        self.view_action = ac = QAction(self)
+        ac.triggered.connect(self.view_current_book)
+        gui = get_gui()
+        if gui is not None:
+            ac.setShortcuts(gui.iactions['View'].menuless_qaction.shortcuts())
+        self.addAction(ac)
+
+    def view_current_book(self):
+        if not self.results_panel.view_current_result():
+            error_dialog(self, _('No result selected'), _('Cannot view book as no result is selected'), show=True)
 
     def setup_ui(self):
         l = QVBoxLayout(self)
