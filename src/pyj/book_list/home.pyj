@@ -43,9 +43,10 @@ def update_recently_read_by_user(items):
 
 
 def update_book_in_recently_read_by_user_on_home_page(library_id, book_id, book_format, cfi):
-    for item in recently_read_by_user.items:
-        if item.library_id is library_id and item.book_id is book_id and item.format is book_format:
-            item.cfi = cfi
+    if recently_read_by_user.items:
+        for item in recently_read_by_user.items:
+            if item.library_id is library_id and item.book_id is book_id and item.format is book_format:
+                item.cfi = cfi
 
 
 def show_cover(blob, name, mt, book):
