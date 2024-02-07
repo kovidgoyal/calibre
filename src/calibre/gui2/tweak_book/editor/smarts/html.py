@@ -500,8 +500,10 @@ class Smarts(NullSmarts):
         text = self.get_smart_selection(editor, update=True)
         c = editor.textCursor()
         pos = min(c.position(), c.anchor())
+        sellen = abs(c.position() - c.anchor())
         c.insertText(f'{opent}{text}{close}')
         c.setPosition(pos + len(opent))
+        c.setPosition(c.position() + sellen, QTextCursor.MoveMode.KeepAnchor)
         editor.setTextCursor(c)
 
     def verify_for_spellcheck(self, cursor, highlighter):
