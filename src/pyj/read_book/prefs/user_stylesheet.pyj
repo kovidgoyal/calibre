@@ -9,7 +9,7 @@ from book_list.globals import get_session_data
 from dom import ensure_id, unique_id
 from read_book.globals import runtime, ui_operations
 from read_book.prefs.utils import create_button_box
-from session import defaults
+from session import session_defaults
 from viewer.constants import READER_BACKGROUND_URL
 from widgets import create_button
 
@@ -80,8 +80,8 @@ def restore_defaults():
         clear_image(container.querySelector('img').id)
     else:
         container.querySelector('[name=background_image]').value = ''
-    container.querySelector('select[name=background_image_style]').value = defaults.background_image_style
-    container.querySelector('input[name=background_image_fade]').value = str(defaults.background_image_fade)
+    container.querySelector('select[name=background_image_style]').value = session_defaults().background_image_style
+    container.querySelector('input[name=background_image_fade]').value = str(session_defaults().background_image_fade)
 
 
 def create_user_stylesheet_panel(container, apply_func, cancel_func):

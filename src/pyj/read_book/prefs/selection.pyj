@@ -12,7 +12,7 @@ from read_book.globals import is_dark_theme
 from read_book.highlights import all_styles
 from read_book.prefs.utils import create_button_box
 from read_book.selection_bar import all_actions
-from session import defaults
+from session import session_defaults
 
 CONTAINER = unique_id('selection-settings')
 
@@ -21,13 +21,13 @@ def set_actions(use_defaults):
     c = get_container()
     adef = all_actions()
     sd = get_session_data()
-    actions = defaults.selection_bar_actions if use_defaults else sd.get('selection_bar_actions')
+    actions = session_defaults().selection_bar_actions if use_defaults else sd.get('selection_bar_actions')
     current = [x for x in actions if adef[x]]
     c.querySelector('.current-actions').dataset.actions = JSON.stringify(current)
     available_actions = [x for x in adef if current.indexOf(x) is -1]
     c.querySelector('.available-actions').dataset.actions = JSON.stringify(available_actions)
     update_action_tables()
-    quick_actions = defaults.selection_bar_quick_highlights if use_defaults else sd.get('selection_bar_quick_highlights')
+    quick_actions = session_defaults().selection_bar_quick_highlights if use_defaults else sd.get('selection_bar_quick_highlights')
     c.querySelector('.quick-actions').dataset.actions = JSON.stringify(quick_actions)
     update_quick_action_table()
 
@@ -35,7 +35,7 @@ def set_actions(use_defaults):
 def restore_defaults():
     container = get_container()
     for control in container.querySelectorAll('input[name]'):
-        val = defaults[control.getAttribute('name')]
+        val = session_defaults()[control.getAttribute('name')]
         if control.type is 'checkbox':
             control.checked = val
         elif control.type is 'number':

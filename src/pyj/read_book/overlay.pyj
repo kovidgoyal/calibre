@@ -28,7 +28,7 @@ from read_book.prefs.head_foot import time_formatter
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
-from session import defaults as session_defaults, get_device_uuid
+from session import session_defaults, get_device_uuid
 from utils import (
     default_context_menu_should_be_allowed, full_screen_element,
     full_screen_supported, is_ios, safe_set_inner_html
@@ -390,7 +390,7 @@ class MainOverlay:  # {{{
                                     self.overlay.hide()
                                     ui_operations.reset_interface()
                                     sd = get_session_data()
-                                    sd.set('skipped_dialogs', session_defaults.skipped_dialogs)
+                                    sd.set('skipped_dialogs', session_defaults().skipped_dialogs)
                         )
 
 

@@ -6,115 +6,83 @@ from uuid import short_uuid
 
 from ajax import ajax_send
 
-
-defaults = {
-    # Book list settings
-    'copy_to_library_dupes': 'add;overwrite',
-    'last_sort_order': {},
-    'show_all_metadata': False, # show all metadata fields in the book details panel
-    'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
-    'view_mode': 'cover_grid',
-    'fts_related_words': True,
+all_settings = {
+    'copy_to_library_dupes': {'default': 'add;overwrite', 'category': 'book_list'},
+    'last_sort_order': {'default': {}, 'category': 'book_list'},
+    'show_all_metadata': {'default': False, 'category': 'book_list'}, # show all metadata fields in the book details panel
+    'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
+    'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
+    'fts_related_words': {'default': True, 'category': 'book_list'},
 
     # Tag Browser settings
-    'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
-    'collapse_at': 25,  # number of items at which sub-groups are created, 0 to disable
-    'dont_collapse': '',  # comma separated list of category names
-    'hide_empty_categories': 'no',
-    'partition_method': 'first letter',  # other choices: 'disable', 'partition'
-    'sort_tags_by': 'name', # other choices: popularity, rating
+    'and_search_terms': {'default': False, 'category': 'tag_browser'},  # how to add search terms to the search expression from the Tag Browser
+    'collapse_at': {'default': 25, 'category': 'tag_browser'},  # number of items at which sub-groups are created, 0 to disable
+    'dont_collapse': {'default': '', 'category': 'tag_browser'},  # comma separated list of category names
+    'hide_empty_categories': {'default': 'no', 'category': 'tag_browser'},
+    'partition_method': {'default': 'first letter', 'category': 'tag_browser'},  # other choices: 'disable', 'partition'
+    'sort_tags_by': {'default': 'name', 'category': 'tag_browser'}, # other choices: popularity, rating
 
     # Book reader settings
-    'background_image_fade': 0,
-    'background_image_style': 'scaled',
-    'background_image': None,
-    'base_font_size': 16,
-    'book_scrollbar': False,
-    'columns_per_screen': {'portrait':0, 'landscape':0},
-    'controls_help_shown_count': 0,
-    'controls_help_shown_count_rtl_page_progression': 0,
-    'cover_preserve_aspect_ratio': True,
-    'current_color_scheme': 'system',
-    'footer': {'right': 'progress'},
-    'header': {},
-    'controls_footer': {'right': 'progress'},
-    'left-margin': {},
-    'right-margin': {},
-    'hide_tooltips': False,
-    'keyboard_shortcuts': {},
-    'lines_per_sec_auto': 1,
-    'lines_per_sec_smooth': 20,
-    'margin_bottom': 20,
-    'margin_left': 20,
-    'margin_right': 20,
-    'margin_top': 20,
-    'max_text_height': 0,
-    'max_text_width': 0,
-    'override_book_colors': 'never',
-    'paged_margin_clicks_scroll_by_screen': True,
-    'paged_wheel_scrolls_by_screen': False,
-    'paged_wheel_section_jumps': True,
-    'paged_pixel_scroll_threshold': 60,
-    'read_mode': 'paged',
-    'scroll_auto_boundary_delay': 5,
-    'scroll_stop_boundaries': False,
-    'standalone_font_settings': {},
-    'standalone_misc_settings': {},
-    'standalone_recently_opened': v'[]',
-    'user_color_schemes': {},
-    'user_stylesheet': '',
-    'word_actions': v'[]',
-    'highlight_style': None,
-    'highlights_export_format': 'text',
-    'custom_highlight_styles': v'[]',
-    'show_selection_bar': True,
-    'net_search_url': 'https://google.com/search?q={q}',
-    'selection_bar_actions': v"['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear']",
-    'selection_bar_quick_highlights': v"[]",
-    'skipped_dialogs': v'{}',
-    'tts': v'{}',
-    'tts_backend': v'{}',
-    'fullscreen_when_opening': 'auto',
-    'book_search_mode': 'contains',
-    'book_search_case_sensitive': False,
-    'reverse_page_turn_zones': False,
-    'gesture_overrides': {},
+    'background_image_fade': {'default': 0, 'category': 'read_book', 'is_local': True},
+    'background_image_style': {'default': 'scaled', 'category': 'read_book', 'is_local': True},
+    'background_image': {'default': None, 'category': 'read_book', 'is_local': True},
+    'base_font_size': {'default': 16, 'category': 'read_book', 'is_local': True},
+    'book_scrollbar': {'default': False, 'category': 'read_book'},
+    'columns_per_screen': {'default': {'portrait':0, 'landscape':0}, 'category': 'read_book', 'is_local': True},
+    'controls_help_shown_count': {'default': 0, 'category': 'read_book', 'is_local': True},
+    'controls_help_shown_count_rtl_page_progression': {'default': 0, 'category': 'read_book', 'is_local': True},
+    'cover_preserve_aspect_ratio': {'default': True, 'category': 'read_book'},
+    'current_color_scheme': {'default': 'system', 'category': 'read_book'},
+    'footer': {'default': {'right': 'progress'}, 'category': 'read_book'},
+    'header': {'default': {}, 'category': 'read_book'},
+    'controls_footer': {'default': {'right': 'progress'}, 'category': 'read_book'},
+    'left-margin': {'default': {}, 'category': 'read_book'},
+    'right-margin': {'default': {}, 'category': 'read_book'},
+    'hide_tooltips': {'default': False, 'category': 'read_book'},
+    'keyboard_shortcuts': {'default': {}, 'category': 'read_book'},
+    'lines_per_sec_auto': {'default': 1, 'category': 'read_book', 'is_local': True},
+    'lines_per_sec_smooth': {'default': 20, 'category': 'read_book', 'is_local': True},
+    'margin_bottom': {'default': 20, 'category': 'read_book', 'is_local': True},
+    'margin_left': {'default': 20, 'category': 'read_book', 'is_local': True},
+    'margin_right': {'default': 20, 'category': 'read_book', 'is_local': True},
+    'margin_top': {'default': 20, 'category': 'read_book', 'is_local': True},
+    'max_text_height': {'default': 0, 'category': 'read_book', 'is_local': True},
+    'max_text_width': {'default': 0, 'category': 'read_book', 'is_local': True},
+    'override_book_colors': {'default': 'never', 'category': 'read_book'},
+    'paged_margin_clicks_scroll_by_screen': {'default': True, 'category': 'read_book'},
+    'paged_wheel_scrolls_by_screen': {'default': False, 'category': 'read_book'},
+    'paged_wheel_section_jumps': {'default': True, 'category': 'read_book'},
+    'paged_pixel_scroll_threshold': {'default': 60, 'category': 'read_book'},
+    'read_mode': {'default': 'paged', 'category': 'read_book', 'is_local': True},
+    'scroll_auto_boundary_delay': {'default': 5, 'category': 'read_book', 'is_local': True},
+    'scroll_stop_boundaries': {'default': False, 'category': 'read_book', 'is_local': True},
+    'standalone_font_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
+    'standalone_misc_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
+    'standalone_recently_opened': {'default': v'[]', 'category': 'read_book', 'is_local': True},
+    'user_color_schemes': {'default': {}, 'category': 'read_book'},
+    'user_stylesheet': {'default': '', 'category': 'read_book', 'is_local': True},
+    'word_actions': {'default': v'[]', 'category': 'read_book'},
+    'highlight_style': {'default': None, 'category': 'read_book', 'is_local': True},
+    'highlights_export_format': {'default': 'text', 'category': 'read_book', 'is_local': True},
+    'custom_highlight_styles': {'default': v'[]', 'category': 'read_book'},
+    'show_selection_bar': {'default': True, 'category': 'read_book'},
+    'net_search_url': {'default': 'https://google.com/search?q={q}', 'category': 'read_book'},
+    'selection_bar_actions': {'default': v"['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear']", 'category': 'read_book'},
+    'selection_bar_quick_highlights': {'default': v"[]", 'category': 'read_book'},
+    'skipped_dialogs': {'default': v'{}', 'category': 'read_book', 'is_local': True},
+    'tts': {'default': v'{}', 'category': 'read_book', 'is_local': True},
+    'tts_backend': {'default': v'{}', 'category': 'read_book', 'is_local': True},
+    'fullscreen_when_opening': {'default': 'auto', 'category': 'read_book', 'is_local': True},
+    'book_search_mode': {'default': 'contains', 'category': 'read_book', 'is_local': True},
+    'book_search_case_sensitive': {'default': False, 'category': 'read_book', 'is_local': True},
+    'reverse_page_turn_zones': {'default': False, 'category': 'read_book', 'is_local': True},
+    'gesture_overrides': {'default': {}, 'category': 'read_book'},
 }
 
-is_local_setting = {
-    'skipped_dialogs': True,
-    'background_image_fade': True,
-    'background_image_style': True,
-    'background_image': True,
-    'base_font_size': True,
-    'columns_per_screen': True,
-    'controls_help_shown_count': True,
-    'controls_help_shown_count_rtl_page_progression': True,
-    'lines_per_sec_auto': True,
-    'lines_per_sec_smooth': True,
-    'margin_bottom': True,
-    'margin_left': True,
-    'margin_right': True,
-    'margin_top': True,
-    'max_text_height': True,
-    'max_text_width': True,
-    'read_mode': 'paged',
-    'scroll_auto_boundary_delay': True,
-    'scroll_stop_boundaries': True,
-    'standalone_font_settings': True,
-    'standalone_misc_settings': True,
-    'standalone_recently_opened': True,
-    'user_stylesheet': True,
-    'highlight_style': True,
-    'tts': True,
-    'tts_backend': True,
-    'fullscreen_when_opening': True,
-    'highlights_export_format': True,
-    'book_search_mode': True,
-    'book_search_case_sensitive': True,
-    'reverse_page_turn_zones': True,
-}
 
+defaults = {}
+for x in Object.entries(all_settings):
+    defaults[x[0]] = x[1].default
 
 def session_defaults():
     return defaults
@@ -235,7 +203,7 @@ default_interface_data = {
     'gui_last_modified_display_format': 'dd MMM yyyy',
     'use_roman_numerals_for_series_number': True,
     'default_library_id': None,
-    'default_book_list_mode': defaults.view_mode,
+    'default_book_list_mode': session_defaults().view_mode,
     'library_map': None,
     'search_the_net_urls': [],
     'donate_link': 'https://calibre-ebook.com/donate',
@@ -292,16 +260,16 @@ class UserSessionData(SessionData):
         self.push_timer_id = None
         if saved_data:
             for key in saved_data:
-                if not is_local_setting[key]:
+                if not all_settings[key].is_local:
                     self.set(key, saved_data[key])
         self.echo_changes = True
 
     def defval(self, key):
-        return defaults[key]
+        return session_defaults()[key]
 
     def get(self, key, defval):
         if defval is undefined:
-            defval = defaults[key]
+            defval = session_defaults()[key]
         return SessionData.get(self, (self.prefix + key), defval)
 
     def get_library_option(self, library_id, key, defval):
@@ -309,11 +277,11 @@ class UserSessionData(SessionData):
             return self.get(key, defval)
         lkey = key + '-||-' + library_id
         if defval is undefined:
-            defval = defaults[key]
+            defval = session_defaults()[key]
         return self.get(lkey, defval)
 
     def set(self, key, value):
-        if self.echo_changes and self.has_user and not is_local_setting[key]:
+        if self.echo_changes and self.has_user and not all_settings[key].is_local:
             self.changes[key] = value
             self.has_changes = True
             if self.push_timer_id is not None:

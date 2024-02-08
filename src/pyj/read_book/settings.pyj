@@ -5,12 +5,12 @@ from __python__ import hash_literals
 from elementmaker import E
 
 from read_book.globals import dark_link_color, runtime
-from session import defaults
+from session import session_defaults
 
 opts = {}
 
 def update_settings(settings):
-    settings = Object.assign({}, defaults, settings)
+    settings = Object.assign({}, session_defaults(), settings)
     opts.base_font_size = max(8, min(settings.base_font_size, 64))
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.color_scheme = settings.color_scheme
