@@ -41,6 +41,9 @@ class Color(QWidget):
     def restore_defaults(self):
         self.button.color = self.default_palette.color(*self.color_key).name()
 
+    def apply_from_palette(self, p):
+        self.button.color = p.color(*self.color_key).name()
+
     def color_changed(self):
         self.changed.emit()
         self.la.setStyleSheet('QLabel { font-style: italic }')
@@ -101,6 +104,10 @@ class PaletteColors(QWidget):
         for x, desc in self.link_colors.items():
             c(x, desc)
 
+    def apply_settings_from_palette(self, p):
+        for w in self.colors:
+            w.apply_from_palette(p)
+
     @property
     def value(self):
         ans = {}
@@ -126,11 +133,16 @@ class PaletteWidget(QWidget):
                                 ' You can adjust individual colors below by enabling the "Use a custom color scheme" setting.').format(self.mode_title))
         l.addWidget(la)
         la.setWordWrap(True)
+        h = QHBoxLayout()
         self.use_custom = uc = QCheckBox(_('Use a &custom color scheme'))
         uc.setChecked(bool(gprefs[f'{mode_name}_palette_name']))
-        l.addWidget(uc)
         uc.toggled.connect(self.use_custom_toggled)
+        self.import_system_button = b = QPushButton(_('Import &system colors'))
+        b.setToolTip(_('Set the custom colors to colors queried from the system'))
+        b.clicked.connect(self.import_system_colors)
 
+        h.addWidget(uc), h.addStretch(10), h.addWidget(b)
+        l.addLayout(h)
         pdata = gprefs[f'{mode_name}_palettes'].get('__current__', {})
         default_palette = palette = default_dark_palette() if mode_name == 'dark' else default_light_palette()
         with suppress(Exception):
@@ -141,11 +153,24 @@ class PaletteWidget(QWidget):
         sa.setWidget(pc)
         self.use_custom_toggled()
 
+    def import_system_colors(self):
+        import subprocess
+        from calibre.startup import get_debug_executable
+        from calibre.gui2.palette import unserialize_palette
+        raw = subprocess.check_output(get_debug_executable() + [
+            '--command', 'from qt.core import QApplication; from calibre.gui2.palette import *; app = QApplication([]);'
+            'import sys; sys.stdout.buffer.write(serialize_palette(app.palette()))'])
+        p = QPalette()
+        unserialize_palette(p, raw)
+        self.palette_colors.apply_settings_from_palette(p)
+
     def sizeHint(self):
         return QSize(800, 600)
 
     def use_custom_toggled(self):
-        self.palette_colors.setEnabled(self.use_custom.isChecked())
+        enabled = self.use_custom.isChecked()
+        for w in (self.palette_colors, self.import_system_button):
+            w.setEnabled(enabled)
 
     def apply_settings(self):
         val = self.palette_colors.value
