@@ -138,7 +138,8 @@ class PaletteWidget(QWidget):
         uc.setChecked(bool(gprefs[f'{mode_name}_palette_name']))
         uc.toggled.connect(self.use_custom_toggled)
         self.import_system_button = b = QPushButton(_('Import &system colors'))
-        b.setToolTip(_('Set the custom colors to colors queried from the system'))
+        b.setToolTip(textwrap.fill(_('Set the custom colors to colors queried from the system.'
+                       ' Note that this will use colors from whatever the current system palette is, dark or light.')))
         b.clicked.connect(self.import_system_colors)
 
         h.addWidget(uc), h.addStretch(10), h.addWidget(b)
