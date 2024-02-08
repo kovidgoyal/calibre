@@ -8,7 +8,6 @@ __copyright__ = "2023, Tomás Di Domenico <tdido at tdido.eu>"
 www.eldiplo.org
 """
 
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -104,8 +103,6 @@ class ElDiplo2023(BasicNewsRecipe):
         return {"title": title, "url": url, "description": authors, "date": ""}
 
     def preprocess_html(self, soup):
-        import re
-
         font_size = "90%"
 
         # make the footnotes smaller
