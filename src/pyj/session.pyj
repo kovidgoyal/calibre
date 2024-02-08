@@ -79,10 +79,10 @@ all_settings = {
     'gesture_overrides': {'default': {}, 'category': 'read_book'},
 }
 
-
 defaults = {}
 for x in Object.entries(all_settings):
     defaults[x[0]] = x[1].default
+
 
 def session_defaults():
     return defaults
@@ -126,6 +126,7 @@ def get_session_storage():
             get_session_storage.ans = FakeStorage()
             console.error('sessionStorage and localStorage not available using a temp cache instead')
     return get_session_storage.ans
+
 
 class SessionData:
 
@@ -192,6 +193,45 @@ def get_device_uuid():
             s.set('device_uuid', ans)
         get_device_uuid.ans = ans
     return get_device_uuid.ans
+
+
+def deep_eq(a, b):
+    if a is b:
+        return True
+    if Array.isArray(a) and Array.isArray(b):
+        if a.length is not b.length:
+            return False
+        for i in range(a.length):
+            if not deep_eq(a[i], b[i]):
+                return False
+        return True
+    if a is None or b is None or a is undefined or b is undefined:
+        return False
+    if jstype(a) is not 'object' or jstype(b) is not 'object':
+        return False
+    ka = Object.keys(a)
+    if ka.length is not Object.keys(b).length:
+        return False
+    for key in ka:
+        if not deep_eq(a[ka], b[ka]):
+            return False
+    return True
+
+
+def setting_val_is_default(setting_name, curval):
+    defval = defaults[setting_name]
+    return deep_eq(defval, curval)
+
+
+def get_subset_of_settings(sd, filter_func):
+    ans = {}
+    for setting_name in Object.keys(all_settings):
+        curval = sd.get(setting_name, ans)
+        metadata = all_settings[setting_name]
+        is_set = curval is not ans
+        if filter_func(setting_name, metadata, is_set):
+            ans[setting_name] = curval if is_set else metadata.default
+    return ans
 
 
 default_interface_data = {
