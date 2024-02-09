@@ -247,13 +247,17 @@ class PaletteManager(QObject):
             # Since Qt is using the fusion style anyway, specialize it
             self.using_calibre_style = True
 
+    @property
+    def use_dark_palette(self):
+        app = QApplication.instance()
+        system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
+        return self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
+
     def setup_styles(self):
         if self.using_calibre_style:
             app = QApplication.instance()
-            system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
             app.styleHints().colorSchemeChanged.connect(self.color_scheme_changed)
-            use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
-            self.set_dark_mode_palette() if use_dark_palette else self.set_light_mode_palette()
+            self.set_dark_mode_palette() if self.use_dark_palette else self.set_light_mode_palette()
             QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
 
         if DEBUG:
@@ -371,7 +375,7 @@ QTabBar::tab:only-one {
             if DEBUG:
                 print('ApplicationPaletteChange event received', file=sys.stderr)
             if self.using_calibre_style:
-                pal = dark_palette() if self.color_palette == 'dark' else light_palette()
+                pal = dark_palette() if self.use_dark_palette else light_palette()
                 if QApplication.instance().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
                     if DEBUG:
                         print('Detected a spontaneous palette change by Qt, reverting it', file=sys.stderr)
