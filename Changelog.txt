@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 7.5.0 2024-02-09
+{{{ 7.5.1 2024-02-09
 
 :: new features
 
@@ -51,6 +51,8 @@
 - [2049992] Fix custom template functions not useable in save to disk templates
 
 - Fix a regression in 7.2 that caused the popup used for editing fields in the book list to be mis-positioned on very wide monitors
+
+- Version 7.5.1 fixes a bug in 7.5.0 where calibre would not start up using dark colors when the system was in dark mode on some windows installs
 
 :: improved recipes
 - El Diplo
