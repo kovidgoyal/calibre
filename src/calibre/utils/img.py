@@ -694,9 +694,6 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     if im.mode == "RGBA":
         fmt = QImage.Format.Format_RGBA8888
         data = im.tobytes("raw", "RGBA")
-    elif im.mode in ("RGB", "CMYK"):
-        fmt = QImage.Format.Format_RGBX8888
-        data = im.convert("RGBA").tobytes("raw", "RGBA")
     elif im.mode == "1":
         fmt = QImage.Format.Format_Mono
     elif im.mode == "L":
@@ -710,7 +707,8 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16
     else:
-        raise ValueError(f"unsupported image mode {repr(im.mode)}")
+        fmt = QImage.Format.Format_RGBX8888
+        data = im.convert("RGBA").tobytes("raw", "RGBA")
 
     size = im.size
     data = data or align8to32(im.tobytes(), size[0], im.mode)
