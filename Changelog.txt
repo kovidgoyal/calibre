@@ -23,6 +23,49 @@
 # - title by author
 # }}}
 
+{{{ 7.5.0 2024-02-09
+
+:: new features
+
+- Allow fine tuning the colors used in the calibre interface via Preference->Look & feel->Main interface->User interface colors
+
+  Note that calibre no longer follows system colors on Linux in light mode (the only place where it used to follow system colors). However,
+  there is a convenient button in the manage colors dialog to import the system colors.
+
+- [2052462] Full text search window: Add actions to the context menu to open the book at the clicked on result. Also allow using the view book shortcut to open the currently selected search result
+
+- [2052460] When showing the Full text search dialog, pre populate the search box with the contents of the main calibre search box if the main search box contains a simple search
+
+:: bug fixes
+
+- Windows: Fix a regression in 7.0 that caused images referring to files on the disk within comments columns to not display in some circumstances
+
+- E-book viewer: Fix clock showing hour as zero instead of 12 between 12 and 1 am/pm
+
+- [2050100] Edit book: When wrapping selected text in a tag, preserve the selection after wrapping
+
+- [2050075] Content server: Fix a periodic spurious error message when reading books in offline mode
+
+- Fix a regression in 7.0 caused by a regression in Qt that would result in calibre hanging rarely when using the cover browser view
+
+- [2049992] Fix custom template functions not useable in save to disk templates
+
+- Fix a regression in 7.2 that caused the popup used for editing fields in the book list to be mis-positioned on very wide monitors
+
+:: improved recipes
+- El Diplo
+- Science News
+- Barrons
+- Financial Times
+- Business Today
+- Le Monde
+- Scientific American
+
+:: new recipes
+- ugeskriftet by morusn
+- Martin Fowler and Gitbug Blogs by Lucas Lois
+}}}
+
 {{{ 7.4.0 2024-01-19
 
 :: new features
