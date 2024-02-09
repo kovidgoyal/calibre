@@ -287,6 +287,11 @@ def get_translations(newval):
         return get_translations.storage.get('current')
 
 
+def is_setting_local(name):
+    m = all_settings[name]
+    return m.is_local if m else True
+
+
 class UserSessionData(SessionData):
 
     def __init__(self, username, saved_data):
@@ -300,7 +305,7 @@ class UserSessionData(SessionData):
         self.push_timer_id = None
         if saved_data:
             for key in saved_data:
-                if not all_settings[key].is_local:
+                if not is_setting_local(key):
                     self.set(key, saved_data[key])
         self.echo_changes = True
 
@@ -321,7 +326,7 @@ class UserSessionData(SessionData):
         return self.get(lkey, defval)
 
     def set(self, key, value):
-        if self.echo_changes and self.has_user and not all_settings[key].is_local:
+        if self.echo_changes and self.has_user and not is_setting_local(key):
             self.changes[key] = value
             self.has_changes = True
             if self.push_timer_id is not None:
