@@ -1,40 +1,52 @@
+##
+## Written:      November 2012 (new coding)
+## Version:      3.4
+## Last update:  2024-02-11
+##
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
-    title = u'Pro Physik'
-    __author__ = 'schuster, Armin Geller'  # AGE Upd. 2012-11-28, # AGe Upd 2019-02-09
-    oldest_article = 4
+    title          = u'Pro Physik'
+    __author__  = 'schuster, Armin Geller' 
+    # AGE Upd. 2012-11-28, 2019-02-09,
+    #     2019-02-18, 2024-02-11
+    # https://www.mobileread.com/forums/showthread.php?t=133184
+    
+    oldest_article        = 7
     max_articles_per_feed = 100
 
-    no_stylesheets = True
-    remove_javascript = True
-    remove_empty_feeds = True
-    language = 'de'
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    language              = 'de_DE'     
+    
+    # In case you want to assign a cover picture to this recipe.
+    # Copy the file Pro_Physik.png to:
+    # c:/Users/YOUR_USERNAME/AppData/Roaming/calibre/resources/images/news_covers/
+    # where YOUR_USERNAME needs to be replaced with your username.
+    # Then remove # in front of cover_url and replace YOUR_USERNAME with your username as well
+    
+    # cover_url = file:///c:/Users/YOUR_USERNAME/AppData/Roaming/calibre/resources/images/news_covers/Pro_Physik.png
+    
+    extra_css      =  '''
+                        h1 {font-size: 1.6em; text-align: left}
+                        h2, h3 {font-size: 1.3em;text-align: left}
+                        h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
+                        h4, h5, h6 {font-size: 1em;text-align: left}
+                        div.caption, div.source {font-size: .75em; font-weight: normal;margin-bottom: .75em}
+                      '''
 
-    extra_css = '''
-        h1 {font-size: 1.6em; text-align: left}
-        h2, h3 {font-size: 1.3em;text-align: left}
-        h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
-        h4, h5, h6 {font-size: 1em;text-align: left}
-        .flex-caption {font-size: .75em; font-weight: normal;margin-bottom: .75em}
-        .slides {list-style-type: none}
-    '''
-    # .slides: get rid of <ul><li> list dot in front of pictures
-
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['news-item view-mode-default']})
-    ]
-
+    keep_only_tags    = [
+                          dict(name='article', attrs={'id':['story']}),
+                          dict(name='div', attrs={'class':['event-item view-mode-default']})
+                        ]
+                        
     remove_tags = [
-        #   dict(name='div', attrs={'class':["withMargin socialWrapper addthis_toolbox addthis_default_style"]}),
-        #   dict(name='div', attrs={'class':["insideBox"]}),
-    ]
+                       dict(name='ul', attrs={'class':["wj-share-buttons"]}),  #Block social media
+                  ]
 
     feeds = [
-        (u'Nachrichten',
-         u'https://www.pro-physik.de/rss/news.xml'),  # AGe 2019-02-09
-        (u'Veranstaltungen',
-         u'https://www.pro-physik.de/rss/events.xml'),  # AGe 2019-02-09
-    ]
+              (u'Nachrichten', u'https://pro-physik.de/rss/news/'),
+#              (u'Veranstaltungen', u'https://pro-physik.de/rss/events/'), # AGe 2024-02-11
+            ]
