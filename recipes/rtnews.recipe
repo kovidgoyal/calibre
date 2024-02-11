@@ -8,8 +8,8 @@ class RT_eng(BasicNewsRecipe):
     title = 'Russia Today'
     __author__ = 'unkn0wn'
     description = '''
-        RT creates news with an edge for viewers who want to Question More. RT covers stories overlooked by the mainstream 
-        media, provides alternative perspectives on current affairs, and acquaints international audiences with a Russian 
+        RT creates news with an edge for viewers who want to Question More. RT covers stories overlooked by the mainstream
+        media, provides alternative perspectives on current affairs, and acquaints international audiences with a Russian
         viewpoint on major global events.
     '''
     publisher = 'Autonomous Nonprofit Organization "TV-Novosti"'
@@ -44,7 +44,7 @@ class RT_eng(BasicNewsRecipe):
     remove_tags = [
         dict(name=['meta', 'link', 'svg', 'button', 'style', 'iframe', 'noscript']),
         classes(
-        	'update_date_visible breadcrumbs read-more Read-more-text-only article__share '
+            'update_date_visible breadcrumbs read-more Read-more-text-only article__share '
             'article__social-wrapper article__share_bottom'
         )
     ]
