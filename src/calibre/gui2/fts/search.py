@@ -456,9 +456,9 @@ class ResultsView(QTreeView):
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
             if match is not None:
                 match = index.row()
-                m.addAction(QIcon.ic('view.png'), _('Open this book at this search result'), partial(open_book, results, match_index=match))
+                m.addAction(QIcon.ic('view.png'), _('View this book at this search result'), partial(open_book, results, match_index=match))
             else:
-                m.addAction(QIcon.ic('view.png'), _('Open this book'), partial(open_book, results))
+                m.addAction(QIcon.ic('view.png'), _('View this book'), partial(open_book, results))
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
