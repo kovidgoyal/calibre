@@ -17,14 +17,14 @@ from calibre.startup import connect_lambda
 
 class Choose(QDialog):
 
-    def __init__(self, fmts, parent=None):
+    def __init__(self, title, fmts, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
         self.setWindowTitle(_('Choose format to edit'))
 
         self.la = la = QLabel(_(
-            'This book has multiple formats that can be edited. Choose the format you want to edit.'))
+            'The book "{}" has multiple formats that can be edited. Choose the format you want to edit.').format(title))
         l.addWidget(la)
 
         self.rem = QCheckBox(_('Always ask when more than one format is available'))
@@ -91,13 +91,16 @@ class TweakEpubAction(InterfaceAction):
         self.qaction.triggered.connect(self.tweak_book)
 
     def tweak_book(self):
-        row = self.gui.library_view.currentIndex()
-        if not row.isValid():
+        ids = self.gui.library_view.get_selected_ids()
+        if not ids:
             return error_dialog(self.gui, _('Cannot Edit book'),
                     _('No book selected'), show=True)
+        if len(ids) > 10 and not question_dialog(self.gui, _('Are you sure?'), _(
+                'You are trying to edit {} books at once. Are you sure?').format(len(ids))):
+            return
 
-        book_id = self.gui.library_view.model().id(row)
-        self.do_tweak(book_id)
+        for book_id in ids:
+            self.do_tweak(book_id)
 
     def do_tweak(self, book_id):
         if self.gui.current_view() is not self.gui.library_view:
@@ -108,10 +111,11 @@ class TweakEpubAction(InterfaceAction):
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.upper().strip() for x in fmts.split(',') if x]
         tweakable_fmts = set(fmts).intersection(SUPPORTED)
+        title = db.new_api.field_for('title', book_id)
         if not tweakable_fmts:
             if not fmts:
                 if not question_dialog(self.gui, _('No editable formats'),
-                    _('Do you want to create an empty EPUB file to edit?')):
+                    _('Do you want to create an empty EPUB file in the book "{}" to edit?').format(title)):
                     return
                 tweakable_fmts = {'EPUB'}
                 self.gui.iactions['Add Books'].add_empty_format_to_book(book_id, 'EPUB')
@@ -120,14 +124,14 @@ class TweakEpubAction(InterfaceAction):
                     self.gui.library_view.model().current_changed(current_idx, current_idx)
             else:
                 return error_dialog(self.gui, _('Cannot edit book'), _(
-                    'The book must be in the %s formats to edit.'
+                    'The book "{0}" must be in the {1} formats to edit.'
                     '\n\nFirst convert the book to one of these formats.'
-                ) % (_(' or ').join(SUPPORTED)), show=True)
+                ).format(title,  _(' or ').join(SUPPORTED)), show=True)
         from calibre.gui2.tweak_book import tprefs
         tprefs.refresh()  # In case they were changed in a Tweak Book process
         if len(tweakable_fmts) > 1:
             if tprefs['choose_tweak_fmt']:
-                d = Choose(sorted(tweakable_fmts, key=tprefs.defaults['tweak_fmt_order'].index), self.gui)
+                d = Choose(title, sorted(tweakable_fmts, key=tprefs.defaults['tweak_fmt_order'].index), self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:
                     return
                 tweakable_fmts = {d.fmt}
