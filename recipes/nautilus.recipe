@@ -33,7 +33,7 @@ class Nautilus(BasicNewsRecipe):
     remove_tags = [
         classes(
             'article-action-list article-bottom-newsletter_box main-post-comments-toggle-wrap main-post-comments-wrapper'
-            ' social-share supported-one article-collection_box'
+            ' social-share supported-one article-collection_box browsi-ad'
         )
     ]
 
@@ -63,12 +63,11 @@ class Nautilus(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.presspassnow.com/nautilus/issues/')
-        div = soup.find('li', **classes('product'))
-        if div:
-            self.cover_url = div.find('img', src=True)['src']
+        soup = self.index_to_soup('https://nautil.us/shop/category/issues/')
+        a = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://nautil.us/shop/issues/issue-')})
+        if a:
+            self.cover_url = a.img['src'].split('?')[0]
         return getattr(self, 'cover_url', self.cover_url)
-
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0]
