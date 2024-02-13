@@ -1032,8 +1032,8 @@ class BasicNewsRecipe(Recipe):
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
-        for bad_tag in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
-            'command', 'datalist', 'video', 'audio', 'noscript', 'link', 'meta'])):
+        for bad_tag in list(soup.findAll(['base', 'iframe', 'canvas', 'embed', 'svg',
+            'command', 'datalist', 'video', 'audio', 'noscript', 'link', 'meta', 'button'])):
             # link tags can be used for preloading causing network activity in
             # calibre viewer. meta tags can do all sorts of crazy things,
             # including http-equiv refresh, viewport shenanigans, etc.
