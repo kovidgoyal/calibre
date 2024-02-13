@@ -37,7 +37,7 @@ class Politico(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure']),
+        dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure', 'svg', 'button']),
         dict(
             attrs={'class': lambda x: x and 'story-tools' in x.split()}),
         dict(

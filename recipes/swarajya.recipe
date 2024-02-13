@@ -9,39 +9,43 @@ class SwarajyaMag(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
-    remove_attributes = ['height', 'width']
+    remove_attributes = ['height', 'width', 'style']
     encoding = 'utf-8'
 
     keep_only_tags = [
-        classes('_2PqtR _1sMRD ntw8h author-bio'),
+        dict(name='article')
     ]
 
     remove_tags = [
-        classes('_JscD _2r17a'),
+        dict(name=['svg', 'button', 'source']),
+        classes('swarajya_patron_block hs-tooltip-content hidden'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src'].split('?')[0]
+        for span in soup.findAll('span'):
+            if self.tag_to_string(span).strip() == 'Tags':
+                div = span.findParent('div')
+                if div:
+                    div.extract()
         return soup
 
     def parse_index(self):
         soup = self.index_to_soup('https://swarajyamag.com/all-issues')
-        a = soup.find('a', href=lambda x: x and x.startswith('/issue/'))
+        a = soup.find('a', href=lambda x: x and x.startswith('https://swarajyamag.com/issue/'))
         url = a['href']
         self.log('Downloading issue:', url)
-        self.cover_url = a.find('img', attrs={'data-src': True})['data-src']
-        soup = self.index_to_soup('https://swarajyamag.com' + url)
+        self.cover_url = a.img['src']
+        soup = self.index_to_soup(url)
         ans = []
 
-        for a in soup.findAll(**classes('_2eOQr')):
-            url = a['href']
+        for div in soup.findAll('div', attrs={'class':'rounded'}):
+            url = div.findParent('a')['href']
             if url.startswith('/'):
                 url = 'https://swarajyamag.com' + url
-            title = self.tag_to_string(a)
-            d = a.find_previous_sibling('a', **classes('_2nEd_'))
-            if d:
-                desc = 'By ' + self.tag_to_string(d).strip()
+            h4 = div.find('h4')
+            title = self.tag_to_string(h4)
+            d = h4.next_sibling
+            desc = 'By ' + self.tag_to_string(d).strip()
             self.log(title, ' at ', url, '\n', desc)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
