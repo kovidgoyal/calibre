@@ -1084,7 +1084,7 @@ class ActionSavedSearches(InterfaceActionBase):
 
 
 class ActionLayoutActions(InterfaceActionBase):
-    name = 'Layout actions'
+    name = 'Layout Actions'
     author = 'Charles Haley'
     actual_plugin = 'calibre.gui2.actions.layout_actions:LayoutActions'
     description = _("Show a menu of actions to change calibre's layout")

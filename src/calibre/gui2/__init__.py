@@ -431,6 +431,7 @@ def create_defs():
     defs['light_palette_name'] = ''
     defs['dark_palettes'] = {}
     defs['light_palettes'] = {}
+    defs['saved_layouts'] = {}
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
