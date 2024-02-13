@@ -167,6 +167,10 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
         case SH_UnderlineShortcut:
             return 0;
 #endif
+        case SH_EtchDisabledText:
+            return 0;
+        case SH_DitherDisabledText:
+            return 0;
         default:
             break;
     }
