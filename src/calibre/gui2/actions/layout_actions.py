@@ -215,7 +215,7 @@ class LayoutActions(InterfaceAction):
         '''
         if show_warning:
             if not question_dialog(self.gui, _('Are you sure?'),
-                                   _('Do you really want to delete the saved layout {0}').format(name),
+                                   _('Do you really want to delete the saved layout {0}?').format(name),
                                    skip_dialog_name='delete_saved_gui_layout'):
                 return
         layouts = gprefs['saved_layouts']

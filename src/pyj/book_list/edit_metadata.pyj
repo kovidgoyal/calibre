@@ -1120,7 +1120,7 @@ def on_close(container_id):
             )
         else:
             if has_changes:
-                question_dialog(_('Are you sure'), _(
+                question_dialog(_('Are you sure?'), _(
                     'Any changes you have made will be discarded.'
                     ' Do you wish to discard all changes?'), def (yes):
                         if yes:
