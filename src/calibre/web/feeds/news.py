@@ -1783,7 +1783,7 @@ class BasicNewsRecipe(Recipe):
                             strings.append(item['alt'])
                         except KeyError:
                             pass
-            ans = ''.join(strings)
+            ans = ' '.join(strings)
         if normalize_whitespace:
             ans = re.sub(r'\s+', ' ', ans)
         return ans
