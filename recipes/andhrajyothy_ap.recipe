@@ -1,0 +1,122 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import json
+from datetime import date
+from collections import defaultdict
+
+# figure out your local edition id from the log of this recipe
+edi_id = 182 # NTR VIJAYAWADA - 182
+
+today = date.today().strftime('%d/%m/%Y')
+
+# for older edition
+# today = '15/01/2024'
+
+day, month, year = (int(x) for x in today.split('/'))
+dt = date(year, month, day)
+today = today.replace('/', '%2F')
+
+index = 'https://epaper.andhrajyothy.com'
+
+class andhra(BasicNewsRecipe):
+    title = 'ఆంధ్రజ్యోతి - ఆంధ్రప్రదేశ్'
+    language = 'te'
+    __author__ = 'unkn0wn'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/0/01/Andhra_Jyothi_newspaper_logo.png'
+    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+    description = 'Articles from the ABN Andhra Jyothy epaper, digital edition'
+    encoding = 'utf-8'
+    remove_empty_feeds = True
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'ఆంధ్రజ్యోతి ' + dt.strftime('%b %d, %Y')
+
+    extra_css = '''
+        .cap { text-align:center; font-size:small; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    def parse_index(self):
+
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
+
+        get_edition = index + '/Home/GetEditionsHierarchy'
+        edi_data = json.loads(self.index_to_soup(get_edition, raw=True))
+        self.log('## For your local edition id, modify this recipe to match your edi_id from the cities below\n')
+        for edi in edi_data:
+            if edi['org_location'] in {'Magazines', 'Navya Daily'}:
+                    continue
+            self.log(edi['org_location'])
+            cities = []
+            for edi_loc in edi['editionlocation']:
+                cities.append(edi_loc['Editionlocation'] + ' - ' + edi_loc['EditionId'])
+            self.log('\t', ',\n\t'.join(cities))
+
+        self.log('\nDownloading: Edition ID - ', edi_id)
+        url = index + '/Home/GetAllpages?editionid=' + str(edi_id) + '&editiondate=' + today
+        main_data = json.loads(self.index_to_soup(url, raw=True))
+
+        feeds_dict = defaultdict(list)
+
+        for page in main_data:
+            sec_name = page['PageNo'] + 'వ పేజీ'
+            if page['PageNumber'] == 'Page 1':
+                self.cover_url = page['HighResolution']
+            art = index + '/Home/getingRectangleObject?pageid=' + str(page['PageId'])
+            raw2 = self.index_to_soup(art, raw=True)
+            art_data = json.loads(raw2)
+            for snaps in art_data:
+                section = sec_name
+                url = str(snaps['OrgId'])
+                if snaps['ObjectType'] == 4:
+                    continue
+                feeds_dict[section].append({"title": '', "url": url})
+        return [(section, articles) for section, articles in feeds_dict.items()]
+
+    def preprocess_raw_html(self, raw, *a):
+        data = json.loads(raw)
+        body = ''
+        for x in data['StoryContent']:
+            if x['Headlines']:
+                if len(x['Headlines']) > 0:
+                    body += '<h1>' + x['Headlines'][0].replace('\n', ' ') + '</h1>'
+                for y in x['Headlines'][1:]:
+                    body += '<h4>' + y.replace('\n', ' ') + '</h4>'
+        if data['LinkPicture']:
+            for pics in data['LinkPicture']:
+                if pics['fullpathlinkpic']:
+                    body += '<div><img src="{}"></div>'.format(pics['fullpathlinkpic'])
+                if pics['caption']:
+                    body += '<div class="cap">' + pics['caption'] + '</div><p>'
+        for x in data['StoryContent']:
+            if x['Body'] and x['Body'] != '':
+                body += '<span class="body">' + x['Body'] + '</span>'
+        # if data['filepathstorypic']: # this gives you a snap image of the article from page
+        #     body += '<div><img src="{}"></div>'.format(data['filepathstorypic'].replace('\\', '/'))
+        if body.strip() == '':
+            self.abort_article('no article')
+        return '<html><body><div>' + body + '</div></body></html>'
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = '***'
+        h1 = soup.find('h1')
+        h4 = soup.find('h4')
+        body = soup.find(attrs={'class':'body'})
+        if h4:
+            article.summary = self.tag_to_string(h4)
+            article.text_summary = article.summary
+        elif body:
+            article.summary = ' '.join(self.tag_to_string(body).split()[:15]) + '...'
+            article.text_summary = article.summary
+        article.title = 'ఆంధ్రజ్యోతి'
+        if h1:
+            article.title = self.tag_to_string(h1)
+        elif body:
+            article.title = ' '.join(self.tag_to_string(body).split()[:7]) + '...'
+
+    def print_version(self, url):
+        return index + '/User/ShowArticleView?OrgId=' + url
