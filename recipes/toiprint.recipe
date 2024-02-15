@@ -33,8 +33,7 @@ def handle_images(x, soup):
             img_div.insert_after(cap)
         else:
             x.insert_after(img_div)
-    lead = soup.find('div', attrs={'class':'lead'})
-    if lead:
+    for lead in reversed(soup.findAll('div', attrs={'class':'lead'})):
         x.insert_after(lead)
 
 class toiprint(BasicNewsRecipe):
@@ -45,6 +44,7 @@ class toiprint(BasicNewsRecipe):
     timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
     description = 'Articles from the Times of India epaper, digital edition'
     encoding = 'utf-8'
+    remove_empty_feeds = True
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
