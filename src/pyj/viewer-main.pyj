@@ -26,7 +26,7 @@ from read_book.prefs.head_foot import set_time_formatter
 from read_book.view import View
 from session import local_storage, session_defaults, default_interface_data
 from utils import debounce, encode_query_with_path, parse_url_params
-from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
+from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
 runtime.is_standalone_viewer = True
 runtime.FAKE_HOST = FAKE_HOST
@@ -267,10 +267,11 @@ def goto_frac(frac):
 
 
 @from_python
-def background_image_changed(img_id):
+def background_image_changed(img_id, url):
     img = document.getElementById(img_id)
     if img:
-        img.src = READER_BACKGROUND_URL + '?' + Date().getTime()
+        img.src = f'{url}?{Date().getTime()}'
+        img.dataset.url = url
 
 
 @from_python

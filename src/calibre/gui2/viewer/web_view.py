@@ -77,18 +77,26 @@ def get_data(name):
     return None, None
 
 
-def background_image():
-    ans = getattr(background_image, 'ans', None)
-    if ans is None:
+@lru_cache(maxsize=4)
+def background_image(encoded_fname=''):
+    if not encoded_fname:
         img_path = os.path.join(viewer_config_dir, 'bg-image.data')
-        if os.path.exists(img_path):
+        try:
             with open(img_path, 'rb') as f:
                 data = f.read()
-                mt, data = data.split(b'|', 1)
-        else:
-            ans = b'image/jpeg', b''
-        ans = background_image.ans = mt.decode('utf-8'), data
-    return ans
+            mt, data = data.split(b'|', 1)
+            mt = mt.decode()
+            return mt, data
+        except FileNotFoundError:
+            return 'image/jpeg', b''
+    fname = bytes.fromhex(encoded_fname).decode()
+    img_path = os.path.join(viewer_config_dir, 'background-images', fname)
+    mt = guess_type(fname)[0] or 'image/jpeg'
+    try:
+        with open(img_path, 'rb') as f:
+            return mt, f.read()
+    except FileNotFoundError:
+        return mt, b''
 
 
 @lru_cache(maxsize=2)
@@ -161,10 +169,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             send_reply(rq, set_book_path.manifest_mime, data)
         elif name == 'reader-background':
             mt, data = background_image()
-            if data:
-                send_reply(rq, mt, data)
-            else:
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+        elif name.startswith('reader-background-'):
+            encoded_fname = name[len('reader-background-'):]
+            mt, data = background_image(encoded_fname)
+            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
             handle_mathjax_request(rq, name)
         elif not name:
@@ -693,14 +702,16 @@ class WebView(RestartingWebEngineView):
         self.execute_when_ready('show_home_page')
 
     def change_background_image(self, img_id):
-        files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg'])
+        files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg', 'webp'])
         if files:
             img = files[0]
-            with open(img, 'rb') as src, open(os.path.join(viewer_config_dir, 'bg-image.data'), 'wb') as dest:
-                dest.write(as_bytes(guess_type(img)[0] or 'image/jpeg') + b'|')
-                shutil.copyfileobj(src, dest)
+            d = os.path.join(viewer_config_dir, 'background-images')
+            os.makedirs(d, exist_ok=True)
+            fname = os.path.basename(img)
+            shutil.copyfile(img, os.path.join(d, fname))
             background_image.ans = None
-            self.execute_when_ready('background_image_changed', img_id)
+            encoded = fname.encode().hex()
+            self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
     def goto_frac(self, frac):
         self.execute_when_ready('goto_frac', frac)

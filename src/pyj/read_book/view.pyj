@@ -33,6 +33,7 @@ from read_book.prefs.head_foot import render_head_foot
 from read_book.prefs.scrolling import (
     MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
 )
+from read_book.prefs.user_stylesheet import modify_background_image_url_for_fetch
 from read_book.read_aloud import ReadAloud
 from read_book.read_audio_ebook import ReadAudioEbook
 from read_book.resources import load_resources
@@ -49,7 +50,6 @@ from utils import (
     default_context_menu_should_be_allowed, html_escape, is_ios, parse_url_params,
     safe_set_inner_html, username_key
 )
-from viewer.constants import READER_BACKGROUND_URL
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -851,7 +851,7 @@ class View:
         iframe.style.backgroundColor = ans.background or 'white'
         bg_image = sd.get('background_image')
         if bg_image:
-            iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
+            iframe.style.backgroundImage = f'url({modify_background_image_url_for_fetch(bg_image)})'
         else:
             iframe.style.backgroundImage = 'none'
         if sd.get('background_image_style') is 'scaled':
