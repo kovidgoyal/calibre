@@ -874,11 +874,11 @@ class Boss(QObject):
                     editor = editors[name]
                     editor.go_to_line(lnum)
                     editor.setFocus(Qt.FocusReason.OtherFocusReason)
-                    self.gui.raise_()
+                    self.gui.raise_and_focus()
         d = Diff(revert_button_msg=revert_msg, show_open_in_editor=show_open_in_editor)
         [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
         _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
-        d.show(), d.raise_(), d.setFocus(Qt.FocusReason.OtherFocusReason), d.setWindowModality(Qt.WindowModality.NonModal)
+        d.show(), d.raise_and_focus(), d.setFocus(Qt.FocusReason.OtherFocusReason), d.setWindowModality(Qt.WindowModality.NonModal)
         if show_open_in_editor:
             d.line_activated.connect(line_activated)
         return d
@@ -1484,7 +1484,7 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         c = self.gui.check_book
         c.parent().show()
-        c.parent().raise_()
+        c.parent().raise_and_focus()
         c.run_checks(current_container())
 
     def spell_check_requested(self):
@@ -1499,7 +1499,7 @@ class Boss(QObject):
         self.add_savepoint(_('Before: Auto-fix errors'))
         c = self.gui.check_book
         c.parent().show()
-        c.parent().raise_()
+        c.parent().raise_and_focus()
         changed = c.fix_errors(current_container(), errors)
         if changed:
             self.apply_container_update_to_gui()
@@ -1612,14 +1612,14 @@ class Boss(QObject):
     def browse_images(self):
         self.gui.image_browser.refresh()
         self.gui.image_browser.show()
-        self.gui.image_browser.raise_()
+        self.gui.image_browser.raise_and_focus()
 
     def show_reports(self):
         if not self.ensure_book(_('You must first open a book in order to see the report.')):
             return
         self.gui.reports.refresh()
         self.gui.reports.show()
-        self.gui.reports.raise_()
+        self.gui.reports.raise_and_focus()
 
     def reports_edit_requested(self, name):
         mt = current_container().mime_map.get(name, guess_type(name))

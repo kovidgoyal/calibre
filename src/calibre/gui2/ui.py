@@ -857,7 +857,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 self.handle_cli_args(argv[1:])
             self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized|Qt.WindowState.WindowActive)
             self.show_windows()
-            self.raise_()
+            self.raise_and_focus()
             self.activateWindow()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)

@@ -810,7 +810,7 @@ class CharSelect(Dialog):
     def show(self):
         self.initialize()
         Dialog.show(self)
-        self.raise_()
+        self.raise_and_focus()
 
     def char_selected(self, c):
         if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:

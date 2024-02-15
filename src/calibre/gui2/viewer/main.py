@@ -162,7 +162,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
         listener.message_received.connect(main.message_from_other_instance, type=Qt.ConnectionType.QueuedConnection)
     QTimer.singleShot(0, acc.flush)
     if opts.raise_window:
-        main.raise_()
+        main.raise_and_focus()
     if opts.full_screen:
         main.set_full_screen(True)
 

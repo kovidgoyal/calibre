@@ -253,7 +253,7 @@ def main(args):
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     m = Main(data)
-    m.show(), m.raise_()
+    m.show(), m.raise_and_focus()
     app.exec()
     del m
     del app

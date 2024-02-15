@@ -822,7 +822,7 @@ class MessagePopup(QLabel):
         self.resize(self.sizeHint())
         self.position_in_parent()
         self.show()
-        self.raise_()
+        self.raise_without_focus()
         self.close_timer.start(timeout)
 
     def position_in_parent(self):

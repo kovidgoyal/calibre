@@ -19,8 +19,7 @@ class BrowseNotesAction(InterfaceAction):
 
     def show_browser(self):
         if self.d is not None and self.d.isVisible():
-            self.d.raise_()
-            self.d.activateWindow()
+            self.d.raise_and_focus()
         else:
             from calibre.gui2.library.notes import NotesBrowser
             self.d = NotesBrowser(self.gui)

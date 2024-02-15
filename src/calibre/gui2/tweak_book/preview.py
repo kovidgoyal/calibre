@@ -459,7 +459,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
 
     def inspect(self):
         self.inspector.parent().show()
-        self.inspector.parent().raise_()
+        self.inspector.parent().raise_and_focus()
         self.pageAction(QWebEnginePage.WebAction.InspectElement).trigger()
 
     def contextMenuEvent(self, ev):

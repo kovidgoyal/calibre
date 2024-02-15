@@ -268,7 +268,7 @@ class ProceedQuestion(QWidget):
             button = self.action_button if question.focus_action and question.action_callback is not None else \
                 (self.bb.button(QDialogButtonBox.StandardButton.Ok) if question.show_ok else self.bb.button(QDialogButtonBox.StandardButton.Yes))
             button.setDefault(True)
-            self.raise_()
+            self.raise_without_focus()
             self.start_show_animation()
             if question.auto_hide_after > 0:
                 self.auto_hide_timer = t = QTimer(self)

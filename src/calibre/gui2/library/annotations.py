@@ -1061,7 +1061,7 @@ class AnnotationsBrowser(Dialog):
         else:
             self.reinitialize(restrict_to_book_ids)
             self.show()
-            self.raise_()
+            self.raise_and_focus()
             QTimer.singleShot(80, self.browse_panel.effective_query_changed)
 
     def selection_changed(self):

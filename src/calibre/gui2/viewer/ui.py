@@ -272,7 +272,7 @@ class EbookViewer(MainWindow):
             print(err, file=sys.stderr)
             return
         self.load_ebook(path, open_at=open_at)
-        self.raise_()
+        self.raise_and_focus()
         self.activateWindow()
     # }}}
 
@@ -321,7 +321,7 @@ class EbookViewer(MainWindow):
     def show_search(self, text, trigger=False, search_type=None, case_sensitive=None):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
-        self.search_dock.raise_()
+        self.search_dock.raise_and_focus()
         self.search_widget.focus_input(text, search_type, case_sensitive)
         if trigger:
             self.search_widget.trigger()

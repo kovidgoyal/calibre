@@ -164,7 +164,7 @@ class ChoosePopupWidget(QWidget):
         if self.current_results:
             self.layout()
             QWidget.show(self)
-            self.raise_()
+            self.raise_without_focus()
 
     def hide(self):
         QWidget.hide(self)

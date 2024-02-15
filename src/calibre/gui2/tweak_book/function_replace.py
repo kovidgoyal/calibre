@@ -133,7 +133,7 @@ class DebugOutput(Dialog):
         self.text.setPlainText(self.windowTitle() + '\n\n' + text)
         self.log_text = text
         self.show()
-        self.raise_()
+        self.raise_and_focus()
 
     def sizeHint(self):
         fm = QFontMetrics(self.text.font())

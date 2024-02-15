@@ -339,7 +339,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             QDialog.__init__(self, parent, flags=Qt.WindowType.Dialog)
         else:
             QDialog.__init__(self, None, flags=Qt.WindowType.Window)
-            self.raise_()  # Not needed on windows but here just in case
+            self.raise_and_focus()  # Not needed on windows but here just in case
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())

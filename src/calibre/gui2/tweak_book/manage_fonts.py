@@ -320,7 +320,7 @@ class ManageFonts(Dialog):
     def display(self):
         if not self.isVisible():
             self.show()
-        self.raise_()
+        self.raise_and_focus()
         QTimer.singleShot(0, self.model.build)
 
     def get_selected_data(self):
