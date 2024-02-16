@@ -23,7 +23,7 @@ from calibre import (
     fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime,
 )
 from calibre.constants import (
-    DEBUG, config_dir, dark_link_color, filesystem_encoding, iswindows,
+    DEBUG, config_dir, dark_link_color, filesystem_encoding
 )
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
@@ -916,17 +916,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                             text = fffunc(field_obj, idfunc(idx))
                             return (text) if force_to_bool(text) is None else None
                     else:
-                        if iswindows and dt == 'comments':
-                            # https://bugreports.qt.io/browse/QTBUG-122201
-                            file_pat = re.compile(r'"file:///([a-zA-Z]):/(.+?)"')
-                            def func(idx):
-                                ans = fffunc(field_obj, idfunc(idx), default_value='')
-                                if ans:
-                                    ans = file_pat.sub(r'"file:///\1%3a/\2"', ans)
-                                return ans
-                        else:
-                            def func(idx):
-                                return fffunc(field_obj, idfunc(idx), default_value='')
+                        def func(idx):
+                            return fffunc(field_obj, idfunc(idx), default_value='')
             elif dt == 'datetime':
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE)
