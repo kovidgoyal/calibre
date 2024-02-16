@@ -22,11 +22,14 @@ from calibre.constants import (
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
-from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
+from calibre.gui2.viewer import (
+    link_prefix_for_location_links, performance_monitor, url_for_book_in_library,
+)
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
@@ -93,9 +96,20 @@ def background_image(encoded_fname=''):
     img_path = os.path.join(viewer_config_dir, 'background-images', fname)
     mt = guess_type(fname)[0] or 'image/jpeg'
     try:
-        with open(img_path, 'rb') as f:
+        with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
     except FileNotFoundError:
+        if fname.startswith('https://') or fname.startswith('http://'):
+            from calibre import browser
+            br = browser()
+            try:
+                with br.open(fname) as src:
+                    data = src.read()
+            except Exception:
+                return mt, b''
+            with open(make_long_path_useable(img_path), 'wb') as dest:
+                dest.write(data)
+            return mt, data
         return mt, b''
 
 
