@@ -272,7 +272,12 @@ def save_cover_data_to(
         changed = True
         img = img.scaled(int(resize_to[0]), int(resize_to[1]), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     owidth, oheight = img.width(), img.height()
-    nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
+    if minify_to is None:
+        nwidth, nheight = tweaks['maximum_cover_size']
+        nwidth, nheight = max(1, nwidth), max(1, nheight)
+    else:
+        nwidth, nheight = minify_to
+
     if letterbox:
         img = blend_on_canvas(img, nwidth, nheight, bgcolor=letterbox_color)
         # Check if we were minified
