@@ -1274,6 +1274,7 @@ def write_appdata(key, entry, base, translators):
         E.name(entry['name']),
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
+        E.developer(E.name('Kovid Goyal'), id='kovidgoyal.net'),
         E.summary(entry['summary']),
         E.content_rating(
             # Information Sharing: Using any online API, e.g. a user-counter
