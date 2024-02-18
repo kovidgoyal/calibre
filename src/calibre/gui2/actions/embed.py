@@ -9,37 +9,17 @@ from qt.core import QProgressDialog, Qt, QTimer
 
 from calibre import force_unicode
 from calibre.gui2 import gprefs
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.utils.localization import ngettext
 
 
-class EmbedAction(InterfaceAction):
+class EmbedAction(InterfaceActionWithLibraryDrop):
 
     name = 'Embed Metadata'
     action_spec = (_('Embed metadata'), 'modified.png', _('Embed metadata into book files'), None)
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Embed metadata into book files')
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids

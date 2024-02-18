@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import Dispatcher, error_dialog, gprefs, question_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
@@ -35,32 +35,12 @@ from polyglot.builtins import iteritems
 DATA_FILES_ICON_NAME = 'unpack-book.png'
 
 
-class EditMetadataAction(InterfaceAction):
+class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of books'), _('E'))
     action_type = 'current'
     action_add_menu = True
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids
