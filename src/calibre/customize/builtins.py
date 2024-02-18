@@ -1097,6 +1097,12 @@ class ActionBooklistContextMenu(InterfaceActionBase):
     description = _('Open the context menu for the column')
 
 
+class ActionAllActions(InterfaceActionBase):
+    name = 'All GUI actions'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.all_actions:AllGUIActions'
+    description = _('Open a menu showing all installed GUI actions')
+
 class ActionVirtualLibrary(InterfaceActionBase):
     name = 'Virtual Library'
     actual_plugin = 'calibre.gui2.actions.virtual_library:VirtualLibraryAction'
@@ -1128,7 +1134,7 @@ class ActionPluginUpdater(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 
-plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
+plugins += [ActionAdd, ActionAllActions, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
