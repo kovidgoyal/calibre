@@ -366,21 +366,25 @@ class Bootstrap(Command):
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
-        clone_cmd = [
-            'git', 'clone', f'https://github.com/{self.TRANSLATIONS_REPO}.git', 'translations']
-        if opts.ephemeral:
-            if os.path.exists(tdir):
-                shutil.rmtree(tdir)
-
-            st = time.time()
-            clone_cmd.insert(2, '--depth=1')
-            subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
-            print('Downloaded translations in %d seconds' % int(time.time() - st))
+        env = os.getenv('TRANSLATIONS')
+        if env:
+            subprocess.check_call(['cp', '-r', '--no-preserve=mode,ownership', env, 'translations'])
         else:
-            if os.path.exists(tdir):
-                subprocess.check_call(['git', 'pull'], cwd=tdir)
-            else:
+            clone_cmd = [
+                'git', 'clone', f'https://github.com/{self.TRANSLATIONS_REPO}.git', 'translations']
+            if opts.ephemeral:
+                if os.path.exists(tdir):
+                    shutil.rmtree(tdir)
+
+                st = time.time()
+                clone_cmd.insert(2, '--depth=1')
                 subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
+                print('Downloaded translations in %d seconds' % int(time.time() - st))
+            else:
+                if os.path.exists(tdir):
+                    subprocess.check_call(['git', 'pull'], cwd=tdir)
+                else:
+                    subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
 
     def run(self, opts):
         self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)

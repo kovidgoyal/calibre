@@ -143,9 +143,14 @@ class CACerts(Command):  # {{{
             if err.errno != errno.ENOENT:
                 raise
             raw = b''
-        nraw = download_securely('https://curl.haxx.se/ca/cacert.pem')
-        if not nraw:
-            raise RuntimeError('Failed to download CA cert bundle')
+        env = os.getenv('CACERT')
+        if env:
+            with open(env, 'rb') as f:
+                nraw = f.read()
+        else:
+            nraw = download_securely('https://curl.haxx.se/ca/cacert.pem')
+            if not nraw:
+                raise RuntimeError('Failed to download CA cert bundle')
         if nraw != raw:
             self.info('Updating Mozilla CA certificates')
             with open(self.CA_PATH, 'wb') as f:

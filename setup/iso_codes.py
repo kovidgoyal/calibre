@@ -19,12 +19,22 @@ class ISOData:
     @property
     def zip_data(self):
         if self._zip_data is None:
-            self._zip_data = BytesIO(download_securely(self.URL))
+            zip_file = os.getenv('ISOCODE_ZIP')
+            if zip_file:
+                with open(zip_file, "rb") as f:
+                    self._zip_data = BytesIO(f.read())
+            else:
+                self._zip_data = BytesIO(download_securely(self.URL))
         return self._zip_data
 
     def db_data(self, name: str) -> bytes:
         with zipfile.ZipFile(self.zip_data) as zf:
-            with zf.open(f'iso-codes-main/data/{name}') as f:
+            iso_version = os.getenv("ISOCODE_VERSION")
+            if iso_version:
+                dir = f"iso-codes-v{iso_version}"
+            else:
+                dir = "iso-codes-main"
+            with zf.open(f'{dir}/data/{name}') as f:
                 return f.read()
 
     def extract_po_files(self, name: str, output_dir: str) -> None:
@@ -38,5 +48,6 @@ class ISOData:
                     shutil.copyfileobj(src, d)
                 date_time = time.mktime(zi.date_time + (0, 0, -1))
                 os.utime(dest, (date_time, date_time))
+
 
 iso_data = ISOData()

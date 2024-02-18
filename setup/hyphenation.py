@@ -83,7 +83,7 @@ class Hyphenation(ReVendor):
     description = 'Download the hyphenation dictionaries'
     NAME = 'hyphenation'
     TAR_NAME = 'hyphenation dictionaries'
-    VERSION = 'master'
+    VERSION = 'libreoffice-7.6.5.2'
     DOWNLOAD_URL = 'https://github.com/LibreOffice/dictionaries/archive/%s.tar.gz' % VERSION
     CAN_USE_SYSTEM_VERSION = False
 
