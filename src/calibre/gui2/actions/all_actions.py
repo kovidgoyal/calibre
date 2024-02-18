@@ -154,7 +154,6 @@ class AllGUIActions(InterfaceAction):
                         add_action(sm, name)
             else:
                 for name in names:
-                    act = self.gui.iactions[name]
                     add_action(m, name)
 
         # Add a named section for builtin actions if user plugins are installed.
@@ -190,4 +189,3 @@ class AllGUIActions(InterfaceAction):
         for m in action.qaction.menu().actions():
             menu.addAction(m)
         show_menu_under_widget(self.gui, menu, self.qaction, self.name)
-

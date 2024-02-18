@@ -11,7 +11,7 @@ from qt.core import (
     QListWidgetItem, QMenu, QSize, Qt, QToolButton, QVBoxLayout, pyqtSignal,
 )
 
-from calibre.gui2.actions import InterfaceAction, show_menu_under_widget, toolbar_widgets_for_action
+from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import iteritems
