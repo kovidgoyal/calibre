@@ -40,13 +40,15 @@ class SortByAction(InterfaceAction):
     name = 'Sort By'
     action_spec = (_('Sort by'), 'sort.png', _('Sort the list of books'), None)
     action_type = 'current'
-    popup_type = QToolButton.ToolButtonPopupMode.MenuButtonPopup
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-cover-browser', ))
 
     def genesis(self):
         self.sorted_icon = QIcon.ic('ok.png')
-        self.qaction.triggered.connect(self.show_menu)
+        self.menu = m = self.qaction.menu()
+        m.aboutToShow.connect(self.about_to_show_menu)
+        # self.qaction.triggered.connect(self.show_menu)
 
         # Create a "hidden" menu that can have a shortcut. This also lets us
         # manually show the menu instead of letting Qt do it to work around a
@@ -69,10 +71,10 @@ class SortByAction(InterfaceAction):
         c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
         c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
 
-    def show_menu(self):
-        # We manually show the menu instead of letting Qt do it to work around a
-        # problem where the menu can show on the wrong screen.
+    def about_to_show_menu(self):
         self.update_menu()
+
+    def show_menu(self):
         show_menu_under_widget(self.gui, self.qaction.menu(), self.qaction, self.name)
 
     def reverse_sort(self):
@@ -91,12 +93,6 @@ class SortByAction(InterfaceAction):
 
     def initialization_complete(self):
         self.update_menu()
-        # Remove the down arrow from the buttons as they serve no purpose. They
-        # show exactly what clicking the button shows
-        for w in toolbar_widgets_for_action(self.gui, self.qaction):
-            # Not sure why both styles are necessary, but they are
-            w.setStyleSheet('QToolButton::menu-button {image: none; }'
-                            'QToolButton::menu-arrow {image: none; }')
 
     def update_menu(self, menu=None):
         menu = menu or self.qaction.menu()
