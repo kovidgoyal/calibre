@@ -1223,7 +1223,7 @@ def make_appdata_releases():
         # Formatting of release description tries to resemble that of
         # https://calibre-ebook.com/whats-new while taking into account the limits imposed by
         # https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-description
-        description = E.description(**{'{http://www.w3.org/XML/1998/namespace}lang': 'en'})
+        description = E.description()
         if 'new features' in revision:
             description.append(E.p('New features:'))
             description.append(E.ol(
