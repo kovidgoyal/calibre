@@ -444,27 +444,27 @@ class InterfaceActionWithLibraryDrop(InterfaceAction):
     '''
     Subclass of InterfaceAction that implemente methods to execute the default action
     by drop some books from the library.
-    
+
     Inside the do_drop() method, the ids of the droped books are provided
     by the attribute self.dropped_ids
     '''
 
     accepts_drops = True
-    mime = 'application/calibre+from_library'
+    mimetype_for_drop = 'application/calibre+from_library'
 
     def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat(self.mime):
+        if mime_data.hasFormat(self.mimetype_for_drop):
             return True
         return False
 
     def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat(self.mime):
+        if mime_data.hasFormat(self.mimetype_for_drop):
             return True
         return False
 
     def drop_event(self, event, mime_data):
-        if mime_data.hasFormat(self.mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(self.mime).data().split()))
+        if mime_data.hasFormat(self.mimetype_for_drop):
+            self.dropped_ids = tuple(map(int, mime_data.data(self.mimetype_for_drop).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
