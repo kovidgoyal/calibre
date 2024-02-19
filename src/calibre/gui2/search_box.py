@@ -337,7 +337,7 @@ class SearchBoxMixin:  # {{{
 
     def init_search_box_mixin(self):
         self.search.initialize('main_search_history',
-                help_text=_('Search (For advanced search click the gear icon to the left)'))
+                help_text=_('Search (For advanced search click the gear icon to the left test)'))
         self.search.cleared.connect(self.search_box_cleared)
         # Queued so that search.current_text will be correct
         self.search.changed.connect(self.search_box_changed,
