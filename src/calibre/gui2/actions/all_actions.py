@@ -125,7 +125,7 @@ class AllGUIActions(InterfaceAction):
             menu_text = f'{display_name}{shortcuts}'
             icon = name_data[display_name]['icon']
             if act.popup_type == QToolButton.ToolButtonPopupMode.MenuButtonPopup:
-                if act.action_add_menu:
+                if act.action_add_menu or act.qaction.menu() and act.qaction.menu().children():
                     # The action offers both a 'click' and a menu. Use the menu.
                     menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
                 else:
