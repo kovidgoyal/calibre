@@ -11,7 +11,7 @@ from qt.core import QDialog, QModelIndex, QObject, QTimer
 
 from calibre.constants import ismacos
 from calibre.gui2 import Aborted, error_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.dialogs.delete_matching_from_device import (
@@ -77,33 +77,13 @@ class MultiDeleter(QObject):  # {{{
 # }}}
 
 
-class DeleteAction(InterfaceAction):
+class DeleteAction(InterfaceActionWithLibraryDrop):
 
     name = 'Remove Books'
     action_spec = (_('Remove books'), 'remove_books.png', _('Delete books'), 'Backspace' if ismacos else 'Del')
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Remove selected books')
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids

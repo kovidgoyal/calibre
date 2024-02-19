@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QTimer, QVBoxLayout,
+    QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QVBoxLayout,
 )
 
 from calibre.gui2 import error_dialog, question_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
 
 
@@ -54,32 +54,12 @@ class Choose(QDialog):
         QDialog.accept(self)
 
 
-class TweakEpubAction(InterfaceAction):
+class TweakEpubAction(InterfaceActionWithLibraryDrop):
 
     name = 'Tweak ePub'
     action_spec = (_('Edit book'), 'edit_book.png', _('Edit books in the EPUB or AZW formats'), _('T'))
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids

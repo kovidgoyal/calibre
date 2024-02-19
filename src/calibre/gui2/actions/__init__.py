@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from qt.core import (QToolButton, QAction, QIcon, QObject, QMenu, QPoint,
-        QKeySequence)
+from qt.core import (
+    QAction, QIcon, QKeySequence, QMenu, QObject, QPoint, QTimer, QToolButton,
+)
 
 from calibre import prints
 from calibre.constants import ismacos
@@ -438,3 +439,35 @@ class InterfaceAction(QObject):
         long periods of time.
         '''
         pass
+
+class InterfaceActionWithLibraryDrop(InterfaceAction):
+    '''
+    Subclass of InterfaceAction that implemente methods to execute the default action
+    by drop some books from the library.
+    
+    Inside the do_drop() method, the ids of the droped books are provided
+    by the attribute self.dropped_ids
+    '''
+
+    accepts_drops = True
+    mime = 'application/calibre+from_library'
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat(self.mime):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat(self.mime):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        if mime_data.hasFormat(self.mime):
+            self.dropped_ids = tuple(map(int, mime_data.data(self.mime).data().split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        raise NotImplementedError()

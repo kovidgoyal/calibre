@@ -13,7 +13,7 @@ from qt.core import (
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems
@@ -68,32 +68,13 @@ class ChooseFormat(QDialog):  # {{{
 # }}}
 
 
-class ToCEditAction(InterfaceAction):
+class ToCEditAction(InterfaceActionWithLibraryDrop):
 
     name = 'Edit ToC'
     action_spec = (_('Edit ToC'), 'toc.png',
                    _('Edit the Table of Contents in your books'), _('K'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_id_map = self.get_supported_books(self.dropped_ids)
