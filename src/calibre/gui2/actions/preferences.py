@@ -51,7 +51,7 @@ class PreferencesAction(InterfaceAction):
 
         pm = self.preferences_menu
         # The space pushes the separator a bit away from the text
-        pm.addSection(_('Preferences dialogs') + ' ')
+        pm.addSection(_('Sections') + ' ')
 
         config_icon = QIcon.ic('config.png')
         current_cat = 0
