@@ -7,6 +7,7 @@ import tempfile
 
 from calibre.constants import cache_dir, config_dir
 from calibre.utils.config import JSONConfig
+from calibre.utils.date import isoformat, utcnow
 from calibre.utils.filenames import atomic_rename
 
 vprefs = JSONConfig('viewer-webengine')
@@ -73,3 +74,52 @@ def save_reading_rates(key, rates):
 def load_reading_rates(key):
     existing = get_existing_reading_rates()
     return existing.get(key)
+
+
+def expand_profile_user_names(user_names):
+    user_names = set(user_names)
+    sau = get_session_pref('sync_annots_user', default='')
+    if sau:
+        if sau == '*':
+            sau = 'user:'
+        if 'viewer:' in user_names:
+            user_names.add(sau)
+        elif sau in user_names:
+            user_names.add('viewer:')
+    return user_names
+
+
+def load_viewer_profiles(*user_names: str, as_json_string=False):
+    user_names = expand_profile_user_names(user_names)
+    ans = {}
+    try:
+        with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
+            raw = json.loads(f.read())
+    except FileNotFoundError:
+        if as_json_string:
+            return '{}'
+        return ans
+    for uname, profiles in raw.items():
+        if uname in user_names:
+            for profile_name, profile in profiles.items():
+                if profile_name not in ans or ans[profile_name]['__timestamp__'] <= profile['__timestamp__']:
+                    ans[profile_name] = profile
+    if as_json_string:
+        return json.dumps(ans)
+    return ans
+
+
+def save_viewer_profile(profile_name, profile, *user_names: str):
+    user_names = expand_profile_user_names(user_names)
+    if isinstance(profile, (str, bytes)):
+        profile = json.loads(profile)
+    profile['__timestamp__'] = isoformat(utcnow())
+    try:
+        with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
+            raw = json.loads(f.read())
+    except FileNotFoundError:
+        raw = {}
+    for name in user_names:
+        raw.setdefault(name, {})[profile_name] = profile
+    with open(os.path.join(viewer_config_dir, 'profiles.json'), 'wb') as f:
+        f.write(json.dumps(raw, indent=2, sort_keys=True).encode())

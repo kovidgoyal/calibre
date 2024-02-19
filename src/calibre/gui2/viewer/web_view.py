@@ -25,7 +25,9 @@ from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
 from calibre.gui2.viewer import (
     link_prefix_for_location_links, performance_monitor, url_for_book_in_library,
 )
-from calibre.gui2.viewer.config import viewer_config_dir, vprefs
+from calibre.gui2.viewer.config import (
+    load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs,
+)
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
@@ -188,6 +190,9 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             encoded_fname = name[len('reader-background-'):]
             mt, data = background_image(encoded_fname)
             send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+        elif name == 'all-profiles':
+            vp = load_viewer_profiles('viewer:', as_json_string=True)
+            send_reply(rq, 'application/json', vp.encode())
         elif name.startswith('mathjax/'):
             handle_mathjax_request(rq, name)
         elif not name:
@@ -282,6 +287,7 @@ class ViewerBridge(Bridge):
     show_book_folder = from_js()
     show_help = from_js(object)
     update_reading_rates = from_js(object)
+    save_profile = from_js(object, object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -546,6 +552,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.update_reading_rates.connect(self.update_reading_rates)
+        self.bridge.save_profile.connect(self.save_profile)
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
         self.bridge.show_help.connect(self.show_help)
@@ -564,6 +571,9 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    def save_profile(self, name, settings):
+        save_viewer_profile(name, settings, 'viewer:')
 
     def link_hovered(self, url):
         if url == 'javascript:void(0)':
