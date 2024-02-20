@@ -60,11 +60,11 @@ class PreferencesAction(InterfaceAction):
                 current_cat = p.category_order
                 cm = pm.addMenu(p.gui_category.replace('&', '&&'))
                 cm.setIcon(config_icon)
-            self.create_menu_action(cm, p.name, p.gui_name.replace('&', '&&'), icon=QIcon.ic(p.icon),
-                                    triggered=partial(self.do_config,
-                                                      initial_plugin=(p.category, p.name),
-                                                      close_after_initial=True),
-                                    shortcut=None)
+            self.create_menu_action(cm, p.name, p.gui_name.replace('&', '&&'),
+                                    icon=QIcon.ic(p.icon), shortcut=None, shortcut_name=p.gui_name,
+                                    triggered=partial(self.do_config, initial_plugin=(p.category, p.name),
+                                                      close_after_initial=True))
+
 
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
