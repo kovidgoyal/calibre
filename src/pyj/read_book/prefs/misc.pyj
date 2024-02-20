@@ -3,28 +3,16 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from dom import unique_id
+from gettext import gettext as _
 from read_book.globals import ui_operations
 from read_book.prefs.utils import create_button_box
-from session import session_defaults
+from session import session_defaults, standalone_reader_defaults as DEFAULTS
 from widgets import create_button
 
 CONTAINER = unique_id('standalone-misc-settings')
-DEFAULTS = {
-    'remember_window_geometry': False,
-    'remember_last_read': True,
-    'show_actions_toolbar': False,
-    'show_actions_toolbar_in_fullscreen': False,
-    'save_annotations_in_ebook': True,
-    'sync_annots_user': '',
-    'singleinstance': False,
-    'auto_hide_mouse': True,
-    'restore_docks': True,
-}
-
 
 def restore_defaults():
     container = get_container()

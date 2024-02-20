@@ -230,15 +230,40 @@ def get_subset_of_settings(sd, filter_func):
         curval = sd.get(setting_name, ans)
         metadata = all_settings[setting_name]
         is_set = curval is not ans
-        if filter_func(setting_name, metadata, is_set):
+        if filter_func(setting_name, metadata, is_set, curval):
             ans[setting_name] = window.structuredClone(curval if is_set else metadata.default)
     return ans
+
+standalone_reader_defaults = {
+    'remember_window_geometry': False,
+    'remember_last_read': True,
+    'show_actions_toolbar': False,
+    'show_actions_toolbar_in_fullscreen': False,
+    'save_annotations_in_ebook': True,
+    'sync_annots_user': '',
+    'singleinstance': False,
+    'auto_hide_mouse': True,
+    'restore_docks': True,
+}
 
 
 def settings_for_reader_profile(sd):
 
-    def filter_func(setting_name, metadata, is_set):
-        if not is_set or metadata.category is not 'read_book' or metadata.disallowed_in_profile:
+    margin_text_settings = {'footer': True, 'header': True, 'controls_footer': True, 'left-margin': True, 'right-margin': True}
+
+    def filter_func(setting_name, metadata, is_set, curval):
+        if margin_text_settings[setting_name]:
+            curval = window.structuredClone(curval)
+            for x in v"['left', 'right', 'middle']":
+                if curval[x] is 'empty':
+                    v'delete curval[x]'
+        elif setting_name is 'standalone_misc_settings':
+            curval = window.structuredClone(curval)
+            for key in Object.keys(curval):
+                if curval[key] is standalone_reader_defaults[key]:
+                    v'delete curval[key]'
+
+        if not is_set or metadata.category is not 'read_book' or metadata.disallowed_in_profile or deep_eq(curval, metadata.default):
             return False
         return True
 

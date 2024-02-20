@@ -1,0 +1,68 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.globals import get_session_data
+from dom import clear, unique_id
+from gettext import gettext as _
+from read_book.globals import ui_operations
+from session import settings_for_reader_profile
+from widgets import create_button
+
+
+def save_profile(container_id, hide_panel):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    name = container.querySelector('[name=profile_name]').value
+    sd = get_session_data()
+    settings = settings_for_reader_profile(sd)
+    ui_operations.save_profile(name, settings, def(err_msg):
+        if err_msg:
+            ui_operations.show_error(_('Unhandled error'), _('Could not save profile with error: ') + err_msg)
+        else:
+            container = document.getElementById(container_id)
+            if container:
+                r = container.querySelector('.saved_msg')
+                if r:
+                    clear(r)
+                    r.appendChild(E.div(E.i(_('Saved: ') + name), style='margin-top: 1rem; margin-bottom: 1rem'))
+    )
+
+
+
+def got_all_profiles(hide_panel, container_id, all_profiles):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    print(all_profiles)
+
+
+def create_profiles_panel(hide_panel, book, container, onclick):
+    c = E.div(style='margin: 1rem', id=unique_id('placeholder-prefs'))
+    container_id = c.id
+    a = E.div(
+        style='display:flex',
+        E.div(
+            E.label(_('Save current settings as profile:') + ' '), E.input(
+                name='profile_name', placeholder=_('Name of profile'), onkeydown=def(e):
+                    if e.key is 'Enter':
+                        save_profile(container_id, hide_panel)
+        ),
+        ),
+        E.div('\xa0'),
+        E.div(
+            create_button(_('Save'), 'bookmark', save_profile.bind(None, container_id, hide_panel))
+        )
+    )
+    container.appendChild(c)
+    c.appendChild(a)
+    c.appendChild(E.div(class_='saved_msg'))
+    c.appendChild(E.hr())
+    c.appendChild(E.div(
+        style='padding-bottom: 1rem', class_='loading_msg',
+        _('Loading saved profiles, please wait…')
+    ))
+    ui_operations.get_all_profiles(got_all_profiles.bind(None, hide_panel, container.id)
