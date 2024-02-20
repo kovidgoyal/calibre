@@ -166,8 +166,8 @@ class AllGUIActions(InterfaceAction):
             partition(builtin_actions)
         # Add access to the toolbars and keyboard shortcuts preferences dialogs
         m.addSection(_('Preferences') + ' ')
-        m.addAction(_('Toolbars'), self._do_pref_toolbar)
-        m.addAction(_('Keyboard shortcuts'), self._do_pref_shortcuts)
+        m.addAction(QIcon.ic('wizard.png'), _('Toolbars'), self._do_pref_toolbar)
+        m.addAction(QIcon.ic('keyboard-prefs.png'), _('Keyboard shortcuts'), self._do_pref_shortcuts)
 
     def _do_pref_toolbar(self):
         self.gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Toolbar'), close_after_initial=True)
