@@ -301,6 +301,8 @@ be customised in the viewer :guilabel:`Preferences`. The default shortcuts are l
       - Toggle Table of Contents
     * - :kbd:`Ctrl+S`
       - Read aloud
+    * - :kbd:`Alt+P`
+      - Change settings quickly by creating and switching to :guilabel:`profiles`
     * - :kbd:`Alt+f`
       - Follow links with the keyboard
     * - :kbd:`Ctrl+C`

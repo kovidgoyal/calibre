@@ -493,6 +493,8 @@ class View:
                 ui_operations.toggle_bookmarks()
             else:
                 self.overlay.show_bookmarks()
+        elif data.name is 'show_profiles':
+            self.overlay.show_profiles()
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
         elif data.name is 'new_bookmark':

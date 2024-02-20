@@ -314,6 +314,12 @@ def common_shortcuts():  # {{{
         _('Show the book metadata')
     ),
 
+    'show_profiles': desc(
+        v"['Alt+p']",
+        'ui',
+        _('Change settings quickly by creating and switching to "profiles"')
+    ),
+
     'reload_book': desc(
         v"['Ctrl+Alt+F5', 'Ctrl+Alt+r']",
         'ui',
