@@ -77,7 +77,6 @@ all_settings = {
     'book_search_case_sensitive': {'default': False, 'category': 'read_book', 'is_local': True},
     'reverse_page_turn_zones': {'default': False, 'category': 'read_book', 'is_local': True},
     'gesture_overrides': {'default': {}, 'category': 'read_book'},
-    'current_profile': {'default': None, 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
 }
 
 defaults = {}
