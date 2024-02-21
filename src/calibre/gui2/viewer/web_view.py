@@ -688,23 +688,41 @@ class WebView(RestartingWebEngineView):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
 
     def set_session_data(self, key, val):
-        if key == '*' and val is None:
-            vprefs['session_data'] = {}
-            apply_font_settings(self)
-            self.paged_mode_changed.emit()
-            self.standalone_misc_settings_changed.emit()
-        elif key != '*':
-            sd = vprefs['session_data']
-            changed = sd.get(key) == val
+        fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = False
+        sd = vprefs['session_data']
+
+        def change(key, val):
+            nonlocal fonts_changed, paged_mode_changed, standalone_misc_settings_changed, update_vprefs
+            changed = sd.get(key) != val
             if changed:
-                sd[key] = val
-                vprefs['session_data'] = sd
+                update_vprefs = True
+                if val is None:
+                    sd.pop(key, None)
+                else:
+                    sd[key] = val
                 if key in ('standalone_font_settings', 'base_font_size'):
-                    apply_font_settings(self)
+                    fonts_changed = True
                 elif key == 'read_mode':
-                    self.paged_mode_changed.emit()
+                    paged_mode_changed = True
                 elif key == 'standalone_misc_settings':
-                    self.standalone_misc_settings_changed.emit(val)
+                    standalone_misc_settings_changed = True
+
+        if isinstance(key, dict):
+            for k, val in key.items():
+                change(k, val)
+        elif key == '*' and val is None:
+            vprefs['session_data'] = {}
+            fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = True
+        elif key != '*':
+            change(key, val)
+        if update_vprefs:
+            vprefs['session_data'] = sd
+        if fonts_changed:
+            apply_font_settings(self)
+        if paged_mode_changed:
+            self.paged_mode_changed.emit()
+        if standalone_misc_settings_changed:
+            self.standalone_misc_settings_changed.emit(val)
 
     def set_local_storage(self, key, val):
         if key == '*' and val is None:

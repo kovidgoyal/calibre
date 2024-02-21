@@ -172,6 +172,10 @@ class SessionData:
             console.error('session storage has overflowed, using a temp cache instead')
         return False
 
+    def set_bulk(self, changes):
+        for key in Object.keys(changes):
+            self.set(key, changes[key])
+
     def clear(self):
         self.storage.clear()
         self.overflow_storage = {}
@@ -234,18 +238,20 @@ def get_subset_of_settings(sd, filter_func):
     return ans
 
 def apply_profile(sd, profile, filter_func):
-    sentinel = {}
+    changes = {}
     for setting_name in Object.keys(all_settings):
         metadata = all_settings[setting_name]
-        curval = sd.get(setting_name, sentinel)
-        is_set = curval is not sentinel
+        curval = sd.get(setting_name, changes)
+        is_set = curval is not changes
         if filter_func(setting_name, metadata, is_set, curval):
             newval = None
             if Object.prototype.hasOwnProperty.call(profile, setting_name):
                 newval = profile[setting_name]
                 if deep_eq(newval, metadata.default):
                     newval = None
-            sd.set(setting_name, window.structuredClone(newval))
+            changes[setting_name] = window.structuredClone(newval)
+    sd.set_bulk(changes)
+    return changes
 
 
 standalone_reader_defaults = {
@@ -286,7 +292,7 @@ def settings_for_reader_profile(sd):
 
 def apply_reader_profile(sd, profile):
     def filter_func(setting_name, metadata, is_set, curval):
-        return metadata.category is 'read_book'
+        return metadata.category is 'read_book' and not metadata.disallowed_in_profile
     apply_profile(sd, profile, filter_func)
 
 
