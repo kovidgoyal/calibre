@@ -540,10 +540,13 @@ class PrefsOverlay: # {{{
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
+    def create_panel_impl(self, container):
+        return create_prefs_panel(container, self.overlay.hide_current_panel, self.on_change)
+
     def show(self, container):
         self.changes_occurred = False
         container.style.backgroundColor = get_color('window-background')
-        self.prefs = create_prefs_panel(container, self.overlay.hide_current_panel, self.on_change)
+        self.prefs = self.create_panel_impl(container)
 
     def on_change(self):
         self.changes_occurred = True
@@ -555,6 +558,11 @@ class PrefsOverlay: # {{{
         if self.changes_occurred:
             self.changes_occurred = False
             self.overlay.view.preferences_changed()
+
+
+class ProfilesOverlay(PrefsOverlay):
+    def create_panel_impl(self, container):
+        return create_profiles_panel(container, self.overlay.hide_current_panel, self.on_change)
 
 # }}}
 
@@ -749,7 +757,7 @@ class Overlay:
 
     def show_profiles(self):
         self.hide_current_panel()
-        self.panels.push(TOCOverlay(self, create_profiles_panel.bind(None, self.hide_current_panel), _('Profiles')))
+        self.panels.push(ProfilesOverlay(self))
         self.show_current_panel()
 
     def show_goto(self):

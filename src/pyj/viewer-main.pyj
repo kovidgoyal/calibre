@@ -161,7 +161,7 @@ class SessionData:
 
     def set(self, key, val):
         if val is None:
-            self.data[key] = session_defaults()[key]
+            self.data[key] = val = session_defaults()[key]
         else:
             self.data[key] = val
         to_python.set_session_data(key, val)

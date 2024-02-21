@@ -234,6 +234,21 @@ def get_subset_of_settings(sd, filter_func):
             ans[setting_name] = window.structuredClone(curval if is_set else metadata.default)
     return ans
 
+def apply_profile(sd, profile, filter_func):
+    sentinel = {}
+    for setting_name in Object.keys(all_settings):
+        metadata = all_settings[setting_name]
+        curval = sd.get(setting_name, sentinel)
+        is_set = curval is not sentinel
+        if filter_func(setting_name, metadata, is_set, curval):
+            newval = None
+            if Object.prototype.hasOwnProperty.call(profile, setting_name):
+                newval = profile[setting_name]
+                if deep_eq(newval, metadata.default):
+                    newval = None
+            sd.set(setting_name, window.structuredClone(newval))
+
+
 standalone_reader_defaults = {
     'remember_window_geometry': False,
     'remember_last_read': True,
@@ -268,6 +283,12 @@ def settings_for_reader_profile(sd):
         return True
 
     return get_subset_of_settings(sd, filter_func)
+
+
+def apply_reader_profile(sd, profile):
+    def filter_func(setting_name, metadata, is_set, curval):
+        return metadata.category is 'read_book'
+    apply_profile(sd, profile, filter_func)
 
 
 default_interface_data = {

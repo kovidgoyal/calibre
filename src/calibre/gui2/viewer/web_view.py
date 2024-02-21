@@ -695,14 +695,16 @@ class WebView(RestartingWebEngineView):
             self.standalone_misc_settings_changed.emit()
         elif key != '*':
             sd = vprefs['session_data']
-            sd[key] = val
-            vprefs['session_data'] = sd
-            if key in ('standalone_font_settings', 'base_font_size'):
-                apply_font_settings(self)
-            elif key == 'read_mode':
-                self.paged_mode_changed.emit()
-            elif key == 'standalone_misc_settings':
-                self.standalone_misc_settings_changed.emit(val)
+            changed = sd.get(key) == val
+            if changed:
+                sd[key] = val
+                vprefs['session_data'] = sd
+                if key in ('standalone_font_settings', 'base_font_size'):
+                    apply_font_settings(self)
+                elif key == 'read_mode':
+                    self.paged_mode_changed.emit()
+                elif key == 'standalone_misc_settings':
+                    self.standalone_misc_settings_changed.emit(val)
 
     def set_local_storage(self, key, val):
         if key == '*' and val is None:

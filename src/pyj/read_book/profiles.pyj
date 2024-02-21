@@ -10,7 +10,7 @@ from dom import clear, unique_id
 from gettext import gettext as _
 from modals import question_dialog
 from read_book.globals import ui_operations
-from session import settings_for_reader_profile
+from session import apply_reader_profile, settings_for_reader_profile
 from widgets import create_button
 
 
@@ -36,7 +36,10 @@ def use_profile(container_id, profile_name, profile_data):
     container = document.getElementById(container_id)
     if not container:
         return
+    apply_reader_profile(get_session_data(), profile_data)
+    container.dispatchEvent(new Event('settings_changed'))
     container.dispatchEvent(new Event('close_panel'))
+
 
 
 def delete_profile(container_id, profile_name):
@@ -84,9 +87,10 @@ def load_profiles(container_id):
     ui_operations.get_all_profiles(got_all_profiles.bind(None, container_id))
 
 
-def create_profiles_panel(hide_panel, book, container, onclick):
+def create_profiles_panel(container, hide_panel, on_change):
     c = E.div(style='margin: 1rem', id=unique_id('placeholder-prefs'))
     c.addEventListener('close_panel', def(): hide_panel();, False)
+    c.addEventListener('settings_changed', def(): on_change();, False)
     container_id = c.id
     a = E.div(
         style='display:flex',
