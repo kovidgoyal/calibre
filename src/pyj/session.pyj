@@ -326,7 +326,7 @@ def get_translations(newval):
 def is_setting_local(name):
     m = all_settings[name]
     return m.is_local if m else True
-
+     
 
 class UserSessionData(SessionData):
 
@@ -361,19 +361,19 @@ class UserSessionData(SessionData):
             defval = session_defaults()[key]
         return self.get(lkey, defval)
 
-    def set(self, key, value):
+    def set(self, library_id, key, value):
         if self.echo_changes and self.has_user and not is_setting_local(key):
-            self.changes[key] = value
+            self.changes[key + '-||-' + library_id] = value
             self.has_changes = True
             if self.push_timer_id is not None:
                 clearTimeout(self.push_timer_id)
             self.push_timer_id = setTimeout(self.push_to_server.bind(self), 1000)
-        return SessionData.set(self, (self.prefix + key), value)
+        return SessionData.set(self, (self.prefix + key + '-||-' + library_id), value)
 
     def set_library_option(self, library_id, key, value):
         if library_id:
-            key = key + '-||-' + library_id
-        return self.set(key, value)
+            return self.set(library_id, key, value)
+        return self.set(library_id, key, value)
 
     def push_to_server(self):
         if self.has_changes:
