@@ -72,28 +72,26 @@ def get_file(book, name, proceed):
     xhr.send()
 
 
-def profiles_recevied(proceed, end_type, xhr, ev):
-    end_type = workaround_qt_bug(xhr, end_type)
-    if end_type is 'abort':
-        return
-    if end_type is not 'load':
-        show_error(_('Failed to load profiles'), _(
-            'Could not load viewer profiles with error: {}').format(xhr.error_html))
-        return
-    if not xhr.responseType or xhr.responseType is 'text':
-        result = JSON.parse(xhr.responseText)
-    else:
-        show_error(_('Failed to load profiles'), _(
-            'Could not load viewer profiles: unknown response type: {}').format(xhr.responseType))
-        return
+profiles_callbacks = {'all': None, 'saved': None}
 
-    proceed(result)
+@from_python
+def profile_response(which, x):
+    if which is 'all-profiles':
+        profiles_callbacks.all(x)
+        profiles_callbacks.all = None
+    elif which is 'save-profile':
+        profiles_callbacks.saved()
+        profiles_callbacks.saved = None
 
 
 def get_all_profiles(proceed):
-    xhr = ajax('all-profiles', profiles_recevied.bind(None, proceed), ok_code=0)
-    xhr.responseType = 'text'
-    xhr.send()
+    profiles_callbacks.all = proceed
+    to_python.profile_op('all-profiles', '', None)
+
+
+def save_profile(name, settings, proceed):
+    profiles_callbacks.saved = proceed
+    to_python.profile_op('save-profile', name, settings)
 
 
 def get_mathjax_files(proceed):
@@ -351,9 +349,7 @@ if window is window.top:
     if TRANSLATIONS_DATA:
         install(TRANSLATIONS_DATA)
     ui_operations.get_all_profiles = get_all_profiles
-    ui_operations.save_profile = def(name, settings, proceed):
-        to_python.save_profile(name, settings)
-        proceed()
+    ui_operations.save_profile = save_profile
     ui_operations.get_file = get_file
     ui_operations.get_url_for_book_file_name = get_url_for_book_file_name
     ui_operations.get_mathjax_files = get_mathjax_files

@@ -113,13 +113,18 @@ def save_viewer_profile(profile_name, profile, *user_names: str):
     user_names = expand_profile_user_names(user_names)
     if isinstance(profile, (str, bytes)):
         profile = json.loads(profile)
-    profile['__timestamp__'] = isoformat(utcnow())
+    if isinstance(profile, dict):
+        profile['__timestamp__'] = isoformat(utcnow())
     try:
         with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
             raw = json.loads(f.read())
     except FileNotFoundError:
         raw = {}
     for name in user_names:
-        raw.setdefault(name, {})[profile_name] = profile
+        if isinstance(profile, dict):
+            raw.setdefault(name, {})[profile_name] = profile
+        else:
+            if name in raw:
+                raw[name].pop(profile_name, None)
     with open(os.path.join(viewer_config_dir, 'profiles.json'), 'wb') as f:
         f.write(json.dumps(raw, indent=2, sort_keys=True).encode())
