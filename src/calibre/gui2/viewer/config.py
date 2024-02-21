@@ -89,23 +89,19 @@ def expand_profile_user_names(user_names):
     return user_names
 
 
-def load_viewer_profiles(*user_names: str, as_json_string=False):
+def load_viewer_profiles(*user_names: str):
     user_names = expand_profile_user_names(user_names)
     ans = {}
     try:
         with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
             raw = json.loads(f.read())
     except FileNotFoundError:
-        if as_json_string:
-            return '{}'
         return ans
     for uname, profiles in raw.items():
         if uname in user_names:
             for profile_name, profile in profiles.items():
                 if profile_name not in ans or ans[profile_name]['__timestamp__'] <= profile['__timestamp__']:
                     ans[profile_name] = profile
-    if as_json_string:
-        return json.dumps(ans)
     return ans
 
 

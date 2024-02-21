@@ -136,6 +136,28 @@ class ReadUI:
                 error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
             )
 
+        ui_operations.get_all_profiles = def(proceed):
+            ajax('reader-profiles/get-all', def(end_type, xhr, ev):
+                if end_type is not 'load':
+                    if end_type is 'abort': return
+                    return self.show_error(_('Failed to load profiles'), _(
+                        'Could not load profiles: with error: {}').format(xhr.error_html))
+                try:
+                    result = JSON.parse(xhr.responseText)
+                except Exception:
+                    return self.show_error(_('Failed to parse profiles'), _('Unparseable data received for profiles'))
+                proceed(result)
+            ).send()
+
+        ui_operations.save_profile = def(profile_name, profile, proceed):
+            ajax_send('reader-profiles/save', {'name': profile_name, 'profile': profile}, def(end_type, xhr, ev):
+                if end_type is not 'load':
+                    if end_type is 'abort': return
+                    return self.show_error(_('Failed to load profiles'), _(
+                        'Could not load profiles: with error: {}').format(xhr.error_html))
+                proceed()
+            )
+
     def on_resize(self):
         self.view.on_resize()
 

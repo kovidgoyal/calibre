@@ -564,6 +564,9 @@ class ProfilesOverlay(PrefsOverlay):
     def create_panel_impl(self, container):
         return create_profiles_panel(container, self.overlay.hide_current_panel, self.on_change)
 
+    def handle_escape(self):
+        self.overlay.hide_current_panel()
+
 # }}}
 
 class FontSizeOverlay:  # {{{

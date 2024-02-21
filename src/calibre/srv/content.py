@@ -318,6 +318,32 @@ def reader_background(ctx, rd, encoded_fname):
         raise HTTPNotFound(f'Reader background {encoded_fname} not found')
 
 
+@endpoint('/reader-profiles/get-all', postprocess=json)
+def get_all_reader_profiles(ctx, rd):
+    from calibre.gui2.viewer.config import load_viewer_profiles
+    which = 'user:'
+    if rd.username:
+        which += rd.username
+    return load_viewer_profiles(which)
+
+
+@endpoint('/reader-profiles/save', methods={'POST'}, postprocess=json)
+def save_reader_profile(ctx, rd):
+    try:
+        data = load_json_file(rd.request_body_file)
+        name, profile = data['name'], data['profile']
+        if not isinstance(profile, dict):
+            raise TypeError('profile must be a dict')
+    except Exception as err:
+        raise HTTPBadRequest(f'Invalid query: {err}')
+    from calibre.gui2.viewer.config import save_viewer_profile
+    which = 'user:'
+    if rd.username:
+        which += rd.username
+    save_viewer_profile(name, profile, which)
+    return True
+
+
 @endpoint('/get/{what}/{book_id}/{library_id=None}', android_workaround=True)
 def get(ctx, rd, what, book_id, library_id):
     book_id, rest = book_id.partition('_')[::2]
