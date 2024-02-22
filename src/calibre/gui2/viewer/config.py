@@ -111,6 +111,13 @@ def save_viewer_profile(profile_name, profile, *user_names: str):
         profile = json.loads(profile)
     if isinstance(profile, dict):
         profile['__timestamp__'] = isoformat(utcnow())
+        from calibre.gui2.viewer.toolbars import current_actions, DEFAULT_ACTIONS
+        ca = current_actions()
+        s = {}
+        if ca != DEFAULT_ACTIONS:
+            s['toolbar-actions'] = ca
+        if s:
+            profile['__standalone_extra_settings__'] = s
     try:
         with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
             raw = json.loads(f.read())

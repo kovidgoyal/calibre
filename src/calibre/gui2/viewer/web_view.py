@@ -492,6 +492,7 @@ class WebView(RestartingWebEngineView):
     standalone_misc_settings_changed = pyqtSignal(object)
     view_created = pyqtSignal(object)
     content_file_changed = pyqtSignal(str)
+    change_toolbar_actions = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -581,6 +582,11 @@ class WebView(RestartingWebEngineView):
             self.execute_when_ready('profile_response', 'apply-profile', settings)
         elif which == 'request-save':
             self.execute_when_ready('profile_response', 'request-save', profile_name)
+        elif which == 'apply-profile-to-viewer-ui':
+            toolbar_actions = None
+            s = settings.get('__standalone_extra_settings__', {})
+            toolbar_actions = s.get('toolbar-actions', None)
+            self.change_toolbar_actions.emit(toolbar_actions)
 
     def link_hovered(self, url):
         if url == 'javascript:void(0)':

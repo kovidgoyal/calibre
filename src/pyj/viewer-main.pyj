@@ -89,6 +89,7 @@ def profile_response(which, x):
         apply_reader_profile(sd, x)
         if view:
             view.preferences_changed()
+        ui_operations.apply_profile(x)
     elif which is 'request-save':
         sd = get_session_data()
         settings = settings_for_reader_profile(sd)
@@ -371,6 +372,8 @@ if window is window.top:
         install(TRANSLATIONS_DATA)
     ui_operations.get_all_profiles = get_all_profiles
     ui_operations.save_profile = save_profile
+    ui_operations.apply_profile = def(profile):
+        to_python.profile_op('apply-profile-to-viewer-ui', "", profile)
     ui_operations.get_file = get_file
     ui_operations.get_url_for_book_file_name = get_url_for_book_file_name
     ui_operations.get_mathjax_files = get_mathjax_files

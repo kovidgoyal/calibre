@@ -152,6 +152,7 @@ class ActionsToolBar(ToolBar):
         web_view.read_aloud_state_changed.connect(self.update_read_aloud_action)
         web_view.customize_toolbar.connect(self.customize, type=Qt.ConnectionType.QueuedConnection)
         web_view.view_created.connect(self.on_view_created)
+        web_view.change_toolbar_actions.connect(self.change_toolbar_actions)
 
         self.web_actions = {}
         self.back_action = a = shortcut_action('back')
@@ -221,6 +222,13 @@ class ActionsToolBar(ToolBar):
         a.setMenu(m)
         m.aboutToShow.connect(self.populate_profiles_menu)
 
+        self.add_actions()
+
+    def change_toolbar_actions(self, toolbar_actions):
+        if toolbar_actions is None:
+            vprefs.__delitem__('actions-toolbar-actions')
+        else:
+            vprefs.set('actions-toolbar-actions', toolbar_actions)
         self.add_actions()
 
     def update_web_action(self):

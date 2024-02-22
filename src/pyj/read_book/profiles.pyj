@@ -38,9 +38,10 @@ def use_profile(container_id, profile_name, profile_data):
         return
     sd = get_session_data()
     apply_reader_profile(sd, profile_data)
+    if ui_operations.apply_profile:
+        ui_operations.apply_profile(profile_data)
     container.dispatchEvent(new Event('settings_changed'))
     container.dispatchEvent(new Event('close_panel'))
-
 
 
 def delete_profile(container_id, profile_name):
