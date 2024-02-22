@@ -157,11 +157,17 @@ def manifest_received(key, initial_position, pathtoebook, highlights, book_url, 
         xhr.error_html or None)
 
 
+def clone(x):
+    if x:
+        x = window.structuredClone(x)
+    return x
+
+
 class SessionData:
 
     def __init__(self, prefs):
         defaults = session_defaults()
-        self.data = {k: defaults[k] if prefs[k] is undefined else prefs[k] for k in defaults}
+        self.data = {k: clone(defaults[k]) if prefs[k] is undefined else clone(prefs[k]) for k in defaults}
 
     def get(self, key, defval):
         ans = self.data[key]
@@ -173,7 +179,7 @@ class SessionData:
 
     def set(self, key, val):
         if val is None:
-            self.data[key] = session_defaults()[key]
+            self.data[key] = clone(session_defaults()[key])
         else:
             self.data[key] = val
         to_python.set_session_data(key, val)
@@ -183,14 +189,14 @@ class SessionData:
         for key in Object.keys(changes):
             val = changes[key]
             if val is None:
-                self.data[key] = defaults[key]
+                self.data[key] = clone(defaults[key])
             else:
                 self.data[key] = val
         to_python.set_session_data(changes, None)
 
     def clear(self):
         defaults = session_defaults()
-        self.data = {k: defaults[k] for k in defaults}
+        self.data = {k: clone(defaults[k]) for k in defaults}
         to_python.set_session_data('*', None)
 
 

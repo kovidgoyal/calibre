@@ -372,11 +372,14 @@ class UserSessionData(SessionData):
         self.echo_changes = True
 
     def defval(self, key):
-        return session_defaults()[key]
+        ans = session_defaults()[key]
+        if ans:
+            ans = window.structuredClone(ans)
+        return ans
 
     def get(self, key, defval):
         if defval is undefined:
-            defval = session_defaults()[key]
+            defval = self.defval(key)
         return SessionData.get(self, (self.prefix + key), defval)
 
     def get_library_option(self, library_id, key, defval):
@@ -384,7 +387,7 @@ class UserSessionData(SessionData):
             return self.get(key, defval)
         lkey = key + '-||-' + library_id
         if defval is undefined:
-            defval = session_defaults()[key]
+            defval = self.defval(key)
         return self.get(lkey, defval)
 
     def set(self, key, value):
