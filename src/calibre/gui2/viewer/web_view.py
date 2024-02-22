@@ -577,6 +577,10 @@ class WebView(RestartingWebEngineView):
         elif which == 'save-profile':
             save_viewer_profile(profile_name, settings, 'viewer:')
             self.execute_when_ready('profile_response', 'save-profile', profile_name)
+        elif which == 'apply-profile':
+            self.execute_when_ready('profile_response', 'apply-profile', settings)
+        elif which == 'request-save':
+            self.execute_when_ready('profile_response', 'request-save', profile_name)
 
     def link_hovered(self, url):
         if url == 'javascript:void(0)':

@@ -24,7 +24,9 @@ from read_book.iframe import main as iframe_main
 from read_book.open_book import remove_recently_opened
 from read_book.prefs.head_foot import set_time_formatter
 from read_book.view import View
-from session import local_storage, session_defaults, default_interface_data
+from session import (
+    apply_reader_profile, default_interface_data, local_storage, session_defaults, settings_for_reader_profile
+)
 from utils import debounce, encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
@@ -82,6 +84,15 @@ def profile_response(which, x):
     elif which is 'save-profile':
         profiles_callbacks.saved()
         profiles_callbacks.saved = None
+    elif which is 'apply-profile':
+        sd = get_session_data()
+        apply_reader_profile(sd, x)
+        if view:
+            view.preferences_changed()
+    elif which is 'request-save':
+        sd = get_session_data()
+        settings = settings_for_reader_profile(sd)
+        save_profile(x, settings, def(): pass;)
 
 
 def get_all_profiles(proceed):
