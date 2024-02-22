@@ -370,11 +370,23 @@ class ActionsToolBar(ToolBar):
             a(profile_name)
         m.addSeparator()
         m.addAction(_('Save current settings as a profile')).triggered.connect(self.save_profile)
+        if len(self.profiles) > 1:
+            s = m.addMenu(_('Delete saved profile...'))
+            for pname in self.profiles:
+                if pname != '__default__':
+                    a = s.addAction(pname)
+                    a.setObjectName(f'profile-delete-action:{pname}')
+                    a.triggered.connect(self.profile_delete_triggerred)
 
     def profile_switch_triggered(self):
         key = self.sender().objectName().partition(':')[-1]
         profile = self.profiles[key]
         self.web_view.profile_op('apply-profile', key, profile)
+
+    def profile_delete_triggerred(self):
+        key = self.sender().objectName().partition(':')[-1]
+        from calibre.gui2.viewer.config import save_viewer_profile
+        save_viewer_profile(key, None, 'viewer:')
 
     def save_profile(self):
         name, ok = QInputDialog.getText(self, _('Enter name of profile to create'), _('&Name of profile'))
