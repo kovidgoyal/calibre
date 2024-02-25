@@ -1240,6 +1240,7 @@ class Amazon(Source):
             'au':  'https://www.amazon.com.au/',
             'br':  'https://www.amazon.com.br/',
             'jp':  'https://www.amazon.co.jp/',
+            'mx':  'https://www.amazon.com.mx/',
         }.get(domain, 'https://www.amazon.%s/' % domain)
 
     def _get_book_url(self, identifiers):  # {{{
