@@ -47,7 +47,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
         dict(name=['svg', 'style', 'button', 'script']),
         dict(attrs={'id':['social_icon_impression', 'taboola-mid-article-thumbnails']}),
         classes(
-            'social_icons_wrapper mid-arti-ad lastPara related_stories_left_block social_icons_mobile_wrapper'
+            'social_icons_wrapper mid-arti-ad lastPara related_stories_left_block social_icons_mobile_wrapper '
             'advSlotsWithoutGrayBox tags_wrapper maintextdiv page_right_wrapper stockwidget tech_newsletter'
         )
     ]
@@ -73,11 +73,12 @@ class MoneyControlRecipe(BasicNewsRecipe):
         'personal-finance', 'commodities', 'trade', 'companies'
     ]
 
+    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}{}&hl=en-IN&gl=IN&ceid=IN:en'
+
     for sec in business_sections:
         allinurl_a = index + 'news/business'
-        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}{}&hl=en-IN&gl=IN&ceid=IN:en'
         feeds.append((sec.capitalize(), a.format(when, quote(allinurl_a, safe=''), '%2F' + sec + '%2F')))
-    feeds.append(('Business' , a.format(str(when), quote(allinurl_a, safe=''), '')))
+    feeds.append(('Business' , a.format(when, quote(allinurl_a, safe=''), '')))
 
     news_sections = [
         'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
@@ -85,11 +86,10 @@ class MoneyControlRecipe(BasicNewsRecipe):
 
     for sec in news_sections:
         allinurl_b = index + 'news'
-        b = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}{}&hl=en-IN&gl=IN&ceid=IN:en'
-        feeds.append((sec.capitalize(), a.format(str(when), quote(allinurl_b, safe=''), '%2F' + sec + '%2F')))
-    feeds.append(('News', b.format(str(when), quote(allinurl_b, safe=''), '')))
+        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_b, safe=''), '%2F' + sec + '%2F')))
+    feeds.append(('News', a.format(when, quote(allinurl_b, safe=''), '')))
     feeds.append(
-        ('Others', 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'.format(str(when), quote(index, safe='')))
+        ('Others', 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'.format(when, quote(index, safe='')))
     )
 
     def populate_article_metadata(self, article, soup, first):
