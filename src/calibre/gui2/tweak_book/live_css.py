@@ -193,6 +193,12 @@ class Declaration(QWidget):
         p.setPen(palette.color(QPalette.ColorRole.WindowText))
         if not self.is_first:
             p.drawLine(0, 0, self.width(), 0)
+        parent = self
+        while parent is not None:
+            parent = parent.parent()
+            if isinstance(parent, LiveCSS):
+                palette = parent.palette()
+                break
         try:
             for row in self.rows:
                 for cell in row:
