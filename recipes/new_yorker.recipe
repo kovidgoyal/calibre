@@ -92,17 +92,17 @@ class NewYorker(BasicNewsRecipe):
             noscript.name = 'div'
         return soup
 
-    def preprocess_image(self, img_data, image_url):
-        from PIL import Image
-        from calibre import fit_image
-        from io import BytesIO
-        img = Image.open(BytesIO(img_data)).convert('RGB')
-        scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
-        if scaled:
-            img = img.resize((nwidth, nheight))
-        buf = BytesIO()
-        img.save(buf, format='JPEG')
-        return buf.getvalue()
+    # def preprocess_image(self, img_data, image_url):
+        # from PIL import Image
+        # from calibre import fit_image
+        # from io import BytesIO
+        # img = Image.open(BytesIO(img_data)).convert('RGB')
+        # scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
+        # if scaled:
+            # img = img.resize((nwidth, nheight))
+        # buf = BytesIO()
+        # img.save(buf, format='JPEG')
+        # return buf.getvalue()
 
     def parse_index(self):
         # Get cover
