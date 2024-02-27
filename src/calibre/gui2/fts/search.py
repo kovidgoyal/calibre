@@ -46,7 +46,9 @@ def jump_to_book(book_id, parent=None):
     gui = get_gui()
     if gui is not None:
         parent = parent or gui
-        if not gui.library_view.select_rows((book_id,)):
+        if gui.library_view.select_rows((book_id,)):
+            gui.raise_and_focus()
+        else:
             if gprefs['fts_library_restrict_books']:
                 error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
             else:
