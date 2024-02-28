@@ -16,6 +16,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
+    oldest_article = 1 # days
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -65,7 +66,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
 
     feeds = []
 
-    when = 27 # hours
+    when = oldest_article*24
     index = 'https://www.moneycontrol.com/'
 
     business_sections = [
@@ -73,12 +74,12 @@ class MoneyControlRecipe(BasicNewsRecipe):
         'personal-finance', 'commodities', 'trade', 'companies'
     ]
 
-    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}{}&hl=en-IN&gl=IN&ceid=IN:en'
+    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'
 
     for sec in business_sections:
         allinurl_a = index + 'news/business'
-        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_a, safe=''), '%2F' + sec + '%2F')))
-    feeds.append(('Business' , a.format(when, quote(allinurl_a, safe=''), '')))
+        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_a + sec, safe=''))))
+    feeds.append(('Business' , a.format(when, quote(allinurl_a + sec, safe=''))))
 
     news_sections = [
         'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
@@ -86,8 +87,8 @@ class MoneyControlRecipe(BasicNewsRecipe):
 
     for sec in news_sections:
         allinurl_b = index + 'news'
-        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_b, safe=''), '%2F' + sec + '%2F')))
-    feeds.append(('News', a.format(when, quote(allinurl_b, safe=''), '')))
+        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_b + sec, safe=''))))
+    feeds.append(('News', a.format(when, quote(allinurl_b + sec, safe=''), '')))
     feeds.append(
         ('Others', 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'.format(when, quote(index, safe='')))
     )
