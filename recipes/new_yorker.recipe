@@ -34,6 +34,7 @@ class NewYorker(BasicNewsRecipe):
     timefmt = ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
+        img { display:block; margin:0 auto; }
         .byline { font-size:smaller; font-weight: bold;}
         h3 { margin-bottom: 6px; }
         .caption { font-size: smaller; font-style: italic; font-weight: normal; }
@@ -72,21 +73,36 @@ class NewYorker(BasicNewsRecipe):
             self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
 
     def preprocess_html(self, soup):
+        w = '/w_320' # use '/w_640' for highres
+        for img in soup.findAll('img'):
+            if img.has_attr('srcset'):
+                for x in img['srcset'].split():
+                    if w in x:
+                        img['src'] = x
+            elif img.find_previous_sibling('source', attrs={'srcset':True}):
+                srcset = img.find_previous_sibling('source', attrs={'srcset':True})
+                for x in srcset['srcset'].split():
+                    if w in x:
+                        img['src'] = x
+                    elif '/w_560' in x:
+                        img['src'] = x
+        for src in soup.findAll('source'):
+            src.decompose()
         for noscript in soup.findAll('noscript'):
             noscript.name = 'div'
         return soup
 
-    def preprocess_image(self, img_data, image_url):
-        from PIL import Image
-        from calibre import fit_image
-        from io import BytesIO
-        img = Image.open(BytesIO(img_data)).convert('RGB')
-        scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
-        if scaled:
-            img = img.resize((nwidth, nheight))
-        buf = BytesIO()
-        img.save(buf, format='JPEG')
-        return buf.getvalue()
+    # def preprocess_image(self, img_data, image_url):
+        # from PIL import Image
+        # from calibre import fit_image
+        # from io import BytesIO
+        # img = Image.open(BytesIO(img_data)).convert('RGB')
+        # scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
+        # if scaled:
+            # img = img.resize((nwidth, nheight))
+        # buf = BytesIO()
+        # img.save(buf, format='JPEG')
+        # return buf.getvalue()
 
     def parse_index(self):
         # Get cover
