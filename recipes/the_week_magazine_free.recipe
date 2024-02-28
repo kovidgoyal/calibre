@@ -24,6 +24,7 @@ class TheWeek(BasicNewsRecipe):
     remove_empty_feeds = True
     resolve_internal_links = True
     simultaneous_downloads = 1
+    oldest_article = 7 # days
     web_url = ''
 
     extra_css = '''
@@ -74,7 +75,7 @@ class TheWeek(BasicNewsRecipe):
         return soup
 
     feeds = []
-    when = '168' # hours (7 days)
+    when = oldest_article*24
     index = 'https://theweek.com/'   
     sections = [
         'politics', 'news', 'cartoons', 'tech', 'science', 'health', 
