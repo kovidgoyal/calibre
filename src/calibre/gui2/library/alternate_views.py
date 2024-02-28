@@ -210,15 +210,18 @@ def drag_data(self):
 
 
 def mouseMoveEvent(self, event):
-    if not self.drag_allowed:
-        return
-    if self.drag_start_pos is None:
-        return qt_item_view_base_class(self).mouseMoveEvent(self, event)
-
     if self.event_has_mods():
         self.drag_start_pos = None
+    if not self.drag_allowed:
+        if hasattr(self, 'handle_mouse_move_event'):
+            self.handle_mouse_move_event(event)
         return
-
+    if self.drag_start_pos is None:
+        if hasattr(self, 'handle_mouse_move_event'):
+            self.handle_mouse_move_event(event)
+        else:
+            qt_item_view_base_class(self).mouseMoveEvent(self, event)
+        return
     if not (event.buttons() & Qt.MouseButton.LeftButton) or \
             (event.pos() - self.drag_start_pos).manhattanLength() \
                     < QApplication.startDragDistance():
@@ -727,6 +730,7 @@ class GridView(QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        self.shift_click_start_data = None
         self.dbref = lambda: None
         self._ncols = None
         self.gesture_manager = GestureManager(self)
@@ -1160,21 +1164,54 @@ class GridView(QListView):
     def restore_hpos(self, hpos):
         pass
 
+    def handle_mouse_move_event(self, ev):
+        # handle shift drag to extend selections
+        if not QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
+            return super().mouseMoveEvent(ev)
+        index = self.indexAt(ev.pos())
+        if not index.isValid() or not self.shift_click_start_data:
+            return
+        m = self.model()
+        ci = m.index(self.shift_click_start_data[0], 0)
+        if not ci.isValid():
+            return
+        sm = self.selectionModel()
+        sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+        if not sm.hasSelection():
+            sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            return True
+        cr = ci.row()
+        tgt = index.row()
+        if cr == tgt:
+            sm.select(index, QItemSelectionModel.SelectionFlag.Select)
+            return
+        if cr < tgt:
+            # mouse is moved after the start pos
+            top = min(self.shift_click_start_data[1], cr)
+            bottom = tgt
+        else:
+            top = tgt
+            bottom = max(self.shift_click_start_data[2], cr)
+        sm.select(QItemSelection(m.index(top, 0), m.index(bottom, 0)), QItemSelectionModel.SelectionFlag.ClearAndSelect)
+
     def handle_mouse_press_event(self, ev):
-        if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
-            # Shift-Click in QListView is broken. It selects extra items in
-            # various circumstances, for example, click on some item in the
-            # middle of a row then click on an item in the next row, all items
-            # in the first row will be selected instead of only items after the
-            # middle item.
-            index = self.indexAt(ev.pos())
-            if not index.isValid():
-                return
-            ci = self.currentIndex()
-            sm = self.selectionModel()
-            sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+        # Shift-Click in QListView is broken. It selects extra items in
+        # various circumstances, for example, click on some item in the
+        # middle of a row then click on an item in the next row, all items
+        # in the first row will be selected instead of only items after the
+        # middle item.
+        if not QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
+            return super().mousePressEvent(ev)
+        self.shift_click_start_data = None
+        index = self.indexAt(ev.pos())
+        if not index.isValid():
+            return
+        sm = self.selectionModel()
+        ci = self.currentIndex()
+        try:
             if not ci.isValid():
                 return
+            sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
             if not sm.hasSelection():
                 sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 return
@@ -1183,8 +1220,16 @@ class GridView(QListView):
             top = self.model().index(min(cr, tgt), 0)
             bottom = self.model().index(max(cr, tgt), 0)
             sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.Select)
-        else:
-            return QListView.mousePressEvent(self, ev)
+        finally:
+            min_row = self.model().rowCount(QModelIndex())
+            max_row = -1
+            for idx in sm.selectedIndexes():
+                r = idx.row()
+                if r < min_row:
+                    min_row = r
+                elif r > max_row:
+                    max_row = r
+            self.shift_click_start_data = index.row(), min_row, max_row
 
     def indices_for_merge(self, resolved=True):
         return self.selectionModel().selectedIndexes()
