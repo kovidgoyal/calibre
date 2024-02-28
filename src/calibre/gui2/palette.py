@@ -99,7 +99,7 @@ def default_light_palette():
     p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
     p.setColor(QPalette.ColorRole.Base, Qt.GlobalColor.white)
     p.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
-    p.setColor(QPalette.ColorRole.ToolTipBase, light_color)
+    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0xff, 0xff, 0xdc))
     p.setColor(QPalette.ColorRole.ToolTipText, light_text_color)
     p.setColor(QPalette.ColorRole.Text, light_text_color)
     p.setColor(QPalette.ColorRole.Button, light_color)
