@@ -214,26 +214,27 @@ def move_end_of_selection(pos, start):
     if not sel.rangeCount:
         return
     p = caret_position_from_point(pos.x, pos.y)
-    if p:
-        r = sel.getRangeAt(0)
-        if start is None:
-            q = document.createRange()
-            q.setStart(p.offsetNode, p.offset)
-            q.setEnd(p.offsetNode, p.offset)
-            if r.compareBoundaryPoints(window.Range.START_TO_START, q) >= 0:
-                start = True
-            elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
-                start = False
-            else:
-                # point is inside the selection
-                start = False
-        if start:
-            if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
-                r.setStart(p.offsetNode, p.offset)
-                sel.removeAllRanges()
-                sel.addRange(r)
+    if not p:
+        return
+    r = sel.getRangeAt(0)
+    if start is None:
+        q = document.createRange()
+        q.setStart(p.offsetNode, p.offset)
+        q.setEnd(p.offsetNode, p.offset)
+        if r.compareBoundaryPoints(window.Range.START_TO_START, q) >= 0:
+            start = True
+        elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
+            start = False
         else:
-            if r.endContainer is not p.offsetNode or r.endOffset is not p.offset:
-                r.setEnd(p.offsetNode, p.offset)
-                sel.removeAllRanges()
-                sel.addRange(r)
+            # point is inside the selection
+            start = False
+    if start:
+        if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
+            r.setStart(p.offsetNode, p.offset)
+            sel.removeAllRanges()
+            sel.addRange(r)
+    else:
+        if r.endContainer is not p.offsetNode or r.endOffset is not p.offset:
+            r.setEnd(p.offsetNode, p.offset)
+            sel.removeAllRanges()
+            sel.addRange(r)
