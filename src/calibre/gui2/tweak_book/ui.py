@@ -559,6 +559,9 @@ class Main(MainWindow):
         self.action_manage_snippets = treg(
             'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
                 'Manage user created Snippets'))
+        self.action_merge_files = treg(
+            'merge.png', _('&Merge files'), self.boss.merge_files, 'merge-files', 'Ctrl+M', _(
+                'Merge two or more selected files'))
 
         self.plugin_menu_actions = []
 

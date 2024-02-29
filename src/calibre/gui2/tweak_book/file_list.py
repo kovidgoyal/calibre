@@ -766,6 +766,22 @@ class FileList(QTreeWidget, OpenWithHandler):
                     return (category, i)
         return (None, -1)
 
+    def merge_files(self):
+        sel = self.selectedItems()
+        selected_map = defaultdict(list)
+        for item in sel:
+            selected_map[str(item.data(0, CATEGORY_ROLE) or '')].append(str(item.data(0, NAME_ROLE) or ''))
+
+        for items in selected_map.values():
+            items.sort(key=self.index_of_name)
+        if len(selected_map['text']) > 1:
+            self.start_merge('text', selected_map['text'])
+        elif len(selected_map['styles']) > 1:
+            self.start_merge('styles', selected_map['styles'])
+        else:
+            error_dialog(self, _('Cannot merge'), _(
+                'No files selected. Select two or more HTML files or two or more CSS files in the Files browser before trying to merge'), show=True)
+
     def start_merge(self, category, names):
         d = MergeDialog(names, self)
         if d.exec() == QDialog.DialogCode.Accepted and d.ans:
@@ -1263,6 +1279,9 @@ class FileListWidget(QWidget):
 
     def restore_temp_names(self):
         self.file_list.restore_temp_names()
+
+    def merge_files(self):
+        self.file_list.merge_files()
 
     @property
     def searchable_names(self):

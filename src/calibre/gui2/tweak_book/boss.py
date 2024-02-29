@@ -1911,6 +1911,9 @@ class Boss(QObject):
         from calibre.gui2.tweak_book.editor.snippets import UserSnippets
         UserSnippets(self.gui).exec()
 
+    def merge_files(self):
+        self.gui.file_list.merge_files()
+
     # Shutdown {{{
 
     def quit(self):
