@@ -237,8 +237,9 @@ def move_end_of_selection(pos, start):
         new_range.setStart(r.startContainer, r.startOffset)
         new_range.setEnd(p.offsetNode, p.offset)
         other_boundary_changed = r.startContainer is not new_range.startContainer or r.startOffset is not new_range.startOffset
-    if not new_range.collapsed or not other_boundary_changed:
+    if new_range.collapsed and other_boundary_changed:
         # we ignore the case when the new range is collapsed and the other end
         # of the selection is also moved as this is a chromium bug. See https://bugs.launchpad.net/bugs/2054934
-        sel.removeAllRanges()
-        sel.addRange(new_range)
+        return
+    sel.removeAllRanges()
+    sel.addRange(new_range)
