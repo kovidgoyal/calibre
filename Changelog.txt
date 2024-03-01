@@ -23,6 +23,48 @@
 # - title by author
 # }}}
 
+{{{ 7.6.0 2024-03-01
+
+:: new features
+
+- [major 1979022] E-book viewer: Allow saving current settings in "profiles" that can be quickly and easily swapped between
+
+  To create a profile or switch to a previously saved profile access "Profiles" from the viewer controls or press the `Alt+P` shortcut.
+
+- [2053144] Edit book: Add a shortcut `Ctrl+M` to merge selected files
+
+- Get books: Add support for Amazon Mexico
+
+- A new toolbar button to show all available actions in sub menus. Can be added via `Preferences->Toolbars & menus`
+
+- Edit book: Allow selecting multiple books to edit at once, opening all selected books in separate editor instances
+
+:: bug fixes
+
+- [2054617] Cover grid: Fix dragging the mouse while holding shift to extend the selection not working well
+
+- [2054934] E-book viewer: Fix doing a multi-page selections sometimes causing the start of the selection to move backwards
+
+- Edit book: Live CSS: Fix regression causing incorrect colors in calibre 7
+
+- Windows: Fix a regression in calibre 7 that caused images in long text columns to not be displayed in the tooltip for the tooltip
+
+- Fix disabled items in menus having blurry text
+
+- Content server: Fix a regression in the previous release that caused an error when doing a search/sort on some browsers
+
+:: improved recipes
+- New Yorker
+- Moneycontrol
+- Swarajya Mag
+- nautil.us
+- Pro Physik
+
+:: new recipes
+- The Week UK by unkn0wn
+- Andhrajyothy by unkn0wn
+}}}
+
 {{{ 7.5.1 2024-02-09
 
 :: new features
