@@ -12,7 +12,8 @@ from qt.core import (
 
 from calibre.gui2 import Application, choose_files, choose_save_file, gprefs
 from calibre.gui2.palette import (
-    default_dark_palette, default_light_palette, palette_colors, palette_from_dict,
+    default_dark_palette, default_light_palette, is_foreground_color, palette_colors,
+    palette_from_dict,
 )
 from calibre.gui2.widgets2 import ColorButton, Dialog
 
@@ -74,7 +75,7 @@ class PaletteColors(QWidget):
         self.default_palette = default_palette
 
         for key, desc in palette_colors().items():
-            if 'Text' in key:
+            if is_foreground_color(key):
                 self.foreground_colors[key] = desc
             elif 'Link' in key:
                 self.link_colors[key] = desc
@@ -91,8 +92,8 @@ class PaletteColors(QWidget):
             ans.setFont(f)
             return ans
 
-        def c(x, desc):
-            w = Color(x, desc, self, palette, default_palette, mode_name)
+        def c(x, desc, group=''):
+            w = Color(x, desc, self, palette, default_palette, mode_name, group=group)
             l.addWidget(w)
             self.colors.append(w)
 
@@ -106,7 +107,7 @@ class PaletteColors(QWidget):
 
         l.addWidget(header(_('Foreground (text) colors when disabled')))
         for x, desc in self.foreground_colors.items():
-            c(x, desc)
+            c(x, desc, group='disabled')
 
         l.addWidget(header(_('Link colors')))
         for x, desc in self.link_colors.items():

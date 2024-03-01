@@ -140,22 +140,26 @@ def palette_colors():
     }
 
 
+def is_foreground_color(key: str) -> bool:
+    return 'Text' in key
+
+
 def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalette:
 
     def s(key, group=QPalette.ColorGroup.All):
         role = getattr(QPalette.ColorRole, key)
         grp = ''
         if group == QPalette.ColorGroup.Disabled:
-            grp = 'disabled-'
-        c = QColor.fromString(data.get(grp + key, ''))
+            grp = '-disabled'
+        c = QColor.fromString(data.get(key + grp, ''))
         if c.isValid():
             p.setColor(group, role, c)
 
     p = QPalette()
     for key in palette_colors():
         s(key)
-    for key in ('Text', 'ButtonText', 'HighlightedText'):
-        s(key, QPalette.ColorGroup.Disabled)
+        if is_foreground_color(key):
+            s(key, QPalette.ColorGroup.Disabled)
     return p.resolve(default_palette)
 
 
