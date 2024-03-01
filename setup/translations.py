@@ -180,6 +180,7 @@ class POT(Command):  # {{{
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
     def run(self, opts):
+        return
         if not is_ci:
             require_git_master()
         if not is_ci:
