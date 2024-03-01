@@ -332,8 +332,8 @@ def save_reader_profile(ctx, rd):
     try:
         data = load_json_file(rd.request_body_file)
         name, profile = data['name'], data['profile']
-        if not isinstance(profile, dict):
-            raise TypeError('profile must be a dict')
+        if not isinstance(profile, dict) and profile is not None:
+            raise TypeError(f'profile must be a dict not {type(profile)}')
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {err}')
     from calibre.gui2.viewer.config import save_viewer_profile
