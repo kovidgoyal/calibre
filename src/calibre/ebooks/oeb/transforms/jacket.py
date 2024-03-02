@@ -375,6 +375,13 @@ def render_jacket(mi, output_profile,
                     else:
                         val = comments_to_html(val)
                     args[dkey] = val
+                elif dt == 'composite':
+                    val = val or ''
+                    # if the column is marked as containing html, use it
+                    # unchanged. Otherwise treat it as a comment.
+                    if not m.get('display', {}).get('contains_html', False):
+                        val = comments_to_html(val)
+                    args[dkey] = val
                 else:
                     args[dkey] = escape(val)
                 args[dkey+'_label'] = escape(display_name)
