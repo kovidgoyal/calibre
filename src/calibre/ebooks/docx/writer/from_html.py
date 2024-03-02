@@ -124,6 +124,9 @@ class TextRun:
                                 add_text(' ', True)
                             makeelement(r, 'w:softHyphen')
                         elif x:
+                            if not preserve_whitespace and x.startswith(' ') and len(r) and r[-1].tag and 'softHyphen' in r[-1].tag:
+                                x = x.lstrip()
+                                add_text(' ', True)
                             add_text(x, preserve_whitespace)
                 else:
                     add_text('', preserve_whitespace)
