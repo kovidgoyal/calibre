@@ -27,9 +27,13 @@ class Cover(CoverView):
 
     open_with_requested = pyqtSignal(object)
     choose_open_with_requested = pyqtSignal()
+    copy_to_clipboard_requested = pyqtSignal()
 
     def __init__(self, parent, show_size=False):
         CoverView.__init__(self, parent, show_size=show_size)
+
+    def copy_to_clipboard(self):
+        self.copy_to_clipboard_requested.emit()
 
     def build_context_menu(self):
         ans = CoverView.build_context_menu(self)
@@ -165,6 +169,7 @@ class BookInfo(QDialog):
         l.addWidget(self.splitter)
 
         self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
+        self.cover.copy_to_clipboard_requested.connect(self.copy_cover_to_clipboard)
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
         self.cover.open_with_requested.connect(self.open_with)
@@ -376,6 +381,10 @@ class BookInfo(QDialog):
         self.cover.set_pixmap(pixmap)
         self.cover.set_marked(self.marked)
         self.update_cover_tooltip()
+
+    def copy_cover_to_clipboard(self):
+        if self.cover_pixmap is not None:
+            QApplication.instance().clipboard().setPixmap(self.cover_pixmap)
 
     def update_cover_tooltip(self):
         tt = ''
