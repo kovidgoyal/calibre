@@ -25,6 +25,10 @@ def parse_html(raw):
 
 def export_note(note_doc: str, get_resource) -> str:
     root = parse_html(note_doc)
+    return html.tostring(expand_note_resources(root, get_resource), encoding='unicode')
+
+
+def expand_note_resources(root, get_resource):
     for img in root.xpath('//img[@src]'):
         img.attrib.pop('data-pre-import-src', None)
         try:
@@ -37,8 +41,6 @@ def export_note(note_doc: str, get_resource) -> str:
             if x:
                 img.set('src', data_url(guess_type(x['name'])[0], x['data']))
                 img.set('data-filename', x['name'])
-
-    return html.tostring(root, encoding='unicode')
 
 
 def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, str, set[str]]:
