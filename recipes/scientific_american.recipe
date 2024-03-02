@@ -67,22 +67,24 @@ class ScientificAmerican(BasicNewsRecipe):
         if not curr_issue_link:
             self.abort_recipe_processing("Unable to find issue link")
         issue_url = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
+        # for past editions https://www.scientificamerican.com/archive/issues/
+        # issue_url = 'https://www.scientificamerican.com/issue/sa/2024/01-01/'
         soup = self.index_to_soup(issue_url)
-        script = soup.find("script", id="__NEXT_DATA__")
+        script = soup.find("script", id="__DATA__")
         if not script:
             self.abort_recipe_processing("Unable to find script")
 
+        JSON = script.contents[0].split('JSON.parse(`')[1].replace("\\\\", "\\")
+        data = json.JSONDecoder().raw_decode(JSON)[0]
         issue_info = (
-            json.loads(script.contents[0])
-            .get("props", {})
-            .get("pageProps", {})
-            .get("issue", {})
+            data
+            .get("initialData", {})
+            .get("issueData", {})
         )
         if not issue_info:
             self.abort_recipe_processing("Unable to find issue info")
 
-        image_id, ext = splitext(issue_info["image"])
-        self.cover_url = f"https://static.scientificamerican.com/sciam/cache/file/{image_id}_source{ext}?w=800"
+        self.cover_url = issue_info["image_url"] + "?w=800"
 
         edition_date = datetime.strptime(issue_info["issue_date"], "%Y-%m-%d")
         self.timefmt = f" [{edition_date:%B %Y}]"
