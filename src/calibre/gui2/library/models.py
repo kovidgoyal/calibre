@@ -16,7 +16,7 @@ from collections import defaultdict, namedtuple
 from itertools import groupby
 from qt.core import (
     QAbstractTableModel, QApplication, QColor, QFont, QFontMetrics, QIcon, QImage,
-    QModelIndex, QPainter, QPixmap, Qt, pyqtSignal,
+    QModelIndex, QPainter, QPixmap, Qt, QTimer, pyqtSignal,
 )
 
 from calibre import (
@@ -193,6 +193,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bi_font = QFont(self.bold_font)
         self.bi_font.setItalic(True)
         self.styled_columns = {}
+        # assign QTimer to avoid None check later
+        self.book_display_info_timer = QTimer()
         self.orig_headers = {
                         'title'     : _("Title"),
                         'ondevice'   : _("On Device"),
@@ -640,6 +642,16 @@ class BooksModel(QAbstractTableModel):  # {{{
                 # to no longer be valid since this function is now called after
                 # an event loop tick.
                 return
+            if emit_signal:
+                # We can stop it without checking because it is initialized as a
+                # QTimer instance
+                self.book_display_info_timer.stop()
+
+                t = self.book_display_info_timer = QTimer()
+                t.setSingleShot(True)
+                t.timeout.connect(functools.partial(self._timed_get_book_display_info, idx))
+                t.start(250) # 250ms is arbitrary
+                return
             try:
                 data = self.get_book_display_info(idx)
             except Exception as e:
@@ -648,10 +660,18 @@ class BooksModel(QAbstractTableModel):  # {{{
                 e.locking_violation_msg = _('Failed to read cover file for this book from the calibre library.')
                 raise
             else:
-                if emit_signal:
-                    self.new_bookdisplay_data.emit(data)
-                else:
-                    return data
+                return data
+
+    def _timed_get_book_display_info(self, idx):
+        try:
+            data = self.get_book_display_info(idx)
+        except Exception as e:
+            if sys.excepthook is simple_excepthook or sys.excepthook is sys.__excepthook__:
+                return  # ignore failures during startup/shutdown
+            e.locking_violation_msg = _('Failed to read cover file for this book from the calibre library.')
+            raise
+        else:
+            self.new_bookdisplay_data.emit(data)
 
     def get_book_info(self, index):
         if isinstance(index, numbers.Integral):
