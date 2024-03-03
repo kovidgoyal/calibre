@@ -2608,7 +2608,7 @@ class BuiltinGetNote(BuiltinFormatterFunction):
                     # Change the body to a div
                     root.tag = 'div'
                     # Expand all the resources in the note
-                    expand_note_resources(root, db.get_notes_resource)
+                    root = expand_note_resources(root, db.get_notes_resource)
                     note = html.tostring(root, encoding='unicode')
             return note
         except Exception as e:

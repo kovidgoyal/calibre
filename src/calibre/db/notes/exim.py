@@ -41,6 +41,7 @@ def expand_note_resources(root, get_resource):
             if x:
                 img.set('src', data_url(guess_type(x['name'])[0], x['data']))
                 img.set('data-filename', x['name'])
+    return root
 
 
 def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, str, set[str]]:
