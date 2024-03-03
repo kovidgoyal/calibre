@@ -20,11 +20,13 @@ from contextlib import suppress
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
+from lxml import html
 from math import ceil, floor, modf, trunc
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
+from calibre.db.notes.exim import parse_html, expand_note_resources
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
@@ -2581,14 +2583,34 @@ class BuiltinGetNote(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
         db = self.get_database(mi).new_api
         try:
+            note = ''
             item_id = db.get_item_id(field_name, field_value)
             if item_id is not None:
-                note = db.notes_data_for(field_name, item_id)
-                if note is not None:
-                    if plain_text:
+                note_data = db.notes_data_for(field_name, item_id)
+                if note_data is not None:
+                    if plain_text == '1':
                         return note['searchable_text'].partition('\n')[2]
-                    return note['doc']
-            return ''
+                    # Return the full HTML of the note, including all images as
+                    # data: URLs. Reason: non-exported note html contains
+                    # "calres://" URLs for images. These images won't render
+                    # outside the context of the library where the note "lives".
+                    # For example, they don't work in book jackets and book
+                    # details from a different library. They also don't work in
+                    # tooltips.
+
+                    # This code depends on the note being wrapped in <body> tags
+                    # by parse_html. The body is changed to a <div>. That means
+                    # we often end up with <div><div> or some such, but that is
+                    # OK
+                    root = parse_html(note_data['doc'])
+                    # There should be only one <body>
+                    root = root.xpath('//body')[0]
+                    # Change the body to a div
+                    root.tag = 'div'
+                    # Expand all the resources in the note
+                    expand_note_resources(root, db.get_notes_resource)
+                    note = html.tostring(root, encoding='unicode')
+            return note
         except Exception as e:
             traceback.print_exc()
             raise ValueError(e)
