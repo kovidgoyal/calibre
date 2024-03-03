@@ -147,7 +147,7 @@ class Formatter(TemplateFormatter):
     '''
 
     def get_value(self, key, args, kwargs):
-        if key == '':
+        if not isinstance(key, str) or key == '':
             return ''
         try:
             key = key.lower()
