@@ -121,7 +121,7 @@ class Int(QSpinBox):
 
     def __init__(self, name, layout):
         QSpinBox.__init__(self)
-        self.setRange(0, 20000)
+        self.setRange(0, 99999)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
