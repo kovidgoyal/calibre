@@ -394,19 +394,16 @@ class Cache:
             default_value={}))
         mi.application_id = book_id
         mi.id = book_id
-        composites = []
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
-            if meta['datatype'] == 'composite':
-                composites.append(key)
-            else:
+            if meta['datatype'] != 'composite':
+                # composites are evaluated on demand in metadata.book.base
+                # because their value is None
                 val = self._field_for(key, book_id)
                 if isinstance(val, tuple):
                     val = list(val)
                 extra = self._field_for(key+'_index', book_id)
                 mi.set(key, val=val, extra=extra)
-        for key in composites:
-            mi.set(key, val=self._composite_for(key, book_id, mi))
 
         mi.link_maps = self._get_all_link_maps_for_book(book_id)
 
