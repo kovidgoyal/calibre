@@ -648,15 +648,6 @@
     },
 
     {
-        "name": "six",
-        "unix": {
-            "filename": "six-1.16.0-py2.py3-none-any.whl",
-            "hash": "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
         "name": "unrardll",
         "unix": {
             "filename": "unrardll-0.1.7.tar.gz",
