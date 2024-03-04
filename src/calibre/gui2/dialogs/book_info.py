@@ -4,6 +4,8 @@
 
 import textwrap
 from enum import IntEnum
+from functools import partial
+
 from qt.core import (
     QAction, QApplication, QBrush, QCheckBox, QDialog, QDialogButtonBox, QGridLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap,
@@ -21,6 +23,8 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.startup import connect_lambda
+
+BOOK_DETAILS_DISPLAY_DELAY = 250 # 250ms is arbitrary
 
 
 class Cover(CoverView):
@@ -221,6 +225,7 @@ class BookInfo(QDialog):
         self.path_to_book = None
         self.current_row = None
         self.slave_connected = False
+        self.slave_debounce_timer = QTimer()
         if library_path is not None:
             self.view = None
             db = get_gui().library_broker.get_library(library_path)
@@ -319,6 +324,7 @@ class BookInfo(QDialog):
         ret = QDialog.done(self, r)
         if self.slave_connected:
             self.view.model().new_bookdisplay_data.disconnect(self.slave)
+        self.slave_debounce_timer.stop() # OK if it isn't running
         self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
         return ret
@@ -343,6 +349,13 @@ class BookInfo(QDialog):
         QTimer.singleShot(1, self.resize_cover)
 
     def slave(self, mi):
+        self.slave_debounce_timer.stop()
+        t = self.book_display_info_timer = QTimer()
+        t.setSingleShot(True)
+        t.timeout.connect(partial(self._timed_slave, mi))
+        t.start(BOOK_DETAILS_DISPLAY_DELAY)
+
+    def _timed_slave(self, mi):
         self.refresh(mi.row_number, mi)
 
     def move(self, delta=1):

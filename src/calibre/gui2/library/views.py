@@ -13,7 +13,7 @@ from qt.core import (
     QAbstractItemView, QDialog, QDialogButtonBox, QDrag, QEvent, QFont, QFontMetrics,
     QGridLayout, QHeaderView, QIcon, QItemSelection, QItemSelectionModel, QLabel, QMenu,
     QMimeData, QModelIndex, QPoint, QPushButton, QSize, QSpinBox, QStyle,
-    QStyleOptionHeader, Qt, QTableView, QUrl, pyqtSignal,
+    QStyleOptionHeader, Qt, QTableView, QTimer, QUrl, pyqtSignal,
 )
 
 from calibre import force_unicode
@@ -1615,7 +1615,16 @@ class BooksView(QTableView):  # {{{
             self._model.search_done.connect(self.alternate_views.restore_current_book_state)
 
     def connect_to_book_display(self, bd):
-        self._model.new_bookdisplay_data.connect(bd)
+        self.connect_to_book_display_timer = QTimer()
+        self._model.new_bookdisplay_data.connect(partial(self._timed_connect_to_book_display, bd))
+
+    def _timed_connect_to_book_display(self, bd, data):
+        self.connect_to_book_display_timer.stop()
+        t = self.connect_to_book_display_timer = QTimer()
+        t.setSingleShot(True)
+        t.timeout.connect(partial(bd, data))
+        from calibre.gui2.dialogs.book_info import BOOK_DETAILS_DISPLAY_DELAY
+        t.start(BOOK_DETAILS_DISPLAY_DELAY)
 
     def search_done(self, ok):
         self._search_done(self, ok)
