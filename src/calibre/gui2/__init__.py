@@ -47,6 +47,7 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 del pqc, geometry_for_restore_as_dict
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
+BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visual response
 
 
 class IconResourceManager:

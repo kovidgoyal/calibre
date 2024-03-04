@@ -4,7 +4,6 @@
 
 import textwrap
 from enum import IntEnum
-from functools import partial
 
 from qt.core import (
     QAction, QApplication, QBrush, QCheckBox, QDialog, QDialogButtonBox, QGridLayout,
@@ -16,6 +15,7 @@ from qt.core import (
 from calibre import fit_image
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
+from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY
 from calibre.gui2.book_details import (
     create_open_cover_with_menu, resolved_css, details_context_menu_event, render_html, set_html,
 )
@@ -23,8 +23,6 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.startup import connect_lambda
-
-BOOK_DETAILS_DISPLAY_DELAY = 250 # 250ms is arbitrary
 
 
 class Cover(CoverView):
@@ -225,7 +223,10 @@ class BookInfo(QDialog):
         self.path_to_book = None
         self.current_row = None
         self.slave_connected = False
-        self.slave_debounce_timer = QTimer()
+        self.slave_debounce_timer = t = QTimer(self)
+        t.setInterval(BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY)
+        t.setSingleShot(True)
+        t.timeout.connect(self._debounce_refresh)
         if library_path is not None:
             self.view = None
             db = get_gui().library_broker.get_library(library_path)
@@ -349,13 +350,11 @@ class BookInfo(QDialog):
         QTimer.singleShot(1, self.resize_cover)
 
     def slave(self, mi):
-        self.slave_debounce_timer.stop()
-        t = self.book_display_info_timer = QTimer()
-        t.setSingleShot(True)
-        t.timeout.connect(partial(self._timed_slave, mi))
-        t.start(BOOK_DETAILS_DISPLAY_DELAY)
+        self._mi_for_debounce = mi
+        self.slave_debounce_timer.start() # start() will automatically reset the timer if it was already running
 
-    def _timed_slave(self, mi):
+    def _debounce_refresh(self):
+        mi, self._mi_for_debounce = self._mi_for_debounce, None
         self.refresh(mi.row_number, mi)
 
     def move(self, delta=1):

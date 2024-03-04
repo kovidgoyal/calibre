@@ -18,7 +18,9 @@ from qt.core import (
 
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, islinux
-from calibre.gui2 import FunctionDispatcher, error_dialog, gprefs
+from calibre.gui2 import (
+    BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, FunctionDispatcher, error_dialog, gprefs,
+)
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library import DEFAULT_SORT
@@ -27,9 +29,9 @@ from calibre.gui2.library.alternate_views import (
 )
 from calibre.gui2.library.delegates import (
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcEnumDelegate,
-    CcLongTextDelegate, CcMarkdownDelegate, CcNumberDelegate, CcSeriesDelegate, CcTemplateDelegate,
-    CcTextDelegate, CompleteDelegate, DateDelegate, LanguagesDelegate, PubDateDelegate,
-    RatingDelegate, SeriesDelegate, TextDelegate,
+    CcLongTextDelegate, CcMarkdownDelegate, CcNumberDelegate, CcSeriesDelegate,
+    CcTemplateDelegate, CcTextDelegate, CompleteDelegate, DateDelegate,
+    LanguagesDelegate, PubDateDelegate, RatingDelegate, SeriesDelegate, TextDelegate,
 )
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.pin_columns import PinTableView
@@ -1615,16 +1617,20 @@ class BooksView(QTableView):  # {{{
             self._model.search_done.connect(self.alternate_views.restore_current_book_state)
 
     def connect_to_book_display(self, bd):
-        self.connect_to_book_display_timer = QTimer()
-        self._model.new_bookdisplay_data.connect(partial(self._timed_connect_to_book_display, bd))
-
-    def _timed_connect_to_book_display(self, bd, data):
-        self.connect_to_book_display_timer.stop()
-        t = self.connect_to_book_display_timer = QTimer()
+        self.book_display_callback = bd
+        self.connect_to_book_display_timer = t = QTimer(self)
         t.setSingleShot(True)
-        t.timeout.connect(partial(bd, data))
-        from calibre.gui2.dialogs.book_info import BOOK_DETAILS_DISPLAY_DELAY
-        t.start(BOOK_DETAILS_DISPLAY_DELAY)
+        t.timeout.connect(self._debounce_book_display)
+        t.setInterval(BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY)
+        self._model.new_bookdisplay_data.connect(self._timed_connect_to_book_display)
+
+    def _timed_connect_to_book_display(self, data):
+        self._book_display_data = data
+        self.connect_to_book_display_timer.start()
+
+    def _debounce_book_display(self):
+        data, self._book_display_data = self._book_display_data, None
+        self.book_display_callback(data)
 
     def search_done(self, ok):
         self._search_done(self, ok)

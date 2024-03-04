@@ -1191,6 +1191,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def shutdown(self, write_settings=True):
         self.shutting_down = True
+        if hasattr(self.library_view, 'connect_to_book_display_timer'):
+            self.library_view.connect_to_book_display_timer.stop()
         self.shutdown_started.emit()
         self.show_shutdown_message()
         self.server_change_notification_timer.stop()
