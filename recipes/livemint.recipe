@@ -83,7 +83,7 @@ class LiveMint(BasicNewsRecipe):
                 return citem['content']
 
         extra_css = '''
-            img {display:block; margin:0 auto;}
+            img {margin:0 auto;}
             #img-cap {font-size:small; text-align:center;}
             .summary, .highlights, .synopsis {
                 font-weight:normal !important; font-style:italic; color:#202020;
@@ -128,6 +128,8 @@ class LiveMint(BasicNewsRecipe):
         ]
 
         def preprocess_raw_html(self, raw, *a):
+            # remove empty p tags
+            raw = re.sub(r'(<p>\s*)(<[^\/])', '\g<2>', re.sub(r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)', '', raw))
             if '<script>var wsjFlag=true;</script>' in raw:
                 m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
                 raw1 = raw[m.start():]
@@ -137,8 +139,8 @@ class LiveMint(BasicNewsRecipe):
                 body = data['articleBody'] + '</p> <p>'\
                         + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
                 body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
-                raw = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
-                return raw
+                raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
+                return raw2
             else:
                 return raw
 
