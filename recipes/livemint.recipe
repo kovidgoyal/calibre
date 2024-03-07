@@ -129,7 +129,7 @@ class LiveMint(BasicNewsRecipe):
 
         def preprocess_raw_html(self, raw, *a):
             # remove empty p tags
-            raw = re.sub(r'(<p>\s*)(<[^\/])', '\g<2>', re.sub(r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)', '', raw))
+            raw = re.sub(r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)', '', raw)
             if '<script>var wsjFlag=true;</script>' in raw:
                 m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
                 raw1 = raw[m.start():]
