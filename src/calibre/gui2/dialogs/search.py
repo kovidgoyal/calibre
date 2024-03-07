@@ -273,9 +273,10 @@ def create_template_tab(self):
                     "in the calibre documentation. For example, with Number "
                     "comparisons you can use the relational operators like '>=' etc. "
                     "With Text comparisons you can use contains (T), exact (=T), "
-                    "or regular expression matches (~T). With Date you can use "
-                    "today, yesterday, etc. Set/not set takes 'true' for set "
-                    "and 'false' for not set.") + '</p>')
+                    "or regular expression matches (~T), where T is your text. "
+                    "With Date you can use today, yesterday, etc. When checking for "
+                    "Set use 'true' or 'yes'. When checking for Not Set use 'false' "
+                    "or 'no'") + '</p>')
     l.addRow(_('Template &value:'), le)
 
     self.template_test_type_box = le = QComboBox(w)
