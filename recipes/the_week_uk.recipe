@@ -14,7 +14,7 @@ class TheWeek(BasicNewsRecipe):
         'our editors carefully select commentary from all sides of the debate and artfully stitch them together '
         'into one concise read. By showing you every perspective, we enable you to form your own opinion.'
     )
-    language = 'en_UK'
+    language = 'en_GB'
     encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True

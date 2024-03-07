@@ -27,7 +27,7 @@ class ft(BasicNewsRecipe):
         .article-info__time-byline {font-size:small; font-weight:bold; }
         .o-topper__visual, #fig, .main-image, .n-content-image { text-align:center; font-size:small; }
         blockquote, i { color:#5c5c5c; }
-        .o-topper__standfirst { font-weight:bold; color:#202020; }
+        .o-topper__standfirst { font-style:italic; color:#202020; }
         .o-topper__topic { font-size:small; color:#5c5c5c; }
     '''
 
@@ -39,10 +39,10 @@ class ft(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name=['source', 'svg', 'button']),
-        dict(name='aside', attrs={'class':'n-content-recommended--single-story flourish-disclaimer'}),
+        dict(name=['source', 'svg', 'button', 'aside']),
+        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
         dict(attrs={'data-layout-name':'card'}),
-        classes('in-article-advert')
+        classes('in-article-advert flourish-disclaimer')
     ]
 
     def get_cover_url(self):
@@ -149,6 +149,4 @@ class ft(BasicNewsRecipe):
         for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
             if con.find('figure'):
                 con['id'] = 'fig'
-        if h3 := soup.find(**classes('o-topper__standfirst')):
-            h3.name = 'h3'
         return soup
