@@ -10,8 +10,8 @@ import shutil
 from qt.core import (
     QAbstractItemView, QDialog, QDialogButtonBox, QFont, QFontComboBox, QFontDatabase,
     QFontInfo, QFontMetrics, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QListView, QPen, QPushButton, QSize, QSizePolicy, QStringListModel, QStyle,
-    QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QListView, QPen, QPushButton, QRawFont, QSize, QSizePolicy, QStringListModel,
+    QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.constants import config_dir
@@ -20,24 +20,21 @@ from calibre.utils.icu import lower as icu_lower
 
 
 def add_fonts(parent):
-    from calibre.utils.fonts.metadata import FontMetadata
     files = choose_files(parent, 'add fonts to calibre',
             _('Select font files'), filters=[(_('TrueType/OpenType Fonts'),
-                ['ttf', 'otf'])], all_files=False)
+                ['ttf', 'otf', 'woff', 'woff2'])], all_files=False)
     if not files:
         return
     families = set()
     for f in files:
-        try:
-            with open(f, 'rb') as stream:
-                fm = FontMetadata(stream)
-        except:
-            import traceback
+        r = QRawFont()
+        r.loadFromFile(f, 11.0, QFont.HintingPreference.PreferDefaultHinting)
+        if r.isValid():
+            families.add(r.familyName())
+        else:
             error_dialog(parent, _('Corrupt font'),
-                    _('Failed to read metadata from the font file: %s')%
-                    f, det_msg=traceback.format_exc(), show=True)
+                    _('Failed to load font from the file: {}').format(f), show=True)
             return
-        families.add(fm.font_family)
     families = sorted(families)
 
     dest = os.path.join(config_dir, 'fonts')

@@ -503,7 +503,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             elif mt in OEB_DOCS:
                 category = 'text'
             ext = name.rpartition('.')[-1].lower()
-            if ext in {'ttf', 'otf', 'woff'}:
+            if ext in {'ttf', 'otf', 'woff', 'woff2'}:
                 # Probably wrong mimetype in the OPF
                 category = 'fonts'
             return category

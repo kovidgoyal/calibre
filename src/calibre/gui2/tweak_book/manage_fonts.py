@@ -243,7 +243,7 @@ class ManageFonts(Dialog):
         h.setContentsMargins(0, 0, 0, 0)
         self.install_fonts_button = b = QPushButton(_('&Install fonts'), self)
         h.addWidget(b), b.setIcon(QIcon.ic('plus.png'))
-        b.setToolTip(textwrap.fill(_('Install fonts from .ttf/.otf files to make them available for embedding')))
+        b.setToolTip(textwrap.fill(_('Install fonts from font files to make them available for embedding')))
         b.clicked.connect(self.install_fonts)
         l.addWidget(s), l.addLayout(h), h.addStretch(10), h.addWidget(self.bb)
 

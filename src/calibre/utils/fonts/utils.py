@@ -48,6 +48,32 @@ def get_table(raw, name):
     return None, None, None, None
 
 
+def get_font_characteristics_from_ttlib_os2_table(t, return_all=False):
+    (char_width, weight, width, fs_type, subscript_x_size, subscript_y_size, subscript_x_offset, subscript_y_offset,
+     superscript_x_size, superscript_y_size, superscript_x_offset, superscript_y_offset, strikeout_size,
+     strikeout_position, family_class, selection, version) = (
+         t.xAvgCharWidth, t.usWeightClass, t.usWidthClass, t.fsType,
+         t.ySubscriptXSize, t.ySubscriptYSize, t.ySubscriptXOffset, t.ySubscriptYOffset,
+         t.ySuperscriptXSize, t.ySuperscriptYSize, t.ySuperscriptXOffset, t.ySuperscriptYOffset,
+         t.yStrikeoutSize, t.yStrikeoutPosition, t.sFamilyClass, t.fsSelection, t.version)
+    is_italic = (selection & (1 << 0)) != 0
+    is_bold = (selection & (1 << 5)) != 0
+    is_regular = (selection & (1 << 6)) != 0
+    is_wws = (selection & (1 << 8)) != 0
+    is_oblique = (selection & (1 << 9)) != 0
+    p = t.panose
+    panose = (p.bFamilyType, p.bSerifStyle, p.bWeight, p.bProportion, p.bContrast, p.bStrokeVariation, p.bArmStyle, p.bLetterForm, p.bMidline, p.bXHeight)
+
+    if return_all:
+        return (version, char_width, weight, width, fs_type, subscript_x_size,
+            subscript_y_size, subscript_x_offset, subscript_y_offset,
+            superscript_x_size, superscript_y_size, superscript_x_offset,
+            superscript_y_offset, strikeout_size, strikeout_position,
+            family_class, panose, selection, is_italic, is_bold, is_regular)
+
+    return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
+
+
 def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     '''
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
@@ -55,6 +81,8 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     values are taken from the OS/2 table of the font. See
     http://www.microsoft.com/typography/otspec/os2.htm for details
     '''
+    if hasattr(raw, 'getUnicodeRanges'):
+        return get_font_characteristics_from_ttlib_os2_table(raw, return_all)
     if raw_is_table:
         os2_table = raw
     else:
@@ -194,6 +222,29 @@ def _get_font_names(raw, raw_is_table=False):
             src))
 
     return records
+
+
+def get_font_name_records_from_ttlib_names_table(names_table):
+    records = defaultdict(list)
+    for rec in names_table.names:
+        records[rec.nameID].append((rec.platformID, rec.platEncID, rec.langID, rec.string))
+    return records
+
+
+def get_font_names_from_ttlib_names_table(names_table):
+    records = get_font_name_records_from_ttlib_names_table(names_table)
+    family_name = decode_name_record(records[1])
+    subfamily_name = decode_name_record(records[2])
+    full_name = decode_name_record(records[4])
+
+    preferred_family_name = decode_name_record(records[16])
+    preferred_subfamily_name = decode_name_record(records[17])
+
+    wws_family_name = decode_name_record(records[21])
+    wws_subfamily_name = decode_name_record(records[22])
+
+    return (family_name, subfamily_name, full_name, preferred_family_name,
+            preferred_subfamily_name, wws_family_name, wws_subfamily_name)
 
 
 def get_font_names(raw, raw_is_table=False):
