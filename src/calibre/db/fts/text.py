@@ -20,7 +20,7 @@ class SimpleContainer(ContainerBase):
     tweak_mode = True
 
 
-skipped_tags = frozenset({'style', 'title', 'script', 'head', 'img', 'svg', 'math', 'ruby'})
+skipped_tags = frozenset({'style', 'title', 'script', 'head', 'img', 'svg', 'math', 'rt', 'rp', 'rtc'})
 
 
 def tag_to_text(tag):
