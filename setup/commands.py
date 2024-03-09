@@ -18,7 +18,7 @@ __all__ = [
     'upload_to_server',
     'upload_installers',
     'upload_user_manual', 'upload_demo', 'reupload',
-    'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
+    'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas', 'publish_preview',
     'linux', 'linux64', 'linuxarm64', 'win', 'win64', 'osx', 'build_dep',
     'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint', 'xwin',
 ]
@@ -81,7 +81,7 @@ recent_uas = RecentUAs()
 rapydscript = RapydScript()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
-        Stage3, Stage4, Stage5, Publish, PublishBetas, ManPages
+        Stage3, Stage4, Stage5, Publish, PublishBetas, PublishPreview, ManPages
 manual = Manual()
 tag_release = TagRelease()
 stage1 = Stage1()
@@ -91,6 +91,7 @@ stage4 = Stage4()
 stage5 = Stage5()
 publish = Publish()
 publish_betas = PublishBetas()
+publish_preview = PublishPreview()
 man_pages = ManPages()
 
 from setup.upload import (UploadUserManual, UploadDemo, UploadInstallers,

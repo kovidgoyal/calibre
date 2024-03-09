@@ -126,6 +126,30 @@ class PublishBetas(Command):
         ).split())
 
 
+class PublishPreview(Command):
+
+    sub_commands = ['stage1', 'stage2', 'sdist']
+
+    def pre_sub_commands(self, opts):
+        version = tuple(map(int, __version__.split('.')))
+        if version[2] < 100:
+            raise SystemExit('Must set calibre version to have patch level greater than 100')
+        require_clean_git()
+        require_git_master()
+
+    def run(self, opts):
+        dist = self.a(self.j(self.d(self.SRC), 'dist'))
+        with open(os.path.join(dist, 'README.txt'), 'w') as f:
+            print('''\
+These are preview releases of changes to calibre since the last normal release.
+Preview releases are typically released every Friday, they serve as a way
+for users to test upcoming features/fixes in the next calibre release.
+''', file=f)
+        subprocess.check_call((
+            f'rsync -rh --info=progress2 --delete-after --delete {dist}/ download.calibre-ebook.com:/srv/download/preview/'
+        ).split())
+
+
 class Manual(Command):
 
     description = '''Build the User Manual '''
