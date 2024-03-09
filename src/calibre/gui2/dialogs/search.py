@@ -275,7 +275,7 @@ def create_template_tab(self):
                     "With Text comparisons you can use contains (T), exact (=T), "
                     "or regular expression matches (~T), where T is your text. "
                     "With Date you can use today, yesterday, etc. When checking for "
-                    "Set use 'true' or 'yes'. When checking for Not Set use 'false' "
+                    "Set use 'true' or 'yes'. When checking for not set use 'false' "
                     "or 'no'") + '</p>')
     l.addRow(_('Template &value:'), le)
 
