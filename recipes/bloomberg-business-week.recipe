@@ -30,7 +30,7 @@ def get_contents(x):
         return '<blockquote class="col">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</blockquote>'
     elif otype == 'media':
         if x['subType'] == 'photo':
-            return '<div><div class="img"><img src="{}"></div><div class="cap">{}<div>{}</div></div></div>'.format(
+            return '<div><div class="img"><img src="{}"></div><div class="cap">{} <span>{}</span></div></div>'.format(
                 x['data']['photo']['src'], x['data']['photo']['caption'], x['data']['photo']['credit'])
         elif x['subType'] == 'chart':
             if x['data'] and x['data']['chart']:
@@ -78,7 +78,7 @@ class Bloomberg(BasicNewsRecipe):
     extra_css = '''
         .auth {font-size:small; font-weight:bold;}
         .time, .chart, .css--lede-byline, .css--lede-timestamp {font-size:small;}
-        .subhead {font-style:italic; color:#404040;}
+        .subhead, .cap span {font-style:italic; color:#404040;}
         em, .col {color:#202020;}
         .cat {font-size:small; color:gray;}
         .news-figure-caption-text, .cap, .img, .css--caption-outer-wrapper {font-size:small; text-align:center;}
