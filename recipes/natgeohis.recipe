@@ -18,8 +18,10 @@ def classes(classes):
 def extract_json(raw):
     s = raw.find("window['__natgeo__']")
     script = raw[s:raw.find('</script>', s)]
-    return json.loads(
-        script[script.find('{'):].rstrip(';'))['page']['content']['article']
+    data = json.loads(script[script.find('{'):].rstrip(';'))['page']['content']
+    if 'article' in data:
+        return data['article']
+    return data['prismarticle']
 
 
 def parse_contributors(grp):
@@ -31,16 +33,17 @@ def parse_contributors(grp):
 
 
 def parse_lead_image(media):
-    if 'dsc' in media['image']:
-        yield '<p><div><img src="{}" alt="{}"></div>'.format(
-            escape(media['image']['src'], True), escape(media['image']['dsc'], True))
-    else:
-        yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
-    if 'caption' in media:
-        yield '<div class="cap">' + media['caption'] + '</div>'
-    if 'credit' in media:
-        yield '<div class="cred">' + media['credit'] + '</div>'
-    yield '</p>'
+    if 'image' in media:
+        if 'dsc' in media['image']:
+            yield '<p><div><img src="{}" alt="{}"></div>'.format(
+                escape(media['image']['src'], True), escape(media['image']['dsc'], True))
+        else:
+            yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
+        if 'caption' in media:
+            yield '<div class="cap">' + media['caption'] + '</div>'
+        if 'credit' in media:
+            yield '<div class="cred">' + media['credit'] + '</div>'
+        yield '</p>'
 
 
 def parse_body(item):
