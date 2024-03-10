@@ -24,8 +24,6 @@ def extract_json(raw):
     s = raw.find("window['__natgeo__']")
     script = raw[s:raw.find('</script>', s)]
     data = json.loads(script[script.find('{'):].rstrip(';'))['page']['content']
-    if 'article' in data:
-        return data['article']
     return data['prismarticle']
 
 
@@ -39,63 +37,100 @@ def parse_contributors(grp):
 
 def parse_lead_image(media):
     if 'image' in media:
+        yield '<p>'
         if 'dsc' in media['image']:
-            yield '<p><div><img src="{}" alt="{}"></div>'.format(
+            yield '<div><img src="{}" alt="{}"></div>'.format(
                 escape(media['image']['src'], True), escape(media['image']['dsc'], True))
         else:
-            yield '<p><div><img src="{}"></div>'.format(escape(media['image']['src'], True))
-        if 'caption' in media:
+            yield '<div><img src="{}"></div>'.format(escape(media['image']['src'], True))
+        if 'caption' in media and 'credit' in media:
+            yield '<div class="cap">' + media['caption'] + '<span class="cred"> ' + media['credit'] + '</span></div>'
+        elif 'caption' in media:
             yield '<div class="cap">' + media['caption'] + '</div>'
-        if 'credit' in media:
-            yield '<div class="cred">' + media['credit'] + '</div>'
         yield '</p>'
 
 
-def parse_body(item):
-    c = item['cntnt']
-    if item.get('type') == 'inline':
-        if c.get('cmsType') == 'listicle':
-            if 'title' in c:
-                yield '<h3>' + escape(c['title']) + '</h3>'
-            yield c['text']
-        elif c.get('cmsType') == 'image':
-            for line in parse_lead_image(c):
-                yield line
-        elif c.get('cmsType') == 'imagegroup':
-            for imgs in c['images']:
-                for line in parse_lead_image(imgs):
-                    yield line
-        elif c.get('cmsType') == 'pullquote':
-            if 'quote' in c:
-                yield '<blockquote>' + c['quote'] + '</blockquote>'
-        elif c.get('cmsType') == 'editorsNote':
-            if 'note' in c:
-                yield '<blockquote>' + c['note'] + '</blockquote>'
-    else:
-        if c['mrkup'].strip().startswith('<'):
-            yield c['mrkup']
-        else:
-            yield '<{tag}>{markup}</{tag}>'.format(
-                tag=item['type'], markup=c['mrkup'])
+def parse_inline(inl):
+    if inl.get('content', {}).get('name', '') == 'Image':
+        props = inl['content']['props']
+        yield '<p>'
+        if 'image' in props:
+            yield '<div class="img"><img src="{}"></div>'.format(props['image']['src'])
+        if 'caption' in props:
+            yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
+                    props['caption']['text'], ' ' + props['caption']['credit']
+                )
+        yield '</p>'
+    if inl.get('content', {}).get('name', '') == 'ImageGroup':
+        if 'images' in inl['content']['props']:
+            for imgs in inl['content']['props']['images']:
+                yield '<p>'
+                if 'src' in imgs:
+                    yield '<div class="img"><img src="{}"></div>'.format(imgs['src'])
+                if 'caption' in imgs:
+                    yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
+                    imgs['caption']['text'], ' ' + imgs['caption']['credit']
+                )
+
+
+def parse_cont(content):
+    for cont in content.get('content', {}):
+        if isinstance(cont, dict):
+            yield from parse_body(cont)
+        if isinstance(cont, str):
+            yield cont
+
+
+def parse_body(x):
+    if isinstance(x, dict):
+        if 'type' in x:
+            tag = x['type']
+            if tag == 'inline':
+                for inl in parse_inline(x):
+                    yield inl
+            elif 'attrs' in x and 'href' in x.get('attrs', {}):
+                yield '<' + tag + ' href = "{}">'.format(x['attrs']['href'])
+                for yld in parse_cont(x):
+                    yield yld
+                yield '</' + tag + '>'
+            else:
+                yield '<' + tag + '>'
+                for yld in parse_cont(x):
+                    yield yld
+                yield '</' + tag + '>'
+    elif isinstance(x, list):
+        for y in x:
+            if isinstance(y, dict):
+                yield from parse_body(y)
 
 
 def parse_article(edg):
     sc = edg['schma']
-    yield '<h3 class="sub">' + escape(edg['sctn']) + '</h3>'
+    yield '<div class="sub">' + escape(edg['sctn']) + '</div>'
     yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
-    yield '<div class="byline">' + escape(sc['sclDsc']) + '</div><br>'
+    yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
+    yield '<p>'
     for line in parse_contributors(edg['cntrbGrp']):
         yield line
     ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
     yield '<div class="time">Published: ' + escape(ts) + '</div>'
     if 'readTime' in edg:
-        yield '<div class="time">' + escape(edg['readTime']) + '</div><br>'
+        yield '<div class="time">' + escape(edg['readTime']) + '</div>'
+    yield '</p>'
     if edg.get('ldMda', {}).get('cmsType') == 'image':
         for line in parse_lead_image(edg['ldMda']):
             yield line
-    for item in edg['bdy']:
-        for line in parse_body(item):
-            yield line
+    for main in edg['prismData']['mainComponents']:
+        if main['name'] == 'Body':
+            for item in main['props']['body']:
+                if isinstance(item, dict):
+                    if item.get('type', '') == 'inline':
+                        for inl in parse_inline(item):
+                            yield inl
+                elif isinstance(item, list):
+                    for line in item:
+                        for p in parse_body(line):
+                            yield p
 
 
 def article_parse(data):
@@ -134,11 +169,12 @@ class NatGeo(BasicNewsRecipe):
     resolve_internal_links = True
 
     extra_css = '''
-        .sub, blockquote { color:#404040; }
+        blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
-        .cap {text-align:center; font-size:small; }
-        .cred {text-align:center; font-size:small; color:#404040; }
-        .auth, .time { font-size:small; color:#5c5c5c; }
+        .cap { font-size:small; }
+        img {display:block; margin:0 auto;}
+        .cred { font-style:italic; font-size:small; color:#404040; }
+        .auth, .time, .sub { font-size:small; color:#5c5c5c; }
     '''
 
     def parse_index(self):
@@ -183,9 +219,11 @@ class NatGeo(BasicNewsRecipe):
         return '\n'.join(article_parse(data))
 
     def preprocess_html(self, soup):
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
         for img in soup.findAll('img', src=True):
             # for high res images use '?w=2000&h=2000'
-            img['src'] = img['src'] + '?w=1200&h=1200'
+            img['src'] = img['src'] + '?w=600&h=600'
         return soup
 
     def populate_article_metadata(self, article, soup, first):
