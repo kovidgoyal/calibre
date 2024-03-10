@@ -65,6 +65,7 @@ def parse_inline(inl):
                     yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
                     imgs['caption']['text'], ' ' + imgs['caption']['credit']
                 )
+                yield '</p>'
 
 
 def parse_cont(content):
@@ -80,8 +81,7 @@ def parse_body(x):
         if 'type' in x:
             tag = x['type']
             if tag == 'inline':
-                for inl in parse_inline(x):
-                    yield inl
+                yield ''.join(parse_inline(x))
             elif 'attrs' in x and 'href' in x.get('attrs', {}):
                 yield '<' + tag + ' href = "{}">'.format(x['attrs']['href'])
                 for yld in parse_cont(x):
@@ -123,8 +123,7 @@ def parse_article(edg):
                             yield inl
                 elif isinstance(item, list):
                     for line in item:
-                        for p in parse_body(line):
-                            yield p
+                        yield ''.join(parse_body(line))
 
 
 def article_parse(data):
