@@ -2453,7 +2453,7 @@ class BuiltinBookValues(BuiltinFormatterFunction):
                 f = db.new_api.get_proxy_metadata(id_).get(column, None)
                 if isinstance(f, (tuple, list)):
                     s.update(f)
-                elif f:
+                elif f is not None:
                     s.add(str(f))
             return sep.join(s)
         except Exception as e:
