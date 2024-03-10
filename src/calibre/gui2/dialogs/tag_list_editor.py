@@ -336,7 +336,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         from calibre.gui2.ui import get_gui
         self.supports_notes = bool(category and get_gui().current_db.new_api.field_supports_notes(category))
-        self.verticalLayout_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.search_box.setMinimumContentsLength(25)
         if category is not None:
             item_map = get_gui().current_db.new_api.get_item_name_map(category)
@@ -620,10 +619,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # something in this class, but replacing the table fixes it.
         if self.table is not None:
             self.save_geometry()
-            self.gridlayout.removeWidget(self.table)
+            self.central_layout.removeWidget(self.table)
             sip.delete(self.table)
         self.table = TleTableWidget(self)
-        self.gridlayout.addWidget(self.table, 2, 1, 1, 4)
+        self.central_layout.addWidget(self.table)
 
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
