@@ -23,8 +23,7 @@ def classes(classes):
 def extract_json(raw):
     s = raw.find("window['__natgeo__']")
     script = raw[s:raw.find('</script>', s)]
-    data = json.loads(script[script.find('{'):].rstrip(';'))['page']['content']
-    return data['prismarticle']
+    data = json.loads(script[script.find('{'):].rstrip(';'))['page']['content']['prismarticle']
 
 
 def parse_contributors(grp):
