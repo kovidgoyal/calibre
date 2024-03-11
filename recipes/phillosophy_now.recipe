@@ -27,7 +27,7 @@ class PhilosophyNow(BasicNewsRecipe):
     remove_tags = [dict(name='div', attrs={'id':'welcome_box'})]
     extra_css = '''
         img {display:block; margin:0 auto;}
-        .articleImage { font-size:small; text-align:center; }
+        .articleImageCaption { font-size:small; text-align:center; }
         em, blockquote { color:#202020; }
     '''
 
