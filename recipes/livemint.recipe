@@ -84,6 +84,7 @@ class LiveMint(BasicNewsRecipe):
 
         extra_css = '''
             img {margin:0 auto;}
+            .psTopLogoItem img, .ecologoStory { width:100; }
             #img-cap {font-size:small; text-align:center;}
             .summary, .highlights, .synopsis {
                 font-weight:normal !important; font-style:italic; color:#202020;
@@ -129,7 +130,11 @@ class LiveMint(BasicNewsRecipe):
 
         def preprocess_raw_html(self, raw, *a):
             # remove empty p tags
-            raw = re.sub(r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)', '', raw)
+            raw = re.sub(
+                r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', '\g<2>', re.sub(
+                    r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
+                )
+            )
             if '<script>var wsjFlag=true;</script>' in raw:
                 m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
                 raw1 = raw[m.start():]
@@ -141,8 +146,7 @@ class LiveMint(BasicNewsRecipe):
                 body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
                 raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
                 return raw2
-            else:
-                return raw
+            return raw
 
         def preprocess_html(self, soup):
             for strong in soup.findAll('strong'):
