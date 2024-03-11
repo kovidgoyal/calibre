@@ -217,7 +217,7 @@ def deep_eq(a, b):
     if ka.length is not Object.keys(b).length:
         return False
     for key in ka:
-        if not deep_eq(a[ka], b[ka]):
+        if not deep_eq(a[key], b[key]):
             return False
     return True
 
@@ -283,6 +283,8 @@ def settings_for_reader_profile(sd):
                 if curval[key] is standalone_reader_defaults[key]:
                     v'delete curval[key]'
 
+        if setting_name is 'columns_per_screen':
+            print(1111111, is_set, metadata.category, metadata.disallowed_in_profile, curval, metadata.default, deep_eq(curval, metadata.default))
         if not is_set or metadata.category is not 'read_book' or metadata.disallowed_in_profile or deep_eq(curval, metadata.default):
             return False
         return True
