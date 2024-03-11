@@ -707,6 +707,12 @@ class DateTimeEdit(QDateTimeEdit):
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)
+        if tweaks['calendar_start_day_of_week'] != 'Default':
+            try:
+                dow = Qt.DayOfWeek[tweaks['calendar_start_day_of_week']]
+                self.cw.setFirstDayOfWeek(dow)
+            except Exception:
+                print(f"Bad value for tweak calendar_start_day_of_week: {tweaks['calendar_start_day_of_week']}")
         self.cw.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)
         self.setCalendarWidget(self.cw)
         self.setSpecialValueText(_('Undefined'))
