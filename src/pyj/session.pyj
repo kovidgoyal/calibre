@@ -217,7 +217,7 @@ def deep_eq(a, b):
     if ka.length is not Object.keys(b).length:
         return False
     for key in ka:
-        if not deep_eq(a[ka], b[ka]):
+        if not deep_eq(a[key], b[key]):
             return False
     return True
 
