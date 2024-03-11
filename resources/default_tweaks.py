@@ -575,3 +575,8 @@ allow_template_database_functions_in_composites = False
 # for https://whatever URLs. %u is replaced by the URL to be opened. The scheme
 # takes a glob pattern allowing a single entry to match multiple URL types.
 openers_by_scheme = {}
+
+#: Set the first day of the week for calendar popups
+# It must be one of the values Default, Sunday, Monday, Tuesday, Wednesday,
+# Thursday, Friday, or Saturday, all in English, spelled exactly as shown.
+calendar_start_day_of_week = 'Default'
