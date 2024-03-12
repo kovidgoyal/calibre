@@ -1518,6 +1518,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         if master in editors:
             self.show_editor(master)
+        self.gui.file_list.merge_completed(master)
         self.gui.message_popup(_('{} files merged').format(len(names)))
 
     @in_thread_job
