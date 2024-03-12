@@ -108,11 +108,10 @@ class HTMLFile:
         self.links    = []
 
         try:
-            f = case_ignoring_open_file(self.path, 'rb') if correct_case_mismatches else open(self.path, 'rb')
-            self.path = f.name
-            self.base = os.path.dirname(self.path)
-            self.title = os.path.splitext(os.path.basename(self.path))[0]
-            with f:
+            with (case_ignoring_open_file if correct_case_mismatches else open)(self.path, 'rb') as f:
+                self.path = f.name
+                self.base = os.path.dirname(self.path)
+                self.title = os.path.splitext(os.path.basename(self.path))[0]
                 src = header = f.read(4096)
                 encoding = detect_xml_encoding(src)[1]
                 if encoding:
