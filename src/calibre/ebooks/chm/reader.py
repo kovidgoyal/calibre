@@ -6,13 +6,14 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
 import codecs
 import os
 import re
+import struct
+from chm.chm import CHMFile, chmlib
 
 from calibre import guess_type as guess_mimetype
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.toc import TOC
-from chm.chm import CHMFile, chmlib
 from polyglot.builtins import as_unicode
 
 
@@ -72,6 +73,22 @@ class CHMReader(CHMFile):
         base = self.topics or self.home
         self.root = os.path.splitext(base.lstrip('/'))[0]
         self.hhc_path = self.root + ".hhc"
+
+    def relpath_to_first_html_file(self):
+        # See https://www.nongnu.org/chmspec/latest/Internal.html#SYSTEM
+        data = self.GetFile('/#SYSTEM')
+        pos = 4
+        while pos < len(data):
+            code, length_of_data = struct.unpack_from('<HH', data, pos)
+            pos += 4
+            if code == 2:
+                default_topic = data[pos:pos+length_of_data].rstrip(b'\0')
+                break
+            pos += length_of_data
+        else:
+            raise CHMError('No default topic found in CHM file that has no HHC ToC either')
+        default_topic = self.decode_hhp_filename(b'/' + default_topic)
+        return default_topic[1:]
 
     def decode_hhp_filename(self, path):
         if isinstance(path, str):
@@ -139,6 +156,10 @@ class CHMReader(CHMFile):
         if not isinstance(path, bytes):
             path = path.encode('utf-8')
         return CHMFile.ResolveObject(self, path)
+
+    def file_exists(self, path):
+        res, ui = self.ResolveObject(path)
+        return res == chmlib.CHM_RESOLVE_SUCCESS
 
     def GetFile(self, path):
         # have to have abs paths for ResolveObject, but Contents() deliberately

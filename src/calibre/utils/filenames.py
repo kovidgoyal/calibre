@@ -133,6 +133,47 @@ def is_case_sensitive(path):
     return is_case_sensitive
 
 
+def case_ignoring_open_file(path, mode='r'):
+    '''
+    Open an existing file case insensitively, even on case sensitive file systems
+    '''
+    try:
+        return open(path, mode)
+    except FileNotFoundError as err:
+        original_err = err
+
+    def next_component(final_path, components):
+        if not components:
+            return final_path
+        component = components.pop()
+        cl = component.lower()
+        try:
+            matches = {x for x in os.listdir(final_path) if x.lower() == cl}
+        except OSError:
+            raise original_err from None
+        for x in matches:
+            current = os.path.join(final_path, x)
+            try:
+                return next_component(current, list(components))
+            except Exception:
+                continue
+        raise original_err
+
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    if path.endswith(os.sep):
+        path = path[:-1]
+    if not path:
+        raise ValueError('Path must not point to root')
+
+    components = path.split(os.sep)
+    if len(components) <= 1:
+        raise ValueError(f'Invalid path: {path}')
+    final_path = (components[0].upper() + os.sep) if iswindows else '/'
+    components = list(reversed(components))[:-1]
+    return open(next_component(final_path, components), mode)
+
+
 def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     '''
     Open the file pointed to by path with the specified mode. If any

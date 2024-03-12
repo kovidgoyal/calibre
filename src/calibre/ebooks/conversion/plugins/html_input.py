@@ -8,12 +8,15 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 import tempfile
+from contextlib import suppress
 from functools import partial
 from urllib.parse import quote
 
-from calibre.constants import isbsd, islinux, filesystem_encoding
+from calibre.constants import filesystem_encoding, isbsd, islinux
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.filenames import ascii_filename, get_long_path_name
+from calibre.utils.filenames import (
+    ascii_filename, case_ignoring_open_file, get_long_path_name,
+)
 from calibre.utils.imghdr import what
 from calibre.utils.localization import __, get_lang
 from polyglot.builtins import as_unicode
@@ -293,7 +296,13 @@ class HTMLInput(InputFormatPlugin):
         except:
             return link_
         if not os.access(link, os.R_OK):
-            return link_
+            corrected = False
+            if getattr(self.opts, 'correct_case_mismatches', False):
+                with suppress(OSError), case_ignoring_open_file(link) as f:
+                    link = f.name
+                    corrected = True
+            if not corrected:
+                return link_
         if os.path.isdir(link):
             self.log.warn(link_, 'is a link to a directory. Ignoring.')
             return link_

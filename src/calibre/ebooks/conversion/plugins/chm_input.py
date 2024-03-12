@@ -63,7 +63,6 @@ class CHMInput(InputFormatPlugin):
                 from calibre.ebooks.metadata.book.base import Metadata
                 metadata = Metadata(os.path.basename(chm_name))
             encoding = self._chm_reader.get_encoding() or options.input_encoding or 'cp1252'
-            self._chm_reader.CloseCHM()
             # print((tdir, mainpath))
             # from calibre import ipython
             # ipython()
@@ -74,6 +73,7 @@ class CHMInput(InputFormatPlugin):
             if os.path.abspath(mainpath) in self._chm_reader.re_encoded_files:
                 uenc = 'utf-8'
             htmlpath, toc = self._create_html_root(mainpath, log, uenc)
+            self._chm_reader.CloseCHM()
             oeb = self._create_oebbook_html(htmlpath, tdir, options, log, metadata)
             options.debug_pipeline = odi
             if toc.count() > 1:
@@ -102,6 +102,8 @@ class CHMInput(InputFormatPlugin):
         # use HTMLInput plugin to generate book
         from calibre.customize.builtins import HTMLInput
         opts.breadth_first = True
+        opts.max_levels = 30
+        opts.correct_case_mismatches = True
         htmlinput = HTMLInput(None)
         htmlinput.set_root_dir_of_input(basedir)
         htmlinput.root_dir_for_absolute_links = basedir
@@ -113,7 +115,12 @@ class CHMInput(InputFormatPlugin):
         from polyglot.urllib import unquote as _unquote
         from calibre.ebooks.oeb.base import urlquote
         from calibre.ebooks.chardet import xml_to_unicode
-        hhcdata = self._read_file(hhcpath)
+        try:
+            hhcdata = self._read_file(hhcpath)
+        except FileNotFoundError:
+            log.warn('No HHC file found in CHM, using the default topic as the first HTML file')
+            from calibre.ebooks.oeb.base import TOC
+            return os.path.join(os.path.dirname(hhcpath), self._chm_reader.relpath_to_first_html_file()), TOC()
         hhcdata = hhcdata.decode(encoding)
         hhcdata = xml_to_unicode(hhcdata, verbose=True,
                             strip_encoding_pats=True, resolve_entities=True)[0]
