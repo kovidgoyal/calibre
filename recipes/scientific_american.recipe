@@ -3,7 +3,6 @@ __license__ = "GPL v3"
 
 import json
 from datetime import datetime
-from os.path import splitext
 from urllib.parse import urljoin
 
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
