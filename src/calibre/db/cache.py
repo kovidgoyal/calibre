@@ -52,6 +52,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, now as nowf, utcnow
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower, sort_key
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
@@ -1950,7 +1951,7 @@ class Cache:
             # message in the GUI during the processing.
             npath = run_import_plugins(stream_or_path, fmt)
             fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream_or_path = open(npath, 'rb')
+            stream_or_path = open(make_long_path_useable(npath), 'rb')
             needs_close = True
             fmt = check_ebook_format(stream_or_path, fmt)
 
@@ -1972,7 +1973,7 @@ class Cache:
             if hasattr(stream_or_path, 'read'):
                 stream = stream_or_path
             else:
-                stream = open(stream_or_path, 'rb')
+                stream = open(make_long_path_useable(stream_or_path), 'rb')
                 needs_close = True
             try:
                 size, fname = self._do_add_format(book_id, fmt, stream, name)

@@ -242,7 +242,7 @@ class AutoAdder(QObject):
             try:
                 with open(sz, 'rb') as f:
                     sz = int(f.read())
-                if sz != os.stat(paths[0]).st_size:
+                if sz != os.stat(make_long_path_useable(paths[0])).st_size:
                     raise Exception('Looks like the file was written to after'
                             ' we tried to read metadata')
             except:
@@ -282,7 +282,7 @@ class AutoAdder(QObject):
                 duplicates.append(dups)
 
             try:
-                os.remove(path_to_remove)
+                os.remove(make_long_path_useable(path_to_remove))
                 self.worker.staging.remove(fname)
             except:
                 import traceback
