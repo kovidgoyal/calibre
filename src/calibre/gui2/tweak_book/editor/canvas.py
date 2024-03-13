@@ -4,25 +4,26 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, weakref
+import sys
+import weakref
 from functools import wraps
 from io import BytesIO
-
 from qt.core import (
-    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
-    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage,
-    QImageWriter)
+    QApplication, QColor, QIcon, QImage, QImageWriter, QPainter, QPen, QPixmap, QPointF,
+    QRect, QRectF, Qt, QTransform, QUndoCommand, QUndoStack, QWidget, pyqtSignal,
+)
 
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
 from calibre.gui2.dnd import (
-    image_extensions, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
-from calibre.gui2.tweak_book import capitalize
-from calibre.utils.imghdr import identify
-from calibre.utils.img import (
-    remove_borders_from_image, gaussian_sharpen_image, gaussian_blur_image, image_to_data, despeckle_image,
-    normalize_image, oil_paint_image
+    DownloadDialog, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions,
 )
+from calibre.gui2.tweak_book import capitalize
+from calibre.utils.img import (
+    despeckle_image, gaussian_blur_image, gaussian_sharpen_image, image_to_data,
+    normalize_image, oil_paint_image, remove_borders_from_image,
+)
+from calibre.utils.imghdr import identify
 
 
 def painter(func):
@@ -575,6 +576,20 @@ class Canvas(QWidget):
                     self.selection_state.current_mode = 'select'
                     self.selection_state.rect = None
                     self.selection_state_changed.emit(False)
+    @property
+    def selection_rect_in_image_coords(self):
+        if self.selection_state.current_mode == 'selected':
+            left, top, width, height = self.rect_for_trim()
+            return QRect(0, 0, int(width), int(height))
+        return self.current_image.rect()
+
+    def set_selection_size_in_image_coords(self, width, height):
+        self.selection_state.reset()
+        i = self.current_image
+        self.selection_state.rect = QRectF(self.target.left(), self.target.top(),
+                                           width * self.target.width() / i.width(), height * self.target.height() / i.height())
+        self.selection_state.current_mode = 'selected'
+        self.update()
 
     def mouseMoveEvent(self, ev):
         changed = False
